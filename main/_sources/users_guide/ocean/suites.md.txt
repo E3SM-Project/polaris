@@ -33,8 +33,8 @@ ocean/planar/ice_shelf_2d/5km/z-level/default/with_restart
 ocean/planar/inertial_gravity_wave/convergence_both
 ocean/planar/internal_wave/standard/default
 ocean/planar/internal_wave/vlr/default
-# currently not converging in MPAS-Ocean
-# ocean/planar/manufactured_solution/convergence_both
+ocean/planar/manufactured_solution/convergence_both/default
+ocean/planar/manufactured_solution/rk4/convergence_both/default
 ocean/planar/merry_go_round/default
 ocean/planar/overflow/linear/zstar/smoke_test_horiz_adv_order_2
 ocean/planar/overflow/linear/zstar/smoke_test_horiz_adv_order_3
@@ -88,6 +88,7 @@ ocean/planar/barotropic_gyre/munk/free-slip
 ocean/planar/manufactured_solution/convergence_both/default
 ocean/planar/manufactured_solution/convergence_both/del2
 ocean/planar/manufactured_solution/convergence_both/del4
+ocean/planar/manufactured_solution/rk4/convergence_both/default
 ocean/planar/merry_go_round/default
 ocean/planar/overflow/linear/zstar/smoke_test_horiz_adv_order_2_del4
 ocean/planar/overflow/linear/zstar/smoke_test_horiz_adv_order_3
@@ -174,6 +175,7 @@ ocean/planar/inertial_gravity_wave/convergence_both
 ocean/planar/manufactured_solution/convergence_both/default
 ocean/planar/manufactured_solution/convergence_both/del2
 ocean/planar/manufactured_solution/convergence_both/del4
+ocean/planar/manufactured_solution/rk4/convergence_both/default
 ocean/spherical/icos/correlated_tracers_2d
 ocean/spherical/qu/correlated_tracers_2d
 ocean/spherical/icos/cosine_bell/convergence_both

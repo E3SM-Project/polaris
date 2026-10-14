@@ -154,7 +154,10 @@
 uses the Method of Manufactured Solutions (see
 <a class="reference internal" href="../../../users_guide/ocean/tasks/manufactured_solution.html#ocean-manufactured-solution"><span class="std std-ref">manufactured solution</span></a>) at 4 resolutions (200, 100, 50, and 25 km).</p>
 <p>The <a class="reference internal" href="../generated/polaris.tasks.ocean.manufactured_solution.ManufacturedSolution.html#polaris.tasks.ocean.manufactured_solution.ManufacturedSolution" title="polaris.tasks.ocean.manufactured_solution.ManufacturedSolution"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.tasks.ocean.manufactured_solution.ManufacturedSolution</span></code></a>
-test performs a 10-hour run.</p>
+test performs a 10-hour run.  The tasks use the <code class="docutils literal notranslate"><span class="pre">unsplit_explicit</span></code> time
+integrator, except for <code class="docutils literal notranslate"><span class="pre">rk4/convergence_both/default</span></code>, which has its own shared
+config with <code class="docutils literal notranslate"><span class="pre">manufactured_solution_rk4.cfg</span></code> added, and its own forward steps.
+All tasks share the <code class="docutils literal notranslate"><span class="pre">init</span></code> steps.</p>
 <section id="framework">
 <h2>framework<a class="headerlink" href="#framework" title="Link to this heading"></a></h2>
 <p>The config options for the <code class="docutils literal notranslate"><span class="pre">manufactured_solution</span></code> test are described in
@@ -211,7 +214,10 @@ calling <a class="reference internal" href="../../command_line.html#dev-polaris-
 descends from <a class="reference internal" href="../generated/polaris.ocean.convergence.analysis.ConvergenceAnalysis.html#polaris.ocean.convergence.analysis.ConvergenceAnalysis" title="polaris.ocean.convergence.analysis.ConvergenceAnalysis"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.ocean.convergence.analysis.ConvergenceAnalysis</span></code></a>
 a step for computing the error from the final simulated field
 and the exact solution. It uses the config options to determine whether the
-convergence rate falls within acceptable bounds.</p>
+convergence rate falls within acceptable bounds.
+<a class="reference internal" href="../generated/polaris.tasks.ocean.manufactured_solution.analysis.Analysis.convergence_parameters.html#polaris.tasks.ocean.manufactured_solution.analysis.Analysis.convergence_parameters" title="polaris.tasks.ocean.manufactured_solution.analysis.Analysis.convergence_parameters"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.tasks.ocean.manufactured_solution.analysis.Analysis.convergence_parameters()</span></code></a>
+uses <code class="docutils literal notranslate"><span class="pre">mpaso_unsplit_conv_thresh</span></code> in place of <code class="docutils literal notranslate"><span class="pre">conv_thresh</span></code> for MPAS-Ocean’s
+<code class="docutils literal notranslate"><span class="pre">unsplit_explicit</span></code> time integrator.</p>
 </section>
 <section id="viz">
 <h3>viz<a class="headerlink" href="#viz" title="Link to this heading"></a></h3>

@@ -195,6 +195,41 @@
         <span class="k">if</span> <span class="n">field_name</span> <span class="o">!=</span> <span class="s1">'ssh'</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">field_name</span><span class="si">}</span><span class="s1"> is not currently supported'</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">exact</span><span class="o">.</span><span class="n">ssh</span><span class="p">(</span><span class="n">time</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Analysis.convergence_parameters">
+<a class="viewcode-back" href="../../../../../developers_guide/ocean/generated/polaris.tasks.ocean.manufactured_solution.analysis.Analysis.convergence_parameters.html#polaris.tasks.ocean.manufactured_solution.analysis.Analysis.convergence_parameters">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">convergence_parameters</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">field_name</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">        Get convergence parameters, with a lower threshold for MPAS-Ocean's</span>
+<span class="sd">        unsplit_explicit time integrator, which converges at close to first</span>
+<span class="sd">        order until a fix for how it times the manufactured solution forcing</span>
+<span class="sd">        is merged into E3SM</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        field_name : str</span>
+<span class="sd">            The name of the variable of which we evaluate convergence</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        conv_thresh : float</span>
+<span class="sd">            The minimum convergence rate</span>
+
+<span class="sd">        error_type : {'l2', 'inf'}, str</span>
+<span class="sd">            The error norm to compute</span>
+<span class="sd">        """</span>
+        <span class="n">conv_thresh</span><span class="p">,</span> <span class="n">error_type</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">convergence_parameters</span><span class="p">(</span>
+            <span class="n">field_name</span><span class="o">=</span><span class="n">field_name</span>
+        <span class="p">)</span>
+        <span class="n">config</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'ocean'</span><span class="p">,</span> <span class="s1">'model'</span><span class="p">)</span>
+        <span class="n">time_integrator</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'convergence_forward'</span><span class="p">,</span> <span class="s1">'time_integrator'</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">model</span> <span class="o">==</span> <span class="s1">'mpas-ocean'</span> <span class="ow">and</span> <span class="n">time_integrator</span> <span class="o">==</span> <span class="s1">'unsplit_explicit'</span><span class="p">:</span>
+            <span class="n">conv_thresh</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span>
+                <span class="s1">'manufactured_solution'</span><span class="p">,</span> <span class="s1">'mpaso_unsplit_conv_thresh'</span>
+            <span class="p">)</span>
+        <span class="k">return</span> <span class="n">conv_thresh</span><span class="p">,</span> <span class="n">error_type</span></div>
 </div>
 
 </pre></div>

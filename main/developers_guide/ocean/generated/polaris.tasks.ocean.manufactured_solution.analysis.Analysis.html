@@ -202,8 +202,8 @@ test case</p>
 <tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">constrain_resources</span></code>(available_resources)</p></td>
 <td><p>Constrain <code class="docutils literal notranslate"><span class="pre">cpus_per_task</span></code> and <code class="docutils literal notranslate"><span class="pre">ntasks</span></code> based on the number of cores available to this step</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">convergence_parameters</span></code>([field_name])</p></td>
-<td><p>Get convergence parameters</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="polaris.tasks.ocean.manufactured_solution.analysis.Analysis.convergence_parameters.html#polaris.tasks.ocean.manufactured_solution.analysis.Analysis.convergence_parameters" title="polaris.tasks.ocean.manufactured_solution.analysis.Analysis.convergence_parameters"><code class="xref py py-obj docutils literal notranslate"><span class="pre">convergence_parameters</span></code></a>([field_name])</p></td>
+<td><p>Get convergence parameters, with a lower threshold for MPAS-Ocean's unsplit_explicit time integrator, which converges at close to first order until a fix for how it times the manufactured solution forcing is merged into E3SM</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="polaris.tasks.ocean.manufactured_solution.analysis.Analysis.exact_solution.html#polaris.tasks.ocean.manufactured_solution.analysis.Analysis.exact_solution" title="polaris.tasks.ocean.manufactured_solution.analysis.Analysis.exact_solution"><code class="xref py py-obj docutils literal notranslate"><span class="pre">exact_solution</span></code></a>(refinement_factor, ...[, zidx])</p></td>
 <td><p>Get the exact solution</p></td>

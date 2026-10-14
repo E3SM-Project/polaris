@@ -77,6 +77,7 @@
 <li class="toctree-l4"><a class="reference internal" href="#default">default</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#del2">del2</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#del4">del4</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#rk4">rk4</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="merry_go_round.html">merry-go-round</a></li>
@@ -266,7 +267,13 @@ mesh resolution. The run duration is 10 hours.</p>
 <span class="na">dt_per_km</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">1.5</span>
 
 <span class="c1"># Convergence threshold below which the test fails</span>
-<span class="na">conv_thresh</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">0.8</span>
+<span class="na">conv_thresh</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">1.8</span>
+
+<span class="c1"># Convergence threshold for MPAS-Ocean's unsplit_explicit time integrator,</span>
+<span class="c1"># which converges at close to first order until a fix for how it times the</span>
+<span class="c1"># manufactured solution forcing is merged into E3SM, see</span>
+<span class="c1"># https://github.com/E3SM-Project/polaris/issues/836</span>
+<span class="na">mpaso_unsplit_conv_thresh</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">1.0</span>
 </pre></div>
 </div>
 <p>The time integrator and the time steps that go with it are set in the
@@ -290,10 +297,17 @@ mesh resolution. The run duration is 10 hours.</p>
 <span class="na">btr_dt_per_km</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">0.75</span>
 </pre></div>
 </div>
+<p>MPAS-Ocean’s <code class="docutils literal notranslate"><span class="pre">unsplit_explicit</span></code> does not yet time the manufactured solution
+forcing correctly, so it converges at close to first order. Until a fix is
+merged into E3SM, MPAS-Ocean runs with <code class="docutils literal notranslate"><span class="pre">unsplit_explicit</span></code> are checked against
+<code class="docutils literal notranslate"><span class="pre">mpaso_unsplit_conv_thresh</span></code> rather than <code class="docutils literal notranslate"><span class="pre">conv_thresh</span></code> (see
+<a class="reference external" href="https://github.com/E3SM-Project/polaris/issues/836">#836</a>). The
+<a class="reference internal" href="#ocean-manufactured-solution-rk4"><span class="std std-ref">rk4</span></a> task checks both models against
+<code class="docutils literal notranslate"><span class="pre">conv_thresh</span></code>.</p>
 <p>The single layer means the wave this test measures is entirely the barotropic
 mode.  The split time stepper subcycles and time-averages that mode, which
 damps it, so <code class="docutils literal notranslate"><span class="pre">split_explicit</span></code> converges at a much lower order than the
-unsplit schemes; <code class="docutils literal notranslate"><span class="pre">conv_thresh</span></code> is set accordingly.</p>
+unsplit schemes and will not meet the default <code class="docutils literal notranslate"><span class="pre">conv_thresh</span></code>.</p>
 </section>
 <section id="cores">
 <h3>cores<a class="headerlink" href="#cores" title="Link to this heading"></a></h3>
@@ -316,6 +330,16 @@ except laplacian viscosity is turned on.</p>
 <p>All settings are the same as the <a class="reference internal" href="#ocean-manufactured-solution-default"><span class="std std-ref">default</span></a> case
 except hyperviscosity is turned on. The expected convergence should not be
 significantly different from the <a class="reference internal" href="#ocean-manufactured-solution-default"><span class="std std-ref">default</span></a> case.</p>
+</section>
+</section>
+<section id="rk4">
+<span id="ocean-manufactured-solution-rk4"></span><h2>rk4<a class="headerlink" href="#rk4" title="Link to this heading"></a></h2>
+<section id="id3">
+<h3>description<a class="headerlink" href="#id3" title="Link to this heading"></a></h3>
+<p>The <code class="docutils literal notranslate"><span class="pre">rk4/convergence_both/default</span></code> task is the same as <code class="docutils literal notranslate"><span class="pre">convergence_both</span></code> in
+the <a class="reference internal" href="#ocean-manufactured-solution-default"><span class="std std-ref">default</span></a> case except that it uses the
+<code class="docutils literal notranslate"><span class="pre">RK4</span></code> time integrator, with a time step of <code class="docutils literal notranslate"><span class="pre">dt_per_km</span></code>.  It has its own config
+file in the <code class="docutils literal notranslate"><span class="pre">rk4</span></code> directory.</p>
 </section>
 </section>
 </section>
