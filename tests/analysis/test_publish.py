@@ -39,7 +39,14 @@ def write_plot(filename, size=(160, 90)):
     return filename
 
 
-def _make_step(work_dir, step_name, subdir, seasons=None, years=(21, 40)):
+def _make_step(
+    work_dir,
+    step_name,
+    subdir,
+    seasons=None,
+    years=(21, 40),
+    plot_size=(160, 90),
+):
     """A step directory holding maps of temperature and its fragment."""
     if seasons is None:
         seasons = SEASONS
@@ -49,7 +56,7 @@ def _make_step(work_dir, step_name, subdir, seasons=None, years=(21, 40)):
     for season in seasons:
         plot = f'temperature_{season}_-100m.png'
         data = f'temperature_{season}_-100m.nc'
-        write_plot(os.path.join(step_path, plot))
+        write_plot(os.path.join(step_path, plot), size=plot_size)
         with open(os.path.join(step_path, data), 'w') as out:
             out.write(f'{subdir}/{data}')
         manifest.add(

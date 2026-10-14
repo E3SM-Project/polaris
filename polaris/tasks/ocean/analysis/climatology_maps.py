@@ -1,4 +1,29 @@
+import os
+
+import numpy as np
+import xarray as xr
+from mpas_tools.io import write_netcdf
+
+from polaris.analysis.units import units_to_mathtext
+from polaris.attrs import set_attrs
+from polaris.mesh.reconstruct import (
+    cartesian_to_local_geographic,
+    tangential_reconstruction,
+)
+from polaris.ocean.vertical.diagnostics import get_z_mid_and_interface
+from polaris.ocean.vertical.elevation import (
+    apply_vertical_reduction,
+    get_valid_level_range,
+    parse_vertical_reduction,
+)
 from polaris.tasks.ocean.analysis.analysis_step import AnalysisStep
+from polaris.tasks.ocean.analysis.climatology import (
+    VECTOR_RECONSTRUCTIONS,
+    find_climatology_file,
+)
+from polaris.tasks.ocean.analysis.config_sections import map_section
+from polaris.tasks.ocean.analysis.sim_files import year_range_key
+from polaris.viz import plot_global_mpas_field
 
 # The field groups maps are chunked into.
 #
@@ -28,6 +53,11 @@ FIELD_GROUPS = {
 # Heat content is a field group of the maps rather than a product of its own,
 # and it is not one of the fields a user lists, so it is always present
 DERIVED_FIELD_GROUPS = ('heat_content',)
+
+# The least-squares stencil and weights every Omega mesh Polaris writes
+# carries, which reconstruct a vector at cell centers from its edge-normal
+# component
+RECONSTRUCTION_WEIGHT_FIELDS = ('ReconStencilCell', 'ReconWeightsCell')
 
 
 def get_field_groups(fields):
@@ -80,7 +110,14 @@ class ClimatologyMaps(AnalysisStep):
     """
 
     def __init__(
-        self, component, subdir, field_group, fields, start_year, end_year
+        self,
+        component,
+        subdir,
+        field_group,
+        fields,
+        start_year,
+        end_year,
+        climatology,
     ):
         """
         Create a climatology map step for one field group
@@ -104,6 +141,12 @@ class ClimatologyMaps(AnalysisStep):
 
         end_year : int
             The last year of the climatology, inclusive
+
+        climatology : polaris.tasks.ocean.analysis.Climatology
+            The climatology this step plots maps of.  It is a dependency
+            rather than an input file because ``ncclimo`` names its output
+            for the case and the dates, so the file names are not known
+            until it has run.
         """
         super().__init__(
             component=component,
@@ -116,23 +159,379 @@ class ClimatologyMaps(AnalysisStep):
         )
         self.field_group = field_group
         self.fields = list(fields)
+        self._coords: dict = {}
+        self._mesh_ds: xr.Dataset | None = None
+        self._reconstruction_mesh: xr.Dataset | None = None
+        self.add_dependency(climatology, name='climatology')
 
     def setup(self):
         """
-        Link the mesh the maps are plotted on
+        Link the mesh the maps are plotted on and the vertical coordinate
+
+        The vertical coordinate supplies the topmost and bottommost valid
+        layer of each column, which the climatology does not carry.
         """
         sim_files = self.get_sim_files()
         self.add_sim_input_file(sim_files.mesh_filename(), 'mesh.nc')
+        self.add_sim_input_file(
+            sim_files.vert_coord_filename(), 'vert_coord.nc'
+        )
 
     def run(self):
         """
-        Report the fields and inputs; no maps are plotted yet
+        Plot a map of each field of this group, for each season and each
+        vertical reduction that was asked for
         """
-        self.logger.info(
-            f'field group {self.field_group}: '
-            f'{", ".join(self.fields) if self.fields else "derived"}'
-        )
         self.log_inputs()
+        if not self.fields:
+            self.logger.info(
+                f'The {self.field_group} field group is derived rather than '
+                f'read, and deriving it is not implemented yet, so no maps '
+                f'are plotted.'
+            )
+            return
+
+        config = self.config
+        seasons = config.getlist('ocean_analysis_climatology', 'plot_seasons')
+        specs = config.getlist('ocean_analysis_climatology', 'elevations')
+        reductions = [parse_vertical_reduction(spec) for spec in specs]
+        self._coords = self._mesh_coords()
+        # the plotting helper takes MPAS-Ocean names, so the names are
+        # translated here; nothing is read until the plot needs it
+        self._mesh_ds = self.map_from_native_model_vars(
+            xr.open_dataset(self.work_path('mesh.nc'))
+        )
+        min_level_cell, max_level_cell = self._valid_level_range()
+        climatology_dir = self.dependencies['climatology'].work_dir
+
+        # building the mosaic descriptor is the expensive part of plotting a
+        # global mesh, so it is built once and shared by every plot
+        descriptor = None
+        for season in seasons:
+            filename = find_climatology_file(climatology_dir, season)
+            self.logger.info(f'{season}: {filename}')
+            with self.open_model_dataset(filename, config) as ds:
+                # the climatological-mean layer geometry, which is what a map
+                # at an elevation is a map on
+                z_mid, z_interface = get_z_mid_and_interface(ds)
+                z_mid = _drop_time(z_mid)
+                z_interface = _drop_time(z_interface)
+                self._reconstruct_components(
+                    ds, min_level_cell, max_level_cell
+                )
+                for field in self.fields:
+                    if field not in ds:
+                        self.logger.info(
+                            f'  the simulation did not write {field}, so its '
+                            f'maps are skipped'
+                        )
+                        continue
+                    descriptor = self._plot_field(
+                        da=ds[field],
+                        field=field,
+                        season=season,
+                        reductions=reductions,
+                        z_mid=z_mid,
+                        z_interface=z_interface,
+                        min_level_cell=min_level_cell,
+                        max_level_cell=max_level_cell,
+                        descriptor=descriptor,
+                    )
+
+    def _reconstruct_components(self, ds, min_level_cell, max_level_cell):
+        """
+        Add the vector components of this group that the simulation did not
+        write, reconstructed from the edge-normal field they are components
+        of, if the climatology has it
+
+        Parameters
+        ----------
+        ds : xarray.Dataset
+            The climatology, to which the components are added
+
+        min_level_cell : xarray.DataArray
+            The zero-based index of the topmost valid layer of each column
+
+        max_level_cell : xarray.DataArray
+            The zero-based index of the bottommost valid layer of each column
+        """
+        for source, components in VECTOR_RECONSTRUCTIONS.items():
+            missing = [
+                component
+                for component in components
+                if component in self.fields and component not in ds
+            ]
+            if not missing or source not in ds:
+                continue
+            self.logger.info(
+                f'  reconstructing {", ".join(missing)} from {source}'
+            )
+            u_zonal, u_meridional = _reconstruct_zonal_meridional(
+                self._get_reconstruction_mesh(source, missing), ds[source]
+            )
+            n_levels = ds.sizes['nVertLevels']
+            levels = xr.DataArray(np.arange(n_levels), dims='nVertLevels')
+            in_column = (levels >= min_level_cell) & (levels <= max_level_cell)
+            units = ds[source].attrs.get('units')
+            for component, direction, da in zip(
+                components,
+                ('zonal', 'meridional'),
+                (u_zonal, u_meridional),
+                strict=True,
+            ):
+                if component in missing:
+                    # a layer outside the column is fill, as it is in any
+                    # field the model wrote
+                    ds[component] = set_attrs(
+                        da.where(in_column),
+                        long_name=f'{direction} component of {source}, '
+                        f'reconstructed at cell centers',
+                        units=units,
+                    )
+
+    def _get_reconstruction_mesh(self, source, components):
+        """
+        Get the reconstruction weights and cell locations, read from the mesh
+        once and kept for every season
+        """
+        if self._reconstruction_mesh is None:
+            ds = self._read_fields(
+                'mesh.nc',
+                list(RECONSTRUCTION_WEIGHT_FIELDS) + ['lonCell', 'latCell'],
+            )
+            missing = [
+                name for name in RECONSTRUCTION_WEIGHT_FIELDS if name not in ds
+            ]
+            if missing:
+                raise ValueError(
+                    f'The mesh has no {", ".join(missing)}, so '
+                    f'{", ".join(components)} cannot be reconstructed from '
+                    f'{source}.  Polaris writes these weights into every '
+                    f'Omega mesh it builds; a mesh from elsewhere needs them '
+                    f'added with utils/omega/add_reconstruction_weights.py.'
+                )
+            self._reconstruction_mesh = ds
+        return self._reconstruction_mesh
+
+    def _mesh_coords(self):
+        """
+        Get the cell latitudes and longitudes, so that the netCDF beside each
+        plot carries the coordinates of what was plotted
+        """
+        ds = self._read_fields('mesh.nc', ['latCell', 'lonCell'])
+        return {name: ds[name] for name in ds.data_vars}
+
+    def _valid_level_range(self):
+        """Get the topmost and bottommost valid layer of each column"""
+        ds = self._read_fields(
+            'vert_coord.nc', ['minLevelCell', 'maxLevelCell']
+        )
+        return get_valid_level_range(ds)
+
+    def _read_fields(self, filename, fields):
+        """
+        Read a few named fields from a file of the simulation, translating
+        their names but nothing else
+
+        The mesh and the vertical coordinate a simulation names are often
+        its initial condition, which carries a full model state.  Opening one
+        as a model data set would then derive specific volume from that
+        state --- an equation-of-state solve --- to get a handful of fields
+        that are already there, so the names are translated and nothing else
+        is done.
+
+        Parameters
+        ----------
+        filename : str
+            The local name of the file in the step's work directory
+
+        fields : list of str
+            The MPAS-Ocean names of the fields to read; a field the file does
+            not have is left out
+
+        Returns
+        -------
+        ds : xarray.Dataset
+            The fields that were there, with MPAS-Ocean names, in memory
+        """
+        wanted = self.component.map_var_list_to_native_model(fields)
+        with xr.open_dataset(self.work_path(filename)) as ds_native:
+            present = [name for name in wanted if name in ds_native]
+            return self.map_from_native_model_vars(ds_native[present]).load()
+
+    def _plot_field(
+        self,
+        da,
+        field,
+        season,
+        reductions,
+        z_mid,
+        z_interface,
+        min_level_cell,
+        max_level_cell,
+        descriptor,
+    ):
+        """Plot one field for one season, at every reduction that applies"""
+        da = _drop_time(da)
+
+        if 'nVertLevels' not in da.dims:
+            # a field with no vertical dimension is already a map, so there
+            # is nothing to reduce and nothing to label it with
+            return self._plot_map(
+                da_map=da,
+                field=field,
+                season=season,
+                basename=f'{field}_{season}',
+                title=f'{field}, {season}',
+                descriptor=descriptor,
+            )
+
+        for reduction in reductions:
+            da_map = apply_vertical_reduction(
+                da,
+                reduction,
+                z_mid=z_mid,
+                z_interface=z_interface,
+                min_level_cell=min_level_cell,
+                max_level_cell=max_level_cell,
+            )
+            descriptor = self._plot_map(
+                da_map=da_map,
+                field=field,
+                season=season,
+                basename=f'{field}_{season}_{reduction.label}',
+                title=f'{field} at {reduction.label}, {season}',
+                descriptor=descriptor,
+                reduction=reduction.label,
+            )
+        return descriptor
+
+    def _plot_map(
+        self,
+        da_map,
+        field,
+        season,
+        basename,
+        title,
+        descriptor,
+        reduction=None,
+    ):
+        """Write one map to netCDF and plot it, and register both"""
+        config = self.config
+        section = map_section(field)
+        if not config.has_section(section):
+            raise ValueError(
+                f'There is no [{section}] section giving the colormap for '
+                f'maps of {field}.  Every field that can be mapped needs '
+                f'one; see analysis.cfg.'
+            )
+
+        nc_filename = self.work_path(f'{basename}.nc')
+        png_filename = self.work_path(f'{basename}.png')
+        self._write_netcdf(da_map, field, season, nc_filename, reduction)
+
+        simulation_name = config.get('ocean_analysis', 'simulation_name')
+        descriptor = plot_global_mpas_field(
+            da=da_map,
+            out_filename=png_filename,
+            config=config,
+            colormap_section=section,
+            mesh_ds=self._mesh_ds,
+            descriptor=descriptor,
+            title=f'{simulation_name}: {title}, years {self._range_key()}',
+            colorbar_label=units_to_mathtext(da_map.attrs.get('units', '')),
+        )
+
+        # The outputs are registered here rather than in setup() because a
+        # field the simulation did not write is skipped, and a step that had
+        # declared its plots at setup would fail on the missing files
+        # instead.
+        for filename in (f'{basename}.nc', f'{basename}.png'):
+            self.add_produced_file(filename)
+        # a gallery per field, so the landing page shows one thumbnail for
+        # each field rather than one for the whole group of maps
+        self.add_product(
+            plot=f'{basename}.png',
+            data=f'{basename}.nc',
+            group='climatology_maps',
+            gallery=field,
+            title=title,
+            field=field,
+            season=season,
+            reduction=reduction,
+        )
+        self.logger.info(f'  {os.path.basename(png_filename)}')
+        return descriptor
+
+    def _write_netcdf(self, da_map, field, season, filename, reduction):
+        """Write exactly what was plotted, with what produced it"""
+        config = self.config
+        ds = xr.Dataset({field: da_map}, coords=self._coords)
+        ds = ds.drop_vars('Time', errors='ignore')
+        ds.attrs = dict(
+            simulation_name=config.get('ocean_analysis', 'simulation_name'),
+            field=field,
+            season=season,
+            vertical_reduction='none' if reduction is None else reduction,
+            start_year=self.start_year,
+            end_year=self.end_year,
+            year_range=self._range_key(),
+        )
+        write_netcdf(ds=ds, fileName=filename)
+
+    def _range_key(self):
+        """The zero-padded range of years, as the work tree spells it"""
+        return year_range_key(self.start_year, self.end_year)
+
+
+def _reconstruct_zonal_meridional(ds_mesh, edge_field):
+    """
+    Reconstruct the zonal and meridional components of a vector at cell
+    centers from its component normal to each edge
+
+    Parameters
+    ----------
+    ds_mesh : xarray.Dataset
+        The mesh, with MPAS-Ocean names, carrying ``ReconStencilCell``,
+        ``ReconWeightsCell``, ``lonCell`` and ``latCell``
+
+    edge_field : xarray.DataArray
+        The edge-normal component, with ``nEdges`` and ``nVertLevels``
+        dimensions
+
+    Returns
+    -------
+    u_zonal : xarray.DataArray
+        The zonal component at cell centers
+
+    u_meridional : xarray.DataArray
+        The meridional component at cell centers
+    """
+    # an edge outside the valid layers of the columns it joins is closed,
+    # so nothing crosses it: its fill value is a normal component of zero
+    edge_field = edge_field.fillna(0.0)
+    # the stencil gathers every edge of a cell's two rings, which is an
+    # order of magnitude more values than the field has, so one layer is
+    # gathered at a time
+    layers = []
+    for level in range(edge_field.sizes['nVertLevels']):
+        u_x, u_y, u_z = tangential_reconstruction(
+            ds_mesh,
+            edge_field.isel(nVertLevels=level),
+            stencil=ds_mesh.ReconStencilCell,
+            weights=ds_mesh.ReconWeightsCell,
+        )
+        u_zonal, u_meridional, _ = cartesian_to_local_geographic(
+            ds_mesh, u_x, u_y, u_z
+        )
+        layers.append(xr.concat([u_zonal, u_meridional], dim='component'))
+    reconstructed = xr.concat(layers, dim='nVertLevels').drop_vars(
+        ['nVertLevels', 'component', 'R3'], errors='ignore'
+    )
+    return (
+        reconstructed.isel(component=0),
+        reconstructed.isel(component=1),
+    )
 
 
 def _group_for_field(field):
@@ -148,3 +547,10 @@ def _group_for_field(field):
         f'to no field group.  The fields that can be mapped are: '
         f'{", ".join(known)}.'
     )
+
+
+def _drop_time(da):
+    """Drop the singleton time dimension a climatology carries"""
+    if 'Time' in da.dims:
+        return da.isel(Time=0)
+    return da
