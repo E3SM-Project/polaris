@@ -64,8 +64,10 @@ def test_placed_launches_run_at_once_on_the_cores_they_were_given(tmp_path):
     placements = [
         ResourcePlacement(
             nodes=(),
-            cores=tuple(
-                usable[slot * CORES_PER_SLOT : (slot + 1) * CORES_PER_SLOT]
+            cores=(
+                tuple(
+                    usable[slot * CORES_PER_SLOT : (slot + 1) * CORES_PER_SLOT]
+                ),
             ),
             gpus=0,
         )
@@ -96,7 +98,8 @@ def test_placed_launches_run_at_once_on_the_cores_they_were_given(tmp_path):
     # single-node launcher binds explicitly, so this is the exact set and
     # not merely the right number of them.
     for placement, run in zip(placements, runs, strict=True):
-        assert run['cores'] == set(placement.cores)
+        # one node, so one set of cores
+        assert run['cores'] == set(placement.cores[0])
 
     # and they really did run at the same time, which is what makes the
     # disjointness above mean anything

@@ -79,7 +79,8 @@ which machine, model, compiler, and MPI combinations Polaris supports:
   corresponding `models` entries for that machine.
 * **A compiler is renamed** — HPC centers periodically rename their compiler
   modules.  For example, on Chrysalis `oneapi-ifx` was renamed to `intel` and
-  the former `intel` was renamed to `intel-classic`.
+  the former `intel` was renamed to `intel-classic`; Aurora's `oneapi-ifx`
+  and `oneapi-ifxgpu` became `intel` and `intelgpu` with `mache` 4.0.0.
 
 Each entry under `models` has these fields:
 

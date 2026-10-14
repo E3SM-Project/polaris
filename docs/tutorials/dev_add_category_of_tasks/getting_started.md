@@ -81,7 +81,7 @@ the executable manually:
 
 ```bash
 cd e3sm_submodules/E3SM-Project/components/mpas-ocean/
-make ifort
+make gfortran
 cd ../../../..
 ```
 

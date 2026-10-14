@@ -53,12 +53,6 @@ mpi_craycray = mpich
 # the system MPI library to use for craycray-mphipcc compiler
 mpi_craycray_mphipcc = mpich
 
-# the system MPI library to use for crayamd compiler
-mpi_crayamd = mpich
-
-# the system MPI library to use for crayamd-mphipcc compiler
-mpi_crayamd_mphipcc = mpich
-
 # the base path for spack environments used by polaris
 spack = /ccs/proj/cli115/software/polaris/frontier/spack
 
