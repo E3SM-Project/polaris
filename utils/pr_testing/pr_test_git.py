@@ -4,6 +4,7 @@ Git operations for the PR testing utilities
 
 import os
 import subprocess
+import time
 from pathlib import Path
 from typing import List, Optional
 
@@ -22,6 +23,16 @@ OMEGA_SUBMODULE = 'e3sm_submodules/Omega'
 #: the namespace for refs the utility makes in the Omega clone, which keeps
 #: them apart from the developer's own branches
 REF_PREFIX = 'refs/omega-pr-test'
+
+#: how many times a fetch is tried while another fetch into the same clone,
+#: such as another row's setup, is updating the same refs
+FETCH_ATTEMPTS = 5
+
+#: how long to wait before trying such a fetch again, in seconds
+FETCH_RETRY_SECONDS = 2.0
+
+#: what git says when another fetch updated or locked a ref first
+REF_RACE_MESSAGES = ('incorrect old value provided', 'cannot lock ref')
 
 
 class GitError(Exception):
@@ -59,6 +70,11 @@ def fetch(repo: str, url: str, refspecs: List[str]) -> None:
     """
     Fetch refs into a repository, forcing the local refs to match
 
+    Rows set up at the same time, such as pm-cpu and pm-gpu, fetch the same
+    refs into the same clone, and git refuses a ref update when another
+    fetch changed or locked the ref first.  The fetch is forced, so it is
+    simply tried again.
+
     Parameters
     ----------
     repo : str
@@ -70,7 +86,16 @@ def fetch(repo: str, url: str, refspecs: List[str]) -> None:
     refspecs : list of str
         ``<remote ref>:<local ref>`` pairs
     """
-    git(['fetch', '--quiet', url] + [f'+{spec}' for spec in refspecs], repo)
+    args = ['fetch', '--quiet', url] + [f'+{spec}' for spec in refspecs]
+    for attempt in range(1, FETCH_ATTEMPTS + 1):
+        try:
+            git(args, repo)
+            return
+        except GitError as e:
+            raced = any(message in str(e) for message in REF_RACE_MESSAGES)
+            if not raced or attempt == FETCH_ATTEMPTS:
+                raise
+        time.sleep(FETCH_RETRY_SECONDS)
 
 
 def has_remote_branch(repo: str, url: str, branch: str) -> bool:
