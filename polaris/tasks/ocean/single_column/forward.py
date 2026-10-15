@@ -294,6 +294,13 @@ class Forward(OceanModelStep):
         template_replacements = dict(
             output_interval=output_interval_str,
             output_freq=f'{int(output_interval_seconds)}',
+            RhoSw=get_constant('seawater_density_reference'),
+            sea_ice_reference_salinity=get_constant(
+                'sea_ice_reference_salinity'
+            ),
+            latent_heat_of_fusion=get_constant(
+                'latent_heat_of_fusion_reference'
+            ),
         )
         if 'kpp_regimes' in self.task_package:
             template_replacements['match_technique'] = (
@@ -313,17 +320,7 @@ class Forward(OceanModelStep):
         self.add_yaml_file(
             self.task_package,
             'forward.yaml',
-            template_replacements=dict(
-                output_interval=output_interval_str,
-                output_freq=f'{int(output_interval_seconds)}',
-                RhoSw=get_constant('seawater_density_reference'),
-                sea_ice_reference_salinity=get_constant(
-                    'sea_ice_reference_salinity'
-                ),
-                latent_heat_of_fusion=get_constant(
-                    'latent_heat_of_fusion_reference'
-                ),
-            ),
+            template_replacements=template_replacements,
         )
 
         # Preserve legacy mixing in non-KPP tests even when model defaults
