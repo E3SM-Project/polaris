@@ -1,5 +1,5 @@
 import os
-from typing import Optional
+from typing import List, Optional
 
 from polaris.ocean.model import OceanModelStep
 from polaris.tasks.ocean.realistic_global.forward.initial_condition import (
@@ -40,6 +40,13 @@ class Forward(OceanModelStep):
     forcing_streams_yaml_filename : str
         The Jinja2 template that points each model's input stream at the staged
         forcing file.  Only added when ``init_condition`` stages one.
+
+    stream_dirs : list of str
+        Directories, relative to the step's work directory, that Omega's
+        streams write into.  Omega does not create them, so the step does,
+        at setup and again at run time.  MPAS-Ocean needs no equivalent,
+        since the MPAS framework creates stream directories itself.  Empty
+        unless a task's yaml files point a stream into a subdirectory.
     """
 
     def __init__(
@@ -54,7 +61,7 @@ class Forward(OceanModelStep):
         yaml_filename='forward.yaml',
         forcing_yaml_filename='forcing.yaml',
         forcing_streams_yaml_filename='forcing_streams.yaml',
-        output_filename='output.nc',
+        output_filenames: Optional[List[str]] = None,
         validate_vars=None,
         check_properties=None,
         update_eos=False,
@@ -98,14 +105,15 @@ class Forward(OceanModelStep):
             A YAML file that is a Jinja2 template of the forcing input streams,
             used only when ``init_condition`` stages a forcing file.
 
-        output_filename : str, optional
-            The output file written at the end of the run.
+        output_filenames : list of str, optional
+            The files the run writes, relative to the step's work directory,
+            each declared as an output; ``output.nc`` by default.
 
         validate_vars : list of str, optional
-            Variables in ``output_filename`` to validate against a baseline.
+            Variables in each output file to validate against a baseline.
 
         check_properties : list of str, optional
-            Conservation properties of ``output_filename`` to check.
+            Conservation properties of each output file to check.
 
         update_eos : bool, optional
             Whether to update the equation of state from config options.
@@ -125,15 +133,19 @@ class Forward(OceanModelStep):
         self.yaml_filename = yaml_filename
         self.forcing_yaml_filename = forcing_yaml_filename
         self.forcing_streams_yaml_filename = forcing_streams_yaml_filename
+        self.stream_dirs: List[str] = []
 
         # ensure the model output is written in double precision
         self.add_yaml_file('polaris.ocean.config', 'output.yaml')
 
-        self.add_output_file(
-            filename=output_filename,
-            validate_vars=validate_vars,
-            check_properties=check_properties,
-        )
+        if output_filenames is None:
+            output_filenames = ['output.nc']
+        for output_filename in output_filenames:
+            self.add_output_file(
+                filename=output_filename,
+                validate_vars=validate_vars,
+                check_properties=check_properties,
+            )
 
     def setup(self):
         """
@@ -253,6 +265,13 @@ class Forward(OceanModelStep):
         self.add_model_config_options(
             options=stage.vert_mixing_options(), config_model='ocean'
         )
+
+        if model == 'omega' and self.work_dir is not None:
+            # Omega does not make the directories its streams write into
+            for dirname in self.stream_dirs:
+                os.makedirs(
+                    os.path.join(self.work_dir, dirname), exist_ok=True
+                )
 
         if model == 'mpas-ocean':
             self.add_model_config_options(
