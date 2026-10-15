@@ -3,7 +3,7 @@
 # realistic_global
 
 The `realistic_global` task group contains tasks that use realistic global
-ocean meshes, bathymetry and forcing. It currently contains five kinds of
+ocean meshes, bathymetry and forcing. It currently contains six kinds of
 tasks:
 
 - {ref}`ocean-realistic-global-woa23`, a mesh-independent preprocessing task
@@ -17,6 +17,9 @@ tasks:
 - {ref}`ocean-realistic-global-forward`, short forward runs from either of two
   sources of initial condition: the `init` workflow above, or a cached file
   downloaded from the Polaris input database.
+- {ref}`ocean-realistic-global-analysis-members`, one-year Omega runs from
+  either source of initial condition, writing what the {ref}`ocean-analysis`
+  tasks read.
 - {ref}`ocean-realistic-global-restart`, a short run split across a restart,
   checking that the history output survives the restart intact.
 
@@ -25,7 +28,9 @@ tasks:
 The `woa23` and `jra55` tasks are model-independent and do not require either
 MPAS-Ocean or Omega to be built.
 
-The `init` and forward tasks support both MPAS-Ocean and Omega.
+The `init` and forward tasks support both MPAS-Ocean and Omega.  The
+`analysis_members` tasks support only Omega, since the analysis reads only
+Omega output.
 
 The `restart` task supports Omega only.  It is a regression test for the way
 Omega writes its history time axis across a restart, and MPAS-Ocean stamps its
@@ -585,12 +590,10 @@ initial-condition file, applied through bulk wind stress.
 
 ### time step and run duration
 
-Every step is a `cached_forward` run on `QU.240km`, configured by the same
-`[realistic_global_forward]` options, with a few overrides.  It uses the
-split-explicit time stepper (`SplitExplicitRK2` in Omega) with a 1-hour
-baroclinic and a 3-minute barotropic time step, and a biharmonic momentum
-viscosity of 1.0e15 m^4/s, the settings of the year-long QU240 runs that the
-ocean analysis is tested on.  Each segment runs for two hours and the full run
+Every step is a `split_explicit` `cached_forward` run on `QU.240km`,
+configured by the same `[realistic_global_forward]` options, including the
+per-mesh ones: a 1-hour baroclinic and a 3-minute barotropic time step, and a
+biharmonic momentum viscosity of 1.0e15 m^4/s.  Each segment runs for two hours and the full run
 for four, with a history frame every hour, so each segment writes two frames
 and the whole period has four.  The period is short on purpose: the task is
 about how the model writes its history across a restart, not about the
@@ -600,30 +603,14 @@ circulation, and it is meant to be cheap enough for the pull-request suite.
 
 The task reads the `[realistic_global_forward]` options described under
 {ref}`ocean-realistic-global-forward`, including the per-mesh ones for
-`QU.240km`, and overrides these:
+`QU.240km`.  The run durations and history interval are fixed by the task, so
+its own config file sets only the equation of state:
 
 ```cfg
 [ocean]
 
 # Equation of state type
 eos_type = teos-10
-
-
-# Overrides of the forward-run options for the restart task, which is only
-# defined on QU.240km.  The run durations and history interval are fixed by
-# the task rather than set here.
-[realistic_global_forward]
-
-# Omega's split-explicit time stepper with E3SM's MPAS-Ocean time steps for
-# oQU240, as in the analysis_test task (polaris #787): a 2-hour step grew a
-# surface hotspot along the Aleutians in a one-year run
-omega_time_integrator = split_explicit
-dt = 01:00:00
-btr_dt = 00:03:00
-
-# well above the default of 1.2e11, which is meant for much finer meshes and
-# leaves grid-scale noise on this one
-mom_del4 = 1.0e15
 ```
 
 ### cores
@@ -645,12 +632,24 @@ state; neither is run by default.
 The two tasks are built from the same steps and differ only in where the
 initial condition comes from — and, because of that, in what they are for.
 
+Each comes in two variants, which differ only in the time integrator.  The
+`split_explicit` variant uses the default split time stepping in both models.
+The `rk4` variant adds `rk4.cfg`, which runs RK4 in both models, for
+occasional testing:
+
+```cfg
+[realistic_global_forward]
+
+mpaso_time_integrator = RK4
+omega_time_integrator = RK4
+```
+
 `forward` runs on a mesh and initial condition that
 {ref}`ocean-realistic-global-init` builds, and can be set up for any mesh
 Polaris knows how to build:
 
 ```bash
-polaris setup -t ocean/spherical/realistic_global/qu240km/forward ...
+polaris setup -t ocean/spherical/realistic_global/qu240km/forward/split_explicit/task ...
 ```
 
 `cached_forward` downloads a ready-made initial condition instead, so it runs
@@ -658,14 +657,17 @@ without the WOA23 remapping and topography culling the `init` chain does
 first.  It is defined for the two meshes whose initial conditions have been
 staged:
 
-| mesh | cells | time step | run duration |
-|------|-------|-----------|--------------|
-| `QU.240km` | 7,153 | 10 min | 5 days |
-| `EC30to60E2r2` | 236,853 | 45 s | 1 day |
+| mesh | cells | split time steps | RK4 time step | run duration |
+|------|-------|------------------|---------------|--------------|
+| `QU.240km` | 7,153 | 1 h, 3 min | 10 min | 5 days |
+| `EC30to60E2r2` | 236,853 | 30 min, 1 min | 45 s | 1 day |
 
 ```bash
-polaris setup -t ocean/spherical/realistic_global/QU.240km/cached_forward ...
+polaris setup -t ocean/spherical/realistic_global/QU.240km/cached_forward/rk4/task ...
 ```
+
+Both `QU.240km` `cached_forward` variants are in the `omega_pr` suite, and the
+`split_explicit` one is in `mpaso_pr`.
 
 (ocean-realistic-global-forward-purposes)=
 
@@ -678,13 +680,22 @@ and that is what decides how each is configured.
 the same initial condition on the same mesh, so the interesting result is how
 their answers differ.  Anything one model has that the other lacks works
 against that, so these runs use only the physics Omega also has: no
-Gent-McWilliams, no Redi, no KPP boundary layer, no submesoscale
-parameterization, and MPAS-Ocean's default `pressure_and_zmid` pressure
-gradient rather than `Jacobian_from_TS`.  Both models use RK4.
+Gent-McWilliams, no Redi, no submesoscale parameterization, and MPAS-Ocean's
+default `pressure_and_zmid` pressure gradient rather than `Jacobian_from_TS`.
+Both models run the KPP boundary layer.  The `rk4` variant also has both models
+advance the same way.
 
 The list of things turned off describes what Omega lacks today, not a
-considered choice of physics, and it should shrink as Omega gains
-capabilities.
+considered choice of physics.  It is kept by hand, in the two cached meshes'
+config files, and should shrink as Omega gains capabilities.  The cached
+meshes' configs also raise the momentum viscosity above the default to reduce
+grid-scale noise in the velocity: the biharmonic viscosity to 1.0e15 m^4/s on
+`QU.240km`, and the harmonic one to 1.0e4 m^2/s on `EC30to60E2r2`, where Omega
+does not scale the biharmonic viscosity with cell width
+([Omega#476](https://github.com/E3SM-Project/Omega/issues/476)) and it cannot
+be raised enough to damp the 60-km cells without going unstable in the 30-km
+ones.  These values were chosen before Omega had KPP, and are provisional until
+the fix to Omega's pressure-gradient errors over bathymetry.
 
 **`forward` tests the mesh itself, in E3SM, with MPAS-Ocean.**  Here the point
 is that the mesh behaves the way it will in a real E3SM configuration, so these
@@ -873,12 +884,11 @@ effect only where Redi is on.
 
 The time integrator is the one setting chosen per model rather than shared:
 `mpaso_time_integrator` defaults to `split_explicit_ab2` and
-`omega_time_integrator` to `RK4`.  MPAS-Ocean needs split time stepping to make
-the month-long spin-ups that build on this workflow affordable.  Omega supports
-`RK4` (translated to `RungeKutta4`) and `split_explicit` (translated to
-`SplitExplicitRK2`), but not `split_explicit_ab2`.  The `cached_forward` tasks
-set `mpaso_time_integrator = RK4` so that both models advance the same way, at
-the cost of MPAS-Ocean taking the short step too.  Both options use neutral
+`omega_time_integrator` to `split_explicit` (translated to
+`SplitExplicitRK2`).  Split time stepping is what makes the month-long
+spin-ups that build on this workflow affordable.  Omega also supports `RK4`
+(translated to `RungeKutta4`), but not `split_explicit_ab2`.  The `rk4`
+variant of each task sets both options to `RK4`.  Both options use neutral
 (MPAS-Ocean) naming, and an `omega_time_integrator` that Omega does not
 support is an error at run time rather than at setup, so the option can still
 be changed after setting a task up.
@@ -887,16 +897,16 @@ be changed after setting a task up.
 
 The time step is derived from the mesh's minimum resolution: `dt_per_km` gives
 the baroclinic step and `btr_dt_per_km` the barotropic subcycling step, each in
-seconds per kilometre.  Setting `dt` or `btr_dt` overrides the derived value.
+seconds per kilometer.  Setting `dt` or `btr_dt` overrides the derived value.
 Meshes whose stable time step does not follow the default scaling set
 `dt_per_km` and `btr_dt_per_km` in their per-mesh config file.
 
-Because the integrator is chosen per model, so is the time step.  A split
-integrator advances on the long baroclinic step and subcycles the barotropic
-mode on the short one; a non-split integrator such as `RK4` has no subcycling
-and so must advance on the short barotropic step.  With the defaults, MPAS-Ocean
-therefore takes a `dt_per_km` step and Omega a much shorter `btr_dt_per_km` one
-on the same mesh.
+The time step follows from the integrator.  A split integrator advances on the
+long baroclinic step and subcycles the barotropic mode on the short one; a
+non-split integrator such as `RK4` has no subcycling and so must advance on the
+short barotropic step, `btr_dt_per_km` times the minimum resolution.  Setting
+`rk4_dt` overrides that.  It is separate from `dt` so that a mesh config can
+give a time step for each variant, as the cached meshes' configs do.
 
 ### config options
 
@@ -919,17 +929,17 @@ eos_type = teos-10
 # models do not support the same integrators.  Both are given in neutral
 # (MPAS-Ocean) naming; the Omega one is translated to the Omega name.
 #
-# MPAS-Ocean uses split time stepping ('split_explicit_ab2' or 'RK4'), which is
-# far cheaper for the long spin-ups this workflow feeds into.  Omega supports
-# 'RK4' (translated to 'RungeKutta4') and 'split_explicit' (translated to
-# 'SplitExplicitRK2'), and anything else raises an error at run time.  Omega
-# still defaults to 'RK4', which is what the cached_forward time steps were
-# tuned for.
+# Both models default to split time stepping, which is far cheaper than RK4
+# for the long spin-ups this workflow feeds into: 'split_explicit_ab2' for
+# MPAS-Ocean and 'split_explicit' (translated to 'SplitExplicitRK2') for Omega.
+# Omega also supports 'RK4' (translated to 'RungeKutta4'), and anything else
+# raises an error at run time.  The rk4 variant of each forward task sets both
+# to 'RK4'.
 #
-# The time step follows from this choice (see dt_per_km and btr_dt_per_km), so
-# the two models generally run with different time steps.
+# The time step follows from this choice (see dt_per_km, btr_dt_per_km and
+# rk4_dt).
 mpaso_time_integrator = split_explicit_ab2
-omega_time_integrator = RK4
+omega_time_integrator = split_explicit
 
 # Run duration as an MPAS-style duration string (DDDD_HH:MM:SS)
 run_duration = 0001_00:00:00
@@ -957,11 +967,16 @@ dt_per_km = 30.0
 # non-split integrators such as RK4 and Omega's RungeKutta4.
 btr_dt_per_km = 1.5
 
-# Explicit baroclinic/barotropic time steps (DDDD_HH:MM:SS) that override the
-# *_per_km values when set; leave blank to derive from *_per_km and the mesh
-# minimum resolution
+# Explicit baroclinic/barotropic time steps for split time stepping
+# (DDDD_HH:MM:SS) that override the *_per_km values when set; leave blank to
+# derive from *_per_km and the mesh minimum resolution
 dt =
 btr_dt =
+
+# Explicit time step for non-split integrators such as RK4 (DDDD_HH:MM:SS)
+# that overrides btr_dt_per_km when set.  It is separate from dt so that a mesh
+# config can give a time step for each kind of integrator.
+rk4_dt =
 
 # Rayleigh damping coefficient (1/s); leave blank for no Rayleigh damping.
 # MPAS-Ocean only: Omega has no Rayleigh damping, so a non-blank value is an
@@ -1104,3 +1119,138 @@ The number of cores used by the `short` step is determined algorithmically from
 the number of cells in the mesh — read from the mesh file once it exists, and
 estimated from the mesh definition before that.  The `global_stats` and `viz`
 steps run serially.
+
+(ocean-realistic-global-analysis-members)=
+
+## analysis_members
+
+The `1_year` task runs Omega for a year with its `MonthlyAverages` and `MOC`
+analysis groups on, writing what the {ref}`ocean-analysis` tasks read.  It is
+meant to become a cached step for regression testing the `omega_analysis`
+suite.  It is defined for every mesh that has a `forward` or `cached_forward`
+task, and runs from the same initial condition: on the two cached meshes, the
+one in the Polaris input database, and on the others, the one the `init` steps
+build, which are part of the task.  For example:
+
+```bash
+polaris setup -t ocean/spherical/realistic_global/QU.240km/analysis_members/1_year ...
+polaris setup -t ocean/spherical/realistic_global/u-oi30-lr10/analysis_members/1_year ...
+```
+
+The tasks are in no suite.  The `QU.240km` year takes about 8 minutes on a
+Chrysalis node, and the `EC30to60E2r2` year about 50 minutes on 6 nodes,
+writing about 40 GB.
+
+### description
+
+The task contains two steps:
+
+1. `forward` is a `split_explicit` `forward` or `cached_forward` run (see
+   {ref}`ocean-realistic-global-forward`) a year long, with monthly output
+   added.
+2. `global_stats` plots time series of the daily global statistics, as in
+   those tasks.  This step is not run by default.
+
+On meshes without a cached initial condition, the shared `init` steps come
+first, as in the `forward` tasks.
+
+The run writes, in the `forward` step's work directory:
+
+- `monthly_means_1MonthTimeStats.<year>-<month>.nc`, the monthly means from
+  the `MonthlyAverages` group of conservative temperature, absolute salinity,
+  pseudo-thickness, specific volume, the layer-midpoint and interface
+  elevations, sea surface height, normal velocity and kinetic energy;
+- `moc_1MonthTimeStats.<year>-<month>.nc`, the monthly-mean global overturning
+  streamfunction from the `MOC` group, in `moc_num_bins` latitude bins:
+  Omega's default of 180, or 60 on the 240-km meshes;
+- `global_stats_1DayInstants`, daily global statistics of the state, kinetic
+  energy and sea surface height;
+- `output/ocn.hist.<year>-<month>.nc`, a monthly snapshot of the same fields as
+  the monthly means, taken at the instant each mean is finalized, as a check
+  on the means.
+
+Omega names a time-mean file for the instant it was finalized, the start of
+the following month, so the twelve files covering year 1 are named `0001-02`
+through `0002-01`.  The analysis accounts for this; see {ref}`ocean-analysis`.
+Every monthly file is declared as an output of the `forward` step, so a month
+that was not written fails the step.
+
+To analyze the run, point the `omega_analysis` suite at the `omega.yml` in the
+`forward` step's work directory:
+
+```cfg
+[ocean_analysis]
+
+omega_config_filename = <work_dir>/ocean/spherical/realistic_global/<mesh>/analysis_members/1_year/forward/omega.yml
+
+[ocean_analysis_climatology]
+
+start_year = 1
+end_year = 1
+
+[ocean_analysis_time_series]
+
+start_year = 1
+end_year = 1
+```
+
+### mesh, vertical grid, initial conditions and forcing
+
+As for the `forward` or `cached_forward` task on the same mesh; see
+{ref}`ocean-realistic-global-forward`.
+
+### time step and run duration
+
+The run uses the mesh's split time steps and momentum viscosities, given in
+{ref}`ocean-realistic-global-forward`.  It lasts 365 days from `0001-01-01`,
+one year on the No Leap calendar.  The history stream and restarts are written
+monthly, because Omega requires the restart interval to be a multiple of every
+averaging period.  These are runs for testing the analysis, not
+scientifically valid simulations.
+
+### config options
+
+The task reads the `[realistic_global_forward]` options described under
+{ref}`ocean-realistic-global-forward`, including the per-mesh ones.  Its own
+defaults come before the per-mesh options:
+
+```cfg
+# Default options for the one-year analysis_members runs, added before the
+# per-mesh options so that a mesh can override them
+[analysis_members]
+
+# The number of latitude bins of the overturning streamfunction: Omega's
+# default of one degree.  Meshes coarser than about a degree set fewer.
+moc_num_bins = 180
+```
+
+and it overrides the run duration after them:
+
+```cfg
+# Options for the one-year analysis_members runs, added after the per-mesh
+# options so that they take precedence
+[realistic_global_forward]
+
+# One year on the No Leap calendar.  Omega's TimeInterval parser understands
+# only DDDD_HH:MM:SS, so the duration is given in days.  The history and
+# restart streams are monthly, which is set in monthly_output.yaml rather than
+# here, since months are not all the same length.
+run_duration = 0365_00:00:00
+```
+
+The 240-km meshes' config files set fewer MOC latitude bins, here for
+`QU.240km`:
+
+```cfg
+# Options for the one-year analysis_members run on this mesh
+[analysis_members]
+
+# The number of latitude bins of the overturning streamfunction: three
+# degrees, since Omega's default of one degree is finer than the mesh
+moc_num_bins = 60
+```
+
+### cores
+
+The number of cores used by the `forward` step is determined algorithmically
+from the number of cells in the mesh.  The `global_stats` step runs serially.
