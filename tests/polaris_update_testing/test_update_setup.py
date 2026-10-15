@@ -209,8 +209,7 @@ def test_mpas_ocean_builds_take_turns(tmp_path, monkeypatch):
         calls.append(args)
 
     monkeypatch.setattr(subprocess, 'run', run)
-    tree = tmp_path / 'polaris' / 'e3sm_submodules' / 'E3SM-Project'
-    tree.mkdir(parents=True)
+    tree = _polaris_checkout(tmp_path)
 
     _mpas_ocean_suite(tmp_path)
 
@@ -234,6 +233,45 @@ def test_mpas_ocean_builds_take_turns(tmp_path, monkeypatch):
     monkeypatch.setattr(pr_test_setup.time, 'sleep', lambda seconds: None)
     with pytest.raises(pr_test_setup.SetupError, match='using'):
         _mpas_ocean_suite(tmp_path)
+
+
+def test_mpas_ocean_refuses_polaris_clone_on_another_filesystem(
+    tmp_path, monkeypatch
+):
+    calls = []
+    original = subprocess.run
+
+    def run(args, *other, **kwargs):
+        if args[0] != 'polaris':
+            return original(args, *other, **kwargs)
+        calls.append(args)
+
+    monkeypatch.setattr(subprocess, 'run', run)
+    tree = _polaris_checkout(tmp_path)
+    polaris_dir = str(tmp_path / 'polaris')
+    monkeypatch.setattr(
+        pr_test_setup,
+        '_device',
+        lambda path: 1 if path.startswith(polaris_dir) else 2,
+    )
+
+    with pytest.raises(pr_test_setup.SetupError, match='Polaris checkout'):
+        _mpas_ocean_suite(tmp_path)
+    assert calls == []
+
+    # a submodule that is already initialized costs nothing more
+    (tree / '.git').write_text('gitdir: elsewhere\n')
+    _mpas_ocean_suite(tmp_path)
+    assert len(calls) == 1
+
+
+def _polaris_checkout(tmp_path):
+    """A Polaris clone with an uninitialized E3SM-Project submodule"""
+    polaris_dir = tmp_path / 'polaris'
+    tree = polaris_dir / 'e3sm_submodules' / 'E3SM-Project'
+    tree.mkdir(parents=True)
+    subprocess.run(['git', 'init', '--quiet', str(polaris_dir)], check=True)
+    return tree
 
 
 def _mpas_ocean_suite(tmp_path):
