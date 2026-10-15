@@ -9,6 +9,7 @@ from polaris.ocean.model import OceanModelStep
 from polaris.tasks.ocean import Ocean
 from polaris.tasks.ocean.realistic_global import add_realistic_global_tasks
 from polaris.tasks.ocean.realistic_global.forward import (
+    TIME_INTEGRATORS,
     DatabaseInitialCondition,
     ForwardStage,
     RealisticGlobalForward,
@@ -147,17 +148,23 @@ def test_add_realistic_global_tasks_registers_forward_for_all_meshes():
         UNIFIED_MESH_NAMES
     )
     for mesh_name in expected_mesh_names:
-        task_subdir = f'spherical/realistic_global/{mesh_name}/forward/task'
-        assert task_subdir in component.tasks, (
-            f'Expected forward task for mesh={mesh_name!r} not found'
-        )
+        for time_integrator in TIME_INTEGRATORS:
+            task_subdir = (
+                f'spherical/realistic_global/{mesh_name}/forward/'
+                f'{time_integrator}/task'
+            )
+            assert task_subdir in component.tasks, (
+                f'Expected forward task for mesh={mesh_name!r} not found'
+            )
 
 
 def test_realistic_global_forward_icos240km_steps():
     component = Ocean()
     add_realistic_global_tasks(component=component)
 
-    task_subdir = 'spherical/realistic_global/icos240km/forward/task'
+    task_subdir = (
+        'spherical/realistic_global/icos240km/forward/split_explicit/task'
+    )
     assert task_subdir in component.tasks
 
     task = component.tasks[task_subdir]
@@ -168,7 +175,7 @@ def test_realistic_global_forward_icos240km_steps():
     assert 'pstar_init' in task.steps
 
     assert task.steps['short'].subdir == (
-        'spherical/realistic_global/icos240km/forward/short'
+        'spherical/realistic_global/icos240km/forward/split_explicit/short'
     )
     # the init step is shared with the init task (same work dir)
     assert task.steps['initial_state'].subdir == (
@@ -186,23 +193,27 @@ def test_add_realistic_global_tasks_registers_cached_forward():
     add_realistic_global_tasks(component=component)
 
     for mesh_name in CACHED_MESHES:
-        task_subdir = (
-            f'spherical/realistic_global/{mesh_name}/cached_forward/task'
-        )
-        assert task_subdir in component.tasks, (
-            f'Expected cached forward task for mesh={mesh_name!r} not found'
-        )
-        task = component.tasks[task_subdir]
-        assert list(task.steps) == ['short', 'global_stats', 'viz']
-        assert task.steps_to_run == ['short']
+        for time_integrator in TIME_INTEGRATORS:
+            task_subdir = (
+                f'spherical/realistic_global/{mesh_name}/cached_forward/'
+                f'{time_integrator}/task'
+            )
+            assert task_subdir in component.tasks, (
+                f'Expected cached forward task for mesh={mesh_name!r} not '
+                f'found'
+            )
+            task = component.tasks[task_subdir]
+            assert list(task.steps) == ['short', 'global_stats', 'viz']
+            assert task.steps_to_run == ['short']
 
 
 def test_cached_meshes_have_a_per_mesh_config():
     """
-    The cached initial conditions were tuned with an explicit time step and
+    The cached initial conditions were tuned with explicit time steps and a
     run duration.  Without a per-mesh config the task would silently fall back
     to the shared defaults, which are scaled from a mesh minimum resolution
-    these meshes do not report.
+    these meshes do not report.  Each needs a split step and an RK4 one, for
+    the two variants of the task.
     """
     section = 'realistic_global_forward'
     for mesh_name, mesh_info in CACHED_MESHES.items():
@@ -211,19 +222,52 @@ def test_cached_meshes_have_a_per_mesh_config():
         )
         # build the config the way the task does, so the assertions are about
         # what the run actually sees
-        config = PolarisConfigParser()
-        config.add_from_package(
-            'polaris.tasks.ocean.realistic_global.forward',
-            'realistic_global_forward.cfg',
-        )
-        assert add_realistic_global_mesh_config(config, mesh_name)
-        config.combine()
-        assert config.get(section, 'dt').strip()
-        assert config.get(section, 'run_duration').strip()
-        # both models advance the same way, so the comparison is like for like
-        assert config.get(section, 'mpaso_time_integrator').strip() == 'RK4'
-        assert config.get(section, 'omega_time_integrator').strip() == 'RK4'
+        config = _variant_config(mesh_name, 'split_explicit')
+        for option in ['dt', 'btr_dt', 'rk4_dt', 'run_duration']:
+            assert config.get(section, option).strip(), (
+                f'No {option} for mesh={mesh_name!r}'
+            )
         assert mesh_info['cell_count'] > 0
+
+
+@pytest.mark.parametrize('mesh_name', ['QU.240km', 'u-oi240-lr240'])
+def test_the_variants_choose_the_integrators(mesh_name):
+    """
+    The split_explicit variant takes the defaults, a split integrator for
+    each model, and the rk4 variant runs RK4 in both, so that the two models
+    advance the same way.
+    """
+    section = 'realistic_global_forward'
+    config = _variant_config(mesh_name, 'split_explicit')
+    assert config.get(section, 'mpaso_time_integrator') == 'split_explicit_ab2'
+    assert config.get(section, 'omega_time_integrator') == 'split_explicit'
+    config = _variant_config(mesh_name, 'rk4')
+    assert config.get(section, 'mpaso_time_integrator') == 'RK4'
+    assert config.get(section, 'omega_time_integrator') == 'RK4'
+
+
+def test_an_unknown_variant_is_rejected():
+    with pytest.raises(ValueError, match='time_integrator'):
+        RealisticGlobalForward(
+            component=Ocean(),
+            mesh_name='QU.240km',
+            init_condition=_qu240_database_ic(),
+            subdir_name='cached_forward',
+            time_integrator='split_explicit_ab2',
+        )
+
+
+@pytest.mark.parametrize(
+    'mesh_name, mom_del2, mom_del4',
+    [('QU.240km', 1.0e3, 1.0e15), ('EC30to60E2r2', 1.0e4, 1.2e11)],
+)
+def test_cached_meshes_take_the_one_year_runs_viscosities(
+    mesh_name, mom_del2, mom_del4
+):
+    for time_integrator in TIME_INTEGRATORS:
+        stage = _stage_for_mesh(mesh_name, time_integrator)
+        assert stage.mom_del2 == mom_del2
+        assert stage.mom_del4 == mom_del4
 
 
 def test_cached_meshes_turn_off_what_omega_lacks():
@@ -270,9 +314,12 @@ def test_cached_meshes_turn_off_what_omega_lacks():
     )
 
 
+@pytest.mark.parametrize('time_integrator', TIME_INTEGRATORS)
 @pytest.mark.parametrize('mesh_name', sorted(CACHED_MESHES))
 @pytest.mark.parametrize('model', ['mpas-ocean', 'omega'])
-def test_cached_forward_model_config_renders(mesh_name, model):
+def test_cached_forward_model_config_renders(
+    mesh_name, model, time_integrator
+):
     """
     Render the model config a cached task would run with, for both models.
 
@@ -281,12 +328,19 @@ def test_cached_forward_model_config_renders(mesh_name, model):
     rendered yaml, without needing the cached initial condition to be
     downloaded first.
     """
-    stage = _stage_for_mesh(mesh_name)
+    stage = _stage_for_mesh(mesh_name, time_integrator)
     replacements = stage.model_replacements(model, min_res=1.0)
 
-    # both models advance the same way, on the tuned step
-    assert replacements['dt'] == stage.dt
-    expected_integrator = 'RungeKutta4' if model == 'omega' else 'RK4'
+    # each variant advances on the step tuned for it
+    if time_integrator == 'rk4':
+        assert replacements['dt'] == stage.rk4_dt
+        expected_integrator = 'RungeKutta4' if model == 'omega' else 'RK4'
+    else:
+        assert replacements['dt'] == stage.dt
+        assert replacements['btr_dt'] == stage.btr_dt
+        expected_integrator = (
+            'SplitExplicitRK2' if model == 'omega' else 'split_explicit_ab2'
+        )
     assert replacements['time_integrator'] == expected_integrator
     assert replacements['run_duration'] == stage.run_duration
     # both models have the KPP boundary layer, and both are told so
@@ -396,16 +450,41 @@ def _task_config(mesh_name, model):
     return config
 
 
-def _stage_for_mesh(mesh_name):
-    """The ForwardStage a task on ``mesh_name`` would build."""
+def _variant_config(mesh_name, time_integrator):
+    """
+    The forward options a ``time_integrator`` task on ``mesh_name`` would
+    build
+    """
     config = PolarisConfigParser()
     config.add_from_package(
         'polaris.tasks.ocean.realistic_global.forward',
         'realistic_global_forward.cfg',
     )
     add_realistic_global_mesh_config(config, mesh_name)
+    if time_integrator == 'rk4':
+        config.add_from_package(
+            'polaris.tasks.ocean.realistic_global.forward', 'rk4.cfg'
+        )
     config.combine()
-    return ForwardStage.from_config(config)
+    return config
+
+
+def _stage_for_mesh(mesh_name, time_integrator='split_explicit'):
+    """The ForwardStage a task on ``mesh_name`` would build."""
+    return ForwardStage.from_config(
+        _variant_config(mesh_name, time_integrator)
+    )
+
+
+def _qu240_database_ic():
+    """The cached QU.240km initial condition"""
+    return DatabaseInitialCondition(
+        mesh_name='QU.240km',
+        mpaso_id=151209,
+        omega_id=260807,
+        min_res=240.0,
+        approx_cell_count=7153,
+    )
 
 
 def test_realistic_global_forward_without_init_steps():
@@ -416,13 +495,7 @@ def test_realistic_global_forward_without_init_steps():
     directory name keeps it apart from the init-chain task on the same mesh.
     """
     component = Ocean()
-    init_condition = DatabaseInitialCondition(
-        mesh_name='QU.240km',
-        mpaso_id=151209,
-        omega_id=260807,
-        min_res=240.0,
-        approx_cell_count=7153,
-    )
+    init_condition = _qu240_database_ic()
     task = RealisticGlobalForward(
         component=component,
         mesh_name='QU.240km',
@@ -432,7 +505,7 @@ def test_realistic_global_forward_without_init_steps():
     # the forward run and its two diagnostics, and nothing upstream of them
     assert list(task.steps) == ['short', 'global_stats', 'viz']
     assert task.subdir == (
-        'spherical/realistic_global/QU.240km/cached_forward/task'
+        'spherical/realistic_global/QU.240km/cached_forward/split_explicit/task'
     )
     assert task.steps['short'].init_condition is init_condition
     # the diagnostics are diagnostics, not part of the run

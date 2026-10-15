@@ -77,8 +77,8 @@ def test_restart_steps_run_the_same_model_for_their_own_duration(
 ):
     """
     Every step runs the same forward configuration -- split-explicit Omega on
-    the restart task's time steps and viscosity -- and differs only in its
-    duration and where its restart comes from.
+    QU.240km's time steps and viscosity -- and differs only in its duration
+    and where its restart comes from.
     """
     step = _restart_task().steps[name]
     step.dynamic_model_config(at_setup=True)
