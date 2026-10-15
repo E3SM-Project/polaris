@@ -64,10 +64,12 @@ def generate_1d_grid(config):
 
     elif grid_type in ['60layerPHC', '80layerE3SMv1', '100layerE3SMv1']:
         interfaces = _read_json(grid_type)
-        bottom_depth = section.getfloat('bottom_depth')
-        nearest_index = np.abs(interfaces - bottom_depth).argmin()
-        interfaces = interfaces[: nearest_index + 1]
-        interfaces[-1] = bottom_depth
+        # without a bottom depth, the whole grid is used
+        if config.has_option('vertical_grid', 'bottom_depth'):
+            bottom_depth = section.getfloat('bottom_depth')
+            nearest_index = np.abs(interfaces - bottom_depth).argmin()
+            interfaces = interfaces[: nearest_index + 1]
+            interfaces[-1] = bottom_depth
     else:
         raise ValueError(f'Unexpected grid type: {grid_type}')
 
