@@ -1,3 +1,6 @@
+from polaris.tasks.ocean.realistic_global.analysis_members import (
+    add_realistic_global_analysis_members_tasks,
+)
 from polaris.tasks.ocean.realistic_global.forcing.jra55 import (
     Jra55 as Jra55,
 )
@@ -33,6 +36,7 @@ def add_realistic_global_tasks(component):
     add_realistic_global_init_tasks(component=component)
     add_realistic_global_forward_tasks(component=component)
     add_realistic_global_cached_forward_tasks(component=component)
+    add_realistic_global_analysis_members_tasks(component=component)
 
     # the restart task is only defined for the mesh it is cheap enough to run
     # on in the pull-request suite
