@@ -17,6 +17,9 @@ from polaris.tasks.ocean.realistic_global.forward.stats_analysis import (
     StatsAnalysis as StatsAnalysis,
 )
 from polaris.tasks.ocean.realistic_global.forward.task import (
+    TIME_INTEGRATORS as TIME_INTEGRATORS,
+)
+from polaris.tasks.ocean.realistic_global.forward.task import (
     RealisticGlobalForward as RealisticGlobalForward,
 )
 from polaris.tasks.ocean.realistic_global.forward.tasks import (

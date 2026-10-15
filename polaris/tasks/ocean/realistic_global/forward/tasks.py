@@ -11,13 +11,13 @@ from polaris.tasks.ocean.realistic_global.mesh_info import (
 )
 
 from .initial_condition import DatabaseInitialCondition, StepInitialCondition
-from .task import RealisticGlobalForward
+from .task import TIME_INTEGRATORS, RealisticGlobalForward
 
 
 def add_realistic_global_forward_tasks(component):
     """
     Add :py:class:`.RealisticGlobalForward` tasks for every supported base and
-    unified MPAS mesh.
+    unified MPAS mesh, one for each of ``TIME_INTEGRATORS``.
 
     The mesh list matches the one used by
     :py:func:`polaris.tasks.ocean.realistic_global.init.tasks.add_realistic_global_init_tasks`,
@@ -43,14 +43,16 @@ def add_realistic_global_forward_tasks(component):
             approx_cell_count=estimate_ocean_cell_count(mesh_name),
             forcing_step=init_steps['forcing'],
         )
-        component.add_task(
-            RealisticGlobalForward(
-                component=component,
-                mesh_name=mesh_name,
-                init_condition=init_condition,
-                init_steps=init_steps,
+        for time_integrator in TIME_INTEGRATORS:
+            component.add_task(
+                RealisticGlobalForward(
+                    component=component,
+                    mesh_name=mesh_name,
+                    init_condition=init_condition,
+                    init_steps=init_steps,
+                    time_integrator=time_integrator,
+                )
             )
-        )
 
 
 # Meshes with a cached initial condition in the Polaris input-file database.
@@ -75,7 +77,8 @@ CACHED_MESHES: Dict[str, Dict[str, Any]] = {
 def add_realistic_global_cached_forward_tasks(component):
     """
     Add :py:class:`.RealisticGlobalForward` tasks that run from a cached
-    initial condition in the Polaris input-file database.
+    initial condition in the Polaris input-file database, one for each of
+    ``TIME_INTEGRATORS``.
 
     These are the cheap members of the family.  They download an initial
     condition instead of building one, so unlike
@@ -97,11 +100,13 @@ def add_realistic_global_cached_forward_tasks(component):
             min_res=mesh_info['min_res'],
             approx_cell_count=mesh_info['cell_count'],
         )
-        component.add_task(
-            RealisticGlobalForward(
-                component=component,
-                mesh_name=mesh_name,
-                init_condition=init_condition,
-                subdir_name='cached_forward',
+        for time_integrator in TIME_INTEGRATORS:
+            component.add_task(
+                RealisticGlobalForward(
+                    component=component,
+                    mesh_name=mesh_name,
+                    init_condition=init_condition,
+                    subdir_name='cached_forward',
+                    time_integrator=time_integrator,
+                )
             )
-        )
