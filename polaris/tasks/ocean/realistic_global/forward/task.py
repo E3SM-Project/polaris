@@ -17,6 +17,10 @@ from polaris.tasks.ocean.realistic_global.mesh_configs import (
 if TYPE_CHECKING:
     from polaris import Step
 
+#: The variants of each short forward task: the default split time stepping,
+#: and RK4 in both models for occasional testing
+TIME_INTEGRATORS = ['split_explicit', 'rk4']
+
 
 class RealisticGlobalForward(Task):
     """
@@ -27,8 +31,11 @@ class RealisticGlobalForward(Task):
     :py:class:`~polaris.tasks.ocean.realistic_global.forward.forward.Forward`
     step (``short``, a brief smoke test) whose duration and cadence come from
     the ``[realistic_global_forward]`` config section, with any per-mesh
-    overrides applied on top.  The target model is resolved from
-    ``[ocean] model`` during component setup.  Two diagnostic steps that are
+    overrides applied on top.  Each mesh has a ``split_explicit`` variant of
+    the task, which uses the default split time stepping, and an ``rk4``
+    variant, which adds ``rk4.cfg`` on top of the per-mesh options to run
+    RK4 in both models.  The target model is resolved from ``[ocean] model``
+    during component setup.  Two diagnostic steps that are
     not run by default follow it: ``global_stats`` plots time series of the
     run's global statistics, and ``viz`` plots global maps of its state.
 
@@ -44,6 +51,9 @@ class RealisticGlobalForward(Task):
     ----------
     mesh_name : str
         The name of the MPAS mesh.
+
+    time_integrator : str
+        The variant of the task, ``'split_explicit'`` or ``'rk4'``.
     """
 
     def __init__(
@@ -53,6 +63,7 @@ class RealisticGlobalForward(Task):
         init_condition: InitialCondition,
         subdir_name: str = 'forward',
         init_steps: Optional[Dict[str, 'Step']] = None,
+        time_integrator: str = 'split_explicit',
     ):
         """
         Create the task.
@@ -77,14 +88,28 @@ class RealisticGlobalForward(Task):
             Shared upstream steps to add to the task, keyed by the symlink name
             to give them.  Needed when ``init_condition`` consumes their
             outputs, and left unset for a source that does not.
+
+        time_integrator : str, optional
+            The variant of the task, one of ``TIME_INTEGRATORS``: the default
+            split time stepping or RK4 in both models.  It is also the name
+            of the task's directory under ``subdir_name``.
         """
-        base = f'spherical/realistic_global/{mesh_name}/{subdir_name}'
+        if time_integrator not in TIME_INTEGRATORS:
+            raise ValueError(
+                f'Unexpected time_integrator {time_integrator!r}; expected '
+                f'one of {TIME_INTEGRATORS}'
+            )
+        base = (
+            f'spherical/realistic_global/{mesh_name}/{subdir_name}/'
+            f'{time_integrator}'
+        )
         super().__init__(
             component=component,
             name='realistic_global_forward',
             subdir=f'{base}/task',
         )
         self.mesh_name = mesh_name
+        self.time_integrator = time_integrator
 
         config_filename = 'realistic_global_forward.cfg'
         filepath = f'{component.name}/{base}/{config_filename}'
@@ -97,6 +122,10 @@ class RealisticGlobalForward(Task):
             'polaris.tasks.ocean.realistic_global.forward', config_filename
         )
         add_realistic_global_mesh_config(config=config, mesh_name=mesh_name)
+        if time_integrator == 'rk4':
+            config.add_from_package(
+                'polaris.tasks.ocean.realistic_global.forward', 'rk4.cfg'
+            )
         self.set_shared_config(config, link=config_filename)
 
         # the shared init steps carry their own realistic_global_init.cfg

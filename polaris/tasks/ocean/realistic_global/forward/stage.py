@@ -107,12 +107,20 @@ class ForwardStage:
         :py:meth:`model_replacements`.
 
     dt : str or None
-        An explicit baroclinic time step; when ``None`` it is derived from
-        ``dt_per_km`` and the mesh minimum resolution.
+        An explicit baroclinic time step for split time stepping; when
+        ``None`` it is derived from ``dt_per_km`` and the mesh minimum
+        resolution.
 
     btr_dt : str or None
-        An explicit barotropic time step; when ``None`` it is derived from
-        ``btr_dt_per_km`` and the mesh minimum resolution.
+        An explicit barotropic time step for split time stepping; when
+        ``None`` it is derived from ``btr_dt_per_km`` and the mesh minimum
+        resolution.
+
+    rk4_dt : str or None
+        An explicit time step for a non-split integrator such as RK4; when
+        ``None`` it is derived from ``btr_dt_per_km`` and the mesh minimum
+        resolution.  It is separate from ``dt`` so that one mesh config can
+        give both a split and an RK4 time step.
 
     dt_per_km : float or None
         The baroclinic time step per km of minimum resolution (s/km).
@@ -220,9 +228,10 @@ class ForwardStage:
     restart_interval: str = '0001_00:00:00'
     stats_interval: str = '0001_00:00:00'
     mpaso_time_integrator: str = 'split_explicit_ab2'
-    omega_time_integrator: str = 'RK4'
+    omega_time_integrator: str = 'split_explicit'
     dt: Optional[str] = None
     btr_dt: Optional[str] = None
+    rk4_dt: Optional[str] = None
     dt_per_km: Optional[float] = None
     btr_dt_per_km: Optional[float] = None
     damping: Optional[float] = None
@@ -292,6 +301,7 @@ class ForwardStage:
             ).strip(),
             dt=_opt_str(config, section, 'dt'),
             btr_dt=_opt_str(config, section, 'btr_dt'),
+            rk4_dt=_opt_str(config, section, 'rk4_dt'),
             dt_per_km=_opt_float(config, section, 'dt_per_km'),
             btr_dt_per_km=_opt_float(config, section, 'btr_dt_per_km'),
             damping=_opt_float(config, section, 'damping'),
@@ -381,9 +391,9 @@ class ForwardStage:
             # barotropic subcycling and must advance on the short barotropic
             # time step; config_btr_dt is unused, so mirror config_dt into it
             dt = _time_step_string(
-                self.dt, self.btr_dt_per_km, min_res, 'btr_dt_per_km'
+                self.rk4_dt, self.btr_dt_per_km, min_res, 'btr_dt_per_km'
             )
-            btr_dt = self.btr_dt if self.btr_dt is not None else dt
+            btr_dt = dt
         if model == 'omega':
             if time_integrator in _OMEGA_TIME_INTEGRATORS:
                 time_integrator = _OMEGA_TIME_INTEGRATORS[time_integrator]
