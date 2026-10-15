@@ -453,6 +453,10 @@ message unless all of these hold:
   name the row's compiler had before Polaris renamed it.
 
 Omega worktrees are made from `omega_repo` at `<work_base>/omega/<sha12>`.
+Git keeps a worktree's submodule clones in the main clone's
+`.git/worktrees/<name>/modules`, so `setup` refuses to make a worktree from
+an `omega_repo` on another filesystem than `work_base`: a clone in home
+would fill the home quota by several hundred megabytes per worktree.
 They are keyed by commit, so baselines and pull requests share them.
 `setup` makes each one and initializes the submodules its build needs
 once, under a lock, and the build updates them only when they need it

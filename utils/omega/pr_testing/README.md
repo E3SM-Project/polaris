@@ -73,7 +73,10 @@ On each machine:
 - A Polaris checkout, with a load script for each compiler
   (`./deploy.py`).  A PR that needs Polaris changes needs a second one at
   the baseline's Polaris commit.  Agents make these when they are missing.
-- A clone of E3SM-Project/Omega.
+- A clone of E3SM-Project/Omega on the same filesystem as `work_base`,
+  usually scratch, not in your home directory.  Git keeps each worktree's
+  submodule clones in the clone, not the worktree, so a clone in home fills
+  its quota, and `setup` refuses to make worktrees from it.
 - `~/.config/polaris_pr_test.cfg`, copied from
   [utils/pr_testing/example.cfg](../../pr_testing/example.cfg).
 

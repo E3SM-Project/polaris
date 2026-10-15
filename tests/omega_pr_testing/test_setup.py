@@ -1,6 +1,7 @@
 import json
 import os
 import subprocess
+from functools import partial
 from pathlib import Path
 
 import omega_pr_init
@@ -426,6 +427,33 @@ def test_prepare_tree_once(tester, monkeypatch):
     assert not Path(f'{tree}.lock').exists()
 
 
+def test_prepare_tree_refuses_clone_on_another_filesystem(tester, monkeypatch):
+    fixture, manifest, _ = tester
+    repo = fixture.config.omega_repo
+    tree = Path(fixture.config.work_base) / 'omega' / 'tree'
+    monkeypatch.setattr(pr_test_setup, '_device', partial(_fake_device, repo))
+
+    with pytest.raises(pr_test_setup.SetupError, match='omega_repo'):
+        pr_test_setup.prepare_tree(repo, manifest.baseline_commit, str(tree))
+
+    # no worktree was made, and the lock is released
+    assert not tree.exists()
+    assert not Path(f'{tree}.lock').exists()
+
+
+def test_prepare_tree_reuses_tree_from_clone_on_another_filesystem(
+    tester, monkeypatch
+):
+    fixture, manifest, _ = tester
+    repo = fixture.config.omega_repo
+    tree = Path(fixture.config.work_base) / 'omega' / 'tree'
+    pr_test_setup.prepare_tree(repo, manifest.baseline_commit, str(tree))
+    monkeypatch.setattr(pr_test_setup, '_device', partial(_fake_device, repo))
+
+    # a worktree made before the clone moved costs nothing more to reuse
+    pr_test_setup.prepare_tree(repo, manifest.baseline_commit, str(tree))
+
+
 def test_tree_lock_held_by_another_setup(tmp_path, monkeypatch):
     tree = tmp_path / 'omega' / 'tree'
     Path(f'{tree}.lock').mkdir(parents=True)
@@ -477,6 +505,13 @@ def test_setup_refuses_a_row_that_ran(tester):
 
     with pytest.raises(pr_test_setup.SetupError, match='already run'):
         _setup(fixture, manifest)
+
+
+def _fake_device(repo, path):
+    """A device number that puts the clone on a filesystem of its own"""
+    if os.path.realpath(path).startswith(os.path.realpath(repo)):
+        return 1
+    return 2
 
 
 def _setup(fixture, manifest, **kwargs):

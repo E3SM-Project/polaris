@@ -165,6 +165,15 @@ they finish.
    it, and rename an old one, as you did on the requester's computer, and
    show it the same way.  Its `polaris_main` names the machine's deployed
    checkout of Polaris `main`, which a baseline of `main` runs from.
+4. Its `omega_repo` must be a clone on the same filesystem as `work_base`,
+   which is scratch, never one in the home directory.  Git keeps each
+   worktree's submodule clones, several hundred megabytes, in the clone it
+   was made from rather than in the worktree, so a clone in home fills the
+   home quota however far away the worktrees are.  `setup` refuses to make
+   a worktree otherwise.  If it is not, clone E3SM-Project/Omega beside
+   `work_base`, and propose the change to the config file to the
+   requester.  Do not remove worktrees to free space; that is the
+   requester's call.
 
 ## Testing a row
 
