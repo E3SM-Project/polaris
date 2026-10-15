@@ -552,6 +552,25 @@
    Jra55VizStep.run
 ```
 
+### realistic_global.analysis_members
+
+```{eval-rst}
+.. currentmodule:: polaris.tasks.ocean.realistic_global.analysis_members
+
+.. autosummary::
+   :toctree: generated/
+
+   add_realistic_global_analysis_members_tasks
+
+   AnalysisMembers
+
+   AnalysisMembersForward
+   AnalysisMembersForward.setup
+   AnalysisMembersForward.dynamic_model_config
+
+   forward.get_monthly_filenames
+```
+
 ### realistic_global.restart
 
 ```{eval-rst}
