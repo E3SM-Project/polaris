@@ -68,7 +68,16 @@ Below, `polaris_update_test.py` means
    `./deploy.py --compiler ...` there, with no Spack flags, if a load
    script is missing.
 3. Check `~/.config/polaris_pr_test.cfg` on the machine as the Omega
-   utility's AGENTS.md says.
+   utility's AGENTS.md says, including that `omega_repo` is on the same
+   filesystem as `work_base`.
+4. For MPAS-Ocean rows, the build initializes each checkout's
+   E3SM-Project submodule, and git keeps that clone, a gigabyte or more,
+   in the Polaris clone the checkout belongs to.  So the PR's checkout and
+   the one in `polaris_main` must belong to a Polaris clone on the same
+   filesystem as `work_base` (scratch), not one in the home directory, or
+   `setup` refuses.  A checkout whose submodule is already initialized is
+   fine where it is.  If one is not, make the checkouts from a clone of
+   E3SM-Project/polaris beside `work_base`, and tell the requester.
 
 ## Deploying
 

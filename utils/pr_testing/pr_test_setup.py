@@ -736,7 +736,17 @@ def polaris_suite(
     # provenance reads the Polaris commit from the directory Polaris runs in,
     # and the job script loads the environment Polaris was set up with
     if model == 'mpas-ocean' and branch is None:
-        with _tree_lock(os.path.join(polaris_dir, E3SM_SUBMODULE)):
+        submodule = os.path.join(polaris_dir, E3SM_SUBMODULE)
+        with _tree_lock(submodule):
+            # the build initializes the submodule, whose clone git keeps in
+            # the Polaris clone
+            if not os.path.exists(os.path.join(submodule, '.git')):
+                check_same_filesystem(
+                    polaris_dir,
+                    work_dir,
+                    'Make the Polaris checkout from a clone on the same '
+                    'filesystem as work_base.',
+                )
             subprocess.run(args, cwd=polaris_dir, env=env, check=True)
     else:
         subprocess.run(args, cwd=polaris_dir, env=env, check=True)
