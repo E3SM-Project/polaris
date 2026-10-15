@@ -28,7 +28,7 @@ def _forward_config(**overrides):
     """A minimal ``[realistic_global_forward]`` config for stage tests."""
     values = dict(
         mpaso_time_integrator='split_explicit_ab2',
-        omega_time_integrator='RK4',
+        omega_time_integrator='split_explicit',
         run_duration='0030_00:00:00',
         output_interval='0010_00:00:00',
         restart_interval='',
@@ -37,6 +37,7 @@ def _forward_config(**overrides):
         btr_dt_per_km='1.5',
         dt='',
         btr_dt='',
+        rk4_dt='',
         damping='',
         mom_del2='1.0e3',
         mom_del4='1.2e11',
@@ -121,6 +122,7 @@ def test_from_config_defaults_and_restart_default():
     assert stage.restart_interval == '0030_00:00:00'
     assert stage.dt is None
     assert stage.btr_dt is None
+    assert stage.rk4_dt is None
     assert stage.dt_per_km == 30.0
     assert stage.btr_dt_per_km == 1.5
     assert stage.damping is None
@@ -149,7 +151,9 @@ def test_model_replacements_explicit_dt_overrides_per_km():
 
 
 def test_model_replacements_omega_maps_rk4():
-    stage = ForwardStage.from_config(_forward_config())
+    stage = ForwardStage.from_config(
+        _forward_config(omega_time_integrator='RK4')
+    )
     rep = stage.model_replacements('omega', min_res=30.0)
     assert rep['time_integrator'] == 'RungeKutta4'
 
@@ -166,28 +170,69 @@ def test_model_replacements_omega_maps_split_explicit():
     assert rep['btr_dt'] == '0000_00:00:45.000'  # 1.5 s/km * 30 km
 
 
-def test_the_two_models_get_their_own_integrator_and_time_step():
-    # the default is split_explicit_ab2 for MPAS-Ocean, which Omega does not
-    # support, and RK4 for Omega; the time step follows from that choice
+def test_the_two_models_get_their_own_split_integrator():
+    # both default to split time stepping, but each with its own integrator:
+    # split_explicit_ab2 for MPAS-Ocean, which Omega does not support, and
+    # SplitExplicitRK2 for Omega
     stage = ForwardStage.from_config(_forward_config())
     rep = stage.model_replacements('mpas-ocean', min_res=30.0)
     assert rep['time_integrator'] == 'split_explicit_ab2'
     assert rep['dt'] == '0000_00:15:00.000'  # 30 s/km * 30 km
     rep_omega = stage.model_replacements('omega', min_res=30.0)
-    assert rep_omega['time_integrator'] == 'RungeKutta4'
-    assert rep_omega['dt'] == '0000_00:00:45.000'  # 1.5 s/km * 30 km
+    assert rep_omega['time_integrator'] == 'SplitExplicitRK2'
+    assert rep_omega['dt'] == '0000_00:15:00.000'
+
+
+def test_the_shipped_defaults_are_split_for_both_models():
+    config = PolarisConfigParser()
+    config.add_from_package(
+        'polaris.tasks.ocean.realistic_global.forward',
+        'realistic_global_forward.cfg',
+    )
+    config.combine()
+    stage = ForwardStage.from_config(config)
+    assert stage.mpaso_time_integrator == 'split_explicit_ab2'
+    assert stage.omega_time_integrator == 'split_explicit'
 
 
 def test_non_split_integrators_use_the_short_time_step():
     # RK4 / RungeKutta4 have no barotropic split, so config_dt must be the
     # short barotropic step (btr_dt_per_km), not the long baroclinic dt_per_km
     stage = ForwardStage.from_config(
-        _forward_config(mpaso_time_integrator='RK4')
+        _forward_config(
+            mpaso_time_integrator='RK4', omega_time_integrator='RK4'
+        )
     )
     rep = stage.model_replacements('mpas-ocean', min_res=30.0)
     assert rep['dt'] == '0000_00:00:45.000'  # 1.5 s/km * 30 km, not 30 s/km
     rep_omega = stage.model_replacements('omega', min_res=30.0)
     assert rep_omega['dt'] == '0000_00:00:45.000'
+
+
+def test_rk4_dt_and_dt_give_each_kind_of_integrator_its_own_step():
+    """
+    One mesh config gives both a split and an RK4 step, so the explicit RK4
+    step cannot be dt, which is the baroclinic step to a split integrator.
+    The barotropic step meant for a split run must not leak into an RK4 one
+    either: RK4 mirrors its own step into config_btr_dt.
+    """
+    explicit = dict(dt='01:00:00', btr_dt='00:03:00', rk4_dt='00:10:00')
+    split = ForwardStage.from_config(_forward_config(**explicit))
+    for model in ['mpas-ocean', 'omega']:
+        rep = split.model_replacements(model, min_res=30.0)
+        assert rep['dt'] == '01:00:00'
+        assert rep['btr_dt'] == '00:03:00'
+
+    rk4_integrators = dict(
+        mpaso_time_integrator='RK4', omega_time_integrator='RK4'
+    )
+    rk4 = ForwardStage.from_config(
+        _forward_config(**rk4_integrators, **explicit)
+    )
+    for model in ['mpas-ocean', 'omega']:
+        rep = rk4.model_replacements(model, min_res=30.0)
+        assert rep['dt'] == '00:10:00'
+        assert rep['btr_dt'] == '00:10:00'
 
 
 def test_model_replacements_omega_rejects_split_explicit():
