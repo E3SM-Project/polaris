@@ -31,8 +31,10 @@ builds, and `cached_forward` on an initial condition downloaded from the
 Polaris input-file database — and they turned out to answer different
 questions, which is what decides the physics each one runs. Restart chaining
 landed as well and dynamic adjustment is built on it without modifying the
-forward step, exactly as this document called for. A restart test is still not
-implemented.
+forward step, exactly as this document called for, as are a restart task and a
+one-year Omega run that writes what the ocean analysis reads. Now that Omega has
+a split-explicit time stepper, it is the default for both models, and every
+short run also comes in an RK4 variant.
 
 A forward run must be able to obtain its model inputs (horizontal mesh, vertical
 coordinate, initial state, surface forcing, and graph) from either of two
@@ -119,7 +121,7 @@ both without them colliding.
 
 ### Requirement: Per-run settings are described in a common, model-agnostic form
 
-Date last modified: 2026/07/03
+Date last modified: 2026/10/15
 
 Contributors: Xylar Asay-Davis, Claude
 
@@ -135,6 +137,10 @@ compatible with the staged-adjustment schedule format so that a simple forward
 run and a dynamic-adjustment stage can share the same representation. The time
 step shall be derivable from mesh resolution (a value per kilometer scaled by the
 mesh's minimum resolution) while still allowing an explicit override.
+
+Split-explicit time stepping shall be the default for both models, since RK4 is
+too expensive for long runs. Every short forward task shall also be available
+with RK4 in both models, for occasional testing.
 
 ### Requirement: The framework composes into restart and dynamic-adjustment workflows
 
@@ -170,7 +176,7 @@ regressions such as numerical blow-up or broken restart chaining can be detected
 
 ### Requirement: Physics and mixing options vary with the mesh
 
-Date last modified: 2026/07/21
+Date last modified: 2026/10/17
 
 Contributors: Xylar Asay-Davis, Claude
 
@@ -191,7 +197,9 @@ one lacks a parameterization the other has.
 
 Options that both models support shall be expressed once, in model-neutral form,
 and translated automatically. Options with no counterpart in the other model
-shall be emitted only for the model that has them.
+shall be emitted only for the model that has them, which leaves the other model
+at its own default. An option shall therefore move to the model-neutral form as
+soon as both models have it.
 
 ## Algorithm Design
 
@@ -262,7 +270,7 @@ shrinking it a one-line change rather than a code change.
 
 ### Algorithm Design: Per-run settings are described in a common, model-agnostic form
 
-Date last modified: 2026/07/03
+Date last modified: 2026/10/17
 
 Contributors: Xylar Asay-Davis, Claude
 
@@ -279,9 +287,8 @@ representation" called for in
 The mapping from this structure onto model configuration should happen in one
 place. Durations are formatted as model duration strings; the time integrator
 name is translated where the models differ (for example `RK4` to
-`RungeKutta4`). Controls that exist only for one model — the barotropic time step
-and Rayleigh damping for MPAS-Ocean — are emitted only under that model's section
-of the template. Where a model lacks a direct equivalent (for example Omega
+`RungeKutta4`). Controls that exist only for one model, such as Rayleigh damping
+for MPAS-Ocean, are emitted only under that model's section of the template. Where a model lacks a direct equivalent (for example Omega
 damping), the mapping is the natural place to apply the closest available control
 as the capability matures.
 
@@ -320,7 +327,7 @@ the ocean model step base class.
 
 ### Algorithm Design: Physics and mixing options vary with the mesh
 
-Date last modified: 2026/07/21
+Date last modified: 2026/10/17
 
 Contributors: Xylar Asay-Davis, Claude
 
@@ -342,11 +349,16 @@ choice — MPAS-Ocean's reference-cell-width and scale-with-mesh flags for
 horizontal mixing — Polaris should expose a single option whose value names the
 scaling, so that the combinations that are not meaningful cannot be expressed.
 
-The stage should sort the resulting model options into two buckets: those both
+The stage should sort the resulting model options into buckets: those both
 models support, emitted in neutral form and translated by the existing
-MPAS-Ocean-to-Omega map, and those only MPAS-Ocean has, emitted for that model
-alone. Gent-McWilliams and Redi fall permanently in the second bucket; Omega has
-neither and is not expected to gain them.
+MPAS-Ocean-to-Omega map, and those only one model has, emitted for that model
+alone. "Both models support" means a one-to-one translation exists, not just
+that each model has something in the same role: two different boundary-layer
+schemes would each go in their own model's bucket. Only MPAS-Ocean has options
+of its own today; an Omega-only bucket will be needed once Omega has physics
+MPAS-Ocean lacks. Gent-McWilliams and Redi stay in the MPAS-Ocean bucket for
+good, since Omega has neither and is not expected to gain them. Other options
+move to the neutral bucket as Omega gains them, as KPP has.
 
 ## Implementation
 
@@ -429,7 +441,7 @@ that belongs to the source rather than to the step for the same reason.
 
 ### Implementation: The two sources of initial condition answer different questions
 
-Date last modified: 2026/08/11
+Date last modified: 2026/10/17
 
 Contributors: Xylar Asay-Davis, Claude
 
@@ -443,17 +455,21 @@ by `utils/omega/convert_mpaso_ic_to_omega.py` and uploaded. A cached mesh also
 needs a `mesh_configs/<mesh_name>.cfg` giving its time step and run duration,
 since neither follows from a mesh Polaris did not build.
 
-`QU.240km.cfg` is where the comparison intent is written down: `RK4` for
-MPAS-Ocean as well as Omega, so the two advance the same way at the cost of
-MPAS-Ocean taking the short step; and `use_GM`, `use_Redi`, `use_KPP`,
-`use_submesoscale` and `pressure_gradient_type` turned off or left at the model
-default. The unified meshes' configs do the opposite, stating E3SM's mixing and
-parameterizations for their resolution.
+`QU.240km.cfg` and `EC30to60E2r2.cfg` are where the comparison intent is
+written down: `use_GM`, `use_Redi`, `use_submesoscale` and
+`pressure_gradient_type` turned off or left at the model default. `use_KPP` was
+on that list until Omega gained KPP. The unified
+meshes' configs do the opposite, stating E3SM's mixing and parameterizations
+for their resolution. The two cached configs also give E3SM's split time steps
+for those meshes, an RK4 step, and the momentum viscosities the one-year runs
+settled on.
 
 The cached tasks are the only members of this family cheap enough for a PR
-suite: `ocean/spherical/realistic_global/QU.240km/cached_forward/task` is in
-both `mpaso_pr` and `omega_pr`. Nothing built on the `init` chain belongs in a
-suite, since that chain is hours of preprocessing before the model starts.
+suite: both variants of
+`ocean/spherical/realistic_global/QU.240km/cached_forward` are in `omega_pr`,
+and the `split_explicit` one is in `mpaso_pr`. Nothing built on the `init`
+chain belongs in a suite, since that chain is hours of preprocessing before the
+model starts.
 
 `cached_forward` is expected to be temporary. Once Omega has the full physics
 and the initialization workflow has been exercised end to end, the comparison
@@ -462,7 +478,7 @@ conditions can go.
 
 ### Implementation: Per-run settings are described in a common, model-agnostic form
 
-Date last modified: 2026/08/11
+Date last modified: 2026/10/17
 
 Contributors: Xylar Asay-Davis, Claude
 
@@ -479,13 +495,19 @@ described further below, and the restart fields (`do_restart`, `start_time`,
 
 The time integrator turned out to be the one setting that cannot be shared, so
 there are two fields rather than one: `mpaso_time_integrator`, defaulting to
-`split_explicit_ab2`, and `omega_time_integrator`, defaulting to `RK4`. Omega
-has no split time stepper, while MPAS-Ocean needs one to make the month-long
-spin-ups built on this framework affordable. The time step follows from that
-choice rather than being chosen separately: a split integrator advances on the
-long baroclinic step and subcycles the barotropic mode, and a non-split
-integrator has to advance on the short barotropic step. With the defaults, the
-two models therefore run the same mesh at very different time steps.
+`split_explicit_ab2`, and `omega_time_integrator`, defaulting to
+`split_explicit` (Omega's `SplitExplicitRK2`). Omega's default was `RK4` until
+it had a split time stepper. The time step follows from that choice rather than
+being chosen separately: a split integrator advances on the long baroclinic
+step and subcycles the barotropic mode, and a non-split integrator has to
+advance on the short barotropic step.
+
+Every short task is registered twice, as
+`<mesh>/<forward|cached_forward>/split_explicit/task` and
+`<mesh>/<forward|cached_forward>/rk4/task`. The `rk4` variant adds `rk4.cfg`,
+which sets both integrators to `RK4`. A mesh config can need a split step and
+an RK4 step at once, so the RK4 step has an explicit option of its own,
+`rk4_dt`, which falls back to `btr_dt_per_km` like the barotropic step.
 
 The mapping onto model configuration happens only in the forward step's
 `dynamic_model_config`, which renders `forward/forward.yaml` with template
@@ -495,8 +517,8 @@ explicitly it is computed as the per-kilometer value times the mesh minimum
 resolution. The time-integrator name is mapped to Omega where needed, exactly as
 `ConvergenceForward` does. The template's model-neutral `ocean:` block is
 auto-translated to Omega through the existing `mpaso_to_omega.yaml` map, while
-the barotropic time step and Rayleigh damping appear under the `mpas-ocean:`
-section. The restart controls did gain an Omega counterpart, in
+Rayleigh damping appears under the `mpas-ocean:` section. The barotropic time
+step moved to the neutral block once Omega had a split time stepper. The restart controls did gain an Omega counterpart, in
 `restart_streams.yaml` rather than in the main template; see below.
 
 Where a model cannot honor a setting, the mapping raises rather than dropping
@@ -517,7 +539,7 @@ def dynamic_model_config(self, at_setup):
 
 ### Implementation: The framework composes into restart and dynamic-adjustment workflows
 
-Date last modified: 2026/10/04
+Date last modified: 2026/10/15
 
 Contributors: Xylar Asay-Davis, Claude
 
@@ -545,9 +567,14 @@ pointer it had just read. `ForwardStage.restart_files` gives the restart each
 model reads and writes, MPAS-Ocean's in the shared directory and Omega's in the
 stage's own, and the forward step declares them as inputs and outputs.
 
-A restart test — two `Forward` steps with different durations and restart
-settings, compared for bit-for-bit agreement — is still not implemented. Nothing
-about it needs the forward step to change.
+Two more tasks are built on the forward step without changing it. The
+`restart` task, ported from main, compares a run split across a restart with
+one that is not. The `analysis_members/1_year` task runs Omega for a year on
+every mesh and writes the monthly means, overturning streamfunction and
+daily global statistics the ocean analysis reads. It adds a second yaml file
+for the monthly streams and declares every monthly file as an output, so a
+year whose analysis groups did not write fails in Polaris rather than in the
+analysis.
 
 ### Implementation: Forward steps produce inspectable outputs and support basic validation
 
@@ -612,7 +639,7 @@ statistics for when that is left empty; the option came with the step from the
 
 ### Implementation: Physics and mixing options vary with the mesh
 
-Date last modified: 2026/09/24
+Date last modified: 2026/10/17
 
 Contributors: Xylar Asay-Davis, Claude
 
@@ -640,31 +667,38 @@ failure.
 
 Settings that should *not* vary are pinned in `forward.yaml` rather than made
 options, purely so that the two models agree: horizontal tracer advection order
-3 (Omega defaults to 2), implicit constant bottom drag at 1e-3 (Omega has none
-by default), the CVMix convection and shear-mixing parameters, and
-`config_Redi_min_layers_diag_terms = 0`, which computes the Redi diagnostic
-terms in the top layers the Registry default skips. Where the two models'
-defaults differ, the MPAS-Ocean default wins.
+3, implicit constant bottom drag at 1e-3, the CVMix convection, shear-mixing and
+KPP parameters, and `config_Redi_min_layers_diag_terms = 0`, which computes the
+Redi diagnostic terms in the top layers the Registry default skips. Where the two
+models' defaults differ, the MPAS-Ocean default wins, which turns KPP's Langmuir
+turbulence off for Omega. Omega's advection order and bottom drag defaults have
+since come to match MPAS-Ocean's; stating them keeps the two from drifting apart
+again.
 
-`ForwardStage` gains the corresponding fields and two methods beside the existing
-`bottom_drag_options`: `horiz_mixing_options` returns the neutral del2/del4
-options for momentum and tracers, and `mpaso_physics_options` returns the
-MPAS-Ocean-only options — the Leith closure, horizontal-mixing scaling, the
-biharmonic divergence factor, Gent-McWilliams, Redi, KPP, the submesoscale
-parameterization, the pressure-gradient formulation and frazil ice.
-`Forward.dynamic_model_config` adds the first with `config_model='ocean'`, so
-`OceanModelStep.map_yaml_options` translates it for Omega, and the second with
-`config_model='mpas-ocean'`. Omega has no equivalent for anything in the second
-bucket and is not expected to gain GM or Redi.
+`ForwardStage` gains the corresponding fields and three methods beside the
+existing `bottom_drag_options`: `horiz_mixing_options` returns the neutral
+del2/del4 options for momentum and tracers and the biharmonic divergence factor,
+`vert_mixing_options` the neutral KPP switch, and `mpaso_physics_options` the
+MPAS-Ocean-only options — the Leith closure, horizontal-mixing scaling,
+Gent-McWilliams, Redi, the submesoscale parameterization, the pressure-gradient
+formulation and frazil ice. `Forward.dynamic_model_config` adds the first two
+with `config_model='ocean'`, so `OceanModelStep.map_yaml_options` translates them
+for Omega, and the third with `config_model='mpas-ocean'`. KPP began in the third
+bucket and moved once Omega gained it. Left there, it never reached Omega, which
+ran KPP, its default, in tasks that had turned it off.
 
 Per-mesh overrides live in `mesh_configs/<mesh_name>.cfg` under the same
 `[realistic_global_forward]` section, applied by `add_realistic_global_mesh_config`
 after the task config so that they take precedence. The values are ported from
 the per-mesh `namelist.split_explicit_ab2` files of the corresponding Compass
-meshes: `qu240` for the three 240 km meshes (`u-oi240-lr240`, `qu240km` and
-`icos240km`, which are qualitatively the same mesh and share a block), `qu` for
-`u-oi30-lr10`, `rrs6to18` for `u-oi6to18-lr6to10`, and `so12to30` for
-`u-oi-so12to30-lr10`.
+meshes: `qu` for `u-oi30-lr10`, `rrs6to18` for `u-oi6to18-lr6to10`, and
+`so12to30` for `u-oi-so12to30-lr10`. The three 240 km meshes (`u-oi240-lr240`,
+`qu240km` and `icos240km`, which are qualitatively the same mesh and share a
+block) follow E3SM's `oQU240` instead: a biharmonic momentum viscosity of
+2.0e14 m^4/s alone, referenced to 240 km, and a 1 h / 3 min split time step.
+Compass's `qu240` coefficients were never scaled there, and at 240 km they are
+almost no viscosity; scaled from the shared 30 km reference, they would be about
+500 times too large.
 
 Two exceptions to that port are deliberate. The Compass `so12to30` time step is
 not carried over: it is far more conservative than its resolution alone justifies,
@@ -677,7 +711,9 @@ Because the neutral bucket can carry tracer diffusivities, the MPAS-Ocean-to-Ome
 map also gains the two entries it was missing, `config_tracer_del2` to
 `EddyDiff2` and `config_tracer_del4` to `EddyDiff4`; the corresponding enable
 flags were already mapped, so without these a tracer diffusivity set from Polaris
-would have been dropped for Omega with only a warning.
+would have been dropped for Omega with only a warning. It gains
+`config_mom_del4_div_factor` to `DivFactor` as well, which is what lets the
+divergence factor be neutral.
 
 ## Testing
 
@@ -720,7 +756,7 @@ source and at the initial condition itself for the other.
 
 ### Testing and Validation: The two sources of initial condition answer different questions
 
-Date last modified: 2026/08/11
+Date last modified: 2026/10/15
 
 Contributors: Xylar Asay-Davis, Claude
 
@@ -731,20 +767,20 @@ database source needs — the equation of state above all, since a cached run
 never sets the `init` workflow's config up at all and still has to name the
 equation of state to find the right file.
 
-The end-to-end check is the PR suites, which run the cached `QU.240km` task for
-both models on every pull request.
+The end-to-end check is the PR suites, which run the cached `QU.240km` task on
+every pull request: split-explicit in both models, and RK4 in Omega.
 
 ### Testing and Validation: Per-run settings are described in a common, model-agnostic form
 
-Date last modified: 2026/07/03
+Date last modified: 2026/10/17
 
 Contributors: Xylar Asay-Davis, Claude
 
 Unit tests should cover building a `ForwardStage` from config and its mapping onto
 template replacements: correct duration strings, the time-integrator translation
 for Omega, the derivation of the time step from `dt_per_km` and the mesh minimum
-resolution versus an explicit override, and the presence of the barotropic time
-step and Rayleigh damping only for MPAS-Ocean.
+resolution versus an explicit override (`rk4_dt` for RK4), and the presence of
+Rayleigh damping only for MPAS-Ocean.
 
 ### Testing and Validation: The framework composes into restart and dynamic-adjustment workflows
 
@@ -786,7 +822,7 @@ snapshots rather than reductions.
 
 ### Testing and Validation: Physics and mixing options vary with the mesh
 
-Date last modified: 2026/07/21
+Date last modified: 2026/10/17
 
 Contributors: Xylar Asay-Davis, Claude
 
@@ -797,6 +833,13 @@ Because the coefficients are what keep a run stable, a test should also confirm
 that each per-mesh config produces the expected values, and that the three
 qualitatively identical 240 km meshes agree with one another so they cannot drift
 apart unnoticed.
+
+Two further tests guard against failures that are silent by construction. One
+fails if an option in the MPAS-Ocean-only bucket has an Omega counterpart in the
+map, which is how KPP was left behind. It cannot see an Omega option that is on
+by default and not yet mapped. The other requires every mesh that scales its
+coefficients to reference its own finest resolution, which the 240 km meshes did
+not.
 
 The end-to-end check is that a short forward run on each mesh completes without
 producing NaNs, which is the failure mode these options exist to prevent.
