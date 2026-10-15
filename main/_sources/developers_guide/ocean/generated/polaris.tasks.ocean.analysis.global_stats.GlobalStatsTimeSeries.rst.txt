@@ -28,6 +28,7 @@
       ~GlobalStatsTimeSeries.add_vert_coord_input_file
       ~GlobalStatsTimeSeries.check_properties
       ~GlobalStatsTimeSeries.constrain_resources
+      ~GlobalStatsTimeSeries.get_forcing_filename
       ~GlobalStatsTimeSeries.get_horiz_mesh_filename
       ~GlobalStatsTimeSeries.get_init_filename
       ~GlobalStatsTimeSeries.get_sim_files
@@ -45,6 +46,7 @@
       ~GlobalStatsTimeSeries.setup
       ~GlobalStatsTimeSeries.validate_baselines
       ~GlobalStatsTimeSeries.work_path
+      ~GlobalStatsTimeSeries.write_forcing_dataset
       ~GlobalStatsTimeSeries.write_horiz_mesh_dataset
       ~GlobalStatsTimeSeries.write_initial_state_dataset
       ~GlobalStatsTimeSeries.write_model_dataset

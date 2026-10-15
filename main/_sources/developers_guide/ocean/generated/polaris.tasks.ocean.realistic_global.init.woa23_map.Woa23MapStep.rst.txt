@@ -1,0 +1,46 @@
+﻿polaris.tasks.ocean.realistic\_global.init.woa23\_map.Woa23MapStep
+==================================================================
+
+.. currentmodule:: polaris.tasks.ocean.realistic_global.init.woa23_map
+
+.. autoclass:: Woa23MapStep
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~Woa23MapStep.__init__
+      ~Woa23MapStep.add_dependency
+      ~Woa23MapStep.add_input_file
+      ~Woa23MapStep.add_output_file
+      ~Woa23MapStep.add_property_check
+      ~Woa23MapStep.check_properties
+      ~Woa23MapStep.constrain_resources
+      ~Woa23MapStep.process_inputs_and_outputs
+      ~Woa23MapStep.run
+      ~Woa23MapStep.runtime_setup
+      ~Woa23MapStep.set_resources
+      ~Woa23MapStep.set_shared_config
+      ~Woa23MapStep.setup
+      ~Woa23MapStep.validate_baselines
+      ~Woa23MapStep.work_path
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~Woa23MapStep.cores
+      ~Woa23MapStep.gpus
+      ~Woa23MapStep.may_span_nodes
+      ~Woa23MapStep.min_cores
+      ~Woa23MapStep.min_gpus
+   
+   

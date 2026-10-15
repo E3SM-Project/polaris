@@ -1,0 +1,46 @@
+﻿polaris.tasks.ocean.realistic\_global.forcing.jra55.Jra55VizStep
+================================================================
+
+.. currentmodule:: polaris.tasks.ocean.realistic_global.forcing.jra55
+
+.. autoclass:: Jra55VizStep
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~Jra55VizStep.__init__
+      ~Jra55VizStep.add_dependency
+      ~Jra55VizStep.add_input_file
+      ~Jra55VizStep.add_output_file
+      ~Jra55VizStep.add_property_check
+      ~Jra55VizStep.check_properties
+      ~Jra55VizStep.constrain_resources
+      ~Jra55VizStep.process_inputs_and_outputs
+      ~Jra55VizStep.run
+      ~Jra55VizStep.runtime_setup
+      ~Jra55VizStep.set_resources
+      ~Jra55VizStep.set_shared_config
+      ~Jra55VizStep.setup
+      ~Jra55VizStep.validate_baselines
+      ~Jra55VizStep.work_path
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~Jra55VizStep.cores
+      ~Jra55VizStep.gpus
+      ~Jra55VizStep.may_span_nodes
+      ~Jra55VizStep.min_cores
+      ~Jra55VizStep.min_gpus
+   
+   

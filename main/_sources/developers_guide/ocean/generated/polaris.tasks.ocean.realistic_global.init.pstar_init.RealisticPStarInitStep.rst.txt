@@ -1,0 +1,48 @@
+﻿polaris.tasks.ocean.realistic\_global.init.pstar\_init.RealisticPStarInitStep
+=============================================================================
+
+.. currentmodule:: polaris.tasks.ocean.realistic_global.init.pstar_init
+
+.. autoclass:: RealisticPStarInitStep
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~RealisticPStarInitStep.__init__
+      ~RealisticPStarInitStep.add_dependency
+      ~RealisticPStarInitStep.add_input_file
+      ~RealisticPStarInitStep.add_output_file
+      ~RealisticPStarInitStep.add_property_check
+      ~RealisticPStarInitStep.check_properties
+      ~RealisticPStarInitStep.constrain_resources
+      ~RealisticPStarInitStep.init_tracers
+      ~RealisticPStarInitStep.process_inputs_and_outputs
+      ~RealisticPStarInitStep.run
+      ~RealisticPStarInitStep.run_pstar_init
+      ~RealisticPStarInitStep.runtime_setup
+      ~RealisticPStarInitStep.set_resources
+      ~RealisticPStarInitStep.set_shared_config
+      ~RealisticPStarInitStep.setup
+      ~RealisticPStarInitStep.validate_baselines
+      ~RealisticPStarInitStep.work_path
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~RealisticPStarInitStep.cores
+      ~RealisticPStarInitStep.gpus
+      ~RealisticPStarInitStep.may_span_nodes
+      ~RealisticPStarInitStep.min_cores
+      ~RealisticPStarInitStep.min_gpus
+   
+   

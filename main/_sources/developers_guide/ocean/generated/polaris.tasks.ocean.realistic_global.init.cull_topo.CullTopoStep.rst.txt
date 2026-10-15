@@ -1,0 +1,46 @@
+﻿polaris.tasks.ocean.realistic\_global.init.cull\_topo.CullTopoStep
+==================================================================
+
+.. currentmodule:: polaris.tasks.ocean.realistic_global.init.cull_topo
+
+.. autoclass:: CullTopoStep
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~CullTopoStep.__init__
+      ~CullTopoStep.add_dependency
+      ~CullTopoStep.add_input_file
+      ~CullTopoStep.add_output_file
+      ~CullTopoStep.add_property_check
+      ~CullTopoStep.check_properties
+      ~CullTopoStep.constrain_resources
+      ~CullTopoStep.process_inputs_and_outputs
+      ~CullTopoStep.run
+      ~CullTopoStep.runtime_setup
+      ~CullTopoStep.set_resources
+      ~CullTopoStep.set_shared_config
+      ~CullTopoStep.setup
+      ~CullTopoStep.validate_baselines
+      ~CullTopoStep.work_path
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~CullTopoStep.cores
+      ~CullTopoStep.gpus
+      ~CullTopoStep.may_span_nodes
+      ~CullTopoStep.min_cores
+      ~CullTopoStep.min_gpus
+   
+   

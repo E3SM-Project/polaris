@@ -34,6 +34,7 @@
       ~Ocean.remove_vert_coord_vars
       ~Ocean.run_parallel_command
       ~Ocean.set_parallel_system
+      ~Ocean.write_forcing_dataset
       ~Ocean.write_horiz_mesh_dataset
       ~Ocean.write_initial_state_dataset
       ~Ocean.write_model_dataset

@@ -28,6 +28,7 @@
       ~ConvergenceAnalysis.constrain_resources
       ~ConvergenceAnalysis.convergence_parameters
       ~ConvergenceAnalysis.exact_solution
+      ~ConvergenceAnalysis.get_forcing_filename
       ~ConvergenceAnalysis.get_horiz_mesh_filename
       ~ConvergenceAnalysis.get_init_filename
       ~ConvergenceAnalysis.get_output_field
@@ -45,6 +46,7 @@
       ~ConvergenceAnalysis.setup
       ~ConvergenceAnalysis.validate_baselines
       ~ConvergenceAnalysis.work_path
+      ~ConvergenceAnalysis.write_forcing_dataset
       ~ConvergenceAnalysis.write_horiz_mesh_dataset
       ~ConvergenceAnalysis.write_initial_state_dataset
       ~ConvergenceAnalysis.write_model_dataset

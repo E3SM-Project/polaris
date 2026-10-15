@@ -130,29 +130,9 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">.viz</span><span class="w"> </span><span class="kn">import</span> <span class="n">Woa23VizStep</span>
 
 
-<div class="viewcode-block" id="get_woa23_topography_step">
-<a class="viewcode-back" href="../../../../../../../developers_guide/ocean/generated/polaris.tasks.ocean.realistic_global.hydrography.woa23.get_woa23_topography_step.html#polaris.tasks.ocean.realistic_global.hydrography.woa23.get_woa23_topography_step">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">get_woa23_topography_step</span><span class="p">():</span>
-<span class="w">    </span><span class="sd">"""</span>
-<span class="sd">    Get the cached combined-topography step for the WOA23 target grid.</span>
-
-<span class="sd">    Returns</span>
-<span class="sd">    -------</span>
-<span class="sd">    combine_topo_step : polaris.tasks.e3sm.init.topo.combine.step.CombineStep</span>
-<span class="sd">        A shared step from ``e3sm/init`` configured for the WOA23 0.25-degree</span>
-<span class="sd">        latitude-longitude grid.</span>
-<span class="sd">    """</span>
-    <span class="n">steps</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">get_lat_lon_topo_steps</span><span class="p">(</span>
-        <span class="n">component</span><span class="o">=</span><span class="n">e3sm_init</span><span class="p">,</span> <span class="n">resolution</span><span class="o">=</span><span class="mf">0.25</span><span class="p">,</span> <span class="n">include_viz</span><span class="o">=</span><span class="kc">False</span>
-    <span class="p">)</span>
-    <span class="n">woa23_res_name</span> <span class="o">=</span> <span class="n">format_lat_lon_resolution_name</span><span class="p">(</span><span class="mf">0.25</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">steps</span><span class="p">[</span><span class="n">TopoCombineStep</span><span class="o">.</span><span class="n">get_name</span><span class="p">(</span><span class="s1">'lat_lon'</span><span class="p">,</span> <span class="n">woa23_res_name</span><span class="p">)]</span></div>
-
-
-
 <div class="viewcode-block" id="get_woa23_steps">
 <a class="viewcode-back" href="../../../../../../../developers_guide/ocean/generated/polaris.tasks.ocean.realistic_global.hydrography.woa23.get_woa23_steps.html#polaris.tasks.ocean.realistic_global.hydrography.woa23.get_woa23_steps">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">get_woa23_steps</span><span class="p">(</span><span class="n">component</span><span class="p">,</span> <span class="n">combine_topo_step</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_woa23_steps</span><span class="p">(</span><span class="n">component</span><span class="p">,</span> <span class="n">include_viz</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Get the shared steps for building the reusable WOA23 hydrography product.</span>
 
@@ -161,15 +141,18 @@
 <span class="sd">    component : polaris.tasks.ocean.Ocean</span>
 <span class="sd">        The ocean component the steps belong to.</span>
 
-<span class="sd">    combine_topo_step : polaris.tasks.e3sm.init.topo.combine.step.CombineStep</span>
-<span class="sd">        The cached ``e3sm/init`` step that produces topography on the WOA23</span>
-<span class="sd">        grid.</span>
+<span class="sd">    include_viz : bool, optional</span>
+<span class="sd">        Whether to create the :py:class:`.Woa23VizStep` and include it in the</span>
+<span class="sd">        returned steps.  The standalone :py:class:`.Woa23` task passes</span>
+<span class="sd">        ``include_viz=True``; other consumers that reuse the hydrography</span>
+<span class="sd">        product as a dependency leave it ``False`` so the plots are not</span>
+<span class="sd">        regenerated.</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
 <span class="sd">    steps : dict of {str: polaris.Step}</span>
-<span class="sd">        Shared steps for combining and extrapolating WOA23 data, keyed by</span>
-<span class="sd">        step name.</span>
+<span class="sd">        All shared steps keyed by their suggested symlink names for use</span>
+<span class="sd">        in a task.  Upstream shared combine topography steps are also included.</span>
 
 <span class="sd">    config : polaris.config.PolarisConfigParser</span>
 <span class="sd">        The shared config options for the task and its steps.</span>
@@ -190,6 +173,15 @@
         <span class="n">filepath</span><span class="o">=</span><span class="n">filepath</span><span class="p">,</span> <span class="n">create</span><span class="o">=</span><span class="n">create</span>
     <span class="p">)</span>
 
+    <span class="n">topo_steps</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">get_lat_lon_topo_steps</span><span class="p">(</span>
+        <span class="n">component</span><span class="o">=</span><span class="n">e3sm_init</span><span class="p">,</span> <span class="n">resolution</span><span class="o">=</span><span class="mf">0.25</span><span class="p">,</span> <span class="n">include_viz</span><span class="o">=</span><span class="kc">False</span>
+    <span class="p">)</span>
+    <span class="n">woa23_res_name</span> <span class="o">=</span> <span class="n">format_lat_lon_resolution_name</span><span class="p">(</span><span class="mf">0.25</span><span class="p">)</span>
+    <span class="n">combine_topo_name</span> <span class="o">=</span> <span class="n">TopoCombineStep</span><span class="o">.</span><span class="n">get_name</span><span class="p">(</span><span class="s1">'lat_lon'</span><span class="p">,</span> <span class="n">woa23_res_name</span><span class="p">)</span>
+    <span class="c1"># give the step an simpler symlink name</span>
+    <span class="n">combine_topo_step</span> <span class="o">=</span> <span class="n">topo_steps</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">combine_topo_name</span><span class="p">)</span>
+    <span class="n">topo_steps</span><span class="p">[</span><span class="s1">'combine_topo'</span><span class="p">]</span> <span class="o">=</span> <span class="n">combine_topo_step</span>
+
     <span class="n">combine_subdir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">subdir</span><span class="p">,</span> <span class="s1">'combine'</span><span class="p">)</span>
     <span class="n">combine_step</span> <span class="o">=</span> <span class="n">component</span><span class="o">.</span><span class="n">get_or_create_shared_step</span><span class="p">(</span>
         <span class="n">step_cls</span><span class="o">=</span><span class="n">CombineStep</span><span class="p">,</span>
@@ -208,21 +200,23 @@
         <span class="n">combine_topo_step</span><span class="o">=</span><span class="n">combine_topo_step</span><span class="p">,</span>
     <span class="p">)</span>
 
-    <span class="n">viz_subdir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">subdir</span><span class="p">,</span> <span class="s1">'viz'</span><span class="p">)</span>
-    <span class="n">viz_step</span> <span class="o">=</span> <span class="n">component</span><span class="o">.</span><span class="n">get_or_create_shared_step</span><span class="p">(</span>
-        <span class="n">step_cls</span><span class="o">=</span><span class="n">Woa23VizStep</span><span class="p">,</span>
-        <span class="n">subdir</span><span class="o">=</span><span class="n">viz_subdir</span><span class="p">,</span>
-        <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span>
-        <span class="n">config_filename</span><span class="o">=</span><span class="n">config_filename</span><span class="p">,</span>
-        <span class="n">extrapolate_step</span><span class="o">=</span><span class="n">extrapolate_step</span><span class="p">,</span>
-        <span class="n">combine_topo_step</span><span class="o">=</span><span class="n">combine_topo_step</span><span class="p">,</span>
-    <span class="p">)</span>
+    <span class="n">steps</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Step</span><span class="p">]</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">topo_steps</span><span class="p">)</span>
+    <span class="n">steps</span><span class="p">[</span><span class="s1">'woa23_combine'</span><span class="p">]</span> <span class="o">=</span> <span class="n">combine_step</span>
+    <span class="n">steps</span><span class="p">[</span><span class="s1">'woa23_extrapolate'</span><span class="p">]</span> <span class="o">=</span> <span class="n">extrapolate_step</span>
 
-    <span class="n">steps</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Step</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
-        <span class="n">combine_step</span><span class="o">.</span><span class="n">name</span><span class="p">:</span> <span class="n">combine_step</span><span class="p">,</span>
-        <span class="n">extrapolate_step</span><span class="o">.</span><span class="n">name</span><span class="p">:</span> <span class="n">extrapolate_step</span><span class="p">,</span>
-        <span class="n">viz_step</span><span class="o">.</span><span class="n">name</span><span class="p">:</span> <span class="n">viz_step</span><span class="p">,</span>
-    <span class="p">}</span>
+    <span class="k">if</span> <span class="n">include_viz</span><span class="p">:</span>
+        <span class="n">viz_subdir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">subdir</span><span class="p">,</span> <span class="s1">'viz'</span><span class="p">)</span>
+        <span class="n">viz_step</span> <span class="o">=</span> <span class="n">component</span><span class="o">.</span><span class="n">get_or_create_shared_step</span><span class="p">(</span>
+            <span class="n">step_cls</span><span class="o">=</span><span class="n">Woa23VizStep</span><span class="p">,</span>
+            <span class="n">subdir</span><span class="o">=</span><span class="n">viz_subdir</span><span class="p">,</span>
+            <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span>
+            <span class="n">config_filename</span><span class="o">=</span><span class="n">config_filename</span><span class="p">,</span>
+            <span class="n">extrapolate_step</span><span class="o">=</span><span class="n">extrapolate_step</span><span class="p">,</span>
+            <span class="n">combine_topo_step</span><span class="o">=</span><span class="n">combine_topo_step</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="n">steps</span><span class="p">[</span><span class="s1">'woa23_viz'</span><span class="p">]</span> <span class="o">=</span> <span class="n">viz_step</span>
+
     <span class="k">return</span> <span class="n">steps</span><span class="p">,</span> <span class="n">config</span></div>
 
 </pre></div>

@@ -1,0 +1,6 @@
+﻿polaris.ocean.vertical.bathymetry\_holes.fill\_max\_level\_holes
+================================================================
+
+.. currentmodule:: polaris.ocean.vertical.bathymetry_holes
+
+.. autofunction:: fill_max_level_holes

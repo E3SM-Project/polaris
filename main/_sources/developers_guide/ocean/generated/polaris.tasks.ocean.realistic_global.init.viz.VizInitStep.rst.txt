@@ -1,0 +1,68 @@
+﻿polaris.tasks.ocean.realistic\_global.init.viz.VizInitStep
+==========================================================
+
+.. currentmodule:: polaris.tasks.ocean.realistic_global.init.viz
+
+.. autoclass:: VizInitStep
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~VizInitStep.__init__
+      ~VizInitStep.add_dependency
+      ~VizInitStep.add_horiz_mesh_input_file
+      ~VizInitStep.add_init_input_file
+      ~VizInitStep.add_input_file
+      ~VizInitStep.add_output_file
+      ~VizInitStep.add_output_files_for_ocean_model_input
+      ~VizInitStep.add_produced_file
+      ~VizInitStep.add_property_check
+      ~VizInitStep.add_vert_coord_input_file
+      ~VizInitStep.check_properties
+      ~VizInitStep.constrain_resources
+      ~VizInitStep.get_forcing_filename
+      ~VizInitStep.get_horiz_mesh_filename
+      ~VizInitStep.get_init_filename
+      ~VizInitStep.get_vert_coord_filename
+      ~VizInitStep.map_from_native_model_vars
+      ~VizInitStep.map_to_native_model_vars
+      ~VizInitStep.open_model_dataset
+      ~VizInitStep.open_vert_coord_dataset
+      ~VizInitStep.process_inputs_and_outputs
+      ~VizInitStep.run
+      ~VizInitStep.runtime_setup
+      ~VizInitStep.set_resources
+      ~VizInitStep.set_shared_config
+      ~VizInitStep.setup
+      ~VizInitStep.validate_baselines
+      ~VizInitStep.work_path
+      ~VizInitStep.write_forcing_dataset
+      ~VizInitStep.write_horiz_mesh_dataset
+      ~VizInitStep.write_initial_state_dataset
+      ~VizInitStep.write_model_dataset
+      ~VizInitStep.write_vert_coord_dataset
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~VizInitStep.cores
+      ~VizInitStep.gpus
+      ~VizInitStep.may_span_nodes
+      ~VizInitStep.min_cores
+      ~VizInitStep.min_gpus
+      ~VizInitStep.component
+      ~VizInitStep.config
+      ~VizInitStep.input_data
+      ~VizInitStep.logger
+   
+   

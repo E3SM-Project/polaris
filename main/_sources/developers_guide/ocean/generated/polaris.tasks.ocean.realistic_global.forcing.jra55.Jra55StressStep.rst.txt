@@ -1,0 +1,46 @@
+﻿polaris.tasks.ocean.realistic\_global.forcing.jra55.Jra55StressStep
+===================================================================
+
+.. currentmodule:: polaris.tasks.ocean.realistic_global.forcing.jra55
+
+.. autoclass:: Jra55StressStep
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~Jra55StressStep.__init__
+      ~Jra55StressStep.add_dependency
+      ~Jra55StressStep.add_input_file
+      ~Jra55StressStep.add_output_file
+      ~Jra55StressStep.add_property_check
+      ~Jra55StressStep.check_properties
+      ~Jra55StressStep.constrain_resources
+      ~Jra55StressStep.process_inputs_and_outputs
+      ~Jra55StressStep.run
+      ~Jra55StressStep.runtime_setup
+      ~Jra55StressStep.set_resources
+      ~Jra55StressStep.set_shared_config
+      ~Jra55StressStep.setup
+      ~Jra55StressStep.validate_baselines
+      ~Jra55StressStep.work_path
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~Jra55StressStep.cores
+      ~Jra55StressStep.gpus
+      ~Jra55StressStep.may_span_nodes
+      ~Jra55StressStep.min_cores
+      ~Jra55StressStep.min_gpus
+   
+   

@@ -25,6 +25,7 @@
       ~PStarInit.add_vert_coord_input_file
       ~PStarInit.check_properties
       ~PStarInit.constrain_resources
+      ~PStarInit.get_forcing_filename
       ~PStarInit.get_horiz_mesh_filename
       ~PStarInit.get_init_filename
       ~PStarInit.get_vert_coord_filename
@@ -42,6 +43,7 @@
       ~PStarInit.setup
       ~PStarInit.validate_baselines
       ~PStarInit.work_path
+      ~PStarInit.write_forcing_dataset
       ~PStarInit.write_horiz_mesh_dataset
       ~PStarInit.write_initial_state_dataset
       ~PStarInit.write_model_dataset

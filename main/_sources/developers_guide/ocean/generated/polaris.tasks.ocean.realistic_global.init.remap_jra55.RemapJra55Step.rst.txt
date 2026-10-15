@@ -1,0 +1,46 @@
+﻿polaris.tasks.ocean.realistic\_global.init.remap\_jra55.RemapJra55Step
+======================================================================
+
+.. currentmodule:: polaris.tasks.ocean.realistic_global.init.remap_jra55
+
+.. autoclass:: RemapJra55Step
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~RemapJra55Step.__init__
+      ~RemapJra55Step.add_dependency
+      ~RemapJra55Step.add_input_file
+      ~RemapJra55Step.add_output_file
+      ~RemapJra55Step.add_property_check
+      ~RemapJra55Step.check_properties
+      ~RemapJra55Step.constrain_resources
+      ~RemapJra55Step.process_inputs_and_outputs
+      ~RemapJra55Step.run
+      ~RemapJra55Step.runtime_setup
+      ~RemapJra55Step.set_resources
+      ~RemapJra55Step.set_shared_config
+      ~RemapJra55Step.setup
+      ~RemapJra55Step.validate_baselines
+      ~RemapJra55Step.work_path
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~RemapJra55Step.cores
+      ~RemapJra55Step.gpus
+      ~RemapJra55Step.may_span_nodes
+      ~RemapJra55Step.min_cores
+      ~RemapJra55Step.min_gpus
+   
+   

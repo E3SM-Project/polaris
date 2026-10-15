@@ -179,10 +179,12 @@
 
     <span class="k">elif</span> <span class="n">grid_type</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">'60layerPHC'</span><span class="p">,</span> <span class="s1">'80layerE3SMv1'</span><span class="p">,</span> <span class="s1">'100layerE3SMv1'</span><span class="p">]:</span>
         <span class="n">interfaces</span> <span class="o">=</span> <span class="n">_read_json</span><span class="p">(</span><span class="n">grid_type</span><span class="p">)</span>
-        <span class="n">bottom_depth</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">'bottom_depth'</span><span class="p">)</span>
-        <span class="n">nearest_index</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">interfaces</span> <span class="o">-</span> <span class="n">bottom_depth</span><span class="p">)</span><span class="o">.</span><span class="n">argmin</span><span class="p">()</span>
-        <span class="n">interfaces</span> <span class="o">=</span> <span class="n">interfaces</span><span class="p">[:</span> <span class="n">nearest_index</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span>
-        <span class="n">interfaces</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">bottom_depth</span>
+        <span class="c1"># without a bottom depth, the whole grid is used</span>
+        <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">has_option</span><span class="p">(</span><span class="s1">'vertical_grid'</span><span class="p">,</span> <span class="s1">'bottom_depth'</span><span class="p">):</span>
+            <span class="n">bottom_depth</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">'bottom_depth'</span><span class="p">)</span>
+            <span class="n">nearest_index</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">interfaces</span> <span class="o">-</span> <span class="n">bottom_depth</span><span class="p">)</span><span class="o">.</span><span class="n">argmin</span><span class="p">()</span>
+            <span class="n">interfaces</span> <span class="o">=</span> <span class="n">interfaces</span><span class="p">[:</span> <span class="n">nearest_index</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span>
+            <span class="n">interfaces</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">bottom_depth</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s1">'Unexpected grid type: </span><span class="si">{</span><span class="n">grid_type</span><span class="si">}</span><span class="s1">'</span><span class="p">)</span>
 

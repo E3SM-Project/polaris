@@ -29,6 +29,7 @@
       ~SshForward.compute_cell_count
       ~SshForward.constrain_resources
       ~SshForward.dynamic_model_config
+      ~SshForward.get_forcing_filename
       ~SshForward.get_horiz_mesh_filename
       ~SshForward.get_init_filename
       ~SshForward.get_vert_coord_filename

@@ -1,0 +1,68 @@
+﻿polaris.tasks.ocean.realistic\_global.init.initial\_state.InitialStateStep
+==========================================================================
+
+.. currentmodule:: polaris.tasks.ocean.realistic_global.init.initial_state
+
+.. autoclass:: InitialStateStep
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~InitialStateStep.__init__
+      ~InitialStateStep.add_dependency
+      ~InitialStateStep.add_horiz_mesh_input_file
+      ~InitialStateStep.add_init_input_file
+      ~InitialStateStep.add_input_file
+      ~InitialStateStep.add_output_file
+      ~InitialStateStep.add_output_files_for_ocean_model_input
+      ~InitialStateStep.add_produced_file
+      ~InitialStateStep.add_property_check
+      ~InitialStateStep.add_vert_coord_input_file
+      ~InitialStateStep.check_properties
+      ~InitialStateStep.constrain_resources
+      ~InitialStateStep.get_forcing_filename
+      ~InitialStateStep.get_horiz_mesh_filename
+      ~InitialStateStep.get_init_filename
+      ~InitialStateStep.get_vert_coord_filename
+      ~InitialStateStep.map_from_native_model_vars
+      ~InitialStateStep.map_to_native_model_vars
+      ~InitialStateStep.open_model_dataset
+      ~InitialStateStep.open_vert_coord_dataset
+      ~InitialStateStep.process_inputs_and_outputs
+      ~InitialStateStep.run
+      ~InitialStateStep.runtime_setup
+      ~InitialStateStep.set_resources
+      ~InitialStateStep.set_shared_config
+      ~InitialStateStep.setup
+      ~InitialStateStep.validate_baselines
+      ~InitialStateStep.work_path
+      ~InitialStateStep.write_forcing_dataset
+      ~InitialStateStep.write_horiz_mesh_dataset
+      ~InitialStateStep.write_initial_state_dataset
+      ~InitialStateStep.write_model_dataset
+      ~InitialStateStep.write_vert_coord_dataset
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~InitialStateStep.cores
+      ~InitialStateStep.gpus
+      ~InitialStateStep.may_span_nodes
+      ~InitialStateStep.min_cores
+      ~InitialStateStep.min_gpus
+      ~InitialStateStep.component
+      ~InitialStateStep.config
+      ~InitialStateStep.input_data
+      ~InitialStateStep.logger
+   
+   

@@ -25,6 +25,7 @@
       ~ComputeOceanFeatureMasksStep.add_vert_coord_input_file
       ~ComputeOceanFeatureMasksStep.check_properties
       ~ComputeOceanFeatureMasksStep.constrain_resources
+      ~ComputeOceanFeatureMasksStep.get_forcing_filename
       ~ComputeOceanFeatureMasksStep.get_horiz_mesh_filename
       ~ComputeOceanFeatureMasksStep.get_init_filename
       ~ComputeOceanFeatureMasksStep.get_vert_coord_filename
@@ -40,6 +41,7 @@
       ~ComputeOceanFeatureMasksStep.setup
       ~ComputeOceanFeatureMasksStep.validate_baselines
       ~ComputeOceanFeatureMasksStep.work_path
+      ~ComputeOceanFeatureMasksStep.write_forcing_dataset
       ~ComputeOceanFeatureMasksStep.write_horiz_mesh_dataset
       ~ComputeOceanFeatureMasksStep.write_initial_state_dataset
       ~ComputeOceanFeatureMasksStep.write_model_dataset

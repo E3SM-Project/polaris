@@ -18,6 +18,7 @@
       ~OceanModelFilesMixin.add_init_input_file
       ~OceanModelFilesMixin.add_output_file
       ~OceanModelFilesMixin.add_vert_coord_input_file
+      ~OceanModelFilesMixin.get_forcing_filename
       ~OceanModelFilesMixin.get_horiz_mesh_filename
       ~OceanModelFilesMixin.get_init_filename
       ~OceanModelFilesMixin.get_vert_coord_filename

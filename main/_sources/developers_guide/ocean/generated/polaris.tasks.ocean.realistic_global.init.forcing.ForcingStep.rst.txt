@@ -1,0 +1,68 @@
+﻿polaris.tasks.ocean.realistic\_global.init.forcing.ForcingStep
+==============================================================
+
+.. currentmodule:: polaris.tasks.ocean.realistic_global.init.forcing
+
+.. autoclass:: ForcingStep
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~ForcingStep.__init__
+      ~ForcingStep.add_dependency
+      ~ForcingStep.add_horiz_mesh_input_file
+      ~ForcingStep.add_init_input_file
+      ~ForcingStep.add_input_file
+      ~ForcingStep.add_output_file
+      ~ForcingStep.add_output_files_for_ocean_model_input
+      ~ForcingStep.add_produced_file
+      ~ForcingStep.add_property_check
+      ~ForcingStep.add_vert_coord_input_file
+      ~ForcingStep.check_properties
+      ~ForcingStep.constrain_resources
+      ~ForcingStep.get_forcing_filename
+      ~ForcingStep.get_horiz_mesh_filename
+      ~ForcingStep.get_init_filename
+      ~ForcingStep.get_vert_coord_filename
+      ~ForcingStep.map_from_native_model_vars
+      ~ForcingStep.map_to_native_model_vars
+      ~ForcingStep.open_model_dataset
+      ~ForcingStep.open_vert_coord_dataset
+      ~ForcingStep.process_inputs_and_outputs
+      ~ForcingStep.run
+      ~ForcingStep.runtime_setup
+      ~ForcingStep.set_resources
+      ~ForcingStep.set_shared_config
+      ~ForcingStep.setup
+      ~ForcingStep.validate_baselines
+      ~ForcingStep.work_path
+      ~ForcingStep.write_forcing_dataset
+      ~ForcingStep.write_horiz_mesh_dataset
+      ~ForcingStep.write_initial_state_dataset
+      ~ForcingStep.write_model_dataset
+      ~ForcingStep.write_vert_coord_dataset
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~ForcingStep.cores
+      ~ForcingStep.gpus
+      ~ForcingStep.may_span_nodes
+      ~ForcingStep.min_cores
+      ~ForcingStep.min_gpus
+      ~ForcingStep.component
+      ~ForcingStep.config
+      ~ForcingStep.input_data
+      ~ForcingStep.logger
+   
+   

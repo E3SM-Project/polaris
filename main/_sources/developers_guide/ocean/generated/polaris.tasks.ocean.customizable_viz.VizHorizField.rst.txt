@@ -25,6 +25,7 @@
       ~VizHorizField.add_vert_coord_input_file
       ~VizHorizField.check_properties
       ~VizHorizField.constrain_resources
+      ~VizHorizField.get_forcing_filename
       ~VizHorizField.get_horiz_mesh_filename
       ~VizHorizField.get_init_filename
       ~VizHorizField.get_vert_coord_filename
@@ -40,6 +41,7 @@
       ~VizHorizField.setup
       ~VizHorizField.validate_baselines
       ~VizHorizField.work_path
+      ~VizHorizField.write_forcing_dataset
       ~VizHorizField.write_horiz_mesh_dataset
       ~VizHorizField.write_initial_state_dataset
       ~VizHorizField.write_model_dataset

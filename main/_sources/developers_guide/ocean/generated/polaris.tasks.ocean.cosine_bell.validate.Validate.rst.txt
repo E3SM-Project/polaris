@@ -25,6 +25,7 @@
       ~Validate.add_vert_coord_input_file
       ~Validate.check_properties
       ~Validate.constrain_resources
+      ~Validate.get_forcing_filename
       ~Validate.get_horiz_mesh_filename
       ~Validate.get_init_filename
       ~Validate.get_vert_coord_filename
@@ -40,6 +41,7 @@
       ~Validate.setup
       ~Validate.validate_baselines
       ~Validate.work_path
+      ~Validate.write_forcing_dataset
       ~Validate.write_horiz_mesh_dataset
       ~Validate.write_initial_state_dataset
       ~Validate.write_model_dataset

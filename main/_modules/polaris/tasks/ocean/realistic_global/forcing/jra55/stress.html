@@ -1,0 +1,441 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../../../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>polaris.tasks.ocean.realistic_global.forcing.jra55.stress</title>
+      <link rel="stylesheet" type="text/css" href="../../../../../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../../../../../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../../../../../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../../../../../_static/documentation_options.js?v=a8da1a53"></script>
+      <script src="../../../../../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../../../../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../../../../search.html" />
+    <link href="../../../../../../../_static/style.css" rel="stylesheet" type="text/css">
+
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../../../../../index.html" class="icon icon-home">
+            Polaris
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">User's guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../../users_guide/quick_start.html">Quick Start for Users</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../../users_guide/tasks.html">Tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../../users_guide/config_files.html">Config Files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../../users_guide/suites.html">Suites</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../../users_guide/mesh/index.html">Mesh component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../../users_guide/e3sm/init/index.html">E3SM Initial Condition Component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../../users_guide/ocean/index.html">Ocean component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../../users_guide/seaice/index.html">Sea ice component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../../users_guide/machines/index.html">Machines</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Developer's guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../../developers_guide/quick_start.html">Quick Start for Developers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../../developers_guide/overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../../developers_guide/command_line.html">Command-line interface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../../developers_guide/organization/index.html">Organization of Tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../../developers_guide/e3sm/init/index.html">E3SM initial condition (e3sm/init) component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../../developers_guide/mesh/index.html">Mesh component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../../developers_guide/ocean/index.html">Ocean component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../../developers_guide/seaice/index.html">Sea ice component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../../developers_guide/framework/index.html">Framework</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../../developers_guide/machines/index.html">Machines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../../developers_guide/benchmarking.html">Benchmarking a branch against a baseline</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../../developers_guide/troubleshooting.html">Troubleshooting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../../developers_guide/docs.html">Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../../developers_guide/building_docs.html">Building the Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../../developers_guide/building_docs.html#previewing-the-documentation">Previewing the Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../../developers_guide/conda_vs_spack.html">How Conda and Spack Work Together in Polaris</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../../developers_guide/updating_conda.html">Updating Deployment Dependencies</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../../developers_guide/updating_spack/index.html">Updating Shared Spack Environments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../../developers_guide/api.html">API reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../../design_docs/index.html">Design Documents</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../../tutorials/dev_add_category_of_tasks/index.html">Developer Tutorial: Adding a New Category of Tasks</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Glossary</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../../glossary.html">Glossary</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../../../../index.html">Polaris</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../../../../../index.html">Module code</a></li>
+          <li class="breadcrumb-item"><a href="../../../../ocean.html">polaris.tasks.ocean</a></li>
+          <li class="breadcrumb-item"><a href="../../../realistic_global.html">polaris.tasks.ocean.realistic_global</a></li>
+      <li class="breadcrumb-item active">polaris.tasks.ocean.realistic_global.forcing.jra55.stress</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for polaris.tasks.ocean.realistic_global.forcing.jra55.stress</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">xarray</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">xr</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mpas_tools.io</span><span class="w"> </span><span class="kn">import</span> <span class="n">write_netcdf</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris</span><span class="w"> </span><span class="kn">import</span> <span class="n">Step</span>
+
+<span class="n">JRA55_STRESS_FILENAME</span> <span class="o">=</span> <span class="s1">'jra55_stress.nc'</span>
+
+<span class="c1"># JRA55-do is published as one file per variable per year of 3-hourly</span>
+<span class="c1"># instantaneous ("3hrPt") data on the TL319 grid</span>
+<span class="n">_TABLE_ID</span> <span class="o">=</span> <span class="s1">'3hrPt'</span>
+<span class="n">_GRID_LABEL</span> <span class="o">=</span> <span class="s1">'gr'</span>
+<span class="n">_MIP_TEMPLATE</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="s1">'</span><span class="si">{var}</span><span class="s1">_input4MIPs_atmosphericState_OMIP_</span><span class="si">{source_id}</span><span class="s1">_</span><span class="si">{grid}</span><span class="s1">_'</span>
+    <span class="s1">'</span><span class="si">{year}</span><span class="s1">01010000-</span><span class="si">{year}</span><span class="s1">12312100.nc'</span>
+<span class="p">)</span>
+
+
+<div class="viewcode-block" id="Jra55StressStep">
+<a class="viewcode-back" href="../../../../../../../developers_guide/ocean/generated/polaris.tasks.ocean.realistic_global.forcing.jra55.Jra55StressStep.html#polaris.tasks.ocean.realistic_global.forcing.jra55.Jra55StressStep">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">Jra55StressStep</span><span class="p">(</span><span class="n">Step</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    A step for deriving a time-invariant global wind-stress product from</span>
+<span class="sd">    JRA55-do 10-m winds.</span>
+
+<span class="sd">    The stress is computed at every 3-hourly step and then time-averaged,</span>
+<span class="sd">    rather than computing the stress of the time-mean wind.  Averaging the</span>
+<span class="sd">    wind first would discard the gust contribution and underestimate the</span>
+<span class="sd">    stress in the storm tracks, which is the reason the 3-hourly data is</span>
+<span class="sd">    needed at all.</span>
+
+<span class="sd">    The reduction itself is quick, but it needs several GiB of raw</span>
+<span class="sd">    reanalysis, so the derived product is distributed through the Polaris</span>
+<span class="sd">    cache and this step is ``default_cached``.  The standalone</span>
+<span class="sd">    :py:class:`.Jra55` task overrides that to regenerate the product.</span>
+<span class="sd">    """</span>
+
+<div class="viewcode-block" id="Jra55StressStep.__init__">
+<a class="viewcode-back" href="../../../../../../../developers_guide/ocean/generated/polaris.tasks.ocean.realistic_global.forcing.jra55.Jra55StressStep.html#polaris.tasks.ocean.realistic_global.forcing.jra55.Jra55StressStep.__init__">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">component</span><span class="p">,</span> <span class="n">subdir</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">        Create the step.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        component : polaris.Component</span>
+<span class="sd">            The component the step belongs to.</span>
+
+<span class="sd">        subdir : str</span>
+<span class="sd">            The subdirectory for the step.</span>
+<span class="sd">        """</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
+            <span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span>
+            <span class="n">name</span><span class="o">=</span><span class="s1">'stress'</span><span class="p">,</span>
+            <span class="n">subdir</span><span class="o">=</span><span class="n">subdir</span><span class="p">,</span>
+            <span class="n">ntasks</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+            <span class="n">min_tasks</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_output_file</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="n">JRA55_STRESS_FILENAME</span><span class="p">)</span>
+        <span class="c1"># The reduction itself is quick, but it needs ~3.5 GiB of raw winds</span>
+        <span class="c1"># that would otherwise have to be downloaded on every machine, so</span>
+        <span class="c1"># the product is cached and this step reads it from the cache</span>
+        <span class="c1"># database unless a task asks for it to run (see the Jra55 task).</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">default_cached</span> <span class="o">=</span> <span class="kc">True</span></div>
+
+
+<div class="viewcode-block" id="Jra55StressStep.setup">
+<a class="viewcode-back" href="../../../../../../../developers_guide/ocean/generated/polaris.tasks.ocean.realistic_global.forcing.jra55.Jra55StressStep.setup.html#polaris.tasks.ocean.realistic_global.forcing.jra55.Jra55StressStep.setup">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">setup</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">        Declare the raw JRA55-do wind files, whose URLs are built from config.</span>
+<span class="sd">        """</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">setup</span><span class="p">()</span>
+        <span class="n">section</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s1">'jra55'</span><span class="p">]</span>
+        <span class="n">base_url</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'base_url'</span><span class="p">)</span>
+        <span class="n">source_id</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'source_id'</span><span class="p">)</span>
+        <span class="n">version</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'version'</span><span class="p">)</span>
+        <span class="n">year</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getint</span><span class="p">(</span><span class="s1">'year'</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">var</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">'uas'</span><span class="p">,</span> <span class="s1">'vas'</span><span class="p">]:</span>
+            <span class="n">filename</span> <span class="o">=</span> <span class="n">_MIP_TEMPLATE</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                <span class="n">var</span><span class="o">=</span><span class="n">var</span><span class="p">,</span>
+                <span class="n">source_id</span><span class="o">=</span><span class="n">source_id</span><span class="p">,</span>
+                <span class="n">grid</span><span class="o">=</span><span class="n">_GRID_LABEL</span><span class="p">,</span>
+                <span class="n">year</span><span class="o">=</span><span class="n">year</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="n">url</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">base_url</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="n">source_id</span><span class="si">}</span><span class="s1">/atmos/</span><span class="si">{</span><span class="n">_TABLE_ID</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="n">var</span><span class="si">}</span><span class="s1">/'</span>
+                <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">_GRID_LABEL</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="n">version</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="n">filename</span><span class="si">}</span><span class="s1">'</span>
+            <span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">add_input_file</span><span class="p">(</span>
+                <span class="n">filename</span><span class="o">=</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">var</span><span class="si">}</span><span class="s1">.nc'</span><span class="p">,</span>
+                <span class="n">target</span><span class="o">=</span><span class="n">filename</span><span class="p">,</span>
+                <span class="n">database</span><span class="o">=</span><span class="s1">'initial_condition_database'</span><span class="p">,</span>
+                <span class="n">url</span><span class="o">=</span><span class="n">url</span><span class="p">,</span>
+            <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Jra55StressStep.run">
+<a class="viewcode-back" href="../../../../../../../developers_guide/ocean/generated/polaris.tasks.ocean.realistic_global.forcing.jra55.Jra55StressStep.run.html#polaris.tasks.ocean.realistic_global.forcing.jra55.Jra55StressStep.run">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">        Average the wind stress over the configured month and write the</span>
+<span class="sd">        product.</span>
+<span class="sd">        """</span>
+        <span class="n">logger</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">logger</span>
+        <span class="n">section</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s1">'jra55'</span><span class="p">]</span>
+        <span class="n">year</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getint</span><span class="p">(</span><span class="s1">'year'</span><span class="p">)</span>
+        <span class="n">month</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getint</span><span class="p">(</span><span class="s1">'month'</span><span class="p">)</span>
+        <span class="n">rho_air</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">'rho_air'</span><span class="p">)</span>
+        <span class="n">min_wind_speed</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">'min_wind_speed'</span><span class="p">)</span>
+        <span class="n">chunk_size</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getint</span><span class="p">(</span><span class="s1">'time_chunk_size'</span><span class="p">)</span>
+
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s1">'Averaging JRA55-do wind stress over </span><span class="si">{</span><span class="n">year</span><span class="si">}</span><span class="s1">-</span><span class="si">{</span><span class="n">month</span><span class="si">:</span><span class="s1">02d</span><span class="si">}</span><span class="s1"> '</span>
+            <span class="sa">f</span><span class="s1">'(this reads two ~1.8 GiB files)'</span>
+        <span class="p">)</span>
+
+        <span class="c1"># JRA55-do time units are "days since 1900-01-01" on a non-standard</span>
+        <span class="c1"># calendar, so decode to cftime rather than numpy datetimes</span>
+        <span class="n">time_coder</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">coders</span><span class="o">.</span><span class="n">CFDatetimeCoder</span><span class="p">(</span><span class="n">use_cftime</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">with</span> <span class="p">(</span>
+            <span class="n">xr</span><span class="o">.</span><span class="n">open_dataset</span><span class="p">(</span><span class="s1">'uas.nc'</span><span class="p">,</span> <span class="n">decode_times</span><span class="o">=</span><span class="n">time_coder</span><span class="p">)</span> <span class="k">as</span> <span class="n">ds_u</span><span class="p">,</span>
+            <span class="n">xr</span><span class="o">.</span><span class="n">open_dataset</span><span class="p">(</span><span class="s1">'vas.nc'</span><span class="p">,</span> <span class="n">decode_times</span><span class="o">=</span><span class="n">time_coder</span><span class="p">)</span> <span class="k">as</span> <span class="n">ds_v</span><span class="p">,</span>
+        <span class="p">):</span>
+            <span class="n">time_index</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">flatnonzero</span><span class="p">(</span>
+                <span class="p">(</span><span class="n">ds_u</span><span class="o">.</span><span class="n">time</span><span class="o">.</span><span class="n">dt</span><span class="o">.</span><span class="n">year</span> <span class="o">==</span> <span class="n">year</span><span class="p">)</span><span class="o">.</span><span class="n">values</span>
+                <span class="o">&amp;</span> <span class="p">(</span><span class="n">ds_u</span><span class="o">.</span><span class="n">time</span><span class="o">.</span><span class="n">dt</span><span class="o">.</span><span class="n">month</span> <span class="o">==</span> <span class="n">month</span><span class="p">)</span><span class="o">.</span><span class="n">values</span>
+            <span class="p">)</span>
+            <span class="k">if</span> <span class="n">time_index</span><span class="o">.</span><span class="n">size</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s1">'No JRA55-do time slices found for </span><span class="si">{</span><span class="n">year</span><span class="si">}</span><span class="s1">-</span><span class="si">{</span><span class="n">month</span><span class="si">:</span><span class="s1">02d</span><span class="si">}</span><span class="s1">'</span>
+                <span class="p">)</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">'Found </span><span class="si">{</span><span class="n">time_index</span><span class="o">.</span><span class="n">size</span><span class="si">}</span><span class="s1"> time slices'</span><span class="p">)</span>
+
+            <span class="n">taux_sum</span><span class="p">,</span> <span class="n">tauy_sum</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_accumulate_stress</span><span class="p">(</span>
+                <span class="n">ds_u</span><span class="o">=</span><span class="n">ds_u</span><span class="p">,</span>
+                <span class="n">ds_v</span><span class="o">=</span><span class="n">ds_v</span><span class="p">,</span>
+                <span class="n">time_index</span><span class="o">=</span><span class="n">time_index</span><span class="p">,</span>
+                <span class="n">rho_air</span><span class="o">=</span><span class="n">rho_air</span><span class="p">,</span>
+                <span class="n">min_wind_speed</span><span class="o">=</span><span class="n">min_wind_speed</span><span class="p">,</span>
+                <span class="n">chunk_size</span><span class="o">=</span><span class="n">chunk_size</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="n">count</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">time_index</span><span class="o">.</span><span class="n">size</span><span class="p">)</span>
+            <span class="n">ds_out</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_build_dataset</span><span class="p">(</span>
+                <span class="n">ds_u</span><span class="o">=</span><span class="n">ds_u</span><span class="p">,</span>
+                <span class="n">taux</span><span class="o">=</span><span class="n">taux_sum</span> <span class="o">/</span> <span class="n">count</span><span class="p">,</span>
+                <span class="n">tauy</span><span class="o">=</span><span class="n">tauy_sum</span> <span class="o">/</span> <span class="n">count</span><span class="p">,</span>
+            <span class="p">)</span>
+
+        <span class="n">ds_out</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">'source_id'</span><span class="p">]</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'source_id'</span><span class="p">)</span>
+        <span class="n">ds_out</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">'source_version'</span><span class="p">]</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'version'</span><span class="p">)</span>
+        <span class="n">ds_out</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">'time_window'</span><span class="p">]</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">year</span><span class="si">}</span><span class="s1">-</span><span class="si">{</span><span class="n">month</span><span class="si">:</span><span class="s1">02d</span><span class="si">}</span><span class="s1">'</span>
+        <span class="n">ds_out</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">'n_time_slices'</span><span class="p">]</span> <span class="o">=</span> <span class="n">time_index</span><span class="o">.</span><span class="n">size</span>
+        <span class="n">ds_out</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">'drag_law'</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="s1">'Large and Yeager (2004, 2009) neutral 10-m drag: '</span>
+            <span class="s1">'1e3*Cd = 2.70/U + 0.142 + 0.0764*U; '</span>
+            <span class="sa">f</span><span class="s1">'rho_air = </span><span class="si">{</span><span class="n">rho_air</span><span class="si">}</span><span class="s1"> kg m-3; '</span>
+            <span class="sa">f</span><span class="s1">'wind speed clamped below at </span><span class="si">{</span><span class="n">min_wind_speed</span><span class="si">}</span><span class="s1"> m s-1'</span>
+        <span class="p">)</span>
+        <span class="n">ds_out</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">'averaging'</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="s1">'stress computed at each 3-hourly step, then time-averaged'</span>
+        <span class="p">)</span>
+
+        <span class="n">write_netcdf</span><span class="p">(</span><span class="n">ds_out</span><span class="p">,</span> <span class="n">JRA55_STRESS_FILENAME</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">'Wrote </span><span class="si">{</span><span class="n">JRA55_STRESS_FILENAME</span><span class="si">}</span><span class="s1">'</span><span class="p">)</span></div>
+
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_accumulate_stress</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">ds_u</span><span class="p">,</span> <span class="n">ds_v</span><span class="p">,</span> <span class="n">time_index</span><span class="p">,</span> <span class="n">rho_air</span><span class="p">,</span> <span class="n">min_wind_speed</span><span class="p">,</span> <span class="n">chunk_size</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">        Sum the wind stress over the selected time slices, a chunk at a time.</span>
+
+<span class="sd">        A month of 3-hourly TL319 winds is 248 x 320 x 640 per component, so</span>
+<span class="sd">        the time loop is chunked rather than loaded whole.</span>
+<span class="sd">        """</span>
+        <span class="n">taux_sum</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="n">tauy_sum</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">for</span> <span class="n">start</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">time_index</span><span class="o">.</span><span class="n">size</span><span class="p">,</span> <span class="n">chunk_size</span><span class="p">):</span>
+            <span class="n">chunk</span> <span class="o">=</span> <span class="n">time_index</span><span class="p">[</span><span class="n">start</span> <span class="p">:</span> <span class="n">start</span> <span class="o">+</span> <span class="n">chunk_size</span><span class="p">]</span>
+            <span class="n">u10</span> <span class="o">=</span> <span class="n">ds_u</span><span class="o">.</span><span class="n">uas</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span><span class="n">time</span><span class="o">=</span><span class="n">chunk</span><span class="p">)</span><span class="o">.</span><span class="n">values</span>
+            <span class="n">v10</span> <span class="o">=</span> <span class="n">ds_v</span><span class="o">.</span><span class="n">vas</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span><span class="n">time</span><span class="o">=</span><span class="n">chunk</span><span class="p">)</span><span class="o">.</span><span class="n">values</span>
+            <span class="n">taux</span><span class="p">,</span> <span class="n">tauy</span> <span class="o">=</span> <span class="n">wind_stress</span><span class="p">(</span>
+                <span class="n">u10</span><span class="o">=</span><span class="n">u10</span><span class="p">,</span>
+                <span class="n">v10</span><span class="o">=</span><span class="n">v10</span><span class="p">,</span>
+                <span class="n">rho_air</span><span class="o">=</span><span class="n">rho_air</span><span class="p">,</span>
+                <span class="n">min_wind_speed</span><span class="o">=</span><span class="n">min_wind_speed</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="k">if</span> <span class="n">taux_sum</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">taux_sum</span> <span class="o">=</span> <span class="n">taux</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+                <span class="n">tauy_sum</span> <span class="o">=</span> <span class="n">tauy</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">taux_sum</span> <span class="o">+=</span> <span class="n">taux</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+                <span class="n">tauy_sum</span> <span class="o">+=</span> <span class="n">tauy</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="n">taux_sum</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">tauy_sum</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+        <span class="k">return</span> <span class="n">taux_sum</span><span class="p">,</span> <span class="n">tauy_sum</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_build_dataset</span><span class="p">(</span><span class="n">ds_u</span><span class="p">,</span> <span class="n">taux</span><span class="p">,</span> <span class="n">tauy</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">        Assemble the output dataset on the native TL319 grid.</span>
+
+<span class="sd">        The grid is deliberately **not** padded, in latitude or longitude.</span>
+<span class="sd">        Bilinear remapping is center-based for ESMF but corner-based for</span>
+<span class="sd">        mbtempest, and padding a lat-lon source so that either its corners or</span>
+<span class="sd">        its centers reach the pole aborts mbtempest with "Unable to find a</span>
+<span class="sd">        face that contains the point".  Duplicating a longitude column breaks</span>
+<span class="sd">        both tools, because pyremap reconstructs corners from centers and the</span>
+<span class="sd">        grid then spans 365 degrees and overlaps itself; it is also</span>
+<span class="sd">        unnecessary, since TL319's longitude corners already span exactly 360</span>
+<span class="sd">        degrees.  See the wind-forcing section of the ``global_ocean_init``</span>
+<span class="sd">        design document.</span>
+<span class="sd">        """</span>
+        <span class="n">ds_out</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">var</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">'lat'</span><span class="p">,</span> <span class="s1">'lon'</span><span class="p">]:</span>
+            <span class="n">ds_out</span><span class="p">[</span><span class="n">var</span><span class="p">]</span> <span class="o">=</span> <span class="n">ds_u</span><span class="p">[</span><span class="n">var</span><span class="p">]</span>
+            <span class="n">bnds</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">var</span><span class="si">}</span><span class="s1">_bnds'</span>
+            <span class="k">if</span> <span class="n">bnds</span> <span class="ow">in</span> <span class="n">ds_u</span><span class="p">:</span>
+                <span class="n">ds_out</span><span class="p">[</span><span class="n">bnds</span><span class="p">]</span> <span class="o">=</span> <span class="n">ds_u</span><span class="p">[</span><span class="n">bnds</span><span class="p">]</span>
+
+        <span class="n">dims</span> <span class="o">=</span> <span class="p">(</span><span class="s1">'lat'</span><span class="p">,</span> <span class="s1">'lon'</span><span class="p">)</span>
+        <span class="n">ds_out</span><span class="p">[</span><span class="s1">'taux'</span><span class="p">]</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">(</span>
+            <span class="n">data</span><span class="o">=</span><span class="n">taux</span><span class="p">,</span>
+            <span class="n">dims</span><span class="o">=</span><span class="n">dims</span><span class="p">,</span>
+            <span class="n">attrs</span><span class="o">=</span><span class="p">{</span>
+                <span class="s1">'units'</span><span class="p">:</span> <span class="s1">'N m-2'</span><span class="p">,</span>
+                <span class="s1">'long_name'</span><span class="p">:</span> <span class="s1">'zonal surface wind stress'</span><span class="p">,</span>
+                <span class="s1">'standard_name'</span><span class="p">:</span> <span class="s1">'surface_downward_eastward_stress'</span><span class="p">,</span>
+            <span class="p">},</span>
+        <span class="p">)</span>
+        <span class="n">ds_out</span><span class="p">[</span><span class="s1">'tauy'</span><span class="p">]</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">(</span>
+            <span class="n">data</span><span class="o">=</span><span class="n">tauy</span><span class="p">,</span>
+            <span class="n">dims</span><span class="o">=</span><span class="n">dims</span><span class="p">,</span>
+            <span class="n">attrs</span><span class="o">=</span><span class="p">{</span>
+                <span class="s1">'units'</span><span class="p">:</span> <span class="s1">'N m-2'</span><span class="p">,</span>
+                <span class="s1">'long_name'</span><span class="p">:</span> <span class="s1">'meridional surface wind stress'</span><span class="p">,</span>
+                <span class="s1">'standard_name'</span><span class="p">:</span> <span class="s1">'surface_downward_northward_stress'</span><span class="p">,</span>
+            <span class="p">},</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="n">ds_out</span></div>
+
+
+
+<div class="viewcode-block" id="wind_stress">
+<a class="viewcode-back" href="../../../../../../../developers_guide/ocean/generated/polaris.tasks.ocean.realistic_global.forcing.jra55.stress.wind_stress.html#polaris.tasks.ocean.realistic_global.forcing.jra55.wind_stress">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">wind_stress</span><span class="p">(</span><span class="n">u10</span><span class="p">,</span> <span class="n">v10</span><span class="p">,</span> <span class="n">rho_air</span><span class="p">,</span> <span class="n">min_wind_speed</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Compute wind stress from 10-m winds with the Large and Yeager (2004,</span>
+<span class="sd">    2009) neutral drag law.</span>
+
+<span class="sd">    The stability correction, the ocean-current-relative wind and any</span>
+<span class="sd">    sea-ice drag distinction are deliberately omitted; they are second-order</span>
+<span class="sd">    for spinning down fast waves.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    u10, v10 : numpy.ndarray</span>
+<span class="sd">        Zonal and meridional 10-m wind components (m s-1)</span>
+
+<span class="sd">    rho_air : float</span>
+<span class="sd">        Air density (kg m-3)</span>
+
+<span class="sd">    min_wind_speed : float</span>
+<span class="sd">        Wind speeds below this value (m s-1) are clamped, since the 2.70/U</span>
+<span class="sd">        term in the drag law diverges as the wind speed goes to zero</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    taux, tauy : numpy.ndarray</span>
+<span class="sd">        Zonal and meridional wind stress (N m-2)</span>
+<span class="sd">    """</span>
+    <span class="n">speed</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">maximum</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">u10</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="n">v10</span><span class="o">**</span><span class="mi">2</span><span class="p">),</span> <span class="n">min_wind_speed</span><span class="p">)</span>
+    <span class="n">drag</span> <span class="o">=</span> <span class="mf">1e-3</span> <span class="o">*</span> <span class="p">(</span><span class="mf">2.70</span> <span class="o">/</span> <span class="n">speed</span> <span class="o">+</span> <span class="mf">0.142</span> <span class="o">+</span> <span class="mf">0.0764</span> <span class="o">*</span> <span class="n">speed</span><span class="p">)</span>
+    <span class="n">factor</span> <span class="o">=</span> <span class="n">rho_air</span> <span class="o">*</span> <span class="n">drag</span> <span class="o">*</span> <span class="n">speed</span>
+    <span class="k">return</span> <span class="n">factor</span> <span class="o">*</span> <span class="n">u10</span><span class="p">,</span> <span class="n">factor</span> <span class="o">*</span> <span class="n">v10</span></div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2026, Energy Exascale Earth System Model Project.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+   
+
+  <!-- Meta tags for JS to use -->
+  <meta name="doc-version" content="main">
+  <meta name="doc-site-root" content="../../../../../../../">
+
+  <!-- Create version switcher container -->
+  <script>
+    const sidebar = document.querySelector('.wy-side-nav-search');
+    if (sidebar) {
+      const versionDiv = document.createElement('div');
+      versionDiv.id = 'version-switcher';
+      versionDiv.style.marginTop = '1em';
+      sidebar.appendChild(versionDiv);
+    }
+  </script>
+
+  <!-- Load version-switcher.js using the correct relative path -->
+  <script src="../../../../../../../../shared/version-switcher.js"></script>
+
+
+</body>
+</html>

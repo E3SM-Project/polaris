@@ -1,0 +1,1039 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Realistic Ocean Initial Conditions</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=a8da1a53"></script>
+      <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Reworked HPG Reference Solution" href="horiz_press_grad_reference.html" />
+    <link rel="prev" title="Design Documents" href="index.html" />
+    <link href="../_static/style.css" rel="stylesheet" type="text/css">
+
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            Polaris
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">User's guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../users_guide/quick_start.html">Quick Start for Users</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../users_guide/tasks.html">Tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../users_guide/config_files.html">Config Files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../users_guide/suites.html">Suites</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../users_guide/mesh/index.html">Mesh component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../users_guide/e3sm/init/index.html">E3SM Initial Condition Component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../users_guide/ocean/index.html">Ocean component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../users_guide/seaice/index.html">Sea ice component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../users_guide/machines/index.html">Machines</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Developer's guide</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/quick_start.html">Quick Start for Developers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/command_line.html">Command-line interface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/organization/index.html">Organization of Tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/e3sm/init/index.html">E3SM initial condition (e3sm/init) component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/mesh/index.html">Mesh component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/ocean/index.html">Ocean component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/seaice/index.html">Sea ice component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/framework/index.html">Framework</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/machines/index.html">Machines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/benchmarking.html">Benchmarking a branch against a baseline</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/troubleshooting.html">Troubleshooting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/docs.html">Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/building_docs.html">Building the Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/building_docs.html#previewing-the-documentation">Previewing the Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/conda_vs_spack.html">How Conda and Spack Work Together in Polaris</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/updating_conda.html">Updating Deployment Dependencies</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/updating_spack/index.html">Updating Shared Spack Environments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/api.html">API reference</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">Design Documents</a><ul class="current">
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Realistic Ocean Initial Conditions</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#summary">Summary</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#requirements">Requirements</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#requirement-open-ocean-global-initial-conditions-can-be-created-from-a-culled-mesh">Requirement: Open-ocean global initial conditions can be created from a culled mesh</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#requirement-a-reusable-global-hydrography-product-is-available-from-woa">Requirement: A reusable global hydrography product is available from WOA</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#requirement-the-workflow-produces-consistent-tracer-initial-conditions-for-the-configured-model">Requirement: The workflow produces consistent tracer initial conditions for the configured model</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#requirement-the-p-star-iteration-yields-a-model-independent-geometric-vertical-grid">Requirement: The p-star iteration yields a model-independent geometric vertical grid</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#requirement-the-capability-is-decomposed-into-inspectable-polaris-steps">Requirement: The capability is decomposed into inspectable Polaris steps</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#requirement-the-workflow-is-practical-for-very-large-global-meshes">Requirement: The workflow is practical for very large global meshes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#requirement-the-design-preserves-a-path-to-future-cavity-support">Requirement: The design preserves a path to future cavity support</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#algorithm-design">Algorithm Design</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#algorithm-design-open-ocean-global-initial-conditions-can-be-created-from-a-culled-mesh">Algorithm Design: Open-ocean global initial conditions can be created from a culled mesh</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#algorithm-design-a-reusable-global-hydrography-product-is-available-from-woa">Algorithm Design: A reusable global hydrography product is available from WOA</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#algorithm-design-the-workflow-produces-consistent-tracer-initial-conditions-for-the-configured-model">Algorithm Design: The workflow produces consistent tracer initial conditions for the configured model</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#algorithm-design-the-p-star-iteration-yields-a-model-independent-geometric-vertical-grid">Algorithm Design: The p-star iteration yields a model-independent geometric vertical grid</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#algorithm-design-the-workflow-is-practical-for-very-large-global-meshes">Algorithm Design: The workflow is practical for very large global meshes</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#implementation">Implementation</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#implementation-open-ocean-global-initial-conditions-can-be-created-from-a-culled-mesh">Implementation: Open-ocean global initial conditions can be created from a culled mesh</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#implementation-a-reusable-global-hydrography-product-is-available-from-woa">Implementation: A reusable global hydrography product is available from WOA</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#implementation-the-workflow-produces-consistent-tracer-initial-conditions-for-the-configured-model">Implementation: The workflow produces consistent tracer initial conditions for the configured model</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#implementation-the-p-star-iteration-yields-a-model-independent-geometric-vertical-grid">Implementation: The p-star iteration yields a model-independent geometric vertical grid</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#implementation-the-capability-is-decomposed-into-inspectable-polaris-steps">Implementation: The capability is decomposed into inspectable Polaris steps</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#implementation-wind-forcing">Implementation: Wind forcing</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#implementation-the-workflow-is-practical-for-very-large-global-meshes">Implementation: The workflow is practical for very large global meshes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#implementation-the-design-preserves-a-path-to-future-cavity-support">Implementation: The design preserves a path to future cavity support</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#testing">Testing</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#testing-and-validation-open-ocean-global-initial-conditions-can-be-created-from-a-culled-mesh">Testing and Validation: Open-ocean global initial conditions can be created from a culled mesh</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#testing-and-validation-a-reusable-global-hydrography-product-is-available-from-woa">Testing and Validation: A reusable global hydrography product is available from WOA</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#testing-and-validation-the-workflow-produces-consistent-tracer-initial-conditions-for-the-configured-model">Testing and Validation: The workflow produces consistent tracer initial conditions for the configured model</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#testing-and-validation-the-p-star-iteration-yields-a-model-independent-geometric-vertical-grid">Testing and Validation: The p-star iteration yields a model-independent geometric vertical grid</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#testing-and-validation-the-capability-is-decomposed-into-inspectable-polaris-steps">Testing and Validation: The capability is decomposed into inspectable Polaris steps</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#testing-and-validation-the-workflow-is-practical-for-very-large-global-meshes">Testing and Validation: The workflow is practical for very large global meshes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#testing-and-validation-the-design-preserves-a-path-to-future-cavity-support">Testing and Validation: The design preserves a path to future cavity support</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="horiz_press_grad_reference.html">Reworked HPG Reference Solution</a></li>
+<li class="toctree-l2"><a class="reference internal" href="land_locked_cells.html">Land-Locked Cells in the Ocean and Sea-Ice Domains</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ocean_analysis.html">Ocean Analysis in Polaris</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ocean_analysis_initial.html">Initial Omega Analysis Capabilities</a></li>
+<li class="toctree-l2"><a class="reference internal" href="overflow_nonlinear_eos.html">EOS and Vertical-Coordinate Variants of the Overflow Tasks</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pstar_init.html">P-Star Coordinate and Tracer Initialization</a></li>
+<li class="toctree-l2"><a class="reference internal" href="shared_steps.html">Shared steps</a></li>
+<li class="toctree-l2"><a class="reference internal" href="suite_results_file.html">Machine-Readable Suite Results</a></li>
+<li class="toctree-l2"><a class="reference internal" href="task_parallel_analysis_steps.html">Task-Parallel-Safe Analysis Steps in Polaris</a></li>
+<li class="toctree-l2"><a class="reference internal" href="task_parallelism.html">Task Parallelism in Polaris</a></li>
+<li class="toctree-l2"><a class="reference internal" href="task_parallelism_phase_a.html">Task Parallelism Phase A: Placement</a></li>
+<li class="toctree-l2"><a class="reference internal" href="task_parallelism_phase_b.html">Task Parallelism Phase B: Concurrency</a></li>
+<li class="toctree-l2"><a class="reference internal" href="task_parallelism_phase_c.html">Task Parallelism Phase C: Python Worker Pool</a></li>
+<li class="toctree-l2"><a class="reference internal" href="task_parallelism_phase_d.html">Task Parallelism Phase D: Coexistence and Elasticity</a></li>
+<li class="toctree-l2"><a class="reference internal" href="unified_base_mesh.html">Unified Mesh: Global Base Mesh Workflow</a></li>
+<li class="toctree-l2"><a class="reference internal" href="unified_mesh_prepare_coastline.html">Unified Mesh: Coastline Preparation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="unified_mesh_prepare_river_network.html">Unified Mesh: River Network Preparation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="unified_mesh_build_sizing_field.html">Unified Mesh: Sizing-Field Construction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="unified_mesh_create_base_mesh.html">Unified Mesh: Base-Mesh Creation and Downstream Integration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="unified_mesh_cull_leak.html">Unified Mesh: Fixing Resolution Leakage into the Ocean/Sea-Ice Domain</a></li>
+<li class="toctree-l2"><a class="reference internal" href="unified_mesh_dc_edge_noise.html">Unified Mesh: Raising the dcEdge Floor in the Ocean/Sea-Ice Domain</a></li>
+<li class="toctree-l2"><a class="reference internal" href="vector_reconstruction.html">Vector Reconstruction at MPAS Cell Centers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="template.html">Template</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials/dev_add_category_of_tasks/index.html">Developer Tutorial: Adding a New Category of Tasks</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Glossary</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../glossary.html">Glossary</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Polaris</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="index.html">Design Documents</a></li>
+      <li class="breadcrumb-item active">Realistic Ocean Initial Conditions</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/design_docs/global_ocean_init.md.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section class="tex2jax_ignore mathjax_ignore" id="realistic-ocean-initial-conditions">
+<h1>Realistic Ocean Initial Conditions<a class="headerlink" href="#realistic-ocean-initial-conditions" title="Link to this heading"></a></h1>
+<p>Creation date: 2026/03/22</p>
+<p>Contributors: Xylar Asay-Davis, Codex, Claude</p>
+<section id="summary">
+<h2>Summary<a class="headerlink" href="#summary" title="Link to this heading"></a></h2>
+<p>This design document describes a new Polaris capability for generating realistic
+ocean initial conditions in Python, starting from an ocean mesh and topography
+that have already been culled by the <code class="docutils literal notranslate"><span class="pre">e3sm/init</span></code> workflow. This capability
+belongs to the <code class="docutils literal notranslate"><span class="pre">ocean/spherical/realistic_global</span></code> framework, which collects task families focused
+on observationally-constrained ocean initialization and evaluation, in contrast
+to the idealized task families elsewhere in the ocean component. The intent is to
+port the required functionality from the MPAS-Ocean init mode, especially
+<code class="docutils literal notranslate"><span class="pre">mpas_ocn_init_global_ocean.F</span></code>, and from the Compass workflows in
+<code class="docutils literal notranslate"><span class="pre">compass/ocean/tests/global_ocean/init</span></code> and
+<code class="docutils literal notranslate"><span class="pre">compass/ocean/tests/utility/extrap_woa</span></code>.</p>
+<p>Each task initializes the single ocean model selected by the <code class="docutils literal notranslate"><span class="pre">[ocean]</span> <span class="pre">model</span></code>
+config option (resolved to <code class="docutils literal notranslate"><span class="pre">omega</span></code> or <code class="docutils literal notranslate"><span class="pre">mpas-ocean</span></code> during component setup).
+The new workflow produces scientifically consistent initial conditions for the
+configured model. In the first phase, the same capability supports MPAS-Ocean
+tracers based on potential temperature and practical salinity and Omega tracers
+based on conservative temperature and absolute salinity. The initial phase does
+not need to support ice-shelf cavities, Haney-number vertical coordinates under
+ice shelves, or SSH adjustment below ice shelves, but the design should preserve
+a clean path to add those features later.</p>
+<p>A key challenge specific to the Omega p-star coordinate is that the
+geometric seafloor depth cannot be prescribed directly: <code class="docutils literal notranslate"><span class="pre">BottomPressure</span></code> (related
+to the pseudo-height of the seafloor) must be found iteratively so that the geometric
+depth recovered from the coordinate matches observed bathymetry. Because CT and
+SA must be initialized on the p-star grid before specific volume can be
+evaluated, the vertical coordinate and the tracer state are tightly coupled. The
+algorithm for this joint initialization is described in the companion design
+document <a class="reference internal" href="pstar_init.html"><span class="std std-doc">pstar_init.md</span></a>. Its existence means the vertical
+coordinate and tracer initial state cannot be produced in isolation from each
+other; the decomposition into Polaris steps must reflect this coupling.</p>
+<p>Because the p-star iteration is model-independent — the converged geometric
+vertical grid depends only on bathymetry and hydrography, not on which ocean
+model is the final target — running the task for different models on the same
+mesh and hydrography produces the same geometric layer thicknesses. This makes
+direct model comparison possible by running the task once per model: the
+geometric grids at initialization will be identical, and differences in
+simulated state can be attributed to model formulation rather than to different
+initial geometries. The p-star iteration runs even when the configured model is
+MPAS-Ocean; there is no separate z-star path.</p>
+<p>The Polaris ocean framework separates model inputs across staged files: a
+horizontal mesh file (<code class="docutils literal notranslate"><span class="pre">mesh.nc</span></code>), a vertical coordinate file (<code class="docutils literal notranslate"><span class="pre">vert_coord.nc</span></code>;
+Omega only), an initial-state file (<code class="docutils literal notranslate"><span class="pre">init.nc</span></code>) and — added after this document
+was first written — a surface-forcing file (<code class="docutils literal notranslate"><span class="pre">forcing.nc</span></code>), described under
+<a class="reference internal" href="#wind-forcing">Wind forcing</a>. The realistic init workflow writes all of them,
+through the framework’s <code class="docutils literal notranslate"><span class="pre">write_horiz_mesh_dataset</span></code>, <code class="docutils literal notranslate"><span class="pre">write_vert_coord_dataset</span></code>,
+<code class="docutils literal notranslate"><span class="pre">write_initial_state_dataset</span></code> and <code class="docutils literal notranslate"><span class="pre">write_forcing_dataset</span></code> helpers. The
+horizontal geometry is entirely the upstream <code class="docutils literal notranslate"><span class="pre">e3sm/init</span></code> cull workflow’s;
+<code class="docutils literal notranslate"><span class="pre">mesh.nc</span></code> is that culled mesh with the fields the model’s mesh stream needs but
+the cull step does not produce. For MPAS-Ocean, <code class="docutils literal notranslate"><span class="pre">write_vert_coord_dataset</span></code> is a
+no-op and the vertical coordinate variables remain in <code class="docutils literal notranslate"><span class="pre">init.nc</span></code>.</p>
+<p>The primary software challenges are to replace a large, monolithic Fortran
+workflow with an inspectable sequence of Polaris steps; to use a model-neutral
+p-star intermediate step that produces the same geometric grid regardless of the
+target model; and to keep the workflow performant on very large meshes through
+chunked xarray/dask operations and materialized intermediate files. This design
+is successful if it produces reusable, well-tested Polaris steps that scale to
+production global meshes, initialize the configured model from a model-neutral
+geometric vertical grid, and can eventually replace the corresponding legacy
+Compass and MPAS-Ocean init workflows for the supported open-ocean use case.</p>
+</section>
+<section id="requirements">
+<h2>Requirements<a class="headerlink" href="#requirements" title="Link to this heading"></a></h2>
+<section id="requirement-open-ocean-global-initial-conditions-can-be-created-from-a-culled-mesh">
+<h3>Requirement: Open-ocean global initial conditions can be created from a culled mesh<a class="headerlink" href="#requirement-open-ocean-global-initial-conditions-can-be-created-from-a-culled-mesh" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/03/22</p>
+<p>Contributors: Xylar Asay-Davis, Codex</p>
+<p>Polaris shall provide a workflow that begins from an ocean mesh and
+corresponding culled topography produced by the <code class="docutils literal notranslate"><span class="pre">e3sm/init</span></code> cull workflow and
+produces a global ocean initial condition suitable for use by a standalone
+ocean model.</p>
+<p>The initial supported use case is open ocean without ice-shelf cavities. The
+workflow shall therefore assume that the culled mesh does not require cavity
+geometry, land-ice pressure initialization, or SSH adjustment beneath floating
+ice.</p>
+<p>Any topography smoothing, minimum-depth logic, or related preparation of the
+ocean topography needed for initialization shall be handled upstream in the
+<code class="docutils literal notranslate"><span class="pre">e3sm/init</span></code> topography workflow rather than inside the ocean-initialization
+workflow. This supports the goal of a unified MPAS mesh and a common
+topographic description across E3SM components.</p>
+</section>
+<section id="requirement-a-reusable-global-hydrography-product-is-available-from-woa">
+<h3>Requirement: A reusable global hydrography product is available from WOA<a class="headerlink" href="#requirement-a-reusable-global-hydrography-product-is-available-from-woa" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/04/14</p>
+<p>Contributors: Xylar Asay-Davis, Codex</p>
+<p>Polaris shall provide a reusable hydrography product derived from the World
+Ocean Atlas at 0.25-degree resolution. This product shall contain canonical
+conservative temperature and absolute salinity fields needed to initialize the
+ocean state over the full globe, including values in regions where the original
+product is missing and extrapolation is required for later remapping. Because
+WOA23 supplies in-situ temperature and practical salinity rather than
+conservative temperature and absolute salinity, the workflow shall derive the
+canonical tracers during preprocessing.</p>
+<p>The hydrography product shall be suitable for caching because it is expected to
+be computationally expensive and because it should be reusable across many
+meshes and tasks.</p>
+</section>
+<section id="requirement-the-workflow-produces-consistent-tracer-initial-conditions-for-the-configured-model">
+<h3>Requirement: The workflow produces consistent tracer initial conditions for the configured model<a class="headerlink" href="#requirement-the-workflow-produces-consistent-tracer-initial-conditions-for-the-configured-model" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/06/14</p>
+<p>Contributors: Xylar Asay-Davis, Codex, Claude</p>
+<p>Given a common hydrographic source, Polaris shall produce initial conditions
+that are thermodynamically consistent with the tracer conventions of the
+configured ocean model.</p>
+<p>For MPAS-Ocean, the workflow shall produce temperature and salinity fields in
+the form expected by MPAS-Ocean (potential temperature and practical salinity).
+For Omega, the workflow shall produce temperature and salinity fields in the
+form expected by Omega (conservative temperature and absolute salinity). The
+design shall minimize duplicated logic between the two model targets by sharing
+the p-star iteration and WOA preprocessing and branching only where tracer
+conversion genuinely differs.</p>
+</section>
+<section id="requirement-the-p-star-iteration-yields-a-model-independent-geometric-vertical-grid">
+<h3>Requirement: The p-star iteration yields a model-independent geometric vertical grid<a class="headerlink" href="#requirement-the-p-star-iteration-yields-a-model-independent-geometric-vertical-grid" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/06/14</p>
+<p>Contributors: Xylar Asay-Davis, Codex, Claude</p>
+<p>The p-star initialization step shall produce a geometric vertical grid that
+depends only on bathymetry and hydrography, not on which ocean model is the
+final target. As a consequence, running the task for MPAS-Ocean and for Omega
+on the same horizontal mesh and hydrography shall produce the same initialized
+geometric layer thicknesses, enabling direct geometric comparison between the
+two models.</p>
+<p>This shared-grid property is a natural outcome of the p-star algorithm: the
+converged geometric layer thicknesses emerge from a model-neutral iteration and
+are then consumed by the model-specific <code class="docutils literal notranslate"><span class="pre">initial_state</span></code> step. The p-star
+iteration runs even when the configured model is MPAS-Ocean; there is no
+separate z-star resting-thickness path.</p>
+<p>The workflow shall compute any density, pressure, or specific-volume fields
+needed to translate hydrography defined with respect to geometric depth or
+height into the model’s native vertical representation.</p>
+<p>Haney-number coordinates are out of scope for the initial implementation but
+should remain feasible to add later.</p>
+</section>
+<section id="requirement-the-capability-is-decomposed-into-inspectable-polaris-steps">
+<h3>Requirement: The capability is decomposed into inspectable Polaris steps<a class="headerlink" href="#requirement-the-capability-is-decomposed-into-inspectable-polaris-steps" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/03/22</p>
+<p>Contributors: Xylar Asay-Davis, Codex</p>
+<p>The workflow shall be organized into multiple Polaris steps with clear,
+meaningful outputs that users and developers can inspect independently for
+sanity checking, visualization, and debugging.</p>
+<p>Where appropriate, steps shall be reusable or cacheable so that expensive work
+does not need to be repeated across tasks that use identical inputs.</p>
+</section>
+<section id="requirement-the-workflow-is-practical-for-very-large-global-meshes">
+<h3>Requirement: The workflow is practical for very large global meshes<a class="headerlink" href="#requirement-the-workflow-is-practical-for-very-large-global-meshes" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/03/22</p>
+<p>Contributors: Xylar Asay-Davis, Codex</p>
+<p>The workflow shall be implementable in a way that is practical for large
+production meshes, including meshes on the order of uniform 5-km global
+resolution.</p>
+<p>The implementation shall avoid assumptions that require the full global state to
+fit comfortably in memory on a single node. It shall support sensible
+chunk-based execution and the use of intermediate files where needed to keep
+the workflow robust.</p>
+</section>
+<section id="requirement-the-design-preserves-a-path-to-future-cavity-support">
+<h3>Requirement: The design preserves a path to future cavity support<a class="headerlink" href="#requirement-the-design-preserves-a-path-to-future-cavity-support" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/03/22</p>
+<p>Contributors: Xylar Asay-Davis, Codex</p>
+<p>Although the first implementation does not need to support ice-shelf cavities,
+the workflow shall not hard-code assumptions that make later support for
+cavities, land-ice pressure consistency, or SSH adjustment unnecessarily
+difficult.</p>
+</section>
+</section>
+<section id="algorithm-design">
+<h2>Algorithm Design<a class="headerlink" href="#algorithm-design" title="Link to this heading"></a></h2>
+<section id="algorithm-design-open-ocean-global-initial-conditions-can-be-created-from-a-culled-mesh">
+<h3>Algorithm Design: Open-ocean global initial conditions can be created from a culled mesh<a class="headerlink" href="#algorithm-design-open-ocean-global-initial-conditions-can-be-created-from-a-culled-mesh" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/03/22</p>
+<p>Contributors: Xylar Asay-Davis, Codex</p>
+<p>The workflow should adopt the culled ocean mesh and associated topography from
+the <code class="docutils literal notranslate"><span class="pre">e3sm/init</span></code> cull workflow as its starting point rather than reproducing the
+mesh-culling logic inside the ocean task. This keeps responsibilities separated:
+<code class="docutils literal notranslate"><span class="pre">e3sm/init</span></code> produces physically consistent meshes and masks, while the new ocean
+initial-condition workflow consumes those products to build the 3D ocean state.</p>
+<p>For the initial phase, the relevant topographic fields should be restricted to
+open-ocean quantities needed for bathymetry, land masks, and any mesh-derived
+auxiliary fields required by the target model.</p>
+<p>This design also assumes that any topography smoothing or minimum-depth
+enforcement needed for ocean initialization has already been applied in the
+<code class="docutils literal notranslate"><span class="pre">e3sm/init</span></code> topography workflow, so the ocean task treats the incoming
+topography as authoritative.</p>
+</section>
+<section id="algorithm-design-a-reusable-global-hydrography-product-is-available-from-woa">
+<h3>Algorithm Design: A reusable global hydrography product is available from WOA<a class="headerlink" href="#algorithm-design-a-reusable-global-hydrography-product-is-available-from-woa" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/04/14</p>
+<p>Contributors: Xylar Asay-Davis, Codex</p>
+<p>The workflow should create a canonical hydrography product on the native WOA23
+latitude-longitude grid before any remapping to an MPAS mesh. The current
+implementation does this with a concrete sequence:</p>
+<ol class="arabic simple">
+<li><p>Create combined topography on the native 0.25-degree latitude-longitude
+grid.</p></li>
+<li><p>Read WOA23 January and annual temperature and salinity climatologies and
+combine them into a single source product, using annual values at depths
+where the monthly fields are not available, then derive conservative
+temperature and absolute salinity from WOA23 in-situ temperature and
+practical salinity.</p></li>
+<li><p>Build a 3D ocean mask on the WOA grid from the combined topography product.</p></li>
+<li><p>Extrapolate horizontally and then vertically within the ocean mask.</p></li>
+<li><p>Extrapolate horizontally and then vertically into land and grounded-ice
+regions so later remapping will not sample missing values.</p></li>
+<li><p>Optionally produce visualization products for sanity checking.</p></li>
+</ol>
+<p>This is conceptually similar to the existing Compass <code class="docutils literal notranslate"><span class="pre">extrap_woa</span></code> utility but
+the Polaris implementation should favor xarray-based operations and clear
+intermediate products over multiprocessing code that is tightly coupled to the
+legacy workflow.</p>
+</section>
+<section id="algorithm-design-the-workflow-produces-consistent-tracer-initial-conditions-for-the-configured-model">
+<h3>Algorithm Design: The workflow produces consistent tracer initial conditions for the configured model<a class="headerlink" href="#algorithm-design-the-workflow-produces-consistent-tracer-initial-conditions-for-the-configured-model" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/06/14</p>
+<p>Contributors: Xylar Asay-Davis, Codex, Claude</p>
+<p>A common intermediate tracer representation should be used to avoid maintaining
+two largely separate initialization pipelines. The leading candidate is a
+canonical hydrographic state based on conservative temperature and absolute
+salinity because those align naturally with Omega and with the desired WOA-based
+source product.</p>
+<p>Model-specific tracer fields are derived late in the workflow, in the
+<code class="docutils literal notranslate"><span class="pre">initial_state</span></code> step:</p>
+<ol class="arabic simple">
+<li><p>Interpolate the canonical state onto the target mesh columns.</p></li>
+<li><p>Convert to the tracer convention required by the configured model.</p></li>
+<li><p>Write the resulting fields using the variable names and metadata expected by
+the model.</p></li>
+</ol>
+<p>The exact thermodynamic conversions should be finalized during implementation,
+but the conversion logic should be isolated so it can be tested independently of
+horizontal and vertical interpolation.</p>
+</section>
+<section id="algorithm-design-the-p-star-iteration-yields-a-model-independent-geometric-vertical-grid">
+<h3>Algorithm Design: The p-star iteration yields a model-independent geometric vertical grid<a class="headerlink" href="#algorithm-design-the-p-star-iteration-yields-a-model-independent-geometric-vertical-grid" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/06/14</p>
+<p>Contributors: Xylar Asay-Davis, Codex, Claude</p>
+<p>The model-neutral geometric grid is determined by the <code class="docutils literal notranslate"><span class="pre">pstar_init</span></code> step.
+The high-level outcome is:</p>
+<ol class="arabic simple">
+<li><p>Horizontally remap the source hydrography to each MPAS column on a source
+vertical grid.</p></li>
+<li><p>For each water column, run the coupled p-star and tracer initialization to
+convergence (see <a class="reference internal" href="pstar_init.html"><span class="std std-doc">pstar_init.md</span></a>), producing the p-star
+coordinate, CT and SA at layer midpoints, specific volume, and the converged
+geometric layer thicknesses.</p></li>
+<li><p>Use the resulting initialized geometric layer thicknesses in the configured
+model: as part of the Omega initial condition, or as <code class="docutils literal notranslate"><span class="pre">restingThickness</span></code> in
+MPAS-Ocean.</p></li>
+<li><p>The <code class="docutils literal notranslate"><span class="pre">initial_state</span></code> step derives any remaining model-specific vertical state,
+including ALE layer-thickness fields for MPAS-Ocean.</p></li>
+</ol>
+<p>Because the Omega p-star coordinate is defined in pseudo-height rather than
+geometric height, the geometric seafloor depth cannot be prescribed directly.
+The pseudo-height of the seafloor (<code class="docutils literal notranslate"><span class="pre">BottomPressure</span></code>) must be found iteratively
+so that the geometric depth recovered from the coordinate matches observed
+bathymetry. This requires initializing CT and SA on the p-star grid at each
+iteration step so that specific volume can be evaluated, making the vertical
+coordinate and the tracer state tightly coupled. Full and partial bottom cells
+add further complexity by introducing discrete jumps in the pseudo-bottom depth.</p>
+<p>The detailed fixed-point algorithm for this joint p-star and tracer
+initialization — including the proportional-ratio update for <code class="docutils literal notranslate"><span class="pre">BottomPressure</span></code>,
+the CT/SA initialization interface, the handling of full and partial bottom
+cells, and the complete list of output variables produced — is specified in the
+companion design document <a class="reference internal" href="pstar_init.html"><span class="std std-doc">pstar_init.md</span></a>.</p>
+<p>The initialized geometric grid emerges from the coupled iteration rather than
+from a geometric grid constructed in isolation; the workflow steps must reflect
+this coupling.</p>
+</section>
+<section id="algorithm-design-the-workflow-is-practical-for-very-large-global-meshes">
+<h3>Algorithm Design: The workflow is practical for very large global meshes<a class="headerlink" href="#algorithm-design-the-workflow-is-practical-for-very-large-global-meshes" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/03/22</p>
+<p>Contributors: Xylar Asay-Davis, Codex</p>
+<p>The workflow should treat chunking and materialization as part of the algorithm
+design rather than as a later optimization. Likely design principles are:</p>
+<ol class="arabic simple">
+<li><p>Chunk horizontally over cells and only keep the full vertical column when
+needed.</p></li>
+<li><p>Use explicit intermediate files between major phases so dask graphs stay
+bounded in size.</p></li>
+<li><p>Reuse interpolation weights or cached preprocessed products where practical.</p></li>
+<li><p>Keep expensive EOS calculations localized to the phases that need them.</p></li>
+</ol>
+</section>
+</section>
+<section id="implementation">
+<h2>Implementation<a class="headerlink" href="#implementation" title="Link to this heading"></a></h2>
+<section id="implementation-open-ocean-global-initial-conditions-can-be-created-from-a-culled-mesh">
+<h3>Implementation: Open-ocean global initial conditions can be created from a culled mesh<a class="headerlink" href="#implementation-open-ocean-global-initial-conditions-can-be-created-from-a-culled-mesh" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/03/22</p>
+<p>Contributors: Xylar Asay-Davis, Codex</p>
+<p>The new task should live under the ocean framework and consume outputs from a
+culled-mesh step in <code class="docutils literal notranslate"><span class="pre">e3sm/init</span></code>, through explicit step inputs rather
+than implicit filesystem assumptions. The initial task variant should target
+open-ocean meshes without cavities and should accept a culled mesh,
+corresponding graph file, and culled topography as inputs.</p>
+<p>The first draft of the workflow should port only the parts of the current
+Compass and init-mode logic that are required for this open-ocean use case.
+Features related only to cavities, SSH adjustment, or ecosystem forcing can be
+left out until a later requirement is added for them.</p>
+<p>This implementation should not perform its own topography smoothing or
+minimum-depth preparation. Those operations should be implemented in
+<code class="docutils literal notranslate"><span class="pre">e3sm/init</span></code> so the same prepared topography can be shared consistently across
+ocean, sea-ice, land, and river workflows.</p>
+</section>
+<section id="implementation-a-reusable-global-hydrography-product-is-available-from-woa">
+<h3>Implementation: A reusable global hydrography product is available from WOA<a class="headerlink" href="#implementation-a-reusable-global-hydrography-product-is-available-from-woa" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/08/11</p>
+<p>Contributors: Xylar Asay-Davis, Codex, Claude</p>
+<p>This part of the design has landed. <code class="docutils literal notranslate"><span class="pre">e3sm/init</span></code> creates combined topography on
+a native 0.25-degree latitude-longitude grid, and the WOA23 steps under
+<code class="docutils literal notranslate"><span class="pre">ocean/spherical/realistic_global/hydrography/woa23</span></code> build the corresponding
+reusable product on that grid:</p>
+<ol class="arabic simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">combine_topo</span></code>, the shared <code class="docutils literal notranslate"><span class="pre">e3sm/init</span></code> <code class="docutils literal notranslate"><span class="pre">CombineStep</span></code> for the 0.25-degree
+lat-lon grid, cached by default so the expensive blending is not repeated</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">combine</span></code>, which merges January and annual WOA23 climatologies into
+<code class="docutils literal notranslate"><span class="pre">woa_combined.nc</span></code>, using annual values at depths where the monthly fields
+are not available, and derives conservative temperature and absolute
+salinity from WOA23’s in-situ temperature and practical salinity with <code class="docutils literal notranslate"><span class="pre">gsw</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">extrapolate</span></code>, which builds a 3D ocean mask from the combined topography and
+produces the reusable product <code class="docutils literal notranslate"><span class="pre">woa23_decav_0.25_jan_extrap.nc</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">viz</span></code>, a diagnostics step for maps and Antarctic transects, created as a
+shared step but not run by default</p></li>
+</ol>
+<p>The steps are assembled by <code class="docutils literal notranslate"><span class="pre">get_woa23_steps(component,</span> <span class="pre">include_viz)</span></code>, which
+returns them keyed by symlink name along with their shared config. A consumer
+that needs only the hydrography product — the mesh-specific init steps, for
+instance — gets the same step instances rather than a second copy of the
+preprocessing.</p>
+<p>The rename worked out differently from what this section anticipated. The work
+directories did move under the <code class="docutils literal notranslate"><span class="pre">realistic_global</span></code> family, but the Python
+package did not gain a <code class="docutils literal notranslate"><span class="pre">spherical</span></code> level: the code is
+<code class="docutils literal notranslate"><span class="pre">polaris.tasks.ocean.realistic_global.hydrography.woa23</span></code>. Work-directory paths
+and module paths are separate concerns in Polaris and only the first is what a
+user navigates, so there was no reason to make the module path longer. The same
+split holds throughout this workflow: mesh-specific steps run under
+<code class="docutils literal notranslate"><span class="pre">ocean/spherical/realistic_global/{mesh_name}/init</span></code> and live in
+<code class="docutils literal notranslate"><span class="pre">polaris.tasks.ocean.realistic_global.init</span></code>.</p>
+</section>
+<section id="implementation-the-workflow-produces-consistent-tracer-initial-conditions-for-the-configured-model">
+<h3>Implementation: The workflow produces consistent tracer initial conditions for the configured model<a class="headerlink" href="#implementation-the-workflow-produces-consistent-tracer-initial-conditions-for-the-configured-model" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/08/11</p>
+<p>Contributors: Xylar Asay-Davis, Codex, Claude</p>
+<p>The workflow defines a model-neutral intermediate dataset (the <code class="docutils literal notranslate"><span class="pre">pstar_init</span></code>
+step output) and leaves the model-specific translation to the write. That
+separation is what lets the p-star iteration, WOA23 remapping and chunking
+logic be shared regardless of the configured target model.</p>
+<p>The translator layer ended up in the framework rather than in <code class="docutils literal notranslate"><span class="pre">initial_state</span></code>:
+<code class="docutils literal notranslate"><span class="pre">OceanIOStep.write_initial_state_dataset</span></code> takes the convention the dataset’s
+tracers are in and converts them to the one the configured model expects,
+defaulting to the convention implied by <code class="docutils literal notranslate"><span class="pre">eos_type</span></code>. The task step supplies only
+what the framework cannot know — the per-cell longitude and latitude the
+conversion needs, which <code class="docutils literal notranslate"><span class="pre">pstar_init.nc</span></code> does not carry. Putting it there means
+every task that writes an initial state converts tracers the same way, and a
+step cannot forget to.</p>
+<p>Thermodynamic calculations that are independent of the task live in
+<code class="docutils literal notranslate"><span class="pre">polaris.ocean.eos</span></code> and <code class="docutils literal notranslate"><span class="pre">polaris.ocean.init_state</span></code>, as this section intended.</p>
+</section>
+<section id="implementation-the-p-star-iteration-yields-a-model-independent-geometric-vertical-grid">
+<h3>Implementation: The p-star iteration yields a model-independent geometric vertical grid<a class="headerlink" href="#implementation-the-p-star-iteration-yields-a-model-independent-geometric-vertical-grid" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/08/11</p>
+<p>Contributors: Xylar Asay-Davis, Codex, Claude</p>
+<p>The coupled p-star and tracer initialization described in
+<a class="reference internal" href="pstar_init.html"><span class="std std-doc">pstar_init.md</span></a> shall be implemented as a concrete subclass of
+<code class="docutils literal notranslate"><span class="pre">PStarInitStep</span></code> (defined in <code class="docutils literal notranslate"><span class="pre">polaris/ocean/vertical/pstar_init.py</span></code>). That
+subclass, <code class="docutils literal notranslate"><span class="pre">RealisticPStarInitStep</span></code>, is defined in
+<code class="docutils literal notranslate"><span class="pre">polaris/tasks/ocean/realistic_global/init/pstar_init.py</span></code>.
+It implements the <code class="docutils literal notranslate"><span class="pre">init_tracers</span></code> method by interpolating CT and SA from the
+pre-processed WOA hydrography product remapped to the MPAS horizontal mesh,
+using the p-star layer midpoints from the current iteration as the vertical
+interpolation target.</p>
+<p>The reference 1D vertical grid that establishes the initial layer structure is
+configured by setting <code class="docutils literal notranslate"><span class="pre">grid_type</span></code> in the <code class="docutils literal notranslate"><span class="pre">[vertical_grid]</span></code> section of
+<code class="docutils literal notranslate"><span class="pre">realistic_global_init.cfg</span></code>. The <code class="docutils literal notranslate"><span class="pre">pstar_init</span></code> step passes this reference grid
+to <code class="docutils literal notranslate"><span class="pre">generate_1d_grid</span></code> (in <code class="docutils literal notranslate"><span class="pre">polaris/ocean/vertical/grid_1d/__init__.py</span></code>),
+which returns the interface depths used to dimension the p-star iteration. The
+default for the realistic global init task is the pre-defined <code class="docutils literal notranslate"><span class="pre">80layerE3SMv1</span></code>
+grid. The <code class="docutils literal notranslate"><span class="pre">grid_type</span></code> option must be present in the config; if it is absent,
+<code class="docutils literal notranslate"><span class="pre">generate_1d_grid</span></code> raises <code class="docutils literal notranslate"><span class="pre">ValueError:</span> <span class="pre">Unexpected</span> <span class="pre">grid</span> <span class="pre">type:</span> <span class="pre">None</span></code>.</p>
+<p>The vertical grid turned out to be one of the things that has to vary from mesh
+to mesh, which this document did not anticipate. It is set per mesh through
+<code class="docutils literal notranslate"><span class="pre">polaris.tasks.ocean.realistic_global.mesh_configs</span></code>: an optional
+<code class="docutils literal notranslate"><span class="pre">&lt;mesh_name&gt;.cfg</span></code> whose options are added after the task’s own config file and
+therefore override it. The three 240 km meshes replace the 80-layer default
+with a 16-level <code class="docutils literal notranslate"><span class="pre">tanh_dz</span></code> grid over a 3000 m bottom depth, because they exist
+for fast smoke-testing rather than for realistic simulation. The same mechanism
+carries the ocean-culled cell count used to size MPI tasks, and is where
+per-mesh forward-run options belong as well. Anything that describes what the
+<em>ocean</em> does on a mesh belongs there rather than in the mesh component’s own
+per-mesh config, which describes the mesh itself.</p>
+<p>Three behaviors of the iteration were settled during implementation rather than
+in <a class="reference internal" href="pstar_init.html"><span class="std std-doc">pstar_init.md</span></a>, which specifies the fixed-point algorithm
+itself. The column is anchored at the prescribed sea surface, so <code class="docutils literal notranslate"><span class="pre">ssh</span></code> matches
+its prescribed value to machine precision and any residual left by partial-cell
+snapping adjusts the diagnosed <code class="docutils literal notranslate"><span class="pre">bottomDepth</span></code> — the representable bathymetry —
+rather than <code class="docutils literal notranslate"><span class="pre">ssh</span></code>, mirroring z-star partial cells. Columns too shallow to hold
+<code class="docutils literal notranslate"><span class="pre">min_vert_levels</span></code> layers, or shallower than <code class="docutils literal notranslate"><span class="pre">min_bottom_depth</span></code>, are clamped.
+And isolated bathymetry holes — cells deeper than every ocean neighbor — are
+capped at their deepest neighbor’s level and re-solved, through
+<code class="docutils literal notranslate"><span class="pre">polaris.ocean.vertical.bathymetry_holes.fill_max_level_holes</span></code>.</p>
+<p>The output of the coupled initialization step — converged geometric layer
+thicknesses, CT and SA, specific volume, and associated coordinate fields — shall
+be exposed as an inspectable intermediate product (<code class="docutils literal notranslate"><span class="pre">pstar_init</span></code>). That
+intermediate is a single combined dataset written in neutral (MPAS-Ocean) naming
+and includes at least the full set of variables listed in the output table of
+<a class="reference internal" href="pstar_init.html"><span class="std std-doc">pstar_init.md</span></a>. The model-specific split into separate output
+files happens in the downstream <code class="docutils literal notranslate"><span class="pre">initial_state</span></code> step rather than in
+<code class="docutils literal notranslate"><span class="pre">pstar_init</span></code>, keeping the intermediate inspectable without model-specific
+naming or variable filtering.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">initial_state</span></code> step consumes the <code class="docutils literal notranslate"><span class="pre">pstar_init</span></code> intermediate dataset,
+performs any model-specific tracer conversions, and writes the final split
+output:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">vert_coord.nc</span></code> via <code class="docutils literal notranslate"><span class="pre">write_vert_coord_dataset</span></code> (Omega only; no-op for
+MPAS-Ocean). For Omega this converts <code class="docutils literal notranslate"><span class="pre">restingThickness</span></code> to <code class="docutils literal notranslate"><span class="pre">RefPseudoThickness</span></code>
+and writes the five <code class="docutils literal notranslate"><span class="pre">InitialVertCoord</span></code> fields (<code class="docutils literal notranslate"><span class="pre">MinLayerCell</span></code>, <code class="docutils literal notranslate"><span class="pre">MaxLayerCell</span></code>,
+<code class="docutils literal notranslate"><span class="pre">BottomGeomDepth</span></code>, <code class="docutils literal notranslate"><span class="pre">RefPseudoThickness</span></code>, <code class="docutils literal notranslate"><span class="pre">VertCoordMovementWeights</span></code>).</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">init.nc</span></code> via <code class="docutils literal notranslate"><span class="pre">write_initial_state_dataset</span></code>, which strips horizontal mesh
+variables and (for Omega) vertical coordinate variables before writing.</p></li>
+</ul>
+<p>Surface forcing is <em>not</em> written by <code class="docutils literal notranslate"><span class="pre">initial_state</span></code>. Wind stress is produced by
+a separate <code class="docutils literal notranslate"><span class="pre">forcing</span></code> step and written to its own <code class="docutils literal notranslate"><span class="pre">forcing.nc</span></code>, described under
+<a class="reference internal" href="#wind-forcing">Wind forcing</a> below. Restoring fields remain future work.</p>
+<p>The mesh file (<code class="docutils literal notranslate"><span class="pre">mesh.nc</span></code>) is written by <code class="docutils literal notranslate"><span class="pre">initial_state</span></code> rather than linked from
+upstream. The culled mesh from <code class="docutils literal notranslate"><span class="pre">e3sm/init</span></code> is not by itself a complete ocean
+mesh stream: <code class="docutils literal notranslate"><span class="pre">add_coriolis_to_dataset</span></code> adds <code class="docutils literal notranslate"><span class="pre">fCell</span></code>, <code class="docutils literal notranslate"><span class="pre">fEdge</span></code> and <code class="docutils literal notranslate"><span class="pre">fVertex</span></code>,
+and for Omega <code class="docutils literal notranslate"><span class="pre">write_horiz_mesh_dataset</span></code> merges in the cell-centered
+vector-reconstruction weights, which have to be the <em>culled</em> mesh’s since that
+is the mesh the initial condition is built on. The horizontal geometry itself
+is still entirely the cull step’s; nothing here re-derives it.</p>
+<p>The p-star iteration shall run even when the configured model is MPAS-Ocean,
+since the converged geometric grid is always defined through the p-star
+iteration.</p>
+<p>The MPAS-Ocean path derives <code class="docutils literal notranslate"><span class="pre">restingThickness</span></code> from the converged geometric
+layer thicknesses rather than falling back to the legacy z-star resting-thickness
+construction.</p>
+</section>
+<section id="implementation-the-capability-is-decomposed-into-inspectable-polaris-steps">
+<h3>Implementation: The capability is decomposed into inspectable Polaris steps<a class="headerlink" href="#implementation-the-capability-is-decomposed-into-inspectable-polaris-steps" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/09/24</p>
+<p>Contributors: Xylar Asay-Davis, Codex, Claude</p>
+<p>The decomposition landed with more steps than this section first sketched,
+because remapping turned out to be worth separating from the mapping files it
+uses, and because wind forcing arrived as a second remapped source. The chain
+is assembled by <code class="docutils literal notranslate"><span class="pre">get_realistic_init_steps(component,</span> <span class="pre">mesh_name,</span> <span class="pre">include_viz)</span></code>,
+which builds every step with <code class="docutils literal notranslate"><span class="pre">Component.get_or_create_shared_step</span></code> and returns
+them keyed by symlink name along with the per-mesh shared config. Steps run
+under <code class="docutils literal notranslate"><span class="pre">ocean/spherical/realistic_global/{mesh_name}/init</span></code>, except the
+mesh-independent preprocessing, which is shared across meshes:</p>
+<ol class="arabic simple">
+<li><p>the upstream <code class="docutils literal notranslate"><span class="pre">e3sm/init</span></code> cull-topography steps, from
+<code class="docutils literal notranslate"><span class="pre">get_cull_topo_steps</span></code>, which supply the culled ocean mesh, its graph and
+the remapped topography</p></li>
+<li><p>the WOA23 hydrography steps described above, from <code class="docutils literal notranslate"><span class="pre">get_woa23_steps</span></code></p></li>
+<li><p>the JRA55-do wind-stress steps, from <code class="docutils literal notranslate"><span class="pre">get_jra55_steps</span></code> (see
+<a class="reference internal" href="#wind-forcing">Wind forcing</a>)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">cull_topo</span></code>: reindex the remapped topography from the base mesh to the
+culled ocean mesh using <code class="docutils literal notranslate"><span class="pre">ocean_map_culled_to_base.nc</span></code>, producing
+<code class="docutils literal notranslate"><span class="pre">topography_culled.nc</span></code>, which is validated against a baseline when one is
+provided</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">woa23_map</span></code>: build the bilinear mapping file from the 0.25-degree WOA23
+lat-lon grid to the culled MPAS mesh. This is the one MPI step of the
+hydrography chain, and its task count is sized from the approximate culled
+ocean cell count</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">remap_woa23</span></code>: apply those weights with <code class="docutils literal notranslate"><span class="pre">ncremap</span></code>, producing
+<code class="docutils literal notranslate"><span class="pre">woa23_on_mesh.nc</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">jra55_map</span></code> and <code class="docutils literal notranslate"><span class="pre">remap_jra55</span></code>: the same two steps for the wind stress</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">pstar_init</span></code>: perform the coupled p-star and hydrography initialization
+described in <a class="reference internal" href="pstar_init.html"><span class="std std-doc">pstar_init.md</span></a>, producing the converged
+geometric grid, CT and SA on that grid, and all associated p-star
+coordinate fields; this step writes a single combined intermediate NetCDF
+file (<code class="docutils literal notranslate"><span class="pre">pstar_init.nc</span></code>) in neutral naming rather than the final split model
+files, so all outputs remain inspectable regardless of the target model</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">initial_state</span></code>: consume the <code class="docutils literal notranslate"><span class="pre">pstar_init</span></code> intermediate dataset, apply
+model-specific tracer conversions, populate remaining required fields, and
+write <code class="docutils literal notranslate"><span class="pre">mesh.nc</span></code>, <code class="docutils literal notranslate"><span class="pre">vert_coord.nc</span></code> (Omega only) and <code class="docutils literal notranslate"><span class="pre">init.nc</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">forcing</span></code>: write the model-specific <code class="docutils literal notranslate"><span class="pre">forcing.nc</span></code> from <code class="docutils literal notranslate"><span class="pre">jra55_on_mesh.nc</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">viz</span></code>: plots and sanity checks of the initial condition, vertical
+coordinate and forcing</p></li>
+</ol>
+<p>Each remap is two steps rather than one because the original single step both
+reimplemented what <code class="docutils literal notranslate"><span class="pre">polaris.remap.MappingFileStep</span></code> already provides and ran an
+MPI operation (<code class="docutils literal notranslate"><span class="pre">mbtempest</span></code>) and a serial one (<code class="docutils literal notranslate"><span class="pre">ncremap</span></code>) together, which does
+not schedule well under task parallelism. Splitting them also lets the mapping
+step size its own task count from the estimated ocean cell count while the
+<code class="docutils literal notranslate"><span class="pre">ncremap</span></code> call stays serial.</p>
+<p>The step this section called <code class="docutils literal notranslate"><span class="pre">diagnostics</span></code> landed as <code class="docutils literal notranslate"><span class="pre">viz</span></code>, matching the name
+used elsewhere in Polaris. It is created as a shared step but returned — and so
+run — only when <code class="docutils literal notranslate"><span class="pre">include_viz=True</span></code>, which the standalone <code class="docutils literal notranslate"><span class="pre">RealisticGlobalInit</span></code>
+task passes and consumers that reuse the init outputs as dependencies do not.
+Workflows that build on the initial condition, such as forward runs and
+dynamic adjustment, are meant to call <code class="docutils literal notranslate"><span class="pre">get_realistic_init_steps</span></code> the same way
+and get the same step instances rather than a second copy of a chain that
+costs hours.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">viz</span></code> step makes Omega’s geometric <code class="docutils literal notranslate"><span class="pre">layerThickness</span></code> itself. Omega’s initial
+state carries <code class="docutils literal notranslate"><span class="pre">PseudoThickness</span></code> and no <code class="docutils literal notranslate"><span class="pre">SpecVol</span></code>, and <code class="docutils literal notranslate"><span class="pre">open_model_dataset</span></code> no
+longer derives equation-of-state fields (#817), so it only turns a
+pseudo-thickness into a geometric one for a file that has both. The step
+computes the specific volume with <code class="docutils literal notranslate"><span class="pre">spec_vol_from_ds()</span></code> instead.</p>
+<p>Within this decomposition, <code class="docutils literal notranslate"><span class="pre">initial_state</span></code> is what ports the pieces of legacy
+init-mode functionality that are neither part of <code class="docutils literal notranslate"><span class="pre">pstar_init</span></code> nor already
+handled upstream in <code class="docutils literal notranslate"><span class="pre">e3sm/init</span></code>. As implemented, it:</p>
+<ol class="arabic simple">
+<li><p>Consumes the outputs of <code class="docutils literal notranslate"><span class="pre">pstar_init</span></code>, including the converged geometric
+layer thicknesses and the model-agnostic hydrographic state on the target
+mesh.</p></li>
+<li><p>Converts that hydrographic state into the tracer conventions required by the
+configured model — CT and SA kept for Omega, converted to potential
+temperature and practical salinity for MPAS-Ocean. The conversion itself
+belongs to the framework’s initial-state helpers; this step supplies the
+per-cell longitude and latitude they need, since <code class="docutils literal notranslate"><span class="pre">pstar_init.nc</span></code> carries no
+horizontal mesh fields.</p></li>
+<li><p>Populates quiescent dynamical initial conditions, setting <code class="docutils literal notranslate"><span class="pre">normalVelocity</span></code>
+to zero.</p></li>
+<li><p>Computes the remaining derived fields, notably in-situ density from the
+specific volume the p-star iteration produced.</p></li>
+<li><p>Writes <code class="docutils literal notranslate"><span class="pre">mesh.nc</span></code> through <code class="docutils literal notranslate"><span class="pre">write_horiz_mesh_dataset</span></code>, <code class="docutils literal notranslate"><span class="pre">vert_coord.nc</span></code>
+through <code class="docutils literal notranslate"><span class="pre">write_vert_coord_dataset</span></code> (Omega only; a no-op for MPAS-Ocean,
+which keeps vertical coordinate variables in <code class="docutils literal notranslate"><span class="pre">init.nc</span></code>) and <code class="docutils literal notranslate"><span class="pre">init.nc</span></code>
+through <code class="docutils literal notranslate"><span class="pre">write_initial_state_dataset</span></code>.</p></li>
+</ol>
+<p>Restoring fields did not land. Surface and interior restoring values and their
+piston velocities are not part of the supported workflow yet, so nothing
+computes them; the forcing file that replaces the legacy
+<code class="docutils literal notranslate"><span class="pre">init_mode_forcing_data.nc</span></code> carries wind stress alone and is written by the
+separate <code class="docutils literal notranslate"><span class="pre">forcing</span></code> step rather than by <code class="docutils literal notranslate"><span class="pre">initial_state</span></code>.</p>
+<p>The first implementation should explicitly exclude or defer several categories
+of legacy init-mode behavior that are present in
+<code class="docutils literal notranslate"><span class="pre">mpas_ocn_init_global_ocean.F</span></code> but are not part of the current design scope:</p>
+<ol class="arabic simple">
+<li><p>Ice-shelf and land-ice-specific logic, including cavity temperature
+modification, land-ice pressure consistency, and SSH adjustment.</p></li>
+<li><p>Ecosystem tracers, ecosystem forcing fields, and related pH or sediment
+initialization.</p></li>
+<li><p>Shortwave-absorption auxiliary fields needed for the <code class="docutils literal notranslate"><span class="pre">ohlmann00</span></code>
+parameterization, such as chlorophyll, zenith angle, and clear-sky
+radiation.</p></li>
+<li><p>Debug tracers and other optional tracer packages initialized only to simple
+default values in legacy init mode.</p></li>
+<li><p>Any inland-sea culling or other mesh/topography correction that is more
+appropriately handled upstream in <code class="docutils literal notranslate"><span class="pre">e3sm/init</span></code>.</p></li>
+</ol>
+<p>The legacy diagnostics this section left open were decided as follows.
+Haney-number fields are not written at all — the <code class="docutils literal notranslate"><span class="pre">viz</span></code> step’s port of Compass’
+<code class="docutils literal notranslate"><span class="pre">plot_initial_state</span></code> drops those panels rather than reproducing them — since
+Haney-number coordinates are out of scope. In-situ density is written, because
+the p-star iteration already produces the specific volume it comes from and
+because it is what the Omega stratification check reads.</p>
+</section>
+<section id="implementation-wind-forcing">
+<span id="wind-forcing"></span><h3>Implementation: Wind forcing<a class="headerlink" href="#implementation-wind-forcing" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/08/11</p>
+<p>Contributors: Xylar Asay-Davis, Claude</p>
+<p>Dynamic adjustment needs a realistic, constant-in-time wind stress so the ocean
+can spin down fast waves against a sensible circulation. The forcing does not
+need to be a defensible climate product, only realistic enough that the
+adjusted state is dynamically sensible. Surface restoring, thermal and
+freshwater fluxes, atmospheric and sea-ice pressure, time-varying forcing, and
+all forward-model settings remain out of scope.</p>
+<p><strong>Source.</strong> JRA55-do v1.5.0 (<code class="docutils literal notranslate"><span class="pre">MRI-JRA55-do-1-5-0</span></code>), variables <code class="docutils literal notranslate"><span class="pre">uas</span></code> and <code class="docutils literal notranslate"><span class="pre">vas</span></code>:
+10-m winds on the TL319 Gaussian grid (640 x 320), 3-hourly, distributed as
+input4MIPs on ESGF and anonymously downloadable from the CEDA node. E3SM forces
+G-cases with JRA55, so the adjusted state is adjusted against something close to
+what a coupled run will apply, and the input4MIPs record pins version and
+checksums. This supersedes the earlier intent to reuse the Compass NCEP
+climatology, whose provenance is a 2015 filename and nothing more. The time
+window is January 1958, the first month of the record and of an interannually
+forced G-case, configurable via <code class="docutils literal notranslate"><span class="pre">year</span></code> and <code class="docutils literal notranslate"><span class="pre">month</span></code>.</p>
+<p><strong>Winds to stress.</strong> JRA55-do supplies winds, so a bulk formula is needed. Two
+choices matter. First, the stress is averaged rather than the winds: computing
+<code class="docutils literal notranslate"><span class="pre">tau(mean</span> <span class="pre">wind)</span></code> discards the gust contribution and underestimates stress in the
+storm tracks, so stress is computed at each 3-hourly step and then averaged –
+which is why the 3-hourly data is needed rather than a published monthly mean.
+Second, the Large and Yeager (2004, 2009) neutral 10-m drag law is used with
+<code class="docutils literal notranslate"><span class="pre">rho_air</span> <span class="pre">=</span> <span class="pre">1.22</span></code> and the wind speed clamped below at 0.5 m/s, with the stability
+correction, the current-relative wind, and sea-ice drag deliberately omitted as
+second-order for this purpose.</p>
+<p><strong>Remapping.</strong> Bilinear, in Cartesian components, with no padding of the
+source grid, and a check that every cell is covered. Each of these was settled
+by measurement or review, and each has a failure mode that is easy to
+reintroduce:</p>
+<ul class="simple">
+<li><p>Bilinear rather than conservative, because the ocean responds to wind stress
+<em>curl</em>; first-order conservative gives a piecewise-constant stress whose curl
+is grid-scale noise, and pyremap’s moab path hard-codes <code class="docutils literal notranslate"><span class="pre">--order</span> <span class="pre">1</span></code>.</p></li>
+<li><p>Cartesian rather than zonal/meridional components, because the local
+east/north basis rotates with longitude, fastest near the poles. The stress
+is converted to its three Cartesian components on the source grid, each is
+remapped as a scalar, and the result is rotated back to east/north at each
+cell center, as E3SM’s coupler does for vectors. Remapping zonal and
+meridional components directly worked under mbtempest (a uniform vector of
+magnitude 1.0 measured a flat 0.998 near the North Pole) but not under ESMF,
+whose default pole handling builds its pole point from the zonal average of
+the source’s outermost row: the same vector measured 0.42 by 89.82 degrees N,
+tending to zero at the pole. In Cartesian components that average is
+meaningful, so the result no longer depends on <code class="docutils literal notranslate"><span class="pre">map_tool</span></code>.</p></li>
+<li><p>No padding, because bilinear is center-based for ESMF but corner-based for
+mbtempest, and padding a lat-lon source so either its corners or its centers
+reach the pole aborts mbtempest. Duplicating a longitude column breaks both
+tools and is unnecessary, since TL319’s longitude corners already span exactly
+360 degrees.</p></li>
+<li><p>Every cell of the culled mesh must be covered, and the mapping files for
+<code class="docutils literal notranslate"><span class="pre">u-oi30-lr10</span></code> and <code class="docutils literal notranslate"><span class="pre">u-oi6to18-lr6to10</span></code> cover all of them, the cells nearest
+the North Pole included. <code class="docutils literal notranslate"><span class="pre">ncremap</span></code> writes zero rather than a missing value
+to a cell the weights do not reach, so a gap would otherwise reach the
+forcing file as a silent zero stress. The step instead reads each cell’s
+coverage (<code class="docutils literal notranslate"><span class="pre">frac_b</span></code>) from the mapping file and fails if any cell is short of
+it.</p></li>
+</ul>
+<p><strong>Steps.</strong> Deriving the global product is mesh-independent, and although the
+reduction itself takes seconds it needs several GiB of raw winds, so the
+product is cached and the work lives outside the <code class="docutils literal notranslate"><span class="pre">init</span></code> workflow, mirroring the
+WOA23 hydrography product:</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>subdir</p></th>
+<th class="head"><p>step</p></th>
+<th class="head"><p>output</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">forcing/jra55/stress</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">Jra55StressStep</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">jra55_stress.nc</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">forcing/jra55/viz</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">Jra55VizStep</span></code></p></td>
+<td><p>diagnostic plots</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">{mesh}/init/jra55_map</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">Jra55MapStep</span></code></p></td>
+<td><p>bilinear weights</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">{mesh}/init/remap_jra55</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">RemapJra55Step</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">jra55_on_mesh.nc</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">{mesh}/init/forcing</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">ForcingStep</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">forcing.nc</span></code></p></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Output.</strong> Both models take zonal and meridional components at cell centers and
+project onto edges themselves, so no vector rotation is needed. The field is
+authored in MPAS-Ocean names and renamed on write through the existing
+<code class="docutils literal notranslate"><span class="pre">mpaso_to_omega.yaml</span></code> mapping. The framework gains a fourth staged file
+alongside the mesh, vertical coordinate and initial state: <code class="docutils literal notranslate"><span class="pre">forcing_filename</span></code> in
+<code class="docutils literal notranslate"><span class="pre">[ocean_staged_files]</span></code>, a <code class="docutils literal notranslate"><span class="pre">forcing_variables</span></code> list, and a
+<code class="docutils literal notranslate"><span class="pre">write_forcing_dataset</span></code> helper.</p>
+<p>The two models differ on the time dimension. Omega’s <code class="docutils literal notranslate"><span class="pre">SfcStressForcingVars</span></code>
+registers 1-D fields on <code class="docutils literal notranslate"><span class="pre">NCells</span></code>, while MPAS-Ocean’s Registry declares
+<code class="docutils literal notranslate"><span class="pre">dimensions=&quot;nCells</span> <span class="pre">Time&quot;</span></code>, so <code class="docutils literal notranslate"><span class="pre">write_forcing_dataset</span></code> adds <code class="docutils literal notranslate"><span class="pre">Time=1</span></code> for
+MPAS-Ocean only.</p>
+<p><code class="docutils literal notranslate"><span class="pre">Jra55StressStep</span></code> is <code class="docutils literal notranslate"><span class="pre">default_cached</span></code>, with <code class="docutils literal notranslate"><span class="pre">jra55_stress.nc</span></code> in the cache
+database, so the multi-GiB download happens only when the standalone <code class="docutils literal notranslate"><span class="pre">jra55</span></code>
+task regenerates the product.</p>
+<p>The read side – staging <code class="docutils literal notranslate"><span class="pre">forcing.nc</span></code> as a model <em>input</em>, and the associated
+namelist and config settings – belongs to the forward-model work rather than
+to this design.</p>
+</section>
+<section id="implementation-the-workflow-is-practical-for-very-large-global-meshes">
+<h3>Implementation: The workflow is practical for very large global meshes<a class="headerlink" href="#implementation-the-workflow-is-practical-for-very-large-global-meshes" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/10/08</p>
+<p>Contributors: Xylar Asay-Davis, Codex, Claude</p>
+<p>The implementation should use xarray lazily by default for large fields and
+should choose chunking with the target access pattern in mind. A reasonable
+starting assumption is that horizontal chunking over <code class="docutils literal notranslate"><span class="pre">nCells</span></code> will be more
+robust than attempting to process the full mesh at once.</p>
+<p>Major stages should write intermediate NetCDF outputs rather than carrying a
+single dask graph across the entire workflow. This is likely to be especially
+important after WOA preprocessing, after <code class="docutils literal notranslate"><span class="pre">pstar_init</span></code>, and before final
+model-specific output writing.</p>
+<p>Only the second half landed. Every stage writes its own NetCDF output, but the
+steps hold whole fields in memory rather than chunking them with dask, which
+has been enough for <code class="docutils literal notranslate"><span class="pre">u-oi6to18-lr6to10</span></code> (4.0 million ocean cells) on a single
+node. The one place the work is chunked over <code class="docutils literal notranslate"><span class="pre">nCells</span></code> is the vertical
+interpolation of the WOA23 tracers in <code class="docutils literal notranslate"><span class="pre">pstar_init</span></code>, which runs at every
+fixed-point iteration and handles a chunk of cells at a time rather than one
+column at a time. Meshes approaching uniform 5-km resolution will need more
+than this.</p>
+</section>
+<section id="implementation-the-design-preserves-a-path-to-future-cavity-support">
+<h3>Implementation: The design preserves a path to future cavity support<a class="headerlink" href="#implementation-the-design-preserves-a-path-to-future-cavity-support" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/03/22</p>
+<p>Contributors: Xylar Asay-Davis, Codex</p>
+<p>Even though cavities are out of scope initially, the data model should not
+assume that the free surface always coincides with sea level or that land-ice
+pressure fields are absent forever. Interfaces between topography handling,
+vertical-coordinate construction, and final state assembly should remain clean
+enough that cavity-aware logic can later be inserted without rewriting the full
+task.</p>
+</section>
+</section>
+<section id="testing">
+<h2>Testing<a class="headerlink" href="#testing" title="Link to this heading"></a></h2>
+<section id="testing-and-validation-open-ocean-global-initial-conditions-can-be-created-from-a-culled-mesh">
+<h3>Testing and Validation: Open-ocean global initial conditions can be created from a culled mesh<a class="headerlink" href="#testing-and-validation-open-ocean-global-initial-conditions-can-be-created-from-a-culled-mesh" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/09/24</p>
+<p>Contributors: Xylar Asay-Davis, Codex, Claude</p>
+<p>The first level of testing should verify that the workflow can consume outputs
+from an <code class="docutils literal notranslate"><span class="pre">e3sm/init</span></code> culled-mesh step and produce complete initial-condition
+files for at least one supported global mesh. A small or moderate mesh should
+be used for routine regression tests, with larger meshes reserved for
+integration testing.</p>
+<p>That split landed differently than “small mesh in a regression suite” suggests.
+The whole chain — culling, remapping and the p-star iteration — costs hours on
+any mesh worth initializing, so no task in this family belongs in a PR suite;
+routine regression testing is the unit tests described below, and the workflow
+itself is exercised by running it on a mesh. The 240 km meshes exist for
+exactly that, which is why they override the vertical grid down to 16 levels.
+Initial conditions built this way have also been carried through dynamic
+adjustment on <code class="docutils literal notranslate"><span class="pre">u-oi30-lr10</span></code> and <code class="docutils literal notranslate"><span class="pre">u-oi6to18-lr6to10</span></code> in downstream work, which
+is where artifacts in the WOA23 source data were found.</p>
+</section>
+<section id="testing-and-validation-a-reusable-global-hydrography-product-is-available-from-woa">
+<h3>Testing and Validation: A reusable global hydrography product is available from WOA<a class="headerlink" href="#testing-and-validation-a-reusable-global-hydrography-product-is-available-from-woa" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/03/22</p>
+<p>Contributors: Xylar Asay-Davis, Codex</p>
+<p>Testing should verify that the preprocessed WOA product contains no missing
+values in the regions needed for later remapping, that metadata and dimensions
+are consistent, and that rerunning the step with the same inputs gives
+reproducible results.</p>
+</section>
+<section id="testing-and-validation-the-workflow-produces-consistent-tracer-initial-conditions-for-the-configured-model">
+<h3>Testing and Validation: The workflow produces consistent tracer initial conditions for the configured model<a class="headerlink" href="#testing-and-validation-the-workflow-produces-consistent-tracer-initial-conditions-for-the-configured-model" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/06/14</p>
+<p>Contributors: Xylar Asay-Davis, Codex, Claude</p>
+<p>Unit tests should cover any tracer-conversion utilities independently of the
+full task. Task-level validation should verify that model-specific outputs
+contain the expected tracer variable names and are thermodynamically consistent
+(e.g., potential temperature within physical bounds for MPAS-Ocean; conservative
+temperature for Omega).</p>
+<p>Where practical, outputs on a small mesh should also be compared against the
+legacy Compass plus init-mode workflow, recognizing that exact bit-for-bit
+agreement may not be the right success criterion if the new implementation uses
+cleaner thermodynamic conversions.</p>
+</section>
+<section id="testing-and-validation-the-p-star-iteration-yields-a-model-independent-geometric-vertical-grid">
+<h3>Testing and Validation: The p-star iteration yields a model-independent geometric vertical grid<a class="headerlink" href="#testing-and-validation-the-p-star-iteration-yields-a-model-independent-geometric-vertical-grid" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/06/14</p>
+<p>Contributors: Xylar Asay-Davis, Codex, Claude</p>
+<p>Testing should verify that the <code class="docutils literal notranslate"><span class="pre">pstar_init.nc</span></code> intermediate file contains
+consistent geometric and pseudo-height fields (layer thicknesses, interface
+depths, valid-level masks) that respect bathymetry and minimum-thickness
+constraints.</p>
+<p>Running the task for both MPAS-Ocean and Omega configurations on the same mesh
+and comparing the resulting <code class="docutils literal notranslate"><span class="pre">pstar_init.nc</span></code> intermediates (or the
+<code class="docutils literal notranslate"><span class="pre">restingThickness</span></code> / <code class="docutils literal notranslate"><span class="pre">RefPseudoThickness</span></code> fields in the final outputs) should
+confirm that the geometric vertical grid at initialization is identical.</p>
+<p>For Omega, tests should also verify the convergence and stability of the
+p-star iteration used to relate geometric height, pressure, and pseudo-height.</p>
+<p>For MPAS-Ocean, tests should verify that the initialized layer-thickness state
+is derived from the converged geometric grid from the p-star iteration rather
+than silently falling back to the legacy z-star construction.</p>
+</section>
+<section id="testing-and-validation-the-capability-is-decomposed-into-inspectable-polaris-steps">
+<h3>Testing and Validation: The capability is decomposed into inspectable Polaris steps<a class="headerlink" href="#testing-and-validation-the-capability-is-decomposed-into-inspectable-polaris-steps" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/10/15</p>
+<p>Contributors: Xylar Asay-Davis, Codex, Claude</p>
+<p>Each major step has unit tests under <code class="docutils literal notranslate"><span class="pre">tests/ocean/realistic_global/</span></code>, mirroring
+the package layout: <code class="docutils literal notranslate"><span class="pre">hydrography/woa23/test_combine.py</span></code> and
+<code class="docutils literal notranslate"><span class="pre">hydrography/woa23/test_extrapolate.py</span></code> for the WOA23 preprocessing,
+<code class="docutils literal notranslate"><span class="pre">forcing/jra55/test_stress.py</span></code> for the wind-stress product,
+<code class="docutils literal notranslate"><span class="pre">init/test_woa23_map.py</span></code> and <code class="docutils literal notranslate"><span class="pre">init/test_jra55_map.py</span></code> for
+the mapping steps and how their task counts scale, <code class="docutils literal notranslate"><span class="pre">init/test_remap_woa23.py</span></code>
+and <code class="docutils literal notranslate"><span class="pre">init/test_remap_jra55.py</span></code> for what the remapped products contain and for
+the coverage check, <code class="docutils literal notranslate"><span class="pre">init/test_pstar_init.py</span></code> for the column helpers,
+<code class="docutils literal notranslate"><span class="pre">init/test_initial_state.py</span></code> for which upstream files the step reads, and
+<code class="docutils literal notranslate"><span class="pre">init/test_forcing.py</span></code> for the per-model forcing file. <code class="docutils literal notranslate"><span class="pre">test_tasks.py</span></code> checks
+that one task is registered per mesh and that its step list is what the
+decomposition says, and <code class="docutils literal notranslate"><span class="pre">test_mesh_configs.py</span></code> that the per-mesh overrides
+reach the right options without displacing the rest.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">viz</span></code> step is covered by <code class="docutils literal notranslate"><span class="pre">init/test_viz_config.py</span></code> rather than by a smoke
+test: it checks that the step reads only config sections that exist and that no
+colormap is chosen by a literal in the plotting code. Rendering the plots needs
+a real initial condition, so that part is exercised by running the task rather
+than in CI.</p>
+</section>
+<section id="testing-and-validation-the-workflow-is-practical-for-very-large-global-meshes">
+<h3>Testing and Validation: The workflow is practical for very large global meshes<a class="headerlink" href="#testing-and-validation-the-workflow-is-practical-for-very-large-global-meshes" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/03/22</p>
+<p>Contributors: Xylar Asay-Davis, Codex</p>
+<p>Performance testing should include at least one larger mesh case to assess
+memory usage, wall-clock behavior, and whether intermediate-file boundaries are
+sufficient to keep dask execution stable. These tests do not need to run in the
+routine regression suite but should be documented and rerun periodically.</p>
+</section>
+<section id="testing-and-validation-the-design-preserves-a-path-to-future-cavity-support">
+<h3>Testing and Validation: The design preserves a path to future cavity support<a class="headerlink" href="#testing-and-validation-the-design-preserves-a-path-to-future-cavity-support" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/03/22</p>
+<p>Contributors: Xylar Asay-Davis, Codex</p>
+<p>This requirement is largely architectural in the first phase. Review-based
+validation is appropriate initially: the workflow should be checked for
+hard-coded open-ocean assumptions at module boundaries and in intermediate
+dataset schemas. Later, this requirement should graduate to task-level tests
+once cavity support is added.</p>
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="index.html" class="btn btn-neutral float-left" title="Design Documents" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="horiz_press_grad_reference.html" class="btn btn-neutral float-right" title="Reworked HPG Reference Solution" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2026, Energy Exascale Earth System Model Project.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+   
+
+  <!-- Meta tags for JS to use -->
+  <meta name="doc-version" content="main">
+  <meta name="doc-site-root" content="../">
+
+  <!-- Create version switcher container -->
+  <script>
+    const sidebar = document.querySelector('.wy-side-nav-search');
+    if (sidebar) {
+      const versionDiv = document.createElement('div');
+      versionDiv.id = 'version-switcher';
+      versionDiv.style.marginTop = '1em';
+      sidebar.appendChild(versionDiv);
+    }
+  </script>
+
+  <!-- Load version-switcher.js using the correct relative path -->
+  <script src="../../shared/version-switcher.js"></script>
+
+
+</body>
+</html>

@@ -25,6 +25,7 @@
       ~VizTransect.add_vert_coord_input_file
       ~VizTransect.check_properties
       ~VizTransect.constrain_resources
+      ~VizTransect.get_forcing_filename
       ~VizTransect.get_horiz_mesh_filename
       ~VizTransect.get_init_filename
       ~VizTransect.get_vert_coord_filename
@@ -40,6 +41,7 @@
       ~VizTransect.setup
       ~VizTransect.validate_baselines
       ~VizTransect.work_path
+      ~VizTransect.write_forcing_dataset
       ~VizTransect.write_horiz_mesh_dataset
       ~VizTransect.write_initial_state_dataset
       ~VizTransect.write_model_dataset

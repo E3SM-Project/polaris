@@ -25,6 +25,7 @@
       ~OceanIOStep.add_vert_coord_input_file
       ~OceanIOStep.check_properties
       ~OceanIOStep.constrain_resources
+      ~OceanIOStep.get_forcing_filename
       ~OceanIOStep.get_horiz_mesh_filename
       ~OceanIOStep.get_init_filename
       ~OceanIOStep.get_vert_coord_filename
@@ -40,6 +41,7 @@
       ~OceanIOStep.setup
       ~OceanIOStep.validate_baselines
       ~OceanIOStep.work_path
+      ~OceanIOStep.write_forcing_dataset
       ~OceanIOStep.write_horiz_mesh_dataset
       ~OceanIOStep.write_initial_state_dataset
       ~OceanIOStep.write_model_dataset

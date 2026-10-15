@@ -1,0 +1,704 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>polaris.tasks.ocean.realistic_global.init.pstar_init</title>
+      <link rel="stylesheet" type="text/css" href="../../../../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../../../../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../../../../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../../../../_static/documentation_options.js?v=a8da1a53"></script>
+      <script src="../../../../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../../../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../../../search.html" />
+    <link href="../../../../../../_static/style.css" rel="stylesheet" type="text/css">
+
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../../../../index.html" class="icon icon-home">
+            Polaris
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">User's guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../users_guide/quick_start.html">Quick Start for Users</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../users_guide/tasks.html">Tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../users_guide/config_files.html">Config Files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../users_guide/suites.html">Suites</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../users_guide/mesh/index.html">Mesh component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../users_guide/e3sm/init/index.html">E3SM Initial Condition Component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../users_guide/ocean/index.html">Ocean component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../users_guide/seaice/index.html">Sea ice component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../users_guide/machines/index.html">Machines</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Developer's guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../developers_guide/quick_start.html">Quick Start for Developers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../developers_guide/overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../developers_guide/command_line.html">Command-line interface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../developers_guide/organization/index.html">Organization of Tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../developers_guide/e3sm/init/index.html">E3SM initial condition (e3sm/init) component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../developers_guide/mesh/index.html">Mesh component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../developers_guide/ocean/index.html">Ocean component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../developers_guide/seaice/index.html">Sea ice component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../developers_guide/framework/index.html">Framework</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../developers_guide/machines/index.html">Machines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../developers_guide/benchmarking.html">Benchmarking a branch against a baseline</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../developers_guide/troubleshooting.html">Troubleshooting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../developers_guide/docs.html">Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../developers_guide/building_docs.html">Building the Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../developers_guide/building_docs.html#previewing-the-documentation">Previewing the Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../developers_guide/conda_vs_spack.html">How Conda and Spack Work Together in Polaris</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../developers_guide/updating_conda.html">Updating Deployment Dependencies</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../developers_guide/updating_spack/index.html">Updating Shared Spack Environments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../developers_guide/api.html">API reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../design_docs/index.html">Design Documents</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../tutorials/dev_add_category_of_tasks/index.html">Developer Tutorial: Adding a New Category of Tasks</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Glossary</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../glossary.html">Glossary</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../../../index.html">Polaris</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../../../../index.html">Module code</a></li>
+          <li class="breadcrumb-item"><a href="../../../ocean.html">polaris.tasks.ocean</a></li>
+          <li class="breadcrumb-item"><a href="../../realistic_global.html">polaris.tasks.ocean.realistic_global</a></li>
+      <li class="breadcrumb-item active">polaris.tasks.ocean.realistic_global.init.pstar_init</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for polaris.tasks.ocean.realistic_global.init.pstar_init</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">xarray</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">xr</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mpas_tools.io</span><span class="w"> </span><span class="kn">import</span> <span class="n">write_netcdf</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.ocean.eos</span><span class="w"> </span><span class="kn">import</span> <span class="n">compute_specvol</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.ocean.vertical.bathymetry_holes</span><span class="w"> </span><span class="kn">import</span> <span class="n">fill_max_level_holes</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.ocean.vertical.grid_1d</span><span class="w"> </span><span class="kn">import</span> <span class="n">generate_1d_grid</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.ocean.vertical.pstar_init</span><span class="w"> </span><span class="kn">import</span> <span class="n">PStarInitStep</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.ocean.vertical.ztilde</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">Gravity</span><span class="p">,</span>
+    <span class="n">RhoSw</span><span class="p">,</span>
+    <span class="n">pressure_from_z_tilde</span><span class="p">,</span>
+<span class="p">)</span>
+
+
+<div class="viewcode-block" id="RealisticPStarInitStep">
+<a class="viewcode-back" href="../../../../../../developers_guide/ocean/generated/polaris.tasks.ocean.realistic_global.init.pstar_init.RealisticPStarInitStep.html#polaris.tasks.ocean.realistic_global.init.pstar_init.RealisticPStarInitStep">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">RealisticPStarInitStep</span><span class="p">(</span><span class="n">PStarInitStep</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    A step that jointly initializes the p-star vertical coordinate and</span>
+<span class="sd">    WOA23-derived tracer fields for a global MPAS mesh, writing a</span>
+<span class="sd">    model-neutral intermediate product that the downstream</span>
+<span class="sd">    :py:class:`.InitialStateStep` can consume.</span>
+
+<span class="sd">    This is a concrete subclass of</span>
+<span class="sd">    :py:class:`polaris.ocean.vertical.pstar_init.PStarInitStep`.</span>
+<span class="sd">    :py:meth:`init_tracers` interpolates conservative temperature and</span>
+<span class="sd">    absolute salinity from the pre-remapped WOA23 product</span>
+<span class="sd">    (``woa23_on_mesh.nc``) vertically to the current p-star midpoints at</span>
+<span class="sd">    each fixed-point iteration.</span>
+
+<span class="sd">    Attributes</span>
+<span class="sd">    ----------</span>
+<span class="sd">    remap_woa23_step : polaris.Step</span>
+<span class="sd">        Upstream step that produces ``woa23_on_mesh.nc``.</span>
+
+<span class="sd">    cull_mesh_step : polaris.tasks.e3sm.init.topo.cull.cull.CullMeshStep</span>
+<span class="sd">        Upstream step that produces the culled ocean mesh.</span>
+
+<span class="sd">    cull_topo_step : polaris.Step</span>
+<span class="sd">        Upstream step that produces ``topography_culled.nc`` with</span>
+<span class="sd">        ``base_elevation`` on the culled mesh cells.</span>
+
+<span class="sd">    _woa23_ds : xarray.Dataset or None</span>
+<span class="sd">        Lazily loaded WOA23 dataset; set in :py:meth:`run` before the</span>
+<span class="sd">        fixed-point iteration is invoked.</span>
+<span class="sd">    """</span>
+
+<div class="viewcode-block" id="RealisticPStarInitStep.__init__">
+<a class="viewcode-back" href="../../../../../../developers_guide/ocean/generated/polaris.tasks.ocean.realistic_global.init.pstar_init.RealisticPStarInitStep.html#polaris.tasks.ocean.realistic_global.init.pstar_init.RealisticPStarInitStep.__init__">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">component</span><span class="p">,</span>
+        <span class="n">subdir</span><span class="p">,</span>
+        <span class="n">remap_woa23_step</span><span class="p">,</span>
+        <span class="n">cull_mesh_step</span><span class="p">,</span>
+        <span class="n">cull_topo_step</span><span class="p">,</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">        Create the step.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        component : polaris.tasks.ocean.Ocean</span>
+<span class="sd">            The ocean component the step belongs to.</span>
+
+<span class="sd">        subdir : str</span>
+<span class="sd">            The subdirectory for the step.</span>
+
+<span class="sd">        remap_woa23_step : polaris.Step</span>
+<span class="sd">            The step that produces ``woa23_on_mesh.nc``.</span>
+
+<span class="sd">        cull_mesh_step : polaris.Step</span>
+<span class="sd">            The step that produces ``culled_ocean_mesh.nc``.</span>
+
+<span class="sd">        cull_topo_step : polaris.Step</span>
+<span class="sd">            The step that produces ``topography_culled.nc``.</span>
+<span class="sd">        """</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
+            <span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span>
+            <span class="n">name</span><span class="o">=</span><span class="s1">'pstar_init'</span><span class="p">,</span>
+            <span class="n">subdir</span><span class="o">=</span><span class="n">subdir</span><span class="p">,</span>
+            <span class="n">ntasks</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+            <span class="n">min_tasks</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">remap_woa23_step</span> <span class="o">=</span> <span class="n">remap_woa23_step</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cull_mesh_step</span> <span class="o">=</span> <span class="n">cull_mesh_step</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cull_topo_step</span> <span class="o">=</span> <span class="n">cull_topo_step</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_woa23_ds</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_output_file</span><span class="p">(</span>
+            <span class="s1">'pstar_init.nc'</span><span class="p">,</span>
+            <span class="n">validate_vars</span><span class="o">=</span><span class="p">[</span><span class="s1">'ZTildeMid'</span><span class="p">,</span> <span class="s1">'SpecVol'</span><span class="p">,</span> <span class="s1">'temperature'</span><span class="p">,</span> <span class="s1">'salinity'</span><span class="p">],</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="RealisticPStarInitStep.setup">
+<a class="viewcode-back" href="../../../../../../developers_guide/ocean/generated/polaris.tasks.ocean.realistic_global.init.pstar_init.RealisticPStarInitStep.setup.html#polaris.tasks.ocean.realistic_global.init.pstar_init.RealisticPStarInitStep.setup">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">setup</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">        Declare input files from upstream steps.</span>
+<span class="sd">        """</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">setup</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_input_file</span><span class="p">(</span>
+            <span class="n">filename</span><span class="o">=</span><span class="s1">'woa23_on_mesh.nc'</span><span class="p">,</span>
+            <span class="n">work_dir_target</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">remap_woa23_step</span><span class="o">.</span><span class="n">path</span><span class="p">,</span> <span class="s1">'woa23_on_mesh.nc'</span>
+            <span class="p">),</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_input_file</span><span class="p">(</span>
+            <span class="n">filename</span><span class="o">=</span><span class="s1">'culled_mesh.nc'</span><span class="p">,</span>
+            <span class="n">work_dir_target</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">cull_mesh_step</span><span class="o">.</span><span class="n">path</span><span class="p">,</span>
+                <span class="s1">'culled_ocean_mesh.nc'</span><span class="p">,</span>
+            <span class="p">),</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_input_file</span><span class="p">(</span>
+            <span class="n">filename</span><span class="o">=</span><span class="s1">'topography_culled.nc'</span><span class="p">,</span>
+            <span class="n">work_dir_target</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">cull_topo_step</span><span class="o">.</span><span class="n">path</span><span class="p">,</span> <span class="s1">'topography_culled.nc'</span>
+            <span class="p">),</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="RealisticPStarInitStep.run">
+<a class="viewcode-back" href="../../../../../../developers_guide/ocean/generated/polaris.tasks.ocean.realistic_global.init.pstar_init.RealisticPStarInitStep.run.html#polaris.tasks.ocean.realistic_global.init.pstar_init.RealisticPStarInitStep.run">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">        Run the coupled p-star and tracer initialization from WOA23</span>
+<span class="sd">        hydrography, writing ``pstar_init.nc``.</span>
+<span class="sd">        """</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_woa23_ds</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">open_dataset</span><span class="p">(</span><span class="s1">'woa23_on_mesh.nc'</span><span class="p">)</span>
+
+        <span class="n">ds_mesh</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">open_dataset</span><span class="p">(</span><span class="s1">'culled_mesh.nc'</span><span class="p">)</span>
+        <span class="n">ds_topo</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">open_dataset</span><span class="p">(</span><span class="s1">'topography_culled.nc'</span><span class="p">)</span>
+        <span class="n">geom_z_bot</span> <span class="o">=</span> <span class="n">_geom_z_bot_from_topo</span><span class="p">(</span><span class="n">ds_topo</span><span class="p">)</span>
+
+        <span class="n">geom_z_bot</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_clamp_to_representable_depth</span><span class="p">(</span><span class="n">ds_mesh</span><span class="p">,</span> <span class="n">geom_z_bot</span><span class="p">)</span>
+
+        <span class="n">ds_out</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_run_pstar_init_filling_holes</span><span class="p">(</span><span class="n">ds_mesh</span><span class="p">,</span> <span class="n">geom_z_bot</span><span class="p">)</span>
+        <span class="n">write_netcdf</span><span class="p">(</span><span class="n">ds_out</span><span class="p">,</span> <span class="s1">'pstar_init.nc'</span><span class="p">)</span></div>
+
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_clamp_to_representable_depth</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ds_mesh</span><span class="p">,</span> <span class="n">geom_z_bot</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">        Clamp the target seafloor ``geom_z_bot`` into the geometric depth range</span>
+<span class="sd">        the p-star reference grid can actually represent, so the downstream</span>
+<span class="sd">        :py:meth:`run_pstar_init` fixed-point iteration can make ``ssh`` match</span>
+<span class="sd">        its prescribed value (0 here, because ``SurfacePressure = 0``) instead</span>
+<span class="sd">        of leaving a residual sea-surface height in cells whose bathymetry is</span>
+<span class="sd">        deeper than the grid (or too shallow to form a valid column).</span>
+
+<span class="sd">        The maximum representable geometric column depth ``D_max`` is the</span>
+<span class="sd">        geometric thickness of a fully saturated column (pseudo-thicknesses</span>
+<span class="sd">        equal to the full reference grid), computed once here by reusing the</span>
+<span class="sd">        inherited :py:meth:`_build_pstar_coord_ds` and this step's</span>
+<span class="sd">        :py:meth:`init_tracers`.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        ds_mesh : xarray.Dataset</span>
+<span class="sd">            Horizontal mesh dataset.</span>
+
+<span class="sd">        geom_z_bot : xarray.DataArray</span>
+<span class="sd">            Target geometric seafloor height (negative, m) with dimension</span>
+<span class="sd">            ``nCells``.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        xarray.DataArray</span>
+<span class="sd">            ``geom_z_bot`` clamped into the representable range.</span>
+<span class="sd">        """</span>
+        <span class="n">config</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span>
+
+        <span class="n">interfaces</span> <span class="o">=</span> <span class="n">generate_1d_grid</span><span class="p">(</span><span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">)</span>
+        <span class="n">max_ref_pseudo_depth</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">interfaces</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+        <span class="n">p_max</span> <span class="o">=</span> <span class="n">RhoSw</span> <span class="o">*</span> <span class="n">Gravity</span> <span class="o">*</span> <span class="n">max_ref_pseudo_depth</span>
+
+        <span class="n">ncells</span> <span class="o">=</span> <span class="n">ds_mesh</span><span class="o">.</span><span class="n">sizes</span><span class="p">[</span><span class="s1">'nCells'</span><span class="p">]</span>
+        <span class="n">surface_pressure</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">(</span>
+            <span class="n">data</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">ncells</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">),</span> <span class="n">dims</span><span class="o">=</span><span class="p">[</span><span class="s1">'nCells'</span><span class="p">]</span>
+        <span class="p">)</span>
+        <span class="n">bottom_pressure</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">full_like</span><span class="p">(</span><span class="n">surface_pressure</span><span class="p">,</span> <span class="n">p_max</span><span class="p">)</span>
+
+        <span class="n">ds_sat</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_build_pstar_coord_ds</span><span class="p">(</span>
+            <span class="n">ds_mesh</span><span class="p">,</span> <span class="n">bottom_pressure</span><span class="p">,</span> <span class="n">surface_pressure</span>
+        <span class="p">)</span>
+        <span class="n">ct</span><span class="p">,</span> <span class="n">sa</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">init_tracers</span><span class="p">(</span><span class="n">ds_sat</span><span class="p">)</span>
+        <span class="n">p_mid</span> <span class="o">=</span> <span class="n">pressure_from_z_tilde</span><span class="p">(</span><span class="n">ds_sat</span><span class="o">.</span><span class="n">ZTildeMid</span><span class="p">)</span>
+        <span class="n">spec_vol</span> <span class="o">=</span> <span class="n">compute_specvol</span><span class="p">(</span>
+            <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span> <span class="n">temperature</span><span class="o">=</span><span class="n">ct</span><span class="p">,</span> <span class="n">salinity</span><span class="o">=</span><span class="n">sa</span><span class="p">,</span> <span class="n">pressure</span><span class="o">=</span><span class="n">p_mid</span>
+        <span class="p">)</span>
+
+        <span class="n">min_bottom_depth</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">'vertical_grid'</span><span class="p">,</span> <span class="s1">'min_bottom_depth'</span><span class="p">)</span>
+        <span class="n">min_vert_levels</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getint</span><span class="p">(</span><span class="s1">'vertical_grid'</span><span class="p">,</span> <span class="s1">'min_vert_levels'</span><span class="p">)</span>
+
+        <span class="n">clamped</span> <span class="o">=</span> <span class="n">_clamp_geom_z_bot</span><span class="p">(</span>
+            <span class="n">geom_z_bot</span><span class="o">=</span><span class="n">geom_z_bot</span><span class="p">,</span>
+            <span class="n">spec_vol</span><span class="o">=</span><span class="n">spec_vol</span><span class="p">,</span>
+            <span class="n">pseudo_thickness</span><span class="o">=</span><span class="n">ds_sat</span><span class="o">.</span><span class="n">PseudoThickness</span><span class="p">,</span>
+            <span class="n">cell_mask</span><span class="o">=</span><span class="n">ds_sat</span><span class="o">.</span><span class="n">cellMask</span><span class="p">,</span>
+            <span class="n">min_bottom_depth</span><span class="o">=</span><span class="n">min_bottom_depth</span><span class="p">,</span>
+            <span class="n">min_vert_levels</span><span class="o">=</span><span class="n">min_vert_levels</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="n">n_deep</span> <span class="o">=</span> <span class="nb">int</span><span class="p">((</span><span class="n">clamped</span> <span class="o">&gt;</span> <span class="n">geom_z_bot</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">())</span>
+        <span class="n">n_shallow</span> <span class="o">=</span> <span class="nb">int</span><span class="p">((</span><span class="n">clamped</span> <span class="o">&lt;</span> <span class="n">geom_z_bot</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">())</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+            <span class="s1">'Clamped geom_z_bot to the representable p-star column: '</span>
+            <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">n_deep</span><span class="si">}</span><span class="s1"> cells limited to the reference-grid depth, '</span>
+            <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">n_shallow</span><span class="si">}</span><span class="s1"> cells raised to the minimum depth.'</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="n">clamped</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_run_pstar_init_filling_holes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ds_mesh</span><span class="p">,</span> <span class="n">geom_z_bot</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">        Run :py:meth:`run_pstar_init`, filling isolated bathymetry "holes"</span>
+<span class="sd">        until none remain.</span>
+
+<span class="sd">        A hole is an ocean cell whose converged ``maxLevelCell`` is deeper than</span>
+<span class="sd">        that of every one of its horizontal ocean neighbors; its deepest layers</span>
+<span class="sd">        have no neighbor at the same level to exchange with, so they are</span>
+<span class="sd">        effectively inert.  MPAS-Ocean's init mode removes these by capping</span>
+<span class="sd">        ``maxLevelCell`` at the deepest neighbor.  Here we do the equivalent as</span>
+<span class="sd">        a bathymetry correction: after each p-star solve we cap each hole's</span>
+<span class="sd">        seafloor at the converged geometric height of the bottom interface of</span>
+<span class="sd">        its deepest-neighbor level, then re-solve.  Because the column is</span>
+<span class="sd">        anchored at the prescribed sea surface, this only shortens the affected</span>
+<span class="sd">        columns and ``ssh`` keeps matching its prescribed value.</span>
+
+<span class="sd">        Holes are detected on the *converged* ``maxLevelCell`` (the equation of</span>
+<span class="sd">        state can nudge a neighbor's level by one relative to any pre-iteration</span>
+<span class="sd">        estimate), and capping only ever reduces ``maxLevelCell``, so the loop</span>
+<span class="sd">        is monotone and should terminate.  Holes that remain after a fixed</span>
+<span class="sd">        number of passes are an error rather than something to write out.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        ds_mesh : xarray.Dataset</span>
+<span class="sd">            Horizontal mesh dataset (provides ``cellsOnCell`` and</span>
+<span class="sd">            ``nEdgesOnCell``).</span>
+
+<span class="sd">        geom_z_bot : xarray.DataArray</span>
+<span class="sd">            Target geometric seafloor height (negative, m) with dimension</span>
+<span class="sd">            ``nCells``, already clamped to the representable range.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        xarray.Dataset</span>
+<span class="sd">            The converged p-star init dataset with holes filled.</span>
+<span class="sd">        """</span>
+        <span class="n">cells_on_cell</span> <span class="o">=</span> <span class="n">ds_mesh</span><span class="o">.</span><span class="n">cellsOnCell</span><span class="o">.</span><span class="n">values</span> <span class="o">-</span> <span class="mi">1</span>
+        <span class="n">n_edges_on_cell</span> <span class="o">=</span> <span class="n">ds_mesh</span><span class="o">.</span><span class="n">nEdgesOnCell</span><span class="o">.</span><span class="n">values</span>
+        <span class="n">max_passes</span> <span class="o">=</span> <span class="mi">20</span>
+
+        <span class="n">ds_out</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">run_pstar_init</span><span class="p">(</span><span class="n">ds_mesh</span><span class="p">,</span> <span class="n">geom_z_bot</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">outer</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">max_passes</span><span class="p">):</span>
+            <span class="n">max_level_cell</span> <span class="o">=</span> <span class="n">ds_out</span><span class="o">.</span><span class="n">maxLevelCell</span><span class="o">.</span><span class="n">values</span>
+            <span class="n">filled</span> <span class="o">=</span> <span class="n">fill_max_level_holes</span><span class="p">(</span>
+                <span class="n">max_level_cell</span><span class="o">=</span><span class="n">max_level_cell</span><span class="p">,</span>
+                <span class="n">cells_on_cell</span><span class="o">=</span><span class="n">cells_on_cell</span><span class="p">,</span>
+                <span class="n">n_edges_on_cell</span><span class="o">=</span><span class="n">n_edges_on_cell</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="n">is_filled</span> <span class="o">=</span> <span class="n">filled</span> <span class="o">&lt;</span> <span class="n">max_level_cell</span>
+            <span class="n">n_filled</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">is_filled</span><span class="o">.</span><span class="n">sum</span><span class="p">())</span>
+            <span class="k">if</span> <span class="n">n_filled</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">outer</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+                        <span class="sa">f</span><span class="s1">'No bathymetry holes remain after </span><span class="si">{</span><span class="n">outer</span><span class="si">}</span><span class="s1"> pass(es).'</span>
+                    <span class="p">)</span>
+                <span class="k">return</span> <span class="n">ds_out</span>
+
+            <span class="c1"># converged geometric height of the bottom interface of the capped</span>
+            <span class="c1"># level (0-based interface index == 1-based capped level)</span>
+            <span class="n">new_geom_z_bot</span> <span class="o">=</span> <span class="n">ds_out</span><span class="o">.</span><span class="n">GeomZInterface</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span>
+                <span class="n">Time</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+                <span class="n">nVertLevelsP1</span><span class="o">=</span><span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">(</span><span class="n">filled</span><span class="p">,</span> <span class="n">dims</span><span class="o">=</span><span class="s1">'nCells'</span><span class="p">),</span>
+            <span class="p">)</span>
+            <span class="n">geom_z_bot</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">where</span><span class="p">(</span>
+                <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">(</span><span class="n">is_filled</span><span class="p">,</span> <span class="n">dims</span><span class="o">=</span><span class="p">[</span><span class="s1">'nCells'</span><span class="p">]),</span>
+                <span class="n">new_geom_z_bot</span><span class="p">,</span>
+                <span class="n">geom_z_bot</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="n">geom_z_bot</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">'long_name'</span><span class="p">]</span> <span class="o">=</span> <span class="s1">'seafloor geometric height'</span>
+            <span class="n">geom_z_bot</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">'units'</span><span class="p">]</span> <span class="o">=</span> <span class="s1">'m'</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s1">'Bathymetry-hole pass </span><span class="si">{</span><span class="n">outer</span><span class="si">}</span><span class="s1">: capping </span><span class="si">{</span><span class="n">n_filled</span><span class="si">}</span><span class="s1"> holes at '</span>
+                <span class="s1">'the deepest ocean neighbor and re-running p-star init.'</span>
+            <span class="p">)</span>
+            <span class="n">ds_out</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">run_pstar_init</span><span class="p">(</span><span class="n">ds_mesh</span><span class="p">,</span> <span class="n">geom_z_bot</span><span class="p">)</span>
+
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s1">'Bathymetry holes remain after </span><span class="si">{</span><span class="n">max_passes</span><span class="si">}</span><span class="s1"> hole-filling passes. '</span>
+            <span class="s1">'The initial condition would keep cells deeper than all of their '</span>
+            <span class="s1">'neighbors, so it is not written.'</span>
+        <span class="p">)</span>
+
+<div class="viewcode-block" id="RealisticPStarInitStep.init_tracers">
+<a class="viewcode-back" href="../../../../../../developers_guide/ocean/generated/polaris.tasks.ocean.realistic_global.init.pstar_init.RealisticPStarInitStep.init_tracers.html#polaris.tasks.ocean.realistic_global.init.pstar_init.RealisticPStarInitStep.init_tracers">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">init_tracers</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">ds</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">,</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">        Interpolate conservative temperature and absolute salinity from the</span>
+<span class="sd">        pre-remapped WOA23 depth levels to the current p-star midpoints.</span>
+
+<span class="sd">        The WOA23 depth coordinate is positive-downward (meters); p-star</span>
+<span class="sd">        midpoints are negative (geometric-height convention).  This method</span>
+<span class="sd">        treats p-star pseudo-heights as approximate geometric heights, which</span>
+<span class="sd">        is sufficient for convergence of the outer fixed-point loop.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        ds : xarray.Dataset</span>
+<span class="sd">            Current p-star dataset including ``ZTildeMid``,</span>
+<span class="sd">            ``minLevelCell``, and ``maxLevelCell``.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        conservative_temperature : xarray.DataArray</span>
+<span class="sd">            CT with dimensions ``(Time, nCells, nVertLevels)``.</span>
+<span class="sd">        absolute_salinity : xarray.DataArray</span>
+<span class="sd">            SA with dimensions ``(Time, nCells, nVertLevels)``.</span>
+<span class="sd">        """</span>
+        <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">_woa23_ds</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> <span class="p">(</span>
+            <span class="s1">'init_tracers called before _woa23_ds was loaded'</span>
+        <span class="p">)</span>
+        <span class="n">woa</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_woa23_ds</span>
+        <span class="c1"># Convert positive-downward depth to negative geometric heights.</span>
+        <span class="c1"># WOA23 depth is already sorted surface to seafloor (0 -&gt; 5500 m).</span>
+        <span class="n">woa_z</span> <span class="o">=</span> <span class="o">-</span><span class="n">woa</span><span class="p">[</span><span class="s1">'depth'</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
+        <span class="n">woa_ct</span> <span class="o">=</span> <span class="n">woa</span><span class="p">[</span><span class="s1">'ct_an'</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
+        <span class="n">woa_sa</span> <span class="o">=</span> <span class="n">woa</span><span class="p">[</span><span class="s1">'sa_an'</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
+        <span class="k">if</span> <span class="n">woa</span><span class="p">[</span><span class="s1">'ct_an'</span><span class="p">]</span><span class="o">.</span><span class="n">dims</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s1">'depth'</span><span class="p">:</span>
+            <span class="n">woa_ct</span> <span class="o">=</span> <span class="n">woa_ct</span><span class="o">.</span><span class="n">T</span>  <span class="c1"># ensure (nCells, nWoa23Levels)</span>
+            <span class="n">woa_sa</span> <span class="o">=</span> <span class="n">woa_sa</span><span class="o">.</span><span class="n">T</span>
+
+        <span class="n">z_tilde_mid</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">ZTildeMid</span><span class="o">.</span><span class="n">values</span>  <span class="c1"># (1, nCells, nVertLevels)</span>
+        <span class="n">ncells</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">sizes</span><span class="p">[</span><span class="s1">'nCells'</span><span class="p">]</span>
+        <span class="n">nlevels</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">sizes</span><span class="p">[</span><span class="s1">'nVertLevels'</span><span class="p">]</span>
+        <span class="n">min_lev</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">minLevelCell</span><span class="o">.</span><span class="n">values</span> <span class="o">-</span> <span class="mi">1</span>  <span class="c1"># 0-indexed</span>
+        <span class="n">max_lev</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">maxLevelCell</span><span class="o">.</span><span class="n">values</span> <span class="o">-</span> <span class="mi">1</span>
+
+        <span class="n">ct_out</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">full</span><span class="p">((</span><span class="mi">1</span><span class="p">,</span> <span class="n">ncells</span><span class="p">,</span> <span class="n">nlevels</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">)</span>
+        <span class="n">sa_out</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">full</span><span class="p">((</span><span class="mi">1</span><span class="p">,</span> <span class="n">ncells</span><span class="p">,</span> <span class="n">nlevels</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">)</span>
+
+        <span class="n">_fill_tracer_columns</span><span class="p">(</span>
+            <span class="n">z_tilde_mid</span><span class="p">,</span>
+            <span class="n">woa_z</span><span class="p">,</span>
+            <span class="n">woa_ct</span><span class="p">,</span>
+            <span class="n">woa_sa</span><span class="p">,</span>
+            <span class="n">min_lev</span><span class="p">,</span>
+            <span class="n">max_lev</span><span class="p">,</span>
+            <span class="n">ct_out</span><span class="p">,</span>
+            <span class="n">sa_out</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="n">ct</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">(</span>
+            <span class="n">data</span><span class="o">=</span><span class="n">ct_out</span><span class="p">,</span>
+            <span class="n">dims</span><span class="o">=</span><span class="p">[</span><span class="s1">'Time'</span><span class="p">,</span> <span class="s1">'nCells'</span><span class="p">,</span> <span class="s1">'nVertLevels'</span><span class="p">],</span>
+            <span class="n">attrs</span><span class="o">=</span><span class="p">{</span>
+                <span class="s1">'long_name'</span><span class="p">:</span> <span class="s1">'conservative temperature'</span><span class="p">,</span>
+                <span class="s1">'units'</span><span class="p">:</span> <span class="s1">'degC'</span><span class="p">,</span>
+            <span class="p">},</span>
+        <span class="p">)</span>
+        <span class="n">sa</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">(</span>
+            <span class="n">data</span><span class="o">=</span><span class="n">sa_out</span><span class="p">,</span>
+            <span class="n">dims</span><span class="o">=</span><span class="p">[</span><span class="s1">'Time'</span><span class="p">,</span> <span class="s1">'nCells'</span><span class="p">,</span> <span class="s1">'nVertLevels'</span><span class="p">],</span>
+            <span class="n">attrs</span><span class="o">=</span><span class="p">{</span>
+                <span class="s1">'long_name'</span><span class="p">:</span> <span class="s1">'absolute salinity'</span><span class="p">,</span>
+                <span class="s1">'units'</span><span class="p">:</span> <span class="s1">'g kg-1'</span><span class="p">,</span>
+            <span class="p">},</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="n">ct</span><span class="p">,</span> <span class="n">sa</span></div>
+</div>
+
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_clamp_geom_z_bot</span><span class="p">(</span>
+    <span class="n">geom_z_bot</span><span class="p">,</span>
+    <span class="n">spec_vol</span><span class="p">,</span>
+    <span class="n">pseudo_thickness</span><span class="p">,</span>
+    <span class="n">cell_mask</span><span class="p">,</span>
+    <span class="n">min_bottom_depth</span><span class="p">,</span>
+    <span class="n">min_vert_levels</span><span class="p">,</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Clamp the target seafloor height into the representable geometric depth</span>
+<span class="sd">    range ``[-D_max, -D_min]``.</span>
+
+<span class="sd">    ``D_max`` is the geometric thickness of the (saturated) column described by</span>
+<span class="sd">    ``spec_vol`` and ``pseudo_thickness``; ``D_min`` is the deeper of</span>
+<span class="sd">    ``min_bottom_depth`` and the geometric depth needed to supply</span>
+<span class="sd">    ``min_vert_levels`` layers (never deeper than ``D_max``).</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    geom_z_bot : xarray.DataArray</span>
+<span class="sd">        Target geometric seafloor height (negative, m) with dimension</span>
+<span class="sd">        ``nCells``.</span>
+
+<span class="sd">    spec_vol : xarray.DataArray</span>
+<span class="sd">        Specific volume of the saturated column</span>
+<span class="sd">        (``(Time,) nCells, nVertLevels``).</span>
+
+<span class="sd">    pseudo_thickness : xarray.DataArray</span>
+<span class="sd">        Pseudo-thickness of the saturated column, same shape as ``spec_vol``.</span>
+
+<span class="sd">    cell_mask : xarray.DataArray</span>
+<span class="sd">        Boolean mask of valid layers (``nCells, nVertLevels``).</span>
+
+<span class="sd">    min_bottom_depth : float</span>
+<span class="sd">        Minimum geometric water-column depth (m).</span>
+
+<span class="sd">    min_vert_levels : int</span>
+<span class="sd">        Minimum number of layers a valid column must contain.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    xarray.DataArray</span>
+<span class="sd">        ``geom_z_bot`` clamped so that ``-D_max &lt;= geom_z_bot &lt;= -D_min``.</span>
+<span class="sd">    """</span>
+    <span class="n">geom_thickness</span> <span class="o">=</span> <span class="p">(</span><span class="n">RhoSw</span> <span class="o">*</span> <span class="n">spec_vol</span> <span class="o">*</span> <span class="n">pseudo_thickness</span><span class="p">)</span><span class="o">.</span><span class="n">where</span><span class="p">(</span>
+        <span class="n">cell_mask</span><span class="p">,</span> <span class="mf">0.0</span>
+    <span class="p">)</span>
+    <span class="k">if</span> <span class="s1">'Time'</span> <span class="ow">in</span> <span class="n">geom_thickness</span><span class="o">.</span><span class="n">dims</span><span class="p">:</span>
+        <span class="n">geom_thickness</span> <span class="o">=</span> <span class="n">geom_thickness</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span><span class="n">Time</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+
+    <span class="n">d_max</span> <span class="o">=</span> <span class="n">geom_thickness</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="s1">'nVertLevels'</span><span class="p">)</span>
+    <span class="n">depth_for_min_levels</span> <span class="o">=</span> <span class="n">geom_thickness</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span>
+        <span class="n">nVertLevels</span><span class="o">=</span><span class="nb">slice</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">min_vert_levels</span><span class="p">)</span>
+    <span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="s1">'nVertLevels'</span><span class="p">)</span>
+    <span class="n">d_min</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">minimum</span><span class="p">(</span>
+        <span class="n">np</span><span class="o">.</span><span class="n">maximum</span><span class="p">(</span><span class="n">min_bottom_depth</span><span class="p">,</span> <span class="n">depth_for_min_levels</span><span class="p">),</span> <span class="n">d_max</span>
+    <span class="p">)</span>
+
+    <span class="n">clamped</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">minimum</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">maximum</span><span class="p">(</span><span class="n">geom_z_bot</span><span class="p">,</span> <span class="o">-</span><span class="n">d_max</span><span class="p">),</span> <span class="o">-</span><span class="n">d_min</span><span class="p">)</span>
+    <span class="n">clamped</span><span class="o">.</span><span class="n">attrs</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">geom_z_bot</span><span class="o">.</span><span class="n">attrs</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">clamped</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_geom_z_bot_from_topo</span><span class="p">(</span><span class="n">ds_topo</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Extract the geometric seafloor height (negative, in meters) from the</span>
+<span class="sd">    culled topography dataset.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    ds_topo : xarray.Dataset</span>
+<span class="sd">        Culled topography dataset containing ``base_elevation``.</span>
+<span class="sd">        ``base_elevation`` is negative for ocean cells (elevation below</span>
+<span class="sd">        sea level), so no sign flip is needed.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    xarray.DataArray</span>
+<span class="sd">        Geometric seafloor height with dimension ``nCells`` (negative).</span>
+<span class="sd">    """</span>
+    <span class="n">geom_z_bot</span> <span class="o">=</span> <span class="n">ds_topo</span><span class="p">[</span><span class="s1">'base_elevation'</span><span class="p">]</span>
+    <span class="n">geom_z_bot</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">'long_name'</span><span class="p">]</span> <span class="o">=</span> <span class="s1">'seafloor geometric height'</span>
+    <span class="n">geom_z_bot</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">'units'</span><span class="p">]</span> <span class="o">=</span> <span class="s1">'m'</span>
+    <span class="k">return</span> <span class="n">geom_z_bot</span>
+
+
+<span class="c1"># the number of cells whose tracers are interpolated at once, which keeps each</span>
+<span class="c1"># work array to a few MB</span>
+<span class="n">_TRACER_CHUNK_CELLS</span> <span class="o">=</span> <span class="mi">10000</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_fill_tracer_columns</span><span class="p">(</span>
+    <span class="n">z_tilde_mid</span><span class="p">,</span>
+    <span class="n">woa_z</span><span class="p">,</span>
+    <span class="n">woa_ct</span><span class="p">,</span>
+    <span class="n">woa_sa</span><span class="p">,</span>
+    <span class="n">min_lev</span><span class="p">,</span>
+    <span class="n">max_lev</span><span class="p">,</span>
+    <span class="n">ct_out</span><span class="p">,</span>
+    <span class="n">sa_out</span><span class="p">,</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Fill ``ct_out`` and ``sa_out`` by vertical interpolation of WOA23 data to</span>
+<span class="sd">    p-star midpoints, between each cell's first and last valid level.</span>
+
+<span class="sd">    The WOA23 depths are the same for every column, so the source interval</span>
+<span class="sd">    holding each midpoint is found for a chunk of cells at a time.  The</span>
+<span class="sd">    result is what :py:func:`numpy.interp` gives column by column, including</span>
+<span class="sd">    the flat extrapolation above the shallowest and below the deepest WOA23</span>
+<span class="sd">    level.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    z_tilde_mid : numpy.ndarray</span>
+<span class="sd">        Shape ``(1, nCells, nVertLevels)``.  P-star pseudo-heights</span>
+<span class="sd">        (negative, m).</span>
+<span class="sd">    woa_z : numpy.ndarray</span>
+<span class="sd">        Shape ``(nWoa23Levels,)``.  WOA23 geometric heights, sorted from</span>
+<span class="sd">        surface (0) to seafloor (most negative).</span>
+<span class="sd">    woa_ct, woa_sa : numpy.ndarray</span>
+<span class="sd">        Shape ``(nCells, nWoa23Levels)``.</span>
+<span class="sd">    min_lev, max_lev : numpy.ndarray</span>
+<span class="sd">        Shape ``(nCells,)``.  0-indexed first and last valid level.</span>
+<span class="sd">    ct_out, sa_out : numpy.ndarray</span>
+<span class="sd">        Pre-allocated ``(1, nCells, nVertLevels)`` output arrays.</span>
+<span class="sd">    """</span>
+    <span class="c1"># source heights increasing upward, as interpolation needs</span>
+    <span class="n">z_src</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">woa_z</span><span class="p">[::</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
+    <span class="n">nsrc</span> <span class="o">=</span> <span class="n">z_src</span><span class="o">.</span><span class="n">size</span>
+    <span class="n">ncells</span><span class="p">,</span> <span class="n">nlevels</span> <span class="o">=</span> <span class="n">z_tilde_mid</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span>
+    <span class="n">levels</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">nlevels</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">start</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">ncells</span><span class="p">,</span> <span class="n">_TRACER_CHUNK_CELLS</span><span class="p">):</span>
+        <span class="n">cells</span> <span class="o">=</span> <span class="nb">slice</span><span class="p">(</span><span class="n">start</span><span class="p">,</span> <span class="nb">min</span><span class="p">(</span><span class="n">start</span> <span class="o">+</span> <span class="n">_TRACER_CHUNK_CELLS</span><span class="p">,</span> <span class="n">ncells</span><span class="p">))</span>
+        <span class="n">valid</span> <span class="o">=</span> <span class="p">(</span><span class="n">levels</span> <span class="o">&gt;=</span> <span class="n">min_lev</span><span class="p">[</span><span class="n">cells</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">])</span> <span class="o">&amp;</span> <span class="p">(</span>
+            <span class="n">levels</span> <span class="o">&lt;=</span> <span class="n">max_lev</span><span class="p">[</span><span class="n">cells</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">]</span>
+        <span class="p">)</span>
+        <span class="c1"># only the valid levels, flattened, and the cell each belongs to</span>
+        <span class="n">cell</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nonzero</span><span class="p">(</span><span class="n">valid</span><span class="p">)</span>
+        <span class="n">z</span> <span class="o">=</span> <span class="n">z_tilde_mid</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="n">cells</span><span class="p">,</span> <span class="p">:][</span><span class="n">valid</span><span class="p">]</span>
+        <span class="c1"># the source interval holding each height, shared by both tracers</span>
+        <span class="n">index</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">clip</span><span class="p">(</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">searchsorted</span><span class="p">(</span><span class="n">z_src</span><span class="p">,</span> <span class="n">z</span><span class="p">,</span> <span class="n">side</span><span class="o">=</span><span class="s1">'right'</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">nsrc</span> <span class="o">-</span> <span class="mi">2</span>
+        <span class="p">)</span>
+        <span class="n">dz_src</span> <span class="o">=</span> <span class="n">z_src</span><span class="p">[</span><span class="n">index</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">z_src</span><span class="p">[</span><span class="n">index</span><span class="p">]</span>
+        <span class="n">dz</span> <span class="o">=</span> <span class="n">z</span> <span class="o">-</span> <span class="n">z_src</span><span class="p">[</span><span class="n">index</span><span class="p">]</span>
+        <span class="n">below</span> <span class="o">=</span> <span class="n">z</span> <span class="o">&lt;</span> <span class="n">z_src</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">above</span> <span class="o">=</span> <span class="n">z</span> <span class="o">&gt;=</span> <span class="n">z_src</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">first</span> <span class="o">=</span> <span class="n">cell</span> <span class="o">*</span> <span class="n">nsrc</span>
+        <span class="k">for</span> <span class="n">woa</span><span class="p">,</span> <span class="n">out</span> <span class="ow">in</span> <span class="p">[(</span><span class="n">woa_ct</span><span class="p">,</span> <span class="n">ct_out</span><span class="p">),</span> <span class="p">(</span><span class="n">woa_sa</span><span class="p">,</span> <span class="n">sa_out</span><span class="p">)]:</span>
+            <span class="n">values</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ascontiguousarray</span><span class="p">(</span><span class="n">woa</span><span class="p">[</span><span class="n">cells</span><span class="p">,</span> <span class="p">::</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
+            <span class="n">values</span> <span class="o">=</span> <span class="n">values</span><span class="o">.</span><span class="n">ravel</span><span class="p">()</span>
+            <span class="n">lower</span> <span class="o">=</span> <span class="n">values</span><span class="p">[</span><span class="n">first</span> <span class="o">+</span> <span class="n">index</span><span class="p">]</span>
+            <span class="n">upper</span> <span class="o">=</span> <span class="n">values</span><span class="p">[</span><span class="n">first</span> <span class="o">+</span> <span class="n">index</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span>
+            <span class="c1"># the same arithmetic as numpy.interp, so the results match it</span>
+            <span class="c1"># exactly, held at the end values beyond the source heights</span>
+            <span class="n">result</span> <span class="o">=</span> <span class="p">(</span><span class="n">upper</span> <span class="o">-</span> <span class="n">lower</span><span class="p">)</span> <span class="o">/</span> <span class="n">dz_src</span> <span class="o">*</span> <span class="n">dz</span> <span class="o">+</span> <span class="n">lower</span>
+            <span class="n">result</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">below</span><span class="p">,</span> <span class="n">values</span><span class="p">[</span><span class="n">first</span><span class="p">],</span> <span class="n">result</span><span class="p">)</span>
+            <span class="n">result</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">above</span><span class="p">,</span> <span class="n">values</span><span class="p">[</span><span class="n">first</span> <span class="o">+</span> <span class="n">nsrc</span> <span class="o">-</span> <span class="mi">1</span><span class="p">],</span> <span class="n">result</span><span class="p">)</span>
+            <span class="n">out_cells</span> <span class="o">=</span> <span class="n">out</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="n">cells</span><span class="p">,</span> <span class="p">:]</span>
+            <span class="n">out_cells</span><span class="p">[</span><span class="n">valid</span><span class="p">]</span> <span class="o">=</span> <span class="n">result</span>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2026, Energy Exascale Earth System Model Project.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+   
+
+  <!-- Meta tags for JS to use -->
+  <meta name="doc-version" content="main">
+  <meta name="doc-site-root" content="../../../../../../">
+
+  <!-- Create version switcher container -->
+  <script>
+    const sidebar = document.querySelector('.wy-side-nav-search');
+    if (sidebar) {
+      const versionDiv = document.createElement('div');
+      versionDiv.id = 'version-switcher';
+      versionDiv.style.marginTop = '1em';
+      sidebar.appendChild(versionDiv);
+    }
+  </script>
+
+  <!-- Load version-switcher.js using the correct relative path -->
+  <script src="../../../../../../../shared/version-switcher.js"></script>
+
+
+</body>
+</html>

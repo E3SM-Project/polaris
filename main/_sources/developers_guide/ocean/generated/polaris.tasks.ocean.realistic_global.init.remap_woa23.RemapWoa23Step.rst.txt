@@ -1,0 +1,46 @@
+﻿polaris.tasks.ocean.realistic\_global.init.remap\_woa23.RemapWoa23Step
+======================================================================
+
+.. currentmodule:: polaris.tasks.ocean.realistic_global.init.remap_woa23
+
+.. autoclass:: RemapWoa23Step
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~RemapWoa23Step.__init__
+      ~RemapWoa23Step.add_dependency
+      ~RemapWoa23Step.add_input_file
+      ~RemapWoa23Step.add_output_file
+      ~RemapWoa23Step.add_property_check
+      ~RemapWoa23Step.check_properties
+      ~RemapWoa23Step.constrain_resources
+      ~RemapWoa23Step.process_inputs_and_outputs
+      ~RemapWoa23Step.run
+      ~RemapWoa23Step.runtime_setup
+      ~RemapWoa23Step.set_resources
+      ~RemapWoa23Step.set_shared_config
+      ~RemapWoa23Step.setup
+      ~RemapWoa23Step.validate_baselines
+      ~RemapWoa23Step.work_path
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~RemapWoa23Step.cores
+      ~RemapWoa23Step.gpus
+      ~RemapWoa23Step.may_span_nodes
+      ~RemapWoa23Step.min_cores
+      ~RemapWoa23Step.min_gpus
+   
+   

@@ -28,6 +28,7 @@
       ~Analysis.constrain_resources
       ~Analysis.convergence_parameters
       ~Analysis.exact_solution
+      ~Analysis.get_forcing_filename
       ~Analysis.get_horiz_mesh_filename
       ~Analysis.get_init_filename
       ~Analysis.get_output_field
@@ -45,6 +46,7 @@
       ~Analysis.setup
       ~Analysis.validate_baselines
       ~Analysis.work_path
+      ~Analysis.write_forcing_dataset
       ~Analysis.write_horiz_mesh_dataset
       ~Analysis.write_initial_state_dataset
       ~Analysis.write_model_dataset

@@ -1,0 +1,46 @@
+﻿polaris.tasks.ocean.realistic\_global.init.jra55\_map.Jra55MapStep
+==================================================================
+
+.. currentmodule:: polaris.tasks.ocean.realistic_global.init.jra55_map
+
+.. autoclass:: Jra55MapStep
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~Jra55MapStep.__init__
+      ~Jra55MapStep.add_dependency
+      ~Jra55MapStep.add_input_file
+      ~Jra55MapStep.add_output_file
+      ~Jra55MapStep.add_property_check
+      ~Jra55MapStep.check_properties
+      ~Jra55MapStep.constrain_resources
+      ~Jra55MapStep.process_inputs_and_outputs
+      ~Jra55MapStep.run
+      ~Jra55MapStep.runtime_setup
+      ~Jra55MapStep.set_resources
+      ~Jra55MapStep.set_shared_config
+      ~Jra55MapStep.setup
+      ~Jra55MapStep.validate_baselines
+      ~Jra55MapStep.work_path
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~Jra55MapStep.cores
+      ~Jra55MapStep.gpus
+      ~Jra55MapStep.may_span_nodes
+      ~Jra55MapStep.min_cores
+      ~Jra55MapStep.min_gpus
+   
+   

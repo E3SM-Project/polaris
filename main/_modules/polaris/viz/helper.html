@@ -148,6 +148,17 @@
     <span class="s1">'seaIceFraction'</span><span class="p">:</span> <span class="p">{</span><span class="s1">'colormap'</span><span class="p">:</span> <span class="s1">'cmo.ice'</span><span class="p">,</span> <span class="s1">'units'</span><span class="p">:</span> <span class="sa">r</span><span class="s1">''</span><span class="p">},</span>
     <span class="s1">'default'</span><span class="p">:</span> <span class="p">{</span><span class="s1">'colormap'</span><span class="p">:</span> <span class="s1">'cmo.dense'</span><span class="p">,</span> <span class="s1">'units'</span><span class="p">:</span> <span class="sa">r</span><span class="s1">''</span><span class="p">},</span>
 <span class="p">}</span>
+<span class="n">viz_dict</span><span class="p">[</span><span class="s1">'windStressZonal'</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s1">'colormap'</span><span class="p">:</span> <span class="s1">'cmo.balance'</span><span class="p">,</span>
+    <span class="s1">'units'</span><span class="p">:</span> <span class="sa">r</span><span class="s1">'N/m$^2$'</span><span class="p">,</span>
+<span class="p">}</span>
+<span class="n">viz_dict</span><span class="p">[</span><span class="s1">'windStressMeridional'</span><span class="p">]</span> <span class="o">=</span> <span class="n">viz_dict</span><span class="p">[</span><span class="s1">'windStressZonal'</span><span class="p">]</span>
+<span class="c1"># a magnitude is non-negative, so it wants a sequential map rather than the</span>
+<span class="c1"># diverging one used for the signed components</span>
+<span class="n">viz_dict</span><span class="p">[</span><span class="s1">'windStressMagnitude'</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s1">'colormap'</span><span class="p">:</span> <span class="s1">'cmo.speed'</span><span class="p">,</span>
+    <span class="s1">'units'</span><span class="p">:</span> <span class="sa">r</span><span class="s1">'N/m$^2$'</span><span class="p">,</span>
+<span class="p">}</span>
 <span class="n">viz_dict</span><span class="p">[</span><span class="s1">'temperatureInteriorRestoringValue'</span><span class="p">]</span> <span class="o">=</span> <span class="n">viz_dict</span><span class="p">[</span><span class="s1">'temperature'</span><span class="p">]</span>
 <span class="n">viz_dict</span><span class="p">[</span><span class="s1">'salinityInteriorRestoringValue'</span><span class="p">]</span> <span class="o">=</span> <span class="n">viz_dict</span><span class="p">[</span><span class="s1">'salinity'</span><span class="p">]</span>
 <span class="n">viz_dict</span><span class="p">[</span><span class="s1">'vertVelocityTop'</span><span class="p">]</span> <span class="o">=</span> <span class="n">viz_dict</span><span class="p">[</span><span class="s1">'velocity'</span><span class="p">]</span>

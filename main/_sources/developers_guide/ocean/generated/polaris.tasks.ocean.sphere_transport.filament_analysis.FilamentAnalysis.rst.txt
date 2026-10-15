@@ -25,6 +25,7 @@
       ~FilamentAnalysis.add_vert_coord_input_file
       ~FilamentAnalysis.check_properties
       ~FilamentAnalysis.constrain_resources
+      ~FilamentAnalysis.get_forcing_filename
       ~FilamentAnalysis.get_horiz_mesh_filename
       ~FilamentAnalysis.get_init_filename
       ~FilamentAnalysis.get_vert_coord_filename
@@ -40,6 +41,7 @@
       ~FilamentAnalysis.setup
       ~FilamentAnalysis.validate_baselines
       ~FilamentAnalysis.work_path
+      ~FilamentAnalysis.write_forcing_dataset
       ~FilamentAnalysis.write_horiz_mesh_dataset
       ~FilamentAnalysis.write_initial_state_dataset
       ~FilamentAnalysis.write_model_dataset

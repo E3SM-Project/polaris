@@ -29,6 +29,7 @@
       ~ConvergenceForward.compute_cell_count
       ~ConvergenceForward.constrain_resources
       ~ConvergenceForward.dynamic_model_config
+      ~ConvergenceForward.get_forcing_filename
       ~ConvergenceForward.get_horiz_mesh_filename
       ~ConvergenceForward.get_init_filename
       ~ConvergenceForward.get_vert_coord_filename

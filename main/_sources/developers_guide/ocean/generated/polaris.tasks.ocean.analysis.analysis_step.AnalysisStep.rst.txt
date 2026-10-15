@@ -28,6 +28,7 @@
       ~AnalysisStep.add_vert_coord_input_file
       ~AnalysisStep.check_properties
       ~AnalysisStep.constrain_resources
+      ~AnalysisStep.get_forcing_filename
       ~AnalysisStep.get_horiz_mesh_filename
       ~AnalysisStep.get_init_filename
       ~AnalysisStep.get_sim_files
@@ -45,6 +46,7 @@
       ~AnalysisStep.setup
       ~AnalysisStep.validate_baselines
       ~AnalysisStep.work_path
+      ~AnalysisStep.write_forcing_dataset
       ~AnalysisStep.write_horiz_mesh_dataset
       ~AnalysisStep.write_initial_state_dataset
       ~AnalysisStep.write_model_dataset

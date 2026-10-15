@@ -28,6 +28,7 @@
       ~Climatology.add_vert_coord_input_file
       ~Climatology.check_properties
       ~Climatology.constrain_resources
+      ~Climatology.get_forcing_filename
       ~Climatology.get_horiz_mesh_filename
       ~Climatology.get_init_filename
       ~Climatology.get_sim_files
@@ -45,6 +46,7 @@
       ~Climatology.setup
       ~Climatology.validate_baselines
       ~Climatology.work_path
+      ~Climatology.write_forcing_dataset
       ~Climatology.write_horiz_mesh_dataset
       ~Climatology.write_initial_state_dataset
       ~Climatology.write_model_dataset

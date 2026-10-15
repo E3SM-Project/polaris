@@ -165,6 +165,9 @@
 <span class="sd">    vert_coord_vars : list of str</span>
 <span class="sd">        Variables that belong in the vertical coordinate file (Omega only)</span>
 <span class="sd">        rather than the initial condition file</span>
+
+<span class="sd">    forcing_vars : list of str</span>
+<span class="sd">        Variables that belong in the surface forcing file</span>
 <span class="sd">    """</span>
 
 <div class="viewcode-block" id="Ocean.__init__">
@@ -179,7 +182,8 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">mpaso_to_omega_var_map</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="kc">None</span><span class="p">,</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">horiz_mesh_vars</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="kc">None</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">vert_coord_vars</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="kc">None</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">state_vars</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="kc">None</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">state_vars</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="kc">None</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">forcing_vars</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="kc">None</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span></div>
 
 
     <span class="k">def</span><span class="w"> </span><span class="nf">configure</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="p">,</span> <span class="n">steps</span><span class="p">):</span>
@@ -594,6 +598,63 @@
         <span class="p">)</span>
         <span class="n">ds_vc</span> <span class="o">=</span> <span class="n">ds_vc</span><span class="p">[</span><span class="n">native_vars</span><span class="p">]</span>
         <span class="n">write_netcdf</span><span class="p">(</span><span class="n">ds</span><span class="o">=</span><span class="n">ds_vc</span><span class="p">,</span> <span class="n">fileName</span><span class="o">=</span><span class="n">filename</span><span class="p">)</span>
+
+<div class="viewcode-block" id="Ocean.write_forcing_dataset">
+<a class="viewcode-back" href="../../../developers_guide/ocean/generated/polaris.tasks.ocean.Ocean.write_forcing_dataset.html#polaris.tasks.ocean.Ocean.write_forcing_dataset">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">write_forcing_dataset</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ds</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="n">config</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">        Write a surface forcing dataset for Omega's ``Forcing`` stream or</span>
+<span class="sd">        MPAS-Ocean's ``forcing_data`` stream.</span>
+
+<span class="sd">        The two models disagree about the time dimension.  Omega's</span>
+<span class="sd">        ``SfcStressForcingVars`` registers 1-D fields on ``NCells``, while</span>
+<span class="sd">        MPAS-Ocean's Registry declares</span>
+<span class="sd">        ``dimensions="nCells Time"``.  A ``Time`` dimension of length one is</span>
+<span class="sd">        therefore added for MPAS-Ocean and omitted for Omega.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        ds : xarray.Dataset</span>
+<span class="sd">            A dataset containing MPAS-Ocean or native model variable names,</span>
+<span class="sd">            including the forcing variables</span>
+
+<span class="sd">        filename : str</span>
+<span class="sd">            The path for the NetCDF file to write</span>
+
+<span class="sd">        config : polaris.config.PolarisConfigParser</span>
+<span class="sd">            Configuration for the task (unused for now, accepted so the</span>
+<span class="sd">            signature matches the other ``write_*_dataset`` helpers)</span>
+<span class="sd">        """</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">forcing_vars</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_read_variables_yaml</span><span class="p">()</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span> <span class="o">==</span> <span class="s1">'omega'</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">mpaso_to_omega_var_map</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_read_var_map</span><span class="p">()</span>
+        <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">forcing_vars</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+
+        <span class="n">native_vars</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">map_var_list_to_native_model</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">forcing_vars</span><span class="p">)</span>
+
+        <span class="n">ds_forcing</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">map_to_native_model_vars</span><span class="p">(</span><span class="n">ds</span><span class="o">.</span><span class="n">copy</span><span class="p">())</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_check_vars_present</span><span class="p">(</span>
+            <span class="n">ds_forcing</span><span class="p">,</span> <span class="n">native_vars</span><span class="p">,</span> <span class="s1">'write_forcing_dataset'</span>
+        <span class="p">)</span>
+        <span class="n">ds_forcing</span> <span class="o">=</span> <span class="n">ds_forcing</span><span class="p">[</span><span class="n">native_vars</span><span class="p">]</span>
+
+        <span class="n">cell_dim</span> <span class="o">=</span> <span class="s1">'NCells'</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span> <span class="o">==</span> <span class="s1">'omega'</span> <span class="k">else</span> <span class="s1">'nCells'</span>
+        <span class="k">for</span> <span class="n">var</span> <span class="ow">in</span> <span class="n">native_vars</span><span class="p">:</span>
+            <span class="n">da</span> <span class="o">=</span> <span class="n">ds_forcing</span><span class="p">[</span><span class="n">var</span><span class="p">]</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span> <span class="o">==</span> <span class="s1">'omega'</span><span class="p">:</span>
+                <span class="c1"># Omega reads time-independent 1-D fields on cells</span>
+                <span class="k">if</span> <span class="s1">'Time'</span> <span class="ow">in</span> <span class="n">da</span><span class="o">.</span><span class="n">dims</span><span class="p">:</span>
+                    <span class="n">ds_forcing</span><span class="p">[</span><span class="n">var</span><span class="p">]</span> <span class="o">=</span> <span class="n">da</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span><span class="n">Time</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="c1"># MPAS-Ocean's Registry requires a Time dimension</span>
+                <span class="k">if</span> <span class="s1">'Time'</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">da</span><span class="o">.</span><span class="n">dims</span><span class="p">:</span>
+                    <span class="n">ds_forcing</span><span class="p">[</span><span class="n">var</span><span class="p">]</span> <span class="o">=</span> <span class="n">da</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="s1">'Time'</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+            <span class="n">ds_forcing</span><span class="p">[</span><span class="n">var</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span> <span class="o">=</span> <span class="n">da</span><span class="o">.</span><span class="n">attrs</span>
+            <span class="k">assert</span> <span class="n">cell_dim</span> <span class="ow">in</span> <span class="n">ds_forcing</span><span class="p">[</span><span class="n">var</span><span class="p">]</span><span class="o">.</span><span class="n">dims</span>
+
+        <span class="n">write_netcdf</span><span class="p">(</span><span class="n">ds</span><span class="o">=</span><span class="n">ds_forcing</span><span class="p">,</span> <span class="n">fileName</span><span class="o">=</span><span class="n">filename</span><span class="p">)</span></div>
+
 
     <span class="k">def</span><span class="w"> </span><span class="nf">remove_vert_coord_vars</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ds</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">"""</span>
@@ -1059,6 +1120,7 @@
             <span class="n">nested_dict</span><span class="p">[</span><span class="s1">'ocean'</span><span class="p">][</span><span class="s1">'vert_coord_variables'</span><span class="p">]</span>
         <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">state_vars</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">nested_dict</span><span class="p">[</span><span class="s1">'ocean'</span><span class="p">][</span><span class="s1">'state_variables'</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">forcing_vars</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">nested_dict</span><span class="p">[</span><span class="s1">'ocean'</span><span class="p">][</span><span class="s1">'forcing_variables'</span><span class="p">])</span>
         <span class="n">model_section_map</span> <span class="o">=</span> <span class="p">{</span><span class="s1">'mpas-ocean'</span><span class="p">:</span> <span class="s1">'mpas-ocean'</span><span class="p">,</span> <span class="s1">'omega'</span><span class="p">:</span> <span class="s1">'Omega'</span><span class="p">}</span>
         <span class="n">model_key</span> <span class="o">=</span> <span class="n">model_section_map</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model</span> <span class="ow">or</span> <span class="s1">''</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">model_key</span><span class="p">:</span>

@@ -28,6 +28,7 @@
       ~Moc.add_vert_coord_input_file
       ~Moc.check_properties
       ~Moc.constrain_resources
+      ~Moc.get_forcing_filename
       ~Moc.get_horiz_mesh_filename
       ~Moc.get_init_filename
       ~Moc.get_sim_files
@@ -45,6 +46,7 @@
       ~Moc.setup
       ~Moc.validate_baselines
       ~Moc.work_path
+      ~Moc.write_forcing_dataset
       ~Moc.write_horiz_mesh_dataset
       ~Moc.write_initial_state_dataset
       ~Moc.write_model_dataset

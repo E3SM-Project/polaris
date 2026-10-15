@@ -1,0 +1,46 @@
+﻿polaris.tasks.ocean.realistic\_global.init.lat\_lon\_map.LatLonMapStep
+======================================================================
+
+.. currentmodule:: polaris.tasks.ocean.realistic_global.init.lat_lon_map
+
+.. autoclass:: LatLonMapStep
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~LatLonMapStep.__init__
+      ~LatLonMapStep.add_dependency
+      ~LatLonMapStep.add_input_file
+      ~LatLonMapStep.add_output_file
+      ~LatLonMapStep.add_property_check
+      ~LatLonMapStep.check_properties
+      ~LatLonMapStep.constrain_resources
+      ~LatLonMapStep.process_inputs_and_outputs
+      ~LatLonMapStep.run
+      ~LatLonMapStep.runtime_setup
+      ~LatLonMapStep.set_resources
+      ~LatLonMapStep.set_shared_config
+      ~LatLonMapStep.setup
+      ~LatLonMapStep.validate_baselines
+      ~LatLonMapStep.work_path
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~LatLonMapStep.cores
+      ~LatLonMapStep.gpus
+      ~LatLonMapStep.may_span_nodes
+      ~LatLonMapStep.min_cores
+      ~LatLonMapStep.min_gpus
+   
+   

@@ -25,6 +25,7 @@
       ~MixingAnalysis.add_vert_coord_input_file
       ~MixingAnalysis.check_properties
       ~MixingAnalysis.constrain_resources
+      ~MixingAnalysis.get_forcing_filename
       ~MixingAnalysis.get_horiz_mesh_filename
       ~MixingAnalysis.get_init_filename
       ~MixingAnalysis.get_vert_coord_filename
@@ -40,6 +41,7 @@
       ~MixingAnalysis.setup
       ~MixingAnalysis.validate_baselines
       ~MixingAnalysis.work_path
+      ~MixingAnalysis.write_forcing_dataset
       ~MixingAnalysis.write_horiz_mesh_dataset
       ~MixingAnalysis.write_initial_state_dataset
       ~MixingAnalysis.write_model_dataset

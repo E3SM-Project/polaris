@@ -214,19 +214,26 @@ varying surface pressure should set <code class="docutils literal notranslate"><
 it is left as-is.  As new variables that do have an MPAS-Ocean equivalent are
 added to Omega, they should be added to the <code class="docutils literal notranslate"><span class="pre">variables</span></code> section in the
 <code class="docutils literal notranslate"><span class="pre">mpaso_to_omega.yaml</span></code> file.</p>
+<p><a class="reference internal" href="generated/polaris.ocean.model.OceanIOStep.write_forcing_dataset.html#polaris.ocean.model.OceanIOStep.write_forcing_dataset" title="polaris.ocean.model.OceanIOStep.write_forcing_dataset"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.ocean.model.OceanIOStep.write_forcing_dataset()</span></code></a> writes a
+surface forcing file with the variables in the <code class="docutils literal notranslate"><span class="pre">forcing_variables</span></code> list in
+<code class="docutils literal notranslate"><span class="pre">variables.yaml</span></code>, renamed for the model.  MPAS-Ocean’s Registry gives forcing
+fields a <code class="docutils literal notranslate"><span class="pre">Time</span></code> dimension while Omega reads them as fields on <code class="docutils literal notranslate"><span class="pre">NCells</span></code>
+alone, so a <code class="docutils literal notranslate"><span class="pre">Time</span></code> dimension of one is added for MPAS-Ocean and dropped for
+Omega.</p>
 <p>For standalone conversion of an existing MPAS-Ocean initial-condition file to
 Omega format outside a Polaris task, see
 <a class="reference internal" href="convert_mpaso_ic_to_omega.html#dev-ocean-convert-mpaso-ic-to-omega"><span class="std std-ref">convert_mpaso_ic_to_omega.py</span></a>.</p>
 <section id="canonical-staged-files">
 <h4>Canonical staged files<a class="headerlink" href="#canonical-staged-files" title="Link to this heading"></a></h4>
-<p>The three files that flow through the ocean pipeline — horizontal mesh,
-vertical coordinate, and initial state — have canonical local filenames
-defined in the <code class="docutils literal notranslate"><span class="pre">[ocean_staged_files]</span></code> config section (in
+<p>The files that flow through the ocean pipeline — horizontal mesh, vertical
+coordinate, initial state and surface forcing — have canonical local
+filenames defined in the <code class="docutils literal notranslate"><span class="pre">[ocean_staged_files]</span></code> config section (in
 <code class="docutils literal notranslate"><span class="pre">polaris/ocean/ocean.cfg</span></code>):</p>
 <div class="highlight-ini notranslate"><div class="highlight"><pre><span></span><span class="k">[ocean_staged_files]</span>
 <span class="na">horiz_mesh_filename</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">mesh.nc</span>
 <span class="na">vert_coord_filename</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">vert_coord.nc</span>
 <span class="na">init_filename</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">init.nc</span>
+<span class="na">forcing_filename</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">forcing.nc</span>
 </pre></div>
 </div>
 <p>These filenames are shared by all pipeline stages: init steps write them as
@@ -237,7 +244,8 @@ from upstream using the same names.</p>
 <a class="reference internal" href="generated/polaris.ocean.model.OceanModelFilesMixin.html#polaris.ocean.model.OceanModelFilesMixin" title="polaris.ocean.model.OceanModelFilesMixin"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.ocean.model.OceanModelFilesMixin</span></code></a>:</p>
 <ul class="simple">
 <li><p><strong>Getters</strong> — <code class="docutils literal notranslate"><span class="pre">get_horiz_mesh_filename()</span></code>, <code class="docutils literal notranslate"><span class="pre">get_vert_coord_filename()</span></code>,
-<code class="docutils literal notranslate"><span class="pre">get_init_filename()</span></code> — read the current values from config.</p></li>
+<code class="docutils literal notranslate"><span class="pre">get_init_filename()</span></code>, <code class="docutils literal notranslate"><span class="pre">get_forcing_filename()</span></code> — read the current values
+from config.</p></li>
 <li><p><strong>Input-file registration</strong> — <code class="docutils literal notranslate"><span class="pre">add_horiz_mesh_input_file(**kwargs)</span></code>,
 <code class="docutils literal notranslate"><span class="pre">add_vert_coord_input_file(filename=None,</span> <span class="pre">**kwargs)</span></code>,
 <code class="docutils literal notranslate"><span class="pre">add_init_input_file(**kwargs)</span></code> — all safe to call from <code class="docutils literal notranslate"><span class="pre">__init__()</span></code>.
@@ -934,6 +942,13 @@ example because the z-tilde bottom varies spatially), the semi-private method
 <code class="docutils literal notranslate"><span class="pre">init_pstar_vertical_coord()</span></code> per cell with cell-specific config options,
 as done in
 <a class="reference internal" href="generated/polaris.tasks.ocean.horiz_press_grad.init.Init.html#polaris.tasks.ocean.horiz_press_grad.init.Init" title="polaris.tasks.ocean.horiz_press_grad.init.Init"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.tasks.ocean.horiz_press_grad.init.Init</span></code></a>.</p>
+<p><a class="reference internal" href="generated/polaris.ocean.vertical.bathymetry_holes.fill_max_level_holes.html#polaris.ocean.vertical.bathymetry_holes.fill_max_level_holes" title="polaris.ocean.vertical.bathymetry_holes.fill_max_level_holes"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.ocean.vertical.bathymetry_holes.fill_max_level_holes()</span></code></a>
+removes isolated bathymetry holes, as MPAS-Ocean’s init mode does: it caps
+each cell’s <code class="docutils literal notranslate"><span class="pre">maxLevelCell</span></code> at that of its deepest ocean neighbor until no cell
+is deeper than all of its neighbors.
+<a class="reference internal" href="generated/polaris.tasks.ocean.realistic_global.init.pstar_init.RealisticPStarInitStep.html#polaris.tasks.ocean.realistic_global.init.pstar_init.RealisticPStarInitStep" title="polaris.tasks.ocean.realistic_global.init.pstar_init.RealisticPStarInitStep"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.tasks.ocean.realistic_global.init.pstar_init.RealisticPStarInitStep</span></code></a>
+uses it after each solve, capping each hole’s seafloor at the converged bottom
+of the new level and solving again.</p>
 <section id="initial-state">
 <span id="dev-ocean-framework-init-state"></span><h3>Initial state<a class="headerlink" href="#initial-state" title="Link to this heading"></a></h3>
 <p>The <code class="docutils literal notranslate"><span class="pre">polaris.ocean.init_state</span></code> package provides general helpers for

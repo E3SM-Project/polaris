@@ -1,0 +1,6 @@
+﻿polaris.tasks.ocean.realistic\_global.init.pstar\_init.RealisticPStarInitStep.setup
+===================================================================================
+
+.. currentmodule:: polaris.tasks.ocean.realistic_global.init.pstar_init
+
+.. automethod:: RealisticPStarInitStep.setup

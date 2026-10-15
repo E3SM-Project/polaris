@@ -25,6 +25,7 @@
       ~StatsAnalysis.add_vert_coord_input_file
       ~StatsAnalysis.check_properties
       ~StatsAnalysis.constrain_resources
+      ~StatsAnalysis.get_forcing_filename
       ~StatsAnalysis.get_horiz_mesh_filename
       ~StatsAnalysis.get_init_filename
       ~StatsAnalysis.get_vert_coord_filename
@@ -40,6 +41,7 @@
       ~StatsAnalysis.setup
       ~StatsAnalysis.validate_baselines
       ~StatsAnalysis.work_path
+      ~StatsAnalysis.write_forcing_dataset
       ~StatsAnalysis.write_horiz_mesh_dataset
       ~StatsAnalysis.write_initial_state_dataset
       ~StatsAnalysis.write_model_dataset

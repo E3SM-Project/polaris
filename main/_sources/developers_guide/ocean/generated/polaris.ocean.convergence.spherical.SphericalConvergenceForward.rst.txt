@@ -29,6 +29,7 @@
       ~SphericalConvergenceForward.compute_cell_count
       ~SphericalConvergenceForward.constrain_resources
       ~SphericalConvergenceForward.dynamic_model_config
+      ~SphericalConvergenceForward.get_forcing_filename
       ~SphericalConvergenceForward.get_horiz_mesh_filename
       ~SphericalConvergenceForward.get_init_filename
       ~SphericalConvergenceForward.get_vert_coord_filename
