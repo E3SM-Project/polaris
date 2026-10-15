@@ -29,6 +29,7 @@ classifiers = [
 
 dependencies = [
     "cartopy>=0.26.0",
+    "cfchecker",
     "cmocean",
     "gsw",
     "importlib_resources",
