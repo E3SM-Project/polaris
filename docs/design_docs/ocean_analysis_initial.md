@@ -323,7 +323,7 @@ following MPAS-Analysis's familiar layout, and no more, is what Phase 1 ships.
 
 ### Requirement: omega-monthly-means
 
-Date last modified: 2026/08/25
+Date last modified: 2026/09/29
 
 Contributors: Xylar Asay-Davis, Claude
 
@@ -335,13 +335,11 @@ fields.  The monthly-mean output shall:
 
 - cover, at minimum, the fields needed by this analysis: conservative
   temperature, absolute salinity, pseudo-thickness, sea surface height,
-  reconstructed zonal and meridional velocity at cell centers, and mixed-layer
-  depth.  Reconstructed velocities are **required** rather than preferred: the
-  machinery to write them exists in Omega, two cell-centered fields are about
-  two thirds the size of one edge field, and `normalVelocity` is not itself
-  plotted by anything here, so there is no reason for a simulation to write the
-  larger field and no reason for Polaris to carry a reconstruction it would
-  never use;
+  velocity, and mixed-layer depth.  Velocity may be either the reconstructed
+  zonal and meridional components at cell centers or `normalVelocity`, from
+  which Polaris reconstructs them (see the velocity section of the
+  climatology-maps algorithm design).  The components are preferred, since two
+  cell-centered fields are about two thirds the size of one edge field;
 - include the **geometric vertical coordinate**, `GeomZMid` and
   `GeomZInterface`, so that Polaris does not have to reconstruct it (see the
   vertical-geometry algorithm design for why it cannot);
@@ -713,7 +711,7 @@ already encodes the range in its output file names
 
 ### Algorithm Design: climatology-maps
 
-Date last modified: 2026/08/30
+Date last modified: 2026/09/29
 
 Contributors: Xylar Asay-Davis, Claude
 
@@ -815,38 +813,26 @@ the seafloor.
 
 #### Velocity
 
-The map steps plot zonal and meridional velocity at cell centers, read directly
-from the monthly means.  Polaris does not reconstruct them, and Phase 1 has no
-offline reconstruction path at all.
+The map steps plot zonal and meridional velocity at cell centers.  Where the
+monthly means carry the components, they are read directly.  Where they carry
+only `normalVelocity`, Polaris reconstructs the components from its
+climatology with the least-squares weights in the mesh file, designed in
+[Vector Reconstruction](vector_reconstruction.md).
 
-An earlier draft had one, reconstructing from `normalVelocity` on edges with
-the least-squares weights designed in
-[Vector Reconstruction](vector_reconstruction.md), so that this product would
-not block on Omega work.  It is not needed: the Omega side is in progress in
-[Omega #525](https://github.com/E3SM-Project/Omega/pull/525), which adds
-velocity-component reconstruction for I/O, so reconstructed velocities become a
-required output rather than a preferred one, and a fallback for a case that
-will not arise is code we would write, test and maintain for nothing.
+This reverses an earlier version of this design, which had no offline path
+and relied on [Omega #525](https://github.com/E3SM-Project/Omega/pull/525) to
+make reconstructed velocities a required output.  That work is not expected
+to merge soon, and reconstructing from edge velocities is a capability Polaris
+wants regardless.
 
-That work is still a draft, so this is the one place the design depends on
-something not yet landed upstream.  The consequence is contained: until it
-does, the mock-up files carry `NormalVelocity` and no components, so the
-velocity maps are the one product that reports missing fields and skips, in the
-way described under `omega-monthly-means`.  Nothing else waits on it.  Writing
-the offline path against that gap would cost more than the wait, and would
-leave us maintaining two ways to obtain the same field.
-
-Polaris's reconstruction itself is not going away and is being fixed
-independently --- [Polaris #721](https://github.com/E3SM-Project/polaris/pull/721)
-corrects vector reconstruction on planar meshes, found while doing the Omega
-work.  It stays available for tasks that need it; this analysis simply does not
-read edge velocities.
-
-The accuracy question that would otherwise decide this does not arise either.
-Reconstruction is linear, so reconstructing from a climatology of normal
-velocity gives exactly the climatology of the reconstructed velocity --- doing
-it in the model costs nothing in accuracy, and it saves writing and reading an
-edge field nothing else here wants.
+Reconstruction is linear, so reconstructing from the climatology of normal
+velocity gives exactly the climatology of the reconstructed velocity.  The
+climatology therefore carries `normalVelocity` whenever a component is asked
+for and was not written, and the reconstruction is done in the velocity map
+step, once per season.  An edge the monthly means leave as fill --- one below
+the seafloor or beside land --- is closed, so it is treated as a normal
+velocity of zero, and the reconstructed components are then masked outside
+each column's valid layers like any other field.
 
 ### Algorithm Design: mixed-layer depth (fallback only)
 
@@ -2138,7 +2124,7 @@ published path to change:
 
 ### Implementation: omega-monthly-means
 
-Date last modified: 2026/08/27
+Date last modified: 2026/09/29
 
 Contributors: Xylar Asay-Davis, Claude
 
@@ -2188,8 +2174,8 @@ write.  That is a fixture, deliberately, and not something the analysis has
 code for: the mock-up exists to be developed against and then discarded, and
 the monthly means are expected to arrive in their own stream in any case.
 
-Every product in this design except mixed-layer depth and the reconstructed
-velocity components can be developed and tested against these files today.
+Every product in this design except mixed-layer depth can be developed and
+tested against these files today.
 They are what the order of work assumes: the steps are built against real Omega
 output from the start rather than against synthetic data with a later
 integration step.

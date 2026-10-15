@@ -8,6 +8,7 @@ from polaris.tasks.ocean.analysis.sim_files import (
     check_files_exist,
     expand_template,
     read_omega_config,
+    time_mean_suffix,
     year_range_key,
 )
 
@@ -32,6 +33,21 @@ def test_expand_template_over_years_and_months(tmp_path):
         str(tmp_path), 'output/ocn.hist.0004-12.nc'
     )
     assert (sim_files[-1].year, sim_files[-1].month) == (4, 12)
+
+
+def test_expand_template_with_a_month_offset(tmp_path):
+    """A file named for the month after the one it covers is found under
+    that name but keeps the year and month it covers."""
+    sim_files = expand_template(
+        'means.$Y-$M.nc', 1, 2, str(tmp_path), month_offset=1
+    )
+    assert len(sim_files) == 24
+    assert sim_files[0].path == str(tmp_path / 'means.0001-02.nc')
+    assert (sim_files[0].year, sim_files[0].month) == (1, 1)
+    assert sim_files[11].path == str(tmp_path / 'means.0002-01.nc')
+    assert (sim_files[11].year, sim_files[11].month) == (1, 12)
+    assert sim_files[23].path == str(tmp_path / 'means.0003-01.nc')
+    assert (sim_files[23].year, sim_files[23].month) == (2, 12)
 
 
 def test_expand_template_over_years_only(tmp_path):
@@ -192,14 +208,18 @@ Omega:
       Freq: 1
       FreqUnits: months
   Analysis:
+    MonthlyAverages:
+      Enable: true
+      Filename: monthly_means.$Y-$M.nc
+      ReductionPeriod: [1Month]
     GlobalStats:
       Enable: true
       Filename: global_stats
       ReductionPeriod: [1Month]
       SnapshotPeriod: [1Day]
-    Moc:
+    MOC:
       Enable: false
-      Filename: moc
+      Filename: moc.$Y
       ReductionPeriod: [1Month]
     Timeseries:
       Enable: true
@@ -228,9 +248,9 @@ def test_read_omega_config_reports_what_it_cannot_supply(tmp_path):
     """An absent stream and a pointer-file stream are told apart."""
     omega_config = read_omega_config(_write_omega_config(tmp_path))
     assert omega_config.stream_status('History') == 'ok'
-    assert omega_config.stream_status('Moc') == 'missing'
+    assert omega_config.stream_status('MOC') == 'missing'
     assert omega_config.stream_status('RestartRead') == 'no_filename'
-    assert omega_config.stream_filename('Moc') is None
+    assert omega_config.stream_filename('MOC') is None
     assert omega_config.stream_filename('RestartRead') is None
 
 
@@ -250,9 +270,9 @@ def test_analysis_group_status(tmp_path):
     """A group can be absent, turned off, or writing."""
     omega_config = read_omega_config(_write_omega_config(tmp_path))
     assert omega_config.analysis_group_status('GlobalStats') == 'ok'
-    assert omega_config.analysis_group_status('Moc') == 'disabled'
+    assert omega_config.analysis_group_status('MOC') == 'disabled'
     assert omega_config.analysis_group_status('Bogus') == 'missing'
-    assert omega_config.analysis_streams('Moc') == []
+    assert omega_config.analysis_streams('MOC') == []
     assert omega_config.analysis_streams('Bogus') == []
 
 
@@ -295,6 +315,9 @@ def _make_simulation(tmp_path, text=OMEGA_CONFIG):
     (tmp_path / 'output').mkdir()
     for month in range(1, 13):
         (tmp_path / 'output' / f'ocn.hist.0001-{month:02d}.nc').touch()
+    # a monthly mean is named for the month after the one it covers
+    for name in [f'0001-{month:02d}' for month in range(2, 13)] + ['0002-01']:
+        (tmp_path / f'monthly_means_1MonthTimeStats.{name}.nc').touch()
     (tmp_path / 'global_stats_1MonthTimeStats').touch()
     return omega_config_filename
 
@@ -311,7 +334,16 @@ def test_simulation_files_come_from_the_omega_config(tmp_path):
     assert sim.vert_coord_filename() == str(tmp_path / 'vert_coord.nc')
     monthly = sim.monthly_mean_files(1, 1)
     assert len(monthly) == 12
-    assert monthly[0].path == str(tmp_path / 'output' / 'ocn.hist.0001-01.nc')
+    # the mean for January is in the file Omega named for February
+    assert monthly[0].path == str(
+        tmp_path / 'monthly_means_1MonthTimeStats.0001-02.nc'
+    )
+    assert (monthly[0].year, monthly[0].month) == (1, 1)
+    assert monthly[-1].path == str(
+        tmp_path / 'monthly_means_1MonthTimeStats.0002-01.nc'
+    )
+    assert (monthly[-1].year, monthly[-1].month) == (1, 12)
+    assert time_mean_suffix(sim.monthly_mean_stream()) == '_TimeMean1Month'
     stats = sim.global_stats_files(1, 1)
     assert [sim_file.path for sim_file in stats] == [
         str(tmp_path / 'global_stats_1MonthTimeStats')
@@ -358,8 +390,8 @@ def test_missing_moc_output_is_reported_not_raised(tmp_path):
     """A simulation that predates Omega's MOC diagnostic is an ordinary
     case."""
     text = OMEGA_CONFIG.replace(
-        '    Moc:\n      Enable: false\n'
-        '      Filename: moc\n      ReductionPeriod: [1Month]\n',
+        '    MOC:\n      Enable: false\n'
+        '      Filename: moc.$Y\n      ReductionPeriod: [1Month]\n',
         '',
     )
     omega_config_filename = _make_simulation(tmp_path, text)
@@ -372,7 +404,7 @@ def test_missing_moc_output_is_reported_not_raised(tmp_path):
         'no meridional overturning circulation output' in message
         for message in messages
     )
-    assert any('no Moc analysis group' in message for message in messages)
+    assert any('no MOC analysis group' in message for message in messages)
 
 
 def test_a_disabled_moc_group_is_reported_not_raised(tmp_path):
@@ -383,6 +415,52 @@ def test_a_disabled_moc_group_is_reported_not_raised(tmp_path):
 
     assert sim.moc_files(1, 1) is None
     assert any('is turned off' in message for message in messages)
+
+
+def _enable_moc(tmp_path):
+    """Write a simulation whose MOC group is on, and the file it wrote."""
+    text = OMEGA_CONFIG.replace(
+        '    MOC:\n      Enable: false', '    MOC:\n      Enable: true'
+    )
+    omega_config_filename = _make_simulation(tmp_path, text)
+    (tmp_path / 'moc_1MonthTimeStats.0001').touch()
+    return omega_config_filename
+
+
+def test_moc_output_is_found_under_the_name_omega_gives_the_group(tmp_path):
+    """Omega calls the group MOC, and the lookup is case-sensitive, so a
+    simulation that wrote MOC output must not be reported as having written
+    none."""
+    omega_config_filename = _enable_moc(tmp_path)
+    config = _make_config(omega_config_filename=omega_config_filename)
+    sim = SimulationFiles(config, log=lambda message: None)
+
+    moc_files = sim.moc_files(1, 1)
+    assert moc_files is not None
+    assert [sim_file.path for sim_file in moc_files] == [
+        str(tmp_path / 'moc_1MonthTimeStats.0001')
+    ]
+
+
+def test_the_moc_stream_says_which_reduction_wrote_it(tmp_path):
+    """The variable names in the file depend on the period and on whether
+    the stream holds time means, so the step needs the stream itself."""
+    omega_config_filename = _enable_moc(tmp_path)
+    config = _make_config(omega_config_filename=omega_config_filename)
+    sim = SimulationFiles(config, log=lambda message: None)
+
+    stream = sim.moc_stream()
+    assert stream is not None
+    assert stream.period == '1Month'
+    assert stream.is_reduction
+
+
+def test_a_simulation_with_no_moc_group_has_no_moc_stream(tmp_path):
+    omega_config_filename = _make_simulation(tmp_path)
+    config = _make_config(omega_config_filename=omega_config_filename)
+    sim = SimulationFiles(config, log=lambda message: None)
+
+    assert sim.moc_stream() is None
 
 
 def test_missing_global_stats_output_is_an_error(tmp_path):
