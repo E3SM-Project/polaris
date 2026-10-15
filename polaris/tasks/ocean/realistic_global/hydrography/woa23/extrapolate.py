@@ -42,6 +42,8 @@ class ExtrapolateStep(Step):
         self.combine_step = combine_step
         self.combine_topo_step = combine_topo_step
         self.add_output_file(filename=self.output_filename)
+        # this is an expensive step so cache it by default
+        self.default_cached = True
 
     def setup(self):
         """
