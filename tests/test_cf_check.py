@@ -1,5 +1,6 @@
 import logging
 import os
+from types import SimpleNamespace
 
 import numpy as np
 import pytest
@@ -15,6 +16,7 @@ from polaris.config import PolarisConfigParser
 from polaris.ocean.model.ocean_model_step import OceanModelStep
 from polaris.run.serial import (
     _cf_check_message,
+    _check_completed_step_cf,
     _check_step_cf,
     _read_cf_status_from_logs,
     _result_lines,
@@ -201,6 +203,50 @@ def test_step_checks_its_files(work_dir):
         'good.nc',
         'bad.nc',
     ]
+
+
+def test_step_with_only_unmatched_patterns_checks_nothing(work_dir):
+    step = _step(work_dir)
+    step.add_cf_check('restarts/rst.*.nc')
+    assert step.check_cf() == (False, True)
+    assert step.cf_check_results == []
+    assert _check_step_cf(step, 'forward') is None
+    assert _read_cf_status_from_logs(work_dir) is None
+
+
+def _completed_step(work_dir):
+    """A step as it is unpickled for a retry, with a config file"""
+    with open(os.path.join(work_dir, 'forward.cfg'), 'w') as f:
+        f.write('[cf]\n')
+    step = Step(component=Component(name='ocean'), name='forward')
+    step.work_dir = work_dir
+    step.base_work_dir = work_dir
+    config = PolarisConfigParser()
+    config.filepath = 'forward.cfg'
+    step.config = config
+    return step
+
+
+def test_completed_step_without_marker_is_checked(work_dir):
+    _noncompliant(os.path.join(work_dir, 'bad.nc'))
+    task = SimpleNamespace(logger=logging.getLogger('test_cf_check'))
+    step = _completed_step(work_dir)
+    assert _check_completed_step_cf(task, step, 'forward') is None
+
+    step.add_cf_check('bad.nc')
+    assert _check_completed_step_cf(task, step, 'forward') is False
+    assert _read_cf_status_from_logs(work_dir) is False
+
+
+def test_completed_step_with_marker_is_not_rechecked(work_dir):
+    _noncompliant(os.path.join(work_dir, 'bad.nc'))
+    with open(os.path.join(work_dir, 'cf_check_passed.log'), 'w') as f:
+        f.write('CF check passed for step forward\n')
+    task = SimpleNamespace(logger=logging.getLogger('test_cf_check'))
+    step = _completed_step(work_dir)
+    step.add_cf_check('bad.nc')
+    assert _check_completed_step_cf(task, step, 'forward') is True
+    assert step.cf_check_results == []
 
 
 OMEGA_YAML = """Omega:

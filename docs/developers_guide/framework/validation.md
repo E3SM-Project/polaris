@@ -331,7 +331,8 @@ filename and add the files in an override of
 {py:class}`polaris.ocean.model.OceanModelStep` does this for Omega: every
 step running Omega checks the first file of each stream in write mode in its
 `omega.yml`.  MPAS-Ocean output is not checked.  Omega writes the model
-start time as the origin of the `time` variable's units, and udunits rejects
+start time as the origin of the `time` variable's units, and
+[UDUNITS-2](https://www.unidata.ucar.edu/software/udunits/) rejects
 a year-0 origin, so a task that starts in year 0 cannot pass the check.
 
 The checker needs the CF standard-name, area-type and region-name tables.
@@ -355,4 +356,9 @@ The result of the check is written to `cf_check_passed.log` or
 step's work directory and stored in the step's `cf_check_results` attribute.
 When a suite runs, each step that ran a check gets a `CF compliance` line
 next to its property checks and baseline comparison, and tasks that failed
-the check are listed in the suite's pull-request summary.
+the check are listed in the suite's pull-request summary.  A step whose
+patterns all match no files has no CF result rather than a pass.  If a step
+completed without leaving either log (for example, because the check raised
+an exception), rerunning the task runs the check without rerunning the step.
+Cached steps are not checked, since their outputs were not produced by the
+code under test.

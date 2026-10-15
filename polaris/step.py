@@ -1189,6 +1189,11 @@ class Step:
         if not self.cf_check or not self.cf_check_files:
             return False, True
         filenames = resolve_cf_check_files(self.cf_check_files, self.work_dir)
+        if not filenames:
+            # every pattern was a series that never started, so there is
+            # nothing to report, as opposed to a pass
+            self.cf_check_results = []
+            return False, True
         results = check_cf_compliance(filenames, self.work_dir)
         self.cf_check_results = results
         logger = self.logger
@@ -1337,7 +1342,8 @@ class Step:
                     filename=output, target=target, database='polaris_cache'
                 )
 
-        if self.cf_check:
+        # a cached step's outputs are not checked, so it needs no tables
+        if self.cf_check and not self.cached:
             add_cf_tables(self)
 
         inputs = []

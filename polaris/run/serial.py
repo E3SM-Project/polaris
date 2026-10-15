@@ -719,14 +719,14 @@ def _run_task(task, available_resources):
                 property_passed = _accumulate_baselines(
                     property_passed, property_status
                 )
-            cf_passed = _report_cf_status(
-                task, _read_cf_status_from_logs(step.work_dir), cf_passed
-            )
+            cf_status = _check_completed_step_cf(task, step, step_name)
+            cf_passed = _report_cf_status(task, cf_status, cf_passed)
             continue
         if step.cached:
             _print_to_stdout(task, '          cached')
-            # cached steps never perform baseline comparisons; leave
-            # baselines_passed unchanged
+            # cached steps never perform baseline comparisons or CF checks,
+            # since their outputs were not produced by the code under test;
+            # leave baselines_passed and cf_passed unchanged
             continue
 
         step_start = time.time()
@@ -849,6 +849,26 @@ def _check_step_cf(step, step_name) -> Optional[bool]:
     if os.path.exists(remove_log):
         os.remove(remove_log)
     return files_passed
+
+
+def _check_completed_step_cf(task, step, step_name) -> Optional[bool]:
+    """
+    Get the CF check status of a step that has already completed.  If the
+    step should be checked but left no marker (e.g. because the check raised
+    an exception after the step completed), run the check now so a retry
+    cannot skip it.
+
+    Returns
+    -------
+    Optional[bool]
+        Whether the check passed, or None if the step checked no files
+    """
+    status = _read_cf_status_from_logs(step.work_dir)
+    if status is not None or not step.cf_check:
+        return status
+    step.config = setup_config(step.base_work_dir, step.config.filepath)
+    step.logger = task.logger
+    return _check_step_cf(step, step_name)
 
 
 def _report_cf_status(
