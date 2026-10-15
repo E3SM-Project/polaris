@@ -125,6 +125,16 @@ Sign anything posted to GitHub on someone's behalf:
 above are AI-authored; please check them accordingly.*
 ```
 
+That signature is only accurate when the user gave no significant input on
+the content. When the text grew out of the user's own draft or substantial
+direction, sign it instead with:
+
+```
+---
+
+*Drafted by @<user> and <agent> together*
+```
+
 Name the agent, not the vendor: `Claude Code`, `Codex`, and so on.
 
 ## Supported machines

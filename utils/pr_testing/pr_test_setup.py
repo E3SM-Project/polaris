@@ -504,6 +504,14 @@ def prepare_tree(repo: str, sha: str, tree: str) -> None:
     if not os.path.exists(ready):
         with _tree_lock(tree):
             if not os.path.exists(ready):
+                if not os.path.exists(tree):
+                    check_same_filesystem(
+                        repo,
+                        tree,
+                        'Clone E3SM-Project/Omega on the same filesystem as '
+                        'work_base, and set omega_repo to that clone in the '
+                        'config file.',
+                    )
                 git_tools.add_worktree(repo, sha, tree)
                 git_tools.git(
                     ['submodule', 'update', '--init', '--recursive', '--']
@@ -513,6 +521,42 @@ def prepare_tree(repo: str, sha: str, tree: str) -> None:
                 with open(ready, 'w') as f:
                     f.write(f'{sha}\n')
     git_tools.add_worktree(repo, sha, tree)
+
+
+def check_same_filesystem(repo: str, dest: str, fix: str) -> None:
+    """
+    Refuse to make a worktree with submodules on another filesystem than
+    the clone it is made from
+
+    Git keeps a worktree's submodule clones in the main clone's
+    ``.git/worktrees/<name>/modules``, not in the worktree, so each new
+    worktree adds them to the clone's filesystem, often a small home quota,
+    however far away the worktree is.
+
+    Parameters
+    ----------
+    repo : str
+        The clone the worktree would be made from
+
+    dest : str
+        Where the worktree would go
+
+    fix : str
+        What to do instead, the end of the message
+    """
+    common = os.path.join(
+        repo, git_tools.git(['rev-parse', '--git-common-dir'], repo)
+    )
+    existing = os.path.abspath(dest)
+    while not os.path.exists(existing):
+        existing = os.path.dirname(existing)
+    if _device(common) != _device(existing):
+        raise SetupError(
+            f'{repo} is on a different filesystem from {dest}.  Git keeps '
+            f"a worktree's submodule clones in the clone it was made from, "
+            f'so every worktree here would add hundreds of megabytes to '
+            f'{os.path.realpath(common)}.  {fix}'
+        )
 
 
 def get_baseline(
@@ -913,6 +957,11 @@ def get_system(machine: str) -> str:
     config.add_from_package('mache.machines', f'{machine}.cfg')
     config.add_from_package('polaris.machines', f'{machine}.cfg')
     return config.get('parallel', 'system')
+
+
+def _device(path: str) -> int:
+    """The filesystem a path is on"""
+    return os.stat(path).st_dev
 
 
 @contextmanager
