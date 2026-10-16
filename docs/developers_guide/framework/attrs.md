@@ -87,6 +87,15 @@ MPAS mesh, {py:func}`polaris.mesh.attrs.add_mesh_var_attrs()` also fills in
 them.  Both leave what a variable already has alone.  The ocean component's
 write methods do both for you (see {ref}`dev-ocean-framework-cf-metadata`).
 
+A file remapped with `ncremap`, or cut down to a few of its source's
+variables, keeps attributes such as `bounds`, `cell_measures` and
+`grid_mapping` that name variables it no longer has, and the CF checker
+reports each as an error.  {py:func}`polaris.cf.drop_dangling_references()`
+drops them.
+
+To have the file checked after the step runs, opt it in with
+{py:meth}`polaris.Step.add_cf_check()` (see {ref}`dev-cf-check`).
+
 A units string must be one udunits parses: the plain CF form (`m s-1`, `N
 m-2`, `radians`), with `1` for a dimensionless quantity, never `unitless`,
 `dimensionless` or `PSU`.
