@@ -14,11 +14,11 @@ from polaris.cf_check import (
 from polaris.component import Component
 from polaris.config import PolarisConfigParser
 from polaris.ocean.model.ocean_model_step import OceanModelStep
+from polaris.run.lifecycle import read_cf_status_from_logs
 from polaris.run.serial import (
     _cf_check_message,
     _check_completed_step_cf,
     _check_step_cf,
-    _read_cf_status_from_logs,
     _result_lines,
 )
 from polaris.step import Step
@@ -211,7 +211,7 @@ def test_step_with_only_unmatched_patterns_checks_nothing(work_dir):
     assert step.check_cf() == (False, True)
     assert step.cf_check_results == []
     assert _check_step_cf(step, 'forward') is None
-    assert _read_cf_status_from_logs(work_dir) is None
+    assert read_cf_status_from_logs(work_dir) is None
 
 
 def _completed_step(work_dir):
@@ -235,7 +235,7 @@ def test_completed_step_without_marker_is_checked(work_dir):
 
     step.add_cf_check('bad.nc')
     assert _check_completed_step_cf(task, step, 'forward') is False
-    assert _read_cf_status_from_logs(work_dir) is False
+    assert read_cf_status_from_logs(work_dir) is False
 
 
 def test_completed_step_with_marker_is_not_rechecked(work_dir):
@@ -306,15 +306,15 @@ def test_check_step_cf_leaves_a_marker(work_dir):
     _noncompliant(os.path.join(work_dir, 'bad.nc'))
     step = _step(work_dir)
     assert _check_step_cf(step, 'forward') is None
-    assert _read_cf_status_from_logs(work_dir) is None
+    assert read_cf_status_from_logs(work_dir) is None
 
     step.add_cf_check('good.nc')
     assert _check_step_cf(step, 'forward') is True
-    assert _read_cf_status_from_logs(work_dir) is True
+    assert read_cf_status_from_logs(work_dir) is True
 
     step.add_cf_check('bad.nc')
     assert _check_step_cf(step, 'forward') is False
-    assert _read_cf_status_from_logs(work_dir) is False
+    assert read_cf_status_from_logs(work_dir) is False
     with open(os.path.join(work_dir, 'cf_check_failed.log')) as f:
         message = f.read()
     assert 'bad.nc' in message

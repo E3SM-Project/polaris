@@ -679,6 +679,7 @@ class CombineStep(Step):
             logger=self.logger,
             gpus=self.gpus,
             placement=self.placement,
+            memory_cap=self.memory,
         )
 
     def _remap_to_target_grid(

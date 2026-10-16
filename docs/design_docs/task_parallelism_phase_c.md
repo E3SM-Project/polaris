@@ -9,25 +9,33 @@ Contributors:
 
 ## Summary
 
-Phase B runs each step in its own process. That is the right unit for a
-Polaris step, which typically does minutes of work. It is the wrong unit for
-work made of many small pieces: if a piece takes two seconds, spending a
-second starting a process for it wastes half the machine.
+Phase B forks a child per step, from the scheduler, on the scheduler's node.
+Phase C puts a resident Polaris process on every node of the allocation, so
+that the same cheap fork is available everywhere and work can be distributed
+across nodes.
 
-Phase C adds a second executor for that case: a pool of worker processes,
-spread across the allocation's nodes, that a step can send many small pieces
-of work to.
+**Crossing nodes is what this phase is for.** Phase B's mechanism is not too
+slow -- forking a child costs about a tenth of a second, which is nothing
+beside a five-second task. It is confined: a process can only fork on the
+node it runs on, so all of Phase B's non-MPI work lands on one node. That is
+the same single-node ceiling MPAS-Analysis has, reached by the same route,
+and lifting it is the point.
+
+Two capabilities follow from one mechanism. A resident process on a node can
+fork a whole step, which lifts Phase B's bound without a second executor.
+And it can host a pool of workers for work too fine-grained to track
+individually, which is what an analysis step submitting hundreds of tasks
+needs.
 
 The motivating workload is analysis. Polaris is to gain analysis capability
-equivalent to MPAS-Analysis, and MPAS-Analysis already does this kind of
-work in parallel -- but with Python's `multiprocessing`, which cannot reach
-beyond one node. At high resolution, which is Omega's target, one node is not
-enough. Lifting that ceiling is the point of this phase.
+equivalent to MPAS-Analysis, which already parallelizes this kind of work
+with Python's `multiprocessing` -- bounded to one node. At high resolution,
+which is Omega's target, one node is not enough.
 
-Phase C stands on Phase A and Phase B. The pool occupies a defined part of
-the allocation, so ordinary steps continue to run in the rest; the
-scheduler from Phase B accounts for the pool's share as it would any other
-reservation. Making that share change as the amount of Python work changes is
+Phase C stands on Phase A and Phase B. The residents occupy a defined part
+of the allocation, so ordinary steps continue to run in the rest; the
+scheduler from Phase B accounts for that share as it would any other
+reservation. Making the share change as the amount of Python work changes is
 Phase D.
 
 ### What the measurement showed
@@ -72,36 +80,43 @@ width, which went from 251 to 170 -- a modest narrowing rather than a
 collapse. This matters because an intrinsically narrow graph would be a real
 argument against this phase, and the evidence does not support one.
 
-### What the measurement showed about memory
+### What the measurement showed about memory, and one correction
 
-The memory result is the one that bears on how a pool is built, and it
-arrived in two parts, the second correcting the first.
+Every task in that run inherited 7.85 GiB by forking. Measured directly, the
+baseline splits into **0.40 GiB of Python imports and 7.45 GiB of data
+loaded before forking**. The import half is identical at both resolutions;
+the data half scales with the problem, which is what identifies it.
 
-Every task in that run inherited 7.85 GiB by forking. Taken at face value
-that is an argument for a pool on memory grounds alone -- 26 times the
-median task's own data, unaffordable per task and cheap per worker,
-independent of how long tasks run. Measured directly, the baseline splits
-into **0.40 GiB of Python imports and 7.45 GiB of data loaded before
-forking**. The import half is identical at both resolutions; the data half
-scales with the problem, which is what identifies it.
+An earlier reading of this design called the 7.45 GiB an artifact of one
+program's structure that a reimplementation would not inherit. That was
+wrong in a way worth correcting: it is a mechanism, and this phase should
+use it deliberately. Copy-on-write sharing was measured on Chrysalis at
+Phase B scale -- 24 forked children held 347 MiB between them against a
+parent of 322 MiB, where naive resident-set accounting reports 7,700 MiB. A
+node's resident process can load a large read-only input once and fork
+workers that share it, which is the distributed equivalent of what
+MPAS-Analysis gets for free, and it is the difference between a node
+supporting a few workers and supporting one per core.
 
-Only the 0.40 GiB generalizes. It is a property of the scientific Python
-stack rather than of any workload, and every worker in any pool pays it. The
-7.45 GiB was an artifact of one program loading its inputs in a parent
-process and forking, which a reimplementation does not inherit.
+Two things follow that the design has to state rather than assume.
 
-So the pool is still the right shape, but the reason has to be stated
-correctly rather than at its most convenient. Paying interpreter start and
-0.40 GiB of imports once per worker instead of once per task is worth it
-against a 5.2 second median; that is a claim about startup cost, and it does
-depend on the duration distribution. The stronger memory argument does not
-survive its own measurement.
+Sharing must be asked for. This environment runs Python 3.14, where
+`multiprocessing`'s default start method on Linux is `forkserver` rather
+than `fork`; a forkserver child is forked from a clean server that never
+loaded the parent's data, so it inherits nothing. A pool written today
+without saying so would not reproduce the behaviour described above.
 
-The correction matters a second time. Because those tasks *inherited* their
-inputs, the per-task memory figures exclude them, so they are not what a
-worker holding its own inputs would need. What a worker needs is imports,
-plus whatever of the shared inputs its work actually touches, plus its own
-data -- and the middle term was never measured because forking made it free.
+Asking for it means forking from a process that may be multi-threaded, which
+is what CPython changed the default to avoid. Phase B's rule applies
+unchanged and for the same reason: hold thread pools to one before importing,
+and check the count from `/proc` rather than from `threading.enumerate()`,
+which reported one thread where the kernel reported 129.
+
+The per-task memory figures from that run exclude the inherited inputs, so
+they are not what a worker holding its own inputs would need. What a worker
+needs is imports, plus whatever of the shared inputs its work touches, plus
+its own data -- and the middle term was never measured because forking made
+it free.
 
 ### Sizing a pool, and what not to assume while doing it
 
@@ -139,105 +154,71 @@ Nothing here restricts a step to a single node, and the design should not
 acquire that restriction by accident.
 
 Polaris already runs steps that span nodes: every MPI model run does. What
-is bounded to one node is a **non-MPI step running in its own process** --
-that is a property of processes, not a decision Polaris made. A step that
-hands its work to the pool is not in that category, because the pool is
-precisely the mechanism such a step lacks.
+is bounded to one node is a non-MPI step running in its own process, which
+is a property of processes rather than a decision Polaris made. A step that
+hands its work to the pool is not in that category.
 
 Phase A provides the property this turns on: a step declares whether its
 resources may be drawn from more than one node, defaulting to no. A step
 using the pool declares that they may, and this phase is where anything
-first does. Its cores are then a reservation rather than a placement, in the
-sense Phase A draws: Polaris launches the step's driver, which needs about
-one core, and accounts the rest against the pool's share of the allocation.
+first does. Its cores are then a reservation rather than a placement:
+Polaris launches the step's driver, which needs about one core, and accounts
+the rest against the pool's share.
 
-The property covers GPUs on the same terms, and this is where that matters.
-A pool whose workers use GPUs draws them from the nodes those workers are
-on, so a step's GPU count is a claim against the pool exactly as its core
-count is. Nothing extra is needed to express it -- `gpus` is already a
-per-step total -- but the pool has to account for it, and a step that
+The property covers GPUs on the same terms. A pool whose workers use GPUs
+draws them from the nodes those workers are on, so a step's GPU count is a
+claim against the pool exactly as its core count is. `gpus` is already a
+per-step total, but the pool has to account for it, and a step that
 distributes GPU work should not have GPUs reserved on the node its driver
-happens to sit on.
+sits on.
 
-This phase is also where a limitation carried harmlessly through Phase A and
-Phase B stops being harmless. On PBS with PALS, a launch that needs no GPUs
-is given an empty vendor visibility variable, and it has now been measured
-that the runtime reads an empty value as "no mask", meaning every device. So
-the explicit "no GPUs" is a no-op there: a worker that declares no GPUs on
-that machine can still see all of them.
-
-Through Phase A and Phase B this costs nothing, because nothing on PALS
-reserves GPUs and the worst case is a step seeing hardware it declined. Here
-it splits into two cases that behave differently, and only one of them
-works.
-
-A worker assigned *some* devices is confined: a mask naming a subset was
-measured to do exactly that. A worker assigned *no* devices is not confined
-at all. So a pool mixing GPU and CPU-only workers on one node gets isolation
-between the GPU workers and none for the CPU-only ones, which is the
-opposite of the intuition that asking for nothing is the safe case.
+This phase is where a limitation carried harmlessly through Phase A and
+Phase B stops being harmless. On PBS with PALS, a launch needing no GPUs is
+given an empty vendor visibility variable, and the runtime reads an empty
+value as "no mask", meaning every device. That splits into two cases and
+only one works: a worker assigned *some* devices is confined, and a worker
+assigned *none* is not confined at all. A pool mixing GPU and CPU-only
+workers on one node therefore isolates the GPU workers and not the CPU-only
+ones, which is the opposite of the intuition that asking for nothing is
+safe.
 
 A candidate fix is to name an out-of-range device rather than an empty
-value. It is untested, and should be tested rather than assumed: the runtime
-may equally refuse it, warn, or fall back to every device. It is one launch
-on the pattern that answered the first question.
+value. It is untested and should be tested: the runtime may equally refuse
+it, warn, or fall back to every device.
 
 One further thing is unestablished and matters more here than anywhere else.
 That machine's configuration describes twelve GPUs per node, which are
-tiles, while the runtime presents six cards under the device hierarchy it
-runs with; a mask naming three tiles yielded two devices, which is
-consistent. What has not been tried is a mask naming a *single* tile, which
-is the unit a scheduler handing out twelve of them would actually assign.
-Whether two workers masked to different tiles of the same card are isolated
-from each other, or merely both see that card, is the question this phase
-rests on, and it is not answered by what has been measured so far.
-
-Reading the bound off "is it an MPI step" instead would have made this phase
-begin by undoing a rule, which is why the property exists ahead of anything
-that sets it.
+tiles, while the runtime presents six cards; a mask naming three tiles
+yielded two devices, which is consistent. What has not been tried is a mask
+naming a *single* tile, which is the unit a scheduler handing out twelve
+would assign. Whether two workers masked to different tiles of the same card
+are isolated, or merely both see that card, is the question this phase rests
+on.
 
 For the pool, a computation whose data exceed one node's memory is not a
 separate problem needing separate machinery. Working in chunks and spreading
 those chunks across the workers' combined memory are the same facility, and
-the distributed-array layer that provides it sits on the same pool. A step
-that needs more memory than one node has can take a lease spanning several
-and work across their combined memory.
+the distributed-array layer that provides it sits on the same pool.
 
 The cost is not zero: moving data between nodes is slower than staying
 within one, the work has to be written in terms of array operations the
-framework can partition rather than as monolithic in-memory arrays, and
-diagnosing a distributed computation is harder than a local one. So this
-should not be the assumed shape of every analysis step, and no step should
-be written to span nodes before measurement shows it needs to. But it should
-be available, and the requirements below are written so that it is.
+framework can partition, and diagnosing a distributed computation is harder.
+So this should not be the assumed shape of every analysis step, and no step
+should be written to span nodes before measurement shows it needs to. But it
+should be available, and the requirements below are written so that it is.
 
-It should be available in particular because nothing has yet demanded it,
-and that fact carries less weight than it appears to. The instrumented
-analysis run contained no Python task needing more than a node -- the
-largest held 53.9 GiB where the node had 251 -- and it would be easy to read
-that as evidence the case is hypothetical. It is not evidence of that. The
-program measured had no way to express such a task: its parallelism is
-fork-based and confined to one node, and the only work in it that spans
-nodes at all is MPI, meaning `ncclimo` and the generation of mapping files.
-Any analysis that would have needed more than a node was therefore never
-written, or was restructured until it fitted, or was handed to one of those
-two. A tool produces no examples of what it cannot express, and the absence
-of such tasks describes the tool rather than the science.
+That nothing has yet demanded it carries less weight than it appears to. The
+instrumented analysis run contained no Python task needing more than a node
+-- the largest held 53.9 GiB where the node had 251 -- but the program
+measured had no way to express such a task, since its parallelism is
+fork-based and confined to one node. A tool produces no examples of what it
+cannot express.
 
-So the door stays open deliberately. Every Polaris step that is not MPI has
-always been bounded by one process on one node, and this phase is the first
-opportunity to lift that bound rather than a proposal to add a capability
-nobody asked for. Declining to lift it because nothing has hit it would
-preserve a limitation by default, on the strength of a measurement that
-could not have found a counterexample.
-
-The case that genuinely stays hard is a computation that cannot be
-partitioned at all -- one needing global, random access to a single array
-larger than a node. Neither chunking nor distribution helps there, and the
-answer is to restructure the computation. Analysis work is mostly reductions
-over dimensions that partition cleanly, so this should be rare; if one turns
-up, it is worth examining on its own rather than
-treating as a requirement on the framework.
+The case that stays hard is a computation that cannot be partitioned at all,
+needing global random access to a single array larger than a node. Neither
+chunking nor distribution helps, and the answer is to restructure the
+computation. Analysis work is mostly reductions over dimensions that
+partition cleanly, so this should be rare.
 
 Success in Phase C means a Python step can distribute work across more than
 one node, that this is faster than the same work on one node, and that
@@ -247,7 +228,7 @@ results are unchanged.
 
 ### Requirement: Python Work Across More Than One Node
 
-Date last modified: 2026/08/23
+Date last modified: 2026/09/09
 
 Contributors:
 
@@ -260,6 +241,9 @@ one node of the allocation.
 This is the requirement that distinguishes Phase C from what MPAS-Analysis
 can already do. A capability limited to a single node would not address the
 problem that motivates the phase.
+
+A non-MPI step shall also be able to run on a node other than the
+scheduler's, which is the bound Phase B accepted and this phase lifts.
 
 This covers two things that should not be conflated: many independent pieces
 of work running at once on different nodes, and a single computation whose
@@ -287,7 +271,7 @@ fewer free resources while it exists.
 
 ### Requirement: Steps Ask for Workers Explicitly
 
-Date last modified: 2026/08/23
+Date last modified: 2026/09/09
 
 Contributors:
 
@@ -297,8 +281,11 @@ Contributors:
 A step shall have to opt in to using the pool, and shall declare how many
 workers it wants and needs.
 
-Ordinary steps shall continue to run as their own process, as in Phase B.
-Adding a pool shall not change how any existing step runs.
+Ordinary steps shall continue to run as a forked child, as in Phase B, and
+adding this phase shall not change how any existing step runs. A step forked
+by a node's resident rather than by the scheduler shall behave identically:
+same lifecycle entry point, same log, same completion markers. Phase B
+specifies that entry point so that this costs nothing here.
 
 ### Requirement: Work Sent to the Pool Must Be Safe to Run There
 
@@ -360,24 +347,35 @@ rather than inferred.
 
 ## Algorithm Design
 
-### Algorithm Design: What the Pool Is
+### Algorithm Design: What the Resident Process Is
 
-Date last modified: 2026/08/23
+Date last modified: 2026/09/09
 
 Contributors:
 
 - Xylar Asay-Davis
 - Claude
 
-The pool is a set of worker processes, at least one per node it spans, started
-once and reused. A step that opts in is given a handle to it and a lease
-saying how many workers it may use, submits pieces of work, and collects
-results.
+Each node the pool spans carries one resident Polaris process, started once
+and reused. It imports Polaris once, which is the cost Phase B pays in the
+scheduler and this phase pays once per node, in parallel.
 
-Starting the pool is a single launch, confined by Phase A placement. That is
-important for two reasons: it is one launch rather than one per piece of
-work, which is the whole point of pooling; and being confined means the rest
-of the allocation stays usable.
+A resident serves two kinds of request. It forks a child to run a whole
+step, which is Phase B's mechanism made available on a node that is not the
+scheduler's. And it hosts worker processes that run many small pieces of
+work submitted by a step, which is what an analysis step needs.
+
+The two share their expensive part. A resident that has imported Polaris and
+loaded a read-only input can fork either a step or a worker, and both
+inherit that state at copy-on-write cost. Building one mechanism rather than
+two is the reason this phase absorbs Phase B's single-node bound instead of
+leaving it.
+
+A step that opts in is given a handle to the pool and a lease saying how
+many workers it may use, submits pieces of work, and collects results.
+
+Starting the residents is one launch per node, confined by Phase A
+placement, so the rest of the allocation stays usable.
 
 Dask Distributed is the natural implementation. What matters for Polaris is
 that its core is a **general task scheduler**, not an array library: a step
@@ -468,9 +466,9 @@ of the kind. Until it is answered, a pool should be sized from what its
 steps declare and should report what it chose, rather than carrying a
 default that would be a guess dressed as a number.
 
-### Algorithm Design: Two Executors, One Scheduler
+### Algorithm Design: Where a Step's Child Is Forked
 
-Date last modified: 2026/08/23
+Date last modified: 2026/09/09
 
 Contributors:
 
@@ -478,13 +476,14 @@ Contributors:
 - Claude
 
 The scheduler from Phase B does not change shape. It still decides what may
-run and what resources each thing gets. What changes is that a step may be
-executed in one of two ways: as its own process, or, if it opted in, by being
-given the pool.
+run and what resources each thing gets. What changes is where a step's child
+is forked -- by the scheduler, or by a resident on another node -- and
+whether a step that opted in is also handed the pool.
 
 Keeping the decision "what runs next" separate from "how it is executed" is
 what prevents the scheduler from acquiring the mode-switching complexity that
-made the earlier attempt hard to reason about.
+made the earlier attempt hard to reason about. A resident is asked to fork;
+it does not decide what runs.
 
 ## Implementation
 

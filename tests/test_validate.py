@@ -6,7 +6,7 @@ import pytest
 import xarray as xr
 
 from polaris import Component, Step
-from polaris.run.serial import _read_baseline_diff_summary_from_logs
+from polaris.run.lifecycle import read_baseline_diff_summary_from_logs
 from polaris.validate import compare_variables, merge_diff_summary
 
 
@@ -84,7 +84,7 @@ def test_float32_diff_summary_survives_write_read_and_merge(tmp_path):
     overall: dict = {}
     for _ in range(2):
         merge_diff_summary(
-            overall, _read_baseline_diff_summary_from_logs(str(work_dir))
+            overall, read_baseline_diff_summary_from_logs(str(work_dir))
         )
     assert overall == written
 
@@ -97,6 +97,6 @@ def test_read_diff_summary_converts_string_norms(tmp_path):
 
     overall = {'cellWidth': {'l1': 0.0, 'l2': 0.0, 'linf': 0.25}}
     merge_diff_summary(
-        overall, _read_baseline_diff_summary_from_logs(str(tmp_path))
+        overall, read_baseline_diff_summary_from_logs(str(tmp_path))
     )
     assert overall == {'cellWidth': {'l1': 0.0, 'l2': 0.0, 'linf': 0.5}}

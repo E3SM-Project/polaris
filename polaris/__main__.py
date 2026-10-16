@@ -4,6 +4,7 @@ import argparse
 import os
 import sys
 
+import polaris.run.parallel as run_parallel
 import polaris.run.serial as run_serial
 from polaris import cache, list, setup, suite
 from polaris.version import __version__
@@ -24,6 +25,7 @@ The available polaris commands are:
     setup   Set up a test case
     suite   Manage a regression test suite
     serial  Run a suite, test case or step in task serial
+    parallel  Run a suite or task with independent steps at the same time
 
  To get help on an individual command, run:
 
@@ -50,6 +52,7 @@ The available polaris commands are:
         'setup': setup.main,
         'suite': suite.main,
         'serial': run_serial.main,
+        'parallel': run_parallel.main,
     }
 
     # only allow the "polaris cache" command if we're on Chrysalis

@@ -2,10 +2,10 @@
 
 # Command-line interface
 
-The command-line interface for polaris acts essentially like 4 independent
-scripts: `polaris list`, `polaris setup`, `polaris suite`, and
-`polaris serial`.  These are the primary user interface to the package, as
-described below.
+The command-line interface for polaris acts essentially like 5 independent
+scripts: `polaris list`, `polaris setup`, `polaris suite`, `polaris serial`
+and `polaris parallel`.  These are the primary user interface to the package,
+as described below.
 
 When the `polaris` package is installed into your deployment environment, you can
 run these commands as above.  If you are developing polaris from a local
@@ -336,6 +336,8 @@ same as listed above for `polaris setup`.
 
 (dev-polaris-run)=
 
+(dev-polaris-serial)=
+
 ## polaris serial
 
 The `polaris serial` command is used to run (in sequence, as opposed to in task
@@ -396,6 +398,125 @@ To see which steps are are available in a given task, you need to run
 
 The `--step_is_subprocess` flag is for internal use by the framework so you
 shouldn't need to use that flag.
+
+See {ref}`dev-run` for more about the underlying framework.
+
+(dev-polaris-parallel)=
+
+## polaris parallel
+
+The `polaris parallel` command runs the steps of a suite or task at the same
+time, rather than one after another as {ref}`dev-polaris-serial` does:
+
+```none
+$ polaris parallel --help
+usage: polaris parallel [-h] [-q] [suite]
+```
+
+Like `polaris serial`, it is run in a work directory rather than in a clone
+of the polaris repo, and takes the name of a suite when more than one has
+been set up in the same place.  With no argument it looks for a `task.pickle`
+in the current directory.
+
+It must be run inside a job allocation.  Everything it does depends on
+knowing how many nodes and cores it has, and a login node has neither the
+resources nor the launcher to place work on them.
+
+### What it does differently
+
+It works out what may run at the same time from what each step **declares**:
+the dependencies a step names directly, and the files one step produces that
+another consumes.  The order steps happen to be listed in contributes nothing
+except as a tie-break.  A suite that relies on listed order without declaring
+a real dependency is reported as an unrunnable graph before anything starts,
+rather than failing forty minutes in.
+
+Each step still runs in its own process, so a step may change the working
+directory or set library defaults exactly as it does today.  The scheduler
+forks a child for each step rather than starting a new `polaris serial`,
+which is what makes starting one cost almost nothing.
+
+Every step is confined to the part of the allocation it was given.  An MPI
+step's placement reaches its launcher; a step that is not launched is bound
+to its cores by the child itself, which can only be done on the node the
+scheduler is running on -- so such steps are given cores there, and Python
+concurrency is bounded by one node's worth of cores.
+
+### Asking setup for a concurrent job script
+
+`polaris setup` and `polaris suite` write a `polaris serial` job script by
+default.  To have one write a `polaris parallel` script instead, pass
+`--parallel`, or `-P`:
+
+```none
+polaris suite -c ocean -t omega_pr -P -w <work dir>
+```
+
+The flag sets the `[job] concurrent_steps` config option, so the same thing
+can be asked for in a config file passed with `-f`, and either way the choice
+is recorded in the config the run was set up with:
+
+```cfg
+[job]
+concurrent_steps = True
+```
+
+The serial path is what every suite has been validated against, so it stays
+the default.  A single step's job script is unaffected, having nothing to run
+at the same time.
+
+### How many nodes a concurrent job asks for
+
+A serial job script asks for the geometric mean of what the widest step wants
+and what that step can be squeezed to.  That is the right question when steps
+take turns: nothing else is running, so no more of the machine can be used
+than the widest step can use.
+
+Steps running at the same time can use more than the widest of them, and how
+much more follows from how many steps there are rather than from how big the
+biggest one is.  So a concurrent job script asks for the larger of that same
+geometric mean and the minimum cores of every step added together -- enough
+to hold the whole suite at once with each step squeezed to its smallest:
+
+```none
+serial:      sqrt(widest target x widest minimum)
+concurrent:  max(that, sum of every step's minimum)
+```
+
+For a single step the sum is that step's own minimum, which the geometric
+mean already exceeds, so a one-step job is sized exactly as it was before.
+For `omega_pr` the rule asks for 5 nodes where the serial rule asks for 3,
+and for `omega_nightly` 16 where the serial rule asks for 5.
+
+The sum is taken in cores on every machine, including one whose nodes are
+counted by GPUs, where the widest step's geometric mean is still taken in
+GPUs.  Holding every step at once is cheap in cores because the smallest step
+is a hundredth of a node; in GPUs the smallest step is a quarter of one, and
+`omega_pr`'s 51 one-GPU steps made the sum ask Perlmutter GPU for 29 nodes.
+In cores the same suite asks for 3, its small GPU steps take a few turns
+each, and the widest GPU step still fits.
+
+The point of the sum is that the allocation follows a suite that gains tests
+instead of staying fixed at its widest step.  Measured on Chrysalis, a
+concurrent suite's wall time falls as the inverse square root of the nodes it
+is given, so growing the nodes with the suite means the wall time grows as
+the square root of what the suite contains rather than in proportion to it: a
+suite that doubles its tests takes about 1.4 times as long on twice the
+nodes, where a fixed allocation would take twice as long.
+
+### Reading a run afterwards
+
+Steps no longer take turns, so their output cannot share a stream.  Each
+step's log goes to `case_outputs/<step path>.log`, and the scheduler writes
+`<suite>_events.jsonl` beside it recording what started when, what each step
+held, what it was waiting for and how it ended.  That file is what to read
+when a run was slower than expected, because the interesting question -- why
+was nothing running at this moment -- cannot be answered from a step's own
+log.
+
+The run also writes the `<suite>_results.json` and `<suite>_output_for_pr.md`
+that `polaris serial` writes (see {ref}`suites-results`).  A task's result is
+filled in when its last step finishes.
 
 See {ref}`dev-run` for more about the underlying framework.
 
