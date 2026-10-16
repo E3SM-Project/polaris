@@ -193,15 +193,14 @@ def test_a_step_on_one_node_names_the_devices_it_got():
     reservation = _reserve(pool, _step('step', cores=8, gpus=2))
 
     assert reservation.placement.gpus == 2
-    assert reservation.placement.gpu_ids == (0, 1)
+    assert reservation.placement.gpu_ids == ((0, 1),)
 
 
 def test_a_step_that_spans_nodes_takes_the_same_devices_on_each():
     """
-    Device numbers are node-local, so a launch spanning nodes uses the same
-    ones on each.  Its placement leaves them unnamed, because a placement's
-    indices have to match its GPU *total* and four devices on each of two
-    nodes is four indices against a total of eight.
+    Device numbers are node-local, and PALS applies one node's binding list
+    to every node, so a launch spanning nodes uses the same ones on each and
+    names them one set per node.
     """
     pool = ResourcePool(_nodes(count=2, cores=64, gpus=4))
 
@@ -211,7 +210,7 @@ def test_a_step_that_spans_nodes_takes_the_same_devices_on_each():
     )
 
     assert reservation.placement.gpus == 8
-    assert reservation.placement.gpu_ids is None
+    assert reservation.placement.gpu_ids == ((0, 1, 2, 3), (0, 1, 2, 3))
     assert (
         reservation.gpus['node0']
         == reservation.gpus['node1']
@@ -222,6 +221,27 @@ def test_a_step_that_spans_nodes_takes_the_same_devices_on_each():
             3,
         )
     )
+
+
+def test_a_node_with_fewer_ranks_takes_fewer_gpus():
+    """
+    GPUs follow the ranks: on Aurora a 25 km Omega step asks for one tile
+    per rank, and the node with a rank fewer needs a tile fewer.
+    """
+    pool = ResourcePool(_nodes(count=2, cores=64, gpus=12))
+
+    reservation = _reserve(
+        pool,
+        _step(
+            'wide', ntasks=19, cpus_per_task=1, gpus=19, may_span_nodes=True
+        ),
+    )
+
+    assert reservation.placement.gpu_ids == (
+        tuple(range(10)),
+        tuple(range(9)),
+    )
+    assert reservation.gpus['node1'] == tuple(range(9))
 
 
 def test_a_step_the_allocation_can_never_run_is_named():

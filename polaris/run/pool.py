@@ -329,7 +329,11 @@ class ResourcePool:
         if sum(wanted) != total_cores:
             return None
 
-        gpus_per_node = -(-gpus // len(wanted)) if wanted else 0
+        # GPUs are spread over the nodes the way the ranks are, so a node
+        # with one rank fewer is given one GPU fewer when there is one per
+        # rank
+        gpus_by_node = _balance(gpus, len(wanted))
+        gpus_per_node = gpus_by_node[0] if gpus_by_node else 0
         chosen = self._choose_nodes(wanted, gpus_per_node)
         if chosen is None:
             return None
@@ -338,7 +342,13 @@ class ResourcePool:
         if gpu_ids is None:
             return None
 
-        return self._charge_memory(step, chosen, wanted, gpu_ids, total_cores)
+        return self._charge_memory(
+            step,
+            chosen,
+            wanted,
+            [gpu_ids[:count] for count in gpus_by_node],
+            total_cores,
+        )
 
     def _choose_nodes(self, wanted, gpus_per_node):
         """Pick nodes that can serve each rank group, in pool order."""
@@ -358,10 +368,10 @@ class ResourcePool:
         """
         The GPU indices to use, which are the same on every node.
 
-        A placement carries one set of device indices for the whole launch,
-        because that is what the machines which need them can express, and
-        the indices are node-local.  So a launch spanning nodes has to use
-        the same ones on each.
+        The indices are node-local, and PALS -- the launcher that needs them
+        named -- applies one node's binding list to every node, as it does
+        the CPU list.  So a launch spanning nodes has to use the same ones on
+        each, and a node with fewer ranks uses the front of the same list.
         """
         if gpus_per_node == 0:
             return ()
@@ -372,7 +382,9 @@ class ResourcePool:
             return None
         return tuple(sorted(shared)[:gpus_per_node])
 
-    def _charge_memory(self, step, chosen, wanted, gpu_ids, total_cores):
+    def _charge_memory(
+        self, step, chosen, wanted, gpu_ids_by_node, total_cores
+    ):
         """
         Charge each node in proportion to the cores taken on it.
 
@@ -416,7 +428,7 @@ class ResourcePool:
                 (
                     node,
                     tuple(available[:cores_here]),
-                    gpu_ids,
+                    gpu_ids_by_node[index],
                     charge,
                 )
             )
@@ -442,23 +454,23 @@ class ResourcePool:
             memory[node.name] = charge
 
         names = tuple(node.name for node, _, _, _ in layout)
-        # A placement's device indices are node-local and its GPU count is a
-        # total, so the two can only agree for a launch on one node: two
-        # nodes using devices 0-3 each is four indices against a total of
-        # eight.  So the indices are named only for a single-node launch,
-        # and a launch spanning nodes leaves them to the scheduler.
-        #
-        # That costs nothing where the batch system assigns GPUs, which is
-        # every Slurm machine.  On PALS nothing reserves a GPU in the first
-        # place, so a spanning launch there sees every device on its nodes.
-        # Worth knowing before a GPU step is ever run wider than a node on
-        # Aurora; nothing does today.
-        gpu_ids = layout[0][2] if len(layout) == 1 else None
+        # the device indices are named one set per node, which the
+        # scheduler ignores where the batch system assigns GPUs itself and
+        # which PALS, where nothing does, needs: a launch it was not told
+        # about sees every device on its nodes.  Measured on Aurora, where
+        # a 25 km Omega step on two nodes was refused before mache could
+        # name its GPUs per node.
+        total_gpus = step.gpus or 0
+        gpu_ids = (
+            tuple(node_gpus for _, _, node_gpus, _ in layout)
+            if total_gpus > 0
+            else None
+        )
         placement = ResourcePlacement(
             nodes=tuple(name for name in names if name != ''),
             cores=tuple(node_cores for _, node_cores, _, _ in layout),
-            gpus=step.gpus or 0,
-            gpu_ids=gpu_ids or None,
+            gpus=total_gpus,
+            gpu_ids=gpu_ids,
         )
         return Reservation(
             step_path=step.path,
@@ -467,6 +479,14 @@ class ResourcePool:
             gpus=gpus,
             memory=memory,
         )
+
+
+def _balance(total: int, count: int) -> List[int]:
+    """Divide ``total`` over ``count`` as the launchers balance ranks."""
+    if count <= 0:
+        return []
+    base, extra = divmod(total, count)
+    return [base + (1 if index < extra else 0) for index in range(count)]
 
 
 def _shared_cores(chosen: List[_Node]) -> List[int]:

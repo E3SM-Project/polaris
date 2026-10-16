@@ -260,7 +260,26 @@ def _check_launch(step, placement, logger) -> List[str]:
         )
         return []
 
-    return _compare(placement, seen, logger, support=system.placement_support)
+    return _compare(
+        placement,
+        seen,
+        logger,
+        support=system.placement_support,
+        device_names=_device_names(system),
+    )
+
+
+def _device_names(system) -> Optional[List[str]]:
+    """
+    The names a launch's ranks see for each of a node's GPUs, by index.
+
+    Aurora names a tile ``0.1`` where the placement says index 1, so the
+    check has to translate before it compares.  ``None`` where the machine
+    has no GPUs to name.
+    """
+    if not system.gpus_per_node:
+        return None
+    return system.get_gpu_device_names()
 
 
 class Report(NamedTuple):
@@ -298,6 +317,7 @@ def _compare(
     seen: Dict[str, Report],
     logger,
     support: PlacementSupport = PlacementSupport.CPU_BINDING,
+    device_names: Optional[List[str]] = None,
 ) -> List[str]:
     """Hold what the ranks reported against what the placement promised."""
     promised = _promised(placement)
@@ -323,7 +343,9 @@ def _compare(
         if problem:
             problems.append(problem)
 
-    problems.extend(_compare_devices(placement, seen, logger))
+    problems.extend(
+        _compare_devices(placement, seen, logger, support, device_names)
+    )
 
     if not problems:
         total = sum(len(report.cores) for report in seen.values())
@@ -381,7 +403,13 @@ def _compare_cores(
     )
 
 
-def _compare_devices(placement, seen: Dict[str, Report], logger) -> List[str]:
+def _compare_devices(
+    placement,
+    seen: Dict[str, Report],
+    logger,
+    support: PlacementSupport = PlacementSupport.CPU_BINDING,
+    device_names: Optional[List[str]] = None,
+) -> List[str]:
     """
     Hold the devices the ranks saw against the GPUs the placement gave.
 
@@ -390,6 +418,12 @@ def _compare_devices(placement, seen: Dict[str, Report], logger) -> List[str]:
     launch may report a single device 0 and the union say one.  That
     cannot be told from a rank that really was given one, and reporting it
     would have every GPU step on such a machine reported.
+
+    The placement names its devices by index and the ranks see the
+    machine's names for them, which on Aurora are tiles such as ``1.0``,
+    so the indices are translated with ``device_names`` first.  Comparing
+    the two as they came reported thirteen correctly placed steps on
+    Aurora.
 
     No rank reporting a device at all, for a step that was given GPUs, is
     said as not checked rather than passed.
@@ -414,12 +448,15 @@ def _compare_devices(placement, seen: Dict[str, Report], logger) -> List[str]:
         )
 
     problems = []
-    named = placement.gpu_ids
-    if named is not None and len(placement.nodes) <= 1:
-        # a single-node placement names its devices, so the ranks are held
-        # to those
-        wanted = {str(index) for index in named}
+    named = _named_devices(placement, device_names)
+    if named is not None and (
+        len(placement.nodes) <= 1 or support is PlacementSupport.CPU_BINDING
+    ):
+        # the placement names its devices, so the ranks are held to those.
+        # Only on one node where a scheduler assigns GPUs, since there a
+        # launch spanning nodes is held to a count, as below.
         for node, devices in sorted(reported.items()):
+            wanted = named.get(node, named.get('', set()))
             extra = devices - wanted
             if extra:
                 problems.append(
@@ -429,7 +466,7 @@ def _compare_devices(placement, seen: Dict[str, Report], logger) -> List[str]:
                 )
         return problems
 
-    # a launch spanning nodes leaves its devices to the scheduler and says
+    # where the scheduler assigns a spanning launch's devices, it is told
     # only how many in total, so each node is held to its share
     nodes = max(len(placement.nodes), 1)
     per_node = -(-given // nodes)
@@ -440,6 +477,34 @@ def _compare_devices(placement, seen: Dict[str, Report], logger) -> List[str]:
                 f'({",".join(sorted(devices))}) but was given {per_node}.'
             )
     return problems
+
+
+def _named_devices(
+    placement, device_names: Optional[List[str]]
+) -> Optional[Dict[str, Set[str]]]:
+    """
+    The device names the placement gives each node, keyed by short node
+    name, or by ``''`` for a placement that names no node.
+    """
+    if placement.gpu_ids is None:
+        return None
+    per_node = list(placement.gpu_ids)
+    if per_node and all(isinstance(entry, int) for entry in per_node):
+        # a mache that takes one flat list for the launch
+        per_node = [per_node]
+
+    keys = [node.split('.')[0] for node in placement.nodes] or ['']
+    return {
+        key: {_device_name(index, device_names) for index in node_ids}
+        for key, node_ids in zip(keys, per_node, strict=False)
+    }
+
+
+def _device_name(index: int, device_names: Optional[List[str]]) -> str:
+    """The machine's name for a node's GPU with this index."""
+    if device_names is not None and index < len(device_names):
+        return device_names[index]
+    return str(index)
 
 
 def _promised(placement) -> Dict[str, Set[int]]:
