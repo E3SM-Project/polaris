@@ -514,6 +514,10 @@ when a run was slower than expected, because the interesting question -- why
 was nothing running at this moment -- cannot be answered from a step's own
 log.
 
+The run also writes the `<suite>_results.json` and `<suite>_output_for_pr.md`
+that `polaris serial` writes (see {ref}`suites-results`).  A task's result is
+filled in when its last step finishes.
+
 See {ref}`dev-run` for more about the underlying framework.
 
 (dev-polaris-cache)=
