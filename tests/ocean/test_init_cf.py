@@ -1,8 +1,9 @@
 """
 Tests that the mesh, vertical-coordinate and initial-state files an ocean
-init step writes pass the CF checker with no errors and no warnings, for
-both models.  The baroclinic channel init step is run for real on a coarse
-mesh, since the metadata only shows up in the files it writes.
+init step writes are opted into the CF check and pass it with no errors and
+no warnings, for both models.  The baroclinic channel init step is run for
+real on a coarse mesh, since the metadata only shows up in the files it
+writes.
 """
 
 import logging
@@ -11,6 +12,7 @@ import os
 import pytest
 import xarray as xr
 
+from polaris.cf_check import check_cf_compliance
 from polaris.config import PolarisConfigParser
 from polaris.tasks.ocean import Ocean
 from polaris.tasks.ocean.baroclinic_channel.init import Init
@@ -18,7 +20,7 @@ from polaris.tasks.ocean.baroclinic_channel.init import Init
 # minimal versions of the three CF tables, with only the standard names the
 # checked files use, so the checker needs no download
 CF_TABLES = {
-    'standard_name_table.xml': """<?xml version="1.0"?>
+    'cf-standard-name-table.xml': """<?xml version="1.0"?>
 <standard_name_table>
   <version_number>94</version_number>
   <last_modified>2026-06-09T17:23:36Z</last_modified>
@@ -30,14 +32,14 @@ CF_TABLES = {
   </entry>
 </standard_name_table>
 """,
-    'area_type_table.xml': """<?xml version="1.0"?>
+    'cf-area-type-table.xml': """<?xml version="1.0"?>
 <area_type_table>
   <version_number>13</version_number>
   <date>20 March 2025</date>
   <entry id="sea"/>
 </area_type_table>
 """,
-    'region_name_table.xml': """<?xml version="1.0"?>
+    'cf-region-name-table.xml': """<?xml version="1.0"?>
 <standardized_region_list>
   <version_number>5</version_number>
   <date>12 November 2024</date>
@@ -70,8 +72,9 @@ def _make_config(model):
 
 @pytest.fixture(scope='module', params=['mpas-ocean', 'omega'])
 def init_outputs(request, tmp_path_factory):
-    """Run the init step once per model and return the model name and the
-    directory the step wrote its files to, with the CF tables in it"""
+    """Set up and run the init step once per model and return the model
+    name, the step and the directory the step wrote its files to, with the
+    CF tables in it"""
     model = request.param
 
     component = Ocean()
@@ -83,6 +86,7 @@ def init_outputs(request, tmp_path_factory):
     step = Init(component=component, resolution=40.0, indir='init')
     step.config = _make_config(model)
     step.logger = logging.getLogger(f'baroclinic_channel_init_{model}')
+    step.setup()
 
     workdir = tmp_path_factory.mktemp(f'baroclinic_channel_init_{model}')
     for filename, contents in CF_TABLES.items():
@@ -94,13 +98,19 @@ def init_outputs(request, tmp_path_factory):
     finally:
         os.chdir(cwd)
 
-    return model, str(workdir)
+    return model, step, str(workdir)
+
+
+def test_init_files_are_opted_into_the_cf_check(init_outputs):
+    model, step, _ = init_outputs
+    assert step.cf_check
+    assert sorted(step.cf_check_files) == sorted(CHECKED_FILES[model])
 
 
 def test_init_variables_are_labeled_as_themselves(init_outputs):
     """A state variable made from a mesh variable with ones_like() must not
     keep the mesh variable's description"""
-    model, workdir = init_outputs
+    _, _, workdir = init_outputs
     with xr.open_dataset(os.path.join(workdir, 'init.nc')) as ds_init:
         for name, da in ds_init.data_vars.items():
             long_name = da.attrs['long_name']
@@ -110,32 +120,9 @@ def test_init_variables_are_labeled_as_themselves(init_outputs):
 def test_init_files_pass_the_cf_check(init_outputs):
     """No errors, which would fail the step, and no warnings either, so
     that every variable is described"""
-    model, workdir = init_outputs
-    for filename in CHECKED_FILES[model]:
-        errors, warnings = _check_cf(os.path.join(workdir, filename), workdir)
-        assert errors == [], f'{filename}: {errors}'
-        assert warnings == [], f'{filename}: {warnings}'
-
-
-def _check_cf(path, workdir):
-    """Run the CF checker on a file and return its errors and warnings"""
-    cfchecks = pytest.importorskip('cfchecker.cfchecks')
-    checker = cfchecks.CFChecker(
-        cfStandardNamesXML=os.path.join(workdir, 'standard_name_table.xml'),
-        cfAreaTypesXML=os.path.join(workdir, 'area_type_table.xml'),
-        cfRegionNamesXML=os.path.join(workdir, 'region_name_table.xml'),
-        version=cfchecks.CFVersion(),
-        silent=True,
-    )
-    checker.checker(path)
-    results = checker.results
-    sections = [('global', results['global'])]
-    sections.extend(results['variables'].items())
-    errors = []
-    warnings = []
-    for name, messages in sections:
-        for message in messages['FATAL'] + messages['ERROR']:
-            errors.append(f'{name}: {message}')
-        for message in messages['WARN']:
-            warnings.append(f'{name}: {message}')
-    return errors, warnings
+    pytest.importorskip('cfchecker.cfchecks')
+    model, _, workdir = init_outputs
+    results = check_cf_compliance(CHECKED_FILES[model], workdir)
+    for result in results:
+        assert result['errors'] == [], result['report']
+        assert result['warnings'] == 0, result['report']

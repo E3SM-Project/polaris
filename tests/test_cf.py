@@ -7,6 +7,7 @@ from polaris.cf import (
     CF_VERSION,
     add_cf_conventions,
     add_var_attrs,
+    drop_dangling_references,
     drop_inherited_attrs,
     read_var_attrs,
 )
@@ -79,6 +80,36 @@ def test_inherited_attrs_are_dropped():
     assert ds.xCell.attrs == x_cell.attrs
     # the input is not modified
     assert ds_in.bottomDepth.attrs == x_cell.attrs
+
+
+def test_dangling_references_are_dropped():
+    """Attributes naming variables a remapped file no longer has go, from
+    the attributes and from the encoding; ones naming variables it has
+    stay"""
+    ds_in = xr.Dataset(
+        data_vars=dict(
+            ct_an=(
+                'nCells',
+                [1.0, 2.0],
+                {
+                    'cell_measures': 'area: area',
+                    'grid_mapping': 'crs',
+                    'ancillary_variables': 'lat',
+                },
+            ),
+            lat=('nCells', [0.0, 1.0], {'bounds': 'lat_vertices'}),
+            depth=('nCells', [5.0, 10.0], {'bounds': 'lat'}),
+        )
+    )
+    ds_in.ct_an.encoding['coordinates'] = 'lat lon'
+    ds = drop_dangling_references(ds_in)
+    assert ds.ct_an.attrs == {'ancillary_variables': 'lat'}
+    assert 'coordinates' not in ds.ct_an.encoding
+    assert ds.lat.attrs == {}
+    assert ds.depth.attrs == {'bounds': 'lat'}
+    # the input is not modified
+    assert ds_in.lat.attrs == {'bounds': 'lat_vertices'}
+    assert ds_in.ct_an.encoding['coordinates'] == 'lat lon'
 
 
 @pytest.mark.parametrize('package,filename', TABLES)
