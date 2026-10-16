@@ -152,12 +152,15 @@ class TopoRemap(Step):
         with open_dataset('topography_rename.nc') as ds_out:
             if 'Time' in ds_out.dims:
                 ds_out = ds_out.chunk({'Time': 1})
-            # renormalize all variables by ocean_frac
+            # renormalize all variables but ocean_frac itself, which the
+            # mesh cull compares with min_ocean_fraction
             ocean_frac = ds_out.oceanFraction
+            mask = ocean_frac > 0.0
             for var in ds_out:
+                if var == 'oceanFraction':
+                    continue
                 if 'nCells' in ds_out[var].dims:
                     attrs = ds_out[var].attrs
-                    mask = ocean_frac > 0.0
                     ds_out[var] = (ds_out[var] / ocean_frac).where(mask)
                     ds_out[var].attrs = attrs
 
