@@ -26,9 +26,6 @@ class IsomipPlusTest(IceShelfTask):
     thin_film: bool
         Whether a thin film is present under grounded ice, as it is for
         experiments with time-varying geometry
-
-    planar : bool, optional
-        Whether the test case runs on a planar or a spherical mesh
     """
 
     def __init__(
@@ -38,7 +35,6 @@ class IsomipPlusTest(IceShelfTask):
         resolution,
         experiment,
         vertical_coordinate,
-        planar,
         shared_steps,
         config,
         tidal_forcing=False,
@@ -64,9 +60,6 @@ class IsomipPlusTest(IceShelfTask):
         vertical_coordinate : str
             The type of vertical coordinate (``z-star``, ``z-level``, etc.)
 
-        planar : bool
-            Whether the test case runs on a planar or a spherical mesh
-
         shared_steps : dict
             The shared step for creating a topography mapping file from
             the ISOMIP+ input data to the base mesh
@@ -87,7 +80,6 @@ class IsomipPlusTest(IceShelfTask):
         self.vertical_coordinate = vertical_coordinate
         self.thin_film = experiment in ['inception', 'wetting', 'drying']
         self.tidal_forcing = tidal_forcing
-        self.planar = planar
         subdir = f'{resdir}/{vertical_coordinate}/{name}'
         super().__init__(
             component=component,

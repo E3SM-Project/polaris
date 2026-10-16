@@ -398,9 +398,6 @@
    mesh.CullMesh.run
    mesh.PlanarMesh
    mesh.PlanarMesh.run
-   mesh.SphericalMesh
-   mesh.SphericalMesh.build_cell_width_lat_lon
-   mesh.SphericalMesh.run
    mesh.xy.add_isomip_plus_xy
 
    projection.get_projection_string
