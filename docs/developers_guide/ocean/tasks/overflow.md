@@ -5,7 +5,8 @@
 The overflow task group is comprised of seven `smoke_test` tasks for quick
 testing (one for each horizontal advection order, 2, 3, and 4, each with
 and without del4 viscosity enabled, plus an additional order-3 task with
-FCT disabled) and one `rpe` test which shows how the resting potential
+FCT disabled), an eighth `smoke_test` in the `nonlinear/pstar` tree with
+Omega's centered pressure gradient, and one `rpe` test which shows how the resting potential
 energy changes across forward runs with different del2 viscosities.
 
 The tasks are created in three trees by
@@ -120,6 +121,13 @@ del4 viscosity enabled, producing tasks named
 4 and disabled for order 2; a seventh instance,
 `smoke_test_horiz_adv_order_3_nofct`, reruns order 3 with FCT disabled for
 comparison.
+
+Only in the `nonlinear/pstar` tree, an eighth instance,
+`smoke_test_horiz_adv_order_4_del4_centered_pgf`, is created with
+`centered_pgf=True`. The forward step then sets Omega's `PressureGradType`
+to `Centered`, overriding Omega's default finite-volume scheme, so the
+centered scheme keeps coverage in the `omega_pr` suite next to its
+finite-volume twin, `smoke_test_horiz_adv_order_4_del4`.
 
 ## rpe
 
