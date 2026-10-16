@@ -21,7 +21,8 @@ condition and forcing.
 
 ## supported models
 
-These tasks support only MPAS-Ocean.
+These tasks support only MPAS-Ocean, built from the FAnSSIE submodule (see
+{ref}`dev-ocean-fanssie`).
 
 ## shared steps
 

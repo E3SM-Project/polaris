@@ -46,6 +46,8 @@ land-ice options of
 [E3SM#8047](https://github.com/E3SM-Project/E3SM/pull/8047) and the cap
 on land-ice pressure in grounded cells from
 [E3SM-Ocean-Discussion#119](https://github.com/E3SM-Ocean-Discussion/E3SM/pull/119).
+Both are in FAnSSIE, the E3SM development branch for ocean–ice-sheet
+coupling that Polaris has as the `e3sm_submodules/FAnSSIE` submodule.
 
 Omega does not yet support ice-shelf cavities, so it is out of scope.
 
@@ -526,7 +528,7 @@ which it calls, now accepts the vertical coordinate as
 
 ### Implementation: Output supports regression testing and inspection
 
-Date last modified: 2026/09/28
+Date last modified: 2026/10/16
 
 Contributors: Xylar Asay-Davis, Claude
 
@@ -555,8 +557,9 @@ New documentation:
 - a developer's guide page;
 - `api.md` entries for the new classes and helpers.
 
-`framework_pr` already lists `ocean/planar/isomip_plus/4km/z-star/ocean0`
-for its remapping coverage. That entry now runs the full task. No other
+`fanssie_pr`, the suite for tasks that need FAnSSIE, lists
+`ocean/planar/isomip_plus/4km/z-star/ocean0`, which used to cover
+remapping in `framework_pr`. That entry now runs the full task. No other
 suite changes.
 
 ### Implementation: Differences from Compass are documented
@@ -690,8 +693,7 @@ will need, so that the steps above can serve it.
 times as many steps as the split-explicit scheme at 120 s per km. Work
 on split-explicit wetting and drying (Carolyn Begeman's
 `alt-wetting-drying-se` branch) is not yet in E3SM. If it is needed,
-Polaris will build MPAS-Ocean from an `ocn-glc/fanssie-coupling` branch
-that also includes E3SM#8047.
+it can be merged into FAnSSIE.
 
 **Long runs.** Ocean0 runs for 1 year and Ocean1–2 for 20. They need:
 
