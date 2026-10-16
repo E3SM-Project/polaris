@@ -1,3 +1,4 @@
+from polaris.constants import get_constant
 from polaris.ocean.model import OceanModelStep, get_time_interval_string
 
 
@@ -40,6 +41,9 @@ class Forward(OceanModelStep):
         use_theory_wave=False,
         min_obl_under_sea_ice=5.0,
         enable_kpp=None,
+        frazil_type=None,
+        frazil_conservation=False,
+        time_integrator=None,
     ):
         """
         Create a new test case
@@ -112,6 +116,17 @@ class Forward(OceanModelStep):
             defaults to ``not enable_hadv`` to preserve prior behavior.
             MPAS-Ocean has no equivalent option, so Coriolis there is
             always governed solely by the ``[coriolis]`` config section.
+
+        frazil_type : str, optional
+            If provided, enables the frazil ice tendency and selects the
+            frazil algorithm to use in Omega, either ``'FixedProperty'`` or
+            ``'teos'``.  If ``None``, the frazil tendency is left disabled.
+
+        frazil_conservation : bool, optional
+            Whether to include Omega frazil fluxes in the conservation check.
+
+        time_integrator : str, optional
+            Override the single-column time integrator for this step.
         """
         if disable_coriolis is None:
             disable_coriolis = not enable_hadv
@@ -129,6 +144,8 @@ class Forward(OceanModelStep):
             name = f'{name}_langmuir'
         if enable_kpp is False:
             name = f'{name}_no_kpp'
+        if time_integrator is not None:
+            name = f'{name}_{time_integrator}'
         super().__init__(
             component=component,
             name=name,
@@ -193,6 +210,9 @@ class Forward(OceanModelStep):
         self.use_theory_wave = use_theory_wave
         self.min_obl_under_sea_ice = min_obl_under_sea_ice
         self.enable_kpp = enable_kpp
+        self.frazil_type = frazil_type
+        self.frazil_conservation = frazil_conservation
+        self.time_integrator = time_integrator
 
     def setup(self):
         """
@@ -210,15 +230,20 @@ class Forward(OceanModelStep):
         config = self.config
         section = config['single_column']
         time_step = section.getfloat('time_step')
-        if self.run_duration_steps is not None:
-            if self.run_duration_steps > 0:
+        run_duration_steps = self.run_duration_steps
+        if run_duration_steps is None and section.has_option(
+            'run_duration_steps'
+        ):
+            run_duration_steps = section.getint('run_duration_steps')
+        if run_duration_steps is not None:
+            if run_duration_steps > 0:
                 # run for a given number of time steps, with output every step
-                duration_seconds = self.run_duration_steps * time_step
+                duration_seconds = run_duration_steps * time_step
                 output_interval_seconds = time_step
             else:
                 raise ValueError(
                     'run_duration_steps must be >0 but was '
-                    f'{self.run_duration_steps}'
+                    f'{run_duration_steps}'
                 )
         else:
             duration_seconds = section.getfloat('run_duration') * 86400.0
@@ -232,12 +257,21 @@ class Forward(OceanModelStep):
             seconds=output_interval_seconds
         )
 
-        time_integrator = section.get('time_integrator')
-        time_integrator_map = dict(
-            [('RK4', 'RungeKutta4'), ('split_explicit', 'SplitExplicitRK2')]
+        time_integrator = self.time_integrator or section.get(
+            'time_integrator'
         )
+        time_integrator_map = {
+            'RK4': 'RungeKutta4',
+            'Forward-Backward': 'Forward-Backward',
+            'RungeKutta2': 'RungeKutta2',
+            'SplitExplicitRK2': 'SplitExplicitRK2',
+            # Note: this mapping should really be to SplitExplicitAB2, which
+            # is not yet implemented
+            'split_explicit': 'SplitExplicitRK2',
+            'UnsplitRK2': 'UnsplitRK2',
+        }
         if model == 'omega':
-            if time_integrator in time_integrator_map.keys():
+            if time_integrator in time_integrator_map:
                 time_integrator = time_integrator_map[time_integrator]
             else:
                 print(
@@ -260,6 +294,13 @@ class Forward(OceanModelStep):
         template_replacements = dict(
             output_interval=output_interval_str,
             output_freq=f'{int(output_interval_seconds)}',
+            RhoSw=get_constant('seawater_density_reference'),
+            sea_ice_reference_salinity=get_constant(
+                'sea_ice_reference_salinity'
+            ),
+            latent_heat_of_fusion=get_constant(
+                'latent_heat_of_fusion_reference'
+            ),
         )
         if 'kpp_regimes' in self.task_package:
             template_replacements['match_technique'] = (
@@ -347,6 +388,26 @@ class Forward(OceanModelStep):
                 {
                     'config_use_activeTracers_surface_restoring': True,
                 }
+            )
+
+        if self.frazil_type is not None:
+            omega_options.update(
+                {
+                    'FrazilType': self.frazil_type,
+                }
+            )
+
+            # Both the basic and teos frazil algorithms require TEOS-10;
+            # compute the EOS options directly (rather than through the
+            # shared ``update_eos`` mechanism) since the ``eos_type``
+            # config option may be shared between basic and teos variants
+            # of the same frazil task.
+            eos_options = self._get_teos10_eos_replacements(
+                eos_type='teos-10', model=model
+            )
+            self.add_model_config_options(
+                options=eos_options,
+                config_model='ocean',
             )
 
         if self.constant_diff:
