@@ -69,6 +69,8 @@ The file lists every task in the order they run, with:
 - `status`: `pass`, `fail`, or `pending` if the task has not finished
 - `execution`: whether the steps ran without error (`pass` or `fail`)
 - `baseline`: `pass` or `fail`, or `null` if there was no baseline comparison
+- `cf`: `pass` or `fail`, or `null` if no output files were checked for CF
+  compliance (see {ref}`dev-cf-check`)
 - `elapsed_seconds`: the task's wall-clock time
 - `steps_to_run`: the steps the task ran
 - `log`: the task's log file, relative to the base work directory

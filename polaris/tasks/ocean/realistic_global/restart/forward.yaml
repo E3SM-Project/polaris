@@ -40,6 +40,6 @@ Omega:
     RestartWrite:
       UsePointerFile: true
       PointerFilename: {{ restart_write_dir }}/ocn.pointer
-      Filename: {{ restart_write_dir }}/ocn.restart.$Y-$M-$D_$h.$m.$s
+      Filename: {{ restart_write_dir }}/ocn.restart.$Y-$M-$D_$h.$m.$s.nc
       Freq: 1
       FreqUnits: OnShutdown

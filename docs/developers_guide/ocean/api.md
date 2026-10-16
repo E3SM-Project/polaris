@@ -896,6 +896,7 @@
    OceanModelStep
    OceanModelStep.setup
    OceanModelStep.check_properties
+   OceanModelStep.check_cf
    OceanModelStep.constrain_resources
    OceanModelStep.compute_cell_count
    OceanModelStep.map_yaml_options

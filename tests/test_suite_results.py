@@ -70,8 +70,10 @@ class _FakeRunTask:
                 },
                 'salinity': {'l1': math.nan, 'l2': math.inf, 'linf': 0.0},
             }
-            return False, diffs
-        return None, {}
+            return False, diffs, None
+        if task.path.endswith('noncompliant'):
+            return None, {}, False
+        return None, {}, None
 
 
 def _set_up(tmp_path, monkeypatch, paths, name='omega_pr', is_task=False):
@@ -172,6 +174,7 @@ def test_results_file_records_each_outcome(tmp_path, monkeypatch):
     assert passed['status'] == 'pass'
     assert passed['execution'] == 'pass'
     assert passed['baseline'] is None
+    assert passed['cf'] is None
     assert passed['steps_to_run'] == ['init', 'forward']
     assert passed['log'] == 'case_outputs/ocean_pass.log'
     assert os.path.exists(os.path.join(work_dir, passed['log']))
@@ -292,6 +295,30 @@ def test_output_for_pr_log_on_pbs(tmp_path, monkeypatch):
     assert f'- Log: `{job_log}`' in _read_output_for_pr(work_dir, 'omega_pr')
 
 
+def test_cf_failure_fails_the_task(tmp_path, monkeypatch):
+    paths = ['ocean/pass', 'ocean/noncompliant']
+    work_dir, _ = _set_up(tmp_path, monkeypatch, paths)
+
+    with pytest.raises(SystemExit):
+        serial.run_tasks('omega_pr')
+
+    results = _read_results(work_dir, 'omega_pr')
+    tasks = {task['path']: task for task in results['tasks']}
+    noncompliant = tasks['ocean/noncompliant']
+    assert noncompliant['status'] == 'fail'
+    assert noncompliant['execution'] == 'pass'
+    assert noncompliant['cf'] == 'fail'
+
+    log_filename = os.path.join(
+        work_dir, 'case_outputs/ocean_noncompliant.log'
+    )
+    with open(log_filename) as log:
+        assert 'POLARIS CF COMPLIANCE: FAIL' in log.read()
+    output_for_pr = _read_output_for_pr(work_dir, 'omega_pr')
+    assert '  - CF compliance failures (1 of 2):' in output_for_pr
+    assert '    - `ocean/noncompliant`' in output_for_pr
+
+
 def test_task_result_status():
     assert TaskResult(path='a').status == 'pending'
     assert TaskResult(path='a', execution_passed=True).status == 'pass'
@@ -299,4 +326,8 @@ def test_task_result_status():
     result = TaskResult(path='a', execution_passed=True, baseline_passed=True)
     assert result.status == 'pass'
     result.baseline_passed = False
+    assert result.status == 'fail'
+    result = TaskResult(path='a', execution_passed=True, cf_passed=True)
+    assert result.status == 'pass'
+    result.cf_passed = False
     assert result.status == 'fail'

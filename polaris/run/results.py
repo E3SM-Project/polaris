@@ -46,6 +46,10 @@ class TaskResult:
         The maximum l1, l2 and l_infinity norms of the difference from the
         baseline, keyed by variable name, as merged by
         :py:func:`polaris.validate.merge_diff_summary()`
+
+    cf_passed : bool, optional
+        Whether the output files checked for CF compliance passed, or
+        ``None`` if no files were checked
     """
 
     path: str
@@ -55,6 +59,7 @@ class TaskResult:
     baseline_passed: Optional[bool] = None
     elapsed_seconds: Optional[float] = None
     baseline_diffs: Dict = field(default_factory=dict)
+    cf_passed: Optional[bool] = None
 
     @property
     def pending(self) -> bool:
@@ -64,11 +69,13 @@ class TaskResult:
     @property
     def success(self) -> bool:
         """
-        Whether the task ran without error and no baseline comparison
-        failed
+        Whether the task ran without error and no baseline comparison or
+        CF compliance check failed
         """
-        return self.execution_passed is True and (
-            self.baseline_passed is not False
+        return (
+            self.execution_passed is True
+            and self.baseline_passed is not False
+            and self.cf_passed is not False
         )
 
     @property
@@ -92,6 +99,7 @@ class TaskResult:
             'status': self.status,
             'execution': _pass_fail(self.execution_passed),
             'baseline': _pass_fail(self.baseline_passed),
+            'cf': _pass_fail(self.cf_passed),
             'elapsed_seconds': self.elapsed_seconds,
             'steps_to_run': self.steps_to_run,
             'log': self.log,
