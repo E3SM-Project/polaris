@@ -1,12 +1,10 @@
 import numpy as np
 import xarray as xr
+from mpas_tools.mesh.spherical import calc_vector_east_north
 from mpas_tools.transects import lon_lat_to_cartesian
 from numpy import cos, pi, sin
 
 from polaris.constants import get_constant
-from polaris.mesh.spherical import (
-    calc_vector_east_north,
-)
 
 earth_radius = get_constant('mean_radius')
 
@@ -127,18 +125,12 @@ def flow_rotation(lon, lat, omega, tau):
     return u, v
 
 
-def normal_velocity_from_zonal_meridional(
-    ds_mesh, u, v, recompute_angle_edge=False
-):
+def normal_velocity_from_zonal_meridional(ds_mesh, u, v):
     """
     Compute normal velocity from zonal and meridional velocity components
     defined on edges
     """
-    if recompute_angle_edge:
-        angle_edge = recompute_angle_edge(ds_mesh)
-    else:
-        angle_edge = ds_mesh.angleEdge
-
+    angle_edge = ds_mesh.angleEdge
     normal_velocity = xr.zeros_like(angle_edge)
     normal_velocity.values = u * np.cos(angle_edge) + v * np.sin(angle_edge)
     return normal_velocity
