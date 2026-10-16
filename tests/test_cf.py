@@ -6,6 +6,7 @@ from mpas_tools.planar_hex import make_planar_hex_mesh
 from polaris.cf import (
     CF_VERSION,
     add_cf_conventions,
+    add_lat_lon_attrs,
     add_var_attrs,
     drop_dangling_references,
     drop_inherited_attrs,
@@ -80,6 +81,25 @@ def test_inherited_attrs_are_dropped():
     assert ds.xCell.attrs == x_cell.attrs
     # the input is not modified
     assert ds_in.bottomDepth.attrs == x_cell.attrs
+
+
+def test_lat_lon_attrs_fill_only_what_is_missing():
+    ds_in = xr.Dataset(
+        coords=dict(
+            lat=('lat', [-45.0, 45.0]),
+            lon=('lon', [90.0, 270.0], {'long_name': 'from the source'}),
+        )
+    )
+    ds = add_lat_lon_attrs(ds_in)
+    assert ds.lat.attrs == {
+        'long_name': 'latitude',
+        'standard_name': 'latitude',
+        'units': 'degrees_north',
+    }
+    assert ds.lon.attrs['long_name'] == 'from the source'
+    assert ds.lon.attrs['units'] == 'degrees_east'
+    # the input is not modified
+    assert ds_in.lat.attrs == {}
 
 
 def test_dangling_references_are_dropped():
