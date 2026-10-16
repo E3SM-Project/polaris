@@ -516,8 +516,13 @@ def _read_baseline_diff_summary_from_logs(step_work_dir: str) -> Dict:
         return {}
     try:
         with open(filename, 'r') as handle:
-            return json.load(handle)
-    except (OSError, ValueError):
+            summary = json.load(handle)
+        # older summaries hold float32 norms written as strings
+        return {
+            var: {name: float(norm) for name, norm in norms.items()}
+            for var, norms in summary.items()
+        }
+    except (OSError, ValueError, TypeError, AttributeError):
         return {}
 
 

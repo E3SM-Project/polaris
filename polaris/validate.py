@@ -245,9 +245,11 @@ def _compute_norms(
     # skip entries where one field or both are a fill value
     diff = diff[np.isfinite(diff)]
 
-    l1_norm = np.linalg.norm(diff, ord=1)
-    l2_norm = np.linalg.norm(diff, ord=2)
-    linf_norm = np.linalg.norm(diff, ord=np.inf)
+    # cast to python floats: norms of float32 fields are numpy float32
+    # scalars, which json can't serialize
+    l1_norm = float(np.linalg.norm(diff, ord=1))
+    l2_norm = float(np.linalg.norm(diff, ord=2))
+    linf_norm = float(np.linalg.norm(diff, ord=np.inf))
 
     if time_index is None:
         diff_str = ''
