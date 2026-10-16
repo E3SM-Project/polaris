@@ -27,12 +27,12 @@ an `analysis_members` task for each mesh in
 its `mesh_dict` and each duration in
 `polaris.tasks.ocean.realistic_global.analysis_members.DURATIONS`, and a
 single `restart` task on `QU.240km`.  Adding a new mesh to `analysis_members`
-takes three things: an entry in `mesh_dict` giving the MPAS-Ocean and Omega
-initial-condition IDs and the cell count; an entry in the `MESH_INFO`
-dictionary in `polaris.tasks.ocean.realistic_global.analysis_members.forward`
-giving the baroclinic and barotropic time steps, the length of the `short`
-run and the number of MOC latitude bins; and a `<mesh>.cfg` file in the
-`analysis_members` package setting `mom_del2` and `mom_del4`.
+takes two things: an entry in `mesh_dict` giving the MPAS-Ocean and Omega
+initial-condition IDs and the cell count, and a `<mesh>.cfg` file in the
+`analysis_members` package setting the baroclinic and barotropic time steps
+(`dt` and `btr_dt`), the length of the `short` run (`short_run_duration`),
+the number of MOC latitude bins (`moc_num_bins`) and the momentum viscosities
+(`mom_del2` and `mom_del4`).
 
 (dev-ocean-realistic-global-framework)=
 
@@ -118,10 +118,11 @@ The class
 {py:class}`polaris.tasks.ocean.realistic_global.analysis_members.forward.Forward`
 is a subclass of the shared {ref}`dev-ocean-realistic-global-framework`
 `Forward`, which supplies the cached initial condition and the shared
-`forward.yaml`.  It takes its time steps and the `short` run's length from
-`MESH_INFO`, and `setup()` adds the `mom_del2` and `mom_del4` config options
-as `config_mom_del2` and `config_mom_del4`, which are translated to Omega's
-`ViscDel2` and `ViscDel4`.
+`forward.yaml`.  Its `setup()` fills in the time steps, the `short` run's
+length and the number of MOC bins from the `[analysis_members]` config
+options before the yaml files are added, and adds the `mom_del2` and
+`mom_del4` config options as `config_mom_del2` and `config_mom_del4`, which
+are translated to Omega's `ViscDel2` and `ViscDel4`.
 
 For the `1_year` run, which supports only Omega, `setup()` also adds
 `monthly_output.yaml` after the shared yaml file, so that it overrides it.

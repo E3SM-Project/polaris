@@ -652,8 +652,9 @@ testing the analysis members, not scientifically valid simulations.
 
 ### time step and run duration
 
-The time steps and the length of the `short` run are set per mesh as shown in
-the table above.  On `QU.240km` they are E3SM's values for this mesh.  The
+The time steps and the length of the `short` run are set per mesh by the
+`dt`, `btr_dt` and `short_run_duration` config options, as shown in the table
+above.  On `QU.240km` they are E3SM's values for this mesh.  The
 forward run uses the split-explicit time stepper (`SplitExplicitRK2` in
 Omega).  The `short` run writes output, including the global statistics, once
 per day.
@@ -685,6 +686,19 @@ dt_per_km = 3.0
 # an error.
 fields =
 
+# The baroclinic and barotropic time steps: E3SM's MPAS-Ocean values for
+# oQU240.  A 2-hour step gave a growing surface hotspot along the Aleutians in
+# a one-year run.
+dt = 01:00:00
+btr_dt = 00:03:00
+
+# The length of the short run.  The 1_year run is always 365 days.
+short_run_duration = 0005_00:00:00
+
+# The number of latitude bins of the 1_year run's MOC: three degrees, since
+# Omega's default of one degree is finer than the mesh
+moc_num_bins = 60
+
 # The harmonic momentum viscosity (m^2/s): Omega's default
 mom_del2 = 1.0e3
 
@@ -696,8 +710,9 @@ mom_del2 = 1.0e3
 mom_del4 = 1.0e15
 ```
 
-The viscosities are for `QU.240km`.  On `EC30to60E2r2`, `mom_del2` is 1.0e4
-and `mom_del4` is 1.2e11.
+The time steps, run length, MOC bins and viscosities are for `QU.240km`.  On
+`EC30to60E2r2`, `dt` is 30 minutes, `btr_dt` 1 minute, `short_run_duration`
+1 day, `moc_num_bins` 180, `mom_del2` 1.0e4 and `mom_del4` 1.2e11.
 
 The `viz` step is controlled by the
 `[realistic_global_viz_temperature]`, `[realistic_global_viz_salinity]`,

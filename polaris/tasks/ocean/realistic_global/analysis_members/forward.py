@@ -7,27 +7,6 @@ from polaris.tasks.ocean.realistic_global.forward import (
 #: reads
 DURATIONS = ['short', '1_year']
 
-# The baroclinic and barotropic time steps of each mesh, the length of its
-# short run and the number of latitude bins of its MOC.  For QU.240km the time
-# steps are E3SM's MPAS-Ocean values for oQU240: a 2-hour step gave a growing
-# surface hotspot along the Aleutians in a one-year run.  Its MOC bins are
-# three degrees, since Omega's default of one degree is finer than the mesh.
-# EC30to60E2r2 uses Omega's default MOC bins.
-MESH_INFO = {
-    'QU.240km': dict(
-        dt='01:00:00',
-        btr_dt='00:03:00',
-        short_duration='0005_00:00:00',
-        moc_num_bins=60,
-    ),
-    'EC30to60E2r2': dict(
-        dt='00:30:00',
-        btr_dt='00:01:00',
-        short_duration='0001_00:00:00',
-        moc_num_bins=180,
-    ),
-}
-
 # The one-year run starts on 0001-01-01, so the first monthly file is written
 # at the start of February.  Omega names a file for the time it is written,
 # which for a time mean is the end of the month it averages
@@ -96,16 +75,14 @@ class Forward(RealisticGlobalForward):
         duration : str
             The duration of the run, one of ``DURATIONS``
         """
-        mesh_info = MESH_INFO[mesh_name]
+        # the time steps, the short run's duration and the MOC bins come
+        # from the per-mesh config options in setup()
         replacements = {
             'time_integrator': 'SplitExplicitRK2',
-            'dt': mesh_info['dt'],
-            'btr_dt': mesh_info['btr_dt'],
             'output_interval': '0001_00:00:00',
             'output_freq': '1',
         }
         if duration == 'short':
-            replacements['run_duration'] = mesh_info['short_duration']
             replacements['output_freq_units'] = 'days'
             output_filenames = None
         elif duration == '1_year':
@@ -113,7 +90,6 @@ class Forward(RealisticGlobalForward):
             # the duration is given in days: 365 on the No Leap calendar
             replacements['run_duration'] = '0365_00:00:00'
             replacements['output_freq_units'] = 'months'
-            replacements['moc_num_bins'] = mesh_info['moc_num_bins']
             # every monthly file is declared as an output so that a run
             # whose analysis groups did not write is reported as a missing
             # output rather than found later by the analysis
@@ -144,8 +120,10 @@ class Forward(RealisticGlobalForward):
 
     def setup(self):
         """
-        Add the monthly output of the one-year run over the shared yaml
-        file, then the per-mesh momentum viscosities from the config options
+        Fill in the per-mesh time steps, the short run's duration and the
+        MOC bins from the config options, add the monthly output of the
+        one-year run over the shared yaml file, then the per-mesh momentum
+        viscosities
         """
         if (
             self.duration == '1_year'
@@ -155,6 +133,15 @@ class Forward(RealisticGlobalForward):
                 'The 1_year analysis_members task runs only Omega, since the '
                 'ocean analysis reads only Omega output.'
             )
+        section = self.config['analysis_members']
+        self.replacements['dt'] = section.get('dt')
+        self.replacements['btr_dt'] = section.get('btr_dt')
+        if self.duration == 'short':
+            self.replacements['run_duration'] = section.get(
+                'short_run_duration'
+            )
+        else:
+            self.replacements['moc_num_bins'] = section.getint('moc_num_bins')
         super().setup()
         if self.duration == '1_year':
             self.add_yaml_file(
@@ -163,7 +150,6 @@ class Forward(RealisticGlobalForward):
                 yaml='monthly_output.yaml',
                 template_replacements=self.replacements,
             )
-        section = self.config['analysis_members']
         options = {
             'config_mom_del2': section.getfloat('mom_del2'),
             'config_mom_del4': section.getfloat('mom_del4'),
