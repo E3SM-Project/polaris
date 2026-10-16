@@ -168,9 +168,10 @@ that builds a reusable wind-stress product on the native JRA55-do TL319 grid.</p
 <li><p><a class="reference internal" href="#ocean-realistic-global-init"><span class="std std-ref">init</span></a>, which creates mesh-specific ocean initial
 conditions from that hydrography and forcing together with the culled mesh
 from <code class="docutils literal notranslate"><span class="pre">e3sm/init</span></code>.</p></li>
-<li><p><a class="reference internal" href="#ocean-realistic-global-analysis-members"><span class="std std-ref">analysis_members</span></a>, short forward runs on
-realistic global meshes that exercise the global-statistics analysis member
-and compare its output between MPAS-Ocean and Omega.</p></li>
+<li><p><a class="reference internal" href="#ocean-realistic-global-analysis-members"><span class="std std-ref">analysis_members</span></a>, forward runs on realistic
+global meshes that exercise the analysis members: short runs comparing the
+global statistics of MPAS-Ocean and Omega, and one-year Omega runs writing
+what the <a class="reference internal" href="analysis.html#ocean-analysis"><span class="std std-ref">analysis</span></a> tasks read.</p></li>
 <li><p><a class="reference internal" href="#ocean-realistic-global-restart"><span class="std std-ref">restart</span></a>, a short run split across a restart,
 checking that the history output survives the restart intact.</p></li>
 </ul>
@@ -178,7 +179,9 @@ checking that the history output survives the restart intact.</p></li>
 <h2>supported models<a class="headerlink" href="#supported-models" title="Link to this heading"></a></h2>
 <p>The <code class="docutils literal notranslate"><span class="pre">woa23</span></code> and <code class="docutils literal notranslate"><span class="pre">jra55</span></code> tasks are model-independent and do not require either
 MPAS-Ocean or Omega to be built.</p>
-<p>The <code class="docutils literal notranslate"><span class="pre">init</span></code> and <code class="docutils literal notranslate"><span class="pre">analysis_members</span></code> tasks support both MPAS-Ocean and Omega.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">init</span></code> task and the <code class="docutils literal notranslate"><span class="pre">short</span></code> <code class="docutils literal notranslate"><span class="pre">analysis_members</span></code> tasks support both
+MPAS-Ocean and Omega.  The <code class="docutils literal notranslate"><span class="pre">1_year</span></code> tasks support only Omega, since the
+analysis reads only Omega output.</p>
 <p>The <code class="docutils literal notranslate"><span class="pre">restart</span></code> task supports Omega only.  It is a regression test for the way
 Omega writes its history time axis across a restart, and MPAS-Ocean stamps its
 output with <code class="docutils literal notranslate"><span class="pre">xtime</span></code> rather than an elapsed time measured from the start of the
@@ -647,25 +650,30 @@ this task run serially.</p>
 </section>
 <section id="analysis-members">
 <span id="ocean-realistic-global-analysis-members"></span><h2>analysis_members<a class="headerlink" href="#analysis-members" title="Link to this heading"></a></h2>
-<p>These tasks perform a short forward run on a realistic global mesh with the
+<p>These tasks perform a forward run on a realistic global mesh with the
 global-statistics analysis member enabled, then plot time series of the
-resulting statistics.  Their main purpose is to compare the analysis-member
-output of MPAS-Ocean and Omega on the same mesh and initial condition.</p>
-<p>A task is defined for each of two meshes:</p>
+resulting statistics.  There are two runs on each mesh:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">short</span></code> compares the analysis-member output of MPAS-Ocean and Omega on the
+same mesh and initial condition.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">1_year</span></code> runs Omega for a year with its <code class="docutils literal notranslate"><span class="pre">MonthlyAverages</span></code> and <code class="docutils literal notranslate"><span class="pre">MOC</span></code> analysis
+groups on, writing what the <a class="reference internal" href="analysis.html#ocean-analysis"><span class="std std-ref">analysis</span></a> tasks read.  It is meant
+to become a cached step for regression testing the <code class="docutils literal notranslate"><span class="pre">omega_analysis</span></code> suite.</p></li>
+</ul>
 <table class="docutils align-default">
 <thead>
 <tr class="row-odd"><th class="head"><p>mesh</p></th>
 <th class="head"><p>cells</p></th>
 <th class="head"><p>time step</p></th>
 <th class="head"><p>barotropic step</p></th>
-<th class="head"><p>run duration</p></th>
+<th class="head"><p><code class="docutils literal notranslate"><span class="pre">short</span></code> run</p></th>
 </tr>
 </thead>
 <tbody>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">QU.240km</span></code></p></td>
 <td><p>7,153</p></td>
-<td><p>2 h</p></td>
-<td><p>4 min</p></td>
+<td><p>1 h</p></td>
+<td><p>3 min</p></td>
 <td><p>5 days</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">EC30to60E2r2</span></code></p></td>
@@ -677,12 +685,16 @@ output of MPAS-Ocean and Omega on the same mesh and initial condition.</p>
 </tbody>
 </table>
 <p>They can be set up with, e.g.:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>polaris<span class="w"> </span>setup<span class="w"> </span>-t<span class="w"> </span>ocean/spherical/realistic_global/QU.240km/analysis_members_test<span class="w"> </span>...
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>polaris<span class="w"> </span>setup<span class="w"> </span>-t<span class="w"> </span>ocean/spherical/realistic_global/QU.240km/analysis_members/short<span class="w"> </span>...
+polaris<span class="w"> </span>setup<span class="w"> </span>-t<span class="w"> </span>ocean/spherical/realistic_global/QU.240km/analysis_members/1_year<span class="w"> </span>...
 </pre></div>
 </div>
+<p>The <code class="docutils literal notranslate"><span class="pre">QU.240km</span></code> <code class="docutils literal notranslate"><span class="pre">short</span></code> run is in the <code class="docutils literal notranslate"><span class="pre">omega_pr</span></code> suite.  The <code class="docutils literal notranslate"><span class="pre">1_year</span></code> runs are
+in no suite.  The <code class="docutils literal notranslate"><span class="pre">QU.240km</span></code> year takes about 8 minutes on a Chrysalis node,
+and the <code class="docutils literal notranslate"><span class="pre">EC30to60E2r2</span></code> year about 50 minutes on 6 nodes, writing about 40 GB.</p>
 <section id="id17">
 <h3>description<a class="headerlink" href="#id17" title="Link to this heading"></a></h3>
-<p>Each task contains three steps:</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">short</span></code> tasks contain three steps:</p>
 <ol class="arabic simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">forward</span></code> runs the ocean model from a cached initial condition, writing
 both a regular <code class="docutils literal notranslate"><span class="pre">output.nc</span></code> history file and the global statistics produced
@@ -700,6 +712,43 @@ root-mean-square, from which the standard deviation is computed.</p>
 <p>WARNING: As of Omega commit <a class="reference external" href="https://github.com/E3SM-Project/Omega/commit/061d0ab90b2027ac584b997292b3911fa3755af3">061d0ab</a>,
 Omega does not area- or volume-weight the global stats while MPAS-Ocean does.
 Thus, the two models’ stats cannot be directly compared.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">1_year</span></code> tasks contain the <code class="docutils literal notranslate"><span class="pre">forward</span></code> and <code class="docutils literal notranslate"><span class="pre">global_stats</span></code> steps.  The run
+writes, in the <code class="docutils literal notranslate"><span class="pre">forward</span></code> step’s work directory:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">monthly_means_1MonthTimeStats.&lt;year&gt;-&lt;month&gt;.nc</span></code>, the monthly means
+from the <code class="docutils literal notranslate"><span class="pre">MonthlyAverages</span></code> group of conservative temperature, absolute
+salinity, pseudo-thickness, specific volume, the layer-midpoint and
+interface elevations, sea surface height, normal velocity and kinetic
+energy;</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">moc_1MonthTimeStats.&lt;year&gt;-&lt;month&gt;.nc</span></code>, the monthly-mean global
+overturning streamfunction from the <code class="docutils literal notranslate"><span class="pre">MOC</span></code> group, in 60 latitude bins on
+<code class="docutils literal notranslate"><span class="pre">QU.240km</span></code> and Omega’s default of 180 on <code class="docutils literal notranslate"><span class="pre">EC30to60E2r2</span></code>;</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">global_stats_1DayInstants</span></code>, daily global statistics of the state, kinetic
+energy and sea surface height;</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">output/ocn.hist.&lt;year&gt;-&lt;month&gt;.nc</span></code>, a monthly snapshot of the same fields
+as the monthly means, taken at the instant each mean is finalized, as a
+check on the means.</p></li>
+</ul>
+<p>Omega names a time-mean file for the instant it was finalized, the start of
+the following month, so the twelve files covering year 1 are named <code class="docutils literal notranslate"><span class="pre">0001-02</span></code>
+through <code class="docutils literal notranslate"><span class="pre">0002-01</span></code>.  The analysis accounts for this; see <a class="reference internal" href="analysis.html#ocean-analysis"><span class="std std-ref">analysis</span></a>.</p>
+<p>To analyze the run, point the <code class="docutils literal notranslate"><span class="pre">omega_analysis</span></code> suite at the <code class="docutils literal notranslate"><span class="pre">omega.yml</span></code> in
+the <code class="docutils literal notranslate"><span class="pre">forward</span></code> step’s work directory:</p>
+<div class="highlight-cfg notranslate"><div class="highlight"><pre><span></span><span class="k">[ocean_analysis]</span>
+
+<span class="na">omega_config_filename</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&lt;work_dir&gt;/ocean/spherical/realistic_global/&lt;mesh&gt;/analysis_members/1_year/forward/omega.yml</span>
+
+<span class="k">[ocean_analysis_climatology]</span>
+
+<span class="na">start_year</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">1</span>
+<span class="na">end_year</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">1</span>
+
+<span class="k">[ocean_analysis_time_series]</span>
+
+<span class="na">start_year</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">1</span>
+<span class="na">end_year</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">1</span>
+</pre></div>
+</div>
 </section>
 <section id="id18">
 <h3>mesh<a class="headerlink" href="#id18" title="Link to this heading"></a></h3>
@@ -727,13 +776,28 @@ initial velocity) file supplies the mesh and initial state.</p>
 applied through bulk wind stress. Vertical mixing uses CVMix with convection
 and shear mixing enabled, and a constant implicit bottom drag coefficient of
 1.0e-3 is applied.</p>
+<p>The harmonic and biharmonic momentum viscosities are set per mesh by the
+<code class="docutils literal notranslate"><span class="pre">mom_del2</span></code> and <code class="docutils literal notranslate"><span class="pre">mom_del4</span></code> config options, raised from Omega’s defaults of
+1.0e3 m^2/s and 1.2e11 m^4/s to reduce, but not remove, grid-scale noise in
+the velocity.  On <code class="docutils literal notranslate"><span class="pre">QU.240km</span></code>, the biharmonic viscosity is raised to 1.0e15
+m^4/s.  On <code class="docutils literal notranslate"><span class="pre">EC30to60E2r2</span></code>, the harmonic viscosity is raised to 1.0e4 m^2/s,
+since Omega does not scale the biharmonic viscosity with cell width and it
+cannot be raised enough to damp the 60-km cells without going unstable in the
+30-km ones.  These values are provisional until Omega has KPP and the fix to
+its pressure-gradient errors over bathymetry.  These are coarse runs for
+testing the analysis members, not scientifically valid simulations.</p>
 </section>
 <section id="id22">
 <h3>time step and run duration<a class="headerlink" href="#id22" title="Link to this heading"></a></h3>
-<p>The time step and run duration are set per mesh as shown in the table above.
-The forward run uses the split-explicit time stepper (<code class="docutils literal notranslate"><span class="pre">SplitExplicitRK2</span></code> in
-Omega), so each baroclinic step is 30 barotropic substeps long and divides a
-day evenly.  Output, including the global statistics, is written once per day.</p>
+<p>The time steps and the length of the <code class="docutils literal notranslate"><span class="pre">short</span></code> run are set per mesh by the
+<code class="docutils literal notranslate"><span class="pre">dt</span></code>, <code class="docutils literal notranslate"><span class="pre">btr_dt</span></code> and <code class="docutils literal notranslate"><span class="pre">short_run_duration</span></code> config options, as shown in the table
+above.  On <code class="docutils literal notranslate"><span class="pre">QU.240km</span></code> they are E3SM’s values for this mesh.  The
+forward run uses the split-explicit time stepper (<code class="docutils literal notranslate"><span class="pre">SplitExplicitRK2</span></code> in
+Omega).  The <code class="docutils literal notranslate"><span class="pre">short</span></code> run writes output, including the global statistics, once
+per day.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">1_year</span></code> run lasts 365 days from <code class="docutils literal notranslate"><span class="pre">0001-01-01</span></code>, one year on the No Leap
+calendar.  Restarts are written monthly, because Omega requires the restart
+interval to be a multiple of every averaging period.</p>
 </section>
 <section id="id23">
 <h3>config options<a class="headerlink" href="#id23" title="Link to this heading"></a></h3>
@@ -746,8 +810,44 @@ day evenly.  Output, including the global statistics, is written once per day.</
 
 <span class="c1"># Time step duration per kilometer [s]</span>
 <span class="na">dt_per_km</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">3.0</span>
+
+<span class="c1"># options for the analysis_members tasks</span>
+<span class="k">[analysis_members]</span>
+
+<span class="c1"># The fields to plot global statistics for, using MPAS-Ocean (Polaris</span>
+<span class="c1"># standard) names.  Leave this empty, as it is by default, to plot every</span>
+<span class="c1"># field the run wrote statistics for, which is what the models' own default</span>
+<span class="c1"># lists give.  A field the run did not write is skipped with a message, not</span>
+<span class="c1"># an error.</span>
+<span class="na">fields</span><span class="w"> </span><span class="o">=</span>
+
+<span class="c1"># The baroclinic and barotropic time steps: E3SM's MPAS-Ocean values for</span>
+<span class="c1"># oQU240.  A 2-hour step gave a growing surface hotspot along the Aleutians in</span>
+<span class="c1"># a one-year run.</span>
+<span class="na">dt</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">01:00:00</span>
+<span class="na">btr_dt</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">00:03:00</span>
+
+<span class="c1"># The length of the short run.  The 1_year run is always 365 days.</span>
+<span class="na">short_run_duration</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">0005_00:00:00</span>
+
+<span class="c1"># The number of latitude bins of the 1_year run's MOC: three degrees, since</span>
+<span class="c1"># Omega's default of one degree is finer than the mesh</span>
+<span class="na">moc_num_bins</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">60</span>
+
+<span class="c1"># The harmonic momentum viscosity (m^2/s): Omega's default</span>
+<span class="na">mom_del2</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">1.0e3</span>
+
+<span class="c1"># The biharmonic momentum viscosity (m^4/s).  Omega's default of 1.2e11 is</span>
+<span class="c1"># meant for much finer meshes and leaves grid-scale noise in the velocity on</span>
+<span class="c1"># this one.  1.0e15 gave the least of the values tried in one-year runs;</span>
+<span class="c1"># 3.0e15 is unstable with a 1-hour time step.  Some noise remains in the</span>
+<span class="c1"># wind-driven top layer.</span>
+<span class="na">mom_del4</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">1.0e15</span>
 </pre></div>
 </div>
+<p>The time steps, run length, MOC bins and viscosities are for <code class="docutils literal notranslate"><span class="pre">QU.240km</span></code>.  On
+<code class="docutils literal notranslate"><span class="pre">EC30to60E2r2</span></code>, <code class="docutils literal notranslate"><span class="pre">dt</span></code> is 30 minutes, <code class="docutils literal notranslate"><span class="pre">btr_dt</span></code> 1 minute, <code class="docutils literal notranslate"><span class="pre">short_run_duration</span></code>
+1 day, <code class="docutils literal notranslate"><span class="pre">moc_num_bins</span></code> 180, <code class="docutils literal notranslate"><span class="pre">mom_del2</span></code> 1.0e4 and <code class="docutils literal notranslate"><span class="pre">mom_del4</span></code> 1.2e11.</p>
 <p>The <code class="docutils literal notranslate"><span class="pre">viz</span></code> step is controlled by the
 <code class="docutils literal notranslate"><span class="pre">[realistic_global_viz_temperature]</span></code>, <code class="docutils literal notranslate"><span class="pre">[realistic_global_viz_salinity]</span></code>,
 <code class="docutils literal notranslate"><span class="pre">[realistic_global_viz_layerThickness]</span></code>, <code class="docutils literal notranslate"><span class="pre">[realistic_global_viz_windStress]</span></code>

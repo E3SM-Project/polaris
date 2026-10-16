@@ -19,7 +19,7 @@
     <script src="../../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
-    <link rel="next" title="polaris.tasks.ocean.realistic_global.analysis_members.stats_analysis.StatsAnalysis" href="polaris.tasks.ocean.realistic_global.analysis_members.stats_analysis.StatsAnalysis.html" />
+    <link rel="next" title="polaris.tasks.ocean.realistic_global.analysis_members.forward.Forward" href="polaris.tasks.ocean.realistic_global.analysis_members.forward.Forward.html" />
     <link rel="prev" title="polaris.tasks.ocean.realistic_global.forcing.jra55.Jra55VizStep.run" href="polaris.tasks.ocean.realistic_global.forcing.jra55.Jra55VizStep.run.html" />
     <link href="../../../_static/style.css" rel="stylesheet" type="text/css">
 
@@ -141,23 +141,25 @@
 <h1>polaris.tasks.ocean.realistic_global.analysis_members.AnalysisMembers<a class="headerlink" href="#polaris-tasks-ocean-realistic-global-analysis-members-analysismembers" title="Link to this heading"></a></h1>
 <dl class="py class">
 <dt class="sig sig-object py" id="polaris.tasks.ocean.realistic_global.analysis_members.AnalysisMembers">
-<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">polaris.tasks.ocean.realistic_global.analysis_members.</span></span><span class="sig-name descname"><span class="pre">AnalysisMembers</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">component</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">subdir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mesh_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mpaso_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">omega_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ncells</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/polaris/tasks/ocean/realistic_global/analysis_members.html#AnalysisMembers"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#polaris.tasks.ocean.realistic_global.analysis_members.AnalysisMembers" title="Link to this definition"></a></dt>
-<dd><p>A task for exercising the global-statistics analysis member on a
-realistic global mesh.</p>
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">polaris.tasks.ocean.realistic_global.analysis_members.</span></span><span class="sig-name descname"><span class="pre">AnalysisMembers</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">component</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">subdir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mesh_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mpaso_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">omega_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ncells</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">duration</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/polaris/tasks/ocean/realistic_global/analysis_members.html#AnalysisMembers"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#polaris.tasks.ocean.realistic_global.analysis_members.AnalysisMembers" title="Link to this definition"></a></dt>
+<dd><p>A task for exercising the analysis members on a realistic global mesh.</p>
 <p>The task runs the ocean model forward from a cached initial condition
 with the global-statistics analysis member enabled, then plots time
-series of the resulting statistics and global maps of the state
-variables.  Only the <code class="docutils literal notranslate"><span class="pre">forward</span></code> step runs by default.</p>
+series of the resulting statistics.  The <code class="docutils literal notranslate"><span class="pre">short</span></code> run, which supports
+both MPAS-Ocean and Omega, also plots global maps of the state
+variables.  The <code class="docutils literal notranslate"><span class="pre">1_year</span></code> run supports only Omega and also writes the
+monthly means and overturning streamfunction the ocean analysis reads.
+Only the <code class="docutils literal notranslate"><span class="pre">forward</span></code> step runs by default.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="polaris.tasks.ocean.realistic_global.analysis_members.AnalysisMembers.__init__">
-<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">component</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">subdir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mesh_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mpaso_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">omega_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ncells</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/polaris/tasks/ocean/realistic_global/analysis_members.html#AnalysisMembers.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#polaris.tasks.ocean.realistic_global.analysis_members.AnalysisMembers.__init__" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">component</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">subdir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mesh_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mpaso_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">omega_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ncells</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">duration</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/polaris/tasks/ocean/realistic_global/analysis_members.html#AnalysisMembers.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#polaris.tasks.ocean.realistic_global.analysis_members.AnalysisMembers.__init__" title="Link to this definition"></a></dt>
 <dd><p>Create the test case</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>component</strong> (<a class="reference internal" href="polaris.tasks.ocean.Ocean.html#polaris.tasks.ocean.Ocean" title="polaris.tasks.ocean.Ocean"><em>polaris.tasks.ocean.Ocean</em></a>) – The ocean component that this task belongs to</p></li>
-<li><p><strong>subdir</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><em>str</em></a>) – The subdirectory for the task, to which
-<code class="docutils literal notranslate"><span class="pre">analysis_members_test</span></code> will be appended</p></li>
+<li><p><strong>subdir</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><em>str</em></a>) – The subdirectory for the mesh, to which
+<code class="docutils literal notranslate"><span class="pre">analysis_members/&lt;duration&gt;</span></code> will be appended</p></li>
 <li><p><strong>mesh_name</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><em>str</em></a>) – The name of the mesh (e.g. <code class="docutils literal notranslate"><span class="pre">QU.240km</span></code>)</p></li>
 <li><p><strong>mpaso_id</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.15)"><em>int</em></a>) – The ID of the MPAS-Ocean initial condition in the Polaris input
 database</p></li>
@@ -165,6 +167,7 @@ database</p></li>
 database</p></li>
 <li><p><strong>ncells</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.15)"><em>int</em></a>) – The approximate number of cells in the mesh, used to constrain
 resources</p></li>
+<li><p><strong>duration</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><em>str</em></a>) – The duration of the run, one of <code class="docutils literal notranslate"><span class="pre">DURATIONS</span></code></p></li>
 </ul>
 </dd>
 </dl>
@@ -199,7 +202,7 @@ resources</p></li>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
         <a href="polaris.tasks.ocean.realistic_global.forcing.jra55.Jra55VizStep.run.html" class="btn btn-neutral float-left" title="polaris.tasks.ocean.realistic_global.forcing.jra55.Jra55VizStep.run" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="polaris.tasks.ocean.realistic_global.analysis_members.stats_analysis.StatsAnalysis.html" class="btn btn-neutral float-right" title="polaris.tasks.ocean.realistic_global.analysis_members.stats_analysis.StatsAnalysis" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="polaris.tasks.ocean.realistic_global.analysis_members.forward.Forward.html" class="btn btn-neutral float-right" title="polaris.tasks.ocean.realistic_global.analysis_members.forward.Forward" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>

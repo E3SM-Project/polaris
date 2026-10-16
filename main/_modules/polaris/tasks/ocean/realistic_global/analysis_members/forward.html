@@ -1,0 +1,359 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>polaris.tasks.ocean.realistic_global.analysis_members.forward</title>
+      <link rel="stylesheet" type="text/css" href="../../../../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../../../../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../../../../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../../../../_static/documentation_options.js?v=a8da1a53"></script>
+      <script src="../../../../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../../../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../../../search.html" />
+    <link href="../../../../../../_static/style.css" rel="stylesheet" type="text/css">
+
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../../../../index.html" class="icon icon-home">
+            Polaris
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">User's guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../users_guide/quick_start.html">Quick Start for Users</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../users_guide/tasks.html">Tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../users_guide/config_files.html">Config Files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../users_guide/suites.html">Suites</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../users_guide/mesh/index.html">Mesh component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../users_guide/e3sm/init/index.html">E3SM Initial Condition Component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../users_guide/ocean/index.html">Ocean component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../users_guide/seaice/index.html">Sea ice component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../users_guide/machines/index.html">Machines</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Developer's guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../developers_guide/quick_start.html">Quick Start for Developers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../developers_guide/overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../developers_guide/command_line.html">Command-line interface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../developers_guide/organization/index.html">Organization of Tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../developers_guide/e3sm/init/index.html">E3SM initial condition (e3sm/init) component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../developers_guide/mesh/index.html">Mesh component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../developers_guide/ocean/index.html">Ocean component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../developers_guide/seaice/index.html">Sea ice component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../developers_guide/framework/index.html">Framework</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../developers_guide/machines/index.html">Machines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../developers_guide/benchmarking.html">Benchmarking a branch against a baseline</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../developers_guide/troubleshooting.html">Troubleshooting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../developers_guide/docs.html">Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../developers_guide/building_docs.html">Building the Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../developers_guide/building_docs.html#previewing-the-documentation">Previewing the Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../developers_guide/conda_vs_spack.html">How Conda and Spack Work Together in Polaris</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../developers_guide/updating_conda.html">Updating Deployment Dependencies</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../developers_guide/updating_spack/index.html">Updating Shared Spack Environments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../developers_guide/api.html">API reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../design_docs/index.html">Design Documents</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../tutorials/dev_add_category_of_tasks/index.html">Developer Tutorial: Adding a New Category of Tasks</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Glossary</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../glossary.html">Glossary</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../../../index.html">Polaris</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../../../../index.html">Module code</a></li>
+          <li class="breadcrumb-item"><a href="../../../ocean.html">polaris.tasks.ocean</a></li>
+          <li class="breadcrumb-item"><a href="../../realistic_global.html">polaris.tasks.ocean.realistic_global</a></li>
+          <li class="breadcrumb-item"><a href="../analysis_members.html">polaris.tasks.ocean.realistic_global.analysis_members</a></li>
+      <li class="breadcrumb-item active">polaris.tasks.ocean.realistic_global.analysis_members.forward</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for polaris.tasks.ocean.realistic_global.analysis_members.forward</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span><span class="w"> </span><span class="nn">polaris.tasks.ocean.realistic_global.forward</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">Forward</span> <span class="k">as</span> <span class="n">RealisticGlobalForward</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="c1">#: The durations of the runs: a ``short`` one whose length is set per mesh,</span>
+<span class="c1">#: and a ``1_year`` one that writes the monthly output the ocean analysis</span>
+<span class="c1">#: reads</span>
+<span class="n">DURATIONS</span> <span class="o">=</span> <span class="p">[</span><span class="s1">'short'</span><span class="p">,</span> <span class="s1">'1_year'</span><span class="p">]</span>
+
+<span class="c1"># The one-year run starts on 0001-01-01, so the first monthly file is written</span>
+<span class="c1"># at the start of February.  Omega names a file for the time it is written,</span>
+<span class="c1"># which for a time mean is the end of the month it averages</span>
+<span class="c1"># (E3SM-Project/Omega#554), so the twelve files covering year 1 are named</span>
+<span class="c1"># 0001-02 through 0002-01.  The monthly snapshots are named the same way, for</span>
+<span class="c1"># the instant they are taken.</span>
+<span class="n">START_YEAR</span> <span class="o">=</span> <span class="mi">1</span>
+<span class="n">MONTHS</span> <span class="o">=</span> <span class="mi">12</span>
+
+
+<div class="viewcode-block" id="Forward">
+<a class="viewcode-back" href="../../../../../../developers_guide/ocean/generated/polaris.tasks.ocean.realistic_global.analysis_members.forward.Forward.html#polaris.tasks.ocean.realistic_global.analysis_members.forward.Forward">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">Forward</span><span class="p">(</span><span class="n">RealisticGlobalForward</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    A forward run for the ``analysis_members`` tasks, with the time steps</span>
+<span class="sd">    and momentum viscosities of its mesh</span>
+
+<span class="sd">    The ``short`` run writes daily output and global statistics.  The</span>
+<span class="sd">    ``1_year`` run layers ``monthly_output.yaml`` over the shared</span>
+<span class="sd">    ``realistic_global`` yaml file, replacing the ``History`` stream with</span>
+<span class="sd">    monthly snapshots, turning on the ``MonthlyAverages`` and ``MOC``</span>
+<span class="sd">    analysis groups and writing restarts monthly, which Omega requires of a</span>
+<span class="sd">    run with a monthly reduction.  It supports only Omega, since the ocean</span>
+<span class="sd">    analysis reads only Omega output.</span>
+
+<span class="sd">    Attributes</span>
+<span class="sd">    ----------</span>
+<span class="sd">    duration : str</span>
+<span class="sd">        The duration of the run, one of ``DURATIONS``</span>
+<span class="sd">    """</span>
+
+<div class="viewcode-block" id="Forward.__init__">
+<a class="viewcode-back" href="../../../../../../developers_guide/ocean/generated/polaris.tasks.ocean.realistic_global.analysis_members.forward.Forward.html#polaris.tasks.ocean.realistic_global.analysis_members.forward.Forward.__init__">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">component</span><span class="p">,</span>
+        <span class="n">indir</span><span class="p">,</span>
+        <span class="n">mesh_name</span><span class="p">,</span>
+        <span class="n">mpaso_id</span><span class="p">,</span>
+        <span class="n">omega_id</span><span class="p">,</span>
+        <span class="n">ncells</span><span class="p">,</span>
+        <span class="n">duration</span><span class="p">,</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">        Create the step</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        component : polaris.Component</span>
+<span class="sd">            The component the step belongs to</span>
+
+<span class="sd">        indir : str</span>
+<span class="sd">            The directory the step goes in</span>
+
+<span class="sd">        mesh_name : str</span>
+<span class="sd">            The name of the mesh, e.g. ``'QU.240km'``</span>
+
+<span class="sd">        mpaso_id : int</span>
+<span class="sd">            The ID of the MPAS-Ocean initial condition in the Polaris input</span>
+<span class="sd">            database</span>
+
+<span class="sd">        omega_id : int</span>
+<span class="sd">            The ID of the Omega initial condition in the Polaris input</span>
+<span class="sd">            database</span>
+
+<span class="sd">        ncells : int</span>
+<span class="sd">            The approximate number of cells in the mesh, used to constrain</span>
+<span class="sd">            resources</span>
+
+<span class="sd">        duration : str</span>
+<span class="sd">            The duration of the run, one of ``DURATIONS``</span>
+<span class="sd">        """</span>
+        <span class="c1"># the time steps, the short run's duration and the MOC bins come</span>
+        <span class="c1"># from the per-mesh config options in setup()</span>
+        <span class="n">replacements</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">'time_integrator'</span><span class="p">:</span> <span class="s1">'SplitExplicitRK2'</span><span class="p">,</span>
+            <span class="s1">'output_interval'</span><span class="p">:</span> <span class="s1">'0001_00:00:00'</span><span class="p">,</span>
+            <span class="s1">'output_freq'</span><span class="p">:</span> <span class="s1">'1'</span><span class="p">,</span>
+        <span class="p">}</span>
+        <span class="k">if</span> <span class="n">duration</span> <span class="o">==</span> <span class="s1">'short'</span><span class="p">:</span>
+            <span class="n">replacements</span><span class="p">[</span><span class="s1">'output_freq_units'</span><span class="p">]</span> <span class="o">=</span> <span class="s1">'days'</span>
+            <span class="n">output_filenames</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">elif</span> <span class="n">duration</span> <span class="o">==</span> <span class="s1">'1_year'</span><span class="p">:</span>
+            <span class="c1"># Omega's TimeInterval parser understands only DDDD_HH:MM:SS, so</span>
+            <span class="c1"># the duration is given in days: 365 on the No Leap calendar</span>
+            <span class="n">replacements</span><span class="p">[</span><span class="s1">'run_duration'</span><span class="p">]</span> <span class="o">=</span> <span class="s1">'0365_00:00:00'</span>
+            <span class="n">replacements</span><span class="p">[</span><span class="s1">'output_freq_units'</span><span class="p">]</span> <span class="o">=</span> <span class="s1">'months'</span>
+            <span class="c1"># every monthly file is declared as an output so that a run</span>
+            <span class="c1"># whose analysis groups did not write is reported as a missing</span>
+            <span class="c1"># output rather than found later by the analysis</span>
+            <span class="n">output_filenames</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">template</span> <span class="ow">in</span> <span class="p">[</span>
+                <span class="s1">'output/ocn.hist.</span><span class="si">{year:04d}</span><span class="s1">-</span><span class="si">{month:02d}</span><span class="s1">.nc'</span><span class="p">,</span>
+                <span class="s1">'monthly_means_1MonthTimeStats.</span><span class="si">{year:04d}</span><span class="s1">-</span><span class="si">{month:02d}</span><span class="s1">.nc'</span><span class="p">,</span>
+                <span class="s1">'moc_1MonthTimeStats.</span><span class="si">{year:04d}</span><span class="s1">-</span><span class="si">{month:02d}</span><span class="s1">.nc'</span><span class="p">,</span>
+            <span class="p">]:</span>
+                <span class="n">output_filenames</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">_monthly_filenames</span><span class="p">(</span><span class="n">template</span><span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s1">'Unexpected duration </span><span class="si">{</span><span class="n">duration</span><span class="si">}</span><span class="s1">'</span><span class="p">)</span>
+
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
+            <span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span>
+            <span class="n">package</span><span class="o">=</span><span class="s1">'polaris.tasks.ocean.realistic_global'</span><span class="p">,</span>
+            <span class="n">indir</span><span class="o">=</span><span class="n">indir</span><span class="p">,</span>
+            <span class="n">mesh_name</span><span class="o">=</span><span class="n">mesh_name</span><span class="p">,</span>
+            <span class="n">mpaso_id</span><span class="o">=</span><span class="n">mpaso_id</span><span class="p">,</span>
+            <span class="n">omega_id</span><span class="o">=</span><span class="n">omega_id</span><span class="p">,</span>
+            <span class="n">ncells</span><span class="o">=</span><span class="n">ncells</span><span class="p">,</span>
+            <span class="n">replacements</span><span class="o">=</span><span class="n">replacements</span><span class="p">,</span>
+            <span class="n">output_filenames</span><span class="o">=</span><span class="n">output_filenames</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">duration</span> <span class="o">=</span> <span class="n">duration</span>
+        <span class="k">if</span> <span class="n">duration</span> <span class="o">==</span> <span class="s1">'1_year'</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">stream_dirs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">'output'</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Forward.setup">
+<a class="viewcode-back" href="../../../../../../developers_guide/ocean/generated/polaris.tasks.ocean.realistic_global.analysis_members.forward.Forward.setup.html#polaris.tasks.ocean.realistic_global.analysis_members.forward.Forward.setup">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">setup</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">        Fill in the per-mesh time steps, the short run's duration and the</span>
+<span class="sd">        MOC bins from the config options, add the monthly output of the</span>
+<span class="sd">        one-year run over the shared yaml file, then the per-mesh momentum</span>
+<span class="sd">        viscosities</span>
+<span class="sd">        """</span>
+        <span class="k">if</span> <span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">duration</span> <span class="o">==</span> <span class="s1">'1_year'</span>
+            <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'ocean'</span><span class="p">,</span> <span class="s1">'model'</span><span class="p">)</span> <span class="o">!=</span> <span class="s1">'omega'</span>
+        <span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s1">'The 1_year analysis_members task runs only Omega, since the '</span>
+                <span class="s1">'ocean analysis reads only Omega output.'</span>
+            <span class="p">)</span>
+        <span class="n">section</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s1">'analysis_members'</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">replacements</span><span class="p">[</span><span class="s1">'dt'</span><span class="p">]</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'dt'</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">replacements</span><span class="p">[</span><span class="s1">'btr_dt'</span><span class="p">]</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'btr_dt'</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">duration</span> <span class="o">==</span> <span class="s1">'short'</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">replacements</span><span class="p">[</span><span class="s1">'run_duration'</span><span class="p">]</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
+                <span class="s1">'short_run_duration'</span>
+            <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">replacements</span><span class="p">[</span><span class="s1">'moc_num_bins'</span><span class="p">]</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getint</span><span class="p">(</span><span class="s1">'moc_num_bins'</span><span class="p">)</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">setup</span><span class="p">()</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">duration</span> <span class="o">==</span> <span class="s1">'1_year'</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">add_yaml_file</span><span class="p">(</span>
+                <span class="n">package</span><span class="o">=</span><span class="s1">'polaris.tasks.ocean.realistic_global.'</span>
+                <span class="s1">'analysis_members'</span><span class="p">,</span>
+                <span class="n">yaml</span><span class="o">=</span><span class="s1">'monthly_output.yaml'</span><span class="p">,</span>
+                <span class="n">template_replacements</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">replacements</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="n">options</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">'config_mom_del2'</span><span class="p">:</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">'mom_del2'</span><span class="p">),</span>
+            <span class="s1">'config_mom_del4'</span><span class="p">:</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">'mom_del4'</span><span class="p">),</span>
+        <span class="p">}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_model_config_options</span><span class="p">(</span><span class="n">options</span><span class="o">=</span><span class="n">options</span><span class="p">,</span> <span class="n">config_model</span><span class="o">=</span><span class="s1">'ocean'</span><span class="p">)</span></div>
+</div>
+
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_monthly_filenames</span><span class="p">(</span><span class="n">template</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Get the names of the monthly files the one-year run writes, which are</span>
+<span class="sd">    named for the month after the one they cover; see the note on</span>
+<span class="sd">    ``START_YEAR``</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    template : str</span>
+<span class="sd">        The file name, with ``{year}`` and ``{month}`` in it</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    filenames : list of str</span>
+<span class="sd">        The file names, relative to the step's work directory</span>
+<span class="sd">    """</span>
+    <span class="n">year</span> <span class="o">=</span> <span class="n">START_YEAR</span>
+    <span class="n">month</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="n">filenames</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">MONTHS</span><span class="p">):</span>
+        <span class="n">month</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="k">if</span> <span class="n">month</span> <span class="o">&gt;</span> <span class="mi">12</span><span class="p">:</span>
+            <span class="n">month</span> <span class="o">=</span> <span class="mi">1</span>
+            <span class="n">year</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="n">filenames</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">template</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">year</span><span class="o">=</span><span class="n">year</span><span class="p">,</span> <span class="n">month</span><span class="o">=</span><span class="n">month</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">filenames</span>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2026, Energy Exascale Earth System Model Project.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+   
+
+  <!-- Meta tags for JS to use -->
+  <meta name="doc-version" content="main">
+  <meta name="doc-site-root" content="../../../../../../">
+
+  <!-- Create version switcher container -->
+  <script>
+    const sidebar = document.querySelector('.wy-side-nav-search');
+    if (sidebar) {
+      const versionDiv = document.createElement('div');
+      versionDiv.id = 'version-switcher';
+      versionDiv.style.marginTop = '1em';
+      sidebar.appendChild(versionDiv);
+    }
+  </script>
+
+  <!-- Load version-switcher.js using the correct relative path -->
+  <script src="../../../../../../../shared/version-switcher.js"></script>
+
+
+</body>
+</html>
