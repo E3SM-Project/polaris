@@ -292,8 +292,7 @@ class _PlotHelper:
 
 def _use_isomip_coords(ds_mesh):
     """
-    Use the ISOMIP+ x and y coordinates as the mesh coordinates so planar and
-    spherical meshes are plotted the same way
+    Use the ISOMIP+ x and y coordinates as the mesh coordinates for plotting
     """
     ds_mesh = ds_mesh.copy()
     ds_mesh['xCell'] = ds_mesh.xIsomipCell

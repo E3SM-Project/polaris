@@ -2,9 +2,6 @@ import os
 from typing import (
     Dict as Dict,
 )
-from typing import (
-    Union as Union,
-)
 
 from polaris import Step as Step
 from polaris.config import PolarisConfigParser as PolarisConfigParser
@@ -18,9 +15,6 @@ from polaris.tasks.ocean.isomip_plus.mesh import (
 from polaris.tasks.ocean.isomip_plus.mesh import (
     PlanarMesh as PlanarMesh,
 )
-from polaris.tasks.ocean.isomip_plus.mesh import (
-    SphericalMesh as SphericalMesh,
-)
 from polaris.tasks.ocean.isomip_plus.topo import (
     TopoMap as TopoMap,
 )
@@ -32,32 +26,19 @@ from polaris.tasks.ocean.isomip_plus.topo import (
 )
 
 
-def add_isomip_plus_tasks(component, mesh_type):
+def add_isomip_plus_tasks(component):
     """
     Add ISOMIP+ tasks to the ocean component
 
     component : polaris.tasks.ocean.Ocean
         the ocean component that the tasks will be added to
-
-    mesh_type : {'planar', 'spherical'}
-        The type of mesh
     """
-    planar = mesh_type == 'planar'
     for resolution in [4.0, 2.0, 1.0]:
         mesh_name = resolution_to_string(resolution)
-        resdir = f'{mesh_type}/isomip_plus/{mesh_name}'
+        resdir = f'planar/isomip_plus/{mesh_name}'
 
         filepath = os.path.join(component.name, resdir, 'isomip_plus_topo.cfg')
         topo_config = PolarisConfigParser(filepath=filepath)
-        if not planar:
-            topo_config.add_from_package(
-                'polaris.mesh.spherical', 'spherical.cfg'
-            )
-            topo_config.set(
-                'spherical_mesh',
-                'mpas_mesh_filename',
-                'base_mesh_without_xy.nc',
-            )
 
         topo_config.add_from_package('polaris.remap', 'mapping.cfg')
 
@@ -66,7 +47,7 @@ def add_isomip_plus_tasks(component, mesh_type):
         )
 
         shared_steps = _get_shared_steps(
-            mesh_type, resolution, mesh_name, resdir, component, topo_config
+            resolution, mesh_name, resdir, component, topo_config
         )
 
         for experiment in [
@@ -87,7 +68,6 @@ def add_isomip_plus_tasks(component, mesh_type):
                     resolution=resolution,
                     experiment=experiment,
                     vertical_coordinate=vertical_coordinate,
-                    planar=planar,
                     shared_steps=shared_steps[experiment],
                     config=config,
                 )
@@ -114,28 +94,16 @@ def _get_task_config(component, resdir, vertical_coordinate, experiment):
     return config
 
 
-def _get_shared_steps(
-    mesh_type, resolution, mesh_name, resdir, component, config
-):
+def _get_shared_steps(resolution, mesh_name, resdir, component, config):
     """Get the shared steps for adding to tasks"""
 
     subdir = f'{resdir}/base_mesh'
-    base_mesh: Union[PlanarMesh, SphericalMesh, None] = None
-    if mesh_type == 'planar':
-        base_mesh = PlanarMesh(
-            component=component,
-            resolution=resolution,
-            subdir=subdir,
-            config=config,
-        )
-    else:
-        base_mesh = SphericalMesh(
-            component=component,
-            cell_width=resolution,
-            subdir=subdir,
-            mesh_name=mesh_name,
-        )
-        base_mesh.set_shared_config(config, link='isomip_plus_topo.cfg')
+    base_mesh = PlanarMesh(
+        component=component,
+        resolution=resolution,
+        subdir=subdir,
+        config=config,
+    )
 
     subdir = f'{resdir}/topo/map_base'
     # we remap the topography onto the base mesh without smoothing the
