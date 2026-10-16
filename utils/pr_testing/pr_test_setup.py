@@ -636,9 +636,9 @@ def get_baseline(
         if _finished(work_dir, suite):
             # This utility set the baseline up, from a checkout whose
             # tracked files were checked, so a finished run is used even if
-            # some of its tasks failed or the checkout's submodules were not
-            # at their pins, which the stricter test for reusing a run
-            # rejects.  The report gives each task's comparison.
+            # the checkout's submodules were not at their pins, which the
+            # stricter test for reusing a run rejects.  The report gives
+            # each task's comparison.
             return Baseline(work_dir, reused=False)
         reasons = check_baseline(work_dir, criteria)
         raise SetupError(
