@@ -12,7 +12,7 @@ from pyremap import ProjectionGridDescriptor, get_lat_lon_descriptor
 
 from polaris.archive import extract_zip_member
 from polaris.attrs import set_attrs
-from polaris.cf import add_cf_conventions
+from polaris.cf import add_cf_conventions, drop_dangling_references
 from polaris.e3sm.init.topo import format_lat_lon_resolution_name
 from polaris.step import Step
 
@@ -340,6 +340,7 @@ class CombineStep(Step):
             filename=self.combined_filename,
             validate_vars=COMBINE_TOPO_VALIDATE_VARS,
         )
+        self.add_cf_check(self.combined_filename)
         if self.exodus_filename is not None:
             self.add_output_file(filename=self.exodus_filename)
 
@@ -928,8 +929,9 @@ class CombineStep(Step):
 
         _label_combined_fields(combined)
 
-        # Save combined bathy to NetCDF
-        combined = add_cf_conventions(combined)
+        # Save combined bathy to NetCDF.  The lat and lon bounds of the
+        # source grids do not come along.
+        combined = add_cf_conventions(drop_dangling_references(combined))
         _write_netcdf_with_fill_values(combined, netcdf4_filename)
 
         # writing directly in NETCDF3_64BIT_DATA proved prohibitively slow

@@ -2,6 +2,11 @@ import os
 
 import xarray as xr
 
+from polaris.cf import (
+    add_cf_conventions,
+    add_lat_lon_attrs,
+    drop_dangling_references,
+)
 from polaris.mesh.spherical.coastline import (
     COASTLINE_VALIDATE_VARS,
     CONVENTIONS,
@@ -71,6 +76,7 @@ class ComputeCoastlineStep(Step):
             self.add_output_file(
                 filename=filename, validate_vars=COASTLINE_VALIDATE_VARS
             )
+            self.add_cf_check(filename)
 
     def run(self):
         """
@@ -105,6 +111,9 @@ class ComputeCoastlineStep(Step):
             )
             ds_coastline.attrs['source_topography_step'] = (
                 self.combine_step.subdir
+            )
+            ds_coastline = add_cf_conventions(
+                add_lat_lon_attrs(drop_dangling_references(ds_coastline))
             )
             _write_netcdf_with_fill_values(
                 ds_coastline, self.output_filenames[convention]

@@ -3,6 +3,7 @@ import xarray as xr
 from mpas_tools.io import write_netcdf
 
 from polaris import Step
+from polaris.cf import add_cf_conventions
 
 JRA55_STRESS_FILENAME = 'jra55_stress.nc'
 
@@ -53,6 +54,7 @@ class Jra55StressStep(Step):
             min_tasks=1,
         )
         self.add_output_file(filename=JRA55_STRESS_FILENAME)
+        self.add_cf_check(JRA55_STRESS_FILENAME)
         # The reduction itself is quick, but it needs ~3.5 GiB of raw winds
         # that would otherwise have to be downloaded on every machine, so
         # the product is cached and this step reads it from the cache
@@ -152,7 +154,7 @@ class Jra55StressStep(Step):
             'stress computed at each 3-hourly step, then time-averaged'
         )
 
-        write_netcdf(ds_out, JRA55_STRESS_FILENAME)
+        write_netcdf(add_cf_conventions(ds_out), JRA55_STRESS_FILENAME)
         logger.info(f'Wrote {JRA55_STRESS_FILENAME}')
 
     def _accumulate_stress(

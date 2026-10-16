@@ -4,6 +4,7 @@ import xarray as xr
 from mpas_tools.io import write_netcdf
 
 from polaris import Step
+from polaris.cf import add_cf_conventions, drop_dangling_references
 
 
 class CombineStep(Step):
@@ -31,6 +32,7 @@ class CombineStep(Step):
             min_tasks=1,
         )
         self.add_output_file(filename='woa_combined.nc')
+        self.add_cf_check('woa_combined.nc')
         # this is an expensive step so cache it by default
         self.default_cached = True
 
@@ -111,6 +113,8 @@ class CombineStep(Step):
                     ds_out[var_name].attrs = ds_ann[var_name].attrs
 
         ds_out = self._to_canonical_teos10(ds_out)
+        # the WOA23 files' grid_mapping names a crs variable not copied here
+        ds_out = add_cf_conventions(drop_dangling_references(ds_out))
         write_netcdf(ds_out, 'woa_combined.nc')
         logger.info('Wrote woa_combined.nc')
 

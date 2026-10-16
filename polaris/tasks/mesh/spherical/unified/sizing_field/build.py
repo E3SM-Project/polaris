@@ -4,6 +4,7 @@ import numpy as np
 import xarray as xr
 from geometric_features import GeometricFeatures
 
+from polaris.cf import add_cf_conventions, add_lat_lon_attrs
 from polaris.mesh.spherical.coastline import (
     rasterize_critical_transects,
     signed_distance_from_ocean_mask,
@@ -149,6 +150,7 @@ class BuildSizingFieldStep(Step):
             filename=self.sizing_field_filename,
             validate_vars=validate_vars,
         )
+        self.add_cf_check(self.sizing_field_filename)
 
     def run(self):
         """
@@ -222,6 +224,7 @@ class BuildSizingFieldStep(Step):
 
         ds_sizing.attrs['source_coastline_step'] = self.coastline_step.subdir
         ds_sizing.attrs['source_river_step'] = self.river_step.subdir
+        ds_sizing = add_cf_conventions(add_lat_lon_attrs(ds_sizing))
         ds_sizing.to_netcdf(self.sizing_field_filename)
 
     def _apply_cull_emulation(
