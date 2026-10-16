@@ -138,6 +138,7 @@ class SphericalBaseStep(Step):
         for option, variables in validate_vars.items():
             filename = section.get(option)
             self.add_output_file(filename=filename, validate_vars=variables)
+        self.add_cf_check(section.get('mpas_mesh_filename'))
         if section.getboolean('generate_reconstruction_weights'):
             filename = section.get('reconstruction_weights_filename')
             self.add_output_file(
@@ -146,6 +147,7 @@ class SphericalBaseStep(Step):
                     location='cell'
                 ),
             )
+            self.add_cf_check(filename)
         self.add_output_file(filename='graph.info')
 
     def run(self):

@@ -57,6 +57,7 @@ class RemapWoa23Step(Step):
         self.woa23_map_step = woa23_map_step
         self.add_dependency(woa23_map_step, name='woa23_map')
         self.add_output_file('woa23_on_mesh.nc')
+        self.add_cf_check('woa23_on_mesh.nc')
 
     def setup(self):
         """

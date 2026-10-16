@@ -91,6 +91,7 @@ class RealisticPStarInitStep(PStarInitStep):
             'pstar_init.nc',
             validate_vars=['ZTildeMid', 'SpecVol', 'temperature', 'salinity'],
         )
+        self.add_cf_check('pstar_init.nc')
 
     def setup(self):
         """

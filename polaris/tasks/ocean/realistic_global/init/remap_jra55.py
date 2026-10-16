@@ -82,6 +82,7 @@ class RemapJra55Step(Step):
         self.cull_mesh_step = cull_mesh_step
         self.add_dependency(jra55_map_step, name='jra55_map')
         self.add_output_file(JRA55_ON_MESH_FILENAME)
+        self.add_cf_check(JRA55_ON_MESH_FILENAME)
 
     def setup(self):
         """
