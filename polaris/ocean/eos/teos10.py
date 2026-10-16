@@ -27,7 +27,7 @@ TRACER_ATTRS = {
         },
         'salinity': {
             'long_name': 'practical salinity',
-            'units': 'PSU',
+            'units': '1',
         },
     },
 }

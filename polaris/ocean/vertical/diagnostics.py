@@ -293,7 +293,9 @@ def vert_pseudo_velocity_from_ds(
     velocity = ds[src_var_name]
     spec_vol_interface = _spec_vol_at_interfaces(ds, ds_vert)
     pseudo_velocity = velocity / (RhoSw * spec_vol_interface)
-    return pseudo_velocity.transpose(*velocity.dims)
+    # xarray carries the geometric velocity's long_name over, so drop the
+    # attributes rather than label a pseudo-velocity as a geometric one
+    return pseudo_velocity.transpose(*velocity.dims).drop_attrs()
 
 
 def get_z_mid_and_interface(ds, allow_reconstruct=False, ds_vert=None):
@@ -540,7 +542,9 @@ def compute_zint_zmid_from_layer_thickness(
         min_level_cell=min_level_cell,
         max_level_cell=max_level_cell,
     )
-    return z_interface, z_mid
+    # both are computed from layer_thickness and bottom_depth, so drop the
+    # attributes xarray carries over from them
+    return z_interface.drop_attrs(), z_mid.drop_attrs()
 
 
 def _z_from_thickness(

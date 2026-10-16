@@ -5,6 +5,7 @@ import xarray as xr
 from mpas_tools.mesh.interpolation import interp_bilin
 from shapely.geometry import LineString
 
+from polaris.cf import add_cf_conventions, add_lat_lon_attrs
 from polaris.mesh.spherical.unified.river.geojson import (
     read_geojson,
     write_geojson,
@@ -79,6 +80,7 @@ class ClipRiverNetworkStep(Step):
             filename=self.masks_filename,
             validate_vars=RIVER_NETWORK_VALIDATE_VARS,
         )
+        self.add_cf_check(self.masks_filename)
 
     def run(self):
         """
@@ -133,6 +135,7 @@ class ClipRiverNetworkStep(Step):
         clipped_fc['metadata'] = metadata
         ds_river.attrs.update(metadata)
         write_geojson(clipped_fc, self.clipped_filename)
+        ds_river = add_cf_conventions(add_lat_lon_attrs(ds_river))
         ds_river.to_netcdf(self.masks_filename)
 
 

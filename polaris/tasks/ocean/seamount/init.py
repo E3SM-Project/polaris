@@ -78,15 +78,17 @@ class Init(OceanIOStep):
         y_mid_global = (ds.yCell.max() - ds.yCell.min()) / 2.0 + ds.yCell.min()
         # Set bottomDepth.
         # See Beckmann and Haidvogel 1993 eqn 12, Shchepetkin 2003 eqn 4.2
+        x_cell = ds.xCell.drop_attrs()
+        y_cell = ds.yCell.drop_attrs()
         radius = np.sqrt(
-            (ds.xCell - x_mid_global) ** 2 + (ds.yCell - y_mid_global) ** 2
+            (x_cell - x_mid_global) ** 2 + (y_cell - y_mid_global) ** 2
         )
         ds['bottomDepth'] = max_bottom_depth - seamount_height * np.exp(
             -(radius**2) / seamount_width**2
         )
 
         # ssh is zero
-        ds['ssh'] = xr.zeros_like(ds.xCell)
+        ds['ssh'] = xr.zeros_like(ds.xCell).drop_attrs()
 
         init_vertical_coord(config, ds)
 

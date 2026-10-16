@@ -3,6 +3,7 @@ import os
 import numpy as np
 import xarray as xr
 
+from polaris.cf import add_cf_conventions, add_lat_lon_attrs
 from polaris.mesh.spherical.unified.river.distance import (
     haversine_distance,
 )
@@ -75,6 +76,7 @@ class RasterizeRiverLatLonStep(Step):
             filename=self.masks_filename,
             validate_vars=RIVER_NETWORK_VALIDATE_VARS,
         )
+        self.add_cf_check(self.masks_filename)
 
     def run(self):
         """
@@ -102,6 +104,7 @@ class RasterizeRiverLatLonStep(Step):
         ds_river.attrs['antarctic_boundary_convention'] = self.config.get(
             'spherical_mesh', 'antarctic_boundary_convention'
         )
+        ds_river = add_cf_conventions(add_lat_lon_attrs(ds_river))
         ds_river.to_netcdf(self.masks_filename)
 
 

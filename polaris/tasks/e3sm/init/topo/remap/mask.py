@@ -4,6 +4,7 @@ import xarray as xr
 
 from polaris import Step
 from polaris.attrs import set_attrs
+from polaris.cf import add_cf_conventions, drop_dangling_references
 from polaris.mesh.spherical.coastline import CONVENTIONS
 from polaris.tasks.e3sm.init.topo.combine.step import (
     COMBINE_TOPO_VALIDATE_VARS,
@@ -65,6 +66,7 @@ class MaskTopoStep(Step):
             filename='topography_masked.nc',
             validate_vars=get_masked_topo_validate_vars(),
         )
+        self.add_cf_check('topography_masked.nc')
 
     def setup(self):
         """
@@ -215,6 +217,9 @@ class MaskTopoStep(Step):
                 units='1',
             )
 
+        # ncremap gives lat, lon, x and y bounds variables that are not in
+        # the file this step reads, so the bounds attributes name nothing
+        ds = add_cf_conventions(drop_dangling_references(ds))
         ds.to_netcdf(out_filename)
 
         logger.info(f'Wrote masked topography dataset {out_filename}')

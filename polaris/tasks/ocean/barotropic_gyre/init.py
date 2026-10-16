@@ -104,8 +104,8 @@ class Init(OceanIOStep):
         ds = ds_mesh.copy()
 
         # set the ssh initial condition to zero
-        ds['ssh'] = xr.zeros_like(ds.xCell)
-        ds['bottomDepth'] = bottom_depth * xr.ones_like(ds.xCell)
+        ds['ssh'] = xr.zeros_like(ds.xCell).drop_attrs()
+        ds['bottomDepth'] = bottom_depth * xr.ones_like(ds.xCell).drop_attrs()
 
         # use polaris framework functions to initialize the vertical coordinate
         init_vertical_coord(config, ds)
@@ -122,7 +122,7 @@ class Init(OceanIOStep):
 
         # set the initial condition for normalVelocity
         normal_velocity, _ = xr.broadcast(
-            xr.zeros_like(ds_mesh.xEdge), ds.refBottomDepth
+            xr.zeros_like(ds_mesh.xEdge).drop_attrs(), ds.refBottomDepth
         )
         normal_velocity = normal_velocity.transpose('nEdges', 'nVertLevels')
         normal_velocity = normal_velocity.expand_dims(dim='Time', axis=0)
@@ -131,10 +131,11 @@ class Init(OceanIOStep):
         # set the wind stress forcing
         # Convert from km to m
         ly = ly * 1e3
+        y_cell = ds.yCell.drop_attrs()
         wind_stress_zonal = -tau_0 * np.cos(
-            np.pi * (ds.yCell - ds.yCell.min()) / ly
+            np.pi * (y_cell - y_cell.min()) / ly
         )
-        wind_stress_meridional = xr.zeros_like(ds.xCell)
+        wind_stress_meridional = xr.zeros_like(ds.xCell).drop_attrs()
 
         ds_forcing = xr.Dataset()
         ds_forcing['windStressZonal'] = wind_stress_zonal.expand_dims(

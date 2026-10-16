@@ -4,6 +4,11 @@ import numpy as np
 import xarray as xr
 from scipy import ndimage
 
+from polaris.cf import (
+    add_cf_conventions,
+    add_lat_lon_attrs,
+    drop_dangling_references,
+)
 from polaris.mesh.spherical.coastline import (
     COASTLINE_VALIDATE_VARS,
     CONVENTIONS,
@@ -79,6 +84,7 @@ class RemapCoastlineStep(Step):
             self.add_output_file(
                 filename=filename, validate_vars=COASTLINE_VALIDATE_VARS
             )
+            self.add_cf_check(filename)
 
     def run(self):
         """
@@ -106,6 +112,9 @@ class RemapCoastlineStep(Step):
                 fine_resolution=fine_resolution,
                 coarse_resolution=coarse_resolution,
                 fine_step_subdir=fine_step.subdir,
+            )
+            ds_coarse = add_cf_conventions(
+                add_lat_lon_attrs(drop_dangling_references(ds_coarse))
             )
             _write_netcdf_with_fill_values(ds_coarse, out_filename)
 

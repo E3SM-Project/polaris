@@ -2,6 +2,7 @@ import numpy as np
 import pytest
 import xarray as xr
 
+from polaris.cf import CF_VERSION
 from polaris.tasks.ocean import Ocean
 
 
@@ -72,3 +73,11 @@ def test_missing_forcing_variable_raises(model, tmp_path):
     ds = _stress_dataset().drop_vars('windStressMeridional')
     with pytest.raises(ValueError, match='write_forcing_dataset'):
         _write(model, ds, tmp_path)
+
+
+@pytest.mark.parametrize('model', ['omega', 'mpas-ocean'])
+def test_forcing_file_follows_cf(model, tmp_path):
+    ds_out = _write(model, _stress_dataset(), tmp_path)
+    assert ds_out.attrs['Conventions'] == f'CF-{CF_VERSION}'
+    zonal = ds_out['SfcStressZonal' if model == 'omega' else 'windStressZonal']
+    assert 'long_name' in zonal.attrs

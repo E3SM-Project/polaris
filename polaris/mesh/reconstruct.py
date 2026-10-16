@@ -847,7 +847,7 @@ def compute_reconstruction_weights(
         weights,
         'weights used to reconstruct a Cartesian vector from '
         'edge-normal values on the reconstruction stencil',
-        units='unitless',
+        units='1',
     )
 
     elapsed = time.perf_counter() - start_time

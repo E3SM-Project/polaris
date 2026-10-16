@@ -5,6 +5,7 @@ import xarray as xr
 from mpas_tools.io import write_netcdf
 
 from polaris import Step
+from polaris.cf import add_cf_conventions, drop_dangling_references
 from polaris.tasks.ocean.realistic_global.forcing.jra55.stress import (
     JRA55_STRESS_FILENAME,
 )
@@ -81,6 +82,7 @@ class RemapJra55Step(Step):
         self.cull_mesh_step = cull_mesh_step
         self.add_dependency(jra55_map_step, name='jra55_map')
         self.add_output_file(JRA55_ON_MESH_FILENAME)
+        self.add_cf_check(JRA55_ON_MESH_FILENAME)
 
     def setup(self):
         """
@@ -145,6 +147,8 @@ class RemapJra55Step(Step):
             ds=ds_out, var_names=['taux', 'tauy'], frac_b=frac_b
         )
 
+        # ncremap gives lat and lon bounds variables it does not write
+        ds_out = add_cf_conventions(drop_dangling_references(ds_out))
         write_netcdf(ds_out, JRA55_ON_MESH_FILENAME)
 
     @staticmethod
