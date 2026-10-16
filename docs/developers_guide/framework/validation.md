@@ -341,7 +341,11 @@ in every file registered with
 and the spherical base-mesh, `e3sm/init` cull and remap, and
 `realistic_global` init steps opt in the meshes, reconstruction weights,
 topography, remapped hydrography and forcing they write (see
-{ref}`dev-attrs-cf`).
+{ref}`dev-attrs-cf`).  So do the steps that build unified meshes (the
+coastline, river network, sizing field and cull masks) and the steps that
+produce the combined topography, WOA23 hydrography and JRA55-do wind stress.
+Those last few are cached by default, and a cached step is not checked, so
+their check runs only in the tasks that regenerate the cache.
 
 The checker needs the CF standard-name, area-type and region-name tables.
 Their versions are pinned in the `[cf]` section of `default.cfg`, so a table
