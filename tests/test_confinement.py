@@ -532,3 +532,44 @@ def test_a_spanning_launch_is_held_to_its_share_of_devices_per_node():
     problems = _compare(placement, beyond, _logger())
     assert len(problems) == 1
     assert 'On nid1' in problems[0]
+
+
+def test_aurora_tiles_are_compared_by_the_names_the_ranks_see():
+    """
+    On Aurora a placement's GPU index 2 is the tile a rank sees as ``1.0``.
+    Comparing the two as they came reported thirteen correctly placed steps.
+    """
+    names = ['0.0', '0.1', '1.0', '1.1', '2.0', '2.1', '3.0', '3.1']
+    placement = ResourcePlacement(
+        nodes=('x1',), cores=((5, 7, 8, 10),), gpus=4, gpu_ids=(2, 3, 5, 7)
+    )
+    within = {'x1': _seen({5, 7, 8, 10}, {'1.0', '1.1', '2.1', '3.1'})}
+    beyond = {'x1': _seen({5, 7, 8, 10}, {'1.0', '1.1', '2.1', '0.0'})}
+
+    assert _compare(placement, within, _logger(), device_names=names) == []
+    problems = _compare(placement, beyond, _logger(), device_names=names)
+    assert len(problems) == 1
+    assert 'device(s) 0.0' in problems[0]
+
+
+def test_a_spanning_pals_launch_is_held_to_each_nodes_devices():
+    names = ['0.0', '0.1', '1.0', '1.1']
+    placement = ResourcePlacement(
+        nodes=('x1', 'x2'),
+        cores=((0, 1), (0,)),
+        gpus=3,
+        gpu_ids=((0, 1), (0,)),
+    )
+    within = {
+        'x1': _seen({0, 1}, {'0.0', '0.1'}),
+        'x2': _seen({0}, {'0.0'}),
+    }
+    beyond = {
+        'x1': _seen({0, 1}, {'0.0', '0.1'}),
+        'x2': _seen({0}, {'0.0', '0.1'}),
+    }
+
+    assert _compare(placement, within, _logger(), device_names=names) == []
+    problems = _compare(placement, beyond, _logger(), device_names=names)
+    assert len(problems) == 1
+    assert 'On x2' in problems[0]

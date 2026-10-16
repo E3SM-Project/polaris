@@ -38,6 +38,7 @@ def check_mache_supports_placement():
         )
 
     _check_placement_cores_are_per_node()
+    _check_placement_gpus_are_per_node()
 
 
 def _check_placement_cores_are_per_node():
@@ -74,6 +75,43 @@ def _check_placement_cores_are_per_node():
             f'placement means.\n'
             f'Update mache to a release that gives a placement one set '
             f'of cores per node.'
+        )
+
+
+def _check_placement_gpus_are_per_node():
+    """
+    Check that a placement's GPUs are one set per node, and that mache can
+    say what the machine calls them.
+
+    An earlier mache took one flat list of unique GPU indices for the whole
+    launch, so a GPU step spanning nodes on a machine where Polaris has to
+    name its GPUs -- Aurora -- could not be placed at all.  The same mache
+    gave every task of a placed launch on Aurora every GPU it was given,
+    and could not translate an index into the tile name a task sees.
+    """
+    try:
+        placement = ResourcePlacement(
+            nodes=('a', 'b'), cores=((0,), (0,)), gpus=2, gpu_ids=((0,), (0,))
+        )
+    except (AttributeError, TypeError, ValueError) as exception:
+        raise RuntimeError(
+            f'The installed mache ({mache.__version__}) expresses a '
+            f"placement's GPUs as one list for the whole launch, so Polaris "
+            f'cannot place a GPU step across nodes.\n'
+            f'Update mache to a release that gives a placement one set '
+            f'of GPUs per node.'
+        ) from exception
+
+    if placement.gpu_ids != ((0,), (0,)) or not hasattr(
+        ParallelSystem, 'get_gpu_device_names'
+    ):
+        raise RuntimeError(
+            f'The installed mache ({mache.__version__}) does not give a '
+            f'placement one set of GPUs per node, or cannot name a '
+            f"machine's GPUs, so Polaris cannot rely on what a placement "
+            f'means.\n'
+            f'Update mache to a release that gives a placement one set '
+            f'of GPUs per node.'
         )
 
 
