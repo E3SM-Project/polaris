@@ -209,14 +209,15 @@ This task uses the Runge-Kutta 4th-order (RK4) time integrator. The time step
 for forward integration is determined by multiplying the resolution by a config
 option, `rk4_dt_per_km`, so that coarser meshes have longer time steps. You can
 alter this before setup (in a user config file) or before running the task (in
-the config file in the work directory).
+the config file in the work directory). The split-explicit time integrator, with
+the time step from `split_dt_per_km`, does not reach the convergence threshold.
 
 ```cfg
 # config options for convergence tests
 [convergence_forward]
 
 # time integrator: {'RK4', 'split_explicit', 'unsplit_explicit'}
-time_integrator = split_explicit
+time_integrator = RK4
 
 # RK4 time step per resolution (s/km), since dt is proportional to resolution
 rk4_dt_per_km = 3.0
