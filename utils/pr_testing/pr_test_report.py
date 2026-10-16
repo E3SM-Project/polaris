@@ -90,6 +90,10 @@ class BaselineComparison:
 
     not_compared : list of str
         The tasks that ran but compare no variables with the baseline
+
+    failed_in_baseline : list of str
+        The tasks that ran but could not be compared, because they failed
+        in the baseline
     """
 
     suite: str
@@ -97,9 +101,12 @@ class BaselineComparison:
     differ: Dict[str, List[str]] = field(default_factory=dict)
     did_not_run: List[str] = field(default_factory=list)
     not_compared: List[str] = field(default_factory=list)
+    failed_in_baseline: List[str] = field(default_factory=list)
 
 
-def compare_with_baseline(work_dir: str, suite: str) -> BaselineComparison:
+def compare_with_baseline(
+    work_dir: str, suite: str, baseline_work_dir: Optional[str] = None
+) -> BaselineComparison:
     """
     Read how a suite's tasks compare with the baseline from its results
 
@@ -111,6 +118,10 @@ def compare_with_baseline(work_dir: str, suite: str) -> BaselineComparison:
     suite : str
         The suite
 
+    baseline_work_dir : str, optional
+        The baseline's work directory, whose failed tasks have nothing to
+        compare with
+
     Returns
     -------
     comparison : pr_test_report.BaselineComparison
@@ -119,18 +130,18 @@ def compare_with_baseline(work_dir: str, suite: str) -> BaselineComparison:
     path = os.path.join(work_dir, f'{suite}_results.json')
     with open(path, 'r', encoding='utf-8') as f:
         results = json.load(f)
+    failed_in_baseline = _failed_tasks(baseline_work_dir, suite)
     comparison = BaselineComparison(suite)
     for task in results.get('tasks', []):
         name = task['path']
         if task.get('execution') != 'pass':
             comparison.did_not_run.append(name)
         elif task.get('baseline') == 'fail':
-            diffs = task.get('baseline_diffs') or {}
-            comparison.differ[name] = sorted(
-                variable
-                for variable, norms in diffs.items()
-                if any(_is_nonzero(norm) for norm in norms.values())
-            )
+            variables = _differing_variables(task)
+            if variables or name not in failed_in_baseline:
+                comparison.differ[name] = variables
+            else:
+                comparison.failed_in_baseline.append(name)
         elif task.get('baseline') == 'pass':
             comparison.bit_for_bit.append(name)
         else:
@@ -159,6 +170,9 @@ def format_bit_for_bit(
     compared = [comparison for _, comparison, _ in rows if comparison]
     differ = sum(len(comparison.differ) for comparison in compared)
     did_not_run = sum(len(comparison.did_not_run) for comparison in compared)
+    failed_in_baseline = sum(
+        len(comparison.failed_in_baseline) for comparison in compared
+    )
     lines = ['### Bit-for-bit with the baseline', '']
     if not compared:
         lines.append('Nothing was compared with a baseline.')
@@ -180,6 +194,12 @@ def format_bit_for_bit(
             f'{"it has" if did_not_run == 1 else "they have"} no bit-for-bit '
             f'result either way.'
         )
+    if failed_in_baseline:
+        lines.append(
+            f'{_count(failed_in_baseline, "task")} failed in the baseline, '
+            f'so {"it has" if failed_in_baseline == 1 else "they have"} '
+            f'nothing to compare with.'
+        )
     lines.append('')
     for row, comparison, reason in rows:
         if comparison is None:
@@ -189,6 +209,7 @@ def format_bit_for_bit(
             len(comparison.bit_for_bit)
             + len(comparison.differ)
             + len(comparison.not_compared)
+            + len(comparison.failed_in_baseline)
         )
         lines.append(
             f'- {row.label}, `{comparison.suite}`: '
@@ -203,6 +224,8 @@ def format_bit_for_bit(
             )
         for task in comparison.did_not_run:
             lines.append(f'  - Did not run: `{task}`')
+        for task in comparison.failed_in_baseline:
+            lines.append(f'  - Failed in the baseline: `{task}`')
         if comparison.not_compared:
             lines.append(
                 f'  - Compares nothing with the baseline: '
@@ -543,12 +566,7 @@ def summarize_suite(
         execution = task.get('execution')
         baseline = task.get('baseline')
         if baseline == 'fail' and task['path'] in failed_in_baseline:
-            diffs_by_variable = (task.get('baseline_diffs') or {}).values()
-            if not any(
-                _is_nonzero(norm)
-                for norms in diffs_by_variable
-                for norm in norms.values()
-            ):
+            if not _differing_variables(task):
                 baseline = None
                 not_compared += 1
         if baseline == 'fail':
@@ -615,6 +633,16 @@ def _failed_tasks(work_dir: Optional[str], suite: str) -> List[str]:
         for task in results.get('tasks', [])
         if task.get('execution') != 'pass'
     ]
+
+
+def _differing_variables(task: Dict[str, Any]) -> List[str]:
+    """The variables with a nonzero difference from the baseline"""
+    diffs = task.get('baseline_diffs') or {}
+    return sorted(
+        variable
+        for variable, norms in diffs.items()
+        if any(_is_nonzero(norm) for norm in norms.values())
+    )
 
 
 def _is_nonzero(norm):

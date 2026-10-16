@@ -90,3 +90,26 @@ def _write_results(work_dir, tasks):
         json.dumps(contents), encoding='utf-8'
     )
     return work_dir
+
+
+def test_compare_with_baseline_task_failed_in_baseline(tmp_path):
+    baseline_dir = _write_results(
+        tmp_path / 'baseline',
+        [_task('a'), _task('b', execution='fail'), _task('c')],
+    )
+    pr_dir = _write_results(
+        tmp_path / 'pr',
+        [
+            _task('a'),
+            _task('b', baseline='fail'),
+            _task('c', baseline='fail', diffs={'temp': 1e-3}),
+        ],
+    )
+
+    comparison = report.compare_with_baseline(
+        str(pr_dir), 'omega_pr', str(baseline_dir)
+    )
+
+    assert comparison.bit_for_bit == ['a']
+    assert comparison.differ == {'c': ['temp']}
+    assert comparison.failed_in_baseline == ['b']
