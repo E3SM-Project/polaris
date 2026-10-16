@@ -502,9 +502,15 @@ def read_required(path: str, what: str) -> str:
         return f.read()
 
 
-def summarize_suite(work_dir: str, suite: str) -> Tuple[bool, str]:
+def summarize_suite(
+    work_dir: str, suite: str, baseline_work_dir: Optional[str] = None
+) -> Tuple[bool, str]:
     """
     Whether a suite passed, and its cell in the table
+
+    A task that failed in the baseline has no baseline output to compare
+    with, so a comparison that fails without a nonzero difference is not
+    counted as a baseline difference or a failure of the task.
 
     Parameters
     ----------
@@ -513,6 +519,9 @@ def summarize_suite(work_dir: str, suite: str) -> Tuple[bool, str]:
 
     suite : str
         The suite, such as ``omega_pr``
+
+    baseline_work_dir : str, optional
+        The baseline's work directory, if the suite was compared with one
 
     Returns
     -------
@@ -525,21 +534,41 @@ def summarize_suite(work_dir: str, suite: str) -> Tuple[bool, str]:
     path = os.path.join(work_dir, f'{suite}_results.json')
     with open(path, 'r', encoding='utf-8') as f:
         results = json.load(f)
-    summary = results['summary']
-    total = summary['total']
-    passed = summary['passed']
-    diffs = [
-        task['path']
-        for task in results.get('tasks', [])
-        if task.get('baseline') == 'fail'
-    ]
-    cell = f'{passed} of {total} passed'
+    failed_in_baseline = _failed_tasks(baseline_work_dir, suite)
+    tasks = results.get('tasks', [])
+    passed = 0
+    diffs = 0
+    not_compared = 0
+    for task in tasks:
+        execution = task.get('execution')
+        baseline = task.get('baseline')
+        if baseline == 'fail' and task['path'] in failed_in_baseline:
+            diffs_by_variable = (task.get('baseline_diffs') or {}).values()
+            if not any(
+                _is_nonzero(norm)
+                for norms in diffs_by_variable
+                for norm in norms.values()
+            ):
+                baseline = None
+                not_compared += 1
+        if baseline == 'fail':
+            diffs += 1
+        if execution == 'pass' and baseline != 'fail':
+            passed += 1
+    cell = f'{passed} of {len(tasks)} passed'
     if diffs:
-        cell = f'{cell}, {len(diffs)} with baseline differences'
+        cell = f'{cell}, {diffs} with baseline differences'
+    if failed_in_baseline:
+        cell = (
+            f'{cell}, {_count(len(failed_in_baseline), "task")} failed in '
+            f'the baseline'
+        )
+        if not_compared:
+            cell = f'{cell} ({not_compared} not compared)'
     complete = results.get('complete', False)
     if not complete:
         cell = f'{cell} (the run did not finish)'
-    return complete and passed == total, cell
+    return complete and passed == len(tasks), cell
 
 
 def summarize_ctests(build_dir: str) -> Tuple[bool, str]:
@@ -569,6 +598,23 @@ def summarize_ctests(build_dir: str) -> Tuple[bool, str]:
     _, failed, total = counts[-1]
     passed = int(total) - int(failed)
     return int(failed) == 0, f'{passed} of {total} passed'
+
+
+def _failed_tasks(work_dir: Optional[str], suite: str) -> List[str]:
+    """The tasks that did not pass in a suite run, if it has results"""
+    if work_dir is None:
+        return []
+    path = os.path.join(work_dir, f'{suite}_results.json')
+    try:
+        with open(path, 'r', encoding='utf-8') as f:
+            results = json.load(f)
+    except (OSError, ValueError):
+        return []
+    return [
+        task['path']
+        for task in results.get('tasks', [])
+        if task.get('execution') != 'pass'
+    ]
 
 
 def _is_nonzero(norm):

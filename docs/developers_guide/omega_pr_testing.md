@@ -28,6 +28,10 @@ without those changes.  An existing baseline
 run is reused when its provenance matches (see
 {py:func}`polaris.baselines.find_baseline`), which relies on the record of
 the source that Polaris's build scripts write (see {ref}`dev-provenance`).
+A baseline with failed tasks is still reused, since running it again would
+not fix them.  The report says how many tasks failed in the baseline and
+does not count a task as a baseline difference or a failure just because
+the baseline has no output to compare it with.
 
 To start, the requester copies `utils/pr_testing/example.cfg` to
 `~/.config/polaris_pr_test.cfg` on their computer and on each machine, fills
