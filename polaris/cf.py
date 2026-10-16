@@ -17,6 +17,21 @@ CF_VERSION = '1.8'
 # a CF entry in a ``Conventions`` attribute, such as ``CF-1.8``
 _CF_ENTRY = re.compile(r'^CF-\d+\.\d+$')
 
+# the coordinates of a regular latitude-longitude grid, which (unlike the
+# latCell and lonCell of a planar MPAS mesh) are always what they say
+_LAT_LON_ATTRS = {
+    'lat': {
+        'long_name': 'latitude',
+        'standard_name': 'latitude',
+        'units': 'degrees_north',
+    },
+    'lon': {
+        'long_name': 'longitude',
+        'standard_name': 'longitude',
+        'units': 'degrees_east',
+    },
+}
+
 # attributes whose values name other variables in the same file
 _REFERENCE_ATTRS = [
     'ancillary_variables',
@@ -84,6 +99,25 @@ def add_var_attrs(
             if attr not in ds[name].attrs:
                 ds[name].attrs[attr] = value
     return ds
+
+
+def add_lat_lon_attrs(ds: xr.Dataset) -> xr.Dataset:
+    """
+    Fill in ``long_name``, ``standard_name`` and ``units`` for the ``lat``
+    and ``lon`` coordinates of a dataset on a regular latitude-longitude
+    grid, without changing any attribute they already have.
+
+    Parameters
+    ----------
+    ds : xarray.Dataset
+        A dataset about to be written
+
+    Returns
+    -------
+    ds : xarray.Dataset
+        A shallow copy of the dataset with the attributes added
+    """
+    return add_var_attrs(ds, _LAT_LON_ATTRS)
 
 
 def drop_dangling_references(ds: xr.Dataset) -> xr.Dataset:

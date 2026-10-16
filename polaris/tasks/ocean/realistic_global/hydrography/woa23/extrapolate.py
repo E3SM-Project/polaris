@@ -4,6 +4,7 @@ from mpas_tools.io import write_netcdf
 from scipy.signal import convolve2d
 
 from polaris import Step
+from polaris.cf import add_cf_conventions, drop_dangling_references
 
 
 class ExtrapolateStep(Step):
@@ -42,6 +43,7 @@ class ExtrapolateStep(Step):
         self.combine_step = combine_step
         self.combine_topo_step = combine_topo_step
         self.add_output_file(filename=self.output_filename)
+        self.add_cf_check(self.output_filename)
         # this is an expensive step so cache it by default
         self.default_cached = True
 
@@ -167,6 +169,7 @@ class ExtrapolateStep(Step):
             for field_name in ['ct_an', 'sa_an']:
                 ds_out[field_name][depth_index, :, :] = ds_level[field_name]
 
+        ds_out = add_cf_conventions(drop_dangling_references(ds_out))
         write_netcdf(ds_out, out_filename)
 
     def _extrap_vert(self, in_filename, out_filename, use_ocean_mask):
@@ -204,6 +207,7 @@ class ExtrapolateStep(Step):
                     mask
                 ]
 
+        ds_out = add_cf_conventions(drop_dangling_references(ds_out))
         write_netcdf(ds_out, out_filename)
 
     @staticmethod
