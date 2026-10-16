@@ -101,6 +101,11 @@ As a safety net, a variable whose attributes are identical to another
 variable's is taken to have inherited them (see {ref}`dev-attrs-inheritance`)
 and gets its own from the table instead.
 
+Every file registered with
+{py:meth}`polaris.ocean.model.OceanIOStep.add_output_files_for_ocean_model_input()`
+is also checked for CF compliance after the step runs (see
+{ref}`dev-cf-check`), so a missing or invalid label fails the task.
+
 A variable built from a mesh variable should start without its attributes, so
 the table can label it:
 

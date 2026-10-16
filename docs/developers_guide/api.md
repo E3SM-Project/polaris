@@ -329,6 +329,7 @@ seaice/api
 
    add_cf_conventions
    add_var_attrs
+   drop_dangling_references
    drop_inherited_attrs
    read_var_attrs
 ```
