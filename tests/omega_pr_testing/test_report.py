@@ -274,7 +274,12 @@ def _finish(state):
     work_dir = Path(state.pr_work_dir)
     (work_dir / 'omega_pr_output_for_pr.md').write_text(SUITE_MD)
     tasks = [
-        {'path': f'ocean/task{index}', 'status': 'pass', 'baseline': 'pass'}
+        {
+            'path': f'ocean/task{index}',
+            'status': 'pass',
+            'execution': 'pass',
+            'baseline': 'pass',
+        }
         for index in range(3)
     ]
     (work_dir / 'omega_pr_results.json').write_text(

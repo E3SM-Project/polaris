@@ -222,7 +222,9 @@ def _row_result(config, manifest, row: Row, changed) -> RowResult:
         os.path.join(state.pr_build_dir, 'ctest_output_for_pr.md'),
         'the CTests have not finished',
     )
-    suite_passed, suite_cell = report.summarize_suite(state.pr_work_dir, SUITE)
+    suite_passed, suite_cell = report.summarize_suite(
+        state.pr_work_dir, SUITE, state.baseline_work_dir
+    )
     ctest_passed, ctest_cell = report.summarize_ctests(state.pr_build_dir)
 
     if state.no_baseline_reason is None:
