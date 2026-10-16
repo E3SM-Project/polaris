@@ -28,7 +28,7 @@ ice-shelf-cavity tests:
 This work delivers the first stage:
 
 - Ocean0, Ocean1 and Ocean2 run end to end with MPAS-Ocean, on planar
-  and spherical meshes;
+  meshes;
 - the `inception`, `wetting` and `drying` tasks produce an initial
   condition and forcing, including time-varying land-ice forcing and a
   thin film under grounded ice;
@@ -75,7 +75,7 @@ not for code. The new steps are built from pieces Compass did not have:
 Success means:
 
 - Ocean0–2 run end to end, and the wetting and drying tasks produce
-  initial conditions and forcing, on planar and spherical meshes;
+  initial conditions and forcing, on planar meshes;
 - short runs of Ocean0–2 in Compass and Polaris, with the same
   MPAS-Ocean build, are compared;
 - every difference between them is attributed to a cause listed under
@@ -85,13 +85,13 @@ Success means:
 
 ### Requirement: Ocean0, Ocean1 and Ocean2 can be run with MPAS-Ocean
 
-Date last modified: 2026/09/28
+Date last modified: 2026/10/16
 
 Contributors: Xylar Asay-Davis, Claude
 
-Each experiment is available on planar and spherical meshes at 4, 2
-and 1 km resolution. A task produces an initial condition, brings the
-ice-shelf pressure into balance with the ocean, and runs the model.
+Each experiment is available on planar meshes at 4, 2 and 1 km
+resolution. A task produces an initial condition, brings the ice-shelf
+pressure into balance with the ocean, and runs the model.
 
 ### Requirement: The wetting and drying tasks have an initial condition
 
@@ -319,8 +319,7 @@ $$
 $$
 
 with $\gamma_0 = 10\ \mathrm{day}^{-1}$ (a 0.1-day timescale),
-$x_{r0} = 790$ km and $x_{r1} = 800$ km, using the ISOMIP+ $x$ coordinate on
-both planar and spherical meshes.
+$x_{r0} = 790$ km and $x_{r1} = 800$ km, using the ISOMIP+ $x$ coordinate.
 
 Evaporation at 200 m yr⁻¹ over the restoring region offsets the
 meltwater input. It removes salt and heat at the surface restoring
@@ -343,16 +342,15 @@ the pressure instead.
 
 ### Algorithm Design: Output supports regression testing and inspection
 
-Date last modified: 2026/09/28
+Date last modified: 2026/10/16
 
 Contributors: Xylar Asay-Davis, Claude
 
 The forward run lasts one hour by default, as in Compass's
 `performance` step. Output is written at the end of the run.
 
-Horizontal plots use the ISOMIP+ $x$ and $y$ coordinates, so planar and
-spherical plots are directly comparable. Transects are at
-$y = 40$ km.
+Horizontal plots use the ISOMIP+ $x$ and $y$ coordinates. Transects are
+at $y = 40$ km.
 
 ### Algorithm Design: Differences from Compass are documented
 
@@ -369,7 +367,7 @@ by running the Polaris forward step on Compass's initial condition
 
 ### Implementation: Ocean0, Ocean1 and Ocean2 can be run with MPAS-Ocean
 
-Date last modified: 2026/09/28
+Date last modified: 2026/10/16
 
 Contributors: Xylar Asay-Davis, Claude
 
@@ -395,11 +393,11 @@ ocean/planar/isomip_plus/2km/
         └── init/
 ```
 
-The spherical tree is the same under `ocean/spherical/isomip_plus`.
-
-`add_isomip_plus_tasks()` no longer creates the `ocean3` and `ocean4`
-tasks or their `remap_culled` steps. `TopoRemap` keeps its Ocean3 and
-Ocean4 input files and its handling of time records.
+`add_isomip_plus_tasks()` creates planar tasks only, and the
+`SphericalMesh` step is removed ([D8](#decisions)). It no longer
+creates the `ocean3` and `ocean4` tasks or their `remap_culled` steps.
+`TopoRemap` keeps its Ocean3 and Ocean4 input files and its handling of
+time records.
 
 `IsomipPlusTest` becomes a subclass of
 `polaris.ocean.ice_shelf.IceShelfTask`. Its `thin_film` attribute is
@@ -571,12 +569,12 @@ No code. The comparison scripts are not committed.
 
 ### Testing and Validation: Ocean0, Ocean1 and Ocean2 can be run with MPAS-Ocean
 
-Date last modified: 2026/09/28
+Date last modified: 2026/10/16
 
 Contributors: Xylar Asay-Davis, Claude
 
-Set up and run the 18 Ocean0–2 tasks (3 experiments, 3 resolutions, 2
-mesh types) with MPAS-Ocean. Record wall-clock times in the pull
+Set up and run the 9 Ocean0–2 tasks (3 experiments, 3 resolutions) with
+MPAS-Ocean. Record wall-clock times in the pull
 request's Testing comment.
 
 ### Testing and Validation: The wetting and drying tasks have an initial condition
@@ -642,7 +640,7 @@ they pass. Inspect the plots.
 
 ### Testing and Validation: Differences from Compass are documented
 
-Date last modified: 2026/10/07
+Date last modified: 2026/10/16
 
 Contributors: Xylar Asay-Davis, Claude
 
@@ -668,7 +666,6 @@ of `ocean0`; its standard Ocean0–2 do not use it
    melt flux, mean thermal driving and mean friction velocity.
 
 Each difference in stage 3 is attributed to one of D1–D4, D11 or D13.
-Stage 3 is repeated for the spherical 2 km tasks.
 
 ## Planned Extensions
 
@@ -719,7 +716,8 @@ separate Polaris setup that builds:
 - an MPAS-Ocean initial condition that keeps every cell that holds
   ocean in any record, with a thin film where it is grounded, from the
   Ocean3 or Ocean4 geometry remapped by `TopoRemap`;
-- E3SM input files on the spherical ISOMIP+ mesh: initial state,
+- E3SM input files on the planar ISOMIP+ mesh, with latitude and
+  longitude from a map projection: initial state,
   forcing, graph partitions, and SCRIP files with and without the
   land-ice mask, as in Compass's `files_for_e3sm`.
 
@@ -754,12 +752,13 @@ calving front, the grounding line and the side walls.
 
 ### D2: The meshes differ
 
-Date last modified: 2026/09/28
+Date last modified: 2026/10/16
 
 Contributors: Xylar Asay-Davis, Claude
 
 The Polaris planar mesh covers the domain plus an 80 km buffer and is
-culled where bedrock is above sea level. Compass builds a periodic mesh
+culled where less than `min_ocean_fraction` (0.5) of a cell lies over
+input bedrock below sea level. Compass builds a periodic mesh
 of $n_x \times n_y$ cells, then culls it. Cell centers do not coincide.
 
 *Effect:* comparisons are of domain statistics and plots, not of
@@ -767,16 +766,16 @@ cell-by-cell values.
 
 ### D3: Each task culls the cells it will never use
 
-Date last modified: 2026/09/28
+Date last modified: 2026/10/16
 
 Contributors: Xylar Asay-Davis, Claude
 
-The shared culled mesh keeps every cell over bedrock below sea level,
-so one mesh and one set of mapping files serve all tasks. For static
-geometry, each task's `init` step then removes the grounded cells.
-Tasks with time-varying geometry keep every cell. The #151 draft
-instead kept grounded cells as inactive columns with
-`maxLevelCell = 0`, which suits neither static nor time-varying
+The shared culled mesh keeps every cell that lies at least half over
+input bedrock below sea level, so one mesh and one set of mapping files
+serve all tasks. For static geometry, each task's `init` step then
+removes the grounded cells. Tasks with time-varying geometry keep every
+cell. The earlier draft instead kept grounded cells as inactive columns
+with `maxLevelCell = 0`, which suits neither static nor time-varying
 geometry.
 
 *Effect:* for Ocean0–2, the ocean cells match Compass's selection rule,
@@ -841,9 +840,9 @@ The default forward run is one hour, and `run_duration` can be raised
 by config. Long runs and standard output are
 [Planned Extensions](#planned-extensions).
 
-### D8: Wetting and drying tasks stay; Ocean3–4 tasks are removed
+### D8: Wetting and drying tasks stay; Ocean3–4 and spherical tasks are removed
 
-Date last modified: 2026/09/28
+Date last modified: 2026/10/16
 
 Contributors: Xylar Asay-Davis, Claude
 
@@ -859,6 +858,13 @@ version would use a different forcing path and would not serve as a
 reference for the coupled runs. `TopoRemap` keeps its support for the
 Ocean3 and Ocean4 geometry, which that setup needs to find the cells
 that ever hold ocean.
+
+The spherical tasks and their JIGSAW `SphericalMesh` are removed as
+well. They repeat the planar tasks on a mesh whose lengths the polar
+stereographic projection, true at 75°S, stretches by 0.8–3.2 % over
+the domain (64.9–71.9°S). E3SM runs will use the planar mesh, with
+latitude and longitude from a map projection
+([Planned Extensions](#planned-extensions)).
 
 ### D9: Omega is not supported
 
