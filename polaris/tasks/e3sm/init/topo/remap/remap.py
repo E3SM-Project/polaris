@@ -141,6 +141,7 @@ class RemapTopoStep(Step):
             filename='topography_remapped.nc',
             validate_vars=get_remapped_topo_validate_vars(),
         )
+        self.add_cf_check('topography_remapped.nc')
         self.expand_distance = 0.0
         self.expand_factor = 1.0
         self.do_remapping = True

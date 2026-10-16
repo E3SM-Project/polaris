@@ -65,6 +65,7 @@ class ForcingStep(OceanIOStep):
             ),
         )
         self.add_output_file(filename=self.get_forcing_filename())
+        self.add_cf_check(self.get_forcing_filename())
 
     def run(self):
         """

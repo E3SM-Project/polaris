@@ -80,6 +80,7 @@ class CullTopoStep(Step):
         self.add_output_file(
             'topography_culled.nc', validate_vars=TOPO_VARIABLES
         )
+        self.add_cf_check('topography_culled.nc')
 
     def setup(self):
         """

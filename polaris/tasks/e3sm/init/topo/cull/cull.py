@@ -86,6 +86,7 @@ class CullMeshStep(Step):
                 filename=f'culled_{prefix}_mesh.nc',
                 validate_vars=MPAS_MESH_VALIDATE_VARS,
             )
+            self.add_cf_check(f'culled_{prefix}_mesh.nc')
             self.add_output_file(
                 filename=f'{prefix}_map_culled_to_base.nc',
                 validate_vars=MAP_CULLED_TO_BASE_VALIDATE_VARS,
@@ -100,6 +101,7 @@ class CullMeshStep(Step):
                         location='cell'
                     ),
                 )
+                self.add_cf_check(f'culled_{prefix}_reconstruction_weights.nc')
 
     def setup(self):
         """
