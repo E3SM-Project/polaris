@@ -12,8 +12,9 @@ Nothing here decides *which* step runs or what resources it gets.  That is
 the caller's, and it is the whole of the difference between the two.
 """
 
+import json
 import os
-from typing import Optional
+from typing import Dict, Optional
 
 from mpas_tools.logging import LoggingContext, check_call
 
@@ -205,6 +206,31 @@ def read_baseline_status_from_logs(step_work_dir: str) -> Optional[bool]:
     return None
 
 
+def read_baseline_diff_summary_from_logs(step_work_dir: str) -> Dict:
+    """Get the baseline diff summary from an existing JSON file, if any.
+
+    Returns
+    -------
+    dict
+        The maximum l1, l2 and l_infinity norm differences for each
+        variable, keyed by variable name, or an empty dict if no summary
+        is available.
+    """
+    filename = os.path.join(step_work_dir, 'baseline_diff_summary.json')
+    if not os.path.exists(filename):
+        return {}
+    try:
+        with open(filename, 'r') as handle:
+            summary = json.load(handle)
+        # older summaries hold float32 norms written as strings
+        return {
+            var: {name: float(norm) for name, norm in norms.items()}
+            for var, norms in summary.items()
+        }
+    except (OSError, ValueError, TypeError, AttributeError):
+        return {}
+
+
 def read_property_status_from_logs(step_work_dir: str) -> Optional[bool]:
     """Get property check status from existing log markers.
 
@@ -224,6 +250,22 @@ def read_property_status_from_logs(step_work_dir: str) -> Optional[bool]:
     if os.path.exists(property_check_pass_filename):
         return True
     if os.path.exists(property_check_fail_filename):
+        return False
+    return None
+
+
+def read_cf_status_from_logs(step_work_dir: str) -> Optional[bool]:
+    """Get CF check status from existing log markers.
+
+    Returns
+    -------
+    Optional[bool]
+        True if ``cf_check_passed.log`` exists, False if
+        ``cf_check_failed.log`` exists, otherwise None.
+    """
+    if os.path.exists(os.path.join(step_work_dir, 'cf_check_passed.log')):
+        return True
+    if os.path.exists(os.path.join(step_work_dir, 'cf_check_failed.log')):
         return False
     return None
 

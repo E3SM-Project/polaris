@@ -27,8 +27,9 @@ import os
 import socket
 import sys
 import time
-from datetime import timedelta
-from typing import Dict, List
+from datetime import datetime, timedelta
+from functools import partial
+from typing import Dict, List, Optional
 
 import mpas_tools.io
 from mpas_tools.logging import LoggingContext
@@ -47,18 +48,26 @@ from polaris.run.executor import (
 )
 from polaris.run.graph import build_step_graph
 from polaris.run.lifecycle import (
+    accumulate_baselines,
+    read_baseline_diff_summary_from_logs,
     read_baseline_status_from_logs,
+    read_cf_status_from_logs,
     read_property_status_from_logs,
 )
 from polaris.run.pool import ResourcePool
+from polaris.run.results import TaskResult, write_suite_results
 from polaris.run.serial import (
+    _pr_results,
+    _read_results_provenance,
     _update_steps_to_run,
+    _write_output_for_pull_request,
     end_color,
     error_str,
     fail_str,
     start_time_color,
     success_str,
 )
+from polaris.validate import merge_diff_summary
 
 
 def run_tasks(suite_name, quiet=False):
@@ -104,7 +113,7 @@ def run_tasks(suite_name, quiet=False):
 
 def _run(suite, suite_name, component, logger, events, work_dir, quiet):
     """Set the run up, drive the loop, and report what happened."""
-    steps = _select_steps(suite, logger)
+    steps, task_steps = _select_steps(suite, logger)
 
     # the nodes are read before the steps are sized, because what they
     # report is what the sizes have to be taken from
@@ -115,6 +124,20 @@ def _run(suite, suite_name, component, logger, events, work_dir, quiet):
 
     pool = ResourcePool(nodes, local_node=_local_node(nodes))
     graph = build_step_graph(steps.values())
+
+    base_work_dir = next(iter(suite['tasks'].values())).base_work_dir
+    tracker = _TaskTracker(
+        suite['tasks'],
+        task_steps,
+        graph,
+        partial(
+            write_suite_results,
+            os.path.join(work_dir, f'{suite_name}_results.json'),
+            suite_name,
+            _read_results_provenance(base_work_dir),
+            datetime.now().astimezone(),
+        ),
+    )
 
     impossible = {
         path: pool.why_impossible(node.step)
@@ -141,9 +164,14 @@ def _run(suite, suite_name, component, logger, events, work_dir, quiet):
     )
     started = time.time()
     outcomes, mismatched = _loop(
-        graph, pool, steps, logger, events, work_dir, quiet
+        graph, pool, steps, logger, events, work_dir, quiet, tracker
     )
     elapsed = time.time() - started
+
+    tracker.finish()
+    _write_output_for_pull_request(
+        suite_name, suite, results=_pr_results(tracker.results)
+    )
 
     failures = _report(outcomes, mismatched, steps, logger, elapsed)
     events.record(
@@ -199,18 +227,28 @@ def _credit_memory(available, nodes):
     return available
 
 
-def _select_steps(suite, logger) -> Dict:
+def _select_steps(suite, logger):
     """
     The steps to run, in setup order, with a step shared between tasks once.
 
     Which steps a task runs comes from its config exactly as it does on the
     serial path, so that the two paths are asked to run the same work.
+
+    Returns
+    -------
+    steps : dict
+        The steps to run, keyed by path
+
+    task_steps : dict
+        The steps each task runs, keyed by the task's name in the suite
     """
     steps: Dict[str, object] = {}
-    for task in suite['tasks'].values():
+    task_steps: Dict[str, List] = {}
+    for task_name, task in suite['tasks'].items():
         config = setup_config(task.base_work_dir, task.config.filepath)
         task.config = config
         names = _update_steps_to_run(task.name, None, None, config, task.steps)
+        task_steps[task_name] = [task.steps[name] for name in names]
         for name in names:
             step = task.steps[name]
             if step.path not in steps:
@@ -219,7 +257,7 @@ def _select_steps(suite, logger) -> Dict:
                 )
                 steps[step.path] = step
     logger.info(f'Running {len(steps)} step(s)')
-    return steps
+    return steps, task_steps
 
 
 def _local_node(nodes) -> str:
@@ -238,7 +276,7 @@ def _local_node(nodes) -> str:
     return nodes[0].name if nodes else ''
 
 
-def _loop(graph, pool, steps, logger, events, work_dir, quiet):
+def _loop(graph, pool, steps, logger, events, work_dir, quiet, tracker=None):
     """Start what fits, wait for what finishes, and keep going."""
     succeeded = {path for path, node in graph.nodes.items() if node.satisfied}
     for path in succeeded:
@@ -297,6 +335,8 @@ def _loop(graph, pool, steps, logger, events, work_dir, quiet):
                 events,
                 quiet,
             )
+            if tracker is not None:
+                tracker.step_finished(outcome, step_run.started)
     finally:
         # nothing may outlive the scheduler.  A forked child is a
         # direct child of this process, so an interrupt that left one
@@ -500,10 +540,12 @@ def _comparisons(steps, logger) -> List[str]:
     outcome: Dict[str, List[List[str]]] = {
         'baseline': [[], []],
         'property': [[], []],
+        'cf': [[], []],
     }
     readers = {
         'baseline': read_baseline_status_from_logs,
         'property': read_property_status_from_logs,
+        'cf': read_cf_status_from_logs,
     }
     for path in sorted(steps):
         for kind, reader in readers.items():
@@ -514,6 +556,7 @@ def _comparisons(steps, logger) -> List[str]:
     for kind, label in (
         ('baseline', 'Baseline comparison'),
         ('property', 'Property checks'),
+        ('cf', 'CF compliance'),
     ):
         passed, failed = outcome[kind]
         if not passed and not failed:
@@ -523,16 +566,19 @@ def _comparisons(steps, logger) -> List[str]:
         for path in failed:
             logger.error(f'  {fail_str} {path}')
 
-    # only a baseline difference fails the run, because that is what the
-    # serial path does with one.  A failed property check does not fail
-    # anything there -- `property_passed` is accumulated in serial.py and
-    # never read -- and four steps of omega_pr fail one today.  Failing here
-    # on something serial ignores would make a suite that passes one step at
-    # a time fail when run concurrently, for a reason that has nothing to do
-    # with concurrency, and Phase B would be blamed for it.  Whether a failed
+    # only a baseline difference or a CF failure fails the run, because
+    # those are what fail a task on the serial path.  A failed property
+    # check does not fail anything there -- `property_passed` is accumulated
+    # in serial.py and never read -- and four steps of omega_pr fail one
+    # today.  Failing here on something serial ignores would make a suite
+    # that passes one step at a time fail when run concurrently, for a
+    # reason that has nothing to do with concurrency, and Phase B would be
+    # blamed for it.  Whether a failed
     # property check ought to fail a task is a real question and is being
     # settled on its own branch; this follows serial either way.
-    return list(outcome['baseline'][1])
+    return list(outcome['baseline'][1]) + [
+        path for path in outcome['cf'][1] if path not in outcome['baseline'][1]
+    ]
 
 
 def _report(outcomes, mismatched, steps, logger, elapsed) -> List[str]:
@@ -622,3 +668,149 @@ def main():
             'No suite was given and no task.pickle was found here. Are you '
             'sure this is a polaris suite or task work directory?'
         )
+
+
+class _TaskTracker:
+    """
+    Turn steps finishing into the results of the tasks they belong to.
+
+    The serial path writes a results file that says how each task went, and
+    the pull-request summary and the baseline matcher both read it.  A task
+    is the serial path's unit of work and not this one's, so a task's result
+    is assembled here as its last step finishes, from the markers each step
+    leaves beside its log.  A task has no single log here, since its steps
+    each have their own.
+    """
+
+    def __init__(self, tasks, task_steps, graph, write_results):
+        """
+        Parameters
+        ----------
+        tasks : dict of polaris.Task
+            The tasks of the suite, keyed by their names in the suite
+
+        task_steps : dict of list of polaris.Step
+            The steps each task runs, keyed by the task's name in the suite
+
+        graph : polaris.run.graph.StepGraph
+            The graph of the steps being run
+
+        write_results : callable
+            :py:func:`polaris.run.results.write_suite_results()` with its
+            file, suite name, provenance and start time already given
+        """
+        self.results: Dict[str, TaskResult] = {
+            name: TaskResult(
+                path=task.path,
+                steps_to_run=[step.name for step in task_steps[name]],
+            )
+            for name, task in tasks.items()
+        }
+        self._task_steps = task_steps
+        self._write_results = write_results
+        self._started = time.time()
+        self._done = {
+            path for path, node in graph.nodes.items() if node.satisfied
+        }
+        self._outcomes: Dict[str, StepOutcome] = {}
+        self._spans: Dict[str, tuple] = {}
+        self._tasks_of: Dict[str, List[str]] = {}
+        for name, steps in task_steps.items():
+            for step in steps:
+                self._tasks_of.setdefault(step.path, []).append(name)
+
+        for name in self.results:
+            if self._all_done(name):
+                self._complete(name)
+        self._write(complete=False)
+
+    def step_finished(self, outcome, started: float) -> None:
+        """
+        Record that a step finished, and the result of any task it ended.
+
+        Parameters
+        ----------
+        outcome : polaris.run.executor.StepOutcome
+            How the step ended
+
+        started : float
+            When its process was started, from ``time.time()``
+        """
+        path = outcome.step_path
+        self._done.add(path)
+        self._outcomes[path] = outcome
+        self._spans[path] = (started, started + outcome.seconds)
+        for name in self._tasks_of.get(path, []):
+            if self.results[name].pending and self._all_done(name):
+                self._complete(name)
+        self._write(complete=False)
+
+    def finish(self) -> None:
+        """
+        Give every task a result, now that nothing more will run.
+
+        A task still without one had a step that never ran, because a step
+        it needed failed, so the task failed.
+        """
+        for name, result in self.results.items():
+            if result.pending:
+                self._complete(name)
+        self._write(complete=True)
+
+    def _write(self, complete: bool) -> None:
+        self._write_results(
+            time.time() - self._started,
+            self.results.values(),
+            complete=complete,
+        )
+
+    def _all_done(self, name: str) -> bool:
+        return all(step.path in self._done for step in self._task_steps[name])
+
+    def _complete(self, name: str) -> None:
+        """Fill in a task's result from what its steps left behind."""
+        result = self.results[name]
+        steps = self._task_steps[name]
+        result.execution_passed = all(
+            self._step_succeeded(step.path) for step in steps
+        )
+        baseline_passed: Optional[bool] = None
+        cf_passed: Optional[bool] = None
+        diffs: Dict = {}
+        for step in steps:
+            # cached steps never compare or check, as on the serial path
+            if step.cached:
+                continue
+            status = read_baseline_status_from_logs(step.work_dir)
+            if status is not None:
+                baseline_passed = accumulate_baselines(baseline_passed, status)
+                merge_diff_summary(
+                    diffs, read_baseline_diff_summary_from_logs(step.work_dir)
+                )
+            status = read_cf_status_from_logs(step.work_dir)
+            if status is not None:
+                cf_passed = accumulate_baselines(cf_passed, status)
+        result.baseline_passed = baseline_passed
+        result.cf_passed = cf_passed
+        result.baseline_diffs = diffs
+
+        # the task's own wall-clock time, from its first step starting to
+        # its last finishing, which is what the serial path records too
+        spans = [
+            self._spans[step.path]
+            for step in steps
+            if step.path in self._spans
+        ]
+        if spans:
+            result.elapsed_seconds = max(end for _, end in spans) - min(
+                start for start, _ in spans
+            )
+        else:
+            result.elapsed_seconds = 0.0
+
+    def _step_succeeded(self, path: str) -> bool:
+        if path not in self._done:
+            return False
+        outcome = self._outcomes.get(path)
+        # a step done before the run started is one that succeeded earlier
+        return outcome is None or outcome.succeeded

@@ -16,6 +16,9 @@ import json
 import logging
 import os
 import subprocess
+from datetime import datetime
+from functools import partial
+from types import SimpleNamespace
 
 import pytest
 
@@ -25,8 +28,9 @@ from polaris.run.allocation import NodeResources
 from polaris.run.confinement import PLACEMENT_MISMATCH_LOG
 from polaris.run.events import EventStream, read_events
 from polaris.run.graph import build_step_graph
-from polaris.run.parallel import _credit_memory, _loop, _report
+from polaris.run.parallel import _credit_memory, _loop, _report, _TaskTracker
 from polaris.run.pool import ResourcePool
+from polaris.run.results import write_suite_results
 
 # what each synthetic step's process runs, in its own work directory
 STEP_SCRIPT = 'run.sh'
@@ -458,6 +462,8 @@ def test_what_the_steps_compared_is_added_up(tmp_path):
         # a failed property check is reported and does not fail the run,
         # which is what the serial path does with one
         _step(tmp_path, 'unproven', 'echo no > property_check_failed.log\n'),
+        # a CF failure fails a task on the serial path, so it fails the run
+        _step(tmp_path, 'noncompliant', 'echo no > cf_check_failed.log\n'),
         _step(tmp_path, 'quiet', 'true\n'),
     ]
 
@@ -471,7 +477,7 @@ def test_what_the_steps_compared_is_added_up(tmp_path):
         logging.getLogger('test'),
         1.0,
     )
-    assert failures == ['ocean/differs']
+    assert failures == ['ocean/differs', 'ocean/noncompliant']
 
 
 def test_the_work_a_run_did_excludes_starting_the_steps(tmp_path):
@@ -493,3 +499,91 @@ def test_the_work_a_run_did_excludes_starting_the_steps(tmp_path):
     # the step did nothing, so its own work is a small fraction of what the
     # scheduler measured around it
     assert outcome.work_seconds <= outcome.seconds
+
+
+def test_each_task_gets_the_result_the_serial_path_would_write(tmp_path):
+    """
+    The results file says how each task went, and the pull-request summary
+    and the baseline matcher both read it, so a concurrent run has to write
+    one too, even though its unit of work is a step rather than a task.
+    """
+    diffs = {'temperature': {'l1': 0.5, 'l2': 0.25, 'linf': 0.125}}
+    produced = tmp_path / 'broken' / 'mesh.nc'
+    differs = _step(
+        tmp_path,
+        'differs',
+        'echo no > baseline_failed.log\n'
+        f"echo '{json.dumps(diffs)}' > baseline_diff_summary.json\n",
+    )
+    agrees = _step(tmp_path, 'agrees', 'echo ok > baseline_passed.log\n')
+    broken = _step(tmp_path, 'broken', 'exit 1\n', outputs=[produced])
+    blocked = _step(tmp_path, 'blocked', 'true\n', inputs=[produced])
+    noncompliant = _step(
+        tmp_path, 'noncompliant', 'echo no > cf_check_failed.log\n'
+    )
+    task_steps = {
+        'ocean/compare': [differs, agrees],
+        'ocean/chain': [broken, blocked],
+        'ocean/cf': [noncompliant],
+    }
+    tasks = {name: SimpleNamespace(path=name) for name in task_steps}
+    steps = [step for each in task_steps.values() for step in each]
+
+    filename = str(tmp_path / 'suite_results.json')
+    graph = build_step_graph(steps)
+    tracker = _TaskTracker(
+        tasks,
+        task_steps,
+        graph,
+        partial(
+            write_suite_results,
+            filename,
+            'suite',
+            {},
+            datetime.now().astimezone(),
+        ),
+    )
+    with open(filename) as handle:
+        before = json.load(handle)
+    assert before['summary']['pending'] == 3
+    assert not before['complete']
+
+    nodes = _nodes()
+    with EventStream(str(tmp_path / 'events.jsonl')) as events:
+        _loop(
+            graph,
+            ResourcePool(nodes, local_node=nodes[0].name),
+            {step.path: step for step in steps},
+            logging.getLogger('test'),
+            events,
+            str(tmp_path),
+            True,
+            tracker,
+        )
+    tracker.finish()
+
+    with open(filename) as handle:
+        after = json.load(handle)
+    assert after['complete']
+    results = {task['path']: task for task in after['tasks']}
+
+    compare = results['ocean/compare']
+    assert compare['execution'] == 'pass'
+    assert compare['baseline'] == 'fail'
+    assert compare['baseline_diffs'] == diffs
+    assert compare['steps_to_run'] == ['differs', 'agrees']
+    assert compare['elapsed_seconds'] > 0.0
+
+    # the step that needed the broken one never ran, so its task failed
+    assert results['ocean/chain']['execution'] == 'fail'
+    assert results['ocean/chain']['baseline'] is None
+
+    assert results['ocean/cf']['execution'] == 'pass'
+    assert results['ocean/cf']['cf'] == 'fail'
+    assert results['ocean/cf']['status'] == 'fail'
+    assert after['summary'] == {
+        'total': 3,
+        'passed': 0,
+        'failed': 3,
+        'pending': 0,
+    }

@@ -1,6 +1,5 @@
 import argparse
 import glob
-import json
 import os
 import pickle
 import sys
@@ -20,7 +19,9 @@ from polaris.provenance import read as read_provenance
 from polaris.run import setup_config, unpickle_suite
 from polaris.run.lifecycle import (
     accumulate_baselines,
+    read_baseline_diff_summary_from_logs,
     read_baseline_status_from_logs,
+    read_cf_status_from_logs,
     read_property_status_from_logs,
     run_step,
     run_step_as_subprocess,
@@ -154,31 +155,7 @@ def run_tasks(
 
         # Write a concise, copy/paste-friendly summary for Omega PRs
         _write_output_for_pull_request(
-            suite_name,
-            suite,
-            results={
-                'total': len(task_results),
-                'failures': [
-                    name
-                    for name, result in task_results.items()
-                    if result.execution_passed is False
-                ],
-                'diffs': [
-                    name
-                    for name, result in task_results.items()
-                    if result.baseline_passed is False
-                ],
-                'diff_details': {
-                    name: result.baseline_diffs
-                    for name, result in task_results.items()
-                    if result.baseline_diffs
-                },
-                'cf': [
-                    name
-                    for name, result in task_results.items()
-                    if result.cf_passed is False
-                ],
-            },
+            suite_name, suite, results=_pr_results(task_results)
         )
 
         write_results(suite_time, task_results.values(), complete=True)
@@ -520,31 +497,6 @@ def _log_and_run_task(
     result.cf_passed = cf_passed
 
 
-def _read_baseline_diff_summary_from_logs(step_work_dir: str) -> Dict:
-    """Get the baseline diff summary from an existing JSON file, if any.
-
-    Returns
-    -------
-    dict
-        The maximum l1, l2 and l_infinity norm differences for each
-        variable, keyed by variable name, or an empty dict if no summary
-        is available.
-    """
-    filename = os.path.join(step_work_dir, 'baseline_diff_summary.json')
-    if not os.path.exists(filename):
-        return {}
-    try:
-        with open(filename, 'r') as handle:
-            summary = json.load(handle)
-        # older summaries hold float32 norms written as strings
-        return {
-            var: {name: float(norm) for name, norm in norms.items()}
-            for var, norms in summary.items()
-        }
-    except (OSError, ValueError, TypeError, AttributeError):
-        return {}
-
-
 def _nonzero_norms(var_summary: Optional[Dict]) -> Dict:
     """Filter a diff summary down to variables with an actual difference
     (l_infinity norm not exactly zero), so the PR summary stays focused on
@@ -584,22 +536,6 @@ def _format_diff_summary_lines(
             f'linf={norms["linf"]:.3e}'
         )
     return lines
-
-
-def _read_cf_status_from_logs(step_work_dir: str) -> Optional[bool]:
-    """Get CF check status from existing log markers.
-
-    Returns
-    -------
-    Optional[bool]
-        True if ``cf_check_passed.log`` exists, False if
-        ``cf_check_failed.log`` exists, otherwise None.
-    """
-    if os.path.exists(os.path.join(step_work_dir, 'cf_check_passed.log')):
-        return True
-    if os.path.exists(os.path.join(step_work_dir, 'cf_check_failed.log')):
-        return False
-    return None
 
 
 def _cf_check_message(results, passed: bool, step_name: str) -> str:
@@ -692,7 +628,7 @@ def _run_task(task, available_resources):
                 )
                 merge_diff_summary(
                     diff_summary,
-                    _read_baseline_diff_summary_from_logs(step.work_dir),
+                    read_baseline_diff_summary_from_logs(step.work_dir),
                 )
             property_status = None
             property_status = read_property_status_from_logs(step.work_dir)
@@ -848,7 +784,7 @@ def _check_completed_step_cf(task, step, step_name) -> Optional[bool]:
     Optional[bool]
         Whether the check passed, or None if the step checked no files
     """
-    status = _read_cf_status_from_logs(step.work_dir)
+    status = read_cf_status_from_logs(step.work_dir)
     if status is not None or not step.cf_check:
         return status
     step.config = setup_config(step.base_work_dir, step.config.filepath)
@@ -970,6 +906,35 @@ def _write_output_for_pull_request(
     with open(out_path, 'w') as out:
         out.write('\n'.join(lines) + '\n')
     print('Done.')
+
+
+def _pr_results(task_results: Dict[str, TaskResult]) -> dict:
+    """
+    The results the pull-request summary reports, from each task's result
+    """
+    return {
+        'total': len(task_results),
+        'failures': [
+            name
+            for name, result in task_results.items()
+            if result.execution_passed is False
+        ],
+        'diffs': [
+            name
+            for name, result in task_results.items()
+            if result.baseline_passed is False
+        ],
+        'diff_details': {
+            name: result.baseline_diffs
+            for name, result in task_results.items()
+            if result.baseline_diffs
+        },
+        'cf': [
+            name
+            for name, result in task_results.items()
+            if result.cf_passed is False
+        ],
+    }
 
 
 def _result_lines(results: dict) -> List[str]:
