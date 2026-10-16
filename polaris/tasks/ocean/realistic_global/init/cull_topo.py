@@ -5,6 +5,7 @@ import xarray as xr
 from mpas_tools.io import write_netcdf
 
 from polaris import Step
+from polaris.cf import add_cf_conventions
 
 # the fields that are masked by the land and ocean masks during remapping
 _MASKED_VARIABLES = [
@@ -121,4 +122,4 @@ class CullTopoStep(Step):
                     dims=da.dims,
                     attrs=da.attrs,
                 )
-        write_netcdf(ds_out, 'topography_culled.nc')
+        write_netcdf(add_cf_conventions(ds_out), 'topography_culled.nc')

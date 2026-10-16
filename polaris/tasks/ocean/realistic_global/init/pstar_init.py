@@ -4,6 +4,8 @@ import numpy as np
 import xarray as xr
 from mpas_tools.io import write_netcdf
 
+from polaris.cf import add_cf_conventions
+from polaris.mesh.attrs import add_mesh_var_attrs
 from polaris.ocean.eos import compute_specvol
 from polaris.ocean.vertical.bathymetry_holes import fill_max_level_holes
 from polaris.ocean.vertical.grid_1d import generate_1d_grid
@@ -129,6 +131,7 @@ class RealisticPStarInitStep(PStarInitStep):
         geom_z_bot = self._clamp_to_representable_depth(ds_mesh, geom_z_bot)
 
         ds_out = self._run_pstar_init_filling_holes(ds_mesh, geom_z_bot)
+        ds_out = add_cf_conventions(add_mesh_var_attrs(ds_out))
         write_netcdf(ds_out, 'pstar_init.nc')
 
     def _clamp_to_representable_depth(self, ds_mesh, geom_z_bot):
