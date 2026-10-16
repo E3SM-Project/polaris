@@ -459,10 +459,6 @@ seaice/api
    IcosahedralMeshStep.get_subdivisions
    IcosahedralMeshStep.get_cell_width
 
-   spherical.recompute_angle_edge
-   spherical.calc_edge_normal_vector
-   spherical.calc_vector_east_north
-
    spherical.quality.check_cell_polygon_quality
 ```
 
