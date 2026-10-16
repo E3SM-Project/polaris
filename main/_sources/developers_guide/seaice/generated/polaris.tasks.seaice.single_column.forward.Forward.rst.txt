@@ -14,6 +14,7 @@
    .. autosummary::
    
       ~Forward.__init__
+      ~Forward.add_cf_check
       ~Forward.add_dependency
       ~Forward.add_input_file
       ~Forward.add_model_config_options
@@ -22,6 +23,7 @@
       ~Forward.add_property_check
       ~Forward.add_streams_file
       ~Forward.add_yaml_file
+      ~Forward.check_cf
       ~Forward.check_properties
       ~Forward.constrain_resources
       ~Forward.dynamic_model_config

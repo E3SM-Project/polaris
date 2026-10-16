@@ -14,10 +14,12 @@
    .. autosummary::
    
       ~ConservationSummary.__init__
+      ~ConservationSummary.add_cf_check
       ~ConservationSummary.add_dependency
       ~ConservationSummary.add_input_file
       ~ConservationSummary.add_output_file
       ~ConservationSummary.add_property_check
+      ~ConservationSummary.check_cf
       ~ConservationSummary.check_properties
       ~ConservationSummary.constrain_resources
       ~ConservationSummary.process_inputs_and_outputs

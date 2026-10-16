@@ -14,10 +14,12 @@
    .. autosummary::
    
       ~Viz.__init__
+      ~Viz.add_cf_check
       ~Viz.add_dependency
       ~Viz.add_input_file
       ~Viz.add_output_file
       ~Viz.add_property_check
+      ~Viz.check_cf
       ~Viz.check_properties
       ~Viz.constrain_resources
       ~Viz.process_inputs_and_outputs

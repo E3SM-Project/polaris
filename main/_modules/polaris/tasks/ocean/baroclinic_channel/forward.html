@@ -404,11 +404,11 @@
                 <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">work_dir</span><span class="p">,</span> <span class="s1">'..'</span><span class="p">,</span> <span class="s1">'restarts'</span><span class="p">)</span>
             <span class="p">)</span>
             <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">restart_dir</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-            <span class="n">restart_filename</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">restart_dir</span><span class="si">}</span><span class="s1">/ocn.rst.$Y-$M-$D_$h.$m.$s'</span>
+            <span class="n">restart_filename</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">restart_dir</span><span class="si">}</span><span class="s1">/ocn.rst.$Y-$M-$D_$h.$m.$s.nc'</span>
             <span class="n">restart_freq</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">dt</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">restart_interval</span> <span class="o">=</span> <span class="n">get_time_interval_string</span><span class="p">(</span><span class="n">days</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
-            <span class="n">restart_filename</span> <span class="o">=</span> <span class="s1">'ocn.rst.$Y-$M-$D_$h.$m.$s'</span>
+            <span class="n">restart_filename</span> <span class="o">=</span> <span class="s1">'ocn.rst.$Y-$M-$D_$h.$m.$s.nc'</span>
             <span class="n">restart_freq</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="mi">24</span> <span class="o">*</span> <span class="mi">3600</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">do_restart</span><span class="p">:</span>

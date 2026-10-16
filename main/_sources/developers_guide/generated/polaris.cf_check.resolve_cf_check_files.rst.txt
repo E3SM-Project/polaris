@@ -1,0 +1,6 @@
+﻿polaris.cf\_check.resolve\_cf\_check\_files
+===========================================
+
+.. currentmodule:: polaris.cf_check
+
+.. autofunction:: resolve_cf_check_files

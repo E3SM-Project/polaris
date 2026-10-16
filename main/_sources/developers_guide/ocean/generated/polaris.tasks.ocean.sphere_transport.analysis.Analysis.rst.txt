@@ -14,6 +14,7 @@
    .. autosummary::
    
       ~Analysis.__init__
+      ~Analysis.add_cf_check
       ~Analysis.add_dependency
       ~Analysis.add_horiz_mesh_input_file
       ~Analysis.add_init_input_file
@@ -23,6 +24,7 @@
       ~Analysis.add_produced_file
       ~Analysis.add_property_check
       ~Analysis.add_vert_coord_input_file
+      ~Analysis.check_cf
       ~Analysis.check_properties
       ~Analysis.compute_error
       ~Analysis.constrain_resources

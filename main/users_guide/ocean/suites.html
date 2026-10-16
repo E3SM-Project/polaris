@@ -192,7 +192,9 @@ ocean/spherical/icos/cosine_bell/restart
 <section class="tex2jax_ignore mathjax_ignore" id="omega-pr-suite">
 <h1>omega_pr suite<a class="headerlink" href="#omega-pr-suite" title="Link to this heading"></a></h1>
 <p>The <code class="docutils literal notranslate"><span class="pre">omega_pr</span></code> suite is designed to test changes in Omega or the affects of
-Polaris changes on Omega results.</p>
+Polaris changes on Omega results.  Every file Omega writes in the suite is
+checked for CF compliance, and a task fails if the checker reports errors
+(see <a class="reference internal" href="../../developers_guide/framework/validation.html#dev-cf-check"><span class="std std-ref">CF compliance checks</span></a>).</p>
 <p>Here are the tests in the suite:</p>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>ocean/column/horiz_press_grad/salinity_gradient
 ocean/planar/baroclinic_channel/split_explicit/10km/decomp

@@ -14,11 +14,13 @@
    .. autosummary::
    
       ~UnifiedBaseMeshStep.__init__
+      ~UnifiedBaseMeshStep.add_cf_check
       ~UnifiedBaseMeshStep.add_dependency
       ~UnifiedBaseMeshStep.add_input_file
       ~UnifiedBaseMeshStep.add_output_file
       ~UnifiedBaseMeshStep.add_property_check
       ~UnifiedBaseMeshStep.build_cell_width_lat_lon
+      ~UnifiedBaseMeshStep.check_cf
       ~UnifiedBaseMeshStep.check_properties
       ~UnifiedBaseMeshStep.constrain_resources
       ~UnifiedBaseMeshStep.make_jigsaw_mesh

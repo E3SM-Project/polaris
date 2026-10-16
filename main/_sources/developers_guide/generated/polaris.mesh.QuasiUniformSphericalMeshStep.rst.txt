@@ -14,11 +14,13 @@
    .. autosummary::
    
       ~QuasiUniformSphericalMeshStep.__init__
+      ~QuasiUniformSphericalMeshStep.add_cf_check
       ~QuasiUniformSphericalMeshStep.add_dependency
       ~QuasiUniformSphericalMeshStep.add_input_file
       ~QuasiUniformSphericalMeshStep.add_output_file
       ~QuasiUniformSphericalMeshStep.add_property_check
       ~QuasiUniformSphericalMeshStep.build_cell_width_lat_lon
+      ~QuasiUniformSphericalMeshStep.check_cf
       ~QuasiUniformSphericalMeshStep.check_properties
       ~QuasiUniformSphericalMeshStep.constrain_resources
       ~QuasiUniformSphericalMeshStep.make_jigsaw_mesh

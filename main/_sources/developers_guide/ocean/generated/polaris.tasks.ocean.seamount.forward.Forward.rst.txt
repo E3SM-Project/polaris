@@ -14,6 +14,7 @@
    .. autosummary::
    
       ~Forward.__init__
+      ~Forward.add_cf_check
       ~Forward.add_dependency
       ~Forward.add_horiz_mesh_input_file
       ~Forward.add_init_input_file
@@ -25,6 +26,7 @@
       ~Forward.add_streams_file
       ~Forward.add_vert_coord_input_file
       ~Forward.add_yaml_file
+      ~Forward.check_cf
       ~Forward.check_properties
       ~Forward.compute_cell_count
       ~Forward.constrain_resources

@@ -14,10 +14,12 @@
    .. autosummary::
    
       ~ComputeFeatureMasksStep.__init__
+      ~ComputeFeatureMasksStep.add_cf_check
       ~ComputeFeatureMasksStep.add_dependency
       ~ComputeFeatureMasksStep.add_input_file
       ~ComputeFeatureMasksStep.add_output_file
       ~ComputeFeatureMasksStep.add_property_check
+      ~ComputeFeatureMasksStep.check_cf
       ~ComputeFeatureMasksStep.check_properties
       ~ComputeFeatureMasksStep.constrain_resources
       ~ComputeFeatureMasksStep.process_inputs_and_outputs

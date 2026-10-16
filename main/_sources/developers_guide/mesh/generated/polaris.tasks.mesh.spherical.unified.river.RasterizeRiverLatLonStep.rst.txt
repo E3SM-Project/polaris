@@ -14,10 +14,12 @@
    .. autosummary::
    
       ~RasterizeRiverLatLonStep.__init__
+      ~RasterizeRiverLatLonStep.add_cf_check
       ~RasterizeRiverLatLonStep.add_dependency
       ~RasterizeRiverLatLonStep.add_input_file
       ~RasterizeRiverLatLonStep.add_output_file
       ~RasterizeRiverLatLonStep.add_property_check
+      ~RasterizeRiverLatLonStep.check_cf
       ~RasterizeRiverLatLonStep.check_properties
       ~RasterizeRiverLatLonStep.constrain_resources
       ~RasterizeRiverLatLonStep.process_inputs_and_outputs

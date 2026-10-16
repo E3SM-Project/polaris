@@ -14,6 +14,7 @@
    .. autosummary::
    
       ~ClimatologyMaps.__init__
+      ~ClimatologyMaps.add_cf_check
       ~ClimatologyMaps.add_dependency
       ~ClimatologyMaps.add_horiz_mesh_input_file
       ~ClimatologyMaps.add_init_input_file
@@ -26,6 +27,7 @@
       ~ClimatologyMaps.add_sim_input_file
       ~ClimatologyMaps.add_sim_input_files
       ~ClimatologyMaps.add_vert_coord_input_file
+      ~ClimatologyMaps.check_cf
       ~ClimatologyMaps.check_properties
       ~ClimatologyMaps.constrain_resources
       ~ClimatologyMaps.get_forcing_filename

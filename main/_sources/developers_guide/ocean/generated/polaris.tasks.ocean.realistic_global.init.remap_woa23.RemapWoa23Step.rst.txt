@@ -14,10 +14,12 @@
    .. autosummary::
    
       ~RemapWoa23Step.__init__
+      ~RemapWoa23Step.add_cf_check
       ~RemapWoa23Step.add_dependency
       ~RemapWoa23Step.add_input_file
       ~RemapWoa23Step.add_output_file
       ~RemapWoa23Step.add_property_check
+      ~RemapWoa23Step.check_cf
       ~RemapWoa23Step.check_properties
       ~RemapWoa23Step.constrain_resources
       ~RemapWoa23Step.process_inputs_and_outputs

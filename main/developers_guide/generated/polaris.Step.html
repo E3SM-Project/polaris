@@ -90,6 +90,7 @@
 <li class="toctree-l3"><a class="reference internal" href="../api.html#analysis">analysis</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../api.html#attrs">attrs</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../api.html#baselines">baselines</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api.html#cf-check">cf_check</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../api.html#component-graph">component_graph</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../api.html#config">config</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../api.html#coriolis">coriolis</a></li>
@@ -289,6 +290,13 @@ keys <code class="docutils literal notranslate"><span class="pre">description</s
 <li><p><strong>baseline_diff_summary</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="(in Python v3.15)"><em>dict</em></a>) – The maximum l1, l2 and l_infinity norm differences found for each
 variable by <a class="reference internal" href="polaris.Step.validate_baselines.html#polaris.Step.validate_baselines" title="polaris.Step.validate_baselines"><code class="xref py py-meth docutils literal notranslate"><span class="pre">validate_baselines()</span></code></a>, keyed by variable name,
 e.g. <code class="docutils literal notranslate"><span class="pre">{'temperature':</span> <span class="pre">{'l1':</span> <span class="pre">...,</span> <span class="pre">'l2':</span> <span class="pre">...,</span> <span class="pre">'linf':</span> <span class="pre">...}}</span></code></p></li>
+<li><p><strong>cf_check</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#bool" title="(in Python v3.15)"><em>bool</em></a>) – Whether to check output files for CF compliance after the step
+runs, set by <a class="reference internal" href="polaris.Step.add_cf_check.html#polaris.Step.add_cf_check" title="polaris.Step.add_cf_check"><code class="xref py py-meth docutils literal notranslate"><span class="pre">add_cf_check()</span></code></a></p></li>
+<li><p><strong>cf_check_files</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#list" title="(in Python v3.15)"><em>list</em></a><em> of </em><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><em>str</em></a>) – Files or glob patterns, relative to the step’s work directory, to
+check for CF compliance, added with <a class="reference internal" href="polaris.Step.add_cf_check.html#polaris.Step.add_cf_check" title="polaris.Step.add_cf_check"><code class="xref py py-meth docutils literal notranslate"><span class="pre">add_cf_check()</span></code></a></p></li>
+<li><p><strong>cf_check_results</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#list" title="(in Python v3.15)"><em>list</em></a><em> of </em><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="(in Python v3.15)"><em>dict</em></a>) – The results of the CF checks performed by <a class="reference internal" href="polaris.Step.check_cf.html#polaris.Step.check_cf" title="polaris.Step.check_cf"><code class="xref py py-meth docutils literal notranslate"><span class="pre">check_cf()</span></code></a>,
+each a dictionary with at least the keys <code class="docutils literal notranslate"><span class="pre">filename</span></code>, <code class="docutils literal notranslate"><span class="pre">passed</span></code>,
+<code class="docutils literal notranslate"><span class="pre">errors</span></code> and <code class="docutils literal notranslate"><span class="pre">report</span></code></p></li>
 <li><p><strong>logger</strong> (<a class="reference external" href="https://docs.python.org/3/library/logging.html#logging.Logger" title="(in Python v3.15)"><em>logging.Logger</em></a>) – A logger for output from the step</p></li>
 <li><p><strong>log_filename</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><em>str</em></a>) – At run time, the name of a log file where output/errors from the step
 are being logged, or <code class="docutils literal notranslate"><span class="pre">None</span></code> if output is to stdout/stderr</p></li>
@@ -386,17 +394,23 @@ additional subprocesses).</p></li>
 <tr class="row-odd"><td><p><a class="reference internal" href="#polaris.Step.__init__" title="polaris.Step.__init__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code></a>(component, name[, subdir, indir, ...])</p></td>
 <td><p>Create a new task</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="polaris.Step.add_dependency.html#polaris.Step.add_dependency" title="polaris.Step.add_dependency"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_dependency</span></code></a>(step[, name])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="polaris.Step.add_cf_check.html#polaris.Step.add_cf_check" title="polaris.Step.add_cf_check"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_cf_check</span></code></a>([filename])</p></td>
+<td><p>Check an output file for CF compliance after the step runs.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="polaris.Step.add_dependency.html#polaris.Step.add_dependency" title="polaris.Step.add_dependency"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_dependency</span></code></a>(step[, name])</p></td>
 <td><p>Add <cite>step</cite> as a dependency of this step (i.e. this step can't run until the dependency has finished).</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="polaris.Step.add_input_file.html#polaris.Step.add_input_file" title="polaris.Step.add_input_file"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_input_file</span></code></a>([filename, target, database, ...])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="polaris.Step.add_input_file.html#polaris.Step.add_input_file" title="polaris.Step.add_input_file"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_input_file</span></code></a>([filename, target, database, ...])</p></td>
 <td><p>Add an input file to the step (but not necessarily to the MPAS model).</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="polaris.Step.add_output_file.html#polaris.Step.add_output_file" title="polaris.Step.add_output_file"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_output_file</span></code></a>(filename[, validate_vars, ...])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="polaris.Step.add_output_file.html#polaris.Step.add_output_file" title="polaris.Step.add_output_file"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_output_file</span></code></a>(filename[, validate_vars, ...])</p></td>
 <td><p>Add the output file to the step</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="polaris.Step.add_property_check.html#polaris.Step.add_property_check" title="polaris.Step.add_property_check"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_property_check</span></code></a>(filename, check_properties)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="polaris.Step.add_property_check.html#polaris.Step.add_property_check" title="polaris.Step.add_property_check"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_property_check</span></code></a>(filename, check_properties)</p></td>
 <td><p>Add a single conservation comparison for an output file</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="polaris.Step.check_cf.html#polaris.Step.check_cf" title="polaris.Step.check_cf"><code class="xref py py-obj docutils literal notranslate"><span class="pre">check_cf</span></code></a>()</p></td>
+<td><p>Check the files added with <a class="reference internal" href="polaris.Step.add_cf_check.html#polaris.Step.add_cf_check" title="polaris.Step.add_cf_check"><code class="xref py py-meth docutils literal notranslate"><span class="pre">add_cf_check()</span></code></a> for CF compliance.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="polaris.Step.check_properties.html#polaris.Step.check_properties" title="polaris.Step.check_properties"><code class="xref py py-obj docutils literal notranslate"><span class="pre">check_properties</span></code></a>()</p></td>
 <td><p>Check conservation properties of the output files of this step.</p></td>

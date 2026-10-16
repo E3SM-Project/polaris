@@ -14,6 +14,7 @@
    .. autosummary::
    
       ~RestartStep.__init__
+      ~RestartStep.add_cf_check
       ~RestartStep.add_dependency
       ~RestartStep.add_horiz_mesh_input_file
       ~RestartStep.add_init_input_file
@@ -25,6 +26,7 @@
       ~RestartStep.add_streams_file
       ~RestartStep.add_vert_coord_input_file
       ~RestartStep.add_yaml_file
+      ~RestartStep.check_cf
       ~RestartStep.check_properties
       ~RestartStep.compute_cell_count
       ~RestartStep.constrain_resources

@@ -14,6 +14,7 @@
    .. autosummary::
    
       ~PStarInit.__init__
+      ~PStarInit.add_cf_check
       ~PStarInit.add_dependency
       ~PStarInit.add_horiz_mesh_input_file
       ~PStarInit.add_init_input_file
@@ -23,6 +24,7 @@
       ~PStarInit.add_produced_file
       ~PStarInit.add_property_check
       ~PStarInit.add_vert_coord_input_file
+      ~PStarInit.check_cf
       ~PStarInit.check_properties
       ~PStarInit.constrain_resources
       ~PStarInit.get_forcing_filename

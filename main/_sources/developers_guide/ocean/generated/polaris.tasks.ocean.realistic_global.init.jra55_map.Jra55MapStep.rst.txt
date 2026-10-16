@@ -14,10 +14,12 @@
    .. autosummary::
    
       ~Jra55MapStep.__init__
+      ~Jra55MapStep.add_cf_check
       ~Jra55MapStep.add_dependency
       ~Jra55MapStep.add_input_file
       ~Jra55MapStep.add_output_file
       ~Jra55MapStep.add_property_check
+      ~Jra55MapStep.check_cf
       ~Jra55MapStep.check_properties
       ~Jra55MapStep.constrain_resources
       ~Jra55MapStep.process_inputs_and_outputs

@@ -14,10 +14,12 @@
    .. autosummary::
    
       ~CullTopoStep.__init__
+      ~CullTopoStep.add_cf_check
       ~CullTopoStep.add_dependency
       ~CullTopoStep.add_input_file
       ~CullTopoStep.add_output_file
       ~CullTopoStep.add_property_check
+      ~CullTopoStep.check_cf
       ~CullTopoStep.check_properties
       ~CullTopoStep.constrain_resources
       ~CullTopoStep.process_inputs_and_outputs

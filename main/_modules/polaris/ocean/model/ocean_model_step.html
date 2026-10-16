@@ -113,6 +113,7 @@
 <span></span><span class="kn">import</span><span class="w"> </span><span class="nn">importlib.resources</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">imp_res</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">json</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">re</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">types</span><span class="w"> </span><span class="kn">import</span> <span class="n">ModuleType</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">TYPE_CHECKING</span><span class="p">,</span>
@@ -140,6 +141,7 @@
 <span class="p">)</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">polaris.ocean.model.ocean_model_files_mixin</span><span class="w"> </span><span class="kn">import</span> <span class="n">OceanModelFilesMixin</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">polaris.ocean.model.time</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_time_since_start</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.yaml</span><span class="w"> </span><span class="kn">import</span> <span class="n">PolarisYaml</span>
 
 <span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
     <span class="c1"># Keep Ocean as a type-only import. Importing it at runtime pulls</span>
@@ -415,6 +417,8 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">streams_section</span> <span class="o">=</span> <span class="s1">'IOStreams'</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_read_config_map</span><span class="p">()</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">partition_graph</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="c1"># every file Omega writes is checked for CF compliance</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">add_cf_check</span><span class="p">()</span>
         <span class="k">elif</span> <span class="n">model</span> <span class="o">==</span> <span class="s1">'mpas-ocean'</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">config_models</span> <span class="o">=</span> <span class="p">[</span><span class="s1">'ocean'</span><span class="p">,</span> <span class="s1">'mpas-ocean'</span><span class="p">]</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">make_yaml</span> <span class="o">=</span> <span class="kc">False</span>
@@ -714,6 +718,36 @@
             <span class="s1">'config_eos_type'</span><span class="p">:</span> <span class="n">eos_type</span><span class="p">,</span>
         <span class="p">}</span>
         <span class="k">return</span> <span class="n">replacements</span>
+
+<div class="viewcode-block" id="OceanModelStep.check_cf">
+<a class="viewcode-back" href="../../../../developers_guide/ocean/generated/polaris.ocean.model.OceanModelStep.check_cf.html#polaris.ocean.model.OceanModelStep.check_cf">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">check_cf</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">        Check every file Omega wrote for CF compliance: the first file of</span>
+<span class="sd">        each write stream in the step's ``omega.yml``, since the files of a</span>
+<span class="sd">        stream share their metadata.  MPAS-Ocean output is not checked.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        checked : bool</span>
+<span class="sd">            Whether any files were checked</span>
+
+<span class="sd">        success : bool</span>
+<span class="sd">            Whether every checked file was free of errors</span>
+<span class="sd">        """</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'ocean'</span><span class="p">,</span> <span class="s1">'model'</span><span class="p">)</span> <span class="o">==</span> <span class="s1">'omega'</span><span class="p">:</span>
+            <span class="n">yaml</span> <span class="o">=</span> <span class="n">PolarisYaml</span><span class="o">.</span><span class="n">read</span><span class="p">(</span>
+                <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">work_dir</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">yaml</span><span class="p">),</span>
+                <span class="n">streams_section</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">streams_section</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="k">for</span> <span class="n">stream</span> <span class="ow">in</span> <span class="n">yaml</span><span class="o">.</span><span class="n">streams</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+                <span class="k">if</span> <span class="n">stream</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'Mode'</span><span class="p">)</span> <span class="o">!=</span> <span class="s1">'write'</span><span class="p">:</span>
+                    <span class="k">continue</span>
+                <span class="c1"># Omega's time template in a filename becomes a glob</span>
+                <span class="n">pattern</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="sa">r</span><span class="s1">'\$[YMDhms]'</span><span class="p">,</span> <span class="s1">'*'</span><span class="p">,</span> <span class="n">stream</span><span class="p">[</span><span class="s1">'Filename'</span><span class="p">])</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">add_cf_check</span><span class="p">(</span><span class="n">pattern</span><span class="p">)</span>
+        <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">check_cf</span><span class="p">()</span></div>
+
 
 <div class="viewcode-block" id="OceanModelStep.check_properties">
 <a class="viewcode-back" href="../../../../developers_guide/ocean/generated/polaris.ocean.model.OceanModelStep.check_properties.html#polaris.ocean.model.OceanModelStep.check_properties">[docs]</a>

@@ -14,10 +14,12 @@
    .. autosummary::
    
       ~ClipRiverNetworkStep.__init__
+      ~ClipRiverNetworkStep.add_cf_check
       ~ClipRiverNetworkStep.add_dependency
       ~ClipRiverNetworkStep.add_input_file
       ~ClipRiverNetworkStep.add_output_file
       ~ClipRiverNetworkStep.add_property_check
+      ~ClipRiverNetworkStep.check_cf
       ~ClipRiverNetworkStep.check_properties
       ~ClipRiverNetworkStep.constrain_resources
       ~ClipRiverNetworkStep.process_inputs_and_outputs

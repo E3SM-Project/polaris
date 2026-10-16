@@ -14,10 +14,12 @@
    .. autosummary::
    
       ~Woa23MapStep.__init__
+      ~Woa23MapStep.add_cf_check
       ~Woa23MapStep.add_dependency
       ~Woa23MapStep.add_input_file
       ~Woa23MapStep.add_output_file
       ~Woa23MapStep.add_property_check
+      ~Woa23MapStep.check_cf
       ~Woa23MapStep.check_properties
       ~Woa23MapStep.constrain_resources
       ~Woa23MapStep.process_inputs_and_outputs

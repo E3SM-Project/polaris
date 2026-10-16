@@ -14,10 +14,12 @@
    .. autosummary::
    
       ~Step.__init__
+      ~Step.add_cf_check
       ~Step.add_dependency
       ~Step.add_input_file
       ~Step.add_output_file
       ~Step.add_property_check
+      ~Step.check_cf
       ~Step.check_properties
       ~Step.constrain_resources
       ~Step.process_inputs_and_outputs

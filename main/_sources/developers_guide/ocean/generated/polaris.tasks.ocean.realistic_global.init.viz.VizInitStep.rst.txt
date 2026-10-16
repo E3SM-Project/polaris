@@ -14,6 +14,7 @@
    .. autosummary::
    
       ~VizInitStep.__init__
+      ~VizInitStep.add_cf_check
       ~VizInitStep.add_dependency
       ~VizInitStep.add_horiz_mesh_input_file
       ~VizInitStep.add_init_input_file
@@ -23,6 +24,7 @@
       ~VizInitStep.add_produced_file
       ~VizInitStep.add_property_check
       ~VizInitStep.add_vert_coord_input_file
+      ~VizInitStep.check_cf
       ~VizInitStep.check_properties
       ~VizInitStep.constrain_resources
       ~VizInitStep.get_forcing_filename

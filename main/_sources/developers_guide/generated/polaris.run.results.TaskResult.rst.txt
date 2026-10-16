@@ -25,6 +25,7 @@
    .. autosummary::
    
       ~TaskResult.baseline_passed
+      ~TaskResult.cf_passed
       ~TaskResult.elapsed_seconds
       ~TaskResult.execution_passed
       ~TaskResult.log

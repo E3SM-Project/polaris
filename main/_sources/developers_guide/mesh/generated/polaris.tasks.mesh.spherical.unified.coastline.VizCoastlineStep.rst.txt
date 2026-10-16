@@ -14,10 +14,12 @@
    .. autosummary::
    
       ~VizCoastlineStep.__init__
+      ~VizCoastlineStep.add_cf_check
       ~VizCoastlineStep.add_dependency
       ~VizCoastlineStep.add_input_file
       ~VizCoastlineStep.add_output_file
       ~VizCoastlineStep.add_property_check
+      ~VizCoastlineStep.check_cf
       ~VizCoastlineStep.check_properties
       ~VizCoastlineStep.constrain_resources
       ~VizCoastlineStep.process_inputs_and_outputs

@@ -285,6 +285,11 @@
                     <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">result</span> <span class="ow">in</span> <span class="n">task_results</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
                     <span class="k">if</span> <span class="n">result</span><span class="o">.</span><span class="n">baseline_diffs</span>
                 <span class="p">},</span>
+                <span class="s1">'cf'</span><span class="p">:</span> <span class="p">[</span>
+                    <span class="n">name</span>
+                    <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">result</span> <span class="ow">in</span> <span class="n">task_results</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+                    <span class="k">if</span> <span class="n">result</span><span class="o">.</span><span class="n">cf_passed</span> <span class="ow">is</span> <span class="kc">False</span>
+                <span class="p">],</span>
             <span class="p">},</span>
         <span class="p">)</span>
 
@@ -541,11 +546,12 @@
         <span class="n">task_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">''</span><span class="p">)</span>
         <span class="n">task_list</span> <span class="o">=</span> <span class="s1">', '</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">task</span><span class="o">.</span><span class="n">steps_to_run</span><span class="p">)</span>
         <span class="n">task_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">'Running steps: </span><span class="si">{</span><span class="n">task_list</span><span class="si">}</span><span class="s1">'</span><span class="p">)</span>
-        <span class="c1"># Default in case execution fails before setting this</span>
+        <span class="c1"># Default in case execution fails before setting these</span>
         <span class="n">baselines_passed</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="n">diff_summary</span><span class="p">:</span> <span class="n">Dict</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">cf_passed</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="k">try</span><span class="p">:</span>
-            <span class="n">baselines_passed</span><span class="p">,</span> <span class="n">diff_summary</span> <span class="o">=</span> <span class="n">_run_task</span><span class="p">(</span>
+            <span class="n">baselines_passed</span><span class="p">,</span> <span class="n">diff_summary</span><span class="p">,</span> <span class="n">cf_passed</span> <span class="o">=</span> <span class="n">_run_task</span><span class="p">(</span>
                 <span class="n">task</span><span class="p">,</span> <span class="n">available_resources</span>
             <span class="p">)</span>
             <span class="n">run_status</span> <span class="o">=</span> <span class="n">success_str</span>
@@ -569,6 +575,12 @@
                     <span class="sa">f</span><span class="s1">'POLARIS BASELINE: '</span>
                     <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="s2">"PASS"</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="n">baselines_passed</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="s2">"FAIL"</span><span class="si">}</span><span class="s1">'</span>
                 <span class="p">)</span>
+            <span class="k">if</span> <span class="n">cf_passed</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">cf_str</span> <span class="o">=</span> <span class="n">pass_str</span> <span class="k">if</span> <span class="n">cf_passed</span> <span class="k">else</span> <span class="n">fail_str</span>
+                <span class="n">stdout_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">'  CF compliance:    </span><span class="si">{</span><span class="n">cf_str</span><span class="si">}</span><span class="s1">'</span><span class="p">)</span>
+                <span class="n">task_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s1">'POLARIS CF COMPLIANCE: </span><span class="si">{</span><span class="s2">"PASS"</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="n">cf_passed</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="s2">"FAIL"</span><span class="si">}</span><span class="s1">'</span>
+                <span class="p">)</span>
 
         <span class="k">else</span><span class="p">:</span>
             <span class="n">stdout_logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
@@ -586,6 +598,7 @@
     <span class="n">result</span><span class="o">.</span><span class="n">baseline_passed</span> <span class="o">=</span> <span class="n">baselines_passed</span>
     <span class="n">result</span><span class="o">.</span><span class="n">elapsed_seconds</span> <span class="o">=</span> <span class="n">task_time</span>
     <span class="n">result</span><span class="o">.</span><span class="n">baseline_diffs</span> <span class="o">=</span> <span class="n">diff_summary</span>
+    <span class="n">result</span><span class="o">.</span><span class="n">cf_passed</span> <span class="o">=</span> <span class="n">cf_passed</span>
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_read_baseline_status_from_logs</span><span class="p">(</span><span class="n">step_work_dir</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]:</span>
@@ -691,6 +704,49 @@
     <span class="k">return</span> <span class="kc">None</span>
 
 
+<span class="k">def</span><span class="w"> </span><span class="nf">_read_cf_status_from_logs</span><span class="p">(</span><span class="n">step_work_dir</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">"""Get CF check status from existing log markers.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    Optional[bool]</span>
+<span class="sd">        True if ``cf_check_passed.log`` exists, False if</span>
+<span class="sd">        ``cf_check_failed.log`` exists, otherwise None.</span>
+<span class="sd">    """</span>
+    <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">step_work_dir</span><span class="p">,</span> <span class="s1">'cf_check_passed.log'</span><span class="p">)):</span>
+        <span class="k">return</span> <span class="kc">True</span>
+    <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">step_work_dir</span><span class="p">,</span> <span class="s1">'cf_check_failed.log'</span><span class="p">)):</span>
+        <span class="k">return</span> <span class="kc">False</span>
+    <span class="k">return</span> <span class="kc">None</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_cf_check_message</span><span class="p">(</span><span class="n">results</span><span class="p">,</span> <span class="n">passed</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span> <span class="n">step_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Build the contents of the CF check log file.</span>
+
+<span class="sd">    The files that passed are listed.  For a failing step, the errors the</span>
+<span class="sd">    checker reported for each failing file are listed first.  The full</span>
+<span class="sd">    report, including warnings, is in the step's log.</span>
+<span class="sd">    """</span>
+    <span class="k">if</span> <span class="n">passed</span><span class="p">:</span>
+        <span class="n">lines</span> <span class="o">=</span> <span class="p">[</span><span class="sa">f</span><span class="s1">'CF check passed for step </span><span class="si">{</span><span class="n">step_name</span><span class="si">}</span><span class="s1">'</span><span class="p">,</span> <span class="s1">''</span><span class="p">]</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">lines</span> <span class="o">=</span> <span class="p">[</span><span class="sa">f</span><span class="s1">'CF check failed for step </span><span class="si">{</span><span class="n">step_name</span><span class="si">}</span><span class="s1">'</span><span class="p">,</span> <span class="s1">''</span><span class="p">]</span>
+        <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">'The following files had errors:'</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">result</span> <span class="ow">in</span> <span class="n">results</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">result</span><span class="p">[</span><span class="s1">'passed'</span><span class="p">]:</span>
+                <span class="k">continue</span>
+            <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s1">'  </span><span class="si">{</span><span class="n">result</span><span class="p">[</span><span class="s2">"filename"</span><span class="p">]</span><span class="si">}</span><span class="s1">'</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">error</span> <span class="ow">in</span> <span class="n">result</span><span class="p">[</span><span class="s1">'errors'</span><span class="p">]:</span>
+                <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s1">'    </span><span class="si">{</span><span class="n">error</span><span class="si">}</span><span class="s1">'</span><span class="p">)</span>
+        <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">''</span><span class="p">)</span>
+    <span class="n">passing</span> <span class="o">=</span> <span class="p">[</span><span class="n">result</span> <span class="k">for</span> <span class="n">result</span> <span class="ow">in</span> <span class="n">results</span> <span class="k">if</span> <span class="n">result</span><span class="p">[</span><span class="s1">'passed'</span><span class="p">]]</span>
+    <span class="k">if</span> <span class="n">passing</span><span class="p">:</span>
+        <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">'The following files passed:'</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">result</span> <span class="ow">in</span> <span class="n">passing</span><span class="p">:</span>
+            <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s1">'  </span><span class="si">{</span><span class="n">result</span><span class="p">[</span><span class="s2">"filename"</span><span class="p">]</span><span class="si">}</span><span class="s1">'</span><span class="p">)</span>
+    <span class="k">return</span> <span class="s1">'</span><span class="se">\n</span><span class="s1">'</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">lines</span><span class="p">)</span> <span class="o">+</span> <span class="s1">'</span><span class="se">\n</span><span class="s1">'</span>
+
+
 <span class="k">def</span><span class="w"> </span><span class="nf">_property_check_message</span><span class="p">(</span><span class="n">results</span><span class="p">,</span> <span class="n">passed</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span> <span class="n">step_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">"""Build the contents of the property check log file.</span>
 
@@ -747,6 +803,7 @@
     <span class="n">baselines_passed</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="n">property_passed</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="n">diff_summary</span><span class="p">:</span> <span class="n">Dict</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="n">cf_passed</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="k">for</span> <span class="n">step_name</span> <span class="ow">in</span> <span class="n">task</span><span class="o">.</span><span class="n">steps_to_run</span><span class="p">:</span>
         <span class="n">step</span> <span class="o">=</span> <span class="n">task</span><span class="o">.</span><span class="n">steps</span><span class="p">[</span><span class="n">step_name</span><span class="p">]</span>
         <span class="n">complete_filename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
@@ -781,11 +838,14 @@
                 <span class="n">property_passed</span> <span class="o">=</span> <span class="n">_accumulate_baselines</span><span class="p">(</span>
                     <span class="n">property_passed</span><span class="p">,</span> <span class="n">property_status</span>
                 <span class="p">)</span>
+            <span class="n">cf_status</span> <span class="o">=</span> <span class="n">_check_completed_step_cf</span><span class="p">(</span><span class="n">task</span><span class="p">,</span> <span class="n">step</span><span class="p">,</span> <span class="n">step_name</span><span class="p">)</span>
+            <span class="n">cf_passed</span> <span class="o">=</span> <span class="n">_report_cf_status</span><span class="p">(</span><span class="n">task</span><span class="p">,</span> <span class="n">cf_status</span><span class="p">,</span> <span class="n">cf_passed</span><span class="p">)</span>
             <span class="k">continue</span>
         <span class="k">if</span> <span class="n">step</span><span class="o">.</span><span class="n">cached</span><span class="p">:</span>
             <span class="n">_print_to_stdout</span><span class="p">(</span><span class="n">task</span><span class="p">,</span> <span class="s1">'          cached'</span><span class="p">)</span>
-            <span class="c1"># cached steps never perform baseline comparisons; leave</span>
-            <span class="c1"># baselines_passed unchanged</span>
+            <span class="c1"># cached steps never perform baseline comparisons or CF checks,</span>
+            <span class="c1"># since their outputs were not produced by the code under test;</span>
+            <span class="c1"># leave baselines_passed and cf_passed unchanged</span>
             <span class="k">continue</span>
 
         <span class="n">step_start</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
@@ -853,6 +913,11 @@
                     <span class="n">property_passed</span><span class="p">,</span> <span class="n">properties_passed</span>
                 <span class="p">)</span>
 
+        <span class="k">if</span> <span class="n">step</span><span class="o">.</span><span class="n">cf_check</span><span class="p">:</span>
+            <span class="n">cf_passed</span> <span class="o">=</span> <span class="n">_report_cf_status</span><span class="p">(</span>
+                <span class="n">task</span><span class="p">,</span> <span class="n">_check_step_cf</span><span class="p">(</span><span class="n">step</span><span class="p">,</span> <span class="n">step_name</span><span class="p">),</span> <span class="n">cf_passed</span>
+            <span class="p">)</span>
+
         <span class="n">compared</span><span class="p">,</span> <span class="n">status</span> <span class="o">=</span> <span class="n">step</span><span class="o">.</span><span class="n">validate_baselines</span><span class="p">()</span>
         <span class="k">if</span> <span class="n">compared</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">status</span><span class="p">:</span>
@@ -873,7 +938,70 @@
             <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">start_time_color</span><span class="si">}{</span><span class="n">step_time_str</span><span class="si">}{</span><span class="n">end_color</span><span class="si">}</span><span class="s1">'</span><span class="p">,</span>
         <span class="p">)</span>
 
-    <span class="k">return</span> <span class="n">baselines_passed</span><span class="p">,</span> <span class="n">diff_summary</span>
+    <span class="k">return</span> <span class="n">baselines_passed</span><span class="p">,</span> <span class="n">diff_summary</span><span class="p">,</span> <span class="n">cf_passed</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_check_step_cf</span><span class="p">(</span><span class="n">step</span><span class="p">,</span> <span class="n">step_name</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Run the step's CF check and leave a ``cf_check_passed.log`` or</span>
+<span class="sd">    ``cf_check_failed.log`` marker in its work directory.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    Optional[bool]</span>
+<span class="sd">        Whether the check passed, or None if the step checked no files</span>
+<span class="sd">    """</span>
+    <span class="n">checked</span><span class="p">,</span> <span class="n">files_passed</span> <span class="o">=</span> <span class="n">step</span><span class="o">.</span><span class="n">check_cf</span><span class="p">()</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">checked</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">None</span>
+    <span class="n">passed_log</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">step</span><span class="o">.</span><span class="n">work_dir</span><span class="p">,</span> <span class="s1">'cf_check_passed.log'</span><span class="p">)</span>
+    <span class="n">failed_log</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">step</span><span class="o">.</span><span class="n">work_dir</span><span class="p">,</span> <span class="s1">'cf_check_failed.log'</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">files_passed</span><span class="p">:</span>
+        <span class="n">write_log</span><span class="p">,</span> <span class="n">remove_log</span> <span class="o">=</span> <span class="n">passed_log</span><span class="p">,</span> <span class="n">failed_log</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">write_log</span><span class="p">,</span> <span class="n">remove_log</span> <span class="o">=</span> <span class="n">failed_log</span><span class="p">,</span> <span class="n">passed_log</span>
+    <span class="n">message</span> <span class="o">=</span> <span class="n">_cf_check_message</span><span class="p">(</span>
+        <span class="n">step</span><span class="o">.</span><span class="n">cf_check_results</span><span class="p">,</span> <span class="n">passed</span><span class="o">=</span><span class="n">files_passed</span><span class="p">,</span> <span class="n">step_name</span><span class="o">=</span><span class="n">step_name</span>
+    <span class="p">)</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">write_log</span><span class="p">,</span> <span class="s1">'w'</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+        <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">message</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">remove_log</span><span class="p">):</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">remove_log</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">files_passed</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_check_completed_step_cf</span><span class="p">(</span><span class="n">task</span><span class="p">,</span> <span class="n">step</span><span class="p">,</span> <span class="n">step_name</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Get the CF check status of a step that has already completed.  If the</span>
+<span class="sd">    step should be checked but left no marker (e.g. because the check raised</span>
+<span class="sd">    an exception after the step completed), run the check now so a retry</span>
+<span class="sd">    cannot skip it.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    Optional[bool]</span>
+<span class="sd">        Whether the check passed, or None if the step checked no files</span>
+<span class="sd">    """</span>
+    <span class="n">status</span> <span class="o">=</span> <span class="n">_read_cf_status_from_logs</span><span class="p">(</span><span class="n">step</span><span class="o">.</span><span class="n">work_dir</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">status</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">step</span><span class="o">.</span><span class="n">cf_check</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">status</span>
+    <span class="n">step</span><span class="o">.</span><span class="n">config</span> <span class="o">=</span> <span class="n">setup_config</span><span class="p">(</span><span class="n">step</span><span class="o">.</span><span class="n">base_work_dir</span><span class="p">,</span> <span class="n">step</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">filepath</span><span class="p">)</span>
+    <span class="n">step</span><span class="o">.</span><span class="n">logger</span> <span class="o">=</span> <span class="n">task</span><span class="o">.</span><span class="n">logger</span>
+    <span class="k">return</span> <span class="n">_check_step_cf</span><span class="p">(</span><span class="n">step</span><span class="p">,</span> <span class="n">step_name</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_report_cf_status</span><span class="p">(</span>
+    <span class="n">task</span><span class="p">,</span> <span class="n">status</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">],</span> <span class="n">cf_passed</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Print a step's CF compliance line, if it ran a check, and fold its</span>
+<span class="sd">    status into the task's aggregate.</span>
+<span class="sd">    """</span>
+    <span class="k">if</span> <span class="n">status</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">cf_passed</span>
+    <span class="n">cf_str</span> <span class="o">=</span> <span class="n">pass_str</span> <span class="k">if</span> <span class="n">status</span> <span class="k">else</span> <span class="n">fail_str</span>
+    <span class="n">_print_to_stdout</span><span class="p">(</span><span class="n">task</span><span class="p">,</span> <span class="sa">f</span><span class="s1">'          CF compliance:    </span><span class="si">{</span><span class="n">cf_str</span><span class="si">}</span><span class="s1">'</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">_accumulate_baselines</span><span class="p">(</span><span class="n">cf_passed</span><span class="p">,</span> <span class="n">status</span><span class="p">)</span>
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_run_step</span><span class="p">(</span>
@@ -1102,46 +1230,7 @@
 
     <span class="c1"># If we have results, summarize them</span>
     <span class="k">if</span> <span class="n">results</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">results</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
-        <span class="n">total</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">results</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'total'</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="ow">or</span> <span class="mi">0</span><span class="p">)</span>
-        <span class="n">failures</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">results</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'failures'</span><span class="p">,</span> <span class="p">[])</span> <span class="ow">or</span> <span class="p">[])</span>
-        <span class="n">diffs</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">results</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'diffs'</span><span class="p">,</span> <span class="p">[])</span> <span class="ow">or</span> <span class="p">[])</span>
-
-        <span class="k">if</span> <span class="n">total</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">failures</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">diffs</span><span class="p">:</span>
-            <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">'- Result: All tests passed'</span><span class="p">)</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">'- Result:'</span><span class="p">)</span>
-            <span class="k">if</span> <span class="n">failures</span><span class="p">:</span>
-                <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s1">'  - Failures (</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">failures</span><span class="p">)</span><span class="si">}</span><span class="s1"> of </span><span class="si">{</span><span class="n">total</span><span class="si">}</span><span class="s1">):'</span><span class="p">)</span>
-                <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">failures</span><span class="p">:</span>
-                    <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s1">'    - `</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s1">`'</span><span class="p">)</span>
-            <span class="k">if</span> <span class="n">diffs</span><span class="p">:</span>
-                <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s1">'  - Diffs (</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">diffs</span><span class="p">)</span><span class="si">}</span><span class="s1"> of </span><span class="si">{</span><span class="n">total</span><span class="si">}</span><span class="s1">):'</span><span class="p">)</span>
-                <span class="n">diff_details</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Dict</span><span class="p">]</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span>
-                    <span class="n">results</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'diff_details'</span><span class="p">,</span> <span class="p">{})</span> <span class="ow">or</span> <span class="p">{}</span>
-                <span class="p">)</span>
-                <span class="n">nonzero_by_task</span> <span class="o">=</span> <span class="p">{</span>
-                    <span class="n">name</span><span class="p">:</span> <span class="n">_nonzero_norms</span><span class="p">(</span><span class="n">diff_details</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">name</span><span class="p">))</span>
-                    <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">diffs</span>
-                <span class="p">}</span>
-                <span class="n">name_width</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span>
-                    <span class="p">(</span>
-                        <span class="nb">len</span><span class="p">(</span><span class="n">var</span><span class="p">)</span>
-                        <span class="k">for</span> <span class="n">norms</span> <span class="ow">in</span> <span class="n">nonzero_by_task</span><span class="o">.</span><span class="n">values</span><span class="p">()</span>
-                        <span class="k">for</span> <span class="n">var</span> <span class="ow">in</span> <span class="n">norms</span>
-                    <span class="p">),</span>
-                    <span class="n">default</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
-                <span class="p">)</span>
-                <span class="c1"># a code block keeps the norm columns aligned and is</span>
-                <span class="c1"># easier to read than nested bullets</span>
-                <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">'```'</span><span class="p">)</span>
-                <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">diffs</span><span class="p">:</span>
-                    <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s1">'    - </span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s1">'</span><span class="p">)</span>
-                    <span class="n">lines</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span>
-                        <span class="n">_format_diff_summary_lines</span><span class="p">(</span>
-                            <span class="n">nonzero_by_task</span><span class="p">[</span><span class="n">name</span><span class="p">],</span> <span class="n">name_width</span>
-                        <span class="p">)</span>
-                    <span class="p">)</span>
-                <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">'```'</span><span class="p">)</span>
+        <span class="n">lines</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">_result_lines</span><span class="p">(</span><span class="n">results</span><span class="p">))</span>
 
     <span class="n">lines</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">_format_commit_logs</span><span class="p">(</span><span class="n">pr_provenance</span><span class="p">,</span> <span class="n">baseline_provenance</span><span class="p">))</span>
 
@@ -1150,6 +1239,51 @@
     <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">out_path</span><span class="p">,</span> <span class="s1">'w'</span><span class="p">)</span> <span class="k">as</span> <span class="n">out</span><span class="p">:</span>
         <span class="n">out</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">'</span><span class="se">\n</span><span class="s1">'</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">lines</span><span class="p">)</span> <span class="o">+</span> <span class="s1">'</span><span class="se">\n</span><span class="s1">'</span><span class="p">)</span>
     <span class="nb">print</span><span class="p">(</span><span class="s1">'Done.'</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_result_lines</span><span class="p">(</span><span class="n">results</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">"""The result lines of the pull-request summary."""</span>
+    <span class="n">total</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">results</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'total'</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="ow">or</span> <span class="mi">0</span><span class="p">)</span>
+    <span class="n">failures</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">results</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'failures'</span><span class="p">,</span> <span class="p">[])</span> <span class="ow">or</span> <span class="p">[])</span>
+    <span class="n">diffs</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">results</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'diffs'</span><span class="p">,</span> <span class="p">[])</span> <span class="ow">or</span> <span class="p">[])</span>
+    <span class="n">cf_failures</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">results</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'cf'</span><span class="p">,</span> <span class="p">[])</span> <span class="ow">or</span> <span class="p">[])</span>
+
+    <span class="k">if</span> <span class="n">total</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">failures</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">diffs</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">cf_failures</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">[</span><span class="s1">'- Result: All tests passed'</span><span class="p">]</span>
+
+    <span class="n">lines</span> <span class="o">=</span> <span class="p">[</span><span class="s1">'- Result:'</span><span class="p">]</span>
+    <span class="k">if</span> <span class="n">failures</span><span class="p">:</span>
+        <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s1">'  - Failures (</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">failures</span><span class="p">)</span><span class="si">}</span><span class="s1"> of </span><span class="si">{</span><span class="n">total</span><span class="si">}</span><span class="s1">):'</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">failures</span><span class="p">:</span>
+            <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s1">'    - `</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s1">`'</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">diffs</span><span class="p">:</span>
+        <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s1">'  - Diffs (</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">diffs</span><span class="p">)</span><span class="si">}</span><span class="s1"> of </span><span class="si">{</span><span class="n">total</span><span class="si">}</span><span class="s1">):'</span><span class="p">)</span>
+        <span class="n">diff_details</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Dict</span><span class="p">]</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span>
+            <span class="n">results</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'diff_details'</span><span class="p">,</span> <span class="p">{})</span> <span class="ow">or</span> <span class="p">{}</span>
+        <span class="p">)</span>
+        <span class="n">nonzero_by_task</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="n">name</span><span class="p">:</span> <span class="n">_nonzero_norms</span><span class="p">(</span><span class="n">diff_details</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">name</span><span class="p">))</span> <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">diffs</span>
+        <span class="p">}</span>
+        <span class="n">name_width</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span>
+            <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">var</span><span class="p">)</span> <span class="k">for</span> <span class="n">norms</span> <span class="ow">in</span> <span class="n">nonzero_by_task</span><span class="o">.</span><span class="n">values</span><span class="p">()</span> <span class="k">for</span> <span class="n">var</span> <span class="ow">in</span> <span class="n">norms</span><span class="p">),</span>
+            <span class="n">default</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="c1"># a code block keeps the norm columns aligned and is easier to read</span>
+        <span class="c1"># than nested bullets</span>
+        <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">'```'</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">diffs</span><span class="p">:</span>
+            <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s1">'    - </span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s1">'</span><span class="p">)</span>
+            <span class="n">lines</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span>
+                <span class="n">_format_diff_summary_lines</span><span class="p">(</span><span class="n">nonzero_by_task</span><span class="p">[</span><span class="n">name</span><span class="p">],</span> <span class="n">name_width</span><span class="p">)</span>
+            <span class="p">)</span>
+        <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">'```'</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">cf_failures</span><span class="p">:</span>
+        <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s1">'  - CF compliance failures (</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">cf_failures</span><span class="p">)</span><span class="si">}</span><span class="s1"> of </span><span class="si">{</span><span class="n">total</span><span class="si">}</span><span class="s1">):'</span>
+        <span class="p">)</span>
+        <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">cf_failures</span><span class="p">:</span>
+            <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s1">'    - `</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s1">`'</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">lines</span>
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_read_results_provenance</span><span class="p">(</span><span class="n">base_work_dir</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]]:</span>

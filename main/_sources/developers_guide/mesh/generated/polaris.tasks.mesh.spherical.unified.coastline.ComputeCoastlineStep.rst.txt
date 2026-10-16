@@ -14,10 +14,12 @@
    .. autosummary::
    
       ~ComputeCoastlineStep.__init__
+      ~ComputeCoastlineStep.add_cf_check
       ~ComputeCoastlineStep.add_dependency
       ~ComputeCoastlineStep.add_input_file
       ~ComputeCoastlineStep.add_output_file
       ~ComputeCoastlineStep.add_property_check
+      ~ComputeCoastlineStep.check_cf
       ~ComputeCoastlineStep.check_properties
       ~ComputeCoastlineStep.constrain_resources
       ~ComputeCoastlineStep.process_inputs_and_outputs

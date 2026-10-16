@@ -14,6 +14,7 @@
    .. autosummary::
    
       ~MixingAnalysis.__init__
+      ~MixingAnalysis.add_cf_check
       ~MixingAnalysis.add_dependency
       ~MixingAnalysis.add_horiz_mesh_input_file
       ~MixingAnalysis.add_init_input_file
@@ -23,6 +24,7 @@
       ~MixingAnalysis.add_produced_file
       ~MixingAnalysis.add_property_check
       ~MixingAnalysis.add_vert_coord_input_file
+      ~MixingAnalysis.check_cf
       ~MixingAnalysis.check_properties
       ~MixingAnalysis.constrain_resources
       ~MixingAnalysis.get_forcing_filename

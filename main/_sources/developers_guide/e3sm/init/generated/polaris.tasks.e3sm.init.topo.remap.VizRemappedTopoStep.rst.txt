@@ -14,10 +14,12 @@
    .. autosummary::
    
       ~VizRemappedTopoStep.__init__
+      ~VizRemappedTopoStep.add_cf_check
       ~VizRemappedTopoStep.add_dependency
       ~VizRemappedTopoStep.add_input_file
       ~VizRemappedTopoStep.add_output_file
       ~VizRemappedTopoStep.add_property_check
+      ~VizRemappedTopoStep.check_cf
       ~VizRemappedTopoStep.check_properties
       ~VizRemappedTopoStep.constrain_resources
       ~VizRemappedTopoStep.process_inputs_and_outputs

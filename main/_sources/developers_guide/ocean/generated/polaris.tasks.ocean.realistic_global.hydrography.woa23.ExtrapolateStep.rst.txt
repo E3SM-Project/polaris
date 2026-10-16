@@ -14,10 +14,12 @@
    .. autosummary::
    
       ~ExtrapolateStep.__init__
+      ~ExtrapolateStep.add_cf_check
       ~ExtrapolateStep.add_dependency
       ~ExtrapolateStep.add_input_file
       ~ExtrapolateStep.add_output_file
       ~ExtrapolateStep.add_property_check
+      ~ExtrapolateStep.check_cf
       ~ExtrapolateStep.check_properties
       ~ExtrapolateStep.constrain_resources
       ~ExtrapolateStep.process_inputs_and_outputs

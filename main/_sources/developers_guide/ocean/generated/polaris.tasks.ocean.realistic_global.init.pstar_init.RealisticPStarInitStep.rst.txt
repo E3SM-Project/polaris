@@ -14,10 +14,12 @@
    .. autosummary::
    
       ~RealisticPStarInitStep.__init__
+      ~RealisticPStarInitStep.add_cf_check
       ~RealisticPStarInitStep.add_dependency
       ~RealisticPStarInitStep.add_input_file
       ~RealisticPStarInitStep.add_output_file
       ~RealisticPStarInitStep.add_property_check
+      ~RealisticPStarInitStep.check_cf
       ~RealisticPStarInitStep.check_properties
       ~RealisticPStarInitStep.constrain_resources
       ~RealisticPStarInitStep.init_tracers

@@ -14,6 +14,7 @@
    .. autosummary::
    
       ~AnalysisStep.__init__
+      ~AnalysisStep.add_cf_check
       ~AnalysisStep.add_dependency
       ~AnalysisStep.add_horiz_mesh_input_file
       ~AnalysisStep.add_init_input_file
@@ -26,6 +27,7 @@
       ~AnalysisStep.add_sim_input_file
       ~AnalysisStep.add_sim_input_files
       ~AnalysisStep.add_vert_coord_input_file
+      ~AnalysisStep.check_cf
       ~AnalysisStep.check_properties
       ~AnalysisStep.constrain_resources
       ~AnalysisStep.get_forcing_filename

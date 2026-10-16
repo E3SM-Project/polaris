@@ -14,6 +14,7 @@
    .. autosummary::
    
       ~Init.__init__
+      ~Init.add_cf_check
       ~Init.add_dependency
       ~Init.add_horiz_mesh_input_file
       ~Init.add_init_input_file
@@ -23,6 +24,7 @@
       ~Init.add_produced_file
       ~Init.add_property_check
       ~Init.add_vert_coord_input_file
+      ~Init.check_cf
       ~Init.check_properties
       ~Init.constrain_resources
       ~Init.get_forcing_filename

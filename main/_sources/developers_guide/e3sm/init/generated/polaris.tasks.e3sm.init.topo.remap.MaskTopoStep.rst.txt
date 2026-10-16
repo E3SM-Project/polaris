@@ -14,10 +14,12 @@
    .. autosummary::
    
       ~MaskTopoStep.__init__
+      ~MaskTopoStep.add_cf_check
       ~MaskTopoStep.add_dependency
       ~MaskTopoStep.add_input_file
       ~MaskTopoStep.add_output_file
       ~MaskTopoStep.add_property_check
+      ~MaskTopoStep.check_cf
       ~MaskTopoStep.check_properties
       ~MaskTopoStep.constrain_resources
       ~MaskTopoStep.define_masks

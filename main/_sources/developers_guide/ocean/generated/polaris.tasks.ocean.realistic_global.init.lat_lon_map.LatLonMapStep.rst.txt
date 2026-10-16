@@ -14,10 +14,12 @@
    .. autosummary::
    
       ~LatLonMapStep.__init__
+      ~LatLonMapStep.add_cf_check
       ~LatLonMapStep.add_dependency
       ~LatLonMapStep.add_input_file
       ~LatLonMapStep.add_output_file
       ~LatLonMapStep.add_property_check
+      ~LatLonMapStep.check_cf
       ~LatLonMapStep.check_properties
       ~LatLonMapStep.constrain_resources
       ~LatLonMapStep.process_inputs_and_outputs

@@ -161,6 +161,10 @@
 <span class="sd">        The maximum l1, l2 and l_infinity norms of the difference from the</span>
 <span class="sd">        baseline, keyed by variable name, as merged by</span>
 <span class="sd">        :py:func:`polaris.validate.merge_diff_summary()`</span>
+
+<span class="sd">    cf_passed : bool, optional</span>
+<span class="sd">        Whether the output files checked for CF compliance passed, or</span>
+<span class="sd">        ``None`` if no files were checked</span>
 <span class="sd">    """</span>
 
     <span class="n">path</span><span class="p">:</span> <span class="nb">str</span>
@@ -170,6 +174,7 @@
     <span class="n">baseline_passed</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="n">elapsed_seconds</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="n">baseline_diffs</span><span class="p">:</span> <span class="n">Dict</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="nb">dict</span><span class="p">)</span>
+    <span class="n">cf_passed</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">pending</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
@@ -179,11 +184,13 @@
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">success</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""</span>
-<span class="sd">        Whether the task ran without error and no baseline comparison</span>
-<span class="sd">        failed</span>
+<span class="sd">        Whether the task ran without error and no baseline comparison or</span>
+<span class="sd">        CF compliance check failed</span>
 <span class="sd">        """</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">execution_passed</span> <span class="ow">is</span> <span class="kc">True</span> <span class="ow">and</span> <span class="p">(</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">baseline_passed</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">False</span>
+        <span class="k">return</span> <span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">execution_passed</span> <span class="ow">is</span> <span class="kc">True</span>
+            <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">baseline_passed</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">False</span>
+            <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">cf_passed</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">False</span>
         <span class="p">)</span>
 
     <span class="nd">@property</span>
@@ -207,6 +214,7 @@
             <span class="s1">'status'</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">status</span><span class="p">,</span>
             <span class="s1">'execution'</span><span class="p">:</span> <span class="n">_pass_fail</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">execution_passed</span><span class="p">),</span>
             <span class="s1">'baseline'</span><span class="p">:</span> <span class="n">_pass_fail</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">baseline_passed</span><span class="p">),</span>
+            <span class="s1">'cf'</span><span class="p">:</span> <span class="n">_pass_fail</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cf_passed</span><span class="p">),</span>
             <span class="s1">'elapsed_seconds'</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">elapsed_seconds</span><span class="p">,</span>
             <span class="s1">'steps_to_run'</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">steps_to_run</span><span class="p">,</span>
             <span class="s1">'log'</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="p">,</span>

@@ -14,10 +14,12 @@
    .. autosummary::
    
       ~SimplifyRiverNetworkStep.__init__
+      ~SimplifyRiverNetworkStep.add_cf_check
       ~SimplifyRiverNetworkStep.add_dependency
       ~SimplifyRiverNetworkStep.add_input_file
       ~SimplifyRiverNetworkStep.add_output_file
       ~SimplifyRiverNetworkStep.add_property_check
+      ~SimplifyRiverNetworkStep.check_cf
       ~SimplifyRiverNetworkStep.check_properties
       ~SimplifyRiverNetworkStep.constrain_resources
       ~SimplifyRiverNetworkStep.process_inputs_and_outputs

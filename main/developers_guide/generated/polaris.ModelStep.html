@@ -90,6 +90,7 @@
 <li class="toctree-l3"><a class="reference internal" href="../api.html#analysis">analysis</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../api.html#attrs">attrs</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../api.html#baselines">baselines</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api.html#cf-check">cf_check</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../api.html#component-graph">component_graph</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../api.html#config">config</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../api.html#coriolis">coriolis</a></li>
@@ -259,29 +260,35 @@ instead of MPAS namelist and streams files</p></li>
 <tr class="row-odd"><td><p><a class="reference internal" href="#polaris.ModelStep.__init__" title="polaris.ModelStep.__init__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code></a>(component, name[, subdir, indir, ...])</p></td>
 <td><p>Make a step for running the model</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_dependency</span></code>(step[, name])</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_cf_check</span></code>([filename])</p></td>
+<td><p>Check an output file for CF compliance after the step runs.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_dependency</span></code>(step[, name])</p></td>
 <td><p>Add <cite>step</cite> as a dependency of this step (i.e. this step can't run until the dependency has finished).</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_input_file</span></code>([filename, target, database, ...])</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_input_file</span></code>([filename, target, database, ...])</p></td>
 <td><p>Add an input file to the step (but not necessarily to the MPAS model).</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="polaris.ModelStep.add_model_config_options.html#polaris.ModelStep.add_model_config_options" title="polaris.ModelStep.add_model_config_options"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_model_config_options</span></code></a>(options[, config_model])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="polaris.ModelStep.add_model_config_options.html#polaris.ModelStep.add_model_config_options" title="polaris.ModelStep.add_model_config_options"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_model_config_options</span></code></a>(options[, config_model])</p></td>
 <td><p>Add the replacement model config options to be parsed when generating a namelist or yaml file if and when the step gets set up.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="polaris.ModelStep.add_namelist_file.html#polaris.ModelStep.add_namelist_file" title="polaris.ModelStep.add_namelist_file"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_namelist_file</span></code></a>(package, namelist)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="polaris.ModelStep.add_namelist_file.html#polaris.ModelStep.add_namelist_file" title="polaris.ModelStep.add_namelist_file"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_namelist_file</span></code></a>(package, namelist)</p></td>
 <td><p>Add a file with updates to namelist options to the step to be parsed when generating a complete namelist file if and when the step gets set up.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_output_file</span></code>(filename[, validate_vars, ...])</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_output_file</span></code>(filename[, validate_vars, ...])</p></td>
 <td><p>Add the output file to the step</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_property_check</span></code>(filename, check_properties)</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_property_check</span></code>(filename, check_properties)</p></td>
 <td><p>Add a single conservation comparison for an output file</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="polaris.ModelStep.add_streams_file.html#polaris.ModelStep.add_streams_file" title="polaris.ModelStep.add_streams_file"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_streams_file</span></code></a>(package, streams[, ...])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="polaris.ModelStep.add_streams_file.html#polaris.ModelStep.add_streams_file" title="polaris.ModelStep.add_streams_file"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_streams_file</span></code></a>(package, streams[, ...])</p></td>
 <td><p>Add a streams file to the step to be parsed when generating a complete streams file if and when the step gets set up.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="polaris.ModelStep.add_yaml_file.html#polaris.ModelStep.add_yaml_file" title="polaris.ModelStep.add_yaml_file"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_yaml_file</span></code></a>(package, yaml[, ...])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="polaris.ModelStep.add_yaml_file.html#polaris.ModelStep.add_yaml_file" title="polaris.ModelStep.add_yaml_file"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_yaml_file</span></code></a>(package, yaml[, ...])</p></td>
 <td><p>Add a file with updates to yaml config options to the step to be parsed when generating a complete yaml file if and when the step gets set up.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">check_cf</span></code>()</p></td>
+<td><p>Check the files added with <code class="xref py py-meth docutils literal notranslate"><span class="pre">add_cf_check()</span></code> for CF compliance.</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">check_properties</span></code>()</p></td>
 <td><p>Check conservation properties of the output files of this step.</p></td>

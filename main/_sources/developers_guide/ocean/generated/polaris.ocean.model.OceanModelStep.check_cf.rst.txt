@@ -1,0 +1,6 @@
+﻿polaris.ocean.model.OceanModelStep.check\_cf
+============================================
+
+.. currentmodule:: polaris.ocean.model
+
+.. automethod:: OceanModelStep.check_cf

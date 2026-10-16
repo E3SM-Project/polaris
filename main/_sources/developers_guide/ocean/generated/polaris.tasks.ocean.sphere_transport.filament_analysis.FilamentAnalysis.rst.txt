@@ -14,6 +14,7 @@
    .. autosummary::
    
       ~FilamentAnalysis.__init__
+      ~FilamentAnalysis.add_cf_check
       ~FilamentAnalysis.add_dependency
       ~FilamentAnalysis.add_horiz_mesh_input_file
       ~FilamentAnalysis.add_init_input_file
@@ -23,6 +24,7 @@
       ~FilamentAnalysis.add_produced_file
       ~FilamentAnalysis.add_property_check
       ~FilamentAnalysis.add_vert_coord_input_file
+      ~FilamentAnalysis.check_cf
       ~FilamentAnalysis.check_properties
       ~FilamentAnalysis.constrain_resources
       ~FilamentAnalysis.get_forcing_filename

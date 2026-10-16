@@ -14,6 +14,7 @@
    .. autosummary::
    
       ~InitialStateStep.__init__
+      ~InitialStateStep.add_cf_check
       ~InitialStateStep.add_dependency
       ~InitialStateStep.add_horiz_mesh_input_file
       ~InitialStateStep.add_init_input_file
@@ -23,6 +24,7 @@
       ~InitialStateStep.add_produced_file
       ~InitialStateStep.add_property_check
       ~InitialStateStep.add_vert_coord_input_file
+      ~InitialStateStep.check_cf
       ~InitialStateStep.check_properties
       ~InitialStateStep.constrain_resources
       ~InitialStateStep.get_forcing_filename

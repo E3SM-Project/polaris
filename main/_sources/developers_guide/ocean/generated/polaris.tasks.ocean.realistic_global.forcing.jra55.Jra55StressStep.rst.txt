@@ -14,10 +14,12 @@
    .. autosummary::
    
       ~Jra55StressStep.__init__
+      ~Jra55StressStep.add_cf_check
       ~Jra55StressStep.add_dependency
       ~Jra55StressStep.add_input_file
       ~Jra55StressStep.add_output_file
       ~Jra55StressStep.add_property_check
+      ~Jra55StressStep.check_cf
       ~Jra55StressStep.check_properties
       ~Jra55StressStep.constrain_resources
       ~Jra55StressStep.process_inputs_and_outputs

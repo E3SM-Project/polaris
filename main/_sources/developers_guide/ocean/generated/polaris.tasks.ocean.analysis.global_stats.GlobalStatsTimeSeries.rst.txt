@@ -14,6 +14,7 @@
    .. autosummary::
    
       ~GlobalStatsTimeSeries.__init__
+      ~GlobalStatsTimeSeries.add_cf_check
       ~GlobalStatsTimeSeries.add_dependency
       ~GlobalStatsTimeSeries.add_horiz_mesh_input_file
       ~GlobalStatsTimeSeries.add_init_input_file
@@ -26,6 +27,7 @@
       ~GlobalStatsTimeSeries.add_sim_input_file
       ~GlobalStatsTimeSeries.add_sim_input_files
       ~GlobalStatsTimeSeries.add_vert_coord_input_file
+      ~GlobalStatsTimeSeries.check_cf
       ~GlobalStatsTimeSeries.check_properties
       ~GlobalStatsTimeSeries.constrain_resources
       ~GlobalStatsTimeSeries.get_forcing_filename

@@ -14,6 +14,7 @@
    .. autosummary::
    
       ~HeatContentSeries.__init__
+      ~HeatContentSeries.add_cf_check
       ~HeatContentSeries.add_dependency
       ~HeatContentSeries.add_horiz_mesh_input_file
       ~HeatContentSeries.add_init_input_file
@@ -26,6 +27,7 @@
       ~HeatContentSeries.add_sim_input_file
       ~HeatContentSeries.add_sim_input_files
       ~HeatContentSeries.add_vert_coord_input_file
+      ~HeatContentSeries.check_cf
       ~HeatContentSeries.check_properties
       ~HeatContentSeries.constrain_resources
       ~HeatContentSeries.get_forcing_filename

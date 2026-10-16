@@ -14,6 +14,7 @@
    .. autosummary::
    
       ~VizTransect.__init__
+      ~VizTransect.add_cf_check
       ~VizTransect.add_dependency
       ~VizTransect.add_horiz_mesh_input_file
       ~VizTransect.add_init_input_file
@@ -23,6 +24,7 @@
       ~VizTransect.add_produced_file
       ~VizTransect.add_property_check
       ~VizTransect.add_vert_coord_input_file
+      ~VizTransect.check_cf
       ~VizTransect.check_properties
       ~VizTransect.constrain_resources
       ~VizTransect.get_forcing_filename

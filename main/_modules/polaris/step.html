@@ -121,6 +121,11 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">mache</span><span class="w"> </span><span class="kn">import</span> <span class="n">MachineInfo</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">mache.permissions</span><span class="w"> </span><span class="kn">import</span> <span class="n">update_permissions</span>
 
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.cf_check</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">add_cf_tables</span><span class="p">,</span>
+    <span class="n">check_cf_compliance</span><span class="p">,</span>
+    <span class="n">resolve_cf_check_files</span><span class="p">,</span>
+<span class="p">)</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">polaris.config</span><span class="w"> </span><span class="kn">import</span> <span class="n">PolarisConfigParser</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">polaris.io</span><span class="w"> </span><span class="kn">import</span> <span class="n">download</span><span class="p">,</span> <span class="n">symlink</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">polaris.validate</span><span class="w"> </span><span class="kn">import</span> <span class="n">compare_variables</span><span class="p">,</span> <span class="n">merge_diff_summary</span>
@@ -334,6 +339,19 @@
 <span class="sd">        variable by :py:meth:`validate_baselines()`, keyed by variable name,</span>
 <span class="sd">        e.g. ``{'temperature': {'l1': ..., 'l2': ..., 'linf': ...}}``</span>
 
+<span class="sd">    cf_check : bool</span>
+<span class="sd">        Whether to check output files for CF compliance after the step</span>
+<span class="sd">        runs, set by :py:meth:`add_cf_check()`</span>
+
+<span class="sd">    cf_check_files : list of str</span>
+<span class="sd">        Files or glob patterns, relative to the step's work directory, to</span>
+<span class="sd">        check for CF compliance, added with :py:meth:`add_cf_check()`</span>
+
+<span class="sd">    cf_check_results : list of dict</span>
+<span class="sd">        The results of the CF checks performed by :py:meth:`check_cf()`,</span>
+<span class="sd">        each a dictionary with at least the keys ``filename``, ``passed``,</span>
+<span class="sd">        ``errors`` and ``report``</span>
+
 <span class="sd">    logger : logging.Logger</span>
 <span class="sd">        A logger for output from the step</span>
 
@@ -543,6 +561,9 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">properties_to_check</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">property_check_results</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">baseline_diff_summary</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cf_check</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cf_check_files</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cf_check_results</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">setup_complete</span> <span class="o">=</span> <span class="kc">False</span>
 
         <span class="c1"># these will be set before running the step, dummy placeholders for now</span>
@@ -1206,6 +1227,30 @@
         <span class="p">)</span></div>
 
 
+<div class="viewcode-block" id="Step.add_cf_check">
+<a class="viewcode-back" href="../../developers_guide/generated/polaris.Step.add_cf_check.html#polaris.Step.add_cf_check">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">add_cf_check</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">        Check an output file for CF compliance after the step runs.  The</span>
+<span class="sd">        step fails its CF check if the CF checker reports any errors for the</span>
+<span class="sd">        file.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        filename : str, optional</span>
+<span class="sd">            The relative path of the file within the step's work directory.</span>
+<span class="sd">            A glob pattern stands for a series of files with the same</span>
+<span class="sd">            metadata (a time series from one output stream), so only its</span>
+<span class="sd">            first match is checked, and a pattern with no match is skipped</span>
+<span class="sd">            as a series that never started.  With no filename, the step is only</span>
+<span class="sd">            opted into the check, for subclasses that find their output</span>
+<span class="sd">            files at run time and add them in :py:meth:`check_cf()`.</span>
+<span class="sd">        """</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cf_check</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="k">if</span> <span class="n">filename</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">filename</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">cf_check_files</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">cf_check_files</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span></div>
+
+
 <div class="viewcode-block" id="Step.add_dependency">
 <a class="viewcode-back" href="../../developers_guide/generated/polaris.Step.add_dependency.html#polaris.Step.add_dependency">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">add_dependency</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">step</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
@@ -1275,6 +1320,43 @@
 <span class="sd">            Whether all checked properties were within tolerance</span>
 <span class="sd">        """</span>
         <span class="k">return</span> <span class="kc">False</span><span class="p">,</span> <span class="kc">True</span></div>
+
+
+<div class="viewcode-block" id="Step.check_cf">
+<a class="viewcode-back" href="../../developers_guide/generated/polaris.Step.check_cf.html#polaris.Step.check_cf">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">check_cf</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">        Check the files added with :py:meth:`add_cf_check()` for CF</span>
+<span class="sd">        compliance.  Each file's full report from the checker goes to the</span>
+<span class="sd">        step's logger, and the results are stored in</span>
+<span class="sd">        ``self.cf_check_results``.  Subclasses that find their output files</span>
+<span class="sd">        at run time can add to ``self.cf_check_files`` before calling this</span>
+<span class="sd">        method.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        checked : bool</span>
+<span class="sd">            Whether any files were checked</span>
+
+<span class="sd">        success : bool</span>
+<span class="sd">            Whether every checked file was free of errors</span>
+<span class="sd">        """</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">cf_check</span> <span class="ow">or</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">cf_check_files</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">False</span><span class="p">,</span> <span class="kc">True</span>
+        <span class="n">filenames</span> <span class="o">=</span> <span class="n">resolve_cf_check_files</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cf_check_files</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">work_dir</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">filenames</span><span class="p">:</span>
+            <span class="c1"># every pattern was a series that never started, so there is</span>
+            <span class="c1"># nothing to report, as opposed to a pass</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">cf_check_results</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">return</span> <span class="kc">False</span><span class="p">,</span> <span class="kc">True</span>
+        <span class="n">results</span> <span class="o">=</span> <span class="n">check_cf_compliance</span><span class="p">(</span><span class="n">filenames</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">work_dir</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cf_check_results</span> <span class="o">=</span> <span class="n">results</span>
+        <span class="n">logger</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">logger</span>
+        <span class="n">success</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="k">for</span> <span class="n">result</span> <span class="ow">in</span> <span class="n">results</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">result</span><span class="p">[</span><span class="s1">'report'</span><span class="p">])</span>
+            <span class="n">success</span> <span class="o">=</span> <span class="n">success</span> <span class="ow">and</span> <span class="n">result</span><span class="p">[</span><span class="s1">'passed'</span><span class="p">]</span>
+        <span class="k">return</span> <span class="kc">True</span><span class="p">,</span> <span class="n">success</span></div>
 
 
 <div class="viewcode-block" id="Step.validate_baselines">
@@ -1421,6 +1503,10 @@
                 <span class="bp">self</span><span class="o">.</span><span class="n">add_input_file</span><span class="p">(</span>
                     <span class="n">filename</span><span class="o">=</span><span class="n">output</span><span class="p">,</span> <span class="n">target</span><span class="o">=</span><span class="n">target</span><span class="p">,</span> <span class="n">database</span><span class="o">=</span><span class="s1">'polaris_cache'</span>
                 <span class="p">)</span>
+
+        <span class="c1"># a cached step's outputs are not checked, so it needs no tables</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">cf_check</span> <span class="ow">and</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">cached</span><span class="p">:</span>
+            <span class="n">add_cf_tables</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
 
         <span class="n">inputs</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="n">databases_with_downloads</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>

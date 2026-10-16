@@ -14,10 +14,12 @@
    .. autosummary::
    
       ~RemapJra55Step.__init__
+      ~RemapJra55Step.add_cf_check
       ~RemapJra55Step.add_dependency
       ~RemapJra55Step.add_input_file
       ~RemapJra55Step.add_output_file
       ~RemapJra55Step.add_property_check
+      ~RemapJra55Step.check_cf
       ~RemapJra55Step.check_properties
       ~RemapJra55Step.constrain_resources
       ~RemapJra55Step.process_inputs_and_outputs

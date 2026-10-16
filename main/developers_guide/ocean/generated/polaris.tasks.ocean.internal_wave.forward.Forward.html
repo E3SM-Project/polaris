@@ -182,38 +182,44 @@ than this number of tasks, the step will fail</p></li>
 <tr class="row-odd"><td><p><a class="reference internal" href="#polaris.tasks.ocean.internal_wave.forward.Forward.__init__" title="polaris.tasks.ocean.internal_wave.forward.Forward.__init__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code></a>(component, init[, name, subdir, ...])</p></td>
 <td><p>Create a new test case</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_dependency</span></code>(step[, name])</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_cf_check</span></code>([filename])</p></td>
+<td><p>Check an output file for CF compliance after the step runs.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_dependency</span></code>(step[, name])</p></td>
 <td><p>Add <cite>step</cite> as a dependency of this step (i.e. this step can't run until the dependency has finished).</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_horiz_mesh_input_file</span></code>(**kwargs)</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_horiz_mesh_input_file</span></code>(**kwargs)</p></td>
 <td><p>Add the horizontal-mesh input file using a placeholder that is resolved to the configured filename at <code class="xref py py-meth docutils literal notranslate"><span class="pre">process_inputs_and_outputs()</span></code> time.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_init_input_file</span></code>(**kwargs)</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_init_input_file</span></code>(**kwargs)</p></td>
 <td><p>Add the initial-condition input file using a placeholder that is resolved to the configured filename at <code class="xref py py-meth docutils literal notranslate"><span class="pre">process_inputs_and_outputs()</span></code> time.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_input_file</span></code>([filename, target, database, ...])</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_input_file</span></code>([filename, target, database, ...])</p></td>
 <td><p>Add an input file to the step (but not necessarily to the MPAS model).</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_model_config_options</span></code>(options[, config_model])</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_model_config_options</span></code>(options[, config_model])</p></td>
 <td><p>Add the replacement model config options to be parsed when generating a namelist or yaml file if and when the step gets set up.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_namelist_file</span></code>(package, namelist)</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_namelist_file</span></code>(package, namelist)</p></td>
 <td><p>Add a file with updates to namelist options to the step to be parsed when generating a complete namelist file if and when the step gets set up.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_output_file</span></code>(filename[, validate_vars, ...])</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_output_file</span></code>(filename[, validate_vars, ...])</p></td>
 <td><p>Add an output file, optionally resolving <code class="docutils literal notranslate"><span class="pre">validate_class</span></code> to a pre-defined list of variables from the Ocean component.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_property_check</span></code>(filename, check_properties)</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_property_check</span></code>(filename, check_properties)</p></td>
 <td><p>Add a single conservation comparison for an output file</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_streams_file</span></code>(package, streams[, ...])</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_streams_file</span></code>(package, streams[, ...])</p></td>
 <td><p>Add a streams file to the step to be parsed when generating a complete streams file if and when the step gets set up.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_vert_coord_input_file</span></code>([filename])</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_vert_coord_input_file</span></code>([filename])</p></td>
 <td><p>Add the vertical-coordinate input file.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_yaml_file</span></code>(package, yaml[, ...])</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_yaml_file</span></code>(package, yaml[, ...])</p></td>
 <td><p>Add a file with updates to yaml config options to the step to be parsed when generating a complete yaml file if and when the step gets set up.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">check_cf</span></code>()</p></td>
+<td><p>Check every file Omega wrote for CF compliance: the first file of each write stream in the step's <code class="docutils literal notranslate"><span class="pre">omega.yml</span></code>, since the files of a stream share their metadata.</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">check_properties</span></code>()</p></td>
 <td><p>Check conservation properties of the output files of this step</p></td>

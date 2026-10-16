@@ -14,6 +14,7 @@
    .. autosummary::
    
       ~ModelStep.__init__
+      ~ModelStep.add_cf_check
       ~ModelStep.add_dependency
       ~ModelStep.add_input_file
       ~ModelStep.add_model_config_options
@@ -22,6 +23,7 @@
       ~ModelStep.add_property_check
       ~ModelStep.add_streams_file
       ~ModelStep.add_yaml_file
+      ~ModelStep.check_cf
       ~ModelStep.check_properties
       ~ModelStep.constrain_resources
       ~ModelStep.dynamic_model_config

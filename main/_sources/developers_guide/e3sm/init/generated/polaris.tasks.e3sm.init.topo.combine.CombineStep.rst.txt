@@ -14,10 +14,12 @@
    .. autosummary::
    
       ~CombineStep.__init__
+      ~CombineStep.add_cf_check
       ~CombineStep.add_dependency
       ~CombineStep.add_input_file
       ~CombineStep.add_output_file
       ~CombineStep.add_property_check
+      ~CombineStep.check_cf
       ~CombineStep.check_properties
       ~CombineStep.constrain_resources
       ~CombineStep.get_name

@@ -14,10 +14,12 @@
    .. autosummary::
    
       ~VizSizingFieldStep.__init__
+      ~VizSizingFieldStep.add_cf_check
       ~VizSizingFieldStep.add_dependency
       ~VizSizingFieldStep.add_input_file
       ~VizSizingFieldStep.add_output_file
       ~VizSizingFieldStep.add_property_check
+      ~VizSizingFieldStep.check_cf
       ~VizSizingFieldStep.check_properties
       ~VizSizingFieldStep.constrain_resources
       ~VizSizingFieldStep.process_inputs_and_outputs
