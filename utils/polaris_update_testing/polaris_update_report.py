@@ -214,7 +214,9 @@ def _row_result(
         os.path.join(state.pr_work_dir, f'{state.suite}_output_for_pr.md'),
         'the PR suite has not finished',
     )
-    passed, suite_cell = report.summarize_suite(state.pr_work_dir, state.suite)
+    passed, suite_cell = report.summarize_suite(
+        state.pr_work_dir, state.suite, state.baseline_work_dir
+    )
     suite_cell = f'`{state.suite}`: {suite_cell}'
     sections = [suite_md]
     ctest_cell = ''
@@ -271,7 +273,9 @@ def _compare(manifest, row, state, result):
         else:
             reason = 'there is no baseline'
         return row, None, reason
-    comparison = report.compare_with_baseline(state.pr_work_dir, state.suite)
+    comparison = report.compare_with_baseline(
+        state.pr_work_dir, state.suite, state.baseline_work_dir
+    )
     result.marker['non_bfb'] = len(comparison.differ)
     result.marker['did_not_run'] = len(comparison.did_not_run)
     return row, comparison, ''
