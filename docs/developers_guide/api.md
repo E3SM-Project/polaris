@@ -328,6 +328,7 @@ seaice/api
    :toctree: generated/
 
    add_cf_conventions
+   add_lat_lon_attrs
    add_var_attrs
    drop_dangling_references
    drop_inherited_attrs

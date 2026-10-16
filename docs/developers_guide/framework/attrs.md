@@ -91,7 +91,8 @@ A file remapped with `ncremap`, or cut down to a few of its source's
 variables, keeps attributes such as `bounds`, `cell_measures` and
 `grid_mapping` that name variables it no longer has, and the CF checker
 reports each as an error.  {py:func}`polaris.cf.drop_dangling_references()`
-drops them.
+drops them.  {py:func}`polaris.cf.add_lat_lon_attrs()` labels the `lat`
+and `lon` coordinates of a regular latitude-longitude grid.
 
 To have the file checked after the step runs, opt it in with
 {py:meth}`polaris.Step.add_cf_check()` (see {ref}`dev-cf-check`).
