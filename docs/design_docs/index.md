@@ -13,6 +13,7 @@ horiz_press_grad_hydrostatic_consistency
 horiz_press_grad_reference
 land_locked_cells
 mixed_layer_eddies
+misomip
 ocean_analysis
 ocean_analysis_initial
 omega_pr_testing
