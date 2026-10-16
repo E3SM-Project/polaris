@@ -25,14 +25,14 @@ These tasks support only MPAS-Ocean.
 
 ## shared steps
 
-All tasks at a given resolution and mesh type share steps that build the
-mesh and the topography:
+All tasks at a given resolution share steps that build the mesh and the
+topography:
 
-- `base_mesh`: a planar hexagonal mesh or a regionally refined spherical
-  mesh covering the ISOMIP+ domain plus a buffer;
+- `base_mesh`: a planar hexagonal mesh covering the ISOMIP+ domain plus a
+  buffer;
 - `topo/map_base`, `topo/remap_base` and `topo/cull_mesh`: remap the Ocean1
-  geometry to the base mesh and remove cells where the bedrock is above sea
-  level;
+  geometry to the base mesh and remove cells unless at least half of the
+  cell lies over input bedrock below sea level;
 - `topo/map_culled` and `topo/remap_culled/{ocean1,ocean2}`: remap the
   Ocean1 or Ocean2 geometry conservatively to the culled mesh, smoothing it
   by expanding the destination cells;
@@ -45,11 +45,10 @@ required by the ISOMIP+ protocol.
 ## mesh
 
 The domain covers $320 \le x \le 800$ km and $0 \le y \le 80$ km, with
-walls on all sides. Meshes are available at 4, 2 and 1 km resolution, either
-planar (`ocean/planar/isomip_plus`) or as a region on a sphere at about 75°S
-(`ocean/spherical/isomip_plus`). The x and y coordinates of the ISOMIP+
-domain are stored as `xIsomipCell`, `yIsomipCell`, `xIsomipVertex` and
-`yIsomipVertex` for both mesh types.
+walls on all sides. Planar meshes are available at 4, 2 and 1 km resolution
+(`ocean/planar/isomip_plus`). The x and y coordinates of the ISOMIP+ domain
+are stored as `xIsomipCell`, `yIsomipCell`, `xIsomipVertex` and
+`yIsomipVertex`.
 
 For `ocean0`, `ocean1` and `ocean2`, each task's `init` step removes cells
 unless at least half of the cell is floating ice or open ocean, so no

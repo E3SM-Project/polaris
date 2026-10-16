@@ -3,14 +3,14 @@
 # isomip_plus
 
 The `isomip_plus` tasks (`polaris.tasks.ocean.isomip_plus`) set up the
-ISOMIP+ domain on planar or spherical meshes (see {ref}`ocean-isomip-plus`).
+ISOMIP+ domain on planar meshes (see {ref}`ocean-isomip-plus`).
 
 (dev-ocean-isomip-plus-framework)=
 
 ## framework
 
 {py:func}`polaris.tasks.ocean.isomip_plus.add_isomip_plus_tasks()` creates
-the shared mesh and topography steps for each resolution and mesh type, with
+the shared mesh and topography steps for each resolution, with
 a shared config file `isomip_plus_topo.cfg` in the resolution's directory.
 Each task then gets its own config file, `isomip_plus.cfg`, in its work
 directory, shared with the steps the task adds itself. The task config
@@ -34,8 +34,7 @@ MPAS cell culler drops these fields, so they are added again after each cull.
 
 ## shared steps
 
-- {py:class}`polaris.tasks.ocean.isomip_plus.mesh.PlanarMesh` and
-  {py:class}`polaris.tasks.ocean.isomip_plus.mesh.SphericalMesh` build the
+- {py:class}`polaris.tasks.ocean.isomip_plus.mesh.PlanarMesh` builds the
   base mesh.
 - {py:class}`polaris.tasks.ocean.isomip_plus.topo.TopoMap` makes mapping
   files from the 1 km input grid to the base or culled mesh.
@@ -43,9 +42,10 @@ MPAS cell culler drops these fields, so they are added again after each cull.
   floating ice with
   {py:func}`polaris.tasks.ocean.isomip_plus.topo.calving.calve_thin_ice()`,
   computes the land-ice pressure, remaps the geometry and renormalizes it by
-  the fraction of the cell with bedrock below sea level.
+  the fraction of the cell with bedrock below sea level, leaving that
+  fraction itself as it is.
 - {py:class}`polaris.tasks.ocean.isomip_plus.mesh.CullMesh` removes cells
-  where the bedrock is above sea level.
+  where that fraction is less than `min_ocean_fraction`.
 - {py:class}`polaris.tasks.ocean.isomip_plus.topo.TopoScale` scales the
   land-ice pressure and draft in time for the `inception`, `wetting` and
   `drying` tasks.
@@ -105,4 +105,4 @@ baseline.
 condition and the end of the forward run with
 {py:func}`polaris.viz.plot_horiz_field()` and the transect functions from
 `mpas_tools.ocean.viz.transect`, substituting the ISOMIP+ coordinates for the
-mesh coordinates so that planar and spherical meshes are plotted the same way.
+mesh coordinates.
