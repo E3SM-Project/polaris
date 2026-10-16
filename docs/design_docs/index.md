@@ -7,6 +7,7 @@
 
 global_ocean_init
 horiz_press_grad_reference
+isomip_plus
 land_locked_cells
 ocean_analysis
 ocean_analysis_initial
