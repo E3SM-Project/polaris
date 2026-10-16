@@ -17,6 +17,15 @@ CF_VERSION = '1.8'
 # a CF entry in a ``Conventions`` attribute, such as ``CF-1.8``
 _CF_ENTRY = re.compile(r'^CF-\d+\.\d+$')
 
+# attributes whose values name other variables in the same file
+_REFERENCE_ATTRS = [
+    'ancillary_variables',
+    'bounds',
+    'cell_measures',
+    'coordinates',
+    'grid_mapping',
+]
+
 
 def add_cf_conventions(ds: xr.Dataset) -> xr.Dataset:
     """
@@ -74,6 +83,44 @@ def add_var_attrs(
         for attr, value in attrs.items():
             if attr not in ds[name].attrs:
                 ds[name].attrs[attr] = value
+    return ds
+
+
+def drop_dangling_references(ds: xr.Dataset) -> xr.Dataset:
+    """
+    Drop each attribute that names a variable the dataset does not have.
+    A file remapped with ``ncremap`` or cut down to a few variables keeps
+    the ``bounds``, ``cell_measures``, ``coordinates`` and ``grid_mapping``
+    attributes of its source, which name variables (``lat_vertices``,
+    ``area``, ``crs``) that did not come along, and the CF checker reports
+    each as an error.  xarray moves ``coordinates`` from a variable's
+    attributes into its encoding when it reads a file, and writes it back
+    from there, so both are checked.
+
+    Parameters
+    ----------
+    ds : xarray.Dataset
+        A dataset about to be written
+
+    Returns
+    -------
+    ds : xarray.Dataset
+        A shallow copy of the dataset without the dangling references
+    """
+    ds = ds.copy()
+    for var in ds.variables.values():
+        for store in (var.attrs, var.encoding):
+            for attr in _REFERENCE_ATTRS:
+                if attr not in store:
+                    continue
+                # cell_measures and grid_mapping can be "key: name" pairs
+                names = [
+                    name
+                    for name in str(store[attr]).split()
+                    if not name.endswith(':')
+                ]
+                if any(name not in ds.variables for name in names):
+                    del store[attr]
     return ds
 
 

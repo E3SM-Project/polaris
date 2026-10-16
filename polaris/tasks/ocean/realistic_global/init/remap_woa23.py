@@ -4,6 +4,7 @@ import xarray as xr
 from mpas_tools.io import write_netcdf
 
 from polaris import Step
+from polaris.cf import add_cf_conventions, drop_dangling_references
 
 from .woa23_map import WOA23_EXTRAP_FILENAME
 
@@ -89,6 +90,9 @@ class RemapWoa23Step(Step):
 
         ds_raw = xr.open_dataset('woa23_on_mesh_raw.nc')
         ds_out = self._postprocess_remapped_output(ds_raw)
+        # the WOA23 source's bounds, grid_mapping and cell_measures name
+        # variables that ncremap does not carry over
+        ds_out = add_cf_conventions(drop_dangling_references(ds_out))
         write_netcdf(ds_out, 'woa23_on_mesh.nc')
 
     @staticmethod
