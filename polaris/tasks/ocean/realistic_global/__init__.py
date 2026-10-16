@@ -1,4 +1,7 @@
 from polaris.tasks.ocean.realistic_global.analysis_members import (
+    DURATIONS as ANALYSIS_MEMBERS_DURATIONS,
+)
+from polaris.tasks.ocean.realistic_global.analysis_members import (
     AnalysisMembers as AnalysisMembers,
 )
 from polaris.tasks.ocean.realistic_global.forcing.jra55 import (
@@ -32,16 +35,18 @@ def add_realistic_global_tasks(component):
     }
     for mesh_name, mesh_info in mesh_dict.items():
         subdir = f'spherical/realistic_global/{mesh_name}'
-        component.add_task(
-            AnalysisMembers(
-                component=component,
-                subdir=subdir,
-                mesh_name=mesh_name,
-                mpaso_id=mesh_info['mpaso_id'],
-                omega_id=mesh_info['omega_id'],
-                ncells=mesh_info['ncells'],
+        for duration in ANALYSIS_MEMBERS_DURATIONS:
+            component.add_task(
+                AnalysisMembers(
+                    component=component,
+                    subdir=subdir,
+                    mesh_name=mesh_name,
+                    mpaso_id=mesh_info['mpaso_id'],
+                    omega_id=mesh_info['omega_id'],
+                    ncells=mesh_info['ncells'],
+                    duration=duration,
+                )
             )
-        )
 
     # the restart task is only defined for the mesh it is cheap enough to run
     # on in the pull-request suite

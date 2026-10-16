@@ -570,6 +570,9 @@
 
    AnalysisMembers
 
+   forward.Forward
+   forward.Forward.setup
+
    stats_analysis.StatsAnalysis
    stats_analysis.StatsAnalysis.setup
    stats_analysis.StatsAnalysis.run

@@ -36,7 +36,7 @@ class StatsAnalysis(OceanIOStep):
         model = self.config.get('ocean', 'model')
         if model == 'omega':
             filename = self.output_filename.split('.')[0]
-            target = f'{self.forward_step.path}/{filename}_1DayTimeStats'
+            target = f'{self.forward_step.path}/{filename}_1DayInstants'
         else:
             target = f'{self.forward_step.path}/{self.output_filename}'
         self.add_input_file(

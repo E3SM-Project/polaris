@@ -13,21 +13,26 @@ groups:
   wind-stress product from JRA55-do 10-m winds.
 - `init`, which creates mesh-specific ocean initial conditions using that
   hydrography and forcing together with the culled mesh from `e3sm/init`.
-- `analysis_members`, short forward runs on realistic global meshes that
-  exercise the global-statistics analysis member in both MPAS-Ocean and Omega.
+- `analysis_members`, forward runs on realistic global meshes that exercise
+  the analysis members: short runs in both MPAS-Ocean and Omega, and one-year
+  Omega runs that write what the analysis tasks in
+  `polaris.tasks.ocean.analysis` read.
 - `restart`, a short Omega run split across a restart, checking that the
   history output survives the restart intact.
 
 Tasks are added to the ocean component by
 {py:func}`polaris.tasks.ocean.realistic_global.add_realistic_global_tasks`,
 which registers the `woa23` and `jra55` tasks, one `init` task per MPAS mesh,
-one `analysis_members` task per mesh in its `mesh_dict`, and a single
-`restart` task on `QU.240km`.  Adding a new mesh to `analysis_members`
-requires only a new entry in that dictionary giving the MPAS-Ocean and Omega
-initial-condition IDs and the cell count, plus a matching entry in the
-`mesh_info` dictionary in
-{py:class}`polaris.tasks.ocean.realistic_global.analysis_members.AnalysisMembers`
-giving the time step and run duration.
+an `analysis_members` task for each mesh in
+its `mesh_dict` and each duration in
+`polaris.tasks.ocean.realistic_global.analysis_members.DURATIONS`, and a
+single `restart` task on `QU.240km`.  Adding a new mesh to `analysis_members`
+takes two things: an entry in `mesh_dict` giving the MPAS-Ocean and Omega
+initial-condition IDs and the cell count, and a `<mesh>.cfg` file in the
+`analysis_members` package setting the baroclinic and barotropic time steps
+(`dt` and `btr_dt`), the length of the `short` run (`short_run_duration`),
+the number of MOC latitude bins (`moc_num_bins`) and the momentum viscosities
+(`mom_del2` and `mom_del4`).
 
 (dev-ocean-realistic-global-framework)=
 
@@ -61,12 +66,19 @@ the target model is known:
 by the task, so the time step, run duration and output interval can be varied
 per mesh.
 
-The helper `_make_restart_dir()` creates the `restart/` directory that
-Omega's `RestartWrite` stream writes into.  Omega does not create this
-directory itself, so without it the restart write fails at the end of the run.
-It is called from both `setup()` and `runtime_setup()` so the directory exists
-whether or not setup and run happen in the same invocation.  MPAS-Ocean needs
-no equivalent because the MPAS framework creates stream directories itself.
+The files the run writes are given as `output_filenames`, each of which is
+declared as an output; the default is the single `output.nc`.  A subclass
+whose streams write one file per month, such as the `1_year`
+`analysis_members` forward step, passes the whole list.
+
+The helper `_make_stream_dirs()` creates the directories Omega's streams
+write into, listed in `stream_dirs`: `restart/` for the `RestartWrite`
+stream, plus whatever a subclass appends.  Omega does not create these
+directories itself, so without them the restart write fails at the end of the
+run.  It is called from both `setup()` and `runtime_setup()` so the
+directories exist whether or not setup and run happen in the same invocation.
+MPAS-Ocean needs no equivalent because the MPAS framework creates stream
+directories itself.
 
 `compute_cell_count()` returns the cell count passed in by the task rather
 than reading the mesh, since the mesh is not available at setup time.
@@ -88,13 +100,47 @@ when a model writes a different subset of fields.
 
 The {py:class}`polaris.tasks.ocean.realistic_global.analysis_members.AnalysisMembers`
 task runs the ocean model with the global-statistics analysis member enabled
-and plots the resulting time series.  It contains a `forward` step, a
-`global_stats` step and a `viz` step; only `forward` runs by default.
+and plots the resulting time series.  It sits at
+`spherical/realistic_global/<mesh>/analysis_members/<duration>`, where the
+duration is `short` or `1_year`.  The `short` task contains a `forward` step,
+a `global_stats` step and a `viz` step.  The `1_year` task has no `viz` step,
+since that step reads the single `output.nc` the `short` run writes.  Only
+`forward` runs by default.
 
 Each task builds its own {py:class}`polaris.config.PolarisConfigParser` from
-`realistic_global.cfg` and `analysis_members.cfg` and shares it with all three
-steps, so that a user editing the config file in the task work directory
-affects the whole task.
+`realistic_global.cfg`, `analysis_members.cfg` and `<mesh>.cfg` and shares it
+with all its steps, so that a user editing the config file in the task work
+directory affects the whole task.
+
+### forward
+
+The class
+{py:class}`polaris.tasks.ocean.realistic_global.analysis_members.forward.Forward`
+is a subclass of the shared {ref}`dev-ocean-realistic-global-framework`
+`Forward`, which supplies the cached initial condition and the shared
+`forward.yaml`.  Its `setup()` fills in the time steps, the `short` run's
+length and the number of MOC bins from the `[analysis_members]` config
+options before the yaml files are added, and adds the `mom_del2` and
+`mom_del4` config options as `config_mom_del2` and `config_mom_del4`, which
+are translated to Omega's `ViscDel2` and `ViscDel4`.
+
+For the `1_year` run, which supports only Omega, `setup()` also adds
+`monthly_output.yaml` after the shared yaml file, so that it overrides it.
+The fragment replaces the `History` stream with monthly snapshots in
+`output/`, turns on the `MonthlyAverages` and `MOC` analysis groups, adds
+kinetic energy and sea surface height to `GlobalStats`, and makes restarts
+monthly.  A stream's options merge across yaml files, so the fragment has to
+set the `History` stream's `FileFreq` explicitly: the shared value of 9999
+years would put every snapshot into one file.  The step appends `output` to
+`stream_dirs`, so that the directory exists before the run.
+
+Every monthly file is declared as an output, so that a run whose analysis
+groups did not write is reported as a missing output rather than found later
+by the analysis.  Omega names a time-mean file for the instant it was
+finalized (E3SM-Project/Omega#554), so a run that starts on `0001-01-01`
+writes the files covering year 1 as `0001-02` through `0002-01`;
+`_monthly_filenames()` builds the names that way, and the snapshots, taken at
+those instants, are named the same way.
 
 ### global_stats
 
@@ -107,7 +153,7 @@ same quantities as anomalies relative to their initial values.
 This step normalizes two differences between the models:
 
 - **Output location.** Omega writes the statistics to a separate
-  `global_stats_1DayTimeStats` file, whereas MPAS-Ocean writes
+  `global_stats_1DayInstants` file, whereas MPAS-Ocean writes
   `global_stats.nc`.  The input file is therefore selected in `setup()`, once
   the model is known.
 - **Standard deviation.** Omega writes the standard deviation directly in its
