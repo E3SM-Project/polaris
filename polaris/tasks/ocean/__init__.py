@@ -1,5 +1,6 @@
 import importlib.resources as imp_res
 import os
+import warnings
 from typing import Dict, Tuple, Union
 
 import numpy as np
@@ -8,8 +9,11 @@ from mpas_tools.io import open_dataset, write_netcdf
 from ruamel.yaml import YAML
 
 from polaris import Component
-from polaris.build.mpas_ocean import build_mpas_ocean
-from polaris.build.omega import build_omega
+from polaris.build.mpas_ocean import (
+    build_mpas_ocean,
+    get_mpas_ocean_source_dir,
+)
+from polaris.build.omega import build_omega, get_omega_source_dir
 from polaris.constants.pcd import check_pcd_version_matches_branch
 from polaris.mesh.info import is_planar, is_spherical
 from polaris.mesh.reconstruct import (
@@ -110,10 +114,7 @@ class Ocean(Component):
         component_path = config.get('paths', 'component_path')
         if has_ocean_model_steps:
             # we need to try to detect the model and build it if needed
-            if model == 'omega':
-                detected = self._detect_omega_build(component_path)
-            else:
-                detected = self._detect_mpas_ocean_build(component_path)
+            detected = self._detect_build(model, component_path)
 
             if not detected:
                 # looks like we need to build the model
@@ -197,8 +198,9 @@ class Ocean(Component):
 
     def check_model_version(self, config):
         """
-        Check that the PCD version in polaris matches the one in the branch of
-        the ocean model that will be run
+        Check that the PCD version in polaris matches the one in the branch
+        the ocean model is built from: the branch Polaris is building, or else
+        the one the build in the component path was made from
 
         Parameters
         ----------
@@ -209,7 +211,25 @@ class Ocean(Component):
         if model not in ['mpas-ocean', 'omega']:
             return
 
-        branch = config.get('build', 'branch')
+        build_dir = config.get('paths', 'component_path')
+        if config.getboolean('build', 'build'):
+            branch = config.get('build', 'branch')
+        elif not self._detect_build(model, build_dir):
+            # the model is neither built nor being built, so there is no
+            # branch to check
+            return
+        else:
+            branch = _get_built_branch(build_dir, model)
+            if branch is None:
+                warnings.warn(
+                    f'Could not check PCD version for model {model} because '
+                    f'the branch it was built from could not be determined '
+                    f'from the build at {build_dir}. Skipping PCD version '
+                    f'check.',
+                    stacklevel=2,
+                )
+                return
+
         check_pcd_version_matches_branch(branch=branch, model=model)
 
     def map_to_native_model_vars(self, ds):
@@ -1039,6 +1059,14 @@ class Ocean(Component):
                 f'searched {omega_path} and {mpas_ocean_path}.'
             )
 
+    def _detect_build(self, model, path) -> bool:
+        """
+        Detect if a build of the given model is available
+        """
+        if model == 'omega':
+            return self._detect_omega_build(path)
+        return self._detect_mpas_ocean_build(path)
+
     def _detect_omega_build(self, path) -> bool:
         """
         Detect if Omega is available
@@ -1079,6 +1107,22 @@ class Ocean(Component):
                 all_found = False
                 break
         return all_found
+
+
+def _get_built_branch(build_dir, model):
+    """
+    The branch an existing build of the model was made from, or None if it
+    can't be determined
+    """
+    if model == 'omega':
+        source_dir = get_omega_source_dir(build_dir)
+    else:
+        source_dir = get_mpas_ocean_source_dir(build_dir)
+    if source_dir is None:
+        return None
+
+    # the source directory is components/<model> within the branch
+    return os.path.dirname(os.path.dirname(os.path.abspath(source_dir)))
 
 
 def _convert_geometric_to_pseudo_vars(ds, config):
