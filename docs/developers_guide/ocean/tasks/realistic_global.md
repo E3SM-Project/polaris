@@ -16,7 +16,7 @@ groups:
 - `forward`, short forward runs on the meshes `init` builds.
 - `cached_forward`, the same forward runs on initial conditions downloaded from
   the Polaris input database instead.
-- `analysis_members`, one-year Omega runs on either source of initial
+- `analysis_output`, one-year Omega runs on either source of initial
   condition that write what the ocean analysis reads.
 - `restart`, a short Omega run split across a restart, checking that the
   history output survives the restart intact.
@@ -28,13 +28,13 @@ a `forward` task per mesh for each of
 {py:data}`polaris.tasks.ocean.realistic_global.forward.TIME_INTEGRATORS`, the
 same `cached_forward` variants for each mesh in
 {py:data}`polaris.tasks.ocean.realistic_global.forward.tasks.CACHED_MESHES`,
-an `analysis_members/1_year` task for every mesh of either kind, and a single
+an `analysis_output/1_year` task for every mesh of either kind, and a single
 `restart` task on `QU.240km`.  Adding a cached mesh requires an entry in that
 dictionary giving the MPAS-Ocean and Omega initial-condition IDs, the minimum
 resolution and the cell count, and a `<mesh_name>.cfg` in `mesh_configs`
 giving the split and RK4 time steps and the run duration.  A mesh coarser than
 about a degree should also set fewer MOC latitude bins for its `1_year` run
-(`moc_num_bins` in `[analysis_members]`).
+(`moc_num_bins` in `[analysis_output]`).
 
 `forward` and `cached_forward` serve different purposes, which is what decides
 their physics; see {ref}`ocean-realistic-global-forward` in the User's Guide.
@@ -105,7 +105,7 @@ directories under the step's work directory that Omega's streams write into,
 which the step creates in `dynamic_model_config()` because Omega does not.
 MPAS-Ocean needs no equivalent, since the MPAS framework creates stream
 directories itself.  Both are for a subclass like the one-year
-`analysis_members` step, which writes one file per month into `output/`.
+`analysis_output` step, which writes one file per month into `output/`.
 
 ### ForwardStage
 
@@ -222,25 +222,25 @@ This step normalizes two differences between the models:
   (`<field>Rms`), so for MPAS-Ocean the standard deviation is recovered as
   $\sigma = \sqrt{\mathrm{rms}^2 - \mathrm{mean}^2}$.
 
-(dev-ocean-realistic-global-analysis-members)=
+(dev-ocean-realistic-global-analysis-output)=
 
-## analysis_members
+## analysis_output
 
-The {py:class}`polaris.tasks.ocean.realistic_global.analysis_members.AnalysisMembers`
+The {py:class}`polaris.tasks.ocean.realistic_global.analysis_output.AnalysisOutput`
 task runs a year of Omega, writing what the ocean analysis reads.  It takes an
 initial condition and optional `init_steps` as `RealisticGlobalForward` does,
 so it is registered on the cached meshes and on every mesh the `init` workflow
 builds.  Its config is built in layers, each overriding the ones before it:
 
 1. `realistic_global_forward.cfg`, the forward tasks' config;
-2. `analysis_members.cfg`, with the default `moc_num_bins`;
+2. `analysis_output.cfg`, with the default `moc_num_bins`;
 3. the mesh's file in `mesh_configs`, which sets fewer bins on a coarse mesh;
 4. `one_year.cfg`, which sets only the run duration.
 
 So the run is a `split_explicit` `forward` or `cached_forward` run a year long.
 
 Its step,
-{py:class}`~polaris.tasks.ocean.realistic_global.analysis_members.AnalysisMembersForward`,
+{py:class}`~polaris.tasks.ocean.realistic_global.analysis_output.AnalysisOutputForward`,
 is a forward-package `Forward` whose `dynamic_model_config()` adds
 `monthly_output.yaml` after the forward step's own yaml files, so that it
 overrides them.  The fragment replaces the `History` stream with monthly

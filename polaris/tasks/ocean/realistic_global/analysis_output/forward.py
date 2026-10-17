@@ -21,7 +21,7 @@ START_YEAR = 1
 MONTHS = 12
 
 
-class AnalysisMembersForward(Forward):
+class AnalysisOutputForward(Forward):
     """
     A one-year Omega run that writes what the ocean analysis reads
 
@@ -33,7 +33,7 @@ class AnalysisMembersForward(Forward):
     monthly file is declared as an output, so that a run whose analysis groups
     did not write is reported as a missing output rather than found later by
     the analysis.  The number of MOC latitude bins is the ``moc_num_bins``
-    option in the mesh's ``[analysis_members]`` config section.  The step
+    option in the mesh's ``[analysis_output]`` config section.  The step
     supports only Omega, since the ocean analysis reads only Omega output.
     """
 
@@ -75,7 +75,7 @@ class AnalysisMembersForward(Forward):
         """
         if self.config.get('ocean', 'model') != 'omega':
             raise ValueError(
-                'The 1_year analysis_members task runs only Omega, since the '
+                'The 1_year analysis_output task runs only Omega, since the '
                 'ocean analysis reads only Omega output.'
             )
         super().setup()
@@ -92,11 +92,11 @@ class AnalysisMembersForward(Forward):
         """
         super().dynamic_model_config(at_setup=at_setup)
         self.add_yaml_file(
-            'polaris.tasks.ocean.realistic_global.analysis_members',
+            'polaris.tasks.ocean.realistic_global.analysis_output',
             'monthly_output.yaml',
             template_replacements=dict(
                 moc_num_bins=self.config.getint(
-                    'analysis_members', 'moc_num_bins'
+                    'analysis_output', 'moc_num_bins'
                 )
             ),
         )

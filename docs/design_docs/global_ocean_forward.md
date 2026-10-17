@@ -569,7 +569,7 @@ stage's own, and the forward step declares them as inputs and outputs.
 
 Two more tasks are built on the forward step without changing it. The
 `restart` task, ported from main, compares a run split across a restart with
-one that is not. The `analysis_members/1_year` task runs Omega for a year on
+one that is not. The `analysis_output/1_year` task runs Omega for a year on
 every mesh and writes the monthly means, overturning streamfunction and
 daily global statistics the ocean analysis reads. It adds a second yaml file
 for the monthly streams and declares every monthly file as an output, so a
