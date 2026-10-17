@@ -10,6 +10,7 @@ from polaris.tasks.ocean.realistic_global.mesh_configs import (
     get_mesh_config_names,
     get_realistic_global_mesh_config,
 )
+from polaris.tasks.ocean.realistic_global.mesh_info import min_res_for_mesh
 
 # meshes that override the default vertical grid with a cheap, coarse one
 COARSE_MESH_NAMES = ('qu240km', 'icos240km', 'u-oi240-lr240')
@@ -120,20 +121,22 @@ def _get_forward_stage(mesh_name):
     return ForwardStage.from_config(config)
 
 
-# expected per-mesh forward settings, ported from the Compass mesh named in
-# the comment.  These are what keep a forward run stable, so they are checked
-# explicitly rather than through a round trip.
+# expected per-mesh forward settings, ported from the Compass or E3SM mesh
+# named in the comment.  These are what keep a forward run stable, so they are
+# checked explicitly rather than through a round trip.
 FORWARD_EXPECTED: dict[str, dict[str, object]] = {
-    # Compass qu240, except that the Leith closure and frazil ice are
-    # deliberately not carried over: they were a smoke-test convenience there
-    # and that purpose does not apply here yet
+    # E3SM oQU240: biharmonic momentum viscosity alone, and E3SM's split time
+    # steps
     'u-oi240-lr240': dict(
-        mom_del2=1.0e3,
-        mom_del4=1.2e11,
-        tracer_del2=10.0,
-        tracer_del4=1.2e11,
+        mom_del2=None,
+        mom_del4=2.0e14,
+        tracer_del2=None,
+        tracer_del4=None,
         use_Leith_del2=False,
         hmix_scaling='ref_cell_width',
+        hmix_ref_cell_width=240.0e3,
+        dt='01:00:00',
+        btr_dt='00:03:00',
         use_GM=True,
         use_Redi=True,
         use_frazil_ice_formation=False,
@@ -179,21 +182,25 @@ FORWARD_EXPECTED: dict[str, dict[str, object]] = {
 }
 
 
-def test_variable_resolution_meshes_reference_their_finest_cells():
+@pytest.mark.parametrize(
+    'mesh_name',
+    [
+        mesh_name
+        for mesh_name in get_mesh_config_names()
+        if _get_forward_stage(mesh_name).hmix_scaling == 'ref_cell_width'
+    ],
+)
+def test_scaled_meshes_reference_their_finest_cells(mesh_name):
     """
     E3SM's per-grid mom_del2 and mom_del4 values are referenced to the finest
-    cells of the mesh they belong to, so a Polaris mesh that borrows them has
-    to put hmix_ref_cell_width at that resolution rather than leave it at the
-    shared 30 km default.  Getting this wrong is silent: every cell but the
-    reference then runs at the wrong viscosity.
+    cells of the mesh they belong to, so a mesh that scales its coefficients
+    has to put hmix_ref_cell_width at that resolution rather than leave it at
+    the shared 30 km default.  Getting this wrong is silent: every cell but
+    the reference then runs at the wrong viscosity, and on a 240 km mesh the
+    30 km default makes the biharmonic viscosity about 500 times larger.
     """
-    for mesh_name, finest_km in [
-        ('u-oi6to18-lr6to10', 6.0),
-        ('u-oi-so12to30-lr10', 12.0),
-    ]:
-        stage = _get_forward_stage(mesh_name)
-        assert stage.hmix_scaling == 'ref_cell_width', mesh_name
-        assert stage.hmix_ref_cell_width == finest_km * 1.0e3, mesh_name
+    stage = _get_forward_stage(mesh_name)
+    assert stage.hmix_ref_cell_width == min_res_for_mesh(mesh_name) * 1.0e3
 
 
 @pytest.mark.parametrize('mesh_name', sorted(FORWARD_EXPECTED))

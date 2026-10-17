@@ -820,12 +820,14 @@ its coefficients across the mesh
 ([Omega#476](https://github.com/E3SM-Project/Omega/issues/476)).
 
 Set `hmix_ref_cell_width` per mesh to the resolution the coefficients were
-chosen for.  For a variable-resolution mesh that is normally its *finest*
-resolution, because that is what E3SM's per-grid `mom_del2` and `mom_del4`
+chosen for, which is normally its *finest* resolution, because that is what E3SM's per-grid `mom_del2` and `mom_del4`
 values are referenced to — so `u-oi6to18-lr6to10` pairs E3SM's
 `RRSwISC6to18E3r5` value of `3.2e09` with a 6 km reference, and
 `u-oi-so12to30-lr10` pairs `SOwISC12to30E3r3`'s `1.18e10` with a 12 km one.
 Both reproduce E3SM's viscosity as a function of cell width to within about 15%.
+The three 240 km meshes take E3SM's `oQU240` value of `2.0e14` with a 240 km
+reference.  Left at the shared 30 km default, the reference would make their
+biharmonic viscosity about 500 times larger.
 
 :::{note}
 MPAS-Ocean spells this as two nested flags, and `ref_cell_width` sets **both**:
