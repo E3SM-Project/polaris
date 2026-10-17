@@ -504,7 +504,8 @@ def prepare_tree(repo: str, sha: str, tree: str) -> None:
     if not os.path.exists(ready):
         with _tree_lock(tree):
             if not os.path.exists(ready):
-                if not os.path.exists(tree):
+                interrupted = os.path.exists(tree)
+                if not interrupted:
                     check_same_filesystem(
                         repo,
                         tree,
@@ -513,8 +514,22 @@ def prepare_tree(repo: str, sha: str, tree: str) -> None:
                         'config file.',
                     )
                 git_tools.add_worktree(repo, sha, tree)
+                if interrupted:
+                    # a setup that stopped partway may have left files
+                    # unwritten
+                    git_tools.git(['reset', '--quiet', '--hard'], tree)
+                # --force checks out a submodule even when its HEAD is
+                # already right, which a setup that stopped partway can
+                # leave without all of its files
                 git_tools.git(
-                    ['submodule', 'update', '--init', '--recursive', '--']
+                    [
+                        'submodule',
+                        'update',
+                        '--init',
+                        '--recursive',
+                        '--force',
+                        '--',
+                    ]
                     + OMEGA_SUBMODULES,
                     tree,
                 )
