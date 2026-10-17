@@ -3,10 +3,12 @@ Find existing suite runs and builds that can serve as a baseline
 
 A run can be reused as a baseline only if its provenance shows that it ran
 the same suite, with the same Polaris, on the same machine and compiler,
-from a build of the same component commit, and that every task passed.
-The component commit has to come from the record Polaris's build scripts
-write, since a commit read from the source tree at setup may not be the one
-that was built.
+from a build of the same component commit, and that the run finished.
+Tasks that failed in the baseline do not stop it from being reused, since
+running it again would not fix them; a report that compares with it says
+which tasks it could not compare.  The component commit has to come from
+the record Polaris's build scripts write, since a commit read from the
+source tree at setup may not be the one that was built.
 """
 
 import json
@@ -36,8 +38,9 @@ class BaselineCriteria:
     compiler : str
         The compiler the component was built with
 
-    build_type : str
-        The build type of the component, ``Release`` or ``Debug``
+    build_type : str, optional
+        The build type of the component, ``Release`` or ``Debug``, or
+        ``None`` for MPAS-Ocean, whose provenance has none
 
     component_hash : str
         The full hash of the component commit that was built
@@ -51,7 +54,7 @@ class BaselineCriteria:
 
     machine: str
     compiler: str
-    build_type: str
+    build_type: Optional[str]
     component_hash: str
     polaris_hash: str
     suite: str = 'omega_pr'
@@ -353,12 +356,6 @@ def _results_problems(work_dir: str, suite: str) -> List[str]:
     except (OSError, ValueError):
         return [f'it has no readable {suite}_results.json']
 
-    summary = results.get('summary', {})
-    reasons = []
     if not results.get('complete', False):
-        reasons.append('its run is not complete')
-    for status, verb in [('failed', 'failed'), ('pending', 'did not run')]:
-        count = summary.get(status, 0)
-        if count:
-            reasons.append(f'{count} of its tasks {verb}')
-    return reasons
+        return ['its run is not complete']
+    return []

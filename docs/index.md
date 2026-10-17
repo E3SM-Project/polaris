@@ -81,6 +81,8 @@ developers_guide/seaice/index
 developers_guide/framework/index
 developers_guide/machines/index
 developers_guide/benchmarking
+developers_guide/omega_pr_testing
+developers_guide/polaris_update_testing
 developers_guide/troubleshooting
 developers_guide/docs
 developers_guide/building_docs
