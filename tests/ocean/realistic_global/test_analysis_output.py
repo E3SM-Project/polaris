@@ -8,10 +8,10 @@ from polaris.mesh.base import get_base_mesh_step_names
 from polaris.mesh.spherical.unified import UNIFIED_MESH_NAMES
 from polaris.tasks.ocean import Ocean
 from polaris.tasks.ocean.realistic_global import add_realistic_global_tasks
-from polaris.tasks.ocean.realistic_global.analysis_members import (
-    AnalysisMembersForward,
+from polaris.tasks.ocean.realistic_global.analysis_output import (
+    AnalysisOutputForward,
 )
-from polaris.tasks.ocean.realistic_global.analysis_members.forward import (
+from polaris.tasks.ocean.realistic_global.analysis_output.forward import (
     MONTHLY_FILE_TEMPLATES,
     get_monthly_filenames,
 )
@@ -23,7 +23,7 @@ from polaris.tasks.ocean.realistic_global.forward import (
 from polaris.tasks.ocean.realistic_global.forward.tasks import CACHED_MESHES
 from polaris.yaml import PolarisYaml
 
-PACKAGE = 'polaris.tasks.ocean.realistic_global.analysis_members'
+PACKAGE = 'polaris.tasks.ocean.realistic_global.analysis_output'
 
 INIT_MESHES = sorted(get_base_mesh_step_names()) + sorted(UNIFIED_MESH_NAMES)
 
@@ -32,7 +32,7 @@ def _one_year_task(mesh_name, model='omega'):
     """The registered one-year task, with its config combined for ``model``"""
     component = Ocean()
     add_realistic_global_tasks(component=component)
-    subdir = f'spherical/realistic_global/{mesh_name}/analysis_members/1_year'
+    subdir = f'spherical/realistic_global/{mesh_name}/analysis_output/1_year'
     task = component.tasks[subdir]
     config = task.config
     config.add_from_package('polaris.ocean', 'ocean.cfg')
@@ -67,9 +67,9 @@ def test_one_year_task_is_registered_on_each_cached_mesh(mesh_name):
     assert task.steps_to_run == ['forward']
 
     forward = task.steps['forward']
-    assert isinstance(forward, AnalysisMembersForward)
+    assert isinstance(forward, AnalysisOutputForward)
     assert forward.subdir == (
-        f'spherical/realistic_global/{mesh_name}/analysis_members/1_year/'
+        f'spherical/realistic_global/{mesh_name}/analysis_output/1_year/'
         f'forward'
     )
     # every monthly file is an output, so a missing month fails the step
@@ -98,7 +98,7 @@ def test_one_year_task_is_registered_on_each_init_mesh(mesh_name):
     """
     task = _one_year_task(mesh_name)
     forward = task.steps['forward']
-    assert isinstance(forward, AnalysisMembersForward)
+    assert isinstance(forward, AnalysisOutputForward)
     assert isinstance(forward.init_condition, StepInitialCondition)
     assert 'initial_state' in task.steps
     assert 'forcing' in task.steps
@@ -126,7 +126,7 @@ def test_one_year_moc_bins_default_to_omegas(mesh_name, moc_num_bins):
     The MOC has Omega's one-degree bins unless the mesh is coarser than that
     """
     task = _one_year_task(mesh_name)
-    assert task.config.getint('analysis_members', 'moc_num_bins') == (
+    assert task.config.getint('analysis_output', 'moc_num_bins') == (
         moc_num_bins
     )
 
@@ -190,4 +190,4 @@ def test_one_year_run_rejects_mpas_ocean():
     config.set('ocean', 'model', 'mpas-ocean')
     step = SimpleNamespace(config=config)
     with pytest.raises(ValueError, match='only Omega'):
-        AnalysisMembersForward.setup(cast(AnalysisMembersForward, step))
+        AnalysisOutputForward.setup(cast(AnalysisOutputForward, step))

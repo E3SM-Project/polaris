@@ -17,7 +17,7 @@ tasks:
 - {ref}`ocean-realistic-global-forward`, short forward runs from either of two
   sources of initial condition: the `init` workflow above, or a cached file
   downloaded from the Polaris input database.
-- {ref}`ocean-realistic-global-analysis-members`, one-year Omega runs from
+- {ref}`ocean-realistic-global-analysis-output`, one-year Omega runs from
   either source of initial condition, writing what the {ref}`ocean-analysis`
   tasks read.
 - {ref}`ocean-realistic-global-restart`, a short run split across a restart,
@@ -31,9 +31,9 @@ flowchart LR
     jra55 --> init
     e3sm_init["e3sm/init"] --> init
     init --> forward
-    init --> analysis_members
+    init --> analysis_output
     database[("Polaris input database")] --> cached_forward
-    database --> analysis_members
+    database --> analysis_output
     database --> restart
 ```
 
@@ -43,7 +43,7 @@ The `woa23` and `jra55` tasks are model-independent and do not require either
 MPAS-Ocean or Omega to be built.
 
 The `init` and forward tasks support both MPAS-Ocean and Omega.  The
-`analysis_members` tasks support only Omega, since the analysis reads only
+`analysis_output` tasks support only Omega, since the analysis reads only
 Omega output.
 
 The `restart` task supports Omega only.  It is a regression test for the way
@@ -1136,9 +1136,9 @@ the number of cells in the mesh — read from the mesh file once it exists, and
 estimated from the mesh definition before that.  The `global_stats` and `viz`
 steps run serially.
 
-(ocean-realistic-global-analysis-members)=
+(ocean-realistic-global-analysis-output)=
 
-## analysis_members
+## analysis_output
 
 The `1_year` task runs Omega for a year with its `MonthlyAverages` and `MOC`
 analysis groups on, writing what the {ref}`ocean-analysis` tasks read.  It is
@@ -1149,8 +1149,8 @@ one in the Polaris input database, and on the others, the one the `init` steps
 build, which are part of the task.  For example:
 
 ```bash
-polaris setup -t ocean/spherical/realistic_global/QU.240km/analysis_members/1_year ...
-polaris setup -t ocean/spherical/realistic_global/u-oi30-lr10/analysis_members/1_year ...
+polaris setup -t ocean/spherical/realistic_global/QU.240km/analysis_output/1_year ...
+polaris setup -t ocean/spherical/realistic_global/u-oi30-lr10/analysis_output/1_year ...
 ```
 
 The tasks are in no suite.  The `QU.240km` year takes about 8 minutes on a
@@ -1197,7 +1197,7 @@ To analyze the run, point the `omega_analysis` suite at the `omega.yml` in the
 ```cfg
 [ocean_analysis]
 
-omega_config_filename = <work_dir>/ocean/spherical/realistic_global/<mesh>/analysis_members/1_year/forward/omega.yml
+omega_config_filename = <work_dir>/ocean/spherical/realistic_global/<mesh>/analysis_output/1_year/forward/omega.yml
 
 [ocean_analysis_climatology]
 
@@ -1231,9 +1231,9 @@ The task reads the `[realistic_global_forward]` options described under
 defaults come before the per-mesh options:
 
 ```cfg
-# Default options for the one-year analysis_members runs, added before the
+# Default options for the one-year analysis_output runs, added before the
 # per-mesh options so that a mesh can override them
-[analysis_members]
+[analysis_output]
 
 # The number of latitude bins of the overturning streamfunction: Omega's
 # default of one degree.  Meshes coarser than about a degree set fewer.
@@ -1243,7 +1243,7 @@ moc_num_bins = 180
 and it overrides the run duration after them:
 
 ```cfg
-# Options for the one-year analysis_members runs, added after the per-mesh
+# Options for the one-year analysis_output runs, added after the per-mesh
 # options so that they take precedence
 [realistic_global_forward]
 
@@ -1258,8 +1258,8 @@ The 240-km meshes' config files set fewer MOC latitude bins, here for
 `QU.240km`:
 
 ```cfg
-# Options for the one-year analysis_members run on this mesh
-[analysis_members]
+# Options for the one-year analysis_output run on this mesh
+[analysis_output]
 
 # The number of latitude bins of the overturning streamfunction: three
 # degrees, since Omega's default of one degree is finer than the mesh

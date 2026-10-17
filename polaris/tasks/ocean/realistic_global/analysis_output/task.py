@@ -4,8 +4,8 @@ from polaris import Task
 from polaris.config import PolarisConfigParser
 from polaris.mesh.base import get_base_mesh_step_names
 from polaris.mesh.spherical.unified import UNIFIED_MESH_NAMES
-from polaris.tasks.ocean.realistic_global.analysis_members.forward import (
-    AnalysisMembersForward,
+from polaris.tasks.ocean.realistic_global.analysis_output.forward import (
+    AnalysisOutputForward,
 )
 from polaris.tasks.ocean.realistic_global.forward import (
     DatabaseInitialCondition,
@@ -29,9 +29,9 @@ if TYPE_CHECKING:
     from polaris import Step
 
 
-def add_realistic_global_analysis_members_tasks(component):
+def add_realistic_global_analysis_output_tasks(component):
     """
-    Add an :py:class:`AnalysisMembers` task for each mesh with a cached
+    Add an :py:class:`AnalysisOutput` task for each mesh with a cached
     initial condition and for each mesh the ``init`` workflow builds
 
     Parameters
@@ -48,7 +48,7 @@ def add_realistic_global_analysis_members_tasks(component):
             approx_cell_count=mesh_info['cell_count'],
         )
         component.add_task(
-            AnalysisMembers(
+            AnalysisOutput(
                 component=component,
                 mesh_name=mesh_name,
                 init_condition=init_condition,
@@ -69,7 +69,7 @@ def add_realistic_global_analysis_members_tasks(component):
             forcing_step=init_steps['forcing'],
         )
         component.add_task(
-            AnalysisMembers(
+            AnalysisOutput(
                 component=component,
                 mesh_name=mesh_name,
                 init_condition=init_condition,
@@ -78,13 +78,13 @@ def add_realistic_global_analysis_members_tasks(component):
         )
 
 
-class AnalysisMembers(Task):
+class AnalysisOutput(Task):
     """
     A one-year Omega run that writes the monthly means, overturning
     streamfunction and daily global statistics the ocean analysis reads
 
     The run's settings come from ``[realistic_global_forward]`` and the
-    defaults in ``analysis_members.cfg``, with the mesh's options and then
+    defaults in ``analysis_output.cfg``, with the mesh's options and then
     ``one_year.cfg`` layered on top.  Only the ``forward`` step runs by
     default; ``global_stats`` plots the daily statistics.
     """
@@ -116,15 +116,15 @@ class AnalysisMembers(Task):
             outputs, and left unset for a cached initial condition.
         """
         subdir = (
-            f'spherical/realistic_global/{mesh_name}/analysis_members/1_year'
+            f'spherical/realistic_global/{mesh_name}/analysis_output/1_year'
         )
         super().__init__(
             component=component,
-            name='analysis_members_1_year',
+            name='analysis_output_1_year',
             subdir=subdir,
         )
 
-        config_filename = 'analysis_members.cfg'
+        config_filename = 'analysis_output.cfg'
         config_path = f'{component.name}/{subdir}/{config_filename}'
         config = PolarisConfigParser(filepath=config_path)
         config.add_from_package(
@@ -132,12 +132,12 @@ class AnalysisMembers(Task):
             'realistic_global_forward.cfg',
         )
         config.add_from_package(
-            'polaris.tasks.ocean.realistic_global.analysis_members',
+            'polaris.tasks.ocean.realistic_global.analysis_output',
             config_filename,
         )
         add_realistic_global_mesh_config(config=config, mesh_name=mesh_name)
         config.add_from_package(
-            'polaris.tasks.ocean.realistic_global.analysis_members',
+            'polaris.tasks.ocean.realistic_global.analysis_output',
             'one_year.cfg',
         )
         self.set_shared_config(config, link=config_filename)
@@ -147,7 +147,7 @@ class AnalysisMembers(Task):
             for symlink, step in init_steps.items():
                 self.add_step(step, symlink=symlink)
 
-        forward_step = AnalysisMembersForward(
+        forward_step = AnalysisOutputForward(
             component=component,
             init_condition=init_condition,
             subdir=f'{subdir}/forward',
