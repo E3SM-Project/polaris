@@ -23,6 +23,20 @@ tasks:
 - {ref}`ocean-realistic-global-restart`, a short run split across a restart,
   checking that the history output survives the restart intact.
 
+The arrows show where each kind of task gets its inputs:
+
+```mermaid
+flowchart LR
+    woa23 --> init
+    jra55 --> init
+    e3sm_init["e3sm/init"] --> init
+    init --> forward
+    init --> analysis_members
+    database[("Polaris input database")] --> cached_forward
+    database --> analysis_members
+    database --> restart
+```
+
 ## supported models
 
 The `woa23` and `jra55` tasks are model-independent and do not require either
