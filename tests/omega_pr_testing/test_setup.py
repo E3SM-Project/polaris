@@ -427,6 +427,32 @@ def test_prepare_tree_once(tester, monkeypatch):
     assert not Path(f'{tree}.lock').exists()
 
 
+def test_prepare_tree_repairs_interrupted_tree(tester, tmp_path, monkeypatch):
+    fixture, _, _ = tester
+    repo = fixture.config.omega_repo
+    sub = tmp_path / 'sub'
+    sub.mkdir()
+    git(sub, 'init', '-q')
+    commit(sub, 'e.txt', 'e\n', 'Add e')
+    git(repo, 'checkout', '-q', '-b', 'with-sub', 'origin/develop')
+    git(repo, 'submodule', 'add', '-q', str(sub), 'externals/sub')
+    git(repo, 'commit', '-q', '-m', 'Add a submodule')
+    sha = git(repo, 'rev-parse', 'HEAD')
+    monkeypatch.setattr(pr_test_setup, 'OMEGA_SUBMODULES', ['externals/sub'])
+    tree = Path(fixture.config.work_base) / 'omega' / 'tree'
+
+    # a setup that stopped partway, before it wrote the tree's .ready
+    pr_test_setup.prepare_tree(repo, sha, str(tree))
+    Path(f'{tree}.ready').unlink()
+    (tree / 'a.txt').unlink()
+    (tree / 'externals' / 'sub' / 'e.txt').unlink()
+
+    pr_test_setup.prepare_tree(repo, sha, str(tree))
+
+    assert (tree / 'a.txt').exists()
+    assert (tree / 'externals' / 'sub' / 'e.txt').exists()
+
+
 def test_prepare_tree_refuses_clone_on_another_filesystem(tester, monkeypatch):
     fixture, manifest, _ = tester
     repo = fixture.config.omega_repo
