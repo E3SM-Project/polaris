@@ -552,21 +552,21 @@
    Jra55VizStep.run
 ```
 
-### realistic_global.analysis_members
+### realistic_global.analysis_output
 
 ```{eval-rst}
-.. currentmodule:: polaris.tasks.ocean.realistic_global.analysis_members
+.. currentmodule:: polaris.tasks.ocean.realistic_global.analysis_output
 
 .. autosummary::
    :toctree: generated/
 
-   add_realistic_global_analysis_members_tasks
+   add_realistic_global_analysis_output_tasks
 
-   AnalysisMembers
+   AnalysisOutput
 
-   AnalysisMembersForward
-   AnalysisMembersForward.setup
-   AnalysisMembersForward.dynamic_model_config
+   AnalysisOutputForward
+   AnalysisOutputForward.setup
+   AnalysisOutputForward.dynamic_model_config
 
    forward.get_monthly_filenames
 ```
