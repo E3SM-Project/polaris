@@ -48,6 +48,7 @@ extensions = [
     "sphinx.ext.mathjax",
     "sphinx.ext.napoleon",
     "sphinx_jinja",
+    "sphinxcontrib.mermaid",
 ]
 
 autosummary_generate = ['developers_guide/api.md',
@@ -126,6 +127,8 @@ myst_heading_anchors = 2
 myst_footnote_transition = True
 myst_dmath_double_inline = True
 myst_enable_checkboxes = True
+# render ```mermaid fences as diagrams, as GitHub does, rather than as code
+myst_fence_as_directive = ['mermaid']
 
 # -- HTML output -------------------------------------------------
 
