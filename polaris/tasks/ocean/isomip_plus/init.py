@@ -127,7 +127,14 @@ class Init(OceanIOStep):
         self.write_vert_coord_dataset(
             ds, self.get_vert_coord_filename(), config
         )
-        self.write_initial_state_dataset(ds, self.get_init_filename(), config)
+        # the protocol's profiles are potential temperature and practical
+        # salinity, MPAS-Ocean's own convention, whatever the EOS
+        self.write_initial_state_dataset(
+            ds,
+            self.get_init_filename(),
+            config,
+            tracer_convention='mpas-ocean',
+        )
 
         self._write_forcing(ds)
         if self.thin_film:

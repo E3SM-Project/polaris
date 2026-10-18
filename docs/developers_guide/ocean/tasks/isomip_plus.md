@@ -14,8 +14,9 @@ the shared mesh and topography steps for each resolution, with
 a shared config file `isomip_plus_topo.cfg` in the resolution's directory.
 Each task then gets its own config file, `isomip_plus.cfg`, in its work
 directory, shared with the steps the task adds itself. The task config
-includes the linear equation of state from `polaris.ocean.eos`, and the
-SSH-adjustment and freezing-point options from `polaris.ocean.ice_shelf`.
+includes `teos10.cfg` from `polaris.ocean.eos`, which MPAS-Ocean runs as its
+Jackett-McDougall equation of state, and the SSH-adjustment and
+freezing-point options from `polaris.ocean.ice_shelf`.
 The `inception`, `wetting` and `drying` tasks add `thin_film.cfg`, and
 `inception` also `inception.cfg`, which set the forward run's duration and
 output interval.
@@ -23,7 +24,9 @@ output interval.
 `VARIANTS` in the package maps each variant of the default tasks to the
 experiments it applies to. A variant adds a level to the task path,
 `<resolution>/z-star/<variant>/<experiment>`, and its config file,
-`<variant>.cfg` in the package, comes last in the task's config.
+`<variant>.cfg` in the package, comes last in the task's config. The `com`
+variants of `ocean0`–`ocean2` add `com.cfg`, which sets `physics = com` and
+the linear equation of state of the ISOMIP+ protocol.
 
 {py:class}`polaris.tasks.ocean.isomip_plus.IsomipPlusTest` is an
 {py:class}`polaris.ocean.ice_shelf.IceShelfTask`. Its `thin_film` attribute
@@ -92,10 +95,17 @@ using {py:class}`polaris.tasks.ocean.isomip_plus.ssh_forward.SshForward`,
 which turns on the equation of state from the config options. The
 `[ssh_adjustment]` section sets `adjust_variable = ssh`, so the
 {py:class}`polaris.ocean.ice_shelf.ssh_adjustment.SshAdjustment` steps
-adjust SSH and leave the land-ice pressure from `init` unchanged. The model
-physics is in `physics.yaml`, which the SSH-adjustment and forward runs share.
-It uses RK4 time integration with wetting and drying, following Compass's
-thin-film tests, and sets the ISOMIP+ top drag coefficient.
+adjust SSH and leave the land-ice pressure from `init` unchanged.
+
+The model physics is in `physics.yaml`, which the SSH-adjustment and forward
+runs share. It holds MPAS-Ocean's physics as E3SM configures it for
+ice-shelf cavities, with RK4 time integration and wetting and drying,
+following Compass's thin-film tests. Its del2 and del4 viscosities come from
+{py:func}`polaris.tasks.ocean.isomip_plus.physics.get_physics_replacements()`,
+which scales them with resolution. Where `physics = com`,
+{py:func}`polaris.tasks.ocean.isomip_plus.physics.add_com_physics_yaml()`
+adds `com.yaml` after it, which restores the COM physics of the protocol for
+every option in `physics.yaml` that the two physics do not share.
 Both model steps estimate their cell count with
 {py:func}`polaris.tasks.ocean.isomip_plus.cell_count.estimate_cell_count()`.
 
