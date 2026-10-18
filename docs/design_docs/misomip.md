@@ -14,9 +14,10 @@ the MISOMIP1 coupled experiments (IceOcean1r and IceOcean1ra) in E3SM.
 MPAS-Ocean and MALI exchange melt and geometry through the coupler.
 Polaris builds the meshes and every input the runs need, gains a landice
 component to spin up MISMIP+, and analyzes the output. E3SM runs the
-simulations. The E3SM code comes from one shared development branch,
-FAnSSIE, which Polaris pins as a submodule. Section, table and equation
-numbers refer to the protocol
+simulations. The E3SM code comes from one shared development branch of
+FAnSSIE, the Framework for Antarctic System Science in E3SM, which Polaris
+pins as a submodule. This document calls the branch FAnSSIE. Section, table
+and equation numbers refer to the protocol
 ([Asay-Davis et al. 2016](https://doi.org/10.5194/gmd-9-2471-2016)).
 
 The experiments are a step toward realistic coupling of MPAS-Ocean and
@@ -426,21 +427,21 @@ the protocol (Sects. 3.1.2 and 4).
 
 ### Principle: one E3SM branch
 
-Date last modified: 2026/10/16
+Date last modified: 2026/10/18
 
 Contributors: Xylar Asay-Davis, Claude
 
 All E3SM code this work needs comes from FAnSSIE, a long-lived, shared
-development branch on E3SM-Ocean-Discussion/E3SM,
-`fanssie-ocn-glc-coupling`, that Polaris pins as the submodule
-`e3sm_submodules/FAnSSIE`. Builds of MPAS-Ocean and MALI for this work
-point to it explicitly, as they would to any MPAS-Ocean development
-branch, and E3SM cases are created from it. Changes land on FAnSSIE when
-they work. A ledger on the branch, `FANSSIE.md`, lists each change, the
-branch it came from and its upstream pull request, if any. Moving changes
-upstream is encouraged but is not a condition for landing them. Polaris's
-`fanssie_pr` suite is the standard regression test for every change to the
-branch.
+development branch of the Framework for Antarctic System Science in E3SM,
+`fanssie-ocn-glc-coupling` on E3SM-Ocean-Discussion/E3SM, that Polaris pins
+as the submodule `e3sm_submodules/FAnSSIE`. Builds of MPAS-Ocean and MALI
+for this work point to it explicitly, as they would to any MPAS-Ocean
+development branch, and E3SM cases are created from it. Changes land on
+FAnSSIE when they work. A ledger on the branch, `FANSSIE.md`, lists each
+change, the branch it came from and its upstream pull request, if any.
+Moving changes upstream is encouraged but is not a condition for landing
+them. Polaris's `fanssie_pr` suite is the standard regression test for
+every change to the branch.
 
 ```{admonition} Rationale
 E3SM and MALI-Dev will not merge these changes at the pace this work
