@@ -382,7 +382,7 @@ stays a no-op.
 
 ### Principle: a thin film and an outflow
 
-Date last modified: 2026/10/16
+Date last modified: 2026/10/18
 
 Contributors: Xylar Asay-Davis, Claude
 
@@ -390,7 +390,9 @@ Every ocean cell under grounded ice holds a fresh film at MPAS-Ocean's
 pressure cap (#844, D17 and D18). The SSH is held at zero in the restoring
 region by MPAS-Ocean's tidal forcing, in its direct mode with zero
 amplitude (#844, D19). Meltwater and the water the ice displaces leave
-there with the local temperature and salinity.
+there with the local temperature and salinity. Every E3SM experiment
+takes the wetting-and-drying settings of the standalone thin-film tasks,
+including WP2's velocity ramp, since every experiment keeps a film.
 
 ```{admonition} Rationale
 E3SM adds meltwater as a volume, and in Ocean3–4 and MISOMIP1 the ice load
@@ -529,7 +531,9 @@ WP2 starts from `abc3b5daee` merged onto FAnSSIE ([D10](#decisions)).
 RK4 keeps master's wetting factor, with #119's changes and its
 ssh-gradient and subgrid branches. Carolyn Begeman's factors serve only
 the split-explicit scheme. They see grounded ice through #119's limit on
-the pressure, as RK4's factor does. WP2 must also:
+the pressure, as RK4's factor does. In both schemes, water flows into a
+cell under ice heavier than flotation only where it could lift the ice.
+WP2 must also:
 
 - fix the known defects, such as a loop over cells that fills an edge
   array, and remove the debugging output;
