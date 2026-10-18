@@ -376,6 +376,8 @@
 
    ssh_forward.SshForward
    ssh_forward.SshForward.compute_cell_count
+   ssh_forward.ThinFilmSshForward
+   ssh_forward.ThinFilmSshForward.dynamic_model_config
 
    topo.TopoMap
    topo.TopoMap.run

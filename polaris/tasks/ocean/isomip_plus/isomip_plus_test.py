@@ -1,7 +1,10 @@
 from polaris.ocean.ice_shelf import IceShelfTask
 from polaris.tasks.ocean.isomip_plus.forward import Forward
 from polaris.tasks.ocean.isomip_plus.init import Init
-from polaris.tasks.ocean.isomip_plus.ssh_forward import SshForward
+from polaris.tasks.ocean.isomip_plus.ssh_forward import (
+    SshForward,
+    ThinFilmSshForward,
+)
 from polaris.tasks.ocean.isomip_plus.validate import Validate
 from polaris.tasks.ocean.isomip_plus.viz import Viz
 
@@ -153,7 +156,7 @@ class IsomipPlusTest(IceShelfTask):
             init_filename=f'{init.path}/init.nc',
             config=config,
             config_filename='isomip_plus.cfg',
-            ForwardStep=SshForward,
+            ForwardStep=ThinFilmSshForward if self.thin_film else SshForward,
             package='polaris.tasks.ocean.isomip_plus',
             yaml_filename='physics.yaml',
         )

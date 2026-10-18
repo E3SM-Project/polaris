@@ -164,7 +164,10 @@ becoming negative. This happens in cells that are partly grounded, where the
 land-ice pressure comes from the full weight of the ice. The default tasks
 use the RK4 time integrator, and their
 [split-explicit variants](ocean-isomip-plus-split-explicit) use
-MPAS-Ocean's split-explicit wetting and drying.
+MPAS-Ocean's split-explicit wetting and drying. The tasks with a thin film
+also ramp velocities down in thin columns, following O'Dea et al. (2021),
+which keeps wetting and drying at the grounding line stable with either
+time integrator.
 
 ## SSH adjustment
 

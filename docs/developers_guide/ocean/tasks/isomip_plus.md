@@ -108,7 +108,12 @@ which turns on the equation of state from the config options. The
 adjust SSH and leave the land-ice pressure from `init` unchanged. The model
 physics is in `physics.yaml`, which the SSH-adjustment and forward runs share.
 It uses RK4 time integration with wetting and drying, following Compass's
-thin-film tests, and sets the ISOMIP+ top drag coefficient.
+thin-film tests, and sets the ISOMIP+ top drag coefficient. Tasks with a thin
+film use {py:class}`polaris.tasks.ocean.isomip_plus.ssh_forward.ThinFilmSshForward`
+instead, which, like their forward run, also adds
+`thin_film_wetting_drying.yaml`. It ramps velocities down in thin columns
+(`config_zero_drying_velocity_ramp`), which keeps wetting and drying at the
+grounding line stable.
 Both model steps estimate their cell count with
 {py:func}`polaris.tasks.ocean.isomip_plus.cell_count.estimate_cell_count()`.
 
@@ -121,6 +126,7 @@ from the last SSH-adjustment output with the settings in `physics.yaml` and
 `forward.yaml`. It reads `forcing.nc` as the `forcing_data` stream and writes
 `output.nc` and `land_ice_fluxes.nc`, whose variables are compared with a
 baseline. With a thin film, it also links `land_ice_forcing.nc` and adds
+`thin_film_wetting_drying.yaml` and
 `thin_film.yaml`, which turns on MPAS-Ocean's time-varying land-ice forcing
 and its tidal forcing. The tidal forcing, in its `direct` mode with zero
 amplitude, holds the SSH at zero where `tidalInputMask` is 1, so the water
