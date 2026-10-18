@@ -26,7 +26,7 @@ understood, what realistic runs will need. The results will not be
 submitted to MISOMIP, so the protocol is followed where it helps
 comparison with published results, not for its own sake.
 
-The work divides into ten packages, each with its own design document or
+The work divides into twelve packages, each with its own design document or
 E3SM pull request ([work packages](#implementation-work-packages)). This
 document records what was established before designing, the requirements
 and principles the packages share, and the order in which they land.
@@ -154,8 +154,9 @@ reading code, not from runs.
   ending at `abc3b5daee`. The same series is in
   `ocn-add-wetting-drying-se-and-fix-vlr`, bundled with other work. It is
   unreviewed research code, and no pull request exists. Its barotropic
-  factor has no land-ice terms. It also removes master's subgrid
-  wetting-and-drying path, which #119 edits. Merging it onto
+  factor has no land-ice terms. It also replaces master's RK4 wetting
+  factor, dropping its ssh-gradient and subgrid branches, and #119 edits
+  the first of these. Merging it onto
   [xylar/E3SM:ocn/thin-film-wetting-drying](https://github.com/xylar/E3SM/tree/ocn/thin-film-wetting-drying)
   therefore takes a design decision, not only conflict resolution.
 - The RK4 thin-film runs of Polaris's `inception` task took, on Chrysalis
@@ -196,6 +197,23 @@ reading code, not from runs.
   outside the protocol's 450 ± 10 km.
 - Compass's ocean `misomip` step computes the COM standard output from
   monthly means. No landice code in Compass relates to MISOMIP1.
+
+## Open questions
+
+### Which equation of state can E3SM's physics use?
+
+MPAS-Ocean has no nonlinear equation of state that is correct under ice
+shelves. `jm`, E3SM's default, evaluates each layer at a pressure computed
+from `refBottomDepth`. With z-star, layers under the ice sit far deeper
+than their reference depths, so under 700 m of ice the top layers are
+evaluated at near-surface pressure. `wright` uses each layer's own depth,
+but it has never worked correctly. The options are:
+
+- a linear equation of state, until Omega supports ice-shelf cavities;
+- an option, on FAnSSIE, to evaluate `jm` at each layer's own depth;
+- fixing `wright`.
+
+WP11 settles this.
 
 ## Requirements
 
@@ -398,20 +416,19 @@ but accepts other strategies (Sect. 3.1.8). The outflow handles both, and
 #844 found evaporation unstable at the rates a changing load needs.
 ```
 
-### Principle: the COM physics
+### Principle: E3SM's physics
 
-Date last modified: 2026/10/16
+Date last modified: 2026/10/18
 
 Contributors: Xylar Asay-Davis, Claude
 
-The ocean uses the physics of the standalone tasks, which follow COM
-(Table 4). E3SM's MPAS-Ocean defaults, such as GM, Redi, KPP, the
-nonlinear equation of state and biharmonic viscosity, are overridden to
-match. Differences that remain, such as frazil under land ice, which E3SM
-turns on with ice-shelf coupling, are recorded in the package designs.
-Tuning the heat transfer coefficient $\Gamma_T$ in Ocean0 to
-$30 \pm 2$ m a⁻¹ (Eq. 37) is optional. Without it, the standalone tasks'
-value is used.
+The ocean uses E3SM's MPAS-Ocean physics and coefficients, including the
+heat and salt transfer coefficients, overridden only where the idealized
+domain or wetting and drying requires. The protocol supplies the geometry,
+the initial profiles and the restoring. Ocean0–2 also have variants with
+the COM physics (Table 4) for comparison with Yung et al. (2026). The
+standalone tasks keep the COM physics until WP11 moves them
+([D16](#decisions)).
 
 ### Principle: stub partners
 
@@ -463,7 +480,7 @@ designs; the prototype does not merge.
 
 ## Implementation: work packages
 
-Date last modified: 2026/10/16
+Date last modified: 2026/10/18
 
 Contributors: Xylar Asay-Davis, Claude
 
@@ -486,6 +503,8 @@ whole. Task, step and file names are working names.
 | WP7 Idealized cases       | E3SM          | no atmosphere, coupler areas, namelists, user grids       | WP6's first PR, the first to build E3SM cases     |
 | WP8 Moving grounding line | E3SM          | #119 and #141 in coupled runs; fractions; data mode       | the WP6 PR that adds Ocean3–4                     |
 | WP9 Analysis              | Polaris       | diagnostics and comparisons                               | `misomip_analysis.md`                             |
+| WP10 Subgrid W&D          | E3SM, Polaris | subgrid wetting and drying in partly grounded cells       | the PR that first tests it                        |
+| WP11 E3SM's physics       | Polaris, E3SM | E3SM's physics in the ISOMIP+ tasks; COM variants         | `isomip_plus.md`, in the PR that switches physics |
 
 ### WP0: The FAnSSIE branch
 
@@ -523,12 +542,12 @@ spherical meshes and most of the spherical tasks ([D2](#decisions)).
 
 ### WP2: Split-explicit wetting and drying
 
-WP2 starts from `abc3b5daee` merged onto FAnSSIE ([D10](#decisions)). It
-must:
+WP2 starts from `abc3b5daee` merged onto FAnSSIE ([D10](#decisions)).
+RK4 keeps master's wetting factor, with #119's changes and its
+ssh-gradient and subgrid branches. Carolyn Begeman's factors serve only
+the split-explicit scheme. They see grounded ice through #119's limit on
+the pressure, as RK4's factor does. WP2 must also:
 
-- decide how the barotropic wetting factor sees grounded ice, using #119's
-  limit on the pressure there;
-- keep master's subgrid wetting-and-drying path;
 - fix the known defects, such as a loop over cells that fills an edge
   array, and remove the debugging output;
 - make the direct tidal forcing work with the split-explicit scheme;
@@ -657,17 +676,38 @@ compute:
 Compass's `misomip` and streamfunction steps can be ported where they
 help. The protocol's file format is not a goal.
 
+### WP10: Subgrid wetting and drying
+
+MPAS-Ocean's subgrid wetting and drying
+([E3SM#6288](https://github.com/E3SM-Project/E3SM/pull/6288),
+[E3SM#8608](https://github.com/E3SM-Project/E3SM/pull/8608)) corrects
+partly wet cells using lookup tables built in init mode from fine-scale
+topography. It supports one layer, RK4, standalone runs and a free surface
+over static topography. WP10 extends it to partly grounded cells under ice
+shelves, with RK4 and static geometry first. Its own design settles the
+details.
+
+### WP11: E3SM's physics
+
+The standalone ISOMIP+ tasks move to E3SM's physics
+([principle](#algorithm-design-shared-principles)), including
+`Jacobian_from_TS` for the pressure gradient and E3SM's land-ice flux
+coefficients. Ocean0–2 keep COM variants. The equation of state is an
+[open question](#open-questions). The design amends `isomip_plus.md` in
+the pull request that makes the change.
+
 ### Order
 
-| Stage | Experiments            | Needs                                          |
-|-------|------------------------|------------------------------------------------|
-| A     | 4 km Ocean0, prototype | WP0                                            |
-| B     | Ocean0–2               | WP0, WP1, WP5, WP6, WP7, WP9; WP2 for Ocean1–2 |
-| C     | Ocean3–4               | stage B, WP2, WP8                              |
-| D     | IceOcean1r, 1ra        | stage C, WP3, WP4                              |
+| Stage | Experiments            | Needs                                                |
+|-------|------------------------|------------------------------------------------------|
+| A     | 4 km Ocean0, prototype | WP0                                                  |
+| B     | Ocean0–2               | WP0, WP1, WP5, WP6, WP7, WP9, WP11; WP2 for Ocean1–2 |
+| C     | Ocean3–4               | stage B, WP2, WP8                                    |
+| D     | IceOcean1r, 1ra        | stage C, WP3, WP4                                    |
 
-WP2, WP3 and WP4 can proceed alongside stages A–C: WP2 needs only WP0 and
-WP1, WP3 needs nothing, and WP4 needs WP3 and WP5.
+WP2, WP3, WP4 and WP11 can proceed alongside stages A–C: WP2 needs only
+WP0 and WP1, WP3 needs nothing, WP4 needs WP3 and WP5, and WP11 needs only
+WP1. WP10 follows WP2, and no stage needs it.
 
 FAnSSIE starts from these pull requests, whose states are as of
 2026-10-16:
@@ -684,7 +724,7 @@ FAnSSIE starts from these pull requests, whose states are as of
 
 ## Testing and Validation
 
-Date last modified: 2026/10/16
+Date last modified: 2026/10/18
 
 Contributors: Xylar Asay-Davis, Claude
 
@@ -704,8 +744,8 @@ Each step builds on the one before it.
    configuration difference.
 4. **Conservation.** With `BUDGETS=TRUE`, the budgets close for the
    exchanged melt.
-5. **Melt calibration.** If $\Gamma_T$ is tuned, E3SM's Ocean0 gives
-   $30 \pm 2$ m a⁻¹ (Eq. 37).
+5. **Published results.** The COM variants of Ocean0–2 are compared with
+   Yung et al. (2026).
 6. **Ocean3–4.** The geometry the ocean imports tracks the data-mode file.
    The grounding line moves without failure, the open-ocean SSH stays near
    zero, and no open-ocean cell receives land-ice fluxes. In partly
@@ -947,3 +987,23 @@ ocean–ice-sheet work, and every suite, nightly CDash runs included, would
 then test it rather than E3SM. Also rejected: keeping `ice_shelf_2d` in the
 regular suites on its current options. Tasks that work with one source but
 not the other would then be hard to tell apart as the two diverge.
+
+### D16: E3SM's physics, not COM's
+
+Date last modified: 2026/10/18
+
+Contributors: Xylar Asay-Davis, Claude
+
+The ocean uses E3SM's MPAS-Ocean physics and coefficients, overridden only
+where the idealized domain or wetting and drying requires. The experiments
+rehearse realistic coupling, so they exercise the physics realistic runs
+will use.
+
+Rejected: the COM physics (Table 4) throughout, which the standalone tasks
+use today. It would make the E3SM runs override E3SM's defaults with
+Laplacian viscosity, constant mixing and a tuned $\Gamma_T$. It stays as a
+variant of Ocean0–2, the only experiments with published results to
+compare against.
+
+*Effect:* #826 and #844 merge with the COM physics, and WP11 then moves the
+standalone tasks to E3SM's physics.
