@@ -20,6 +20,11 @@ The `inception`, `wetting` and `drying` tasks add `thin_film.cfg`, and
 `inception` also `inception.cfg`, which set the forward run's duration and
 output interval.
 
+`VARIANTS` in the package maps each variant of the default tasks to the
+experiments it applies to. A variant adds a level to the task path,
+`<resolution>/z-star/<variant>/<experiment>`, and its config file,
+`<variant>.cfg` in the package, comes last in the task's config.
+
 {py:class}`polaris.tasks.ocean.isomip_plus.IsomipPlusTest` is an
 {py:class}`polaris.ocean.ice_shelf.IceShelfTask`. Its `thin_film` attribute
 is set for the tasks with time-varying geometry (`inception`, `wetting` and
