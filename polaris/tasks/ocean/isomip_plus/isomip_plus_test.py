@@ -2,6 +2,7 @@ from polaris.ocean.ice_shelf import IceShelfTask
 from polaris.tasks.ocean.isomip_plus.forward import Forward
 from polaris.tasks.ocean.isomip_plus.init import Init
 from polaris.tasks.ocean.isomip_plus.ssh_forward import SshForward
+from polaris.tasks.ocean.isomip_plus.validate import Validate
 from polaris.tasks.ocean.isomip_plus.viz import Viz
 
 
@@ -24,6 +25,11 @@ class IsomipPlusTest(IceShelfTask):
         The variant of the default task, which adds a level to the task
         path, or None for the default task
 
+    with_restart : bool
+        Whether this is a restart test, which shares the init and SSH
+        adjustment of the task it is in and checks that a run restarted
+        halfway matches one that is not
+
     tidal_forcing: bool
         Whether the case has tidal forcing
 
@@ -42,6 +48,7 @@ class IsomipPlusTest(IceShelfTask):
         shared_steps,
         config,
         variant=None,
+        with_restart=False,
         tidal_forcing=False,
     ):
         """
@@ -77,6 +84,11 @@ class IsomipPlusTest(IceShelfTask):
             The variant of the default task, which adds a level to the task
             path
 
+        with_restart : bool, optional
+            Whether this is a restart test, which shares the init and SSH
+            adjustment of the task it is in and checks that a run restarted
+            halfway matches one that is not.  That task must be added first.
+
         tidal_forcing: bool, optional
             Whether the run includes a single-period tidal forcing
         """  # noqa: E501
@@ -90,15 +102,22 @@ class IsomipPlusTest(IceShelfTask):
         self.variant = variant
         self.thin_film = experiment in ['inception', 'wetting', 'drying']
         self.tidal_forcing = tidal_forcing
+        self.with_restart = with_restart
         if variant is None:
-            subdir = f'{resdir}/{vertical_coordinate}/{name}'
+            basedir = f'{resdir}/{vertical_coordinate}/{name}'
         else:
-            subdir = f'{resdir}/{vertical_coordinate}/{variant}/{name}'
+            basedir = f'{resdir}/{vertical_coordinate}/{variant}/{name}'
+        if with_restart:
+            name = f'{name}_with_restart'
+            subdir = f'{basedir}/with_restart'
+        else:
+            subdir = basedir
         super().__init__(
             component=component,
             min_resolution=resolution,
             name=name,
             subdir=subdir,
+            sshdir=basedir,
         )
         self.set_shared_config(config)
 
@@ -107,16 +126,26 @@ class IsomipPlusTest(IceShelfTask):
                 continue
             self.add_step(step, symlink=symlink)
 
-        init = Init(
-            component=component,
-            indir=subdir,
-            culled_mesh=shared_steps['topo/cull_mesh'],
-            topo=shared_steps['topo_final'],
-            experiment=experiment,
-            thin_film=self.thin_film,
-        )
-        init.set_shared_config(config, link='isomip_plus.cfg')
-        self.add_step(init)
+        if with_restart:
+            init_path = f'{basedir}/init'
+            if init_path not in component.steps:
+                raise ValueError(
+                    f'The restart test in {subdir} needs the task in '
+                    f'{basedir} to be added first.'
+                )
+            init = component.steps[init_path]
+            self.add_step(init, symlink='init')
+        else:
+            init = Init(
+                component=component,
+                indir=subdir,
+                culled_mesh=shared_steps['topo/cull_mesh'],
+                topo=shared_steps['topo_final'],
+                experiment=experiment,
+                thin_film=self.thin_film,
+            )
+            init.set_shared_config(config, link='isomip_plus.cfg')
+            self.add_step(init)
 
         ssh_adjust = self.setup_ssh_adjustment_steps(
             mesh_filename=f'{init.path}/mesh.nc',
@@ -128,6 +157,10 @@ class IsomipPlusTest(IceShelfTask):
             package='polaris.tasks.ocean.isomip_plus',
             yaml_filename='physics.yaml',
         )
+
+        if with_restart:
+            self._add_restart_steps(subdir, init, ssh_adjust, config)
+            return
 
         forward = Forward(
             component=component,
@@ -149,3 +182,33 @@ class IsomipPlusTest(IceShelfTask):
         )
         viz.set_shared_config(config, link='isomip_plus.cfg')
         self.add_step(viz)
+
+    def _add_restart_steps(self, subdir, init, ssh_adjust, config):
+        """
+        Add a full run that writes a restart halfway, a run that restarts
+        from it and a step that compares their results
+        """
+        steps = dict()
+        for restart_test in ['full', 'restart']:
+            step = Forward(
+                component=self.component,
+                indir=subdir,
+                resolution=self.resolution,
+                init=init,
+                ssh_adjust=ssh_adjust,
+                thin_film=self.thin_film,
+                restart_test=restart_test,
+            )
+            step.set_shared_config(config, link='isomip_plus.cfg')
+            steps[restart_test] = step
+        steps['restart'].add_dependency(steps['full'], steps['full'].name)
+        for step in steps.values():
+            self.add_step(step)
+
+        validate = Validate(
+            component=self.component,
+            step_subdirs=[steps['full'].name, steps['restart'].name],
+            indir=subdir,
+        )
+        validate.set_shared_config(config, link='isomip_plus.cfg')
+        self.add_step(validate)

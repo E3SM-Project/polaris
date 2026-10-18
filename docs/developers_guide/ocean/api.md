@@ -460,6 +460,9 @@
    topo.TopoScale.run
    topo.calving.calve_thin_ice
 
+   validate.Validate
+   validate.Validate.run
+
    viz.Viz
    viz.Viz.run
 

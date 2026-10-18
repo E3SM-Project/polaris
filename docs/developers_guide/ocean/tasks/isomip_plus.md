@@ -29,6 +29,15 @@ and time steps of both SSH adjustment and the forward run, which
 {py:class}`polaris.tasks.ocean.isomip_plus.forward.Forward` reads from the
 `isomip_plus_forward` section.
 
+`RESTART_TASKS` maps a variant to the experiments that also have a
+restart test, in `with_restart` within the variant's task. The test is
+an `IsomipPlusTest` with `with_restart=True`, which shares the `init` and
+SSH-adjustment steps of the task it is in. It adds two
+{py:class}`polaris.tasks.ocean.isomip_plus.forward.Forward` steps, with
+`restart_test` set to `'full'` and `'restart'`, which add `restart.yaml`,
+and a {py:class}`polaris.tasks.ocean.isomip_plus.validate.Validate` step
+that compares their results.
+
 {py:class}`polaris.tasks.ocean.isomip_plus.IsomipPlusTest` is an
 {py:class}`polaris.ocean.ice_shelf.IceShelfTask`. Its `thin_film` attribute
 is set for the tasks with time-varying geometry (`inception`, `wetting` and
