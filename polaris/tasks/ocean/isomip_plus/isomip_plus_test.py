@@ -20,6 +20,10 @@ class IsomipPlusTest(IceShelfTask):
     vertical_coordinate : str
             The type of vertical coordinate (``z-star``, ``z-level``, etc.)
 
+    variant : str or None
+        The variant of the default task, which adds a level to the task
+        path, or None for the default task
+
     tidal_forcing: bool
         Whether the case has tidal forcing
 
@@ -37,6 +41,7 @@ class IsomipPlusTest(IceShelfTask):
         vertical_coordinate,
         shared_steps,
         config,
+        variant=None,
         tidal_forcing=False,
     ):
         """
@@ -68,6 +73,10 @@ class IsomipPlusTest(IceShelfTask):
             A config parser shared by the task and its steps, whose file is
             in the task's work directory
 
+        variant : str, optional
+            The variant of the default task, which adds a level to the task
+            path
+
         tidal_forcing: bool, optional
             Whether the run includes a single-period tidal forcing
         """  # noqa: E501
@@ -78,9 +87,13 @@ class IsomipPlusTest(IceShelfTask):
         self.resolution = resolution
         self.experiment = experiment
         self.vertical_coordinate = vertical_coordinate
+        self.variant = variant
         self.thin_film = experiment in ['inception', 'wetting', 'drying']
         self.tidal_forcing = tidal_forcing
-        subdir = f'{resdir}/{vertical_coordinate}/{name}'
+        if variant is None:
+            subdir = f'{resdir}/{vertical_coordinate}/{name}'
+        else:
+            subdir = f'{resdir}/{vertical_coordinate}/{variant}/{name}'
         super().__init__(
             component=component,
             min_resolution=resolution,
