@@ -21,10 +21,21 @@ class Forward(OceanModelStep):
     thin_film : bool
         Whether a thin film is present under grounded ice, in which case the
         land-ice pressure and fractions vary in time
+
+    restart_test : {'full', 'restart'} or None
+        In a restart test, whether this is the full run, which writes a
+        restart halfway, or the run that restarts from it
     """
 
     def __init__(
-        self, component, indir, resolution, init, ssh_adjust, thin_film
+        self,
+        component,
+        indir,
+        resolution,
+        init,
+        ssh_adjust,
+        thin_film,
+        restart_test=None,
     ):
         """
         Create the step
@@ -49,10 +60,17 @@ class Forward(OceanModelStep):
         thin_film : bool
             Whether a thin film is present under grounded ice, in which case
             the land-ice pressure and fractions vary in time
+
+        restart_test : {'full', 'restart'}, optional
+            In a restart test, whether this is the full run, which writes a
+            restart halfway, or the run that restarts from it
         """
+        if restart_test not in [None, 'full', 'restart']:
+            raise ValueError(f'Unexpected restart_test: {restart_test}')
+        name = 'restart' if restart_test == 'restart' else 'forward'
         super().__init__(
             component=component,
-            name='forward',
+            name=name,
             indir=indir,
             ntasks=None,
             min_tasks=None,
@@ -62,6 +80,7 @@ class Forward(OceanModelStep):
         )
         self.resolution = resolution
         self.thin_film = thin_film
+        self.restart_test = restart_test
 
         # make sure output is double precision
         self.add_yaml_file('polaris.ocean.config', 'output.yaml')
@@ -144,7 +163,6 @@ class Forward(OceanModelStep):
         super().dynamic_model_config(at_setup)
 
         section = self.config['isomip_plus_forward']
-        run_duration = section.getfloat('run_duration')
         time_integrator = section.get('time_integrator')
         if time_integrator == 'RK4':
             dt_per_km = section.getfloat('rk4_dt_per_km')
@@ -153,16 +171,31 @@ class Forward(OceanModelStep):
         btr_dt_per_km = section.getfloat('btr_dt_per_km')
 
         s_per_hour = 3600.0
-        run_duration_str = get_time_interval_string(
-            seconds=run_duration * s_per_hour
-        )
-        output_interval = section.get('output_interval')
-        if output_interval == 'none':
-            output_interval_str = run_duration_str
+        restart_replacements = None
+        if self.restart_test is None:
+            run_duration = section.getfloat('run_duration') * s_per_hour
+            output_option = section.get('output_interval')
+            if output_option == 'none':
+                output_interval = run_duration
+            else:
+                output_interval = float(output_option) * s_per_hour
         else:
-            output_interval_str = get_time_interval_string(
-                seconds=float(output_interval) * s_per_hour
+            # the full run writes a restart halfway, where the restart run
+            # starts, and each run writes output only at its end
+            full_duration = self.config.getfloat(
+                'isomip_plus_restart', 'run_duration'
             )
+            half_duration = 0.5 * full_duration * s_per_hour
+            if self.restart_test == 'full':
+                run_duration = 2.0 * half_duration
+            else:
+                run_duration = half_duration
+            output_interval = run_duration
+            restart_replacements = _get_restart_replacements(
+                self.restart_test, half_duration
+            )
+        run_duration_str = get_time_interval_string(seconds=run_duration)
+        output_interval_str = get_time_interval_string(seconds=output_interval)
         replacements = dict(
             time_integrator=time_integrator,
             dt=get_time_interval_string(seconds=dt_per_km * self.resolution),
@@ -189,6 +222,13 @@ class Forward(OceanModelStep):
                 ),
             )
 
+        if restart_replacements is not None:
+            self.add_yaml_file(
+                'polaris.tasks.ocean.isomip_plus',
+                'restart.yaml',
+                template_replacements=restart_replacements,
+            )
+
     def _get_forcing_interval(self, at_setup):
         """
         Get the spacing of the land-ice forcing records, which MPAS-Ocean
@@ -207,3 +247,28 @@ class Forward(OceanModelStep):
                 f'they are at {record_times} s'
             )
         return get_time_interval_string(seconds=float(spacings[0]))
+
+
+def _get_restart_replacements(restart_test, half_duration):
+    """
+    Get the template replacements for a step of a restart test, which starts
+    at the beginning of the simulation or, for the restart run, halfway
+    """
+    if half_duration >= 86400.0 or half_duration % 1.0 != 0.0:
+        raise ValueError(
+            f'Half the restart test must be a whole number of seconds less '
+            f'than a day, not {half_duration} s.'
+        )
+    if restart_test == 'restart':
+        do_restart = 'true'
+        seconds = int(half_duration)
+    else:
+        do_restart = 'false'
+        seconds = 0
+    hours, remainder = divmod(seconds, 3600)
+    minutes, seconds = divmod(remainder, 60)
+    return dict(
+        do_restart=do_restart,
+        start_time=f'0001-01-01_{hours:02d}:{minutes:02d}:{seconds:02d}',
+        restart_interval=get_time_interval_string(seconds=half_duration),
+    )

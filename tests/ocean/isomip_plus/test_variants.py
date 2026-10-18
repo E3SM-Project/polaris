@@ -26,6 +26,12 @@ def test_task_paths():
                 expected.append(
                     f'planar/isomip_plus/{res}/z-star/{variant}/{experiment}'
                 )
+        for variant, experiments in isomip_plus.RESTART_TASKS.items():
+            for experiment in experiments:
+                expected.append(
+                    f'planar/isomip_plus/{res}/z-star/{variant}/'
+                    f'{experiment}/with_restart'
+                )
     assert sorted(tasks) == sorted(expected)
 
 
@@ -85,3 +91,27 @@ def test_split_explicit_tasks():
     task = tasks['planar/isomip_plus/4km/z-star/wetting']
     for section in ['isomip_plus_forward', 'ssh_adjustment']:
         assert task.config.get(section, 'time_integrator') == 'RK4'
+
+
+def test_restart_task_shares_init_and_ssh_adjustment():
+    tasks = _get_isomip_plus_tasks()
+    basedir = 'planar/isomip_plus/4km/z-star/split_explicit/wetting'
+    base = tasks[basedir]
+    task = tasks[f'{basedir}/with_restart']
+    assert task.with_restart
+    assert task.name == 'wetting_with_restart'
+
+    # init and SSH adjustment are the base task's own steps
+    assert task.steps['init'] is base.steps['init']
+    ssh_steps = [name for name in base.steps if name.startswith('ssh_')]
+    assert ssh_steps
+    for name in ssh_steps:
+        assert task.steps[name] is base.steps[name]
+
+    # the restart test has its own runs, compared by a validate step
+    for name in ['forward', 'restart', 'validate']:
+        assert task.steps[name].path == f'ocean/{basedir}/with_restart/{name}'
+    assert task.steps['forward'].restart_test == 'full'
+    assert task.steps['restart'].restart_test == 'restart'
+    assert 'forward' in task.steps['restart'].dependencies
+    assert 'viz' not in task.steps

@@ -279,6 +279,14 @@ split_dt_per_km = 30
 btr_dt_per_km = 1.5
 
 
+# config options for ISOMIP+ restart tests
+[isomip_plus_restart]
+
+# Duration in hours of the full run, which writes a restart halfway, where
+# the restart run starts
+run_duration = 2.0
+
+
 # config options for visualizing ISOMIP+ output
 [isomip_plus_viz]
 
@@ -420,6 +428,23 @@ variants, such as `planar/isomip_plus/4km/z-star/split_explicit/ocean0`. They
 adjust SSH and run forward with MPAS-Ocean's split-explicit time integrator,
 which needs MPAS-Ocean from FAnSSIE for wetting and drying, and are otherwise
 the same as the default tasks, so the two can be compared.
+
+`planar/isomip_plus/<res>/z-star/split_explicit/wetting/with_restart` checks
+that a split-explicit run with wetting and drying restarts exactly. It shares
+the `init` and SSH-adjustment steps of `split_explicit/wetting`. Its `forward`
+step runs for 2 hours and writes a restart after 1 hour, from which its
+`restart` step runs to the end. Its `validate` step checks that the two runs
+end with identical ocean states and land-ice fluxes. The duration of the full
+run is in the `isomip_plus_restart` section:
+
+```cfg
+# config options for ISOMIP+ restart tests
+[isomip_plus_restart]
+
+# Duration in hours of the full run, which writes a restart halfway, where
+# the restart run starts
+run_duration = 2.0
+```
 
 ### time step and run duration
 

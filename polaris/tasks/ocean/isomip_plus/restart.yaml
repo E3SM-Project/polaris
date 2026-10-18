@@ -1,0 +1,10 @@
+mpas-ocean:
+  io:
+    config_write_output_on_startup: false
+  time_management:
+    config_do_restart: {{ do_restart }}
+    config_start_time: {{ start_time }}
+  streams:
+    restart:
+      output_interval: {{ restart_interval }}
+      filename_template: ../forward/restarts/restart.$Y-$M-$D_$h.$m.$s.nc
