@@ -279,7 +279,7 @@ split_dt_per_km = 30
 
 # Barotropic time step in seconds as a function of resolution for
 # split-explicit time integration
-btr_dt_per_km = 1.5
+btr_dt_per_km = 6
 
 
 # config options for ISOMIP+ restart tests
@@ -462,11 +462,13 @@ are those of the default tasks:
 # Time integration scheme, the same as in the forward run
 time_integrator = split_explicit
 
-# Baroclinic time step in seconds as a function of resolution
+# Baroclinic time step in seconds as a function of resolution, below the
+# 37.5 s/km that is stable with a thin film at 4 and 2 km
 split_dt_per_km = 30
 
-# Barotropic time step in seconds as a function of resolution
-btr_dt_per_km = 1.5
+# Barotropic time step in seconds as a function of resolution, below the
+# 7.5 s/km that is stable at 4 and 2 km
+btr_dt_per_km = 6
 
 
 # config options for ISOMIP+ forward runs
@@ -475,9 +477,11 @@ btr_dt_per_km = 1.5
 # Time integration scheme
 time_integrator = split_explicit
 
-# Baroclinic time step in seconds as a function of resolution
+# Baroclinic time step in seconds as a function of resolution, below the
+# 37.5 s/km that is stable with a thin film at 4 and 2 km
 split_dt_per_km = 30
 
-# Barotropic time step in seconds as a function of resolution
-btr_dt_per_km = 1.5
+# Barotropic time step in seconds as a function of resolution, below the
+# 7.5 s/km that is stable at 4 and 2 km
+btr_dt_per_km = 6
 ```
