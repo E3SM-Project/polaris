@@ -23,7 +23,11 @@ output interval.
 `VARIANTS` in the package maps each variant of the default tasks to the
 experiments it applies to. A variant adds a level to the task path,
 `<resolution>/z-star/<variant>/<experiment>`, and its config file,
-`<variant>.cfg` in the package, comes last in the task's config.
+`<variant>.cfg` in the package, comes last in the task's config. The
+`split_explicit` variant's `split_explicit.cfg` sets the time integrator
+and time steps of both SSH adjustment and the forward run, which
+{py:class}`polaris.tasks.ocean.isomip_plus.forward.Forward` reads from the
+`isomip_plus_forward` section.
 
 {py:class}`polaris.tasks.ocean.isomip_plus.IsomipPlusTest` is an
 {py:class}`polaris.ocean.ice_shelf.IceShelfTask`. Its `thin_film` attribute

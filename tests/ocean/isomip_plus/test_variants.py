@@ -15,16 +15,18 @@ def _get_isomip_plus_tasks():
     return component.tasks
 
 
-def test_default_task_paths():
+def test_task_paths():
     tasks = _get_isomip_plus_tasks()
-    expected = [
-        f'planar/isomip_plus/{res}/z-star/{experiment}'
-        for res in ['4km', '2km', '1km']
-        for experiment in isomip_plus.EXPERIMENTS
-    ]
+    expected = []
+    for res in ['4km', '2km', '1km']:
+        for experiment in isomip_plus.EXPERIMENTS:
+            expected.append(f'planar/isomip_plus/{res}/z-star/{experiment}')
+        for variant, experiments in isomip_plus.VARIANTS.items():
+            for experiment in experiments:
+                expected.append(
+                    f'planar/isomip_plus/{res}/z-star/{variant}/{experiment}'
+                )
     assert sorted(tasks) == sorted(expected)
-    for task in tasks.values():
-        assert task.variant is None
 
 
 def test_variant_adds_path_level_and_config(monkeypatch):
@@ -60,3 +62,26 @@ def test_variant_adds_path_level_and_config(monkeypatch):
     assert tasks[default_path].variant is None
     default_config = f'ocean/{default_path}/isomip_plus.cfg'
     assert f'{variant}.cfg' not in added[default_config]
+
+
+def test_split_explicit_tasks():
+    tasks = _get_isomip_plus_tasks()
+    for res in ['4km', '2km', '1km']:
+        vardir = f'planar/isomip_plus/{res}/z-star/split_explicit'
+        for experiment in ['ocean0', 'inception', 'wetting', 'drying']:
+            path = f'{vardir}/{experiment}'
+            task = tasks[path]
+            assert task.variant == 'split_explicit'
+            # SSH adjustment uses the same scheme as the forward run
+            for section in ['isomip_plus_forward', 'ssh_adjustment']:
+                assert (
+                    task.config.get(section, 'time_integrator')
+                    == 'split_explicit'
+                )
+        for experiment in ['ocean1', 'ocean2']:
+            assert f'{vardir}/{experiment}' not in tasks
+
+    # the default tasks still use RK4
+    task = tasks['planar/isomip_plus/4km/z-star/wetting']
+    for section in ['isomip_plus_forward', 'ssh_adjustment']:
+        assert task.config.get(section, 'time_integrator') == 'RK4'
