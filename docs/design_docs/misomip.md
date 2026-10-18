@@ -944,9 +944,10 @@ FAnSSIE is a long-lived, shared development branch, like Omega's
 `develop`, for the few people doing ocean–ice-sheet coupling work. It
 lives on E3SM-Ocean-Discussion/E3SM, a neutral home. Every E3SM change
 for this work starts from FAnSSIE and merges into it through a pull
-request on E3SM-Ocean-Discussion/E3SM. Upstream pull requests that the
-work depends on are merged in as they are, and E3SM master is merged in
-from time to time. Nothing on the branch is rewritten, so every commit
+request on E3SM-Ocean-Discussion/E3SM. Small fixes and changes to the
+branch's ledger may be committed directly. Upstream pull requests that
+the work depends on are merged in as they are, and E3SM master is merged
+in from time to time. Nothing on the branch is rewritten, so every commit
 Polaris pins stays reachable.
 
 ```{admonition} Rationale
