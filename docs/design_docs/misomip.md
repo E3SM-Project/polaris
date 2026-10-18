@@ -198,23 +198,6 @@ reading code, not from runs.
 - Compass's ocean `misomip` step computes the COM standard output from
   monthly means. No landice code in Compass relates to MISOMIP1.
 
-## Open questions
-
-### Which equation of state can E3SM's physics use?
-
-MPAS-Ocean has no nonlinear equation of state that is correct under ice
-shelves. `jm`, E3SM's default, evaluates each layer at a pressure computed
-from `refBottomDepth`. With z-star, layers under the ice sit far deeper
-than their reference depths, so under 700 m of ice the top layers are
-evaluated at near-surface pressure. `wright` uses each layer's own depth,
-but it has never worked correctly. The options are:
-
-- a linear equation of state, until Omega supports ice-shelf cavities;
-- an option, on FAnSSIE, to evaluate `jm` at each layer's own depth;
-- fixing `wright`.
-
-WP11 settles this.
-
 ## Requirements
 
 ### Requirement: The experiments run in E3SM
@@ -692,9 +675,10 @@ details.
 The standalone ISOMIP+ tasks move to E3SM's physics
 ([principle](#algorithm-design-shared-principles)), including
 `Jacobian_from_TS` for the pressure gradient and E3SM's land-ice flux
-coefficients. Ocean0–2 keep COM variants. The equation of state is an
-[open question](#open-questions). The design amends `isomip_plus.md` in
-the pull request that makes the change.
+coefficients. Ocean0–2 keep COM variants. The equation of state is `jm`,
+evaluated at each layer's actual depth, which needs an MPAS-Ocean change on
+FAnSSIE ([D17](#decisions)). The design amends `isomip_plus.md` in the pull
+request that makes the change.
 
 ### Order
 
@@ -1007,3 +991,30 @@ compare against.
 
 *Effect:* #826 and #844 merge with the COM physics, and WP11 then moves the
 standalone tasks to E3SM's physics.
+
+### D17: `jm` at each layer's actual depth
+
+Date last modified: 2026/10/18
+
+Contributors: Xylar Asay-Davis, Claude
+
+The ocean uses the `jm` equation of state, evaluated at the pressure of
+each layer's actual depth, possibly lagged by a time step, rather than its
+reference depth. The change is an MPAS-Ocean option on FAnSSIE, off by
+default, so other runs are unchanged.
+
+```{admonition} Rationale
+`jm` evaluates each layer at a pressure computed once from
+`refBottomDepth`. With z-star, layers under the ice sit far deeper than
+their reference depths, so under 700 m of ice the top layers are evaluated
+at near-surface pressure. Under floating ice, the actual depth gives the
+right pressure, since the ice weighs as much as the water it displaces.
+```
+
+Rejected:
+
+- a linear equation of state until Omega supports ice-shelf cavities,
+  which has no thermobaricity or cabbeling;
+- `wright`, which uses each layer's actual depth but has never worked
+  correctly;
+- `jm` at reference depths, as on E3SM master.
