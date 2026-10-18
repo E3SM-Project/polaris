@@ -936,24 +936,35 @@ remains available as a diagnostic if remapping is suspected.
 
 ### D14: FAnSSIE only gains commits
 
-Date last modified: 2026/10/16
+Date last modified: 2026/10/18
 
 Contributors: Xylar Asay-Davis, Claude
 
 FAnSSIE is a long-lived, shared development branch, like Omega's
 `develop`, for the few people doing ocean–ice-sheet coupling work. It
-lives on E3SM-Ocean-Discussion/E3SM, a neutral home. Feature branches
-based on E3SM master are merged in as they are, and E3SM master is merged
-in from time to time. Nothing on the branch is rewritten, so every commit
-Polaris pins stays reachable. A feature branch that later merges into E3SM
-is recognized when master is merged back, as long as it was not rebased in
-between.
+lives on E3SM-Ocean-Discussion/E3SM, a neutral home. Every E3SM change
+for this work starts from FAnSSIE and merges into it through a pull
+request on E3SM-Ocean-Discussion/E3SM. Upstream pull requests that the
+work depends on are merged in as they are, and E3SM master is merged in
+from time to time. Nothing on the branch is rewritten, so every commit
+Polaris pins stays reachable.
 
-Rejected for now: regenerating the branch from master and a list of
-feature branches, as E3SM's `next` is. Its history is cleaner, but each
-rebuild must be tagged so that pinned commits survive, and conflicts are
-resolved again at every rebuild. The rule is revisited if repeated merges
-of rebased branches become unwieldy.
+```{admonition} Rationale
+A pull request into FAnSSIE from a branch based on E3SM master can carry
+changes unrelated to it, which makes it confusing to review.
+```
+
+*Effect:* a change made here reaches E3SM by being rebased or
+cherry-picked onto master.
+
+Rejected:
+
+- feature branches based on E3SM master, the first version of this
+  decision;
+- regenerating the branch from master and a list of feature branches, as
+  E3SM's `next` is. Its history is cleaner, but each rebuild must be
+  tagged so that pinned commits survive, and conflicts are resolved again
+  at every rebuild.
 
 ### D15: E3SM-Project stays Polaris's default
 
