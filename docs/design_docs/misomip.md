@@ -952,15 +952,18 @@ request on E3SM-Ocean-Discussion/E3SM. Small fixes and changes to the
 branch's ledger may be committed directly. Upstream pull requests that
 the work depends on are merged in as they are, and E3SM master is merged
 in from time to time. Nothing on the branch is rewritten, so every commit
-Polaris pins stays reachable.
+Polaris pins stays reachable. Pull requests are merged with a merge
+commit, and each ledger row is added by a direct commit afterward, so a
+pull request holds only code.
 
 ```{admonition} Rationale
 A pull request into FAnSSIE from a branch based on E3SM master can carry
 changes unrelated to it, which makes it confusing to review.
 ```
 
-*Effect:* a change made here reaches E3SM by being rebased or
-cherry-picked onto master.
+*Effect:* a change made here reaches E3SM when its pull request's commits
+are cherry-picked onto master. Changes made in upstream review come back
+to FAnSSIE before master is next merged in.
 
 Rejected:
 
