@@ -1,0 +1,6 @@
+mpas-ocean:
+  wetting_drying:
+    # with a thin film under grounded ice, ramp velocities down in thin
+    # columns (O'Dea et al. 2021), which keeps wetting and drying at the
+    # grounding line stable with either time integrator
+    config_zero_drying_velocity_ramp: true
