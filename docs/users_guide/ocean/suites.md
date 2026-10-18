@@ -171,6 +171,9 @@ ocean/planar/isomip_plus/4km/z-star/ocean0
 ocean/planar/isomip_plus/4km/z-star/inception
 ocean/planar/isomip_plus/4km/z-star/wetting
 ocean/planar/isomip_plus/4km/z-star/drying
+ocean/planar/isomip_plus/4km/z-star/split_explicit/ocean0
+ocean/planar/isomip_plus/4km/z-star/split_explicit/wetting
+ocean/planar/isomip_plus/4km/z-star/split_explicit/wetting/with_restart
 ```
 
 (ocean-suite-convergence)=
