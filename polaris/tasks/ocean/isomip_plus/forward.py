@@ -216,6 +216,10 @@ class Forward(OceanModelStep):
         if self.thin_film:
             self.add_yaml_file(
                 'polaris.tasks.ocean.isomip_plus',
+                'thin_film_wetting_drying.yaml',
+            )
+            self.add_yaml_file(
+                'polaris.tasks.ocean.isomip_plus',
                 'thin_film.yaml',
                 template_replacements=dict(
                     forcing_interval=self._get_forcing_interval(at_setup)
