@@ -14,6 +14,7 @@ ocean_analysis_initial
 overflow_nonlinear_eos
 pstar_init
 shared_steps
+split_explicit_wetting_drying
 suite_results_file
 task_parallel_analysis_steps
 task_parallelism
