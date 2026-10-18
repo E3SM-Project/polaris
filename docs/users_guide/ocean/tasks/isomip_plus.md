@@ -161,8 +161,10 @@ Melt fluxes use MPAS-Ocean's three-equation parameterization.
 All model runs use MPAS-Ocean's wetting and drying, so that water columns
 under ice heavier than the water it would displace thin to a film rather than
 becoming negative. This happens in cells that are partly grounded, where the
-land-ice pressure comes from the full weight of the ice. MPAS-Ocean supports
-wetting and drying only with the RK4 time integrator.
+land-ice pressure comes from the full weight of the ice. The default tasks
+use the RK4 time integrator, and their
+[split-explicit variants](ocean-isomip-plus-split-explicit) use
+MPAS-Ocean's split-explicit wetting and drying.
 
 ## SSH adjustment
 
@@ -406,3 +408,48 @@ output_interval = 1.0
 
 If you change `run_duration`, extend the record dates to match, since the
 records must reach past the end of the run.
+
+(ocean-isomip-plus-split-explicit)=
+
+## split-explicit variants
+
+### description
+
+`ocean0`, `inception`, `wetting` and `drying` also have split-explicit
+variants, such as `planar/isomip_plus/4km/z-star/split_explicit/ocean0`. They
+adjust SSH and run forward with MPAS-Ocean's split-explicit time integrator,
+which needs MPAS-Ocean from FAnSSIE for wetting and drying, and are otherwise
+the same as the default tasks, so the two can be compared.
+
+### time step and run duration
+
+The baroclinic and barotropic time steps are 30 s and 1.5 s per km of
+resolution, in both SSH adjustment and the forward run, and the run durations
+are those of the default tasks:
+
+```cfg
+# Options related to ssh adjustment steps
+[ssh_adjustment]
+
+# Time integration scheme, the same as in the forward run
+time_integrator = split_explicit
+
+# Baroclinic time step in seconds as a function of resolution
+split_dt_per_km = 30
+
+# Barotropic time step in seconds as a function of resolution
+btr_dt_per_km = 1.5
+
+
+# config options for ISOMIP+ forward runs
+[isomip_plus_forward]
+
+# Time integration scheme
+time_integrator = split_explicit
+
+# Baroclinic time step in seconds as a function of resolution
+split_dt_per_km = 30
+
+# Barotropic time step in seconds as a function of resolution
+btr_dt_per_km = 1.5
+```

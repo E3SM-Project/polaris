@@ -34,7 +34,9 @@ EXPERIMENTS = ['ocean0', 'ocean1', 'ocean2', 'inception', 'wetting', 'drying']
 # Variants of the default tasks, with the experiments each applies to.  A
 # variant adds a level to the task path and its own config file,
 # ``<variant>.cfg`` in this package.
-VARIANTS: Dict[str, List[str]] = {}
+VARIANTS: Dict[str, List[str]] = {
+    'split_explicit': ['ocean0', 'inception', 'wetting', 'drying'],
+}
 
 
 def add_isomip_plus_tasks(component):
