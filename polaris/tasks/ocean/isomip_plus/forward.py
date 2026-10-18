@@ -145,7 +145,12 @@ class Forward(OceanModelStep):
 
         section = self.config['isomip_plus_forward']
         run_duration = section.getfloat('run_duration')
-        dt_per_km = section.getfloat('rk4_dt_per_km')
+        time_integrator = section.get('time_integrator')
+        if time_integrator == 'RK4':
+            dt_per_km = section.getfloat('rk4_dt_per_km')
+        else:
+            dt_per_km = section.getfloat('split_dt_per_km')
+        btr_dt_per_km = section.getfloat('btr_dt_per_km')
 
         s_per_hour = 3600.0
         run_duration_str = get_time_interval_string(
@@ -159,7 +164,11 @@ class Forward(OceanModelStep):
                 seconds=float(output_interval) * s_per_hour
             )
         replacements = dict(
+            time_integrator=time_integrator,
             dt=get_time_interval_string(seconds=dt_per_km * self.resolution),
+            btr_dt=get_time_interval_string(
+                seconds=btr_dt_per_km * self.resolution
+            ),
             run_duration=run_duration_str,
             output_interval=output_interval_str,
         )
