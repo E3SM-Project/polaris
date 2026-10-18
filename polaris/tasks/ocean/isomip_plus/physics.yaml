@@ -1,6 +1,4 @@
 mpas-ocean:
-  time_integration:
-    config_time_integrator: RK4
   advection:
     config_thickness_flux_type: upwind
     # upwind only in columns thinner than 5 to 10 m, where wetting and drying
