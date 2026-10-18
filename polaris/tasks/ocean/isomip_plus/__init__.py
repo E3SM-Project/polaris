@@ -34,7 +34,10 @@ EXPERIMENTS = ['ocean0', 'ocean1', 'ocean2', 'inception', 'wetting', 'drying']
 # Variants of the default tasks, with the experiments each applies to.  A
 # variant adds a level to the task path and its own config file,
 # ``<variant>.cfg`` in this package.
-VARIANTS: Dict[str, List[str]] = {}
+VARIANTS: Dict[str, List[str]] = {
+    # the COM physics of the protocol, for comparison with published results
+    'com': ['ocean0', 'ocean1', 'ocean2'],
+}
 
 
 def add_isomip_plus_tasks(component):
@@ -100,7 +103,7 @@ def _get_task_config(
         taskdir = os.path.join(taskdir, variant)
     filepath = os.path.join(taskdir, experiment, 'isomip_plus.cfg')
     config = PolarisConfigParser(filepath=filepath)
-    config.add_from_package('polaris.ocean.eos', 'linear.cfg')
+    config.add_from_package('polaris.ocean.eos', 'teos10.cfg')
     config.add_from_package('polaris.ocean.ice_shelf', 'ssh_adjustment.cfg')
     config.add_from_package('polaris.ocean.ice_shelf', 'freeze.cfg')
     config.add_from_package(

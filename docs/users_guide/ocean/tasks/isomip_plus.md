@@ -19,6 +19,11 @@ tasks run the corresponding ISOMIP+ experiments for a short time. The
 hours or days, so that the grounding line moves and cells dry or wet within
 a short run.
 
+The tasks use MPAS-Ocean's physics as E3SM configures it for ice-shelf
+cavities (see {ref}`ocean-isomip-plus-physics`). The `com/ocean0`,
+`com/ocean1` and `com/ocean2` tasks use the COM physics of the ISOMIP+
+protocol instead, for comparison with published results.
+
 ## supported models
 
 These tasks support only MPAS-Ocean, built from the FAnSSIE submodule (see
@@ -139,8 +144,7 @@ profile of the ISOMIP+ protocol:
 The land-ice pressure comes from the weight of the ice, and the sea-surface
 height starts where ice with that pressure would float, limited to the bed.
 The bottom depth is deepened where needed to keep a minimum water-column
-thickness. The equation of state is linear, with the coefficients of the
-ISOMIP+ protocol, and the Coriolis parameter is constant.
+thickness. The Coriolis parameter is constant.
 
 ## forcing
 
@@ -164,6 +168,45 @@ under ice heavier than the water it would displace thin to a film rather than
 becoming negative. This happens in cells that are partly grounded, where the
 land-ice pressure comes from the full weight of the ice. MPAS-Ocean supports
 wetting and drying only with the RK4 time integrator.
+
+(ocean-isomip-plus-physics)=
+
+## physics
+
+The model runs use MPAS-Ocean's physics as E3SM configures it for meshes with
+ice-shelf cavities. Where E3SM sets a value per mesh, it is the value its
+cavity meshes use. The `com` variants of `ocean0`–`ocean2` use the COM
+physics of the ISOMIP+ protocol (its Table 4) instead, as Compass set it up
+for MPAS-Ocean. $\Delta x$ is the resolution in km.
+
+| Setting                     | E3SM physics                                   | COM physics                    |
+|-----------------------------|------------------------------------------------|--------------------------------|
+| Equation of state           | Jackett-McDougall at each layer's actual depth | linear                         |
+| Pressure gradient           | `Jacobian_from_TS`, limited to each column     | `pressure_and_zmid`            |
+| Horizontal viscosity        | del2, $38.5\,\Delta x$ m²/s, and del4, $6.83\times10^{6}\,\Delta x^3$ m⁴/s | del2, 6 m²/s |
+| Horizontal tracer diffusion | none                                           | del2, 1 m²/s                   |
+| Vertical mixing             | KPP, with shear and convective mixing          | constant, with convective mixing |
+| Submesoscale eddies         | Fox-Kemper                                     | none                           |
+| Kinetic energy              | blended with vertex-based values               | cell-based                     |
+| Top drag                    | implicit, $4.48\times10^{-3}$                  | implicit, $2.5\times10^{-3}$   |
+| Bottom drag                 | $10^{-3}$                                      | $2.5\times10^{-3}$             |
+| Heat, salt transfer coeff.  | $2.95\times10^{-3}$, $8.42\times10^{-5}$       | 0.0194, 0.0194/35              |
+| Tidal velocity              | 0.05 m/s                                       | 0.01 m/s                       |
+| Frazil                      | on, including under floating ice               | off                            |
+
+The del2 and del4 viscosities scale with resolution from `mom_del2_1km` and
+`mom_del4_1km`, as in E3SM's FRISwISC meshes. The Jackett-McDougall equation
+of state at each layer's actual depth needs MPAS-Ocean's
+`config_eos_jm_pressure_from_zMid` option. `Jacobian_from_TS` is limited to
+each cell's water column with MPAS-Ocean's
+`config_jacobian_limit_to_water_column` option; without it, the scheme
+extrapolates the thin film's fresh water across the steep ice-base steps at
+the grounding line and drives spurious flow there. Both physics share the
+wetting and drying settings, thickness fluxes upwinded only in columns thinner
+than 5 to 10 m, RK4 time stepping, implicit top drag and a 10 m boundary layer
+for melt. E3SM's explicit top drag predates MPAS-Ocean's implicit option. GM
+and Redi are off in both. E3SM ramps GM to zero at these resolutions; its
+cavity meshes at 1 to 4 km use Redi, which the ISOMIP+ tasks leave out.
 
 ## SSH adjustment
 
@@ -191,6 +234,19 @@ rk4_dt_per_km = 6
 ```cfg
 # config options for ISOMIP+ initial conditions
 [isomip_plus]
+
+# The physics of the model runs: e3sm for MPAS-Ocean's physics as E3SM
+# configures it for ice-shelf cavities, or com for the COM physics of the
+# ISOMIP+ protocol, which the com variants use
+physics = e3sm
+
+# The horizontal del2 viscosity (m^2/s) at 1 km resolution, scaled linearly
+# with resolution as in E3SM's FRISwISC meshes
+mom_del2_1km = 38.5
+
+# The horizontal del4 viscosity (m^4/s) at 1 km resolution, scaled with the
+# cube of the resolution as in E3SM's FRISwISC meshes
+mom_del4_1km = 6.83e6
 
 # Minimum fraction of a cell that is floating ice or open ocean for the cell to
 # be kept in tasks without a thin film
@@ -303,6 +359,33 @@ The RK4 time step is 6 s per km of resolution, in both the SSH-adjustment
 and forward runs. The forward run lasts one hour. The ISOMIP+ protocol calls for
 runs of 1 year (Ocean0) and 20 years (Ocean1 and Ocean2), which these tasks do
 not yet support.
+
+(ocean-isomip-plus-com)=
+
+## com/ocean0, com/ocean1 and com/ocean2
+
+### description
+
+These tasks are `ocean0`, `ocean1` and `ocean2` with the COM physics of the
+ISOMIP+ protocol (see {ref}`ocean-isomip-plus-physics`), for comparison with
+MPAS-Ocean's ISOMIP+ results in
+[Yung et al. (2026)](https://doi.org/10.5194/tc-20-2053-2026). They have the
+same steps as `ocean0`, and add `com.cfg` to their config, which sets
+`physics = com` and the protocol's linear equation of state:
+
+```cfg
+# Options related to the ocean component
+[ocean]
+
+# the linear equation of state prescribed for ISOMIP+ COM experiments, with
+# alpha and beta in kg m^-3 C^-1 and kg m^-3 PSU^-1
+eos_type = linear
+eos_linear_alpha = 0.03836
+eos_linear_beta = 0.8059
+eos_linear_rhoref = 1027.51
+eos_linear_Tref = -1.0
+eos_linear_Sref = 34.2
+```
 
 (ocean-isomip-plus-scaled)=
 
