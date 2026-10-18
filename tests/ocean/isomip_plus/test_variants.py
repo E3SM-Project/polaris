@@ -15,16 +15,35 @@ def _get_isomip_plus_tasks():
     return component.tasks
 
 
-def test_default_task_paths():
+def test_task_paths():
     tasks = _get_isomip_plus_tasks()
-    expected = [
-        f'planar/isomip_plus/{res}/z-star/{experiment}'
-        for res in ['4km', '2km', '1km']
-        for experiment in isomip_plus.EXPERIMENTS
-    ]
+    expected = []
+    for res in ['4km', '2km', '1km']:
+        for experiment in isomip_plus.EXPERIMENTS:
+            expected.append(f'planar/isomip_plus/{res}/z-star/{experiment}')
+        for variant, experiments in isomip_plus.VARIANTS.items():
+            for experiment in experiments:
+                expected.append(
+                    f'planar/isomip_plus/{res}/z-star/{variant}/{experiment}'
+                )
     assert sorted(tasks) == sorted(expected)
+
+
+def test_physics_of_each_task():
+    tasks = _get_isomip_plus_tasks()
+    com_paths = [path for path, task in tasks.items() if task.variant == 'com']
+    assert sorted(tasks[path].experiment for path in com_paths) == sorted(
+        3 * ['ocean0', 'ocean1', 'ocean2']
+    )
     for task in tasks.values():
-        assert task.variant is None
+        config = task.config
+        if task.variant == 'com':
+            assert config.get('isomip_plus', 'physics') == 'com'
+            assert config.get('ocean', 'eos_type') == 'linear'
+            assert config.getfloat('ocean', 'eos_linear_alpha') == 0.03836
+        else:
+            assert config.get('isomip_plus', 'physics') == 'e3sm'
+            assert config.get('ocean', 'eos_type') == 'teos-10'
 
 
 def test_variant_adds_path_level_and_config(monkeypatch):

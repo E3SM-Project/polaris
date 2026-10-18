@@ -5,6 +5,10 @@ from mpas_tools.io import open_dataset
 
 from polaris.ocean.model import OceanModelStep, get_time_interval_string
 from polaris.tasks.ocean.isomip_plus.cell_count import estimate_cell_count
+from polaris.tasks.ocean.isomip_plus.physics import (
+    add_com_physics_yaml,
+    get_physics_replacements,
+)
 from polaris.tasks.ocean.isomip_plus.xtime import get_record_times
 
 
@@ -164,7 +168,14 @@ class Forward(OceanModelStep):
             output_interval=output_interval_str,
         )
 
-        self.add_yaml_file('polaris.tasks.ocean.isomip_plus', 'physics.yaml')
+        self.add_yaml_file(
+            'polaris.tasks.ocean.isomip_plus',
+            'physics.yaml',
+            template_replacements=get_physics_replacements(
+                self.config, self.resolution
+            ),
+        )
+        add_com_physics_yaml(self)
         self.add_yaml_file(
             'polaris.tasks.ocean.isomip_plus',
             'forward.yaml',
