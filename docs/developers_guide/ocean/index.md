@@ -107,7 +107,8 @@ appropriate for whichever of the {ref}`machines` you are using.
 
 The `e3sm_submodules/FAnSSIE` submodule points to the
 [fanssie-ocn-glc-coupling](https://github.com/E3SM-Ocean-Discussion/E3SM/tree/fanssie-ocn-glc-coupling)
-branch of E3SM-Ocean-Discussion/E3SM, a shared development branch for
+branch of E3SM-Ocean-Discussion/E3SM, the shared development branch of
+FAnSSIE, the Framework for Antarctic System Science in E3SM, for
 ocean–ice-sheet coupling work.  Like Omega's `develop`, it only gains commits:
 feature branches and E3SM `master` are merged in, and nothing is rewritten.
 `FANSSIE.md` at the root of the branch gives its rules and a ledger of each
