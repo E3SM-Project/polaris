@@ -262,9 +262,19 @@ run_duration = 1.0
 # run
 output_interval = none
 
-# Time step in seconds as a function of resolution for RK4 time integration,
-# which is required for wetting and drying
+# Time integration scheme: RK4 or split_explicit
+time_integrator = RK4
+
+# Time step in seconds as a function of resolution for RK4 time integration
 rk4_dt_per_km = 6
+
+# Baroclinic time step in seconds as a function of resolution for
+# split-explicit time integration
+split_dt_per_km = 30
+
+# Barotropic time step in seconds as a function of resolution for
+# split-explicit time integration
+btr_dt_per_km = 1.5
 
 
 # config options for visualizing ISOMIP+ output

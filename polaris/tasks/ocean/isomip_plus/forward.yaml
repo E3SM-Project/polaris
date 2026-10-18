@@ -7,6 +7,9 @@ mpas-ocean:
     config_run_duration: {{ run_duration }}
   time_integration:
     config_dt: {{ dt }}
+    config_time_integrator: {{ time_integrator }}
+  split_explicit_ts:
+    config_btr_dt: {{ btr_dt }}
   forcing:
     config_use_bulk_thickness_flux: true
   land_ice:
