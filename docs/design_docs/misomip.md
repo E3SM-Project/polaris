@@ -409,10 +409,11 @@ Contributors: Xylar Asay-Davis, Claude
 
 The ocean uses E3SM's MPAS-Ocean physics and coefficients, including the
 heat and salt transfer coefficients, overridden only where the idealized
-domain or wetting and drying requires. The protocol supplies the geometry,
-the initial profiles and the restoring. Ocean0–2 also have variants with
-the COM physics (Table 4) for comparison with Yung et al. (2026). The
-standalone tasks keep the COM physics until WP11 moves them
+domain or wetting and drying requires, or where E3SM's default predates a
+better option, as its explicit top drag does. The protocol supplies the
+geometry, the initial profiles and the restoring. Ocean0–2 also have
+variants with the COM physics (Table 4) for comparison with Yung et al.
+(2026). The standalone tasks keep the COM physics until WP11 moves them
 ([D16](#decisions)).
 
 ### Principle: stub partners
@@ -998,9 +999,12 @@ Date last modified: 2026/10/18
 Contributors: Xylar Asay-Davis, Claude
 
 The ocean uses E3SM's MPAS-Ocean physics and coefficients, overridden only
-where the idealized domain or wetting and drying requires. The experiments
-rehearse realistic coupling, so they exercise the physics realistic runs
-will use.
+where the idealized domain or wetting and drying requires, or where E3SM's
+default predates a better option. The experiments rehearse realistic
+coupling, so they exercise the physics realistic runs will use.
+
+*Effect:* top drag is implicit, with the coefficient of E3SM's cavity
+meshes, since E3SM's explicit top drag predates the implicit option.
 
 Rejected: the COM physics (Table 4) throughout, which the standalone tasks
 use today. It would make the E3SM runs override E3SM's defaults with
