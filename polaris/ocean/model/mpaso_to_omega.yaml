@@ -117,6 +117,10 @@ variables:
   # eos
   BruntVaisalaFreqTop: BruntVaisalaFreqSq
 
+  # submesoscale eddy parameterization
+  normalMLEvelocity: EddyVelocity
+  dThreshMLD: DenMixLayerDepth
+
   # Note: the variables in each model's global statistics output are not
   #       mapped here.  Both models name a statistic after the field and the
   #       statistic, so the names are built from the two in
@@ -338,3 +342,12 @@ config:
     config_cvmix_kpp_matching: MatchTechnique
     config_cvmix_kpp_use_enhanced_diff: UseEnhancedDiffusion
     configure_cvmix_kpp_minimum_OBL_under_sea_ice: MinimumOSBLUnderSeaIce
+
+- section:
+    submesoscale_eddy_parameterization: Submeso
+  options:
+    config_submesoscale_enable: Enable
+    config_submesoscale_tau: Tau
+    config_submesoscale_Ce: Ce
+    config_submesoscale_Lfmin: LfMin
+    config_submesoscale_ds_max: DsMax
