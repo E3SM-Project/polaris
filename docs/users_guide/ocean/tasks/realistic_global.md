@@ -1223,9 +1223,8 @@ As for the `forward` or `cached_forward` task on the same mesh; see
 The run uses the mesh's split time steps and momentum viscosities, given in
 {ref}`ocean-realistic-global-forward`.  It lasts 365 days from `0001-01-01`,
 one year on the No Leap calendar.  The history stream and restarts are written
-monthly, because Omega requires the restart interval to be a multiple of every
-averaging period.  These are runs for testing the analysis, not
-scientifically valid simulations.
+monthly, so the year can be continued from any month.  These are runs for
+testing the analysis, not scientifically valid simulations.
 
 ### config options
 

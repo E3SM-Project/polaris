@@ -179,10 +179,8 @@ Omega:
     # the variable names in mpaso_to_omega.yaml assume.  Omega names a
     # reduction chain "<stem>_TimeMean<period>" and a snapshot chain plain
     # "<stem>" (AnalysisGroup::buildTemporalChains), and the mapping is to the
-    # plain names.  Reductions would also make Omega abort unless the
-    # RestartWrite interval were a whole multiple of the period; snapshots
-    # carry no such constraint.  ReductionPeriod is emptied so that only the
-    # snapshots are written.
+    # plain names.  ReductionPeriod is emptied so that only the snapshots are
+    # written.
     #
     # Filename is a prefix, not a file name: Omega writes
     # <Filename>_<period>Instants (no .nc), so with a one-day period this

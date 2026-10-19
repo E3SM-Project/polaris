@@ -50,7 +50,7 @@ class AnalysisOutputForward(Forward):
     ``monthly_output.yaml`` layered over the forward step's yaml.  That file
     replaces the ``History`` stream with monthly snapshots, turns on the
     ``MonthlyAverages`` and ``MOC`` analysis groups and writes restarts
-    monthly, which Omega requires of a run with a monthly reduction.  Every
+    monthly, so that the year can be continued from any month.  Every
     monthly file is declared as an output, so that a run whose analysis groups
     did not write is reported as a missing output rather than found later by
     the analysis, and every one is compared with a baseline when there is one

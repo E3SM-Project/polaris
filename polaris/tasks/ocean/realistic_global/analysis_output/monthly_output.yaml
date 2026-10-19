@@ -72,11 +72,10 @@ Omega:
         - NormalVelocity
         - KineticEnergyCell
     RestartWrite:
-      # Monthly, which is what a 1Month reduction requires: Omega checks
-      # that the restart interval is divisible by every averaging period,
-      # and on a variable-month calendar that holds only for an interval in
-      # months or years.  The forward step's interval, in seconds, fails the
-      # check.  The run is a whole number of months, so the last restart
-      # still lands on the last time step.
+      # Monthly, so that the year can be continued from any month.  Omega
+      # checkpoints the partial sums of the monthly means, so a restart in
+      # the middle of a month would work as well (E3SM-Project/Omega#611).
+      # The run is a whole number of months, so the last restart still lands
+      # on the last time step.
       Freq: 1
       FreqUnits: months
