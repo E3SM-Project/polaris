@@ -429,6 +429,27 @@ class ForwardStage:
             output_density=self.output_density,
         )
 
+    def time_step_seconds(self, model: str, min_res: float) -> float:
+        """
+        The time step ``model`` advances on, in seconds: the baroclinic time
+        step for split time stepping and the only one otherwise.
+
+        Parameters
+        ----------
+        model : str
+            The configured ocean model, ``'mpas-ocean'`` or ``'omega'``.
+
+        min_res : float
+            The mesh minimum resolution in km.
+
+        Returns
+        -------
+        float
+            The time step in seconds.
+        """
+        replacements = self.model_replacements(model, min_res, at_setup=True)
+        return duration_to_seconds(replacements['dt'])
+
     def stats_period(self) -> str:
         """
         ``stats_interval`` as an Omega analysis period string.
