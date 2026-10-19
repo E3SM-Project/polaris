@@ -16,7 +16,7 @@ reproduces the ice-free (c = 0) experiment of
 
 The task validates Omega's submesoscale eddy parameterization and its
 MPAS-Ocean counterpart (`config_submesoscale_*`). An eddy-resolving
-500 m run is the reference. Coarse runs at 2, 4 and 8 km run with the
+500 m run is the reference. Coarse runs at 8 and 16 km run with the
 parameterization off and on. The task fills the testing plan in §5 of
 Omega's
 [submesoscale eddies design](https://github.com/E3SM-Project/Omega/blob/develop/components/omega/doc/design/SubmesoscaleEddies.md).
@@ -29,7 +29,7 @@ The starting point is Carolyn Begeman's Compass draft, `arctic_channel`
 initial condition, but this design keeps only those (see D7
 under Decisions).
 
-Success has three parts, each with its own pass/fail check:
+Success has three parts:
 
 - the parameterization computes what its formula says (implementation
   verification);
@@ -38,14 +38,15 @@ Success has three parts, each with its own pass/fail check:
 - the parameterized coarse runs restratify like the resolved run
   (parameterization validation).
 
-The first two say whether the code and the test are correct. The third
-is a longer-term scientific question, and its check is reported
-separately.
+The first two say whether the code and the test are correct, and each
+has a pass/fail check. The third is a longer-term scientific question,
+so it is reported but not checked (D13).
 
 ## Open questions
 
-- Time steps, horizontal viscosities and the thresholds of all three
-  checks are set from the first runs.
+- Whether C_e should be tuned so the coarse runs release as much
+  potential energy as the resolved run. The comparison reports that
+  ratio as the target for such tuning.
 
 ## Requirements
 
@@ -73,27 +74,22 @@ with MPAS-Ocean on z-star, from the same initial state.
 
 ### Requirement: An eddy-resolving reference run
 
-Date last modified: 2026/10/19
+Date last modified: 2026/10/20
 
 Contributors: Xylar Asay-Davis, Claude
 
-A 500 m run shall resolve mixed-layer instability for 7 days without
+A 500 m run shall resolve mixed-layer instability for 15 days without
 the parameterization.
 
 ### Requirement: Coarse runs with the parameterization off and on
 
-Date last modified: 2026/10/19
+Date last modified: 2026/10/20
 
 Contributors: Xylar Asay-Davis, Claude
 
-Runs at 2, 4 and 8 km shall each use three settings:
-
-- the parameterization off;
-- on, with E3SM's coupled defaults;
-- on, with the rescaling factor Δs/L_f held near 1, which reduces the
-  scheme to FFH08's form.
-
-Both models shall use the same parameter values.
+Runs at 8 and 16 km, too coarse to permit mixed-layer instability,
+shall each run with the parameterization off and on with E3SM's coupled
+defaults. Both models shall use the same parameter values.
 
 ### Requirement: The eddy overturning is diagnosed consistently with the models' discrete transports
 
@@ -131,20 +127,18 @@ outside the tolerance fails the task.
 
 ### Requirement: Coarse runs are compared with the resolved run
 
-Date last modified: 2026/10/19
+Date last modified: 2026/10/20
 
 Contributors: Xylar Asay-Davis, Claude
 
-Coarse runs with the parameterization on shall restratify like the
-resolved run, within a loose tolerance. Coarse runs with it off shall
-restratify measurably less. A failure is reported as a finding about
-the parameterization, separately from the two checks above.
+The restratification of each coarse run shall be reported relative to
+the resolved run. It does not fail the task.
 
 ## Algorithm Design
 
 ### Algorithm Design: An ice-free mixed-layer front spins down in a doubly periodic domain
 
-Date last modified: 2026/10/19
+Date last modified: 2026/10/20
 
 Contributors: Xylar Asay-Davis, Claude
 
@@ -190,8 +184,9 @@ periodic domain.
 > **Rationale.** The Stone (1970) fastest-growing wavelength is about
 > 6.5 km and the e-folding time is about 9.5 h (SM22, at Ri ≈ 1). At
 > 500 m the wavelength spans 13 cells, comparable to FFH08's
-> Δx = L_s/10. At 2 km it spans about 3 cells, so mixed-layer
-> instability cannot develop properly on the coarse grids.
+> Δx = L_s/10. At 8 km it is shorter than a cell, so mixed-layer
+> instability cannot develop on the coarse grids. At 2 and 4 km it
+> does (D11).
 
 ### Algorithm Design: Omega runs on its native coordinate, and MPAS-Ocean runs for comparison
 
@@ -208,43 +203,41 @@ and geometric thicknesses differ by under 0.5%.
 
 ### Algorithm Design: An eddy-resolving reference run
 
-Date last modified: 2026/10/19
+Date last modified: 2026/10/20
 
 Contributors: Xylar Asay-Davis, Claude
 
 The 500 m mesh has 600 × 462 cells, about 277,000 in all, which is
-comparable to EC30to60. A 7-day run needs of order 10⁴ time steps. The
-run writes two outputs: daily snapshots of the full state, and 3-hourly
-snapshots of `normalVelocity`, layer thickness and salinity over days
-5–7. SM22's diagnosis window is days 5–7.
+comparable to EC30to60. A 15-day run needs about 2 × 10⁴ time steps.
+The run has three segments, each continuing from the restart the one
+before writes: a spin-up to day 5, SM22's diagnosis window over days
+5–7 and an extension to day 15. All write daily snapshots of the full
+state; the window also writes 3-hourly snapshots of `normalVelocity`,
+layer thickness and salinity.
 
 ### Algorithm Design: Coarse runs with the parameterization off and on
 
-Date last modified: 2026/10/19
+Date last modified: 2026/10/20
 
 Contributors: Xylar Asay-Davis, Claude
 
-The coarse runs use the same initial condition, run for 7 days, and
+The coarse runs use the same initial condition, run for 15 days, and
 write daily output. Their parameterization settings are:
 
-| setting  | Enable | C_e  | τ (s)  | L_f,min | Δs_max |
-|----------|--------|------|--------|---------|--------|
-| `off`    | false  | —    | —      | —       | —      |
-| `e3sm`   | true   | 0.08 | 172800 | 1 km    | 100 km |
-| `ffh08`  | true   | 0.08 | 172800 | 2 km    | 2 km   |
+| setting | Enable | C_e  | τ (s)  | L_f,min | Δs_max |
+|---------|--------|------|--------|---------|--------|
+| `off`   | false  | —    | —      | —       | —      |
+| `on`    | true   | 0.08 | 172800 | 1 km    | 100 km |
 
-The `e3sm` row is E3SM's coupled MPAS-Ocean default (in
-`namelist_defaults_mpaso.xml`) and is also Omega's default. In `ffh08`,
-Δs = min(dcEdge, 2 km) = 2 km on all three meshes. L_f also stays at
-2 km while NH/|f| and |∇b|H/f² are below it, which holds until the
-balanced Richardson number in the front exceeds about 2. Here
-τ⁻¹ ≪ f, so √(f² + τ⁻²) ≈ |f| in both settings.
+The `on` row is E3SM's coupled MPAS-Ocean default (in
+`namelist_defaults_mpaso.xml`) and is also Omega's default. Both grid
+lengths are below Δs_max, so Δs is the edge's `dcEdge`. Here
+τ⁻¹ ≪ f, so √(f² + τ⁻²) ≈ |f|.
 
 > **Rationale.** The coarse grids still resolve the 200 km front, but
-> the `e3sm` setting multiplies Ψ by Δs/L_f. That is a factor of
-> several here, because L_f ≈ 1–1.4 km. The `ffh08` setting isolates
-> the FFH08 scaling. The `e3sm` setting shows what E3SM would actually
-> do.
+> the scheme multiplies Ψ by Δs/L_f. That is a factor of several here,
+> because L_f ≈ 1–1.4 km. The `on` setting shows what E3SM would
+> actually do (D12).
 
 ### Algorithm Design: The eddy overturning is diagnosed consistently with the models' discrete transports
 
@@ -289,9 +282,11 @@ weights sum to $L_x$.
   function (their §2c):
   - bin each edge-layer transport $s_e d_e u_e h_e$ by edge salinity,
     which measures density under this EOS;
-  - take the eddy part as $\overline{vh} - \bar v \bar h$;
-  - average over days 5–7;
-  - map each salinity surface to its mean depth.
+  - average over days 5–7 and map each salinity surface to its mean
+    depth;
+  - take the eddy part as this residual overturning minus the
+    Eulerian-mean overturning at the same depth (Abernathey et al.
+    2011), the integrated form of $\overline{vh} - \bar v \bar h$.
 - **Normalization:**
 
 $$
@@ -317,19 +312,41 @@ $|y - L_y/2| < L_y/8$ (SM22's 75–125 km). $C_e = 0.08$ and $H = H_m$.
 
 ### Algorithm Design: The parameterization's implementation is verified
 
-Date last modified: 2026/10/19
+Date last modified: 2026/10/20
 
 Contributors: Xylar Asay-Davis, Claude
 
-The parameterized Ψ is taken from the first daily output of each
-coarse `e3sm` and `ffh08` run. It is compared with the FK11 formula
-evaluated from the same output, using the model's own mixed-layer depth
-(`DenMixLayerDepth` or `dThreshMLD`). The comparison is x-averaged over
-the frontal zone. Using the model's mixed-layer depth separates the
-scheme from the mixed-layer-depth criterion, which is hard-coded in
-Omega. The tolerance is expected to be about 10%. It absorbs the edge
-convention for H, which is the minimum of the two cells in Omega and
-the mean in MPAS-Ocean.
+The parameterized Ψ on each frontal-zone edge is recovered from the
+eddy velocity in the last (day-15) output of each coarse `on` run. It
+is compared, edge by edge, with the FK11 formula evaluated from the
+same output as the models discretize it:
+
+- the model's own mixed-layer depth (`DenMixLayerDepth` or `dThreshMLD`)
+  and N² (`BruntVaisalaFreqSq` or `BruntVaisalaFreqTop`);
+- thickness-weighted means over interfaces, from the surface to the top
+  of the first layer below the mixed-layer depth. MPAS-Ocean writes that
+  layer's index (`indMLD`). For Omega, it is found from the mixed-layer
+  depth, measured from the sea surface;
+- each model's conventions: H on edges is the minimum of the two cells'
+  in Omega and the mean in MPAS-Ocean.
+
+Only edges whose output mixed-layer depth lies within the deepest layer
+with nonzero eddy velocity are compared. Elsewhere the output depth is
+not the one the eddy velocity used: in Omega the two come from
+different stages of a time step, and where the mixed layer is nearly
+neutral the diagnosed depth jumps by layers between them. The check
+fails if fewer than half the edges qualify or the relative error on
+them exceeds 15%.
+
+> **Rationale.** The final runs give errors of 1–5% on 92–100% of
+> edges in Omega and about 1% on all edges in MPAS-Ocean. While the
+> mixed layer restratifies (days 1–7), Omega's output depth often
+> differs from the one its eddy velocity used, so fewer edges qualify
+> and errors reach 20% at 16 km. MPAS-Ocean clamps its mixed-layer depth
+> to a layer midpoint in places, and its output layer depths differ
+> slightly from those it used, so the layer index cannot be recovered
+> from the depth; hence `indMLD`. Errors from a sign, a factor, a wrong
+> frontal width or C_e of 0.06 instead of 0.08 are larger.
 
 ### Algorithm Design: The test reproduces the published ice-free overturning
 
@@ -343,28 +360,25 @@ runs, so the window allows for that spread and for the start from rest.
 
 ### Algorithm Design: Coarse runs are compared with the resolved run
 
-Date last modified: 2026/10/19
+Date last modified: 2026/10/20
 
 Contributors: Xylar Asay-Davis, Claude
 
-The comparison uses potential-energy release,
-$\Delta PE(t) = PE(t) - PE(0)$ with $PE = \int \rho g z \, dV$, and the
-mixed-layer mean N² in the frontal zone. These are among the measures
-in Omega's design (§5). Rossby adjustment releases some potential
-energy in every run, so the `off` runs give the baseline. The checks
-are applied at day 7:
-
-- `e3sm` and `ffh08` runs release PE within a factor of 2 of the
-  resolved run;
-- `off` runs release less than half as much beyond the adjustment.
-
-Both thresholds are provisional until the first runs.
+The comparison uses potential energy per unit area,
+$PE = \int \rho g z \, dV / A$, and the mixed-layer mean N² in the
+frontal zone. These are among the measures in Omega's design (§5).
+Rossby adjustment releases potential energy in every run, so the
+comparison uses the release after it,
+$\Delta PE = PE(\text{day } 2) - PE(\text{day } 15)$, relative to the
+resolved run. The ratios are written to a table and plotted, with no
+thresholds (D13). A ratio near 1 for the `on` runs is the target for
+tuning C_e.
 
 ## Implementation
 
 ### Implementation: An ice-free mixed-layer front spins down in a doubly periodic domain
 
-Date last modified: 2026/10/19
+Date last modified: 2026/10/20
 
 Contributors: Xylar Asay-Davis, Claude
 
@@ -386,12 +400,11 @@ nonzero `Sref`.
 
 ```
 ocean/planar/mixed_layer_eddies/
-├── 500m/{init, forward}                            (shared steps)
-├── 2km/, 4km/, 8km/{init, forward_off,
-│                    forward_e3sm, forward_ffh08}   (shared steps)
+├── 500m/{init, spinup, eddies, extended}           (shared steps)
+├── 8km/, 16km/{init, forward_off, forward_on}      (shared steps)
 ├── resolved       (task: 500m steps + analysis)
-├── coarse         (task: coarse steps + verification)
-└── comparison     (task: all forward steps + comparison)
+├── coarse         (task: coarse steps + verify)
+└── comparison     (task: all shared steps + analysis)
 ```
 
 ### Implementation: Omega runs on its native coordinate, and MPAS-Ocean runs for comparison
@@ -412,14 +425,18 @@ initial files, as the overflow `PStarInit` does.
 
 ### Implementation: An eddy-resolving reference run
 
-Date last modified: 2026/10/19
+Date last modified: 2026/10/20
 
 Contributors: Xylar Asay-Davis, Claude
 
 `forward.py` and `forward.yaml` follow `baroclinic_channel`, with
-`dt_per_km` and `btr_dt_per_km` options. The eddy output stream is
-windowed over days 5–7. Omega windows it with `UseStartEnd`; MPAS-Ocean
-does so with a restart at day 5. The windowed output is about 12 GB.
+`dt_per_km` and `btr_dt_per_km` options. One `Forward` class runs a
+segment: `full` for the coarse runs, and `spinup`, `eddies` and
+`extended` for the resolved run. Both models split the resolved run,
+because MPAS-Ocean streams cannot limit output to a time window and
+Polaris builds a task's steps before it knows the model. Restarts go to
+a shared `restarts` directory, and each segment's restart alarm is
+anchored at its start time. The 3-hourly output is about 12 GB.
 
 ### Implementation: Coarse runs with the parameterization off and on
 
@@ -452,7 +469,7 @@ planar MPAS mesh, for lines of constant x or y:
   overturning.
 
 It is a dependency-light leaf module and takes arrays, not model
-output. The task's `streamfunction.py` builds on it: it computes the
+output. The task's `diagnostics.py` builds on it: it computes the
 salinity-binned eddy decomposition, the y-band means and Ψ⁺. It reads
 output through the Polaris variable mapping, so one code path serves
 both models.
@@ -464,8 +481,10 @@ Date last modified: 2026/10/19
 Contributors: Xylar Asay-Davis, Claude
 
 `coarse/verify.py` is an analysis step in the `coarse` task. It
-evaluates the FK11 formula from each coarse run's first output and
-fails the task if the relative error exceeds the configured tolerance.
+evaluates the FK11 formula from each coarse run's last output and
+fails the task if the relative error or the fraction of qualifying
+edges is outside the configured limits. Runs with the parameterization
+on also write N² for this check.
 
 ### Implementation: The test reproduces the published ice-free overturning
 
@@ -479,13 +498,13 @@ falls outside the window.
 
 ### Implementation: Coarse runs are compared with the resolved run
 
-Date last modified: 2026/10/19
+Date last modified: 2026/10/20
 
 Contributors: Xylar Asay-Davis, Claude
 
-`comparison/analysis.py` plots ΔPE(t) and the frontal-zone N²(t) for
-all ten runs. It writes the day-7 ratios to a table and fails on the
-thresholds.
+`comparison/analysis.py` plots PE(t), the frontal-zone N²(t) and the
+final surface salinity for all five runs. It writes the release ratios
+to a table and has no check.
 
 The planned commits are:
 
@@ -496,7 +515,7 @@ The planned commits are:
    tests.
 4. Add the ITP77 profile, config and `Init` step.
 5. Add the forward steps and the three tasks.
-6. Add the task's stream-function code and the three analysis steps.
+6. Add the task's diagnostics and the three analysis steps.
 7. Add unit tests for the task.
 8. Add the User's and Developer's Guide pages, including the
    framework module.
@@ -579,12 +598,13 @@ SM22 Fig. 2.
 
 ### Testing and Validation: Coarse runs are compared with the resolved run
 
-Date last modified: 2026/10/19
+Date last modified: 2026/10/20
 
 Contributors: Xylar Asay-Davis, Claude
 
-Set the thresholds from the first full set of runs. None of the tasks
-is added to a suite. `coarse` is the candidate if one is ever wanted.
+Report the release ratios on the PR, with a one-off sweep of C_e
+(0.04 and 0.06) at 8 and 16 km in both models. None of the tasks is
+added to a suite. `coarse` is the candidate if one is ever wanted.
 
 ## Decisions
 
@@ -666,7 +686,7 @@ TRiSK-consistent numerics; edge transports are those numerics.
 
 ### D9: E3SM coupled defaults, set explicitly
 
-Xylar, 2026/10/19. The `e3sm` setting uses E3SM's coupled values. These
+Xylar, 2026/10/19. The `on` setting uses E3SM's coupled values. These
 equal Omega's defaults, but not MPAS-Ocean's Registry default, whose
 C_e is 0.06.
 
@@ -675,3 +695,33 @@ C_e is 0.06.
 Xylar, 2026/10/19. Shrinking L_x to 100 km would cut the resolved
 run's cost by a factor of about 3. The full domain keeps comparisons
 with SM22's figures direct. The task runs on demand.
+
+### D11: Coarse runs at 8 and 16 km
+
+Xylar, 2026/10/20, after review by Luke Van Roekel and Carolyn Begeman.
+The first runs included 2 and 4 km. At 2 km the instability is resolved
+and at 4 km it is permitted, so the runs restratified with the
+parameterization off, releasing 0.89 and 0.65 times the resolved run's
+potential energy. The parameterization is meant for grids that cannot
+permit the eddies, and 8 and 16 km are both below Δs_max.
+
+### D12: Off and on, with no FFH08-like setting
+
+Xylar, 2026/10/20. A third setting set L_f,min = Δs_max = 2 km to hold
+Δs/L_f at 1. That does not ensure it: L_f is diagnosed larger once
+NH/|f| exceeds L_f,min. E3SM has never been run that way, so the
+setting was dropped and `on` means E3SM's coupled defaults.
+
+### D13: The comparison is report-only
+
+Xylar, 2026/10/20. Only the formula check (`coarse`) and |Ψ⁺|
+(`resolved`) fail a task. The potential-energy ratio measures how well
+the scheme, with a given C_e, matches the resolved restratification. It
+is a target for tuning, not a test of correctness.
+
+### D14: 15-day runs
+
+Xylar, 2026/10/20. Luke Van Roekel noted that mixed-layer eddies take
+about 10 days to reach finite amplitude, so 7 days is too short to
+compare restratification. The diagnosis window stays at days 5–7 to
+match SM22.
