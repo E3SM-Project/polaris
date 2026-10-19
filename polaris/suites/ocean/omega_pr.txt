@@ -27,6 +27,7 @@ ocean/spherical/icos/cosine_bell/restart
 ocean/spherical/realistic_global/e3sm-qu240/cached_forward/split_explicit
 ocean/spherical/realistic_global/e3sm-qu240/cached_forward/rk4
 ocean/spherical/realistic_global/e3sm-qu240/restart
+ocean/spherical/realistic_global/e3sm-qu240/analysis_output/restart
 ocean/column/ekman
 ocean/column/inertial
 ocean/column/kpp_combined

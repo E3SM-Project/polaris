@@ -25,3 +25,4 @@ ocean/spherical/icos/nondivergent_2d
 ocean/spherical/icos/rotation_2d
 ocean/spherical/qu/rotation_2d
 ocean/spherical/realistic_global/e3sm-qu240/restart
+ocean/spherical/realistic_global/e3sm-qu240/analysis_output/sampling_convergence
