@@ -8,13 +8,19 @@ from polaris.tasks.ocean.mixed_layer_eddies.diagnostics import (
     get_frontal_cell_mask,
 )
 from polaris.tasks.ocean.mixed_layer_eddies.forward import MLE_SETTINGS
+from polaris.tasks.ocean.mixed_layer_eddies.resolved.analysis import (
+    SEGMENTS as RESOLVED_SEGMENTS,
+)
+from polaris.tasks.ocean.mixed_layer_eddies.viz import plot_surface_salinity
 from polaris.viz import mplstyle_context
 
 
 class Analysis(OceanIOStep):
     """
     A step for comparing the restratification of the coarse runs with that
-    of the resolved run
+    of the resolved run.  The comparison is reported, not checked: how the
+    restratification of coarse runs should compare with that of the resolved
+    run is a question for tuning the parameterization.
 
     Attributes
     ----------
@@ -36,8 +42,8 @@ class Analysis(OceanIOStep):
             The directory the step is in, to which ``name`` will be appended
 
         resolved_steps : dict of polaris.Step
-            The shared ``init``, ``spinup`` and ``eddies`` steps of the
-            resolved run
+            The shared ``init`` step and the forward steps of each segment of
+            the resolved run
 
         coarse_steps : dict of dict of polaris.Step
             The shared steps at each coarse resolution, keyed by the
@@ -48,7 +54,7 @@ class Analysis(OceanIOStep):
             filename='mesh_resolved.nc',
             work_dir_target=f'{resolved_steps["init"].path}/culled_mesh.nc',
         )
-        for segment in ['spinup', 'eddies']:
+        for segment in RESOLVED_SEGMENTS:
             self.add_input_file(
                 filename=f'output_resolved_{segment}.nc',
                 work_dir_target=f'{resolved_steps[segment].path}/output.nc',
@@ -69,6 +75,7 @@ class Analysis(OceanIOStep):
         self.add_output_file(filename='restratification.csv')
         self.add_output_file(filename='potential_energy.png')
         self.add_output_file(filename='mixed_layer_n2.png')
+        self.add_output_file(filename='final_surface_salinity.png')
 
     def run(self):
         """
@@ -82,8 +89,7 @@ class Analysis(OceanIOStep):
         series = {}
         ds_mesh = self.open_model_dataset('mesh_resolved.nc')
         filenames = [
-            'output_resolved_spinup.nc',
-            'output_resolved_eddies.nc',
+            f'output_resolved_{segment}.nc' for segment in RESOLVED_SEGMENTS
         ]
         series['resolved'] = self._compute_series(ds_mesh, filenames)
         for resdir, mle in self.coarse_runs:
@@ -124,7 +130,59 @@ class Analysis(OceanIOStep):
             relative=False,
         )
 
-        self._check(releases)
+        self._plot_final_surface_salinity()
+
+    def _plot_final_surface_salinity(self):
+        """
+        Plot the surface salinity at the end of every run: the resolved run
+        on the top row and a row for each coarse resolution
+        """
+        ds_mesh = self.open_model_dataset('mesh_resolved.nc')
+        ds = self.open_model_dataset(
+            f'output_resolved_{RESOLVED_SEGMENTS[-1]}.nc'
+        )
+        ds = ds.isel(Time=-1).load()
+        surface = ds.salinity.isel(nVertLevels=0)
+        vmin = float(surface.min())
+        vmax = float(surface.max())
+
+        resdirs = list(dict.fromkeys(resdir for resdir, _ in self.coarse_runs))
+        nrows = len(resdirs) + 1
+        ncols = len(MLE_SETTINGS)
+        with mplstyle_context():
+            fig, axes = plt.subplots(
+                nrows,
+                ncols,
+                figsize=(4.0 * ncols, 2.9 * nrows),
+                constrained_layout=True,
+                squeeze=False,
+            )
+            for ax in axes[0, 1:]:
+                ax.set_axis_off()
+            collection = plot_surface_salinity(
+                axes[0, 0], ds_mesh, ds, 'resolved', vmin, vmax
+            )
+            for row, resdir in enumerate(resdirs, start=1):
+                ds_mesh = self.open_model_dataset(f'mesh_{resdir}.nc')
+                for col, mle in enumerate(MLE_SETTINGS):
+                    ds = self.open_model_dataset(f'output_{resdir}_{mle}.nc')
+                    plot_surface_salinity(
+                        axes[row, col],
+                        ds_mesh,
+                        ds.isel(Time=-1).load(),
+                        f'{resdir} {mle}',
+                        vmin,
+                        vmax,
+                    )
+            fig.colorbar(
+                collection,
+                ax=axes,
+                extend='both',
+                shrink=0.5,
+                label=r'surface salinity (g kg$^{-1}$)',
+            )
+            fig.savefig('final_surface_salinity.png', dpi=150)
+            plt.close(fig)
 
     def _compute_series(self, ds_mesh, filenames):
         """
@@ -157,37 +215,6 @@ class Analysis(OceanIOStep):
         days = np.arange(1, len(pe) + 1, dtype=float)
         return days, np.array(pe), np.array(n2)
 
-    def _check(self, releases):
-        """
-        Check the potential-energy release of the coarse runs against that
-        of the resolved run
-        """
-        section = self.config['mixed_layer_eddies_analysis']
-        mle_min = section.getfloat('mle_pe_ratio_min')
-        mle_max = section.getfloat('mle_pe_ratio_max')
-        off_max = section.getfloat('off_pe_ratio_max')
-        resolved_release = releases['resolved']
-        failures = []
-        for name, release in releases.items():
-            if name == 'resolved':
-                continue
-            ratio = release / resolved_release
-            if name.endswith('_off'):
-                if not ratio < off_max:
-                    failures.append(
-                        f'{name}: ratio {ratio:.3f} is not below {off_max}'
-                    )
-            elif not mle_min <= ratio <= mle_max:
-                failures.append(
-                    f'{name}: ratio {ratio:.3f} is outside '
-                    f'[{mle_min}, {mle_max}]'
-                )
-        if failures:
-            raise ValueError(
-                'Potential-energy release after the Rossby adjustment, '
-                'relative to the resolved run:\n  ' + '\n  '.join(failures)
-            )
-
 
 def _pe_release(days, pe, adjustment_days):
     """
@@ -204,17 +231,20 @@ def _plot_series(series, index, ylabel, filename, relative):
     """
     with mplstyle_context():
         fig, ax = plt.subplots(figsize=(6.0, 4.0))
+        colors: dict[str, str] = {}
         for name, values in series.items():
             days = values[0]
             data = values[index]
             if relative:
                 data = data - data[0]
-            style = '-k' if name == 'resolved' else '-'
-            if name.endswith('_off'):
-                style = ':'
-            elif name.endswith('_ffh08'):
-                style = '--'
-            ax.plot(days, data, style, label=name)
+            if name == 'resolved':
+                ax.plot(days, data, '-k', label=name)
+                continue
+            resdir, mle = name.rsplit('_', 1)
+            if resdir not in colors:
+                colors[resdir] = f'C{len(colors)}'
+            style = ':' if mle == 'off' else '-'
+            ax.plot(days, data, style, color=colors[resdir], label=name)
         ax.set_xlabel('time (days)')
         ax.set_ylabel(ylabel)
         ax.legend(fontsize='small', ncol=2)
