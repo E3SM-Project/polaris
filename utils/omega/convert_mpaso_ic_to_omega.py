@@ -27,8 +27,8 @@ FORCING_VARIABLES = [
 ]
 
 SHORTWAVE_EXTINCTION_VARIABLES = [
-    'ExtinctionCoeffRed',
-    'ExtinctionCoeffBlue',
+    'ExtinctionCoeffRedCell',
+    'ExtinctionCoeffBlueCell',
 ]
 
 SHORTWAVE_EXTINCTION_FILENAME = 'shortwave_extinction_0.083x0.083_20261002.nc'
@@ -174,7 +174,7 @@ def _print_summary(
         else 'Skipped SfcStressZonal and SfcStressMeridional fields'
     )
     sw_msg = (
-        'Added ExtinctionCoeffRed and ExtinctionCoeffBlue fields'
+        'Added ExtinctionCoeffRedCell and ExtinctionCoeffBlueCell fields'
         if include_shortwave_extinction
         else 'Skipped shortwave extinction fields'
     )
@@ -245,8 +245,6 @@ def _prepare_mpas_zero(
         )
     if include_idealized_sfc_stress:
         print('Added windStressZonal and windStressMeridional fields')
-    if include_shortwave_extinction:
-        print('Added ExtinctionCoeffRed and ExtinctionCoeffBlue fields')
 
     v_msg = (
         f'Zeroed velocity fields: {", ".join(mpas_velocity_fields)}'
