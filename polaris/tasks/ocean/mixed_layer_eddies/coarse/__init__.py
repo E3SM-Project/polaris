@@ -1,4 +1,5 @@
 from polaris import Task
+from polaris.tasks.ocean.mixed_layer_eddies.coarse.verify import Verify
 
 
 class Coarse(Task):
@@ -27,3 +28,10 @@ class Coarse(Task):
         for resdir, steps in coarse_steps.items():
             for name, step in steps.items():
                 self.add_step(step, symlink=f'{resdir}/{name}')
+        self.add_step(
+            Verify(
+                component=component,
+                indir=self.subdir,
+                coarse_steps=coarse_steps,
+            )
+        )
