@@ -10,6 +10,9 @@ from polaris.tasks.ocean.realistic_global.analysis_output.forward import (
 from polaris.tasks.ocean.realistic_global.analysis_output.restart import (
     AnalysisRestart,
 )
+from polaris.tasks.ocean.realistic_global.analysis_output.sampling import (
+    SamplingConvergence,
+)
 from polaris.tasks.ocean.realistic_global.forward import (
     InitialCondition,
     StatsAnalysis,
@@ -33,7 +36,8 @@ from polaris.tasks.ocean.realistic_global.mesh_info import (
 if TYPE_CHECKING:
     from polaris import Step
 
-#: The mesh of the restart task, which needs only one, and the cheapest
+#: The mesh of the restart and sampling_convergence tasks, which need only
+#: one, and the cheapest
 SHORT_TEST_MESH = 'e3sm-qu240'
 
 
@@ -41,7 +45,8 @@ def add_realistic_global_analysis_output_tasks(component):
     """
     Add an :py:class:`AnalysisOutput` task for each mesh with a cached
     initial condition and for each mesh the ``init`` workflow builds, and
-    the :py:class:`AnalysisRestart` task on ``e3sm-qu240``
+    the :py:class:`AnalysisRestart` and :py:class:`SamplingConvergence` tasks
+    on ``e3sm-qu240``
 
     Parameters
     ----------
@@ -62,6 +67,13 @@ def add_realistic_global_analysis_output_tasks(component):
         if mesh_name == SHORT_TEST_MESH:
             component.add_task(
                 AnalysisRestart(
+                    component=component,
+                    mesh_name=mesh_name,
+                    init_condition=init_condition,
+                )
+            )
+            component.add_task(
+                SamplingConvergence(
                     component=component,
                     mesh_name=mesh_name,
                     init_condition=init_condition,
