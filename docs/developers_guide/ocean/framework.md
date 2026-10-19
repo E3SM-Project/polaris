@@ -1048,6 +1048,32 @@ The {py:func}`polaris.ocean.rpe.compute_rpe()` is used to compute the RPE as
 a function of time in a series of one or more output files.  The RPE is stored
 in `rpe.csv` and also returned as a numpy array for plotting and analysis.
 
+(dev-ocean-overturning)=
+
+## Overturning across lines
+
+The module `polaris.ocean.overturning` computes overturning across a line of
+constant x or y on a planar MPAS mesh.  A line is the set of edges whose two
+cells lie on opposite sides of it, found by
+{py:func}`polaris.ocean.overturning.get_line_edges()`.  Each edge has a sign,
++1 where positive normal velocity points toward increasing x or y, and a
+weight, its length projected onto the line, for along-line means.  Summing
+signed edge transports gives the exact discrete transport from the cells on
+one side of the line to those on the other, on any mesh: on a planar hex
+mesh a line of constant y is the zigzag between two rows of cells, and on
+other meshes it is a staircase within about a cell of the line.  Edges on a
+domain boundary or across a periodic seam are excluded.
+
+{py:func}`polaris.ocean.overturning.compute_line_transport()` gives the
+transport through each edge and layer, using the mean thickness of the
+edge's two cells, the default flux thickness in both models.
+{py:func}`polaris.ocean.overturning.compute_overturning()` sums it along the
+line and from the surface down, giving the stream function at layer
+interfaces.  {py:func}`polaris.ocean.overturning.bin_line_transport()` sorts
+the transport and thickness on each edge into tracer classes, for
+overturning in density coordinates.  The mixed-layer eddies tasks
+({ref}`dev-ocean-mixed-layer-eddies`) use these for their eddy overturning.
+
 (dev-ocean-analysis)=
 
 ## Analysis of completed simulations
