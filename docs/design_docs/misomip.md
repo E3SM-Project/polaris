@@ -534,7 +534,8 @@ WP2 must also:
 
 Polaris adds split-explicit variants of the thin-film tasks and Ocean0 to
 test it. The work lands on FAnSSIE, and an upstream pull request can
-follow when it is ready.
+follow when it is ready. E3SM's default `split_explicit_ab2` stays
+without wetting and drying ([D18](#decisions)).
 
 ### WP3: Landice component
 
@@ -1043,3 +1044,23 @@ Rejected:
 - `wright`, which uses each layer's actual depth but has never worked
   correctly;
 - `jm` at reference depths, as on E3SM master.
+
+### D18: Wetting and drying uses `split_explicit`, not `split_explicit_ab2`
+
+Date last modified: 2026/10/19
+
+Contributors: Xylar Asay-Davis, Claude
+
+Runs with wetting and drying use MPAS-Ocean's `split_explicit` time
+integrator (WP2), not E3SM's default, `split_explicit_ab2`.
+
+```{admonition} Rationale
+`split_explicit_ab2` takes one baroclinic iteration per step and is about
+37% cheaper. It has no wetting and drying or direct tidal reset, and it
+is unstable with the upwinded thickness flux that wetting and drying
+needs in thin columns. A port would repeat much of WP2's debugging for a
+modest saving, in a model that Omega will replace.
+```
+
+Rejected: porting wetting and drying to `split_explicit_ab2`. This is
+revisited if realistic E3SM runs with wetting and drying need its savings.
