@@ -1,6 +1,7 @@
 import cmocean  # noqa: F401
 import matplotlib.pyplot as plt
 import numpy as np
+import xarray as xr
 
 from polaris.ocean.model import OceanIOStep
 from polaris.tasks.ocean.mixed_layer_eddies.diagnostics import (
@@ -11,7 +12,14 @@ from polaris.tasks.ocean.mixed_layer_eddies.diagnostics import (
     get_frontal_cell_mask,
     get_frontal_lines,
 )
+from polaris.tasks.ocean.mixed_layer_eddies.viz import plot_surface_salinity
 from polaris.viz import mplstyle_context
+
+# the days at which surface salinity is plotted
+SURFACE_SALINITY_DAYS = (1, 5, 10, 15)
+
+# the segments of the resolved run, in order
+SEGMENTS = ('spinup', 'eddies', 'extended')
 
 
 class Analysis(OceanIOStep):
@@ -21,7 +29,7 @@ class Analysis(OceanIOStep):
     Shrestha & Manucharyan (2022)
     """
 
-    def __init__(self, component, indir, init, eddies):
+    def __init__(self, component, indir, resolved_steps):
         """
         Create the step
 
@@ -33,21 +41,26 @@ class Analysis(OceanIOStep):
         indir : str
             The directory the step is in, to which ``name`` will be appended
 
-        init : polaris.tasks.ocean.mixed_layer_eddies.init.Init
-            The step that produces the resolved mesh
-
-        eddies : polaris.tasks.ocean.mixed_layer_eddies.forward.Forward
-            The resolved run's eddy diagnosis window
+        resolved_steps : dict of polaris.Step
+            The shared ``init`` step and the forward steps of each segment of
+            the resolved run
         """
         super().__init__(component=component, name='analysis', indir=indir)
+        init = resolved_steps['init']
         self.add_input_file(
             filename='mesh.nc', work_dir_target=f'{init.path}/culled_mesh.nc'
         )
         self.add_input_file(
             filename='eddy_output.nc',
-            work_dir_target=f'{eddies.path}/eddy_output.nc',
+            work_dir_target=f'{resolved_steps["eddies"].path}/eddy_output.nc',
         )
+        for name in SEGMENTS:
+            self.add_input_file(
+                filename=f'output_{name}.nc',
+                work_dir_target=f'{resolved_steps[name].path}/output.nc',
+            )
         self.add_output_file(filename='eddy_overturning.nc')
+        self.add_output_file(filename='surface_salinity.png')
         self.add_output_file(filename='eddy_overturning_profile.png')
         self.add_output_file(filename='eddy_overturning_section.png')
 
@@ -126,12 +139,53 @@ class Analysis(OceanIOStep):
 
         _plot_profile(z_profile, psi_profile / scale, ml_depth, psi_plus)
         _plot_section(ds_psi, ml_depth)
+        self._plot_surface_salinity(ds_mesh)
 
         if not psi_plus_min <= abs(psi_plus) <= psi_plus_max:
             raise ValueError(
                 f'|Psi+| = {abs(psi_plus):.3f} is outside the range '
                 f'[{psi_plus_min}, {psi_plus_max}]'
             )
+
+    def _plot_surface_salinity(self, ds_mesh):
+        """
+        Plot the surface salinity of the resolved run at several days from
+        its daily output
+        """
+        snapshots: list[xr.Dataset] = []
+        for name in SEGMENTS:
+            ds = self.open_model_dataset(f'output_{name}.nc')
+            snapshots.extend(
+                ds.isel(Time=index) for index in range(ds.sizes['Time'])
+            )
+        # daily output, starting at the end of the first day
+        selected = [
+            (day, snapshots[day - 1].load())
+            for day in SURFACE_SALINITY_DAYS
+            if day <= len(snapshots)
+        ]
+        surface = selected[0][1].salinity.isel(nVertLevels=0)
+        vmin = float(surface.min())
+        vmax = float(surface.max())
+        with mplstyle_context():
+            fig, axes = plt.subplots(
+                2, 2, figsize=(10.0, 7.0), constrained_layout=True
+            )
+            collection = None
+            for ax, (day, ds) in zip(axes.ravel(), selected, strict=False):
+                collection = plot_surface_salinity(
+                    ax, ds_mesh, ds, f'day {day}', vmin, vmax
+                )
+            assert collection is not None
+            fig.colorbar(
+                collection,
+                ax=axes,
+                extend='both',
+                shrink=0.7,
+                label=r'surface salinity (g kg$^{-1}$)',
+            )
+            fig.savefig('surface_salinity.png', dpi=150)
+            plt.close(fig)
 
 
 def _plot_profile(z, psi_normalized, ml_depth, psi_plus):

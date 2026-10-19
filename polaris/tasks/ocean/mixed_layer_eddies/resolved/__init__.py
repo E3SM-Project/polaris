@@ -22,8 +22,8 @@ class Resolved(Task):
             The directory the task is in, to which ``name`` will be appended
 
         resolved_steps : dict of polaris.Step
-            The shared ``init``, ``spinup`` and ``eddies`` steps of the
-            resolved run
+            The shared ``init`` step and the forward steps of each segment of
+            the resolved run
         """
         super().__init__(component=component, name='resolved', indir=indir)
         for name, step in resolved_steps.items():
@@ -32,7 +32,6 @@ class Resolved(Task):
             Analysis(
                 component=component,
                 indir=self.subdir,
-                init=resolved_steps['init'],
-                eddies=resolved_steps['eddies'],
+                resolved_steps=resolved_steps,
             )
         )
