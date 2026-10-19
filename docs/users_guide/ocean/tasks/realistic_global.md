@@ -3,7 +3,7 @@
 # realistic_global
 
 The `realistic_global` task group contains tasks that use realistic global
-ocean meshes, bathymetry and forcing. It currently contains seven kinds of
+ocean meshes, bathymetry and forcing. It currently contains nine kinds of
 tasks:
 
 - {ref}`ocean-realistic-global-woa23`, a mesh-independent preprocessing task
@@ -24,6 +24,12 @@ tasks:
   tasks read.
 - {ref}`ocean-realistic-global-restart`, a short run continued from a restart,
   checking that it matches the uninterrupted run, history output included.
+- {ref}`ocean-realistic-global-analysis-output-restart`, a short Omega run
+  continued from a restart midway through an averaging period, checking that
+  the time means match the uninterrupted run.
+- {ref}`ocean-realistic-global-analysis-output-sampling-convergence`, short
+  Omega runs checking that time means converge as their sampling interval
+  shrinks.
 
 The arrows show where each kind of task gets its inputs:
 
@@ -37,6 +43,8 @@ flowchart LR
     database[("Polaris input database")] --> cached_forward
     database --> analysis_output
     database --> restart
+    database --> analysis_restart["analysis_output/restart"]
+    database --> sampling["analysis_output/sampling_convergence"]
 ```
 
 ## supported models
@@ -1272,3 +1280,147 @@ moc_num_bins = 60
 
 The number of cores used by the `forward` step is determined algorithmically
 from the number of cells in the mesh.  The `global_stats` step runs serially.
+
+(ocean-realistic-global-analysis-output-restart)=
+
+## analysis_output/restart
+
+This task checks that a run continued from a restart midway through an
+averaging period writes the same time means as the uninterrupted run.
+It is the regression test for Omega's checkpointing of the partial sums of its
+temporal reductions
+([E3SM-Project/Omega#611](https://github.com/E3SM-Project/Omega/pull/611)).
+It is part of the `omega_pr` suite, and can be set up with:
+
+```bash
+polaris setup -t ocean/spherical/realistic_global/e3sm-qu240/analysis_output/restart ...
+```
+
+### description
+
+The steps are those of the {ref}`ocean-realistic-global-restart` task, with
+the `MonthlyAverages`, `MOC` and `GlobalStats` analysis groups averaging over
+2-day periods:
+
+1. `full_run` covers two periods, four days, and writes a restart one day
+   in, halfway through the first period.
+2. `restart_run` continues from that restart to the end of the second period.
+3. `validate` compares every variable in every time-mean file of
+   `restart_run` with `full_run`, bit for bit, including the time and its
+   bounds.  It also compares the state in the history, as the `restart` task
+   does, so that a model restart that is not exact can be told from analysis
+   output that is not.
+
+Each group accumulates in a different way, so that the restart is checked for
+each: `MonthlyAverages` every time step, `MOC` every 16 hours
+(`3perPeriod`), so that the restart falls between two samples, and
+`GlobalStats` every 6 hours (`6hour`), so that the restart falls on a sample.
+
+The time means are written to `means_2DaysTimeStats.<date>.nc`,
+`moc_2DaysTimeStats.<date>.nc` and `global_stats_2DaysTimeStats`, where the
+date is the end of each period.
+
+### mesh, vertical grid, initial conditions and forcing
+
+As for the {ref}`ocean-realistic-global-restart` task.
+
+### time step and run duration
+
+Every step is a `split_explicit` `cached_forward` run on `e3sm-qu240` with
+that mesh's time steps and viscosity, as for the `restart` task.  The full run
+lasts four days and the restart run three, with a history frame every day.
+
+### config options
+
+The task reads the `[realistic_global_forward]` options and the
+`moc_num_bins` option of `[analysis_output]`, including the per-mesh ones for
+`e3sm-qu240`.  The periods, run durations and sampling intervals are fixed by
+the task, since the restart has to fall midway through a period.
+
+### cores
+
+The number of cores used by each forward step is determined algorithmically
+from the number of cells in the mesh.  The `validate` step runs serially.
+
+(ocean-realistic-global-analysis-output-sampling-convergence)=
+
+## analysis_output/sampling_convergence
+
+This task checks that Omega's time means converge at first order as the
+interval at which they sample the model shrinks, and that a sampled mean is
+the mean of the model state at its samples.  It tests the `SamplingInterval`
+option of Omega's temporal reductions
+([E3SM-Project/Omega#611](https://github.com/E3SM-Project/Omega/pull/611)).
+It is part of the `omega_nightly` suite, and can be set up with:
+
+```bash
+polaris setup -t ocean/spherical/realistic_global/e3sm-qu240/analysis_output/sampling_convergence ...
+```
+
+### description
+
+The task contains six steps:
+
+1. `reference` averages over 1-day periods, sampling every time step.
+2. `sampled_2_steps`, `sampled_4_steps`, `sampled_8_steps` and
+   `sampled_16_steps` sample every 2, 4, 8 and 16 time steps.  The last also
+   writes a history snapshot at every sample.
+3. `analysis` computes the error of each sampled run's means for each field as
+   the relative L2 norm of their difference from the reference means, over
+   both periods.  A mean of samples taken at the end of each sampling interval
+   differs from the every-step mean at first order in the sampling interval
+   minus the time step, so the order of convergence is fit against that.  The
+   errors are written to `convergence.csv` and plotted in `convergence.png`.
+   The order is checked for the fields in `convergence_fields`: the error of
+   the mean pseudo-thickness levels off rather than falling once the sampling
+   interval reaches about half an hour, so it is plotted but not checked.
+   Then the means of `sampled_16_steps` are compared with the means of its
+   history snapshots in each period, which checks the times and number of the
+   samples.
+
+### mesh, vertical grid, initial conditions and forcing
+
+As for the {ref}`ocean-realistic-global-restart` task.
+
+### time step and run duration
+
+Every step is an `rk4` `cached_forward` run on `e3sm-qu240`, with that mesh's
+10-minute RK4 time step, so the sampling intervals are 20 minutes to about
+2.7 hours, short compared with the inertial period.  Each run lasts two days.
+
+### config options
+
+The task reads the `[realistic_global_forward]` options, including the
+per-mesh ones for `e3sm-qu240` and those of the `rk4` variant, and its own:
+
+```cfg
+# Options for the convergence of time means with their sampling interval
+[analysis_output_sampling]
+
+# The fields to average, by their Omega names.  The run with the coarsest
+# sampling also writes each of them to its history at every sample, so each
+# must be a field that the History stream can write.
+fields = Temperature, Salinity, NormalVelocity, PseudoThickness
+
+# The fields whose order of convergence is checked.  The error of the mean
+# pseudo-thickness levels off rather than falling at first order once the
+# sampling interval reaches about half an hour, presumably because of
+# barotropic oscillations faster than that, so it is plotted but not checked.
+convergence_fields = Temperature, Salinity, NormalVelocity
+
+# The bounds on the order of convergence of each checked field's time mean
+# with the sampling interval.  The mean of samples taken at the end of each
+# sampling interval differs from the every-step mean at first order.
+order_min = 0.8
+order_max = 1.2
+
+# The largest relative difference allowed between the time means of the run
+# with the coarsest sampling and the means of the history snapshots it wrote
+# at its samples.  The two sum the same values in a different order.
+exact_rtol = 1.0e-12
+```
+
+### cores
+
+The number of cores used by each forward step is determined algorithmically
+from the number of cells in the mesh.  The `analysis` step runs serially.

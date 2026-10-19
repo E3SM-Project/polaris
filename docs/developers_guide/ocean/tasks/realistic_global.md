@@ -17,7 +17,9 @@ groups:
 - `cached_forward`, the same forward runs on E3SM initial conditions cached in
   the Polaris input database instead, a temporary task.
 - `analysis_output`, one-year Omega runs on either source of initial
-  condition that write what the ocean analysis reads.
+  condition that write what the ocean analysis reads, and two short Omega
+  tasks that test those time means across a restart and with a sampling
+  interval.
 - `restart`, a short Omega run continued from a restart, checking that it
   matches the uninterrupted run, history output included.
 
@@ -28,13 +30,14 @@ a `forward` task per mesh for each of
 {py:data}`polaris.tasks.ocean.realistic_global.forward.TIME_INTEGRATORS`, the
 same `cached_forward` variants for each mesh in
 {py:data}`polaris.tasks.ocean.realistic_global.forward.tasks.CACHED_MESHES`,
-an `analysis_output/1_year` task for every mesh of either kind, and a single
-`restart` task on `e3sm-qu240`.  Adding a cached mesh requires an entry in that
-dictionary, keyed by the E3SM mesh's name in lower case with an `e3sm-` prefix,
-giving the name the database files carry, the MPAS-Ocean and Omega
-initial-condition IDs, the minimum resolution and the cell count, and a
-`<mesh_name>.cfg` in `mesh_configs` giving the split and RK4 time steps and the
-run duration.  A mesh coarser than
+an `analysis_output/1_year` task for every mesh of either kind, and single
+`restart`, `analysis_output/restart` and
+`analysis_output/sampling_convergence` tasks on `e3sm-qu240`.  Adding a cached
+mesh requires an entry in that dictionary, keyed by the E3SM mesh's name in
+lower case with an `e3sm-` prefix, giving the name the database files carry,
+the MPAS-Ocean and Omega initial-condition IDs, the minimum resolution and the
+cell count, and a `<mesh_name>.cfg` in `mesh_configs` giving the split and RK4
+time steps and the run duration.  A mesh coarser than
 about a degree should also set fewer MOC latitude bins for its `1_year` run
 (`moc_num_bins` in `[analysis_output]`).
 
@@ -262,6 +265,48 @@ finalized (E3SM-Project/Omega#554), so a run that starts on `0001-01-01`
 writes the files covering year 1 as `0001-02` through `0002-01`;
 `get_monthly_filenames()` builds the names that way, and the snapshots, taken
 at those instants, are named the same way.
+
+### analysis_output/restart
+
+The {py:class}`polaris.tasks.ocean.realistic_global.analysis_output.AnalysisRestart`
+task reuses the `restart` task's steps (see
+{ref}`dev-ocean-realistic-global-restart`): each step is an
+{py:class}`~polaris.tasks.ocean.realistic_global.analysis_output.AnalysisRestartStep`,
+a `RestartStep` whose `dynamic_model_config()` adds
+`restart_analysis.yaml` after the restart task's yaml.  That fragment sets
+every analysis group to the same 2-day `ReductionPeriod` and gives each a
+different `SamplingInterval`.  The period, the durations and the sampling
+intervals are module constants in `restart.py` rather than config options,
+since the restart has to fall midway through a period and between two `MOC`
+samples.  `get_analysis_restart_filenames()` gives the time-mean files, which
+`full_run` and `restart_run` declare as outputs.
+
+{py:class}`~polaris.tasks.ocean.realistic_global.analysis_output.AnalysisRestartValidate`
+opens each pair of time-mean files with `mask_and_scale=False`, so that fill
+values are compared as written, and `compare_datasets_exactly()` reports any
+variable that is missing from one file or differs between them.  It also
+compares the state in the two histories with `compare_variables()`.
+
+### analysis_output/sampling_convergence
+
+The {py:class}`polaris.tasks.ocean.realistic_global.analysis_output.SamplingConvergence`
+task layers the forward package's `rk4.cfg` and its own
+`sampling_convergence.cfg` over the usual config.  Each
+{py:class}`~polaris.tasks.ocean.realistic_global.analysis_output.SampledForward`
+step adds `sampling_analysis.yaml`, which turns on `MonthlyAverages` for the
+configured fields with a `SamplingInterval` of `<n>steps` (`dt`, every step,
+for the reference) and limits the `History` stream to the same fields.  The
+step with the coarsest sampling sets its history interval to its sampling
+interval,
+using {py:meth}`~polaris.tasks.ocean.realistic_global.forward.stage.ForwardStage.time_step_seconds`;
+the others write history only at the end of the run.
+
+{py:class}`~polaris.tasks.ocean.realistic_global.analysis_output.SamplingAnalysis`
+fits the order of convergence with `fit_order()` against `(n - 1) dt`, the
+difference between each sampling interval and the reference's, and plots the
+errors.  It then selects the snapshots in each period with `select_period()`,
+which includes the end of the period and excludes its start as Omega's
+reductions do, and compares their mean with the time mean.
 
 (dev-ocean-realistic-global-restart)=
 
