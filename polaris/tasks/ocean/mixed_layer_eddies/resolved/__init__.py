@@ -1,4 +1,7 @@
 from polaris import Task
+from polaris.tasks.ocean.mixed_layer_eddies.resolved.analysis import (
+    Analysis,
+)
 
 
 class Resolved(Task):
@@ -25,3 +28,11 @@ class Resolved(Task):
         super().__init__(component=component, name='resolved', indir=indir)
         for name, step in resolved_steps.items():
             self.add_step(step, symlink=name)
+        self.add_step(
+            Analysis(
+                component=component,
+                indir=self.subdir,
+                init=resolved_steps['init'],
+                eddies=resolved_steps['eddies'],
+            )
+        )

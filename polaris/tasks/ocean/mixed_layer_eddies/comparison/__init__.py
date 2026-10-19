@@ -1,4 +1,7 @@
 from polaris import Task
+from polaris.tasks.ocean.mixed_layer_eddies.comparison.analysis import (
+    Analysis,
+)
 
 
 class Comparison(Task):
@@ -33,3 +36,11 @@ class Comparison(Task):
         for resdir, steps in coarse_steps.items():
             for name, step in steps.items():
                 self.add_step(step, symlink=f'{resdir}/{name}')
+        self.add_step(
+            Analysis(
+                component=component,
+                indir=self.subdir,
+                resolved_steps=resolved_steps,
+                coarse_steps=coarse_steps,
+            )
+        )
