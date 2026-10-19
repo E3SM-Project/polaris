@@ -277,15 +277,6 @@ From E3SM history files, Polaris computes melt, grounding-line position,
 volume above flotation and conservation. Its plots compare runs with each
 other, with standalone runs and with published results.
 
-### Requirement: Long runs are affordable
-
-Date last modified: 2026/10/16
-
-Contributors: Xylar Asay-Davis, Claude
-
-At 2 km, a 100-year experiment takes about a week of wall-clock time or
-less.
-
 ### Requirement: A coarse configuration tests the coupling
 
 Date last modified: 2026/10/16
@@ -747,9 +738,8 @@ Each step builds on the one before it.
 7. **MISOMIP1.** MALI's grounding-line retreat and volume above flotation
    in IceOcean1r are compared with its own Ice1r, which uses the
    protocol's melt parameterization.
-8. **Split-explicit.** At 4 km, split-explicit and RK4 Ocean0 agree
-   closely, and a split-explicit 100-year run at 2 km meets the long-run
-   requirement.
+8. **Split-explicit.** At 4 km, split-explicit and RK4 Ocean0 agree in
+   melt to within a few percent over a month.
 
 Every change to FAnSSIE runs `fanssie_pr` against a baseline from the
 branch's previous commit. The 4 km Ocean0 case also repeats steps 2 and 4.
@@ -900,13 +890,20 @@ vertical-remap and debugging commits.
 
 ### D11: Ocean resolutions are 4 and 2 km
 
-Date last modified: 2026/10/16
+Date last modified: 2026/10/19
 
 Contributors: Xylar Asay-Davis, Claude
 
 The ocean uses 2 km for the protocol runs, the COM resolution
 (Sect. 3.1.5), and 4 km for development and the quick coupling test.
-MALI's resolution is set in the MISMIP+ design ([D13](#decisions)).
+MALI's resolution is set in the MISMIP+ design ([D13](#decisions)). The
+long runs take what they take: with split-explicit wetting and drying, 100
+years at 2 km take about two weeks on two Chrysalis nodes.
+
+Rejected: a wall-clock target for 100-year runs, first set at a week. It
+would need a time step about twice what the thin film allows. Also
+rejected: running the long experiments at 4 km, whose dynamics are not
+physically useful.
 
 ### D12: The E3SM configuration lives in Polaris
 
