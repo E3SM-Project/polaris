@@ -685,8 +685,9 @@ evaluated at each layer's actual depth ([D17](#decisions)). Next to a thin
 film, `Jacobian_from_TS` extrapolates the film's fresh water into depths
 where that cell holds ice, so a new option limits it to each cell's water
 column. MPAS-Ocean's submesoscale eddies, KPP's friction velocity with
-implicit top drag and its sea-ice salt limit also needed fixes to run with
-a thin film. These MPAS-Ocean changes land on FAnSSIE. The design amends
+implicit top drag, the sea-ice salt limit and the melt rate in nearly
+fresh water also needed fixes to run with a thin film. These MPAS-Ocean
+changes land on FAnSSIE. The design amends
 `isomip_plus.md` in the pull request that makes the change.
 
 ### Order
