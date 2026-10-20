@@ -317,8 +317,8 @@ steps of its own:
    stress components and magnitude are also written, which is where remapping
    artifacts would show up.
 
-On large meshes, `viz` is the most expensive step: it took 78 minutes of a
-run of about 2.5 hours on `u-oi6to18-lr6to10`.  It runs only in this task;
+On large meshes, `viz` is the most expensive step: it took 33 minutes of a
+run of about 1.8 hours on `u-oi6to18-lr12p5`.  It runs only in this task;
 other workflows that reuse the init steps leave it out.
 
 ### mesh
@@ -491,11 +491,11 @@ Currently:
   depth.  The shallow ocean is deliberate: these coarse meshes exist for fast
   smoke-testing of E3SM, Omega and MPAS-Ocean rather than for physically
   realistic simulations.
-- All four unified meshes set `culled_ocean_cell_count`, the approximate size
+- All five unified meshes set `culled_ocean_cell_count`, the approximate size
   of the ocean + sea-ice culled mesh that the ocean model actually runs.  It is
   used to size MPI task counts and is smaller than the full mesh, which
   includes land and river-channel refinement that is culled away first.
-- All four unified meshes, plus `qu240km` and `icos240km`, set the
+- All five unified meshes, plus `qu240km` and `icos240km`, set the
   resolution-dependent forward-run options described under
   [forward](#ocean-realistic-global-forward): the horizontal mixing
   coefficients, how mixing is scaled across the mesh, which eddy
@@ -844,7 +844,7 @@ step runs, and the step's log reports it with the coefficients.
 
 A mesh whose coefficients come from E3SM states its finest resolution instead,
 because E3SM's per-grid `mom_del2` and `mom_del4` values are referenced to that:
-`u-oi6to18-lr6to10` pairs `RRSwISC6to18E3r5`'s `3.2e09` with 6 km,
+the `u-oi6to18` meshes pair `RRSwISC6to18E3r5`'s `3.2e09` with 6 km,
 `u-oi-so12to30-lr10` pairs `SOwISC12to30E3r3`'s `1.18e10` with 12 km, and the
 three 240 km meshes take `oQU240`'s `2.0e14` with 240 km.  Omega has no
 reference width of its own to set, so when one is stated, Polaris converts the
