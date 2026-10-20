@@ -1,11 +1,16 @@
 import os
 from typing import List, Optional
 
+import numpy as np
+
 from polaris.ocean.model import OceanModelStep
 from polaris.tasks.ocean.realistic_global.forward.initial_condition import (
     InitialCondition,
 )
-from polaris.tasks.ocean.realistic_global.forward.stage import ForwardStage
+from polaris.tasks.ocean.realistic_global.forward.stage import (
+    ForwardStage,
+    omega_median_cell_width,
+)
 
 
 class Forward(OceanModelStep):
@@ -261,13 +266,31 @@ class Forward(OceanModelStep):
 
         # horizontal mixing and the KPP boundary layer are supported by both
         # models, so they are added in MPAS-Ocean naming and translated to
-        # Omega by OceanModelStep
+        # Omega by OceanModelStep.  Omega scales the mixing coefficients from
+        # the mesh's median cell width, so they are converted from
+        # hmix_ref_cell_width once the mesh exists to compute it from.
+        mesh_widths = None
+        if model == 'omega' and stage.hmix_scaling == 'ref_cell_width':
+            mesh_widths = self._omega_mesh_widths(at_setup)
+        median_cell_width = None if mesh_widths is None else mesh_widths[0]
+        horiz_mixing_options = stage.horiz_mixing_options(
+            model, median_cell_width
+        )
+        if mesh_widths is not None and not at_setup:
+            _log_omega_hmix(
+                self.logger, stage, mesh_widths, horiz_mixing_options
+            )
         self.add_model_config_options(
-            options=stage.horiz_mixing_options(), config_model='ocean'
+            options=horiz_mixing_options, config_model='ocean'
         )
         self.add_model_config_options(
             options=stage.vert_mixing_options(), config_model='ocean'
         )
+
+        if model == 'omega':
+            self.add_model_config_options(
+                options=stage.omega_physics_options(), config_model='Omega'
+            )
 
         if model == 'omega' and self.work_dir is not None:
             # Omega does not make the directories its streams write into
@@ -319,3 +342,60 @@ class Forward(OceanModelStep):
             return None
         mesh_path = os.path.join(self.work_dir, self.get_horiz_mesh_filename())
         return mesh_path if os.path.exists(mesh_path) else None
+
+    def _omega_mesh_widths(self, at_setup):
+        """
+        Omega's median cell width and the smallest and largest edge widths it
+        scales the mixing with (m), or ``None`` at setup when the mesh does
+        not yet exist
+        """
+        mesh_path = self._mesh_path()
+        if mesh_path is None:
+            if at_setup:
+                return None
+            raise ValueError(
+                'The mesh is needed at run time to convert the horizontal '
+                "mixing coefficients to Omega's median cell width, but "
+                f'{self.get_horiz_mesh_filename()} was not found.'
+            )
+        ds = self.component.open_model_dataset(mesh_path, self.config)
+        area_cell = ds.areaCell.values
+        # 1-based in the file, with 0 for the missing cell of a boundary edge
+        cells_on_edge = ds.cellsOnEdge.values - 1
+        interior = np.all(cells_on_edge >= 0, axis=1)
+        edge_widths = 2.0 * np.sqrt(
+            area_cell[cells_on_edge[interior]].sum(axis=1) / (2.0 * np.pi)
+        )
+        return (
+            omega_median_cell_width(area_cell),
+            float(edge_widths.min()),
+            float(edge_widths.max()),
+        )
+
+
+def _log_omega_hmix(logger, stage, mesh_widths, options):
+    """
+    Log the median cell width, the range of mesh scaling factors and the
+    converted coefficients, to compare with what Omega logs
+    """
+    median, edge_min, edge_max = mesh_widths
+    ratio = stage.omega_hmix_ratio('omega', median)
+    del2_min = edge_min / median
+    del2_max = edge_max / median
+    logger.info(
+        f'Omega mesh scaling: median cell width {median:.6g} m, reference '
+        f'{stage.hmix_ref_cell_width:.6g} m, so del2 coefficients are '
+        f'multiplied by {ratio:.6g} and del4 by {ratio**3:.6g}\n'
+        f'  expected MeshScalingDel2 min/max = {del2_min:.6g}/{del2_max:.6g}'
+        f'\n'
+        f'  expected MeshScalingDel4 min/max = '
+        f'{del2_min**3:.6g}/{del2_max**3:.6g}'
+    )
+    for option in [
+        'config_mom_del2',
+        'config_mom_del4',
+        'config_tracer_del2',
+        'config_tracer_del4',
+    ]:
+        if option in options:
+            logger.info(f'  {option} = {options[option]:.6g}')
