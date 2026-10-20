@@ -4,6 +4,7 @@ from configparser import ConfigParser
 from types import SimpleNamespace
 from typing import Any, cast
 
+import numpy as np
 import pytest
 import xarray as xr
 from ruamel.yaml import YAML
@@ -20,6 +21,9 @@ from polaris.tasks.ocean.realistic_global.forward import (
     ForwardStage,
     StatsAnalysis,
     StepInitialCondition,
+)
+from polaris.tasks.ocean.realistic_global.forward.stage import (
+    omega_median_cell_width,
 )
 from polaris.yaml import PolarisYaml
 
@@ -503,7 +507,7 @@ def test_horiz_mixing_options_blank_coefficient_turns_a_term_off():
     """
     options = ForwardStage(
         mom_del2=None, mom_del4=3.2e09
-    ).horiz_mixing_options()
+    ).horiz_mixing_options('mpas-ocean')
     assert options == {
         'config_use_mom_del2': False,
         'config_use_mom_del4': True,
@@ -528,7 +532,7 @@ def test_horiz_mixing_options_are_all_mapped_to_omega():
         tracer_del2=10.0,
         tracer_del4=1.2e11,
     )
-    for option, value in stage.horiz_mixing_options().items():
+    for option, value in stage.horiz_mixing_options('omega').items():
         # raises ValueError if the option has no Omega counterpart
         step._map_mpaso_to_omega_section_option(option=option, value=value)
 
@@ -648,12 +652,14 @@ def test_horiz_mixing_options_del4_div_factor_only_when_set():
     # both models have it (Omega's DivFactor), so it rides in the neutral
     # bucket rather than the MPAS-Ocean-only one
     stage = ForwardStage(mom_del4=3.2e09, mom_del4_div_factor=10.0)
-    assert stage.horiz_mixing_options()['config_mom_del4_div_factor'] == 10.0
+    options = stage.horiz_mixing_options('mpas-ocean')
+    assert options['config_mom_del4_div_factor'] == 10.0
     assert 'config_mom_del4_div_factor' not in stage.mpaso_physics_options()
 
     # blank leaves both models' default of 1.0 rather than restating it
     stage = ForwardStage(mom_del4=3.2e09)
-    assert 'config_mom_del4_div_factor' not in stage.horiz_mixing_options()
+    options = stage.horiz_mixing_options('mpas-ocean')
+    assert 'config_mom_del4_div_factor' not in options
 
 
 def test_mpaso_physics_options_gm_settings_only_when_gm_is_on():
@@ -696,6 +702,136 @@ def test_mpaso_only_physics_is_always_stated():
 def test_mpaso_physics_options_rejects_unknown_hmix_scaling():
     with pytest.raises(ValueError, match='hmix_scaling'):
         ForwardStage(hmix_scaling='bogus').mpaso_physics_options()
+
+
+# --- Omega's mesh scaling ---
+
+
+def _scaled_stage(hmix_scaling='ref_cell_width'):
+    """A stage with every horizontal mixing coefficient set."""
+    return ForwardStage(
+        mom_del2=1.0e3,
+        mom_del4=1.2e11,
+        mom_del4_div_factor=10.0,
+        tracer_del2=10.0,
+        tracer_del4=1.0e9,
+        hmix_scaling=hmix_scaling,
+        hmix_ref_cell_width=30.0e3,
+    )
+
+
+def test_omega_coefficients_are_converted_to_the_median_width():
+    """
+    Omega scales from the median cell width and MPAS-Ocean from
+    hmix_ref_cell_width, so Omega's del2 coefficients are multiplied by the
+    ratio of the two and its del4 ones by the cube.  The divergence factor is
+    a ratio of two del4 terms and is left alone.
+    """
+    stage = _scaled_stage()
+    ratio = 36.0e3 / 30.0e3
+    mpaso = stage.horiz_mixing_options('mpas-ocean', 36.0e3)
+    omega = stage.horiz_mixing_options('omega', 36.0e3)
+    assert omega['config_mom_del2'] == pytest.approx(1.0e3 * ratio)
+    assert omega['config_tracer_del2'] == pytest.approx(10.0 * ratio)
+    assert omega['config_mom_del4'] == pytest.approx(1.2e11 * ratio**3)
+    assert omega['config_tracer_del4'] == pytest.approx(1.0e9 * ratio**3)
+    assert omega['config_mom_del4_div_factor'] == 10.0
+    assert mpaso == stage.horiz_mixing_options('mpas-ocean')
+    assert mpaso['config_mom_del2'] == 1.0e3
+    assert mpaso['config_mom_del4'] == 1.2e11
+
+
+def test_omega_coefficients_scale_like_mpaso_at_every_width():
+    """
+    The point of the conversion: at any edge width, Omega's scaled
+    coefficient equals MPAS-Ocean's.
+    """
+    stage = _scaled_stage()
+    median = 41.0e3
+    mpaso = stage.horiz_mixing_options('mpas-ocean')
+    omega = stage.horiz_mixing_options('omega', median)
+    ref = stage.hmix_ref_cell_width
+    for width in [30.0e3, 45.0e3, 60.0e3]:
+        assert omega['config_mom_del2'] * width / median == pytest.approx(
+            mpaso['config_mom_del2'] * width / ref
+        )
+        assert omega['config_mom_del4'] * (
+            width / median
+        ) ** 3 == pytest.approx(mpaso['config_mom_del4'] * (width / ref) ** 3)
+
+
+def test_no_conversion_without_scaling_or_a_median():
+    # no scaling: Omega's scaling is off, so the coefficients apply as given
+    stage = _scaled_stage(hmix_scaling='none')
+    assert stage.horiz_mixing_options(
+        'omega', 36.0e3
+    ) == stage.horiz_mixing_options('mpas-ocean')
+
+    # at setup, before the mesh exists, there is no median to convert with;
+    # run time overwrites these
+    stage = _scaled_stage()
+    assert stage.horiz_mixing_options('omega') == stage.horiz_mixing_options(
+        'mpas-ocean'
+    )
+
+
+def test_omega_conversion_needs_a_reference_width():
+    stage = dataclasses.replace(_scaled_stage(), hmix_ref_cell_width=None)
+    with pytest.raises(ValueError, match='hmix_ref_cell_width'):
+        stage.horiz_mixing_options('omega', 36.0e3)
+
+
+@pytest.mark.parametrize(
+    'hmix_scaling, expected', [('ref_cell_width', True), ('none', False)]
+)
+def test_omega_mesh_scaling_is_always_stated(hmix_scaling, expected):
+    """
+    MeshScalingEnable follows hmix_scaling and is stated either way, so that
+    Omega's default never decides it.
+    """
+    options = ForwardStage(hmix_scaling=hmix_scaling).omega_physics_options()
+    assert options == {'MeshScalingEnable': expected}
+
+
+def test_omega_physics_options_rejects_unknown_hmix_scaling():
+    with pytest.raises(ValueError, match='hmix_scaling'):
+        ForwardStage(hmix_scaling='bogus').omega_physics_options()
+
+
+def test_omega_physics_options_have_no_mpaso_counterpart():
+    """
+    Nothing in the Omega-only bucket may be the Omega side of an
+    ``mpaso_to_omega`` mapping; a translated option belongs in a neutral
+    bucket.
+    """
+    step = OceanModelStep.__new__(OceanModelStep)
+    step._read_config_map()
+    assert step.config_map is not None
+    omega_options: set[str] = set()
+    for entry in step.config_map:
+        omega_options.update(entry.get('options', {}).values())
+    for option in ForwardStage().omega_physics_options():
+        assert option not in omega_options
+
+
+@pytest.mark.parametrize(
+    'area_cell, expected_widths',
+    [
+        # odd count: the middle value
+        ([3.0, 1.0, 2.0], [2.0]),
+        # even count: the mean of the two middle values
+        ([4.0, 1.0, 3.0, 2.0], [2.0, 3.0]),
+    ],
+)
+def test_omega_median_cell_width_matches_omega(area_cell, expected_widths):
+    """
+    Each cell's width is the diameter of a circle of the same area, and the
+    median of an even number of cells is the mean of the two middle ones, as
+    Omega computes it.
+    """
+    area = np.pi * np.array(area_cell) ** 2 / 4.0
+    widths = np.array(expected_widths)
+    assert omega_median_cell_width(area) == pytest.approx(widths.mean())
 
 
 # --- InitialCondition sources ---
@@ -1161,6 +1297,46 @@ def test_compute_cell_count_raises_when_estimate_missing():
     )
     with pytest.raises(ValueError, match='approx_cell_count'):
         Forward.compute_cell_count(cast(Forward, fake))
+
+
+# --- Forward._omega_mesh_widths ---
+
+
+def _fake_mesh_forward(ds):
+    return SimpleNamespace(
+        _mesh_path=lambda: None if ds is None else 'mesh.nc',
+        component=SimpleNamespace(open_model_dataset=lambda path, cfg: ds),
+        config=None,
+        get_horiz_mesh_filename=lambda: 'mesh.nc',
+    )
+
+
+def test_omega_mesh_widths_skip_boundary_edges():
+    """
+    The edge widths come from the two cells on each edge, as Omega computes
+    them, and a boundary edge (a 0 in the 1-based ``cellsOnEdge``) is skipped
+    as Omega skips it.
+    """
+    widths = np.array([10.0, 20.0, 30.0, 40.0])
+    ds = xr.Dataset(
+        dict(
+            areaCell=('nCells', np.pi * widths**2 / 4.0),
+            cellsOnEdge=(('nEdges', 'TWO'), [[1, 2], [3, 4], [4, 0]]),
+        )
+    )
+    median, edge_min, edge_max = Forward._omega_mesh_widths(
+        cast(Forward, _fake_mesh_forward(ds)), at_setup=False
+    )
+    assert median == pytest.approx(25.0)
+    assert edge_min == pytest.approx(np.sqrt((10.0**2 + 20.0**2) / 2.0))
+    assert edge_max == pytest.approx(np.sqrt((30.0**2 + 40.0**2) / 2.0))
+
+
+def test_omega_mesh_widths_need_the_mesh_only_at_run_time():
+    fake = cast(Forward, _fake_mesh_forward(None))
+    assert Forward._omega_mesh_widths(fake, at_setup=True) is None
+    with pytest.raises(ValueError, match='median cell width'):
+        Forward._omega_mesh_widths(fake, at_setup=False)
 
 
 # --- restart chaining ---

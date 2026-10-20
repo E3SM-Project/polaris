@@ -2,6 +2,8 @@ import os
 from dataclasses import dataclass
 from typing import Any, Dict, Optional, Tuple
 
+import numpy as np
+
 from polaris.config import PolarisConfigParser
 from polaris.mpas.time import (
     duration_to_omega_period,
@@ -635,7 +637,9 @@ class ForwardStage:
             _mpaso_restart_file(self.restart_out),
         )
 
-    def horiz_mixing_options(self) -> Dict[str, Any]:
+    def horiz_mixing_options(
+        self, model: str, median_cell_width: Optional[float] = None
+    ) -> Dict[str, Any]:
         """
         Horizontal mixing options that both models support.
 
@@ -647,24 +651,95 @@ class ForwardStage:
         biharmonic momentum operator is the exception: ``None`` leaves both
         models at their default of 1.0.
 
+        With ``hmix_scaling = ref_cell_width``, the two models scale the
+        coefficients from different reference widths: MPAS-Ocean from
+        ``hmix_ref_cell_width`` and Omega from the global median cell width
+        (see :py:func:`omega_median_cell_width`).  For Omega, the coefficients
+        are converted so that both models run the same mixing at every cell
+        width: by ``median_cell_width / hmix_ref_cell_width`` for ``del2`` and
+        by its cube for ``del4``.
+
+        Parameters
+        ----------
+        model : str
+            The configured ocean model, ``'mpas-ocean'`` or ``'omega'``.
+
+        median_cell_width : float, optional
+            Omega's median cell width (m).  It is computed from the mesh, so
+            it is not known at setup for a mesh that has not been made yet;
+            without it, the coefficients are left unconverted.  Run time
+            overwrites them.
+
         Returns
         -------
         dict
             The model config options to add.
         """
+        ratio = self.omega_hmix_ratio(model, median_cell_width)
         options: Dict[str, Any] = {}
-        for coeff, use_option, coeff_option in [
-            (self.mom_del2, 'config_use_mom_del2', 'config_mom_del2'),
-            (self.mom_del4, 'config_use_mom_del4', 'config_mom_del4'),
-            (self.tracer_del2, 'config_use_tracer_del2', 'config_tracer_del2'),
-            (self.tracer_del4, 'config_use_tracer_del4', 'config_tracer_del4'),
+        for coeff, factor, use_option, coeff_option in [
+            (self.mom_del2, ratio, 'config_use_mom_del2', 'config_mom_del2'),
+            (
+                self.mom_del4,
+                ratio**3,
+                'config_use_mom_del4',
+                'config_mom_del4',
+            ),
+            (
+                self.tracer_del2,
+                ratio,
+                'config_use_tracer_del2',
+                'config_tracer_del2',
+            ),
+            (
+                self.tracer_del4,
+                ratio**3,
+                'config_use_tracer_del4',
+                'config_tracer_del4',
+            ),
         ]:
             options[use_option] = coeff is not None
             if coeff is not None:
-                options[coeff_option] = coeff
+                options[coeff_option] = coeff * factor
         if self.mom_del4_div_factor is not None:
             options['config_mom_del4_div_factor'] = self.mom_del4_div_factor
         return options
+
+    def omega_hmix_ratio(
+        self, model: str, median_cell_width: Optional[float]
+    ) -> float:
+        """
+        The ratio by which the ``del2`` coefficients are converted for
+        ``model``, cubed for the ``del4`` ones.
+
+        Parameters
+        ----------
+        model : str
+            The configured ocean model, ``'mpas-ocean'`` or ``'omega'``.
+
+        median_cell_width : float or None
+            Omega's median cell width (m), or ``None`` when it is not known.
+
+        Returns
+        -------
+        float
+            ``median_cell_width / hmix_ref_cell_width`` for Omega with
+            ``hmix_scaling = ref_cell_width`` and a known median, and 1
+            otherwise.
+        """
+        _check_hmix_scaling(self.hmix_scaling)
+        if (
+            model != 'omega'
+            or self.hmix_scaling != 'ref_cell_width'
+            or median_cell_width is None
+        ):
+            return 1.0
+        if self.hmix_ref_cell_width is None:
+            raise ValueError(
+                'hmix_scaling = ref_cell_width needs hmix_ref_cell_width, '
+                "which Omega's coefficients are converted from."
+            )
+        return median_cell_width / self.hmix_ref_cell_width
 
     def vert_mixing_options(self) -> Dict[str, Any]:
         """
@@ -694,6 +769,8 @@ class ForwardStage:
         these are applied with ``config_model='mpas-ocean'``.  An option moves
         to the neutral options once Omega has a counterpart: left here, it
         would never reach Omega, which would run its own default instead.
+        The scaling flags are the exception that stays: Omega's scaling is not
+        a translation of them, and :py:meth:`omega_physics_options` sets it.
 
         They are on by default, so that every forward run is as close to
         production as each model allows.  They live in config rather than here
@@ -733,6 +810,47 @@ class ForwardStage:
             if self.GM_constant_kappa is not None:
                 options['config_GM_constant_kappa'] = self.GM_constant_kappa
         return options
+
+    def omega_physics_options(self) -> Dict[str, Any]:
+        """
+        Physics options that only Omega has, applied with
+        ``config_model='Omega'``.
+
+        Omega's ``MeshScalingEnable`` is not a translation of MPAS-Ocean's
+        scaling flags, because Omega scales from the median cell width rather
+        than from ``hmix_ref_cell_width``, so it is set here and
+        :py:meth:`horiz_mixing_options` converts the coefficients to match.  It
+        is stated either way, so that Omega's default does not decide it.
+
+        Returns
+        -------
+        dict
+            The Omega config options to add.
+        """
+        _check_hmix_scaling(self.hmix_scaling)
+        return {'MeshScalingEnable': self.hmix_scaling == 'ref_cell_width'}
+
+
+def omega_median_cell_width(area_cell: Any) -> float:
+    """
+    The global median cell width that Omega scales its horizontal mixing
+    from, computed as Omega does.
+
+    Each cell's width is the diameter of a circle of the same area, and the
+    median of an even number of cells is the mean of the two middle values.
+
+    Parameters
+    ----------
+    area_cell : array-like
+        The area of every cell in the mesh (m^2).
+
+    Returns
+    -------
+    float
+        The median cell width (m).
+    """
+    widths = 2.0 * np.sqrt(np.asarray(area_cell, dtype=float) / np.pi)
+    return float(np.median(widths))
 
 
 def _omega_restart_dir(restart_path: str) -> str:
