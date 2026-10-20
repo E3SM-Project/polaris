@@ -129,6 +129,17 @@ def test_omega_numeric_time_variable():
     assert_allclose(get_time_since_start(ds, units='days'), DAYS)
 
 
+def test_datetime64_time_variable():
+    # a 'Time' data variable of numpy datetimes rather than a coordinate,
+    # which takes the pandas fallback
+    times = np.datetime64('2000-01-01T00:00:00') + (DAYS * 86400.0).astype(
+        'timedelta64[s]'
+    )
+    ds = xr.Dataset({'Time': ('nTimes', times)})
+    assert_allclose(get_time_since_start(ds, 'days'), DAYS)
+    assert_allclose(get_time_since_start(ds, 'hours'), DAYS * 24.0)
+
+
 def test_xtime_variable():
     """MPAS-Ocean's xtime is measured from the first time in the file, so
     the initial condition is at zero."""
