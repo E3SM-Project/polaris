@@ -218,8 +218,9 @@ coefficients, so the constructor turns Omega's `MeshScalingEnable` off.
 When disabled, Omega sets both scaling factors, `MeshScalingDel2` and
 `MeshScalingDel4`, to one on every edge, so `ViscDel2`, `ViscDel4`,
 `EddyDiff2` and `EddyDiff4` are the same everywhere on the mesh.  A
-task that wants scaling turns it back on in a yaml file it adds at setup, as
-the `realistic_global` tasks do.  The default is set in the constructor rather
+task that wants scaling turns it back on, either in a yaml file it adds at
+setup or, as the `realistic_global` forward steps do, in its step's own
+`dynamic_model_config()`.  The default is set in the constructor rather
 than in `dynamic_model_config()` because, at run time, it would otherwise
 override a setting from a task's yaml file.
 
