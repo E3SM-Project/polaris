@@ -315,8 +315,8 @@ steps of its own:
    stress components and magnitude are also written, which is where remapping
    artifacts would show up.
 
-On large meshes, `viz` is the most expensive step: it took 78 minutes of a
-run of about 2.5 hours on `u-oi6to18-lr6to10`.  It runs only in this task;
+On large meshes, `viz` is the most expensive step: it took 33 minutes of a
+run of about 1.8 hours on `u-oi6to18-lr12p5`.  It runs only in this task;
 other workflows that reuse the init steps leave it out.
 
 ### mesh
@@ -489,11 +489,11 @@ Currently:
   depth.  The shallow ocean is deliberate: these coarse meshes exist for fast
   smoke-testing of E3SM, Omega and MPAS-Ocean rather than for physically
   realistic simulations.
-- All four unified meshes set `culled_ocean_cell_count`, the approximate size
+- All five unified meshes set `culled_ocean_cell_count`, the approximate size
   of the ocean + sea-ice culled mesh that the ocean model actually runs.  It is
   used to size MPI task counts and is smaller than the full mesh, which
   includes land and river-channel refinement that is culled away first.
-- All four unified meshes, plus `qu240km` and `icos240km`, set the
+- All five unified meshes, plus `qu240km` and `icos240km`, set the
   resolution-dependent forward-run options described under
   [forward](#ocean-realistic-global-forward): the horizontal mixing
   coefficients, how mixing is scaled across the mesh, which eddy
@@ -835,7 +835,7 @@ its coefficients across the mesh
 
 Set `hmix_ref_cell_width` per mesh to the resolution the coefficients were
 chosen for, which is normally its *finest* resolution, because that is what E3SM's per-grid `mom_del2` and `mom_del4`
-values are referenced to — so `u-oi6to18-lr6to10` pairs E3SM's
+values are referenced to — so the `u-oi6to18` meshes pair E3SM's
 `RRSwISC6to18E3r5` value of `3.2e09` with a 6 km reference, and
 `u-oi-so12to30-lr10` pairs `SOwISC12to30E3r3`'s `1.18e10` with a 12 km one.
 Both reproduce E3SM's viscosity as a function of cell width to within about 15%.
