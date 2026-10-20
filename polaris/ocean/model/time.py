@@ -68,8 +68,9 @@ def get_time_since_start(ds, units):
             )
         else:
             t_pd = pd.to_datetime(ds['Time'].values)
-            days = 1.0e9 * (t_pd - t_pd[0]) / np.timedelta64(1, 's')
-            days = days.astype(float) / 86400.0
+            days = np.asarray(
+                (t_pd - t_pd[0]) / np.timedelta64(1, 'D'), dtype=float
+            )
     else:
         raise ValueError('Could not find a time variable in dataset')
     return days * 86400.0 / _SECONDS_PER_UNIT[units]
