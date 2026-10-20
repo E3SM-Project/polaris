@@ -121,6 +121,21 @@ def _get_forward_stage(mesh_name):
     return ForwardStage.from_config(config)
 
 
+# the forward settings of the meshes with the RRS 6-18 km ocean
+OI6TO18_FORWARD_EXPECTED: dict[str, object] = dict(
+    mom_del2=None,
+    mom_del4=3.2e09,
+    mom_del4_div_factor=10.0,
+    hmix_scaling='ref_cell_width',
+    hmix_ref_cell_width=6.0e3,
+    use_GM=False,
+    use_Redi=False,
+    # the shared default scaling, which reproduces the Compass rrs6to18
+    # time step (3 min baroclinic, 9 s barotropic at 6 km)
+    dt_per_km=30.0,
+    btr_dt_per_km=1.5,
+)
+
 # expected per-mesh forward settings, ported from the Compass or E3SM mesh
 # named in the comment.  These are what keep a forward run stable, so they are
 # checked explicitly rather than through a round trip.
@@ -152,20 +167,10 @@ FORWARD_EXPECTED: dict[str, dict[str, object]] = {
         use_Redi=True,
         use_frazil_ice_formation=False,
     ),
-    # Compass rrs6to18, with E3SM's RRSwISC6to18E3r5 mixing
-    'u-oi6to18-lr6to10': dict(
-        mom_del2=None,
-        mom_del4=3.2e09,
-        mom_del4_div_factor=10.0,
-        hmix_scaling='ref_cell_width',
-        hmix_ref_cell_width=6.0e3,
-        use_GM=False,
-        use_Redi=False,
-        # the shared default scaling, which reproduces the Compass rrs6to18
-        # time step (3 min baroclinic, 9 s barotropic at 6 km)
-        dt_per_km=30.0,
-        btr_dt_per_km=1.5,
-    ),
+    # Compass rrs6to18, with E3SM's RRSwISC6to18E3r5 mixing, on both meshes
+    # with its ocean
+    'u-oi6to18-lr12p5': OI6TO18_FORWARD_EXPECTED,
+    'u-oi6to18-lr25': OI6TO18_FORWARD_EXPECTED,
     # Compass so12to30, apart from its time step, with E3SM's SOwISC12to30E3r3
     # mixing
     'u-oi-so12to30-lr10': dict(
