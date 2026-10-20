@@ -1,6 +1,6 @@
 #!/bin/bash
 # Set up the regeneration runs that validate the cull-leak fix on all
-# four unified meshes.
+# the unified meshes.
 #
 # Prerequisites (developer actions):
 #   - ./deploy.py has been run on this branch so pixi-env/ exists
@@ -33,11 +33,13 @@ model=${3:-omega}
 tasks=(
     ocean/spherical/realistic_global/u-oi30-lr10/init
     ocean/spherical/realistic_global/u-oi240-lr240/init
-    ocean/spherical/realistic_global/u-oi6to18-lr6to10/init
+    ocean/spherical/realistic_global/u-oi6to18-lr12p5/init
+    ocean/spherical/realistic_global/u-oi6to18-lr25/init
     ocean/spherical/realistic_global/u-oi-so12to30-lr10/init
     ocean/spherical/realistic_global/u-oi30-lr10/forward/split_explicit
     ocean/spherical/realistic_global/u-oi240-lr240/forward/split_explicit
-    ocean/spherical/realistic_global/u-oi6to18-lr6to10/forward/split_explicit
+    ocean/spherical/realistic_global/u-oi6to18-lr12p5/forward/split_explicit
+    ocean/spherical/realistic_global/u-oi6to18-lr25/forward/split_explicit
     ocean/spherical/realistic_global/u-oi-so12to30-lr10/forward/split_explicit
 )
 
@@ -50,6 +52,6 @@ polaris setup \
 echo
 echo "Setup complete.  Review the job script in ${work_dir} before"
 echo "submitting.  After the run, check that the topo/cull mask steps"
-echo "passed the dcEdge diagnostic for all four meshes and spot-check"
+echo "passed the dcEdge diagnostic for all the meshes and spot-check"
 echo "the former hotspots (Banc d'Arguin, Chukotka lagoons, Foxe"
 echo "Basin) with utils/unified_mesh/cull_leak/diagnose_dc_edge.py."
