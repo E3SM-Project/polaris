@@ -719,11 +719,12 @@ again then.  Polaris never applies this file on its own:
 The cached meshes' configs raise the momentum viscosity above the default to
 reduce grid-scale noise in Omega's velocity: the biharmonic viscosity to
 1.0e15 m^4/s on `e3sm-qu240`, and the harmonic one to 1.0e4 m^2/s on
-`e3sm-ec30to60e2r2`, where Omega does not scale the biharmonic viscosity with cell
-width ([Omega#476](https://github.com/E3SM-Project/Omega/issues/476)) and it
-cannot be raised enough to damp the 60-km cells without going unstable in the
-30-km ones.  These values were chosen before Omega had KPP, and are
-provisional until the fix to Omega's pressure-gradient errors over bathymetry.
+`e3sm-ec30to60e2r2`.  Both meshes run without scaling the coefficients with
+cell width, and on `e3sm-ec30to60e2r2` an unscaled biharmonic viscosity cannot
+be raised enough to damp the 60-km cells without going unstable in the 30-km
+ones.  These values were chosen before either model scaled its coefficients
+for these runs and before Omega had KPP, and are provisional until the fix to
+Omega's pressure-gradient errors over bathymetry.
 
 :::{note}
 `cached_forward` is temporary.  Its initial conditions are E3SM's, for E3SM's
@@ -834,9 +835,16 @@ uses them as given.  `ref_cell_width` makes them apply at `hmix_ref_cell_width`
 and scale from there — as `cellWidth` for the `del2` coefficients and as
 `cellWidth**3` for the `del4` ones.  A variable-resolution mesh wants
 `ref_cell_width`; on a mesh whose cells are all near the reference width the two
-are equivalent.  Scaling is MPAS-Ocean only for now: Omega does not yet scale
-its coefficients across the mesh
-([Omega#476](https://github.com/E3SM-Project/Omega/issues/476)).
+are equivalent.
+
+Omega scales from the mesh's median cell width rather than from
+`hmix_ref_cell_width`, so with `ref_cell_width` Polaris turns on Omega's
+`MeshScalingEnable` and converts the coefficients it gives Omega: the `del2`
+ones by the ratio of the median width to `hmix_ref_cell_width` and the `del4`
+ones by its cube.  Both models then run the same mixing at every cell width.
+The median is computed from the mesh when the forward step runs, and the step's
+log gives it with the converted coefficients, to compare with Omega's own log.
+With `none`, Polaris turns Omega's scaling off.
 
 Set `hmix_ref_cell_width` per mesh to the resolution the coefficients were
 chosen for, which is normally its *finest* resolution, because that is what E3SM's per-grid `mom_del2` and `mom_del4`
@@ -1030,9 +1038,9 @@ use_Leith_del2 = False
 #   ref_cell_width  - the coefficients above apply at hmix_ref_cell_width, and
 #                     scale as cellWidth for del2 and cellWidth**3 for del4
 # A variable-resolution mesh wants ref_cell_width; on a mesh whose cells are
-# all near the reference width the two are equivalent.  MPAS-Ocean only for
-# now: Omega does not yet scale its coefficients across the mesh
-# (https://github.com/E3SM-Project/Omega/issues/476).
+# all near the reference width the two are equivalent.  Omega scales from the
+# mesh's median cell width rather than from a reference width, so for Omega the
+# coefficients are converted at run time to give the same mixing as MPAS-Ocean.
 #
 # MPAS-Ocean spells this as two nested flags, and ref_cell_width sets *both*:
 # config_hmix_use_ref_cell_width is read only when config_hmix_scaleWithMesh is

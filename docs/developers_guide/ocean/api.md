@@ -618,8 +618,11 @@
    stage.ForwardStage.bottom_drag_options
    stage.ForwardStage.restart_stream_replacements
    stage.ForwardStage.horiz_mixing_options
+   stage.ForwardStage.omega_hmix_ratio
    stage.ForwardStage.vert_mixing_options
    stage.ForwardStage.mpaso_physics_options
+   stage.ForwardStage.omega_physics_options
+   stage.omega_median_cell_width
 
    initial_condition.InitialCondition
    initial_condition.InitialCondition.add_input_files

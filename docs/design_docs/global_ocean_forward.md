@@ -347,9 +347,9 @@ models support, emitted in neutral form and translated by the existing
 MPAS-Ocean-to-Omega map, and those only one model has, emitted for that model
 alone. "Both models support" means a one-to-one translation exists, not just
 that each model has something in the same role: two different boundary-layer
-schemes would each go in their own model's bucket. Only MPAS-Ocean has options
-of its own today; an Omega-only bucket will be needed once Omega has physics
-MPAS-Ocean lacks. Gent-McWilliams and Redi stay in the MPAS-Ocean bucket for
+schemes would each go in their own model's bucket. Most model-specific options
+are MPAS-Ocean's; Omega's bucket holds its horizontal-mixing scaling switch,
+which is not a translation of MPAS-Ocean's. Gent-McWilliams and Redi stay in the MPAS-Ocean bucket for
 good, since Omega has neither and is not expected to gain them. Other options
 move to the neutral bucket as Omega gains them, as KPP has.
 
@@ -666,6 +666,20 @@ The two flags MPAS-Ocean does need are set together by `ref_cell_width`, since
 `config_hmix_use_ref_cell_width` is read only inside
 `if (config_hmix_scaleWithMesh)` and setting the first alone has the same silent
 failure.
+
+Omega scales its coefficients too, but from the global median cell width
+(`2*sqrt(areaCell/pi)` over every cell) rather than a reference width, with the
+same per-edge width and powers as MPAS-Ocean. So `hmix_scaling` is not a
+one-to-one translation: MPAS-Ocean's two flags stay MPAS-Ocean-only, and Omega
+gets `MeshScalingEnable` from a new `omega_physics_options` bucket, always
+stated. For `ref_cell_width`, `horiz_mixing_options` multiplies the
+coefficients Omega gets by `W_med/hmix_ref_cell_width` for `del2` and by its
+cube for `del4`, which gives both models the same mixing at every cell width.
+`W_med` depends on the culled mesh, which an init-chain task does not have at
+setup, so `Forward.dynamic_model_config` computes it at run time and logs it
+with the converted coefficients and the range of scaling factors Omega should
+report. The alternative, an optional reference width in Omega, was not pursued
+because Omega settled on the median alone.
 
 Settings that should *not* vary are pinned in `forward.yaml` rather than made
 options, purely so that the two models agree: horizontal tracer advection order
