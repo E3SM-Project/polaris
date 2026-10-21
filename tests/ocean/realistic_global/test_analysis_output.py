@@ -84,6 +84,27 @@ def test_one_year_task_is_registered_on_each_cached_mesh(mesh_name):
     assert forward.stream_dirs == ['output']
 
 
+@pytest.mark.parametrize('mesh_name', sorted(CACHED_MESHES))
+def test_every_monthly_file_is_compared_with_a_baseline(mesh_name):
+    """
+    Each kind of monthly file is compared with a baseline: the snapshots'
+    state, and the time means under Omega's own names, since they have no
+    counterparts in the variable map.
+    """
+    forward = _one_year_task(mesh_name).steps['forward']
+    assert sorted(forward.validate_vars) == sorted(forward.outputs)
+
+    snapshot = forward.validate_vars['output/ocn.hist.0002-01.nc']
+    assert {'temperature', 'salinity', 'normalVelocity'} <= set(snapshot)
+
+    means = forward.validate_vars['monthly_means_1MonthTimeStats.0001-02.nc']
+    assert 'Temperature_TimeMean1Month' in means
+    assert 'PseudoThickness_TimeMean1Month' in means
+
+    moc = forward.validate_vars['moc_1MonthTimeStats.0002-01.nc']
+    assert moc == ['MOC_streamfunction_Global_TimeMean1Month']
+
+
 def test_one_year_task_runs_from_a_cached_initial_condition():
     forward = _one_year_task('QU.240km').steps['forward']
     assert isinstance(forward.init_condition, DatabaseInitialCondition)

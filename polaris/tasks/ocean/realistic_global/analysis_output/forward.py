@@ -1,4 +1,4 @@
-from typing import List
+from typing import Any, Dict, List
 
 from polaris.tasks.ocean.realistic_global.forward import (
     Forward,
@@ -11,6 +11,27 @@ MONTHLY_FILE_TEMPLATES = [
     'monthly_means_1MonthTimeStats.{year:04d}-{month:02d}.nc',
     'moc_1MonthTimeStats.{year:04d}-{month:02d}.nc',
 ]
+
+#: What is compared with a baseline in each kind of monthly file.  The
+#: snapshots hold the model state, which ``variables.yaml`` names.  The monthly
+#: means and the overturning streamfunction are time means, which Omega names
+#: ``<Field>_TimeMean1Month``; they have no MPAS-Ocean counterparts in the
+#: variable map, so they are compared under Omega's own names.
+MONTHLY_FILE_VALIDATION: Dict[str, Dict[str, Any]] = {
+    'output/ocn.hist.{year:04d}-{month:02d}.nc': dict(validate_class='state'),
+    'monthly_means_1MonthTimeStats.{year:04d}-{month:02d}.nc': dict(
+        validate_vars=[
+            'Temperature_TimeMean1Month',
+            'Salinity_TimeMean1Month',
+            'NormalVelocity_TimeMean1Month',
+            'PseudoThickness_TimeMean1Month',
+            'SshCell_TimeMean1Month',
+        ]
+    ),
+    'moc_1MonthTimeStats.{year:04d}-{month:02d}.nc': dict(
+        validate_vars=['MOC_streamfunction_Global_TimeMean1Month']
+    ),
+}
 
 # The run starts on 0001-01-01, so the first monthly file is written at the
 # start of February.  Omega names a file for the time it is written, which for
@@ -32,8 +53,10 @@ class AnalysisOutputForward(Forward):
     monthly, which Omega requires of a run with a monthly reduction.  Every
     monthly file is declared as an output, so that a run whose analysis groups
     did not write is reported as a missing output rather than found later by
-    the analysis.  The number of MOC latitude bins is the ``moc_num_bins``
-    option in the mesh's ``[analysis_output]`` config section.  The step
+    the analysis, and every one is compared with a baseline when there is one
+    (see ``MONTHLY_FILE_VALIDATION``).  The number of MOC latitude bins is the
+    ``moc_num_bins`` option in the mesh's ``[analysis_output]`` config
+    section.  The step
     supports only Omega, since the ocean analysis reads only Omega output.
     """
 
@@ -57,16 +80,17 @@ class AnalysisOutputForward(Forward):
         subdir : str
             The subdirectory for the step
         """
-        output_filenames: List[str] = []
-        for template in MONTHLY_FILE_TEMPLATES:
-            output_filenames.extend(get_monthly_filenames(template))
         super().__init__(
             component=component,
             init_condition=init_condition,
             name='forward',
             subdir=subdir,
-            output_filenames=output_filenames,
+            output_filenames=[],
         )
+        for template in MONTHLY_FILE_TEMPLATES:
+            validation = MONTHLY_FILE_VALIDATION[template]
+            for filename in get_monthly_filenames(template):
+                self.add_output_file(filename=filename, **validation)
         self.stream_dirs.append('output')
 
     def setup(self):
