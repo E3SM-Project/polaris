@@ -341,12 +341,13 @@ field remains at the initial velocity <span class="math notranslate nohighlight"
 for forward integration is determined by multiplying the resolution by a config
 option, <code class="docutils literal notranslate"><span class="pre">rk4_dt_per_km</span></code>, so that coarser meshes have longer time steps. You can
 alter this before setup (in a user config file) or before running the task (in
-the config file in the work directory).</p>
+the config file in the work directory). The split-explicit time integrator, with
+the time step from <code class="docutils literal notranslate"><span class="pre">split_dt_per_km</span></code>, does not reach the convergence threshold.</p>
 <div class="highlight-cfg notranslate"><div class="highlight"><pre><span></span><span class="c1"># config options for convergence tests</span>
 <span class="k">[convergence_forward]</span>
 
 <span class="c1"># time integrator: {'RK4', 'split_explicit', 'unsplit_explicit'}</span>
-<span class="na">time_integrator</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">split_explicit</span>
+<span class="na">time_integrator</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">RK4</span>
 
 <span class="c1"># RK4 time step per resolution (s/km), since dt is proportional to resolution</span>
 <span class="na">rk4_dt_per_km</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">3.0</span>
