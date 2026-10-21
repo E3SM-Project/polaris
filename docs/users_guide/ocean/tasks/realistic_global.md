@@ -640,13 +640,15 @@ and shear mixing enabled, and a constant implicit bottom drag coefficient of
 1.0e-3 is applied.
 
 The harmonic and biharmonic momentum viscosities are set per mesh by the
-`mom_del2` and `mom_del4` config options, raised from Omega's defaults of
-1.0e3 m^2/s and 1.2e11 m^4/s to reduce, but not remove, grid-scale noise in
-the velocity.  On `QU.240km`, the biharmonic viscosity is raised to 1.0e15
-m^4/s.  On `EC30to60E2r2`, the harmonic viscosity is raised to 1.0e4 m^2/s,
-since Omega does not scale the biharmonic viscosity with cell width and it
-cannot be raised enough to damp the 60-km cells without going unstable in the
-30-km ones.  These values are provisional until Omega has KPP and the fix to
+`mom_del2` and `mom_del4` config options.  Omega scales them with cell width,
+as `cellWidth` for the harmonic viscosity and `cellWidth**3` for the
+biharmonic one, so the values given apply at the mesh's median cell width.
+They are raised from Omega's defaults to reduce, but not remove, grid-scale
+noise in the velocity.  On `QU.240km`, the biharmonic viscosity is 1.0e15 m^4/s
+at 240 km.  On `EC30to60E2r2`, the biharmonic viscosity is E3SM's, and the
+harmonic viscosity is 1.0e4 m^2/s rather than E3SM's 1.0e3, which
+checkerboards the divergence along the Gulf Stream and the coasts of the
+Maritime Continent.  These values are provisional until Omega has the fix to
 its pressure-gradient errors over bathymetry.  These are coarse runs for
 testing the analysis members, not scientifically valid simulations.
 
@@ -699,20 +701,24 @@ short_run_duration = 0005_00:00:00
 # Omega's default of one degree is finer than the mesh
 moc_num_bins = 60
 
-# The harmonic momentum viscosity (m^2/s): Omega's default
-mom_del2 = 1.0e3
+# The momentum viscosities apply at the mesh's median cell width of 253.5 km,
+# and Omega scales them with cell width from there.
 
-# The biharmonic momentum viscosity (m^4/s).  Omega's default of 1.2e11 is
-# meant for much finer meshes and leaves grid-scale noise in the velocity on
-# this one.  1.0e15 gave the least of the values tried in one-year runs;
-# 3.0e15 is unstable with a 1-hour time step.  Some noise remains in the
-# wind-driven top layer.
-mom_del4 = 1.0e15
+# The harmonic momentum viscosity (m^2/s): Omega's default of 1.0e3 at 240 km
+mom_del2 = 1.06e3
+
+# The biharmonic momentum viscosity (m^4/s): 1.0e15 at 240 km.  Omega's
+# default of 1.2e11 is meant for much finer meshes and leaves grid-scale noise
+# in the velocity on this one.  1.0e15 gave the least of the values tried in
+# one-year runs; 3.0e15 is unstable with a 1-hour time step, and E3SM's oQU240
+# value of 2.0e14 brings back grid-scale noise along the coasts.  Some noise
+# remains in the wind-driven top layer.
+mom_del4 = 1.18e15
 ```
 
 The time steps, run length, MOC bins and viscosities are for `QU.240km`.  On
 `EC30to60E2r2`, `dt` is 30 minutes, `btr_dt` 1 minute, `short_run_duration`
-1 day, `moc_num_bins` 180, `mom_del2` 1.0e4 and `mom_del4` 1.2e11.
+1 day, `moc_num_bins` 180, `mom_del2` 1.0e4 and `mom_del4` 2.06e11.
 
 The `viz` step is controlled by the
 `[realistic_global_viz_temperature]`, `[realistic_global_viz_salinity]`,
@@ -790,7 +796,7 @@ initial-condition file, applied through bulk wind stress.
 
 The task uses the split-explicit time stepper (`SplitExplicitRK2` in Omega)
 with a 1-hour baroclinic and a 3-minute barotropic time step, and a biharmonic
-momentum viscosity of 1.0e15 m^4/s, the settings of the year-long QU240 runs
+momentum viscosity of 1.18e15 m^4/s, the settings of the year-long QU240 runs
 that the ocean analysis is tested on.  Each segment runs for two hours and the
 full run for four, with a history frame every hour, so each segment writes two
 frames and the whole period has four.  The period is short on purpose: the

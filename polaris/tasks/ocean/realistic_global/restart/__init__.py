@@ -32,9 +32,10 @@ OUTPUT_FREQ_UNITS = 'hours'
 #: the settings of the analysis_members tasks: E3SM's MPAS-Ocean time steps
 #: for oQU240, since a 2-hour step grew a surface hotspot along the Aleutians
 #: in a one-year run, and a viscosity well above Omega's default of 1.2e11,
-#: which is meant for much finer meshes and leaves grid-scale noise.
+#: which is meant for much finer meshes and leaves grid-scale noise.  Omega
+#: scales the viscosity with cell width from the mesh's median cell width.
 MESH_INFO = {
-    'QU.240km': dict(dt='01:00:00', btr_dt='00:03:00', mom_del4=1.0e15),
+    'QU.240km': dict(dt='01:00:00', btr_dt='00:03:00', mom_del4=1.18e15),
 }
 
 
