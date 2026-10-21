@@ -283,19 +283,23 @@ def test_an_unknown_variant_is_rejected():
 
 
 @pytest.mark.parametrize(
-    'mesh_name, mom_del2, mom_del4',
+    'mesh_name, mom_del2, mom_del4, hmix_ref_cell_width',
     [
-        ('e3sm-qu240', 1.0e3, 1.0e15),
-        ('e3sm-ec30to60e2r2', 1.0e4, 1.2e11),
+        # scaled from its 240 km cells
+        ('e3sm-qu240', 1.0e3, 1.0e15, 240.0e3),
+        # scaled from its median cell width
+        ('e3sm-ec30to60e2r2', 1.0e4, 2.06e11, None),
     ],
 )
 def test_cached_meshes_take_the_one_year_runs_viscosities(
-    mesh_name, mom_del2, mom_del4
+    mesh_name, mom_del2, mom_del4, hmix_ref_cell_width
 ):
     for time_integrator in TIME_INTEGRATORS:
         stage = _stage_for_mesh(mesh_name, time_integrator)
         assert stage.mom_del2 == mom_del2
         assert stage.mom_del4 == mom_del4
+        assert stage.hmix_scaling == 'ref_cell_width'
+        assert stage.hmix_ref_cell_width == hmix_ref_cell_width
 
 
 # the MPAS-Ocean physics production runs have and Omega does not

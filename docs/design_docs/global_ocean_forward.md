@@ -669,17 +669,19 @@ failure.
 
 Omega scales its coefficients too, but from the global median cell width
 (`2*sqrt(areaCell/pi)` over every cell) rather than a reference width, with the
-same per-edge width and powers as MPAS-Ocean. So `hmix_scaling` is not a
-one-to-one translation: MPAS-Ocean's two flags stay MPAS-Ocean-only, and Omega
-gets `MeshScalingEnable` from a new `omega_physics_options` bucket, always
-stated. For `ref_cell_width`, `horiz_mixing_options` multiplies the
-coefficients Omega gets by `W_med/hmix_ref_cell_width` for `del2` and by its
-cube for `del4`, which gives both models the same mixing at every cell width.
-`W_med` depends on the culled mesh, which an init-chain task does not have at
-setup, so `Forward.dynamic_model_config` computes it at run time and logs it
-with the converted coefficients and the range of scaling factors Omega should
-report. The alternative, an optional reference width in Omega, was not pursued
-because Omega settled on the median alone.
+same per-edge width and powers as MPAS-Ocean. Scaling is the default in both,
+and so is Omega's reference: a blank `hmix_ref_cell_width` is the median, which
+`Forward.dynamic_model_config` computes from the mesh and gives MPAS-Ocean as
+`config_hmix_ref_cell_width`. A mesh whose coefficients come from E3SM states
+its finest resolution, which E3SM's per-grid values are referenced to, and for
+Omega `horiz_mixing_options` then multiplies the coefficients by
+`W_med/hmix_ref_cell_width` for `del2` and by its cube for `del4`. So
+`hmix_scaling` is not a one-to-one translation: MPAS-Ocean's two flags stay
+MPAS-Ocean-only, and Omega gets `MeshScalingEnable` from a new
+`omega_physics_options` bucket, always stated. `W_med` depends on the culled
+mesh, which an init-chain task does not have at setup, so it is computed at run
+time and logged with the coefficients and the range of scaling factors Omega
+should report.
 
 Settings that should *not* vary are pinned in `forward.yaml` rather than made
 options, purely so that the two models agree: horizontal tracer advection order

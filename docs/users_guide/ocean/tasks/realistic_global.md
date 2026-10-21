@@ -619,11 +619,11 @@ initial-condition file, applied through bulk wind stress.
 Both runs are `split_explicit` `cached_forward` runs on `e3sm-qu240`,
 configured by the same `[realistic_global_forward]` options, including the
 per-mesh ones: a 1-hour baroclinic and a 3-minute barotropic time step, and a
-biharmonic momentum viscosity of 1.0e15 m^4/s.  The full run covers four hours
-and the restart run the last two, with a history frame every hour, so each half
-of the period has two frames and the whole period has four.  The period is
-short on purpose: the task is about how the model restarts and writes its
-history across a restart, not about the circulation, and it is meant to be
+biharmonic momentum viscosity of 1.0e15 m^4/s at 240 km.  The full run covers
+four hours and the restart run the last two, with a history frame every hour,
+so each half of the period has two frames and the whole period has four.  The
+period is short on purpose: the task is about how the model restarts and writes
+its history across a restart, not about the circulation, and it is meant to be
 cheap enough for the pull-request suite.
 
 ### config options
@@ -716,15 +716,15 @@ again then.  Polaris never applies this file on its own:
 :language: cfg
 ```
 
-The cached meshes' configs raise the momentum viscosity above the default to
-reduce grid-scale noise in Omega's velocity: the biharmonic viscosity to
-1.0e15 m^4/s on `e3sm-qu240`, and the harmonic one to 1.0e4 m^2/s on
-`e3sm-ec30to60e2r2`.  Both meshes run without scaling the coefficients with
-cell width, and on `e3sm-ec30to60e2r2` an unscaled biharmonic viscosity cannot
-be raised enough to damp the 60-km cells without going unstable in the 30-km
-ones.  These values were chosen before either model scaled its coefficients
-for these runs and before Omega had KPP, and are provisional until the fix to
-Omega's pressure-gradient errors over bathymetry.
+Both cached meshes scale their coefficients with cell width like every other
+mesh, but use more momentum viscosity than E3SM to reduce grid-scale noise in
+Omega's velocity: on `e3sm-qu240`, a biharmonic viscosity of 1.0e15 m^4/s at
+240 km rather than E3SM's 2.0e14, and on `e3sm-ec30to60e2r2`, E3SM's
+biharmonic viscosity rescaled to the mesh's median cell width with a harmonic
+one of 1.0e4 m^2/s rather than E3SM's 1.0e3.  With E3SM's values, one-year
+Omega runs checkerboard the divergence along coasts and, on
+`e3sm-ec30to60e2r2`, the Gulf Stream.  These values are provisional until the
+fix to Omega's pressure-gradient errors over bathymetry.
 
 :::{note}
 `cached_forward` is temporary.  Its initial conditions are E3SM's, for E3SM's
@@ -830,31 +830,26 @@ that coefficient.  This matters more than it might seem — the model defaults
 leave horizontal mixing off entirely, and a global run without it grows
 grid-scale noise until it produces NaNs.
 
-`hmix_scaling` chooses how the coefficients are scaled across the mesh.  `none`
-uses them as given.  `ref_cell_width` makes them apply at `hmix_ref_cell_width`
-and scale from there — as `cellWidth` for the `del2` coefficients and as
-`cellWidth**3` for the `del4` ones.  A variable-resolution mesh wants
-`ref_cell_width`; on a mesh whose cells are all near the reference width the two
-are equivalent.
+`hmix_scaling` chooses how the coefficients are scaled across the mesh.  The
+default, `ref_cell_width`, makes them apply at `hmix_ref_cell_width` and scale
+from there — as `cellWidth` for the `del2` coefficients and as `cellWidth**3`
+for the `del4` ones — in both models.  `none` uses them as given.
 
-Omega scales from the mesh's median cell width rather than from
-`hmix_ref_cell_width`, so with `ref_cell_width` Polaris turns on Omega's
-`MeshScalingEnable` and converts the coefficients it gives Omega: the `del2`
-ones by the ratio of the median width to `hmix_ref_cell_width` and the `del4`
-ones by its cube.  Both models then run the same mixing at every cell width.
-The median is computed from the mesh when the forward step runs, and the step's
-log gives it with the converted coefficients, to compare with Omega's own log.
-With `none`, Polaris turns Omega's scaling off.
+A blank `hmix_ref_cell_width`, the default, is the mesh's median cell width,
+computed from the cell areas as Omega computes it.  That is Omega's own
+reference, and it makes the coefficients mean much the same thing on two meshes
+of the same nominal resolution.  The median comes from the mesh when the forward
+step runs, and the step's log reports it with the coefficients.
 
-Set `hmix_ref_cell_width` per mesh to the resolution the coefficients were
-chosen for, which is normally its *finest* resolution, because that is what E3SM's per-grid `mom_del2` and `mom_del4`
-values are referenced to — so `u-oi6to18-lr6to10` pairs E3SM's
-`RRSwISC6to18E3r5` value of `3.2e09` with a 6 km reference, and
-`u-oi-so12to30-lr10` pairs `SOwISC12to30E3r3`'s `1.18e10` with a 12 km one.
-Both reproduce E3SM's viscosity as a function of cell width to within about 15%.
-The three 240 km meshes take E3SM's `oQU240` value of `2.0e14` with a 240 km
-reference.  Left at the shared 30 km default, the reference would make their
-biharmonic viscosity about 500 times larger.
+A mesh whose coefficients come from E3SM states its finest resolution instead,
+because E3SM's per-grid `mom_del2` and `mom_del4` values are referenced to that:
+`u-oi6to18-lr6to10` pairs `RRSwISC6to18E3r5`'s `3.2e09` with 6 km,
+`u-oi-so12to30-lr10` pairs `SOwISC12to30E3r3`'s `1.18e10` with 12 km, and the
+three 240 km meshes take `oQU240`'s `2.0e14` with 240 km.  Omega has no
+reference width of its own to set, so when one is stated, Polaris converts the
+coefficients it gives Omega — `del2` by the ratio of the median to the
+reference, `del4` by its cube — and both models run the same mixing at every
+cell width.
 
 :::{note}
 MPAS-Ocean spells this as two nested flags, and `ref_cell_width` sets **both**:
@@ -1037,7 +1032,7 @@ use_Leith_del2 = False
 #   none            - the coefficients above are used as given
 #   ref_cell_width  - the coefficients above apply at hmix_ref_cell_width, and
 #                     scale as cellWidth for del2 and cellWidth**3 for del4
-# A variable-resolution mesh wants ref_cell_width; on a mesh whose cells are
+# ref_cell_width is the default, as it is in E3SM; on a mesh whose cells are
 # all near the reference width the two are equivalent.  Omega scales from the
 # mesh's median cell width rather than from a reference width, so for Omega the
 # coefficients are converted at run time to give the same mixing as MPAS-Ocean.
@@ -1052,13 +1047,15 @@ use_Leith_del2 = False
 # offered here.  E3SM v4 meshes, including every mesh Polaris builds, write
 # meshDensity as uniformly 1.0, so that path silently applies no scaling at
 # all.  Do not use it, and do not add a Polaris option for it.
-hmix_scaling = none
+hmix_scaling = ref_cell_width
 
-# The reference cell width (m), used only when hmix_scaling = ref_cell_width.
-# Set it per mesh to the resolution the coefficients above were chosen for --
-# for a variable-resolution mesh that is normally its finest resolution, which
-# is what E3SM's per-grid mom_del2 and mom_del4 values are referenced to.
-hmix_ref_cell_width = 30.0e3
+# The reference cell width (m), used only when hmix_scaling = ref_cell_width:
+# the width at which the coefficients above apply.  Blank uses the mesh's
+# median cell width, computed from the cell areas as Omega does, so that the
+# coefficients mean the same thing on any two meshes of the same nominal
+# resolution.  A mesh whose coefficients come from E3SM sets it to its finest
+# resolution, since that is what E3SM's per-grid values are referenced to.
+hmix_ref_cell_width =
 
 # Whether to use the Gent-McWilliams eddy transport parameterization, and the
 # closure and constant kappa (m^2/s) it uses.  Leave the closure and kappa blank

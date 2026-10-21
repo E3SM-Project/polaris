@@ -266,19 +266,22 @@ class Forward(OceanModelStep):
 
         # horizontal mixing and the KPP boundary layer are supported by both
         # models, so they are added in MPAS-Ocean naming and translated to
-        # Omega by OceanModelStep.  Omega scales the mixing coefficients from
-        # the mesh's median cell width, so they are converted from
-        # hmix_ref_cell_width once the mesh exists to compute it from.
+        # Omega by OceanModelStep.  Scaled coefficients apply at
+        # hmix_ref_cell_width, which defaults to the mesh's median cell width,
+        # Omega's own reference.  Omega's coefficients are converted when the
+        # reference is something else.  The median needs the mesh, so before
+        # an init-chain mesh exists the run-time call fills it in.
         mesh_widths = None
-        if model == 'omega' and stage.hmix_scaling == 'ref_cell_width':
-            mesh_widths = self._omega_mesh_widths(at_setup)
+        if stage.hmix_scaling == 'ref_cell_width':
+            mesh_widths = self._mesh_widths(at_setup)
         median_cell_width = None if mesh_widths is None else mesh_widths[0]
+        stage = stage.with_median_reference(median_cell_width)
         horiz_mixing_options = stage.horiz_mixing_options(
             model, median_cell_width
         )
         if mesh_widths is not None and not at_setup:
-            _log_omega_hmix(
-                self.logger, stage, mesh_widths, horiz_mixing_options
+            _log_hmix_scaling(
+                self.logger, model, stage, mesh_widths, horiz_mixing_options
             )
         self.add_model_config_options(
             options=horiz_mixing_options, config_model='ocean'
@@ -343,19 +346,19 @@ class Forward(OceanModelStep):
         mesh_path = os.path.join(self.work_dir, self.get_horiz_mesh_filename())
         return mesh_path if os.path.exists(mesh_path) else None
 
-    def _omega_mesh_widths(self, at_setup):
+    def _mesh_widths(self, at_setup):
         """
-        Omega's median cell width and the smallest and largest edge widths it
-        scales the mixing with (m), or ``None`` at setup when the mesh does
-        not yet exist
+        The mesh's median cell width and the smallest and largest edge widths
+        the mixing is scaled with (m), as Omega computes them, or ``None`` at
+        setup when the mesh does not yet exist
         """
         mesh_path = self._mesh_path()
         if mesh_path is None:
             if at_setup:
                 return None
             raise ValueError(
-                'The mesh is needed at run time to convert the horizontal '
-                "mixing coefficients to Omega's median cell width, but "
+                'The mesh is needed at run time to compute the median cell '
+                'width the horizontal mixing is scaled with, but '
                 f'{self.get_horiz_mesh_filename()} was not found.'
             )
         ds = self.component.open_model_dataset(mesh_path, self.config)
@@ -373,24 +376,30 @@ class Forward(OceanModelStep):
         )
 
 
-def _log_omega_hmix(logger, stage, mesh_widths, options):
+def _log_hmix_scaling(logger, model, stage, mesh_widths, options):
     """
-    Log the median cell width, the range of mesh scaling factors and the
-    converted coefficients, to compare with what Omega logs
+    Log the reference and median cell widths and the coefficients, and for
+    Omega the conversion and the range of mesh scaling factors, to compare
+    with what Omega logs
     """
     median, edge_min, edge_max = mesh_widths
-    ratio = stage.omega_hmix_ratio('omega', median)
-    del2_min = edge_min / median
-    del2_max = edge_max / median
+    ref = stage.hmix_ref_cell_width
     logger.info(
-        f'Omega mesh scaling: median cell width {median:.6g} m, reference '
-        f'{stage.hmix_ref_cell_width:.6g} m, so del2 coefficients are '
-        f'multiplied by {ratio:.6g} and del4 by {ratio**3:.6g}\n'
-        f'  expected MeshScalingDel2 min/max = {del2_min:.6g}/{del2_max:.6g}'
-        f'\n'
-        f'  expected MeshScalingDel4 min/max = '
-        f'{del2_min**3:.6g}/{del2_max**3:.6g}'
+        f'Horizontal mixing scaled from a reference cell width of {ref:.6g} '
+        f'm; the median cell width is {median:.6g} m'
     )
+    if model == 'omega':
+        ratio = stage.omega_hmix_ratio(model, median)
+        del2_min = edge_min / median
+        del2_max = edge_max / median
+        logger.info(
+            f'  for Omega, del2 coefficients are multiplied by {ratio:.6g} '
+            f'and del4 by {ratio**3:.6g}\n'
+            f'  expected MeshScalingDel2 min/max = '
+            f'{del2_min:.6g}/{del2_max:.6g}\n'
+            f'  expected MeshScalingDel4 min/max = '
+            f'{del2_min**3:.6g}/{del2_max**3:.6g}'
+        )
     for option in [
         'config_mom_del2',
         'config_mom_del4',
