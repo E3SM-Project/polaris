@@ -128,7 +128,7 @@ def test_add_realistic_global_tasks_registers_init_for_all_meshes():
         UNIFIED_MESH_NAMES
     )
     for mesh_name in expected_mesh_names:
-        task_subdir = f'spherical/realistic_global/{mesh_name}/init/task'
+        task_subdir = f'spherical/realistic_global/{mesh_name}/init'
         assert task_subdir in component.tasks, (
             f'Expected init task for mesh={mesh_name!r} not found'
         )
@@ -138,7 +138,7 @@ def test_realistic_global_init_icos240km_steps():
     component = Ocean()
     add_realistic_global_tasks(component=component)
 
-    task_subdir = 'spherical/realistic_global/icos240km/init/task'
+    task_subdir = 'spherical/realistic_global/icos240km/init'
     assert task_subdir in component.tasks
 
     task = component.tasks[task_subdir]
@@ -562,7 +562,7 @@ def test_realistic_global_init_one_task_per_mesh():
         UNIFIED_MESH_NAMES
     )
     for mesh_name in expected_mesh_names:
-        task_subdir = f'spherical/realistic_global/{mesh_name}/init/task'
+        task_subdir = f'spherical/realistic_global/{mesh_name}/init'
         assert task_subdir in component.tasks
         # Confirm there is no model-qualified variant
         for model in ('omega', 'mpas-ocean'):
