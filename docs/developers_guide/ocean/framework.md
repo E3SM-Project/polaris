@@ -202,6 +202,13 @@ If the graph partition file has been constructed prior to the ocean model step,
 the path to the graph file should be provided in the `graph_target` argument
 to the constructor {py:class}`polaris.ocean.model.OceanModelStep()`.
 
+Omega scales its horizontal mixing coefficients with cell width by default,
+from the mesh's median cell width.  Most tasks are defined with constant
+coefficients, so the constructor turns Omega's `MeshScalingEnable` off, and a
+task that wants scaling turns it back on in a yaml file it adds at setup, as
+the `realistic_global` tasks do.  Do not set it in `dynamic_model_config()`:
+at run time that would override whatever the task's yaml file set.
+
 #### YAML files vs. namelists and streams
 
 In order to have the same tasks support Omega or MPAS-Ocean, we want

@@ -816,7 +816,7 @@ def test_dynamic_model_config_uses_model_input_filename_replacements():
 
     step.dynamic_model_config(at_setup=True)
 
-    entry = step.model_config_data[0]
+    entry = [e for e in step.model_config_data if 'yaml' in e][0]
     yaml = PolarisYaml.read(
         filename=entry['yaml'],
         package=entry['package'],

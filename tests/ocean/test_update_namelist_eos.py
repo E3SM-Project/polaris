@@ -40,8 +40,10 @@ def _make_config(
 
 def _get_eos_options(step):
     """Get the options passed to add_model_config_options"""
-    assert len(step.model_config_data) == 1
-    entry = step.model_config_data[0]
+    # the first entry is OceanModelStep's own MeshScalingEnable default
+    entries = step.model_config_data[1:]
+    assert len(entries) == 1
+    entry = entries[0]
     assert entry['config_model'] == 'ocean'
     return entry['options']
 
