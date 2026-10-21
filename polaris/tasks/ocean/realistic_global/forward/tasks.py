@@ -80,12 +80,14 @@ def add_realistic_global_cached_forward_tasks(component):
     initial condition in the Polaris input-file database, one for each of
     ``TIME_INTEGRATORS``.
 
-    These are the cheap members of the family.  They download an initial
+    The cached initial conditions are E3SM's, for E3SM meshes, converted for
+    Omega.  They let Omega run realistic global configurations, and be
+    compared with MPAS-Ocean, before Polaris could build its own initial
+    conditions, and these tasks are temporary.  They download an initial
     condition instead of building one, so unlike
     :py:func:`add_realistic_global_forward_tasks` they can run without first
     remapping WOA23 and culling topography, which is what makes them usable in
-    a PR suite.  They sit under ``cached_forward`` rather than ``forward``, so
-    that a mesh could carry both without the two colliding.
+    a PR suite.
 
     Parameters
     ----------

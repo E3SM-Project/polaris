@@ -14,8 +14,8 @@ groups:
 - `init`, which creates mesh-specific ocean initial conditions using that
   hydrography and forcing together with the culled mesh from `e3sm/init`.
 - `forward`, short forward runs on the meshes `init` builds.
-- `cached_forward`, the same forward runs on initial conditions downloaded from
-  the Polaris input database instead.
+- `cached_forward`, the same forward runs on E3SM initial conditions cached in
+  the Polaris input database instead, a temporary task.
 - `analysis_output`, one-year Omega runs on either source of initial
   condition that write what the ocean analysis reads.
 - `restart`, a short Omega run split across a restart, checking that the
@@ -36,8 +36,10 @@ giving the split and RK4 time steps and the run duration.  A mesh coarser than
 about a degree should also set fewer MOC latitude bins for its `1_year` run
 (`moc_num_bins` in `[analysis_output]`).
 
-`forward` and `cached_forward` serve different purposes, which is what decides
-their physics; see {ref}`ocean-realistic-global-forward` in the User's Guide.
+`forward` and `cached_forward` run the same physics.  Comparing MPAS-Ocean
+with Omega is opt-in, through the options in `forward/compare_with_omega.cfg`,
+which Polaris never reads on its own and a unit test keeps honest; see
+{ref}`ocean-realistic-global-forward-purposes` in the User's Guide.
 
 (dev-ocean-realistic-global-framework)=
 
@@ -56,9 +58,8 @@ both the `forward` and `cached_forward` tasks are built from.  They differ in
 one argument: the
 {py:class}`~polaris.tasks.ocean.realistic_global.forward.initial_condition.InitialCondition`
 they are given.  Everything else — the step, the model config, the diagnostics
-— is shared.  Why the two are configured differently is a question about
-purpose rather than code; see
-{ref}`ocean-realistic-global-forward-purposes` in the User's Guide.
+— is shared, including the physics, so a cached mesh's config gives only
+its time steps, viscosities and run duration.
 
 The package is deliberately split three ways, so that adding a new source of
 initial condition, a new run setting, or a new consumer each touches one place:
