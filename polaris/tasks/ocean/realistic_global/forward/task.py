@@ -138,12 +138,7 @@ class RealisticGlobalForward(Task):
             name='short',
             subdir=f'{base}/short',
             init_condition=init_condition,
-            validate_vars=[
-                'temperature',
-                'salinity',
-                'layerThickness',
-                'normalVelocity',
-            ],
+            validate_class='state',
         )
         forward_step.set_shared_config(config, link=config_filename)
         self.add_step(forward_step)
