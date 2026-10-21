@@ -13,11 +13,13 @@ from polaris.tasks.ocean import Ocean
 from polaris.tasks.ocean.realistic_global import add_realistic_global_tasks
 from polaris.tasks.ocean.realistic_global.forward import (
     TIME_INTEGRATORS,
-    DatabaseInitialCondition,
     ForwardStage,
     RealisticGlobalForward,
 )
-from polaris.tasks.ocean.realistic_global.forward.tasks import CACHED_MESHES
+from polaris.tasks.ocean.realistic_global.forward.tasks import (
+    CACHED_MESHES,
+    get_cached_initial_condition,
+)
 from polaris.tasks.ocean.realistic_global.hydrography.woa23.steps import (
     get_woa23_steps,
 )
@@ -226,7 +228,7 @@ def test_cached_meshes_have_a_per_mesh_config():
         assert mesh_info['cell_count'] > 0
 
 
-@pytest.mark.parametrize('mesh_name', ['QU.240km', 'u-oi240-lr240'])
+@pytest.mark.parametrize('mesh_name', ['e3sm-qu240', 'u-oi240-lr240'])
 def test_the_variants_choose_the_integrators(mesh_name):
     """
     The split_explicit variant takes the defaults, a split integrator for
@@ -246,7 +248,7 @@ def test_an_unknown_variant_is_rejected():
     with pytest.raises(ValueError, match='time_integrator'):
         RealisticGlobalForward(
             component=Ocean(),
-            mesh_name='QU.240km',
+            mesh_name='e3sm-qu240',
             init_condition=_qu240_database_ic(),
             subdir_name='cached_forward',
             time_integrator='split_explicit_ab2',
@@ -255,7 +257,10 @@ def test_an_unknown_variant_is_rejected():
 
 @pytest.mark.parametrize(
     'mesh_name, mom_del2, mom_del4',
-    [('QU.240km', 1.0e3, 1.0e15), ('EC30to60E2r2', 1.0e4, 1.2e11)],
+    [
+        ('e3sm-qu240', 1.0e3, 1.0e15),
+        ('e3sm-ec30to60e2r2', 1.0e4, 1.2e11),
+    ],
 )
 def test_cached_meshes_take_the_one_year_runs_viscosities(
     mesh_name, mom_del2, mom_del4
@@ -414,19 +419,15 @@ def test_cached_task_config_has_what_the_database_source_needs(
     the cached tasks stopped including.
     """
     config = _task_config(mesh_name, model)
-    init_condition = DatabaseInitialCondition(
-        mesh_name=mesh_name,
-        mpaso_id=CACHED_MESHES[mesh_name]['mpaso_id'],
-        omega_id=CACHED_MESHES[mesh_name]['omega_id'],
-        min_res=CACHED_MESHES[mesh_name]['min_res'],
-        approx_cell_count=CACHED_MESHES[mesh_name]['cell_count'],
-    )
+    init_condition = get_cached_initial_condition(mesh_name)
     step = _ConfigOnlyStep(config)
     init_condition.add_input_files(cast(OceanModelStep, step))
 
     by_kind = dict(step.calls)
     assert 'init' in by_kind
-    assert by_kind['init']['target'].startswith(f'ocean.{mesh_name}.')
+    # the files on the server keep E3SM's mesh names, not Polaris's
+    database_name = CACHED_MESHES[mesh_name]['database_name']
+    assert by_kind['init']['target'].startswith(f'ocean.{database_name}.')
     if model == 'omega':
         # 'teos-10' from config, normalized, has to reach the filename
         assert '.teos10.' in by_kind['init']['target']
@@ -480,14 +481,8 @@ def _stage_for_mesh(mesh_name, time_integrator='split_explicit'):
 
 
 def _qu240_database_ic():
-    """The cached QU.240km initial condition"""
-    return DatabaseInitialCondition(
-        mesh_name='QU.240km',
-        mpaso_id=151209,
-        omega_id=260807,
-        min_res=240.0,
-        approx_cell_count=7153,
-    )
+    """The cached e3sm-qu240 initial condition"""
+    return get_cached_initial_condition('e3sm-qu240')
 
 
 def test_realistic_global_forward_without_init_steps():
@@ -501,14 +496,14 @@ def test_realistic_global_forward_without_init_steps():
     init_condition = _qu240_database_ic()
     task = RealisticGlobalForward(
         component=component,
-        mesh_name='QU.240km',
+        mesh_name='e3sm-qu240',
         init_condition=init_condition,
         subdir_name='cached_forward',
     )
     # the forward run and its two diagnostics, and nothing upstream of them
     assert list(task.steps) == ['short', 'global_stats', 'viz']
     assert task.subdir == (
-        'spherical/realistic_global/QU.240km/cached_forward/split_explicit/task'
+        'spherical/realistic_global/e3sm-qu240/cached_forward/split_explicit/task'
     )
     assert task.steps['short'].init_condition is init_condition
     # the diagnostics are diagnostics, not part of the run
@@ -520,16 +515,10 @@ def test_forward_task_config_has_the_viz_colormaps():
     Every forward task has a viz step, which reads its colormaps from
     realistic_global.cfg, so the task's config has to include that file.
     """
-    init_condition = DatabaseInitialCondition(
-        mesh_name='QU.240km',
-        mpaso_id=151209,
-        omega_id=260807,
-        min_res=240.0,
-        approx_cell_count=7153,
-    )
+    init_condition = _qu240_database_ic()
     task = RealisticGlobalForward(
         component=Ocean(),
-        mesh_name='QU.240km',
+        mesh_name='e3sm-qu240',
         init_condition=init_condition,
     )
     config = task.config

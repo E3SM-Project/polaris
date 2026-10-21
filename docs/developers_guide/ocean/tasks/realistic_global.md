@@ -29,10 +29,12 @@ a `forward` task per mesh for each of
 same `cached_forward` variants for each mesh in
 {py:data}`polaris.tasks.ocean.realistic_global.forward.tasks.CACHED_MESHES`,
 an `analysis_output/1_year` task for every mesh of either kind, and a single
-`restart` task on `QU.240km`.  Adding a cached mesh requires an entry in that
-dictionary giving the MPAS-Ocean and Omega initial-condition IDs, the minimum
-resolution and the cell count, and a `<mesh_name>.cfg` in `mesh_configs`
-giving the split and RK4 time steps and the run duration.  A mesh coarser than
+`restart` task on `e3sm-qu240`.  Adding a cached mesh requires an entry in that
+dictionary, keyed by the E3SM mesh's name in lower case with an `e3sm-` prefix,
+giving the name the database files carry, the MPAS-Ocean and Omega
+initial-condition IDs, the minimum resolution and the cell count, and a
+`<mesh_name>.cfg` in `mesh_configs` giving the split and RK4 time steps and the
+run duration.  A mesh coarser than
 about a degree should also set fewer MOC latitude bins for its `1_year` run
 (`moc_num_bins` in `[analysis_output]`).
 
@@ -278,7 +280,7 @@ would be obvious -- rather than to be tuned by a user.
 
 Everything else comes from the `[realistic_global_forward]` config options,
 as for any other forward run, including the time steps and viscosity in
-`QU.240km`'s per-mesh config file; the task's `restart.cfg` sets only the
+`e3sm-qu240`'s per-mesh config file; the task's `restart.cfg` sets only the
 equation of state.  All three forward steps are `RestartStep`s, including the full
 run, so that the full run and the chain run the same model.
 

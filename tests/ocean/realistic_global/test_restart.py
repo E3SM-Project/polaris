@@ -11,7 +11,7 @@ from polaris.tasks.ocean.realistic_global.restart import (
 )
 from polaris.yaml import PolarisYaml
 
-TASK_SUBDIR = 'spherical/realistic_global/QU.240km/restart'
+TASK_SUBDIR = 'spherical/realistic_global/e3sm-qu240/restart'
 
 
 def _restart_task(model='omega'):
@@ -45,6 +45,7 @@ def test_restart_task_is_registered_on_the_cached_qu240():
     for name in ['full_run', 'first_segment', 'second_segment']:
         step = task.steps[name]
         assert isinstance(step.init_condition, DatabaseInitialCondition)
+        # the database still names the files by E3SM's QU.240km
         assert step.init_condition.mesh_name == 'QU.240km'
 
     # the continuing segment depends on the first through its history file
@@ -77,7 +78,7 @@ def test_restart_steps_run_the_same_model_for_their_own_duration(
 ):
     """
     Every step runs the same forward configuration -- split-explicit Omega on
-    QU.240km's time steps and viscosity -- and differs only in its duration
+    e3sm-qu240's time steps and viscosity -- and differs only in its duration
     and where its restart comes from.
     """
     step = _restart_task().steps[name]

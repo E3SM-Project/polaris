@@ -559,7 +559,7 @@ and simply missing the earlier half of the run.
 It can be set up with:
 
 ```bash
-polaris setup -t ocean/spherical/realistic_global/QU.240km/restart ...
+polaris setup -t ocean/spherical/realistic_global/e3sm-qu240/restart ...
 ```
 
 ### description
@@ -586,8 +586,8 @@ which is the usual exact-restart check.
 
 ### mesh
 
-The `QU.240km` quasi-uniform 240-km mesh, downloaded from the Polaris input
-database, as for the `cached_forward` tasks.
+E3SM's quasi-uniform 240-km mesh, `e3sm-qu240`, downloaded from the Polaris
+input database, as for the `cached_forward` tasks.
 
 ### vertical grid
 
@@ -606,7 +606,7 @@ initial-condition file, applied through bulk wind stress.
 
 ### time step and run duration
 
-Every step is a `split_explicit` `cached_forward` run on `QU.240km`,
+Every step is a `split_explicit` `cached_forward` run on `e3sm-qu240`,
 configured by the same `[realistic_global_forward]` options, including the
 per-mesh ones: a 1-hour baroclinic and a 3-minute barotropic time step, and a
 biharmonic momentum viscosity of 1.0e15 m^4/s.  Each segment runs for two hours and the full run
@@ -619,7 +619,7 @@ circulation, and it is meant to be cheap enough for the pull-request suite.
 
 The task reads the `[realistic_global_forward]` options described under
 {ref}`ocean-realistic-global-forward`, including the per-mesh ones for
-`QU.240km`.  The run durations and history interval are fixed by the task, so
+`e3sm-qu240`.  The run durations and history interval are fixed by the task, so
 its own config file sets only the equation of state:
 
 ```cfg
@@ -675,14 +675,14 @@ staged:
 
 | mesh | cells | split time steps | RK4 time step | run duration |
 |------|-------|------------------|---------------|--------------|
-| `QU.240km` | 7,153 | 1 h, 3 min | 10 min | 5 days |
-| `EC30to60E2r2` | 236,853 | 30 min, 1 min | 45 s | 1 day |
+| `e3sm-qu240` | 7,153 | 1 h, 3 min | 10 min | 5 days |
+| `e3sm-ec30to60e2r2` | 236,853 | 30 min, 1 min | 45 s | 1 day |
 
 ```bash
-polaris setup -t ocean/spherical/realistic_global/QU.240km/cached_forward/rk4/task ...
+polaris setup -t ocean/spherical/realistic_global/e3sm-qu240/cached_forward/rk4/task ...
 ```
 
-Both `QU.240km` `cached_forward` variants are in the `omega_pr` suite, and the
+Both `e3sm-qu240` `cached_forward` variants are in the `omega_pr` suite, and the
 `split_explicit` one is in `mpaso_pr`.
 
 (ocean-realistic-global-forward-purposes)=
@@ -707,8 +707,8 @@ again then.  Polaris never applies this file on its own:
 
 The cached meshes' configs raise the momentum viscosity above the default to
 reduce grid-scale noise in Omega's velocity: the biharmonic viscosity to
-1.0e15 m^4/s on `QU.240km`, and the harmonic one to 1.0e4 m^2/s on
-`EC30to60E2r2`, where Omega does not scale the biharmonic viscosity with cell
+1.0e15 m^4/s on `e3sm-qu240`, and the harmonic one to 1.0e4 m^2/s on
+`e3sm-ec30to60e2r2`, where Omega does not scale the biharmonic viscosity with cell
 width ([Omega#476](https://github.com/E3SM-Project/Omega/issues/476)) and it
 cannot be raised enough to damp the 60-km cells without going unstable in the
 30-km ones.  These values were chosen before Omega had KPP, and are
@@ -716,8 +716,8 @@ provisional until the fix to Omega's pressure-gradient errors over bathymetry.
 
 :::{note}
 `cached_forward` is temporary.  Its initial conditions are E3SM's, for E3SM's
-`QU.240km` and `EC30to60E2r2` meshes, converted for Omega.  They let Omega run
-realistic global configurations, and be compared with MPAS-Ocean, before
+QU240 and EC30to60E2r2 meshes (`e3sm-qu240` and `e3sm-ec30to60e2r2` here),
+converted for Omega.  They let Omega run realistic global configurations, and be compared with MPAS-Ocean, before
 Polaris could build its own initial conditions.  Now that it can, these tasks
 will be removed.
 :::
@@ -1099,7 +1099,7 @@ fields =
 `forward` runs on a mesh built by {ref}`ocean-realistic-global-init`, so the
 mesh is whichever one the task is registered for.  `cached_forward` runs on the
 standard E3SM mesh that comes with its cached initial condition: the
-quasi-uniform 240-km `QU.240km`, or the eddy-closure `EC30to60E2r2`, which
+quasi-uniform 240-km `e3sm-qu240`, or the eddy-closure `e3sm-ec30to60e2r2`, which
 varies from 30 km to 60 km.
 
 ### vertical grid
@@ -1141,12 +1141,12 @@ one in the Polaris input database, and on the others, the one the `init` steps
 build, which are part of the task.  For example:
 
 ```bash
-polaris setup -t ocean/spherical/realistic_global/QU.240km/analysis_output/1_year ...
+polaris setup -t ocean/spherical/realistic_global/e3sm-qu240/analysis_output/1_year ...
 polaris setup -t ocean/spherical/realistic_global/u-oi30-lr10/analysis_output/1_year ...
 ```
 
-The tasks are in no suite.  The `QU.240km` year takes about 8 minutes on a
-Chrysalis node, and the `EC30to60E2r2` year about 50 minutes on 6 nodes,
+The tasks are in no suite.  The `e3sm-qu240` year takes about 8 minutes on a
+Chrysalis node, and the `e3sm-ec30to60e2r2` year about 50 minutes on 6 nodes,
 writing about 40 GB.
 
 ### description
@@ -1247,7 +1247,7 @@ run_duration = 0365_00:00:00
 ```
 
 The 240-km meshes' config files set fewer MOC latitude bins, here for
-`QU.240km`:
+`e3sm-qu240`:
 
 ```cfg
 # Options for the one-year analysis_output run on this mesh

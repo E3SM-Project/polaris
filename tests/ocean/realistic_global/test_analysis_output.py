@@ -106,7 +106,7 @@ def test_every_monthly_file_is_compared_with_a_baseline(mesh_name):
 
 
 def test_one_year_task_runs_from_a_cached_initial_condition():
-    forward = _one_year_task('QU.240km').steps['forward']
+    forward = _one_year_task('e3sm-qu240').steps['forward']
     assert isinstance(forward.init_condition, DatabaseInitialCondition)
 
 
@@ -133,8 +133,8 @@ def test_one_year_task_is_registered_on_each_init_mesh(mesh_name):
 @pytest.mark.parametrize(
     'mesh_name, moc_num_bins',
     [
-        ('QU.240km', 60),
-        ('EC30to60E2r2', 180),
+        ('e3sm-qu240', 60),
+        ('e3sm-ec30to60e2r2', 180),
         ('qu240km', 60),
         ('icos240km', 60),
         ('u-oi240-lr240', 60),
@@ -155,8 +155,8 @@ def test_one_year_moc_bins_default_to_omegas(mesh_name, moc_num_bins):
 @pytest.mark.parametrize(
     'mesh_name, dt, btr_dt, moc_num_bins',
     [
-        ('QU.240km', '01:00:00', '00:03:00', 60),
-        ('EC30to60E2r2', '00:30:00', '00:01:00', 180),
+        ('e3sm-qu240', '01:00:00', '00:03:00', 60),
+        ('e3sm-ec30to60e2r2', '00:30:00', '00:01:00', 180),
     ],
 )
 def test_one_year_run_is_a_split_explicit_year(

@@ -450,9 +450,12 @@ Omega gained KPP.
 `add_realistic_global_cached_forward_tasks` registers one task per entry of
 `forward/tasks.py`'s `CACHED_MESHES`, with a `subdir_name` of `cached_forward`.
 Each entry gives the MPAS-Ocean and Omega initial-condition IDs on the Polaris
-server, the minimum resolution and the cell count. The two meshes are
-`QU.240km` and `EC30to60E2r2`, whose initial conditions were converted from
-existing E3SM ones by `utils/omega/convert_mpaso_ic_to_omega.py` and uploaded.
+server, the minimum resolution and the cell count. The two meshes are E3SM's
+QU240 and EC30to60E2r2, called `e3sm-qu240` and `e3sm-ec30to60e2r2` here so that
+they are lower case like the meshes Polaris builds and cannot be mistaken for
+them; their initial conditions were converted from E3SM's by
+`utils/omega/convert_mpaso_ic_to_omega.py` and uploaded, and the files on the
+server keep E3SM's names, which each entry gives as `database_name`.
 A cached mesh's `mesh_configs/<mesh_name>.cfg` gives its split and RK4 time
 steps, its run duration and the momentum viscosities the one-year Omega runs
 settled on, since none of these follows from a mesh Polaris did not build. Its
@@ -460,7 +463,7 @@ physics is the default, as for every other mesh.
 
 The cached tasks are the only members of this family cheap enough for a PR
 suite: both variants of
-`ocean/spherical/realistic_global/QU.240km/cached_forward` are in `omega_pr`,
+`ocean/spherical/realistic_global/e3sm-qu240/cached_forward` are in `omega_pr`,
 and the `split_explicit` one is in `mpaso_pr`. Nothing built on the `init`
 chain belongs in a suite, since that chain is hours of preprocessing before the
 model starts.
@@ -711,7 +714,7 @@ divergence factor be neutral.
 
 ### Testing and Validation: A reusable forward-run capability runs a realistic global ocean simulation
 
-Date last modified: 2026/08/11
+Date last modified: 2026/10/21
 
 Contributors: Xylar Asay-Davis, Claude
 
@@ -729,7 +732,7 @@ model config for both models and checks it rather than requiring a setup, plus
 list this design calls for. Resource sizing is covered by tests that
 `compute_cell_count` falls back to the initial condition's estimate before the
 mesh exists, and raises rather than guessing when there is no estimate. The
-end-to-end run is the cached `QU.240km` task in the two PR suites.
+end-to-end run is the cached `e3sm-qu240` task in the two PR suites.
 
 ### Testing and Validation: Forward runs can start from a database initial condition or from the init workflow
 
@@ -762,7 +765,7 @@ the equation of state above all, since a cached run never sets the `init`
 workflow's config up at all and still has to name the equation of state to
 find the right file.
 
-The end-to-end check is the PR suites, which run the cached `QU.240km` task on
+The end-to-end check is the PR suites, which run the cached `e3sm-qu240` task on
 every pull request: split-explicit in both models, and RK4 in Omega.
 
 ### Testing and Validation: Per-run settings are described in a common, model-agnostic form

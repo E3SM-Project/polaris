@@ -8,12 +8,14 @@ from polaris.tasks.ocean.realistic_global.analysis_output.forward import (
     AnalysisOutputForward,
 )
 from polaris.tasks.ocean.realistic_global.forward import (
-    DatabaseInitialCondition,
     InitialCondition,
     StatsAnalysis,
     StepInitialCondition,
 )
-from polaris.tasks.ocean.realistic_global.forward.tasks import CACHED_MESHES
+from polaris.tasks.ocean.realistic_global.forward.tasks import (
+    CACHED_MESHES,
+    get_cached_initial_condition,
+)
 from polaris.tasks.ocean.realistic_global.init.steps import (
     get_realistic_init_steps,
 )
@@ -39,13 +41,9 @@ def add_realistic_global_analysis_output_tasks(component):
     component : polaris.tasks.ocean.Ocean
         The ocean component to add the tasks to
     """
-    for mesh_name, mesh_info in CACHED_MESHES.items():
-        init_condition: InitialCondition = DatabaseInitialCondition(
-            mesh_name=mesh_name,
-            mpaso_id=mesh_info['mpaso_id'],
-            omega_id=mesh_info['omega_id'],
-            min_res=mesh_info['min_res'],
-            approx_cell_count=mesh_info['cell_count'],
+    for mesh_name in CACHED_MESHES:
+        init_condition: InitialCondition = get_cached_initial_condition(
+            mesh_name
         )
         component.add_task(
             AnalysisOutput(
@@ -105,7 +103,7 @@ class AnalysisOutput(Task):
             The ocean component the task belongs to
 
         mesh_name : str
-            The name of the mesh (e.g. ``QU.240km``)
+            The name of the mesh (e.g. ``e3sm-qu240``)
 
         init_condition : InitialCondition
             The source of the model input files
