@@ -282,6 +282,17 @@ class OceanModelStep(OceanModelFilesMixin, ModelStep):
         self.graph_target = graph_target
         self.update_eos = update_eos
 
+        # Omega scales horizontal mixing coefficients with cell width by
+        # default, but most tasks are defined with constant coefficients, so
+        # scaling is off unless a task turns it on (as realistic_global does).
+        # It is added here, ahead of the yaml files a task adds at setup, so
+        # that those win.  It is not added in dynamic_model_config(): at run
+        # time that would override the task's setting in the yaml file
+        # written at setup.
+        self.add_model_config_options(
+            options={'MeshScalingEnable': False}, config_model='Omega'
+        )
+
     def setup(self) -> None:
         """
         Determine if we will make yaml files or namelists and streams files,
