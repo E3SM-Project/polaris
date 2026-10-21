@@ -100,7 +100,9 @@ Below, `omega_pr_test.py` means `./utils/omega/pr_testing/omega_pr_test.py`.
    If the PR needs Polaris changes too, the requester names two branches
    on their Polaris fork (`polaris_fork` in the config): a test merge for
    the PR and a branch for the baseline.  Fetch both into this checkout as
-   branches of the same names, and add
+   branches of the same names.  If a branch of that name is already here
+   and differs from the fork's, stop and ask the requester rather than
+   moving it.  Then add
    `--polaris-ref <test merge> --baseline-polaris-ref <baseline branch>`.
    When the baseline needs no Polaris changes, use
    `--baseline-polaris-ref main`, which is always Polaris `main` on
@@ -150,11 +152,15 @@ they finish.
    the manifest, use the checkout from the `[machines]` line, which should
    be Polaris `main`.  With them, fetch the branches from the requester's
    Polaris fork, except a baseline of `main`, which comes from
-   E3SM-Project/polaris.  Work in a checkout of the PR's branch, and the
-   baseline's branch needs a second checkout.  If a checkout is missing,
-   make it yourself, as a worktree beside that one, named after its
-   branch.  If the PR's branch does not have this utility yet, merge the
-   branch you have it from into that checkout locally, without pushing.
+   E3SM-Project/polaris.  Test them in checkouts of your own, never in an
+   existing checkout of those branches, where someone may be developing.
+   Make each as a worktree beside the `[machines]` checkout, on a
+   throw-away branch at the manifest's commit: `omega-pr-test/<number>`
+   for the PR's branch, and `omega-pr-test/<number>-baseline` for the
+   baseline's unless it is `main`.  These are yours to update or remove.
+   If the PR's branch does not have this utility yet, merge the branch you
+   have it from into its throw-away branch.  Never commit to the
+   requester's branches, and never push a throw-away branch.
 2. Each of the machine's rows needs a load script for its compiler in each
    checkout.  If one is missing, run `./deploy.py --compiler <compiler>
    ...` in that checkout, with the compilers of all the machine's rows.  On
