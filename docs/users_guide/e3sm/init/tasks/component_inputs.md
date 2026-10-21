@@ -82,6 +82,7 @@ date, the tree under `assemble/<target>/assembled_files/` is:
 | ocean mesh | `inputdata/share/meshes/mpas/unified/<id>/<short>.ocean.<date>.nc` |
 | land mesh | `inputdata/share/meshes/mpas/unified/<id>/<short>.land.<date>.nc` |
 | ocean IC | `inputdata/ocn/mpas-o/<grid>/mpaso.<grid>.<date>.nc` |
+| ocean graph | `inputdata/ocn/mpas-o/<grid>/partitions/mpas-o.graph.info.<date>` |
 | ocean partitions | `inputdata/ocn/mpas-o/<grid>/partitions/mpas-o.graph.info.<date>.part.<n>` |
 | MOC masks | `inputdata/ocn/mpas-o/<grid>/<short>.mocBasinsAndTransects<features_date>.<date>.nc` |
 | sea-ice IC | `inputdata/ice/mpas-seaice/<grid>/mpassi.<grid>.<date>.nc` |
