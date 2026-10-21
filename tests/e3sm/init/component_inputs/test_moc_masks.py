@@ -21,6 +21,9 @@ from polaris.tasks.ocean import ocean
 
 MESH_NAME = 'u-oi30-lr10'
 SHORT_NAME = 'u02-oi30-lr10'
+# E3SM's names for the mesh's directory and its ocean and sea-ice grid
+MESH_ID = 'u02'
+OCEAN_GRID = 'u02-oi30'
 CREATION_DATE = '20250101'
 
 
@@ -142,7 +145,7 @@ def test_the_staged_name_carries_both_dates():
     )
 
     assert path == (
-        f'inputdata/ocn/mpas-o/{SHORT_NAME}/'
+        f'inputdata/ocn/mpas-o/{OCEAN_GRID}/'
         f'{SHORT_NAME}.mocBasinsAndTransects20210623.{CREATION_DATE}.nc'
     )
     # the last dotted field is the creation date here as on every other staged

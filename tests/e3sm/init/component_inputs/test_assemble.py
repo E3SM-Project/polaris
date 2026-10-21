@@ -25,6 +25,9 @@ from polaris.tasks.ocean import ocean
 
 MESH_NAME = 'u-oi30-lr10'
 SHORT_NAME = 'u02-oi30-lr10'
+# E3SM's names for the mesh's directory and its ocean and sea-ice grid
+MESH_ID = 'u02'
+OCEAN_GRID = 'u02-oi30'
 CREATION_DATE = '20250101'
 
 # read from the aggregation rather than hard-coded, since the whole point of
@@ -121,7 +124,7 @@ def test_every_product_lands_at_its_e3sm_path(tmp_path, target):
     """
     staged = _run_assemble(tmp_path, target)
 
-    mesh_dir = f'inputdata/share/meshes/mpas/unified/{SHORT_NAME}'
+    mesh_dir = f'inputdata/share/meshes/mpas/unified/{MESH_ID}'
     expected = {
         'README',
         f'{mesh_dir}/{SHORT_NAME}.base.{CREATION_DATE}.nc',
@@ -131,10 +134,10 @@ def test_every_product_lands_at_its_e3sm_path(tmp_path, target):
         f'{mesh_dir}/{SHORT_NAME}.land.{CREATION_DATE}.nc',
     }
     if 'ocean_mesh' in TARGET_PRODUCTS[target]:
-        ocn = f'inputdata/ocn/mpas-o/{SHORT_NAME}'
+        ocn = f'inputdata/ocn/mpas-o/{OCEAN_GRID}'
         expected |= {
             f'{mesh_dir}/{SHORT_NAME}.ocean.{CREATION_DATE}.nc',
-            f'{ocn}/mpaso.{SHORT_NAME}.{CREATION_DATE}.nc',
+            f'{ocn}/mpaso.{OCEAN_GRID}.{CREATION_DATE}.nc',
             f'{ocn}/{SHORT_NAME}.mocBasinsAndTransects'
             f'{FEATURES_DATE}.{CREATION_DATE}.nc',
             f'{ocn}/{SHORT_NAME}.scrip.{CREATION_DATE}.nc',
@@ -144,9 +147,9 @@ def test_every_product_lands_at_its_e3sm_path(tmp_path, target):
             for n in NCORES
         }
     if 'seaice_initial_condition' in TARGET_PRODUCTS[target]:
-        ice = f'inputdata/ice/mpas-seaice/{SHORT_NAME}'
+        ice = f'inputdata/ice/mpas-seaice/{OCEAN_GRID}'
         expected |= {
-            f'{ice}/mpassi.{SHORT_NAME}.{CREATION_DATE}.nc',
+            f'{ice}/mpassi.{OCEAN_GRID}.{CREATION_DATE}.nc',
         } | {
             f'{ice}/partitions/mpas-seaice.graph.info.{CREATION_DATE}.part.{n}'
             for n in NCORES
@@ -166,8 +169,8 @@ def test_the_staged_files_point_at_the_products(tmp_path):
     mesh = (
         root
         / 'inputdata/ocn/mpas-o'
-        / SHORT_NAME
-        / f'mpaso.{SHORT_NAME}.{CREATION_DATE}.nc'
+        / OCEAN_GRID
+        / f'mpaso.{OCEAN_GRID}.{CREATION_DATE}.nc'
     )
     assert mesh.is_symlink()
     assert os.path.realpath(mesh).endswith(
@@ -276,19 +279,19 @@ def test_the_meshes_are_staged_beside_the_base_mesh(tmp_path):
     """
     staged = _run_assemble(tmp_path, 'all')
 
-    mesh_dir = f'inputdata/share/meshes/mpas/unified/{SHORT_NAME}'
+    mesh_dir = f'inputdata/share/meshes/mpas/unified/{MESH_ID}'
     assert f'{mesh_dir}/{SHORT_NAME}.ocean.{CREATION_DATE}.nc' in staged
     assert f'{mesh_dir}/{SHORT_NAME}.land.{CREATION_DATE}.nc' in staged
 
     under_ocn = [
         name
         for name in staged
-        if name.startswith(f'inputdata/ocn/mpas-o/{SHORT_NAME}/')
+        if name.startswith(f'inputdata/ocn/mpas-o/{OCEAN_GRID}/')
         and 'partitions/' not in name
     ]
-    ocn = f'inputdata/ocn/mpas-o/{SHORT_NAME}'
+    ocn = f'inputdata/ocn/mpas-o/{OCEAN_GRID}'
     assert set(under_ocn) == {
-        f'{ocn}/mpaso.{SHORT_NAME}.{CREATION_DATE}.nc',
+        f'{ocn}/mpaso.{OCEAN_GRID}.{CREATION_DATE}.nc',
         f'{ocn}/{SHORT_NAME}.mocBasinsAndTransects'
         f'{FEATURES_DATE}.{CREATION_DATE}.nc',
         f'{ocn}/{SHORT_NAME}.scrip.{CREATION_DATE}.nc',
@@ -299,7 +302,8 @@ def test_the_meshes_are_staged_beside_the_base_mesh(tmp_path):
 def test_the_shared_mesh_files_are_under_a_per_mesh_subdirectory(tmp_path):
     """
     Every unified mesh gets its own subdirectory of
-    share/meshes/mpas/unified/, named for its E3SM short name, and nothing is
+    share/meshes/mpas/unified/, named for the ID that leads its E3SM short
+    name, as E3SM and the inputdata server name them, and nothing is
     staged directly in the shared directory.  One mesh contributes half a
     dozen files, so a flat directory holding several meshes gives no way to
     see which files belong together or to copy one mesh's as a unit.
@@ -311,8 +315,8 @@ def test_the_shared_mesh_files_are_under_a_per_mesh_subdirectory(tmp_path):
     assert under_unified, 'nothing was staged in the shared mesh directory'
     for name in under_unified:
         relative = name[len(unified) + 1 :]
-        assert relative.startswith(f'{SHORT_NAME}/'), (
-            f'{relative} is not under the {SHORT_NAME} subdirectory'
+        assert relative.startswith(f'{MESH_ID}/'), (
+            f'{relative} is not under the {MESH_ID} subdirectory'
         )
 
 
@@ -321,7 +325,7 @@ def test_the_land_mesh_is_staged_for_every_target(tmp_path):
     It comes from the cull step and describes a domain of the unified mesh, so
     a sea-ice-only task stages it too, exactly as it stages the SCRIP files.
     """
-    mesh_dir = f'inputdata/share/meshes/mpas/unified/{SHORT_NAME}'
+    mesh_dir = f'inputdata/share/meshes/mpas/unified/{MESH_ID}'
     for target in ['ocean', 'seaice', 'all']:
         staged = _run_assemble(tmp_path / target, target)
         assert f'{mesh_dir}/{SHORT_NAME}.land.{CREATION_DATE}.nc' in staged
@@ -349,8 +353,8 @@ def test_the_ocean_scrip_files_are_staged_in_both_places(tmp_path):
     staged = _run_assemble(tmp_path, 'all')
     root = tmp_path / 'assemble' / 'all' / ASSEMBLED_FILES
 
-    mesh_dir = f'inputdata/share/meshes/mpas/unified/{SHORT_NAME}'
-    ocn = f'inputdata/ocn/mpas-o/{SHORT_NAME}'
+    mesh_dir = f'inputdata/share/meshes/mpas/unified/{MESH_ID}'
+    ocn = f'inputdata/ocn/mpas-o/{OCEAN_GRID}'
     pairs = [
         (
             f'{mesh_dir}/{SHORT_NAME}.ocean.scrip.{CREATION_DATE}.nc',
@@ -377,7 +381,7 @@ def test_the_land_scrip_has_no_copy_in_the_ocean_directory(tmp_path):
     """
     staged = _run_assemble(tmp_path, 'all')
 
-    ocn = f'inputdata/ocn/mpas-o/{SHORT_NAME}'
+    ocn = f'inputdata/ocn/mpas-o/{OCEAN_GRID}'
     assert not [
         name
         for name in staged
@@ -398,9 +402,9 @@ def test_no_sea_ice_mesh_is_staged(tmp_path):
     assert 'seaice_mesh' not in TARGET_PRODUCTS['seaice']
 
     staged = _run_assemble(tmp_path, 'all')
-    ice = f'inputdata/ice/mpas-seaice/{SHORT_NAME}'
+    ice = f'inputdata/ice/mpas-seaice/{OCEAN_GRID}'
     assert f'{ice}/{SHORT_NAME}.{CREATION_DATE}.nc' not in staged
-    assert f'{ice}/mpassi.{SHORT_NAME}.{CREATION_DATE}.nc' in staged
+    assert f'{ice}/mpassi.{OCEAN_GRID}.{CREATION_DATE}.nc' in staged
 
     # and nothing anywhere else claims to be a sea-ice mesh
     assert not [name for name in staged if '.seaice.' in name]
@@ -489,3 +493,32 @@ def _sync_script_source():
     import polaris.tasks.e3sm.init.component_inputs as package
 
     return os.path.join(os.path.dirname(package.__file__), SYNC_SCRIPT)
+
+
+@pytest.mark.parametrize(
+    'short_name, mesh_dir, ocean_dir',
+    [
+        ('u04-oi6to18-lr12p5', 'u04', 'u04-oi6to18'),
+        ('uXX-oi-so12to30-lr10', 'uXX', 'uXX-oi-so12to30'),
+        # an override for an ocean-only mesh has no land part to drop
+        ('u99-oi30', 'u99', 'u99-oi30'),
+    ],
+)
+def test_directories_follow_e3sm_grid_names(short_name, mesh_dir, ocean_dir):
+    """
+    E3SM names the ocean and sea-ice grid of a unified mesh for its ID and
+    ocean half (u04-oi6to18), and the shared mesh directory for the ID alone.
+    """
+    from polaris.tasks.e3sm.init.component_inputs import names
+
+    date = CREATION_DATE
+    assert names.base_mesh_path(short_name, date) == (
+        f'inputdata/share/meshes/mpas/unified/{mesh_dir}/'
+        f'{short_name}.base.{date}.nc'
+    )
+    assert names.ocean_initial_condition_path(short_name, date) == (
+        f'inputdata/ocn/mpas-o/{ocean_dir}/mpaso.{ocean_dir}.{date}.nc'
+    )
+    assert names.seaice_initial_condition_path(short_name, date) == (
+        f'inputdata/ice/mpas-seaice/{ocean_dir}/mpassi.{ocean_dir}.{date}.nc'
+    )
