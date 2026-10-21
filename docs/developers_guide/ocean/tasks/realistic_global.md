@@ -572,8 +572,8 @@ stages: they differ in length by up to 70x, the last one switches the damping
 off, and a stage whose energy dips makes the next ordinary rise read as
 acceleration.  Three samples cannot separate any of that from a runaway.  The
 judgement is made from the diagnostics table and the `viz` figure instead.  The
-final `simulation` stage additionally compares its `output.nc` against a
-baseline via the forward step's `validate_vars`.
+final `simulation` stage additionally compares the `'state'` class of
+variables in its `output.nc` against a baseline, as the forward tasks do.
 
 {py:class}`polaris.tasks.ocean.realistic_global.dynamic_adjustment.viz.VizDynamicAdjustmentStep`
 plots the same statistics as time series.  Its panels are declared in

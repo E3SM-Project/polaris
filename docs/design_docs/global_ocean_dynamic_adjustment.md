@@ -472,16 +472,16 @@ option at another file before setup.
 
 ### Implementation: The workflow includes basic validation that the adjustment remained well behaved
 
-Date last modified: 2026/10/04
+Date last modified: 2026/10/21
 
 Contributors: Xylar Asay-Davis, Codex, Claude
 
 Validation ended up split between a per-stage `StageCheck` step and a final
 `Validate` step, plus the built-in baseline comparison:
 
-1. A baseline comparison of the final `simulation/output.nc`
-   (`temperature`, `salinity`, `layerThickness`, `normalVelocity`), handled by
-   the forward step's built-in `validate_vars` mechanism.
+1. A baseline comparison of the final `simulation/output.nc` (`temperature`,
+   `salinity`, `normalVelocity`), handled by the forward step's built-in
+   `validate_class='state'` mechanism, as in the forward tasks.
 2. Four thresholds per stage, applied by `StageCheck` immediately after that
    stage: the maximum `temperature` below `temperature_max`, the minimum above
    `temperature_min`, the maximum `salinity` below `salinity_max`, and the
