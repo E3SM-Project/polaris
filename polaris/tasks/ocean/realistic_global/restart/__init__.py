@@ -71,7 +71,7 @@ class Restart(Task):
         config = PolarisConfigParser(filepath=config_path)
         config.add_from_package(
             'polaris.tasks.ocean.realistic_global.forward',
-            'realistic_global_forward.cfg',
+            'forward.cfg',
         )
         add_realistic_global_mesh_config(config=config, mesh_name=mesh_name)
         config.add_from_package(

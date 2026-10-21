@@ -643,7 +643,7 @@ Date last modified: 2026/10/17
 
 Contributors: Xylar Asay-Davis, Claude
 
-`realistic_global_forward.cfg` gains the mixing and parameterization options:
+`forward.cfg` gains the mixing and parameterization options:
 `mom_del2`, `mom_del4`, `tracer_del2` and `tracer_del4` (blank meaning off),
 `mom_del4_div_factor`, `use_Leith_del2`, `hmix_scaling` with
 `hmix_ref_cell_width`, `use_GM` with `GM_closure` and `GM_constant_kappa`,

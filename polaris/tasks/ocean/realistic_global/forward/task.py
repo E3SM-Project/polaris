@@ -111,7 +111,7 @@ class RealisticGlobalForward(Task):
         self.mesh_name = mesh_name
         self.time_integrator = time_integrator
 
-        config_filename = 'realistic_global_forward.cfg'
+        config_filename = 'forward.cfg'
         filepath = f'{component.name}/{base}/{config_filename}'
         config = PolarisConfigParser(filepath=filepath)
         # the colormaps of the viz step
@@ -128,7 +128,7 @@ class RealisticGlobalForward(Task):
             )
         self.set_shared_config(config, link=config_filename)
 
-        # the shared init steps carry their own realistic_global_init.cfg
+        # the shared init steps carry their own init.cfg
         if init_steps is not None:
             for symlink, step in init_steps.items():
                 self.add_step(step, symlink=symlink)

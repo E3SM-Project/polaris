@@ -24,7 +24,7 @@ def _get_init_config(mesh_name):
     config.add_from_package('polaris.ocean', 'ocean.cfg')
     config.add_from_package(
         'polaris.tasks.ocean.realistic_global.init',
-        'realistic_global_init.cfg',
+        'init.cfg',
     )
     add_realistic_global_mesh_config(config=config, mesh_name=mesh_name)
     return config
@@ -89,7 +89,7 @@ def test_coarse_meshes_override_vertical_grid(mesh_name):
 def test_overrides_do_not_replace_other_options(mesh_name):
     """
     Options the per-mesh config does not set are still inherited from
-    ``realistic_global_init.cfg``.
+    ``init.cfg``.
     """
     config = _get_init_config(mesh_name)
     section = config['vertical_grid']
@@ -114,7 +114,7 @@ def _get_forward_stage(mesh_name):
     config = PolarisConfigParser()
     config.add_from_package(
         'polaris.tasks.ocean.realistic_global.forward',
-        'realistic_global_forward.cfg',
+        'forward.cfg',
     )
     add_realistic_global_mesh_config(config=config, mesh_name=mesh_name)
     config.combine()

@@ -429,8 +429,8 @@ using the p-star layer midpoints from the current iteration as the vertical
 interpolation target.
 
 The reference 1D vertical grid that establishes the initial layer structure is
-configured by setting `grid_type` in the `[vertical_grid]` section of
-`realistic_global_init.cfg`. The `pstar_init` step passes this reference grid
+configured by setting `grid_type` in the `[vertical_grid]` section of the
+init package's `init.cfg`. The `pstar_init` step passes this reference grid
 to `generate_1d_grid` (in `polaris/ocean/vertical/grid_1d/__init__.py`),
 which returns the interface depths used to dimension the p-star iteration. The
 default for the realistic global init task is the pre-defined `80layerE3SMv1`

@@ -232,7 +232,7 @@ initial condition and optional `init_steps` as `RealisticGlobalForward` does,
 so it is registered on the cached meshes and on every mesh the `init` workflow
 builds.  Its config is built in layers, each overriding the ones before it:
 
-1. `realistic_global_forward.cfg`, the forward tasks' config;
+1. `forward.cfg`, the forward tasks' config;
 2. `analysis_output.cfg`, with the default `moc_num_bins`;
 3. the mesh's file in `mesh_configs`, which sets fewer bins on a coarse mesh;
 4. `one_year.cfg`, which sets only the run duration.
