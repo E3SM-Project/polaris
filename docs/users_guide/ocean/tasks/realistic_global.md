@@ -279,7 +279,7 @@ mesh from `e3sm/init`, together with a surface forcing file from the JRA55-do
 wind stress.  There is one task for each base and unified mesh:
 
 ```bash
-polaris setup -t ocean/spherical/realistic_global/<mesh_name>/init/task ...
+polaris setup -t ocean/spherical/realistic_global/<mesh_name>/init ...
 ```
 
 The target model, MPAS-Ocean or Omega, is set by the `[ocean] model` config
