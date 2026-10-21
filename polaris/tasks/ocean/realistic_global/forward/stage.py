@@ -695,11 +695,10 @@ class ForwardStage:
         to the neutral options once Omega has a counterpart: left here, it
         would never reach Omega, which would run its own default instead.
 
-        Whether they are wanted depends on what the run is for.  A forward run
-        on a unified mesh is testing that mesh in E3SM, so it runs E3SM's
-        physics; a run on a cached initial condition exists to compare
-        MPAS-Ocean with Omega, so anything Omega lacks only makes the two runs
-        less comparable.  Both switches live in config rather than here.
+        They are on by default, so that every forward run is as close to
+        production as each model allows.  They live in config rather than here
+        so that a run comparing MPAS-Ocean with Omega can turn off what Omega
+        lacks, as ``compare_with_omega.cfg`` does.
 
         Returns
         -------

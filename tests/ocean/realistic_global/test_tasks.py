@@ -1,3 +1,6 @@
+import dataclasses
+import importlib.resources as imp_res
+from configparser import ConfigParser
 from typing import cast
 
 import pytest
@@ -263,48 +266,60 @@ def test_cached_meshes_take_the_one_year_runs_viscosities(
         assert stage.mom_del4 == mom_del4
 
 
-def test_cached_meshes_turn_off_what_omega_lacks():
+# the MPAS-Ocean physics production runs have and Omega does not
+_MPASO_ONLY_PHYSICS = ['use_GM', 'use_Redi', 'use_submesoscale']
+
+
+@pytest.mark.parametrize('mesh_name', sorted(CACHED_MESHES))
+def test_cached_meshes_run_production_physics(mesh_name):
     """
-    The cached tasks exist to compare MPAS-Ocean with Omega, so MPAS-Ocean
-    physics that Omega has no counterpart for only makes the two runs less
-    comparable.  The init-chain tasks are the opposite case: they test the
-    unified meshes in E3SM, so they want E3SM's physics.
-
-    KPP is no longer on the list: Omega has it now, so the cached tasks run it
-    in both models.
+    A cached initial condition does not change the physics: like every other
+    forward run, the cached tasks run as close to production as each model
+    allows.  Comparing MPAS-Ocean with Omega is opt-in, through
+    compare_with_omega.cfg.
     """
-    section = 'realistic_global_forward'
-    mpaso_only = ['use_GM', 'use_Redi', 'use_submesoscale']
+    stage = _stage_for_mesh(mesh_name)
+    for option in _MPASO_ONLY_PHYSICS:
+        assert getattr(stage, option), (
+            f'{option} should be on for cached mesh {mesh_name!r}'
+        )
+    assert stage.pressure_gradient_type == 'Jacobian_from_TS'
+    assert stage.vert_mixing_options()['config_use_cvmix_kpp']
 
-    for mesh_name in CACHED_MESHES:
-        stage = _stage_for_mesh(mesh_name)
-        for option in mpaso_only:
-            assert not getattr(stage, option), (
-                f'{option} should be off on cached mesh {mesh_name!r}'
-            )
-        # blank leaves MPAS-Ocean's pressure_and_zmid, the counterpart to
-        # Omega's Centered; Jacobian_from_TS has no Omega equivalent
-        assert stage.pressure_gradient_type is None
-        options = stage.mpaso_physics_options()
-        assert not options['config_submesoscale_enable']
-        assert 'config_pressure_gradient_type' not in options
-        assert stage.vert_mixing_options()['config_use_cvmix_kpp']
 
-    # the defaults, which every init-chain mesh gets, are the E3SM-like ones
+@pytest.mark.parametrize('mesh_name', sorted(CACHED_MESHES) + ['qu240km'])
+def test_compare_with_omega_cfg_turns_off_what_omega_lacks(mesh_name):
+    """
+    Polaris never reads compare_with_omega.cfg itself; a user layers it on
+    to compare the two models.  It must turn off the MPAS-Ocean physics Omega
+    does not have, and nothing in it may be a misspelled option.
+    """
+    reference = imp_res.files(
+        'polaris.tasks.ocean.realistic_global.forward'
+    ).joinpath('compare_with_omega.cfg')
     config = PolarisConfigParser()
     config.add_from_package(
-        'polaris.tasks.ocean.realistic_global.forward',
-        'forward.cfg',
+        'polaris.tasks.ocean.realistic_global.forward', 'forward.cfg'
     )
+    add_realistic_global_mesh_config(config, mesh_name)
+    config.add_user_config(str(reference))
     config.combine()
-    for option in mpaso_only:
-        assert config.getboolean(section, option), (
-            f'{option} should be on by default, for the E3SM-like runs'
-        )
-    assert (
-        config.get(section, 'pressure_gradient_type').strip()
-        == 'Jacobian_from_TS'
-    )
+
+    reference_config = ConfigParser()
+    reference_config.read(str(reference))
+    section = 'realistic_global_forward'
+    stage_fields = {
+        field.name.lower() for field in dataclasses.fields(ForwardStage)
+    }
+    for option in reference_config.options(section):
+        assert option in stage_fields, option
+
+    stage = ForwardStage.from_config(config)
+    for option in _MPASO_ONLY_PHYSICS:
+        assert not getattr(stage, option), option
+    assert stage.pressure_gradient_type == 'pressure_and_zmid'
+    # KPP is in both models, so a comparison keeps it
+    assert stage.vert_mixing_options()['config_use_cvmix_kpp']
 
 
 @pytest.mark.parametrize('time_integrator', TIME_INTEGRATORS)
@@ -350,17 +365,12 @@ def test_cached_forward_model_config_renders(
         assert global_stats['SnapshotPeriod'] == [stage.stats_period()]
         assert global_stats['ReductionPeriod'] == []
     else:
-        # the physics with no Omega counterpart is off, so the two models are
-        # running as nearly the same configuration as they can
+        # production physics, as for every other forward run
         options = stage.mpaso_physics_options()
-        assert not options['config_use_GM']
-        assert not options['config_use_Redi']
-        assert not options['config_submesoscale_enable']
-        assert 'config_pressure_gradient_type' not in options
-        # nothing in forward.yaml puts them back
-        for section in yaml.configs.values():
-            assert 'config_submesoscale_enable' not in section
-            assert 'config_pressure_gradient_type' not in section
+        assert options['config_use_GM']
+        assert options['config_use_Redi']
+        assert options['config_submesoscale_enable']
+        assert options['config_pressure_gradient_type'] == 'Jacobian_from_TS'
 
 
 class _ConfigOnlyStep:
