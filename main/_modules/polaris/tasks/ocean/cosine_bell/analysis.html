@@ -202,14 +202,12 @@
         <span class="n">psi0</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">'cosine_bell'</span><span class="p">,</span> <span class="s1">'psi0'</span><span class="p">)</span>
         <span class="n">vel_pd</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">'cosine_bell'</span><span class="p">,</span> <span class="s1">'vel_pd'</span><span class="p">)</span>
 
-        <span class="n">ds_mesh</span> <span class="o">=</span> <span class="n">open_dataset</span><span class="p">(</span><span class="sa">f</span><span class="s1">'mesh_r</span><span class="si">{</span><span class="n">refinement_factor</span><span class="si">:</span><span class="s1">02g</span><span class="si">}</span><span class="s1">.nc'</span><span class="p">)</span>
-        <span class="n">sphere_radius</span> <span class="o">=</span> <span class="n">ds_mesh</span><span class="o">.</span><span class="n">sphere_radius</span>
-
-        <span class="n">ds_init</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">open_model_dataset</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s1">'init_r</span><span class="si">{</span><span class="n">refinement_factor</span><span class="si">:</span><span class="s1">02g</span><span class="si">}</span><span class="s1">.nc'</span><span class="p">,</span> <span class="n">config</span>
+        <span class="n">ds_mesh</span> <span class="o">=</span> <span class="n">open_dataset</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">work_path</span><span class="p">(</span><span class="sa">f</span><span class="s1">'mesh_r</span><span class="si">{</span><span class="n">refinement_factor</span><span class="si">:</span><span class="s1">02g</span><span class="si">}</span><span class="s1">.nc'</span><span class="p">)</span>
         <span class="p">)</span>
-        <span class="n">latCell</span> <span class="o">=</span> <span class="n">ds_init</span><span class="o">.</span><span class="n">latCell</span><span class="o">.</span><span class="n">values</span>
-        <span class="n">lonCell</span> <span class="o">=</span> <span class="n">ds_init</span><span class="o">.</span><span class="n">lonCell</span><span class="o">.</span><span class="n">values</span>
+        <span class="n">sphere_radius</span> <span class="o">=</span> <span class="n">ds_mesh</span><span class="o">.</span><span class="n">sphere_radius</span>
+        <span class="n">latCell</span> <span class="o">=</span> <span class="n">ds_mesh</span><span class="o">.</span><span class="n">latCell</span><span class="o">.</span><span class="n">values</span>
+        <span class="n">lonCell</span> <span class="o">=</span> <span class="n">ds_mesh</span><span class="o">.</span><span class="n">lonCell</span><span class="o">.</span><span class="n">values</span>
 
         <span class="c1"># distance that the cosine bell center traveled in radians</span>
         <span class="c1"># based on equatorial velocity</span>
