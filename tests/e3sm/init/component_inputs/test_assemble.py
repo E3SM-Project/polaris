@@ -142,6 +142,8 @@ def test_every_product_lands_at_its_e3sm_path(tmp_path, target):
             f'{FEATURES_DATE}.{CREATION_DATE}.nc',
             f'{ocn}/{SHORT_NAME}.scrip.{CREATION_DATE}.nc',
             f'{ocn}/{SHORT_NAME}.no_cavities.scrip.{CREATION_DATE}.nc',
+            # the graph the partitions were made from, as on the server
+            f'{ocn}/partitions/mpas-o.graph.info.{CREATION_DATE}',
         } | {
             f'{ocn}/partitions/mpas-o.graph.info.{CREATION_DATE}.part.{n}'
             for n in NCORES
@@ -226,6 +228,8 @@ def _run_assemble(
             continue
         part_dir = tmp_path / key
         part_dir.mkdir(exist_ok=True)
+        # the partition step copies its graph to the basename it partitions
+        (part_dir / basename).write_text('')
         for ncores in partitions:
             (part_dir / f'{basename}.part.{ncores}').write_text('')
 
