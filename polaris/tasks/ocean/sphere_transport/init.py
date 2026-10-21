@@ -210,9 +210,7 @@ class Init(OceanIOStep):
         else:
             raise ValueError(f'Unexpected test case name {case_name}')
 
-        normalVelocity = normal_velocity_from_zonal_meridional(
-            ds, u, v, recompute_angle_edge=False
-        )
+        normalVelocity = normal_velocity_from_zonal_meridional(ds, u, v)
         normalVelocity, _ = xr.broadcast(normalVelocity, ds.refZMid)
         ds['normalVelocity'] = normalVelocity.expand_dims(dim='Time', axis=0)
         u_cell_broadcast, _ = xr.broadcast(
