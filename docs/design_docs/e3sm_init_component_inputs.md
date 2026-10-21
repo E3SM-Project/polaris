@@ -514,7 +514,8 @@ for the `geometric_features` aggregation date:
    `<short>.land.<date>.nc` — the culled meshes themselves, beside the base mesh
    for the same reason again.
 4. `inputdata/ocn/mpas-o/<grid>/mpaso.<grid>.<date>.nc` — the ocean initial
-   condition, with graph partitions under `partitions/`.
+   condition, with graph partitions under `partitions/` beside the
+   unpartitioned graph they were made from.
 5. `inputdata/ocn/mpas-o/<grid>/<short>.mocBasinsAndTransects<features>.<date>.nc`
    — the MOC basin masks and southern-boundary transects.
 6. `inputdata/ocn/mpas-o/<grid>/<short>.scrip.<date>.nc` and
