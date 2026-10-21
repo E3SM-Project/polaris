@@ -22,8 +22,8 @@ tasks:
 - {ref}`ocean-realistic-global-analysis-output`, one-year Omega runs from
   either source of initial condition, writing what the {ref}`ocean-analysis`
   tasks read.
-- {ref}`ocean-realistic-global-restart`, a short run split across a restart,
-  checking that the history output survives the restart intact.
+- {ref}`ocean-realistic-global-restart`, a short run continued from a restart,
+  checking that it matches the uninterrupted run, history output included.
 
 The arrows show where each kind of task gets its inputs:
 
@@ -549,8 +549,12 @@ this task run serially.
 
 ## restart
 
-This task checks that splitting a run across a restart leaves the history
-output alone.  It is a regression test for
+This task checks that a run continued from a restart reproduces the
+uninterrupted run, history output included.  It is shaped like the ERS
+(exact restart) test that CIME runs on E3SM cases, so that Omega's restarts are
+tested here the way they will be tested once Omega runs in E3SM.
+
+It is also a regression test for
 [Omega #482](https://github.com/E3SM-Project/Omega/issues/482), where a run
 continued from a restart silently overwrote the history frames written before
 the restart instead of appending to them, leaving a file that was well formed
@@ -564,25 +568,31 @@ polaris setup -t ocean/spherical/realistic_global/e3sm-qu240/restart ...
 
 ### description
 
-The task contains four steps:
+The task contains three steps:
 
-1. `full_run` covers the whole four-hour period in one go.
-2. `first_segment` covers the first two hours and writes a restart.
-3. `second_segment` continues from that restart and covers the last two hours,
-   appending its history frames to the ones `first_segment` left behind.
-4. `validate` compares the history of the restart chain with the history of
-   the full run.
+1. `full_run` covers the whole four-hour period in one go and writes a restart
+   two hours in.  Besides its history, `output.nc`, it writes the same history
+   up to the restart to `output_before_restart.nc`: what a run that stopped at
+   the restart would have left behind.
+2. `restart_run` continues from that restart and covers the last two hours,
+   appending its history frames to a copy of `output_before_restart.nc`.
+3. `validate` compares the history of `restart_run` with the history of
+   `full_run`.
 
-Each segment writes its restart into a directory of its own under the task's
-`restarts` directory, and a continuing segment reads its predecessor's.
-`second_segment` starts from a copy of `first_segment`'s `output.nc`, so that
-it finds on disk what a continuation run would find: a history file that
-already holds the earlier frames and has to be appended to.
+As in CIME's ERS test, the restart is written partway through the full run
+rather than by a separate, shorter run.  Each run writes its restarts into a
+directory of its own under the task's `restarts` directory, and `restart_run`
+reads the full run's restart at two hours by name.  Starting `restart_run` from
+a copy of the history up to the restart means it finds on disk what a
+continuing run would find: a history file that already holds the earlier
+frames and has to be appended to.
 
-`validate` checks two things, because a restart can go wrong in two ways.  The
-time axis has to hold every frame of the whole period, in increasing order,
-which is what #482 broke.  The state then has to match the uninterrupted run,
-which is the usual exact-restart check.
+`validate` checks three things.  The history up to the restart has to hold
+fewer frames than the full run's, or the restart run would have had nothing to
+append to and the next check would pass without testing anything.  The time
+axis of `restart_run`'s history then has to hold every frame of the whole
+period, in increasing order, which is what #482 broke.  Finally, the state has
+to match the uninterrupted run, which is the usual exact-restart check.
 
 ### mesh
 
@@ -606,14 +616,15 @@ initial-condition file, applied through bulk wind stress.
 
 ### time step and run duration
 
-Every step is a `split_explicit` `cached_forward` run on `e3sm-qu240`,
+Both runs are `split_explicit` `cached_forward` runs on `e3sm-qu240`,
 configured by the same `[realistic_global_forward]` options, including the
 per-mesh ones: a 1-hour baroclinic and a 3-minute barotropic time step, and a
-biharmonic momentum viscosity of 1.0e15 m^4/s.  Each segment runs for two hours and the full run
-for four, with a history frame every hour, so each segment writes two frames
-and the whole period has four.  The period is short on purpose: the task is
-about how the model writes its history across a restart, not about the
-circulation, and it is meant to be cheap enough for the pull-request suite.
+biharmonic momentum viscosity of 1.0e15 m^4/s.  The full run covers four hours
+and the restart run the last two, with a history frame every hour, so each half
+of the period has two frames and the whole period has four.  The period is
+short on purpose: the task is about how the model restarts and writes its
+history across a restart, not about the circulation, and it is meant to be
+cheap enough for the pull-request suite.
 
 ### config options
 

@@ -534,7 +534,7 @@ def dynamic_model_config(self, at_setup):
 
 ### Implementation: The framework composes into restart and dynamic-adjustment workflows
 
-Date last modified: 2026/10/15
+Date last modified: 2026/10/21
 
 Contributors: Xylar Asay-Davis, Claude
 
@@ -552,7 +552,7 @@ output stream, so one `filename_template` serves both directions and the read
 side is just `config_do_restart` and `config_start_time`; the start time is
 stated explicitly rather than using a restart-pointer file. Omega decides
 whether to read a restart from its `StartType` and finds it through a pointer
-file, as the restart task does. The `Omega` block of `restart_streams.yaml`
+file. The `Omega` block of `restart_streams.yaml`
 requests the `RestartRead` stream, and
 `ForwardStage.restart_stream_replacements` fills in the start type and the
 directories: each stage writes its restart and pointer into a directory under
@@ -563,8 +563,15 @@ model reads and writes, MPAS-Ocean's in the shared directory and Omega's in the
 stage's own, and the forward step declares them as inputs and outputs.
 
 Two more tasks are built on the forward step without changing it. The
-`restart` task, ported from main, compares a run split across a restart with
-one that is not. The `analysis_output/1_year` task runs Omega for a year on
+`restart` task takes the shape of CIME's ERS test, so that Omega's restarts
+are tested here the way E3SM will test them: a `full_run` writes a restart
+partway through, a `restart_run` continues from it to the end, and the two
+histories are compared. It reads that restart by name rather than through
+`restart_in`, since the full run writes another at its end. The restart run
+appends to a copy of the full run's history up to the restart, which the full
+run writes as a second history stream with an end time, so the task is also a
+regression test for Omega #482, where appending to such a file overwrote the
+earlier frames. The `analysis_output/1_year` task runs Omega for a year on
 every mesh and writes the monthly means, overturning streamfunction and
 daily global statistics the ocean analysis reads. It adds a second yaml file
 for the monthly streams and declares every monthly file as an output, so a
