@@ -375,13 +375,20 @@
 ### frazil
 
 ```{eval-rst}
-.. currentmodule:: polaris.tasks.ocean.single_column
+.. currentmodule:: polaris.tasks.ocean.single_column.frazil
 
 .. autosummary::
    :toctree: generated/
 
    Frazil
    Frazil.configure
+```
+
+```{eval-rst}
+.. currentmodule:: polaris.tasks.ocean.single_column
+
+.. autosummary::
+   :toctree: generated/
 
    frazil.init.FrazilInit
    frazil.init.FrazilInit._compute_temperature_salinity
