@@ -28,8 +28,8 @@ straightforward to build on top of it later.
 That first phase has landed, and so has more than it promised. Two runnable
 task families exist rather than one — `forward` on a mesh the `init` workflow
 builds, and `cached_forward` on an initial condition downloaded from the
-Polaris input-file database — and they turned out to answer different
-questions, which is what decides the physics each one runs. Restart chaining
+Polaris input-file database — and both run the same physics, with comparing
+MPAS-Ocean against Omega left as an opt-in config. Restart chaining
 landed as well and dynamic adjustment is built on it without modifying the
 forward step, exactly as this document called for, as are a restart task and a
 one-year Omega run that writes what the ocean analysis reads. Now that Omega has
@@ -80,7 +80,7 @@ changes.
 
 ### Requirement: Forward runs can start from a database initial condition or from the init workflow
 
-Date last modified: 2026/08/11
+Date last modified: 2026/10/21
 
 Contributors: Xylar Asay-Davis, Claude
 
@@ -93,31 +93,25 @@ MPAS-Ocean, a graph partition file) from either of two sources:
    and configured model.
 
 The choice of source shall be a property of how the task is assembled, not a
-branch inside the forward step. Adding a third source in the future shall not
-require modifying the forward step or the run-settings logic.
+branch inside the forward step.
 
-### Requirement: The two sources of initial condition answer different questions
+### Requirement: Comparing MPAS-Ocean with Omega is opt-in
 
-Date last modified: 2026/08/11
+Date last modified: 2026/10/21
 
 Contributors: Xylar Asay-Davis, Claude
 
-A run from a cached initial condition and a run from the `init` workflow are not
-two sizes of the same test, and the framework shall not treat them as though
-they were. This became clear only once both were runnable, so it is recorded
-here rather than having been designed in.
 
-A run on a cached initial condition exists to compare MPAS-Ocean with Omega on
-one mesh and one initial condition, so it shall use only the physics both models
-have: anything one model has and the other lacks works against the comparison. A
-run on a mesh the `init` workflow builds exists to check that the mesh behaves
-the way it will in a real E3SM configuration, so it shall use E3SM's physics for
-that mesh.
+Every forward run shall be as close to production as each model allows,
+whatever its initial condition. MPAS-Ocean therefore runs physics Omega lacks,
+and a user who wants to compare the two models shall be able to turn that
+physics off through config, without any code or task knowing that a comparison
+is being made.
 
-Every model setting the two need to disagree on shall therefore be a Polaris
-config option rather than a fixed value, and the defaults shall be the E3SM-like
-ones. The two shall be registered as separate tasks so that one mesh could carry
-both without them colliding.
+The cached initial conditions are E3SM's, for E3SM meshes, converted for Omega.
+They let Omega run realistic global configurations, and be compared with
+MPAS-Ocean, before Polaris could build its own initial conditions. The tasks
+that use them are temporary.
 
 ### Requirement: Per-run settings are described in a common, model-agnostic form
 
@@ -252,21 +246,20 @@ coordinate and graph depend on the configured model, the source applies its inpu
 files when the model is known (during step setup) rather than at construction
 time.
 
-### Algorithm Design: The two sources of initial condition answer different questions
+### Algorithm Design: Comparing MPAS-Ocean with Omega is opt-in
 
-Date last modified: 2026/08/11
+Date last modified: 2026/10/21
 
 Contributors: Xylar Asay-Davis, Claude
 
-The difference belongs in config rather than in code. Both tasks build the same
-forward step from the same settings structure; what differs is the values that
-structure is built from, which the per-mesh config file already supplies for
-other reasons. No branch anywhere asks which kind of task it is in.
 
-A consequence worth stating: the list of settings a cached run turns off
-describes what Omega lacks today, not a considered choice of physics. It should
-shrink as Omega gains capabilities, and keeping it in config is what makes
-shrinking it a one-line change rather than a code change.
+The settings that separate a production run from a comparison are already
+config options (see "Physics and mixing options vary with the mesh"), so a
+comparison is just a set of values for them, which a user layers on like any
+other config. The forward package ships those values as a reference file that
+Polaris never reads on its own, so that the list is written down, documented
+and tested in one place. It describes what Omega lacks today and should shrink
+as Omega gains capabilities.
 
 ### Algorithm Design: Per-run settings are described in a common, model-agnostic form
 
@@ -439,30 +432,31 @@ in. And `StepInitialCondition` links the initial state only when the run
 actually reads one, since a stage continuing from a restart does not — a detail
 that belongs to the source rather than to the step for the same reason.
 
-### Implementation: The two sources of initial condition answer different questions
+### Implementation: Comparing MPAS-Ocean with Omega is opt-in
 
-Date last modified: 2026/10/17
+Date last modified: 2026/10/21
 
 Contributors: Xylar Asay-Davis, Claude
 
-`add_realistic_global_cached_forward_tasks` registers one task per entry of
-`forward/tasks.py`'s `CACHED_MESHES`, with a `subdir_name` of `cached_forward`
-rather than `forward` so that a mesh could carry both. Each entry gives the
-MPAS-Ocean and Omega initial-condition IDs on the Polaris server, the minimum
-resolution and the cell count. The two meshes are `QU.240km` and
-`EC30to60E2r2`, whose initial conditions were converted from existing E3SM ones
-by `utils/omega/convert_mpaso_ic_to_omega.py` and uploaded. A cached mesh also
-needs a `mesh_configs/<mesh_name>.cfg` giving its time step and run duration,
-since neither follows from a mesh Polaris did not build.
 
-`QU.240km.cfg` and `EC30to60E2r2.cfg` are where the comparison intent is
-written down: `use_GM`, `use_Redi`, `use_submesoscale` and
-`pressure_gradient_type` turned off or left at the model default. `use_KPP` was
-on that list until Omega gained KPP. The unified
-meshes' configs do the opposite, stating E3SM's mixing and parameterizations
-for their resolution. The two cached configs also give E3SM's split time steps
-for those meshes, an RK4 step, and the momentum viscosities the one-year runs
-settled on.
+`compare_with_omega.cfg` in the forward package turns off `use_GM`, `use_Redi`
+and `use_submesoscale` and sets `pressure_gradient_type = pressure_and_zmid`,
+the ordinary counterpart to Omega's `Centered`. A user passes it, or its lines,
+with `polaris setup -f`, or sets the same options in a step's `forward.cfg`
+before running; the stage is rebuilt from config at run time, so either works.
+The User's Guide includes the file verbatim. `use_KPP` was on the list until
+Omega gained KPP.
+
+`add_realistic_global_cached_forward_tasks` registers one task per entry of
+`forward/tasks.py`'s `CACHED_MESHES`, with a `subdir_name` of `cached_forward`.
+Each entry gives the MPAS-Ocean and Omega initial-condition IDs on the Polaris
+server, the minimum resolution and the cell count. The two meshes are
+`QU.240km` and `EC30to60E2r2`, whose initial conditions were converted from
+existing E3SM ones by `utils/omega/convert_mpaso_ic_to_omega.py` and uploaded.
+A cached mesh's `mesh_configs/<mesh_name>.cfg` gives its split and RK4 time
+steps, its run duration and the momentum viscosities the one-year Omega runs
+settled on, since none of these follows from a mesh Polaris did not build. Its
+physics is the default, as for every other mesh.
 
 The cached tasks are the only members of this family cheap enough for a PR
 suite: both variants of
@@ -471,10 +465,8 @@ and the `split_explicit` one is in `mpaso_pr`. Nothing built on the `init`
 chain belongs in a suite, since that chain is hours of preprocessing before the
 model starts.
 
-`cached_forward` is expected to be temporary. Once Omega has the full physics
-and the initialization workflow has been exercised end to end, the comparison
-can be made on meshes Polaris builds itself and the hand-staged initial
-conditions can go.
+`cached_forward` is temporary: now that Polaris builds realistic initial
+conditions, the cached tasks will be removed.
 
 ### Implementation: Per-run settings are described in a common, model-agnostic form
 
@@ -639,7 +631,7 @@ statistics for when that is left empty; the option came with the step from the
 
 ### Implementation: Physics and mixing options vary with the mesh
 
-Date last modified: 2026/10/17
+Date last modified: 2026/10/21
 
 Contributors: Xylar Asay-Davis, Claude
 
@@ -650,9 +642,9 @@ Contributors: Xylar Asay-Davis, Claude
 `use_Redi`, `use_KPP`, `use_submesoscale`, `pressure_gradient_type`,
 `use_frazil_ice_formation` and `output_density`. The list grew past what this
 section first named once the `forward` tasks had to reproduce E3SM's
-configuration rather than a Compass baseline: the defaults are now the
-E3SM-like ones, and the `cached_forward` tasks override them for the reasons
-given above. Several are off in MPAS-Ocean itself, so leaving them alone would
+configuration rather than a Compass baseline: the defaults are now E3SM's,
+and comparing with Omega turns some of them off (see "Comparing MPAS-Ocean
+with Omega is opt-in" above). Several are off in MPAS-Ocean itself, so leaving them alone would
 not have given E3SM's configuration either.
 
 `hmix_scaling` has two values, `none` and `ref_cell_width`, not the three this
@@ -754,18 +746,21 @@ Omega run has no Omega initial-condition ID. A further pair of tests checks the
 seam between the two: that the forcing streams point at the staged file for one
 source and at the initial condition itself for the other.
 
-### Testing and Validation: The two sources of initial condition answer different questions
+### Testing and Validation: Comparing MPAS-Ocean with Omega is opt-in
 
-Date last modified: 2026/10/15
+Date last modified: 2026/10/21
 
 Contributors: Xylar Asay-Davis, Claude
 
-Unit tests confirm that every cached mesh has a per-mesh config, that those
-configs turn off what Omega lacks, that the model config a cached task renders
-is what those options imply, and that the task's config carries what the
-database source needs — the equation of state above all, since a cached run
-never sets the `init` workflow's config up at all and still has to name the
-equation of state to find the right file.
+
+Unit tests confirm that every cached mesh has a per-mesh config, that the cached
+tasks run the same physics as every other forward run, that the model config a
+cached task renders is what those options imply, that `compare_with_omega.cfg`
+layered on as a user config turns off what Omega lacks and names only real
+options, and that the task's config carries what the database source needs —
+the equation of state above all, since a cached run never sets the `init`
+workflow's config up at all and still has to name the equation of state to
+find the right file.
 
 The end-to-end check is the PR suites, which run the cached `QU.240km` task on
 every pull request: split-explicit in both models, and RK4 in Omega.

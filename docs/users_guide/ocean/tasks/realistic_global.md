@@ -3,7 +3,7 @@
 # realistic_global
 
 The `realistic_global` task group contains tasks that use realistic global
-ocean meshes, bathymetry and forcing. It currently contains six kinds of
+ocean meshes, bathymetry and forcing. It currently contains seven kinds of
 tasks:
 
 - {ref}`ocean-realistic-global-woa23`, a mesh-independent preprocessing task
@@ -14,9 +14,11 @@ tasks:
 - {ref}`ocean-realistic-global-init`, which creates mesh-specific ocean initial
   conditions from that hydrography and forcing together with the culled mesh
   from `e3sm/init`.
-- {ref}`ocean-realistic-global-forward`, short forward runs from either of two
-  sources of initial condition: the `init` workflow above, or a cached file
-  downloaded from the Polaris input database.
+- {ref}`ocean-realistic-global-forward`, short forward runs on a mesh and
+  initial condition the `init` workflow above builds.
+- `cached_forward`, the same short runs from an E3SM initial condition cached
+  in the Polaris input database, a temporary task described in the same
+  section.
 - {ref}`ocean-realistic-global-analysis-output`, one-year Omega runs from
   either source of initial condition, writing what the {ref}`ocean-analysis`
   tasks read.
@@ -643,8 +645,8 @@ mesh and initial condition, not that the simulation is physically interesting.
 Two further steps, `global_stats` and `viz`, plot the run's statistics and its
 state; neither is run by default.
 
-The two tasks are built from the same steps and differ only in where the
-initial condition comes from — and, because of that, in what they are for.
+The two tasks are built from the same steps and run the same physics; they
+differ only in where the initial condition comes from.
 
 Each comes in two variants, which differ only in the time integrator.  The
 `split_explicit` variant uses the default split time stepping in both models.
@@ -685,47 +687,39 @@ Both `QU.240km` `cached_forward` variants are in the `omega_pr` suite, and the
 
 (ocean-realistic-global-forward-purposes)=
 
-### what `forward` and `cached_forward` are for
+### physics, and comparing with Omega
 
-These are not two sizes of the same test.  They answer different questions,
-and that is what decides how each is configured.
+`forward` and `cached_forward` run the same physics, as close to production as
+each model allows.  For MPAS-Ocean, that is E3SM's: Gent-McWilliams, Redi, KPP,
+the submesoscale parameterization and the `Jacobian_from_TS` pressure gradient,
+with the resolution-dependent mixing each mesh needs.  Omega runs what it has
+of these, which today is KPP, so the two models do not run the same physics.
 
-**`cached_forward` compares MPAS-Ocean with Omega.**  Both models start from
-the same initial condition on the same mesh, so the interesting result is how
-their answers differ.  Anything one model has that the other lacks works
-against that, so these runs use only the physics Omega also has: no
-Gent-McWilliams, no Redi, no submesoscale parameterization, and MPAS-Ocean's
-default `pressure_and_zmid` pressure gradient rather than `Jacobian_from_TS`.
-Both models run the KPP boundary layer.  The `rk4` variant also has both models
-advance the same way.
+To compare them, turn off the MPAS-Ocean physics Omega lacks with the options
+in `compare_with_omega.cfg`, in the forward package.  Add them to the user
+config file passed to `polaris setup -f` (or pass the file itself), or set them
+in a step's `forward.cfg` before running it, since the run reads its options
+again then.  Polaris never applies this file on its own:
 
-The list of things turned off describes what Omega lacks today, not a
-considered choice of physics.  It is kept by hand, in the two cached meshes'
-config files, and should shrink as Omega gains capabilities.  The cached
-meshes' configs also raise the momentum viscosity above the default to reduce
-grid-scale noise in the velocity: the biharmonic viscosity to 1.0e15 m^4/s on
-`QU.240km`, and the harmonic one to 1.0e4 m^2/s on `EC30to60E2r2`, where Omega
-does not scale the biharmonic viscosity with cell width
-([Omega#476](https://github.com/E3SM-Project/Omega/issues/476)) and it cannot
-be raised enough to damp the 60-km cells without going unstable in the 30-km
-ones.  These values were chosen before Omega had KPP, and are provisional until
-the fix to Omega's pressure-gradient errors over bathymetry.
+```{literalinclude} ../../../../polaris/tasks/ocean/realistic_global/forward/compare_with_omega.cfg
+:language: cfg
+```
 
-**`forward` tests the mesh itself, in E3SM, with MPAS-Ocean.**  Here the point
-is that the mesh behaves the way it will in a real E3SM configuration, so these
-runs use E3SM's physics: GM, Redi, KPP, the submesoscale parameterization and
-`Jacobian_from_TS`, with the resolution-dependent mixing each mesh needs.
-MPAS-Ocean uses split-explicit time stepping, which is what makes the long
-spin-ups this task feeds into affordable.
-
-Omega can run these too, but only as a smoke test: the physics it is missing
-means the adjustment coefficients cannot yet be tuned in any meaningful way.
+The cached meshes' configs raise the momentum viscosity above the default to
+reduce grid-scale noise in Omega's velocity: the biharmonic viscosity to
+1.0e15 m^4/s on `QU.240km`, and the harmonic one to 1.0e4 m^2/s on
+`EC30to60E2r2`, where Omega does not scale the biharmonic viscosity with cell
+width ([Omega#476](https://github.com/E3SM-Project/Omega/issues/476)) and it
+cannot be raised enough to damp the 60-km cells without going unstable in the
+30-km ones.  These values were chosen before Omega had KPP, and are
+provisional until the fix to Omega's pressure-gradient errors over bathymetry.
 
 :::{note}
-`cached_forward` is expected to be temporary.  Once Omega has the full physics
-and the Polaris initialization workflow has been tested end to end, there will
-be no reason to keep a separate task on hand-staged initial conditions, and
-the comparison can be made on meshes Polaris builds itself.
+`cached_forward` is temporary.  Its initial conditions are E3SM's, for E3SM's
+`QU.240km` and `EC30to60E2r2` meshes, converted for Omega.  They let Omega run
+realistic global configurations, and be compared with MPAS-Ocean, before
+Polaris could build its own initial conditions.  Now that it can, these tasks
+will be removed.
 :::
 
 ### surface forcing
@@ -814,9 +808,9 @@ The horizontal mixing coefficients, the eddy parameterizations and the way
 mixing is scaled across a variable-resolution mesh all depend on the mesh, so
 they are config options rather than fixed values, and most meshes override them
 in their [per-mesh config file](#ocean-realistic-global-mesh-configs).  The
-defaults follow how these meshes are configured in E3SM, which is what the
-`forward` tasks want; `cached_forward` overrides several of them for the
-reasons in {ref}`ocean-realistic-global-forward-purposes`.
+defaults follow how these meshes are configured in E3SM; see
+{ref}`ocean-realistic-global-forward-purposes` for turning off what Omega lacks
+to compare the two models.
 
 A coefficient and its on/off switch are a single option: leaving `mom_del2`
 blank turns harmonic momentum mixing off, and giving it a value turns it on with
@@ -879,13 +873,11 @@ frazil ice (`use_frazil_ice_formation`) and the pressure-gradient formulation
 Omega counterpart for any of them, and Omega is not expected to gain GM or
 Redi.  The KPP boundary layer (`use_KPP`) applies to both models.
 
-They are config options rather than fixed values precisely because the two
-tasks want opposite answers — see
-{ref}`ocean-realistic-global-forward-purposes`.  The defaults are the
-E3SM-like ones, which is what `forward` wants; `cached_forward` turns them off
-in its per-mesh config so that MPAS-Ocean and Omega stay comparable.  Several
-of them are off by default in MPAS-Ocean itself, so leaving them alone would
-not have given E3SM's configuration either.
+They are config options rather than fixed values so that a run comparing
+MPAS-Ocean with Omega can turn off what Omega lacks; see
+{ref}`ocean-realistic-global-forward-purposes`.  The defaults are E3SM's.
+Several of them are off by default in MPAS-Ocean itself, so leaving them alone
+would not have given E3SM's configuration either.
 
 Blank `pressure_gradient_type` leaves the MPAS-Ocean Registry default of
 `pressure_and_zmid`, the ordinary counterpart to Omega's `Centered`;
