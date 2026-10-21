@@ -59,19 +59,56 @@ def add_realistic_global_forward_tasks(component):
 # These are not Polaris-built meshes and there is no init workflow for
 # them; the initial conditions were converted from existing E3SM ones by
 # ``utils/omega/convert_mpaso_ic_to_omega.py`` and uploaded, and the ids and
-# names below are what is on the server.
+# database names below are what is on the server.
 #
 # ``min_res`` is the measured minimum ``dcEdge`` rather than the nominal
 # resolution in the mesh name -- 22.5 km for a mesh called 30-to-60 km --
 # but it goes unused while the per-mesh configs give an explicit time step.
+#
+# The keys are Polaris's names for these E3SM meshes, prefixed with ``e3sm-``
+# to keep them apart from the meshes Polaris builds; ``database_name`` is the
+# name the files on the server carry.
 CACHED_MESHES: Dict[str, Dict[str, Any]] = {
-    'QU.240km': dict(
-        mpaso_id=151209, omega_id=260807, min_res=240.0, cell_count=7153
+    'e3sm-qu240': dict(
+        database_name='QU.240km',
+        mpaso_id=151209,
+        omega_id=260807,
+        min_res=240.0,
+        cell_count=7153,
     ),
-    'EC30to60E2r2': dict(
-        mpaso_id=200908, omega_id=260807, min_res=22.5, cell_count=236853
+    'e3sm-ec30to60e2r2': dict(
+        database_name='EC30to60E2r2',
+        mpaso_id=200908,
+        omega_id=260807,
+        min_res=22.5,
+        cell_count=236853,
     ),
 }
+
+
+def get_cached_initial_condition(mesh_name):
+    """
+    The initial condition of a cached mesh, from the Polaris input-file
+    database
+
+    Parameters
+    ----------
+    mesh_name : str
+        A key of ``CACHED_MESHES``, e.g. ``e3sm-qu240``
+
+    Returns
+    -------
+    init_condition : DatabaseInitialCondition
+        The source of the model input files
+    """
+    mesh_info = CACHED_MESHES[mesh_name]
+    return DatabaseInitialCondition(
+        mesh_name=mesh_info['database_name'],
+        mpaso_id=mesh_info['mpaso_id'],
+        omega_id=mesh_info['omega_id'],
+        min_res=mesh_info['min_res'],
+        approx_cell_count=mesh_info['cell_count'],
+    )
 
 
 def add_realistic_global_cached_forward_tasks(component):
@@ -94,14 +131,8 @@ def add_realistic_global_cached_forward_tasks(component):
     component : polaris.tasks.ocean.Ocean
         The ocean component to add the tasks to.
     """
-    for mesh_name, mesh_info in CACHED_MESHES.items():
-        init_condition = DatabaseInitialCondition(
-            mesh_name=mesh_name,
-            mpaso_id=mesh_info['mpaso_id'],
-            omega_id=mesh_info['omega_id'],
-            min_res=mesh_info['min_res'],
-            approx_cell_count=mesh_info['cell_count'],
-        )
+    for mesh_name in CACHED_MESHES:
+        init_condition = get_cached_initial_condition(mesh_name)
         for time_integrator in TIME_INTEGRATORS:
             component.add_task(
                 RealisticGlobalForward(

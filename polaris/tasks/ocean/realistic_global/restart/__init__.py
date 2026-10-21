@@ -56,7 +56,7 @@ class Restart(Task):
             The ocean component that this task belongs to
 
         mesh_name : str
-            The name of the mesh (e.g. ``QU.240km``)
+            The name of the mesh (e.g. ``e3sm-qu240``)
 
         init_condition : InitialCondition
             The source of the model input files, shared by every forward step

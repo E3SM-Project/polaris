@@ -873,7 +873,7 @@ def test_omega_history_stream_is_diagnosable():
     variables, which is enough to see that a run went wrong and not enough to
     see why.  AuxiliaryState, SshCell and Eos add the vorticity, divergence,
     del2, free-surface and stratification fields -- 18 more variables on
-    QU.240km -- that separate a dynamics problem from a stratification one.
+    e3sm-qu240 -- that separate a dynamics problem from a stratification one.
     """
     stage = ForwardStage.from_config(_forward_config())
     yaml = PolarisYaml.read(
