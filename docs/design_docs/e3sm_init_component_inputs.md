@@ -56,8 +56,8 @@ adjustment through explicit dependencies; and leaves a straightforward path for
 supporting both MPAS-Ocean-based and Omega-based coupled workflows.
 
 The first branch has landed for MPAS-Ocean and MPAS-Seaice on unified meshes,
-and has been run end to end on `u-oi240-lr240` and `u-oi30-lr10`, with
-`u-oi6to18-lr12p5`, `u-oi6to18-lr25` and `u-oi-so12to30-lr10` following.
+and has been run end to end on `u-oi240-lr240`, `u-oi30-lr10`,
+`u-oi6to18-lr12p5` and `u-oi6to18-lr25`, with `u-oi-so12to30-lr10` following.
 Four things the implementation changed are recorded in the sections below:
 
 1. The MOC basin masks moved out of the analysis products and into the
