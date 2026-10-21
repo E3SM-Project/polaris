@@ -41,13 +41,15 @@ from polaris.tasks.ocean.realistic_global.dynamic_adjustment.steps import (
     FORWARD_CONFIG_PACKAGE,
     get_realistic_dynamic_adjustment_steps,
 )
+from polaris.tasks.ocean.realistic_global.dynamic_adjustment.summary import (
+    SUMMARY_FILENAME,
+    Summary,
+)
 from polaris.tasks.ocean.realistic_global.dynamic_adjustment.task import (
     RealisticGlobalDynamicAdjustment,
 )
 from polaris.tasks.ocean.realistic_global.dynamic_adjustment.validate import (
-    SUMMARY_FILENAME,
     StageCheck,
-    Validate,
 )
 from polaris.tasks.ocean.realistic_global.dynamic_adjustment.viz import (
     FIGURE_FILENAME,
@@ -295,7 +297,7 @@ def test_every_step_is_registered_on_the_component():
         component=component, mesh_name='u-oi240-lr240', include_viz=True
     )
     adjustment = _adjustment_steps(steps)
-    # every stage, its check, validate and viz
+    # every stage, its check, the summary and viz
     assert len(adjustment) == 2 * 4 + 2
     for step in adjustment.values():
         assert component.steps[step.subdir] is step, step.subdir
@@ -1086,7 +1088,7 @@ def test_cfl_max_skipped_when_not_reported():
     check_cfl_max(None, 1.0, 0.2, 'simulation', LOGGER)
 
 
-# --- the validate step, for both models ---
+# --- the summary step, for both models ---
 
 
 def _write_stage_output(
@@ -1115,26 +1117,26 @@ def _write_stage_output(
             names['kinetic_energy']: (dims, np.array(kinetic_energy)),
         }
     )
-    work_dir = directory / 'validate'
+    work_dir = directory / 'summary'
     work_dir.mkdir(parents=True, exist_ok=True)
     ds.to_netcdf(work_dir / f'output_{stage_name}.nc')
 
 
-def _validate_step(tmp_path, model, stages, temperature, kinetic_energy):
-    """A Validate step with its stage outputs written, ready to run."""
+def _summary_step(tmp_path, model, stages, temperature, kinetic_energy):
+    """A Summary step with its stage outputs written, ready to run."""
     component = Ocean()
     component.model = model
     if model == 'omega':
         # normally done by Ocean.configure(); the maps are what let the
         # checks read an Omega output.nc with MPAS-Ocean names
         component._read_var_map()
-    step = Validate(
+    step = Summary(
         component=component,
         stages=[
             ForwardStage(name=name, run_duration='10_00:00:00')
             for name in stages
         ],
-        subdir='spherical/realistic_global/u-oi240-lr240/dynamic_adjustment/validate',
+        subdir='spherical/realistic_global/u-oi240-lr240/dynamic_adjustment/summary',
     )
     config = _config('u-oi240-lr240')
     override = tmp_path / 'model.cfg'
@@ -1155,9 +1157,9 @@ def _validate_step(tmp_path, model, stages, temperature, kinetic_energy):
 
 
 @pytest.mark.parametrize('model', ['mpas-ocean', 'omega'])
-def test_validate_summarizes_for_either_model(tmp_path, monkeypatch, model):
+def test_summary_runs_for_either_model(tmp_path, monkeypatch, model):
     stages = ['damped_1', 'damped_2', 'damped_3', 'simulation']
-    step = _validate_step(
+    step = _summary_step(
         tmp_path,
         model,
         stages,
@@ -1169,7 +1171,7 @@ def test_validate_summarizes_for_either_model(tmp_path, monkeypatch, model):
             [[1.0, 4.0]],
         ],
     )
-    monkeypatch.chdir(tmp_path / 'validate')
+    monkeypatch.chdir(tmp_path / 'summary')
     step.run()
 
 
@@ -1574,18 +1576,18 @@ def _stage_check(tmp_path, model, stage_name):
     return step
 
 
-def test_validate_does_not_judge_the_kinetic_energy(tmp_path, monkeypatch):
+def test_summary_does_not_judge_the_kinetic_energy(tmp_path, monkeypatch):
     """
     A sequence whose mean kinetic energy accelerates -- 2x, 2x, then 4x --
     which the removed settling check would have rejected.  Whether an
     adjustment has settled is now read from the summary and the viz figure,
-    so validate collects and reports it rather than ruling on it.
+    so the summary collects and reports it rather than ruling on it.
     """
     stages = ['damped_1', 'damped_2', 'damped_3', 'simulation']
     step = _run_with_stats(
         tmp_path, monkeypatch, 'mpas-ocean', stages, [1.0, 2.0, 4.0, 16.0]
     )
-    lines = (tmp_path / 'validate' / SUMMARY_FILENAME).read_text().splitlines()
+    lines = (tmp_path / 'summary' / SUMMARY_FILENAME).read_text().splitlines()
     assert len(lines) == len(stages) + 1
     assert step is not None
 
@@ -1683,8 +1685,8 @@ def _stats_series(ke_end, temperature_mean):
 
 
 def _run_with_stats(tmp_path, monkeypatch, model, stages, ke_end):
-    """Run a Validate step that has both stats files and output.nc."""
-    step = _validate_step(
+    """Run a Summary step that has both stats files and output.nc."""
+    step = _summary_step(
         tmp_path,
         model,
         stages,
@@ -1698,7 +1700,7 @@ def _run_with_stats(tmp_path, monkeypatch, model, stages, ke_end):
             model,
             **_stats_series(ke_end[index], 3.5 - 0.01 * index),
         )
-    monkeypatch.chdir(tmp_path / 'validate')
+    monkeypatch.chdir(tmp_path / 'summary')
     step.run()
     return step
 
@@ -1709,7 +1711,7 @@ def test_the_summary_applies_the_startup_window_to_tracers_only(
     # the summary a user reads and the checks that passed cannot disagree, so
     # the same window has to reach the CSV -- and reach only the columns the
     # checks apply it to
-    step = _validate_step(
+    step = _summary_step(
         tmp_path,
         'mpas-ocean',
         ['damped_1'],
@@ -1719,10 +1721,10 @@ def test_the_summary_applies_the_startup_window_to_tracers_only(
     series = _hourly_stats_series()
     series['normalVelocityMax'][1] = 9.0
     _write_stage_stats(tmp_path, 'damped_1', 'mpas-ocean', **series)
-    monkeypatch.chdir(tmp_path / 'validate')
+    monkeypatch.chdir(tmp_path / 'summary')
     step.run()
 
-    lines = (tmp_path / 'validate' / SUMMARY_FILENAME).read_text().splitlines()
+    lines = (tmp_path / 'summary' / SUMMARY_FILENAME).read_text().splitlines()
     row = dict(zip(column_names(), lines[1].split(',')[1:], strict=True))
     # the artifact's first two hours are excluded, so the stage is judged from
     # hour 3
@@ -1737,7 +1739,7 @@ def test_diagnostics_summary_is_written(tmp_path, monkeypatch):
     _run_with_stats(
         tmp_path, monkeypatch, 'mpas-ocean', stages, [10.0, 5.0, 4.2, 4.1]
     )
-    lines = (tmp_path / 'validate' / SUMMARY_FILENAME).read_text().splitlines()
+    lines = (tmp_path / 'summary' / SUMMARY_FILENAME).read_text().splitlines()
     assert len(lines) == len(stages) + 1
 
     header = lines[0].split(',')
@@ -1756,7 +1758,7 @@ def test_diagnostics_prefer_global_statistics(tmp_path, monkeypatch):
     stages = ['damped_1', 'simulation']
     _run_with_stats(tmp_path, monkeypatch, 'mpas-ocean', stages, [5.0, 4.0])
     columns = column_names()
-    lines = (tmp_path / 'validate' / SUMMARY_FILENAME).read_text().splitlines()
+    lines = (tmp_path / 'summary' / SUMMARY_FILENAME).read_text().splitlines()
     values = dict(zip(columns, lines[1].split(',')[1:], strict=False))
     assert float(values['temperature_max_in_stage']) == pytest.approx(30.0)
     # the first sample (7.0) is the state the stage was handed, not its own
@@ -1768,7 +1770,7 @@ def test_diagnostics_record_the_mean_tracer_change(tmp_path, monkeypatch):
     stages = ['damped_1', 'simulation']
     _run_with_stats(tmp_path, monkeypatch, 'mpas-ocean', stages, [5.0, 4.0])
     columns = column_names()
-    lines = (tmp_path / 'validate' / SUMMARY_FILENAME).read_text().splitlines()
+    lines = (tmp_path / 'summary' / SUMMARY_FILENAME).read_text().splitlines()
     values = dict(zip(columns, lines[1].split(',')[1:], strict=False))
     assert float(values['mean_temperature_change_per_day']) == pytest.approx(
         -0.001
@@ -1782,7 +1784,7 @@ def test_diagnostics_leave_unreported_metrics_blank(tmp_path, monkeypatch):
     stages = ['damped_1', 'simulation']
     _run_with_stats(tmp_path, monkeypatch, 'omega', stages, [5.0, 4.0])
     columns = column_names()
-    lines = (tmp_path / 'validate' / SUMMARY_FILENAME).read_text().splitlines()
+    lines = (tmp_path / 'summary' / SUMMARY_FILENAME).read_text().splitlines()
     values = dict(zip(columns, lines[1].split(',')[1:], strict=False))
     assert values['kinetic_energy_mean'] == ''
     assert values['kinetic_energy_total'] == ''
@@ -1826,17 +1828,17 @@ def test_diagnostics_fall_back_when_there_are_no_statistics(
 ):
     # no stats file at all: the step still runs, on output.nc alone
     stages = ['damped_1', 'simulation']
-    step = _validate_step(
+    step = _summary_step(
         tmp_path,
         'mpas-ocean',
         stages,
         temperature=[[[10.0, 20.0]]] * 2,
         kinetic_energy=[[[1.0, 5.0]], [[1.0, 4.0]]],
     )
-    monkeypatch.chdir(tmp_path / 'validate')
+    monkeypatch.chdir(tmp_path / 'summary')
     step.run()
     columns = column_names()
-    lines = (tmp_path / 'validate' / SUMMARY_FILENAME).read_text().splitlines()
+    lines = (tmp_path / 'summary' / SUMMARY_FILENAME).read_text().splitlines()
     values = dict(zip(columns, lines[1].split(',')[1:], strict=False))
     assert float(values['kinetic_energy_max']) == pytest.approx(5.0)
     assert float(values['temperature_max_in_stage']) == pytest.approx(20.0)
