@@ -64,6 +64,7 @@ class Forward(OceanModelStep):
         forcing_streams_yaml_filename='forcing_streams.yaml',
         output_filenames: Optional[List[str]] = None,
         validate_vars=None,
+        validate_class=None,
         check_properties=None,
         update_eos=False,
     ):
@@ -113,6 +114,11 @@ class Forward(OceanModelStep):
         validate_vars : list of str, optional
             Variables in each output file to validate against a baseline.
 
+        validate_class : str, optional
+            A named class of variables from ``variables.yaml`` to validate in
+            each output file, such as ``'state'``, in addition to
+            ``validate_vars``.
+
         check_properties : list of str, optional
             Conservation properties of each output file to check.
 
@@ -145,6 +151,7 @@ class Forward(OceanModelStep):
             self.add_output_file(
                 filename=output_filename,
                 validate_vars=validate_vars,
+                validate_class=validate_class,
                 check_properties=check_properties,
             )
 
