@@ -6,6 +6,9 @@
 #
 #     ./sync_to_inputdata.sh /lcrc/group/e3sm/data/inputdata
 #
+# Add --dry-run first to list what would be copied without copying it or
+# changing any permissions.
+#
 # The destination must already exist: this is a copy into a directory someone
 # else curates, not a place to create one.
 #
@@ -23,8 +26,14 @@
 
 set -euo pipefail
 
+dry_run=false
+if [ $# -ge 1 ] && [ "$1" = "--dry-run" ]; then
+    dry_run=true
+    shift
+fi
+
 if [ $# -ne 1 ]; then
-    echo "usage: $(basename "$0") <dest_inputdata>" >&2
+    echo "usage: $(basename "$0") [--dry-run] <dest_inputdata>" >&2
     exit 1
 fi
 
@@ -49,6 +58,13 @@ if [ ! -d inputdata ]; then
     exit 1
 fi
 
+if ${dry_run}; then
+    echo "dry run: what would be synced to ${dest}"
+    rsync --dry-run --verbose --ignore-existing --recursive --copy-links \
+        inputdata/ "${dest}"
+    exit 0
+fi
+
 echo "syncing to ${dest}"
 rsync --verbose --ignore-existing --recursive --copy-links \
     inputdata/ "${dest}"
@@ -56,11 +72,12 @@ rsync --verbose --ignore-existing --recursive --copy-links \
 echo "setting permissions on what was synced"
 cd inputdata
 
-# directories: user and group read/write/execute, world read/execute
+# directories: user and group read/write/execute, world read/execute, and
+# setgid, as inputdata directories are, so files added later keep the group
 while IFS= read -r -d '' path; do
     target="${dest}/${path#./}"
     if [ -d "${target}" ]; then
-        chmod 775 "${target}" || echo "warning: could not chmod ${target}" >&2
+        chmod 2775 "${target}" || echo "warning: could not chmod ${target}" >&2
     fi
 done < <(find . -mindepth 1 -type d -print0)
 
