@@ -18,8 +18,8 @@ groups:
   the Polaris input database instead, a temporary task.
 - `analysis_output`, one-year Omega runs on either source of initial
   condition that write what the ocean analysis reads.
-- `restart`, a short Omega run split across a restart, checking that the
-  history output survives the restart intact.
+- `restart`, a short Omega run continued from a restart, checking that it
+  matches the uninterrupted run, history output included.
 
 Tasks are added to the ocean component by
 {py:func}`polaris.tasks.ocean.realistic_global.add_realistic_global_tasks`,
@@ -267,22 +267,28 @@ at those instants, are named the same way.
 
 ## restart
 
-The {py:class}`polaris.tasks.ocean.realistic_global.restart.Restart` task is a
-regression test for
-[Omega #482](https://github.com/E3SM-Project/Omega/issues/482).  It runs the
-same period twice, once in one go and once split across a restart, and checks
-that the two histories agree.
+The {py:class}`polaris.tasks.ocean.realistic_global.restart.Restart` task is
+shaped like CIME's ERS (exact restart) test, since Omega's restarts will be
+tested that way once Omega runs in E3SM.  A `full_run` covers the whole period
+and writes a restart partway through; a `restart_run` continues from that
+restart to the end; and `validate` checks that the two histories agree.  It is
+also a regression test for
+[Omega #482](https://github.com/E3SM-Project/Omega/issues/482), which ERS
+alone would not catch: CIME's restart run writes history files of its own,
+whereas #482 broke appending to a history file that already held the frames
+from before the restart.  So the full run also writes its history up to the
+restart to a file of its own, and the restart run appends to a copy of it.
 
 The run lengths live as module-level constants in the task rather than in the
 config file, since they are chosen to make the failure visible -- two history
-frames per segment, so that a segment that clobbered rather than appended
-would be obvious -- rather than to be tuned by a user.
+frames on each side of the restart, so that a restart run that clobbered
+rather than appended would be obvious -- rather than to be tuned by a user.
 
 Everything else comes from the `[realistic_global_forward]` config options,
 as for any other forward run, including the time steps and viscosity in
 `e3sm-qu240`'s per-mesh config file; the task's `restart.cfg` sets only the
-equation of state.  All three forward steps are `RestartStep`s, including the full
-run, so that the full run and the chain run the same model.
+equation of state.  Both forward steps are `RestartStep`s, so that the two run
+the same model.
 
 ### restart_step
 
@@ -290,62 +296,73 @@ The class
 {py:class}`polaris.tasks.ocean.realistic_global.restart.restart_step.RestartStep`
 extends the
 {py:class}`~polaris.tasks.ocean.realistic_global.forward.forward.Forward` step
-with what a step of a restart chain needs.  `dynamic_model_config()` builds
-the step's
+with what the full run and the restart run need.  `dynamic_model_config()`
+builds the step's
 {py:class}`~polaris.tasks.ocean.realistic_global.forward.stage.ForwardStage`
-from config with the task's run duration and history interval, so that config
-changes after setup still take effect, and then layers the task's own
-`forward.yaml` on top of the shared one; because model config data is
-processed in the order it was added, the task's overrides win.  `setup()`
-rejects any model other than Omega, since the failure being tested cannot
-arise in MPAS-Ocean.
+from config with the step's run duration and the task's history interval, so
+that config changes after setup still take effect, and then layers the task's
+`full_run.yaml` or `restart_run.yaml` on top of the shared `forward.yaml`;
+because model config data is processed in the order it was added, the task's
+overrides win.  `setup()` rejects any model other than Omega, since the
+failure being tested cannot arise in MPAS-Ocean.
 
-The task's `forward.yaml` sets only Omega's start type, start time and restart
-streams.  It does not use the `restart_in`/`restart_out` chaining of
-`ForwardStage`, though the Omega side of that chain in `restart_streams.yaml`
-follows the same pattern: a start type, and a pointer file in a restart
-directory of each step's own.
+`full_run.yaml` writes a restart every `restart_freq` seconds, so once at the
+restart time and again at the end, with no pointer file.  It also adds a
+`HistoryBeforeRestart` stream: a copy of the base `History` stream, writing
+`output_before_restart.nc`, that stops with an end time between the frame at
+the restart time and the next one, since Omega writes nothing once a stream's
+end time has passed.  A unit test checks that the copy matches `History` in
+everything else, since the restart run appends to that file with the
+`History` stream.
 
-`runtime_setup()` creates the restart directory this segment writes into,
-which Omega does not create itself, and, for a continuing segment, copies the
-previous segment's `output.nc` into place.  Each segment gets a directory of
-its own under the task's `restarts`, named for the step, and a continuing
-segment reads its predecessor's.  A single shared directory would mean a
-segment's own end-of-run restart replaced the pointer file it had just read
-from, so re-running that step alone would silently continue from the wrong
-time.  The copy is what makes the test
-meaningful: it reproduces what a continuation run finds on disk, a history
-file that already holds the earlier frames.  It is a copy rather than a
-symlink so that appending to it cannot reach back into the previous segment's
-work directory.
+`restart_run.yaml` continues from the full run's restart at the restart time,
+read by name rather than through a pointer file, since the full run writes
+another restart at its end.  The restart's file name is computed in
+`restart_file()` the way Omega stamps it.  Both steps declare that restart to
+Polaris, the full run as an output and the restart run as an input, so a
+missing restart is caught before the model launches.  It does not use the
+`restart_in`/`restart_out` chaining of `ForwardStage`, which is for chaining
+whole runs one after another.
 
-The previous segment's output is also added as an input file under the name
-`previous_output.nc`, which both establishes the dependency between the two
-steps and keeps the symlink out of the way of the copy.
+`runtime_setup()` creates the restart directory the step writes into, which
+Omega does not create itself, and, for the restart run, copies the full run's
+`output_before_restart.nc` into place as `output.nc`.  Each step gets a
+directory of its own under the task's `restarts`, named for the step, so the
+restart run's restart at its end cannot replace one the full run wrote.  The
+copy is what makes the #482 check meaningful: it reproduces what a continuing
+run finds on disk, a history file that already holds the earlier frames.  It
+is a copy rather than a symlink so that appending to it cannot reach back into
+the full run's work directory.  The full run's history up to the restart is
+also added as an input file under the name `previous_output.nc`, which both
+establishes the dependency between the two steps and keeps the symlink out of
+the way of the copy.
 
 ### the start time
 
-The one subtlety in `forward.yaml` is that every step is given the same
-`StartTime`, the start of the simulation, rather than the start of its own
-segment.  Omega measures the history time axis from the clock's start time, so
-a segment that moves the start time restarts that axis at zero, and its first
-frame then collides with the first frame already in the file.  That collision
-is what silently overwrote the earlier frames in #482.  On a `Continue` the
-clock's current time comes from the restart file instead, so the start time
-does not need to move.
+The one subtlety in `restart_run.yaml` is that the restart run is given the
+same `StartTime` as the full run, the start of the simulation, rather than the
+restart time.  Omega measures the history time axis from the clock's start
+time, so a run that moves the start time restarts that axis at zero, and its
+first frame then collides with the first frame already in the file.  That
+collision is what silently overwrote the earlier frames in #482.  On a
+`Continue` the clock's current time comes from the restart file instead, so
+the start time does not need to move.
 
 ### validate
 
 The class
 {py:class}`polaris.tasks.ocean.realistic_global.restart.validate.Validate`
-compares the history of the restart chain with that of the full run in two
-ways.  It reads the elapsed-time coordinate with `xarray` directly, rather
-than through the Omega-to-MPAS-Ocean renaming in `open_model_dataset()`,
-because that coordinate is the variable under test; it then compares the state
-variables with {py:func}`polaris.validate.compare_variables` as any other
-exact-restart test would.  A chain that wrote fewer frames than the full run
-is reported as the #482 failure specifically, since that is the shape the bug
-takes.
+compares the history of the restart run with that of the full run.  It reads
+the elapsed-time coordinate with `xarray` directly, rather than through the
+Omega-to-MPAS-Ocean renaming in `open_model_dataset()`, because that coordinate
+is the variable under test; it then compares the state variables with
+{py:func}`polaris.validate.compare_variables` as any other exact-restart test
+would.  A restart run whose history has fewer frames than the full run's is
+reported as the #482 failure specifically, since that is the shape the bug
+takes.  It also checks that the history up to the restart holds fewer frames
+than the full run's and matches its first ones; otherwise the restart run
+would have had nothing to append to, and the time-axis check would pass
+without testing anything.
 
 (dev-ocean-realistic-global-woa23)=
 
