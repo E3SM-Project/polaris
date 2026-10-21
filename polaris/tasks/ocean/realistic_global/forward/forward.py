@@ -38,8 +38,9 @@ class Forward(OceanModelStep):
         The model-config file that turns the wind forcing on.  Always added.
 
     forcing_streams_yaml_filename : str
-        The Jinja2 template that points each model's input stream at the staged
-        forcing file.  Only added when ``init_condition`` stages one.
+        The Jinja2 template that points each model's input stream at the file
+        that holds the wind stress, which ``init_condition`` names.  Always
+        added.
 
     stream_dirs : list of str
         Directories, relative to the step's work directory, that Omega's
@@ -103,7 +104,7 @@ class Forward(OceanModelStep):
 
         forcing_streams_yaml_filename : str, optional
             A YAML file that is a Jinja2 template of the forcing input streams,
-            used only when ``init_condition`` stages a forcing file.
+            always added.
 
         output_filenames : list of str, optional
             The files the run writes, relative to the step's work directory,
@@ -240,21 +241,16 @@ class Forward(OceanModelStep):
         # to turn it off
         self.add_yaml_file(self.package, self.forcing_yaml_filename)
 
-        # the input streams, in contrast, are only added when the model reads
-        # its forcing from a staged file, since MPAS-Ocean aborts when an input
-        # stream names a file that is not there.  Which file that is belongs to
-        # the initial condition: a database source carries the wind stress in
-        # the initial-condition file rather than one of its own.
-        if self.init_condition.provides_forcing_file:
-            self.add_yaml_file(
-                self.package,
-                self.forcing_streams_yaml_filename,
-                template_replacements=dict(
-                    forcing_filename=self.init_condition.get_forcing_filename(
-                        self
-                    )
-                ),
-            )
+        # which file holds the wind stress belongs to the initial condition: a
+        # database source carries it in the initial-condition file rather
+        # than one of its own
+        self.add_yaml_file(
+            self.package,
+            self.forcing_streams_yaml_filename,
+            template_replacements=dict(
+                forcing_filename=self.init_condition.get_forcing_filename(self)
+            ),
+        )
 
         # horizontal mixing and the KPP boundary layer are supported by both
         # models, so they are added in MPAS-Ocean naming and translated to

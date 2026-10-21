@@ -774,7 +774,6 @@ def test_step_initial_condition_wires_the_forcing_file():
         approx_cell_count=10417,
         forcing_step=cast(Step, _FakeStep(path=f'{base}/forcing')),
     )
-    assert ic.provides_forcing_file
 
     forward = _FakeStep(forcing_filename='custom_forcing.nc')
     ic.add_input_files(cast(OceanModelStep, forward))
@@ -1005,7 +1004,6 @@ def test_database_forcing_streams_read_the_initial_condition():
     does not exist.
     """
     ic = _database_ic()
-    assert ic.provides_forcing_file
     step = _FakeStep(model='mpas-ocean', init_filename='init.nc')
     assert ic.get_forcing_filename(cast(OceanModelStep, step)) == 'init.nc'
     # a step-backed source keeps using its own staged forcing file

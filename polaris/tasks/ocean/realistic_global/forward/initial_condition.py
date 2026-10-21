@@ -29,18 +29,11 @@ class InitialCondition(ABC):
     graph_target : str or None
         The graph partition file for the step to use (a work-directory-relative
         path), or ``None`` when no existing graph file is provided.
-
-    provides_forcing_file : bool
-        Whether the model reads its surface forcing from a file this source
-        stages.  Every realistic_global forward run is wind-forced, so this is
-        true for every source that is wired into a task; it exists so that a
-        future source which forces the run some other way can say so.
     """
 
     min_res: float
     approx_cell_count: Optional[int]
     graph_target: Optional[str] = None
-    provides_forcing_file: bool = False
 
     @abstractmethod
     def add_input_files(self, step: 'OceanModelStep') -> None:
@@ -131,7 +124,6 @@ class StepInitialCondition(InitialCondition):
         self.approx_cell_count = approx_cell_count
         self.graph_target = f'{init_step.path}/culled_graph.info'
         self.forcing_step = forcing_step
-        self.provides_forcing_file = True
 
     def add_input_files(self, step: 'OceanModelStep') -> None:
         """
@@ -252,8 +244,6 @@ class DatabaseInitialCondition(InitialCondition):
         self.approx_cell_count = approx_cell_count
         self.eos_type = eos_type
         self.database = database
-        # the wind stress is in the initial-condition file
-        self.provides_forcing_file = True
         # graph.info comes from the database rather than an upstream work
         # directory, and is added in add_input_files() once the model is known
         self.graph_target = None
