@@ -136,7 +136,7 @@ def base_mesh_path(short_name: str, creation_date: str) -> str:
     """
     Where the base mesh, carrying the base-to-culled index maps, is staged.
 
-    Under ``share/meshes/mpas/unified/<short_name>/`` rather than Compass'
+    Under ``share/meshes/mpas/unified/<id>/`` rather than Compass'
     ``share/meshes/mpas/ocean/``: for a unified mesh the base mesh belongs to
     the ocean, sea-ice, land and river components equally, and filing it under
     the ocean would misdescribe it.  The per-mesh subdirectory keeps one
@@ -198,7 +198,7 @@ def ocean_scrip_path(short_name: str, creation_date: str, region: str) -> str:
     """
     Where a SCRIP description is staged beside the ocean products.
 
-    The same files are staged under ``share/meshes/mpas/unified/<short_name>/``
+    The same files are staged under ``share/meshes/mpas/unified/<id>/``
     by :py:func:`scrip_path`.  They are in both places because developers look
     for them in both: with the mesh files and with the ocean files that were
     built from them.
@@ -246,7 +246,7 @@ def culled_mesh_path(short_name: str, creation_date: str, region: str) -> str:
     """
     Where one culled mesh is staged.
 
-    Next to the base mesh under ``share/meshes/mpas/unified/<short_name>/``
+    Next to the base mesh under ``share/meshes/mpas/unified/<id>/``
     rather than under a component's own directory, for the same reason the
     base mesh is there: a culled mesh describes a domain of the unified mesh,
     not a file one component reads at run time.  Compass files its ocean mesh
@@ -303,7 +303,8 @@ def ocean_initial_condition_path(short_name: str, creation_date: str) -> str:
     str
         The path, relative to :py:data:`ASSEMBLED_FILES`.
     """
-    return f'{_ocean_dir(short_name)}/mpaso.{short_name}.{creation_date}.nc'
+    grid = _ocean_grid_name(short_name)
+    return f'{_ocean_dir(short_name)}/mpaso.{grid}.{creation_date}.nc'
 
 
 def ocean_moc_masks_path(
@@ -388,7 +389,8 @@ def seaice_initial_condition_path(short_name: str, creation_date: str) -> str:
     str
         The path, relative to :py:data:`ASSEMBLED_FILES`.
     """
-    return f'{_seaice_dir(short_name)}/mpassi.{short_name}.{creation_date}.nc'
+    grid = _ocean_grid_name(short_name)
+    return f'{_seaice_dir(short_name)}/mpassi.{grid}.{creation_date}.nc'
 
 
 def seaice_partition_path(
@@ -423,23 +425,48 @@ def _mesh_dir(short_name: str) -> str:
     """
     The shared mesh directory for one unified mesh.
 
-    Every unified mesh gets its own subdirectory, named for its E3SM short
-    name.  The flat directory it replaced held half a dozen files per mesh --
-    a base mesh, three SCRIP descriptions and two culled meshes -- so with
-    more than a couple of meshes in it there was no way to see which files
-    belonged together.  The short name is already in every filename, so the
-    subdirectory adds no information; what it adds is that the mesh's files
-    are listed together and can be copied or removed as a unit.
+    Every unified mesh gets its own subdirectory, named for the two-digit ID
+    that leads its E3SM short name (``u02`` for ``u02-oi30-lr10``), as on the
+    inputdata server and in E3SM's own references to these files.  The flat
+    directory it replaced held half a dozen files per mesh -- a base mesh,
+    three SCRIP descriptions and two culled meshes -- so with more than a
+    couple of meshes in it there was no way to see which files belonged
+    together.  The short name is already in every filename; what the
+    subdirectory adds is that the mesh's files are listed together and can be
+    copied or removed as a unit.
     """
-    return f'{_UNIFIED_MESH_DIR}/{short_name}'
+    return f'{_UNIFIED_MESH_DIR}/{_mesh_id(short_name)}'
 
 
 def _ocean_dir(short_name: str) -> str:
-    return f'inputdata/ocn/mpas-o/{short_name}'
+    return f'inputdata/ocn/mpas-o/{_ocean_grid_name(short_name)}'
 
 
 def _seaice_dir(short_name: str) -> str:
-    return f'inputdata/ice/mpas-seaice/{short_name}'
+    return f'inputdata/ice/mpas-seaice/{_ocean_grid_name(short_name)}'
+
+
+def _mesh_id(short_name: str) -> str:
+    """
+    The ID that leads an E3SM short name: ``u02`` for ``u02-oi30-lr10``.
+    """
+    return short_name.split('-', 1)[0]
+
+
+def _ocean_grid_name(short_name: str) -> str:
+    """
+    E3SM's name for the ocean and sea-ice grid of a mesh.
+
+    E3SM splits a unified mesh into an ``ocnice`` grid and a land and river
+    grid, named for the ID and the matching half of the short name:
+    ``u02-oi30`` and ``u02-lr10`` for ``u02-oi30-lr10``.  The ocean and
+    sea-ice directories and initial conditions are named for the ``ocnice``
+    grid.  A short name with no land part, as an override might give for an
+    ocean-only mesh, is the grid name as it stands.
+    """
+    if '-lr' not in short_name:
+        return short_name
+    return short_name.rsplit('-lr', 1)[0]
 
 
 def _get_nonempty(
