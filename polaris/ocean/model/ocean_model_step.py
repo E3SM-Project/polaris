@@ -717,11 +717,19 @@ class OceanModelStep(OceanModelFilesMixin, ModelStep):
                     )
                     if (
                         getattr(self, 'frazil_conservation', False)
-                        and config.get('ocean', 'model') == 'omega'
                         and baseline == 'init'
                     ):
+                        model = config.get('ocean', 'model')
                         expected_change += compute_frazil_fluxes(
-                            ds_mesh, ds, time_index_end=time_index_end
+                            ds_mesh,
+                            ds,
+                            time_index_end=time_index_end,
+                            model=model,
+                            time_step=(
+                                config.getfloat('single_column', 'time_step')
+                                if model == 'mpas-ocean'
+                                else None
+                            ),
                         )[output_property]
 
                 relative_error = self._compute_rel_err(

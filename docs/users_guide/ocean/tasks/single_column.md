@@ -835,9 +835,10 @@ profile that transitions from warm water near the surface to colder water below
 temperature profile with a sustained negative surface latent heat flux so that
 frazil can form under cooling.
 
-For MPAS-Ocean, the conservation property checks are expected to report `FAIL`
-because frazil transfers are not yet included in the Polaris budgets; the task
-itself still passes.
+MPAS-Ocean conservation checks include frazil contributions to mass, salt,
+and energy using tendency output at every timestep. The conservation summary
+separates surface forcing, frazil contributions, and remaining residuals.
+This accounting applies to standalone runs.
 
 ### mesh
 
@@ -942,9 +943,9 @@ Three additional tasks modify the baseline:
 Each task has its own initial condition and forcing file, and runs the same
 time-integrator and frazil-algorithm combinations.
 
-For MPAS-Ocean, the conservation property checks are expected to report `FAIL`
-because frazil transfers are not yet included in the Polaris budgets; the task
-itself still passes.
+Both models include frazil contributions in their conservation checks.
+MPAS-Ocean writes the required tendencies every timestep; missing fields or
+skipped timesteps raise an error rather than yielding an estimated budget.
 
 ### mesh
 
@@ -1030,9 +1031,8 @@ vertical grid; each has its own initial condition:
 | `frazil/melting_short/cold` | `cold.cfg` sets the same two options so that there is more frazil formed than melted |
 | `frazil/melting_short/melt0.1h` | `melt0.1h.cfg` sets a thin melting layer over a 10x thicker supercooled layer, sized so that the frazil melt mass limiter (`LayerMassFracMax`) binds while frazil formation stays below its own limit |
 
-For MPAS-Ocean, the conservation property checks are expected to report `FAIL`
-because frazil transfers are not yet included in the Polaris budgets; the task
-itself still passes.
+Both models include frazil contributions in the mass, salt, and energy
+checks and conservation summary.
 
 ### mesh
 

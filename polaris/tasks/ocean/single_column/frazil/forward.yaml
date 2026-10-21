@@ -88,6 +88,7 @@ mpas-ocean:
       - frazilLayerThicknessTendency
       - frazilTemperatureTendency
       - frazilSalinityTendency
+      - latentHeatFlux
       - sensibleHeatFlux
 
 Omega:

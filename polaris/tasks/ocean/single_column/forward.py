@@ -1,3 +1,5 @@
+import numpy as np
+
 from polaris.constants import get_constant
 from polaris.ocean.model import OceanModelStep, get_time_interval_string
 
@@ -123,7 +125,7 @@ class Forward(OceanModelStep):
             ``'teos'``.  If ``None``, the frazil tendency is left disabled.
 
         frazil_conservation : bool, optional
-            Whether to include Omega frazil fluxes in the conservation check.
+            Whether to include frazil contributions in the conservation check.
 
         time_integrator : str, optional
             Override the single-column time integrator for this step.
@@ -249,6 +251,18 @@ class Forward(OceanModelStep):
             duration_seconds = section.getfloat('run_duration') * 86400.0
             output_interval_seconds = section.getfloat('output_interval')
         model = config.get('ocean', 'model')
+        if self.frazil_conservation and model == 'mpas-ocean':
+            output_interval_seconds = time_step
+            if not np.isclose(
+                duration_seconds / time_step,
+                round(duration_seconds / time_step),
+                rtol=0.0,
+                atol=1.0e-10,
+            ):
+                raise ValueError(
+                    'MPAS-Ocean frazil run duration must contain an integer '
+                    'number of timesteps'
+                )
         duration_str = get_time_interval_string(seconds=duration_seconds)
         dt_str = get_time_interval_string(seconds=time_step)
         # 20 barotropic substeps per time step for the split-explicit stepper
