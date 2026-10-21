@@ -129,7 +129,7 @@ class AnalysisOutput(Task):
         config = PolarisConfigParser(filepath=config_path)
         config.add_from_package(
             'polaris.tasks.ocean.realistic_global.forward',
-            'realistic_global_forward.cfg',
+            'forward.cfg',
         )
         config.add_from_package(
             'polaris.tasks.ocean.realistic_global.analysis_output',
@@ -142,7 +142,7 @@ class AnalysisOutput(Task):
         )
         self.set_shared_config(config, link=config_filename)
 
-        # the shared init steps carry their own realistic_global_init.cfg
+        # the shared init steps carry their own init.cfg
         if init_steps is not None:
             for symlink, step in init_steps.items():
                 self.add_step(step, symlink=symlink)

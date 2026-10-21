@@ -37,7 +37,7 @@ class RealisticGlobalInit(Task):
         steps, config = get_realistic_init_steps(
             component=component, mesh_name=mesh_name, include_viz=True
         )
-        self.set_shared_config(config, link='realistic_global_init.cfg')
+        self.set_shared_config(config, link='init.cfg')
 
         for symlink, step in steps.items():
             self.add_step(step, symlink=symlink)

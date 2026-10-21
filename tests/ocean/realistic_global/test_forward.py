@@ -187,7 +187,7 @@ def test_the_shipped_defaults_are_split_for_both_models():
     config = PolarisConfigParser()
     config.add_from_package(
         'polaris.tasks.ocean.realistic_global.forward',
-        'realistic_global_forward.cfg',
+        'forward.cfg',
     )
     config.combine()
     stage = ForwardStage.from_config(config)
@@ -1124,7 +1124,7 @@ def test_stats_analysis_fields_come_from_the_forward_config():
     config = PolarisConfigParser()
     config.add_from_package(
         'polaris.tasks.ocean.realistic_global.forward',
-        'realistic_global_forward.cfg',
+        'forward.cfg',
     )
     component = Ocean()
     component.model = 'mpas-ocean'

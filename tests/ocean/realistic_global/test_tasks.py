@@ -294,7 +294,7 @@ def test_cached_meshes_turn_off_what_omega_lacks():
     config = PolarisConfigParser()
     config.add_from_package(
         'polaris.tasks.ocean.realistic_global.forward',
-        'realistic_global_forward.cfg',
+        'forward.cfg',
     )
     config.combine()
     for option in mpaso_only:
@@ -435,7 +435,7 @@ def _task_config(mesh_name, model):
     config.add_from_package('polaris.ocean', 'ocean.cfg')
     config.add_from_package(
         'polaris.tasks.ocean.realistic_global.forward',
-        'realistic_global_forward.cfg',
+        'forward.cfg',
     )
     add_realistic_global_mesh_config(config, mesh_name)
     config.set('ocean', 'model', model)
@@ -451,7 +451,7 @@ def _variant_config(mesh_name, time_integrator):
     config = PolarisConfigParser()
     config.add_from_package(
         'polaris.tasks.ocean.realistic_global.forward',
-        'realistic_global_forward.cfg',
+        'forward.cfg',
     )
     add_realistic_global_mesh_config(config, mesh_name)
     if time_integrator == 'rk4':
