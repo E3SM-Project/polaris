@@ -434,7 +434,8 @@ def test_the_sync_script_is_available_but_not_staged(tmp_path):
 def test_the_sync_script_copies_and_sets_permissions(tmp_path):
     """
     Files land as real files rather than the symlinks the staged tree is made
-    of, directories come out 775 and files 664.
+    of, directories come out 2775 (setgid, as inputdata directories are) and
+    files 664.
     """
     work_dir = tmp_path / 'assemble' / 'all'
     staged_dir = work_dir / ASSEMBLED_FILES / 'inputdata' / 'ocn' / 'mpas-o'
@@ -455,7 +456,38 @@ def test_the_sync_script_copies_and_sets_permissions(tmp_path):
     assert copied.is_file() and not copied.is_symlink()
     assert copied.read_text() == 'contents'
     assert oct(copied.stat().st_mode)[-3:] == '664'
-    assert oct((dest / 'ocn' / 'mpas-o').stat().st_mode)[-3:] == '775'
+    assert oct((dest / 'ocn' / 'mpas-o').stat().st_mode)[-4:] == '2775'
+
+
+@pytest.mark.skipif(
+    shutil.which('rsync') is None, reason='rsync is not installed'
+)
+def test_the_sync_script_dry_run_copies_nothing(tmp_path):
+    """
+    A dry run lists what would be synced and leaves the destination as it was.
+    """
+    work_dir = tmp_path / 'assemble' / 'all'
+    staged_dir = work_dir / ASSEMBLED_FILES / 'inputdata' / 'ocn' / 'mpas-o'
+    staged_dir.mkdir(parents=True)
+
+    product = tmp_path / 'product.nc'
+    product.write_text('contents')
+    (staged_dir / 'staged.nc').symlink_to(product)
+
+    script = work_dir / SYNC_SCRIPT
+    script.symlink_to(_sync_script_source())
+
+    dest = tmp_path / 'inputdata'
+    dest.mkdir()
+    result = subprocess.run(
+        ['bash', str(script), '--dry-run', str(dest)],
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+
+    assert 'staged.nc' in result.stdout
+    assert list(dest.iterdir()) == []
 
 
 @pytest.mark.skipif(
