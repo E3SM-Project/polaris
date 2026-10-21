@@ -98,6 +98,28 @@ def test_add_realistic_global_tasks_registers_jra55():
     assert task.steps_to_run == ['stress', 'viz']
 
 
+def test_every_step_can_be_found_from_its_task():
+    """
+    Every step a realistic_global task runs is either in the task's work
+    directory or reachable through a symlink there, as in other Polaris
+    tasks.  The forward tasks once sat in a ``task`` directory beside their
+    own steps, with no way to reach them from the task.
+    """
+    component = Ocean()
+    add_realistic_global_tasks(component=component)
+
+    hidden = []
+    for task in component.tasks.values():
+        for name, step in task.steps.items():
+            nested = (
+                step.component is task.component
+                and step.subdir.startswith(f'{task.subdir}/')
+            )
+            if not nested and name not in task.step_symlinks:
+                hidden.append(f'{task.subdir}: {step.subdir}')
+    assert not hidden, '\n'.join(hidden)
+
+
 def test_add_realistic_global_tasks_registers_init_for_all_meshes():
     component = Ocean()
     add_realistic_global_tasks(component=component)
@@ -149,7 +171,7 @@ def test_add_realistic_global_tasks_registers_forward_for_all_meshes():
         for time_integrator in TIME_INTEGRATORS:
             task_subdir = (
                 f'spherical/realistic_global/{mesh_name}/forward/'
-                f'{time_integrator}/task'
+                f'{time_integrator}'
             )
             assert task_subdir in component.tasks, (
                 f'Expected forward task for mesh={mesh_name!r} not found'
@@ -160,9 +182,7 @@ def test_realistic_global_forward_icos240km_steps():
     component = Ocean()
     add_realistic_global_tasks(component=component)
 
-    task_subdir = (
-        'spherical/realistic_global/icos240km/forward/split_explicit/task'
-    )
+    task_subdir = 'spherical/realistic_global/icos240km/forward/split_explicit'
     assert task_subdir in component.tasks
 
     task = component.tasks[task_subdir]
@@ -194,7 +214,7 @@ def test_add_realistic_global_tasks_registers_cached_forward():
         for time_integrator in TIME_INTEGRATORS:
             task_subdir = (
                 f'spherical/realistic_global/{mesh_name}/cached_forward/'
-                f'{time_integrator}/task'
+                f'{time_integrator}'
             )
             assert task_subdir in component.tasks, (
                 f'Expected cached forward task for mesh={mesh_name!r} not '
@@ -503,7 +523,7 @@ def test_realistic_global_forward_without_init_steps():
     # the forward run and its two diagnostics, and nothing upstream of them
     assert list(task.steps) == ['short', 'global_stats', 'viz']
     assert task.subdir == (
-        'spherical/realistic_global/e3sm-qu240/cached_forward/split_explicit/task'
+        'spherical/realistic_global/e3sm-qu240/cached_forward/split_explicit'
     )
     assert task.steps['short'].init_condition is init_condition
     # the diagnostics are diagnostics, not part of the run

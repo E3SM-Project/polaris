@@ -24,8 +24,8 @@ ocean/planar/seamount/linear/zstar/short
 ocean/planar/seamount/nonlinear/sigma/short
 ocean/spherical/icos/cosine_bell/decomp
 ocean/spherical/icos/cosine_bell/restart
-ocean/spherical/realistic_global/e3sm-qu240/cached_forward/split_explicit/task
-ocean/spherical/realistic_global/e3sm-qu240/cached_forward/rk4/task
+ocean/spherical/realistic_global/e3sm-qu240/cached_forward/split_explicit
+ocean/spherical/realistic_global/e3sm-qu240/cached_forward/rk4
 ocean/spherical/realistic_global/e3sm-qu240/restart
 ocean/column/ekman
 ocean/column/inertial

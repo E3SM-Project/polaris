@@ -498,8 +498,8 @@ step and subcycles the barotropic mode, and a non-split integrator has to
 advance on the short barotropic step.
 
 Every short task is registered twice, as
-`<mesh>/<forward|cached_forward>/split_explicit/task` and
-`<mesh>/<forward|cached_forward>/rk4/task`. The `rk4` variant adds `rk4.cfg`,
+`<mesh>/<forward|cached_forward>/split_explicit` and
+`<mesh>/<forward|cached_forward>/rk4`, each holding its own steps. The `rk4` variant adds `rk4.cfg`,
 which sets both integrators to `RK4`. A mesh config can need a split step and
 an RK4 step at once, so the RK4 step has an explicit option of its own,
 `rk4_dt`, which falls back to `btr_dt_per_km` like the barotropic step.
