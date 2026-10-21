@@ -20,7 +20,8 @@ from polaris.tasks.ocean.realistic_global.mesh_info import (
 )
 
 from .schedule import load_schedule_stages
-from .validate import StageCheck, Validate
+from .summary import Summary
+from .validate import StageCheck
 from .viz import VizDynamicAdjustmentStep
 
 CONFIG_FILENAME = 'dynamic_adjustment.cfg'
@@ -45,7 +46,7 @@ def get_realistic_dynamic_adjustment_steps(
       stage per schedule entry, chained by restart
     * A :py:class:`.StageCheck` after each stage
     *
-      :py:class:`~polaris.tasks.ocean.realistic_global.dynamic_adjustment.validate.Validate`
+      :py:class:`~polaris.tasks.ocean.realistic_global.dynamic_adjustment.summary.Summary`
     * :py:class:`.VizDynamicAdjustmentStep`
 
     All steps are created via
@@ -146,14 +147,14 @@ def get_realistic_dynamic_adjustment_steps(
         check_step.add_dependency(forward_step, forward_step.name)
         steps[check_step.name] = check_step
 
-    validate_step = component.get_or_create_shared_step(
-        step_cls=Validate,
-        subdir=os.path.join(base_subdir, 'validate'),
+    summary_step = component.get_or_create_shared_step(
+        step_cls=Summary,
+        subdir=os.path.join(base_subdir, 'summary'),
         config=config,
         config_filename=CONFIG_FILENAME,
         stages=stages,
     )
-    steps[validate_step.name] = validate_step
+    steps[summary_step.name] = summary_step
 
     viz_step = component.get_or_create_shared_step(
         step_cls=VizDynamicAdjustmentStep,

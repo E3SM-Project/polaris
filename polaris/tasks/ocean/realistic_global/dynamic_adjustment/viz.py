@@ -124,7 +124,7 @@ class VizDynamicAdjustmentStep(Step):
     A step that plots the global-statistics time series of a completed
     dynamic-adjustment sequence.
 
-    It reads the same statistics files the ``validate`` step reduces, so the
+    It reads the same statistics files the ``summary`` step reduces, so the
     figure and the summary describe the same run.  Like that step, it opens
     them by path rather than declaring them as inputs, so a stage that wrote no
     statistics is skipped rather than failing the step -- a partial picture of
