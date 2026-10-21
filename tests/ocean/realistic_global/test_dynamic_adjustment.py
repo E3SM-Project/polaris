@@ -448,6 +448,17 @@ def test_task_forward_steps_share_one_restarts_directory():
         assert resolve(step, step.stage.restart_out).startswith(restarts)
 
 
+def test_only_the_simulation_stage_is_compared_with_a_baseline():
+    # the state class, as in the forward tasks; layer thickness is not in it
+    for step in _forward_steps(_task('u-oi240-lr240')):
+        if step.name == 'simulation':
+            assert step.validate_vars == {
+                'output.nc': ['temperature', 'salinity', 'normalVelocity']
+            }
+        else:
+            assert step.validate_vars == {}
+
+
 def test_forward_setup_declares_both_ends_of_the_restart_chain():
     stage = ForwardStage(
         name='damped_adjustment_2',
