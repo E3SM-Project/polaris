@@ -68,22 +68,26 @@ decide that a mesh has earned a short name.
 
 ## Staged layout
 
-With `<short>` the mesh short name and `<date>` the creation date, the tree
-under `assemble/<target>/assembled_files/` is:
+With `<short>` the mesh short name (e.g. `u04-oi6to18-lr12p5`), `<id>` its
+leading ID (`u04`), `<grid>` E3SM's name for its ocean and sea-ice grid, the
+short name without its land part (`u04-oi6to18`), and `<date>` the creation
+date, the tree under `assemble/<target>/assembled_files/` is:
 
 | Product | Staged path |
 |---|---|
-| base mesh + maps | `inputdata/share/meshes/mpas/unified/<short>/<short>.base.<date>.nc` |
-| SCRIP, per region | `inputdata/share/meshes/mpas/unified/<short>/<short>.<region>.scrip.<date>.nc` |
-| ocean SCRIP, again | `inputdata/ocn/mpas-o/<short>/<short>.scrip.<date>.nc` |
-| no-cavities SCRIP, again | `inputdata/ocn/mpas-o/<short>/<short>.no_cavities.scrip.<date>.nc` |
-| ocean mesh | `inputdata/share/meshes/mpas/unified/<short>/<short>.ocean.<date>.nc` |
-| land mesh | `inputdata/share/meshes/mpas/unified/<short>/<short>.land.<date>.nc` |
-| ocean IC | `inputdata/ocn/mpas-o/<short>/mpaso.<short>.<date>.nc` |
-| ocean partitions | `inputdata/ocn/mpas-o/<short>/partitions/mpas-o.graph.info.<date>.part.<n>` |
-| MOC masks | `inputdata/ocn/mpas-o/<short>/<short>.mocBasinsAndTransects<features_date>.<date>.nc` |
-| sea-ice IC | `inputdata/ice/mpas-seaice/<short>/mpassi.<short>.<date>.nc` |
-| sea-ice partitions | `inputdata/ice/mpas-seaice/<short>/partitions/mpas-seaice.graph.info.<date>.part.<n>` |
+| base mesh + maps | `inputdata/share/meshes/mpas/unified/<id>/<short>.base.<date>.nc` |
+| SCRIP, per region | `inputdata/share/meshes/mpas/unified/<id>/<short>.<region>.scrip.<date>.nc` |
+| ocean SCRIP, again | `inputdata/ocn/mpas-o/<grid>/<short>.scrip.<date>.nc` |
+| no-cavities SCRIP, again | `inputdata/ocn/mpas-o/<grid>/<short>.no_cavities.scrip.<date>.nc` |
+| ocean mesh | `inputdata/share/meshes/mpas/unified/<id>/<short>.ocean.<date>.nc` |
+| land mesh | `inputdata/share/meshes/mpas/unified/<id>/<short>.land.<date>.nc` |
+| ocean IC | `inputdata/ocn/mpas-o/<grid>/mpaso.<grid>.<date>.nc` |
+| ocean partitions | `inputdata/ocn/mpas-o/<grid>/partitions/mpas-o.graph.info.<date>.part.<n>` |
+| MOC masks | `inputdata/ocn/mpas-o/<grid>/<short>.mocBasinsAndTransects<features_date>.<date>.nc` |
+| sea-ice IC | `inputdata/ice/mpas-seaice/<grid>/mpassi.<grid>.<date>.nc` |
+| sea-ice partitions | `inputdata/ice/mpas-seaice/<grid>/partitions/mpas-seaice.graph.info.<date>.part.<n>` |
+
+These are the directories and names E3SM reads the files from.
 
 The three SCRIP regions are `ocean`, `ocean_no_cavities` and `land`, matching
 the meshes the cull step produces.

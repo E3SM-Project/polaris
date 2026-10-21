@@ -474,7 +474,7 @@ must be derived from an MPAS restart file.
 
 ### Algorithm Design: The workflow produces E3SM-compatible staged outputs while retaining inspectable intermediate files
 
-Date last modified: 2026/09/24
+Date last modified: 2026/10/21
 
 Contributors: Xylar Asay-Davis, Codex, Claude
 
@@ -499,29 +499,30 @@ It also provides a better foundation for future changes such as alternate
 staging locations, publication workflows, or checksum manifests.
 
 The staged layout follows the E3SM inputdata tree. Writing `<short>` for the
-configured mesh short name, `<date>` for the creation date and `<features>` for
-the `geometric_features` aggregation date:
+configured mesh short name, `<id>` for its leading ID, `<grid>` for E3SM's name
+for its ocean and sea-ice grid, `<date>` for the creation date and `<features>`
+for the `geometric_features` aggregation date:
 
-1. `inputdata/share/meshes/mpas/unified/<short>/<short>.base.<date>.nc` — the
+1. `inputdata/share/meshes/mpas/unified/<id>/<short>.base.<date>.nc` — the
    base mesh with its base-to-culled index maps. Compass staged the base mesh
    under `share/meshes/mpas/ocean`, but for a unified mesh the base mesh is
    shared by the ocean, sea-ice, land and river components, so a
    component-neutral directory is the honest location.
-2. `inputdata/share/meshes/mpas/unified/<short>/<short>.<region>.scrip.<date>.nc`
+2. `inputdata/share/meshes/mpas/unified/<id>/<short>.<region>.scrip.<date>.nc`
    — the SCRIP descriptions of the culled meshes, for the same reason.
-3. `inputdata/share/meshes/mpas/unified/<short>/<short>.ocean.<date>.nc` and
+3. `inputdata/share/meshes/mpas/unified/<id>/<short>.ocean.<date>.nc` and
    `<short>.land.<date>.nc` — the culled meshes themselves, beside the base mesh
    for the same reason again.
-4. `inputdata/ocn/mpas-o/<short>/mpaso.<short>.<date>.nc` — the ocean initial
+4. `inputdata/ocn/mpas-o/<grid>/mpaso.<grid>.<date>.nc` — the ocean initial
    condition, with graph partitions under `partitions/`.
-5. `inputdata/ocn/mpas-o/<short>/<short>.mocBasinsAndTransects<features>.<date>.nc`
+5. `inputdata/ocn/mpas-o/<grid>/<short>.mocBasinsAndTransects<features>.<date>.nc`
    — the MOC basin masks and southern-boundary transects.
-6. `inputdata/ocn/mpas-o/<short>/<short>.scrip.<date>.nc` and
+6. `inputdata/ocn/mpas-o/<grid>/<short>.scrip.<date>.nc` and
    `<short>.no_cavities.scrip.<date>.nc` — the two ocean SCRIP files again.
-7. `inputdata/ice/mpas-seaice/<short>/mpassi.<short>.<date>.nc` — the sea-ice
+7. `inputdata/ice/mpas-seaice/<grid>/mpassi.<grid>.<date>.nc` — the sea-ice
    initial condition, with graph partitions under `partitions/`.
 
-Four of these differ from what this document first described, and each
+Five of these differ from what this document first described, and each
 difference is a decision worth keeping.
 
 **Meshes go where E3SM keeps meshes.** The first implementation staged the
@@ -546,9 +547,18 @@ the ocean mesh.
 to `share/meshes/mpas/unified/` — a base mesh, three SCRIP descriptions and two
 culled meshes — so with more than a couple of meshes staged there, a flat
 directory hid which files belonged together. Each mesh's files go in a
-subdirectory named for its short name, so they can be found, copied and removed
-as a unit. The short name stays in every filename too, so a file moved out of
-the tree still identifies itself.
+subdirectory named for its ID, so they can be found, copied and removed as a
+unit. The short name stays in every filename too, so a file moved out of the
+tree still identifies itself.
+
+**Directories follow E3SM's grid names.** E3SM splits a unified mesh into an
+ocean and sea-ice grid and a land and river grid, named for the ID and the
+matching half of the short name (`u01-oi6to18` and `u01-lr6to10` for
+`u01-oi6to18-lr6to10`), and the files it reads for the first meshes live under
+those names on the inputdata server: `share/meshes/mpas/unified/u01/`,
+`ocn/mpas-o/u01-oi6to18/mpaso.u01-oi6to18.<date>.nc` and the sea-ice
+equivalent. The staged tree uses the same directories and initial-condition
+names, so it can be copied into inputdata as it stands.
 
 **The two ocean SCRIP files are staged twice.** Once in the shared mesh
 directory under their full region names, and once beside the ocean products,
