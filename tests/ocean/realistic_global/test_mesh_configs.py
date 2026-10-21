@@ -148,6 +148,7 @@ FORWARD_EXPECTED: dict[str, dict[str, object]] = {
         tracer_del2=None,
         use_Leith_del2=False,
         hmix_scaling='ref_cell_width',
+        hmix_ref_cell_width=30.0e3,
         use_GM=True,
         use_Redi=True,
         use_frazil_ice_formation=False,
@@ -187,17 +188,20 @@ FORWARD_EXPECTED: dict[str, dict[str, object]] = {
     [
         mesh_name
         for mesh_name in get_mesh_config_names()
-        if _get_forward_stage(mesh_name).hmix_scaling == 'ref_cell_width'
+        if mesh_name not in CACHED_MESHES
+        and _get_forward_stage(mesh_name).hmix_ref_cell_width is not None
     ],
 )
-def test_scaled_meshes_reference_their_finest_cells(mesh_name):
+def test_stated_references_are_the_finest_cells(mesh_name):
     """
-    E3SM's per-grid mom_del2 and mom_del4 values are referenced to the finest
-    cells of the mesh they belong to, so a mesh that scales its coefficients
-    has to put hmix_ref_cell_width at that resolution rather than leave it at
-    the shared 30 km default.  Getting this wrong is silent: every cell but
-    the reference then runs at the wrong viscosity, and on a 240 km mesh the
-    30 km default makes the biharmonic viscosity about 500 times larger.
+    A mesh states hmix_ref_cell_width only when its coefficients come from
+    E3SM or Compass, whose per-grid values are referenced to the finest cells
+    of the mesh they belong to, so the reference has to be that resolution.
+    Getting this wrong is silent: every cell but the reference then runs at
+    the wrong viscosity, and on a 240 km mesh a 30 km reference makes the
+    biharmonic viscosity about 500 times larger.  The cached meshes are
+    checked in test_tasks.py instead, since their minimum resolution is a
+    measured dcEdge rather than the resolution the mesh was designed for.
     """
     stage = _get_forward_stage(mesh_name)
     assert stage.hmix_ref_cell_width == min_res_for_mesh(mesh_name) * 1.0e3
@@ -222,6 +226,8 @@ def test_coarse_meshes_share_forward_settings(mesh_name):
 
 def test_mesh_without_config_keeps_forward_defaults():
     stage = _get_forward_stage('icos120km')
-    assert stage.hmix_scaling == 'none'
+    # scaled, from the mesh's median cell width
+    assert stage.hmix_scaling == 'ref_cell_width'
+    assert stage.hmix_ref_cell_width is None
     assert stage.mom_del2 == 1.0e3
     assert not stage.use_Leith_del2

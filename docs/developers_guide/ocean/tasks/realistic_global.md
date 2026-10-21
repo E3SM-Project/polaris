@@ -147,14 +147,17 @@ Horizontal-mixing scaling is the one setting split across buckets on purpose.
 MPAS-Ocean scales from `hmix_ref_cell_width` and Omega from the mesh's median
 cell width, so Omega's `MeshScalingEnable` is not a translation of MPAS-Ocean's
 flags.  It goes in
-{py:meth}`~polaris.tasks.ocean.realistic_global.forward.stage.ForwardStage.omega_physics_options`,
-and `horiz_mixing_options` converts the coefficients Omega gets by the ratio of
-the two widths (cubed for `del4`).  The median comes from
+{py:meth}`~polaris.tasks.ocean.realistic_global.forward.stage.ForwardStage.omega_physics_options`.
+A blank reference is the median, from
 {py:func}`~polaris.tasks.ocean.realistic_global.forward.stage.omega_median_cell_width`,
-which `Forward` calls once the mesh exists; at setup, before an init-chain
-mesh has been made, the coefficients go to Omega unconverted until run time
-rewrites them.  Do not map `config_hmix_scaleWithMesh` to `MeshScalingEnable`
-in `mpaso_to_omega.yaml`: the coefficients would then reach Omega unconverted.
+which `Forward` computes once the mesh exists and fills in with
+{py:meth}`~polaris.tasks.ocean.realistic_global.forward.stage.ForwardStage.with_median_reference`.
+When a mesh states a reference, `horiz_mixing_options` converts the
+coefficients Omega gets by the ratio of the two widths (cubed for `del4`).  At
+setup, before an init-chain mesh has been made, neither happens until run time
+rewrites the config.  Do not map `config_hmix_scaleWithMesh` to
+`MeshScalingEnable` in `mpaso_to_omega.yaml`: a stated reference would then
+reach Omega unconverted.
 
 An unsupported `omega_time_integrator`, and a `damping` Omega cannot honor, are
 errors at run time rather than at setup, so that a task can be set up and the

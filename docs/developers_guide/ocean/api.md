@@ -619,6 +619,7 @@
    stage.ForwardStage.restart_stream_replacements
    stage.ForwardStage.horiz_mixing_options
    stage.ForwardStage.omega_hmix_ratio
+   stage.ForwardStage.with_median_reference
    stage.ForwardStage.vert_mixing_options
    stage.ForwardStage.mpaso_physics_options
    stage.ForwardStage.omega_physics_options

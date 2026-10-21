@@ -775,10 +775,33 @@ def test_no_conversion_without_scaling_or_a_median():
     )
 
 
-def test_omega_conversion_needs_a_reference_width():
+def test_blank_reference_becomes_the_median():
+    blank = dataclasses.replace(_scaled_stage(), hmix_ref_cell_width=None)
+    stage = blank.with_median_reference(36.0e3)
+    assert stage.hmix_ref_cell_width == 36.0e3
+    assert stage.mpaso_physics_options()['config_hmix_ref_cell_width'] == (
+        36.0e3
+    )
+    # Omega's own reference, so nothing to convert
+    assert stage.horiz_mixing_options(
+        'omega', 36.0e3
+    ) == stage.horiz_mixing_options('mpas-ocean')
+
+    # left alone when a reference is stated, the median is not yet known, or
+    # the mixing is not scaled
+    stated = _scaled_stage()
+    assert stated.with_median_reference(36.0e3) is stated
+    assert blank.with_median_reference(None) is blank
+    unscaled = dataclasses.replace(blank, hmix_scaling='none')
+    assert unscaled.with_median_reference(36.0e3) is unscaled
+
+
+def test_blank_reference_is_the_median_and_needs_no_conversion():
+    # a blank reference means Omega's own, the median cell width
     stage = dataclasses.replace(_scaled_stage(), hmix_ref_cell_width=None)
-    with pytest.raises(ValueError, match='hmix_ref_cell_width'):
-        stage.horiz_mixing_options('omega', 36.0e3)
+    assert stage.horiz_mixing_options(
+        'omega', 36.0e3
+    ) == stage.horiz_mixing_options('mpas-ocean')
 
 
 @pytest.mark.parametrize(
@@ -1299,7 +1322,7 @@ def test_compute_cell_count_raises_when_estimate_missing():
         Forward.compute_cell_count(cast(Forward, fake))
 
 
-# --- Forward._omega_mesh_widths ---
+# --- Forward._mesh_widths ---
 
 
 def _fake_mesh_forward(ds):
@@ -1311,7 +1334,7 @@ def _fake_mesh_forward(ds):
     )
 
 
-def test_omega_mesh_widths_skip_boundary_edges():
+def test_mesh_widths_skip_boundary_edges():
     """
     The edge widths come from the two cells on each edge, as Omega computes
     them, and a boundary edge (a 0 in the 1-based ``cellsOnEdge``) is skipped
@@ -1324,7 +1347,7 @@ def test_omega_mesh_widths_skip_boundary_edges():
             cellsOnEdge=(('nEdges', 'TWO'), [[1, 2], [3, 4], [4, 0]]),
         )
     )
-    median, edge_min, edge_max = Forward._omega_mesh_widths(
+    median, edge_min, edge_max = Forward._mesh_widths(
         cast(Forward, _fake_mesh_forward(ds)), at_setup=False
     )
     assert median == pytest.approx(25.0)
@@ -1332,11 +1355,11 @@ def test_omega_mesh_widths_skip_boundary_edges():
     assert edge_max == pytest.approx(np.sqrt((30.0**2 + 40.0**2) / 2.0))
 
 
-def test_omega_mesh_widths_need_the_mesh_only_at_run_time():
+def test_mesh_widths_need_the_mesh_only_at_run_time():
     fake = cast(Forward, _fake_mesh_forward(None))
-    assert Forward._omega_mesh_widths(fake, at_setup=True) is None
+    assert Forward._mesh_widths(fake, at_setup=True) is None
     with pytest.raises(ValueError, match='median cell width'):
-        Forward._omega_mesh_widths(fake, at_setup=False)
+        Forward._mesh_widths(fake, at_setup=False)
 
 
 # --- restart chaining ---

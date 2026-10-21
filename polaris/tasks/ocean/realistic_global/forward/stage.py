@@ -1,5 +1,5 @@
 import os
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from typing import Any, Dict, Optional, Tuple
 
 import numpy as np
@@ -162,7 +162,9 @@ class ForwardStage:
         The reference cell width (m), used only when ``hmix_scaling`` is
         ``'ref_cell_width'``.  The ``del2`` coefficients then apply at this
         width and scale as ``cellWidth``, and the ``del4`` ones as
-        ``cellWidth**3``.
+        ``cellWidth**3``.  ``None`` means the mesh's median cell width (see
+        :py:func:`omega_median_cell_width`), which the forward step fills in
+        once the mesh exists.
 
     use_GM : bool
         Whether to use the Gent-McWilliams eddy transport parameterization.
@@ -651,13 +653,13 @@ class ForwardStage:
         biharmonic momentum operator is the exception: ``None`` leaves both
         models at their default of 1.0.
 
-        With ``hmix_scaling = ref_cell_width``, the two models scale the
-        coefficients from different reference widths: MPAS-Ocean from
-        ``hmix_ref_cell_width`` and Omega from the global median cell width
-        (see :py:func:`omega_median_cell_width`).  For Omega, the coefficients
-        are converted so that both models run the same mixing at every cell
-        width: by ``median_cell_width / hmix_ref_cell_width`` for ``del2`` and
-        by its cube for ``del4``.
+        With ``hmix_scaling = ref_cell_width``, MPAS-Ocean scales the
+        coefficients from ``hmix_ref_cell_width`` and Omega from the global
+        median cell width (see :py:func:`omega_median_cell_width`).  When the
+        two differ, Omega's coefficients are converted so that both models run
+        the same mixing at every cell width: by
+        ``median_cell_width / hmix_ref_cell_width`` for ``del2`` and by its
+        cube for ``del4``.
 
         Parameters
         ----------
@@ -705,6 +707,33 @@ class ForwardStage:
             options['config_mom_del4_div_factor'] = self.mom_del4_div_factor
         return options
 
+    def with_median_reference(
+        self, median_cell_width: Optional[float]
+    ) -> 'ForwardStage':
+        """
+        This stage with a blank ``hmix_ref_cell_width`` filled in with the
+        mesh's median cell width, the default reference.
+
+        Parameters
+        ----------
+        median_cell_width : float or None
+            The mesh's median cell width (m), or ``None`` when it is not yet
+            known.
+
+        Returns
+        -------
+        ForwardStage
+            A copy with the reference filled in, or this stage unchanged when
+            it states a reference, does not scale, or the median is unknown.
+        """
+        if (
+            self.hmix_scaling != 'ref_cell_width'
+            or self.hmix_ref_cell_width is not None
+            or median_cell_width is None
+        ):
+            return self
+        return replace(self, hmix_ref_cell_width=median_cell_width)
+
     def omega_hmix_ratio(
         self, model: str, median_cell_width: Optional[float]
     ) -> float:
@@ -724,8 +753,8 @@ class ForwardStage:
         -------
         float
             ``median_cell_width / hmix_ref_cell_width`` for Omega with
-            ``hmix_scaling = ref_cell_width`` and a known median, and 1
-            otherwise.
+            ``hmix_scaling = ref_cell_width``, a known median and a reference
+            of its own, and 1 otherwise.
         """
         _check_hmix_scaling(self.hmix_scaling)
         if (
@@ -735,10 +764,9 @@ class ForwardStage:
         ):
             return 1.0
         if self.hmix_ref_cell_width is None:
-            raise ValueError(
-                'hmix_scaling = ref_cell_width needs hmix_ref_cell_width, '
-                "which Omega's coefficients are converted from."
-            )
+            # the reference defaults to the median, so there is nothing to
+            # convert
+            return 1.0
         return median_cell_width / self.hmix_ref_cell_width
 
     def vert_mixing_options(self) -> Dict[str, Any]:
