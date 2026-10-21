@@ -1418,8 +1418,8 @@ files are declared as step inputs and outputs for both models.
 
 ### diagnostics and validation
 
-A final `validate` step summarizes the sequence and then checks it, and a `viz`
-step plots the underlying time series.
+A final `summary` step summarizes the sequence, and a `viz` step plots the
+underlying time series.
 
 The summary is `dynamic_adjustment_stats.csv`, one row per stage, and the same
 table is written to the step's log.  It is the quickest way to see whether the
@@ -1507,7 +1507,7 @@ a degree over, so there is ample room between the two: the warmest genuine water
 these runs reach is about 32 °C, and nothing in the `u-oi6to18` initial
 conditions is above 42 PSU outside the Red Sea artifact.
 
-The `validate` step applies no checks.  It collects the per-stage diagnostics,
+The `summary` step applies no checks.  It collects the per-stage diagnostics,
 writes `dynamic_adjustment_stats.csv` and logs the table.
 
 :::{note}

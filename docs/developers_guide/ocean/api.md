@@ -745,8 +745,8 @@
    checks.check_salinity_max
    checks.check_cfl_max
 
-   validate.Validate
-   validate.Validate.run
+   summary.Summary
+   summary.Summary.run
 
    validate.StageCheck
    validate.StageCheck.run

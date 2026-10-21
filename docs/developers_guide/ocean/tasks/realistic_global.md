@@ -379,7 +379,7 @@ task is registered per MPAS mesh.
 
 {py:func}`polaris.tasks.ocean.realistic_global.dynamic_adjustment.steps.get_realistic_dynamic_adjustment_steps`
 builds the whole chain — the shared `init` steps, one `Forward` stage per
-schedule entry, a `StageCheck` after each, `validate` and `viz` — through
+schedule entry, a `StageCheck` after each, `summary` and `viz` — through
 {py:meth}`polaris.Component.get_or_create_shared_step`, following the same
 pattern as
 {py:func}`polaris.tasks.ocean.realistic_global.init.steps.get_realistic_init_steps`.
@@ -470,12 +470,12 @@ step graph is therefore fixed at setup, not run time.
 ### diagnostics and validation
 
 The
-{py:class}`polaris.tasks.ocean.realistic_global.dynamic_adjustment.validate.Validate`
-step runs in two parts.  It first builds one row of diagnostics per stage with
+{py:class}`polaris.tasks.ocean.realistic_global.dynamic_adjustment.summary.Summary`
+step builds one row of diagnostics per stage with
 {py:func}`polaris.tasks.ocean.realistic_global.dynamic_adjustment.diagnostics.collect_stage_diagnostics`
-and writes `dynamic_adjustment_stats.csv`; it then makes its checks against
-those rows, so the summary a user reads and the checks that passed or failed are
-one calculation rather than two.
+and writes `dynamic_adjustment_stats.csv`.  It makes no checks of its own; the
+per-stage checks below read the same statistics with the same windows, so the
+summary a user reads and the checks that passed or failed cannot disagree.
 
 `diagnostics.METRICS` is the column list.  Each metric names the global-statistics
 variable it reads (in MPAS-Ocean naming, which `diagnostics.open_stage_stats`
@@ -486,7 +486,7 @@ A metric with no fallback is left blank instead: `output_var` is set only where
 computing the metric from the 3-D field gives the same quantity, which is true of
 a maximum and not of a volume-weighted mean.  The `mean_*_change_per_day`
 columns are derived rather than read, from the change in a volume-weighted mean
-across the stage divided by the stage's run duration, which is why `Validate`
+across the stage divided by the stage's run duration, which is why `Summary`
 takes the `ForwardStage` list rather than just the stage names.  They are a
 conservation check, not a settling one: these runs are forced by wind alone,
 with no surface fluxes, so the volume-weighted mean tracers are conserved
@@ -523,7 +523,7 @@ thresholds all belong to
 {py:class}`polaris.tasks.ocean.realistic_global.dynamic_adjustment.validate.StageCheck`,
 one per stage, added right after its forward step so the sequence stops at the
 stage that broke.  Each is skipped, with a log line, when the model reports no
-such metric.  `Validate` applies none of them; it collects, writes and logs the
+such metric.  `Summary` applies none of them; it collects, writes and logs the
 diagnostics.
 
 `StageCheck` is a step of its own rather than work the forward step does after
@@ -558,7 +558,7 @@ model restarted its clock.
 
 Only the metrics with `Metric.startup_window` set — the tracer extremes — are
 given it.  `cfl_max_in_stage` is not, because a time step too long for the flow
-shows up in exactly the hours the window covers.  `Validate` passes the same
+shows up in exactly the hours the window covers.  `Summary` passes the same
 windows when it builds the summary, so the CSV a user reads and the checks that
 passed cannot disagree.  This is what the `u-oi6to18` runs need: their
 statistics are hourly, and the Sumatra artifact is still at 35.1 to 36.1 °C an

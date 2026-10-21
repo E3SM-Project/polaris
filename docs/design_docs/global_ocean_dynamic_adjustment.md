@@ -405,7 +405,7 @@ current Omega limitation rather than a gap in this workflow.
 
 ### Implementation: Dynamic adjustment is decomposed into inspectable restart stages
 
-Date last modified: 2026/08/11
+Date last modified: 2026/10/21
 
 Contributors: Xylar Asay-Davis, Codex, Claude
 
@@ -423,7 +423,7 @@ times from cumulative run durations, so the user does not have to provide both a
 stage duration and an absolute stop time.
 
 The whole chain — the shared `init` steps, one `Forward` step per stage, a
-`StageCheck` after each, `validate` and `viz` — is built by
+`StageCheck` after each, `summary` and `viz` — is built by
 `get_realistic_dynamic_adjustment_steps(component, mesh_name, include_viz)`
 through `Component.get_or_create_shared_step`, following the same pattern as
 `get_realistic_init_steps`. It returns the stages alongside the steps and
@@ -477,7 +477,7 @@ Date last modified: 2026/10/21
 Contributors: Xylar Asay-Davis, Codex, Claude
 
 Validation ended up split between a per-stage `StageCheck` step and a final
-`Validate` step, plus the built-in baseline comparison:
+`Summary` step, plus the built-in baseline comparison:
 
 1. A baseline comparison of the final `simulation/output.nc` (`temperature`,
    `salinity`, `normalVelocity`), handled by the forward step's built-in
@@ -489,10 +489,11 @@ Validation ended up split between a per-stage `StageCheck` step and a final
    Each reports *when* the extreme occurred as well as how large it was, which
    is usually most of the diagnosis, and each is skipped with a log line when
    the configured model does not report the quantity.
-3. `Validate` applies no checks at all. It collects one row of diagnostics per
+3. `Summary` applies no checks at all. It collects one row of diagnostics per
    stage, writes `dynamic_adjustment_stats.csv` and logs the same table, so the
    summary a user reads and the checks that passed are one calculation rather
-   than two.
+   than two. Its step is named `summary` rather than `validate` because a
+   Polaris `validate` step is expected to compare and fail.
 
 The settling heuristic this section listed as item 3 was removed, for the
 reasons given in the corresponding Algorithm Design section above.
@@ -618,7 +619,7 @@ falls back to `default.yaml`, and that fallback chains correctly too.
 
 ### Testing and Validation: The workflow includes basic validation that the adjustment remained well behaved
 
-Date last modified: 2026/08/11
+Date last modified: 2026/10/21
 
 Contributors: Xylar Asay-Davis, Codex, Claude
 
@@ -640,7 +641,7 @@ and the checks cannot disagree.
 
 This section previously asked for a test that the last few stages show tapering
 behavior in a kinetic-energy metric. There is instead a test asserting that
-`Validate` does *not* judge the kinetic energy, for the reasons in the Algorithm
+`Summary` does *not* judge the kinetic energy, for the reasons in the Algorithm
 Design section: three samples of a quantity that is not comparable across stages
 cannot distinguish a healthy adjustment from a runaway, and every attempt to
 make them failed healthy runs. Whether a schedule is settling is read from the
