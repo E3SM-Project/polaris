@@ -69,10 +69,12 @@ Four things the implementation changed are recorded in the sections below:
    inputdata directory, and the sea-ice mesh is not staged at all.
 3. The assembly step rebuilds its tree from empty each run, and offers a script
    for copying into an inputdata directory rather than doing it.
-4. Graph partitioning grew a per-mesh bound and the ability to resume, both
-   forced by the finest unified mesh.
+4. Graph partitioning grew a per-mesh bound, the ability to resume, and
+   `gpmetis` calls run several at a time, all forced by the finest unified
+   mesh. The sea-ice partitioning stopped calling MPAS-Tools'
+   `create_seaice_partitions` for the same reason.
 
-Date last modified: 2026/09/24
+Date last modified: 2026/10/21
 
 ### Implementation sequencing
 
@@ -705,7 +707,7 @@ accident.
 
 ### Implementation: Ocean, sea-ice, and mesh-derived support products can be generated independently
 
-Date last modified: 2026/08/13
+Date last modified: 2026/10/21
 
 Contributors: Xylar Asay-Davis, Codex, Claude
 
@@ -746,7 +748,7 @@ Groups 1, 2 and 3 are the first branch; groups 4 and 5 follow later.
 Two of these steps were not in the first-pass mapping. `moc_masks` is the MOC
 basin masks discussed above. `seaice_partition_map` is the sea-ice partitioning
 split in two: building the QU60km-to-mesh weights is an MPI job sized for the
-mapping tool, while using them is serial, which is the same division
+mapping tool, while using them needs no MPI, which is the same division
 `realistic_global` makes between `Woa23MapStep` and `RemapWoa23Step`.
 
 `moc_masks` takes its masks from the mesh component's feature-mask step and the
@@ -862,7 +864,7 @@ of retrofitting model selection into steps that assumed MPAS.
 
 ### Implementation: The workflow produces E3SM-compatible staged outputs while retaining inspectable intermediate files
 
-Date last modified: 2026/09/24
+Date last modified: 2026/10/21
 
 Contributors: Xylar Asay-Davis, Codex, Claude
 
@@ -907,7 +909,9 @@ The `[component_inputs]` config section therefore carries `mesh_short_name`
 (no default; setup fails if unset), `creation_date` (filled in with today's
 date at setup and then recorded, so re-running does not silently rename files),
 `ocean_model`, `seaice_model`, the graph-partition core-count bounds
-`max_cells_per_core` and `min_cells_per_core`, and `plot_seaice_partitions`.
+`max_cells_per_core` and `min_cells_per_core`, the number of partitions to
+build at once, `partition_cpus_per_task` and `partition_min_cpus_per_task`,
+and `plot_seaice_partitions`.
 
 `creation_date` is filled in only when blank, which protects a re-run but not a
 fresh setup: rebuilding the work directory's config stamps today's date. Pin
@@ -930,11 +934,31 @@ that large and set `min_cells_per_core = 6`, exactly as Compass does for
 `get_core_list` across verbatim
 but not the per-mesh config that made it usable at that resolution.
 
-Both partition steps resume. Partitioning the finest mesh takes most of a day,
-and a job that runs out of walltime must cost only the partitions it was in the
-middle of. A partition file counts as finished when it has one line per cell —
-existence alone is not enough, since a kill mid-write leaves a file covering
-part of the mesh, and trusting it would hand E3SM a broken partition.
+Both partition steps resume. Partitioning the finest mesh took most of a day
+when the partitions were built one at a time, and a job that runs out of
+walltime must cost only the partitions it was in the middle of. A partition
+file counts as finished when it has one line per cell — existence alone is not
+enough, since a kill mid-write leaves a file covering part of the mesh, and
+trusting it would hand E3SM a broken partition. Partitions are also written
+under another name and renamed once complete, so the line count now guards
+only against files left by earlier runs.
+
+The `gpmetis` calls are independent, so both steps run up to
+`partition_cpus_per_task` of them at once in a process pool on one node,
+largest first. On the `u-oi6to18` meshes the ocean's 669 calls add up to about
+14 hours, and the sea ice's two per core count to about 18; one at a time,
+that was nearly the whole of each step. `gpmetis` stays a program rather than a library call,
+although its reporting is about a sixth of its time: the only shared METIS
+libraries in the environment are conda-forge's 32-bit builds, which fail on
+the largest meshes, and Spack builds its 64-bit METIS static.
+
+The sea-ice step does not call MPAS-Tools' `create_seaice_partitions`, whose
+partitions it reproduces: each region is partitioned on its own, and piece
+`i` of every region goes to core `i`. The tool gets each region's graph by
+copying the mesh and culling the copy with `MpasCellCuller.x`, which took over
+an hour per region on the finest mesh. The step builds the same graph from
+`cellsOnCell` in seconds. `prepare_seaice_partitions` still assigns the
+regions.
 
 ### Implementation: Required remapped forcing and mesh-derived support assets are supported
 
@@ -1106,7 +1130,7 @@ MPAS-Ocean packaging — is the one this requirement exists to prevent.
 
 ### Testing and Validation: The workflow produces E3SM-compatible staged outputs while retaining inspectable intermediate files
 
-Date last modified: 2026/08/13
+Date last modified: 2026/10/21
 
 Contributors: Xylar Asay-Davis, Codex, Claude
 
@@ -1136,6 +1160,14 @@ partition step must rebuild a truncated partition file while skipping the
 finished ones, since the failure that rule guards against — a file that exists
 but covers half the mesh — is indistinguishable from success by an existence
 check.
+
+The partitions are tested by running `gpmetis` on small hand-built meshes:
+building several at a time must give the same files as building them one at a
+time, and every core must get a piece of every sea-ice region. The region
+graphs were checked on `u-oi6to18-lr12p5` against the graphs
+`MpasCellCuller.x` wrote for the same regions. They match vertex for vertex,
+and the 140-piece partition built from them is byte for byte the one
+`create_seaice_partitions` built.
 
 Verified on the staged trees themselves for three meshes: every product at its
 expected path, every link resolving, one creation date across every filename,

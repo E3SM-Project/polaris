@@ -213,8 +213,9 @@ would touch files belonging to other meshes and other people.
 ## Graph partitions
 
 `get_core_list` builds a list of likely core counts from the culled ocean
-cell count and two config options, and one `gpmetis` call is made per entry.
-The largest partition asked for is `ncells / min_cells_per_core`.
+cell count and two config options, and each entry gets its own `gpmetis` call
+(one per region for sea ice, below). The largest partition asked for is
+`ncells / min_cells_per_core`.
 
 `gpmetis` fails above roughly 750,000 parts, so a mesh with more than about
 1.5 million ocean cells needs `min_cells_per_core` raised above the default
@@ -222,17 +223,34 @@ of 2. Only the two `u-oi6to18` meshes are currently that large, and their
 configs set `min_cells_per_core = 6`, following what Compass does for
 `rrs6to18`. A new mesh above that size needs the same treatment.
 
-This step is also the longest in the workflow — hours on the finer meshes,
-since both the number of core counts and the cost per call grow with the mesh
-— so give it its own job with a generous walltime rather than sharing one with
-the model runs.
+The calls are independent, so both partition steps run up to
+`partition_cpus_per_task` of them at once on one node, the largest first.
+Each is a serial process, so give the steps a whole compute node in a job of
+their own rather than a share of one with the model runs. Lower
+`partition_cpus_per_task` if a node runs out of memory: the largest partitions
+of a 4-million-cell mesh need about 2 GB each. What `gpmetis` prints goes to
+`gpmetis.log` in the step's work directory, and the step's own log gets one
+line per partition.
+
+`gpmetis` must be the 64-bit build, which the Polaris load script provides
+from Spack. The 32-bit build in the pixi environment fails on the largest
+meshes, and the step's error names it when that is the cause.
+
+The sea-ice partitions give every core a piece of the ice-covered region and
+a piece of the rest of the mesh, as MPAS-Tools' `create_seaice_partitions`
+does. `prepare_seaice_partitions` decides which region each cell is in, and
+the step then builds each region's graph from `cellsOnCell`. It does not call
+`create_seaice_partitions`, which culls a copy of the mesh for each region and
+took over two hours doing so on the finest mesh.
 
 Both partition steps resume. A rerun rebuilds only the partitions that are
 missing or unfinished, so a job that runs out of walltime costs the partitions
-it was in the middle of, not the ones it had already written. A file counts as
-finished only when it has one line per cell, so a partition truncated by a
-kill is rebuilt rather than trusted; checking takes about a minute even for
-several hundred files on the finest mesh.
+it was in the middle of, not the ones it had already written. Each partition
+is written under another name and renamed once complete, so a kill cannot
+leave a truncated file under a partition's own name. A file also counts as
+finished only when it has one line per cell, which catches any truncated
+partition an earlier run left; checking takes about a minute even for several
+hundred files on the finest mesh.
 
 ## Ice-shelf cavities
 
@@ -281,7 +299,16 @@ max_cells_per_core = 30000
 # graph partition created
 min_cells_per_core = 2
 
-# Whether to plot the sea-ice partitions as they are created
+# The number of graph partitions to build at once, if a node has that many
+# cores.  Each is a serial gpmetis process, and on a 4-million-cell mesh the
+# largest need about 2 GB each, so lower this if a node runs out of memory.
+partition_cpus_per_task = 128
+
+# The fewest cores the graph-partition steps can run with
+partition_min_cpus_per_task = 1
+
+# Whether to write every sea-ice partition to partition_diag.nc, for plotting
+# with seaice_mesh.nc
 plot_seaice_partitions = False
 ```
 
@@ -291,10 +318,12 @@ with, rather than renaming every staged file to today's.
 
 ## Running on a login node
 
-Everything except `seaice_partition_map` is post-processing of files that
-already exist, and is safe to run on a login node.  That one step builds the
-remapping weights the sea-ice partitioning needs, using MPI, and wants a
-compute node; the partitioning itself only applies them and is serial.
+Everything except `seaice_partition_map` and the two graph-partition steps is
+post-processing of files that already exist, and is safe to run on a login
+node.  `seaice_partition_map` builds the remapping weights the sea-ice
+partitioning needs, using MPI.  The graph-partition steps run many `gpmetis`
+processes at once; on a login node they are held to its `login_cores`, which
+on the finest meshes stretches them to many hours.
 
 The `ocean` and `all` tasks additionally depend on the dynamic-adjustment
 model runs, which are compute-node jobs in their own right.

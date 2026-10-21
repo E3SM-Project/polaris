@@ -178,6 +178,7 @@
 
    ocean_graph_partition.OceanGraphPartitionStep
    ocean_graph_partition.OceanGraphPartitionStep.setup
+   ocean_graph_partition.OceanGraphPartitionStep.constrain_resources
    ocean_graph_partition.OceanGraphPartitionStep.run
 
    moc_masks.MocMasksStep
@@ -208,6 +209,7 @@
 
    seaice_graph_partition.SeaiceGraphPartitionStep
    seaice_graph_partition.SeaiceGraphPartitionStep.setup
+   seaice_graph_partition.SeaiceGraphPartitionStep.constrain_resources
    seaice_graph_partition.SeaiceGraphPartitionStep.run
 ```
 
@@ -238,6 +240,10 @@
    partitions.get_core_list
    partitions.partitions_to_build
    partitions.read_graph_cell_count
+   partitions.build_partitions
+   partitions.RegionGraph
+   partitions.get_region_graph
+   partitions.write_graph
 
    models.check_ocean_model
    models.check_seaice_model
