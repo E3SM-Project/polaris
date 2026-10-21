@@ -188,8 +188,11 @@ makes, so the step symlinks a script in for you to run by hand from
 `component_inputs/assemble/<target>`:
 
 ```
+./sync_to_inputdata.sh --dry-run /lcrc/group/e3sm/data/inputdata
 ./sync_to_inputdata.sh /lcrc/group/e3sm/data/inputdata
 ```
+
+The first lists what would be copied without copying anything.
 
 The destination must already exist — a typo should stop the copy rather than
 create a second tree beside the real one.
@@ -200,8 +203,9 @@ alone. That last part is worth knowing: a staged file whose *contents* changed
 under an unchanged name will not be updated. Delete it from the destination
 first if that is what you want.
 
-It then sets directories to `775` and files to `664` — user and group
-read/write, world read — but only on the paths this tree contributes. The
+It then sets directories to `2775` and files to `664` — user and group
+read/write, world read, and setgid directories as elsewhere in inputdata — but
+only on the paths this tree contributes. The
 destination is shared and often enormous, so walking it to fix everything
 would touch files belonging to other meshes and other people.
 
