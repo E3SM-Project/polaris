@@ -212,12 +212,19 @@ class AssembleStep(Step):
                 'ocean_initial_condition__ocean_initial_condition.nc',
                 names.ocean_initial_condition_path(short_name, creation_date),
             )
+            ocean_partitions = self.product_steps['ocean_graph_partition']
             self._stage_partitions(
-                step=self.product_steps['ocean_graph_partition'],
+                step=ocean_partitions,
                 basename=OCEAN_GRAPH_BASENAME,
                 path_func=names.ocean_partition_path,
                 short_name=short_name,
                 creation_date=creation_date,
+            )
+            self._stage(
+                os.path.join(
+                    self._step_dir(ocean_partitions), OCEAN_GRAPH_BASENAME
+                ),
+                names.ocean_graph_path(short_name, creation_date),
             )
             moc_masks = self.product_steps['ocean_moc_masks']
             self._stage(
@@ -257,9 +264,7 @@ class AssembleStep(Step):
         Found by listing rather than by recomputing the core list, so that the
         staged tree describes what was actually built.
         """
-        relative = os.path.relpath(step.path, self.path)
-        step_dir = os.path.normpath(os.path.join(self.work_dir, relative))
-
+        step_dir = self._step_dir(step)
         found = sorted(glob(os.path.join(step_dir, f'{basename}.part.*')))
         if not found:
             raise FileNotFoundError(
@@ -271,3 +276,10 @@ class AssembleStep(Step):
                 source,
                 path_func(short_name, creation_date, ncores),
             )
+
+    def _step_dir(self, step):
+        """
+        The work directory of another step, found from this one's.
+        """
+        relative = os.path.relpath(step.path, self.path)
+        return os.path.normpath(os.path.join(self.work_dir, relative))

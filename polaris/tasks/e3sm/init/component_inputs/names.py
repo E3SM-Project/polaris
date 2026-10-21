@@ -372,6 +372,33 @@ def ocean_partition_path(
     )
 
 
+def ocean_graph_path(short_name: str, creation_date: str) -> str:
+    """
+    Where the unpartitioned MPAS-Ocean graph is staged, beside its partitions.
+
+    The inputdata server carries it there for the first unified meshes.  With
+    it, a partition for a core count that was not staged can be made later
+    without the work directory.
+
+    Parameters
+    ----------
+    short_name : str
+        The E3SM short name of the mesh.
+
+    creation_date : str
+        The creation date, as ``YYYYMMDD``.
+
+    Returns
+    -------
+    str
+        The path, relative to :py:data:`ASSEMBLED_FILES`.
+    """
+    return (
+        f'{_ocean_dir(short_name)}/partitions/'
+        f'mpas-o.graph.info.{creation_date}'
+    )
+
+
 def seaice_initial_condition_path(short_name: str, creation_date: str) -> str:
     """
     Where the MPAS-Seaice initial condition is staged.
