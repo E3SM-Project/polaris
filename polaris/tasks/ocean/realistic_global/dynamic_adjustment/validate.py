@@ -45,8 +45,8 @@ class Validate(Step):
     the statistics through
     :py:func:`~polaris.tasks.ocean.realistic_global.dynamic_adjustment.diagnostics.open_stage_stats`.
     The baseline
-    comparison of the final stage is handled separately by that forward step's
-    ``validate_vars``.
+    comparison of the final stage is handled separately by that forward step,
+    which validates the ``'state'`` class of variables.
 
     One caveat the thresholds cannot express: Omega's temperature is
     conservative temperature where MPAS-Ocean's is potential temperature, so

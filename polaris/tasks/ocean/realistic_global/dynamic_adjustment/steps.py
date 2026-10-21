@@ -28,14 +28,6 @@ CONFIG_PACKAGE = 'polaris.tasks.ocean.realistic_global.dynamic_adjustment'
 FORWARD_CONFIG_FILENAME = 'forward.cfg'
 FORWARD_CONFIG_PACKAGE = 'polaris.tasks.ocean.realistic_global.forward'
 
-# The variables the final ``simulation`` stage compares against a baseline.
-VALIDATE_VARS = [
-    'temperature',
-    'salinity',
-    'layerThickness',
-    'normalVelocity',
-]
-
 
 def get_realistic_dynamic_adjustment_steps(
     component: Any, mesh_name: str, include_viz: bool = False
@@ -128,9 +120,8 @@ def get_realistic_dynamic_adjustment_steps(
                 forcing_step=forcing_step,
             ),
             stage=stage,
-            validate_vars=(
-                VALIDATE_VARS if stage.name == 'simulation' else None
-            ),
+            # only the final stage's state is compared with a baseline
+            validate_class=('state' if stage.name == 'simulation' else None),
         )
         # the restart chain, which cannot be expressed as an input/output pair
         # because the restart filename comes from the schedule rather than
