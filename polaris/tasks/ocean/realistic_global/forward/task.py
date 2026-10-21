@@ -106,7 +106,7 @@ class RealisticGlobalForward(Task):
         super().__init__(
             component=component,
             name='realistic_global_forward',
-            subdir=f'{base}/task',
+            subdir=base,
         )
         self.mesh_name = mesh_name
         self.time_integrator = time_integrator

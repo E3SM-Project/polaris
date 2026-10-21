@@ -676,7 +676,7 @@ omega_time_integrator = RK4
 Polaris knows how to build:
 
 ```bash
-polaris setup -t ocean/spherical/realistic_global/qu240km/forward/split_explicit/task ...
+polaris setup -t ocean/spherical/realistic_global/qu240km/forward/split_explicit ...
 ```
 
 `cached_forward` downloads a ready-made initial condition instead, so it runs
@@ -690,7 +690,7 @@ staged:
 | `e3sm-ec30to60e2r2` | 236,853 | 30 min, 1 min | 45 s | 1 day |
 
 ```bash
-polaris setup -t ocean/spherical/realistic_global/e3sm-qu240/cached_forward/rk4/task ...
+polaris setup -t ocean/spherical/realistic_global/e3sm-qu240/cached_forward/rk4 ...
 ```
 
 Both `e3sm-qu240` `cached_forward` variants are in the `omega_pr` suite, and the
