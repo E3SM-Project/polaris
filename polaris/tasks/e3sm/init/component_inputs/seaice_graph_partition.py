@@ -1,13 +1,19 @@
 import os
 
+import numpy as np
 import xarray as xr
+from mpas_tools.io import write_netcdf
 from mpas_tools.logging import check_call
 
 from polaris.step import Step
 from polaris.tasks.e3sm.init.component_inputs.models import check_seaice_model
 from polaris.tasks.e3sm.init.component_inputs.partitions import (
+    RegionGraph,
+    build_partitions,
     get_core_list,
+    get_region_graph,
     partitions_to_build,
+    write_graph,
 )
 from polaris.tasks.e3sm.init.component_inputs.seaice_partition_map import (
     CLIMATOLOGY_FILENAME,
@@ -26,6 +32,13 @@ MAP_DEPENDENCY = 'seaice_partition_map'
 #: which also names it.
 ICE_PRESENT_FILENAME = 'icePresent_QU60km_polar.nc'
 
+#: The region of each cell, which ``prepare_seaice_partitions`` writes.
+REGIONS_FILENAME = 'regions.nc'
+
+#: Every partition, for plotting with the mesh, if
+#: ``[component_inputs] plot_seaice_partitions`` asks for it.
+PLOT_FILENAME = 'partition_diag.nc'
+
 
 class SeaiceGraphPartitionStep(Step):
     """
@@ -39,8 +52,14 @@ class SeaiceGraphPartitionStep(Step):
 
     The weights come from
     :py:class:`~polaris.tasks.e3sm.init.component_inputs.seaice_partition_map.SeaicePartitionMapStep`
-    rather than being built here, so that this step is the serial work it
-    actually is.
+    rather than being built here, so that this step needs no MPI.
+
+    The partitions themselves follow MPAS-Tools' ``create_seaice_partitions``:
+    each region of the mesh is partitioned on its own, and every core gets a
+    piece of every region.  The tool is not called, though.  It gets each
+    region's graph by culling a copy of the mesh with ``MpasCellCuller.x``,
+    which took over two hours on the finest mesh, when the same graph follows
+    from ``cellsOnCell`` in seconds.  It also builds one partition at a time.
 
     The mesh being partitioned is
     :py:class:`~polaris.tasks.e3sm.init.component_inputs.seaice_mesh.SeaiceMeshStep`'s
@@ -113,6 +132,23 @@ class SeaiceGraphPartitionStep(Step):
         """
         super().setup()
         check_seaice_model(self.config)
+        section = self.config['component_inputs']
+        self.cpus_per_task = section.getint('partition_cpus_per_task')
+        self.min_cpus_per_task = section.getint('partition_min_cpus_per_task')
+
+    def constrain_resources(self, available_resources):
+        """
+        Take the number of partitions to build at once from the config.
+
+        Parameters
+        ----------
+        available_resources : dict
+            The resources available to the step.
+        """
+        section = self.config['component_inputs']
+        self.cpus_per_task = section.getint('partition_cpus_per_task')
+        self.min_cpus_per_task = section.getint('partition_min_cpus_per_task')
+        super().constrain_resources(available_resources)
 
     def run(self):
         """
@@ -128,7 +164,7 @@ class SeaiceGraphPartitionStep(Step):
         done = len(cores) - len(remaining)
         logger.info(
             f'Partitioning into {cores[0]} to {cores[-1]} pieces: '
-            f'{len(remaining)} to build'
+            f'{len(remaining)} to build, {self.cpus_per_task} at a time'
             + (f', {done} already complete' if done else '')
         )
         if not remaining:
@@ -156,32 +192,17 @@ class SeaiceGraphPartitionStep(Step):
             logger,
         )
 
-        args = [
-            'create_seaice_partitions',
-            '-m',
-            'seaice_mesh.nc',
-            '-o',
-            '.',
-            '-p',
-            GRAPH_BASENAME,
-            '-g',
-            'gpmetis',
-            '-n',
-        ]
+        build_partitions(
+            regions=_write_region_graphs(),
+            cores=remaining,
+            basename=GRAPH_BASENAME,
+            ncells=ncells,
+            process_count=self.cpus_per_task,
+            logger=logger,
+        )
+
         if section.getboolean('plot_seaice_partitions'):
-            args.append('--plotting')
-
-        # the tool takes every core count in one invocation, and will not make
-        # a one-piece partition; an empty file is what MPAS reads as "every
-        # cell on one task"
-        for ncores in remaining:
-            if ncores == 1:
-                with open(f'{GRAPH_BASENAME}.part.1', 'w'):
-                    pass
-            else:
-                args.append(f'{ncores}')
-
-        check_call(args, logger)
+            _write_partition_diagnostics(cores, ncells)
 
     def _core_counts(self):
         """
@@ -204,3 +225,47 @@ class SeaiceGraphPartitionStep(Step):
                 f'Cannot partition {ncells} cells into {cores[-1]} pieces.'
             )
         return list(cores), ncells
+
+
+def _write_region_graphs():
+    """
+    Write the graph of each region's cells, and say which cells each covers.
+    """
+    with xr.open_dataset('seaice_mesh.nc') as ds_mesh:
+        cells_on_cell = ds_mesh.cellsOnCell.values
+        n_edges_on_cell = ds_mesh.nEdgesOnCell.values
+    with xr.open_dataset(REGIONS_FILENAME) as ds_regions:
+        region = ds_regions.region.values
+        nregions = int(ds_regions.attrs['nRegions'])
+
+    regions = []
+    for index in range(nregions):
+        in_region = region == index
+        if not np.any(in_region):
+            # a mesh with no sea ice at all still needs partitions, and they
+            # are then just partitions of the other region
+            continue
+        cells, xadj, adjncy = get_region_graph(
+            cells_on_cell, n_edges_on_cell, in_region
+        )
+        filename = f'seaice_region_{index}.graph.info'
+        write_graph(filename, xadj, adjncy)
+        regions.append(RegionGraph(filename=filename, cells=cells))
+    return regions
+
+
+def _write_partition_diagnostics(cores, ncells):
+    """
+    Write every partition into one file, to plot over ``seaice_mesh.nc``.
+    """
+    ds = xr.Dataset()
+    for ncores in cores:
+        if ncores == 1:
+            # written empty, which MPAS reads as every cell on task 0
+            partition = np.zeros(ncells, dtype=np.int32)
+        else:
+            partition = np.loadtxt(
+                f'{GRAPH_BASENAME}.part.{ncores}', dtype=np.int32
+            )
+        ds[f'partition_{ncores}'] = ('nCells', partition)
+    write_netcdf(ds, PLOT_FILENAME)

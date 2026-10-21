@@ -1,19 +1,19 @@
 import os
 import shutil
 
-from mpas_tools.logging import check_call
-
 from polaris import Step
 from polaris.tasks.e3sm.init.component_inputs.models import check_ocean_model
 from polaris.tasks.e3sm.init.component_inputs.partitions import (
+    RegionGraph,
+    build_partitions,
     get_core_list,
     partitions_to_build,
     read_graph_cell_count,
 )
 
-#: The base name ``gpmetis`` partitions, and so the stem of every partition
-#: file this step writes.  The creation date is added when the files are
-#: staged, not here.
+#: The stem of every partition file this step writes, and the name the graph
+#: is staged under beside them.  The creation date is added when the files
+#: are staged, not here.
 GRAPH_BASENAME = 'mpas-o.graph.info'
 
 
@@ -23,7 +23,8 @@ class OceanGraphPartitionStep(Step):
 
     The graph itself comes from the cull step -- the ``ocean`` prefix, which is
     the domain the ocean initial condition is built on -- so nothing is
-    regenerated here; this runs ``gpmetis`` over it once per core count.
+    regenerated here; this runs ``gpmetis`` over it once per core count,
+    several at a time.
 
     The core counts depend on the mesh's cell count, which is not known until
     the graph file exists, so the partition files cannot be declared as outputs
@@ -72,6 +73,23 @@ class OceanGraphPartitionStep(Step):
         """
         super().setup()
         check_ocean_model(self.config)
+        section = self.config['component_inputs']
+        self.cpus_per_task = section.getint('partition_cpus_per_task')
+        self.min_cpus_per_task = section.getint('partition_min_cpus_per_task')
+
+    def constrain_resources(self, available_resources):
+        """
+        Take the number of partitions to build at once from the config.
+
+        Parameters
+        ----------
+        available_resources : dict
+            The resources available to the step.
+        """
+        section = self.config['component_inputs']
+        self.cpus_per_task = section.getint('partition_cpus_per_task')
+        self.min_cpus_per_task = section.getint('partition_min_cpus_per_task')
+        super().constrain_resources(available_resources)
 
     def run(self):
         """
@@ -82,8 +100,7 @@ class OceanGraphPartitionStep(Step):
         config = self.config
         logger = self.logger
 
-        # gpmetis names its output after its input, so the partitions are
-        # named by copying the graph to the name they should carry
+        # the graph is staged beside its partitions, under the name they carry
         shutil.copyfile('graph.info', GRAPH_BASENAME)
 
         ncells = read_graph_cell_count('graph.info')
@@ -102,16 +119,16 @@ class OceanGraphPartitionStep(Step):
         done = len(cores) - len(remaining)
         logger.info(
             f'Partitioning {ncells} cells into {cores.min()} to '
-            f'{cores.max()} pieces: {len(remaining)} to build'
+            f'{cores.max()} pieces: {len(remaining)} to build, '
+            f'{self.cpus_per_task} at a time'
             + (f', {done} already complete' if done else '')
         )
 
-        for ncores in remaining:
-            out_filename = f'{GRAPH_BASENAME}.part.{ncores}'
-            if ncores == 1:
-                # gpmetis will not make a one-piece partition, and an empty
-                # file is what MPAS reads as "every cell on one task"
-                with open(out_filename, 'w'):
-                    pass
-            else:
-                check_call(['gpmetis', GRAPH_BASENAME, f'{ncores}'], logger)
+        build_partitions(
+            regions=[RegionGraph(filename='graph.info')],
+            cores=remaining,
+            basename=GRAPH_BASENAME,
+            ncells=ncells,
+            process_count=self.cpus_per_task,
+            logger=logger,
+        )
