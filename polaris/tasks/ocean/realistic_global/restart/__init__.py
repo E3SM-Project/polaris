@@ -13,35 +13,41 @@ from polaris.tasks.ocean.realistic_global.restart.validate import (
     Validate as Validate,
 )
 
-#: How long each segment of the restart chain runs.  The full run covers two
-#: of these.  The period is short on purpose: this task is about how the model
-#: writes its history across a restart, not about the circulation, and it is
-#: meant to be cheap enough for the pull-request suite.
-SEGMENT_DURATION = '0000_02:00:00'
-
-#: The full run, which the restart chain is compared against
+#: How long the full run covers.  The period is short on purpose: this task is
+#: about how the model restarts and writes its history across a restart, not
+#: about the circulation, and it is meant to be cheap enough for the
+#: pull-request suite.
 FULL_DURATION = '0000_04:00:00'
 
-#: How often a history frame is written.  Two frames per segment, so that a
-#: segment that clobbered rather than appended would be obvious.
+#: How far into the period the full run writes the restart the restart run
+#: continues from, as the base run of CIME's ERS test does partway through
+RESTART_TIME = '0000_02:00:00'
+
+#: How long the restart run covers: the rest of the period
+RESTART_DURATION = '0000_02:00:00'
+
+#: How often a history frame is written.  Two frames on each side of the
+#: restart, so that a restart run that clobbered rather than appended would be
+#: obvious.
 OUTPUT_INTERVAL = '0000_01:00:00'
 
 
 class Restart(Task):
     """
-    A task that checks that splitting a run across a restart leaves the
-    history output alone.
+    A task that checks that a run continued from a restart reproduces the
+    uninterrupted run, history included, shaped like CIME's ERS test.
 
-    A ``full_run`` covers the whole period in one go.  Two further steps cover
-    the same period in two segments, the second continuing from the restart
-    the first wrote and appending its frames to the history the first left
-    behind.  A ``validate`` step then checks that the two histories hold the
-    same frames at the same times and the same state.
+    A ``full_run`` covers the whole period and writes a restart partway
+    through, along with its history up to that restart in a file of its own.
+    A ``restart_run`` continues from that restart to the end of the period,
+    appending its frames to a copy of that history.  A ``validate`` step then
+    checks that the two histories hold the same frames at the same times and
+    the same state.
 
-    This is a regression test for Omega #482, where the continuing segment
+    Appending is also a regression test for Omega #482, where a continuing run
     measured its history time axis from its own start rather than the
     simulation's, so its first frame collided with the first frame already in
-    the file and silently replaced the earlier half of the run.
+    the file and silently replaced the earlier frames.
     """
 
     def __init__(
@@ -80,11 +86,8 @@ class Restart(Task):
         )
         self.set_shared_config(config, link=config_filename)
 
-        # the uninterrupted run the restart chain is measured against.  It is
-        # a RestartStep too, so that it runs exactly the model the chain does,
-        # but it starts up rather than continuing and writes its restart into
-        # a directory of its own, so that its restart cannot be mistaken for
-        # the chain's
+        # the uninterrupted run, which also writes the restart and the history
+        # up to it that the restart run starts from
         full_run = RestartStep(
             component=component,
             name='full_run',
@@ -92,29 +95,28 @@ class Restart(Task):
             init_condition=init_condition,
             run_duration=FULL_DURATION,
             output_interval=OUTPUT_INTERVAL,
+            restart_time=RESTART_TIME,
         )
         full_run.set_shared_config(config, link=config_filename)
         self.add_step(full_run)
 
-        previous_step = None
-        for name in ['first_segment', 'second_segment']:
-            step = RestartStep(
-                component=component,
-                name=name,
-                subdir=f'{subdir}/{name}',
-                init_condition=init_condition,
-                run_duration=SEGMENT_DURATION,
-                output_interval=OUTPUT_INTERVAL,
-                previous_step=previous_step,
-            )
-            step.set_shared_config(config, link=config_filename)
-            self.add_step(step)
-            previous_step = step
+        restart_run = RestartStep(
+            component=component,
+            name='restart_run',
+            subdir=f'{subdir}/restart_run',
+            init_condition=init_condition,
+            run_duration=RESTART_DURATION,
+            output_interval=OUTPUT_INTERVAL,
+            restart_time=RESTART_TIME,
+            restart_from=full_run,
+        )
+        restart_run.set_shared_config(config, link=config_filename)
+        self.add_step(restart_run)
 
         validate = Validate(
             component=component,
             full_run_subdir='full_run',
-            restart_subdir='second_segment',
+            restart_subdir='restart_run',
             indir=subdir,
         )
         validate.set_shared_config(config, link=config_filename)

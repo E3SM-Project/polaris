@@ -1,0 +1,45 @@
+# Overrides applied on top of realistic_global/forward/forward.yaml by the
+# restart task's full run.  Like the base run of CIME's ERS test, it covers the
+# whole period and writes a restart partway through, which restart_run
+# continues from.  It also writes its history up to that restart to a file of
+# its own: the history a run that stopped there would have left, which
+# restart_run then appends to.
+
+Omega:
+  TimeIntegration:
+    StartType: StartUp
+    StartTime: {{ sim_start_time }}
+  IOStreams:
+    # Every restart_freq seconds, so at the restart time restart_run reads and
+    # again at the end, which nothing reads.  There is no pointer file, since
+    # restart_run names the restart it reads.
+    RestartWrite:
+      UsePointerFile: false
+      Filename: {{ restart_dir }}/ocn.restart.$Y-$M-$D_$h.$m.$s.nc
+      Freq: {{ restart_freq }}
+      FreqUnits: seconds
+    # The base History stream, stopped just after the restart time.  Omega
+    # writes nothing once a stream's end time has passed, so the end time falls
+    # between the frame at the restart time and the next one.  Everything else
+    # has to match History, so that restart_run can append to this file; a
+    # unit test checks that it does.
+    HistoryBeforeRestart:
+      UsePointerFile: false
+      Filename: output_before_restart.nc
+      FileFreq: 9999
+      FileFreqUnits: Years
+      Mode: write
+      IfExists: append
+      Precision: double
+      Freq: {{ output_freq }}
+      FreqUnits: seconds
+      UseStartEnd: true
+      StartTime: {{ sim_start_time }}
+      EndTime: {{ before_restart_end }}
+      Contents:
+      - State
+      - Tracers
+      - AuxiliaryState
+      - SshCell
+      - Eos
+      - KineticEnergyCell
