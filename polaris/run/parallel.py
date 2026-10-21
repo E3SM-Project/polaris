@@ -32,6 +32,7 @@ from functools import partial
 from typing import Dict, List, Optional
 
 import mpas_tools.io
+from mache.parallel import PlacementSupport
 from mpas_tools.logging import LoggingContext
 
 from polaris.parallel import set_parallel_systems
@@ -122,7 +123,12 @@ def _run(suite, suite_name, component, logger, events, work_dir, quiet):
     for step in steps.values():
         step.constrain_resources(available)
 
-    pool = ResourcePool(nodes, local_node=_local_node(nodes))
+    support = component.parallel_system.placement_support
+    pool = ResourcePool(
+        nodes,
+        local_node=_local_node(nodes),
+        names_gpus=support is not PlacementSupport.SCHEDULER,
+    )
     graph = build_step_graph(steps.values())
 
     base_work_dir = next(iter(suite['tasks'].values())).base_work_dir

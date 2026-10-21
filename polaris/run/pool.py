@@ -101,7 +101,10 @@ class ResourcePool:
     """
 
     def __init__(
-        self, nodes: List[NodeResources], local_node: Optional[str] = None
+        self,
+        nodes: List[NodeResources],
+        local_node: Optional[str] = None,
+        names_gpus: bool = True,
     ):
         """
         Parameters
@@ -112,6 +115,10 @@ class ResourcePool:
         local_node : str, optional
             The node the scheduler is on.  Defaults to the first, which is
             where a batch script runs.
+
+        names_gpus : bool, optional
+            Whether a placement names the GPUs it gives.  Not where the
+            batch system reserves GPUs by count, since it picks which itself
         """
         self._nodes = [
             _Node(
@@ -128,6 +135,7 @@ class ResourcePool:
         if local_node is None:
             local_node = self._nodes[0].name if self._nodes else ''
         self.local_node = local_node
+        self._names_gpus = names_gpus
 
     def why_impossible(self, step) -> Optional[str]:
         """
@@ -150,7 +158,11 @@ class ResourcePool:
         reason : str or None
             What it needs that the allocation does not have
         """
-        empty = ResourcePool(self._held, local_node=self.local_node)
+        empty = ResourcePool(
+            self._held,
+            local_node=self.local_node,
+            names_gpus=self._names_gpus,
+        )
         if empty.reserve(step) is not None:
             return None
 
@@ -454,16 +466,19 @@ class ResourcePool:
             memory[node.name] = charge
 
         names = tuple(node.name for node, _, _, _ in layout)
-        # the device indices are named one set per node, which the
-        # scheduler ignores where the batch system assigns GPUs itself and
-        # which PALS, where nothing does, needs: a launch it was not told
-        # about sees every device on its nodes.  Measured on Aurora, where
-        # a 25 km Omega step on two nodes was refused before mache could
-        # name its GPUs per node.
+        # the device indices are named one set per node, which PALS, where
+        # nothing assigns GPUs, needs: a launch it was not told about sees
+        # every device on its nodes.  Measured on Aurora, where a 25 km
+        # Omega step on two nodes was refused before mache could name its
+        # GPUs per node.  Where the batch system assigns GPUs they are left
+        # unnamed: it picks its own, and the placement check would hold a
+        # step to the pool's.  On Frontier, omega_pr reported two one-node
+        # steps in one run and four in the next that had four devices but
+        # not the pool's four: 4-7 where it had counted 0-3, for one.
         total_gpus = step.gpus or 0
         gpu_ids = (
             tuple(node_gpus for _, _, node_gpus, _ in layout)
-            if total_gpus > 0
+            if total_gpus > 0 and self._names_gpus
             else None
         )
         placement = ResourcePlacement(

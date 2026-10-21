@@ -56,17 +56,23 @@ mismatch, fewer is only reported, since a launcher may renumber a rank's
 devices from zero and a rank that sees one device numbered zero says
 nothing about how many its neighbours see.
 
-How much that can catch was measured, and differs by vendor.  On Frontier
+Which devices a step is held to depends on who chose them.  Where the
+placement names them -- PALS, where nothing else assigns GPUs -- the ranks
+are held to those.  Where Slurm reserves GPUs by count it picks which, so
+the pool names none and each node is held to its share.  Holding them to
+the pool's names reported steps on Frontier that had exactly what they
+asked for: Slurm gave one devices 4-7 where the pool had counted 0-3.
+
+What the ranks can read was measured, and differs by vendor.  On Frontier
 ``ROCR_VISIBLE_DEVICES`` holds the node's own indices -- eight concurrent
 one-GPU launches on one node read 0 through 7, one each (job 5515624) --
-so a step there names the devices it was given and one seeing a device it
-was not given says so by number.  On Perlmutter ``CUDA_VISIBLE_DEVICES``
-is renumbered per launch: four concurrent one-GPU launches on one node
-each read ``0`` while holding four distinct devices (job 58471743).  So
-there the check can only ever catch a step seeing more than it was given,
-and telling the devices apart would mean reading their UUIDs through the
-vendor's tool, which is a different probe.  On both machines the devices
-concurrent launches were given were disjoint.
+so a report there says which devices by number.  On Perlmutter
+``CUDA_VISIBLE_DEVICES`` is renumbered per launch: four concurrent one-GPU
+launches on one node each read ``0`` while holding four distinct devices
+(job 58471743).  So there the check can only ever catch a step seeing more
+than it was given, and telling the devices apart would mean reading their
+UUIDs through the vendor's tool, which is a different probe.  On both
+machines the devices concurrent launches were given were disjoint.
 """
 
 import os
@@ -449,12 +455,10 @@ def _compare_devices(
 
     problems = []
     named = _named_devices(placement, device_names)
-    if named is not None and (
-        len(placement.nodes) <= 1 or support is PlacementSupport.CPU_BINDING
-    ):
-        # the placement names its devices, so the ranks are held to those.
-        # Only on one node where a scheduler assigns GPUs, since there a
-        # launch spanning nodes is held to a count, as below.
+    if named is not None and support is PlacementSupport.CPU_BINDING:
+        # the placement names its devices and the launcher binds them, so
+        # the ranks are held to those.  A scheduler that assigns GPUs picks
+        # which itself, so there each node is held to a count, as below.
         for node, devices in sorted(reported.items()):
             wanted = named.get(node, named.get('', set()))
             extra = devices - wanted
@@ -466,8 +470,8 @@ def _compare_devices(
                 )
         return problems
 
-    # where the scheduler assigns a spanning launch's devices, it is told
-    # only how many in total, so each node is held to its share
+    # where the scheduler assigns a launch's devices, it is told only how
+    # many in total, so each node is held to its share
     nodes = max(len(placement.nodes), 1)
     per_node = -(-given // nodes)
     for node, devices in sorted(reported.items()):

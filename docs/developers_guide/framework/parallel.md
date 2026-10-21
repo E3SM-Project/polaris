@@ -291,12 +291,15 @@ total, but they are deprecated and raise a `DeprecationWarning`.
 
 Whether a step got the GPUs it was given is checked the same way its cores
 are, by asking the ranks what the vendor's visible-devices variable holds.
-What that can catch was measured and differs by machine: on Frontier
-`ROCR_VISIBLE_DEVICES` holds the node's own indices and the check is exact;
-on Perlmutter `CUDA_VISIBLE_DEVICES` is renumbered per launch, so every
-one-GPU rank reads `0` and the check there can only catch a step seeing more
-devices than it was given. On both, concurrent launches were measured to
-hold disjoint devices.
+Where Slurm assigns the GPUs, as on Frontier and Perlmutter, it picks which,
+so a step is held to how many it sees on each node rather than to particular
+devices. Only on PALS, where nothing else assigns them, does a placement name
+its devices and the check hold the ranks to those. Frontier's
+`ROCR_VISIBLE_DEVICES` holds the node's own indices, so a report there names
+the devices; on Perlmutter `CUDA_VISIBLE_DEVICES` is renumbered per launch,
+so every one-GPU rank reads `0` and the check there can only catch a step
+seeing more devices than it was given. On both, concurrent launches were
+measured to hold disjoint devices.
 
 For ocean model steps with dynamic sizing, Omega runs on GPU-capable compiler
 configs use:

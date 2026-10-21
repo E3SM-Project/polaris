@@ -495,6 +495,23 @@ def test_a_launch_seeing_a_device_it_was_not_given_is_reported():
     assert 'device(s) 2,3' in problems[0]
 
 
+def test_a_scheduler_launch_is_held_to_a_count_not_to_names():
+    """
+    Slurm picks which GPUs a launch gets.  On Frontier it gave a one-node
+    step devices 4-7 where the pool had counted 0-3.
+    """
+    placement = ResourcePlacement(
+        nodes=('nid1',), cores=((0, 1),), gpus=4, gpu_ids=(0, 1, 2, 3)
+    )
+    other = {'nid1': _seen({0, 1}, {'4', '5', '6', '7'})}
+    beyond = {'nid1': _seen({0, 1}, {'3', '4', '5', '6', '7'})}
+
+    assert _compare(placement, other, _logger(), support=SCHEDULER) == []
+    problems = _compare(placement, beyond, _logger(), support=SCHEDULER)
+    assert len(problems) == 1
+    assert 'see 5 device(s)' in problems[0]
+
+
 def test_fewer_devices_than_given_is_reported_but_not_a_mismatch():
     """
     A launcher may number each rank's devices from zero, so four ranks

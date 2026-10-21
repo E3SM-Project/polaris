@@ -1075,13 +1075,14 @@ code above would otherwise have to rediscover:
 - **GPU confinement holds, and what the check can read differs by vendor.**
   Concurrent one-GPU launches on one node got distinct devices on both
   machines. `ROCR_VISIBLE_DEVICES` holds the node's own indices on Frontier,
-  so the check is exact there; `CUDA_VISIBLE_DEVICES` is renumbered per
-  launch on Perlmutter, so there it can only catch a step seeing more than
-  it was given.
-- **Named devices are two bookkeepers agreeing.** On a single-node placement
-  the pool names the GPUs a step gets, and on a machine that reserves by
-  count `mache` never renders those names: Slurm picks by its own lowest-free
-  rule. The two agreed on every step of `omega_pr` on Frontier, and the check
-  would report the first time they did not. Not naming devices at all where
-  the scheduler chooses would remove the possibility, and is the change to
-  make if that report ever appears.
+  so a report there names the devices; `CUDA_VISIBLE_DEVICES` is renumbered
+  per launch on Perlmutter, so there it can only catch a step seeing more
+  than it was given.
+- **Named devices were two bookkeepers agreeing, until they did not.** On a
+  single-node placement the pool named the GPUs a step got, and on a machine
+  that reserves by count `mache` never renders those names: Slurm picks for
+  itself. The two agreed on every step of `omega_pr` on Frontier at first,
+  and the check reported the first time they did not: two steps in one run
+  and four in the next, each with four devices but not the pool's four.
+  Where the scheduler chooses, the pool now names no devices and the check
+  holds each node to a count.

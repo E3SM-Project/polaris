@@ -196,6 +196,26 @@ def test_a_step_on_one_node_names_the_devices_it_got():
     assert reservation.placement.gpu_ids == ((0, 1),)
 
 
+def test_devices_are_not_named_where_the_scheduler_picks_them():
+    """
+    On Frontier Slurm gave a one-node step devices 4-7 where the pool had
+    counted 0-3, so naming them only has the placement check report steps
+    that got what they asked for.  The pool still counts them.
+    """
+    pool = ResourcePool(
+        _nodes(count=1, cores=64, gpus=4),
+        local_node='node0',
+        names_gpus=False,
+    )
+
+    reservation = _reserve(pool, _step('step', cores=8, gpus=2))
+
+    assert reservation.placement.gpus == 2
+    assert reservation.placement.gpu_ids is None
+    assert reservation.gpus['node0'] == (0, 1)
+    assert pool.reserve(_step('second', cores=1, gpus=3)) is None
+
+
 def test_a_step_that_spans_nodes_takes_the_same_devices_on_each():
     """
     Device numbers are node-local, and PALS applies one node's binding list
