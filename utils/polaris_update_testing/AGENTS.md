@@ -57,10 +57,14 @@ Below, `polaris_update_test.py` means
 ## Before testing on a machine
 
 1. Work in a checkout of the PR's branch on the machine, which you can
-   fetch as `refs/pull/<number>/head` from E3SM-Project/polaris.  If it is
-   missing, make it as a worktree beside the checkout on the `[machines]`
-   line.  If it does not have this utility yet, merge the branch you have
-   the utility from into it locally, without pushing.
+   fetch as `refs/pull/<number>/head` from E3SM-Project/polaris.  Make it
+   yourself, never using an existing checkout of the PR's branch, where
+   someone may be developing.  Make it as a worktree beside the checkout
+   on the `[machines]` line, on a throw-away branch named
+   `polaris-pr-test/<number>`, at the PR's head.  It is yours to update or
+   remove.  If it does not have this utility yet, merge the branch you
+   have the utility from into the throw-away branch.  Never commit to the
+   PR's own branch, and never push the throw-away branch.
 2. With a baseline, you need the checkout of `main` that `polaris_main`
    names in the machine's settings, at the `main` that `init` pinned, with
    a load script for each of the machine's compilers that uses `main`'s
