@@ -149,6 +149,83 @@ def partitions_to_build(cores, basename, ncells):
     ]
 
 
+def get_region_graph(cells_on_cell, n_edges_on_cell, in_region):
+    """
+    The graph of a region's cells, keeping only the edges between them.
+
+    This is the graph ``MpasCellCuller.x`` writes for a mesh culled to the
+    region, without culling the mesh: the cells keep their order, and so does
+    each cell's list of neighbors.
+
+    Parameters
+    ----------
+    cells_on_cell : numpy.ndarray
+        The mesh's one-based ``cellsOnCell``.
+
+    n_edges_on_cell : numpy.ndarray
+        The mesh's ``nEdgesOnCell``.
+
+    in_region : numpy.ndarray
+        Whether each cell is in the region.
+
+    Returns
+    -------
+    cells : numpy.ndarray
+        The index in the mesh of each cell in the region.
+
+    xadj : numpy.ndarray
+        Where each cell's neighbors start in ``adjncy``, with one more entry
+        than there are cells.
+
+    adjncy : numpy.ndarray
+        Each cell's neighbors in the region, by their zero-based index among
+        the region's cells.
+    """
+    ncells, max_edges = cells_on_cell.shape
+    in_region = np.asarray(in_region, dtype=bool)
+    cells = np.flatnonzero(in_region)
+
+    neighbors = cells_on_cell[cells].astype(np.int64) - 1
+    is_neighbor = (
+        np.arange(max_edges) < n_edges_on_cell[cells, np.newaxis]
+    ) & ((neighbors >= 0) & (neighbors < ncells))
+    is_neighbor[is_neighbor] = in_region[neighbors[is_neighbor]]
+
+    region_index = np.full(ncells, -1, dtype=np.int64)
+    region_index[cells] = np.arange(len(cells))
+
+    xadj = np.zeros(len(cells) + 1, dtype=np.int64)
+    np.cumsum(np.count_nonzero(is_neighbor, axis=1), out=xadj[1:])
+    adjncy = region_index[neighbors[is_neighbor]]
+    return cells, xadj, adjncy
+
+
+def write_graph(filename, xadj, adjncy):
+    """
+    Write a graph in the format ``gpmetis`` reads.
+
+    Parameters
+    ----------
+    filename : str
+        The file to write.
+
+    xadj : numpy.ndarray
+        Where each vertex's neighbors start in ``adjncy``, with one more entry
+        than there are vertices.
+
+    adjncy : numpy.ndarray
+        Each vertex's zero-based neighbors, one vertex after another.  Every
+        edge appears once from each end.
+    """
+    bounds = np.asarray(xadj).tolist()
+    neighbors = [str(vertex + 1) for vertex in np.asarray(adjncy).tolist()]
+    with open(filename, 'w') as handle:
+        handle.write(f'{len(bounds) - 1} {len(neighbors) // 2}\n')
+        for start, end in zip(bounds[:-1], bounds[1:], strict=True):
+            handle.write(' '.join(neighbors[start:end]))
+            handle.write('\n')
+
+
 def _is_complete_partition(filename, ncores, ncells):
     """
     Whether a partition file is finished, rather than merely present.
