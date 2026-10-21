@@ -106,8 +106,6 @@ class ConservationSummary(Step):
 def _frazil_diagnostics(component, base_work_dir, forward_steps, config):
     """Report domain-integrated forcing, frazil terms, and errors."""
     model = config.get('ocean', 'model')
-    if model != 'omega':
-        return f'Omega frazil fields unavailable for model {model}\n'
 
     lines = [
         'forward step budget       state delta       surface forcing     '
@@ -126,7 +124,16 @@ def _frazil_diagnostics(component, base_work_dir, forward_steps, config):
         mesh = component.open_model_dataset(mesh_filename, config=config)
         init = component.open_model_dataset(init_filename, config=config)
         dt = get_time_since_start(output, units='seconds')[-1]
-        frazil = compute_frazil_fluxes(mesh, output)
+        frazil = compute_frazil_fluxes(
+            mesh,
+            output,
+            model=model,
+            time_step=(
+                config.getfloat('single_column', 'time_step')
+                if model == 'mpas-ocean'
+                else None
+            ),
+        )
         forcing = {
             budget: compute_flux_forcing(
                 mesh, output, budget, dt, model=model, config=config

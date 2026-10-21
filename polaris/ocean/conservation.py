@@ -295,40 +295,87 @@ def compute_flux_forcing(
     return total * dt
 
 
-def compute_frazil_fluxes(ds_mesh, ds, time_index_end=-1):
-    """Integrate Omega frazil contributions to ocean-state change.
+def compute_frazil_fluxes(
+    ds_mesh, ds, time_index_end=-1, model='omega', time_step=None
+):
+    """Integrate frazil contributions to ocean mass, salt, and energy.
 
-    Omega reports frazil fluxes with the coupling conventions
-    (counted positive into the ocean).
+    Omega supplies column fluxes, positive into the ocean. MPAS-Ocean
+    supplies tendencies of thickness, thickness-weighted salinity, and
+    thickness-weighted temperature. Its output must include every model
+    timestep from the start of the run; each tendency drives the timestep
+    ending at its output timestamp. An optional startup record has zero
+    weight. Return domain-integrated changes in kg, kg, and J.
+
+    ``time_step`` is required for MPAS-Ocean to detect missing records.
     """
     from polaris.ocean.model.time import get_time_since_start
 
-    fields = (
-        'FrazilMassFlux',
-        'FrazilSaltFlux',
-        'FrazilEnergyFlux',
-    )
-    missing = [field for field in fields if field not in ds]
+    if model == 'omega':
+        fields = {
+            'mass': ('FrazilMassFlux', 1.0),
+            'salt': ('FrazilSaltFlux', 1.0),
+            'energy': ('FrazilEnergyFlux', 1.0),
+        }
+    elif model == 'mpas-ocean':
+        fields = {
+            'mass': ('frazilLayerThicknessTendency', rho_sw),
+            'salt': ('frazilSalinityTendency', rho_sw / 1000.0),
+            'energy': (
+                'frazilTemperatureTendency',
+                rho_sw * cp_sw[model],
+            ),
+        }
+    else:
+        raise ValueError(f'Unsupported frazil model: {model}')
+    missing = [field for field, _ in fields.values() if field not in ds]
     if missing:
         raise ValueError(
-            'Omega frazil fields are missing from output: '
+            f'{model} frazil fields are missing from output: '
             + ', '.join(missing)
         )
 
     time = np.asarray(get_time_since_start(ds, units='seconds'), dtype=float)
     end = len(time) if time_index_end == -1 else time_index_end + 1
     time = time[:end]
+    if (
+        time.size == 0
+        or not np.all(np.isfinite(time))
+        or time[0] < 0.0
+        or np.any(np.diff(time) <= 0.0)
+    ):
+        raise ValueError('Frazil output times must be finite and increasing')
     intervals = np.diff(np.concatenate(([0.0], time)))
-    area = np.asarray(ds_mesh['areaCell'].values, dtype=float)
-    totals = []
-    for field in fields:
-        flux = np.asarray(ds[field].values, dtype=float)[:end]
-        totals.append(float(np.sum(flux * intervals[:, None] * area)))
-    return dict(
-        mass=totals[0],
-        salt=totals[1],
-        energy=totals[2],
-    )
+    if model == 'mpas-ocean':
+        if time_step is None or not np.isfinite(time_step) or time_step <= 0:
+            raise ValueError('MPAS-Ocean frazil requires a positive time_step')
+        if not (
+            np.allclose(intervals[1:], time_step, rtol=1.0e-10, atol=1.0e-8)
+            and (
+                np.isclose(intervals[0], 0.0, rtol=0.0, atol=1.0e-8)
+                or np.isclose(
+                    intervals[0], time_step, rtol=1.0e-10, atol=1.0e-8
+                )
+            )
+        ):
+            raise ValueError(
+                'MPAS-Ocean frazil output must include every timestep '
+                'from the start of the run'
+            )
+    ds = ds.isel(Time=slice(0, end))
+    totals = {}
+    for budget, (field, factor) in fields.items():
+        flux = ds[field]
+        if model == 'mpas-ocean':
+            active = ds.layerThickness.notnull() & (ds.layerThickness > 0.0)
+            flux = flux.where(active, 0.0).sum(dim='nVertLevels', skipna=False)
+        flux = (flux * ds_mesh.areaCell).transpose('Time', 'nCells')
+        if not np.all(np.isfinite(flux.values)):
+            raise ValueError(f'Non-finite frazil contribution in {field}')
+        totals[budget] = factor * float(
+            np.sum(flux.values * intervals[:, None])
+        )
+    return totals
 
 
 def _compute_enthalpy_forcing(

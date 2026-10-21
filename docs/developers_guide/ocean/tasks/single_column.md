@@ -313,9 +313,12 @@ track frazil formation, while the shared `Viz` step plots the depth-dependent
 state and tendency fields.  The conservation summary step records aggregated
 frazil thickness and salinity for each algorithm variant.
 
-Because `compute_frazil_fluxes` reads Omega-only history fields, the
-conservation property checks report `FAIL` for MPAS-Ocean; this is an
-accounting gap rather than a model error and does not fail the task.
+MPAS-Ocean conservation checks include the applied frazil thickness and
+thickness-weighted tracer tendencies, integrated over every timestep.
+The summary reports surface forcing, frazil contributions, and adjusted
+residuals for mass, salt, and energy. Missing tendency fields or skipped
+timesteps raise an error. This accounting is for standalone runs, not
+coupled runs. Omega retains its existing frazil-flux accounting for freezing.
 
 ## frazil one layer (freezing)
 
@@ -353,9 +356,9 @@ and salt rates, while `conservation-residuals.png` plots the corresponding
 top-layer budget residuals. These two frazil diagnostic plots are not produced
 for MPAS-Ocean because the history fields are Omega-specific.
 
-The conservation property checks likewise report `FAIL` for MPAS-Ocean, since
-the frazil transfer is missing from the expected change; this does not fail the
-task.
+Both models include frazil contributions in their conservation checks and
+summary logs. MPAS-Ocean uses the applied tendencies rather than the
+accumulated ice mass to account for local-density effects and meltwater heat.
 
 ## frazil melting short
 
@@ -394,9 +397,8 @@ columns for temperature, thickness, salinity and thickness-times-temperature.
 Because frazil acts below the top layer, `conservation-residuals.png` is built
 from column-integrated state rates rather than from the top layer alone.
 
-As for the other frazil tasks, the conservation property checks report `FAIL`
-for MPAS-Ocean because the frazil transfer is unaccounted; the task still
-passes.
+Both models include frazil contributions in the mass, salt, and energy
+checks. MPAS-Ocean tendency output is required at every timestep.
 
 ## thermo
 

@@ -123,6 +123,9 @@ class Frazil(Task):
         model = self.config.get('ocean', 'model')
         if model != 'mpas-ocean':
             return
+        for step in self._frazil_type_steps.values():
+            step.frazil_conservation = True
+        self.conservation_summary.frazil_diagnostics = True
         teos_step = self._frazil_type_steps.pop('teos', None)
         if teos_step is not None:
             self.remove_step(teos_step)
