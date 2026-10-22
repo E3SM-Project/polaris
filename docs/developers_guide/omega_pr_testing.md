@@ -48,5 +48,4 @@ utils/omega/pr_testing/AGENTS.md.
 own rows.
 
 The modules it shares with other PR testing utilities are in
-`utils/pr_testing`.  The design is in
-{doc}`../design_docs/omega_pr_testing`.
+`utils/pr_testing`.

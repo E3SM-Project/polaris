@@ -123,10 +123,12 @@ to the pickle file. Each task's outcome is held in a
 {py:func}`polaris.run.results.write_suite_results()`. The file is written
 before the first task runs and again after each task, so it is there even if
 the job is killed. Downstream tools should read this file rather than parsing
-the log files. Its format is described in {ref}`suites-results` and in the
-[design document](../../design_docs/suite_results_file.md). If you remove a
-field or change its meaning, increment `SCHEMA_VERSION` in
-`polaris.run.results`.
+the log files. Its format is described in {ref}`suites-results`. Each write
+goes to a temporary file that is renamed into place, so a reader never sees a
+partial file, and non-finite norms are written as strings (`NaN`,
+`Infinity`, `-Infinity`) to keep the file strict JSON. If you remove a field
+or change its meaning, increment `SCHEMA_VERSION` in `polaris.run.results`;
+adding a field does not need a new version.
 
 {py:func}`polaris.run.serial.run_single_step()` runs only the selected step
 from a given task, skipping any others, displaying the output in the terminal

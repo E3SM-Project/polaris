@@ -5,9 +5,7 @@
 `polaris.mesh.connectivity` answers questions about which cells of a mesh a
 model can actually move a quantity between, given a mask saying which cells
 belong to the domain.  Its main use is finding land-locked cells and other
-disconnected pockets before a mesh is culled; see the
-[design document on land-locked cells](../../../design_docs/land_locked_cells.md)
-for the reasoning behind the criteria below.
+disconnected pockets before a mesh is culled.
 
 The key point is that sharing an edge is not the same as being connected.
 Whether two neighboring cells are connected depends on the grid staggering of

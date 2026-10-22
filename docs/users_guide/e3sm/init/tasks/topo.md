@@ -137,8 +137,7 @@ Common user-tunable options are:
 	unremarkable.  It is set to catch leaks (the contaminated meshes that
 	motivated it reached 0.29 to 0.34) rather than the rare packing defects
 	that reach 0.51 on the finest meshes, at a different location every
-	build.  See the {ref}`design docs <design-docs>` `unified_mesh_cull_leak`
-	and `unified_mesh_dc_edge_noise`.
+	build.
 
 Cull tasks produce three culled meshes: `ocean`, `ocean_no_cavities` and
 `land`.  The land mesh is the exact complement of `ocean_no_cavities`, so
