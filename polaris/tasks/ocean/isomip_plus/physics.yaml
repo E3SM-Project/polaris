@@ -1,0 +1,70 @@
+# MPAS-Ocean's physics as E3SM configures it for ice-shelf cavities, with
+# per-mesh values from E3SM's cavity meshes, overridden only where wetting and
+# drying or the thin film requires and for the top drag.  com.yaml restores the
+# COM physics of the ISOMIP+ protocol.
+mpas-ocean:
+  time_integration:
+    config_time_integrator: RK4
+  advection:
+    config_thickness_flux_type: upwind
+    # upwind only in columns thinner than 5 to 10 m, where wetting and drying
+    # needs it, and centered elsewhere, as in E3SM
+    config_use_spatially_variable_upwind: true
+    config_vert_advection_method: flux-form
+  wetting_drying:
+    config_use_wetting_drying: true
+    config_drying_safety_height: 1.0e-10
+    config_drying_min_cell_height: 1.0e-3
+    config_zero_drying_velocity_ramp: false
+    config_zero_drying_velocity_ramp_hmin: 1.0e-3
+    config_zero_drying_velocity_ramp_hmax: 1.0e-1
+    config_use_ssh_gradient_wetting_drying: false
+    config_prevent_drying: true
+    config_zero_drying_velocity: true
+  eos_jm:
+    config_eos_jm_pressure_from_zMid: true
+  hmix_del2:
+    config_use_mom_del2: true
+    config_use_tracer_del2: false
+    config_mom_del2: {{ mom_del2 }}
+  hmix_del4:
+    config_use_mom_del4: true
+    config_mom_del4: {{ mom_del4 }}
+  cvmix:
+    config_cvmix_background_diffusion: 0.0
+    config_cvmix_background_viscosity: 1.0e-4
+    config_use_cvmix_convection: true
+    config_cvmix_convective_diffusion: 1.0
+    config_cvmix_convective_viscosity: 1.0
+    config_use_cvmix_shear: true
+    config_cvmix_shear_mixing_scheme: KPP
+    config_use_cvmix_kpp: true
+    config_cvmix_use_BLD_smoothing: true
+  submesoscale_eddy_parameterization:
+    config_submesoscale_enable: true
+    config_submesoscale_Ce: 0.08
+  frazil_ice:
+    config_use_frazil_ice_formation: true
+    config_frazil_under_land_ice: true
+    config_frazil_heat_of_fusion: 3.337e5
+    config_specific_heat_sea_water: 3.996e3
+    config_frazil_use_surface_pressure: false
+  land_ice_fluxes:
+    config_land_ice_flux_attenuation_coefficient: 10.0
+    config_land_ice_flux_boundaryLayerThickness: 10.0
+    config_land_ice_flux_explicit_topDragCoeff: 4.48e-3
+    config_land_ice_flux_tidal_Jourdain_U0: 5.0e-2
+    config_land_ice_flux_jenkins_heat_transfer_coefficient: 2.95e-3
+    config_land_ice_flux_jenkins_salt_transfer_coefficient: 8.42e-5
+  bottom_drag:
+    # E3SM's explicit top drag predates the implicit option
+    config_use_implicit_top_drag: true
+    config_implicit_top_drag_coeff: 4.48e-3
+    config_implicit_constant_bottom_drag_coeff: 1.0e-3
+  pressure_gradient:
+    config_pressure_gradient_type: Jacobian_from_TS
+    # keeps Jacobian_from_TS from extrapolating the thin film's fresh water
+    # across the steep ice-base steps at the grounding line
+    config_jacobian_limit_to_water_column: true
+  debug:
+    config_check_ssh_consistency: false
