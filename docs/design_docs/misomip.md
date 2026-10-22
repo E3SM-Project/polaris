@@ -322,8 +322,7 @@ Across the domain's 80 km width, the projection's scale error is below
 $2\times10^{-5}$ and its area error below $4\times10^{-5}$, so planar model
 areas and the map's spherical areas differ by no more than that. Fluxes
 conserve exactly once both models take their coupler areas from the map
-(WP7). The decisions on the planar mesh and on independent meshes record
-the alternatives.
+(WP7). [D2](#decisions) and [D13](#decisions) record the alternatives.
 ```
 
 ### Principle: the ocean follows MALI
@@ -347,7 +346,7 @@ $R(m(\phi_f + \phi_g))/R(m)$, each capped at 1. All three are zero where
 $R(m) = 0$. In data mode, the initial condition matches the record MALI
 reads at the start.
 
-The constants are E3SM's and the protocol's:
+The constants are E3SM's and the protocol's ([D6](#decisions)):
 $\rho_i = 918$ kg m⁻³, $g = 9.80616$ m s⁻², and an ocean density of
 1028 kg m⁻³ in both MALI's flotation test and MPAS-Ocean's draft. The
 ocean's bed comes from the same source as MALI's, on the ocean's mesh, with
@@ -368,7 +367,7 @@ Date last modified: 2026/10/16
 Contributors: Xylar Asay-Davis, Claude
 
 Polaris never changes the land-ice pressure, as in the standalone tasks
-(#826). Before the E3SM run, SSH adjustment with standalone
+(#826, D13). Before the E3SM run, SSH adjustment with standalone
 MPAS-Ocean brings the SSH into balance with the pressure, so the import
 stays a no-op.
 
@@ -379,9 +378,9 @@ Date last modified: 2026/10/18
 Contributors: Xylar Asay-Davis, Claude
 
 Every ocean cell under grounded ice holds a fresh film at MPAS-Ocean's
-pressure cap (#844). The SSH is held at zero in the restoring
+pressure cap (#844, D17 and D18). The SSH is held at zero in the restoring
 region by MPAS-Ocean's tidal forcing, in its direct mode with zero
-amplitude (#844). Meltwater and the water the ice displaces leave
+amplitude (#844, D19). Meltwater and the water the ice displaces leave
 there with the local temperature and salinity. Every E3SM experiment
 takes the wetting-and-drying settings of the standalone thin-film tasks,
 including WP2's velocity ramp, since every experiment keeps a film.
@@ -405,7 +404,8 @@ domain or wetting and drying requires, or where E3SM's default predates a
 better option, as its explicit top drag does. The protocol supplies the
 geometry, the initial profiles and the restoring. Ocean0–2 also have
 variants with the COM physics (Table 4) for comparison with Yung et al.
-(2026). The standalone tasks keep the COM physics until WP11 moves them.
+(2026). The standalone tasks keep the COM physics until WP11 moves them
+([D16](#decisions)).
 
 ### Principle: stub partners
 
@@ -497,7 +497,7 @@ master, as Omega's target its `develop` branch.
 
 #842 adds the submodule, so that it can be reviewed and merged without
 waiting for E3SM, and #826 and #844 follow it. E3SM-Project stays the
-default for every other Polaris build. No framework
+default for every other Polaris build ([D15](#decisions)). No framework
 change is needed: a setup that needs FAnSSIE points to the submodule.
 
 #842 also adds a `fanssie_pr` suite. The ice-shelf tasks leave `mpaso_pr`,
@@ -515,11 +515,11 @@ film and forcing.
 The floating mask over the open ocean is fixed first, in #142, so that the
 reset applies only where there is land ice. The standalone tasks are rerun
 with the fix before they merge. The same pull requests drop the JIGSAW
-spherical meshes and most of the spherical tasks.
+spherical meshes and most of the spherical tasks ([D2](#decisions)).
 
 ### WP2: Split-explicit wetting and drying
 
-WP2 starts from `abc3b5daee` merged onto FAnSSIE.
+WP2 starts from `abc3b5daee` merged onto FAnSSIE ([D10](#decisions)).
 RK4 keeps master's wetting factor, with #119's changes and its
 ssh-gradient and subgrid branches. Carolyn Begeman's factors serve only
 the split-explicit scheme. They see grounded ice through #119's limit on
@@ -535,7 +535,7 @@ WP2 must also:
 Polaris adds split-explicit variants of the thin-film tasks and Ocean0 to
 test it. The work lands on FAnSSIE, and an upstream pull request can
 follow when it is ready. E3SM's default `split_explicit_ab2` stays
-without wetting and drying.
+without wetting and drying ([D18](#decisions)).
 
 ### WP3: Landice component
 
@@ -544,9 +544,9 @@ A `landice` component joins `ocean` and `seaice`, with its framework in
 step, a MALI build and a landice database area. Albany returns through
 Polaris's own deployment, `./deploy.py --with-albany`. MALI-Dev's
 `develop` stays the landice default, which FAnSSIE also merges in, and
-builds for this work point to FAnSSIE explicitly, as for the ocean. The
-first tasks are Compass's `dome`, with both velocity solvers, and they join
-`fanssie_pr`.
+builds for this work point to FAnSSIE explicitly, as for the ocean
+([D15](#decisions)). The first tasks are Compass's `dome`, with both
+velocity solvers, and they join `fanssie_pr`.
 
 Static and data-mode initial conditions need only MALI's mesh conversion,
 which lives in the landice framework, not a MALI build, so WP6 can start
@@ -582,7 +582,7 @@ Shared steps in the `mesh` component build:
   directions, in the variants E3SM's coupler expects, and the runoff map.
 
 If the prototype finds that E3SM needs a spherical ocean, the ocean mesh
-is mapped onto the sphere with the same projection.
+is mapped onto the sphere with the same projection ([D2](#decisions)).
 
 ### WP6: E3SM inputs
 
@@ -591,13 +591,13 @@ Tasks `e3sm/misomip/<resolution>/<experiment>` build:
 - MALI initial conditions: static and data-mode ones from the protocol
   input, remapped to MALI's cells and calved, and prognostic ones from
   WP4;
-- data-mode files for Ocean3–4;
+- data-mode files for Ocean3–4 ([D7](#decisions));
 - MPAS-Ocean initial conditions that follow MALI through WP5's map, with
   the thin film, profiles, restoring and outflow forcing, after SSH
   adjustment;
 - graph partitions for both models at the planned task counts;
 - the case configuration: a grid file and a user-mods directory with
-  namelists, streams and XML changes.
+  namelists, streams and XML changes ([D12](#decisions)).
 
 The files are staged in an inputdata-style tree, as the realistic
 component inputs are. A standalone forward run on the same inputs serves
@@ -609,7 +609,7 @@ These changes land on FAnSSIE. None is specific to ISOMIP+, so they can go
 upstream when E3SM wants them:
 
 - a prognostic ocean without an atmosphere: relax the driver check and
-  skip the atmosphere–ocean fluxes;
+  skip the atmosphere–ocean fluxes ([D4](#decisions));
 - the ocean's coupler areas from the glc-to-ocean map when there is no
   atmosphere, as glc's already are;
 - the `wetting_drying` and `tidal_forcing` namelist groups, with the tidal
@@ -620,7 +620,7 @@ upstream when E3SM wants them:
   ocean.
 
 Everything specific to the experiments comes from Polaris's user-mods
-directory: namelists, the streams for interior
+directory ([D12](#decisions)): namelists, the streams for interior
 restoring, the tidal mask and MALI's data mode, and the XML changes.
 Compsets are given by long name. The grid files are staged on inputdata,
 whether or not E3SM's code on master uses them.
@@ -677,7 +677,7 @@ The standalone ISOMIP+ tasks move to E3SM's physics
 ([principle](#algorithm-design-shared-principles)), including
 `Jacobian_from_TS` for the pressure gradient and E3SM's land-ice flux
 coefficients. Ocean0–2 keep COM variants. The equation of state is `jm`,
-evaluated at each layer's actual depth. Next to a thin
+evaluated at each layer's actual depth ([D17](#decisions)). Next to a thin
 film, `Jacobian_from_TS` extrapolates the film's fresh water into depths
 where that cell holds ice, so a new option limits it to each cell's water
 column. MPAS-Ocean's submesoscale eddies, KPP's friction velocity with
@@ -752,7 +752,7 @@ branch's previous commit. The 4 km Ocean0 case also repeats steps 2 and 4.
 ## Scope and non-goals
 
 - Omega does not yet support ice-shelf cavities, so it is out of scope.
-- IceOcean2r and IceOcean2ra are out of scope.
+- IceOcean2r and IceOcean2ra are out of scope ([D9](#decisions)).
 - The results are not submitted to MISOMIP, and no publication centers on
   them. The protocol's output files are not produced.
 - Matching realistic Antarctic initial conditions, "option B" in the notes
@@ -766,7 +766,7 @@ branch's previous commit. The 4 km Ocean0 case also repeats steps 2 and 4.
 
 ## Decisions
 
-### Decision: The ocean follows MALI
+### D1: The ocean follows MALI
 
 Date last modified: 2026/10/16
 
@@ -780,7 +780,7 @@ model is rejected because it would disagree with MALI at grounding lines.
 grounding line, as they will in realistic coupling. The comparison with
 standalone runs uses the E3SM inputs.
 
-### Decision: The ocean runs on the planar mesh in E3SM
+### D2: The ocean runs on the planar mesh in E3SM
 
 Date last modified: 2026/10/16
 
@@ -801,7 +801,7 @@ Alternatives:
   lengths by 1.008 to 1.032 across the domain. The open ISOMIP+ pull
   requests drop them, along with most of the spherical tasks.
 
-### Decision: Every experiment has a thin film
+### D3: Every experiment has a thin film
 
 Date last modified: 2026/10/16
 
@@ -811,7 +811,7 @@ Ocean0–2 keep a thin film under grounded ice although their geometry is
 static. They test the capability in coupled runs before the grounding line
 moves.
 
-### Decision: No atmosphere, through a driver change
+### D4: No atmosphere, through a driver change
 
 Date last modified: 2026/10/16
 
@@ -823,7 +823,7 @@ MPAS-Ocean's bulk forcing off, is rejected. It needs no driver change, but
 it needs data-atmosphere inputs, and the coupler computes fluxes that the
 ocean then ignores.
 
-### Decision: The MCT driver
+### D5: The MCT driver
 
 Date last modified: 2026/10/16
 
@@ -832,7 +832,7 @@ Contributors: Xylar Asay-Davis, Claude
 All runs use the MCT driver, the only one in which #8887 couples ice-shelf
 melt.
 
-### Decision: E3SM's constants
+### D6: E3SM's constants
 
 Date last modified: 2026/10/16
 
@@ -849,7 +849,7 @@ The import must be a no-op. MALI's coupler areas assume E3SM's radius, and
 the ocean's planar areas must use the same one.
 ```
 
-### Decision: Data-mode files hold monthly records
+### D7: Data-mode files hold monthly records
 
 Date last modified: 2026/10/16
 
@@ -861,17 +861,17 @@ record to record without interpolation. Polaris therefore writes monthly
 records, each interpolated in time and then calved. Yearly records are
 rejected because the geometry would move in yearly jumps.
 
-### Decision: An outflow, not evaporation
+### D8: An outflow, not evaporation
 
 Date last modified: 2026/10/16
 
 Contributors: Xylar Asay-Davis, Claude
 
 Water leaves through the tidal forcing in the restoring region, not
-through the protocol's evaporation, as in #844. See
+through the protocol's evaporation, as in #844 (D19). See
 [the thin-film principle](#algorithm-design-shared-principles).
 
-### Decision: IceOcean2 is out of scope
+### D9: IceOcean2 is out of scope
 
 Date last modified: 2026/10/16
 
@@ -881,7 +881,7 @@ IceOcean2r and IceOcean2ra are optional in the protocol. They need MALI to
 calve ice thinner than 100 m, and a new spin-up with Ice0 and Ice1 rerun
 (Sect. 4.2).
 
-### Decision: Split-explicit work starts from Carolyn Begeman's series
+### D10: Split-explicit work starts from Carolyn Begeman's series
 
 Date last modified: 2026/10/16
 
@@ -893,7 +893,7 @@ viscosity work on top of it.
 `ocn-add-wetting-drying-se-and-fix-vlr` carries the same series with
 vertical-remap and debugging commits.
 
-### Decision: Ocean resolutions are 4 and 2 km
+### D11: Ocean resolutions are 4 and 2 km
 
 Date last modified: 2026/10/19
 
@@ -901,7 +901,7 @@ Contributors: Xylar Asay-Davis, Claude
 
 The ocean uses 2 km for the protocol runs, the COM resolution
 (Sect. 3.1.5), and 4 km for development and the quick coupling test.
-MALI's resolution is set in the MISMIP+ design. The
+MALI's resolution is set in the MISMIP+ design ([D13](#decisions)). The
 long runs take what they take: with split-explicit wetting and drying, 100
 years at 2 km take about two weeks on two Chrysalis nodes.
 
@@ -910,7 +910,7 @@ would need a time step about twice what the thin film allows. Also
 rejected: running the long experiments at 4 km, whose dynamics are not
 physically useful.
 
-### Decision: The E3SM configuration lives in Polaris
+### D12: The E3SM configuration lives in Polaris
 
 Date last modified: 2026/10/16
 
@@ -929,7 +929,7 @@ One source for the physics keeps the E3SM and standalone runs identical,
 so the comparisons in WP9 test the coupling rather than the configuration.
 ```
 
-### Decision: MALI and ocean meshes are independent
+### D13: MALI and ocean meshes are independent
 
 Date last modified: 2026/10/16
 
@@ -946,7 +946,7 @@ grounded, floating or open, which hides the partly grounded cells that
 realistic coupling must handle. A run with MALI on the ocean's mesh
 remains available as a diagnostic if remapping is suspected.
 
-### Decision: FAnSSIE only gains commits
+### D14: FAnSSIE only gains commits
 
 Date last modified: 2026/10/18
 
@@ -982,7 +982,7 @@ Rejected:
   tagged so that pinned commits survive, and conflicts are resolved again
   at every rebuild.
 
-### Decision: E3SM-Project stays Polaris's default
+### D15: E3SM-Project stays Polaris's default
 
 Date last modified: 2026/10/16
 
@@ -999,7 +999,7 @@ then test it rather than E3SM. Also rejected: keeping `ice_shelf_2d` in the
 regular suites on its current options. Tasks that work with one source but
 not the other would then be hard to tell apart as the two diverge.
 
-### Decision: E3SM's physics, not COM's
+### D16: E3SM's physics, not COM's
 
 Date last modified: 2026/10/18
 
@@ -1022,7 +1022,7 @@ compare against.
 *Effect:* #826 and #844 merge with the COM physics, and WP11 then moves the
 standalone tasks to E3SM's physics.
 
-### Decision: `jm` at each layer's actual depth
+### D17: `jm` at each layer's actual depth
 
 Date last modified: 2026/10/18
 
@@ -1049,7 +1049,7 @@ Rejected:
   correctly;
 - `jm` at reference depths, as on E3SM master.
 
-### Decision: Wetting and drying stays in `split_explicit`
+### D18: Wetting and drying uses `split_explicit`, not `split_explicit_ab2`
 
 Date last modified: 2026/10/19
 
