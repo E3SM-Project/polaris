@@ -26,9 +26,6 @@ def check_ocean_dc_edge(
     is raised if any ratio falls below ``min_ratio`` or above
     ``max_ratio``.
 
-    See the design document ``unified_mesh_cull_leak`` in the
-    documentation for the motivation and the choice of thresholds.
-
     Parameters
     ----------
     ds_base_mesh : xarray.Dataset
@@ -156,8 +153,8 @@ def check_ocean_dc_edge(
             f'{shortest_edge:.3f} km, only {abs_ratio:.3f} times the '
             f'{finest_background:.3f} km finest ocean background, below the '
             f'{min_abs_ratio} minimum.  This sets the forward-run time step '
-            f'(see {out_filename} and the unified_mesh_dc_edge_noise design '
-            f'doc).  Worst edge at lon={lon:.3f}, lat={lat:.3f}.'
+            f'(see {out_filename}).  Worst edge at lon={lon:.3f}, '
+            f'lat={lat:.3f}.'
         )
         logger.error(message)
         raise ValueError(message)
@@ -188,8 +185,8 @@ def check_ocean_dc_edge(
         'The culled ocean/sea-ice domain contains edges whose dcEdge '
         'is out of bounds relative to the local ocean background cell '
         'width, indicating that resolution intended for the land/river '
-        f'domain has leaked into the ocean (see {out_filename} and the '
-        'unified_mesh_cull_leak design doc):\n' + '\n'.join(lines)
+        f'domain has leaked into the ocean (see {out_filename}):\n'
+        + '\n'.join(lines)
     )
     logger.error(message)
     raise ValueError(message)

@@ -265,7 +265,7 @@ class CullMaskStep(Step):
         circulate, and discards whatever is left unconnected to the open
         ocean. The sea-ice criteria are not applied here; they belong to the
         ocean without ice-shelf cavities and are applied when the two domains
-        are refined together. See the ``land_locked_cells`` design document.
+        are refined together.
 
         Parameters
         ----------
@@ -607,8 +607,7 @@ class CullMaskStep(Step):
         The two domains are refined together because removing a cell from
         one can strand a cell in the other, and because only here is the
         land-ice mask available to say which cells may legitimately be in
-        the ocean but not in the ocean without cavities.  See the
-        ``land_locked_cells`` design document.
+        the ocean but not in the ocean without cavities.
         """
         logger = self.logger
         logger.info('Refining the ocean and ocean no-cavities domains.')

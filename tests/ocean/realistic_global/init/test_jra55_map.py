@@ -46,8 +46,7 @@ def test_method_is_bilinear():
     Bilinear, not conservative.  The ocean responds to wind stress curl, and
     first-order conservative remapping makes that curl grid-scale noise;
     pyremap's moab path hard-codes --order 1, so second-order conservative is
-    not available.  See the wind-forcing section of the ``global_ocean_init``
-    design document before changing this.
+    not available.
     """
     step = _make_step('icos240km')
     assert step.remapper.method == 'bilinear'

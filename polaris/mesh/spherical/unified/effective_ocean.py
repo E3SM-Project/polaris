@@ -12,9 +12,6 @@ averaging of the candidate-ocean fraction, critical-transect handling
 with resolution-proportional passage widening, a seeded flood fill and
 hysteresis growth — so the sizing field can prescribe the full ocean
 background cell width everywhere the cull is likely to keep.
-
-See the ``unified_mesh_cull_leak`` design doc for the motivation,
-algorithm details and validation.
 """
 
 import numpy as np

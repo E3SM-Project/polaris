@@ -65,7 +65,7 @@ def test_unified_meshes_keep_the_default_optimisation_kernel():
     cvt+dqdx was tried for unified meshes and reverted: it thinned the bulk
     of the dcEdge distribution but introduced rare severe defects that the
     diagnostic, being a minimum, is precisely sensitive to.  Guard the
-    revert so it is not reintroduced without revisiting the design doc.
+    revert so it is not reintroduced by accident.
     """
     for mesh_name in UNIFIED_MESH_NAMES:
         config = get_unified_mesh_config(mesh_name=mesh_name)

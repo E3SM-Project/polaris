@@ -198,8 +198,7 @@ class Jra55StressStep(Step):
         both tools, because pyremap reconstructs corners from centers and the
         grid then spans 365 degrees and overlaps itself; it is also
         unnecessary, since TL319's longitude corners already span exactly 360
-        degrees.  See the wind-forcing section of the ``global_ocean_init``
-        design document.
+        degrees.
         """
         ds_out = xr.Dataset()
         for var in ['lat', 'lon']:

@@ -53,9 +53,9 @@ class BuildSizingFieldStep(Step):
 
     When cull emulation is enabled (the default), the shared coastline
     ocean mask and signed distance are replaced by *effective* fields
-    that anticipate what the MPAS cull will keep as ocean/sea-ice (see
-    the ``unified_mesh_cull_leak`` design doc), so that land/river
-    refinement never leaks into the CFL-limited ocean/sea-ice domain.
+    that anticipate what the MPAS cull will keep as ocean/sea-ice, so that
+    land/river refinement never leaks into the CFL-limited ocean/sea-ice
+    domain.
 
     Attributes
     ----------

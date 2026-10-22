@@ -4,8 +4,7 @@ This utility runs the testing the Omega pull request template asks for: the
 CTests and the Polaris `omega_pr` suite on each supported machine and
 compiler, plus linting and the documentation build, reported as `Testing`
 comments on the PR.  It can be driven by a developer or by AI agents, who
-follow [AGENTS.md](AGENTS.md).  The design is in
-`docs/design_docs/omega_pr_testing.md`.
+follow [AGENTS.md](AGENTS.md).
 
 By default, one agent on your own computer does everything, running each
 machine's commands over ssh through the connections you open by logging
