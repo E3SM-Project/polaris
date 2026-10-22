@@ -1,0 +1,22 @@
+{# The MPAS components in an E3SM checkout build one shared framework in
+   components/mpas-framework/src.  The framework must be rebuilt from scratch
+   when the last build in this checkout was of another component or used a
+   different configuration, such as another compiler.  This sets
+   polaris_needs_clean accordingly. #}
+polaris_build_record={{ framework_dir }}/.polaris_build
+polaris_build_config={{ build_config }}
+polaris_needs_clean={{ 'true' if clean else 'false' }}
+if [ -f "${polaris_build_record}" ]; then
+    if [ "$(cat "${polaris_build_record}")" != "${polaris_build_config}" ]; then
+        polaris_needs_clean=true
+    fi
+elif ls {{ e3sm_base_dir }}/components/mpas-*/.mpas_core_* > /dev/null 2>&1; then
+    # built outside of Polaris, so the configuration is unknown
+    polaris_needs_clean=true
+fi
+# MPAS writes .mpas_core_<core> into a component's directory after each build
+polaris_newest_core=$(ls -t {{ e3sm_base_dir }}/components/mpas-*/.mpas_core_* 2> /dev/null | head -n 1)
+if [ -n "${polaris_newest_core}" ] && \
+   [ "$(dirname "${polaris_newest_core}")" != "{{ component_dir }}" ]; then
+    polaris_needs_clean=true
+fi
