@@ -33,8 +33,8 @@ the E3SM development team.
 The ``polaris`` python package defines the tasks and analysis tasks along
 with the commands  to list and set up both tasks and suites (groups
 of tasks or analysis tasks).  Polaris currently includes documented
-``mesh``, ``e3sm/init``, ``ocean`` and ``seaice`` components. Nearly all
-runtime tasks include calls that launch one
+``mesh``, ``e3sm/init``, ``landice``, ``ocean`` and ``seaice`` components.
+Nearly all runtime tasks include calls that launch one
 of these E3SM components, built in "standalone" (uncoupled) mode.  These runs
 are configured with config files (e.g. YAML or namelist files) and one of the
 benefits of using Polaris over attempting to run one of the components directly
@@ -61,6 +61,7 @@ users_guide/config_files
 users_guide/suites
 users_guide/mesh/index
 users_guide/e3sm/init/index
+users_guide/landice/index
 users_guide/ocean/index
 users_guide/seaice/index
 users_guide/machines/index
@@ -76,6 +77,7 @@ developers_guide/command_line
 developers_guide/organization/index
 developers_guide/e3sm/init/index
 developers_guide/mesh/index
+developers_guide/landice/index
 developers_guide/ocean/index
 developers_guide/seaice/index
 developers_guide/framework/index
