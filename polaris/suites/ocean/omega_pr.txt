@@ -8,6 +8,7 @@ ocean/planar/baroclinic_channel/split_explicit/10km/threads
 ocean/planar/baroclinic_channel/rk4/10km/decomp
 ocean/planar/baroclinic_channel/rk4/10km/restart
 ocean/planar/baroclinic_channel/rk4/10km/threads
+ocean/column/shortwave_pen
 ocean/planar/barotropic_channel/short
 ocean/planar/barotropic_gyre/munk/free-slip
 ocean/planar/manufactured_solution/convergence_both/default
