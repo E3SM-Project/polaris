@@ -513,7 +513,8 @@ class ModelStep(Step):
                 # extra set of quotes
                 namelist[option] = f"'{value}'"
             elif isinstance(value, float):
-                namelist[option] = f'{value:g}'
+                # full precision ('g' would keep only 6 significant digits)
+                namelist[option] = repr(value)
             else:
                 namelist[option] = f'{value}'
 
