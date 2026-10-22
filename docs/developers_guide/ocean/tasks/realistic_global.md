@@ -3,7 +3,7 @@
 # realistic_global
 
 The `realistic_global` tasks in `polaris.tasks.ocean.realistic_global` use
-realistic global ocean meshes, bathymetry and forcing.  They fall into five
+realistic global ocean meshes, bathymetry and forcing.  They fall into seven
 groups:
 
 - `hydrography/woa23`, a mesh-independent preprocessing task that builds a
@@ -13,26 +13,35 @@ groups:
   wind-stress product from JRA55-do 10-m winds.
 - `init`, which creates mesh-specific ocean initial conditions using that
   hydrography and forcing together with the culled mesh from `e3sm/init`.
-- `analysis_members`, forward runs on realistic global meshes that exercise
-  the analysis members: short runs in both MPAS-Ocean and Omega, and one-year
-  Omega runs that write what the analysis tasks in
-  `polaris.tasks.ocean.analysis` read.
-- `restart`, a short Omega run split across a restart, checking that the
-  history output survives the restart intact.
+- `forward`, short forward runs on the meshes `init` builds.
+- `cached_forward`, the same forward runs on E3SM initial conditions cached in
+  the Polaris input database instead, a temporary task.
+- `analysis_output`, one-year Omega runs on either source of initial
+  condition that write what the ocean analysis reads.
+- `restart`, a short Omega run continued from a restart, checking that it
+  matches the uninterrupted run, history output included.
 
 Tasks are added to the ocean component by
 {py:func}`polaris.tasks.ocean.realistic_global.add_realistic_global_tasks`,
 which registers the `woa23` and `jra55` tasks, one `init` task per MPAS mesh,
-an `analysis_members` task for each mesh in
-its `mesh_dict` and each duration in
-`polaris.tasks.ocean.realistic_global.analysis_members.DURATIONS`, and a
-single `restart` task on `QU.240km`.  Adding a new mesh to `analysis_members`
-takes two things: an entry in `mesh_dict` giving the MPAS-Ocean and Omega
-initial-condition IDs and the cell count, and a `<mesh>.cfg` file in the
-`analysis_members` package setting the baroclinic and barotropic time steps
-(`dt` and `btr_dt`), the length of the `short` run (`short_run_duration`),
-the number of MOC latitude bins (`moc_num_bins`) and the momentum viscosities
-(`mom_del2` and `mom_del4`).
+a `forward` task per mesh for each of
+{py:data}`polaris.tasks.ocean.realistic_global.forward.TIME_INTEGRATORS`, the
+same `cached_forward` variants for each mesh in
+{py:data}`polaris.tasks.ocean.realistic_global.forward.tasks.CACHED_MESHES`,
+an `analysis_output/1_year` task for every mesh of either kind, and a single
+`restart` task on `e3sm-qu240`.  Adding a cached mesh requires an entry in that
+dictionary, keyed by the E3SM mesh's name in lower case with an `e3sm-` prefix,
+giving the name the database files carry, the MPAS-Ocean and Omega
+initial-condition IDs, the minimum resolution and the cell count, and a
+`<mesh_name>.cfg` in `mesh_configs` giving the split and RK4 time steps and the
+run duration.  A mesh coarser than
+about a degree should also set fewer MOC latitude bins for its `1_year` run
+(`moc_num_bins` in `[analysis_output]`).
+
+`forward` and `cached_forward` run the same physics.  Comparing MPAS-Ocean
+with Omega is opt-in, through the options in `forward/compare_with_omega.cfg`,
+which Polaris never reads on its own and a unit test keeps honest; see
+{ref}`ocean-realistic-global-forward-purposes` in the User's Guide.
 
 (dev-ocean-realistic-global-framework)=
 
@@ -40,197 +49,544 @@ the number of MOC latitude bins (`moc_num_bins`) and the momentum viscosities
 
 The config options for these tasks are described in
 {ref}`ocean-realistic-global` in the User's Guide.  The shared colormap
-options for the `viz` step live in `realistic_global.cfg`, while the
-`analysis_members` tasks add `analysis_members.cfg`.
+options for the `viz` step live in `realistic_global.cfg`.
 
-### forward
+(dev-ocean-realistic-global-forward)=
 
-The class {py:class}`polaris.tasks.ocean.realistic_global.forward.Forward`
-is a shared {py:class}`polaris.ocean.model.OceanModelStep` used by tasks in
-this group.  Unlike most Polaris forward steps, it does not build its own
-mesh and initial condition; instead it downloads cached, model-specific files
-from the `realistic_global` section of the Polaris input database.
+## forward
 
-Because the file layout differs between the two models, the input files are
-added in `setup()` rather than `__init__()`, once `config` is available and
-the target model is known:
+The `realistic_global.forward` package holds one forward-run capability that
+both the `forward` and `cached_forward` tasks are built from.  They differ in
+one argument: the
+{py:class}`~polaris.tasks.ocean.realistic_global.forward.initial_condition.InitialCondition`
+they are given.  Everything else — the step, the model config, the diagnostics
+— is shared, including the physics, so a cached mesh's config gives only
+its time steps, viscosities and run duration.
 
-- For Omega, a single file is linked three times, as `mesh.nc`,
-  `vert_coord.nc` and `init.nc`, because a single file contains the converted
-  mesh, initial condition, and vertical coordinate from MPAS-Ocean.
-- For MPAS-Ocean, a `zerovel` file is linked as both `mesh.nc` and `init.nc`,
-  and the `time_integrator` template replacement is rewritten from
-  `SplitExplicitRK2` to MPAS-Ocean's `split_explicit`.
+The package is deliberately split three ways, so that adding a new source of
+initial condition, a new run setting, or a new consumer each touches one place:
 
-`setup()` also renders `forward.yaml` with the template replacements supplied
-by the task, so the time step, run duration and output interval can be varied
-per mesh.
+| module | answers |
+|---|---|
+| `initial_condition.py` | *where do the model input files come from?* |
+| `stage.py` | *what settings does this run use?* |
+| `forward.py` | *run the model* |
 
-The files the run writes are given as `output_filenames`, each of which is
-declared as an output; the default is the single `output.nc`.  A subclass
-whose streams write one file per month, such as the `1_year`
-`analysis_members` forward step, passes the whole list.
+{py:class}`~polaris.tasks.ocean.realistic_global.forward.task.RealisticGlobalForward`
+takes a `time_integrator`, `split_explicit` or `rk4`, which names the task's
+directory under `forward` or `cached_forward`.  The `rk4` variant adds
+`rk4.cfg` after the per-mesh config file, so that it sets both models'
+integrators whatever the mesh config says.
 
-The helper `_make_stream_dirs()` creates the directories Omega's streams
-write into, listed in `stream_dirs`: `restart/` for the `RestartWrite`
-stream, plus whatever a subclass appends.  Omega does not create these
-directories itself, so without them the restart write fails at the end of the
-run.  It is called from both `setup()` and `runtime_setup()` so the
-directories exist whether or not setup and run happen in the same invocation.
-MPAS-Ocean needs no equivalent because the MPAS framework creates stream
-directories itself.
+### Forward
 
-`compute_cell_count()` returns the cell count passed in by the task rather
-than reading the mesh, since the mesh is not available at setup time.
+{py:class}`~polaris.tasks.ocean.realistic_global.forward.forward.Forward` is an
+{py:class}`~polaris.ocean.model.OceanModelStep` that defers both of those
+questions rather than answering them itself.
+
+`setup()` asks the initial condition to add its input files *before* calling
+the base class, so that `OceanModelStep` sees a finalized `graph_target` and
+input list.  A step whose graph comes from the input-file database rather than
+an upstream work directory leaves `graph_target` unset and adds `graph.info`
+itself; see {py:meth}`~polaris.ocean.model.OceanModelStep.setup`.
+
+`compute_cell_count()` reads `nCells` from the mesh once it exists, and before
+that falls back to the initial condition's `approx_cell_count`.  Both are
+needed: resources are sized during setup, when an initial condition built by
+the `init` workflow has not been produced yet.
+
+`dynamic_model_config()` is the single place where model-agnostic settings
+become model-facing ones.  It renders `forward.yaml` from the stage, always
+adds `forcing.yaml` (every realistic global forward run is wind-forced, and
+there is no option to turn that off), adds `forcing_streams.yaml` when the
+initial condition stages a file for it, and applies the horizontal-mixing
+options in MPAS-Ocean naming so that `mpaso_to_omega.yaml` translates them.
+
+The files the run writes are given as `output_filenames`, each declared as an
+output; the default is the single `output.nc`.  `stream_dirs` lists the
+directories under the step's work directory that Omega's streams write into,
+which the step creates in `dynamic_model_config()` because Omega does not.
+MPAS-Ocean needs no equivalent, since the MPAS framework creates stream
+directories itself.  Both are for a subclass like the one-year
+`analysis_output` step, which writes one file per month into `output/`.
+
+### ForwardStage
+
+{py:class}`~polaris.tasks.ocean.realistic_global.forward.stage.ForwardStage` is
+a dataclass of model-agnostic run settings — durations, cadences, time steps,
+damping, mixing and the physics switches — built from a
+`[realistic_global_forward]` config section by
+{py:meth}`~polaris.tasks.ocean.realistic_global.forward.stage.ForwardStage.from_config`.
+
+A simple forward run uses one.  It is a *stage* rather than a *config* because
+a multi-stage workflow such as dynamic adjustment builds a sequence of them and
+sets the restart fields to chain one into the next; the step supports that
+already even though nothing here uses it yet.
+
+{py:meth}`~polaris.tasks.ocean.realistic_global.forward.stage.ForwardStage.model_replacements`
+maps a stage onto template replacements, and is where the two models diverge:
+the time integrator is chosen per model, the time step follows from that
+choice, and a non-split integrator has to advance on the short barotropic step.
+An explicit `dt` and `btr_dt` are the steps of a split integrator, and `rk4_dt`
+the step of a non-split one, so that one mesh config can give both.
+The MPAS-Ocean-only physics is separated into
+{py:meth}`~polaris.tasks.ocean.realistic_global.forward.stage.ForwardStage.mpaso_physics_options`
+from the options both models share in
+{py:meth}`~polaris.tasks.ocean.realistic_global.forward.stage.ForwardStage.horiz_mixing_options`
+and
+{py:meth}`~polaris.tasks.ocean.realistic_global.forward.stage.ForwardStage.vert_mixing_options`.
+An option belongs in the MPAS-Ocean-only bucket only while
+`mpaso_to_omega.yaml` has no Omega counterpart for it.  Once it has one, it
+has to move to a shared bucket: otherwise Omega never sees it and runs its own
+default, which is how Omega came to run KPP in tasks that had turned it off.  A
+unit test fails if a mapped option is left behind, but it cannot see an Omega
+option that is on by default and not yet mapped, so check `Default.yml` when
+updating the Omega submodule.
+
+An unsupported `omega_time_integrator`, and a `damping` Omega cannot honor, are
+errors at run time rather than at setup, so that a task can be set up and the
+config changed before it is run.
+
+### InitialCondition
+
+{py:class}`~polaris.tasks.ocean.realistic_global.forward.initial_condition.InitialCondition`
+is the abstraction the whole package is arranged around.  It knows where the
+model input files come from, and the forward step asks rather than deciding.
+
+- {py:class}`~polaris.tasks.ocean.realistic_global.forward.initial_condition.StepInitialCondition`
+  links the mesh, vertical coordinate, initial state and forcing from the
+  `init` workflow's step directories, and reuses the graph it already built.
+  It links the initial state only when the run reads one, since a stage
+  continuing from a restart does not.
+- {py:class}`~polaris.tasks.ocean.realistic_global.forward.initial_condition.DatabaseInitialCondition`
+  downloads a single cached file that supplies everything at once, plus a
+  prebuilt graph for MPAS-Ocean.
+
+`get_forcing_filename()` is what lets both work through one mechanism: a source
+that stages a forcing file names it, and a source whose wind stress travels
+inside the initial condition names that file instead, so the forcing streams
+are pointed at the right place without the step knowing which case it is in.
+
+### the model config files
+
+| file | what it does |
+|---|---|
+| `forward.yaml` | a Jinja2 template: time management, time step, output/restart/statistics streams |
+| `forcing.yaml` | turns wind forcing on; always added |
+| `forcing_streams.yaml` | points each model's forcing stream at the staged file; added only when one is staged |
+| `restart_streams.yaml` | the restart read/write side; added only for a stage in a restart chain |
+
+`forward.yaml`'s `ocean:` section is model-neutral and reaches Omega through
+`mpaso_to_omega.yaml`; a unit test checks that every option in it has an Omega
+counterpart, since an unmapped option only warns and would silently give the
+two models different physics.
 
 ### viz
 
-The class {py:class}`polaris.tasks.ocean.realistic_global.viz.Viz` plots
-global maps of each state variable at the start and end of the run, plus the
-zonal and meridional wind stress from the initial condition.  The list of
+The class {py:class}`polaris.tasks.ocean.realistic_global.forward.viz.Viz`
+plots global maps of each state variable at the start and end of the run, plus
+the zonal and meridional wind stress that forced it.  Which file the stress
+comes from is the forward run's initial condition's business: a file of its
+own when the `init` workflow produced one, or the initial condition itself
+when the stress travels inside it.  The list of
 variables comes from the ocean component's `state_vars`, with
 `normalVelocity` replaced by `kineticEnergyCell` because the normal velocity
 lives on edges and is not directly plottable as a cell field.  Variables
 missing from a given file are logged and skipped, so the step does not fail
 when a model writes a different subset of fields.
 
-(dev-ocean-realistic-global-analysis-members)=
-
-## analysis_members
-
-The {py:class}`polaris.tasks.ocean.realistic_global.analysis_members.AnalysisMembers`
-task runs the ocean model with the global-statistics analysis member enabled
-and plots the resulting time series.  It sits at
-`spherical/realistic_global/<mesh>/analysis_members/<duration>`, where the
-duration is `short` or `1_year`.  The `short` task contains a `forward` step,
-a `global_stats` step and a `viz` step.  The `1_year` task has no `viz` step,
-since that step reads the single `output.nc` the `short` run writes.  Only
-`forward` runs by default.
-
-Each task builds its own {py:class}`polaris.config.PolarisConfigParser` from
-`realistic_global.cfg`, `analysis_members.cfg` and `<mesh>.cfg` and shares it
-with all its steps, so that a user editing the config file in the task work
-directory affects the whole task.
-
-### forward
+### global_stats
 
 The class
-{py:class}`polaris.tasks.ocean.realistic_global.analysis_members.forward.Forward`
-is a subclass of the shared {ref}`dev-ocean-realistic-global-framework`
-`Forward`, which supplies the cached initial condition and the shared
-`forward.yaml`.  Its `setup()` fills in the time steps, the `short` run's
-length and the number of MOC bins from the `[analysis_members]` config
-options before the yaml files are added, and adds the `mom_del2` and
-`mom_del4` config options as `config_mom_del2` and `config_mom_del4`, which
-are translated to Omega's `ViscDel2` and `ViscDel4`.
+{py:class}`polaris.tasks.ocean.realistic_global.forward.stats_analysis.StatsAnalysis`
+plots, for each field, the minimum, maximum and mean over time along with a
+shaded standard-deviation envelope, and a companion panel showing the same
+quantities as anomalies relative to their initial values.  The fields are the
+ones named by `[realistic_global_forward_stats] fields`, or, when that is left
+empty, every field the run wrote statistics for.  The variable names are built
+from the field and the statistic by `polaris.ocean.global_stats_names` rather
+than mapped one by one, so a field that one model writes and the other does not
+needs no special handling.
 
-For the `1_year` run, which supports only Omega, `setup()` also adds
-`monthly_output.yaml` after the shared yaml file, so that it overrides it.
-The fragment replaces the `History` stream with monthly snapshots in
-`output/`, turns on the `MonthlyAverages` and `MOC` analysis groups, adds
-kinetic energy and sea surface height to `GlobalStats`, and makes restarts
-monthly.  A stream's options merge across yaml files, so the fragment has to
-set the `History` stream's `FileFreq` explicitly: the shared value of 9999
-years would put every snapshot into one file.  The step appends `output` to
-`stream_dirs`, so that the directory exists before the run.
+This step normalizes two differences between the models:
+
+- **Output location.** MPAS-Ocean writes `global_stats.nc` as named, while
+  Omega treats the name as a prefix and builds the real one from the analysis
+  period and the kind of output: `global_stats_1DayInstants` for daily
+  instantaneous samples, or `..._1DayTimeStats` had a temporal reduction been
+  asked for.  Both names come from
+  {py:meth}`polaris.tasks.ocean.realistic_global.forward.stage.ForwardStage.stats_filename`,
+  which lives on the stage because the period does; this step only asks it, in
+  `setup()`, once the model is known.  Anything else that reads a stage's
+  statistics asks the same question the same way, so the two cannot drift
+  apart.
+- **Standard deviation.** Omega writes a standard deviation
+  (`<Field>_SpatialStdDev`), while MPAS-Ocean writes a true root-mean-square
+  (`<field>Rms`), so for MPAS-Ocean the standard deviation is recovered as
+  $\sigma = \sqrt{\mathrm{rms}^2 - \mathrm{mean}^2}$.
+
+(dev-ocean-realistic-global-analysis-output)=
+
+## analysis_output
+
+The {py:class}`polaris.tasks.ocean.realistic_global.analysis_output.AnalysisOutput`
+task runs a year of Omega, writing what the ocean analysis reads.  It takes an
+initial condition and optional `init_steps` as `RealisticGlobalForward` does,
+so it is registered on the cached meshes and on every mesh the `init` workflow
+builds.  Its config is built in layers, each overriding the ones before it:
+
+1. `forward.cfg`, the forward tasks' config;
+2. `analysis_output.cfg`, with the default `moc_num_bins`;
+3. the mesh's file in `mesh_configs`, which sets fewer bins on a coarse mesh;
+4. `one_year.cfg`, which sets only the run duration.
+
+So the run is a `split_explicit` `forward` or `cached_forward` run a year long.
+
+Its step,
+{py:class}`~polaris.tasks.ocean.realistic_global.analysis_output.AnalysisOutputForward`,
+is a forward-package `Forward` whose `dynamic_model_config()` adds
+`monthly_output.yaml` after the forward step's own yaml files, so that it
+overrides them.  The fragment replaces the `History` stream with monthly
+snapshots in `output/`, turns on the `MonthlyAverages` and `MOC` analysis
+groups with `moc_num_bins` latitude bins, adds kinetic energy and
+sea surface height to `GlobalStats`, and makes restarts monthly.  A stream's
+options merge across yaml files, so the fragment has to set the `History`
+stream's `FileFreq` explicitly: the forward step's value of 9999 years would
+put every snapshot into one file.  The step appends `output` to `stream_dirs`
+and raises at setup unless the model is Omega.
 
 Every monthly file is declared as an output, so that a run whose analysis
 groups did not write is reported as a missing output rather than found later
 by the analysis.  Omega names a time-mean file for the instant it was
 finalized (E3SM-Project/Omega#554), so a run that starts on `0001-01-01`
 writes the files covering year 1 as `0001-02` through `0002-01`;
-`_monthly_filenames()` builds the names that way, and the snapshots, taken at
-those instants, are named the same way.
-
-### global_stats
-
-The class
-{py:class}`polaris.tasks.ocean.realistic_global.analysis_members.stats_analysis.StatsAnalysis`
-plots, for each state variable, the minimum, maximum and mean over time along
-with a shaded standard-deviation envelope, and a companion panel showing the
-same quantities as anomalies relative to their initial values.
-
-This step normalizes two differences between the models:
-
-- **Output location.** Omega writes the statistics to a separate
-  `global_stats_1DayInstants` file, whereas MPAS-Ocean writes
-  `global_stats.nc`.  The input file is therefore selected in `setup()`, once
-  the model is known.
-- **Standard deviation.** Omega writes the standard deviation directly in its
-  `Rms` field, while MPAS-Ocean writes a true root-mean-square, so the
-  standard deviation is recovered as
-  $\sigma = \sqrt{\mathrm{rms}^2 - \mathrm{mean}^2}$.
+`get_monthly_filenames()` builds the names that way, and the snapshots, taken
+at those instants, are named the same way.
 
 (dev-ocean-realistic-global-restart)=
 
 ## restart
 
-The {py:class}`polaris.tasks.ocean.realistic_global.restart.Restart` task is a
-regression test for
-[Omega #482](https://github.com/E3SM-Project/Omega/issues/482).  It runs the
-same period twice, once in one go and once split across a restart, and checks
-that the two histories agree.
+The {py:class}`polaris.tasks.ocean.realistic_global.restart.Restart` task is
+shaped like CIME's ERS (exact restart) test, since Omega's restarts will be
+tested that way once Omega runs in E3SM.  A `full_run` covers the whole period
+and writes a restart partway through; a `restart_run` continues from that
+restart to the end; and `validate` checks that the two histories agree.  It is
+also a regression test for
+[Omega #482](https://github.com/E3SM-Project/Omega/issues/482), which ERS
+alone would not catch: CIME's restart run writes history files of its own,
+whereas #482 broke appending to a history file that already held the frames
+from before the restart.  So the full run also writes its history up to the
+restart to a file of its own, and the restart run appends to a copy of it.
 
 The run lengths live as module-level constants in the task rather than in the
 config file, since they are chosen to make the failure visible -- two history
-frames per segment, so that a segment that clobbered rather than appended
-would be obvious -- rather than to be tuned by a user.
+frames on each side of the restart, so that a restart run that clobbered
+rather than appended would be obvious -- rather than to be tuned by a user.
 
-The per-mesh time steps and viscosity are module-level constants too.  The
-viscosity is passed to every step as a model config option rather than set in
-the task's `forward.yaml`, which only the segments of the restart chain read,
-so that the full run and the chain run the same model.
+Everything else comes from the `[realistic_global_forward]` config options,
+as for any other forward run, including the time steps and viscosity in
+`e3sm-qu240`'s per-mesh config file; the task's `restart.cfg` sets only the
+equation of state.  Both forward steps are `RestartStep`s, so that the two run
+the same model.
 
 ### restart_step
 
 The class
 {py:class}`polaris.tasks.ocean.realistic_global.restart.restart_step.RestartStep`
-extends the shared `Forward` step with what a segment of a restart chain
-needs.  `setup()` layers the task's own `forward.yaml` on top of the shared
-one; because model config data is processed in the order it was added, the
-task's overrides win.  It also rejects any model other than Omega, since the
+extends the
+{py:class}`~polaris.tasks.ocean.realistic_global.forward.forward.Forward` step
+with what the full run and the restart run need.  `dynamic_model_config()`
+builds the step's
+{py:class}`~polaris.tasks.ocean.realistic_global.forward.stage.ForwardStage`
+from config with the step's run duration and the task's history interval, so
+that config changes after setup still take effect, and then layers the task's
+`full_run.yaml` or `restart_run.yaml` on top of the shared `forward.yaml`;
+because model config data is processed in the order it was added, the task's
+overrides win.  `setup()` rejects any model other than Omega, since the
 failure being tested cannot arise in MPAS-Ocean.
 
-`runtime_setup()` creates the restart directory this segment writes into,
-which Omega does not create itself, and, for a continuing segment, copies the
-previous segment's `output.nc` into place.  Each segment gets a directory of
-its own under the task's `restarts`, named for the step, and a continuing
-segment reads its predecessor's.  A single shared directory would mean a
-segment's own end-of-run restart replaced the pointer file it had just read
-from, so re-running that step alone would silently continue from the wrong
-time.  The copy is what makes the test
-meaningful: it reproduces what a continuation run finds on disk, a history
-file that already holds the earlier frames.  It is a copy rather than a
-symlink so that appending to it cannot reach back into the previous segment's
-work directory.
+`full_run.yaml` writes a restart every `restart_freq` seconds, so once at the
+restart time and again at the end, with no pointer file.  It also adds a
+`HistoryBeforeRestart` stream: a copy of the base `History` stream, writing
+`output_before_restart.nc`, that stops with an end time between the frame at
+the restart time and the next one, since Omega writes nothing once a stream's
+end time has passed.  A unit test checks that the copy matches `History` in
+everything else, since the restart run appends to that file with the
+`History` stream.
 
-The previous segment's output is also added as an input file under the name
-`previous_output.nc`, which both establishes the dependency between the two
-steps and keeps the symlink out of the way of the copy.
+`restart_run.yaml` continues from the full run's restart at the restart time,
+read by name rather than through a pointer file, since the full run writes
+another restart at its end.  The restart's file name is computed in
+`restart_file()` the way Omega stamps it.  Both steps declare that restart to
+Polaris, the full run as an output and the restart run as an input, so a
+missing restart is caught before the model launches.  It does not use the
+`restart_in`/`restart_out` chaining of `ForwardStage`, which is for chaining
+whole runs one after another.
+
+`runtime_setup()` creates the restart directory the step writes into, which
+Omega does not create itself, and, for the restart run, copies the full run's
+`output_before_restart.nc` into place as `output.nc`.  Each step gets a
+directory of its own under the task's `restarts`, named for the step, so the
+restart run's restart at its end cannot replace one the full run wrote.  The
+copy is what makes the #482 check meaningful: it reproduces what a continuing
+run finds on disk, a history file that already holds the earlier frames.  It
+is a copy rather than a symlink so that appending to it cannot reach back into
+the full run's work directory.  The full run's history up to the restart is
+also added as an input file under the name `previous_output.nc`, which both
+establishes the dependency between the two steps and keeps the symlink out of
+the way of the copy.
 
 ### the start time
 
-The one subtlety in `forward.yaml` is that every step is given the same
-`StartTime`, the start of the simulation, rather than the start of its own
-segment.  Omega measures the history time axis from the clock's start time, so
-a segment that moves the start time restarts that axis at zero, and its first
-frame then collides with the first frame already in the file.  That collision
-is what silently overwrote the earlier frames in #482.  On a `Continue` the
-clock's current time comes from the restart file instead, so the start time
-does not need to move.
+The one subtlety in `restart_run.yaml` is that the restart run is given the
+same `StartTime` as the full run, the start of the simulation, rather than the
+restart time.  Omega measures the history time axis from the clock's start
+time, so a run that moves the start time restarts that axis at zero, and its
+first frame then collides with the first frame already in the file.  That
+collision is what silently overwrote the earlier frames in #482.  On a
+`Continue` the clock's current time comes from the restart file instead, so
+the start time does not need to move.
 
 ### validate
 
 The class
 {py:class}`polaris.tasks.ocean.realistic_global.restart.validate.Validate`
-compares the history of the restart chain with that of the full run in two
-ways.  It reads the elapsed-time coordinate with `xarray` directly, rather
-than through the Omega-to-MPAS-Ocean renaming in `open_model_dataset()`,
-because that coordinate is the variable under test; it then compares the state
-variables with {py:func}`polaris.validate.compare_variables` as any other
-exact-restart test would.  A chain that wrote fewer frames than the full run
-is reported as the #482 failure specifically, since that is the shape the bug
-takes.
+compares the history of the restart run with that of the full run.  It reads
+the elapsed-time coordinate with `xarray` directly, rather than through the
+Omega-to-MPAS-Ocean renaming in `open_model_dataset()`, because that coordinate
+is the variable under test; it then compares the state variables with
+{py:func}`polaris.validate.compare_variables` as any other exact-restart test
+would.  A restart run whose history has fewer frames than the full run's is
+reported as the #482 failure specifically, since that is the shape the bug
+takes.  It also checks that the history up to the restart holds fewer frames
+than the full run's and matches its first ones; otherwise the restart run
+would have had nothing to append to, and the time-axis check would pass
+without testing anything.
+
+(dev-ocean-realistic-global-dynamic-adjustment)=
+
+## dynamic_adjustment
+
+The `dynamic_adjustment` task family (steps under
+`spherical/realistic_global/{mesh_name}/dynamic_adjustment`) runs a
+restart-chained sequence of forward stages from a mesh's realistic initial
+condition.  One
+{py:class}`polaris.tasks.ocean.realistic_global.dynamic_adjustment.task.RealisticGlobalDynamicAdjustment`
+task is registered per MPAS mesh.
+
+### shared steps
+
+{py:func}`polaris.tasks.ocean.realistic_global.dynamic_adjustment.steps.get_realistic_dynamic_adjustment_steps`
+builds the whole chain — the shared `init` steps, one `Forward` stage per
+schedule entry, a `StageCheck` after each, `summary` and `viz` — through
+{py:meth}`polaris.Component.get_or_create_shared_step`, following the same
+pattern as
+{py:func}`polaris.tasks.ocean.realistic_global.init.steps.get_realistic_init_steps`.
+A downstream workflow that wants the adjusted restart — `e3sm/init`'s
+component inputs — calls it and gets the same step instances rather than a
+second copy of a very expensive chain.
+
+It returns the stages alongside the steps and config, because which stage hands
+off the adjusted state, and what that restart file is called, both depend on the
+schedule: `stages[-1].restart_out` is what such a consumer is after.
+`include_viz` follows the `init` convention — the step is always created, but
+only returned, and so only in a task's `steps_to_run`, when asked for.  A figure
+describing a completed adjustment is not what a workflow that only wants the
+relaxed restart is asking about.
+
+Two details are specific to this workflow.  The restart chain is wired with
+{py:meth}`polaris.Step.add_dependency()` rather than through input/output files,
+because a stage's restart filename comes from the schedule rather than from the
+step.  Wiring it inside the step constructor — the pattern the `init` steps use
+— is not available for a chain whose links only this helper knows, so it is
+wired from here, which is safe because re-adding the same dependency is a no-op.
+
+And because the set of steps depends on the schedule,
+{py:meth}`...RealisticGlobalDynamicAdjustment.configure` rebuilds them when a
+user's setup-time config changed it — a stage whose name survived the change
+would otherwise be handed back from the shared-step cache still carrying its old
+run duration.  It discards the adjustment steps from the component and then
+simply asks for the whole chain again; the `init` steps upstream do not depend
+on the schedule, so they come back unchanged.
+
+### schedule parsing
+
+{py:func}`polaris.tasks.ocean.realistic_global.dynamic_adjustment.schedule.load_schedule_stages`
+reads a schedule YAML (the per-mesh `<mesh_name>.yaml` or `default.yaml`, or a
+file named by the `schedule` config option) and returns a list of
+{py:class}`polaris.tasks.ocean.realistic_global.forward.stage.ForwardStage`
+objects.
+
+A stage is a forward run, so the base stage comes from
+`ForwardStage.from_config` on the `[realistic_global_forward]` section and the
+schedule is applied on top with `dataclasses.replace`.  The task's config
+carries that section, this task's own, and the per-mesh overrides from
+{py:mod}`polaris.tasks.ocean.realistic_global.mesh_configs`, so the physics
+options and per-mesh tuning reach the stages without the schedule mentioning
+them.  Keeping the schedule a delta is what stops it from becoming a second
+configuration system that has to track `ForwardStage` field by field.
+
+Schedule keys are validated against `SCHEDULE_FIELDS` — the `ForwardStage`
+fields minus the ones the restart chain owns — and coerced to each field's
+declared type, so a renamed or misspelled option raises at setup instead of
+falling back to the config value.  The parser also computes the chain itself:
+the cumulative `start_time`, `do_restart`, and the shared `restart_in` /
+`restart_out` filenames (`restarts/rst.<stop-time>.nc`).
+
+### restart chaining
+
+Each stage is a
+{py:class}`polaris.tasks.ocean.realistic_global.forward.forward.Forward` step
+reused from the forward workflow.  When a stage's `ForwardStage` sets
+`restart_out`, the step writes its restart to the shared `../restarts`
+directory (via `restart_streams.yaml`) and declares it as an output; a stage
+that sets `restart_in` declares its predecessor's restart as an input, so the
+chain is explicit to Polaris and a missing link fails before the model
+launches.  Consecutive stages are also linked with `add_dependency`.
+
+For MPAS-Ocean the restart stream is both an input and an output stream, so one
+`filename_template` serves both directions and the read side is just
+`config_do_restart` / `config_start_time` from `forward.yaml`.  The start time
+is explicit rather than `'file'` with a `restart_timestamp`, matching
+`cosine_bell/restart` and `ice_shelf_2d`.
+
+Omega needs a separate `RestartRead` stream, which the `Omega` block of
+`restart_streams.yaml` supplies, switched on per stage by
+`ForwardStage.restart_stream_replacements`.  Each stage writes its restart and
+pointer file into a directory of its own under `restarts`, and
+`ForwardStage.restart_files` gives the files `Forward.setup()` declares for
+either model.
+
+### setup-time rebuild
+
+The stages are built in `__init__` from the built-in schedule (so `polaris
+list` shows a representative set) and rebuilt in `configure()`, which runs after
+the user config is merged, following the
+{py:class}`polaris.tasks.ocean.cosine_bell.CosineBell` pattern.  This lets a
+user's setup-time `schedule` override or edited stage options take effect.  The
+step graph is therefore fixed at setup, not run time.
+
+### diagnostics and validation
+
+The
+{py:class}`polaris.tasks.ocean.realistic_global.dynamic_adjustment.summary.Summary`
+step builds one row of diagnostics per stage with
+{py:func}`polaris.tasks.ocean.realistic_global.dynamic_adjustment.diagnostics.collect_stage_diagnostics`
+and writes `dynamic_adjustment_stats.csv`.  It makes no checks of its own; the
+per-stage checks below read the same statistics with the same windows, so the
+summary a user reads and the checks that passed or failed cannot disagree.
+
+`diagnostics.METRICS` is the column list.  Each metric names the global-statistics
+variable it reads (in MPAS-Ocean naming, which `diagnostics.open_stage_stats`
+renames Omega's statistics to), how to reduce that variable's time series over
+the stage, and the `output.nc` field to fall back to when the model does not
+report the statistic.
+A metric with no fallback is left blank instead: `output_var` is set only where
+computing the metric from the 3-D field gives the same quantity, which is true of
+a maximum and not of a volume-weighted mean.  The `mean_*_change_per_day`
+columns are derived rather than read, from the change in a volume-weighted mean
+across the stage divided by the stage's run duration, which is why `Summary`
+takes the `ForwardStage` list rather than just the stage names.  They are a
+conservation check, not a settling one: these runs are forced by wind alone,
+with no surface fluxes, so the volume-weighted mean tracers are conserved
+exactly and the expected value of both columns is zero.
+
+The statistics cadence is `ForwardStage.stats_interval`, which drives the
+`globalStatsOutput` stream and through it the analysis member's compute
+interval.  It is separate from the 3-D `output_interval` on purpose: tying a few
+scalars to the cadence of 3-D fields gave two samples per stage on the 10-day
+schedules and, on `u-oi6to18-lr12p5`, a single startup record for every stage
+shorter than the 10-day output interval.
+
+`schedule._check_stage_writes_its_records` rejects a `restart_interval` that
+misses MPAS-Ocean's restart alarm (measured from the stream's fixed
+`reference_time`, not the stage start) and a `stats_interval` longer than the
+stage.  Both otherwise fail only after the model has run.
+
+The statistics file is opened by relative path rather than declared as a step
+input, so a stage that did not write one degrades to computing what it can from
+`output.nc`.  Its name comes from
+{py:meth}`polaris.tasks.ocean.realistic_global.forward.stage.ForwardStage.stats_filename`
+on the stage itself, because for Omega it depends on the stage: Omega treats
+its `Filename` as a prefix and appends its own analysis period with no `.nc`,
+so a stage writing hourly statistics writes them somewhere a daily one does
+not.  MPAS-Ocean's name does not move, which is exactly what makes the Omega
+one moving easy to miss — and the symptom is silence, since a name that is not
+found reads as a stage that wrote no statistics.
+
+The checks live in
+{py:mod}`polaris.tasks.ocean.realistic_global.dynamic_adjustment.checks`,
+so that a step decides what to read and a check decides what is acceptable.
+The `temperature_max`, `temperature_min`, `salinity_max` and `cfl_max`
+thresholds all belong to
+{py:class}`polaris.tasks.ocean.realistic_global.dynamic_adjustment.validate.StageCheck`,
+one per stage, added right after its forward step so the sequence stops at the
+stage that broke.  Each is skipped, with a log line, when the model reports no
+such metric.  `Summary` applies none of them; it collects, writes and logs the
+diagnostics.
+
+`StageCheck` is a step of its own rather than work the forward step does after
+the model exits.  A Polaris step is sized for its MPI call and there is no good
+mechanism for post-MPI Python, so folding the check in would hold the model's
+whole allocation open to compare a few scalars.
+
+The thresholds read the extreme reached at any point in the stage, so an
+excursion the run recovered from is still caught, and
+`diagnostics.extreme_and_day` returns the day it happened alongside the value.
+
+Which samples a stage is judged on is decided in one place,
+`diagnostics.first_judged_index`, which both that function and
+`diagnostics._reduce` go through.  It always skips the stage's first sample,
+written before any time step: for the first stage it is the initial condition
+and for the rest it is the predecessor's final state, already checked, so the
+extremes describe what each stage did.  Without this the `u-oi30-lr10` run
+failed on a WOA23 source artifact in its initial condition.  It returns `None`
+when a stage wrote nothing else, which the schedule's `stats_interval` check is
+what prevents.
+
+Its `exclude_days` argument is how the sequence's `startup_exclusion_duration`
+reaches a stage.  `schedule.excluded_days_in_stage` turns that duration into a
+number of days *into a given stage*, measuring from the first stage's
+`start_time` and returning zero for a stage that begins after the window has
+closed.  Measuring from the sequence rather than from each stage is deliberate:
+what the window skips belongs to the initial condition, and a per-stage window
+would stop watching the hours just after every damping change.  Expressing the
+result relative to the stage is deliberate too — a stage's statistics count
+time from their own first sample, and this way nothing depends on whether the
+model restarted its clock.
+
+Only the metrics with `Metric.startup_window` set — the tracer extremes — are
+given it.  `cfl_max_in_stage` is not, because a time step too long for the flow
+shows up in exactly the hours the window covers.  `Summary` passes the same
+windows when it builds the summary, so the CSV a user reads and the checks that
+passed cannot disagree.  This is what the `u-oi6to18` runs need: their
+statistics are hourly, and the Sumatra artifact is still at 35.1 to 36.1 °C an
+hour in.
+
+There is deliberately no automated settling criterion.  One existed and was
+rewritten three times -- comparing kinetic-energy levels, then the fractional
+change stage over stage, then that change per unit time -- and every revision
+was forced by a healthy run failing it.  The quantity is not comparable across
+stages: they differ in length by up to 70x, the last one switches the damping
+off, and a stage whose energy dips makes the next ordinary rise read as
+acceleration.  Three samples cannot separate any of that from a runaway.  The
+judgement is made from the diagnostics table and the `viz` figure instead.  The
+final `simulation` stage additionally compares the `'state'` class of
+variables in its `output.nc` against a baseline, as the forward tasks do.
+
+{py:class}`polaris.tasks.ocean.realistic_global.dynamic_adjustment.viz.VizDynamicAdjustmentStep`
+plots the same statistics as time series.  Its panels are declared in
+`viz.PANELS`, each naming the variables it draws in MPAS-Ocean naming, so a
+panel whose variables the configured model does not report is dropped and the
+grid closes up around it.  Stages are placed on a common axis from their
+schedule start times rather than from the time variable in the files, because a
+restart may or may not reset what the model counts from.
+
+Omega's temperature is conservative temperature where MPAS-Ocean's is potential
+temperature, so `temperature_max` and `temperature_min` are not literally the
+same quantity in the two models — immaterial against these thresholds.
+
 
 (dev-ocean-realistic-global-woa23)=
 
@@ -495,7 +851,7 @@ falls back on `density`), except that MPAS-Ocean's salinity is labeled PSU,
 since it is practical rather than absolute salinity.  The limits, by
 contrast, are computed per plot from the data range and written into
 `[realistic_global_init_viz]` just before each call.  That is deliberate and
-differs from the `analysis_members` `viz` step, which reads fixed limits from
+differs from the forward `viz` step, which reads fixed limits from
 `realistic_global.cfg`: fixed limits are what you want to compare runs or
 times against each other, and the data range is what you want when the
 question is whether a brand-new initial condition is sane.  For a diverging

@@ -26,7 +26,7 @@ def _init_config():
     config.add_from_package('polaris.remap', 'mapping.cfg')
     config.add_from_package(
         'polaris.tasks.ocean.realistic_global.init',
-        'realistic_global_init.cfg',
+        'init.cfg',
     )
     add_realistic_global_mesh_config(config=config, mesh_name='icos240km')
     return config
