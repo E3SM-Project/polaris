@@ -70,9 +70,7 @@ against the ocean background cell width sampled from the mesh's sizing
 field, writes `ocean_dc_edge_diagnostics.nc`, and raises an error listing
 the worst violation clusters if any ratio falls outside
 `[min_dc_edge_ratio, max_dc_edge_ratio]`. For simple base meshes there is
-no sizing field and the check is skipped. The motivation, mechanisms and
-threshold justification are documented in the `unified_mesh_cull_leak`
-design doc (see {ref}`design-docs`).
+no sizing field and the check is skipped.
 
 There are two guards, and they answer different questions.
 `min_dc_edge_abs_ratio` compares the *shortest* edge in the domain against
@@ -96,10 +94,12 @@ distribution is the same on every unified mesh, so the minimum falls as the
 edge count rises -- 0.799 at 21 thousand ocean edges, 0.664 at 1.4 million,
 0.643 at 12 million.  When investigating a failure, first compare `dcEdge`
 against `cellWidth` rather than `ocean_background_cell_width`: if the two
-ratios agree, the sizing field is not the problem.  The
-`unified_mesh_dc_edge_noise` design doc records the diagnosis and the two
-mitigations, the coastline-transition shape in the sizing field and
-JIGSAW's centroidal-Voronoi optimization kernel.
+ratios agree, the sizing field is not the problem.  The dislocations
+concentrate where the sizing field is steep, which is why the land-side
+coastline transition is shaped to leave the ocean flat (see
+`coastline_transition_exponent` in {ref}`users-mesh-unified-sizing-field`).
+JIGSAW's centroidal-Voronoi kernel was also tried and is not used (see
+{ref}`dev-spherical-jigsaw-optimization`).
 
 The Antarctic land-ice ownership mask also includes southern cells that have
 already been removed from the open-ocean cull mask, so the cull workflow
@@ -159,8 +159,8 @@ ocean without cavities, and only poleward of `sea_ice_latitude_threshold`,
 where sea ice can form. The two domains are refined together by
 {py:func}`polaris.tasks.e3sm.init.topo.cull.land_locked.remove_land_locked_cells`,
 alternating until neither changes, because removing a cell from one can
-strand a cell in the other. The requirements and the algorithm are set out
-in the `land_locked_cells` design doc (see {ref}`design-docs`).
+strand a cell in the other. The active-edge, active-vertex and connectivity
+tests themselves are described in {ref}`dev-mesh-connectivity`.
 
 After all masks are written, `CullMaskStep` checks them. Invariants 1, 2, 3,
 5 and 6 are the province of

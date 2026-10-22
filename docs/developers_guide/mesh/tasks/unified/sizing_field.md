@@ -66,8 +66,8 @@ hysteresis growth) and
 {py:func}`polaris.mesh.spherical.coastline.signed_distance_from_ocean_mask`.
 Diagnostic variables (`effective_ocean_mask`, `emulated_ocean_mask`,
 `mesh_scale_ocean_fraction`, `passages_widened`) are stored in
-`sizing_field.nc`.  The rationale and validation are in the
-`unified_mesh_cull_leak` design doc.
+`sizing_field.nc`.  See {ref}`users-mesh-unified-cull-emulation` for what
+cull emulation prevents.
 
 The public helper `sizing_field_dataset()` combines:
 

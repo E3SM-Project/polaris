@@ -112,8 +112,7 @@ def test_product_is_not_padded():
     The product must keep the native TL319 extent.  Padding a lat-lon source
     so that its corners or centers reach the pole aborts mbtempest, and
     duplicating a longitude column makes the grid overlap itself and breaks
-    both map tools.  See the wind-forcing section of the
-    ``global_ocean_init`` design document.
+    both map tools.
     """
     ds_source = _synthetic_source()
     shape = (ds_source.sizes['lat'], ds_source.sizes['lon'])

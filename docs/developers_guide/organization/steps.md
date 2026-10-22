@@ -84,9 +84,6 @@ again: adding the same step under the same name is a no-op.  Adding a
 *different* step under a name already in use is still an error, which is what
 its `name` argument exists to resolve.
 
-See the [design document on shared steps](../../design_docs/shared_steps.md)
-for more details about the motivation and implementation.
-
 A step is defined by a class that descends from {py:class}`polaris.Step`.
 The child class must override the constructor and must also either override the
 {py:meth}`polaris.Step.run()` method or define the `args` attribute.  It will
@@ -1138,9 +1135,6 @@ produced on another machine, they must be transferred to Chrysalis
 before calling `polaris cache`.  File can be added manually to the
 LCRC server and the `cached_files.json` databases but this is not
 recommended.
-
-More details on cached outputs are available in the compass design document
-[Caching outputs from compass steps](https://mpas-dev.github.io/compass/latest/design_docs/cached_outputs.html).
 
 (dev-step-default-cached)=
 

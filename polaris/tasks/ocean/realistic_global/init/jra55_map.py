@@ -24,8 +24,6 @@ class Jra55MapStep(LatLonMapStep):
     handling builds its pole point from the zonal average of the source's
     outermost row, which would cancel a vector given in zonal and meridional
     components, since the local east/north basis rotates with longitude.
-    See the wind-forcing section of the ``global_ocean_init`` design
-    document.
     """
 
     def __init__(

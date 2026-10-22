@@ -1,7 +1,6 @@
 #!/bin/bash
 # Set up the regeneration runs that validate the cull-leak fix on all
-# four unified meshes (see PLAN_fix_unified_mesh_cull_leak.md and the
-# unified_mesh_cull_leak design doc).
+# four unified meshes.
 #
 # Prerequisites (developer actions):
 #   - ./deploy.py has been run on this branch so pixi-env/ exists
