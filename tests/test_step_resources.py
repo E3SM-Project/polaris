@@ -178,7 +178,13 @@ class _RecordingSystem:
         self.calls = []
 
     def get_parallel_command(
-        self, args, ntasks, cpus_per_task=0, gpus_per_task=0, placement=None
+        self,
+        args,
+        ntasks,
+        cpus_per_task=0,
+        gpus_per_task=0,
+        placement=None,
+        memory_cap=None,
     ):
         self.calls.append(
             dict(
@@ -187,6 +193,7 @@ class _RecordingSystem:
                 cpus_per_task=cpus_per_task,
                 gpus_per_task=gpus_per_task,
                 placement=placement,
+                memory_cap=memory_cap,
             )
         )
         return ['true']
@@ -219,6 +226,30 @@ def test_a_total_that_does_not_divide_evenly_rounds_up():
     component.parallel_system = _RecordingSystem()
     call = _run(component, ntasks=4, gpus=6)
     assert call['gpus_per_task'] == 2
+
+
+def test_a_declared_memory_figure_is_passed_as_a_cap():
+    """
+    A step that stated a number has made a claim and can be held to it,
+    which is what turns a wrong declaration into an attributable failure
+    rather than a quiet fiction in the scheduler's accounting.
+    """
+    component = Component(name='ocean')
+    component.parallel_system = _RecordingSystem()
+    call = _run(component, ntasks=4, gpus=0, memory_cap=8000)
+    assert call['memory_cap'] == 8000
+
+
+def test_a_step_that_declared_nothing_is_not_capped():
+    """
+    The framework must carry the risk of its own guess.  Capping every step
+    at the proportional default would make them all need a measured number
+    before they could run.
+    """
+    component = Component(name='ocean')
+    component.parallel_system = _RecordingSystem()
+    call = _run(component, ntasks=4, gpus=0)
+    assert call['memory_cap'] is None
 
 
 def test_no_gpus_asks_the_launcher_for_none():

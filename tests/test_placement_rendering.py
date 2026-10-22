@@ -10,9 +10,8 @@ launch with ordinary process affinity, which is enough to exercise the whole
 path on any Linux machine, so this guards against a rendering regression on
 every commit rather than on whoever remembers to run something inside a job.
 
-It is deliberately self-contained: no import from ``utils/placement_check``,
-which is a temporary harness that will be removed from this branch's history.
-This is the part of it worth keeping.
+It is deliberately self-contained, so that it did not depend on the
+throwaway harness the five-machine verification was done with.
 """
 
 import os

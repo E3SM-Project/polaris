@@ -38,6 +38,7 @@ def check_mache_supports_placement():
         )
 
     _check_placement_cores_are_per_node()
+    _check_placement_gpus_are_per_node()
 
 
 def _check_placement_cores_are_per_node():
@@ -77,6 +78,43 @@ def _check_placement_cores_are_per_node():
         )
 
 
+def _check_placement_gpus_are_per_node():
+    """
+    Check that a placement's GPUs are one set per node, and that mache can
+    say what the machine calls them.
+
+    An earlier mache took one flat list of unique GPU indices for the whole
+    launch, so a GPU step spanning nodes on a machine where Polaris has to
+    name its GPUs -- Aurora -- could not be placed at all.  The same mache
+    gave every task of a placed launch on Aurora every GPU it was given,
+    and could not translate an index into the tile name a task sees.
+    """
+    try:
+        placement = ResourcePlacement(
+            nodes=('a', 'b'), cores=((0,), (0,)), gpus=2, gpu_ids=((0,), (0,))
+        )
+    except (AttributeError, TypeError, ValueError) as exception:
+        raise RuntimeError(
+            f'The installed mache ({mache.__version__}) expresses a '
+            f"placement's GPUs as one list for the whole launch, so Polaris "
+            f'cannot place a GPU step across nodes.\n'
+            f'Update mache to a release that gives a placement one set '
+            f'of GPUs per node.'
+        ) from exception
+
+    if placement.gpu_ids != ((0,), (0,)) or not hasattr(
+        ParallelSystem, 'get_gpu_device_names'
+    ):
+        raise RuntimeError(
+            f'The installed mache ({mache.__version__}) does not give a '
+            f'placement one set of GPUs per node, or cannot name a '
+            f"machine's GPUs, so Polaris cannot rely on what a placement "
+            f'means.\n'
+            f'Update mache to a release that gives a placement one set '
+            f'of GPUs per node.'
+        )
+
+
 def set_parallel_systems(tasks, config: PolarisConfigParser):
     """
     Set the active parallel system on every component referenced by the task
@@ -94,3 +132,23 @@ def set_parallel_systems(tasks, config: PolarisConfigParser):
 
     for component in get_components_in_use(tasks):
         component.set_parallel_system(config)
+
+
+def get_memory_per_node(parallel_system):
+    """
+    Get the memory a node has, in MB, or ``None`` if this machine has not
+    said.
+
+    Read from the attribute where a newer mache offers one and from the
+    config option otherwise, because the option is arriving in mache while
+    this is being written and Polaris should work either side of it.  A
+    machine that says nothing leaves memory undeclared rather than guessed
+    at: a wrong figure here would propagate into every step's default.
+    """
+    memory_per_node = getattr(parallel_system, 'memory_per_node', None)
+    if memory_per_node:
+        return int(memory_per_node)
+    memory_per_node = parallel_system.get_config_int('memory_per_node')
+    if memory_per_node:
+        return int(memory_per_node)
+    return None

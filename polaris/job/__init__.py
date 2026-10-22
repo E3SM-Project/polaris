@@ -19,9 +19,11 @@ def write_job_script(
     min_cores=None,
     target_gpus=None,
     min_gpus=None,
+    sum_min_cores=None,
     suite='',
     script_filename=None,
     run_command=None,
+    concurrent=False,
 ):
     """
 
@@ -57,6 +59,12 @@ def write_job_script(
         The minimum number of GPUs for the job to use if ``nodes`` not
         provided
 
+    sum_min_cores : int, optional
+        The minimum cores of every step added together, used when the job
+        is ``concurrent`` and it asks for more nodes than the target and
+        minimum figures do.  Ignored otherwise.  Taken in cores on every
+        machine, including one sized by GPUs; see the note in the body.
+
     suite : str, optional
         The name of the suite
 
@@ -67,6 +75,14 @@ def write_job_script(
     run_command : str, optional
         The command(s) to run in the job script. If not provided, defaults to
         'polaris serial {{suite}}'.
+
+    concurrent : bool, optional
+        Whether the job script should run the steps of a suite or task at the
+        same time with ``polaris parallel`` rather than one after another with
+        ``polaris serial``.  Ignored when ``run_command`` is given, and it must
+        stay ``False`` for a single step's job script: there is nothing there
+        to run concurrently, and ``polaris parallel`` would not find a suite or
+        task to run.
 
     Returns
     -------
@@ -105,11 +121,42 @@ mache.parallel.pbs.PbsOptions, None}
             and min_gpus is not None
             and max(target_gpus, min_gpus) > 0
         )
+        # The allocation is the geometric mean of what the widest step wants
+        # and what it can be squeezed to, which is the right question when
+        # steps run one at a time: nothing else is running, so only that step
+        # can use the machine.
+        #
+        # Steps running at the same time can use more than the widest of them,
+        # and how much more depends on how many steps there are rather than on
+        # how big the biggest is.  So a concurrent job also asks for enough to
+        # hold every step at once at its smallest, and takes whichever is
+        # larger.  For one step the sum is that step's own minimum and the
+        # geometric mean already exceeds it, so a single-step job is sized
+        # exactly as it was before.
+        #
+        # This is what lets an allocation follow a suite that gains tests.
+        # Measured on Chrysalis, wall time falls as the inverse square root of
+        # the nodes, so growing the nodes with the suite means its wall time
+        # grows as the square root of what it contains rather than in
+        # proportion to it.
+        #
+        # The sum is taken in cores on every machine, including one whose
+        # nodes are counted by GPUs.  Holding every step at once is cheap in
+        # cores because the smallest step is a hundredth of a node; in GPUs
+        # the smallest step is a quarter of one, and a suite of many small
+        # GPU steps comes to a great many nodes for very little work.
+        # Measured on Perlmutter GPU, where 51 one-GPU steps of omega_pr
+        # made the sum ask for 29 nodes.  In cores the same suite asks for
+        # 3, its small GPU steps take a few turns each, and the widest GPU
+        # step still fits, since that is what the geometric mean is for.
         if use_gpu_nodes:
             assert target_gpus is not None
             assert min_gpus is not None
             gpus = np.sqrt(target_gpus * min_gpus)
             nodes = int(np.ceil(gpus / gpus_per_node))
+            if concurrent and sum_min_cores is not None and cores_per_node:
+                by_cores = int(np.ceil(sum_min_cores / cores_per_node))
+                nodes = max(nodes, by_cores)
             nodes = max(nodes, 1)
         else:
             if cores_per_node is None:
@@ -118,6 +165,8 @@ mache.parallel.pbs.PbsOptions, None}
                     'CPU resources'
                 )
             cores = np.sqrt(target_cores * min_cores)
+            if concurrent and sum_min_cores is not None:
+                cores = max(cores, sum_min_cores)
             nodes = int(np.ceil(cores / cores_per_node))
             nodes = max(nodes, 1)
 
@@ -217,7 +266,8 @@ mache.parallel.pbs.PbsOptions, None}
     )
 
     if run_command is None:
-        run_command = f'polaris serial {suite}' if suite else 'polaris serial'
+        command = 'polaris parallel' if concurrent else 'polaris serial'
+        run_command = f'{command} {suite}' if suite else command
         run_command = f'source load_polaris_env.sh\n{run_command}'
 
     render_kwargs.update(

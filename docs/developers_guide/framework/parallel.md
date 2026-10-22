@@ -82,6 +82,46 @@ Two consequences are worth knowing about:
   size it against memory, and the natural mistake is to derive memory from
   cores.
 
+A step's placement is decided by whatever is running it.  When steps run one
+at a time it is `None`, exactly as it has always been.  When a scheduler runs
+them together it forks a child per step, and the child is handed the
+placement directly -- it inherits the scheduler's memory, so the placement is
+already an object it holds rather than something to be encoded, written into
+an environment and read back.
+
+## Capping a step's memory
+
+Some machines will hold a launch to a memory figure and some will not, and
+`mache` renders the flag only where it is enforced.  Polaris passes the cap
+for a step that **declared** `memory` and never for one carrying only the
+framework's `memory_budget`:
+
+```python
+self.component.run_parallel_command(
+    args=args,
+    cpus_per_task=self.cpus_per_task,
+    ntasks=self.ntasks,
+    openmp_threads=self.openmp_threads,
+    logger=self.logger,
+    gpus=self.gpus,
+    placement=self.placement,
+    memory_cap=self.memory,
+)
+```
+
+The framework does this for a step that runs its model through `args`, which
+is every {py:class}`polaris.ModelStep`.  A step that calls
+`run_parallel_command()` itself should pass `memory_cap=self.memory` as
+above; `self.memory` is `None` for a step that declared nothing, which
+renders no cap at all, so the line is correct whether or not the step has
+been measured.
+
+The reason it is only for a declared figure is that a step which stated a
+number has made a claim and can fairly be held to it, while a step that said
+nothing is being estimated by the framework, and killing it for exceeding the
+framework's own guess would make every step carry a measured number before it
+could run.
+
 Not every machine can confine a launch.  `mache` reports which mechanism a
 machine has through `ParallelSystem.placement_support`, decided at run time
 from the launcher that is actually installed rather than from configuration.
@@ -119,6 +159,30 @@ ask for it directly either way.
 GPUs need no second spelling: `gpus` and `min_gpus` are already per-step
 totals, which is the shape a step with no ranks needs.  `gpus_per_task` is
 deprecated and is the only GPU field a non-MPI step cannot use.
+
+## Hardware threads
+
+A core, everywhere above, is a physical core.  Polaris does not use
+hardware threads: a step given a core is given the whole of it, one rank or
+thread is placed there, and the sibling thread idles.  This is what E3SM
+does, and for the same reason -- the codes are memory-bound and a second
+thread on the same core buys nothing they can measure.
+
+The machines Polaris runs on all expose their threads, so the ids the
+kernel offers a job are twice the cores its configuration counts: a
+Perlmutter CPU node offers 256 ids and is configured with 128 cores, an
+Aurora node 204 ids and 102 cores.  `mache`'s `cores_per_node` is the count
+without hyperthreading, and `polaris/run/topology.py` reads the kernel's
+word on which ids share a core, so that the pool numbers a node by one id
+per core and the placement check counts a rank's cores rather than its
+ids.  The numbering is read, not assumed: on every machine seen so far
+thread 0 of every core is enumerated first, but nothing promises it, and a
+machine that interleaved siblings would otherwise place two ranks on one
+core with no error.
+
+This is a policy rather than a limit.  A step that genuinely wanted both
+threads of its cores has no way to ask for them today, which is the right
+default and should not be mistaken for an oversight.
 
 ## Whether a step may span nodes
 
@@ -224,6 +288,18 @@ for a total does.
 
 `gpus_per_task` and `min_gpus_per_task` still work and are translated into a
 total, but they are deprecated and raise a `DeprecationWarning`.
+
+Whether a step got the GPUs it was given is checked the same way its cores
+are, by asking the ranks what the vendor's visible-devices variable holds.
+Where Slurm assigns the GPUs, as on Frontier and Perlmutter, it picks which,
+so a step is held to how many it sees on each node rather than to particular
+devices. Only on PALS, where nothing else assigns them, does a placement name
+its devices and the check hold the ranks to those. Frontier's
+`ROCR_VISIBLE_DEVICES` holds the node's own indices, so a report there names
+the devices; on Perlmutter `CUDA_VISIBLE_DEVICES` is renumbered per launch,
+so every one-GPU rank reads `0` and the check there can only catch a step
+seeing more devices than it was given. On both, concurrent launches were
+measured to hold disjoint devices.
 
 For ocean model steps with dynamic sizing, Omega runs on GPU-capable compiler
 configs use:

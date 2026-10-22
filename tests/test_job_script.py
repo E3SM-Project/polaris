@@ -2,9 +2,13 @@ import os
 
 import pytest
 
-from polaris import provenance
+from polaris import Component, Step, Task, provenance
 from polaris.config import PolarisConfigParser
 from polaris.job import write_job_script
+from polaris.setup import (
+    _get_required_resources,
+    _run_steps_concurrently,
+)
 
 
 def get_config(machine=None, **job_options):
@@ -290,3 +294,274 @@ def test_empty_option_is_not_a_request(tmp_path, option):
     text, options = get_job_script(tmp_path, 'pm-cpu', nodes=2, **{option: ''})
     assert '<<<' not in text
     assert options.honored
+
+
+def test_a_job_script_runs_the_serial_path_by_default(tmp_path):
+    """What every suite has been validated against."""
+    config = get_config('chrysalis')
+    write_job_script(
+        config=config,
+        machine='chrysalis',
+        work_dir=str(tmp_path),
+        nodes=2,
+        suite='omega_pr',
+    )
+    with open(os.path.join(str(tmp_path), 'job_script.omega_pr.sh')) as handle:
+        text = handle.read()
+
+    assert 'polaris serial omega_pr' in text
+    assert 'polaris parallel' not in text
+
+
+def test_a_job_script_runs_the_concurrent_path_when_asked(tmp_path):
+    """The opt-in, which is a config option so that setup stays the same."""
+    config = get_config('chrysalis')
+    write_job_script(
+        config=config,
+        machine='chrysalis',
+        work_dir=str(tmp_path),
+        nodes=2,
+        suite='omega_pr',
+        concurrent=True,
+    )
+    with open(os.path.join(str(tmp_path), 'job_script.omega_pr.sh')) as handle:
+        text = handle.read()
+
+    assert 'polaris parallel omega_pr' in text
+    assert 'polaris serial' not in text
+
+
+def test_asking_for_the_concurrent_path_is_reading_the_option(tmp_path):
+    """The option is what setup passes on, and it is off unless it is set."""
+    assert not _run_steps_concurrently(get_config('chrysalis'))
+    assert _run_steps_concurrently(
+        get_config('chrysalis', concurrent_steps='True')
+    )
+    assert not _run_steps_concurrently(
+        get_config('chrysalis', concurrent_steps='False')
+    )
+
+
+def test_the_flag_and_the_config_option_are_one_mechanism():
+    """
+    `--parallel` writes the config option rather than travelling beside it,
+    so there is one thing that decides this and it is recorded in the config
+    a run was set up with.
+    """
+    config = get_config('chrysalis')
+    assert not _run_steps_concurrently(config)
+
+    config.set('job', 'concurrent_steps', 'True', user=True)
+
+    assert _run_steps_concurrently(config)
+
+
+def test_setup_and_suite_can_be_asked_without_a_config_file():
+    """
+    Asking for a concurrent run should not require writing a config file.
+
+    It did, and the awkwardness showed up the moment cross-machine
+    instructions had to say "a config file containing this option".
+    """
+    import inspect
+    import subprocess
+    import sys
+
+    from polaris.setup import setup_tasks
+
+    assert 'concurrent_steps' in inspect.signature(setup_tasks).parameters
+
+    # `polaris suite` passes its arguments through to `setup_tasks`, so the
+    # only thing left to check is that each front end offers the flag
+    for command in ('setup', 'suite'):
+        helped = subprocess.run(
+            [sys.executable, '-m', 'polaris', command, '--help'],
+            capture_output=True,
+            text=True,
+        )
+        assert '-P, --parallel' in helped.stdout, (
+            f'polaris {command} does not offer the flag'
+        )
+
+
+def _sized_job(tmp_path, concurrent, machine='chrysalis', **resources):
+    """Write a job script sized from resources rather than a node count."""
+    config = get_config(machine)
+    write_job_script(
+        config=config,
+        machine=machine,
+        work_dir=str(tmp_path),
+        concurrent=concurrent,
+        **resources,
+    )
+    with open(os.path.join(str(tmp_path), 'job_script.sh')) as handle:
+        return handle.read()
+
+
+def _nodes_in(text):
+    for line in text.splitlines():
+        if line.startswith('#SBATCH --nodes='):
+            return int(line.split('=')[1])
+    raise AssertionError(f'no node count in:\n{text}')
+
+
+def test_a_serial_job_is_sized_by_its_widest_step(tmp_path):
+    """One step at a time means only the widest step can use the machine."""
+    # sqrt(800 * 36) = 169.7 cores, which is 3 of Chrysalis' 64-core nodes
+    text = _sized_job(
+        tmp_path,
+        concurrent=False,
+        target_cores=800,
+        min_cores=36,
+        sum_min_cores=310,
+    )
+    assert _nodes_in(text) == 3
+
+
+def test_a_concurrent_job_holds_every_step_at_once(tmp_path):
+    """Steps running together can use more than the widest of them."""
+    # the same suite, whose steps need 310 cores between them at their
+    # smallest: 5 nodes rather than 3
+    text = _sized_job(
+        tmp_path,
+        concurrent=True,
+        target_cores=800,
+        min_cores=36,
+        sum_min_cores=310,
+    )
+    assert _nodes_in(text) == 5
+
+
+def test_a_concurrent_job_grows_as_a_suite_gains_steps(tmp_path):
+    """The point of the sum: more tests ask for more of the machine."""
+    smaller = _sized_job(
+        tmp_path,
+        concurrent=True,
+        target_cores=800,
+        min_cores=36,
+        sum_min_cores=310,
+    )
+    larger = _sized_job(
+        tmp_path,
+        concurrent=True,
+        target_cores=800,
+        min_cores=36,
+        sum_min_cores=620,
+    )
+    assert _nodes_in(larger) == 2 * _nodes_in(smaller)
+
+
+def test_one_step_is_sized_the_same_either_way(tmp_path):
+    """
+    With one step the sum is that step's own minimum, which the geometric
+    mean already exceeds, so concurrency cannot change the answer.
+    """
+    resources = dict(target_cores=800, min_cores=36, sum_min_cores=36)
+    serial = _sized_job(tmp_path, concurrent=False, **resources)
+    concurrent = _sized_job(tmp_path, concurrent=True, **resources)
+    assert _nodes_in(serial) == _nodes_in(concurrent) == 3
+
+
+def test_a_gpu_machine_takes_the_sum_in_cores(tmp_path):
+    """
+    Perlmutter GPU, with omega_pr's own figures: 51 of its 63 GPU steps
+    need one GPU each, so summing the minimum GPUs asked for 29 nodes of
+    a 4-GPU machine.  A one-GPU step is a quarter of a node there where a
+    one-core step is a hundredth of one, which is why the sum is taken in
+    cores on every machine.  In cores the same suite is 3 nodes, and the
+    widest GPU step still fits through the geometric mean.
+    """
+    resources = dict(
+        target_cores=24,
+        min_cores=4,
+        target_gpus=24,
+        min_gpus=4,
+        sum_min_cores=168,
+    )
+    serial = _sized_job(
+        tmp_path, concurrent=False, machine='pm-gpu', **resources
+    )
+    concurrent = _sized_job(
+        tmp_path, concurrent=True, machine='pm-gpu', **resources
+    )
+    # sqrt(24 * 4) = 9.8 GPUs on 4-GPU nodes
+    assert _nodes_in(serial) == 3
+    # 168 cores on 64-core nodes, not 116 GPUs on 4-GPU nodes
+    assert _nodes_in(concurrent) == 3
+
+
+def test_a_gpu_machine_still_grows_with_the_suite(tmp_path):
+    """Taking the sum in cores keeps the elasticity; it changes the unit."""
+    resources = dict(target_cores=24, min_cores=4, target_gpus=24, min_gpus=4)
+    smaller = _sized_job(
+        tmp_path,
+        concurrent=True,
+        machine='pm-gpu',
+        sum_min_cores=320,
+        **resources,
+    )
+    larger = _sized_job(
+        tmp_path,
+        concurrent=True,
+        machine='pm-gpu',
+        sum_min_cores=640,
+        **resources,
+    )
+    assert _nodes_in(smaller) == 5
+    assert _nodes_in(larger) == 10
+
+
+def test_a_concurrent_job_never_asks_for_less_than_the_widest_step(tmp_path):
+    """A suite of tiny steps is still sized to run its one big one."""
+    text = _sized_job(
+        tmp_path,
+        concurrent=True,
+        target_cores=800,
+        min_cores=36,
+        sum_min_cores=40,
+    )
+    assert _nodes_in(text) == 3
+
+
+def _task_using(component, name, steps):
+    task = Task(component=component, name=name, subdir=name)
+    for step in steps:
+        task.add_step(step)
+    return task
+
+
+def test_a_shared_step_is_counted_once(tmp_path):
+    """
+    A step shared between tasks runs once, so the sum of the minima has to
+    count it once.  It appears once per task that runs it, which makes no
+    difference to a maximum and inflates a sum.
+    """
+    component = Component(name='ocean')
+    shared = Step(
+        component=component,
+        name='shared',
+        subdir='shared',
+        ntasks=8,
+        cpus_per_task=1,
+        min_tasks=4,
+        min_cpus_per_task=1,
+    )
+    own = Step(
+        component=component,
+        name='own',
+        subdir='own',
+        ntasks=2,
+        cpus_per_task=1,
+        min_tasks=1,
+        min_cpus_per_task=1,
+    )
+    tasks = {
+        'one': _task_using(component, 'one', [shared, own]),
+        'two': _task_using(component, 'two', [shared]),
+    }
+    _, max_of_min_cores, _, _, sum_of_min_cores = _get_required_resources(
+        tasks
+    )
+    # 4 for the shared step and 1 for the other, not 4 + 1 + 4
+    assert sum_of_min_cores == 5
+    assert max_of_min_cores == 4

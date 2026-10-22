@@ -41,6 +41,7 @@ def setup_tasks(
     cmake_flags=None,
     debug=None,
     component_args=None,
+    concurrent_steps=False,
 ):
     """
     Set up one or more tasks
@@ -132,6 +133,10 @@ def setup_tasks(
         that owns the tasks, with the component names as keys.  These come from
         the ``--<component>_model``, ``--<component>_path`` and
         ``--<component>_branch`` flags.
+    concurrent_steps : bool, optional
+        Whether the job script should run the steps of a suite or task at the
+        same time with ``polaris parallel`` rather than one after another with
+        ``polaris serial``
 
     Returns
     -------
@@ -179,6 +184,12 @@ def setup_tasks(
         quiet_build=quiet_build,
         work_dir=work_dir,
     )
+
+    if concurrent_steps:
+        # the flag writes the config option rather than travelling beside it,
+        # so there is one thing that decides this and it is recorded in the
+        # config the run is set up with
+        basic_config.set('job', 'concurrent_steps', 'True', user=True)
 
     components_in_use = get_components_in_use(tasks)
 
@@ -265,9 +276,13 @@ def setup_tasks(
 
     _symlink_load_script(work_dir)
 
-    max_cores, max_of_min_cores, max_gpus, max_of_min_gpus = (
-        _get_required_resources(tasks)
-    )
+    (
+        max_cores,
+        max_of_min_cores,
+        max_gpus,
+        max_of_min_gpus,
+        sum_of_min_cores,
+    ) = _get_required_resources(tasks)
 
     print(f'target cores: {max_cores}')
     print(f'minimum cores: {max_of_min_cores}')
@@ -287,8 +302,10 @@ def setup_tasks(
             min_cores=max_of_min_cores,
             target_gpus=max_gpus,
             min_gpus=max_of_min_gpus,
+            sum_min_cores=sum_of_min_cores,
             work_dir=work_dir,
             suite=suite_name,
+            concurrent=_run_steps_concurrently(suite_config),
         )
 
     # Rewrite provenance (it was written earlier so that it exists even if
@@ -399,9 +416,13 @@ def setup_task(path, task, machine, work_dir, baseline_dir, cached_steps):
     _symlink_load_script(task_dir)
 
     if machine is not None:
-        max_cores, max_of_min_cores, max_gpus, max_of_min_gpus = (
-            _get_required_resources({path: task})
-        )
+        (
+            max_cores,
+            max_of_min_cores,
+            max_gpus,
+            max_of_min_gpus,
+            sum_of_min_cores,
+        ) = _get_required_resources({path: task})
         write_job_script(
             config=task.config,
             machine=machine,
@@ -409,8 +430,25 @@ def setup_task(path, task, machine, work_dir, baseline_dir, cached_steps):
             min_cores=max_of_min_cores,
             target_gpus=max_gpus,
             min_gpus=max_of_min_gpus,
+            sum_min_cores=sum_of_min_cores,
             work_dir=task_dir,
+            concurrent=_run_steps_concurrently(task.config),
         )
+
+
+def _run_steps_concurrently(config):
+    """
+    Whether job scripts should run a suite's or task's steps at the same time.
+
+    Opting in belongs to whoever sets a run up rather than to Polaris: the
+    serial path is what every suite has been validated against, and it stays
+    the default until the concurrent one has been used enough to trust.  A
+    single step's job script is never concurrent, which is why the callers
+    rather than ``write_job_script`` decide.
+    """
+    if not config.has_option('job', 'concurrent_steps'):
+        return False
+    return config.getboolean('job', 'concurrent_steps')
 
 
 def main():
@@ -561,6 +599,15 @@ def main():
         help='If the model should be built in debug mode.',
     )
     add_component_model_args(parser)
+    parser.add_argument(
+        '-P',
+        '--parallel',
+        dest='concurrent_steps',
+        action='store_true',
+        help='Run the steps of a suite or task at the same time with '
+        '`polaris parallel` rather than one after another with '
+        '`polaris serial`.',
+    )
 
     args = parser.parse_args(sys.argv[2:])
     cached = None
@@ -610,6 +657,7 @@ def main():
         cmake_flags=args.cmake_flags,
         debug=args.debug,
         component_args=get_component_model_args(args),
+        concurrent_steps=args.concurrent_steps,
     )
 
 
@@ -929,18 +977,35 @@ def _clean_tasks_and_steps(tasks, base_work_dir):
 
 def _get_required_resources(tasks):
     """
-    Get max target and minimum CPU and GPU resource counts across task steps
+    Get target and minimum CPU and GPU resource counts across task steps.
+
+    The maxima describe the widest single step, which is what bounds a run
+    that takes one step at a time.  The sum of the minimum cores describes
+    every step at once at its smallest, which is what a run taking steps at
+    the same time can put to use, and it is what lets an allocation grow as
+    a suite gains tests rather than staying fixed at its widest step.  It is
+    cores only: the same sum in GPUs asks for far too much, since the
+    smallest GPU step is a quarter of a node where the smallest CPU step is
+    a hundredth of one.
+
+    A step shared between tasks appears once per task that runs it but is
+    run once, so it is counted once here.  That makes no difference to a
+    maximum and a large one to a sum: `omega_pr` shares enough steps that
+    counting them per task overstates its minima by a node's worth.
     """
 
     max_cores = 0
     max_of_min_cores = 0
     max_gpus = 0
     max_of_min_gpus = 0
+    sum_of_min_cores = 0
+    counted = set()
     for task in tasks.values():
         for step_name in task.steps_to_run:
             step = task.steps[step_name]
-            if step.cached:
+            if step.cached or step.path in counted:
                 continue
+            counted.add(step.path)
             if step.ntasks is None:
                 raise ValueError(
                     f'The number of tasks (ntasks) was never set for '
@@ -959,8 +1024,15 @@ def _get_required_resources(tasks):
             max_of_min_cores = max(max_of_min_cores, min_cores)
             max_gpus = max(max_gpus, gpus)
             max_of_min_gpus = max(max_of_min_gpus, min_gpus)
+            sum_of_min_cores += min_cores
 
-    return max_cores, max_of_min_cores, max_gpus, max_of_min_gpus
+    return (
+        max_cores,
+        max_of_min_cores,
+        max_gpus,
+        max_of_min_gpus,
+        sum_of_min_cores,
+    )
 
 
 def __get_machine_and_check_params(
