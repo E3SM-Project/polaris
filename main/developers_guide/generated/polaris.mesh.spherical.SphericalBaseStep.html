@@ -189,7 +189,7 @@
 <h1>polaris.mesh.spherical.SphericalBaseStep<a class="headerlink" href="#polaris-mesh-spherical-sphericalbasestep" title="Link to this heading"></a></h1>
 <dl class="py class">
 <dt class="sig sig-object py" id="polaris.mesh.spherical.SphericalBaseStep">
-<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">polaris.mesh.spherical.</span></span><span class="sig-name descname"><span class="pre">SphericalBaseStep</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">component</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">subdir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mesh_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'mesh'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/polaris/mesh/spherical.html#SphericalBaseStep"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#polaris.mesh.spherical.SphericalBaseStep" title="Link to this definition"></a></dt>
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">polaris.mesh.spherical.</span></span><span class="sig-name descname"><span class="pre">SphericalBaseStep</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">component</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">subdir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mesh_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'mesh'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cpus_per_task</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">16</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_cpus_per_task</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/polaris/mesh/spherical.html#SphericalBaseStep"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#polaris.mesh.spherical.SphericalBaseStep" title="Link to this definition"></a></dt>
 <dd><p>A base class for steps that create a JIGSAW spherical mesh</p>
 <dl class="field-list simple">
 <dt class="field-odd">Variables<span class="colon">:</span></dt>
@@ -201,7 +201,7 @@
 </dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="polaris.mesh.spherical.SphericalBaseStep.__init__">
-<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">component</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">subdir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mesh_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'mesh'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/polaris/mesh/spherical.html#SphericalBaseStep.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#polaris.mesh.spherical.SphericalBaseStep.__init__" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">component</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">subdir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mesh_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'mesh'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cpus_per_task</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">16</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_cpus_per_task</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/polaris/mesh/spherical.html#SphericalBaseStep.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#polaris.mesh.spherical.SphericalBaseStep.__init__" title="Link to this definition"></a></dt>
 <dd><p>Create a new step</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -210,6 +210,17 @@
 <li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><em>str</em></a>) – the name of the step</p></li>
 <li><p><strong>subdir</strong> (<em>{str</em><em>, </em><em>None}</em>) – the subdirectory for the step.  The default is <code class="docutils literal notranslate"><span class="pre">name</span></code></p></li>
 <li><p><strong>mesh_name</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><em>str</em></a><em>, </em><em>optional</em>) – The name of the mesh</p></li>
+<li><p><strong>cpus_per_task</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.15)"><em>int</em></a><em>, </em><em>optional</em>) – The cores this step would ideally have, which is what JIGSAW is
+told to use as threads.  Measured on Chrysalis over five
+quasi-uniform resolutions, JIGSAW returns about 2 to 2.8x however
+many threads it is given, and the point at which it stops
+improving rises with resolution – 4 threads at 240 km, 8 at
+120 km and about 16 from 60 km down.  So 16 captures nearly all
+of what is available at the resolutions Polaris builds, and
+asking for more would reserve cores no mesh can use.  A subclass
+that knows its mesh is coarse may ask for fewer.</p></li>
+<li><p><strong>min_cpus_per_task</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.15)"><em>int</em></a><em>, </em><em>optional</em>) – The cores this step requires.  JIGSAW runs on one, just more
+slowly, so a mesh is never blocked for want of cores.</p></li>
 </ul>
 </dd>
 </dl>
@@ -218,7 +229,7 @@
 <p class="rubric">Methods</p>
 <table class="autosummary longtable docutils align-default">
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#polaris.mesh.spherical.SphericalBaseStep.__init__" title="polaris.mesh.spherical.SphericalBaseStep.__init__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code></a>(component, name, subdir[, mesh_name])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#polaris.mesh.spherical.SphericalBaseStep.__init__" title="polaris.mesh.spherical.SphericalBaseStep.__init__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code></a>(component, name, subdir[, ...])</p></td>
 <td><p>Create a new step</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_cf_check</span></code>([filename])</p></td>

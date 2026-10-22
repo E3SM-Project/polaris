@@ -151,7 +151,8 @@
             <span class="sa">f</span><span class="s1">'takes a placement.'</span>
         <span class="p">)</span>
 
-    <span class="n">_check_placement_cores_are_per_node</span><span class="p">()</span></div>
+    <span class="n">_check_placement_cores_are_per_node</span><span class="p">()</span>
+    <span class="n">_check_placement_gpus_are_per_node</span><span class="p">()</span></div>
 
 
 
@@ -192,6 +193,43 @@
         <span class="p">)</span>
 
 
+<span class="k">def</span><span class="w"> </span><span class="nf">_check_placement_gpus_are_per_node</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Check that a placement's GPUs are one set per node, and that mache can</span>
+<span class="sd">    say what the machine calls them.</span>
+
+<span class="sd">    An earlier mache took one flat list of unique GPU indices for the whole</span>
+<span class="sd">    launch, so a GPU step spanning nodes on a machine where Polaris has to</span>
+<span class="sd">    name its GPUs -- Aurora -- could not be placed at all.  The same mache</span>
+<span class="sd">    gave every task of a placed launch on Aurora every GPU it was given,</span>
+<span class="sd">    and could not translate an index into the tile name a task sees.</span>
+<span class="sd">    """</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">placement</span> <span class="o">=</span> <span class="n">ResourcePlacement</span><span class="p">(</span>
+            <span class="n">nodes</span><span class="o">=</span><span class="p">(</span><span class="s1">'a'</span><span class="p">,</span> <span class="s1">'b'</span><span class="p">),</span> <span class="n">cores</span><span class="o">=</span><span class="p">((</span><span class="mi">0</span><span class="p">,),</span> <span class="p">(</span><span class="mi">0</span><span class="p">,)),</span> <span class="n">gpus</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">gpu_ids</span><span class="o">=</span><span class="p">((</span><span class="mi">0</span><span class="p">,),</span> <span class="p">(</span><span class="mi">0</span><span class="p">,))</span>
+        <span class="p">)</span>
+    <span class="k">except</span> <span class="p">(</span><span class="ne">AttributeError</span><span class="p">,</span> <span class="ne">TypeError</span><span class="p">,</span> <span class="ne">ValueError</span><span class="p">)</span> <span class="k">as</span> <span class="n">exception</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s1">'The installed mache (</span><span class="si">{</span><span class="n">mache</span><span class="o">.</span><span class="n">__version__</span><span class="si">}</span><span class="s1">) expresses a '</span>
+            <span class="sa">f</span><span class="s2">"placement's GPUs as one list for the whole launch, so Polaris "</span>
+            <span class="sa">f</span><span class="s1">'cannot place a GPU step across nodes.</span><span class="se">\n</span><span class="s1">'</span>
+            <span class="sa">f</span><span class="s1">'Update mache to a release that gives a placement one set '</span>
+            <span class="sa">f</span><span class="s1">'of GPUs per node.'</span>
+        <span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">exception</span>
+
+    <span class="k">if</span> <span class="n">placement</span><span class="o">.</span><span class="n">gpu_ids</span> <span class="o">!=</span> <span class="p">((</span><span class="mi">0</span><span class="p">,),</span> <span class="p">(</span><span class="mi">0</span><span class="p">,))</span> <span class="ow">or</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span>
+        <span class="n">ParallelSystem</span><span class="p">,</span> <span class="s1">'get_gpu_device_names'</span>
+    <span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s1">'The installed mache (</span><span class="si">{</span><span class="n">mache</span><span class="o">.</span><span class="n">__version__</span><span class="si">}</span><span class="s1">) does not give a '</span>
+            <span class="sa">f</span><span class="s1">'placement one set of GPUs per node, or cannot name a '</span>
+            <span class="sa">f</span><span class="s2">"machine's GPUs, so Polaris cannot rely on what a placement "</span>
+            <span class="sa">f</span><span class="s1">'means.</span><span class="se">\n</span><span class="s1">'</span>
+            <span class="sa">f</span><span class="s1">'Update mache to a release that gives a placement one set '</span>
+            <span class="sa">f</span><span class="s1">'of GPUs per node.'</span>
+        <span class="p">)</span>
+
+
 <div class="viewcode-block" id="set_parallel_systems">
 <a class="viewcode-back" href="../../developers_guide/generated/polaris.parallel.set_parallel_systems.html#polaris.parallel.set_parallel_systems">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">set_parallel_systems</span><span class="p">(</span><span class="n">tasks</span><span class="p">,</span> <span class="n">config</span><span class="p">:</span> <span class="n">PolarisConfigParser</span><span class="p">):</span>
@@ -212,6 +250,26 @@
     <span class="k">for</span> <span class="n">component</span> <span class="ow">in</span> <span class="n">get_components_in_use</span><span class="p">(</span><span class="n">tasks</span><span class="p">):</span>
         <span class="n">component</span><span class="o">.</span><span class="n">set_parallel_system</span><span class="p">(</span><span class="n">config</span><span class="p">)</span></div>
 
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">get_memory_per_node</span><span class="p">(</span><span class="n">parallel_system</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Get the memory a node has, in MB, or ``None`` if this machine has not</span>
+<span class="sd">    said.</span>
+
+<span class="sd">    Read from the attribute where a newer mache offers one and from the</span>
+<span class="sd">    config option otherwise, because the option is arriving in mache while</span>
+<span class="sd">    this is being written and Polaris should work either side of it.  A</span>
+<span class="sd">    machine that says nothing leaves memory undeclared rather than guessed</span>
+<span class="sd">    at: a wrong figure here would propagate into every step's default.</span>
+<span class="sd">    """</span>
+    <span class="n">memory_per_node</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">parallel_system</span><span class="p">,</span> <span class="s1">'memory_per_node'</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">memory_per_node</span><span class="p">:</span>
+        <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="n">memory_per_node</span><span class="p">)</span>
+    <span class="n">memory_per_node</span> <span class="o">=</span> <span class="n">parallel_system</span><span class="o">.</span><span class="n">get_config_int</span><span class="p">(</span><span class="s1">'memory_per_node'</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">memory_per_node</span><span class="p">:</span>
+        <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="n">memory_per_node</span><span class="p">)</span>
+    <span class="k">return</span> <span class="kc">None</span>
 </pre></div>
 
            </div>

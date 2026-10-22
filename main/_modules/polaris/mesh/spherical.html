@@ -155,7 +155,15 @@
 
 <div class="viewcode-block" id="SphericalBaseStep.__init__">
 <a class="viewcode-back" href="../../../developers_guide/generated/polaris.mesh.spherical.SphericalBaseStep.html#polaris.mesh.SphericalBaseStep.__init__">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">component</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">subdir</span><span class="p">,</span> <span class="n">mesh_name</span><span class="o">=</span><span class="s1">'mesh'</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">component</span><span class="p">,</span>
+        <span class="n">name</span><span class="p">,</span>
+        <span class="n">subdir</span><span class="p">,</span>
+        <span class="n">mesh_name</span><span class="o">=</span><span class="s1">'mesh'</span><span class="p">,</span>
+        <span class="n">cpus_per_task</span><span class="o">=</span><span class="mi">16</span><span class="p">,</span>
+        <span class="n">min_cpus_per_task</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+    <span class="p">):</span>
 <span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Create a new step</span>
 
@@ -172,8 +180,29 @@
 
 <span class="sd">        mesh_name : str, optional</span>
 <span class="sd">            The name of the mesh</span>
+
+<span class="sd">        cpus_per_task : int, optional</span>
+<span class="sd">            The cores this step would ideally have, which is what JIGSAW is</span>
+<span class="sd">            told to use as threads.  Measured on Chrysalis over five</span>
+<span class="sd">            quasi-uniform resolutions, JIGSAW returns about 2 to 2.8x however</span>
+<span class="sd">            many threads it is given, and the point at which it stops</span>
+<span class="sd">            improving rises with resolution -- 4 threads at 240 km, 8 at</span>
+<span class="sd">            120 km and about 16 from 60 km down.  So 16 captures nearly all</span>
+<span class="sd">            of what is available at the resolutions Polaris builds, and</span>
+<span class="sd">            asking for more would reserve cores no mesh can use.  A subclass</span>
+<span class="sd">            that knows its mesh is coarse may ask for fewer.</span>
+
+<span class="sd">        min_cpus_per_task : int, optional</span>
+<span class="sd">            The cores this step requires.  JIGSAW runs on one, just more</span>
+<span class="sd">            slowly, so a mesh is never blocked for want of cores.</span>
 <span class="sd">        """</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">subdir</span><span class="o">=</span><span class="n">subdir</span><span class="p">)</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
+            <span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span>
+            <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span>
+            <span class="n">subdir</span><span class="o">=</span><span class="n">subdir</span><span class="p">,</span>
+            <span class="n">cpus_per_task</span><span class="o">=</span><span class="n">cpus_per_task</span><span class="p">,</span>
+            <span class="n">min_cpus_per_task</span><span class="o">=</span><span class="n">min_cpus_per_task</span><span class="p">,</span>
+        <span class="p">)</span>
 
         <span class="c1"># setup files for JIGSAW</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">opts</span> <span class="o">=</span> <span class="n">jigsawpy</span><span class="o">.</span><span class="n">jigsaw_jig_t</span><span class="p">()</span>
@@ -228,6 +257,25 @@
             <span class="n">filename</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">opts</span><span class="p">,</span> <span class="n">attr</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">filename</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="nb">setattr</span><span class="p">(</span><span class="n">opts</span><span class="p">,</span> <span class="n">attr</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">work_path</span><span class="p">(</span><span class="n">filename</span><span class="p">))</span>
+
+        <span class="c1"># Tell JIGSAW how many threads it may use, rather than letting it</span>
+        <span class="c1"># decide.  It takes this from `NUMTHREAD` in its own config file and</span>
+        <span class="c1"># not from `OMP_NUM_THREADS`, so nothing in the environment reaches</span>
+        <span class="c1"># it; left unset it sizes itself from whatever cores it can see.</span>
+        <span class="c1">#</span>
+        <span class="c1"># That is not merely untidy.  The mesh JIGSAW produces depends on the</span>
+        <span class="c1"># thread count -- measured directly, a quasi-uniform 120 km mesh has</span>
+        <span class="c1"># 41154 points at one, two and four threads and 41155 above that, and</span>
+        <span class="c1"># a 30 km mesh takes four distinct point counts across the range.  So</span>
+        <span class="c1"># a mesh built on a node with more cores was a different mesh, and a</span>
+        <span class="c1"># step confined to part of an allocation built a different one again.</span>
+        <span class="c1"># Six baseline comparisons in the first concurrent omega_pr run</span>
+        <span class="c1"># differed for exactly this reason.</span>
+        <span class="c1">#</span>
+        <span class="c1"># `cpus_per_task` has been reduced by now to what this step was</span>
+        <span class="c1"># actually given, so the number is the same on the serial and</span>
+        <span class="c1"># concurrent paths and the mesh is reproducible between them.</span>
+        <span class="n">opts</span><span class="o">.</span><span class="n">numthread</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cpus_per_task</span>
 
 <div class="viewcode-block" id="SphericalBaseStep.setup">
 <a class="viewcode-back" href="../../../developers_guide/generated/polaris.mesh.spherical.SphericalBaseStep.setup.html#polaris.mesh.SphericalBaseStep.setup">[docs]</a>

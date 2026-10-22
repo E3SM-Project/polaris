@@ -1,0 +1,24 @@
+﻿polaris.run.events.EventStream
+==============================
+
+.. currentmodule:: polaris.run.events
+
+.. autoclass:: EventStream
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~EventStream.__init__
+      ~EventStream.close
+      ~EventStream.record
+   
+   
+
+   
+   
+   

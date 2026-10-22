@@ -1,0 +1,988 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>polaris.run.parallel</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=a8da1a53"></script>
+      <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+    <link href="../../../_static/style.css" rel="stylesheet" type="text/css">
+
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            Polaris
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">User's guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../users_guide/quick_start.html">Quick Start for Users</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../users_guide/tasks.html">Tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../users_guide/config_files.html">Config Files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../users_guide/suites.html">Suites</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../users_guide/mesh/index.html">Mesh component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../users_guide/e3sm/init/index.html">E3SM Initial Condition Component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../users_guide/ocean/index.html">Ocean component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../users_guide/seaice/index.html">Sea ice component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../users_guide/machines/index.html">Machines</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Developer's guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/quick_start.html">Quick Start for Developers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/command_line.html">Command-line interface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/organization/index.html">Organization of Tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/e3sm/init/index.html">E3SM initial condition (e3sm/init) component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/mesh/index.html">Mesh component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/ocean/index.html">Ocean component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/seaice/index.html">Sea ice component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/framework/index.html">Framework</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/machines/index.html">Machines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/benchmarking.html">Benchmarking a branch against a baseline</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/troubleshooting.html">Troubleshooting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/docs.html">Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/building_docs.html">Building the Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/building_docs.html#previewing-the-documentation">Previewing the Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/conda_vs_spack.html">How Conda and Spack Work Together in Polaris</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/updating_conda.html">Updating Deployment Dependencies</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/updating_spack/index.html">Updating Shared Spack Environments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/api.html">API reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../design_docs/index.html">Design Documents</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorials/dev_add_category_of_tasks/index.html">Developer Tutorial: Adding a New Category of Tasks</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Glossary</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../glossary.html">Glossary</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">Polaris</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+          <li class="breadcrumb-item"><a href="../run.html">polaris.run</a></li>
+      <li class="breadcrumb-item active">polaris.run.parallel</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for polaris.run.parallel</h1><div class="highlight"><pre>
+<span></span><span class="sd">"""</span>
+<span class="sd">Running a suite's independent steps at the same time.</span>
+
+<span class="sd">The loop is conventional and is meant to stay that way:</span>
+
+<span class="sd">1. Mark ready any step whose requirements have all succeeded.</span>
+<span class="sd">2. Among ready steps, in a stable order, start each that fits in what is</span>
+<span class="sd">   free.</span>
+<span class="sd">3. Wait for any running step to finish.</span>
+<span class="sd">4. Release what it held, record the outcome, and repeat.</span>
+
+<span class="sd">The stable order is setup order -- suite, then task, then step within a task</span>
+<span class="sd">-- which is easy to explain and close to what a reader already expects.  A</span>
+<span class="sd">step that does not fit right now is skipped over until it does.  Nothing</span>
+<span class="sd">holds resources back for a large step that cannot fit, on the argument that</span>
+<span class="sd">the largest steps are started early by the stable order; if starvation shows</span>
+<span class="sd">up in practice, that is the point to add a rule, with evidence for it.</span>
+
+<span class="sd">A step's width is decided once, from the whole allocation, exactly as</span>
+<span class="sd">`polaris serial` decides it, and the loop waits until that much is free.</span>
+<span class="sd">Handing a step whatever happened to be free would make an MPI step's</span>
+<span class="sd">decomposition depend on scheduling timing, and its results with it.</span>
+<span class="sd">"""</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">argparse</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">socket</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">sys</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">time</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">datetime</span><span class="p">,</span> <span class="n">timedelta</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">functools</span><span class="w"> </span><span class="kn">import</span> <span class="n">partial</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">mpas_tools.io</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mache.parallel</span><span class="w"> </span><span class="kn">import</span> <span class="n">PlacementSupport</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mpas_tools.logging</span><span class="w"> </span><span class="kn">import</span> <span class="n">LoggingContext</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.parallel</span><span class="w"> </span><span class="kn">import</span> <span class="n">set_parallel_systems</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.run</span><span class="w"> </span><span class="kn">import</span> <span class="n">setup_config</span><span class="p">,</span> <span class="n">unpickle_suite</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.run.allocation</span><span class="w"> </span><span class="kn">import</span> <span class="n">read_allocation</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.run.confinement</span><span class="w"> </span><span class="kn">import</span> <span class="n">PLACEMENT_MISMATCH_LOG</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.run.events</span><span class="w"> </span><span class="kn">import</span> <span class="n">EventStream</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.run.executor</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">RunningStep</span><span class="p">,</span>
+    <span class="n">StepOutcome</span><span class="p">,</span>
+    <span class="n">describe_neighbors</span><span class="p">,</span>
+    <span class="n">reap_one</span><span class="p">,</span>
+    <span class="n">start_step</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.run.graph</span><span class="w"> </span><span class="kn">import</span> <span class="n">build_step_graph</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.run.lifecycle</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">accumulate_baselines</span><span class="p">,</span>
+    <span class="n">read_baseline_diff_summary_from_logs</span><span class="p">,</span>
+    <span class="n">read_baseline_status_from_logs</span><span class="p">,</span>
+    <span class="n">read_cf_status_from_logs</span><span class="p">,</span>
+    <span class="n">read_property_status_from_logs</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.run.pool</span><span class="w"> </span><span class="kn">import</span> <span class="n">ResourcePool</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.run.results</span><span class="w"> </span><span class="kn">import</span> <span class="n">TaskResult</span><span class="p">,</span> <span class="n">write_suite_results</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.run.serial</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">_pr_results</span><span class="p">,</span>
+    <span class="n">_read_results_provenance</span><span class="p">,</span>
+    <span class="n">_update_steps_to_run</span><span class="p">,</span>
+    <span class="n">_write_output_for_pull_request</span><span class="p">,</span>
+    <span class="n">end_color</span><span class="p">,</span>
+    <span class="n">error_str</span><span class="p">,</span>
+    <span class="n">fail_str</span><span class="p">,</span>
+    <span class="n">start_time_color</span><span class="p">,</span>
+    <span class="n">success_str</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.validate</span><span class="w"> </span><span class="kn">import</span> <span class="n">merge_diff_summary</span>
+
+
+<div class="viewcode-block" id="run_tasks">
+<a class="viewcode-back" href="../../../developers_guide/generated/polaris.run.parallel.run_tasks.html#polaris.run.parallel.run_tasks">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">run_tasks</span><span class="p">(</span><span class="n">suite_name</span><span class="p">,</span> <span class="n">quiet</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Run a suite or task, with independent steps running at the same time</span>
+
+<span class="sd">    A task's pickle holds one task where a suite's holds several, and</span>
+<span class="sd">    nothing else about them differs, so both arrive here.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    suite_name : str</span>
+<span class="sd">        The name of the suite, or ``'task'`` for a task</span>
+
+<span class="sd">    quiet : bool, optional</span>
+<span class="sd">        Whether step names are left out of the output as the run progresses</span>
+<span class="sd">    """</span>
+    <span class="n">suite</span> <span class="o">=</span> <span class="n">unpickle_suite</span><span class="p">(</span><span class="n">suite_name</span><span class="p">)</span>
+    <span class="n">task</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="nb">iter</span><span class="p">(</span><span class="n">suite</span><span class="p">[</span><span class="s1">'tasks'</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">()))</span>
+    <span class="n">component</span> <span class="o">=</span> <span class="n">task</span><span class="o">.</span><span class="n">component</span>
+    <span class="n">common_config</span> <span class="o">=</span> <span class="n">setup_config</span><span class="p">(</span><span class="n">task</span><span class="o">.</span><span class="n">base_work_dir</span><span class="p">,</span> <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">component</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s1">.cfg'</span><span class="p">)</span>
+    <span class="n">set_parallel_systems</span><span class="p">(</span><span class="n">suite</span><span class="p">[</span><span class="s1">'tasks'</span><span class="p">],</span> <span class="n">common_config</span><span class="p">)</span>
+
+    <span class="n">mpas_tools</span><span class="o">.</span><span class="n">io</span><span class="o">.</span><span class="n">default_format</span> <span class="o">=</span> <span class="n">common_config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'io'</span><span class="p">,</span> <span class="s1">'format'</span><span class="p">)</span>
+    <span class="n">mpas_tools</span><span class="o">.</span><span class="n">io</span><span class="o">.</span><span class="n">default_engine</span> <span class="o">=</span> <span class="n">common_config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'io'</span><span class="p">,</span> <span class="s1">'engine'</span><span class="p">)</span>
+
+    <span class="n">work_dir</span> <span class="o">=</span> <span class="n">suite</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'work_dir'</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">())</span>
+    <span class="k">with</span> <span class="n">LoggingContext</span><span class="p">(</span><span class="n">suite_name</span><span class="p">)</span> <span class="k">as</span> <span class="n">logger</span><span class="p">:</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s1">'PYTHONUNBUFFERED'</span><span class="p">]</span> <span class="o">=</span> <span class="s1">'1'</span>
+        <span class="n">events</span> <span class="o">=</span> <span class="n">EventStream</span><span class="p">(</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">work_dir</span><span class="p">,</span> <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">suite_name</span><span class="si">}</span><span class="s1">_events.jsonl'</span><span class="p">)</span>
+        <span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">failures</span> <span class="o">=</span> <span class="n">_run</span><span class="p">(</span>
+                <span class="n">suite</span><span class="p">,</span> <span class="n">suite_name</span><span class="p">,</span> <span class="n">component</span><span class="p">,</span> <span class="n">logger</span><span class="p">,</span> <span class="n">events</span><span class="p">,</span> <span class="n">work_dir</span><span class="p">,</span> <span class="n">quiet</span>
+            <span class="p">)</span>
+        <span class="k">finally</span><span class="p">:</span>
+            <span class="n">events</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+
+    <span class="k">if</span> <span class="n">failures</span><span class="p">:</span>
+        <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span></div>
+
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_run</span><span class="p">(</span><span class="n">suite</span><span class="p">,</span> <span class="n">suite_name</span><span class="p">,</span> <span class="n">component</span><span class="p">,</span> <span class="n">logger</span><span class="p">,</span> <span class="n">events</span><span class="p">,</span> <span class="n">work_dir</span><span class="p">,</span> <span class="n">quiet</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""Set the run up, drive the loop, and report what happened."""</span>
+    <span class="n">steps</span><span class="p">,</span> <span class="n">task_steps</span> <span class="o">=</span> <span class="n">_select_steps</span><span class="p">(</span><span class="n">suite</span><span class="p">,</span> <span class="n">logger</span><span class="p">)</span>
+
+    <span class="c1"># the nodes are read before the steps are sized, because what they</span>
+    <span class="c1"># report is what the sizes have to be taken from</span>
+    <span class="n">nodes</span> <span class="o">=</span> <span class="n">read_allocation</span><span class="p">(</span><span class="n">component</span><span class="p">,</span> <span class="n">logger</span><span class="p">)</span>
+    <span class="n">available</span> <span class="o">=</span> <span class="n">_credit_memory</span><span class="p">(</span><span class="n">component</span><span class="o">.</span><span class="n">get_available_resources</span><span class="p">(),</span> <span class="n">nodes</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">step</span> <span class="ow">in</span> <span class="n">steps</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+        <span class="n">step</span><span class="o">.</span><span class="n">constrain_resources</span><span class="p">(</span><span class="n">available</span><span class="p">)</span>
+
+    <span class="n">support</span> <span class="o">=</span> <span class="n">component</span><span class="o">.</span><span class="n">parallel_system</span><span class="o">.</span><span class="n">placement_support</span>
+    <span class="n">pool</span> <span class="o">=</span> <span class="n">ResourcePool</span><span class="p">(</span>
+        <span class="n">nodes</span><span class="p">,</span>
+        <span class="n">local_node</span><span class="o">=</span><span class="n">_local_node</span><span class="p">(</span><span class="n">nodes</span><span class="p">),</span>
+        <span class="n">names_gpus</span><span class="o">=</span><span class="n">support</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">PlacementSupport</span><span class="o">.</span><span class="n">SCHEDULER</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">graph</span> <span class="o">=</span> <span class="n">build_step_graph</span><span class="p">(</span><span class="n">steps</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
+
+    <span class="n">base_work_dir</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="nb">iter</span><span class="p">(</span><span class="n">suite</span><span class="p">[</span><span class="s1">'tasks'</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">()))</span><span class="o">.</span><span class="n">base_work_dir</span>
+    <span class="n">tracker</span> <span class="o">=</span> <span class="n">_TaskTracker</span><span class="p">(</span>
+        <span class="n">suite</span><span class="p">[</span><span class="s1">'tasks'</span><span class="p">],</span>
+        <span class="n">task_steps</span><span class="p">,</span>
+        <span class="n">graph</span><span class="p">,</span>
+        <span class="n">partial</span><span class="p">(</span>
+            <span class="n">write_suite_results</span><span class="p">,</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">work_dir</span><span class="p">,</span> <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">suite_name</span><span class="si">}</span><span class="s1">_results.json'</span><span class="p">),</span>
+            <span class="n">suite_name</span><span class="p">,</span>
+            <span class="n">_read_results_provenance</span><span class="p">(</span><span class="n">base_work_dir</span><span class="p">),</span>
+            <span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span><span class="o">.</span><span class="n">astimezone</span><span class="p">(),</span>
+        <span class="p">),</span>
+    <span class="p">)</span>
+
+    <span class="n">impossible</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="n">path</span><span class="p">:</span> <span class="n">pool</span><span class="o">.</span><span class="n">why_impossible</span><span class="p">(</span><span class="n">node</span><span class="o">.</span><span class="n">step</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">path</span><span class="p">,</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">graph</span><span class="o">.</span><span class="n">nodes</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">node</span><span class="o">.</span><span class="n">satisfied</span>
+    <span class="p">}</span>
+    <span class="n">impossible</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="n">path</span><span class="p">:</span> <span class="n">reason</span> <span class="k">for</span> <span class="n">path</span><span class="p">,</span> <span class="n">reason</span> <span class="ow">in</span> <span class="n">impossible</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">reason</span>
+    <span class="p">}</span>
+    <span class="k">if</span> <span class="n">impossible</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">reason</span> <span class="ow">in</span> <span class="n">impossible</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="n">reason</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">impossible</span><span class="p">)</span><span class="si">}</span><span class="s1"> step(s) cannot run in this allocation. '</span>
+            <span class="sa">f</span><span class="s1">'Nothing has been run.'</span>
+        <span class="p">)</span>
+
+    <span class="n">events</span><span class="o">.</span><span class="n">record</span><span class="p">(</span>
+        <span class="s1">'run_started'</span><span class="p">,</span>
+        <span class="n">suite</span><span class="o">=</span><span class="n">suite_name</span><span class="p">,</span>
+        <span class="n">steps</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">graph</span><span class="o">.</span><span class="n">nodes</span><span class="p">),</span>
+        <span class="n">nodes</span><span class="o">=</span><span class="p">[</span><span class="n">node</span><span class="o">.</span><span class="n">name</span> <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">nodes</span><span class="p">],</span>
+        <span class="n">cores</span><span class="o">=</span><span class="nb">sum</span><span class="p">(</span><span class="n">node</span><span class="o">.</span><span class="n">cores</span> <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">nodes</span><span class="p">),</span>
+    <span class="p">)</span>
+    <span class="n">started</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+    <span class="n">outcomes</span><span class="p">,</span> <span class="n">mismatched</span> <span class="o">=</span> <span class="n">_loop</span><span class="p">(</span>
+        <span class="n">graph</span><span class="p">,</span> <span class="n">pool</span><span class="p">,</span> <span class="n">steps</span><span class="p">,</span> <span class="n">logger</span><span class="p">,</span> <span class="n">events</span><span class="p">,</span> <span class="n">work_dir</span><span class="p">,</span> <span class="n">quiet</span><span class="p">,</span> <span class="n">tracker</span>
+    <span class="p">)</span>
+    <span class="n">elapsed</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">started</span>
+
+    <span class="n">tracker</span><span class="o">.</span><span class="n">finish</span><span class="p">()</span>
+    <span class="n">_write_output_for_pull_request</span><span class="p">(</span>
+        <span class="n">suite_name</span><span class="p">,</span> <span class="n">suite</span><span class="p">,</span> <span class="n">results</span><span class="o">=</span><span class="n">_pr_results</span><span class="p">(</span><span class="n">tracker</span><span class="o">.</span><span class="n">results</span><span class="p">)</span>
+    <span class="p">)</span>
+
+    <span class="n">failures</span> <span class="o">=</span> <span class="n">_report</span><span class="p">(</span><span class="n">outcomes</span><span class="p">,</span> <span class="n">mismatched</span><span class="p">,</span> <span class="n">steps</span><span class="p">,</span> <span class="n">logger</span><span class="p">,</span> <span class="n">elapsed</span><span class="p">)</span>
+    <span class="n">events</span><span class="o">.</span><span class="n">record</span><span class="p">(</span>
+        <span class="s1">'run_finished'</span><span class="p">,</span> <span class="n">elapsed</span><span class="o">=</span><span class="nb">round</span><span class="p">(</span><span class="n">elapsed</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span> <span class="n">failures</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">failures</span><span class="p">)</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">failures</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_credit_memory</span><span class="p">(</span><span class="n">available</span><span class="p">,</span> <span class="n">nodes</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Size steps against the memory the nodes credit, not the configured</span>
+<span class="sd">    figure.</span>
+
+<span class="sd">    A step that declares no memory is budgeted at its proportional share of</span>
+<span class="sd">    a node, and that is what makes memory accounting neutral: the memory</span>
+<span class="sd">    inequality and the core inequality become the same inequality, so a run</span>
+<span class="sd">    in which nothing declares memory packs exactly as it would with no</span>
+<span class="sd">    memory accounting at all.</span>
+
+<span class="sd">    That neutrality holds only while the figure the share is taken from is</span>
+<span class="sd">    the figure the pool charges against.  Taking the share from the</span>
+<span class="sd">    machine's configured memory while crediting each node with what it</span>
+<span class="sd">    reports breaks it, and breaks it in the direction that refuses work.</span>
+<span class="sd">    Measured on Chrysalis: the configured 253000 MiB is about 5% above what</span>
+<span class="sd">    a node reports available, so a step wanting the whole allocation was</span>
+<span class="sd">    budgeted 759000 MiB against the 730758 MiB its three nodes credited,</span>
+<span class="sd">    and could never start.  Two steps of a fifteen-step run were rejected</span>
+<span class="sd">    before anything ran.</span>
+
+<span class="sd">    The smallest node's figure is the one used, since a single number has</span>
+<span class="sd">    to serve every node the step might land on and the smallest is the one</span>
+<span class="sd">    that always fits.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    available : dict</span>
+<span class="sd">        The resource view from the parallel system</span>
+
+<span class="sd">    nodes : list of polaris.run.allocation.NodeResources</span>
+<span class="sd">        What the allocation's nodes reported</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    available : dict</span>
+<span class="sd">        The same view, with memory taken from what the nodes credit</span>
+<span class="sd">    """</span>
+    <span class="n">credited</span> <span class="o">=</span> <span class="p">[</span><span class="n">node</span><span class="o">.</span><span class="n">memory</span> <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">nodes</span> <span class="k">if</span> <span class="n">node</span><span class="o">.</span><span class="n">memory</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">]</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">credited</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">available</span>
+    <span class="n">available</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">available</span><span class="p">)</span>
+    <span class="n">available</span><span class="p">[</span><span class="s1">'memory_per_node'</span><span class="p">]</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">credited</span><span class="p">)</span>
+    <span class="n">available</span><span class="p">[</span><span class="s1">'memory'</span><span class="p">]</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">credited</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">available</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_select_steps</span><span class="p">(</span><span class="n">suite</span><span class="p">,</span> <span class="n">logger</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    The steps to run, in setup order, with a step shared between tasks once.</span>
+
+<span class="sd">    Which steps a task runs comes from its config exactly as it does on the</span>
+<span class="sd">    serial path, so that the two paths are asked to run the same work.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    steps : dict</span>
+<span class="sd">        The steps to run, keyed by path</span>
+
+<span class="sd">    task_steps : dict</span>
+<span class="sd">        The steps each task runs, keyed by the task's name in the suite</span>
+<span class="sd">    """</span>
+    <span class="n">steps</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">object</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="n">task_steps</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">List</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">task_name</span><span class="p">,</span> <span class="n">task</span> <span class="ow">in</span> <span class="n">suite</span><span class="p">[</span><span class="s1">'tasks'</span><span class="p">]</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="n">config</span> <span class="o">=</span> <span class="n">setup_config</span><span class="p">(</span><span class="n">task</span><span class="o">.</span><span class="n">base_work_dir</span><span class="p">,</span> <span class="n">task</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">filepath</span><span class="p">)</span>
+        <span class="n">task</span><span class="o">.</span><span class="n">config</span> <span class="o">=</span> <span class="n">config</span>
+        <span class="n">names</span> <span class="o">=</span> <span class="n">_update_steps_to_run</span><span class="p">(</span><span class="n">task</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="n">config</span><span class="p">,</span> <span class="n">task</span><span class="o">.</span><span class="n">steps</span><span class="p">)</span>
+        <span class="n">task_steps</span><span class="p">[</span><span class="n">task_name</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">task</span><span class="o">.</span><span class="n">steps</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">names</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">names</span><span class="p">:</span>
+            <span class="n">step</span> <span class="o">=</span> <span class="n">task</span><span class="o">.</span><span class="n">steps</span><span class="p">[</span><span class="n">name</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">step</span><span class="o">.</span><span class="n">path</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">steps</span><span class="p">:</span>
+                <span class="n">step</span><span class="o">.</span><span class="n">config</span> <span class="o">=</span> <span class="n">setup_config</span><span class="p">(</span>
+                    <span class="n">step</span><span class="o">.</span><span class="n">base_work_dir</span><span class="p">,</span> <span class="n">step</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">filepath</span>
+                <span class="p">)</span>
+                <span class="n">steps</span><span class="p">[</span><span class="n">step</span><span class="o">.</span><span class="n">path</span><span class="p">]</span> <span class="o">=</span> <span class="n">step</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">'Running </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">steps</span><span class="p">)</span><span class="si">}</span><span class="s1"> step(s)'</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">steps</span><span class="p">,</span> <span class="n">task_steps</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_local_node</span><span class="p">(</span><span class="n">nodes</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Which of the allocation's nodes this process is on.</span>
+
+<span class="sd">    A batch script runs on one of its job's own nodes, so the hostname</span>
+<span class="sd">    should match one of them.  Where it does not -- an interactive shell on</span>
+<span class="sd">    a login node, say -- the first node is assumed, which is where a batch</span>
+<span class="sd">    script would have been.</span>
+<span class="sd">    """</span>
+    <span class="n">hostname</span> <span class="o">=</span> <span class="n">socket</span><span class="o">.</span><span class="n">gethostname</span><span class="p">()</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">'.'</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">nodes</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">node</span><span class="o">.</span><span class="n">name</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">'.'</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="n">hostname</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">node</span><span class="o">.</span><span class="n">name</span>
+    <span class="k">return</span> <span class="n">nodes</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">name</span> <span class="k">if</span> <span class="n">nodes</span> <span class="k">else</span> <span class="s1">''</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_loop</span><span class="p">(</span><span class="n">graph</span><span class="p">,</span> <span class="n">pool</span><span class="p">,</span> <span class="n">steps</span><span class="p">,</span> <span class="n">logger</span><span class="p">,</span> <span class="n">events</span><span class="p">,</span> <span class="n">work_dir</span><span class="p">,</span> <span class="n">quiet</span><span class="p">,</span> <span class="n">tracker</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""Start what fits, wait for what finishes, and keep going."""</span>
+    <span class="n">succeeded</span> <span class="o">=</span> <span class="p">{</span><span class="n">path</span> <span class="k">for</span> <span class="n">path</span><span class="p">,</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">graph</span><span class="o">.</span><span class="n">nodes</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">node</span><span class="o">.</span><span class="n">satisfied</span><span class="p">}</span>
+    <span class="k">for</span> <span class="n">path</span> <span class="ow">in</span> <span class="n">succeeded</span><span class="p">:</span>
+        <span class="n">events</span><span class="o">.</span><span class="n">record</span><span class="p">(</span><span class="s1">'step_skipped'</span><span class="p">,</span> <span class="n">step</span><span class="o">=</span><span class="n">path</span><span class="p">,</span> <span class="n">reason</span><span class="o">=</span><span class="s1">'already satisfied'</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">quiet</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">'  * </span><span class="si">{</span><span class="n">path</span><span class="si">}</span><span class="s1">: already done'</span><span class="p">)</span>
+
+    <span class="n">outcomes</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">StepOutcome</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="n">mismatched</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">blocked</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="n">running</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">RunningStep</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="n">waiting</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">graph</span><span class="o">.</span><span class="n">nodes</span><span class="p">)</span> <span class="o">-</span> <span class="n">succeeded</span>
+
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">while</span> <span class="n">waiting</span> <span class="ow">or</span> <span class="n">running</span><span class="p">:</span>
+            <span class="n">started_any</span> <span class="o">=</span> <span class="n">_start_what_fits</span><span class="p">(</span>
+                <span class="n">graph</span><span class="p">,</span>
+                <span class="n">pool</span><span class="p">,</span>
+                <span class="n">waiting</span><span class="p">,</span>
+                <span class="n">running</span><span class="p">,</span>
+                <span class="n">succeeded</span><span class="p">,</span>
+                <span class="n">blocked</span><span class="p">,</span>
+                <span class="n">logger</span><span class="p">,</span>
+                <span class="n">events</span><span class="p">,</span>
+                <span class="n">work_dir</span><span class="p">,</span>
+                <span class="n">quiet</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">running</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">started_any</span><span class="p">:</span>
+                    <span class="k">continue</span>
+                <span class="c1"># nothing is running and nothing could start, so nothing ever</span>
+                <span class="c1"># will.  This is a bug in the scheduler rather than in the run,</span>
+                <span class="c1"># and saying which steps are stuck is what makes it findable.</span>
+                <span class="n">events</span><span class="o">.</span><span class="n">record</span><span class="p">(</span><span class="s1">'run_stalled'</span><span class="p">,</span> <span class="n">waiting</span><span class="o">=</span><span class="nb">sorted</span><span class="p">(</span><span class="n">waiting</span><span class="p">))</span>
+                <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s1">'Nothing is running and none of the </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">waiting</span><span class="p">)</span><span class="si">}</span><span class="s1"> '</span>
+                    <span class="sa">f</span><span class="s1">'remaining step(s) can start: </span><span class="si">{</span><span class="nb">sorted</span><span class="p">(</span><span class="n">waiting</span><span class="p">)</span><span class="si">}</span><span class="s1">'</span>
+                <span class="p">)</span>
+
+            <span class="c1"># reaped here rather than by a thread per running step:</span>
+            <span class="c1"># only the forking thread survives a fork, so a lock held</span>
+            <span class="c1"># by any other one then is held forever in the child</span>
+            <span class="n">outcome</span> <span class="o">=</span> <span class="n">reap_one</span><span class="p">(</span><span class="n">running</span><span class="p">)</span>
+            <span class="n">step_run</span> <span class="o">=</span> <span class="n">running</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">outcome</span><span class="o">.</span><span class="n">step_path</span><span class="p">)</span>
+            <span class="n">_finish</span><span class="p">(</span>
+                <span class="n">outcome</span><span class="p">,</span>
+                <span class="n">step_run</span><span class="p">,</span>
+                <span class="n">graph</span><span class="p">,</span>
+                <span class="n">pool</span><span class="p">,</span>
+                <span class="n">steps</span><span class="p">,</span>
+                <span class="n">succeeded</span><span class="p">,</span>
+                <span class="n">waiting</span><span class="p">,</span>
+                <span class="n">outcomes</span><span class="p">,</span>
+                <span class="n">mismatched</span><span class="p">,</span>
+                <span class="n">logger</span><span class="p">,</span>
+                <span class="n">events</span><span class="p">,</span>
+                <span class="n">quiet</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="k">if</span> <span class="n">tracker</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">tracker</span><span class="o">.</span><span class="n">step_finished</span><span class="p">(</span><span class="n">outcome</span><span class="p">,</span> <span class="n">step_run</span><span class="o">.</span><span class="n">started</span><span class="p">)</span>
+    <span class="k">finally</span><span class="p">:</span>
+        <span class="c1"># nothing may outlive the scheduler.  A forked child is a</span>
+        <span class="c1"># direct child of this process, so an interrupt that left one</span>
+        <span class="c1"># running would leave a model holding cores with nothing</span>
+        <span class="c1"># watching it, and a child never reaped is a zombie for as</span>
+        <span class="c1"># long as the scheduler lives.</span>
+        <span class="n">_abandon</span><span class="p">(</span><span class="n">running</span><span class="p">,</span> <span class="n">logger</span><span class="p">,</span> <span class="n">events</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">outcomes</span><span class="p">,</span> <span class="n">mismatched</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_abandon</span><span class="p">(</span><span class="n">running</span><span class="p">,</span> <span class="n">logger</span><span class="p">,</span> <span class="n">events</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Stop and reap whatever is still running, on the way out.</span>
+
+<span class="sd">    Reached when the loop ends early -- an interrupt, or a bug in the</span>
+<span class="sd">    scheduler -- and does nothing in the ordinary case, where every step has</span>
+<span class="sd">    already been reaped.</span>
+<span class="sd">    """</span>
+    <span class="k">for</span> <span class="n">path</span><span class="p">,</span> <span class="n">step_run</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">running</span><span class="o">.</span><span class="n">items</span><span class="p">()):</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s1">'  * </span><span class="si">{</span><span class="n">path</span><span class="si">}</span><span class="s1">: stopping, the run is being torn down'</span><span class="p">)</span>
+        <span class="n">events</span><span class="o">.</span><span class="n">record</span><span class="p">(</span><span class="s1">'step_abandoned'</span><span class="p">,</span> <span class="n">step</span><span class="o">=</span><span class="n">path</span><span class="p">,</span> <span class="n">pid</span><span class="o">=</span><span class="n">step_run</span><span class="o">.</span><span class="n">pid</span><span class="p">)</span>
+        <span class="n">step_run</span><span class="o">.</span><span class="n">kill</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">running</span><span class="p">:</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">waitpid</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">ChildProcessError</span><span class="p">:</span>
+            <span class="k">break</span>
+    <span class="n">running</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_start_what_fits</span><span class="p">(</span>
+    <span class="n">graph</span><span class="p">,</span>
+    <span class="n">pool</span><span class="p">,</span>
+    <span class="n">waiting</span><span class="p">,</span>
+    <span class="n">running</span><span class="p">,</span>
+    <span class="n">succeeded</span><span class="p">,</span>
+    <span class="n">blocked</span><span class="p">,</span>
+    <span class="n">logger</span><span class="p">,</span>
+    <span class="n">events</span><span class="p">,</span>
+    <span class="n">work_dir</span><span class="p">,</span>
+    <span class="n">quiet</span><span class="p">,</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">"""Start every ready step that fits, in the order setup listed them."""</span>
+    <span class="n">started_any</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="k">for</span> <span class="n">path</span><span class="p">,</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">graph</span><span class="o">.</span><span class="n">nodes</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="k">if</span> <span class="n">path</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">waiting</span><span class="p">:</span>
+            <span class="k">continue</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">node</span><span class="o">.</span><span class="n">requires</span> <span class="o">&lt;=</span> <span class="n">succeeded</span><span class="p">:</span>
+            <span class="k">continue</span>
+        <span class="n">reservation</span> <span class="o">=</span> <span class="n">pool</span><span class="o">.</span><span class="n">reserve</span><span class="p">(</span><span class="n">node</span><span class="o">.</span><span class="n">step</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">reservation</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">blocked</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">path</span><span class="p">)</span> <span class="o">!=</span> <span class="s1">'resources'</span><span class="p">:</span>
+                <span class="n">blocked</span><span class="p">[</span><span class="n">path</span><span class="p">]</span> <span class="o">=</span> <span class="s1">'resources'</span>
+                <span class="n">events</span><span class="o">.</span><span class="n">record</span><span class="p">(</span><span class="s1">'step_blocked'</span><span class="p">,</span> <span class="n">step</span><span class="o">=</span><span class="n">path</span><span class="p">,</span> <span class="n">reason</span><span class="o">=</span><span class="s1">'resources'</span><span class="p">)</span>
+            <span class="k">continue</span>
+        <span class="n">blocked</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="n">waiting</span><span class="o">.</span><span class="n">discard</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+        <span class="n">log_filename</span> <span class="o">=</span> <span class="n">_log_filename</span><span class="p">(</span><span class="n">work_dir</span><span class="p">,</span> <span class="n">path</span><span class="p">)</span>
+        <span class="n">step_run</span> <span class="o">=</span> <span class="n">start_step</span><span class="p">(</span>
+            <span class="n">node</span><span class="o">.</span><span class="n">step</span><span class="p">,</span> <span class="n">reservation</span><span class="p">,</span> <span class="n">log_filename</span><span class="p">,</span> <span class="n">pool</span><span class="o">.</span><span class="n">local_node</span>
+        <span class="p">)</span>
+        <span class="n">running</span><span class="p">[</span><span class="n">path</span><span class="p">]</span> <span class="o">=</span> <span class="n">step_run</span>
+        <span class="n">started_any</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="n">events</span><span class="o">.</span><span class="n">record</span><span class="p">(</span>
+            <span class="s1">'step_started'</span><span class="p">,</span>
+            <span class="n">step</span><span class="o">=</span><span class="n">path</span><span class="p">,</span>
+            <span class="n">pid</span><span class="o">=</span><span class="n">step_run</span><span class="o">.</span><span class="n">pid</span><span class="p">,</span>
+            <span class="n">nodes</span><span class="o">=</span><span class="nb">list</span><span class="p">(</span><span class="n">reservation</span><span class="o">.</span><span class="n">cores</span><span class="p">),</span>
+            <span class="n">cores</span><span class="o">=</span><span class="nb">sum</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">cores</span><span class="p">)</span> <span class="k">for</span> <span class="n">cores</span> <span class="ow">in</span> <span class="n">reservation</span><span class="o">.</span><span class="n">cores</span><span class="o">.</span><span class="n">values</span><span class="p">()),</span>
+            <span class="n">gpus</span><span class="o">=</span><span class="n">reservation</span><span class="o">.</span><span class="n">placement</span><span class="o">.</span><span class="n">gpus</span><span class="p">,</span>
+            <span class="n">memory</span><span class="o">=</span><span class="nb">sum</span><span class="p">(</span><span class="n">reservation</span><span class="o">.</span><span class="n">memory</span><span class="o">.</span><span class="n">values</span><span class="p">()),</span>
+            <span class="n">log</span><span class="o">=</span><span class="n">log_filename</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">quiet</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">'  * </span><span class="si">{</span><span class="n">path</span><span class="si">}</span><span class="s1">: started on </span><span class="si">{</span><span class="nb">list</span><span class="p">(</span><span class="n">reservation</span><span class="o">.</span><span class="n">cores</span><span class="p">)</span><span class="si">}</span><span class="s1">'</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">started_any</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_finish</span><span class="p">(</span>
+    <span class="n">outcome</span><span class="p">,</span>
+    <span class="n">step_run</span><span class="p">,</span>
+    <span class="n">graph</span><span class="p">,</span>
+    <span class="n">pool</span><span class="p">,</span>
+    <span class="n">steps</span><span class="p">,</span>
+    <span class="n">succeeded</span><span class="p">,</span>
+    <span class="n">waiting</span><span class="p">,</span>
+    <span class="n">outcomes</span><span class="p">,</span>
+    <span class="n">mismatched</span><span class="p">,</span>
+    <span class="n">logger</span><span class="p">,</span>
+    <span class="n">events</span><span class="p">,</span>
+    <span class="n">quiet</span><span class="p">,</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">"""Take back what a step held and act on how it ended."""</span>
+    <span class="n">outcomes</span><span class="p">[</span><span class="n">outcome</span><span class="o">.</span><span class="n">step_path</span><span class="p">]</span> <span class="o">=</span> <span class="n">outcome</span>
+    <span class="k">if</span> <span class="n">_placement_mismatch</span><span class="p">(</span><span class="n">steps</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">outcome</span><span class="o">.</span><span class="n">step_path</span><span class="p">),</span> <span class="n">logger</span><span class="p">):</span>
+        <span class="n">mismatched</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">outcome</span><span class="o">.</span><span class="n">step_path</span><span class="p">)</span>
+        <span class="n">events</span><span class="o">.</span><span class="n">record</span><span class="p">(</span><span class="s1">'placement_mismatch'</span><span class="p">,</span> <span class="n">step</span><span class="o">=</span><span class="n">outcome</span><span class="o">.</span><span class="n">step_path</span><span class="p">)</span>
+    <span class="n">neighbors</span> <span class="o">=</span> <span class="s1">''</span>
+    <span class="k">if</span> <span class="n">outcome</span><span class="o">.</span><span class="n">terminated</span><span class="p">:</span>
+        <span class="c1"># asked before the reservation goes back, since afterwards the step</span>
+        <span class="c1"># is no longer resident anywhere</span>
+        <span class="n">neighbors</span> <span class="o">=</span> <span class="n">describe_neighbors</span><span class="p">(</span><span class="n">pool</span><span class="p">,</span> <span class="n">step_run</span><span class="o">.</span><span class="n">reservation</span><span class="p">,</span> <span class="n">steps</span><span class="p">)</span>
+    <span class="n">pool</span><span class="o">.</span><span class="n">release</span><span class="p">(</span><span class="n">step_run</span><span class="o">.</span><span class="n">reservation</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">outcome</span><span class="o">.</span><span class="n">succeeded</span><span class="p">:</span>
+        <span class="n">succeeded</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">outcome</span><span class="o">.</span><span class="n">step_path</span><span class="p">)</span>
+        <span class="n">events</span><span class="o">.</span><span class="n">record</span><span class="p">(</span>
+            <span class="s1">'step_finished'</span><span class="p">,</span>
+            <span class="n">step</span><span class="o">=</span><span class="n">outcome</span><span class="o">.</span><span class="n">step_path</span><span class="p">,</span>
+            <span class="n">status</span><span class="o">=</span><span class="s1">'succeeded'</span><span class="p">,</span>
+            <span class="n">duration</span><span class="o">=</span><span class="n">outcome</span><span class="o">.</span><span class="n">seconds</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">quiet</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s1">'  * </span><span class="si">{</span><span class="n">outcome</span><span class="o">.</span><span class="n">step_path</span><span class="si">}</span><span class="s1">: </span><span class="si">{</span><span class="n">success_str</span><span class="si">}</span><span class="s1"> '</span>
+                <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">start_time_color</span><span class="si">}{</span><span class="n">outcome</span><span class="o">.</span><span class="n">seconds</span><span class="si">:</span><span class="s1">.1f</span><span class="si">}</span><span class="s1">s</span><span class="si">{</span><span class="n">end_color</span><span class="si">}</span><span class="s1">'</span>
+            <span class="p">)</span>
+        <span class="k">return</span>
+
+    <span class="n">status</span> <span class="o">=</span> <span class="s1">'terminated'</span> <span class="k">if</span> <span class="n">outcome</span><span class="o">.</span><span class="n">terminated</span> <span class="k">else</span> <span class="s1">'failed'</span>
+    <span class="n">events</span><span class="o">.</span><span class="n">record</span><span class="p">(</span>
+        <span class="s1">'step_finished'</span><span class="p">,</span>
+        <span class="n">step</span><span class="o">=</span><span class="n">outcome</span><span class="o">.</span><span class="n">step_path</span><span class="p">,</span>
+        <span class="n">status</span><span class="o">=</span><span class="n">status</span><span class="p">,</span>
+        <span class="n">duration</span><span class="o">=</span><span class="n">outcome</span><span class="o">.</span><span class="n">seconds</span><span class="p">,</span>
+        <span class="n">returncode</span><span class="o">=</span><span class="n">outcome</span><span class="o">.</span><span class="n">returncode</span><span class="p">,</span>
+        <span class="n">signal</span><span class="o">=</span><span class="n">outcome</span><span class="o">.</span><span class="n">signal_name</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="k">if</span> <span class="n">outcome</span><span class="o">.</span><span class="n">terminated</span><span class="p">:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s1">'  * </span><span class="si">{</span><span class="n">outcome</span><span class="o">.</span><span class="n">step_path</span><span class="si">}</span><span class="s1">: </span><span class="si">{</span><span class="n">error_str</span><span class="si">}</span><span class="s1"> killed by '</span>
+            <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">outcome</span><span class="o">.</span><span class="n">signal_name</span><span class="si">}</span><span class="s1">. Nothing enforces memory, so a step that '</span>
+            <span class="sa">f</span><span class="s1">'used more than it declared can exhaust a node and the '</span>
+            <span class="sa">f</span><span class="s1">'operating system kills whichever process it chooses -- which '</span>
+            <span class="sa">f</span><span class="s1">'need not be the step at fault. These were on its node(s):</span><span class="se">\n</span><span class="s1">'</span>
+            <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">neighbors</span><span class="si">}</span><span class="s1">'</span>
+        <span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s1">'  * </span><span class="si">{</span><span class="n">outcome</span><span class="o">.</span><span class="n">step_path</span><span class="si">}</span><span class="s1">: </span><span class="si">{</span><span class="n">fail_str</span><span class="si">}</span><span class="s1"> '</span>
+            <span class="sa">f</span><span class="s1">'(exit code </span><span class="si">{</span><span class="n">outcome</span><span class="o">.</span><span class="n">returncode</span><span class="si">}</span><span class="s1">), see </span><span class="si">{</span><span class="n">step_run</span><span class="o">.</span><span class="n">log_filename</span><span class="si">}</span><span class="s1">'</span>
+        <span class="p">)</span>
+
+    <span class="n">blocked</span> <span class="o">=</span> <span class="n">graph</span><span class="o">.</span><span class="n">descendants</span><span class="p">(</span><span class="n">outcome</span><span class="o">.</span><span class="n">step_path</span><span class="p">)</span> <span class="o">&amp;</span> <span class="n">waiting</span>
+    <span class="k">for</span> <span class="n">path</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">blocked</span><span class="p">):</span>
+        <span class="n">waiting</span><span class="o">.</span><span class="n">discard</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+        <span class="n">events</span><span class="o">.</span><span class="n">record</span><span class="p">(</span>
+            <span class="s1">'step_skipped'</span><span class="p">,</span> <span class="n">step</span><span class="o">=</span><span class="n">path</span><span class="p">,</span> <span class="n">reason</span><span class="o">=</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">outcome</span><span class="o">.</span><span class="n">step_path</span><span class="si">}</span><span class="s1"> failed'</span>
+        <span class="p">)</span>
+    <span class="k">if</span> <span class="n">blocked</span><span class="p">:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s1">'      </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">blocked</span><span class="p">)</span><span class="si">}</span><span class="s1"> step(s) that needed it will not run'</span>
+        <span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_log_filename</span><span class="p">(</span><span class="n">work_dir</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Where one step's output goes.</span>
+
+<span class="sd">    A step's output cannot go where the serial path puts it: steps of a task</span>
+<span class="sd">    no longer run one after another, so a log per task would interleave</span>
+<span class="sd">    several steps and could not be attributed afterwards.  One file per</span>
+<span class="sd">    step, named for its path, in the directory the serial path already</span>
+<span class="sd">    keeps its logs in.</span>
+<span class="sd">    """</span>
+    <span class="k">return</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+        <span class="n">work_dir</span><span class="p">,</span> <span class="s1">'case_outputs'</span><span class="p">,</span> <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">path</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">"/"</span><span class="p">,</span><span class="w"> </span><span class="s2">"_"</span><span class="p">)</span><span class="si">}</span><span class="s1">.log'</span>
+    <span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_placement_mismatch</span><span class="p">(</span><span class="n">step</span><span class="p">,</span> <span class="n">logger</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Say whether a step reported that it did not get what it was placed on.</span>
+
+<span class="sd">    The step writes this beside its own log because it is the only thing in</span>
+<span class="sd">    a position to look, and the scheduler reads it because a warning in one</span>
+<span class="sd">    of fifteen concurrent logs is a warning nobody sees.</span>
+<span class="sd">    """</span>
+    <span class="k">if</span> <span class="n">step</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">False</span>
+    <span class="n">filename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">step</span><span class="o">.</span><span class="n">work_dir</span><span class="p">,</span> <span class="n">PLACEMENT_MISMATCH_LOG</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">filename</span><span class="p">):</span>
+        <span class="k">return</span> <span class="kc">False</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span> <span class="k">as</span> <span class="n">handle</span><span class="p">:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s1">''</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="n">handle</span><span class="o">.</span><span class="n">read</span><span class="p">()</span><span class="o">.</span><span class="n">rstrip</span><span class="p">())</span>
+    <span class="k">return</span> <span class="kc">True</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_comparisons</span><span class="p">(</span><span class="n">steps</span><span class="p">,</span> <span class="n">logger</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Say what the steps' own comparisons decided, and give back what differed.</span>
+
+<span class="sd">    Each step compares itself against the baseline in its own process and</span>
+<span class="sd">    leaves the verdict beside its log, exactly as the serial path does.  What</span>
+<span class="sd">    the serial path also does, and this did not, is add them up: a run of a</span>
+<span class="sd">    hundred steps against a baseline is asking one question -- did anything</span>
+<span class="sd">    change -- and the answer must not be something you have to go and find.</span>
+<span class="sd">    """</span>
+    <span class="n">outcome</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]]</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s1">'baseline'</span><span class="p">:</span> <span class="p">[[],</span> <span class="p">[]],</span>
+        <span class="s1">'property'</span><span class="p">:</span> <span class="p">[[],</span> <span class="p">[]],</span>
+        <span class="s1">'cf'</span><span class="p">:</span> <span class="p">[[],</span> <span class="p">[]],</span>
+    <span class="p">}</span>
+    <span class="n">readers</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s1">'baseline'</span><span class="p">:</span> <span class="n">read_baseline_status_from_logs</span><span class="p">,</span>
+        <span class="s1">'property'</span><span class="p">:</span> <span class="n">read_property_status_from_logs</span><span class="p">,</span>
+        <span class="s1">'cf'</span><span class="p">:</span> <span class="n">read_cf_status_from_logs</span><span class="p">,</span>
+    <span class="p">}</span>
+    <span class="k">for</span> <span class="n">path</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">steps</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">kind</span><span class="p">,</span> <span class="n">reader</span> <span class="ow">in</span> <span class="n">readers</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">status</span> <span class="o">=</span> <span class="n">reader</span><span class="p">(</span><span class="n">steps</span><span class="p">[</span><span class="n">path</span><span class="p">]</span><span class="o">.</span><span class="n">work_dir</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">status</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">outcome</span><span class="p">[</span><span class="n">kind</span><span class="p">][</span><span class="mi">0</span> <span class="k">if</span> <span class="n">status</span> <span class="k">else</span> <span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">kind</span><span class="p">,</span> <span class="n">label</span> <span class="ow">in</span> <span class="p">(</span>
+        <span class="p">(</span><span class="s1">'baseline'</span><span class="p">,</span> <span class="s1">'Baseline comparison'</span><span class="p">),</span>
+        <span class="p">(</span><span class="s1">'property'</span><span class="p">,</span> <span class="s1">'Property checks'</span><span class="p">),</span>
+        <span class="p">(</span><span class="s1">'cf'</span><span class="p">,</span> <span class="s1">'CF compliance'</span><span class="p">),</span>
+    <span class="p">):</span>
+        <span class="n">passed</span><span class="p">,</span> <span class="n">failed</span> <span class="o">=</span> <span class="n">outcome</span><span class="p">[</span><span class="n">kind</span><span class="p">]</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">passed</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">failed</span><span class="p">:</span>
+            <span class="k">continue</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">''</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">label</span><span class="si">}</span><span class="s1">: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">passed</span><span class="p">)</span><span class="si">}</span><span class="s1"> passed, </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">failed</span><span class="p">)</span><span class="si">}</span><span class="s1"> failed'</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">path</span> <span class="ow">in</span> <span class="n">failed</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s1">'  </span><span class="si">{</span><span class="n">fail_str</span><span class="si">}</span><span class="s1"> </span><span class="si">{</span><span class="n">path</span><span class="si">}</span><span class="s1">'</span><span class="p">)</span>
+
+    <span class="c1"># only a baseline difference or a CF failure fails the run, because</span>
+    <span class="c1"># those are what fail a task on the serial path.  A failed property</span>
+    <span class="c1"># check does not fail anything there -- `property_passed` is accumulated</span>
+    <span class="c1"># in serial.py and never read -- and four steps of omega_pr fail one</span>
+    <span class="c1"># today.  Failing here on something serial ignores would make a suite</span>
+    <span class="c1"># that passes one step at a time fail when run concurrently, for a</span>
+    <span class="c1"># reason that has nothing to do with concurrency, and Phase B would be</span>
+    <span class="c1"># blamed for it.  Whether a failed</span>
+    <span class="c1"># property check ought to fail a task is a real question and is being</span>
+    <span class="c1"># settled on its own branch; this follows serial either way.</span>
+    <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="n">outcome</span><span class="p">[</span><span class="s1">'baseline'</span><span class="p">][</span><span class="mi">1</span><span class="p">])</span> <span class="o">+</span> <span class="p">[</span>
+        <span class="n">path</span> <span class="k">for</span> <span class="n">path</span> <span class="ow">in</span> <span class="n">outcome</span><span class="p">[</span><span class="s1">'cf'</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span> <span class="k">if</span> <span class="n">path</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">outcome</span><span class="p">[</span><span class="s1">'baseline'</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span>
+    <span class="p">]</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_report</span><span class="p">(</span><span class="n">outcomes</span><span class="p">,</span> <span class="n">mismatched</span><span class="p">,</span> <span class="n">steps</span><span class="p">,</span> <span class="n">logger</span><span class="p">,</span> <span class="n">elapsed</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">"""Say how it went, and how that compares with running one at a time."""</span>
+    <span class="n">failures</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="n">path</span> <span class="k">for</span> <span class="n">path</span><span class="p">,</span> <span class="n">outcome</span> <span class="ow">in</span> <span class="n">outcomes</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">outcome</span><span class="o">.</span><span class="n">succeeded</span>
+    <span class="p">]</span>
+    <span class="c1"># the steps' own work, not the time from forking each to reaping it.</span>
+    <span class="c1"># Counting startup as work is how an earlier implementation reported</span>
+    <span class="c1"># omega_pr as doing 7.2x the work of a serial run on a run that was</span>
+    <span class="c1"># slower than serial: 4,200 s of Python imports counted as work, and a</span>
+    <span class="c1"># figure that says the run is healthy while the wall clock says</span>
+    <span class="c1"># otherwise is worse than no figure.</span>
+    <span class="n">step_seconds</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span>
+        <span class="n">outcome</span><span class="o">.</span><span class="n">work_seconds</span>
+        <span class="k">if</span> <span class="n">outcome</span><span class="o">.</span><span class="n">work_seconds</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+        <span class="k">else</span> <span class="n">outcome</span><span class="o">.</span><span class="n">seconds</span>
+        <span class="k">for</span> <span class="n">outcome</span> <span class="ow">in</span> <span class="n">outcomes</span><span class="o">.</span><span class="n">values</span><span class="p">()</span>
+    <span class="p">)</span>
+
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">''</span><span class="p">)</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">'Step runtimes:'</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">path</span><span class="p">,</span> <span class="n">outcome</span> <span class="ow">in</span> <span class="n">outcomes</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="n">status</span> <span class="o">=</span> <span class="n">success_str</span> <span class="k">if</span> <span class="n">outcome</span><span class="o">.</span><span class="n">succeeded</span> <span class="k">else</span> <span class="n">fail_str</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">'  </span><span class="si">{</span><span class="n">outcome</span><span class="o">.</span><span class="n">seconds</span><span class="si">:</span><span class="s1">8.1f</span><span class="si">}</span><span class="s1">s </span><span class="si">{</span><span class="n">status</span><span class="si">}</span><span class="s1"> </span><span class="si">{</span><span class="n">path</span><span class="si">}</span><span class="s1">'</span><span class="p">)</span>
+
+    <span class="n">elapsed_str</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">timedelta</span><span class="p">(</span><span class="n">seconds</span><span class="o">=</span><span class="nb">round</span><span class="p">(</span><span class="n">elapsed</span><span class="p">)))</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">'Total runtime: </span><span class="si">{</span><span class="n">elapsed_str</span><span class="si">}</span><span class="s1">'</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">elapsed</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s1">'Step time was </span><span class="si">{</span><span class="n">step_seconds</span><span class="si">:</span><span class="s1">.0f</span><span class="si">}</span><span class="s1">s, so this run did '</span>
+            <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">step_seconds</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">elapsed</span><span class="si">:</span><span class="s1">.1f</span><span class="si">}</span><span class="s1">x the work of running one step at '</span>
+            <span class="sa">f</span><span class="s1">'a time for as long.'</span>
+        <span class="p">)</span>
+
+    <span class="n">differed</span> <span class="o">=</span> <span class="n">_comparisons</span><span class="p">(</span><span class="n">steps</span><span class="p">,</span> <span class="n">logger</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">path</span> <span class="ow">in</span> <span class="n">differed</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">path</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">failures</span><span class="p">:</span>
+            <span class="n">failures</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">mismatched</span><span class="p">:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s1">''</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">mismatched</span><span class="p">)</span><span class="si">}</span><span class="s1"> step(s) did not get the part of the '</span>
+            <span class="sa">f</span><span class="s1">'allocation they were placed on, so the packing above does not '</span>
+            <span class="sa">f</span><span class="s1">'describe how this run used the machine: '</span>
+            <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="s2">", "</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">mismatched</span><span class="p">)</span><span class="si">}</span><span class="s1">'</span>
+        <span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">failures</span><span class="p">:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s1">'FAIL: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">failures</span><span class="p">)</span><span class="si">}</span><span class="s1"> step(s) failed or differed from '</span>
+            <span class="sa">f</span><span class="s1">'the baseline, see above.'</span>
+        <span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">'PASS: All passed successfully!'</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">failures</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">main</span><span class="p">():</span>
+    <span class="n">parser</span> <span class="o">=</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">(</span>
+        <span class="n">description</span><span class="o">=</span><span class="s1">'Run a suite or task with steps running at the same time'</span><span class="p">,</span>
+        <span class="n">prog</span><span class="o">=</span><span class="s1">'polaris parallel'</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s1">'suite'</span><span class="p">,</span>
+        <span class="n">nargs</span><span class="o">=</span><span class="s1">'?'</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s1">'The name of a suite to run. Can exclude or include the '</span>
+        <span class="s1">'.pickle filename suffix.'</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s1">'-q'</span><span class="p">,</span>
+        <span class="s1">'--quiet'</span><span class="p">,</span>
+        <span class="n">dest</span><span class="o">=</span><span class="s1">'quiet'</span><span class="p">,</span>
+        <span class="n">action</span><span class="o">=</span><span class="s1">'store_true'</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s1">'If set, step names are not included in the output as the run '</span>
+        <span class="s1">'progresses.'</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">args</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">[</span><span class="mi">2</span><span class="p">:])</span>
+
+    <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">suite</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">run_tasks</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">suite</span><span class="p">,</span> <span class="n">quiet</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">quiet</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="s1">'task.pickle'</span><span class="p">):</span>
+        <span class="n">run_tasks</span><span class="p">(</span><span class="s1">'task'</span><span class="p">,</span> <span class="n">quiet</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">quiet</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">OSError</span><span class="p">(</span>
+            <span class="s1">'No suite was given and no task.pickle was found here. Are you '</span>
+            <span class="s1">'sure this is a polaris suite or task work directory?'</span>
+        <span class="p">)</span>
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">_TaskTracker</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Turn steps finishing into the results of the tasks they belong to.</span>
+
+<span class="sd">    The serial path writes a results file that says how each task went, and</span>
+<span class="sd">    the pull-request summary and the baseline matcher both read it.  A task</span>
+<span class="sd">    is the serial path's unit of work and not this one's, so a task's result</span>
+<span class="sd">    is assembled here as its last step finishes, from the markers each step</span>
+<span class="sd">    leaves beside its log.  A task has no single log here, since its steps</span>
+<span class="sd">    each have their own.</span>
+<span class="sd">    """</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tasks</span><span class="p">,</span> <span class="n">task_steps</span><span class="p">,</span> <span class="n">graph</span><span class="p">,</span> <span class="n">write_results</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        tasks : dict of polaris.Task</span>
+<span class="sd">            The tasks of the suite, keyed by their names in the suite</span>
+
+<span class="sd">        task_steps : dict of list of polaris.Step</span>
+<span class="sd">            The steps each task runs, keyed by the task's name in the suite</span>
+
+<span class="sd">        graph : polaris.run.graph.StepGraph</span>
+<span class="sd">            The graph of the steps being run</span>
+
+<span class="sd">        write_results : callable</span>
+<span class="sd">            :py:func:`polaris.run.results.write_suite_results()` with its</span>
+<span class="sd">            file, suite name, provenance and start time already given</span>
+<span class="sd">        """</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">results</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">TaskResult</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="n">name</span><span class="p">:</span> <span class="n">TaskResult</span><span class="p">(</span>
+                <span class="n">path</span><span class="o">=</span><span class="n">task</span><span class="o">.</span><span class="n">path</span><span class="p">,</span>
+                <span class="n">steps_to_run</span><span class="o">=</span><span class="p">[</span><span class="n">step</span><span class="o">.</span><span class="n">name</span> <span class="k">for</span> <span class="n">step</span> <span class="ow">in</span> <span class="n">task_steps</span><span class="p">[</span><span class="n">name</span><span class="p">]],</span>
+            <span class="p">)</span>
+            <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">task</span> <span class="ow">in</span> <span class="n">tasks</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+        <span class="p">}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_task_steps</span> <span class="o">=</span> <span class="n">task_steps</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_write_results</span> <span class="o">=</span> <span class="n">write_results</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_started</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_done</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="n">path</span> <span class="k">for</span> <span class="n">path</span><span class="p">,</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">graph</span><span class="o">.</span><span class="n">nodes</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">node</span><span class="o">.</span><span class="n">satisfied</span>
+        <span class="p">}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_outcomes</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">StepOutcome</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_spans</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_tasks_of</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">steps</span> <span class="ow">in</span> <span class="n">task_steps</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">for</span> <span class="n">step</span> <span class="ow">in</span> <span class="n">steps</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_tasks_of</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="n">step</span><span class="o">.</span><span class="n">path</span><span class="p">,</span> <span class="p">[])</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">results</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_all_done</span><span class="p">(</span><span class="n">name</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_complete</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_write</span><span class="p">(</span><span class="n">complete</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">step_finished</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">outcome</span><span class="p">,</span> <span class="n">started</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">        Record that a step finished, and the result of any task it ended.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        outcome : polaris.run.executor.StepOutcome</span>
+<span class="sd">            How the step ended</span>
+
+<span class="sd">        started : float</span>
+<span class="sd">            When its process was started, from ``time.time()``</span>
+<span class="sd">        """</span>
+        <span class="n">path</span> <span class="o">=</span> <span class="n">outcome</span><span class="o">.</span><span class="n">step_path</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_done</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_outcomes</span><span class="p">[</span><span class="n">path</span><span class="p">]</span> <span class="o">=</span> <span class="n">outcome</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_spans</span><span class="p">[</span><span class="n">path</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">started</span><span class="p">,</span> <span class="n">started</span> <span class="o">+</span> <span class="n">outcome</span><span class="o">.</span><span class="n">seconds</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_tasks_of</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="p">[]):</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">results</span><span class="p">[</span><span class="n">name</span><span class="p">]</span><span class="o">.</span><span class="n">pending</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_all_done</span><span class="p">(</span><span class="n">name</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_complete</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_write</span><span class="p">(</span><span class="n">complete</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">finish</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">        Give every task a result, now that nothing more will run.</span>
+
+<span class="sd">        A task still without one had a step that never ran, because a step</span>
+<span class="sd">        it needed failed, so the task failed.</span>
+<span class="sd">        """</span>
+        <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">result</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">results</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">result</span><span class="o">.</span><span class="n">pending</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_complete</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_write</span><span class="p">(</span><span class="n">complete</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_write</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">complete</span><span class="p">:</span> <span class="nb">bool</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_write_results</span><span class="p">(</span>
+            <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">_started</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">results</span><span class="o">.</span><span class="n">values</span><span class="p">(),</span>
+            <span class="n">complete</span><span class="o">=</span><span class="n">complete</span><span class="p">,</span>
+        <span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_all_done</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="k">return</span> <span class="nb">all</span><span class="p">(</span><span class="n">step</span><span class="o">.</span><span class="n">path</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_done</span> <span class="k">for</span> <span class="n">step</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_task_steps</span><span class="p">[</span><span class="n">name</span><span class="p">])</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_complete</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Fill in a task's result from what its steps left behind."""</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">results</span><span class="p">[</span><span class="n">name</span><span class="p">]</span>
+        <span class="n">steps</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_task_steps</span><span class="p">[</span><span class="n">name</span><span class="p">]</span>
+        <span class="n">result</span><span class="o">.</span><span class="n">execution_passed</span> <span class="o">=</span> <span class="nb">all</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_step_succeeded</span><span class="p">(</span><span class="n">step</span><span class="o">.</span><span class="n">path</span><span class="p">)</span> <span class="k">for</span> <span class="n">step</span> <span class="ow">in</span> <span class="n">steps</span>
+        <span class="p">)</span>
+        <span class="n">baseline_passed</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="n">cf_passed</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="n">diffs</span><span class="p">:</span> <span class="n">Dict</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">step</span> <span class="ow">in</span> <span class="n">steps</span><span class="p">:</span>
+            <span class="c1"># cached steps never compare or check, as on the serial path</span>
+            <span class="k">if</span> <span class="n">step</span><span class="o">.</span><span class="n">cached</span><span class="p">:</span>
+                <span class="k">continue</span>
+            <span class="n">status</span> <span class="o">=</span> <span class="n">read_baseline_status_from_logs</span><span class="p">(</span><span class="n">step</span><span class="o">.</span><span class="n">work_dir</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">status</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">baseline_passed</span> <span class="o">=</span> <span class="n">accumulate_baselines</span><span class="p">(</span><span class="n">baseline_passed</span><span class="p">,</span> <span class="n">status</span><span class="p">)</span>
+                <span class="n">merge_diff_summary</span><span class="p">(</span>
+                    <span class="n">diffs</span><span class="p">,</span> <span class="n">read_baseline_diff_summary_from_logs</span><span class="p">(</span><span class="n">step</span><span class="o">.</span><span class="n">work_dir</span><span class="p">)</span>
+                <span class="p">)</span>
+            <span class="n">status</span> <span class="o">=</span> <span class="n">read_cf_status_from_logs</span><span class="p">(</span><span class="n">step</span><span class="o">.</span><span class="n">work_dir</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">status</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">cf_passed</span> <span class="o">=</span> <span class="n">accumulate_baselines</span><span class="p">(</span><span class="n">cf_passed</span><span class="p">,</span> <span class="n">status</span><span class="p">)</span>
+        <span class="n">result</span><span class="o">.</span><span class="n">baseline_passed</span> <span class="o">=</span> <span class="n">baseline_passed</span>
+        <span class="n">result</span><span class="o">.</span><span class="n">cf_passed</span> <span class="o">=</span> <span class="n">cf_passed</span>
+        <span class="n">result</span><span class="o">.</span><span class="n">baseline_diffs</span> <span class="o">=</span> <span class="n">diffs</span>
+
+        <span class="c1"># the task's own wall-clock time, from its first step starting to</span>
+        <span class="c1"># its last finishing, which is what the serial path records too</span>
+        <span class="n">spans</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_spans</span><span class="p">[</span><span class="n">step</span><span class="o">.</span><span class="n">path</span><span class="p">]</span>
+            <span class="k">for</span> <span class="n">step</span> <span class="ow">in</span> <span class="n">steps</span>
+            <span class="k">if</span> <span class="n">step</span><span class="o">.</span><span class="n">path</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_spans</span>
+        <span class="p">]</span>
+        <span class="k">if</span> <span class="n">spans</span><span class="p">:</span>
+            <span class="n">result</span><span class="o">.</span><span class="n">elapsed_seconds</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">end</span> <span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">end</span> <span class="ow">in</span> <span class="n">spans</span><span class="p">)</span> <span class="o">-</span> <span class="nb">min</span><span class="p">(</span>
+                <span class="n">start</span> <span class="k">for</span> <span class="n">start</span><span class="p">,</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">spans</span>
+            <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">result</span><span class="o">.</span><span class="n">elapsed_seconds</span> <span class="o">=</span> <span class="mf">0.0</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_step_succeeded</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">path</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_done</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">False</span>
+        <span class="n">outcome</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_outcomes</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+        <span class="c1"># a step done before the run started is one that succeeded earlier</span>
+        <span class="k">return</span> <span class="n">outcome</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">outcome</span><span class="o">.</span><span class="n">succeeded</span>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2026, Energy Exascale Earth System Model Project.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+   
+
+  <!-- Meta tags for JS to use -->
+  <meta name="doc-version" content="main">
+  <meta name="doc-site-root" content="../../../">
+
+  <!-- Create version switcher container -->
+  <script>
+    const sidebar = document.querySelector('.wy-side-nav-search');
+    if (sidebar) {
+      const versionDiv = document.createElement('div');
+      versionDiv.id = 'version-switcher';
+      versionDiv.style.marginTop = '1em';
+      sidebar.appendChild(versionDiv);
+    }
+  </script>
+
+  <!-- Load version-switcher.js using the correct relative path -->
+  <script src="../../../../shared/version-switcher.js"></script>
+
+
+</body>
+</html>

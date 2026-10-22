@@ -72,6 +72,13 @@
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#polaris-serial">polaris serial</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#polaris-parallel">polaris parallel</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#what-it-does-differently">What it does differently</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#asking-setup-for-a-concurrent-job-script">Asking setup for a concurrent job script</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#how-many-nodes-a-concurrent-job-asks-for">How many nodes a concurrent job asks for</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#reading-a-run-afterwards">Reading a run afterwards</a></li>
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="#polaris-cache">polaris cache</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#mpas-to-yaml">mpas_to_yaml</a></li>
 </ul>
@@ -129,10 +136,10 @@
              
   <section class="tex2jax_ignore mathjax_ignore" id="command-line-interface">
 <span id="dev-command-line"></span><h1>Command-line interface<a class="headerlink" href="#command-line-interface" title="Link to this heading"></a></h1>
-<p>The command-line interface for polaris acts essentially like 4 independent
-scripts: <code class="docutils literal notranslate"><span class="pre">polaris</span> <span class="pre">list</span></code>, <code class="docutils literal notranslate"><span class="pre">polaris</span> <span class="pre">setup</span></code>, <code class="docutils literal notranslate"><span class="pre">polaris</span> <span class="pre">suite</span></code>, and
-<code class="docutils literal notranslate"><span class="pre">polaris</span> <span class="pre">serial</span></code>.  These are the primary user interface to the package, as
-described below.</p>
+<p>The command-line interface for polaris acts essentially like 5 independent
+scripts: <code class="docutils literal notranslate"><span class="pre">polaris</span> <span class="pre">list</span></code>, <code class="docutils literal notranslate"><span class="pre">polaris</span> <span class="pre">setup</span></code>, <code class="docutils literal notranslate"><span class="pre">polaris</span> <span class="pre">suite</span></code>, <code class="docutils literal notranslate"><span class="pre">polaris</span> <span class="pre">serial</span></code>
+and <code class="docutils literal notranslate"><span class="pre">polaris</span> <span class="pre">parallel</span></code>.  These are the primary user interface to the package,
+as described below.</p>
 <p>When the <code class="docutils literal notranslate"><span class="pre">polaris</span></code> package is installed into your deployment environment, you can
 run these commands as above.  If you are developing polaris from a local
 branch off of <a class="reference external" href="https://github.com/E3SM-Project/polaris">https://github.com/E3SM-Project/polaris</a>, you will need to create a
@@ -418,7 +425,7 @@ same as listed above for <code class="docutils literal notranslate"><span class=
 </section>
 </section>
 <section id="polaris-serial">
-<span id="dev-polaris-run"></span><h2>polaris serial<a class="headerlink" href="#polaris-serial" title="Link to this heading"></a></h2>
+<span id="dev-polaris-serial"></span><span id="dev-polaris-run"></span><h2>polaris serial<a class="headerlink" href="#polaris-serial" title="Link to this heading"></a></h2>
 <p>The <code class="docutils literal notranslate"><span class="pre">polaris</span> <span class="pre">serial</span></code> command is used to run (in sequence, as opposed to in task
 parallel) a suite, task or step  that has been set up in the current
 directory:</p>
@@ -467,6 +474,107 @@ over the config option.</p>
 <p>The <code class="docutils literal notranslate"><span class="pre">--step_is_subprocess</span></code> flag is for internal use by the framework so you
 shouldn’t need to use that flag.</p>
 <p>See <a class="reference internal" href="framework/commands.html#dev-run"><span class="std std-ref">run.serial module</span></a> for more about the underlying framework.</p>
+</section>
+<section id="polaris-parallel">
+<span id="dev-polaris-parallel"></span><h2>polaris parallel<a class="headerlink" href="#polaris-parallel" title="Link to this heading"></a></h2>
+<p>The <code class="docutils literal notranslate"><span class="pre">polaris</span> <span class="pre">parallel</span></code> command runs the steps of a suite or task at the same
+time, rather than one after another as <a class="reference internal" href="#dev-polaris-serial"><span class="std std-ref">polaris serial</span></a> does:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ polaris parallel --help
+usage: polaris parallel [-h] [-q] [suite]
+</pre></div>
+</div>
+<p>Like <code class="docutils literal notranslate"><span class="pre">polaris</span> <span class="pre">serial</span></code>, it is run in a work directory rather than in a clone
+of the polaris repo, and takes the name of a suite when more than one has
+been set up in the same place.  With no argument it looks for a <code class="docutils literal notranslate"><span class="pre">task.pickle</span></code>
+in the current directory.</p>
+<p>It must be run inside a job allocation.  Everything it does depends on
+knowing how many nodes and cores it has, and a login node has neither the
+resources nor the launcher to place work on them.</p>
+<section id="what-it-does-differently">
+<h3>What it does differently<a class="headerlink" href="#what-it-does-differently" title="Link to this heading"></a></h3>
+<p>It works out what may run at the same time from what each step <strong>declares</strong>:
+the dependencies a step names directly, and the files one step produces that
+another consumes.  The order steps happen to be listed in contributes nothing
+except as a tie-break.  A suite that relies on listed order without declaring
+a real dependency is reported as an unrunnable graph before anything starts,
+rather than failing forty minutes in.</p>
+<p>Each step still runs in its own process, so a step may change the working
+directory or set library defaults exactly as it does today.  The scheduler
+forks a child for each step rather than starting a new <code class="docutils literal notranslate"><span class="pre">polaris</span> <span class="pre">serial</span></code>,
+which is what makes starting one cost almost nothing.</p>
+<p>Every step is confined to the part of the allocation it was given.  An MPI
+step’s placement reaches its launcher; a step that is not launched is bound
+to its cores by the child itself, which can only be done on the node the
+scheduler is running on – so such steps are given cores there, and Python
+concurrency is bounded by one node’s worth of cores.</p>
+</section>
+<section id="asking-setup-for-a-concurrent-job-script">
+<h3>Asking setup for a concurrent job script<a class="headerlink" href="#asking-setup-for-a-concurrent-job-script" title="Link to this heading"></a></h3>
+<p><code class="docutils literal notranslate"><span class="pre">polaris</span> <span class="pre">setup</span></code> and <code class="docutils literal notranslate"><span class="pre">polaris</span> <span class="pre">suite</span></code> write a <code class="docutils literal notranslate"><span class="pre">polaris</span> <span class="pre">serial</span></code> job script by
+default.  To have one write a <code class="docutils literal notranslate"><span class="pre">polaris</span> <span class="pre">parallel</span></code> script instead, pass
+<code class="docutils literal notranslate"><span class="pre">--parallel</span></code>, or <code class="docutils literal notranslate"><span class="pre">-P</span></code>:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>polaris suite -c ocean -t omega_pr -P -w &lt;work dir&gt;
+</pre></div>
+</div>
+<p>The flag sets the <code class="docutils literal notranslate"><span class="pre">[job]</span> <span class="pre">concurrent_steps</span></code> config option, so the same thing
+can be asked for in a config file passed with <code class="docutils literal notranslate"><span class="pre">-f</span></code>, and either way the choice
+is recorded in the config the run was set up with:</p>
+<div class="highlight-cfg notranslate"><div class="highlight"><pre><span></span><span class="k">[job]</span>
+<span class="na">concurrent_steps</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">True</span>
+</pre></div>
+</div>
+<p>The serial path is what every suite has been validated against, so it stays
+the default.  A single step’s job script is unaffected, having nothing to run
+at the same time.</p>
+</section>
+<section id="how-many-nodes-a-concurrent-job-asks-for">
+<h3>How many nodes a concurrent job asks for<a class="headerlink" href="#how-many-nodes-a-concurrent-job-asks-for" title="Link to this heading"></a></h3>
+<p>A serial job script asks for the geometric mean of what the widest step wants
+and what that step can be squeezed to.  That is the right question when steps
+take turns: nothing else is running, so no more of the machine can be used
+than the widest step can use.</p>
+<p>Steps running at the same time can use more than the widest of them, and how
+much more follows from how many steps there are rather than from how big the
+biggest one is.  So a concurrent job script asks for the larger of that same
+geometric mean and the minimum cores of every step added together – enough
+to hold the whole suite at once with each step squeezed to its smallest:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>serial:      sqrt(widest target x widest minimum)
+concurrent:  max(that, sum of every step's minimum)
+</pre></div>
+</div>
+<p>For a single step the sum is that step’s own minimum, which the geometric
+mean already exceeds, so a one-step job is sized exactly as it was before.
+For <code class="docutils literal notranslate"><span class="pre">omega_pr</span></code> the rule asks for 5 nodes where the serial rule asks for 3,
+and for <code class="docutils literal notranslate"><span class="pre">omega_nightly</span></code> 16 where the serial rule asks for 5.</p>
+<p>The sum is taken in cores on every machine, including one whose nodes are
+counted by GPUs, where the widest step’s geometric mean is still taken in
+GPUs.  Holding every step at once is cheap in cores because the smallest step
+is a hundredth of a node; in GPUs the smallest step is a quarter of one, and
+<code class="docutils literal notranslate"><span class="pre">omega_pr</span></code>’s 51 one-GPU steps made the sum ask Perlmutter GPU for 29 nodes.
+In cores the same suite asks for 3, its small GPU steps take a few turns
+each, and the widest GPU step still fits.</p>
+<p>The point of the sum is that the allocation follows a suite that gains tests
+instead of staying fixed at its widest step.  Measured on Chrysalis, a
+concurrent suite’s wall time falls as the inverse square root of the nodes it
+is given, so growing the nodes with the suite means the wall time grows as
+the square root of what the suite contains rather than in proportion to it: a
+suite that doubles its tests takes about 1.4 times as long on twice the
+nodes, where a fixed allocation would take twice as long.</p>
+</section>
+<section id="reading-a-run-afterwards">
+<h3>Reading a run afterwards<a class="headerlink" href="#reading-a-run-afterwards" title="Link to this heading"></a></h3>
+<p>Steps no longer take turns, so their output cannot share a stream.  Each
+step’s log goes to <code class="docutils literal notranslate"><span class="pre">case_outputs/&lt;step</span> <span class="pre">path&gt;.log</span></code>, and the scheduler writes
+<code class="docutils literal notranslate"><span class="pre">&lt;suite&gt;_events.jsonl</span></code> beside it recording what started when, what each step
+held, what it was waiting for and how it ended.  That file is what to read
+when a run was slower than expected, because the interesting question – why
+was nothing running at this moment – cannot be answered from a step’s own
+log.</p>
+<p>The run also writes the <code class="docutils literal notranslate"><span class="pre">&lt;suite&gt;_results.json</span></code> and <code class="docutils literal notranslate"><span class="pre">&lt;suite&gt;_output_for_pr.md</span></code>
+that <code class="docutils literal notranslate"><span class="pre">polaris</span> <span class="pre">serial</span></code> writes (see <a class="reference internal" href="../users_guide/suites.html#suites-results"><span class="std std-ref">Results</span></a>).  A task’s result is
+filled in when its last step finishes.</p>
+<p>See <a class="reference internal" href="framework/commands.html#dev-run"><span class="std std-ref">run.serial module</span></a> for more about the underlying framework.</p>
+</section>
 </section>
 <section id="polaris-cache">
 <span id="dev-polaris-cache"></span><h2>polaris cache<a class="headerlink" href="#polaris-cache" title="Link to this heading"></a></h2>

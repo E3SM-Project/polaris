@@ -1,0 +1,6 @@
+﻿polaris.run.parallel.run\_tasks
+===============================
+
+.. currentmodule:: polaris.run.parallel
+
+.. autofunction:: run_tasks

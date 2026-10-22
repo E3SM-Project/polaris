@@ -80,8 +80,35 @@ seaice/api
    setup_config
    load_dependencies
    complete_step_run
+   lifecycle.run_step
+   lifecycle.run_step_as_subprocess
+   lifecycle.step_is_complete
+   lifecycle.read_baseline_status_from_logs
+   lifecycle.read_property_status_from_logs
+   lifecycle.accumulate_baselines
+   graph.build_step_graph
+   graph.StepGraph
+   graph.StepNode
+   allocation.read_allocation
+   allocation.usable_cores
+   allocation.NodeResources
+   topology.thread_siblings
+   topology.one_thread_per_core
+   topology.physical_cores
+   topology.with_siblings
+   pool.ResourcePool
+   pool.Reservation
+   executor.start_step
+   executor.reap_one
+   executor.RunningStep
+   executor.StepOutcome
+   confinement.check_confinement
+   events.EventStream
+   events.read_events
+   parallel.run_tasks
    serial.run_tasks
    serial.run_single_step
+   serial.run_step_in_process
    results.TaskResult
    results.write_suite_results
 

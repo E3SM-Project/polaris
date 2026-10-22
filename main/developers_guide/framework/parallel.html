@@ -79,7 +79,9 @@
 <li class="toctree-l2 current"><a class="current reference internal" href="#">Parallel</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#public-api">Public API</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#placement">Placement</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#capping-a-step-s-memory">Capping a step’s memory</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#how-a-step-says-what-it-needs">How a step says what it needs</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#hardware-threads">Hardware threads</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#whether-a-step-may-span-nodes">Whether a step may span nodes</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#memory">Memory</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#compiler-specific-parallel-configs">Compiler-specific parallel configs</a></li>
@@ -217,6 +219,42 @@ nodes and GPUs, because a step sizing a worker pool or a chunk size has to
 size it against memory, and the natural mistake is to derive memory from
 cores.</p></li>
 </ul>
+<p>A step’s placement is decided by whatever is running it.  When steps run one
+at a time it is <code class="docutils literal notranslate"><span class="pre">None</span></code>, exactly as it has always been.  When a scheduler runs
+them together it forks a child per step, and the child is handed the
+placement directly – it inherits the scheduler’s memory, so the placement is
+already an object it holds rather than something to be encoded, written into
+an environment and read back.</p>
+</section>
+<section id="capping-a-step-s-memory">
+<h2>Capping a step’s memory<a class="headerlink" href="#capping-a-step-s-memory" title="Link to this heading"></a></h2>
+<p>Some machines will hold a launch to a memory figure and some will not, and
+<code class="docutils literal notranslate"><span class="pre">mache</span></code> renders the flag only where it is enforced.  Polaris passes the cap
+for a step that <strong>declared</strong> <code class="docutils literal notranslate"><span class="pre">memory</span></code> and never for one carrying only the
+framework’s <code class="docutils literal notranslate"><span class="pre">memory_budget</span></code>:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="bp">self</span><span class="o">.</span><span class="n">component</span><span class="o">.</span><span class="n">run_parallel_command</span><span class="p">(</span>
+    <span class="n">args</span><span class="o">=</span><span class="n">args</span><span class="p">,</span>
+    <span class="n">cpus_per_task</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">cpus_per_task</span><span class="p">,</span>
+    <span class="n">ntasks</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">ntasks</span><span class="p">,</span>
+    <span class="n">openmp_threads</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">openmp_threads</span><span class="p">,</span>
+    <span class="n">logger</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="p">,</span>
+    <span class="n">gpus</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">gpus</span><span class="p">,</span>
+    <span class="n">placement</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">placement</span><span class="p">,</span>
+    <span class="n">memory_cap</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">memory</span><span class="p">,</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p>The framework does this for a step that runs its model through <code class="docutils literal notranslate"><span class="pre">args</span></code>, which
+is every <a class="reference internal" href="../generated/polaris.ModelStep.html#polaris.ModelStep" title="polaris.ModelStep"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.ModelStep</span></code></a>.  A step that calls
+<code class="docutils literal notranslate"><span class="pre">run_parallel_command()</span></code> itself should pass <code class="docutils literal notranslate"><span class="pre">memory_cap=self.memory</span></code> as
+above; <code class="docutils literal notranslate"><span class="pre">self.memory</span></code> is <code class="docutils literal notranslate"><span class="pre">None</span></code> for a step that declared nothing, which
+renders no cap at all, so the line is correct whether or not the step has
+been measured.</p>
+<p>The reason it is only for a declared figure is that a step which stated a
+number has made a claim and can fairly be held to it, while a step that said
+nothing is being estimated by the framework, and killing it for exceeding the
+framework’s own guess would make every step carry a measured number before it
+could run.</p>
 <p>Not every machine can confine a launch.  <code class="docutils literal notranslate"><span class="pre">mache</span></code> reports which mechanism a
 machine has through <code class="docutils literal notranslate"><span class="pre">ParallelSystem.placement_support</span></code>, decided at run time
 from the launcher that is actually installed rather than from configuration.</p>
@@ -249,6 +287,28 @@ ask for it directly either way.</p>
 <p>GPUs need no second spelling: <code class="docutils literal notranslate"><span class="pre">gpus</span></code> and <code class="docutils literal notranslate"><span class="pre">min_gpus</span></code> are already per-step
 totals, which is the shape a step with no ranks needs.  <code class="docutils literal notranslate"><span class="pre">gpus_per_task</span></code> is
 deprecated and is the only GPU field a non-MPI step cannot use.</p>
+</section>
+<section id="hardware-threads">
+<h2>Hardware threads<a class="headerlink" href="#hardware-threads" title="Link to this heading"></a></h2>
+<p>A core, everywhere above, is a physical core.  Polaris does not use
+hardware threads: a step given a core is given the whole of it, one rank or
+thread is placed there, and the sibling thread idles.  This is what E3SM
+does, and for the same reason – the codes are memory-bound and a second
+thread on the same core buys nothing they can measure.</p>
+<p>The machines Polaris runs on all expose their threads, so the ids the
+kernel offers a job are twice the cores its configuration counts: a
+Perlmutter CPU node offers 256 ids and is configured with 128 cores, an
+Aurora node 204 ids and 102 cores.  <code class="docutils literal notranslate"><span class="pre">mache</span></code>’s <code class="docutils literal notranslate"><span class="pre">cores_per_node</span></code> is the count
+without hyperthreading, and <code class="docutils literal notranslate"><span class="pre">polaris/run/topology.py</span></code> reads the kernel’s
+word on which ids share a core, so that the pool numbers a node by one id
+per core and the placement check counts a rank’s cores rather than its
+ids.  The numbering is read, not assumed: on every machine seen so far
+thread 0 of every core is enumerated first, but nothing promises it, and a
+machine that interleaved siblings would otherwise place two ranks on one
+core with no error.</p>
+<p>This is a policy rather than a limit.  A step that genuinely wanted both
+threads of its cores has no way to ask for them today, which is the right
+default and should not be mistaken for an oversight.</p>
 </section>
 <section id="whether-a-step-may-span-nodes">
 <h2>Whether a step may span nodes<a class="headerlink" href="#whether-a-step-may-span-nodes" title="Link to this heading"></a></h2>
@@ -340,6 +400,17 @@ number of GPUs per task does not confine a step to those GPUs, while asking
 for a total does.</p>
 <p><code class="docutils literal notranslate"><span class="pre">gpus_per_task</span></code> and <code class="docutils literal notranslate"><span class="pre">min_gpus_per_task</span></code> still work and are translated into a
 total, but they are deprecated and raise a <code class="docutils literal notranslate"><span class="pre">DeprecationWarning</span></code>.</p>
+<p>Whether a step got the GPUs it was given is checked the same way its cores
+are, by asking the ranks what the vendor’s visible-devices variable holds.
+Where Slurm assigns the GPUs, as on Frontier and Perlmutter, it picks which,
+so a step is held to how many it sees on each node rather than to particular
+devices. Only on PALS, where nothing else assigns them, does a placement name
+its devices and the check hold the ranks to those. Frontier’s
+<code class="docutils literal notranslate"><span class="pre">ROCR_VISIBLE_DEVICES</span></code> holds the node’s own indices, so a report there names
+the devices; on Perlmutter <code class="docutils literal notranslate"><span class="pre">CUDA_VISIBLE_DEVICES</span></code> is renumbered per launch,
+so every one-GPU rank reads <code class="docutils literal notranslate"><span class="pre">0</span></code> and the check there can only catch a step
+seeing more devices than it was given. On both, concurrent launches were
+measured to hold disjoint devices.</p>
 <p>For ocean model steps with dynamic sizing, Omega runs on GPU-capable compiler
 configs use:</p>
 <ul class="simple">

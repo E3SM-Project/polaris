@@ -72,6 +72,7 @@
 <li class="toctree-l3"><a class="reference internal" href="#setup-module">setup module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#suite-module">suite module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#run-serial-module">run.serial module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#run-parallel-module">run.parallel module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#cache-module">cache module</a></li>
 </ul>
 </li>
@@ -254,6 +255,45 @@ field or change its meaning, increment <code class="docutils literal notranslate
 <p><a class="reference internal" href="../generated/polaris.run.serial.run_single_step.html#polaris.run.serial.run_single_step" title="polaris.run.serial.run_single_step"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.run.serial.run_single_step()</span></code></a> runs only the selected step
 from a given task, skipping any others, displaying the output in the terminal
 window rather than a log file.</p>
+</section>
+<section id="run-parallel-module">
+<span id="dev-run-parallel"></span><h2>run.parallel module<a class="headerlink" href="#run-parallel-module" title="Link to this heading"></a></h2>
+<p><a class="reference internal" href="../generated/polaris.run.parallel.run_tasks.html#polaris.run.parallel.run_tasks" title="polaris.run.parallel.run_tasks"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.run.parallel.run_tasks()</span></code></a> runs a suite or task with its
+steps at the same time, and is what <code class="docutils literal notranslate"><span class="pre">polaris</span> <span class="pre">parallel</span></code> calls.  It shares the
+step lifecycle with the serial path – the checks on a step’s inputs and
+outputs, loading what it depends on, <code class="docutils literal notranslate"><span class="pre">runtime_setup()</span></code>, <code class="docutils literal notranslate"><span class="pre">run()</span></code>, the
+completion markers and the baseline comparisons all live in
+<code class="docutils literal notranslate"><span class="pre">polaris.run.lifecycle</span></code> and are the same either way.  What differs is
+deciding <em>which</em> step runs and what it is given.</p>
+<p>Four pieces do that work, and they are worth knowing apart:</p>
+<ul class="simple">
+<li><p><a class="reference internal" href="../generated/polaris.run.graph.build_step_graph.html#polaris.run.graph.build_step_graph" title="polaris.run.graph.build_step_graph"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.run.graph.build_step_graph()</span></code></a> turns the selected steps
+into a graph, from the dependencies a step declares and the files one step
+produces that another consumes.  It rejects a graph that cannot be run –
+a cycle, or an input nothing produces and which does not already exist –
+before any step starts.</p></li>
+<li><p><a class="reference internal" href="../generated/polaris.run.allocation.read_allocation.html#polaris.run.allocation.read_allocation" title="polaris.run.allocation.read_allocation"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.run.allocation.read_allocation()</span></code></a> asks the allocation’s
+nodes what they actually hold, rather than trusting the machine’s
+configured figure, because a node can offer less than its specification
+says and over-crediting memory kills a job.</p></li>
+<li><p><a class="reference internal" href="../generated/polaris.run.pool.ResourcePool.html#polaris.run.pool.ResourcePool" title="polaris.run.pool.ResourcePool"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.run.pool.ResourcePool</span></code></a> decides what may start: it hands
+out cores, GPUs and a memory budget, and refuses a step that would not fit
+rather than overcommitting the machine.</p></li>
+<li><p><a class="reference internal" href="../generated/polaris.run.executor.start_step.html#polaris.run.executor.start_step" title="polaris.run.executor.start_step"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.run.executor.start_step()</span></code></a> forks a child for a step and
+<a class="reference internal" href="../generated/polaris.run.executor.reap_one.html#polaris.run.executor.reap_one" title="polaris.run.executor.reap_one"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.run.executor.reap_one()</span></code></a> waits for whichever finishes
+next.  The child inherits the scheduler’s memory, so it imports nothing and
+reads no pickle of its own.</p></li>
+</ul>
+<p>Because the scheduler forks, it must hold no thread but its own – only the
+forking thread survives a fork, and a lock held by any other one at that
+moment is held forever in the child.  That is why <code class="docutils literal notranslate"><span class="pre">polaris/__init__.py</span></code> pins
+the numerical thread pools before numpy can raise one thread per core, and
+why the scheduler reaps in its own loop rather than giving each running step
+a thread to wait on it.</p>
+<p>Each step’s output goes to its own log under <code class="docutils literal notranslate"><span class="pre">case_outputs</span></code>, since steps no
+longer take turns and cannot share a stream.  The scheduler also writes an
+event stream, <code class="docutils literal notranslate"><span class="pre">&lt;suite&gt;_events.jsonl</span></code>, recording what started when and what
+each step held; <a class="reference internal" href="../generated/polaris.run.events.read_events.html#polaris.run.events.read_events" title="polaris.run.events.read_events"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.run.events.read_events()</span></code></a> reads it back.</p>
 </section>
 <section id="cache-module">
 <span id="dev-cache"></span><h2>cache module<a class="headerlink" href="#cache-module" title="Link to this heading"></a></h2>

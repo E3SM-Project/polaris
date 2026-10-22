@@ -1,0 +1,22 @@
+﻿polaris.run.graph.StepNode
+==========================
+
+.. currentmodule:: polaris.run.graph
+
+.. autoclass:: StepNode
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~StepNode.__init__
+   
+   
+
+   
+   
+   

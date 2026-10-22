@@ -1,0 +1,6 @@
+﻿polaris.run.topology.physical\_cores
+====================================
+
+.. currentmodule:: polaris.run.topology
+
+.. autofunction:: physical_cores

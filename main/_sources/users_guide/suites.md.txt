@@ -62,7 +62,8 @@ When you run a suite with `polaris serial`, a line for each task is written to
 the terminal and output from each task goes to a log file in `case_outputs`.
 Polaris also writes `<suite_name>_results.json` in the base work directory,
 for scripts and dashboards to read. Running a single task from its work
-directory writes `task_results.json` there instead.
+directory writes `task_results.json` there instead. `polaris parallel`
+writes the same file.
 
 The file lists every task in the order they run, with:
 
@@ -73,7 +74,8 @@ The file lists every task in the order they run, with:
   compliance (see {ref}`dev-cf-check`)
 - `elapsed_seconds`: the task's wall-clock time
 - `steps_to_run`: the steps the task ran
-- `log`: the task's log file, relative to the base work directory
+- `log`: the task's log file, relative to the base work directory, or `null`
+  for a `polaris parallel` run, where each step has its own log
 - `baseline_diffs`: the largest l1, l2 and l_infinity norms of the difference
   from the baseline for each variable that was compared
 

@@ -281,6 +281,15 @@
         <span class="n">help</span><span class="o">=</span><span class="s1">'If the model should be built in debug mode.'</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">add_component_model_args</span><span class="p">(</span><span class="n">parser</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s1">'-P'</span><span class="p">,</span>
+        <span class="s1">'--parallel'</span><span class="p">,</span>
+        <span class="n">dest</span><span class="o">=</span><span class="s1">'concurrent_steps'</span><span class="p">,</span>
+        <span class="n">action</span><span class="o">=</span><span class="s1">'store_true'</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s1">'Run the steps of the suite at the same time with '</span>
+        <span class="s1">'`polaris parallel` rather than one after another with '</span>
+        <span class="s1">'`polaris serial`.'</span><span class="p">,</span>
+    <span class="p">)</span>
 
     <span class="n">args</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">[</span><span class="mi">2</span><span class="p">:])</span>
 
@@ -302,6 +311,7 @@
         <span class="n">cmake_flags</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">cmake_flags</span><span class="p">,</span>
         <span class="n">debug</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">debug</span><span class="p">,</span>
         <span class="n">component_args</span><span class="o">=</span><span class="n">get_component_model_args</span><span class="p">(</span><span class="n">args</span><span class="p">),</span>
+        <span class="n">concurrent_steps</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">concurrent_steps</span><span class="p">,</span>
     <span class="p">)</span>
 
 

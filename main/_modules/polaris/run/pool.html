@@ -1,0 +1,693 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>polaris.run.pool</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=a8da1a53"></script>
+      <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+    <link href="../../../_static/style.css" rel="stylesheet" type="text/css">
+
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            Polaris
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">User's guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../users_guide/quick_start.html">Quick Start for Users</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../users_guide/tasks.html">Tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../users_guide/config_files.html">Config Files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../users_guide/suites.html">Suites</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../users_guide/mesh/index.html">Mesh component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../users_guide/e3sm/init/index.html">E3SM Initial Condition Component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../users_guide/ocean/index.html">Ocean component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../users_guide/seaice/index.html">Sea ice component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../users_guide/machines/index.html">Machines</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Developer's guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/quick_start.html">Quick Start for Developers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/command_line.html">Command-line interface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/organization/index.html">Organization of Tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/e3sm/init/index.html">E3SM initial condition (e3sm/init) component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/mesh/index.html">Mesh component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/ocean/index.html">Ocean component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/seaice/index.html">Sea ice component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/framework/index.html">Framework</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/machines/index.html">Machines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/benchmarking.html">Benchmarking a branch against a baseline</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/troubleshooting.html">Troubleshooting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/docs.html">Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/building_docs.html">Building the Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/building_docs.html#previewing-the-documentation">Previewing the Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/conda_vs_spack.html">How Conda and Spack Work Together in Polaris</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/updating_conda.html">Updating Deployment Dependencies</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/updating_spack/index.html">Updating Shared Spack Environments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/api.html">API reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../design_docs/index.html">Design Documents</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorials/dev_add_category_of_tasks/index.html">Developer Tutorial: Adding a New Category of Tasks</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Glossary</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../glossary.html">Glossary</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">Polaris</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+          <li class="breadcrumb-item"><a href="../run.html">polaris.run</a></li>
+      <li class="breadcrumb-item active">polaris.run.pool</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for polaris.run.pool</h1><div class="highlight"><pre>
+<span></span><span class="sd">"""</span>
+<span class="sd">What is free, what is taken, and what a step may be given.</span>
+
+<span class="sd">The pool is what keeps the machine from being oversubscribed.  It hands out</span>
+<span class="sd">reservations, and for an ordinary step the reservation is also the placement</span>
+<span class="sd">its launch is given -- but the two are not the same idea, and the difference</span>
+<span class="sd">matters where they diverge.  Memory is reserved and never placed, because no</span>
+<span class="sd">launcher acts on it.  The pool's accounting has to cover everything a step</span>
+<span class="sd">claims whether or not any of it reaches a launcher.</span>
+
+<span class="sd">Three rules shape the packing and each of them is a constraint rather than a</span>
+<span class="sd">total:</span>
+
+<span class="sd">**A step that may not span nodes takes everything from one node.** An</span>
+<span class="sd">allocation with cores free on several nodes and none of them holding enough</span>
+<span class="sd">cannot start such a step, however much it shows free, and the pool says so</span>
+<span class="sd">rather than deadlocking or overcommitting. Cores and GPUs come from the same</span>
+<span class="sd">node: a step needing both must find both together.</span>
+
+<span class="sd">**A step that may not span nodes takes them from the node the scheduler is</span>
+<span class="sd">on.** Such a step does its work in its own process, and the only thing that</span>
+<span class="sd">can confine that process is the executor, which can only reach the node it</span>
+<span class="sd">is running on.  This caps Python concurrency at one node's worth of cores,</span>
+<span class="sd">which is the ceiling Phase C exists to lift.</span>
+
+<span class="sd">It is conservative for one case worth naming: an MPI step at width one may</span>
+<span class="sd">not span by Polaris's default, and its launcher could perfectly well put it</span>
+<span class="sd">on another node.  Two steps in Polaris are like that today.  The fix is for</span>
+<span class="sd">such a step to declare ``may_span_nodes=True``, which is what the property</span>
+<span class="sd">is for, rather than for the pool to guess from the shape of a step.</span>
+
+<span class="sd">**A step's memory is charged in proportion to the cores it took on each</span>
+<span class="sd">node.** A step that declares nothing is budgeted at its proportional share</span>
+<span class="sd">of a node, so charging it proportionally means a run in which nothing</span>
+<span class="sd">declares memory packs exactly as it would with no memory accounting at all.</span>
+<span class="sd">Memory can then only ever remove a schedule that a measured declaration says</span>
+<span class="sd">would not have fit.</span>
+<span class="sd">"""</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">dataclass</span><span class="p">,</span> <span class="n">field</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Tuple</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">mache.parallel</span><span class="w"> </span><span class="kn">import</span> <span class="n">ResourcePlacement</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.run.allocation</span><span class="w"> </span><span class="kn">import</span> <span class="n">NodeResources</span>
+
+
+<span class="nd">@dataclass</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">_Node</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""What one node has left."""</span>
+
+    <span class="n">name</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">free_cores</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span>
+    <span class="n">free_gpus</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span>
+    <span class="n">free_memory</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span>
+    <span class="n">memory</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span>
+    <span class="n">resident</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="nb">list</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="Reservation">
+<a class="viewcode-back" href="../../../developers_guide/generated/polaris.run.pool.Reservation.html#polaris.run.pool.Reservation">[docs]</a>
+<span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">Reservation</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    What a step was given, and what has to be handed back when it ends.</span>
+
+<span class="sd">    Attributes</span>
+<span class="sd">    ----------</span>
+<span class="sd">    step_path : str</span>
+<span class="sd">        The step this belongs to.</span>
+
+<span class="sd">    placement : mache.parallel.ResourcePlacement</span>
+<span class="sd">        Which nodes, cores and GPUs its launch is confined to.</span>
+
+<span class="sd">    cores : dict</span>
+<span class="sd">        The cores taken on each node, so that exactly those go back.</span>
+
+<span class="sd">    gpus : dict</span>
+<span class="sd">        The GPUs taken on each node.</span>
+
+<span class="sd">    memory : dict</span>
+<span class="sd">        The memory in MiB charged against each node.  Nothing acts on this</span>
+<span class="sd">        but the pool: it is admission control and not a reservation the</span>
+<span class="sd">        machine will honor.</span>
+<span class="sd">    """</span>
+
+    <span class="n">step_path</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">placement</span><span class="p">:</span> <span class="n">ResourcePlacement</span>
+    <span class="n">cores</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">]]</span>
+    <span class="n">gpus</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">]]</span>
+    <span class="n">memory</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">]</span></div>
+
+
+
+<div class="viewcode-block" id="ResourcePool">
+<a class="viewcode-back" href="../../../developers_guide/generated/polaris.run.pool.ResourcePool.html#polaris.run.pool.ResourcePool">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">ResourcePool</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    The allocation's free resources, and what may be started against them.</span>
+
+<span class="sd">    Attributes</span>
+<span class="sd">    ----------</span>
+<span class="sd">    local_node : str</span>
+<span class="sd">        The node the scheduler itself is running on, which is the only one</span>
+<span class="sd">        it can confine an unlaunched step to.</span>
+<span class="sd">    """</span>
+
+<div class="viewcode-block" id="ResourcePool.__init__">
+<a class="viewcode-back" href="../../../developers_guide/generated/polaris.run.pool.ResourcePool.html#polaris.run.pool.ResourcePool.__init__">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">nodes</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">NodeResources</span><span class="p">],</span>
+        <span class="n">local_node</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">names_gpus</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        nodes : list of polaris.run.allocation.NodeResources</span>
+<span class="sd">            What the allocation holds, as its nodes reported it</span>
+
+<span class="sd">        local_node : str, optional</span>
+<span class="sd">            The node the scheduler is on.  Defaults to the first, which is</span>
+<span class="sd">            where a batch script runs.</span>
+
+<span class="sd">        names_gpus : bool, optional</span>
+<span class="sd">            Whether a placement names the GPUs it gives.  Not where the</span>
+<span class="sd">            batch system reserves GPUs by count, since it picks which itself</span>
+<span class="sd">        """</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_nodes</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">_Node</span><span class="p">(</span>
+                <span class="n">name</span><span class="o">=</span><span class="n">node</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+                <span class="n">free_cores</span><span class="o">=</span><span class="nb">list</span><span class="p">(</span><span class="n">node</span><span class="o">.</span><span class="n">core_ids</span><span class="p">),</span>
+                <span class="n">free_gpus</span><span class="o">=</span><span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">node</span><span class="o">.</span><span class="n">gpus</span><span class="p">)),</span>
+                <span class="n">free_memory</span><span class="o">=</span><span class="n">node</span><span class="o">.</span><span class="n">memory</span><span class="p">,</span>
+                <span class="n">memory</span><span class="o">=</span><span class="n">node</span><span class="o">.</span><span class="n">memory</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">nodes</span>
+        <span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_by_name</span> <span class="o">=</span> <span class="p">{</span><span class="n">node</span><span class="o">.</span><span class="n">name</span><span class="p">:</span> <span class="n">node</span> <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_nodes</span><span class="p">}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_held</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">nodes</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">local_node</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">local_node</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_nodes</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">name</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_nodes</span> <span class="k">else</span> <span class="s1">''</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">local_node</span> <span class="o">=</span> <span class="n">local_node</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_names_gpus</span> <span class="o">=</span> <span class="n">names_gpus</span></div>
+
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">why_impossible</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">step</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">        Say why a step could never run here, or ``None`` if it could.</span>
+
+<span class="sd">        Asked once per step before anything starts, because a step that can</span>
+<span class="sd">        never run should stop the run at second one rather than be</span>
+<span class="sd">        discovered when its turn comes and never arrives.  It is asked</span>
+<span class="sd">        against an empty copy of the allocation, so the answer is about the</span>
+<span class="sd">        machine rather than about what happens to be running.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        step : polaris.Step</span>
+<span class="sd">            The step to ask about, with its resources already constrained</span>
+<span class="sd">            against the whole allocation</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        reason : str or None</span>
+<span class="sd">            What it needs that the allocation does not have</span>
+<span class="sd">        """</span>
+        <span class="n">empty</span> <span class="o">=</span> <span class="n">ResourcePool</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_held</span><span class="p">,</span>
+            <span class="n">local_node</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">local_node</span><span class="p">,</span>
+            <span class="n">names_gpus</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_names_gpus</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="k">if</span> <span class="n">empty</span><span class="o">.</span><span class="n">reserve</span><span class="p">(</span><span class="n">step</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span>
+
+        <span class="n">budget</span> <span class="o">=</span> <span class="n">step</span><span class="o">.</span><span class="n">memory_budget</span>
+        <span class="n">memory</span> <span class="o">=</span> <span class="s1">'no declared memory'</span> <span class="k">if</span> <span class="n">budget</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">budget</span><span class="si">}</span><span class="s1"> MiB'</span>
+        <span class="k">if</span> <span class="n">step</span><span class="o">.</span><span class="n">may_span_nodes</span><span class="p">:</span>
+            <span class="n">where</span> <span class="o">=</span> <span class="s1">'this allocation'</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">where</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="sa">f</span><span class="s1">'node </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">local_node</span><span class="si">}</span><span class="s1">, which is the only one it may use '</span>
+                <span class="sa">f</span><span class="s1">'because it has not said its resources may span nodes'</span>
+            <span class="p">)</span>
+        <span class="k">return</span> <span class="p">(</span>
+            <span class="sa">f</span><span class="s1">'Step </span><span class="si">{</span><span class="n">step</span><span class="o">.</span><span class="n">path</span><span class="si">}</span><span class="s1"> needs </span><span class="si">{</span><span class="n">step</span><span class="o">.</span><span class="n">cores</span><span class="si">}</span><span class="s1"> cores, </span><span class="si">{</span><span class="n">step</span><span class="o">.</span><span class="n">gpus</span><span class="w"> </span><span class="ow">or</span><span class="w"> </span><span class="mi">0</span><span class="si">}</span><span class="s1"> '</span>
+            <span class="sa">f</span><span class="s1">'gpus and </span><span class="si">{</span><span class="n">memory</span><span class="si">}</span><span class="s1">, which </span><span class="si">{</span><span class="n">where</span><span class="si">}</span><span class="s1"> cannot provide even with '</span>
+            <span class="sa">f</span><span class="s1">'nothing else running.'</span>
+        <span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">reserve</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">step</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Reservation</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">        Give a step what it needs, if what it needs is free right now.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        step : polaris.Step</span>
+<span class="sd">            The step to try to start, with its resources already</span>
+<span class="sd">            constrained against the whole allocation</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        reservation : polaris.run.pool.Reservation or None</span>
+<span class="sd">            What it was given, or ``None`` if it does not fit yet</span>
+<span class="sd">        """</span>
+        <span class="k">if</span> <span class="n">step</span><span class="o">.</span><span class="n">may_span_nodes</span><span class="p">:</span>
+            <span class="n">layout</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fit_across_nodes</span><span class="p">(</span><span class="n">step</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">layout</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fit_on_one_node</span><span class="p">(</span><span class="n">step</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">layout</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_take</span><span class="p">(</span><span class="n">step</span><span class="p">,</span> <span class="n">layout</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">release</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">reservation</span><span class="p">:</span> <span class="n">Reservation</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">        Hand back everything a step was given.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        reservation : polaris.run.pool.Reservation</span>
+<span class="sd">            What the step held</span>
+<span class="sd">        """</span>
+        <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">cores</span> <span class="ow">in</span> <span class="n">reservation</span><span class="o">.</span><span class="n">cores</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">node</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_by_name</span><span class="p">[</span><span class="n">name</span><span class="p">]</span>
+            <span class="n">node</span><span class="o">.</span><span class="n">free_cores</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">node</span><span class="o">.</span><span class="n">free_cores</span> <span class="o">+</span> <span class="nb">list</span><span class="p">(</span><span class="n">cores</span><span class="p">))</span>
+        <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">gpus</span> <span class="ow">in</span> <span class="n">reservation</span><span class="o">.</span><span class="n">gpus</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">node</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_by_name</span><span class="p">[</span><span class="n">name</span><span class="p">]</span>
+            <span class="n">node</span><span class="o">.</span><span class="n">free_gpus</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">node</span><span class="o">.</span><span class="n">free_gpus</span> <span class="o">+</span> <span class="nb">list</span><span class="p">(</span><span class="n">gpus</span><span class="p">))</span>
+        <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">memory</span> <span class="ow">in</span> <span class="n">reservation</span><span class="o">.</span><span class="n">memory</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">node</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_by_name</span><span class="p">[</span><span class="n">name</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">node</span><span class="o">.</span><span class="n">free_memory</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">node</span><span class="o">.</span><span class="n">free_memory</span> <span class="o">+=</span> <span class="n">memory</span>
+        <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">reservation</span><span class="o">.</span><span class="n">cores</span><span class="p">:</span>
+            <span class="n">resident</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_by_name</span><span class="p">[</span><span class="n">name</span><span class="p">]</span><span class="o">.</span><span class="n">resident</span>
+            <span class="k">if</span> <span class="n">reservation</span><span class="o">.</span><span class="n">step_path</span> <span class="ow">in</span> <span class="n">resident</span><span class="p">:</span>
+                <span class="n">resident</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">reservation</span><span class="o">.</span><span class="n">step_path</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">resident</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="o">...</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">        The steps on one node right now.</span>
+
+<span class="sd">        This is what the report for a step killed by the node is built</span>
+<span class="sd">        from: the victim is identifiable and the culprit is not, so naming</span>
+<span class="sd">        the neighbors is the most that can honestly be said.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        node_name : str</span>
+<span class="sd">            The node to ask about</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        steps : tuple of str</span>
+<span class="sd">            The paths of the steps resident on it</span>
+<span class="sd">        """</span>
+        <span class="n">node</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_by_name</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">node_name</span><span class="p">)</span>
+        <span class="k">return</span> <span class="p">()</span> <span class="k">if</span> <span class="n">node</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">node</span><span class="o">.</span><span class="n">resident</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_empty_view</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">_Node</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">"""The nodes as they would be with nothing running."""</span>
+        <span class="k">return</span> <span class="p">[</span>
+            <span class="n">_Node</span><span class="p">(</span>
+                <span class="n">name</span><span class="o">=</span><span class="n">node</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+                <span class="n">free_cores</span><span class="o">=</span><span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">node</span><span class="o">.</span><span class="n">free_cores</span><span class="p">))),</span>
+                <span class="n">free_gpus</span><span class="o">=</span><span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">node</span><span class="o">.</span><span class="n">free_gpus</span><span class="p">))),</span>
+                <span class="n">free_memory</span><span class="o">=</span><span class="n">node</span><span class="o">.</span><span class="n">memory</span><span class="p">,</span>
+                <span class="n">memory</span><span class="o">=</span><span class="n">node</span><span class="o">.</span><span class="n">memory</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_nodes</span>
+        <span class="p">]</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_fit_on_one_node</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">step</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Fit a step that has to take everything from the scheduler's node."""</span>
+        <span class="n">node</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_by_name</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">local_node</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">node</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span>
+        <span class="n">cores</span> <span class="o">=</span> <span class="n">step</span><span class="o">.</span><span class="n">cores</span>
+        <span class="n">gpus</span> <span class="o">=</span> <span class="n">step</span><span class="o">.</span><span class="n">gpus</span> <span class="ow">or</span> <span class="mi">0</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">node</span><span class="o">.</span><span class="n">free_cores</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">cores</span> <span class="ow">or</span> <span class="nb">len</span><span class="p">(</span><span class="n">node</span><span class="o">.</span><span class="n">free_gpus</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">gpus</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span>
+        <span class="n">charge</span> <span class="o">=</span> <span class="n">step</span><span class="o">.</span><span class="n">memory_budget</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">_memory_fits</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="n">charge</span><span class="p">):</span>
+            <span class="k">return</span> <span class="kc">None</span>
+        <span class="k">return</span> <span class="p">[</span>
+            <span class="p">(</span>
+                <span class="n">node</span><span class="p">,</span>
+                <span class="nb">tuple</span><span class="p">(</span><span class="n">node</span><span class="o">.</span><span class="n">free_cores</span><span class="p">[:</span><span class="n">cores</span><span class="p">]),</span>
+                <span class="nb">tuple</span><span class="p">(</span><span class="n">node</span><span class="o">.</span><span class="n">free_gpus</span><span class="p">[:</span><span class="n">gpus</span><span class="p">]),</span>
+                <span class="n">charge</span> <span class="ow">or</span> <span class="mi">0</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="p">]</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_fit_across_nodes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">step</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">        Fit a step whose launcher spreads it over several nodes.</span>
+
+<span class="sd">        The launchers distribute tasks evenly over the nodes they are given,</span>
+<span class="sd">        so the nodes have to be able to serve that distribution rather than</span>
+<span class="sd">        merely to add up: the cores a node provides are the cores of the</span>
+<span class="sd">        tasks that land on it.  The fewest nodes that can do it is the</span>
+<span class="sd">        answer, so that a step does not spread further than it must.</span>
+<span class="sd">        """</span>
+        <span class="k">for</span> <span class="n">count</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_nodes</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
+            <span class="n">layout</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fit_on_n_nodes</span><span class="p">(</span><span class="n">step</span><span class="p">,</span> <span class="n">count</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">layout</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">layout</span>
+        <span class="k">return</span> <span class="kc">None</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_fit_on_n_nodes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">step</span><span class="p">,</span> <span class="n">count</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Try to lay a step out over exactly ``count`` nodes."""</span>
+        <span class="n">total_cores</span> <span class="o">=</span> <span class="n">step</span><span class="o">.</span><span class="n">cores</span>
+        <span class="n">gpus</span> <span class="o">=</span> <span class="n">step</span><span class="o">.</span><span class="n">gpus</span> <span class="ow">or</span> <span class="mi">0</span>
+        <span class="n">ntasks</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">step</span><span class="o">.</span><span class="n">ntasks</span> <span class="ow">or</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="n">cpus_per_task</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">step</span><span class="o">.</span><span class="n">cpus_per_task</span> <span class="ow">or</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">ntasks</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="c1"># ranks fill each node in turn, and a node's cores are the cores</span>
+            <span class="c1"># of the ranks that land on it</span>
+            <span class="c1"># the launchers *balance* tasks over the nodes they are</span>
+            <span class="c1"># given, they do not fill each one in turn and leave the</span>
+            <span class="c1"># remainder on the last.  Getting this wrong under-reserves on</span>
+            <span class="c1"># the nodes that end up with more tasks than the model expected:</span>
+            <span class="c1"># 800 tasks over 13 nodes is seven nodes of 62 and six of 61,</span>
+            <span class="c1"># where filling in turn would say twelve of 62 and one of 56.</span>
+            <span class="c1"># Measured on Chrysalis, where the last node was reserved 56</span>
+            <span class="c1"># cores and Slurm put 61 tasks on it, and the placement check</span>
+            <span class="c1"># reported a launch allowed more cores than it was given.</span>
+            <span class="c1">#</span>
+            <span class="c1"># It only shows when the tasks do not divide evenly by the</span>
+            <span class="c1"># nodes, which is why 192 over 3 and 320 over 5 never did.</span>
+            <span class="n">base</span><span class="p">,</span> <span class="n">extra</span> <span class="o">=</span> <span class="nb">divmod</span><span class="p">(</span><span class="n">ntasks</span><span class="p">,</span> <span class="n">count</span><span class="p">)</span>
+            <span class="n">wanted</span> <span class="o">=</span> <span class="p">[</span>
+                <span class="p">(</span><span class="n">base</span> <span class="o">+</span> <span class="p">(</span><span class="mi">1</span> <span class="k">if</span> <span class="n">index</span> <span class="o">&lt;</span> <span class="n">extra</span> <span class="k">else</span> <span class="mi">0</span><span class="p">))</span> <span class="o">*</span> <span class="n">cpus_per_task</span>
+                <span class="k">for</span> <span class="n">index</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">count</span><span class="p">)</span>
+            <span class="p">]</span>
+            <span class="n">wanted</span> <span class="o">=</span> <span class="p">[</span><span class="n">cores</span> <span class="k">for</span> <span class="n">cores</span> <span class="ow">in</span> <span class="n">wanted</span> <span class="k">if</span> <span class="n">cores</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># one process, so there are no ranks to spread; its cores are</span>
+            <span class="c1"># divided as evenly as they go</span>
+            <span class="n">per_node</span> <span class="o">=</span> <span class="o">-</span><span class="p">(</span><span class="o">-</span><span class="n">total_cores</span> <span class="o">//</span> <span class="n">count</span><span class="p">)</span>
+            <span class="n">wanted</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="n">left</span> <span class="o">=</span> <span class="n">total_cores</span>
+            <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">count</span><span class="p">):</span>
+                <span class="n">take</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">per_node</span><span class="p">,</span> <span class="n">left</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">take</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="n">wanted</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">take</span><span class="p">)</span>
+                <span class="n">left</span> <span class="o">-=</span> <span class="n">take</span>
+        <span class="k">if</span> <span class="nb">sum</span><span class="p">(</span><span class="n">wanted</span><span class="p">)</span> <span class="o">!=</span> <span class="n">total_cores</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span>
+
+        <span class="c1"># GPUs are spread over the nodes the way the ranks are, so a node</span>
+        <span class="c1"># with one rank fewer is given one GPU fewer when there is one per</span>
+        <span class="c1"># rank</span>
+        <span class="n">gpus_by_node</span> <span class="o">=</span> <span class="n">_balance</span><span class="p">(</span><span class="n">gpus</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">wanted</span><span class="p">))</span>
+        <span class="n">gpus_per_node</span> <span class="o">=</span> <span class="n">gpus_by_node</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">if</span> <span class="n">gpus_by_node</span> <span class="k">else</span> <span class="mi">0</span>
+        <span class="n">chosen</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_choose_nodes</span><span class="p">(</span><span class="n">wanted</span><span class="p">,</span> <span class="n">gpus_per_node</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">chosen</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span>
+
+        <span class="n">gpu_ids</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_shared_gpu_ids</span><span class="p">(</span><span class="n">chosen</span><span class="p">,</span> <span class="n">gpus_per_node</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">gpu_ids</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_charge_memory</span><span class="p">(</span>
+            <span class="n">step</span><span class="p">,</span>
+            <span class="n">chosen</span><span class="p">,</span>
+            <span class="n">wanted</span><span class="p">,</span>
+            <span class="p">[</span><span class="n">gpu_ids</span><span class="p">[:</span><span class="n">count</span><span class="p">]</span> <span class="k">for</span> <span class="n">count</span> <span class="ow">in</span> <span class="n">gpus_by_node</span><span class="p">],</span>
+            <span class="n">total_cores</span><span class="p">,</span>
+        <span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_choose_nodes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">wanted</span><span class="p">,</span> <span class="n">gpus_per_node</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Pick nodes that can serve each rank group, in pool order."""</span>
+        <span class="n">chosen</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">_Node</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_nodes</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">chosen</span><span class="p">)</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">wanted</span><span class="p">):</span>
+                <span class="k">break</span>
+            <span class="n">cores_here</span> <span class="o">=</span> <span class="n">wanted</span><span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="n">chosen</span><span class="p">)]</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">node</span><span class="o">.</span><span class="n">free_cores</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">cores_here</span><span class="p">:</span>
+                <span class="k">continue</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">node</span><span class="o">.</span><span class="n">free_gpus</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">gpus_per_node</span><span class="p">:</span>
+                <span class="k">continue</span>
+            <span class="n">chosen</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">node</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">chosen</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">chosen</span><span class="p">)</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">wanted</span><span class="p">)</span> <span class="k">else</span> <span class="kc">None</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_shared_gpu_ids</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">chosen</span><span class="p">,</span> <span class="n">gpus_per_node</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">        The GPU indices to use, which are the same on every node.</span>
+
+<span class="sd">        The indices are node-local, and PALS -- the launcher that needs them</span>
+<span class="sd">        named -- applies one node's binding list to every node, as it does</span>
+<span class="sd">        the CPU list.  So a launch spanning nodes has to use the same ones on</span>
+<span class="sd">        each, and a node with fewer ranks uses the front of the same list.</span>
+<span class="sd">        """</span>
+        <span class="k">if</span> <span class="n">gpus_per_node</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">()</span>
+        <span class="n">shared</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">chosen</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">free_gpus</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">chosen</span><span class="p">[</span><span class="mi">1</span><span class="p">:]:</span>
+            <span class="n">shared</span> <span class="o">&amp;=</span> <span class="nb">set</span><span class="p">(</span><span class="n">node</span><span class="o">.</span><span class="n">free_gpus</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">shared</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">gpus_per_node</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span>
+        <span class="k">return</span> <span class="nb">tuple</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="n">shared</span><span class="p">)[:</span><span class="n">gpus_per_node</span><span class="p">])</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_charge_memory</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">step</span><span class="p">,</span> <span class="n">chosen</span><span class="p">,</span> <span class="n">wanted</span><span class="p">,</span> <span class="n">gpu_ids_by_node</span><span class="p">,</span> <span class="n">total_cores</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">        Charge each node in proportion to the cores taken on it.</span>
+
+<span class="sd">        Rounding goes to the last node so that the charges add up to the</span>
+<span class="sd">        budget exactly rather than to a little less than it.</span>
+
+<span class="sd">        A step on several nodes takes the *same* core numbers on each of</span>
+<span class="sd">        them.  That is not tidiness, it is the only thing a launcher can</span>
+<span class="sd">        express: Slurm's ``--cpu-bind=mask_cpu`` assigns masks by a task's</span>
+<span class="sd">        index *on its own node* and reuses the list on every node, so the</span>
+<span class="sd">        first node's masks are what every node applies.  Give two nodes</span>
+<span class="sd">        different core sets and the second one silently runs on the first</span>
+<span class="sd">        one's cores -- measured on Chrysalis, where three launches of</span>
+<span class="sd">        omega_pr did exactly that and every one of them succeeded while the</span>
+<span class="sd">        pool believed cores were free that were not.</span>
+
+<span class="sd">        Taking a prefix of one shared ordering also serves the uneven case,</span>
+<span class="sd">        where a node with fewer ranks needs fewer cores: its set is then the</span>
+<span class="sd">        front of the same list, which is what the launcher would apply to it</span>
+<span class="sd">        anyway.</span>
+<span class="sd">        """</span>
+        <span class="n">budget</span> <span class="o">=</span> <span class="n">step</span><span class="o">.</span><span class="n">memory_budget</span> <span class="ow">or</span> <span class="mi">0</span>
+        <span class="n">shared</span> <span class="o">=</span> <span class="n">_shared_cores</span><span class="p">(</span><span class="n">chosen</span><span class="p">)</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">chosen</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span> <span class="k">else</span> <span class="kc">None</span>
+        <span class="n">layout</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">charged</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">for</span> <span class="n">index</span><span class="p">,</span> <span class="n">node</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">chosen</span><span class="p">):</span>
+            <span class="n">cores_here</span> <span class="o">=</span> <span class="n">wanted</span><span class="p">[</span><span class="n">index</span><span class="p">]</span>
+            <span class="n">available</span> <span class="o">=</span> <span class="n">node</span><span class="o">.</span><span class="n">free_cores</span> <span class="k">if</span> <span class="n">shared</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">shared</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">available</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">cores_here</span><span class="p">:</span>
+                <span class="c1"># the nodes are free enough separately but do not have these</span>
+                <span class="c1"># cores free in common; another moment may do</span>
+                <span class="k">return</span> <span class="kc">None</span>
+            <span class="k">if</span> <span class="n">index</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">chosen</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="n">charge</span> <span class="o">=</span> <span class="n">budget</span> <span class="o">-</span> <span class="n">charged</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">charge</span> <span class="o">=</span> <span class="n">budget</span> <span class="o">*</span> <span class="n">cores_here</span> <span class="o">//</span> <span class="n">total_cores</span>
+            <span class="n">charged</span> <span class="o">+=</span> <span class="n">charge</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">_memory_fits</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="n">charge</span> <span class="k">if</span> <span class="n">step</span><span class="o">.</span><span class="n">memory_budget</span> <span class="k">else</span> <span class="kc">None</span><span class="p">):</span>
+                <span class="k">return</span> <span class="kc">None</span>
+            <span class="n">layout</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                <span class="p">(</span>
+                    <span class="n">node</span><span class="p">,</span>
+                    <span class="nb">tuple</span><span class="p">(</span><span class="n">available</span><span class="p">[:</span><span class="n">cores_here</span><span class="p">]),</span>
+                    <span class="n">gpu_ids_by_node</span><span class="p">[</span><span class="n">index</span><span class="p">],</span>
+                    <span class="n">charge</span><span class="p">,</span>
+                <span class="p">)</span>
+            <span class="p">)</span>
+        <span class="k">return</span> <span class="n">layout</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_take</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">step</span><span class="p">,</span> <span class="n">layout</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Reservation</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Remove what a layout uses from the pool and describe it."""</span>
+        <span class="n">cores</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">gpus</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">memory</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">node</span><span class="p">,</span> <span class="n">node_cores</span><span class="p">,</span> <span class="n">node_gpus</span><span class="p">,</span> <span class="n">charge</span> <span class="ow">in</span> <span class="n">layout</span><span class="p">:</span>
+            <span class="n">node</span><span class="o">.</span><span class="n">free_cores</span> <span class="o">=</span> <span class="p">[</span>
+                <span class="n">core</span> <span class="k">for</span> <span class="n">core</span> <span class="ow">in</span> <span class="n">node</span><span class="o">.</span><span class="n">free_cores</span> <span class="k">if</span> <span class="n">core</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">node_cores</span>
+            <span class="p">]</span>
+            <span class="n">node</span><span class="o">.</span><span class="n">free_gpus</span> <span class="o">=</span> <span class="p">[</span>
+                <span class="n">gpu</span> <span class="k">for</span> <span class="n">gpu</span> <span class="ow">in</span> <span class="n">node</span><span class="o">.</span><span class="n">free_gpus</span> <span class="k">if</span> <span class="n">gpu</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">node_gpus</span>
+            <span class="p">]</span>
+            <span class="k">if</span> <span class="n">node</span><span class="o">.</span><span class="n">free_memory</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">node</span><span class="o">.</span><span class="n">free_memory</span> <span class="o">-=</span> <span class="n">charge</span>
+            <span class="n">node</span><span class="o">.</span><span class="n">resident</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">step</span><span class="o">.</span><span class="n">path</span><span class="p">)</span>
+            <span class="n">cores</span><span class="p">[</span><span class="n">node</span><span class="o">.</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">node_cores</span>
+            <span class="n">gpus</span><span class="p">[</span><span class="n">node</span><span class="o">.</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">node_gpus</span>
+            <span class="n">memory</span><span class="p">[</span><span class="n">node</span><span class="o">.</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">charge</span>
+
+        <span class="n">names</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">node</span><span class="o">.</span><span class="n">name</span> <span class="k">for</span> <span class="n">node</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">layout</span><span class="p">)</span>
+        <span class="c1"># the device indices are named one set per node, which PALS, where</span>
+        <span class="c1"># nothing assigns GPUs, needs: a launch it was not told about sees</span>
+        <span class="c1"># every device on its nodes.  Measured on Aurora, where a 25 km</span>
+        <span class="c1"># Omega step on two nodes was refused before mache could name its</span>
+        <span class="c1"># GPUs per node.  Where the batch system assigns GPUs they are left</span>
+        <span class="c1"># unnamed: it picks its own, and the placement check would hold a</span>
+        <span class="c1"># step to the pool's.  On Frontier, omega_pr reported two one-node</span>
+        <span class="c1"># steps in one run and four in the next that had four devices but</span>
+        <span class="c1"># not the pool's four: 4-7 where it had counted 0-3, for one.</span>
+        <span class="n">total_gpus</span> <span class="o">=</span> <span class="n">step</span><span class="o">.</span><span class="n">gpus</span> <span class="ow">or</span> <span class="mi">0</span>
+        <span class="n">gpu_ids</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="nb">tuple</span><span class="p">(</span><span class="n">node_gpus</span> <span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">node_gpus</span><span class="p">,</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">layout</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">total_gpus</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_names_gpus</span>
+            <span class="k">else</span> <span class="kc">None</span>
+        <span class="p">)</span>
+        <span class="n">placement</span> <span class="o">=</span> <span class="n">ResourcePlacement</span><span class="p">(</span>
+            <span class="n">nodes</span><span class="o">=</span><span class="nb">tuple</span><span class="p">(</span><span class="n">name</span> <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">names</span> <span class="k">if</span> <span class="n">name</span> <span class="o">!=</span> <span class="s1">''</span><span class="p">),</span>
+            <span class="n">cores</span><span class="o">=</span><span class="nb">tuple</span><span class="p">(</span><span class="n">node_cores</span> <span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">node_cores</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">layout</span><span class="p">),</span>
+            <span class="n">gpus</span><span class="o">=</span><span class="n">total_gpus</span><span class="p">,</span>
+            <span class="n">gpu_ids</span><span class="o">=</span><span class="n">gpu_ids</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="n">Reservation</span><span class="p">(</span>
+            <span class="n">step_path</span><span class="o">=</span><span class="n">step</span><span class="o">.</span><span class="n">path</span><span class="p">,</span>
+            <span class="n">placement</span><span class="o">=</span><span class="n">placement</span><span class="p">,</span>
+            <span class="n">cores</span><span class="o">=</span><span class="n">cores</span><span class="p">,</span>
+            <span class="n">gpus</span><span class="o">=</span><span class="n">gpus</span><span class="p">,</span>
+            <span class="n">memory</span><span class="o">=</span><span class="n">memory</span><span class="p">,</span>
+        <span class="p">)</span></div>
+
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_balance</span><span class="p">(</span><span class="n">total</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">count</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">"""Divide ``total`` over ``count`` as the launchers balance ranks."""</span>
+    <span class="k">if</span> <span class="n">count</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">[]</span>
+    <span class="n">base</span><span class="p">,</span> <span class="n">extra</span> <span class="o">=</span> <span class="nb">divmod</span><span class="p">(</span><span class="n">total</span><span class="p">,</span> <span class="n">count</span><span class="p">)</span>
+    <span class="k">return</span> <span class="p">[</span><span class="n">base</span> <span class="o">+</span> <span class="p">(</span><span class="mi">1</span> <span class="k">if</span> <span class="n">index</span> <span class="o">&lt;</span> <span class="n">extra</span> <span class="k">else</span> <span class="mi">0</span><span class="p">)</span> <span class="k">for</span> <span class="n">index</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">count</span><span class="p">)]</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_shared_cores</span><span class="p">(</span><span class="n">chosen</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">_Node</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">"""The cores free on every one of these nodes, in a stable order."""</span>
+    <span class="n">common</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">chosen</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">free_cores</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">chosen</span><span class="p">[</span><span class="mi">1</span><span class="p">:]:</span>
+        <span class="n">common</span> <span class="o">&amp;=</span> <span class="nb">set</span><span class="p">(</span><span class="n">node</span><span class="o">.</span><span class="n">free_cores</span><span class="p">)</span>
+    <span class="k">return</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">common</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_memory_fits</span><span class="p">(</span><span class="n">node</span><span class="p">:</span> <span class="n">_Node</span><span class="p">,</span> <span class="n">charge</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Whether a node can carry this much more memory."""</span>
+    <span class="k">if</span> <span class="n">charge</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">node</span><span class="o">.</span><span class="n">free_memory</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="c1"># a machine that has not said how much memory a node holds cannot</span>
+        <span class="c1"># have memory accounted for, and packs on cores as it always did</span>
+        <span class="k">return</span> <span class="kc">True</span>
+    <span class="k">return</span> <span class="n">charge</span> <span class="o">&lt;=</span> <span class="n">node</span><span class="o">.</span><span class="n">free_memory</span>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2026, Energy Exascale Earth System Model Project.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+   
+
+  <!-- Meta tags for JS to use -->
+  <meta name="doc-version" content="main">
+  <meta name="doc-site-root" content="../../../">
+
+  <!-- Create version switcher container -->
+  <script>
+    const sidebar = document.querySelector('.wy-side-nav-search');
+    if (sidebar) {
+      const versionDiv = document.createElement('div');
+      versionDiv.id = 'version-switcher';
+      versionDiv.style.marginTop = '1em';
+      sidebar.appendChild(versionDiv);
+    }
+  </script>
+
+  <!-- Load version-switcher.js using the correct relative path -->
+  <script src="../../../../shared/version-switcher.js"></script>
+
+
+</body>
+</html>

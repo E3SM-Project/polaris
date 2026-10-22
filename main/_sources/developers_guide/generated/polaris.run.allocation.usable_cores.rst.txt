@@ -1,0 +1,6 @@
+﻿polaris.run.allocation.usable\_cores
+====================================
+
+.. currentmodule:: polaris.run.allocation
+
+.. autofunction:: usable_cores

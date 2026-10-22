@@ -1,0 +1,451 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>polaris.run.graph</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=a8da1a53"></script>
+      <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+    <link href="../../../_static/style.css" rel="stylesheet" type="text/css">
+
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            Polaris
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">User's guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../users_guide/quick_start.html">Quick Start for Users</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../users_guide/tasks.html">Tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../users_guide/config_files.html">Config Files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../users_guide/suites.html">Suites</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../users_guide/mesh/index.html">Mesh component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../users_guide/e3sm/init/index.html">E3SM Initial Condition Component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../users_guide/ocean/index.html">Ocean component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../users_guide/seaice/index.html">Sea ice component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../users_guide/machines/index.html">Machines</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Developer's guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/quick_start.html">Quick Start for Developers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/command_line.html">Command-line interface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/organization/index.html">Organization of Tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/e3sm/init/index.html">E3SM initial condition (e3sm/init) component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/mesh/index.html">Mesh component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/ocean/index.html">Ocean component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/seaice/index.html">Sea ice component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/framework/index.html">Framework</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/machines/index.html">Machines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/benchmarking.html">Benchmarking a branch against a baseline</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/troubleshooting.html">Troubleshooting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/docs.html">Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/building_docs.html">Building the Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/building_docs.html#previewing-the-documentation">Previewing the Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/conda_vs_spack.html">How Conda and Spack Work Together in Polaris</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/updating_conda.html">Updating Deployment Dependencies</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/updating_spack/index.html">Updating Shared Spack Environments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/api.html">API reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../design_docs/index.html">Design Documents</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorials/dev_add_category_of_tasks/index.html">Developer Tutorial: Adding a New Category of Tasks</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Glossary</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../glossary.html">Glossary</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">Polaris</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+          <li class="breadcrumb-item"><a href="../run.html">polaris.run</a></li>
+      <li class="breadcrumb-item active">polaris.run.graph</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for polaris.run.graph</h1><div class="highlight"><pre>
+<span></span><span class="sd">"""</span>
+<span class="sd">The graph of which steps have to run before which.</span>
+
+<span class="sd">Edges come from two places, and both are needed.  A step may name another</span>
+<span class="sd">step as a dependency, which is what</span>
+<span class="sd">:py:meth:`polaris.Step.add_dependency` is for and is the only way to say</span>
+<span class="sd">"after that one" when the files involved are not known until run time.  And</span>
+<span class="sd">a step may consume a file another step produces, which the two of them</span>
+<span class="sd">declare through ``add_input_file()`` and ``add_output_file()`` without</span>
+<span class="sd">either naming the other.</span>
+
+<span class="sd">The order steps were listed in contributes nothing except as the tie-break</span>
+<span class="sd">for choosing among steps that could all run.  A suite that relies on listed</span>
+<span class="sd">order without declaring a real dependency is relying on something the</span>
+<span class="sd">serial runner happened to give it, and the concurrent path is allowed to</span>
+<span class="sd">expose that as a failure rather than to preserve it.</span>
+
+<span class="sd">The graph is checked before anything runs.  An unsatisfiable input</span>
+<span class="sd">discovered forty minutes into a suite costs much more than the same error</span>
+<span class="sd">reported at the start.</span>
+<span class="sd">"""</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">FrozenSet</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Tuple</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.run.lifecycle</span><span class="w"> </span><span class="kn">import</span> <span class="n">step_is_complete</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.step</span><span class="w"> </span><span class="kn">import</span> <span class="n">Step</span>
+
+
+<div class="viewcode-block" id="StepNode">
+<a class="viewcode-back" href="../../../developers_guide/generated/polaris.run.graph.StepNode.html#polaris.run.graph.StepNode">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">StepNode</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    One step in the graph.</span>
+
+<span class="sd">    Attributes</span>
+<span class="sd">    ----------</span>
+<span class="sd">    path : str</span>
+<span class="sd">        The step's path within the base work directory, which is what</span>
+<span class="sd">        identifies it: a step shared between tasks is one node with one</span>
+<span class="sd">        path.</span>
+
+<span class="sd">    step : polaris.Step</span>
+<span class="sd">        The step itself.</span>
+
+<span class="sd">    requires : frozenset of str</span>
+<span class="sd">        The paths of the steps that have to succeed before this one may</span>
+<span class="sd">        start.</span>
+
+<span class="sd">    satisfied : bool</span>
+<span class="sd">        Whether this step has already run or is cached, so that its outputs</span>
+<span class="sd">        are available and it must not be run again.</span>
+<span class="sd">    """</span>
+
+<div class="viewcode-block" id="StepNode.__init__">
+<a class="viewcode-back" href="../../../developers_guide/generated/polaris.run.graph.StepNode.html#polaris.run.graph.StepNode.__init__">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">step</span><span class="p">,</span> <span class="n">requires</span><span class="p">,</span> <span class="n">satisfied</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">path</span> <span class="o">=</span> <span class="n">path</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">step</span> <span class="o">=</span> <span class="n">step</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">requires</span> <span class="o">=</span> <span class="n">requires</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">satisfied</span> <span class="o">=</span> <span class="n">satisfied</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="StepGraph">
+<a class="viewcode-back" href="../../../developers_guide/generated/polaris.run.graph.StepGraph.html#polaris.run.graph.StepGraph">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">StepGraph</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Which steps have to run before which.</span>
+
+<span class="sd">    Attributes</span>
+<span class="sd">    ----------</span>
+<span class="sd">    nodes : dict of polaris.run.graph.StepNode</span>
+<span class="sd">        The steps, keyed by path, in the order setup listed them.  The</span>
+<span class="sd">        order is the tie-break for choosing among steps that could all run,</span>
+<span class="sd">        and it is stable, so two runs of the same work make the same</span>
+<span class="sd">        choices.</span>
+<span class="sd">    """</span>
+
+<div class="viewcode-block" id="StepGraph.__init__">
+<a class="viewcode-back" href="../../../developers_guide/generated/polaris.run.graph.StepGraph.html#polaris.run.graph.StepGraph.__init__">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">nodes</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">StepNode</span><span class="p">]):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">nodes</span> <span class="o">=</span> <span class="n">nodes</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_dependents</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{</span><span class="n">path</span><span class="p">:</span> <span class="p">[]</span> <span class="k">for</span> <span class="n">path</span> <span class="ow">in</span> <span class="n">nodes</span><span class="p">}</span>
+        <span class="k">for</span> <span class="n">path</span><span class="p">,</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">nodes</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">for</span> <span class="n">required</span> <span class="ow">in</span> <span class="n">node</span><span class="o">.</span><span class="n">requires</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_dependents</span><span class="p">[</span><span class="n">required</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">path</span><span class="p">)</span></div>
+
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">dependents</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="o">...</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">        The steps that name this one, directly, among their requirements.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        path : str</span>
+<span class="sd">            The path of the step to ask about</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        dependents : tuple of str</span>
+<span class="sd">            The paths of the steps that require it, in graph order</span>
+<span class="sd">        """</span>
+        <span class="k">return</span> <span class="nb">tuple</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_dependents</span><span class="p">[</span><span class="n">path</span><span class="p">])</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">descendants</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">FrozenSet</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">        Every step that this one is required by, directly or through others.</span>
+
+<span class="sd">        This is what a failure blocks: a step whose requirement failed can</span>
+<span class="sd">        never run, and neither can anything behind it.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        path : str</span>
+<span class="sd">            The path of the step to ask about</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        descendants : frozenset of str</span>
+<span class="sd">            The paths of every step downstream of it</span>
+<span class="sd">        """</span>
+        <span class="n">found</span><span class="p">:</span> <span class="nb">set</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+        <span class="n">pending</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_dependents</span><span class="p">[</span><span class="n">path</span><span class="p">])</span>
+        <span class="k">while</span> <span class="n">pending</span><span class="p">:</span>
+            <span class="n">current</span> <span class="o">=</span> <span class="n">pending</span><span class="o">.</span><span class="n">pop</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">current</span> <span class="ow">in</span> <span class="n">found</span><span class="p">:</span>
+                <span class="k">continue</span>
+            <span class="n">found</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">current</span><span class="p">)</span>
+            <span class="n">pending</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_dependents</span><span class="p">[</span><span class="n">current</span><span class="p">])</span>
+        <span class="k">return</span> <span class="nb">frozenset</span><span class="p">(</span><span class="n">found</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="build_step_graph">
+<a class="viewcode-back" href="../../../developers_guide/generated/polaris.run.graph.build_step_graph.html#polaris.run.graph.build_step_graph">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">build_step_graph</span><span class="p">(</span><span class="n">steps</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="n">Step</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">StepGraph</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Build the graph of which steps have to run before which, and check it.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    steps : iterable of polaris.Step</span>
+<span class="sd">        The steps selected to run, in the order setup listed them -- suite,</span>
+<span class="sd">        then task, then step within a task.  A step shared between tasks</span>
+<span class="sd">        may appear more than once and becomes one node.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    graph : polaris.run.graph.StepGraph</span>
+<span class="sd">        The graph, which is valid if this returns at all</span>
+
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    ValueError</span>
+<span class="sd">        If two steps produce the same file, if a step needs an input that</span>
+<span class="sd">        nothing produces and that does not already exist, or if the</span>
+<span class="sd">        requirements form a cycle</span>
+<span class="sd">    """</span>
+    <span class="n">selected</span> <span class="o">=</span> <span class="n">_deduplicate</span><span class="p">(</span><span class="n">steps</span><span class="p">)</span>
+    <span class="n">producers</span> <span class="o">=</span> <span class="n">_find_producers</span><span class="p">(</span><span class="n">selected</span><span class="p">)</span>
+    <span class="n">requires</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="n">path</span><span class="p">:</span> <span class="n">_requirements_of</span><span class="p">(</span><span class="n">step</span><span class="p">,</span> <span class="n">selected</span><span class="p">,</span> <span class="n">producers</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">path</span><span class="p">,</span> <span class="n">step</span> <span class="ow">in</span> <span class="n">selected</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+    <span class="p">}</span>
+    <span class="n">_check_cycles</span><span class="p">(</span><span class="n">requires</span><span class="p">)</span>
+
+    <span class="n">nodes</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="n">path</span><span class="p">:</span> <span class="n">StepNode</span><span class="p">(</span>
+            <span class="n">path</span><span class="o">=</span><span class="n">path</span><span class="p">,</span>
+            <span class="n">step</span><span class="o">=</span><span class="n">step</span><span class="p">,</span>
+            <span class="n">requires</span><span class="o">=</span><span class="n">requires</span><span class="p">[</span><span class="n">path</span><span class="p">],</span>
+            <span class="n">satisfied</span><span class="o">=</span><span class="n">step</span><span class="o">.</span><span class="n">cached</span> <span class="ow">or</span> <span class="n">step_is_complete</span><span class="p">(</span><span class="n">step</span><span class="p">),</span>
+        <span class="p">)</span>
+        <span class="k">for</span> <span class="n">path</span><span class="p">,</span> <span class="n">step</span> <span class="ow">in</span> <span class="n">selected</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+    <span class="p">}</span>
+    <span class="k">return</span> <span class="n">StepGraph</span><span class="p">(</span><span class="n">nodes</span><span class="p">)</span></div>
+
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_deduplicate</span><span class="p">(</span><span class="n">steps</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="n">Step</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Step</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">"""Reduce the selected steps to one entry per step, in listed order."""</span>
+    <span class="n">selected</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Step</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">step</span> <span class="ow">in</span> <span class="n">steps</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">step</span><span class="o">.</span><span class="n">path</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">selected</span><span class="p">:</span>
+            <span class="n">selected</span><span class="p">[</span><span class="n">step</span><span class="o">.</span><span class="n">path</span><span class="p">]</span> <span class="o">=</span> <span class="n">step</span>
+    <span class="k">return</span> <span class="n">selected</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_find_producers</span><span class="p">(</span><span class="n">selected</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Step</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Map each file a selected step produces to the step that produces it.</span>
+
+<span class="sd">    Two steps writing the same file is a race as soon as they can run at</span>
+<span class="sd">    the same time, and it is rejected here rather than left to whichever</span>
+<span class="sd">    finishes last.</span>
+<span class="sd">    """</span>
+    <span class="n">producers</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">path</span><span class="p">,</span> <span class="n">step</span> <span class="ow">in</span> <span class="n">selected</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="k">for</span> <span class="n">output</span> <span class="ow">in</span> <span class="n">step</span><span class="o">.</span><span class="n">outputs</span><span class="p">:</span>
+            <span class="n">filename</span> <span class="o">=</span> <span class="n">_resolve</span><span class="p">(</span><span class="n">output</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">filename</span> <span class="ow">in</span> <span class="n">producers</span> <span class="ow">and</span> <span class="n">producers</span><span class="p">[</span><span class="n">filename</span><span class="p">]</span> <span class="o">!=</span> <span class="n">path</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s1">'Steps </span><span class="si">{</span><span class="n">producers</span><span class="p">[</span><span class="n">filename</span><span class="p">]</span><span class="si">}</span><span class="s1"> and </span><span class="si">{</span><span class="n">path</span><span class="si">}</span><span class="s1"> both produce '</span>
+                    <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">filename</span><span class="si">}</span><span class="s1">. Two steps writing one file cannot run at '</span>
+                    <span class="sa">f</span><span class="s1">'the same time.'</span>
+                <span class="p">)</span>
+            <span class="n">producers</span><span class="p">[</span><span class="n">filename</span><span class="p">]</span> <span class="o">=</span> <span class="n">path</span>
+    <span class="k">return</span> <span class="n">producers</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_resolve</span><span class="p">(</span><span class="n">filename</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    The path to compare a file by, following any symlinks along the way.</span>
+
+<span class="sd">    Setup links a step's inputs into its own work directory, so a step that</span>
+<span class="sd">    consumes another's output names a link that points there.  Until the</span>
+<span class="sd">    other step runs, that link dangles: it does not exist, and the file it</span>
+<span class="sd">    is waiting for has a different path.  Comparing what a link resolves to</span>
+<span class="sd">    is what connects the two.</span>
+
+<span class="sd">    A link that does not exist yet resolves to itself, and a name with no</span>
+<span class="sd">    links in it is merely normalized, so this is safe to apply to every</span>
+<span class="sd">    path on both sides of the comparison.</span>
+<span class="sd">    """</span>
+    <span class="k">return</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">realpath</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_requirements_of</span><span class="p">(</span>
+    <span class="n">step</span><span class="p">:</span> <span class="n">Step</span><span class="p">,</span> <span class="n">selected</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Step</span><span class="p">],</span> <span class="n">producers</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">FrozenSet</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Work out what one step has to wait for, and check that it can be met.</span>
+
+<span class="sd">    A dependency the step named that was not selected is left alone: it may</span>
+<span class="sd">    have run in an earlier invocation, and whether its outputs are there is</span>
+<span class="sd">    the input check's question rather than this one's.</span>
+<span class="sd">    """</span>
+    <span class="n">required</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+
+    <span class="k">for</span> <span class="n">dependency</span> <span class="ow">in</span> <span class="n">step</span><span class="o">.</span><span class="n">dependencies</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+        <span class="k">if</span> <span class="n">dependency</span><span class="o">.</span><span class="n">path</span> <span class="ow">in</span> <span class="n">selected</span> <span class="ow">and</span> <span class="n">dependency</span><span class="o">.</span><span class="n">path</span> <span class="o">!=</span> <span class="n">step</span><span class="o">.</span><span class="n">path</span><span class="p">:</span>
+            <span class="n">required</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">dependency</span><span class="o">.</span><span class="n">path</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">input_file</span> <span class="ow">in</span> <span class="n">step</span><span class="o">.</span><span class="n">inputs</span><span class="p">:</span>
+        <span class="n">filename</span> <span class="o">=</span> <span class="n">_resolve</span><span class="p">(</span><span class="n">input_file</span><span class="p">)</span>
+        <span class="n">producer</span> <span class="o">=</span> <span class="n">producers</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">producer</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">producer</span> <span class="o">!=</span> <span class="n">step</span><span class="o">.</span><span class="n">path</span><span class="p">:</span>
+                <span class="n">required</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">producer</span><span class="p">)</span>
+            <span class="k">continue</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">filename</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s1">'Step </span><span class="si">{</span><span class="n">step</span><span class="o">.</span><span class="n">path</span><span class="si">}</span><span class="s1"> needs the input file </span><span class="si">{</span><span class="n">input_file</span><span class="si">}</span><span class="s1">, which '</span>
+                <span class="sa">f</span><span class="s1">'does not exist and which no step being run produces.'</span>
+            <span class="p">)</span>
+
+    <span class="k">return</span> <span class="nb">frozenset</span><span class="p">(</span><span class="n">required</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_check_cycles</span><span class="p">(</span><span class="n">requires</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">FrozenSet</span><span class="p">[</span><span class="nb">str</span><span class="p">]])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Check that the requirements can be satisfied in some order.</span>
+
+<span class="sd">    Kahn's algorithm: repeatedly take the steps nothing is still waiting</span>
+<span class="sd">    for.  Whatever is left when none remain is a cycle, and naming its</span>
+<span class="sd">    members is what makes the error usable.</span>
+<span class="sd">    """</span>
+    <span class="n">remaining</span> <span class="o">=</span> <span class="p">{</span><span class="n">path</span><span class="p">:</span> <span class="nb">set</span><span class="p">(</span><span class="n">needed</span><span class="p">)</span> <span class="k">for</span> <span class="n">path</span><span class="p">,</span> <span class="n">needed</span> <span class="ow">in</span> <span class="n">requires</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
+    <span class="n">ready</span> <span class="o">=</span> <span class="p">[</span><span class="n">path</span> <span class="k">for</span> <span class="n">path</span><span class="p">,</span> <span class="n">needed</span> <span class="ow">in</span> <span class="n">remaining</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">needed</span><span class="p">]</span>
+    <span class="k">while</span> <span class="n">ready</span><span class="p">:</span>
+        <span class="n">path</span> <span class="o">=</span> <span class="n">ready</span><span class="o">.</span><span class="n">pop</span><span class="p">()</span>
+        <span class="k">del</span> <span class="n">remaining</span><span class="p">[</span><span class="n">path</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">other</span><span class="p">,</span> <span class="n">needed</span> <span class="ow">in</span> <span class="n">remaining</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">path</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">needed</span><span class="p">:</span>
+                <span class="k">continue</span>
+            <span class="n">needed</span><span class="o">.</span><span class="n">discard</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">needed</span><span class="p">:</span>
+                <span class="c1"># newly ready, and only now, so nothing is listed twice</span>
+                <span class="n">ready</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">other</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">remaining</span><span class="p">:</span>
+        <span class="n">cycle</span> <span class="o">=</span> <span class="s1">', '</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="n">remaining</span><span class="p">))</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s1">'These steps depend on each other, directly or through others, '</span>
+            <span class="sa">f</span><span class="s1">'so none of them can run: </span><span class="si">{</span><span class="n">cycle</span><span class="si">}</span><span class="s1">.'</span>
+        <span class="p">)</span>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2026, Energy Exascale Earth System Model Project.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+   
+
+  <!-- Meta tags for JS to use -->
+  <meta name="doc-version" content="main">
+  <meta name="doc-site-root" content="../../../">
+
+  <!-- Create version switcher container -->
+  <script>
+    const sidebar = document.querySelector('.wy-side-nav-search');
+    if (sidebar) {
+      const versionDiv = document.createElement('div');
+      versionDiv.id = 'version-switcher';
+      versionDiv.style.marginTop = '1em';
+      sidebar.appendChild(versionDiv);
+    }
+  </script>
+
+  <!-- Load version-switcher.js using the correct relative path -->
+  <script src="../../../../shared/version-switcher.js"></script>
+
+
+</body>
+</html>

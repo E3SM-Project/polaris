@@ -1,0 +1,587 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>polaris.run.executor</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=a8da1a53"></script>
+      <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+    <link href="../../../_static/style.css" rel="stylesheet" type="text/css">
+
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            Polaris
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">User's guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../users_guide/quick_start.html">Quick Start for Users</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../users_guide/tasks.html">Tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../users_guide/config_files.html">Config Files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../users_guide/suites.html">Suites</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../users_guide/mesh/index.html">Mesh component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../users_guide/e3sm/init/index.html">E3SM Initial Condition Component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../users_guide/ocean/index.html">Ocean component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../users_guide/seaice/index.html">Sea ice component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../users_guide/machines/index.html">Machines</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Developer's guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/quick_start.html">Quick Start for Developers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/command_line.html">Command-line interface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/organization/index.html">Organization of Tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/e3sm/init/index.html">E3SM initial condition (e3sm/init) component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/mesh/index.html">Mesh component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/ocean/index.html">Ocean component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/seaice/index.html">Sea ice component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/framework/index.html">Framework</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/machines/index.html">Machines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/benchmarking.html">Benchmarking a branch against a baseline</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/troubleshooting.html">Troubleshooting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/docs.html">Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/building_docs.html">Building the Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/building_docs.html#previewing-the-documentation">Previewing the Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/conda_vs_spack.html">How Conda and Spack Work Together in Polaris</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/updating_conda.html">Updating Deployment Dependencies</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/updating_spack/index.html">Updating Shared Spack Environments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/api.html">API reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../design_docs/index.html">Design Documents</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorials/dev_add_category_of_tasks/index.html">Developer Tutorial: Adding a New Category of Tasks</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Glossary</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../glossary.html">Glossary</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">Polaris</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+          <li class="breadcrumb-item"><a href="../run.html">polaris.run</a></li>
+      <li class="breadcrumb-item active">polaris.run.executor</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for polaris.run.executor</h1><div class="highlight"><pre>
+<span></span><span class="sd">"""</span>
+<span class="sd">Running one step in a forked child.</span>
+
+<span class="sd">The scheduler forks itself for each step it starts.  The child is a private</span>
+<span class="sd">copy of the scheduler's address space, so it already holds every module the</span>
+<span class="sd">scheduler imported and the live `Step` object the scheduler selected: it</span>
+<span class="sd">imports nothing and unpickles nothing, which is what makes starting a step</span>
+<span class="sd">cost almost nothing.  Starting each step as a fresh `polaris serial`</span>
+<span class="sd">subprocess cost 35 s of imports and unpickling, more than the median step's</span>
+<span class="sd">own work, and made a concurrent `omega_pr` slower than a serial one.</span>
+
+<span class="sd">Being a copy is also what keeps the steps apart.  A step may change the</span>
+<span class="sd">working directory, set library defaults and use `pyplot` globals exactly as</span>
+<span class="sd">it does today, because none of it is shared.</span>
+
+<span class="sd">The same mechanism serves an MPI step, whose child goes on to launch its</span>
+<span class="sd">model, and a Python step, whose child simply runs Python.  What the two do</span>
+<span class="sd">not share is how they are confined.  An MPI step's placement reaches a</span>
+<span class="sd">launcher, which puts the work where it says.  A step that is not launched</span>
+<span class="sd">does its work in the child itself, and nothing between the scheduler and</span>
+<span class="sd">that child acts on a placement -- so the child sets its own affinity, which</span>
+<span class="sd">it can only do on the node it is running on.  That is why the pool gives</span>
+<span class="sd">such a step cores on the scheduler's node.</span>
+
+<span class="sd">Forking safely requires the scheduler to hold no other thread; see</span>
+<span class="sd">`polaris/__init__.py`, which pins the numerical thread pools before numpy</span>
+<span class="sd">can raise one per core, and `reap_one` below, which is why the scheduler</span>
+<span class="sd">does not give each running step a thread to wait on it.</span>
+<span class="sd">"""</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">signal</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">sys</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">time</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">traceback</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">dataclass</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">NoReturn</span><span class="p">,</span> <span class="n">Optional</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.run.pool</span><span class="w"> </span><span class="kn">import</span> <span class="n">Reservation</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.run.serial</span><span class="w"> </span><span class="kn">import</span> <span class="n">run_step_in_process</span>
+
+
+<div class="viewcode-block" id="StepOutcome">
+<a class="viewcode-back" href="../../../developers_guide/generated/polaris.run.executor.StepOutcome.html#polaris.run.executor.StepOutcome">[docs]</a>
+<span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">StepOutcome</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    How a step ended.</span>
+
+<span class="sd">    Attributes</span>
+<span class="sd">    ----------</span>
+<span class="sd">    step_path : str</span>
+<span class="sd">        Which step this is about.</span>
+
+<span class="sd">    returncode : int</span>
+<span class="sd">        What its process exited with.  Negative means it was killed by a</span>
+<span class="sd">        signal rather than exiting on its own.</span>
+
+<span class="sd">    seconds : float</span>
+<span class="sd">        How long its process took, from forking it to reaping it.</span>
+
+<span class="sd">    work_seconds : float or None</span>
+<span class="sd">        How long the step itself took, which is what a run should count as</span>
+<span class="sd">        work.  ``None`` where the child could not say, which is any failure</span>
+<span class="sd">        before it started timing.</span>
+
+<span class="sd">    signal_name : str or None</span>
+<span class="sd">        The signal that killed it, where one did.</span>
+
+<span class="sd">    succeeded : bool</span>
+<span class="sd">        Whether it finished on its own with nothing to report.</span>
+
+<span class="sd">    terminated : bool</span>
+<span class="sd">        Whether it was killed rather than failing.  This is worth telling</span>
+<span class="sd">        apart: memory is not enforced, so a step that uses more than it</span>
+<span class="sd">        declared exhausts the node and the operating system kills whichever</span>
+<span class="sd">        process it chooses, which need not be the step at fault.</span>
+<span class="sd">    """</span>
+
+    <span class="n">step_path</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">returncode</span><span class="p">:</span> <span class="nb">int</span>
+    <span class="n">seconds</span><span class="p">:</span> <span class="nb">float</span>
+    <span class="n">signal_name</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>
+    <span class="n">succeeded</span><span class="p">:</span> <span class="nb">bool</span>
+    <span class="n">terminated</span><span class="p">:</span> <span class="nb">bool</span>
+    <span class="n">work_seconds</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span></div>
+
+
+
+<div class="viewcode-block" id="RunningStep">
+<a class="viewcode-back" href="../../../developers_guide/generated/polaris.run.executor.RunningStep.html#polaris.run.executor.RunningStep">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">RunningStep</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    A step that has been started and has not finished.</span>
+
+<span class="sd">    Attributes</span>
+<span class="sd">    ----------</span>
+<span class="sd">    step : polaris.Step</span>
+<span class="sd">        The step being run.</span>
+
+<span class="sd">    reservation : polaris.run.pool.Reservation</span>
+<span class="sd">        What it was given, which is handed back when it ends.</span>
+
+<span class="sd">    log_filename : str</span>
+<span class="sd">        Where its output is going.</span>
+<span class="sd">    """</span>
+
+<div class="viewcode-block" id="RunningStep.__init__">
+<a class="viewcode-back" href="../../../developers_guide/generated/polaris.run.executor.RunningStep.html#polaris.run.executor.RunningStep.__init__">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">step</span><span class="p">,</span> <span class="n">reservation</span><span class="p">,</span> <span class="n">pid</span><span class="p">,</span> <span class="n">log_filename</span><span class="p">,</span> <span class="n">started</span><span class="p">,</span> <span class="n">hearing</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">step</span> <span class="o">=</span> <span class="n">step</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">reservation</span> <span class="o">=</span> <span class="n">reservation</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">log_filename</span> <span class="o">=</span> <span class="n">log_filename</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">started</span> <span class="o">=</span> <span class="n">started</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_pid</span> <span class="o">=</span> <span class="n">pid</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_hearing</span> <span class="o">=</span> <span class="n">hearing</span></div>
+
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">work_seconds</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">"""How long the step itself took, as the child reported it."""</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">said</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_hearing</span><span class="p">,</span> <span class="mi">64</span><span class="p">)</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">close</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_hearing</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">OSError</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="n">said</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+            <span class="c1"># a child that died before it timed anything says nothing</span>
+            <span class="k">return</span> <span class="kc">None</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">pid</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""The process id, which is what a log names it by."""</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pid</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">kill</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Stop the step, for a run that is being torn down."""</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">kill</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_pid</span><span class="p">,</span> <span class="n">signal</span><span class="o">.</span><span class="n">SIGKILL</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">ProcessLookupError</span><span class="p">:</span>
+            <span class="c1"># it finished between deciding to kill it and doing so</span>
+            <span class="k">pass</span></div>
+
+
+
+<div class="viewcode-block" id="start_step">
+<a class="viewcode-back" href="../../../developers_guide/generated/polaris.run.executor.start_step.html#polaris.run.executor.start_step">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">start_step</span><span class="p">(</span>
+    <span class="n">step</span><span class="p">,</span> <span class="n">reservation</span><span class="p">:</span> <span class="n">Reservation</span><span class="p">,</span> <span class="n">log_filename</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">local_node</span><span class="p">:</span> <span class="nb">str</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">RunningStep</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Start one step in a forked child.</span>
+
+<span class="sd">    The child inherits this process's address space, so it holds every module</span>
+<span class="sd">    already imported and the live ``step`` object, and reads nothing from</span>
+<span class="sd">    disk to get going.  That is what makes starting a step cost almost</span>
+<span class="sd">    nothing; a fresh ``polaris serial`` subprocess cost 35 s of imports and</span>
+<span class="sd">    unpickling, which was more than the median step's actual work.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    step : polaris.Step</span>
+<span class="sd">        The step to run, which must already be set up and sized</span>
+
+<span class="sd">    reservation : polaris.run.pool.Reservation</span>
+<span class="sd">        What the pool gave it</span>
+
+<span class="sd">    log_filename : str</span>
+<span class="sd">        Where to send its output.  Steps run at the same time, so they</span>
+<span class="sd">        cannot share a stream and be read afterwards.</span>
+
+<span class="sd">    local_node : str</span>
+<span class="sd">        The node the scheduler is on, which is the only one whose cores a</span>
+<span class="sd">        child can bind itself to</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    running : polaris.run.executor.RunningStep</span>
+<span class="sd">        The started step</span>
+<span class="sd">    """</span>
+    <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">log_filename</span><span class="p">)</span> <span class="ow">or</span> <span class="s1">'.'</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">cores</span> <span class="o">=</span> <span class="n">_local_cores</span><span class="p">(</span><span class="n">reservation</span><span class="p">,</span> <span class="n">local_node</span><span class="p">)</span>
+
+    <span class="c1"># anything still buffered here would be inherited and written twice</span>
+    <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">flush</span><span class="p">()</span>
+    <span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="o">.</span><span class="n">flush</span><span class="p">()</span>
+
+    <span class="c1"># how the child says how long the step itself took.  A pipe rather than</span>
+    <span class="c1"># another marker file: this is the scheduler's business rather than the</span>
+    <span class="c1"># step's, and it should leave nothing behind in the work directory.</span>
+    <span class="n">hearing</span><span class="p">,</span> <span class="n">saying</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">pipe</span><span class="p">()</span>
+
+    <span class="n">started</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+    <span class="n">pid</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">fork</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">pid</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">close</span><span class="p">(</span><span class="n">hearing</span><span class="p">)</span>
+        <span class="n">_be_the_step</span><span class="p">(</span><span class="n">step</span><span class="p">,</span> <span class="n">reservation</span><span class="o">.</span><span class="n">placement</span><span class="p">,</span> <span class="n">log_filename</span><span class="p">,</span> <span class="n">cores</span><span class="p">,</span> <span class="n">saying</span><span class="p">)</span>
+        <span class="c1"># unreachable: _be_the_step never returns</span>
+
+    <span class="n">os</span><span class="o">.</span><span class="n">close</span><span class="p">(</span><span class="n">saying</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">RunningStep</span><span class="p">(</span><span class="n">step</span><span class="p">,</span> <span class="n">reservation</span><span class="p">,</span> <span class="n">pid</span><span class="p">,</span> <span class="n">log_filename</span><span class="p">,</span> <span class="n">started</span><span class="p">,</span> <span class="n">hearing</span><span class="p">)</span></div>
+
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_be_the_step</span><span class="p">(</span><span class="n">step</span><span class="p">,</span> <span class="n">placement</span><span class="p">,</span> <span class="n">log_filename</span><span class="p">,</span> <span class="n">cores</span><span class="p">,</span> <span class="n">saying</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">NoReturn</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Become the step, in the forked child, and never come back.</span>
+
+<span class="sd">    Everything here is undoing something the child inherited that belongs to</span>
+<span class="sd">    the scheduler.  The signal handlers are the scheduler's, so a Ctrl-C</span>
+<span class="sd">    meant for one step would otherwise run the scheduler's shutdown in the</span>
+<span class="sd">    child.  The file descriptors are the scheduler's, and are redirected by</span>
+<span class="sd">    descriptor rather than by reassigning ``sys.stdout`` so that a model an</span>
+<span class="sd">    MPI step launches writes to the log as well -- a launched command</span>
+<span class="sd">    inherits the descriptor and knows nothing of Python's streams.</span>
+
+<span class="sd">    It ends with ``os._exit``, which skips exit handlers and buffer flushes.</span>
+<span class="sd">    Falling off the end or calling ``sys.exit`` would run the scheduler's</span>
+<span class="sd">    ``atexit`` handlers in the child and flush buffers the scheduler still</span>
+<span class="sd">    owns.</span>
+<span class="sd">    """</span>
+    <span class="n">status</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="n">work_seconds</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">caught</span> <span class="ow">in</span> <span class="p">(</span><span class="n">signal</span><span class="o">.</span><span class="n">SIGINT</span><span class="p">,</span> <span class="n">signal</span><span class="o">.</span><span class="n">SIGTERM</span><span class="p">,</span> <span class="n">signal</span><span class="o">.</span><span class="n">SIGHUP</span><span class="p">):</span>
+            <span class="n">signal</span><span class="o">.</span><span class="n">signal</span><span class="p">(</span><span class="n">caught</span><span class="p">,</span> <span class="n">signal</span><span class="o">.</span><span class="n">SIG_DFL</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">cores</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">os</span><span class="o">.</span><span class="n">sched_setaffinity</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">set</span><span class="p">(</span><span class="n">cores</span><span class="p">))</span>
+            <span class="k">except</span> <span class="p">(</span><span class="ne">AttributeError</span><span class="p">,</span> <span class="ne">OSError</span><span class="p">):</span>
+                <span class="c1"># a platform without affinity, or cores the kernel will not</span>
+                <span class="c1"># give us.  The step still runs; the scheduler's accounting</span>
+                <span class="c1"># describes it and nothing enforces that, which is the same</span>
+                <span class="c1"># footing memory is on.</span>
+                <span class="k">pass</span>
+
+        <span class="n">opened</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">open</span><span class="p">(</span>
+            <span class="n">log_filename</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">O_WRONLY</span> <span class="o">|</span> <span class="n">os</span><span class="o">.</span><span class="n">O_CREAT</span> <span class="o">|</span> <span class="n">os</span><span class="o">.</span><span class="n">O_TRUNC</span><span class="p">,</span> <span class="mo">0o644</span>
+        <span class="p">)</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">dup2</span><span class="p">(</span><span class="n">opened</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">dup2</span><span class="p">(</span><span class="n">opened</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">close</span><span class="p">(</span><span class="n">opened</span><span class="p">)</span>
+
+        <span class="c1"># and point Python's own streams at the descriptors just redirected.</span>
+        <span class="c1"># Redirecting the descriptors is what catches a model an MPI step</span>
+        <span class="c1"># launches, which knows nothing of Python's streams; rebinding these</span>
+        <span class="c1"># is what catches Python's own writes when the parent's streams were</span>
+        <span class="c1"># not the descriptors -- under pytest they are not, and neither are</span>
+        <span class="c1"># they under anything else that captures output.</span>
+        <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">fdopen</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="s1">'w'</span><span class="p">,</span> <span class="n">buffering</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">closefd</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="n">sys</span><span class="o">.</span><span class="n">stderr</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">fdopen</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="s1">'w'</span><span class="p">,</span> <span class="n">buffering</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">closefd</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+        <span class="n">os</span><span class="o">.</span><span class="n">chdir</span><span class="p">(</span><span class="n">step</span><span class="o">.</span><span class="n">work_dir</span><span class="p">)</span>
+        <span class="c1"># this child *is* the separate process that flag asks for</span>
+        <span class="n">step</span><span class="o">.</span><span class="n">run_as_subprocess</span> <span class="o">=</span> <span class="kc">False</span>
+
+        <span class="n">began</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+        <span class="n">run_step_in_process</span><span class="p">(</span><span class="n">step</span><span class="p">,</span> <span class="n">placement</span><span class="p">)</span>
+        <span class="n">work_seconds</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">began</span>
+        <span class="n">status</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">except</span> <span class="ne">BaseException</span><span class="p">:</span>  <span class="c1"># noqa: BLE001</span>
+        <span class="c1"># deliberately everything, including KeyboardInterrupt: this child</span>
+        <span class="c1"># must not unwind into the scheduler's code on its way out</span>
+        <span class="n">traceback</span><span class="o">.</span><span class="n">print_exc</span><span class="p">()</span>
+    <span class="k">finally</span><span class="p">:</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">flush</span><span class="p">()</span>
+            <span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="o">.</span><span class="n">flush</span><span class="p">()</span>
+        <span class="k">except</span> <span class="p">(</span><span class="ne">OSError</span><span class="p">,</span> <span class="ne">ValueError</span><span class="p">):</span>
+            <span class="k">pass</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">work_seconds</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">os</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">saying</span><span class="p">,</span> <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">work_seconds</span><span class="si">}</span><span class="s1">'</span><span class="o">.</span><span class="n">encode</span><span class="p">())</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">close</span><span class="p">(</span><span class="n">saying</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">OSError</span><span class="p">:</span>
+            <span class="k">pass</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">_exit</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="reap_one">
+<a class="viewcode-back" href="../../../developers_guide/generated/polaris.run.executor.reap_one.html#polaris.run.executor.reap_one">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">reap_one</span><span class="p">(</span><span class="n">running</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="s1">'RunningStep'</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">StepOutcome</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Wait for whichever step finishes next and say how it went.</span>
+
+<span class="sd">    The scheduler reaps in its own loop rather than giving each running step</span>
+<span class="sd">    a thread to wait on it.  A thread each is reasonable under `subprocess`</span>
+<span class="sd">    and unsafe here: only the forking thread survives a fork, so a lock held</span>
+<span class="sd">    by any other one at that moment is held forever in the child.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    running : dict of polaris.run.executor.RunningStep</span>
+<span class="sd">        The steps currently running, by path</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    outcome : polaris.run.executor.StepOutcome</span>
+<span class="sd">        What happened to the one that finished</span>
+<span class="sd">    """</span>
+    <span class="n">by_pid</span> <span class="o">=</span> <span class="p">{</span><span class="n">run</span><span class="o">.</span><span class="n">pid</span><span class="p">:</span> <span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">run</span><span class="p">)</span> <span class="k">for</span> <span class="n">path</span><span class="p">,</span> <span class="n">run</span> <span class="ow">in</span> <span class="n">running</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
+    <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+        <span class="n">pid</span><span class="p">,</span> <span class="n">status</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">waitpid</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">pid</span> <span class="ow">in</span> <span class="n">by_pid</span><span class="p">:</span>
+            <span class="n">path</span><span class="p">,</span> <span class="n">run</span> <span class="o">=</span> <span class="n">by_pid</span><span class="p">[</span><span class="n">pid</span><span class="p">]</span>
+            <span class="k">return</span> <span class="n">_outcome</span><span class="p">(</span>
+                <span class="n">path</span><span class="p">,</span>
+                <span class="n">_returncode</span><span class="p">(</span><span class="n">status</span><span class="p">),</span>
+                <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">run</span><span class="o">.</span><span class="n">started</span><span class="p">,</span>
+                <span class="n">run</span><span class="o">.</span><span class="n">work_seconds</span><span class="p">(),</span>
+            <span class="p">)</span></div>
+
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_returncode</span><span class="p">(</span><span class="n">status</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Read a wait status the way a return code reads: signals negative."""</span>
+    <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">WIFSIGNALED</span><span class="p">(</span><span class="n">status</span><span class="p">):</span>
+        <span class="k">return</span> <span class="o">-</span><span class="n">os</span><span class="o">.</span><span class="n">WTERMSIG</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">WIFEXITED</span><span class="p">(</span><span class="n">status</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">os</span><span class="o">.</span><span class="n">WEXITSTATUS</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+    <span class="k">return</span> <span class="mi">1</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_local_cores</span><span class="p">(</span>
+    <span class="n">reservation</span><span class="p">:</span> <span class="n">Reservation</span><span class="p">,</span> <span class="n">local_node</span><span class="p">:</span> <span class="nb">str</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">]]:</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    The cores to bind a step's own process to, or ``None`` not to bind it.</span>
+
+<span class="sd">    Only a step whose whole placement is on this node is bound.  A step</span>
+<span class="sd">    spread over several nodes does its work through a launcher, which puts</span>
+<span class="sd">    it where the placement says, and confining the process that started it</span>
+<span class="sd">    would describe none of that.</span>
+<span class="sd">    """</span>
+    <span class="n">names</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">reservation</span><span class="o">.</span><span class="n">cores</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">names</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">None</span>
+    <span class="n">name</span> <span class="o">=</span> <span class="n">names</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="k">if</span> <span class="n">name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="s1">''</span><span class="p">,</span> <span class="n">local_node</span><span class="p">):</span>
+        <span class="k">return</span> <span class="kc">None</span>
+    <span class="n">cores</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">reservation</span><span class="o">.</span><span class="n">cores</span><span class="p">[</span><span class="n">name</span><span class="p">])</span>
+    <span class="k">return</span> <span class="n">cores</span> <span class="ow">or</span> <span class="kc">None</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_outcome</span><span class="p">(</span>
+    <span class="n">step_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">returncode</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">seconds</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="n">work_seconds</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">StepOutcome</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Read a process's exit status the way a scheduler needs it."""</span>
+    <span class="n">signal_name</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">terminated</span> <span class="o">=</span> <span class="n">returncode</span> <span class="o">&lt;</span> <span class="mi">0</span>
+    <span class="k">if</span> <span class="n">terminated</span><span class="p">:</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">signal_name</span> <span class="o">=</span> <span class="n">signal</span><span class="o">.</span><span class="n">Signals</span><span class="p">(</span><span class="o">-</span><span class="n">returncode</span><span class="p">)</span><span class="o">.</span><span class="n">name</span>
+        <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+            <span class="n">signal_name</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">'signal </span><span class="si">{</span><span class="o">-</span><span class="n">returncode</span><span class="si">}</span><span class="s1">'</span>
+    <span class="k">return</span> <span class="n">StepOutcome</span><span class="p">(</span>
+        <span class="n">step_path</span><span class="o">=</span><span class="n">step_path</span><span class="p">,</span>
+        <span class="n">returncode</span><span class="o">=</span><span class="n">returncode</span><span class="p">,</span>
+        <span class="n">seconds</span><span class="o">=</span><span class="nb">round</span><span class="p">(</span><span class="n">seconds</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span>
+        <span class="n">signal_name</span><span class="o">=</span><span class="n">signal_name</span><span class="p">,</span>
+        <span class="n">succeeded</span><span class="o">=</span><span class="n">returncode</span> <span class="o">==</span> <span class="mi">0</span><span class="p">,</span>
+        <span class="n">terminated</span><span class="o">=</span><span class="n">terminated</span><span class="p">,</span>
+        <span class="n">work_seconds</span><span class="o">=</span><span class="n">work_seconds</span><span class="p">,</span>
+    <span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">describe_neighbors</span><span class="p">(</span><span class="n">pool</span><span class="p">,</span> <span class="n">reservation</span><span class="p">:</span> <span class="n">Reservation</span><span class="p">,</span> <span class="n">steps</span><span class="p">:</span> <span class="n">Dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Name the steps that shared a node with one that was killed, and what</span>
+<span class="sd">    each of them declared.</span>
+
+<span class="sd">    The victim is identifiable and the culprit is not, so this is the most</span>
+<span class="sd">    that can honestly be said.  A report that blamed only the victim would</span>
+<span class="sd">    send whoever reads it to the wrong step, while the list of neighbours</span>
+<span class="sd">    and their declarations is what turns an inexplicable failure into a</span>
+<span class="sd">    short investigation -- and, where one neighbour's declaration is</span>
+<span class="sd">    obviously too small, into an obvious fix.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    pool : polaris.run.pool.ResourcePool</span>
+<span class="sd">        The pool, which knows who is on which node</span>
+
+<span class="sd">    reservation : polaris.run.pool.Reservation</span>
+<span class="sd">        What the killed step held</span>
+
+<span class="sd">    steps : dict of polaris.Step</span>
+<span class="sd">        The steps of the run, by path</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    report : str</span>
+<span class="sd">        Lines naming each node the step was on and who else was there</span>
+<span class="sd">    """</span>
+    <span class="n">lines</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">node_name</span> <span class="ow">in</span> <span class="n">reservation</span><span class="o">.</span><span class="n">cores</span><span class="p">:</span>
+        <span class="n">others</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">path</span>
+            <span class="k">for</span> <span class="n">path</span> <span class="ow">in</span> <span class="n">pool</span><span class="o">.</span><span class="n">resident</span><span class="p">(</span><span class="n">node_name</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">path</span> <span class="o">!=</span> <span class="n">reservation</span><span class="o">.</span><span class="n">step_path</span>
+        <span class="p">]</span>
+        <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s1">'  on node </span><span class="si">{</span><span class="n">node_name</span><span class="w"> </span><span class="ow">or</span><span class="w"> </span><span class="s2">"this node"</span><span class="si">}</span><span class="s1">:'</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">others</span><span class="p">:</span>
+            <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">'    nothing else was running there'</span><span class="p">)</span>
+            <span class="k">continue</span>
+        <span class="k">for</span> <span class="n">path</span> <span class="ow">in</span> <span class="n">others</span><span class="p">:</span>
+            <span class="n">other</span> <span class="o">=</span> <span class="n">steps</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">other</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s1">'    </span><span class="si">{</span><span class="n">path</span><span class="si">}</span><span class="s1">'</span><span class="p">)</span>
+                <span class="k">continue</span>
+            <span class="k">if</span> <span class="n">other</span><span class="o">.</span><span class="n">memory</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">declared</span> <span class="o">=</span> <span class="p">(</span>
+                    <span class="sa">f</span><span class="s1">'declared no memory, budgeted at '</span>
+                    <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">other</span><span class="o">.</span><span class="n">memory_budget</span><span class="si">}</span><span class="s1"> MiB'</span>
+                <span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">declared</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">'declared </span><span class="si">{</span><span class="n">other</span><span class="o">.</span><span class="n">memory</span><span class="si">}</span><span class="s1"> MiB'</span>
+            <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s1">'    </span><span class="si">{</span><span class="n">path</span><span class="si">}</span><span class="s1">: </span><span class="si">{</span><span class="n">other</span><span class="o">.</span><span class="n">cores</span><span class="si">}</span><span class="s1"> cores, </span><span class="si">{</span><span class="n">declared</span><span class="si">}</span><span class="s1">'</span><span class="p">)</span>
+    <span class="k">return</span> <span class="s1">'</span><span class="se">\n</span><span class="s1">'</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">lines</span><span class="p">)</span>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2026, Energy Exascale Earth System Model Project.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+   
+
+  <!-- Meta tags for JS to use -->
+  <meta name="doc-version" content="main">
+  <meta name="doc-site-root" content="../../../">
+
+  <!-- Create version switcher container -->
+  <script>
+    const sidebar = document.querySelector('.wy-side-nav-search');
+    if (sidebar) {
+      const versionDiv = document.createElement('div');
+      versionDiv.id = 'version-switcher';
+      versionDiv.style.marginTop = '1em';
+      sidebar.appendChild(versionDiv);
+    }
+  </script>
+
+  <!-- Load version-switcher.js using the correct relative path -->
+  <script src="../../../../shared/version-switcher.js"></script>
+
+
+</body>
+</html>

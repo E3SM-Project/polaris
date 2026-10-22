@@ -167,7 +167,8 @@ print the tasks belonging to each given suite.</p>
 the terminal and output from each task goes to a log file in <code class="docutils literal notranslate"><span class="pre">case_outputs</span></code>.
 Polaris also writes <code class="docutils literal notranslate"><span class="pre">&lt;suite_name&gt;_results.json</span></code> in the base work directory,
 for scripts and dashboards to read. Running a single task from its work
-directory writes <code class="docutils literal notranslate"><span class="pre">task_results.json</span></code> there instead.</p>
+directory writes <code class="docutils literal notranslate"><span class="pre">task_results.json</span></code> there instead. <code class="docutils literal notranslate"><span class="pre">polaris</span> <span class="pre">parallel</span></code>
+writes the same file.</p>
 <p>The file lists every task in the order they run, with:</p>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">status</span></code>: <code class="docutils literal notranslate"><span class="pre">pass</span></code>, <code class="docutils literal notranslate"><span class="pre">fail</span></code>, or <code class="docutils literal notranslate"><span class="pre">pending</span></code> if the task has not finished</p></li>
@@ -177,7 +178,8 @@ directory writes <code class="docutils literal notranslate"><span class="pre">ta
 compliance (see <a class="reference internal" href="../developers_guide/framework/validation.html#dev-cf-check"><span class="std std-ref">CF compliance checks</span></a>)</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">elapsed_seconds</span></code>: the task’s wall-clock time</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">steps_to_run</span></code>: the steps the task ran</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">log</span></code>: the task’s log file, relative to the base work directory</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">log</span></code>: the task’s log file, relative to the base work directory, or <code class="docutils literal notranslate"><span class="pre">null</span></code>
+for a <code class="docutils literal notranslate"><span class="pre">polaris</span> <span class="pre">parallel</span></code> run, where each step has its own log</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">baseline_diffs</span></code>: the largest l1, l2 and l_infinity norms of the difference
 from the baseline for each variable that was compared</p></li>
 </ul>

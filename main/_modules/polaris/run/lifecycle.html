@@ -1,0 +1,492 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>polaris.run.lifecycle</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=a8da1a53"></script>
+      <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+    <link href="../../../_static/style.css" rel="stylesheet" type="text/css">
+
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            Polaris
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">User's guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../users_guide/quick_start.html">Quick Start for Users</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../users_guide/tasks.html">Tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../users_guide/config_files.html">Config Files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../users_guide/suites.html">Suites</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../users_guide/mesh/index.html">Mesh component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../users_guide/e3sm/init/index.html">E3SM Initial Condition Component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../users_guide/ocean/index.html">Ocean component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../users_guide/seaice/index.html">Sea ice component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../users_guide/machines/index.html">Machines</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Developer's guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/quick_start.html">Quick Start for Developers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/command_line.html">Command-line interface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/organization/index.html">Organization of Tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/e3sm/init/index.html">E3SM initial condition (e3sm/init) component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/mesh/index.html">Mesh component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/ocean/index.html">Ocean component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/seaice/index.html">Sea ice component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/framework/index.html">Framework</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/machines/index.html">Machines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/benchmarking.html">Benchmarking a branch against a baseline</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/troubleshooting.html">Troubleshooting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/docs.html">Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/building_docs.html">Building the Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/building_docs.html#previewing-the-documentation">Previewing the Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/conda_vs_spack.html">How Conda and Spack Work Together in Polaris</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/updating_conda.html">Updating Deployment Dependencies</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/updating_spack/index.html">Updating Shared Spack Environments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/api.html">API reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../design_docs/index.html">Design Documents</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorials/dev_add_category_of_tasks/index.html">Developer Tutorial: Adding a New Category of Tasks</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Glossary</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../glossary.html">Glossary</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">Polaris</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+          <li class="breadcrumb-item"><a href="../run.html">polaris.run</a></li>
+      <li class="breadcrumb-item active">polaris.run.lifecycle</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for polaris.run.lifecycle</h1><div class="highlight"><pre>
+<span></span><span class="sd">"""</span>
+<span class="sd">The lifecycle of one step, shared by every way of running one.</span>
+
+<span class="sd">`polaris serial` grew this in place, and it is the part that must not differ</span>
+<span class="sd">between running a suite one step at a time and running its steps at once:</span>
+<span class="sd">the checks on a step's inputs and outputs, loading what it depends on,</span>
+<span class="sd">`runtime_setup()`, `run()`, the markers that say it finished, and the</span>
+<span class="sd">comparisons that say whether it agreed with a baseline.  Moving it here</span>
+<span class="sd">leaves one copy for both callers rather than a second that drifts.</span>
+
+<span class="sd">Nothing here decides *which* step runs or what resources it gets.  That is</span>
+<span class="sd">the caller's, and it is the whole of the difference between the two.</span>
+<span class="sd">"""</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">json</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Optional</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">mpas_tools.logging</span><span class="w"> </span><span class="kn">import</span> <span class="n">LoggingContext</span><span class="p">,</span> <span class="n">check_call</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.logging</span><span class="w"> </span><span class="kn">import</span> <span class="n">log_method_call</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.run</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">STEP_COMPLETE_LOG</span><span class="p">,</span>
+    <span class="n">complete_step_run</span><span class="p">,</span>
+    <span class="n">load_dependencies</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.run.confinement</span><span class="w"> </span><span class="kn">import</span> <span class="n">check_confinement</span>
+
+
+<div class="viewcode-block" id="run_step">
+<a class="viewcode-back" href="../../../developers_guide/generated/polaris.run.lifecycle.run_step.html#polaris.run.lifecycle.run_step">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">run_step</span><span class="p">(</span><span class="n">task</span><span class="p">,</span> <span class="n">step</span><span class="p">,</span> <span class="n">new_log_file</span><span class="p">,</span> <span class="n">available_resources</span><span class="p">,</span> <span class="n">step_log_filename</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Run the requested step</span>
+<span class="sd">    """</span>
+    <span class="n">logger</span> <span class="o">=</span> <span class="n">task</span><span class="o">.</span><span class="n">logger</span>
+    <span class="n">cwd</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">()</span>
+
+    <span class="n">missing_files</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">input_file</span> <span class="ow">in</span> <span class="n">step</span><span class="o">.</span><span class="n">inputs</span><span class="p">:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">input_file</span><span class="p">):</span>
+            <span class="n">missing_files</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">input_file</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">missing_files</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">OSError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s1">'input file(s) missing in step </span><span class="si">{</span><span class="n">step</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s1"> in '</span>
+            <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">step</span><span class="o">.</span><span class="n">component</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="n">step</span><span class="o">.</span><span class="n">subdir</span><span class="si">}</span><span class="s1">: </span><span class="si">{</span><span class="n">missing_files</span><span class="si">}</span><span class="s1">'</span>
+        <span class="p">)</span>
+
+    <span class="n">load_dependencies</span><span class="p">(</span><span class="n">step</span><span class="p">)</span>
+
+    <span class="c1"># each logger needs a unique name</span>
+    <span class="n">logger_name</span> <span class="o">=</span> <span class="n">step</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">'/'</span><span class="p">,</span> <span class="s1">'_'</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">new_log_file</span><span class="p">:</span>
+        <span class="c1"># we want to create new log file and point the step to that name</span>
+        <span class="n">new_log_filename</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">cwd</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="n">step</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s1">.log'</span>
+        <span class="n">step_log_filename</span> <span class="o">=</span> <span class="n">new_log_filename</span>
+        <span class="n">step_logger</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="c1"># either we don't want a log file at all or there is an existing one</span>
+        <span class="c1"># to use.  Either way, we don't want a new log filename and we want</span>
+        <span class="c1"># to use the existing logger.  The step log filename will be whatever</span>
+        <span class="c1"># is passed as a parameter</span>
+        <span class="n">step_logger</span> <span class="o">=</span> <span class="n">logger</span>
+        <span class="n">new_log_filename</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="n">step</span><span class="o">.</span><span class="n">log_filename</span> <span class="o">=</span> <span class="n">step_log_filename</span>
+
+    <span class="k">with</span> <span class="n">LoggingContext</span><span class="p">(</span>
+        <span class="n">name</span><span class="o">=</span><span class="n">logger_name</span><span class="p">,</span> <span class="n">logger</span><span class="o">=</span><span class="n">step_logger</span><span class="p">,</span> <span class="n">log_filename</span><span class="o">=</span><span class="n">new_log_filename</span>
+    <span class="p">)</span> <span class="k">as</span> <span class="n">step_logger</span><span class="p">:</span>
+        <span class="n">step</span><span class="o">.</span><span class="n">logger</span> <span class="o">=</span> <span class="n">step_logger</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">chdir</span><span class="p">(</span><span class="n">step</span><span class="o">.</span><span class="n">work_dir</span><span class="p">)</span>
+
+        <span class="n">step_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">''</span><span class="p">)</span>
+        <span class="n">log_method_call</span><span class="p">(</span><span class="n">method</span><span class="o">=</span><span class="n">step</span><span class="o">.</span><span class="n">constrain_resources</span><span class="p">,</span> <span class="n">logger</span><span class="o">=</span><span class="n">step_logger</span><span class="p">)</span>
+        <span class="n">step_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">''</span><span class="p">)</span>
+        <span class="c1"># a step confined to part of the allocation has to be told about</span>
+        <span class="c1"># that part, not about the whole job.  A serial run assigns no</span>
+        <span class="c1"># placement, so there it is the whole job as it always was.</span>
+        <span class="k">if</span> <span class="n">step</span><span class="o">.</span><span class="n">placement</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">step_resources</span> <span class="o">=</span> <span class="n">step</span><span class="o">.</span><span class="n">component</span><span class="o">.</span><span class="n">get_available_resources</span><span class="p">(</span>
+                <span class="n">step</span><span class="o">.</span><span class="n">placement</span>
+            <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">step_resources</span> <span class="o">=</span> <span class="n">available_resources</span>
+        <span class="n">step</span><span class="o">.</span><span class="n">constrain_resources</span><span class="p">(</span><span class="n">step_resources</span><span class="p">)</span>
+        <span class="n">_log_sizing</span><span class="p">(</span><span class="n">step</span><span class="p">,</span> <span class="n">step_resources</span><span class="p">,</span> <span class="n">step_logger</span><span class="p">,</span> <span class="s1">'after sizing'</span><span class="p">)</span>
+
+        <span class="c1"># a placement is a promise about part of the machine, and nothing</span>
+        <span class="c1"># enforces it.  Ask, once, whether this step got what it was given.</span>
+        <span class="n">check_confinement</span><span class="p">(</span><span class="n">step</span><span class="p">,</span> <span class="n">step_logger</span><span class="p">)</span>
+
+        <span class="c1"># runtime_setup() will perform small tasks that require knowing the</span>
+        <span class="c1"># resources of the task before the step runs (such as creating</span>
+        <span class="c1"># graph partitions)</span>
+        <span class="n">step_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">''</span><span class="p">)</span>
+        <span class="n">log_method_call</span><span class="p">(</span><span class="n">method</span><span class="o">=</span><span class="n">step</span><span class="o">.</span><span class="n">runtime_setup</span><span class="p">,</span> <span class="n">logger</span><span class="o">=</span><span class="n">step_logger</span><span class="p">)</span>
+        <span class="n">step_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">''</span><span class="p">)</span>
+        <span class="n">step</span><span class="o">.</span><span class="n">runtime_setup</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="n">step</span><span class="o">.</span><span class="n">args</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">step_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+                <span class="s2">"</span><span class="se">\n</span><span class="s2">Bypassing step's run() method and running "</span>
+                <span class="s1">'with command line args</span><span class="se">\n</span><span class="s1">'</span>
+            <span class="p">)</span>
+            <span class="k">for</span> <span class="n">args</span> <span class="ow">in</span> <span class="n">step</span><span class="o">.</span><span class="n">args</span><span class="p">:</span>
+                <span class="n">log_method_call</span><span class="p">(</span>
+                    <span class="n">method</span><span class="o">=</span><span class="n">step</span><span class="o">.</span><span class="n">component</span><span class="o">.</span><span class="n">run_parallel_command</span><span class="p">,</span>
+                    <span class="n">logger</span><span class="o">=</span><span class="n">step_logger</span><span class="p">,</span>
+                <span class="p">)</span>
+                <span class="n">step_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">''</span><span class="p">)</span>
+                <span class="n">_log_sizing</span><span class="p">(</span><span class="n">step</span><span class="p">,</span> <span class="n">step_resources</span><span class="p">,</span> <span class="n">step_logger</span><span class="p">,</span> <span class="s1">'at launch'</span><span class="p">)</span>
+                <span class="n">step</span><span class="o">.</span><span class="n">component</span><span class="o">.</span><span class="n">run_parallel_command</span><span class="p">(</span>
+                    <span class="n">args</span><span class="p">,</span>
+                    <span class="n">step</span><span class="o">.</span><span class="n">cpus_per_task</span><span class="p">,</span>
+                    <span class="n">step</span><span class="o">.</span><span class="n">ntasks</span><span class="p">,</span>
+                    <span class="n">step</span><span class="o">.</span><span class="n">openmp_threads</span><span class="p">,</span>
+                    <span class="n">step</span><span class="o">.</span><span class="n">logger</span><span class="p">,</span>
+                    <span class="n">gpus</span><span class="o">=</span><span class="n">step</span><span class="o">.</span><span class="n">gpus</span><span class="p">,</span>
+                    <span class="n">placement</span><span class="o">=</span><span class="n">step</span><span class="o">.</span><span class="n">placement</span><span class="p">,</span>
+                    <span class="n">memory_cap</span><span class="o">=</span><span class="n">step</span><span class="o">.</span><span class="n">memory</span><span class="p">,</span>
+                <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">step_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">''</span><span class="p">)</span>
+            <span class="n">log_method_call</span><span class="p">(</span><span class="n">method</span><span class="o">=</span><span class="n">step</span><span class="o">.</span><span class="n">run</span><span class="p">,</span> <span class="n">logger</span><span class="o">=</span><span class="n">step_logger</span><span class="p">)</span>
+            <span class="n">step_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">''</span><span class="p">)</span>
+            <span class="n">step</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
+
+    <span class="n">complete_step_run</span><span class="p">(</span><span class="n">step</span><span class="p">)</span>
+
+    <span class="n">missing_files</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">output_file</span> <span class="ow">in</span> <span class="n">step</span><span class="o">.</span><span class="n">outputs</span><span class="p">:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">output_file</span><span class="p">):</span>
+            <span class="n">missing_files</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">output_file</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">missing_files</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="c1"># We want to indicate that the step failed by removing the pickle</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="s1">'step_after_run.pickle'</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">FileNotFoundError</span><span class="p">:</span>
+            <span class="k">pass</span>
+        <span class="k">raise</span> <span class="ne">OSError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s1">'output file(s) missing in step </span><span class="si">{</span><span class="n">step</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s1"> in '</span>
+            <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">step</span><span class="o">.</span><span class="n">component</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="n">step</span><span class="o">.</span><span class="n">subdir</span><span class="si">}</span><span class="s1">: </span><span class="si">{</span><span class="n">missing_files</span><span class="si">}</span><span class="s1">'</span>
+        <span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="step_is_complete">
+<a class="viewcode-back" href="../../../developers_guide/generated/polaris.run.lifecycle.step_is_complete.html#polaris.run.lifecycle.step_is_complete">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">step_is_complete</span><span class="p">(</span><span class="n">step</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Whether a step has already run successfully in its work directory.</span>
+
+<span class="sd">    A step that has is skipped rather than run again, which is what makes a</span>
+<span class="sd">    rerun after a failure resume from what succeeded.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    step : polaris.Step</span>
+<span class="sd">        The step to ask about</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    complete : bool</span>
+<span class="sd">        Whether the step left the marker that says it finished</span>
+<span class="sd">    """</span>
+    <span class="k">return</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">step</span><span class="o">.</span><span class="n">work_dir</span><span class="p">,</span> <span class="n">STEP_COMPLETE_LOG</span><span class="p">))</span></div>
+
+
+
+<div class="viewcode-block" id="run_step_as_subprocess">
+<a class="viewcode-back" href="../../../developers_guide/generated/polaris.run.lifecycle.run_step_as_subprocess.html#polaris.run.lifecycle.run_step_as_subprocess">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">run_step_as_subprocess</span><span class="p">(</span><span class="n">logger</span><span class="p">,</span> <span class="n">step</span><span class="p">,</span> <span class="n">new_log_file</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Run the requested step as a subprocess</span>
+<span class="sd">    """</span>
+    <span class="n">cwd</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">()</span>
+    <span class="n">logger_name</span> <span class="o">=</span> <span class="n">step</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">'/'</span><span class="p">,</span> <span class="s1">'_'</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">new_log_file</span><span class="p">:</span>
+        <span class="n">log_filename</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">cwd</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="n">step</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s1">.log'</span>
+        <span class="n">step_logger</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">step_logger</span> <span class="o">=</span> <span class="n">logger</span>
+        <span class="n">log_filename</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="n">step</span><span class="o">.</span><span class="n">log_filename</span> <span class="o">=</span> <span class="n">log_filename</span>
+
+    <span class="k">with</span> <span class="n">LoggingContext</span><span class="p">(</span>
+        <span class="n">name</span><span class="o">=</span><span class="n">logger_name</span><span class="p">,</span> <span class="n">logger</span><span class="o">=</span><span class="n">step_logger</span><span class="p">,</span> <span class="n">log_filename</span><span class="o">=</span><span class="n">log_filename</span>
+    <span class="p">)</span> <span class="k">as</span> <span class="n">step_logger</span><span class="p">:</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">chdir</span><span class="p">(</span><span class="n">step</span><span class="o">.</span><span class="n">work_dir</span><span class="p">)</span>
+        <span class="n">step_args</span> <span class="o">=</span> <span class="p">[</span><span class="s1">'polaris'</span><span class="p">,</span> <span class="s1">'serial'</span><span class="p">,</span> <span class="s1">'--step_is_subprocess'</span><span class="p">]</span>
+        <span class="n">check_call</span><span class="p">(</span><span class="n">step_args</span><span class="p">,</span> <span class="n">step_logger</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="read_baseline_status_from_logs">
+<a class="viewcode-back" href="../../../developers_guide/generated/polaris.run.lifecycle.read_baseline_status_from_logs.html#polaris.run.lifecycle.read_baseline_status_from_logs">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">read_baseline_status_from_logs</span><span class="p">(</span><span class="n">step_work_dir</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">"""Get baseline comparison status from existing log markers.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    Optional[bool]</span>
+<span class="sd">        True if ``baseline_passed.log`` exists, False if</span>
+<span class="sd">        ``baseline_failed.log`` exists, otherwise None.</span>
+<span class="sd">    """</span>
+    <span class="n">baseline_pass_filename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">step_work_dir</span><span class="p">,</span> <span class="s1">'baseline_passed.log'</span><span class="p">)</span>
+    <span class="n">baseline_fail_filename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">step_work_dir</span><span class="p">,</span> <span class="s1">'baseline_failed.log'</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">baseline_pass_filename</span><span class="p">):</span>
+        <span class="k">return</span> <span class="kc">True</span>
+    <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">baseline_fail_filename</span><span class="p">):</span>
+        <span class="k">return</span> <span class="kc">False</span>
+    <span class="k">return</span> <span class="kc">None</span></div>
+
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">read_baseline_diff_summary_from_logs</span><span class="p">(</span><span class="n">step_work_dir</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Get the baseline diff summary from an existing JSON file, if any.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    dict</span>
+<span class="sd">        The maximum l1, l2 and l_infinity norm differences for each</span>
+<span class="sd">        variable, keyed by variable name, or an empty dict if no summary</span>
+<span class="sd">        is available.</span>
+<span class="sd">    """</span>
+    <span class="n">filename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">step_work_dir</span><span class="p">,</span> <span class="s1">'baseline_diff_summary.json'</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">filename</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">{}</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s1">'r'</span><span class="p">)</span> <span class="k">as</span> <span class="n">handle</span><span class="p">:</span>
+            <span class="n">summary</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">handle</span><span class="p">)</span>
+        <span class="c1"># older summaries hold float32 norms written as strings</span>
+        <span class="k">return</span> <span class="p">{</span>
+            <span class="n">var</span><span class="p">:</span> <span class="p">{</span><span class="n">name</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span><span class="n">norm</span><span class="p">)</span> <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">norm</span> <span class="ow">in</span> <span class="n">norms</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
+            <span class="k">for</span> <span class="n">var</span><span class="p">,</span> <span class="n">norms</span> <span class="ow">in</span> <span class="n">summary</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+        <span class="p">}</span>
+    <span class="k">except</span> <span class="p">(</span><span class="ne">OSError</span><span class="p">,</span> <span class="ne">ValueError</span><span class="p">,</span> <span class="ne">TypeError</span><span class="p">,</span> <span class="ne">AttributeError</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">{}</span>
+
+
+<div class="viewcode-block" id="read_property_status_from_logs">
+<a class="viewcode-back" href="../../../developers_guide/generated/polaris.run.lifecycle.read_property_status_from_logs.html#polaris.run.lifecycle.read_property_status_from_logs">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">read_property_status_from_logs</span><span class="p">(</span><span class="n">step_work_dir</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">"""Get property check status from existing log markers.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    Optional[bool]</span>
+<span class="sd">        True if ``property_check_passed.log`` exists, False if</span>
+<span class="sd">        ``property_check_failed.log`` exists, otherwise None.</span>
+<span class="sd">    """</span>
+    <span class="n">property_check_pass_filename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+        <span class="n">step_work_dir</span><span class="p">,</span> <span class="s1">'property_check_passed.log'</span>
+    <span class="p">)</span>
+    <span class="n">property_check_fail_filename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+        <span class="n">step_work_dir</span><span class="p">,</span> <span class="s1">'property_check_failed.log'</span>
+    <span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">property_check_pass_filename</span><span class="p">):</span>
+        <span class="k">return</span> <span class="kc">True</span>
+    <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">property_check_fail_filename</span><span class="p">):</span>
+        <span class="k">return</span> <span class="kc">False</span>
+    <span class="k">return</span> <span class="kc">None</span></div>
+
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">read_cf_status_from_logs</span><span class="p">(</span><span class="n">step_work_dir</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">"""Get CF check status from existing log markers.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    Optional[bool]</span>
+<span class="sd">        True if ``cf_check_passed.log`` exists, False if</span>
+<span class="sd">        ``cf_check_failed.log`` exists, otherwise None.</span>
+<span class="sd">    """</span>
+    <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">step_work_dir</span><span class="p">,</span> <span class="s1">'cf_check_passed.log'</span><span class="p">)):</span>
+        <span class="k">return</span> <span class="kc">True</span>
+    <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">step_work_dir</span><span class="p">,</span> <span class="s1">'cf_check_failed.log'</span><span class="p">)):</span>
+        <span class="k">return</span> <span class="kc">False</span>
+    <span class="k">return</span> <span class="kc">None</span>
+
+
+<div class="viewcode-block" id="accumulate_baselines">
+<a class="viewcode-back" href="../../../developers_guide/generated/polaris.run.lifecycle.accumulate_baselines.html#polaris.run.lifecycle.accumulate_baselines">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">accumulate_baselines</span><span class="p">(</span>
+    <span class="n">baselines_passed</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">],</span> <span class="n">status</span><span class="p">:</span> <span class="nb">bool</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">"""Aggregate baseline results across steps.</span>
+
+<span class="sd">    None means no baseline comparisons were performed. If any comparison fails,</span>
+<span class="sd">    the aggregate becomes False.</span>
+<span class="sd">    """</span>
+    <span class="k">if</span> <span class="n">baselines_passed</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">status</span>
+    <span class="k">return</span> <span class="n">baselines_passed</span> <span class="ow">and</span> <span class="n">status</span></div>
+
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_log_sizing</span><span class="p">(</span><span class="n">step</span><span class="p">,</span> <span class="n">step_resources</span><span class="p">,</span> <span class="n">logger</span><span class="p">,</span> <span class="n">when</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Record what the step is sized to and what its placement offers.</span>
+
+<span class="sd">    A launch that asks for more tasks than its placement has cores for is</span>
+<span class="sd">    rejected by the launcher, and the rejection names one node and two</span>
+<span class="sd">    numbers.  Reconstructing which of the two sides moved from that alone</span>
+<span class="sd">    is guesswork, so both are written down: what the step is sized to, and</span>
+<span class="sd">    what the placement gives, per node and in total.</span>
+<span class="sd">    """</span>
+    <span class="n">placement</span> <span class="o">=</span> <span class="n">step</span><span class="o">.</span><span class="n">placement</span>
+    <span class="k">if</span> <span class="n">placement</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">shape</span> <span class="o">=</span> <span class="s1">'no placement; the whole allocation'</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">per_node</span> <span class="o">=</span> <span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="n">node_cores</span><span class="p">)</span> <span class="k">for</span> <span class="n">node_cores</span> <span class="ow">in</span> <span class="n">placement</span><span class="o">.</span><span class="n">cores</span><span class="p">]</span>
+        <span class="n">shape</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">placement</span><span class="o">.</span><span class="n">nodes</span><span class="p">)</span><span class="si">}</span><span class="s1"> nodes, </span><span class="si">{</span><span class="n">placement</span><span class="o">.</span><span class="n">total_cores</span><span class="si">}</span><span class="s1"> cores, '</span>
+            <span class="sa">f</span><span class="s1">'per node </span><span class="si">{</span><span class="n">per_node</span><span class="si">}</span><span class="s1">'</span>
+        <span class="p">)</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+        <span class="sa">f</span><span class="s1">'sizing (</span><span class="si">{</span><span class="n">when</span><span class="si">}</span><span class="s1">): ntasks=</span><span class="si">{</span><span class="n">step</span><span class="o">.</span><span class="n">ntasks</span><span class="si">}</span><span class="s1"> '</span>
+        <span class="sa">f</span><span class="s1">'cpus_per_task=</span><span class="si">{</span><span class="n">step</span><span class="o">.</span><span class="n">cpus_per_task</span><span class="si">}</span><span class="s1"> cores=</span><span class="si">{</span><span class="n">step</span><span class="o">.</span><span class="n">cores</span><span class="si">}</span><span class="s1"> '</span>
+        <span class="sa">f</span><span class="s1">'min_tasks=</span><span class="si">{</span><span class="n">step</span><span class="o">.</span><span class="n">min_tasks</span><span class="si">}</span><span class="s1">; offered '</span>
+        <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">step_resources</span><span class="p">[</span><span class="s2">"cores"</span><span class="p">]</span><span class="si">}</span><span class="s1"> cores on '</span>
+        <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">step_resources</span><span class="p">[</span><span class="s2">"nodes"</span><span class="p">]</span><span class="si">}</span><span class="s1"> nodes; placement: </span><span class="si">{</span><span class="n">shape</span><span class="si">}</span><span class="s1">'</span>
+    <span class="p">)</span>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2026, Energy Exascale Earth System Model Project.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+   
+
+  <!-- Meta tags for JS to use -->
+  <meta name="doc-version" content="main">
+  <meta name="doc-site-root" content="../../../">
+
+  <!-- Create version switcher container -->
+  <script>
+    const sidebar = document.querySelector('.wy-side-nav-search');
+    if (sidebar) {
+      const versionDiv = document.createElement('div');
+      versionDiv.id = 'version-switcher';
+      versionDiv.style.marginTop = '1em';
+      sidebar.appendChild(versionDiv);
+    }
+  </script>
+
+  <!-- Load version-switcher.js using the correct relative path -->
+  <script src="../../../../shared/version-switcher.js"></script>
+
+
+</body>
+</html>

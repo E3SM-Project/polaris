@@ -1,0 +1,6 @@
+﻿polaris.run.executor.reap\_one
+==============================
+
+.. currentmodule:: polaris.run.executor
+
+.. autofunction:: reap_one

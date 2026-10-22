@@ -1,0 +1,6 @@
+﻿polaris.run.topology.one\_thread\_per\_core
+===========================================
+
+.. currentmodule:: polaris.run.topology
+
+.. autofunction:: one_thread_per_core

@@ -121,6 +121,7 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">mpas_tools.logging</span><span class="w"> </span><span class="kn">import</span> <span class="n">check_call</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">polaris.config</span><span class="w"> </span><span class="kn">import</span> <span class="n">PolarisConfigParser</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.parallel</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_memory_per_node</span>
 
 <span class="c1"># attributes that describe how a component was set up rather than what a step</span>
 <span class="c1"># needs to run, so they are left out of pickles</span>
@@ -288,7 +289,7 @@
         <span class="k">if</span> <span class="n">placement</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">_placement_resources</span><span class="p">(</span><span class="n">placement</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">parallel_system</span><span class="p">)</span>
 
-        <span class="n">memory_per_node</span> <span class="o">=</span> <span class="n">_get_memory_per_node</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">parallel_system</span><span class="p">)</span>
+        <span class="n">memory_per_node</span> <span class="o">=</span> <span class="n">get_memory_per_node</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">parallel_system</span><span class="p">)</span>
         <span class="n">nodes</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">parallel_system</span><span class="o">.</span><span class="n">nodes</span>
         <span class="n">memory</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="k">if</span> <span class="n">memory_per_node</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">nodes</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
@@ -317,6 +318,7 @@
         <span class="n">logger</span><span class="p">,</span>
         <span class="n">gpus</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
         <span class="n">placement</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">memory_cap</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
         <span class="n">gpus_per_task</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
     <span class="p">):</span>
 <span class="w">        </span><span class="sd">"""</span>
@@ -346,6 +348,14 @@
 <span class="sd">        placement : mache.parallel.ResourcePlacement, optional</span>
 <span class="sd">            The part of the allocation to confine this launch to.  Passing</span>
 <span class="sd">            none gives exactly the command Polaris has always built.</span>
+
+<span class="sd">        memory_cap : int, optional</span>
+<span class="sd">            The most memory in MB this launch may use on each node, which</span>
+<span class="sd">            some machines enforce and others ignore.  Pass a step's</span>
+<span class="sd">            **declared** ``memory`` and never its ``memory_budget``: a step</span>
+<span class="sd">            that stated a number has made a claim and can fairly be held to</span>
+<span class="sd">            it, while a step that said nothing is being guessed at by the</span>
+<span class="sd">            framework and must not be killed for the framework's guess.</span>
 
 <span class="sd">        gpus_per_task : int, optional</span>
 <span class="sd">            Number of GPUs per task</span>
@@ -388,6 +398,7 @@
             <span class="n">cpus_per_task</span><span class="o">=</span><span class="n">cpus_per_task</span><span class="p">,</span>
             <span class="n">gpus_per_task</span><span class="o">=</span><span class="n">_gpus_per_task</span><span class="p">(</span><span class="n">gpus</span><span class="p">,</span> <span class="n">ntasks</span><span class="p">),</span>
             <span class="n">placement</span><span class="o">=</span><span class="n">placement</span><span class="p">,</span>
+            <span class="n">memory_cap</span><span class="o">=</span><span class="n">memory_cap</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="n">check_call</span><span class="p">(</span><span class="n">command_line_args</span><span class="p">,</span> <span class="n">logger</span><span class="p">,</span> <span class="n">env</span><span class="o">=</span><span class="n">env</span><span class="p">)</span></div>
 
@@ -731,7 +742,7 @@
     <span class="c1"># a placement carries no memory, because no launcher acts on one.  What</span>
     <span class="c1"># a placement does imply is a share of the nodes it names, in the same</span>
     <span class="c1"># proportion as the cores it took from them.</span>
-    <span class="n">memory_per_node</span> <span class="o">=</span> <span class="n">_get_memory_per_node</span><span class="p">(</span><span class="n">parallel_system</span><span class="p">)</span>
+    <span class="n">memory_per_node</span> <span class="o">=</span> <span class="n">get_memory_per_node</span><span class="p">(</span><span class="n">parallel_system</span><span class="p">)</span>
     <span class="n">memory</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="n">machine_cores_per_node</span> <span class="o">=</span> <span class="n">parallel_system</span><span class="o">.</span><span class="n">cores_per_node</span>
     <span class="k">if</span> <span class="n">memory_per_node</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">machine_cores_per_node</span><span class="p">:</span>
@@ -747,26 +758,6 @@
         <span class="n">memory_per_node</span><span class="o">=</span><span class="n">memory_per_node</span><span class="p">,</span>
         <span class="n">mpi_allowed</span><span class="o">=</span><span class="n">parallel_system</span><span class="o">.</span><span class="n">mpi_allowed</span><span class="p">,</span>
     <span class="p">)</span>
-
-
-<span class="k">def</span><span class="w"> </span><span class="nf">_get_memory_per_node</span><span class="p">(</span><span class="n">parallel_system</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">"""</span>
-<span class="sd">    Get the memory a node has, in MB, or ``None`` if this machine has not</span>
-<span class="sd">    said.</span>
-
-<span class="sd">    Read from the attribute where a newer mache offers one and from the</span>
-<span class="sd">    config option otherwise, because the option is arriving in mache while</span>
-<span class="sd">    this is being written and Polaris should work either side of it.  A</span>
-<span class="sd">    machine that says nothing leaves memory undeclared rather than guessed</span>
-<span class="sd">    at: a wrong figure here would propagate into every step's default.</span>
-<span class="sd">    """</span>
-    <span class="n">memory_per_node</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">parallel_system</span><span class="p">,</span> <span class="s1">'memory_per_node'</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
-    <span class="k">if</span> <span class="n">memory_per_node</span><span class="p">:</span>
-        <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="n">memory_per_node</span><span class="p">)</span>
-    <span class="n">memory_per_node</span> <span class="o">=</span> <span class="n">parallel_system</span><span class="o">.</span><span class="n">get_config_int</span><span class="p">(</span><span class="s1">'memory_per_node'</span><span class="p">)</span>
-    <span class="k">if</span> <span class="n">memory_per_node</span><span class="p">:</span>
-        <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="n">memory_per_node</span><span class="p">)</span>
-    <span class="k">return</span> <span class="kc">None</span>
 </pre></div>
 
            </div>

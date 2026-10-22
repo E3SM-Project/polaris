@@ -95,49 +95,36 @@ three of four launches silently received no GPU at all and exited zero --
 the same class of failure as silently losing placement, and the reason this
 verification was worth doing separately from the hand-written one.
 
-One limit of the Aurora result had to be carried with it, and asking about it
-turned up a real defect. On Slurm the GPUs a launch can see are read from the
-scheduler's own variables, so the verdict is independent evidence. On PALS
-nothing assigns GPUs, so `mache` renders the indices the caller chose and the
-check reads that same value back: it confirms the plumbing, not that the
-runtime honors it. A clean Aurora run therefore did not establish that a
-launch asking for no GPUs got none.
+The Aurora result carried one limit, and asking about it turned up a real
+defect. On Slurm the GPUs a launch can see are read from the scheduler's own
+variables, so the verdict is independent evidence. On PALS nothing assigns
+GPUs, so `mache` renders the indices the caller chose and the check reads
+that same value back -- confirming the plumbing, not the runtime.
 
-It has since been asked properly, by enumerating what the runtime can see
-rather than reading back what it was told, and the answer is that **an empty
-`ZE_AFFINITY_MASK` hides nothing**. Level Zero reads an empty value as "no
-mask", which means every device: six cards visible with the variable unset,
-and the same six with it set and empty. So the explicit "no GPUs" `mache`
-renders on PALS is a no-op.
+Asked properly, by enumerating what the runtime can see, the answer is that
+**an empty `ZE_AFFINITY_MASK` hides nothing**. Level Zero reads an empty
+value as "no mask", meaning every device: six cards visible with the
+variable unset, and the same six with it set and empty. The explicit "no
+GPUs" `mache` renders on PALS is a no-op.
 
-Two controls make that a finding rather than a guess, and both were
-necessary. The variable arrived at the process *set and empty* rather than
-dropped, which separates Level Zero's semantics from a plumbing bug; and a
-mask naming a subset, in the same launch style, did confine the launch, which
-rules out the mask simply being inert there. Two enumerators agreed, one of
-them reaching Level Zero with no SYCL layer in between.
+Two controls make that a finding rather than a guess. The variable arrived
+*set and empty* rather than dropped, which separates Level Zero's semantics
+from a plumbing bug; and a mask naming a subset did confine the launch,
+which rules out the mask being inert. Two enumerators agreed, one reaching
+Level Zero with no SYCL layer between.
 
-The consequence is small now and not small later. Nothing on PALS reserves
-GPUs, so a step seeing hardware it declined costs only tidiness, and neither
-Phase A nor Phase B is affected. It becomes an isolation question in Phase C,
-where it is recorded.
+Nothing on PALS reserves GPUs, so a step seeing hardware it declined costs
+only tidiness, and neither Phase A nor Phase B is affected. It becomes an
+isolation question in Phase C, where it is recorded.
 
-### Where measurements live, and what does not
+### What the measurements concluded
 
-Both sets of results above were produced by harnesses written to answer a
-question. Neither harness is part of what Polaris ships, and the findings
-are recorded in this document rather than in the directories that produced
-them. This is deliberate and has already been learned once: an earlier
-version of these documents pointed at a README on a branch that was never
-going to merge, so the reference would have dangled and the evidence would
-have been lost with it.
-
-The rule worth stating, so that it does not have to be learned a third time:
-**a harness built to answer a question is not part of the deliverable, its
+**A harness built to answer a question is not part of the deliverable, its
 findings belong in the design document, and it does not merge.** Anything
 from such a harness that deserves to keep running -- a regression test, a
-standing check -- has to be moved somewhere permanent before the harness
-goes, not after.
+standing check -- has to move somewhere permanent before the harness goes.
+An earlier version of these documents pointed at a README on a branch that
+was never going to merge, and the evidence would have gone with it.
 
 The conclusions that shape this design are:
 
@@ -147,15 +134,13 @@ The conclusions that shape this design are:
   launches to about one a minute turned out to describe a different problem
   -- concurrent launches queueing, not launches being rate limited.
 
-  Two caveats worth carrying. The tail is heavy: Frontier showed two of ten
-  launches near two seconds against a median of 0.11 s on an otherwise idle
-  system. And all of this was measured off-peak, so a busy weekday has not
-  been ruled out. If a future run finds launching unexpectedly slow, this is
-  the first thing to re-measure rather than the last.
+  Two caveats. The tail is heavy: Frontier showed two of ten launches near
+  two seconds against a median of 0.11 s on an idle system. And all of it was
+  measured off-peak. If a future run finds launching slow, re-measure this
+  first.
 - **The scheduler will keep concurrent work apart, if asked properly.** Each
-  piece of work gets its own cores, and its own GPUs, enforced by the batch
-  system rather than by Polaris. This is a stronger guarantee than we
-  expected to get.
+  piece of work gets its own cores and its own GPUs, enforced by the batch
+  system rather than by Polaris.
 - **Silence about GPUs is not neutral at the launcher.** Polaris steps use
   no GPUs unless they say so, and that stays true. But if Polaris passes
   that silence on, the batch system reads it as "give this work the node's
@@ -186,12 +171,28 @@ The conclusions that shape this design are:
   that stated its own number and not worth doing to a step the framework
   guessed at.
 
-  One worry this raised does not materialize. Silence about memory does not
-  repeat the trap that silence about GPUs sets: four concurrent launches
-  that said nothing about memory all started within 40 ms of each other and
-  ran their full duration on both machines that enforce. An unstated memory
-  requirement is not read as a claim on the node's memory. Aurora and
-  Perlmutter CPU are unmeasured on this point.
+  Silence about memory does not repeat the trap that silence about GPUs
+  sets. Four concurrent launches that said nothing about memory all started
+  within 40 ms of each other and ran their full duration on both machines
+  that enforce. Aurora and Perlmutter CPU are unmeasured on this point.
+
+- **Starting a step is not free, and how it is started decides whether
+  concurrency pays.** A fresh `polaris serial` subprocess spends about 35 s
+  importing Python before it does any work -- 11.5 s to import `polaris` and
+  17.3 s for the first unpickle of a step, which is itself import time. Paid
+  once per step, that was 71% of the measured step time on `omega_pr` and
+  made the concurrent run slower than the serial one. Forking from the
+  scheduler removes both costs, because a child inherits the modules and the
+  step objects the scheduler already holds; measured on four steps, it saved
+  about 48 s each.
+
+  Two properties come with forking and had to be measured rather than
+  assumed. Sharing is nearly complete -- 24 children cost 347 MiB between
+  them against a parent of 322 MiB. And Polaris is multi-threaded on import
+  without looking it: `import polaris` leaves 129 OS threads, 128 of them an
+  OpenBLAS pool, where `threading.enumerate()` reports one. Only the forking
+  thread survives a fork, so the scheduler holds its thread pools to one
+  before importing anything.
 
 One more result is worth recording because it cost a round of testing: on
 CUDA machines the visible-device variable is renumbered for each launch, so
@@ -235,9 +236,16 @@ was unreleased Phase A was developed against the branch.
 [Task Parallelism Phase B: Concurrency](task_parallelism_phase_b.md)
 
 Build the dependency graph, the resource pool and an executor that runs each
-step in its own process. Run independent steps at the same time -- MPI and
-non-MPI alike, since with Phase A in place there is no reason to stage one
-behind the other.
+step in a child forked from the scheduler. Run independent steps at the same
+time -- MPI and non-MPI alike, since with Phase A in place there is no reason
+to stage one behind the other.
+
+Forking is what makes this pay. A step started as a fresh `polaris serial`
+subprocess spends about 35 s importing Python first, and paying that once
+per step cost more than concurrency saved; a forked child inherits the
+scheduler's imports and its live `Step` objects and pays neither. Non-MPI
+steps run on the scheduler's node, which bounds Python concurrency at one
+node and is the bound Phase C lifts.
 
 This is where the regression-suite speedup lands.
 
@@ -245,10 +253,12 @@ This is where the regression-suite speedup lands.
 
 [Task Parallelism Phase C: Python Worker Pool](task_parallelism_phase_c.md)
 
-Add a second executor: a pool of workers spread across the allocation's
-nodes, for Python work that is too fine-grained to give a process of its
-own. This is what lifts the single-node ceiling that constrains
-MPAS-Analysis today, and it is the phase the analysis capability depends on.
+Add a resident process on each node of the allocation, which forks children
+for work and hosts a pool of workers for Python work too fine-grained to be
+given a process of its own. This is what lifts the single-node ceiling that
+constrains MPAS-Analysis today, and it is the phase the analysis capability
+depends on. It also lifts Phase B's bound on where a non-MPI step runs,
+using the same mechanism rather than a second one.
 
 Measurement has since confirmed the premise: a high-resolution analysis run
 is fine-grained, with a median task of about five seconds and half of them

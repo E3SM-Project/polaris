@@ -1,0 +1,751 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>polaris.run.confinement</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=a8da1a53"></script>
+      <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+    <link href="../../../_static/style.css" rel="stylesheet" type="text/css">
+
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            Polaris
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">User's guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../users_guide/quick_start.html">Quick Start for Users</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../users_guide/tasks.html">Tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../users_guide/config_files.html">Config Files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../users_guide/suites.html">Suites</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../users_guide/mesh/index.html">Mesh component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../users_guide/e3sm/init/index.html">E3SM Initial Condition Component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../users_guide/ocean/index.html">Ocean component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../users_guide/seaice/index.html">Sea ice component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../users_guide/machines/index.html">Machines</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Developer's guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/quick_start.html">Quick Start for Developers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/command_line.html">Command-line interface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/organization/index.html">Organization of Tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/e3sm/init/index.html">E3SM initial condition (e3sm/init) component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/mesh/index.html">Mesh component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/ocean/index.html">Ocean component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/seaice/index.html">Sea ice component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/framework/index.html">Framework</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/machines/index.html">Machines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/benchmarking.html">Benchmarking a branch against a baseline</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/troubleshooting.html">Troubleshooting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/docs.html">Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/building_docs.html">Building the Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/building_docs.html#previewing-the-documentation">Previewing the Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/conda_vs_spack.html">How Conda and Spack Work Together in Polaris</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/updating_conda.html">Updating Deployment Dependencies</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/updating_spack/index.html">Updating Shared Spack Environments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/api.html">API reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../design_docs/index.html">Design Documents</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorials/dev_add_category_of_tasks/index.html">Developer Tutorial: Adding a New Category of Tasks</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Glossary</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../glossary.html">Glossary</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">Polaris</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+          <li class="breadcrumb-item"><a href="../run.html">polaris.run</a></li>
+      <li class="breadcrumb-item active">polaris.run.confinement</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for polaris.run.confinement</h1><div class="highlight"><pre>
+<span></span><span class="sd">"""</span>
+<span class="sd">Checking that a placed step got what it was given.</span>
+
+<span class="sd">The scheduler's accounting only describes a run if the machine honors it.</span>
+<span class="sd">Nothing here can make that true and nothing here tries: a step that was</span>
+<span class="sd">given four cores and can see sixty-four is reported and then left alone.</span>
+<span class="sd">Correcting it would hide the thing worth knowing, which is that this</span>
+<span class="sd">machine no longer confines work the way Polaris believes it does.</span>
+
+<span class="sd">That belief is the fragile part.  Which arguments confine a launch is a</span>
+<span class="sd">property of a site's scheduler configuration rather than of any software</span>
+<span class="sd">version, so it can change with no release note and no error.  A run would</span>
+<span class="sd">simply get slower, every step seeing the whole allocation and nothing in</span>
+<span class="sd">the log to say so.  This is the check that makes that visible, and it earns</span>
+<span class="sd">its cost only by running on every machine on every run.</span>
+
+<span class="sd">What it reads depends on how the step was confined, because the two ways of</span>
+<span class="sd">confining a step are unrelated mechanisms.</span>
+
+<span class="sd">A step that is not launched does its work in the process the executor</span>
+<span class="sd">started, and the executor confined that process with ``sched_setaffinity``.</span>
+<span class="sd">Asking the process what it is allowed costs a system call.</span>
+
+<span class="sd">A step that launches hands its placement to a launcher, and the affinity of</span>
+<span class="sd">the process holding the launcher's client says nothing about where the ranks</span>
+<span class="sd">went.  That is measured rather than assumed: on Chrysalis a locally bound</span>
+<span class="sd">step's ``srun`` tasks used the whole allocation.  The only way to learn where</span>
+<span class="sd">the ranks went is to ask them, so this launches the step's own placement once</span>
+<span class="sd">more with a payload that reports what each rank was allowed.</span>
+
+<span class="sd">The probe is the step's real launch in every respect but the payload: same</span>
+<span class="sd">placement, same task and thread counts, rendered by the same mache call.  A</span>
+<span class="sd">probe rendered differently would be checking something other than the launch</span>
+<span class="sd">it stands in for.</span>
+
+<span class="sd">A probe that cannot run is reported as *not checked*.  A launcher hiccup is</span>
+<span class="sd">not evidence of a placement mismatch, and recording it as one would train</span>
+<span class="sd">whoever reads these reports to ignore them.</span>
+
+<span class="sd">What the ranks' answer is held against depends on what the machine</span>
+<span class="sd">promised.  Where the launcher binds cores explicitly -- Slurm before 20.11,</span>
+<span class="sd">PALS -- the placement names the cores and the ranks must be on those.</span>
+<span class="sd">Where the scheduler reserves resources -- Slurm 20.11 and later, with</span>
+<span class="sd">``--exact`` -- it promises a *count* and picks the cores itself, so holding</span>
+<span class="sd">the ranks to particular numbers reports every launch: measured on</span>
+<span class="sd">Perlmutter, where thirty steps were reported for running on the right</span>
+<span class="sd">number of the wrong cores.  There the count is what is checked, in</span>
+<span class="sd">physical cores: a launch given a whole node is allowed that node's</span>
+<span class="sd">hardware threads too, which are twice the ids and the same cores, and the</span>
+<span class="sd">kernel's topology says which ids are which.</span>
+
+<span class="sd">GPUs are asked about the same way, through the visible-devices variable</span>
+<span class="sd">the machine's vendor uses.  The ranks report what they can see and that is</span>
+<span class="sd">held against what the placement gave; more devices than given is a</span>
+<span class="sd">mismatch, fewer is only reported, since a launcher may renumber a rank's</span>
+<span class="sd">devices from zero and a rank that sees one device numbered zero says</span>
+<span class="sd">nothing about how many its neighbours see.</span>
+
+<span class="sd">Which devices a step is held to depends on who chose them.  Where the</span>
+<span class="sd">placement names them -- PALS, where nothing else assigns GPUs -- the ranks</span>
+<span class="sd">are held to those.  Where Slurm reserves GPUs by count it picks which, so</span>
+<span class="sd">the pool names none and each node is held to its share.  Holding them to</span>
+<span class="sd">the pool's names reported steps on Frontier that had exactly what they</span>
+<span class="sd">asked for: Slurm gave one devices 4-7 where the pool had counted 0-3.</span>
+
+<span class="sd">What the ranks can read was measured, and differs by vendor.  On Frontier</span>
+<span class="sd">``ROCR_VISIBLE_DEVICES`` holds the node's own indices -- eight concurrent</span>
+<span class="sd">one-GPU launches on one node read 0 through 7, one each (job 5515624) --</span>
+<span class="sd">so a report there says which devices by number.  On Perlmutter</span>
+<span class="sd">``CUDA_VISIBLE_DEVICES`` is renumbered per launch: four concurrent one-GPU</span>
+<span class="sd">launches on one node each read ``0`` while holding four distinct devices</span>
+<span class="sd">(job 58471743).  So there the check can only ever catch a step seeing more</span>
+<span class="sd">than it was given, and telling the devices apart would mean reading their</span>
+<span class="sd">UUIDs through the vendor's tool, which is a different probe.  On both</span>
+<span class="sd">machines the devices concurrent launches were given were disjoint.</span>
+<span class="sd">"""</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">socket</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">subprocess</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">sys</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">NamedTuple</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Set</span><span class="p">,</span> <span class="n">Tuple</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">mache.parallel</span><span class="w"> </span><span class="kn">import</span> <span class="n">PlacementSupport</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.run.topology</span><span class="w"> </span><span class="kn">import</span> <span class="n">physical_cores</span>
+
+<span class="c1"># written in a step's work directory when the check found a mismatch, so the</span>
+<span class="c1"># scheduler can say so without reading the step's whole log</span>
+<span class="n">PLACEMENT_MISMATCH_LOG</span> <span class="o">=</span> <span class="s1">'polaris_placement_mismatch.log'</span>
+
+<span class="c1"># what each rank of the probe prints.  Looked for anywhere in a line, since</span>
+<span class="c1"># some launchers label the output they collect.</span>
+<span class="n">MARKER</span> <span class="o">=</span> <span class="s1">'POLARIS_CONFINEMENT'</span>
+
+<span class="c1"># the variables through which each vendor tells a process which of a</span>
+<span class="c1"># node's GPUs it may use, in the order they are looked for.  A rank reports</span>
+<span class="c1"># the first one that is set, and '-' where none is.</span>
+<span class="n">DEVICE_VARIABLES</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="s1">'CUDA_VISIBLE_DEVICES'</span><span class="p">,</span>
+    <span class="s1">'ROCR_VISIBLE_DEVICES'</span><span class="p">,</span>
+    <span class="s1">'ZE_AFFINITY_MASK'</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="c1"># the probe payload: one line per rank saying where it is, what cores it may</span>
+<span class="c1"># use, and what devices it can see</span>
+<span class="n">PROBE</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="s1">'import os, socket; '</span>
+    <span class="sa">f</span><span class="s1">'devices = next((os.environ[name] for name in </span><span class="si">{</span><span class="n">DEVICE_VARIABLES</span><span class="si">!r}</span><span class="s1"> '</span>
+    <span class="s2">"if os.environ.get(name)), '-'); "</span>
+    <span class="sa">f</span><span class="s2">"print('</span><span class="si">{</span><span class="n">MARKER</span><span class="si">}</span><span class="s2">', socket.gethostname().split('.')[0], "</span>
+    <span class="s2">"','.join(str(core) for core in sorted(os.sched_getaffinity(0))), "</span>
+    <span class="s1">'devices, flush=True)'</span>
+<span class="p">)</span>
+
+<span class="c1"># a probe is the step's own launch, so one that has not answered in this long</span>
+<span class="c1"># is not going to.  Waiting longer would spend the step's wall clock learning</span>
+<span class="c1"># nothing.</span>
+<span class="n">PROBE_SECONDS</span> <span class="o">=</span> <span class="mi">120</span>
+
+
+<div class="viewcode-block" id="check_confinement">
+<a class="viewcode-back" href="../../../developers_guide/generated/polaris.run.confinement.check_confinement.html#polaris.run.confinement.check_confinement">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">check_confinement</span><span class="p">(</span><span class="n">step</span><span class="p">,</span> <span class="n">logger</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Check that a placed step received what it was given, and say so when it</span>
+<span class="sd">    did not.</span>
+
+<span class="sd">    Does nothing for a step with no placement, which is every step of a</span>
+<span class="sd">    serial run.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    step : polaris.Step</span>
+<span class="sd">        The step about to run, with its resources already constrained to its</span>
+<span class="sd">        placement</span>
+
+<span class="sd">    logger : logging.Logger</span>
+<span class="sd">        The step's logger, which is where the finding goes</span>
+<span class="sd">    """</span>
+    <span class="c1"># a marker left by an earlier run of this step describes that run and</span>
+    <span class="c1"># not this one, and the scheduler cannot tell the two apart</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">step</span><span class="o">.</span><span class="n">work_dir</span><span class="p">,</span> <span class="n">PLACEMENT_MISMATCH_LOG</span><span class="p">))</span>
+    <span class="k">except</span> <span class="ne">OSError</span><span class="p">:</span>
+        <span class="k">pass</span>
+
+    <span class="n">placement</span> <span class="o">=</span> <span class="n">step</span><span class="o">.</span><span class="n">placement</span>
+    <span class="k">if</span> <span class="n">placement</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span>
+
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">problems</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">_check_affinity</span><span class="p">(</span><span class="n">placement</span><span class="p">,</span> <span class="n">logger</span><span class="p">))</span>
+        <span class="k">if</span> <span class="n">step</span><span class="o">.</span><span class="n">ntasks</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">problems</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">_check_launch</span><span class="p">(</span><span class="n">step</span><span class="p">,</span> <span class="n">placement</span><span class="p">,</span> <span class="n">logger</span><span class="p">))</span>
+    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">exception</span><span class="p">:</span>  <span class="c1"># noqa: BLE001</span>
+        <span class="c1"># deliberately everything.  This is a diagnostic, and a diagnostic</span>
+        <span class="c1"># that can fail the work it is reporting on is worse than no</span>
+        <span class="c1"># diagnostic: whoever hits it loses a run to a check they did not</span>
+        <span class="c1"># ask for and cannot see the point of.</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s1">'placement: not checked; the check itself failed: </span><span class="si">{</span><span class="n">exception</span><span class="si">!r}</span><span class="s1">'</span>
+        <span class="p">)</span>
+        <span class="k">return</span>
+
+    <span class="k">if</span> <span class="n">problems</span><span class="p">:</span>
+        <span class="n">_record</span><span class="p">(</span><span class="n">step</span><span class="p">,</span> <span class="n">problems</span><span class="p">,</span> <span class="n">logger</span><span class="p">)</span></div>
+
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_check_affinity</span><span class="p">(</span><span class="n">placement</span><span class="p">,</span> <span class="n">logger</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">"""Ask this process what cores it is allowed, where it was bound."""</span>
+    <span class="n">promised</span> <span class="o">=</span> <span class="n">_bound_cores</span><span class="p">(</span><span class="n">placement</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">promised</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s1">'placement: this process is not bound; the step is placed on '</span>
+            <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">placement</span><span class="o">.</span><span class="n">cores</span><span class="p">)</span><span class="si">}</span><span class="s1"> nodes and its launcher confines it'</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="p">[]</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">os</span><span class="p">,</span> <span class="s1">'sched_getaffinity'</span><span class="p">):</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">'placement: this platform cannot report core affinity'</span><span class="p">)</span>
+        <span class="k">return</span> <span class="p">[]</span>
+
+    <span class="n">allowed</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">sched_getaffinity</span><span class="p">(</span><span class="mi">0</span><span class="p">))</span>
+    <span class="k">if</span> <span class="n">allowed</span> <span class="o">==</span> <span class="nb">set</span><span class="p">(</span><span class="n">promised</span><span class="p">):</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s1">'placement: this process has the </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">promised</span><span class="p">)</span><span class="si">}</span><span class="s1"> cores it was '</span>
+            <span class="sa">f</span><span class="s1">'given'</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="p">[]</span>
+
+    <span class="k">return</span> <span class="p">[</span>
+        <span class="sa">f</span><span class="s1">'This process was given </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">promised</span><span class="p">)</span><span class="si">}</span><span class="s1"> cores '</span>
+        <span class="sa">f</span><span class="s1">'(</span><span class="si">{</span><span class="n">_ranges</span><span class="p">(</span><span class="n">promised</span><span class="p">)</span><span class="si">}</span><span class="s1">) but is allowed </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">allowed</span><span class="p">)</span><span class="si">}</span><span class="s1"> '</span>
+        <span class="sa">f</span><span class="s1">'(</span><span class="si">{</span><span class="n">_ranges</span><span class="p">(</span><span class="n">allowed</span><span class="p">)</span><span class="si">}</span><span class="s1">).'</span>
+    <span class="p">]</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_bound_cores</span><span class="p">(</span><span class="n">placement</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">]]:</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    The cores the executor bound this process to, or ``None`` if it did not.</span>
+
+<span class="sd">    Mirrors the executor's own rule: only a step whose whole placement is on</span>
+<span class="sd">    the node the scheduler is running on gets bound, because affinity is the</span>
+<span class="sd">    only mechanism available here and it reaches no further than this node.</span>
+<span class="sd">    """</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">placement</span><span class="o">.</span><span class="n">cores</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">None</span>
+    <span class="k">if</span> <span class="n">placement</span><span class="o">.</span><span class="n">nodes</span> <span class="ow">and</span> <span class="n">placement</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">'.'</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span> <span class="o">!=</span> <span class="n">_hostname</span><span class="p">():</span>
+        <span class="k">return</span> <span class="kc">None</span>
+    <span class="k">return</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">placement</span><span class="o">.</span><span class="n">cores</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="ow">or</span> <span class="kc">None</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_check_launch</span><span class="p">(</span><span class="n">step</span><span class="p">,</span> <span class="n">placement</span><span class="p">,</span> <span class="n">logger</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">"""Launch the step's own placement and ask the ranks where they landed."""</span>
+    <span class="n">system</span> <span class="o">=</span> <span class="n">step</span><span class="o">.</span><span class="n">component</span><span class="o">.</span><span class="n">parallel_system</span>
+    <span class="k">if</span> <span class="n">system</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">[]</span>
+
+    <span class="n">gpus</span> <span class="o">=</span> <span class="n">placement</span><span class="o">.</span><span class="n">gpus</span>
+    <span class="n">command</span> <span class="o">=</span> <span class="n">system</span><span class="o">.</span><span class="n">get_parallel_command</span><span class="p">(</span>
+        <span class="n">args</span><span class="o">=</span><span class="p">[</span><span class="n">sys</span><span class="o">.</span><span class="n">executable</span><span class="p">,</span> <span class="s1">'-c'</span><span class="p">,</span> <span class="n">PROBE</span><span class="p">],</span>
+        <span class="n">ntasks</span><span class="o">=</span><span class="n">step</span><span class="o">.</span><span class="n">ntasks</span><span class="p">,</span>
+        <span class="n">cpus_per_task</span><span class="o">=</span><span class="n">step</span><span class="o">.</span><span class="n">cpus_per_task</span><span class="p">,</span>
+        <span class="n">gpus_per_task</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span> <span class="k">if</span> <span class="n">gpus</span> <span class="o">&lt;=</span> <span class="mi">0</span> <span class="k">else</span> <span class="o">-</span><span class="p">(</span><span class="o">-</span><span class="n">gpus</span> <span class="o">//</span> <span class="n">step</span><span class="o">.</span><span class="n">ntasks</span><span class="p">)),</span>
+        <span class="n">placement</span><span class="o">=</span><span class="n">placement</span><span class="p">,</span>
+        <span class="n">memory_cap</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">run</span><span class="p">(</span>
+            <span class="n">command</span><span class="p">,</span>
+            <span class="n">capture_output</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="n">text</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="n">timeout</span><span class="o">=</span><span class="n">PROBE_SECONDS</span><span class="p">,</span>
+        <span class="p">)</span>
+    <span class="k">except</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">TimeoutExpired</span><span class="p">:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s1">'placement: not checked; the probe launch did not answer in '</span>
+            <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">PROBE_SECONDS</span><span class="si">}</span><span class="s1"> s</span><span class="se">\n</span><span class="s1">  </span><span class="si">{</span><span class="s2">" "</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">command</span><span class="p">)</span><span class="si">}</span><span class="s1">'</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="p">[]</span>
+    <span class="k">except</span> <span class="ne">OSError</span> <span class="k">as</span> <span class="n">exception</span><span class="p">:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s1">'placement: not checked; the probe launch could not start: '</span>
+            <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">exception</span><span class="si">}</span><span class="se">\n</span><span class="s1">  </span><span class="si">{</span><span class="s2">" "</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">command</span><span class="p">)</span><span class="si">}</span><span class="s1">'</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="p">[]</span>
+
+    <span class="k">if</span> <span class="n">result</span><span class="o">.</span><span class="n">returncode</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s1">'placement: not checked; the probe launch exited '</span>
+            <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">result</span><span class="o">.</span><span class="n">returncode</span><span class="si">}</span><span class="se">\n</span><span class="s1">  </span><span class="si">{</span><span class="s2">" "</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">command</span><span class="p">)</span><span class="si">}</span><span class="se">\n</span><span class="s1">'</span>
+            <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">result</span><span class="o">.</span><span class="n">stderr</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="si">}</span><span class="s1">'</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="p">[]</span>
+
+    <span class="n">seen</span> <span class="o">=</span> <span class="n">_parse</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">stdout</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">seen</span><span class="p">:</span>
+        <span class="c1"># one silent probe says little.  On Aurora two steps started in a</span>
+        <span class="c1"># burst of nineteen on one node went unanswered and the next run</span>
+        <span class="c1"># answered every one, so this is output lost under load until the</span>
+        <span class="c1"># same step is silent twice.</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+            <span class="s1">'placement: not checked; the probe launch ran but no rank '</span>
+            <span class="s1">'reported.  One silent probe is usually output lost under '</span>
+            <span class="s1">'load; the same step silent again is worth chasing'</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="p">[]</span>
+
+    <span class="k">return</span> <span class="n">_compare</span><span class="p">(</span>
+        <span class="n">placement</span><span class="p">,</span>
+        <span class="n">seen</span><span class="p">,</span>
+        <span class="n">logger</span><span class="p">,</span>
+        <span class="n">support</span><span class="o">=</span><span class="n">system</span><span class="o">.</span><span class="n">placement_support</span><span class="p">,</span>
+        <span class="n">device_names</span><span class="o">=</span><span class="n">_device_names</span><span class="p">(</span><span class="n">system</span><span class="p">),</span>
+    <span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_device_names</span><span class="p">(</span><span class="n">system</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]:</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    The names a launch's ranks see for each of a node's GPUs, by index.</span>
+
+<span class="sd">    Aurora names a tile ``0.1`` where the placement says index 1, so the</span>
+<span class="sd">    check has to translate before it compares.  ``None`` where the machine</span>
+<span class="sd">    has no GPUs to name.</span>
+<span class="sd">    """</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">system</span><span class="o">.</span><span class="n">gpus_per_node</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">None</span>
+    <span class="k">return</span> <span class="n">system</span><span class="o">.</span><span class="n">get_gpu_device_names</span><span class="p">()</span>
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">Report</span><span class="p">(</span><span class="n">NamedTuple</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""What one node's ranks reported, taken together."""</span>
+
+    <span class="n">cores</span><span class="p">:</span> <span class="n">Set</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span>
+    <span class="n">devices</span><span class="p">:</span> <span class="n">Set</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_parse</span><span class="p">(</span><span class="n">output</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Report</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">"""Collect what each node's ranks reported, by node."""</span>
+    <span class="n">seen</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Report</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">output</span><span class="o">.</span><span class="n">splitlines</span><span class="p">():</span>
+        <span class="k">if</span> <span class="n">MARKER</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">line</span><span class="p">:</span>
+            <span class="k">continue</span>
+        <span class="n">fields</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">MARKER</span><span class="p">,</span> <span class="mi">1</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">fields</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">3</span><span class="p">:</span>
+            <span class="k">continue</span>
+        <span class="n">node</span><span class="p">,</span> <span class="n">cores</span><span class="p">,</span> <span class="n">devices</span> <span class="o">=</span> <span class="n">fields</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">reported</span> <span class="o">=</span> <span class="p">{</span><span class="nb">int</span><span class="p">(</span><span class="n">core</span><span class="p">)</span> <span class="k">for</span> <span class="n">core</span> <span class="ow">in</span> <span class="n">cores</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">','</span><span class="p">)</span> <span class="k">if</span> <span class="n">core</span><span class="p">}</span>
+        <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+            <span class="k">continue</span>
+        <span class="n">report</span> <span class="o">=</span> <span class="n">seen</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="n">Report</span><span class="p">(</span><span class="nb">set</span><span class="p">(),</span> <span class="nb">set</span><span class="p">()))</span>
+        <span class="n">report</span><span class="o">.</span><span class="n">cores</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">reported</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">devices</span> <span class="o">!=</span> <span class="s1">'-'</span><span class="p">:</span>
+            <span class="n">report</span><span class="o">.</span><span class="n">devices</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
+                <span class="n">device</span> <span class="k">for</span> <span class="n">device</span> <span class="ow">in</span> <span class="n">devices</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">','</span><span class="p">)</span> <span class="k">if</span> <span class="n">device</span>
+            <span class="p">)</span>
+    <span class="k">return</span> <span class="n">seen</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_compare</span><span class="p">(</span>
+    <span class="n">placement</span><span class="p">,</span>
+    <span class="n">seen</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Report</span><span class="p">],</span>
+    <span class="n">logger</span><span class="p">,</span>
+    <span class="n">support</span><span class="p">:</span> <span class="n">PlacementSupport</span> <span class="o">=</span> <span class="n">PlacementSupport</span><span class="o">.</span><span class="n">CPU_BINDING</span><span class="p">,</span>
+    <span class="n">device_names</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">"""Hold what the ranks reported against what the placement promised."""</span>
+    <span class="n">promised</span> <span class="o">=</span> <span class="n">_promised</span><span class="p">(</span><span class="n">placement</span><span class="p">)</span>
+    <span class="n">problems</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="k">if</span> <span class="n">promised</span><span class="p">:</span>
+        <span class="n">strangers</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">seen</span><span class="p">)</span> <span class="o">-</span> <span class="nb">set</span><span class="p">(</span><span class="n">promised</span><span class="p">))</span>
+        <span class="k">if</span> <span class="n">strangers</span><span class="p">:</span>
+            <span class="n">problems</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s1">'The launch ran on </span><span class="si">{</span><span class="s2">", "</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">strangers</span><span class="p">)</span><span class="si">}</span><span class="s1">, which the '</span>
+                <span class="sa">f</span><span class="s1">'placement does not name (</span><span class="si">{</span><span class="s2">", "</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="n">promised</span><span class="p">))</span><span class="si">}</span><span class="s1">).'</span>
+            <span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="c1"># an unnamed single-node placement: every rank is on this node, so</span>
+        <span class="c1"># whatever they reported is held against the one core list</span>
+        <span class="n">promised</span> <span class="o">=</span> <span class="p">{</span><span class="n">node</span><span class="p">:</span> <span class="nb">set</span><span class="p">(</span><span class="n">placement</span><span class="o">.</span><span class="n">cores</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">seen</span><span class="p">}</span>
+
+    <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">seen</span><span class="p">):</span>
+        <span class="n">allowed</span> <span class="o">=</span> <span class="n">promised</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">node</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">allowed</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">continue</span>
+        <span class="n">problem</span> <span class="o">=</span> <span class="n">_compare_cores</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="n">seen</span><span class="p">[</span><span class="n">node</span><span class="p">]</span><span class="o">.</span><span class="n">cores</span><span class="p">,</span> <span class="n">allowed</span><span class="p">,</span> <span class="n">support</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">problem</span><span class="p">:</span>
+            <span class="n">problems</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">problem</span><span class="p">)</span>
+
+    <span class="n">problems</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span>
+        <span class="n">_compare_devices</span><span class="p">(</span><span class="n">placement</span><span class="p">,</span> <span class="n">seen</span><span class="p">,</span> <span class="n">logger</span><span class="p">,</span> <span class="n">support</span><span class="p">,</span> <span class="n">device_names</span><span class="p">)</span>
+    <span class="p">)</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">problems</span><span class="p">:</span>
+        <span class="n">total</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">report</span><span class="o">.</span><span class="n">cores</span><span class="p">)</span> <span class="k">for</span> <span class="n">report</span> <span class="ow">in</span> <span class="n">seen</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
+        <span class="n">what</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="s1">'cores'</span>
+            <span class="k">if</span> <span class="n">support</span> <span class="ow">is</span> <span class="n">PlacementSupport</span><span class="o">.</span><span class="n">CPU_BINDING</span>
+            <span class="k">else</span> <span class="s1">'hardware threads, on no more cores than it was given,'</span>
+        <span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s1">'placement: the launch used </span><span class="si">{</span><span class="n">total</span><span class="si">}</span><span class="s1"> </span><span class="si">{</span><span class="n">what</span><span class="si">}</span><span class="s1"> on '</span>
+            <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">seen</span><span class="p">)</span><span class="si">}</span><span class="s1"> node(s), all of them within its placement'</span>
+        <span class="p">)</span>
+    <span class="k">return</span> <span class="n">problems</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_compare_cores</span><span class="p">(</span>
+    <span class="n">node</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">reported</span><span class="p">:</span> <span class="n">Set</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span>
+    <span class="n">allowed</span><span class="p">:</span> <span class="n">Set</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span>
+    <span class="n">support</span><span class="p">:</span> <span class="n">PlacementSupport</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Say how one node's ranks differ from their placement, if they do.</span>
+
+<span class="sd">    Which comparison applies is what the machine promised.  An explicit</span>
+<span class="sd">    binding names the cores, so the ranks have to be on those.  A scheduler</span>
+<span class="sd">    that reserves resources promises a count and chooses the cores itself,</span>
+<span class="sd">    so the count is what is held -- in physical cores, since a rank</span>
+<span class="sd">    allowed both threads of a core has one core, and a launch given a</span>
+<span class="sd">    whole node is allowed every thread on it.  A launch given part of a</span>
+<span class="sd">    node and allowed more cores than that has escaped, on either kind of</span>
+<span class="sd">    machine, and that is what this exists to see.</span>
+
+<span class="sd">    The topology read is this node's.  The ranks may be on another, but</span>
+<span class="sd">    nodes in an allocation are alike, which is what ``cores_per_node``</span>
+<span class="sd">    already assumes.</span>
+<span class="sd">    """</span>
+    <span class="k">if</span> <span class="n">support</span> <span class="ow">is</span> <span class="n">PlacementSupport</span><span class="o">.</span><span class="n">CPU_BINDING</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">reported</span> <span class="o">-</span> <span class="n">allowed</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">(</span>
+                <span class="sa">f</span><span class="s1">'On </span><span class="si">{</span><span class="n">node</span><span class="si">}</span><span class="s1"> the launch was allowed </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">reported</span><span class="p">)</span><span class="si">}</span><span class="s1"> cores '</span>
+                <span class="sa">f</span><span class="s1">'(</span><span class="si">{</span><span class="n">_ranges</span><span class="p">(</span><span class="n">reported</span><span class="p">)</span><span class="si">}</span><span class="s1">) but was given </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">allowed</span><span class="p">)</span><span class="si">}</span><span class="s1"> '</span>
+                <span class="sa">f</span><span class="s1">'(</span><span class="si">{</span><span class="n">_ranges</span><span class="p">(</span><span class="n">allowed</span><span class="p">)</span><span class="si">}</span><span class="s1">).'</span>
+            <span class="p">)</span>
+        <span class="k">return</span> <span class="kc">None</span>
+
+    <span class="n">cores</span> <span class="o">=</span> <span class="n">physical_cores</span><span class="p">(</span><span class="n">reported</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">cores</span> <span class="o">&lt;=</span> <span class="nb">len</span><span class="p">(</span><span class="n">allowed</span><span class="p">):</span>
+        <span class="k">return</span> <span class="kc">None</span>
+    <span class="k">return</span> <span class="p">(</span>
+        <span class="sa">f</span><span class="s1">'On </span><span class="si">{</span><span class="n">node</span><span class="si">}</span><span class="s1"> the launch was allowed </span><span class="si">{</span><span class="n">cores</span><span class="si">}</span><span class="s1"> cores '</span>
+        <span class="sa">f</span><span class="s1">'(</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">reported</span><span class="p">)</span><span class="si">}</span><span class="s1"> hardware threads) but was given </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">allowed</span><span class="p">)</span><span class="si">}</span><span class="s1">. '</span>
+        <span class="sa">f</span><span class="s1">'This machine reserves cores by count and chooses which, so only '</span>
+        <span class="sa">f</span><span class="s1">'the count is held.'</span>
+    <span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_compare_devices</span><span class="p">(</span>
+    <span class="n">placement</span><span class="p">,</span>
+    <span class="n">seen</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Report</span><span class="p">],</span>
+    <span class="n">logger</span><span class="p">,</span>
+    <span class="n">support</span><span class="p">:</span> <span class="n">PlacementSupport</span> <span class="o">=</span> <span class="n">PlacementSupport</span><span class="o">.</span><span class="n">CPU_BINDING</span><span class="p">,</span>
+    <span class="n">device_names</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Hold the devices the ranks saw against the GPUs the placement gave.</span>
+
+<span class="sd">    More than given is reported.  Fewer is only logged: a launcher may</span>
+<span class="sd">    number each rank's devices from zero, so every rank of a four-GPU</span>
+<span class="sd">    launch may report a single device 0 and the union say one.  That</span>
+<span class="sd">    cannot be told from a rank that really was given one, and reporting it</span>
+<span class="sd">    would have every GPU step on such a machine reported.</span>
+
+<span class="sd">    The placement names its devices by index and the ranks see the</span>
+<span class="sd">    machine's names for them, which on Aurora are tiles such as ``1.0``,</span>
+<span class="sd">    so the indices are translated with ``device_names`` first.  Comparing</span>
+<span class="sd">    the two as they came reported thirteen correctly placed steps on</span>
+<span class="sd">    Aurora.</span>
+
+<span class="sd">    No rank reporting a device at all, for a step that was given GPUs, is</span>
+<span class="sd">    said as not checked rather than passed.</span>
+<span class="sd">    """</span>
+    <span class="n">given</span> <span class="o">=</span> <span class="n">placement</span><span class="o">.</span><span class="n">gpus</span>
+    <span class="k">if</span> <span class="n">given</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">[]</span>
+
+    <span class="n">reported</span> <span class="o">=</span> <span class="p">{</span><span class="n">node</span><span class="p">:</span> <span class="n">report</span><span class="o">.</span><span class="n">devices</span> <span class="k">for</span> <span class="n">node</span><span class="p">,</span> <span class="n">report</span> <span class="ow">in</span> <span class="n">seen</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">any</span><span class="p">(</span><span class="n">reported</span><span class="o">.</span><span class="n">values</span><span class="p">()):</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s1">'placement: GPUs not checked; the step was given </span><span class="si">{</span><span class="n">given</span><span class="si">}</span><span class="s1"> but '</span>
+            <span class="sa">f</span><span class="s1">'no rank reported a visible-devices variable '</span>
+            <span class="sa">f</span><span class="s1">'(</span><span class="si">{</span><span class="s2">", "</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">DEVICE_VARIABLES</span><span class="p">)</span><span class="si">}</span><span class="s1">)'</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="p">[]</span>
+
+    <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">reported</span><span class="p">):</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s1">'placement: on </span><span class="si">{</span><span class="n">node</span><span class="si">}</span><span class="s1"> the ranks see device(s) '</span>
+            <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="s2">","</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="n">reported</span><span class="p">[</span><span class="n">node</span><span class="p">]))</span><span class="w"> </span><span class="ow">or</span><span class="w"> </span><span class="s2">"none"</span><span class="si">}</span><span class="s1">'</span>
+        <span class="p">)</span>
+
+    <span class="n">problems</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">named</span> <span class="o">=</span> <span class="n">_named_devices</span><span class="p">(</span><span class="n">placement</span><span class="p">,</span> <span class="n">device_names</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">named</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">support</span> <span class="ow">is</span> <span class="n">PlacementSupport</span><span class="o">.</span><span class="n">CPU_BINDING</span><span class="p">:</span>
+        <span class="c1"># the placement names its devices and the launcher binds them, so</span>
+        <span class="c1"># the ranks are held to those.  A scheduler that assigns GPUs picks</span>
+        <span class="c1"># which itself, so there each node is held to a count, as below.</span>
+        <span class="k">for</span> <span class="n">node</span><span class="p">,</span> <span class="n">devices</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">reported</span><span class="o">.</span><span class="n">items</span><span class="p">()):</span>
+            <span class="n">wanted</span> <span class="o">=</span> <span class="n">named</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="n">named</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">''</span><span class="p">,</span> <span class="nb">set</span><span class="p">()))</span>
+            <span class="n">extra</span> <span class="o">=</span> <span class="n">devices</span> <span class="o">-</span> <span class="n">wanted</span>
+            <span class="k">if</span> <span class="n">extra</span><span class="p">:</span>
+                <span class="n">problems</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s1">'On </span><span class="si">{</span><span class="n">node</span><span class="si">}</span><span class="s1"> the launch can see device(s) '</span>
+                    <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="s2">","</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="n">extra</span><span class="p">))</span><span class="si">}</span><span class="s1"> that its placement did not '</span>
+                    <span class="sa">f</span><span class="s1">'give it (</span><span class="si">{</span><span class="s2">","</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="n">wanted</span><span class="p">))</span><span class="si">}</span><span class="s1">).'</span>
+                <span class="p">)</span>
+        <span class="k">return</span> <span class="n">problems</span>
+
+    <span class="c1"># where the scheduler assigns a launch's devices, it is told only how</span>
+    <span class="c1"># many in total, so each node is held to its share</span>
+    <span class="n">nodes</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">placement</span><span class="o">.</span><span class="n">nodes</span><span class="p">),</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="n">per_node</span> <span class="o">=</span> <span class="o">-</span><span class="p">(</span><span class="o">-</span><span class="n">given</span> <span class="o">//</span> <span class="n">nodes</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">node</span><span class="p">,</span> <span class="n">devices</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">reported</span><span class="o">.</span><span class="n">items</span><span class="p">()):</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">devices</span><span class="p">)</span> <span class="o">&gt;</span> <span class="n">per_node</span><span class="p">:</span>
+            <span class="n">problems</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s1">'On </span><span class="si">{</span><span class="n">node</span><span class="si">}</span><span class="s1"> the launch can see </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">devices</span><span class="p">)</span><span class="si">}</span><span class="s1"> device(s) '</span>
+                <span class="sa">f</span><span class="s1">'(</span><span class="si">{</span><span class="s2">","</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="n">devices</span><span class="p">))</span><span class="si">}</span><span class="s1">) but was given </span><span class="si">{</span><span class="n">per_node</span><span class="si">}</span><span class="s1">.'</span>
+            <span class="p">)</span>
+    <span class="k">return</span> <span class="n">problems</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_named_devices</span><span class="p">(</span>
+    <span class="n">placement</span><span class="p">,</span> <span class="n">device_names</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Set</span><span class="p">[</span><span class="nb">str</span><span class="p">]]]:</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    The device names the placement gives each node, keyed by short node</span>
+<span class="sd">    name, or by ``''`` for a placement that names no node.</span>
+<span class="sd">    """</span>
+    <span class="k">if</span> <span class="n">placement</span><span class="o">.</span><span class="n">gpu_ids</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">None</span>
+    <span class="n">per_node</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">placement</span><span class="o">.</span><span class="n">gpu_ids</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">per_node</span> <span class="ow">and</span> <span class="nb">all</span><span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">entry</span><span class="p">,</span> <span class="nb">int</span><span class="p">)</span> <span class="k">for</span> <span class="n">entry</span> <span class="ow">in</span> <span class="n">per_node</span><span class="p">):</span>
+        <span class="c1"># a mache that takes one flat list for the launch</span>
+        <span class="n">per_node</span> <span class="o">=</span> <span class="p">[</span><span class="n">per_node</span><span class="p">]</span>
+
+    <span class="n">keys</span> <span class="o">=</span> <span class="p">[</span><span class="n">node</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">'.'</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">placement</span><span class="o">.</span><span class="n">nodes</span><span class="p">]</span> <span class="ow">or</span> <span class="p">[</span><span class="s1">''</span><span class="p">]</span>
+    <span class="k">return</span> <span class="p">{</span>
+        <span class="n">key</span><span class="p">:</span> <span class="p">{</span><span class="n">_device_name</span><span class="p">(</span><span class="n">index</span><span class="p">,</span> <span class="n">device_names</span><span class="p">)</span> <span class="k">for</span> <span class="n">index</span> <span class="ow">in</span> <span class="n">node_ids</span><span class="p">}</span>
+        <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">node_ids</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">keys</span><span class="p">,</span> <span class="n">per_node</span><span class="p">,</span> <span class="n">strict</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="p">}</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_device_name</span><span class="p">(</span><span class="n">index</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">device_names</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]])</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""The machine's name for a node's GPU with this index."""</span>
+    <span class="k">if</span> <span class="n">device_names</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">index</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">device_names</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">device_names</span><span class="p">[</span><span class="n">index</span><span class="p">]</span>
+    <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="n">index</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_promised</span><span class="p">(</span><span class="n">placement</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Set</span><span class="p">[</span><span class="nb">int</span><span class="p">]]:</span>
+<span class="w">    </span><span class="sd">"""The cores the placement gives on each node it names."""</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">placement</span><span class="o">.</span><span class="n">nodes</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">{}</span>
+    <span class="k">return</span> <span class="p">{</span>
+        <span class="n">node</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">'.'</span><span class="p">)[</span><span class="mi">0</span><span class="p">]:</span> <span class="nb">set</span><span class="p">(</span><span class="n">cores</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">node</span><span class="p">,</span> <span class="n">cores</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">placement</span><span class="o">.</span><span class="n">nodes</span><span class="p">,</span> <span class="n">placement</span><span class="o">.</span><span class="n">cores</span><span class="p">,</span> <span class="n">strict</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="p">}</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_record</span><span class="p">(</span><span class="n">step</span><span class="p">,</span> <span class="n">problems</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">logger</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Say what did not match, in the step's log and in a file beside it.</span>
+
+<span class="sd">    The file is what lets the scheduler report a mismatch: a step that runs</span>
+<span class="sd">    at the same time as fourteen others has its own log, and a warning in it</span>
+<span class="sd">    is easy to never read.</span>
+<span class="sd">    """</span>
+    <span class="n">lines</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="sa">f</span><span class="s1">'The placement of step </span><span class="si">{</span><span class="n">step</span><span class="o">.</span><span class="n">path</span><span class="si">}</span><span class="s1"> does not describe how it ran.'</span><span class="p">,</span>
+        <span class="s1">''</span><span class="p">,</span>
+    <span class="p">]</span>
+    <span class="n">lines</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="sa">f</span><span class="s1">'  </span><span class="si">{</span><span class="n">problem</span><span class="si">}</span><span class="s1">'</span> <span class="k">for</span> <span class="n">problem</span> <span class="ow">in</span> <span class="n">problems</span><span class="p">)</span>
+    <span class="n">lines</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span>
+        <span class="p">[</span>
+            <span class="s1">''</span><span class="p">,</span>
+            <span class="s1">'Nothing has been changed. The step ran, and its results are as '</span>
+            <span class="s1">'good as they ever were;'</span><span class="p">,</span>
+            <span class="s1">'what is wrong is the accounting, which believes this step is '</span>
+            <span class="s1">'using less of the machine'</span><span class="p">,</span>
+            <span class="s1">'than it is. Other steps are being started against that belief.'</span><span class="p">,</span>
+        <span class="p">]</span>
+    <span class="p">)</span>
+    <span class="n">report</span> <span class="o">=</span> <span class="s1">'</span><span class="se">\n</span><span class="s1">'</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">lines</span><span class="p">)</span> <span class="o">+</span> <span class="s1">'</span><span class="se">\n</span><span class="s1">'</span>
+
+    <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s1">''</span><span class="p">)</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="n">report</span><span class="p">)</span>
+
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">step</span><span class="o">.</span><span class="n">work_dir</span><span class="p">,</span> <span class="n">PLACEMENT_MISMATCH_LOG</span><span class="p">),</span> <span class="s1">'w'</span>
+        <span class="p">)</span> <span class="k">as</span> <span class="n">handle</span><span class="p">:</span>
+            <span class="n">handle</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">report</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">OSError</span><span class="p">:</span>
+        <span class="c1"># the finding is in the log either way; failing the step over where</span>
+        <span class="c1"># the copy went would be worse than the mismatch</span>
+        <span class="k">pass</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_hostname</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""This node's short name, as the allocation lists it."""</span>
+    <span class="k">return</span> <span class="n">socket</span><span class="o">.</span><span class="n">gethostname</span><span class="p">()</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">'.'</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_ranges</span><span class="p">(</span><span class="n">cores</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Say a set of core numbers the way a person reads one."""</span>
+    <span class="n">cores</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">cores</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">cores</span><span class="p">:</span>
+        <span class="k">return</span> <span class="s1">'none'</span>
+    <span class="n">spans</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">start</span> <span class="o">=</span> <span class="n">previous</span> <span class="o">=</span> <span class="n">cores</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="k">for</span> <span class="n">core</span> <span class="ow">in</span> <span class="n">cores</span><span class="p">[</span><span class="mi">1</span><span class="p">:]:</span>
+        <span class="k">if</span> <span class="n">core</span> <span class="o">==</span> <span class="n">previous</span> <span class="o">+</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">previous</span> <span class="o">=</span> <span class="n">core</span>
+            <span class="k">continue</span>
+        <span class="n">spans</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">start</span><span class="p">,</span> <span class="n">previous</span><span class="p">))</span>
+        <span class="n">start</span> <span class="o">=</span> <span class="n">previous</span> <span class="o">=</span> <span class="n">core</span>
+    <span class="n">spans</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">start</span><span class="p">,</span> <span class="n">previous</span><span class="p">))</span>
+    <span class="k">return</span> <span class="s1">','</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+        <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">first</span><span class="si">}</span><span class="s1">'</span> <span class="k">if</span> <span class="n">first</span> <span class="o">==</span> <span class="n">last</span> <span class="k">else</span> <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">first</span><span class="si">}</span><span class="s1">-</span><span class="si">{</span><span class="n">last</span><span class="si">}</span><span class="s1">'</span>
+        <span class="k">for</span> <span class="n">first</span><span class="p">,</span> <span class="n">last</span> <span class="ow">in</span> <span class="n">spans</span>
+    <span class="p">)</span>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2026, Energy Exascale Earth System Model Project.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+   
+
+  <!-- Meta tags for JS to use -->
+  <meta name="doc-version" content="main">
+  <meta name="doc-site-root" content="../../../">
+
+  <!-- Create version switcher container -->
+  <script>
+    const sidebar = document.querySelector('.wy-side-nav-search');
+    if (sidebar) {
+      const versionDiv = document.createElement('div');
+      versionDiv.id = 'version-switcher';
+      versionDiv.style.marginTop = '1em';
+      sidebar.appendChild(versionDiv);
+    }
+  </script>
+
+  <!-- Load version-switcher.js using the correct relative path -->
+  <script src="../../../../shared/version-switcher.js"></script>
+
+
+</body>
+</html>

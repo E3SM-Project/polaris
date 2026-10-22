@@ -1,0 +1,670 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>polaris.run.allocation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=a8da1a53"></script>
+      <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+    <link href="../../../_static/style.css" rel="stylesheet" type="text/css">
+
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            Polaris
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">User's guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../users_guide/quick_start.html">Quick Start for Users</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../users_guide/tasks.html">Tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../users_guide/config_files.html">Config Files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../users_guide/suites.html">Suites</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../users_guide/mesh/index.html">Mesh component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../users_guide/e3sm/init/index.html">E3SM Initial Condition Component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../users_guide/ocean/index.html">Ocean component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../users_guide/seaice/index.html">Sea ice component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../users_guide/machines/index.html">Machines</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Developer's guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/quick_start.html">Quick Start for Developers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/command_line.html">Command-line interface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/organization/index.html">Organization of Tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/e3sm/init/index.html">E3SM initial condition (e3sm/init) component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/mesh/index.html">Mesh component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/ocean/index.html">Ocean component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/seaice/index.html">Sea ice component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/framework/index.html">Framework</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/machines/index.html">Machines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/benchmarking.html">Benchmarking a branch against a baseline</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/troubleshooting.html">Troubleshooting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/docs.html">Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/building_docs.html">Building the Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/building_docs.html#previewing-the-documentation">Previewing the Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/conda_vs_spack.html">How Conda and Spack Work Together in Polaris</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/updating_conda.html">Updating Deployment Dependencies</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/updating_spack/index.html">Updating Shared Spack Environments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/api.html">API reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../design_docs/index.html">Design Documents</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorials/dev_add_category_of_tasks/index.html">Developer Tutorial: Adding a New Category of Tasks</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Glossary</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../glossary.html">Glossary</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">Polaris</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+          <li class="breadcrumb-item"><a href="../run.html">polaris.run</a></li>
+      <li class="breadcrumb-item active">polaris.run.allocation</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for polaris.run.allocation</h1><div class="highlight"><pre>
+<span></span><span class="sd">"""</span>
+<span class="sd">What the allocation actually holds, read at the start of a run.</span>
+
+<span class="sd">The scheduler packs particular nodes, so it has to know what those nodes</span>
+<span class="sd">have rather than what a machine's configuration says nodes usually have.</span>
+<span class="sd">Cores and GPUs come from the configuration, since that is where placement</span>
+<span class="sd">gets them and they do not vary.  Memory is read from the nodes themselves,</span>
+<span class="sd">because it does vary and because over-admitting memory kills a job rather</span>
+<span class="sd">than merely slowing it.</span>
+
+<span class="sd">Measured on Chrysalis, job 1283361, which is what the rule below is built</span>
+<span class="sd">on.  A node there has 257155 MiB of hardware and reports 239633 MiB as</span>
+<span class="sd">available; Slurm advertises 253000, which is exactly what the machine's</span>
+<span class="sd">configuration carries.  So the configured figure is not a rough estimate to</span>
+<span class="sd">be improved on -- it is the site's own number -- but it is about 5.6% above</span>
+<span class="sd">what a job can actually get, because the kernel, the daemons and</span>
+<span class="sd">unreclaimable cache have taken their share before any step starts.  Only a</span>
+<span class="sd">reading taken on the node sees that.</span>
+<span class="sd">"""</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">subprocess</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">sys</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">dataclass</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Tuple</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">mache.parallel</span><span class="w"> </span><span class="kn">import</span> <span class="n">PlacementSupport</span><span class="p">,</span> <span class="n">ResourcePlacement</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.parallel</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_memory_per_node</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.run.topology</span><span class="w"> </span><span class="kn">import</span> <span class="n">one_thread_per_core</span>
+
+<span class="c1"># read on each node, one line per fact, so that a machine which cannot</span>
+<span class="c1"># answer one of them simply omits it</span>
+<span class="n">_PROBE</span> <span class="o">=</span> <span class="sa">r</span><span class="s1">'''</span>
+<span class="s1">import os</span>
+<span class="s1">import socket</span>
+
+<span class="s1">print('host=</span><span class="si">%s</span><span class="s1">' </span><span class="si">% s</span><span class="s1">ocket.gethostname().split('.')[0])</span>
+
+<span class="s1">info = </span><span class="si">{}</span>
+<span class="s1">try:</span>
+<span class="s1">    with open('/proc/meminfo') as handle:</span>
+<span class="s1">        for line in handle:</span>
+<span class="s1">            key, _, rest = line.partition(':')</span>
+<span class="s1">            parts = rest.split()</span>
+<span class="s1">            if parts:</span>
+<span class="s1">                info[key] = parts[0]</span>
+<span class="s1">except OSError:</span>
+<span class="s1">    pass</span>
+<span class="s1">for key in ('MemTotal', 'MemAvailable'):</span>
+<span class="s1">    if key in info:</span>
+<span class="s1">        print('</span><span class="si">%s</span><span class="s1">=</span><span class="si">%s</span><span class="s1">' % (key.lower(), info[key]))</span>
+
+
+<span class="s1">def cgroup_limit():</span>
+<span class="s1">    """The memory this process may use, in bytes, or None if unlimited."""</span>
+<span class="s1">    unified = os.path.exists('/sys/fs/cgroup/cgroup.controllers')</span>
+<span class="s1">    relative = ''</span>
+<span class="s1">    try:</span>
+<span class="s1">        with open('/proc/self/cgroup') as handle:</span>
+<span class="s1">            for line in handle:</span>
+<span class="s1">                fields = line.strip().split(':')</span>
+<span class="s1">                if len(fields) != 3:</span>
+<span class="s1">                    continue</span>
+<span class="s1">                if unified and fields[0] == '0':</span>
+<span class="s1">                    relative = fields[2]</span>
+<span class="s1">                elif not unified and 'memory' in fields[1].split(','):</span>
+<span class="s1">                    relative = fields[2]</span>
+<span class="s1">    except OSError:</span>
+<span class="s1">        pass</span>
+<span class="s1">    if unified:</span>
+<span class="s1">        names = ['/sys/fs/cgroup</span><span class="si">%s</span><span class="s1">/memory.max' </span><span class="si">% r</span><span class="s1">elative]</span>
+<span class="s1">    else:</span>
+<span class="s1">        names = ['/sys/fs/cgroup/memory</span><span class="si">%s</span><span class="s1">/memory.limit_in_bytes' </span><span class="si">% r</span><span class="s1">elative]</span>
+<span class="s1">    for name in names:</span>
+<span class="s1">        try:</span>
+<span class="s1">            with open(name) as handle:</span>
+<span class="s1">                value = handle.read().strip()</span>
+<span class="s1">        except OSError:</span>
+<span class="s1">            continue</span>
+<span class="s1">        if value in ('', 'max'):</span>
+<span class="s1">            return None</span>
+<span class="s1">        try:</span>
+<span class="s1">            limit = int(value)</span>
+<span class="s1">        except ValueError:</span>
+<span class="s1">            return None</span>
+<span class="s1">        # a cgroup with no limit set carries a number near the largest a</span>
+<span class="s1">        # signed 64-bit integer holds rather than saying so</span>
+<span class="s1">        if limit &gt;= 2**62:</span>
+<span class="s1">            return None</span>
+<span class="s1">        return limit</span>
+<span class="s1">    return None</span>
+
+
+<span class="s1">limit = cgroup_limit()</span>
+<span class="s1">if limit is not None:</span>
+<span class="s1">    print('cgroup_limit=</span><span class="si">%d</span><span class="s1">' </span><span class="si">% li</span><span class="s1">mit)</span>
+<span class="s1">'''</span>
+
+
+<div class="viewcode-block" id="NodeResources">
+<a class="viewcode-back" href="../../../developers_guide/generated/polaris.run.allocation.NodeResources.html#polaris.run.allocation.NodeResources">[docs]</a>
+<span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">NodeResources</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    What one node of the allocation holds.</span>
+
+<span class="sd">    Attributes</span>
+<span class="sd">    ----------</span>
+<span class="sd">    name : str</span>
+<span class="sd">        The node's hostname, which is how a placement names it.</span>
+
+<span class="sd">    cores : int</span>
+<span class="sd">        How many cores a launch may use on it.</span>
+
+<span class="sd">    core_ids : tuple of int</span>
+<span class="sd">        Which cores those are, by number.  Not always ``range(cores)``: a</span>
+<span class="sd">        site may keep some cores back for itself, and a launcher refuses a</span>
+<span class="sd">        core the job was never given.  Aurora keeps core 0.</span>
+
+<span class="sd">    gpus : int</span>
+<span class="sd">        The GPUs it has.</span>
+
+<span class="sd">    memory : int or None</span>
+<span class="sd">        The memory in MiB to credit it with, or ``None`` where nothing</span>
+<span class="sd">        could say.</span>
+
+<span class="sd">    memory_source : str</span>
+<span class="sd">        Which figure ``memory`` came from: ``'cgroup'`` where the site</span>
+<span class="sd">        holds a job to one, ``'available'`` where the node reported what it</span>
+<span class="sd">        had left, or ``'config'`` where neither could be read and the</span>
+<span class="sd">        machine's configured figure was used.</span>
+
+<span class="sd">    memory_total : int or None</span>
+<span class="sd">        The node's hardware memory in MiB, for the log rather than for</span>
+<span class="sd">        packing.  A node well below its neighbours here is a node with</span>
+<span class="sd">        something wrong.</span>
+
+<span class="sd">    memory_configured : int or None</span>
+<span class="sd">        What the machine's configuration says a node has, in MiB, so that a</span>
+<span class="sd">        disagreement is visible.</span>
+<span class="sd">    """</span>
+
+    <span class="n">name</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">cores</span><span class="p">:</span> <span class="nb">int</span>
+    <span class="n">gpus</span><span class="p">:</span> <span class="nb">int</span>
+    <span class="n">memory</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span>
+    <span class="n">memory_source</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">memory_total</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span>
+    <span class="n">memory_configured</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span>
+    <span class="n">core_ids</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span> <span class="o">=</span> <span class="p">()</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">__post_init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># not given: the cores are numbered from zero, as they were before</span>
+        <span class="c1"># anything asked which ones a job may use</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">core_ids</span><span class="p">:</span>
+            <span class="nb">object</span><span class="o">.</span><span class="fm">__setattr__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">'core_ids'</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cores</span><span class="p">)))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="nb">object</span><span class="o">.</span><span class="fm">__setattr__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">'core_ids'</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">core_ids</span><span class="p">))</span>
+            <span class="nb">object</span><span class="o">.</span><span class="fm">__setattr__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">'cores'</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">core_ids</span><span class="p">))</span></div>
+
+
+
+<div class="viewcode-block" id="read_allocation">
+<a class="viewcode-back" href="../../../developers_guide/generated/polaris.run.allocation.read_allocation.html#polaris.run.allocation.read_allocation">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">read_allocation</span><span class="p">(</span><span class="n">component</span><span class="p">,</span> <span class="n">logger</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">NodeResources</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Read what each node of this allocation holds, and report it.</span>
+
+<span class="sd">    One launch, one rank per node, at the start of a run.  It is also the</span>
+<span class="sd">    first thing on any machine to render a placement across several nodes,</span>
+<span class="sd">    so a machine that cannot honor one says so here rather than partway</span>
+<span class="sd">    through a suite.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    component : polaris.Component</span>
+<span class="sd">        The component whose parallel system describes this allocation</span>
+
+<span class="sd">    logger : logging.Logger</span>
+<span class="sd">        Where the reading is reported</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    nodes : list of polaris.run.allocation.NodeResources</span>
+<span class="sd">        One entry per node, in the order the batch system lists them</span>
+<span class="sd">    """</span>
+    <span class="n">parallel_system</span> <span class="o">=</span> <span class="n">component</span><span class="o">.</span><span class="n">parallel_system</span>
+    <span class="k">if</span> <span class="n">parallel_system</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s1">'Parallel system has not been set for component </span><span class="si">{</span><span class="n">component</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s1">'</span>
+        <span class="p">)</span>
+
+    <span class="n">configured</span> <span class="o">=</span> <span class="n">get_memory_per_node</span><span class="p">(</span><span class="n">parallel_system</span><span class="p">)</span>
+    <span class="n">names</span> <span class="o">=</span> <span class="n">parallel_system</span><span class="o">.</span><span class="n">node_names</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">names</span><span class="p">:</span>
+        <span class="c1"># nothing names the nodes, which is a login node or a machine with</span>
+        <span class="c1"># no allocation to describe.  One node, and only the configuration</span>
+        <span class="c1"># to go on.</span>
+        <span class="n">names</span> <span class="o">=</span> <span class="p">[</span><span class="s1">''</span><span class="p">]</span>
+
+    <span class="n">cores_per_node</span> <span class="o">=</span> <span class="n">parallel_system</span><span class="o">.</span><span class="n">cores_per_node</span> <span class="ow">or</span> <span class="mi">0</span>
+    <span class="n">gpus_per_node</span> <span class="o">=</span> <span class="n">parallel_system</span><span class="o">.</span><span class="n">gpus_per_node</span> <span class="ow">or</span> <span class="mi">0</span>
+    <span class="n">core_ids</span> <span class="o">=</span> <span class="n">usable_cores</span><span class="p">(</span><span class="n">cores_per_node</span><span class="p">,</span> <span class="n">logger</span><span class="p">)</span>
+
+    <span class="n">readings</span> <span class="o">=</span> <span class="n">_read_nodes</span><span class="p">(</span><span class="n">parallel_system</span><span class="p">,</span> <span class="n">names</span><span class="p">,</span> <span class="n">core_ids</span><span class="p">,</span> <span class="n">logger</span><span class="p">)</span>
+
+    <span class="c1"># the nodes report their short names and the batch system may list</span>
+    <span class="c1"># them fully qualified, as PBS does on Aurora</span>
+    <span class="n">nodes</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="n">_credit</span><span class="p">(</span>
+            <span class="n">name</span><span class="p">,</span>
+            <span class="n">readings</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">_short</span><span class="p">(</span><span class="n">name</span><span class="p">)),</span>
+            <span class="n">core_ids</span><span class="p">,</span>
+            <span class="n">gpus_per_node</span><span class="p">,</span>
+            <span class="n">configured</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">names</span>
+    <span class="p">]</span>
+    <span class="n">silent</span> <span class="o">=</span> <span class="p">[</span><span class="n">name</span> <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">names</span> <span class="k">if</span> <span class="n">_short</span><span class="p">(</span><span class="n">name</span><span class="p">)</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">readings</span><span class="p">]</span>
+    <span class="k">if</span> <span class="n">silent</span> <span class="ow">and</span> <span class="n">readings</span><span class="p">:</span>
+        <span class="c1"># some nodes answered and some did not, which is worth more than a</span>
+        <span class="c1"># line saying the quiet ones fell back: a launch that reaches only</span>
+        <span class="c1"># part of its allocation is a placement problem rather than a</span>
+        <span class="c1"># memory one, and the raw output is what tells them apart</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">silent</span><span class="p">)</span><span class="si">}</span><span class="s1"> of </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">names</span><span class="p">)</span><span class="si">}</span><span class="s1"> node(s) did not report their '</span>
+            <span class="sa">f</span><span class="s1">'memory and fall back to the configured figure: </span><span class="si">{</span><span class="n">silent</span><span class="si">}</span><span class="s1">'</span>
+        <span class="p">)</span>
+    <span class="n">_report</span><span class="p">(</span><span class="n">nodes</span><span class="p">,</span> <span class="n">logger</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">nodes</span></div>
+
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_read_nodes</span><span class="p">(</span>
+    <span class="n">parallel_system</span><span class="p">,</span> <span class="n">names</span><span class="p">,</span> <span class="n">core_ids</span><span class="p">,</span> <span class="n">logger</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">]]:</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Ask every node what memory a job may use on it.</span>
+
+<span class="sd">    A failure here is not fatal: the run falls back to the configured</span>
+<span class="sd">    figure, which is what Polaris used before anything asked.  It is</span>
+<span class="sd">    reported loudly, because the fallback is exactly the over-crediting the</span>
+<span class="sd">    reading exists to correct.</span>
+<span class="sd">    """</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">parallel_system</span><span class="o">.</span><span class="n">mpi_allowed</span><span class="p">:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+            <span class="s1">'Not asking the nodes about memory: this is not an allocation.'</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="p">{}</span>
+
+    <span class="k">if</span> <span class="n">parallel_system</span><span class="o">.</span><span class="n">placement_support</span> <span class="ow">is</span> <span class="n">PlacementSupport</span><span class="o">.</span><span class="n">NONE</span><span class="p">:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+            <span class="s1">'This machine cannot confine a launch, so the nodes cannot be '</span>
+            <span class="s1">'asked about memory one at a time. Using the configured figure.'</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="p">{}</span>
+
+    <span class="c1"># one rank per node, on the first core the job may use there.  Not</span>
+    <span class="c1"># core 0: Aurora keeps that one for itself and PALS refuses a launch</span>
+    <span class="c1"># bound to it, with `affinity setup: object has too few CPUs for rank`.</span>
+    <span class="n">placement</span> <span class="o">=</span> <span class="n">ResourcePlacement</span><span class="p">(</span>
+        <span class="n">nodes</span><span class="o">=</span><span class="nb">tuple</span><span class="p">(</span><span class="n">name</span> <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">names</span> <span class="k">if</span> <span class="n">name</span> <span class="o">!=</span> <span class="s1">''</span><span class="p">),</span>
+        <span class="n">cores</span><span class="o">=</span><span class="nb">tuple</span><span class="p">((</span><span class="n">core_ids</span><span class="p">[</span><span class="mi">0</span><span class="p">],)</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">names</span><span class="p">),</span>
+        <span class="n">gpus</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">command</span> <span class="o">=</span> <span class="n">parallel_system</span><span class="o">.</span><span class="n">get_parallel_command</span><span class="p">(</span>
+        <span class="n">args</span><span class="o">=</span><span class="p">[</span><span class="n">sys</span><span class="o">.</span><span class="n">executable</span><span class="p">,</span> <span class="s1">'-c'</span><span class="p">,</span> <span class="n">_PROBE</span><span class="p">],</span>
+        <span class="n">ntasks</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">names</span><span class="p">),</span>
+        <span class="n">cpus_per_task</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+        <span class="n">placement</span><span class="o">=</span><span class="n">placement</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">process</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">run</span><span class="p">(</span>
+            <span class="n">command</span><span class="p">,</span> <span class="n">capture_output</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">check</span><span class="o">=</span><span class="kc">False</span>
+        <span class="p">)</span>
+    <span class="k">except</span> <span class="ne">OSError</span> <span class="k">as</span> <span class="n">exception</span><span class="p">:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s1">'Could not ask the nodes about memory (</span><span class="si">{</span><span class="n">exception</span><span class="si">}</span><span class="s1">). Using the '</span>
+            <span class="sa">f</span><span class="s1">'configured figure.'</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="p">{}</span>
+
+    <span class="k">if</span> <span class="n">process</span><span class="o">.</span><span class="n">returncode</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s1">'Asking the nodes about memory failed with exit code '</span>
+            <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">process</span><span class="o">.</span><span class="n">returncode</span><span class="si">}</span><span class="s1">. Using the configured figure.</span><span class="se">\n</span><span class="s1">'</span>
+            <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">process</span><span class="o">.</span><span class="n">stderr</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="si">}</span><span class="s1">'</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="p">{}</span>
+
+    <span class="n">readings</span> <span class="o">=</span> <span class="n">_parse</span><span class="p">(</span><span class="n">process</span><span class="o">.</span><span class="n">stdout</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">readings</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">names</span><span class="p">):</span>
+        <span class="c1"># keep what the nodes actually said, since a reading that is wrong</span>
+        <span class="c1"># or missing cannot be diagnosed from the summary alone</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s1">'the nodes answered:</span><span class="se">\n</span><span class="si">{</span><span class="n">process</span><span class="o">.</span><span class="n">stdout</span><span class="si">}</span><span class="s1">'</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">readings</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_parse</span><span class="p">(</span><span class="n">output</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">]]:</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Group the probe's ``key=value`` lines by the node that printed them.</span>
+
+<span class="sd">    Launchers label output in their own ways and some interleave it, so the</span>
+<span class="sd">    ``host`` line starts a node's record and everything after it belongs to</span>
+<span class="sd">    that node until the next one.</span>
+<span class="sd">    """</span>
+    <span class="n">readings</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="n">current</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">output</span><span class="o">.</span><span class="n">splitlines</span><span class="p">():</span>
+        <span class="c1"># a launcher may prefix each line with a rank label</span>
+        <span class="n">_</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">tail</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">rpartition</span><span class="p">(</span><span class="s1">' '</span><span class="p">)</span>
+        <span class="n">key</span><span class="p">,</span> <span class="n">sep</span><span class="p">,</span> <span class="n">value</span> <span class="o">=</span> <span class="p">(</span><span class="n">tail</span> <span class="ow">or</span> <span class="n">line</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">partition</span><span class="p">(</span><span class="s1">'='</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">sep</span> <span class="o">!=</span> <span class="s1">'='</span><span class="p">:</span>
+            <span class="k">continue</span>
+        <span class="k">if</span> <span class="n">key</span> <span class="o">==</span> <span class="s1">'host'</span><span class="p">:</span>
+            <span class="n">current</span> <span class="o">=</span> <span class="n">value</span>
+            <span class="n">readings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="n">current</span><span class="p">,</span> <span class="p">{})</span>
+            <span class="k">continue</span>
+        <span class="k">if</span> <span class="n">current</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">continue</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">readings</span><span class="p">[</span><span class="n">current</span><span class="p">][</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+            <span class="k">continue</span>
+    <span class="k">return</span> <span class="n">readings</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_credit</span><span class="p">(</span>
+    <span class="n">name</span><span class="p">,</span> <span class="n">reading</span><span class="p">,</span> <span class="n">core_ids</span><span class="p">,</span> <span class="n">gpus_per_node</span><span class="p">,</span> <span class="n">configured</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">NodeResources</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Decide what one node is credited with, from what it reported.</span>
+
+<span class="sd">    The cgroup limit is what the kernel will kill against, so it wins where</span>
+<span class="sd">    a site sets one.  Otherwise what the node says is still available is</span>
+<span class="sd">    the closest thing to what a job may use.  Where both are known the</span>
+<span class="sd">    smaller is taken: a cgroup limit above what the node actually has free</span>
+<span class="sd">    is not a promise the node can keep.</span>
+<span class="sd">    """</span>
+    <span class="n">reading</span> <span class="o">=</span> <span class="n">reading</span> <span class="ow">or</span> <span class="p">{}</span>
+    <span class="c1"># /proc/meminfo is in KiB, the cgroup limit in bytes, and everything</span>
+    <span class="c1"># Polaris and mache say about memory is in MiB</span>
+    <span class="n">available</span> <span class="o">=</span> <span class="n">reading</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'memavailable'</span><span class="p">)</span>
+    <span class="n">available</span> <span class="o">=</span> <span class="kc">None</span> <span class="k">if</span> <span class="n">available</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">available</span> <span class="o">//</span> <span class="mi">1024</span>
+    <span class="n">total</span> <span class="o">=</span> <span class="n">reading</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'memtotal'</span><span class="p">)</span>
+    <span class="n">total</span> <span class="o">=</span> <span class="kc">None</span> <span class="k">if</span> <span class="n">total</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">total</span> <span class="o">//</span> <span class="mi">1024</span>
+    <span class="n">limit</span> <span class="o">=</span> <span class="n">reading</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'cgroup_limit'</span><span class="p">)</span>
+    <span class="n">limit</span> <span class="o">=</span> <span class="kc">None</span> <span class="k">if</span> <span class="n">limit</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">limit</span> <span class="o">//</span> <span class="p">(</span><span class="mi">1024</span> <span class="o">*</span> <span class="mi">1024</span><span class="p">)</span>
+
+    <span class="n">candidates</span> <span class="o">=</span> <span class="p">{</span><span class="s1">'cgroup'</span><span class="p">:</span> <span class="n">limit</span><span class="p">,</span> <span class="s1">'available'</span><span class="p">:</span> <span class="n">available</span><span class="p">}</span>
+    <span class="n">known</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="n">source</span><span class="p">:</span> <span class="n">value</span>
+        <span class="k">for</span> <span class="n">source</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">candidates</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+    <span class="p">}</span>
+    <span class="k">if</span> <span class="n">known</span><span class="p">:</span>
+        <span class="n">source</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">known</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">key</span><span class="p">:</span> <span class="n">known</span><span class="p">[</span><span class="n">key</span><span class="p">])</span>
+        <span class="n">memory</span> <span class="o">=</span> <span class="n">known</span><span class="p">[</span><span class="n">source</span><span class="p">]</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">source</span> <span class="o">=</span> <span class="s1">'config'</span>
+        <span class="n">memory</span> <span class="o">=</span> <span class="n">configured</span>
+
+    <span class="k">return</span> <span class="n">NodeResources</span><span class="p">(</span>
+        <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span>
+        <span class="n">cores</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">core_ids</span><span class="p">),</span>
+        <span class="n">core_ids</span><span class="o">=</span><span class="n">core_ids</span><span class="p">,</span>
+        <span class="n">gpus</span><span class="o">=</span><span class="n">gpus_per_node</span><span class="p">,</span>
+        <span class="n">memory</span><span class="o">=</span><span class="n">memory</span><span class="p">,</span>
+        <span class="n">memory_source</span><span class="o">=</span><span class="n">source</span><span class="p">,</span>
+        <span class="n">memory_total</span><span class="o">=</span><span class="n">total</span><span class="p">,</span>
+        <span class="n">memory_configured</span><span class="o">=</span><span class="n">configured</span><span class="p">,</span>
+    <span class="p">)</span>
+
+
+<div class="viewcode-block" id="usable_cores">
+<a class="viewcode-back" href="../../../developers_guide/generated/polaris.run.allocation.usable_cores.html#polaris.run.allocation.usable_cores">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">usable_cores</span><span class="p">(</span><span class="n">cores_per_node</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">logger</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Which cores a launch may use on a node of this allocation, by number.</span>
+
+<span class="sd">    The configuration says how many; it does not say which, and the two</span>
+<span class="sd">    differ where a site keeps cores back for itself.  Aurora keeps core 0,</span>
+<span class="sd">    and PALS refuses a launch bound to a core the job was not given, so a</span>
+<span class="sd">    scheduler numbering cores from zero hands out one that cannot be used.</span>
+
+<span class="sd">    What the kernel allows this process is what the job may use on this</span>
+<span class="sd">    node, and nodes in an allocation are alike, which is the assumption</span>
+<span class="sd">    ``cores_per_node`` already makes.  Those ids are hardware threads on</span>
+<span class="sd">    every machine Polaris runs on, two to a core, and Polaris places one</span>
+<span class="sd">    rank or thread per physical core and leaves the sibling idle -- so</span>
+<span class="sd">    the ids are reduced to one per core by what the kernel says shares a</span>
+<span class="sd">    core, and the first ``cores_per_node`` of those are taken.  A</span>
+<span class="sd">    Perlmutter CPU node allows 256 ids and is configured with 128 cores;</span>
+<span class="sd">    an Aurora node allows 204 -- ids 1-51, 53-103 and their siblings, with</span>
+<span class="sd">    0, 52 and theirs held back -- and is configured with 102.</span>
+
+<span class="sd">    The count of cores the job may use is held against the configured one</span>
+<span class="sd">    and a disagreement is reported, since it means the machine's</span>
+<span class="sd">    configuration and the machine differ.  A reading that leaves fewer</span>
+<span class="sd">    than half the configured cores is not believed at all: the process may</span>
+<span class="sd">    have been started bound to a corner of the node, and numbering the</span>
+<span class="sd">    whole allocation from that corner would starve every step.  The</span>
+<span class="sd">    configured range is used instead, and said so.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    cores_per_node : int</span>
+<span class="sd">        The configured number of cores on a node</span>
+
+<span class="sd">    logger : logging.Logger</span>
+<span class="sd">        Where a distrusted or disagreeing reading is reported</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    core_ids : tuple of int</span>
+<span class="sd">        The usable cores, one id per physical core, in order</span>
+<span class="sd">    """</span>
+    <span class="n">configured</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">cores_per_node</span><span class="p">))</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">os</span><span class="p">,</span> <span class="s1">'sched_getaffinity'</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">configured</span>
+
+    <span class="n">allowed</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">sched_getaffinity</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">cores</span> <span class="o">=</span> <span class="n">one_thread_per_core</span><span class="p">(</span><span class="n">allowed</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">cores</span><span class="p">)</span> <span class="o">*</span> <span class="mi">2</span> <span class="o">&lt;</span> <span class="n">cores_per_node</span><span class="p">:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s1">'This process is allowed only </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">cores</span><span class="p">)</span><span class="si">}</span><span class="s1"> of the '</span>
+            <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">cores_per_node</span><span class="si">}</span><span class="s1"> cores a node is configured with, which is '</span>
+            <span class="sa">f</span><span class="s1">'too few to describe a node. Numbering cores from zero.'</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="n">configured</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">cores</span><span class="p">)</span> <span class="o">!=</span> <span class="n">cores_per_node</span><span class="p">:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s1">'A node here has </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">cores</span><span class="p">)</span><span class="si">}</span><span class="s1"> cores the job may use, on '</span>
+            <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">allowed</span><span class="p">)</span><span class="si">}</span><span class="s1"> hardware threads, but is configured with '</span>
+            <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">cores_per_node</span><span class="si">}</span><span class="s1">. Using the first </span><span class="si">{</span><span class="n">cores_per_node</span><span class="si">}</span><span class="s1">.'</span>
+        <span class="p">)</span>
+    <span class="n">cores</span> <span class="o">=</span> <span class="n">cores</span><span class="p">[:</span><span class="n">cores_per_node</span><span class="p">]</span>
+    <span class="k">if</span> <span class="n">cores</span> <span class="o">!=</span> <span class="nb">list</span><span class="p">(</span><span class="n">configured</span><span class="p">):</span>
+        <span class="c1"># the ids passed over among those in use, whatever the count: on</span>
+        <span class="c1"># Frontier the used ids run to 63 on a node configured with 56,</span>
+        <span class="c1"># and 56 itself is one of the held-back ones</span>
+        <span class="n">held_back</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">cores</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span><span class="p">))</span> <span class="o">-</span> <span class="nb">set</span><span class="p">(</span><span class="n">cores</span><span class="p">))</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s1">'A node here keeps back core(s) </span><span class="si">{</span><span class="n">held_back</span><span class="si">}</span><span class="s1">; steps are placed '</span>
+            <span class="sa">f</span><span class="s1">'on the other </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">cores</span><span class="p">)</span><span class="si">}</span><span class="s1">.'</span>
+        <span class="p">)</span>
+    <span class="k">return</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">cores</span><span class="p">)</span></div>
+
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_short</span><span class="p">(</span><span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""A node's short name, which is how the node itself reports it."""</span>
+    <span class="k">return</span> <span class="n">name</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">'.'</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_report</span><span class="p">(</span><span class="n">nodes</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">NodeResources</span><span class="p">],</span> <span class="n">logger</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Log what each node was credited with, and what it disagreed with.</span>
+
+<span class="sd">    This is the standing record the design asks for, and it is what makes a</span>
+<span class="sd">    machine's answer available without anyone running a probe: every</span>
+<span class="sd">    concurrent run reports it.</span>
+<span class="sd">    """</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">''</span><span class="p">)</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">'Allocation:'</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">nodes</span><span class="p">:</span>
+        <span class="n">name</span> <span class="o">=</span> <span class="n">node</span><span class="o">.</span><span class="n">name</span> <span class="ow">or</span> <span class="s1">'this node'</span>
+        <span class="n">memory</span> <span class="o">=</span> <span class="s1">'unknown'</span> <span class="k">if</span> <span class="n">node</span><span class="o">.</span><span class="n">memory</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">node</span><span class="o">.</span><span class="n">memory</span><span class="si">}</span><span class="s1"> MiB'</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s1">'  </span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s1">: </span><span class="si">{</span><span class="n">node</span><span class="o">.</span><span class="n">cores</span><span class="si">}</span><span class="s1"> cores, </span><span class="si">{</span><span class="n">node</span><span class="o">.</span><span class="n">gpus</span><span class="si">}</span><span class="s1"> gpus, '</span>
+            <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">memory</span><span class="si">}</span><span class="s1"> (</span><span class="si">{</span><span class="n">node</span><span class="o">.</span><span class="n">memory_source</span><span class="si">}</span><span class="s1">)'</span>
+        <span class="p">)</span>
+        <span class="k">if</span> <span class="n">node</span><span class="o">.</span><span class="n">memory_total</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">'      hardware: </span><span class="si">{</span><span class="n">node</span><span class="o">.</span><span class="n">memory_total</span><span class="si">}</span><span class="s1"> MiB'</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">node</span><span class="o">.</span><span class="n">memory_configured</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">'      configured: </span><span class="si">{</span><span class="n">node</span><span class="o">.</span><span class="n">memory_configured</span><span class="si">}</span><span class="s1"> MiB'</span><span class="p">)</span>
+
+    <span class="n">_warn_about_odd_nodes</span><span class="p">(</span><span class="n">nodes</span><span class="p">,</span> <span class="n">logger</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_warn_about_odd_nodes</span><span class="p">(</span><span class="n">nodes</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">NodeResources</span><span class="p">],</span> <span class="n">logger</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Say when one node is much smaller than the rest, or than the config."""</span>
+    <span class="n">credited</span> <span class="o">=</span> <span class="p">[</span><span class="n">node</span><span class="o">.</span><span class="n">memory</span> <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">nodes</span> <span class="k">if</span> <span class="n">node</span><span class="o">.</span><span class="n">memory</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">]</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">credited</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="n">smallest</span><span class="p">,</span> <span class="n">largest</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">credited</span><span class="p">),</span> <span class="nb">max</span><span class="p">(</span><span class="n">credited</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">largest</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="ow">and</span> <span class="p">(</span><span class="n">largest</span> <span class="o">-</span> <span class="n">smallest</span><span class="p">)</span> <span class="o">/</span> <span class="n">largest</span> <span class="o">&gt;</span> <span class="mf">0.05</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s1">'The nodes of this allocation do not hold the same memory: '</span>
+                <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">smallest</span><span class="si">}</span><span class="s2"> MiB to </span><span class="si">{</span><span class="n">largest</span><span class="si">}</span><span class="s2"> MiB. Packing uses each node's "</span>
+                <span class="sa">f</span><span class="s1">'own figure, so this is handled, but a node far below its '</span>
+                <span class="sa">f</span><span class="s1">'neighbours may have something wrong with it.'</span>
+            <span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">nodes</span><span class="p">:</span>
+        <span class="n">configured</span> <span class="o">=</span> <span class="n">node</span><span class="o">.</span><span class="n">memory_configured</span>
+        <span class="k">if</span> <span class="n">configured</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">node</span><span class="o">.</span><span class="n">memory</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">continue</span>
+        <span class="k">if</span> <span class="n">node</span><span class="o">.</span><span class="n">memory_source</span> <span class="o">==</span> <span class="s1">'config'</span><span class="p">:</span>
+            <span class="k">continue</span>
+        <span class="k">if</span> <span class="n">node</span><span class="o">.</span><span class="n">memory</span> <span class="o">&lt;</span> <span class="n">configured</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s1">'  </span><span class="si">{</span><span class="n">node</span><span class="o">.</span><span class="n">name</span><span class="w"> </span><span class="ow">or</span><span class="w"> </span><span class="s2">"this node"</span><span class="si">}</span><span class="s1"> credits '</span>
+                <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">configured</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">node</span><span class="o">.</span><span class="n">memory</span><span class="si">}</span><span class="s2"> MiB less than the machine's "</span>
+                <span class="sa">f</span><span class="s1">'configured </span><span class="si">{</span><span class="n">configured</span><span class="si">}</span><span class="s1"> MiB, which is what a job does not '</span>
+                <span class="sa">f</span><span class="s1">'get to use.'</span>
+            <span class="p">)</span>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2026, Energy Exascale Earth System Model Project.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+   
+
+  <!-- Meta tags for JS to use -->
+  <meta name="doc-version" content="main">
+  <meta name="doc-site-root" content="../../../">
+
+  <!-- Create version switcher container -->
+  <script>
+    const sidebar = document.querySelector('.wy-side-nav-search');
+    if (sidebar) {
+      const versionDiv = document.createElement('div');
+      versionDiv.id = 'version-switcher';
+      versionDiv.style.marginTop = '1em';
+      sidebar.appendChild(versionDiv);
+    }
+  </script>
+
+  <!-- Load version-switcher.js using the correct relative path -->
+  <script src="../../../../shared/version-switcher.js"></script>
+
+
+</body>
+</html>
