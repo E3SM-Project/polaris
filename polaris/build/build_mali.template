@@ -20,20 +20,24 @@ fi
    FASTISOSTASY=true, so none are initialized #}
 cd {{ mali_subdir }}
 
+{{ framework_check }}
+
 {# polaris.build.source_record reads this record of the source being built #}
 {
     echo "source: {{ e3sm_base_dir }}"
     echo "hash: $(git -C {{ e3sm_base_dir }} rev-parse HEAD)"
     echo "describe: $(git -C {{ e3sm_base_dir }} describe --tags --dirty --always)"
-    echo "clean_build: {{ 'true' if clean else 'false' }}"
+    echo "clean_build: ${polaris_needs_clean:-{{ 'true' if clean else 'false' }}}"
     echo "albany: {{ 'true' if albany else 'false' }}"
     echo "log:"
     git -C {{ e3sm_base_dir }} log --first-parent -n 5 --format='  %h %s'
 } > {{ build_dir }}/mali_source.txt
 
-{%- if clean %}
-make clean
-{%- endif %}
+if [ "${polaris_needs_clean}" = "true" ]; then
+    make clean
+fi
+{# record this build's configuration before making it, in case it fails #}
+echo "${polaris_build_config}" > "${polaris_build_record}"
 
 {%- if albany %}
 {# deploy/load.sh sets POLARIS_ALBANY_LINK_LIBS from Albany's Spack package #}
