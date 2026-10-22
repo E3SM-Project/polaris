@@ -44,7 +44,10 @@ MALI-Dev's `develop` branch, where MALI is developed.  Use
 `--landice_branch` (or `--branch` when setting up landice tasks) to build
 from another E3SM branch, such as FAnSSIE for ocean–ice-sheet coupling work.
 The build flags described in {ref}`dev-build-components` apply, and
-{ref}`dev-build` describes the build script.
+{ref}`dev-build` describes the build script.  MALI and MPAS-Ocean built from
+the same E3SM checkout share its framework build, so Polaris rebuilds it when
+switching between them, and the two must not be built from one checkout at
+the same time.
 
 ```bash
 source ./load_<env_name>_<machine>_<compiler>_<mpi>.sh
