@@ -70,7 +70,6 @@ def test_find_baseline_match(tmp_path):
             'it was set up with --cmake_flags',
         ),
         ({'complete': False}, 'its run is not complete'),
-        ({'failed': 2}, '2 of its tasks failed'),
         ({'results': False}, 'it has no readable omega_pr_results.json'),
     ],
 )
@@ -83,6 +82,16 @@ def test_find_baseline_near_miss(tmp_path, changes, reason):
     assert len(near_misses) == 1
     assert near_misses[0].path == str(work_dir)
     assert near_misses[0].reasons == [reason]
+
+
+def test_find_baseline_with_failed_tasks(tmp_path):
+    # running the baseline again would not fix its failed tasks
+    work_dir = _make_run(tmp_path / 'run', failed=2)
+
+    matches, near_misses = find_baseline([str(tmp_path)], CRITERIA)
+
+    assert matches == [str(work_dir)]
+    assert near_misses == []
 
 
 def test_find_baseline_search_depth(tmp_path):
