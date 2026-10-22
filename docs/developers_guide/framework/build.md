@@ -43,6 +43,23 @@ Albany (`albany`).
 {ref}`dev-provenance` uses it to record the commit that was built, which may
 differ from the commit the source tree is at when a suite reuses the build.
 
+## Shared MPAS framework
+
+The MPAS components in an E3SM checkout share one framework build in
+`components/mpas-framework/src`, and its driver is compiled differently for
+each component.  The MPAS-Ocean and MALI build scripts write the
+configuration of each build (component, machine, compiler, MPI library, make
+target and flags, Albany and load script) to `.polaris_build` there before
+running `make`.  A build runs `make clean` first, which cleans the shared
+framework too, when that record differs, when the checkout has MPAS
+`.mpas_core_<core>` markers but no record (it was built outside Polaris), or
+when the newest marker belongs to another component.
+{py:func}`polaris.build.mpas_framework.get_framework_check()` makes this part
+of the scripts.
+
+Builds of different components, or with different compilers, from one
+checkout at the same time still collide, so don't start them together.
+
 ## Required environment
 
 Builders read a small number of environment variables to select the correct
