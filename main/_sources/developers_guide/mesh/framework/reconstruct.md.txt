@@ -10,10 +10,9 @@ edge-normal values into a Cartesian vector at those points, and applies them.
 
 The method is the linear least-squares reconstruction of
 [Peixoto and Barros (2014)](https://doi.org/10.1016/j.jcp.2014.04.043) on a
-two-ring edge stencil (their Figure 5).  See
-the [design document on vector reconstruction](../../../design_docs/vector_reconstruction.md)
-for the derivation and for why this method was chosen over Perot's; this page
-covers only what a caller of the framework needs to know.
+two-ring edge stencil (their Figure 5), which they found to be second order
+and much less prone to grid imprinting than Perot's method.  It costs more
+to set up than Perot's, but the weights are computed only once per mesh.
 
 ## Weights are a property of the mesh
 

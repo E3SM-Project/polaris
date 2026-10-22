@@ -140,9 +140,9 @@ mesh, delegates ocean-background construction to the mesh family, and
 writes a multi-variable sizing-field dataset to <code class="docutils literal notranslate"><span class="pre">sizing_field.nc</span></code>.</p>
 <p>When cull emulation is enabled (the default), the shared coastline
 ocean mask and signed distance are replaced by <em>effective</em> fields
-that anticipate what the MPAS cull will keep as ocean/sea-ice (see
-the <code class="docutils literal notranslate"><span class="pre">unified_mesh_cull_leak</span></code> design doc), so that land/river
-refinement never leaks into the CFL-limited ocean/sea-ice domain.</p>
+that anticipate what the MPAS cull will keep as ocean/sea-ice, so that
+land/river refinement never leaks into the CFL-limited ocean/sea-ice
+domain.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Variables<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">

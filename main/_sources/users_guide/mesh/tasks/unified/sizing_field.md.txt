@@ -67,13 +67,14 @@ and does its steepening at the inland end, where only cells that get culled
 away feel it. An exponent of 1 is the plain linear ramp. Because the
 exponent changes the *shape* rather than the *extent* of the transition, it
 costs no extra inland reach: river geometry still begins exactly where the
-blend ends. See the {ref}`design doc <design-docs>`
-`unified_mesh_dc_edge_noise`.
+blend ends.
 
 **River-channel refinement** (`enable_river_channel_refinement`)
 Reduces the target cell width to `river_channel_km` on rasterized river
 channels. This aligns mesh edges with river centerlines in the final JIGSAW
 mesh.
+
+(users-mesh-unified-cull-emulation)=
 
 ## Cull emulation
 
@@ -85,9 +86,7 @@ ocean-background scale, critical ocean passages are widened in proportion to
 the local resolution, and the result is flood filled and unioned with the
 shared coastline mask. This prevents land/river refinement from leaking
 into the CFL-limited ocean/sea-ice domain (e.g. in coastal lagoons whose
-thin barriers are not resolved at mesh scale). The design and validation
-are documented in the `unified_mesh_cull_leak` design doc (see
-{ref}`design-docs`).
+thin barriers are not resolved at mesh scale).
 
 ## Configuration
 

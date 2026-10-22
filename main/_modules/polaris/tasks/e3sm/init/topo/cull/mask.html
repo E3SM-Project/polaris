@@ -416,7 +416,7 @@
 <span class="sd">        circulate, and discards whatever is left unconnected to the open</span>
 <span class="sd">        ocean. The sea-ice criteria are not applied here; they belong to the</span>
 <span class="sd">        ocean without ice-shelf cavities and are applied when the two domains</span>
-<span class="sd">        are refined together. See the ``land_locked_cells`` design document.</span>
+<span class="sd">        are refined together.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -765,8 +765,7 @@
 <span class="sd">        The two domains are refined together because removing a cell from</span>
 <span class="sd">        one can strand a cell in the other, and because only here is the</span>
 <span class="sd">        land-ice mask available to say which cells may legitimately be in</span>
-<span class="sd">        the ocean but not in the ocean without cavities.  See the</span>
-<span class="sd">        ``land_locked_cells`` design document.</span>
+<span class="sd">        the ocean but not in the ocean without cavities.</span>
 <span class="sd">        """</span>
         <span class="n">logger</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">logger</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">'Refining the ocean and ocean no-cavities domains.'</span><span class="p">)</span>

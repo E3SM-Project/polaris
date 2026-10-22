@@ -161,9 +161,6 @@ satisfy to be scheduled that way.  They are cheap to follow when a step is
 first written and expensive to retrofit, so <strong>new analysis steps should follow
 them from the start</strong>.  Existing steps are being converted only where they are
 shared building blocks; see <a class="reference internal" href="#dev-task-parallelism-status"><span class="std std-ref">Current status</span></a>.</p>
-<p>The reasoning behind the rules, and the scheduler work they support, is in the
-<a class="reference internal" href="../../design_docs/index.html#design-docs"><span class="std std-ref">design documents</span></a>, under
-“Task-Parallel-Safe Analysis Steps in Polaris”.</p>
 <section id="what-polaris-already-guarantees">
 <h2>What Polaris already guarantees<a class="headerlink" href="#what-polaris-already-guarantees" title="Link to this heading"></a></h2>
 <p>Several properties a distributed executor would otherwise have to demand are

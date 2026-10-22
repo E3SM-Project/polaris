@@ -276,7 +276,7 @@ methods.</p>
 </pre></div>
 </div>
 <section id="jigsaw-mesh-optimization">
-<h2>JIGSAW mesh optimization<a class="headerlink" href="#jigsaw-mesh-optimization" title="Link to this heading"></a></h2>
+<span id="dev-spherical-jigsaw-optimization"></span><h2>JIGSAW mesh optimization<a class="headerlink" href="#jigsaw-mesh-optimization" title="Link to this heading"></a></h2>
 <p><code class="docutils literal notranslate"><span class="pre">jigsaw_optm_kern</span></code>, <code class="docutils literal notranslate"><span class="pre">jigsaw_optm_iter</span></code>, <code class="docutils literal notranslate"><span class="pre">jigsaw_optm_qtol</span></code> and
 <code class="docutils literal notranslate"><span class="pre">jigsaw_optm_qlim</span></code> are passed through to JIGSAW by
 <a class="reference internal" href="../../generated/polaris.mesh.QuasiUniformSphericalMeshStep.html#polaris.mesh.QuasiUniformSphericalMeshStep" title="polaris.mesh.QuasiUniformSphericalMeshStep"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.mesh.QuasiUniformSphericalMeshStep</span></code></a>. The defaults are
@@ -290,14 +290,12 @@ are the Voronoi dual of the JIGSAW triangulation, so <code class="docutils liter
 the cells that carry <code class="docutils literal notranslate"><span class="pre">dcEdge</span></code> rather than the triangulation, and it does
 give a tighter <em>bulk</em> <code class="docutils literal notranslate"><span class="pre">dcEdge</span></code> distribution at roughly 1.8 times the
 mesh-build time.</p>
-<p>It is not currently used by any mesh, and it should not be selected without
-reading the <a class="reference internal" href="../../../design_docs/index.html#design-docs"><span class="std std-ref">design doc</span></a> <code class="docutils literal notranslate"><span class="pre">unified_mesh_dc_edge_noise</span></code>
-first. On real unified meshes it thinned the bulk about fourfold while
-introducing rare severe defects: the minimum <code class="docutils literal notranslate"><span class="pre">dcEdge</span></code> ratio on
-<code class="docutils literal notranslate"><span class="pre">u-oi6to18-lr6to10</span></code> fell from 0.643 to 0.515, and <code class="docutils literal notranslate"><span class="pre">u-oi30-lr10</span></code> failed the
-cell-polygon quality check outright. Because the cull diagnostic reports a
-<em>minimum</em> over millions of edges, a kernel that improves the bulk and
-worsens the tail is a net loss.</p>
+<p>It is not currently used by any mesh. On real unified meshes it thinned the
+bulk about fourfold while introducing rare severe defects: the minimum
+<code class="docutils literal notranslate"><span class="pre">dcEdge</span></code> ratio on <code class="docutils literal notranslate"><span class="pre">u-oi6to18-lr6to10</span></code> fell from 0.643 to 0.515, and
+<code class="docutils literal notranslate"><span class="pre">u-oi30-lr10</span></code> failed the cell-polygon quality check outright. Because the
+cull diagnostic reports a <em>minimum</em> over millions of edges, a kernel that
+improves the bulk and worsens the tail is a net loss.</p>
 </section>
 <section id="reconstruction-weights">
 <h2>Reconstruction weights<a class="headerlink" href="#reconstruction-weights" title="Link to this heading"></a></h2>

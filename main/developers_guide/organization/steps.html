@@ -219,8 +219,6 @@ helper, say — <a class="reference internal" href="../generated/polaris.Step.ad
 again: adding the same step under the same name is a no-op.  Adding a
 <em>different</em> step under a name already in use is still an error, which is what
 its <code class="docutils literal notranslate"><span class="pre">name</span></code> argument exists to resolve.</p>
-<p>See the <a class="reference internal" href="../../design_docs/shared_steps.html"><span class="std std-doc">design document on shared steps</span></a>
-for more details about the motivation and implementation.</p>
 <p>A step is defined by a class that descends from <a class="reference internal" href="../generated/polaris.Step.html#polaris.Step" title="polaris.Step"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.Step</span></code></a>.
 The child class must override the constructor and must also either override the
 <a class="reference internal" href="../generated/polaris.Step.run.html#polaris.Step.run" title="polaris.Step.run"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.Step.run()</span></code></a> method or define the <code class="docutils literal notranslate"><span class="pre">args</span></code> attribute.  It will
@@ -1110,8 +1108,6 @@ produced on another machine, they must be transferred to Chrysalis
 before calling <code class="docutils literal notranslate"><span class="pre">polaris</span> <span class="pre">cache</span></code>.  File can be added manually to the
 LCRC server and the <code class="docutils literal notranslate"><span class="pre">cached_files.json</span></code> databases but this is not
 recommended.</p>
-<p>More details on cached outputs are available in the compass design document
-<a class="reference external" href="https://mpas-dev.github.io/compass/latest/design_docs/cached_outputs.html">Caching outputs from compass steps</a>.</p>
 </section>
 <section id="automatic-cache-use-with-default-cached-and-free-running-steps">
 <span id="dev-step-default-cached"></span><h3>Automatic cache use with <code class="docutils literal notranslate"><span class="pre">default_cached</span></code> and <code class="docutils literal notranslate"><span class="pre">free_running_steps</span></code><a class="headerlink" href="#automatic-cache-use-with-default-cached-and-free-running-steps" title="Link to this heading"></a></h3>

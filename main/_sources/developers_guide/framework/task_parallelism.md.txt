@@ -16,10 +16,6 @@ first written and expensive to retrofit, so **new analysis steps should follow
 them from the start**.  Existing steps are being converted only where they are
 shared building blocks; see {ref}`dev-task-parallelism-status`.
 
-The reasoning behind the rules, and the scheduler work they support, is in the
-{ref}`design documents <design-docs>`, under
-"Task-Parallel-Safe Analysis Steps in Polaris".
-
 ## What Polaris already guarantees
 
 Several properties a distributed executor would otherwise have to demand are

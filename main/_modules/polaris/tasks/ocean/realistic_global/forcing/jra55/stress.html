@@ -326,8 +326,7 @@
 <span class="sd">        both tools, because pyremap reconstructs corners from centers and the</span>
 <span class="sd">        grid then spans 365 degrees and overlaps itself; it is also</span>
 <span class="sd">        unnecessary, since TL319's longitude corners already span exactly 360</span>
-<span class="sd">        degrees.  See the wind-forcing section of the ``global_ocean_init``</span>
-<span class="sd">        design document.</span>
+<span class="sd">        degrees.</span>
 <span class="sd">        """</span>
         <span class="n">ds_out</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">()</span>
         <span class="k">for</span> <span class="n">var</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">'lat'</span><span class="p">,</span> <span class="s1">'lon'</span><span class="p">]:</span>

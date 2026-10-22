@@ -145,10 +145,9 @@ coupling all need the full vector at cell centers or vertices instead.
 edge-normal values into a Cartesian vector at those points, and applies them.</p>
 <p>The method is the linear least-squares reconstruction of
 <a class="reference external" href="https://doi.org/10.1016/j.jcp.2014.04.043">Peixoto and Barros (2014)</a> on a
-two-ring edge stencil (their Figure 5).  See
-the <a class="reference internal" href="../../../design_docs/vector_reconstruction.html"><span class="std std-doc">design document on vector reconstruction</span></a>
-for the derivation and for why this method was chosen over Perot’s; this page
-covers only what a caller of the framework needs to know.</p>
+two-ring edge stencil (their Figure 5), which they found to be second order
+and much less prone to grid imprinting than Perot’s method.  It costs more
+to set up than Perot’s, but the weights are computed only once per mesh.</p>
 <section id="weights-are-a-property-of-the-mesh">
 <h2>Weights are a property of the mesh<a class="headerlink" href="#weights-are-a-property-of-the-mesh" title="Link to this heading"></a></h2>
 <p>The weights depend on mesh geometry alone, not on the field being

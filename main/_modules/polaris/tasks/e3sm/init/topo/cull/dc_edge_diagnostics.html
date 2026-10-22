@@ -141,9 +141,6 @@
 <span class="sd">    is raised if any ratio falls below ``min_ratio`` or above</span>
 <span class="sd">    ``max_ratio``.</span>
 
-<span class="sd">    See the design document ``unified_mesh_cull_leak`` in the</span>
-<span class="sd">    documentation for the motivation and the choice of thresholds.</span>
-
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
 <span class="sd">    ds_base_mesh : xarray.Dataset</span>
@@ -281,8 +278,8 @@
             <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">shortest_edge</span><span class="si">:</span><span class="s1">.3f</span><span class="si">}</span><span class="s1"> km, only </span><span class="si">{</span><span class="n">abs_ratio</span><span class="si">:</span><span class="s1">.3f</span><span class="si">}</span><span class="s1"> times the '</span>
             <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">finest_background</span><span class="si">:</span><span class="s1">.3f</span><span class="si">}</span><span class="s1"> km finest ocean background, below the '</span>
             <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">min_abs_ratio</span><span class="si">}</span><span class="s1"> minimum.  This sets the forward-run time step '</span>
-            <span class="sa">f</span><span class="s1">'(see </span><span class="si">{</span><span class="n">out_filename</span><span class="si">}</span><span class="s1"> and the unified_mesh_dc_edge_noise design '</span>
-            <span class="sa">f</span><span class="s1">'doc).  Worst edge at lon=</span><span class="si">{</span><span class="n">lon</span><span class="si">:</span><span class="s1">.3f</span><span class="si">}</span><span class="s1">, lat=</span><span class="si">{</span><span class="n">lat</span><span class="si">:</span><span class="s1">.3f</span><span class="si">}</span><span class="s1">.'</span>
+            <span class="sa">f</span><span class="s1">'(see </span><span class="si">{</span><span class="n">out_filename</span><span class="si">}</span><span class="s1">).  Worst edge at lon=</span><span class="si">{</span><span class="n">lon</span><span class="si">:</span><span class="s1">.3f</span><span class="si">}</span><span class="s1">, '</span>
+            <span class="sa">f</span><span class="s1">'lat=</span><span class="si">{</span><span class="n">lat</span><span class="si">:</span><span class="s1">.3f</span><span class="si">}</span><span class="s1">.'</span>
         <span class="p">)</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="n">message</span><span class="p">)</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">message</span><span class="p">)</span>
@@ -313,8 +310,8 @@
         <span class="s1">'The culled ocean/sea-ice domain contains edges whose dcEdge '</span>
         <span class="s1">'is out of bounds relative to the local ocean background cell '</span>
         <span class="s1">'width, indicating that resolution intended for the land/river '</span>
-        <span class="sa">f</span><span class="s1">'domain has leaked into the ocean (see </span><span class="si">{</span><span class="n">out_filename</span><span class="si">}</span><span class="s1"> and the '</span>
-        <span class="s1">'unified_mesh_cull_leak design doc):</span><span class="se">\n</span><span class="s1">'</span> <span class="o">+</span> <span class="s1">'</span><span class="se">\n</span><span class="s1">'</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">lines</span><span class="p">)</span>
+        <span class="sa">f</span><span class="s1">'domain has leaked into the ocean (see </span><span class="si">{</span><span class="n">out_filename</span><span class="si">}</span><span class="s1">):</span><span class="se">\n</span><span class="s1">'</span>
+        <span class="o">+</span> <span class="s1">'</span><span class="se">\n</span><span class="s1">'</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">lines</span><span class="p">)</span>
     <span class="p">)</span>
     <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="n">message</span><span class="p">)</span>
     <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">message</span><span class="p">)</span></div>
