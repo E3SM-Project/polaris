@@ -1,0 +1,1009 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Omega Pull Request Testing</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=a8da1a53"></script>
+      <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="EOS and Vertical-Coordinate Variants of the Overflow Tasks" href="overflow_nonlinear_eos.html" />
+    <link rel="prev" title="Initial Omega Analysis Capabilities" href="ocean_analysis_initial.html" />
+    <link href="../_static/style.css" rel="stylesheet" type="text/css">
+
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            Polaris
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">User's guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../users_guide/quick_start.html">Quick Start for Users</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../users_guide/tasks.html">Tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../users_guide/config_files.html">Config Files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../users_guide/suites.html">Suites</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../users_guide/mesh/index.html">Mesh component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../users_guide/e3sm/init/index.html">E3SM Initial Condition Component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../users_guide/ocean/index.html">Ocean component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../users_guide/seaice/index.html">Sea ice component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../users_guide/machines/index.html">Machines</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Developer's guide</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/quick_start.html">Quick Start for Developers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/command_line.html">Command-line interface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/organization/index.html">Organization of Tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/e3sm/init/index.html">E3SM initial condition (e3sm/init) component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/mesh/index.html">Mesh component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/ocean/index.html">Ocean component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/seaice/index.html">Sea ice component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/framework/index.html">Framework</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/machines/index.html">Machines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/benchmarking.html">Benchmarking a branch against a baseline</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/omega_pr_testing.html">Testing an Omega pull request</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/troubleshooting.html">Troubleshooting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/docs.html">Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/building_docs.html">Building the Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/building_docs.html#previewing-the-documentation">Previewing the Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/conda_vs_spack.html">How Conda and Spack Work Together in Polaris</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/updating_conda.html">Updating Deployment Dependencies</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/updating_spack/index.html">Updating Shared Spack Environments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/api.html">API reference</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">Design Documents</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="global_ocean_init.html">Realistic Ocean Initial Conditions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="horiz_press_grad_reference.html">Reworked HPG Reference Solution</a></li>
+<li class="toctree-l2"><a class="reference internal" href="land_locked_cells.html">Land-Locked Cells in the Ocean and Sea-Ice Domains</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ocean_analysis.html">Ocean Analysis in Polaris</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ocean_analysis_initial.html">Initial Omega Analysis Capabilities</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Omega Pull Request Testing</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#summary">Summary</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#requirements">Requirements</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#requirement-any-developer-can-request-testing">Requirement: Any developer can request testing.</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#requirement-testing-can-start-from-the-requester-s-computer-or-any-supported-machine">Requirement: Testing can start from the requester’s computer or any supported machine.</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#requirement-github-credentials-are-needed-on-one-computer-only">Requirement: GitHub credentials are needed on one computer only.</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#requirement-every-machine-tests-the-same-commits">Requirement: Every machine tests the same commits.</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#requirement-the-baseline-is-polaris-omega-submodule-unless-the-requester-chooses-otherwise">Requirement: The baseline is Polaris’ Omega submodule unless the requester chooses otherwise.</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#requirement-each-report-carries-its-own-provenance">Requirement: Each report carries its own provenance.</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#requirement-results-are-reported-as-polaris-and-ctest-write-them">Requirement: Results are reported as Polaris and CTest write them.</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#requirement-the-requester-controls-every-outward-facing-action">Requirement: The requester controls every outward-facing action.</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#requirement-testers-do-not-tick-the-checklist">Requirement: Testers do not tick the checklist.</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#requirement-progress-across-machines-is-visible">Requirement: Progress across machines is visible.</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#requirement-a-matching-baseline-is-reused-wherever-it-was-run">Requirement: A matching baseline is reused wherever it was run.</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#requirement-linting-and-the-documentation-build-are-checked-once">Requirement: Linting and the documentation build are checked once.</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#requirement-each-row-reports-new-compiler-warnings">Requirement: Each row reports new compiler warnings.</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#algorithm-design">Algorithm Design</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#algorithm-design-any-developer-can-request-testing">Algorithm Design: Any developer can request testing.</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#algorithm-design-testing-can-start-from-the-requester-s-computer-or-any-supported-machine">Algorithm Design: Testing can start from the requester’s computer or any supported machine.</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#algorithm-design-github-credentials-are-needed-on-one-computer-only">Algorithm Design: GitHub credentials are needed on one computer only.</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#algorithm-design-every-machine-tests-the-same-commits">Algorithm Design: Every machine tests the same commits.</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#algorithm-design-the-baseline-is-polaris-omega-submodule-unless-the-requester-chooses-otherwise">Algorithm Design: The baseline is Polaris’ Omega submodule unless the requester chooses otherwise.</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#algorithm-design-each-report-carries-its-own-provenance">Algorithm Design: Each report carries its own provenance.</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#algorithm-design-results-are-reported-as-polaris-and-ctest-write-them">Algorithm Design: Results are reported as Polaris and CTest write them.</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#algorithm-design-the-requester-controls-every-outward-facing-action">Algorithm Design: The requester controls every outward-facing action.</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#algorithm-design-progress-across-machines-is-visible">Algorithm Design: Progress across machines is visible.</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#algorithm-design-a-matching-baseline-is-reused-wherever-it-was-run">Algorithm Design: A matching baseline is reused wherever it was run.</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#algorithm-design-linting-and-the-documentation-build-are-checked-once">Algorithm Design: Linting and the documentation build are checked once.</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#algorithm-design-each-row-reports-new-compiler-warnings">Algorithm Design: Each row reports new compiler warnings.</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#implementation">Implementation</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#implementation-any-developer-can-request-testing">Implementation: Any developer can request testing.</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#implementation-testing-can-start-from-the-requester-s-computer-or-any-supported-machine">Implementation: Testing can start from the requester’s computer or any supported machine.</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#implementation-github-credentials-are-needed-on-one-computer-only">Implementation: GitHub credentials are needed on one computer only.</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#implementation-every-machine-tests-the-same-commits">Implementation: Every machine tests the same commits.</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#implementation-each-report-carries-its-own-provenance">Implementation: Each report carries its own provenance.</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#implementation-results-are-reported-as-polaris-and-ctest-write-them">Implementation: Results are reported as Polaris and CTest write them.</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#implementation-the-requester-controls-every-outward-facing-action">Implementation: The requester controls every outward-facing action.</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#implementation-progress-across-machines-is-visible">Implementation: Progress across machines is visible.</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#implementation-a-matching-baseline-is-reused-wherever-it-was-run">Implementation: A matching baseline is reused wherever it was run.</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#implementation-linting-and-the-documentation-build-are-checked-once">Implementation: Linting and the documentation build are checked once.</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#implementation-each-row-reports-new-compiler-warnings">Implementation: Each row reports new compiler warnings.</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#testing">Testing</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#testing-and-validation-any-developer-can-request-testing">Testing and Validation: Any developer can request testing.</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#testing-and-validation-github-credentials-are-needed-on-one-computer-only">Testing and Validation: GitHub credentials are needed on one computer only.</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#testing-and-validation-every-machine-tests-the-same-commits">Testing and Validation: Every machine tests the same commits.</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#testing-and-validation-each-report-carries-its-own-provenance">Testing and Validation: Each report carries its own provenance.</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#testing-and-validation-results-are-reported-as-polaris-and-ctest-write-them">Testing and Validation: Results are reported as Polaris and CTest write them.</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#testing-and-validation-progress-across-machines-is-visible">Testing and Validation: Progress across machines is visible.</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#testing-and-validation-a-matching-baseline-is-reused-wherever-it-was-run">Testing and Validation: A matching baseline is reused wherever it was run.</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#testing-and-validation-linting-and-the-documentation-build-are-checked-once">Testing and Validation: Linting and the documentation build are checked once.</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#testing-and-validation-each-row-reports-new-compiler-warnings">Testing and Validation: Each row reports new compiler warnings.</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#decisions">Decisions</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="overflow_nonlinear_eos.html">EOS and Vertical-Coordinate Variants of the Overflow Tasks</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pstar_init.html">P-Star Coordinate and Tracer Initialization</a></li>
+<li class="toctree-l2"><a class="reference internal" href="shared_steps.html">Shared steps</a></li>
+<li class="toctree-l2"><a class="reference internal" href="suite_results_file.html">Machine-Readable Suite Results</a></li>
+<li class="toctree-l2"><a class="reference internal" href="task_parallel_analysis_steps.html">Task-Parallel-Safe Analysis Steps in Polaris</a></li>
+<li class="toctree-l2"><a class="reference internal" href="task_parallelism.html">Task Parallelism in Polaris</a></li>
+<li class="toctree-l2"><a class="reference internal" href="task_parallelism_phase_a.html">Task Parallelism Phase A: Placement</a></li>
+<li class="toctree-l2"><a class="reference internal" href="task_parallelism_phase_b.html">Task Parallelism Phase B: Concurrency</a></li>
+<li class="toctree-l2"><a class="reference internal" href="task_parallelism_phase_c.html">Task Parallelism Phase C: Python Worker Pool</a></li>
+<li class="toctree-l2"><a class="reference internal" href="task_parallelism_phase_d.html">Task Parallelism Phase D: Coexistence and Elasticity</a></li>
+<li class="toctree-l2"><a class="reference internal" href="unified_base_mesh.html">Unified Mesh: Global Base Mesh Workflow</a></li>
+<li class="toctree-l2"><a class="reference internal" href="unified_mesh_prepare_coastline.html">Unified Mesh: Coastline Preparation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="unified_mesh_prepare_river_network.html">Unified Mesh: River Network Preparation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="unified_mesh_build_sizing_field.html">Unified Mesh: Sizing-Field Construction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="unified_mesh_create_base_mesh.html">Unified Mesh: Base-Mesh Creation and Downstream Integration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="unified_mesh_cull_leak.html">Unified Mesh: Fixing Resolution Leakage into the Ocean/Sea-Ice Domain</a></li>
+<li class="toctree-l2"><a class="reference internal" href="unified_mesh_dc_edge_noise.html">Unified Mesh: Raising the dcEdge Floor in the Ocean/Sea-Ice Domain</a></li>
+<li class="toctree-l2"><a class="reference internal" href="vector_reconstruction.html">Vector Reconstruction at MPAS Cell Centers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="template.html">Template</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials/dev_add_category_of_tasks/index.html">Developer Tutorial: Adding a New Category of Tasks</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Glossary</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../glossary.html">Glossary</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Polaris</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="index.html">Design Documents</a></li>
+      <li class="breadcrumb-item active">Omega Pull Request Testing</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/design_docs/omega_pr_testing.md.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section class="tex2jax_ignore mathjax_ignore" id="omega-pull-request-testing">
+<h1>Omega Pull Request Testing<a class="headerlink" href="#omega-pull-request-testing" title="Link to this heading"></a></h1>
+<p>date: 2026/09/29</p>
+<p>Contributors:</p>
+<ul class="simple">
+<li><p>Xylar Asay-Davis</p></li>
+<li><p>Claude</p></li>
+</ul>
+<section id="summary">
+<h2>Summary<a class="headerlink" href="#summary" title="Link to this heading"></a></h2>
+<p>The Omega
+<a class="reference external" href="https://github.com/E3SM-Project/Omega/blob/develop/.github/pull_request_template.md">pull request template</a>
+asks for the CTests and the Polaris <code class="docutils literal notranslate"><span class="pre">omega_pr</span></code> suite to pass on six machine
+and compiler combinations, with the results recorded in a <code class="docutils literal notranslate"><span class="pre">Testing</span></code>
+comment. For Omega#481, agents on four machines did this from a handoff
+written for that pull request alone. This design turns that process into a
+Polaris utility, <code class="docutils literal notranslate"><span class="pre">utils/omega/pr_testing</span></code>, that any developer can use.</p>
+<p>The developer who wants the results, the requester, gives the work two
+roles. An initiator pins the commits under test in a branch on the
+requester’s fork, then reports on linting and the documentation build. A
+tester builds and runs both sides against that pin on each machine, then
+reports its rows, including any new compiler warnings. By default, one agent
+on the requester’s own computer takes both roles and runs each machine’s
+commands over ssh, through connections the requester opens by logging in.
+Frontier does not allow such connections, so an agent on Frontier tests its
+rows. Scripts do the steps whose mistakes would pass unnoticed: choosing
+the commits and producing the reports. Agent instructions cover the order of
+setup and what to do when something fails, using the tools Polaris already
+has.</p>
+<p>Success means that a reviewer can check each item of the checklist from the
+<code class="docutils literal notranslate"><span class="pre">Testing</span></code> comments alone: what was tested, against which baseline, and with
+what result.</p>
+</section>
+<section id="requirements">
+<h2>Requirements<a class="headerlink" href="#requirements" title="Link to this heading"></a></h2>
+<section id="requirement-any-developer-can-request-testing">
+<h3>Requirement: Any developer can request testing.<a class="headerlink" href="#requirement-any-developer-can-request-testing" title="Link to this heading"></a></h3>
+<p>Nothing depends on one person’s paths, fork, accounts or allocations.</p>
+</section>
+<section id="requirement-testing-can-start-from-the-requester-s-computer-or-any-supported-machine">
+<h3>Requirement: Testing can start from the requester’s computer or any supported machine.<a class="headerlink" href="#requirement-testing-can-start-from-the-requester-s-computer-or-any-supported-machine" title="Link to this heading"></a></h3>
+</section>
+<section id="requirement-github-credentials-are-needed-on-one-computer-only">
+<h3>Requirement: GitHub credentials are needed on one computer only.<a class="headerlink" href="#requirement-github-credentials-are-needed-on-one-computer-only" title="Link to this heading"></a></h3>
+<p>Pushing the test branch and posting comments need the requester’s
+credentials. Setting those up on every machine is a chore that should not
+be needed.</p>
+</section>
+<section id="requirement-every-machine-tests-the-same-commits">
+<h3>Requirement: Every machine tests the same commits.<a class="headerlink" href="#requirement-every-machine-tests-the-same-commits" title="Link to this heading"></a></h3>
+</section>
+<section id="requirement-the-baseline-is-polaris-omega-submodule-unless-the-requester-chooses-otherwise">
+<h3>Requirement: The baseline is Polaris’ Omega submodule unless the requester chooses otherwise.<a class="headerlink" href="#requirement-the-baseline-is-polaris-omega-submodule-unless-the-requester-chooses-otherwise" title="Link to this heading"></a></h3>
+<p>Any other baseline, <code class="docutils literal notranslate"><span class="pre">develop</span></code> included, is stated in every report, with a
+reason that rests on evidence, not a guess.</p>
+</section>
+<section id="requirement-each-report-carries-its-own-provenance">
+<h3>Requirement: Each report carries its own provenance.<a class="headerlink" href="#requirement-each-report-carries-its-own-provenance" title="Link to this heading"></a></h3>
+<p>A report names the machine, compiler and build directories. It identifies
+the Polaris commit and the baseline and pull request Omega commits, each
+with a few commits of recent history.</p>
+</section>
+<section id="requirement-results-are-reported-as-polaris-and-ctest-write-them">
+<h3>Requirement: Results are reported as Polaris and CTest write them.<a class="headerlink" href="#requirement-results-are-reported-as-polaris-and-ctest-write-them" title="Link to this heading"></a></h3>
+<p>Anything an agent adds is kept apart from them.</p>
+</section>
+<section id="requirement-the-requester-controls-every-outward-facing-action">
+<h3>Requirement: The requester controls every outward-facing action.<a class="headerlink" href="#requirement-the-requester-controls-every-outward-facing-action" title="Link to this heading"></a></h3>
+<p>Pushing the test branch, submitting jobs and posting comments each need the
+requester’s permission.</p>
+</section>
+<section id="requirement-testers-do-not-tick-the-checklist">
+<h3>Requirement: Testers do not tick the checklist.<a class="headerlink" href="#requirement-testers-do-not-tick-the-checklist" title="Link to this heading"></a></h3>
+<p>The requester ticks the boxes from the posted results.</p>
+</section>
+<section id="requirement-progress-across-machines-is-visible">
+<h3>Requirement: Progress across machines is visible.<a class="headerlink" href="#requirement-progress-across-machines-is-visible" title="Link to this heading"></a></h3>
+<p>The requester can see which rows have results, which were not run and why,
+and which results are for commits that are no longer current.</p>
+</section>
+<section id="requirement-a-matching-baseline-is-reused-wherever-it-was-run">
+<h3>Requirement: A matching baseline is reused wherever it was run.<a class="headerlink" href="#requirement-a-matching-baseline-is-reused-wherever-it-was-run" title="Link to this heading"></a></h3>
+<p>Before building a baseline, the tester looks for an existing <code class="docutils literal notranslate"><span class="pre">omega_pr</span></code>
+run that matches, whether or not this utility made it. A reused baseline is
+reported with its own provenance, like any other.</p>
+</section>
+<section id="requirement-linting-and-the-documentation-build-are-checked-once">
+<h3>Requirement: Linting and the documentation build are checked once.<a class="headerlink" href="#requirement-linting-and-the-documentation-build-are-checked-once" title="Link to this heading"></a></h3>
+<p>They do not depend on the machine, so they are checked once per pull
+request head rather than once per row. A result is posted only if Omega’s
+CI does not already show it on the pull request.</p>
+</section>
+<section id="requirement-each-row-reports-new-compiler-warnings">
+<h3>Requirement: Each row reports new compiler warnings.<a class="headerlink" href="#requirement-each-row-reports-new-compiler-warnings" title="Link to this heading"></a></h3>
+<p>A report lists the warnings from the pull request build that the baseline
+build does not have. It says which of them are in files the pull request
+changes.</p>
+</section>
+</section>
+<section id="algorithm-design">
+<h2>Algorithm Design<a class="headerlink" href="#algorithm-design" title="Link to this heading"></a></h2>
+<section id="algorithm-design-any-developer-can-request-testing">
+<h3>Algorithm Design: Any developer can request testing.<a class="headerlink" href="#algorithm-design-any-developer-can-request-testing" title="Link to this heading"></a></h3>
+<p>The requester is usually the pull request’s assignee, but may be its author
+or another reviewer. Their agent runs in their own Polaris checkout, and
+runs commands in their own checkouts on each machine. Settings come from a
+config file the requester writes once on their computer and once per
+machine, and the agent asks for any that are missing.</p>
+<p>The agent instructions are committed in Polaris and reviewed like code. The
+test branch carries data, not instructions.</p>
+</section>
+<section id="algorithm-design-testing-can-start-from-the-requester-s-computer-or-any-supported-machine">
+<h3>Algorithm Design: Testing can start from the requester’s computer or any supported machine.<a class="headerlink" href="#algorithm-design-testing-can-start-from-the-requester-s-computer-or-any-supported-machine" title="Link to this heading"></a></h3>
+<p>The initiator only does git work, so any computer with an Omega clone and a
+Polaris environment will do. The initiator may also be the tester for any
+machine it can run commands on.</p>
+</section>
+<section id="algorithm-design-github-credentials-are-needed-on-one-computer-only">
+<h3>Algorithm Design: GitHub credentials are needed on one computer only.<a class="headerlink" href="#algorithm-design-github-credentials-are-needed-on-one-computer-only" title="Link to this heading"></a></h3>
+<p>The agent on the requester’s computer runs the utility on each machine over
+ssh, using a shared connection (<code class="docutils literal notranslate"><span class="pre">ControlMaster</span></code>) that the requester opens
+by logging in, so the agent never handles a password or passcode. The
+connection lasts as long as their login session, unless they choose to
+keep it open longer (<code class="docutils literal notranslate"><span class="pre">ControlPersist</span></code>). The
+utility runs on the machine as it would for an agent there; nothing in it
+knows about ssh. The agent copies each report back unchanged and posts it
+from the requester’s computer, where <code class="docutils literal notranslate"><span class="pre">gh</span></code> is logged in.</p>
+<p>An agent on a machine that the requester’s computer cannot reach this way,
+such as Frontier, tests that machine’s rows itself. It posts with <code class="docutils literal notranslate"><span class="pre">gh</span></code> if
+it is logged in there. Otherwise it gives the requester the report, which
+the agent on their computer can post.</p>
+</section>
+<section id="algorithm-design-every-machine-tests-the-same-commits">
+<h3>Algorithm Design: Every machine tests the same commits.<a class="headerlink" href="#algorithm-design-every-machine-tests-the-same-commits" title="Link to this heading"></a></h3>
+<p>The initiator makes the test commit by merging the pull request head into
+the head of its base branch, as GitHub’s test merge does. Any extra merges
+the requester names, such as a build fix still in review, go on top. It
+pushes two branches to the requester’s fork:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">omega</span><span class="o">-</span><span class="n">pr</span><span class="o">-</span><span class="n">test</span><span class="o">/&lt;</span><span class="n">pr</span><span class="o">&gt;-&lt;</span><span class="n">head</span> <span class="n">sha7</span><span class="o">&gt;</span>            <span class="n">test</span> <span class="n">commit</span><span class="p">,</span> <span class="n">then</span> <span class="n">manifest</span> <span class="n">commit</span>
+<span class="n">omega</span><span class="o">-</span><span class="n">pr</span><span class="o">-</span><span class="n">test</span><span class="o">/&lt;</span><span class="n">pr</span><span class="o">&gt;-&lt;</span><span class="n">head</span> <span class="n">sha7</span><span class="o">&gt;-</span><span class="n">baseline</span>   <span class="n">baseline</span> <span class="n">commit</span>
+</pre></div>
+</div>
+<p>The tip of the first branch adds a single file, the manifest
+<code class="docutils literal notranslate"><span class="pre">omega_pr_test.yaml</span></code>. Testers build its parent, so the manifest is not part
+of the tested tree. Before building anything, a tester checks that the
+parent contains the recorded pull request head and base branch head.</p>
+<p>Only the initiator runs <code class="docutils literal notranslate"><span class="pre">init</span></code>, since testers may already be using the
+branches. If the fork already has the test branch with a manifest that
+pins the same pull request head, base, baseline, Polaris commits, merges
+and rows, <code class="docutils literal notranslate"><span class="pre">init</span></code> leaves it alone rather than replace it with merges that
+differ only in their hashes. Test and baseline commits are compared by
+tree.</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">schema_version</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1</span>
+<span class="nt">requester</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">&lt;GitHub user&gt;</span>
+<span class="nt">pull_request</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">553</span>
+<span class="nt">pr_head</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">&lt;sha&gt;</span>
+<span class="nt">base_branch</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">develop</span>
+<span class="nt">base_head</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">&lt;sha&gt;</span>
+<span class="nt">test_commit</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">&lt;sha&gt;</span>
+<span class="nt">baseline</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">commit</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">&lt;sha&gt;</span>
+<span class="w">  </span><span class="nt">source</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">polaris-submodule</span><span class="w">   </span><span class="c1"># or the ref the requester chose</span>
+<span class="w">  </span><span class="nt">reason</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">null</span><span class="w">                </span><span class="c1"># required unless polaris-submodule</span>
+<span class="w">  </span><span class="nt">polaris_commit</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">&lt;sha&gt;</span><span class="w">       </span><span class="c1"># polaris_commit by default</span>
+<span class="nt">polaris_commit</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">&lt;sha&gt;</span>
+<span class="nt">extra_merges</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="p p-Indicator">{</span><span class="nt">pull_request</span><span class="p">:</span><span class="w"> </span><span class="nv">574</span><span class="p p-Indicator">,</span><span class="nt"> commit</span><span class="p">:</span><span class="w"> </span><span class="nv">&lt;sha&gt;</span><span class="p p-Indicator">,</span><span class="nt"> sides</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">test</span><span class="p p-Indicator">]}</span>
+<span class="nt">rows</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="p p-Indicator">{</span><span class="nt">machine</span><span class="p">:</span><span class="w"> </span><span class="nv">aurora</span><span class="p p-Indicator">,</span><span class="nt"> compiler</span><span class="p">:</span><span class="w"> </span><span class="nv">intel</span><span class="p p-Indicator">,</span><span class="nt"> mpi</span><span class="p">:</span><span class="w"> </span><span class="nv">mpich</span><span class="p p-Indicator">,</span>
+<span class="nt">     template</span><span class="p">:</span><span class="w"> </span><span class="s">"aurora,</span><span class="nv"> </span><span class="s">intel,</span><span class="nv"> </span><span class="s">mpich"</span><span class="p p-Indicator">}</span>
+<span class="nt">notes</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">&lt;free text for the requester&gt;</span>
+</pre></div>
+</div>
+<p>Testers act only on the structured fields. <code class="docutils literal notranslate"><span class="pre">notes</span></code> is repeated in reports
+and never followed.</p>
+<p>An Omega pull request may need Polaris changes that the baseline Omega
+cannot run, such as renamed config options. Then <code class="docutils literal notranslate"><span class="pre">polaris_commit</span></code> is a test
+merge of the Polaris pull request, and the baseline runs from a second
+Polaris checkout at <code class="docutils literal notranslate"><span class="pre">baseline.polaris_commit</span></code>, without those changes.</p>
+</section>
+<section id="algorithm-design-the-baseline-is-polaris-omega-submodule-unless-the-requester-chooses-otherwise">
+<h3>Algorithm Design: The baseline is Polaris’ Omega submodule unless the requester chooses otherwise.<a class="headerlink" href="#algorithm-design-the-baseline-is-polaris-omega-submodule-unless-the-requester-chooses-otherwise" title="Link to this heading"></a></h3>
+<p>By default, the baseline commit is the <code class="docutils literal notranslate"><span class="pre">e3sm_submodules/Omega</span></code> pin at
+<code class="docutils literal notranslate"><span class="pre">baseline.polaris_commit</span></code>, which is normally Polaris <code class="docutils literal notranslate"><span class="pre">main</span></code> when the branch
+is made. That pin states which Omega the Polaris code supports. So the
+Polaris checkout the baseline runs from must pin the same Omega commit,
+although it may be at a different Polaris commit, which is recorded.</p>
+<p>The pin can lag far enough behind that differences would be hard to blame on
+the pull request, as happened for Omega#481. In that case the requester can
+choose another baseline, such as <code class="docutils literal notranslate"><span class="pre">base_head</span></code>. Doing so overrides the normal
+practice, so the reason must rest on evidence: a merged PR’s Testing comment
+showing that it changed <code class="docutils literal notranslate"><span class="pre">omega_pr</span></code> results, or something checked that
+suggests a merge may change them, stated as only that. A PR’s title is not
+evidence. <code class="docutils literal notranslate"><span class="pre">init</span></code> prints the reason in its summary, so the requester sees it
+before the branch is pushed, and it goes in the manifest and in each report.</p>
+</section>
+<section id="algorithm-design-each-report-carries-its-own-provenance">
+<h3>Algorithm Design: Each report carries its own provenance.<a class="headerlink" href="#algorithm-design-each-report-carries-its-own-provenance" title="Link to this heading"></a></h3>
+<p>The Omega commit is recorded when Omega is built, not when a suite is set
+up. Otherwise a suite set up with <code class="docutils literal notranslate"><span class="pre">-p</span></code> on an existing build reports the
+source tree’s HEAD at setup time, which may have moved since the build (the
+gap noted in #823, filed as #827 and fixed by #829).</p>
+<p><code class="docutils literal notranslate"><span class="pre">&lt;suite&gt;_output_for_pr.md</span></code> gains the full hash and the last five
+first-parent commits of the Polaris checkout and of both Omega builds. The
+baseline’s come from the baseline work directory’s <code class="docutils literal notranslate"><span class="pre">provenance</span></code> file. The
+CTest utility writes a matching <code class="docutils literal notranslate"><span class="pre">ctest_output_for_pr.md</span></code> with the build
+directory and Omega commit.</p>
+<p>Human testers get this too, whether or not they use the utility.</p>
+</section>
+<section id="algorithm-design-results-are-reported-as-polaris-and-ctest-write-them">
+<h3>Algorithm Design: Results are reported as Polaris and CTest write them.<a class="headerlink" href="#algorithm-design-results-are-reported-as-polaris-and-ctest-write-them" title="Link to this heading"></a></h3>
+<p>Each machine gets one comment, with Perlmutter’s pm-cpu and pm-gpu rows in
+one. A table at the top has a line for each row, generated from
+<code class="docutils literal notranslate"><span class="pre">&lt;suite&gt;_results.json</span></code>, the CTest counts and the warnings comparison. Below
+it, each row has a collapsed <code class="docutils literal notranslate"><span class="pre">&lt;details&gt;</span></code> block with its two <code class="docutils literal notranslate"><span class="pre">.md</span></code> files,
+pasted unchanged, and its warnings section. After the results, the agent
+may add a single <code class="docutils literal notranslate"><span class="pre">Notes</span></code> section for qualifications such as an extra merge
+or a known failure. When an agent writes the report, it ends with the
+signature that <code class="docutils literal notranslate"><span class="pre">AGENTS.md</span></code> prescribes.</p>
+</section>
+<section id="algorithm-design-the-requester-controls-every-outward-facing-action">
+<h3>Algorithm Design: The requester controls every outward-facing action.<a class="headerlink" href="#algorithm-design-the-requester-controls-every-outward-facing-action" title="Link to this heading"></a></h3>
+<p>Each outward-facing step prints what it would do, and acts only when given
+a flag: <code class="docutils literal notranslate"><span class="pre">init</span> <span class="pre">--push</span></code> and <code class="docutils literal notranslate"><span class="pre">setup</span> <span class="pre">--submit</span></code>. <code class="docutils literal notranslate"><span class="pre">lint</span></code> and <code class="docutils literal notranslate"><span class="pre">report</span></code> only write
+their comments. The <code class="docutils literal notranslate"><span class="pre">post</span></code> command posts one, once someone has read it,
+and is outward-facing in itself (see <a class="reference internal" href="#decisions">Decisions</a>). The agent passes one of these only when the requester has allowed
+it in that session.
+A manifest or any other document cannot grant permission.</p>
+<p>Building on the login node is not outward-facing. <code class="docutils literal notranslate"><span class="pre">polaris</span> <span class="pre">suite</span> <span class="pre">--build</span></code>
+initializes the submodules and builds. The two builds run one after the
+other, because concurrent CIME configures race.</p>
+</section>
+<section id="algorithm-design-progress-across-machines-is-visible">
+<h3>Algorithm Design: Progress across machines is visible.<a class="headerlink" href="#algorithm-design-progress-across-machines-is-visible" title="Link to this heading"></a></h3>
+<p>Each report starts with a hidden marker:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>&lt;!-- omega-pr-test {"schema": 2, "pr": 553, "pr_head": "&lt;sha&gt;",
+     "test": "&lt;sha&gt;", "baseline": "&lt;sha&gt;",
+     "rows": [{"row": "pm-cpu/gnu", "status": "complete", "result": "pass",
+               "new_warnings": 0},
+              {"row": "pm-gpu/gnugpu", "status": "not-run",
+               "result": "none"}]} --&gt;
+</pre></div>
+</div>
+<p>The table uses the template’s label for each row, so the requester can
+match it to a box. A row that cannot be run, for example because its queue
+is down, is reported with <code class="docutils literal notranslate"><span class="pre">&quot;status&quot;:</span> <span class="pre">&quot;not-run&quot;</span></code>, and the table gives the
+reason. A report for a machine that is down entirely is written on the
+requester’s computer.</p>
+</section>
+<section id="algorithm-design-a-matching-baseline-is-reused-wherever-it-was-run">
+<h3>Algorithm Design: A matching baseline is reused wherever it was run.<a class="headerlink" href="#algorithm-design-a-matching-baseline-is-reused-wherever-it-was-run" title="Link to this heading"></a></h3>
+<p>The tester searches the roots the requester lists, and always the utility’s
+own <code class="docutils literal notranslate"><span class="pre">&lt;work_base&gt;/baselines</span></code>. A candidate is any directory with both a
+<code class="docutils literal notranslate"><span class="pre">provenance</span></code> file and an <code class="docutils literal notranslate"><span class="pre">omega_pr_results.json</span></code>. A candidate matches only
+if all of the following hold:</p>
+<ul class="simple">
+<li><p>It has the same machine, compiler and build type.</p></li>
+<li><p>Its Omega commit, as recorded at build time, is the baseline commit.</p></li>
+<li><p>Its Polaris commit is that of the checkout the baseline runs from, and
+neither tree was dirty.</p></li>
+<li><p>It was set up as the <code class="docutils literal notranslate"><span class="pre">omega_pr</span></code> suite, with no extra config file.</p></li>
+<li><p>Its results are complete, and no task failed or is pending.</p></li>
+</ul>
+<p>A run whose Omega commit was recorded only at setup never matches. The
+matcher lists the near misses and the test each one failed, so the agent
+can tell the requester what almost matched.</p>
+<p>If nothing matches, <code class="docutils literal notranslate"><span class="pre">setup</span></code> makes a new baseline in <code class="docutils literal notranslate"><span class="pre">&lt;work_base&gt;/baselines</span></code>.
+A baseline there whose job is still queued or running becomes the pull
+request suite’s dependency. With the submodule as the default baseline,
+pull requests tested against the same Polaris commit share one baseline per
+row.</p>
+<p>The warnings comparison needs only a build log. It can use the log from any
+complete build of the baseline commit with the same machine, compiler and
+build type, even when no suite run matches. A build is complete if it
+started from an empty build directory, which the build-time record notes.</p>
+</section>
+<section id="algorithm-design-linting-and-the-documentation-build-are-checked-once">
+<h3>Algorithm Design: Linting and the documentation build are checked once.<a class="headerlink" href="#algorithm-design-linting-and-the-documentation-build-are-checked-once" title="Link to this heading"></a></h3>
+<p>Omega’s <code class="docutils literal notranslate"><span class="pre">omega-pr</span></code> workflow already runs pre-commit on the changed files and
+<code class="docutils literal notranslate"><span class="pre">make</span> <span class="pre">html-strict</span></code> on each pull request, in its “lint and test docs” job.
+When that job has passed on <code class="docutils literal notranslate"><span class="pre">pr_head</span></code>, the initiator tells the requester
+and posts nothing, since the pull request’s checks already show the
+result. If the job has not run for <code class="docutils literal notranslate"><span class="pre">pr_head</span></code>, or has not passed, the
+initiator runs the same two commands on the test commit, in an <code class="docutils literal notranslate"><span class="pre">omega_dev</span></code>
+environment. It then posts a <code class="docutils literal notranslate"><span class="pre">Testing</span></code> comment that gives pre-commit and the
+documentation build each its own result, passing or failing. The comment’s
+marker has <code class="docutils literal notranslate"><span class="pre">lint</span></code> as its only row.</p>
+<p>Checking that the rendered documentation “looks as expected” still needs a
+person.</p>
+</section>
+<section id="algorithm-design-each-row-reports-new-compiler-warnings">
+<h3>Algorithm Design: Each row reports new compiler warnings.<a class="headerlink" href="#algorithm-design-each-row-reports-new-compiler-warnings" title="Link to this heading"></a></h3>
+<p>The baseline and pull request builds each leave a complete build log. A
+warning is identified by its source path relative to the Omega tree, its
+message and its warning flag, but not by its line number. A pull request
+that adds lines above an existing warning therefore does not make that
+warning look new. The report lists each identity that the baseline build
+does not have, and marks the ones whose file is in
+<code class="docutils literal notranslate"><span class="pre">git</span> <span class="pre">diff</span> <span class="pre">--name-only</span> <span class="pre">&lt;base_head&gt;...&lt;pr_head&gt;</span></code>. In those files, it also
+lists an identity that occurs more often in the pull request build. In
+other files, a higher count says nothing about the pull request’s code: a
+header’s warning occurs once for each file that includes it, and a parallel
+build can interleave the output of two compilers so that one occurrence
+cannot be parsed.</p>
+<p>With the submodule as the baseline, warnings added on <code class="docutils literal notranslate"><span class="pre">develop</span></code> since the
+pin also appear as new. The mark separates those from the pull request’s
+own warnings.</p>
+<p>Only complete build logs can be compared. When a build directory has to be
+reused because an earlier build failed, <code class="docutils literal notranslate"><span class="pre">setup</span></code> rebuilds it with
+<code class="docutils literal notranslate"><span class="pre">--clean_build</span></code> rather than building on top of the partial build.</p>
+</section>
+</section>
+<section id="implementation">
+<h2>Implementation<a class="headerlink" href="#implementation" title="Link to this heading"></a></h2>
+<section id="implementation-any-developer-can-request-testing">
+<h3>Implementation: Any developer can request testing.<a class="headerlink" href="#implementation-any-developer-can-request-testing" title="Link to this heading"></a></h3>
+<p><code class="docutils literal notranslate"><span class="pre">utils/omega/pr_testing/</span></code> holds:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">AGENTS.md</span></code>: instructions for the initiator and tester roles, and the
+prompts the requester gives each one.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">README.md</span></code>: the same workflow, written for people running the commands.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">omega_pr_test.py</span></code>: the subcommands <code class="docutils literal notranslate"><span class="pre">init</span></code>, <code class="docutils literal notranslate"><span class="pre">lint</span></code>, <code class="docutils literal notranslate"><span class="pre">setup</span></code>, <code class="docutils literal notranslate"><span class="pre">report</span></code>,
+<code class="docutils literal notranslate"><span class="pre">post</span></code> and <code class="docutils literal notranslate"><span class="pre">status</span></code>, with the modules they use in <code class="docutils literal notranslate"><span class="pre">omega_pr_*.py</span></code>.
+The modules that do not depend on Omega PRs are in <code class="docutils literal notranslate"><span class="pre">utils/pr_testing/</span></code>, as
+<code class="docutils literal notranslate"><span class="pre">pr_test_*.py</span></code>, so that other PR testing utilities can share them: the
+settings, git and GitHub helpers, the rows, setting up and submitting
+suites and CTests, markers and the table of rows, status, and
+<code class="docutils literal notranslate"><span class="pre">pr_test_warnings.py</span></code>, the build log parser.  <code class="docutils literal notranslate"><span class="pre">omega_pr_test.py</span></code> puts that
+directory on <code class="docutils literal notranslate"><span class="pre">sys.path</span></code>.  The prefixes keep a module from shadowing a
+standard one, such as <code class="docutils literal notranslate"><span class="pre">warnings</span></code>.</p></li>
+</ul>
+<p>The settings for the requester’s computer and each machine are in
+<code class="docutils literal notranslate"><span class="pre">utils/pr_testing/example.cfg</span></code>, shared with other PR testing utilities.
+Copy it to <code class="docutils literal notranslate"><span class="pre">~/.config/polaris_pr_test.cfg</span></code>, or pass another path with
+<code class="docutils literal notranslate"><span class="pre">-f</span></code>:</p>
+<div class="highlight-ini notranslate"><div class="highlight"><pre><span></span><span class="k">[polaris_pr_test]</span>
+<span class="na">work_base</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">/path/to/scratch/polaris_pr_test</span>
+<span class="na">omega_repo</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">/path/to/a/clone/of/E3SM-Project/Omega</span>
+<span class="c1"># needed by the initiator only</span>
+<span class="na">fork</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">git@github.com:&lt;user&gt;/E3SM.git</span>
+<span class="c1"># needed by the initiator only if the PR needs Polaris changes</span>
+<span class="na">polaris_fork</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">git@github.com:&lt;user&gt;/polaris.git</span>
+<span class="c1"># needed by the initiator only if Omega's CI has not passed</span>
+<span class="na">omega_dev_env</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">/path/to/conda/envs/omega_dev</span>
+<span class="c1"># other places to look for a baseline to reuse, besides work_base</span>
+<span class="na">baseline_search_roots</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">/path/to/earlier/test/dirs</span>
+<span class="c1"># a deployed Polaris checkout tracking main, which baselines of main run</span>
+<span class="c1"># from (testers only)</span>
+<span class="na">polaris_main</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">/path/to/polaris/main</span>
+
+<span class="c1"># on the requester's computer only: &lt;ssh host&gt;:&lt;Polaris on the machine&gt;</span>
+<span class="k">[machines]</span>
+<span class="na">chrysalis</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">chrys:/path/to/polaris</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">init</span></code> ends by printing the prompt for an agent testing on a machine
+itself, such as Frontier, which is the whole handoff and the same on every
+machine. The utility’s <code class="docutils literal notranslate"><span class="pre">AGENTS.md</span></code> shows its template, so a handoff never
+needs anything added:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Test</span> <span class="n">Omega</span> <span class="n">PR</span> <span class="mi">553</span> <span class="kn">from</span><span class="w"> </span><span class="nn">branch</span> <span class="n">omega</span><span class="o">-</span><span class="n">pr</span><span class="o">-</span><span class="n">test</span><span class="o">/</span><span class="mi">553</span><span class="o">-</span><span class="mi">54456</span><span class="n">ec</span> <span class="n">on</span>
+<span class="n">git</span><span class="nd">@github</span><span class="o">.</span><span class="n">com</span><span class="p">:</span><span class="n">xylar</span><span class="o">/</span><span class="n">E3SM</span><span class="o">.</span><span class="n">git</span><span class="p">,</span> <span class="n">following</span> <span class="n">utils</span><span class="o">/</span><span class="n">omega</span><span class="o">/</span><span class="n">pr_testing</span><span class="o">/</span><span class="n">AGENTS</span><span class="o">.</span><span class="n">md</span><span class="o">.</span>
+</pre></div>
+</div>
+<p>Each tester finds its rows with <code class="docutils literal notranslate"><span class="pre">status</span></code>, which names the manifest’s rows
+for the machine it runs on, or, on the requester’s computer, the rows for
+each machine. Perlmutter’s pm-cpu and pm-gpu rows are tested from the same
+login nodes.</p>
+<p>When the PR needs Polaris changes, the prompt also names the Polaris
+branches for the PR and the baseline, on <code class="docutils literal notranslate"><span class="pre">polaris_fork</span></code>.</p>
+</section>
+<section id="implementation-testing-can-start-from-the-requester-s-computer-or-any-supported-machine">
+<h3>Implementation: Testing can start from the requester’s computer or any supported machine.<a class="headerlink" href="#implementation-testing-can-start-from-the-requester-s-computer-or-any-supported-machine" title="Link to this heading"></a></h3>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">omega_pr_test</span><span class="o">.</span><span class="n">py</span> <span class="n">init</span> <span class="o">--</span><span class="n">pr</span> <span class="mi">553</span> <span class="p">[</span><span class="o">--</span><span class="n">baseline</span> <span class="o">&lt;</span><span class="n">ref</span><span class="o">&gt;</span> <span class="o">--</span><span class="n">reason</span> <span class="o">&lt;</span><span class="n">text</span><span class="o">&gt;</span><span class="p">]</span>
+                      <span class="p">[</span><span class="o">--</span><span class="n">test</span><span class="o">-</span><span class="n">ref</span> <span class="o">&lt;</span><span class="n">ref</span><span class="o">&gt;</span><span class="p">]</span>
+                      <span class="p">[</span><span class="o">--</span><span class="n">merge</span><span class="o">-</span><span class="n">pr</span> <span class="o">&lt;</span><span class="n">n</span><span class="o">&gt;</span><span class="p">]</span><span class="o">...</span> <span class="p">[</span><span class="o">--</span><span class="n">baseline</span><span class="o">-</span><span class="n">merge</span><span class="o">-</span><span class="n">pr</span> <span class="o">&lt;</span><span class="n">n</span><span class="o">&gt;</span><span class="p">]</span><span class="o">...</span>
+                      <span class="p">[</span><span class="o">--</span><span class="n">polaris</span><span class="o">-</span><span class="n">ref</span> <span class="o">&lt;</span><span class="n">ref</span><span class="o">&gt;</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">baseline</span><span class="o">-</span><span class="n">polaris</span><span class="o">-</span><span class="n">ref</span> <span class="o">&lt;</span><span class="n">ref</span><span class="o">&gt;</span><span class="p">]</span>
+                      <span class="p">[</span><span class="o">--</span><span class="n">rows</span> <span class="o">&lt;</span><span class="n">machine</span><span class="o">&gt;/&lt;</span><span class="n">compiler</span><span class="o">&gt;</span><span class="p">,</span><span class="o">...</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">push</span><span class="p">]</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">init</span></code> asks GitHub for the pull request head and base branch, fetches them
+from E3SM-Project/Omega, and makes the merges in a scratch worktree of
+<code class="docutils literal notranslate"><span class="pre">omega_repo</span></code>. <code class="docutils literal notranslate"><span class="pre">polaris_commit</span></code> is the current <code class="docutils literal notranslate"><span class="pre">main</span></code> of
+E3SM-Project/polaris, fetched rather than taken from the initiator’s
+checkout, unless <code class="docutils literal notranslate"><span class="pre">--polaris-ref</span></code> names another. <code class="docutils literal notranslate"><span class="pre">baseline.polaris_commit</span></code>
+is <code class="docutils literal notranslate"><span class="pre">polaris_commit</span></code> unless <code class="docutils literal notranslate"><span class="pre">--baseline-polaris-ref</span></code> names another. If a
+merge conflicts, <code class="docutils literal notranslate"><span class="pre">init</span></code>
+stops, and the pull request’s author must update the branch. Alternatively,
+the requester can resolve the conflicts in a merge of their own, and
+<code class="docutils literal notranslate"><span class="pre">--test-ref</span></code> names it, a branch on the fork or a commit. <code class="docutils literal notranslate"><span class="pre">init</span></code> checks that it
+contains the pull request head and the base branch head and uses it as the
+test commit. The default rows are the six in the template.</p>
+</section>
+<section id="implementation-github-credentials-are-needed-on-one-computer-only">
+<h3>Implementation: GitHub credentials are needed on one computer only.<a class="headerlink" href="#implementation-github-credentials-are-needed-on-one-computer-only" title="Link to this heading"></a></h3>
+<p><code class="docutils literal notranslate"><span class="pre">AGENTS.md</span></code> has the agent run each command on a machine with
+<code class="docutils literal notranslate"><span class="pre">ssh</span> <span class="pre">-o</span> <span class="pre">BatchMode=yes</span> <span class="pre">&lt;host&gt;</span> <span class="pre">bash</span> <span class="pre">-l</span> <span class="pre">-s</span></code>, the commands on standard input.
+Each command gets a fresh login shell, and <code class="docutils literal notranslate"><span class="pre">ssh</span></code> fails rather than prompting
+when the requester’s connection is gone. <code class="docutils literal notranslate"><span class="pre">setup</span></code> and <code class="docutils literal notranslate"><span class="pre">./deploy.py</span></code> run
+under <code class="docutils literal notranslate"><span class="pre">nohup</span></code>, so that a dropped connection does not kill a build. The
+<code class="docutils literal notranslate"><span class="pre">[machines]</span></code> section of the config file on the requester’s computer names
+each machine’s ssh host and Polaris checkout. The utility checks that each
+names a Polaris machine and has that form, and <code class="docutils literal notranslate"><span class="pre">status</span></code> shows them with
+each machine’s rows. Reports come back with <code class="docutils literal notranslate"><span class="pre">scp</span></code>,
+and <code class="docutils literal notranslate"><span class="pre">post</span></code> posts them (see below, under results).</p>
+</section>
+<section id="implementation-every-machine-tests-the-same-commits">
+<h3>Implementation: Every machine tests the same commits.<a class="headerlink" href="#implementation-every-machine-tests-the-same-commits" title="Link to this heading"></a></h3>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">omega_pr_test</span><span class="o">.</span><span class="n">py</span> <span class="n">setup</span> <span class="o">--</span><span class="n">fork</span> <span class="o">&lt;</span><span class="n">fork</span><span class="o">&gt;</span> <span class="o">--</span><span class="n">branch</span> <span class="o">&lt;</span><span class="n">branch</span><span class="o">&gt;</span> <span class="p">[</span><span class="o">--</span><span class="n">submit</span><span class="p">]</span>
+                       <span class="p">[</span><span class="o">--</span><span class="n">baseline</span><span class="o">-</span><span class="nb">dir</span> <span class="o">&lt;</span><span class="nb">dir</span><span class="o">&gt;</span><span class="p">]</span>
+                       <span class="p">[</span><span class="o">--</span><span class="n">baseline</span><span class="o">-</span><span class="n">load</span><span class="o">-</span><span class="n">script</span> <span class="o">&lt;</span><span class="n">script</span><span class="o">&gt;</span><span class="p">]</span>
+                       <span class="p">[</span><span class="o">--</span><span class="n">no</span><span class="o">-</span><span class="n">baseline</span> <span class="o">&lt;</span><span class="n">reason</span><span class="o">&gt;</span><span class="p">]</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">setup</span></code> fetches both branches and reads the manifest. It stops with a
+message unless all of these hold:</p>
+<ul class="simple">
+<li><p>it knows the manifest’s schema version;</p></li>
+<li><p>the test commit is the tip’s parent, and it contains <code class="docutils literal notranslate"><span class="pre">pr_head</span></code> and
+<code class="docutils literal notranslate"><span class="pre">base_head</span></code>;</p></li>
+<li><p>the Polaris checkout has no uncommitted changes to tracked files (not
+counting submodule checkouts, which the utility never builds from), and
+it contains <code class="docutils literal notranslate"><span class="pre">polaris_commit</span></code>;</p></li>
+<li><p>the Polaris checkout the baseline runs from pins <code class="docutils literal notranslate"><span class="pre">baseline.commit</span></code>, if
+the baseline is the submodule;</p></li>
+<li><p>if <code class="docutils literal notranslate"><span class="pre">baseline.polaris_commit</span></code> differs from <code class="docutils literal notranslate"><span class="pre">polaris_commit</span></code>, a second
+checkout, which is clean, contains <code class="docutils literal notranslate"><span class="pre">baseline.polaris_commit</span></code> and does not
+contain <code class="docutils literal notranslate"><span class="pre">polaris_commit</span></code>: by default the one in <code class="docutils literal notranslate"><span class="pre">polaris_main</span></code>, with its
+load script for the row, or the one whose load script the tester gave;</p></li>
+<li><p>the loaded Polaris environment belongs to this checkout
+(<code class="docutils literal notranslate"><span class="pre">POLARIS_BRANCH</span></code>), and its machine, compiler and MPI library give the
+row;</p></li>
+<li><p>the baseline checkout’s load script is for the same row, or for the
+name the row’s compiler had before Polaris renamed it.</p></li>
+</ul>
+<p>Omega worktrees are made from <code class="docutils literal notranslate"><span class="pre">omega_repo</span></code> at <code class="docutils literal notranslate"><span class="pre">&lt;work_base&gt;/omega/&lt;sha12&gt;</span></code>.
+Git keeps a worktree’s submodule clones in the main clone’s
+<code class="docutils literal notranslate"><span class="pre">.git/worktrees/&lt;name&gt;/modules</span></code>, so <code class="docutils literal notranslate"><span class="pre">setup</span></code> refuses to make a worktree from
+an <code class="docutils literal notranslate"><span class="pre">omega_repo</span></code> on another filesystem than <code class="docutils literal notranslate"><span class="pre">work_base</span></code>: a clone in home
+would fill the home quota by several hundred megabytes per worktree.
+They are keyed by commit, so baselines and pull requests share them.
+<code class="docutils literal notranslate"><span class="pre">setup</span></code> makes each one and initializes the submodules its build needs
+once, under a lock, and the build updates them only when they need it
+(polaris#846), so that rows set up at the same time never update one
+tree’s submodules at once. Each
+row gets its own directories:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">&lt;</span><span class="n">work_base</span><span class="o">&gt;/</span><span class="n">pr</span><span class="o">&lt;</span><span class="n">N</span><span class="o">&gt;-&lt;</span><span class="n">head</span> <span class="n">sha7</span><span class="o">&gt;/</span><span class="n">report_</span><span class="o">&lt;</span><span class="n">machine</span><span class="o">&gt;.</span><span class="n">md</span>
+<span class="o">&lt;</span><span class="n">work_base</span><span class="o">&gt;/</span><span class="n">pr</span><span class="o">&lt;</span><span class="n">N</span><span class="o">&gt;-&lt;</span><span class="n">head</span> <span class="n">sha7</span><span class="o">&gt;/&lt;</span><span class="n">machine</span><span class="o">&gt;</span><span class="n">_</span><span class="o">&lt;</span><span class="n">compiler</span><span class="o">&gt;/</span>
+    <span class="n">build</span><span class="o">/</span>       <span class="n">pull</span> <span class="n">request</span> <span class="n">build</span> <span class="p">(</span><span class="o">-</span><span class="n">p</span><span class="p">)</span>
+    <span class="n">omega_pr</span><span class="o">/</span>    <span class="n">pull</span> <span class="n">request</span> <span class="n">suite</span> <span class="p">(</span><span class="o">-</span><span class="n">w</span><span class="p">,</span> <span class="k">with</span> <span class="o">-</span><span class="n">b</span> <span class="o">&lt;</span><span class="n">baseline</span><span class="o">&gt;</span><span class="p">)</span>
+    <span class="n">ctest</span><span class="o">/</span>       <span class="n">the</span> <span class="n">CTest</span> <span class="n">job</span> <span class="n">script</span>
+    <span class="n">setup</span><span class="o">.</span><span class="n">json</span>   <span class="n">what</span> <span class="n">setup</span> <span class="n">did</span><span class="p">,</span> <span class="n">which</span> <span class="n">report</span> <span class="n">reads</span>
+<span class="o">&lt;</span><span class="n">work_base</span><span class="o">&gt;/</span><span class="n">baselines</span><span class="o">/&lt;</span><span class="n">machine</span><span class="o">&gt;</span><span class="n">_</span><span class="o">&lt;</span><span class="n">compiler</span><span class="o">&gt;</span><span class="n">_polaris</span><span class="o">-&lt;</span><span class="n">sha7</span><span class="o">&gt;</span><span class="n">_omega</span><span class="o">-&lt;</span><span class="n">sha7</span><span class="o">&gt;/</span>
+    <span class="n">build</span><span class="o">/</span>
+    <span class="n">omega_pr</span><span class="o">/</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">setup</span></code> runs <code class="docutils literal notranslate"><span class="pre">polaris</span> <span class="pre">suite</span> <span class="pre">-c</span> <span class="pre">ocean</span> <span class="pre">-t</span> <span class="pre">omega_pr</span> <span class="pre">--model</span> <span class="pre">omega</span> <span class="pre">--build</span></code>
+for the baseline if needed, then for the pull request. A baseline from a
+second checkout is set up in a clean login shell with that checkout’s load
+script sourced, so its job script loads that checkout too. It then runs
+<code class="docutils literal notranslate"><span class="pre">omega_ctest.py</span> <span class="pre">-p</span> <span class="pre">&lt;pull</span> <span class="pre">request</span> <span class="pre">build&gt;</span></code>. Last, it prints or submits three
+jobs: the baseline suite, the pull request suite (<code class="docutils literal notranslate"><span class="pre">afterany</span></code> on the
+baseline) and the CTests. It submits them with <code class="docutils literal notranslate"><span class="pre">polaris.job.submit_job()</span></code>,
+which handles Slurm and PBS dependencies. On Frontier it adds
+<code class="docutils literal notranslate"><span class="pre">--qos=normal</span></code>: the <code class="docutils literal notranslate"><span class="pre">omega_pr</span></code> suite asks for each machine’s debug target,
+and Frontier allows only one debug job at a time. It also adds
+<code class="docutils literal notranslate"><span class="pre">--time=01:00:00</span></code>, since the GPU row’s baseline ran past the suite’s
+30-minute wall time on Omega#524. On Aurora it adds
+<code class="docutils literal notranslate"><span class="pre">-q</span> <span class="pre">capacity</span></code>, Aurora’s queue for 1 to 16 nodes, and <code class="docutils literal notranslate"><span class="pre">-l</span> <span class="pre">walltime=01:00:00</span></code>,
+since suites there ran past 30 minutes on slow nights. Each job waits for the
+one before, because Aurora limits how many jobs a user may have queued, and
+a job held on a dependency does not count. <code class="docutils literal notranslate"><span class="pre">utils/benchmark</span></code> keeps its own
+copy of that code, because its driver runs outside any Polaris
+environment.</p>
+<p>A small table in the utility maps each template label to a Polaris machine,
+compiler and MPI library. Another table gives the names compilers had
+before Polaris renamed them, such as Aurora’s <code class="docutils literal notranslate"><span class="pre">oneapi-ifx</span></code> and
+<code class="docutils literal notranslate"><span class="pre">oneapi-ifxgpu</span></code> before E3SM-Project/polaris#835, so that a baseline can
+run from a Polaris checkout older than the rename.</p>
+<p>If the baseline cannot run on a row, such as an older Kokkos on a new GPU,
+the requester may ask for <code class="docutils literal notranslate"><span class="pre">setup</span> <span class="pre">--no-baseline</span> <span class="pre">&lt;reason&gt;</span></code>. The PR suite then
+runs without a baseline, and the report gives the reason.</p>
+</section>
+<section id="implementation-each-report-carries-its-own-provenance">
+<h3>Implementation: Each report carries its own provenance.<a class="headerlink" href="#implementation-each-report-carries-its-own-provenance" title="Link to this heading"></a></h3>
+<p>#829, which fixed #827, provides the record. The Omega build template
+writes <code class="docutils literal notranslate"><span class="pre">omega_source.txt</span></code> to the build directory before it runs <code class="docutils literal notranslate"><span class="pre">cmake</span></code>.
+Both <code class="docutils literal notranslate"><span class="pre">polaris</span> <span class="pre">suite</span> <span class="pre">--build</span></code> and the CTest utility build through that
+template. <code class="docutils literal notranslate"><span class="pre">polaris.build.source_record.read_source_record()</span></code> reads the
+file. <code class="docutils literal notranslate"><span class="pre">provenance</span></code> gained <code class="docutils literal notranslate"><span class="pre">polaris</span> <span class="pre">git</span> <span class="pre">hash</span></code>, <code class="docutils literal notranslate"><span class="pre">polaris</span> <span class="pre">git</span> <span class="pre">log</span></code>,
+<code class="docutils literal notranslate"><span class="pre">component</span> <span class="pre">git</span> <span class="pre">hash</span></code> and <code class="docutils literal notranslate"><span class="pre">component</span> <span class="pre">git</span> <span class="pre">log</span></code> entries. The component entries
+are marked <code class="docutils literal notranslate"><span class="pre">(at</span> <span class="pre">setup,</span> <span class="pre">not</span> <span class="pre">build)</span></code> when the build has no record (see
+<a class="reference internal" href="../developers_guide/framework/provenance.html#dev-provenance"><span class="std std-ref">Provenance</span></a>).</p>
+<p>On this branch, <code class="docutils literal notranslate"><span class="pre">_write_output_for_pull_request()</span></code> adds three lines, for
+Polaris, the baseline Omega and the pull request Omega. It also adds a
+<code class="docutils literal notranslate"><span class="pre">&lt;details&gt;</span></code> block with their logs.</p>
+<p><code class="docutils literal notranslate"><span class="pre">utils/omega/ctest/run_command.template</span></code> writes its summary to
+<code class="docutils literal notranslate"><span class="pre">ctest_output_for_pr.md</span></code> as well as to standard output. It adds the build
+directory and the Omega commit from <code class="docutils literal notranslate"><span class="pre">omega_source.txt</span></code>.</p>
+</section>
+<section id="implementation-results-are-reported-as-polaris-and-ctest-write-them">
+<h3>Implementation: Results are reported as Polaris and CTest write them.<a class="headerlink" href="#implementation-results-are-reported-as-polaris-and-ctest-write-them" title="Link to this heading"></a></h3>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">omega_pr_test</span><span class="o">.</span><span class="n">py</span> <span class="n">report</span> <span class="p">[</span><span class="o">--</span><span class="n">machine</span> <span class="o">&lt;</span><span class="n">machine</span><span class="o">&gt;</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">notes</span> <span class="o">&lt;</span><span class="n">file</span><span class="o">&gt;</span><span class="p">]</span>
+                        <span class="p">[</span><span class="o">--</span><span class="ow">not</span><span class="o">-</span><span class="n">run</span> <span class="o">&lt;</span><span class="n">reason</span><span class="o">&gt;</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">agent</span> <span class="o">&lt;</span><span class="n">name</span><span class="o">&gt;</span><span class="p">]</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">report</span></code> reports every row of the manifest on the machine, and on any
+machine that shares its login nodes. It stops if a row has no results,
+unless <code class="docutils literal notranslate"><span class="pre">--not-run</span></code> gives the reason those rows were not run.</p>
+<div class="highlight-markdown notranslate"><div class="highlight"><pre><span></span><span class="gu">## Testing on aurora</span>
+&lt;!-- omega-pr-test {...} --&gt;
+
+Tested the merge of E3SM-Project/Omega#553 (<span class="sb">`&lt;sha&gt;`</span>) into <span class="sb">`develop`</span>
+(<span class="sb">`&lt;sha&gt;`</span>) as <span class="sb">`&lt;sha&gt;`</span>, against Polaris' Omega submodule (<span class="sb">`&lt;sha&gt;`</span>).
+
+| Row | CTests | <span class="sb">`omega_pr`</span> | New build warnings |
+|---|---|---|---|
+| aurora, intel, mpich | 50 of 50 passed | 25 of 25 passed | 0 |
+| aurora, intelgpu, mpich | 50 of 50 passed | 25 of 25 passed | 2 |
+
+&lt;details&gt;
+&lt;summary&gt;aurora, intel, mpich&lt;/summary&gt;
+
+&lt;omega_pr_output_for_pr.md&gt;
+
+&lt;ctest_output_for_pr.md&gt;
+
+<span class="gu">### Build warnings</span>
+
+&lt;generated by pr_test_warnings.py&gt;
+
+&lt;/details&gt;
+
+&lt;details&gt;...&lt;/details&gt;
+
+<span class="gu">### Notes</span>
+
+&lt;agent text, if any&gt;
+
+---
+
+<span class="ge">*Posted by &lt;agent&gt; on @&lt;requester&gt;'s behalf. ...*</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">report</span></code> writes the comment to <code class="docutils literal notranslate"><span class="pre">report_&lt;machine&gt;.md</span></code> and prints it.
+Someone reads it, and then <code class="docutils literal notranslate"><span class="pre">post</span></code> runs <code class="docutils literal notranslate"><span class="pre">gh</span> <span class="pre">pr</span> <span class="pre">comment</span> <span class="pre">&lt;pr&gt;</span> <span class="pre">-R</span> <span class="pre">E3SM-Project/Omega</span> <span class="pre">--body-file</span> <span class="pre">report_&lt;machine&gt;.md</span></code>. A report written on a
+machine without <code class="docutils literal notranslate"><span class="pre">gh</span></code> is copied unchanged to the requester’s computer and
+posted there:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">omega_pr_test</span><span class="o">.</span><span class="n">py</span> <span class="n">post</span> <span class="o">--</span><span class="n">pr</span> <span class="mi">553</span> <span class="o">&lt;</span><span class="n">report_</span><span class="o">&lt;</span><span class="n">machine</span><span class="o">&gt;.</span><span class="n">md</span><span class="o">&gt;</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">post</span></code> refuses a file without a marker for that pull request, so it posts
+only what <code class="docutils literal notranslate"><span class="pre">report</span></code> or <code class="docutils literal notranslate"><span class="pre">lint</span></code> wrote, on the right pull request.</p>
+<p><code class="docutils literal notranslate"><span class="pre">gh</span></code> is never required. Queries use it when it is installed and logged in,
+and otherwise GitHub’s REST API, which needs no login for a public
+repository (a token in <code class="docutils literal notranslate"><span class="pre">GH_TOKEN</span></code> raises the rate limit). The requester is
+the owner of <code class="docutils literal notranslate"><span class="pre">fork</span></code>. Only posting needs <code class="docutils literal notranslate"><span class="pre">gh</span></code>; without it, <code class="docutils literal notranslate"><span class="pre">post</span></code> stops,
+and the comment is posted by hand.</p>
+</section>
+<section id="implementation-the-requester-controls-every-outward-facing-action">
+<h3>Implementation: The requester controls every outward-facing action.<a class="headerlink" href="#implementation-the-requester-controls-every-outward-facing-action" title="Link to this heading"></a></h3>
+<p><code class="docutils literal notranslate"><span class="pre">AGENTS.md</span></code> lists these flags. It says an agent passes one only when
+the requester has allowed it in that session, and the same applies to any
+<code class="docutils literal notranslate"><span class="pre">sbatch</span></code> or <code class="docutils literal notranslate"><span class="pre">qsub</span></code> the agent runs by hand. No command edits the pull request
+body, and <code class="docutils literal notranslate"><span class="pre">AGENTS.md</span></code> tells testers not to edit it either.</p>
+</section>
+<section id="implementation-progress-across-machines-is-visible">
+<h3>Implementation: Progress across machines is visible.<a class="headerlink" href="#implementation-progress-across-machines-is-visible" title="Link to this heading"></a></h3>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">omega_pr_test</span><span class="o">.</span><span class="n">py</span> <span class="n">status</span> <span class="o">--</span><span class="n">pr</span> <span class="mi">553</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">status</span></code> reads the pull request’s comments from GitHub and parses the
+markers. It prints one line per row and one for <code class="docutils literal notranslate"><span class="pre">lint</span></code>, each with its
+result, and marks as stale any
+row whose <code class="docutils literal notranslate"><span class="pre">pr_head</span></code> is not the pull request’s current head.</p>
+</section>
+<section id="implementation-a-matching-baseline-is-reused-wherever-it-was-run">
+<h3>Implementation: A matching baseline is reused wherever it was run.<a class="headerlink" href="#implementation-a-matching-baseline-is-reused-wherever-it-was-run" title="Link to this heading"></a></h3>
+<p>The matcher lives in <code class="docutils literal notranslate"><span class="pre">polaris/baselines.py</span></code>, so that <code class="docutils literal notranslate"><span class="pre">utils/benchmark</span></code> can
+later use it in place of its directory-name cache. <code class="docutils literal notranslate"><span class="pre">find_baseline()</span></code> takes
+the search roots and the criteria. It returns the matching directories and
+the near misses, each near miss with its reasons. <code class="docutils literal notranslate"><span class="pre">find_build_log()</span></code> does
+the same for build logs. Candidates are looked for up to three levels below
+each root. The suite and any config file are read from the <code class="docutils literal notranslate"><span class="pre">command</span></code> line
+in <code class="docutils literal notranslate"><span class="pre">provenance</span></code>.</p>
+<p>The config file gains <code class="docutils literal notranslate"><span class="pre">baseline_search_roots</span></code>. <code class="docutils literal notranslate"><span class="pre">setup</span> <span class="pre">--baseline-dir</span> <span class="pre">&lt;dir&gt;</span></code>
+names a candidate directly, and the matcher still checks it. A build log
+counts as complete when the source record’s <code class="docutils literal notranslate"><span class="pre">clean_build</span></code> is true, which
+means the build started from an empty build directory.</p>
+<p>When <code class="docutils literal notranslate"><span class="pre">setup</span></code> submits a job, it records the job’s id in a <code class="docutils literal notranslate"><span class="pre">job_id</span></code> file in
+that job’s work directory. For a baseline in <code class="docutils literal notranslate"><span class="pre">&lt;work_base&gt;/baselines</span></code> that
+is not complete, <code class="docutils literal notranslate"><span class="pre">setup</span></code> looks the id up with <code class="docutils literal notranslate"><span class="pre">squeue</span></code> or <code class="docutils literal notranslate"><span class="pre">qstat</span></code>. The
+answer decides whether to depend on the job or to stop.</p>
+</section>
+<section id="implementation-linting-and-the-documentation-build-are-checked-once">
+<h3>Implementation: Linting and the documentation build are checked once.<a class="headerlink" href="#implementation-linting-and-the-documentation-build-are-checked-once" title="Link to this heading"></a></h3>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">omega_pr_test</span><span class="o">.</span><span class="n">py</span> <span class="n">lint</span> <span class="o">--</span><span class="n">fork</span> <span class="o">&lt;</span><span class="n">fork</span><span class="o">&gt;</span> <span class="o">--</span><span class="n">branch</span> <span class="o">&lt;</span><span class="n">branch</span><span class="o">&gt;</span> <span class="p">[</span><span class="o">--</span><span class="n">notes</span> <span class="o">&lt;</span><span class="n">file</span><span class="o">&gt;</span><span class="p">]</span>
+                      <span class="p">[</span><span class="o">--</span><span class="n">agent</span> <span class="o">&lt;</span><span class="n">name</span><span class="o">&gt;</span><span class="p">]</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">lint</span></code> reads the manifest, then finds the “lint and test docs” check run
+on <code class="docutils literal notranslate"><span class="pre">pr_head</span></code>, whose id is its Actions job’s. It reads the conclusions of
+the job’s “Run pre-commit” and “Build Sphinx Docs” steps from the Actions
+API. If the job has not passed, <code class="docutils literal notranslate"><span class="pre">lint</span></code> puts <code class="docutils literal notranslate"><span class="pre">omega_dev_env</span></code> first on <code class="docutils literal notranslate"><span class="pre">PATH</span></code>
+in a worktree of its own at the test commit, since the checks can change
+files. It runs <code class="docutils literal notranslate"><span class="pre">pre-commit</span> <span class="pre">run</span> <span class="pre">--files</span> <span class="pre">&lt;changed</span> <span class="pre">files&gt;</span></code> at the root and
+<code class="docutils literal notranslate"><span class="pre">make</span> <span class="pre">html-strict</span></code> in <code class="docutils literal notranslate"><span class="pre">components/omega/doc</span></code>, keeping both logs. Only
+results from such a local run are to be posted.</p>
+<p>The comment is headed <code class="docutils literal notranslate"><span class="pre">##</span> <span class="pre">Testing:</span> <span class="pre">lint</span> <span class="pre">and</span> <span class="pre">docs</span></code>, with one line each for
+pre-commit and the documentation build. Each line says <code class="docutils literal notranslate"><span class="pre">passed</span></code> or <code class="docutils literal notranslate"><span class="pre">failed</span></code>
+and whether it came from CI (with the job link) or from a local run (with
+the log path).</p>
+</section>
+<section id="implementation-each-row-reports-new-compiler-warnings">
+<h3>Implementation: Each row reports new compiler warnings.<a class="headerlink" href="#implementation-each-row-reports-new-compiler-warnings" title="Link to this heading"></a></h3>
+<p>Polaris already writes each build’s output to <code class="docutils literal notranslate"><span class="pre">&lt;build&gt;/build_omega.log</span></code>.
+<code class="docutils literal notranslate"><span class="pre">pr_test_warnings.py</span></code> reads three forms of warning:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">&lt;</span><span class="n">path</span><span class="o">&gt;</span><span class="p">:</span><span class="o">&lt;</span><span class="n">line</span><span class="o">&gt;</span><span class="p">:</span><span class="o">&lt;</span><span class="n">col</span><span class="o">&gt;</span><span class="p">:</span> <span class="n">warning</span><span class="p">:</span> <span class="o">&lt;</span><span class="n">message</span><span class="o">&gt;</span> <span class="p">[</span><span class="o">-</span><span class="n">W</span><span class="o">&lt;</span><span class="n">flag</span><span class="o">&gt;</span><span class="p">]</span>    <span class="n">GCC</span><span class="p">,</span> <span class="n">Clang</span><span class="p">,</span> <span class="n">oneAPI</span>
+<span class="o">&lt;</span><span class="n">path</span><span class="o">&gt;</span><span class="p">(</span><span class="o">&lt;</span><span class="n">line</span><span class="o">&gt;</span><span class="p">):</span> <span class="n">warning</span> <span class="c1">#&lt;n&gt;: &lt;message&gt;               NVCC, ifx</span>
+<span class="o">&lt;</span><span class="n">path</span><span class="o">&gt;</span><span class="p">:</span><span class="o">&lt;</span><span class="n">line</span><span class="o">&gt;</span><span class="p">:</span><span class="o">&lt;</span><span class="n">col</span><span class="o">&gt;</span><span class="p">:</span>  <span class="o">...</span>  <span class="ne">Warning</span><span class="p">:</span> <span class="o">&lt;</span><span class="n">message</span><span class="o">&gt;</span>         <span class="n">gfortran</span>
+</pre></div>
+</div>
+<p>It also reads <code class="docutils literal notranslate"><span class="pre">CMake</span> <span class="pre">Warning</span> <span class="pre">at</span> <span class="pre">&lt;path&gt;:&lt;line&gt;</span></code> blocks, using the first line
+of the message. Each path is made relative to the Omega tree named in the
+build’s source record. Lines from <code class="docutils literal notranslate"><span class="pre">make</span></code> itself, such as
+<code class="docutils literal notranslate"><span class="pre">jobserver</span> <span class="pre">unavailable</span></code>, are ignored.</p>
+<p>The report’s <code class="docutils literal notranslate"><span class="pre">Build</span> <span class="pre">warnings</span></code> section gives the count of new warnings and
+how many are in files the pull request changes, then lists them in a
+<code class="docutils literal notranslate"><span class="pre">&lt;details&gt;</span></code> block. It also gives both log paths. The marker gains
+<code class="docutils literal notranslate"><span class="pre">&quot;new_warnings&quot;:</span> <span class="pre">&lt;n&gt;</span></code>.</p>
+</section>
+</section>
+<section id="testing">
+<h2>Testing<a class="headerlink" href="#testing" title="Link to this heading"></a></h2>
+<section id="testing-and-validation-any-developer-can-request-testing">
+<h3>Testing and Validation: Any developer can request testing.<a class="headerlink" href="#testing-and-validation-any-developer-can-request-testing" title="Link to this heading"></a></h3>
+<p>The first trial is Omega#553 on all four machines. A second requester then
+repeats it, on at least one machine, from their own accounts.</p>
+<p>The second trial is Omega#524, tested with a Polaris test merge of
+polaris#731 and a baseline run from a second checkout without it.</p>
+</section>
+<section id="testing-and-validation-github-credentials-are-needed-on-one-computer-only">
+<h3>Testing and Validation: GitHub credentials are needed on one computer only.<a class="headerlink" href="#testing-and-validation-github-credentials-are-needed-on-one-computer-only" title="Link to this heading"></a></h3>
+<p>A trial tests Chrysalis, Perlmutter and Aurora over ssh from one laptop,
+with an agent on Frontier, and posts every report from the laptop. Unit
+tests check that <code class="docutils literal notranslate"><span class="pre">post</span></code> refuses a file without a marker or with a marker
+for another pull request.</p>
+</section>
+<section id="testing-and-validation-every-machine-tests-the-same-commits">
+<h3>Testing and Validation: Every machine tests the same commits.<a class="headerlink" href="#testing-and-validation-every-machine-tests-the-same-commits" title="Link to this heading"></a></h3>
+<p>Unit tests build small git repositories in a temporary directory, with a
+base branch, a pull request branch and an extra-merge branch. They run
+<code class="docutils literal notranslate"><span class="pre">init</span></code> and the <code class="docutils literal notranslate"><span class="pre">setup</span></code> checks against these repositories. The cases include
+a conflict, a tip whose parent is not the test commit, a Polaris
+checkout that pins a different Omega, and a baseline checkout that is
+missing or contains <code class="docutils literal notranslate"><span class="pre">polaris_commit</span></code>.</p>
+</section>
+<section id="testing-and-validation-each-report-carries-its-own-provenance">
+<h3>Testing and Validation: Each report carries its own provenance.<a class="headerlink" href="#testing-and-validation-each-report-carries-its-own-provenance" title="Link to this heading"></a></h3>
+<p>Unit tests of <code class="docutils literal notranslate"><span class="pre">_write_output_for_pull_request()</span></code> use fixture <code class="docutils literal notranslate"><span class="pre">provenance</span></code>
+files for a pull request work directory and a baseline work directory. A run
+of <code class="docutils literal notranslate"><span class="pre">omega_pr</span></code> against a baseline checks the file from a real suite.</p>
+</section>
+<section id="testing-and-validation-results-are-reported-as-polaris-and-ctest-write-them">
+<h3>Testing and Validation: Results are reported as Polaris and CTest write them.<a class="headerlink" href="#testing-and-validation-results-are-reported-as-polaris-and-ctest-write-them" title="Link to this heading"></a></h3>
+<p>Unit tests build reports from fixture <code class="docutils literal notranslate"><span class="pre">.md</span></code> files and check that both files
+appear byte for byte.</p>
+</section>
+<section id="testing-and-validation-progress-across-machines-is-visible">
+<h3>Testing and Validation: Progress across machines is visible.<a class="headerlink" href="#testing-and-validation-progress-across-machines-is-visible" title="Link to this heading"></a></h3>
+<p>Unit tests parse markers from fixture comments, including a stale report,
+a not-run row and a comment from before a machine’s rows shared one.</p>
+</section>
+<section id="testing-and-validation-a-matching-baseline-is-reused-wherever-it-was-run">
+<h3>Testing and Validation: A matching baseline is reused wherever it was run.<a class="headerlink" href="#testing-and-validation-a-matching-baseline-is-reused-wherever-it-was-run" title="Link to this heading"></a></h3>
+<p>Unit tests search fixture work directories containing an exact match, one
+near miss for each test, a run whose Omega commit was recorded only at
+setup, and a run with incomplete results. They look up build logs from a
+clean build and from an incremental one. The #553 trial reuses a baseline
+on at least one machine.</p>
+</section>
+<section id="testing-and-validation-linting-and-the-documentation-build-are-checked-once">
+<h3>Testing and Validation: Linting and the documentation build are checked once.<a class="headerlink" href="#testing-and-validation-linting-and-the-documentation-build-are-checked-once" title="Link to this heading"></a></h3>
+<p>Unit tests mock the check runs for a passed check, a failed check and a
+missing check, and verify which path <code class="docutils literal notranslate"><span class="pre">lint</span></code> takes and that results from CI
+are never posted. The #553 trial runs <code class="docutils literal notranslate"><span class="pre">lint</span></code> for real.</p>
+</section>
+<section id="testing-and-validation-each-row-reports-new-compiler-warnings">
+<h3>Testing and Validation: Each row reports new compiler warnings.<a class="headerlink" href="#testing-and-validation-each-row-reports-new-compiler-warnings" title="Link to this heading"></a></h3>
+<p>Unit tests parse fixture logs taken from real builds with GCC, Clang,
+oneAPI and NVCC. They check three cases: a warning that only moves lines is
+not new, a second instance of an existing warning is new, and a warning in
+a changed file is marked. The #553 trial checks the section on every row.</p>
+</section>
+</section>
+<section id="decisions">
+<h2>Decisions<a class="headerlink" href="#decisions" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p><strong>Scripts do the pinning and reporting, and agent instructions do the
+rest.</strong> The tools that build and run, <code class="docutils literal notranslate"><span class="pre">polaris</span> <span class="pre">suite</span> <span class="pre">--build</span></code> and
+<code class="docutils literal notranslate"><span class="pre">omega_ctest.py</span></code>, are already scripts. The problems on Omega#481 were of
+two kinds. Mistakes in the handoff, such as initializing submodules by
+hand and building inside jobs, are fixed by instructions that are
+reviewed. Problems in the environment, such as Omega#572 and the
+out-of-date CTest mesh, needed judgment that a wrapper script could not
+supply. The mistakes that would go unnoticed, such as testing the wrong
+commits or retyping a result, are the ones that are scripted.</p></li>
+<li><p><strong>The test commit is the merge into the base branch, not the pull request
+head</strong>, because the merge is what lands.</p></li>
+<li><p><strong>The test branch lives on the requester’s fork.</strong> Recreating the merge
+on each machine would avoid a push, but it could not carry conflict
+resolutions or extra merges.</p></li>
+<li><p><strong>One agent drives the machines over ssh, by default.</strong> For Omega#481
+and the first trials of this utility, an agent ran on each machine. Each
+needed its own handoff and, to post, its own <code class="docutils literal notranslate"><span class="pre">gh</span></code> login, and the
+requester relayed between them. Driving E3SM-Unified’s deployment on
+Chrysalis, Perlmutter and Aurora from one laptop over ssh needed only the
+requester’s usual logins. The utility itself stays on the machines, so
+an agent on a machine runs the same commands, which Frontier still
+needs.</p></li>
+<li><p><strong>Nothing is posted without being read first.</strong> <code class="docutils literal notranslate"><span class="pre">report</span></code> and <code class="docutils literal notranslate"><span class="pre">lint</span></code>
+only write their comments, and <code class="docutils literal notranslate"><span class="pre">post</span></code> posts one once an agent or a
+person has read it. A flag that posted straight away would let a
+comment reach the pull request unchecked.</p></li>
+<li><p><strong>Each machine gets one comment.</strong> One tester runs all of a machine’s
+rows, so its comment needs no coordination with other machines. A
+comment for each row, as the first trials posted, repeated the same
+commits and paths for every row and was hard to read.</p></li>
+<li><p><strong>Baselines are found from provenance, not from <code class="docutils literal notranslate"><span class="pre">utils/benchmark</span></code>’s
+cache or by an agent.</strong> The cache sees only directories that <code class="docutils literal notranslate"><span class="pre">benchmark</span></code>
+named itself, and most existing baselines were set up some other way. An
+agent reading provenance by hand can miss a field that matters, such as a
+dirty tree or a commit recorded at setup rather than at build time.</p></li>
+<li><p><strong>Linting and the documentation build come from Omega’s CI when it has
+passed, and are then not posted.</strong> Running them locally every time would
+repeat the same commands on nearly the same tree, and would need an
+<code class="docutils literal notranslate"><span class="pre">omega_dev</span></code> environment on every initiator’s machine. A comment repeating
+CI’s passing checks adds nothing the pull request does not already show.</p></li>
+<li><p><strong>Polaris changes an Omega pull request needs are a Polaris test merge,
+and the baseline runs without them.</strong> Omega#524 renamed the options
+every task writes, so its Polaris changes (polaris#731) cannot run the
+baseline Omega. Testing the pull request with Polaris <code class="docutils literal notranslate"><span class="pre">main</span></code> is not
+possible either.</p></li>
+<li><p><strong>The template’s compiler names are mapped where Polaris differs.</strong>
+Omega has called Aurora’s compilers <code class="docutils literal notranslate"><span class="pre">intel</span></code> and <code class="docutils literal notranslate"><span class="pre">intelgpu</span></code> since
+E3SM-Project/Omega#566, and the template follows. Polaris used
+<code class="docutils literal notranslate"><span class="pre">oneapi-ifx</span></code> and <code class="docutils literal notranslate"><span class="pre">oneapi-ifxgpu</span></code> until E3SM-Project/polaris#835, so the
+utility mapped those rows until then. The names now match, and only a
+baseline from an older Polaris checkout needs its former names.</p></li>
+</ul>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="ocean_analysis_initial.html" class="btn btn-neutral float-left" title="Initial Omega Analysis Capabilities" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="overflow_nonlinear_eos.html" class="btn btn-neutral float-right" title="EOS and Vertical-Coordinate Variants of the Overflow Tasks" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2026, Energy Exascale Earth System Model Project.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+   
+
+  <!-- Meta tags for JS to use -->
+  <meta name="doc-version" content="main">
+  <meta name="doc-site-root" content="../">
+
+  <!-- Create version switcher container -->
+  <script>
+    const sidebar = document.querySelector('.wy-side-nav-search');
+    if (sidebar) {
+      const versionDiv = document.createElement('div');
+      versionDiv.id = 'version-switcher';
+      versionDiv.style.marginTop = '1em';
+      sidebar.appendChild(versionDiv);
+    }
+  </script>
+
+  <!-- Load version-switcher.js using the correct relative path -->
+  <script src="../../shared/version-switcher.js"></script>
+
+
+</body>
+</html>

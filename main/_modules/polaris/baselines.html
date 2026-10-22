@@ -66,6 +66,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../developers_guide/framework/index.html">Framework</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../developers_guide/machines/index.html">Machines</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../developers_guide/benchmarking.html">Benchmarking a branch against a baseline</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../developers_guide/omega_pr_testing.html">Testing an Omega pull request</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../developers_guide/troubleshooting.html">Troubleshooting</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../developers_guide/docs.html">Documentation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../developers_guide/building_docs.html">Building the Documentation</a></li>
@@ -115,10 +116,12 @@
 
 <span class="sd">A run can be reused as a baseline only if its provenance shows that it ran</span>
 <span class="sd">the same suite, with the same Polaris, on the same machine and compiler,</span>
-<span class="sd">from a build of the same component commit, and that every task passed.</span>
-<span class="sd">The component commit has to come from the record Polaris's build scripts</span>
-<span class="sd">write, since a commit read from the source tree at setup may not be the one</span>
-<span class="sd">that was built.</span>
+<span class="sd">from a build of the same component commit, and that the run finished.</span>
+<span class="sd">Tasks that failed in the baseline do not stop it from being reused, since</span>
+<span class="sd">running it again would not fix them; a report that compares with it says</span>
+<span class="sd">which tasks it could not compare.  The component commit has to come from</span>
+<span class="sd">the record Polaris's build scripts write, since a commit read from the</span>
+<span class="sd">source tree at setup may not be the one that was built.</span>
 <span class="sd">"""</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">json</span>
@@ -483,15 +486,9 @@
     <span class="k">except</span> <span class="p">(</span><span class="ne">OSError</span><span class="p">,</span> <span class="ne">ValueError</span><span class="p">):</span>
         <span class="k">return</span> <span class="p">[</span><span class="sa">f</span><span class="s1">'it has no readable </span><span class="si">{</span><span class="n">suite</span><span class="si">}</span><span class="s1">_results.json'</span><span class="p">]</span>
 
-    <span class="n">summary</span> <span class="o">=</span> <span class="n">results</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'summary'</span><span class="p">,</span> <span class="p">{})</span>
-    <span class="n">reasons</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">results</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'complete'</span><span class="p">,</span> <span class="kc">False</span><span class="p">):</span>
-        <span class="n">reasons</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">'its run is not complete'</span><span class="p">)</span>
-    <span class="k">for</span> <span class="n">status</span><span class="p">,</span> <span class="n">verb</span> <span class="ow">in</span> <span class="p">[(</span><span class="s1">'failed'</span><span class="p">,</span> <span class="s1">'failed'</span><span class="p">),</span> <span class="p">(</span><span class="s1">'pending'</span><span class="p">,</span> <span class="s1">'did not run'</span><span class="p">)]:</span>
-        <span class="n">count</span> <span class="o">=</span> <span class="n">summary</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">status</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">count</span><span class="p">:</span>
-            <span class="n">reasons</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">count</span><span class="si">}</span><span class="s1"> of its tasks </span><span class="si">{</span><span class="n">verb</span><span class="si">}</span><span class="s1">'</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">reasons</span>
+        <span class="k">return</span> <span class="p">[</span><span class="s1">'its run is not complete'</span><span class="p">]</span>
+    <span class="k">return</span> <span class="p">[]</span>
 </pre></div>
 
            </div>
