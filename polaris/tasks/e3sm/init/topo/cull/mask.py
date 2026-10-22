@@ -13,6 +13,7 @@ from mpas_tools.mesh.mask import compute_mpas_flood_fill_mask
 from mpas_tools.ocean.coastline_alteration import widen_transect_edge_masks
 
 from polaris import Step
+from polaris.cf import add_cf_conventions, add_var_attrs
 from polaris.mesh.connectivity import seed_mask_from_points
 from polaris.mesh.spherical.critical_transects import (
     load_default_critical_transects,
@@ -37,6 +38,23 @@ CULL_MASKS_VALIDATE_VARS = [
     'landCullMask',
     'landIceMask',
 ]
+
+# labels for the masks in cull_masks.nc
+_CULL_MASK_ATTRS = {
+    'oceanCullMask': {
+        'long_name': 'cells culled from the ocean mesh (1) or kept (0)',
+    },
+    'oceanNoCavitiesCullMask': {
+        'long_name': 'cells culled from the ocean mesh without ice-shelf '
+        'cavities (1) or kept (0)',
+    },
+    'landCullMask': {
+        'long_name': 'cells culled from the land mesh (1) or kept (0)',
+    },
+    'landIceMask': {
+        'long_name': 'cells covered by land ice (1) or not (0)',
+    },
+}
 
 
 class CullMaskStep(Step):
@@ -116,6 +134,7 @@ class CullMaskStep(Step):
             filename='cull_masks.nc',
             validate_vars=CULL_MASKS_VALIDATE_VARS,
         )
+        self.add_cf_check('cull_masks.nc')
         self._critical_transects = None
 
     def setup(self):
@@ -721,6 +740,8 @@ class CullMaskStep(Step):
         ds_masks['landCullMask'] = ds_land_cull_mask.landCullMask
         ds_masks['landIceMask'] = ds_land_ice_mask.landIceMask
 
+        ds_masks = add_var_attrs(ds_masks, _CULL_MASK_ATTRS)
+        ds_masks = add_cf_conventions(ds_masks)
         write_netcdf(ds_masks, 'cull_masks.nc')
         logger.info('Wrote cull_masks.nc.')
 

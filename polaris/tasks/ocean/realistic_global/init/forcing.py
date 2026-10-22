@@ -65,6 +65,7 @@ class ForcingStep(OceanIOStep):
             ),
         )
         self.add_output_file(filename=self.get_forcing_filename())
+        self.add_cf_check(self.get_forcing_filename())
 
     def run(self):
         """
@@ -73,8 +74,10 @@ class ForcingStep(OceanIOStep):
         config = self.config
         with xr.open_dataset(JRA55_ON_MESH_FILENAME) as ds_stress:
             ds = xr.Dataset()
-            ds['windStressZonal'] = ds_stress.taux
-            ds['windStressMeridional'] = ds_stress.tauy
+            # the remapped lat and lon are not forcing fields, so they are
+            # left behind
+            ds['windStressZonal'] = ('nCells', ds_stress.taux.values)
+            ds['windStressMeridional'] = ('nCells', ds_stress.tauy.values)
 
         ds.windStressZonal.attrs = {
             'units': 'N m-2',

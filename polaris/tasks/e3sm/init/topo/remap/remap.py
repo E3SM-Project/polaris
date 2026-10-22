@@ -7,6 +7,7 @@ from mpas_tools.logging import check_call
 from pyremap import MpasCellMeshDescriptor
 
 from polaris import Step
+from polaris.cf import add_cf_conventions
 from polaris.io import symlink
 from polaris.tasks.e3sm.init.topo.combine.step import (
     COMBINE_TOPO_VALIDATE_VARS,
@@ -140,6 +141,7 @@ class RemapTopoStep(Step):
             filename='topography_remapped.nc',
             validate_vars=get_remapped_topo_validate_vars(),
         )
+        self.add_cf_check('topography_remapped.nc')
         self.expand_distance = 0.0
         self.expand_factor = 1.0
         self.do_remapping = True
@@ -423,7 +425,7 @@ class RemapTopoStep(Step):
 
         _clean_remapped_attrs(ds_out)
 
-        write_netcdf(ds_out, 'topography_remapped.nc')
+        write_netcdf(add_cf_conventions(ds_out), 'topography_remapped.nc')
 
         logger.info('  Done.')
 
@@ -440,8 +442,13 @@ def _clean_remapped_attrs(ds_out):
     ``grid_mapping`` comes the other way, in from the projected Antarctic
     source data, and names a ``mapping`` variable that does not survive
     remapping to the MPAS mesh either.
+
+    xarray moves ``coordinates`` from a variable's attributes into its
+    encoding when it reads a file, and writes it back from there, so it has
+    to be dropped from both.
     """
     dangling = ['cell_measures', 'coordinates', 'grid_mapping']
     for var in ds_out.data_vars:
         for attr in dangling:
             ds_out[var].attrs.pop(attr, None)
+            ds_out[var].encoding.pop(attr, None)

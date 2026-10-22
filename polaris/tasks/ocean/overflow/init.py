@@ -51,17 +51,19 @@ class Init(OceanIOStep):
 
         ds = ds_mesh.copy()
 
+        x_cell = ds.xCell.drop_attrs()
+
         # Form a continental shelf-like bathymetry
-        ds['bottomDepth'] = compute_bottom_depth(config, ds.xCell)
+        ds['bottomDepth'] = compute_bottom_depth(config, x_cell)
 
         # ssh is zero
-        ds['ssh'] = xr.zeros_like(ds.xCell)
+        ds['ssh'] = xr.zeros_like(x_cell)
 
         init_vertical_coord(config, ds)
 
         # initial temperature is constant except for a block of cold water on
         # the shelf
-        temp_cell = compute_initial_temperature(config, ds.xCell)
+        temp_cell = compute_initial_temperature(config, x_cell)
         temperature = np.broadcast_to(
             temp_cell.values[:, np.newaxis],
             (ds.sizes['nCells'], ds.sizes['nVertLevels']),

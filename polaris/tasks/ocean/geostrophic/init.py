@@ -80,7 +80,7 @@ class Init(OceanIOStep):
         bottom_depth = section.getfloat('bottom_depth')
 
         ds_mesh = open_dataset('mesh.nc')
-        latCell = ds_mesh.latCell
+        latCell = ds_mesh.latCell.drop_attrs()
 
         config.set('coriolis', 'rotated_sphere_alpha', str(alpha))
         ds_mesh = add_coriolis_to_dataset(config, ds_mesh)
@@ -92,7 +92,9 @@ class Init(OceanIOStep):
         ds['ssh'] = -ds.bottomDepth + h
 
         init_vertical_coord(config, ds)
-        temperature_array = temperature * xr.ones_like(ds_mesh.latCell)
+        temperature_array = (
+            temperature * xr.ones_like(ds_mesh.latCell).drop_attrs()
+        )
         temperature_array, _ = xr.broadcast(temperature_array, ds.refZMid)
         salinity_array = salinity * xr.ones_like(temperature_array)
 

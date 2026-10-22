@@ -81,8 +81,10 @@ class Init(OceanIOStep):
 
         ds = ds_mesh.copy()
 
-        ds['ssh'] = xr.zeros_like(ds_mesh.xCell)
-        ds['bottomDepth'] = bottom_depth * xr.ones_like(ds_mesh.xCell)
+        ds['ssh'] = xr.zeros_like(ds_mesh.xCell).drop_attrs()
+        ds['bottomDepth'] = (
+            bottom_depth * xr.ones_like(ds_mesh.xCell).drop_attrs()
+        )
 
         init_vertical_coord(config, ds)
 

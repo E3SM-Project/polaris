@@ -53,11 +53,11 @@ class ExactSolution:
         config : polaris.config.PolarisConfigParser
             Config options for test case
         """
-        self.angleEdge = ds.angleEdge
-        self.xCell = ds.xCell
-        self.yCell = ds.yCell
-        self.xEdge = ds.xEdge
-        self.yEdge = ds.yEdge
+        self.angleEdge = ds.angleEdge.drop_attrs()
+        self.xCell = ds.xCell.drop_attrs()
+        self.yCell = ds.yCell.drop_attrs()
+        self.xEdge = ds.xEdge.drop_attrs()
+        self.yEdge = ds.yEdge.drop_attrs()
 
         bottom_depth = config.getfloat('vertical_grid', 'bottom_depth')
         self.f0 = config.getfloat('coriolis', 'constant_f')

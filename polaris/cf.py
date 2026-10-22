@@ -1,0 +1,232 @@
+"""
+CF metadata for the netCDF files Polaris writes
+"""
+
+import importlib.resources as imp_res
+import re
+from functools import lru_cache
+from typing import Dict, Iterable, Mapping
+
+import xarray as xr
+from ruamel.yaml import YAML
+
+#: The version of the CF conventions that Polaris writes.  It matches the
+#: version Omega writes and is the newest that the CF checker validates.
+CF_VERSION = '1.8'
+
+# a CF entry in a ``Conventions`` attribute, such as ``CF-1.8``
+_CF_ENTRY = re.compile(r'^CF-\d+\.\d+$')
+
+# the coordinates of a regular latitude-longitude grid, which (unlike the
+# latCell and lonCell of a planar MPAS mesh) are always what they say
+_LAT_LON_ATTRS = {
+    'lat': {
+        'long_name': 'latitude',
+        'standard_name': 'latitude',
+        'units': 'degrees_north',
+    },
+    'lon': {
+        'long_name': 'longitude',
+        'standard_name': 'longitude',
+        'units': 'degrees_east',
+    },
+}
+
+# attributes whose values name other variables in the same file
+_REFERENCE_ATTRS = [
+    'ancillary_variables',
+    'bounds',
+    'cell_measures',
+    'coordinates',
+    'grid_mapping',
+]
+
+
+def add_cf_conventions(ds: xr.Dataset) -> xr.Dataset:
+    """
+    Add ``CF-<version>`` to the ``Conventions`` global attribute of a dataset
+    that has no CF entry.  Any other conventions already listed (``MPAS``
+    from the MPAS-Tools mesh converter and cell culler) are kept, since the
+    attribute lists every convention a file follows.
+
+    Parameters
+    ----------
+    ds : xarray.Dataset
+        A dataset about to be written
+
+    Returns
+    -------
+    ds : xarray.Dataset
+        A shallow copy of the dataset with the ``Conventions`` attribute set,
+        or the dataset itself if it already names a CF version
+    """
+    existing = str(ds.attrs.get('Conventions', ''))
+    entries = [entry for entry in re.split(r'[\s,]+', existing) if entry]
+    if any(_CF_ENTRY.match(entry) for entry in entries):
+        return ds
+    ds = ds.copy()
+    ds.attrs['Conventions'] = ' '.join([f'CF-{CF_VERSION}'] + entries)
+    return ds
+
+
+def add_var_attrs(
+    ds: xr.Dataset, var_attrs: Mapping[str, Mapping[str, str]]
+) -> xr.Dataset:
+    """
+    Fill in attributes (``units``, ``long_name``, ...) for the variables of
+    a dataset from a table, without changing any attribute a variable
+    already has.
+
+    Parameters
+    ----------
+    ds : xarray.Dataset
+        A dataset about to be written
+
+    var_attrs : dict
+        The attributes to add to each variable, keyed by variable name.
+        Variables not in the dataset are ignored.
+
+    Returns
+    -------
+    ds : xarray.Dataset
+        A shallow copy of the dataset with the attributes added
+    """
+    ds = ds.copy()
+    for name, attrs in var_attrs.items():
+        if name not in ds.variables:
+            continue
+        for attr, value in attrs.items():
+            if attr not in ds[name].attrs:
+                ds[name].attrs[attr] = value
+    return ds
+
+
+def add_lat_lon_attrs(ds: xr.Dataset) -> xr.Dataset:
+    """
+    Fill in ``long_name``, ``standard_name`` and ``units`` for the ``lat``
+    and ``lon`` coordinates of a dataset on a regular latitude-longitude
+    grid, without changing any attribute they already have.
+
+    Parameters
+    ----------
+    ds : xarray.Dataset
+        A dataset about to be written
+
+    Returns
+    -------
+    ds : xarray.Dataset
+        A shallow copy of the dataset with the attributes added
+    """
+    return add_var_attrs(ds, _LAT_LON_ATTRS)
+
+
+def drop_dangling_references(ds: xr.Dataset) -> xr.Dataset:
+    """
+    Drop each attribute that names a variable the dataset does not have.
+    A file remapped with ``ncremap`` or cut down to a few variables keeps
+    the ``bounds``, ``cell_measures``, ``coordinates`` and ``grid_mapping``
+    attributes of its source, which name variables (``lat_vertices``,
+    ``area``, ``crs``) that did not come along, and the CF checker reports
+    each as an error.  xarray moves ``coordinates`` from a variable's
+    attributes into its encoding when it reads a file, and writes it back
+    from there, so both are checked.
+
+    Parameters
+    ----------
+    ds : xarray.Dataset
+        A dataset about to be written
+
+    Returns
+    -------
+    ds : xarray.Dataset
+        A shallow copy of the dataset without the dangling references
+    """
+    ds = ds.copy()
+    for var in ds.variables.values():
+        for store in (var.attrs, var.encoding):
+            for attr in _REFERENCE_ATTRS:
+                if attr not in store:
+                    continue
+                # cell_measures and grid_mapping can be "key: name" pairs
+                names = [
+                    name
+                    for name in str(store[attr]).split()
+                    if not name.endswith(':')
+                ]
+                if any(name not in ds.variables for name in names):
+                    del store[attr]
+    return ds
+
+
+def drop_inherited_attrs(ds: xr.Dataset, names: Iterable[str]) -> xr.Dataset:
+    """
+    Clear the attributes of each named variable whose attributes are
+    identical to another variable's.  xarray propagates attributes through
+    arithmetic, comparisons, ``where()`` and ``ones_like()``, so a variable
+    with exactly another's attributes was derived from it and describes
+    itself as that variable (a ``bottomDepth`` made from ``ones_like(xCell)``
+    calls itself the x coordinate of cell centers).  A label someone wrote
+    for a variable never duplicates another variable's whole attribute set,
+    so those are kept.  Use before :py:func:`add_var_attrs()` to give the
+    cleared variables their own attributes.
+
+    Parameters
+    ----------
+    ds : xarray.Dataset
+        A dataset about to be written
+
+    names : iterable of str
+        The variables to consider, typically the ones a table of attributes
+        can describe.  Variables not in the dataset are ignored.
+
+    Returns
+    -------
+    ds : xarray.Dataset
+        A shallow copy of the dataset with the inherited attributes cleared
+    """
+    ds = ds.copy()
+    for name in names:
+        if name not in ds.variables:
+            continue
+        attrs = ds[name].attrs
+        if not attrs:
+            continue
+        for other, var in ds.variables.items():
+            if other != name and var.attrs == attrs:
+                ds[name].attrs = {}
+                break
+    return ds
+
+
+@lru_cache
+def read_var_attrs(package: str, filename: str) -> Dict[str, Dict[str, str]]:
+    """
+    Read a table of variable attributes from a YAML file in a package.  The
+    file maps each variable name to its attributes:
+
+    .. code-block:: yaml
+
+        xCell:
+          long_name: x coordinate of cell centers
+          units: m
+
+    Parameters
+    ----------
+    package : str
+        The package containing the file, such as ``polaris.mesh``
+
+    filename : str
+        The name of the YAML file
+
+    Returns
+    -------
+    var_attrs : dict
+        The attributes of each variable, keyed by variable name
+    """
+    text = imp_res.files(package).joinpath(filename).read_text()
+    yaml = YAML(typ='safe')
+    var_attrs = yaml.load(text)
+    return {
+        name: {attr: str(value) for attr, value in attrs.items()}
+        for name, attrs in var_attrs.items()
+    }
