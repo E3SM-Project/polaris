@@ -164,9 +164,13 @@ check for the
 [Physical Constants Dictionary (PCD)](https://github.com/E3SM-Project/PhysicalConstantsDictionary):
 
 - Polaris reads its packaged PCD version from `polaris/constants/pcd.yaml`.
-- The target branch is expected to provide `share/pcd.yaml`.
+- The branch the model is built from is expected to provide `share/pcd.yaml`.
+  That is the branch Polaris is building or, when it is not building, the
+  branch the existing build was made from, read from its build script
+  (MPAS-Ocean) or `CMakeCache.txt` (Omega).
 - If the two versions differ, setup raises an error and stops.
-- If `share/pcd.yaml` is missing, setup emits a warning and skips the check.
+- If `share/pcd.yaml` is missing, or the existing build's branch cannot be
+  determined, setup emits a warning and skips the check.
 
 When developing against an E3SM or Omega branch with a newer PCD version,
 update Polaris' `polaris/constants/pcd.yaml` to match. Avoid downgrading PCD in

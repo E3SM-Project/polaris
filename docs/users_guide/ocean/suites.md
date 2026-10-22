@@ -28,8 +28,6 @@ ocean/planar/baroclinic_channel/10km/threads
 ocean/planar/baroclinic_channel/10km/decomp
 ocean/planar/baroclinic_channel/10km/restart
 ocean/planar/barotropic_channel/default
-ocean/planar/ice_shelf_2d/5km/z-star/default/with_restart
-ocean/planar/ice_shelf_2d/5km/z-level/default/with_restart
 ocean/planar/inertial_gravity_wave/convergence_both
 ocean/planar/internal_wave/standard/default
 ocean/planar/internal_wave/vlr/default
@@ -61,8 +59,6 @@ development matures:
 ocean/planar/baroclinic_channel/10km/threads
 ocean/planar/baroclinic_channel/10km/decomp
 ocean/planar/baroclinic_channel/10km/restart
-ocean/planar/ice_shelf_2d/5km/z-star/default/with_restart
-ocean/planar/ice_shelf_2d/5km/z-level/default/with_restart
 ocean/planar/inertial_gravity_wave/convergence_both
 # ocean/planar/manufactured_solution
 ocean/spherical/icos/cosine_bell/decomp
@@ -136,7 +132,7 @@ ocean/analysis/moc
 
 The `framework_pr` suite is designed for testing pull-requests (PRs) that
 involve changes to the Polaris and/or Ocean framework.  It includes the tests
-in the `pr` suite plus additional tests focued on visualizaiton and remapping.
+in the `pr` suite plus additional tests focused on visualization.
 The tasks in this suite include:
 
 ```none
@@ -144,8 +140,6 @@ The tasks in this suite include:
 ocean/planar/baroclinic_channel/10km/threads
 ocean/planar/baroclinic_channel/10km/decomp
 ocean/planar/baroclinic_channel/10km/restart
-ocean/planar/ice_shelf_2d/5km/z-star/default/with_restart
-ocean/planar/ice_shelf_2d/5km/z-level/default/with_restart
 ocean/planar/inertial_gravity_wave/convergence_both
 ocean/planar/internal_wave/standard/default
 ocean/planar/internal_wave/vlr/default
@@ -157,11 +151,26 @@ ocean/spherical/icos/cosine_bell/restart
 
 ## viz
 ocean/planar/baroclinic_channel/10km/default
-ocean/planar/ice_shelf_2d/5km/z-star/default/with_viz
 ocean/spherical/icos/rotation_2d/with_viz
+```
 
-## remapping
+(ocean-suite-fanssie-pr)=
+
+## fanssie_pr suite
+
+The `fanssie_pr` suite holds the tasks that need MPAS-Ocean from the FAnSSIE
+branch rather than from E3SM-Project, including all the ice-shelf tasks.  It
+must be run with MPAS-Ocean built from the `e3sm_submodules/FAnSSIE`
+submodule (see {ref}`dev-ocean-fanssie`).  The tasks in the suite are:
+
+```none
+ocean/planar/ice_shelf_2d/5km/z-star/default/with_restart
+ocean/planar/ice_shelf_2d/5km/z-level/default/with_restart
+ocean/planar/ice_shelf_2d/5km/z-star/default/with_viz
 ocean/planar/isomip_plus/4km/z-star/ocean0
+ocean/planar/isomip_plus/4km/z-star/inception
+ocean/planar/isomip_plus/4km/z-star/wetting
+ocean/planar/isomip_plus/4km/z-star/drying
 ```
 
 (ocean-suite-convergence)=
