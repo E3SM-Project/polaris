@@ -1,0 +1,60 @@
+#!/usr/bin/env bash
+
+source {{ load_script }}
+
+# quit on errors
+set -e
+# trace commands
+set -x
+
+{%- if update_mali_submodule %}
+cd {{ polaris_source_dir }}
+
+if [ ! -e e3sm_submodules/MALI-Dev/.git ]; then
+    git submodule update --init e3sm_submodules/MALI-Dev
+fi
+
+{%- endif %}
+
+{# MALI's optional submodules are only built with SLM=true or
+   FASTISOSTASY=true, so none are initialized #}
+cd {{ mali_subdir }}
+
+{# polaris.build.source_record reads this record of the source being built #}
+{
+    echo "source: {{ e3sm_base_dir }}"
+    echo "hash: $(git -C {{ e3sm_base_dir }} rev-parse HEAD)"
+    echo "describe: $(git -C {{ e3sm_base_dir }} describe --tags --dirty --always)"
+    echo "clean_build: {{ 'true' if clean else 'false' }}"
+    echo "albany: {{ 'true' if albany else 'false' }}"
+    echo "log:"
+    git -C {{ e3sm_base_dir }} log --first-parent -n 5 --format='  %h %s'
+} > {{ build_dir }}/mali_source.txt
+
+{%- if clean %}
+make clean
+{%- endif %}
+
+{%- if albany %}
+{# deploy/load.sh sets POLARIS_ALBANY_LINK_LIBS from Albany's Spack package #}
+make {{ make_flags }} ALBANY=true \
+    MPAS_EXTERNAL_LIBS="${MPAS_EXTERNAL_LIBS:-} ${POLARIS_ALBANY_LINK_LIBS}" \
+    {{ make_target }}
+{%- else %}
+make {{ make_flags }} {{ make_target }}
+{%- endif %}
+
+mkdir -p {{ build_dir }}/default_inputs
+mkdir -p {{ build_dir }}/src
+
+cp -r {{ mali_subdir }}/default_inputs/namelist.landice \
+    {{ build_dir }}/default_inputs
+
+cp -r {{ mali_subdir }}/default_inputs/streams.landice \
+    {{ build_dir }}/default_inputs
+
+cp -r {{ mali_subdir }}/src/Registry_processed.xml \
+    {{ build_dir }}/src
+
+cp -r {{ mali_subdir }}/landice_model \
+    {{ build_dir }}
