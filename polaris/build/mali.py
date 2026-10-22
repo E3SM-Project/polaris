@@ -6,6 +6,7 @@ from typing import Optional
 
 from jinja2 import Template
 
+from polaris.build.mpas_framework import get_framework_check
 from polaris.build.source_record import read_source_record
 
 # the environment variable that a Polaris load script sets when its Spack
@@ -195,6 +196,22 @@ def make_build_script(
 
     load_script = os.environ['POLARIS_LOAD_SCRIPT']
 
+    framework_check = get_framework_check(
+        e3sm_base_dir=branch,
+        component_dir=mali_subdir,
+        build_config=dict(
+            core='landice',
+            machine=machine,
+            compiler=compiler,
+            mpi=mpilib,
+            target=make_target,
+            flags=make_flags,
+            albany=albany,
+            load_script=load_script,
+        ),
+        clean=clean,
+    )
+
     script = template.render(
         load_script=load_script,
         update_mali_submodule=update_mali_submodule,
@@ -206,6 +223,7 @@ def make_build_script(
         clean=clean,
         make_flags=make_flags,
         albany=albany,
+        framework_check=framework_check,
     )
 
     script_filename = f'build_mali_{machine}_{compiler}_{mpilib}.sh'
