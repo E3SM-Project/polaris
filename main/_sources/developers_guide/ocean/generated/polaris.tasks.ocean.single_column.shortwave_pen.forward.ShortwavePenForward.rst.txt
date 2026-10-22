@@ -1,0 +1,75 @@
+﻿polaris.tasks.ocean.single\_column.shortwave\_pen.forward.ShortwavePenForward
+=============================================================================
+
+.. currentmodule:: polaris.tasks.ocean.single_column.shortwave_pen.forward
+
+.. autoclass:: ShortwavePenForward
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~ShortwavePenForward.__init__
+      ~ShortwavePenForward.add_cf_check
+      ~ShortwavePenForward.add_dependency
+      ~ShortwavePenForward.add_horiz_mesh_input_file
+      ~ShortwavePenForward.add_init_input_file
+      ~ShortwavePenForward.add_input_file
+      ~ShortwavePenForward.add_model_config_options
+      ~ShortwavePenForward.add_namelist_file
+      ~ShortwavePenForward.add_output_file
+      ~ShortwavePenForward.add_property_check
+      ~ShortwavePenForward.add_streams_file
+      ~ShortwavePenForward.add_vert_coord_input_file
+      ~ShortwavePenForward.add_yaml_file
+      ~ShortwavePenForward.check_cf
+      ~ShortwavePenForward.check_properties
+      ~ShortwavePenForward.compute_cell_count
+      ~ShortwavePenForward.constrain_resources
+      ~ShortwavePenForward.dynamic_model_config
+      ~ShortwavePenForward.get_forcing_filename
+      ~ShortwavePenForward.get_horiz_mesh_filename
+      ~ShortwavePenForward.get_init_filename
+      ~ShortwavePenForward.get_vert_coord_filename
+      ~ShortwavePenForward.map_yaml_configs
+      ~ShortwavePenForward.map_yaml_options
+      ~ShortwavePenForward.map_yaml_streams
+      ~ShortwavePenForward.map_yaml_to_namelist
+      ~ShortwavePenForward.open_model_dataset
+      ~ShortwavePenForward.partition
+      ~ShortwavePenForward.process_inputs_and_outputs
+      ~ShortwavePenForward.run
+      ~ShortwavePenForward.runtime_setup
+      ~ShortwavePenForward.set_model_resources
+      ~ShortwavePenForward.set_resources
+      ~ShortwavePenForward.set_shared_config
+      ~ShortwavePenForward.setup
+      ~ShortwavePenForward.update_io_tasks_config
+      ~ShortwavePenForward.update_namelist_eos
+      ~ShortwavePenForward.update_namelist_pio
+      ~ShortwavePenForward.validate_baselines
+      ~ShortwavePenForward.work_path
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~ShortwavePenForward.cores
+      ~ShortwavePenForward.gpus
+      ~ShortwavePenForward.may_span_nodes
+      ~ShortwavePenForward.min_cores
+      ~ShortwavePenForward.min_gpus
+      ~ShortwavePenForward.component
+      ~ShortwavePenForward.config
+      ~ShortwavePenForward.input_data
+      ~ShortwavePenForward.logger
+   
+   

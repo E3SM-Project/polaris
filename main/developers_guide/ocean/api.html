@@ -1396,10 +1396,31 @@
 <tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.single_column.thermo.analysis.Analysis.run.html#polaris.tasks.ocean.single_column.thermo.analysis.Analysis.run" title="polaris.tasks.ocean.single_column.thermo.analysis.Analysis.run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">thermo.analysis.Analysis.run</span></code></a>()</p></td>
 <td><p>Run this step of the test case</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.single_column.viz.Viz.html#polaris.tasks.ocean.single_column.viz.Viz" title="polaris.tasks.ocean.single_column.viz.Viz"><code class="xref py py-obj docutils literal notranslate"><span class="pre">viz.Viz</span></code></a>(component, indir, init[, name, ...])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.single_column.shortwave_pen.ShortwavePen.html#polaris.tasks.ocean.single_column.shortwave_pen.ShortwavePen" title="polaris.tasks.ocean.single_column.shortwave_pen.ShortwavePen"><code class="xref py py-obj docutils literal notranslate"><span class="pre">shortwave_pen.ShortwavePen</span></code></a>(component, indir)</p></td>
+<td><p>A single-column test of penetrating shortwave radiation over a range of Jerlov water types.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.single_column.shortwave_pen.analysis.Analysis.html#polaris.tasks.ocean.single_column.shortwave_pen.analysis.Analysis" title="polaris.tasks.ocean.single_column.shortwave_pen.analysis.Analysis"><code class="xref py py-obj docutils literal notranslate"><span class="pre">shortwave_pen.analysis.Analysis</span></code></a>(component, ...)</p></td>
+<td><p>A step that checks how the column potential energy of the <code class="docutils literal notranslate"><span class="pre">jerlov</span></code> runs of the <code class="docutils literal notranslate"><span class="pre">shortwave_pen</span></code> task varies with water clarity.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.single_column.shortwave_pen.analysis.Analysis.run.html#polaris.tasks.ocean.single_column.shortwave_pen.analysis.Analysis.run" title="polaris.tasks.ocean.single_column.shortwave_pen.analysis.Analysis.run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">shortwave_pen.analysis.Analysis.run</span></code></a>()</p></td>
+<td><p>Run this step of the test case</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.single_column.shortwave_pen.extinction.Extinction.html#polaris.tasks.ocean.single_column.shortwave_pen.extinction.Extinction" title="polaris.tasks.ocean.single_column.shortwave_pen.extinction.Extinction"><code class="xref py py-obj docutils literal notranslate"><span class="pre">shortwave_pen.extinction.Extinction</span></code></a>(...[, name])</p></td>
+<td><p>A helper step that creates the <code class="docutils literal notranslate"><span class="pre">shortwave_extinction_coeffs.nc</span></code> forcing file consumed by Omega's <code class="docutils literal notranslate"><span class="pre">ShortwaveExtinctionIn</span></code> input stream.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.single_column.shortwave_pen.forward.ShortwavePenForward.html#polaris.tasks.ocean.single_column.shortwave_pen.forward.ShortwavePenForward" title="polaris.tasks.ocean.single_column.shortwave_pen.forward.ShortwavePenForward"><code class="xref py py-obj docutils literal notranslate"><span class="pre">shortwave_pen.forward.ShortwavePenForward</span></code></a>(...)</p></td>
+<td><p>A forward step for the <code class="docutils literal notranslate"><span class="pre">shortwave_pen</span></code> task that distributes the incident shortwave flux through the water column, either with MPAS-Ocean's two-band Jerlov scheme or with Omega's three-band penetrating-shortwave- radiation tendency term.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.single_column.shortwave_pen.viz.Viz.html#polaris.tasks.ocean.single_column.shortwave_pen.viz.Viz" title="polaris.tasks.ocean.single_column.shortwave_pen.viz.Viz"><code class="xref py py-obj docutils literal notranslate"><span class="pre">shortwave_pen.viz.Viz</span></code></a>(component, indir, ...)</p></td>
+<td><p>A step for plotting the <code class="docutils literal notranslate"><span class="pre">shortwave_pen</span></code> temperature profiles against water clarity, and the analytic absorption profiles the two models integrate.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.single_column.shortwave_pen.viz.Viz.run.html#polaris.tasks.ocean.single_column.shortwave_pen.viz.Viz.run" title="polaris.tasks.ocean.single_column.shortwave_pen.viz.Viz.run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">shortwave_pen.viz.Viz.run</span></code></a>()</p></td>
+<td><p>Run this step of the test case</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.single_column.viz.Viz.html#polaris.tasks.ocean.single_column.viz.Viz" title="polaris.tasks.ocean.single_column.viz.Viz"><code class="xref py py-obj docutils literal notranslate"><span class="pre">viz.Viz</span></code></a>(component, indir, init[, name, ...])</p></td>
 <td><p>A step for plotting the results of a single-column test</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.single_column.viz.Viz.run.html#polaris.tasks.ocean.single_column.viz.Viz.run" title="polaris.tasks.ocean.single_column.viz.Viz.run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">viz.Viz.run</span></code></a>()</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.single_column.viz.Viz.run.html#polaris.tasks.ocean.single_column.viz.Viz.run" title="polaris.tasks.ocean.single_column.viz.Viz.run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">viz.Viz.run</span></code></a>()</p></td>
 <td><p>Run this step of the test case</p></td>
 </tr>
 </tbody>

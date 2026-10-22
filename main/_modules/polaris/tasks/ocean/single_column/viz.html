@@ -147,6 +147,7 @@
         <span class="n">comparisons</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
         <span class="n">variables</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
         <span class="n">output_file</span><span class="o">=</span><span class="s1">'output.nc'</span><span class="p">,</span>
+        <span class="n">plot_diff</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
     <span class="p">):</span>
 <span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Create the step</span>
@@ -168,6 +169,13 @@
 
 <span class="sd">        variables : dict, optional</span>
 <span class="sd">            A dictionary of variables to plot along with their units</span>
+
+<span class="sd">        output_file : str, optional</span>
+<span class="sd">            The name of the model output file within each comparison step</span>
+
+<span class="sd">        plot_diff : bool, optional</span>
+<span class="sd">            Whether to plot difference profiles between the comparison datasets</span>
+<span class="sd">            (supported when exactly two comparisons are provided)</span>
 <span class="sd">        """</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">indir</span><span class="o">=</span><span class="n">indir</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">comparisons</span> <span class="o">=</span> <span class="p">(</span>
@@ -185,6 +193,7 @@
         <span class="k">if</span> <span class="n">ideal_age</span><span class="p">:</span>
             <span class="c1"># Include age tracer</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="s1">'iAge'</span><span class="p">]</span> <span class="o">=</span> <span class="s1">'seconds'</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">plot_diff</span> <span class="o">=</span> <span class="n">plot_diff</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">add_input_file</span><span class="p">(</span>
             <span class="n">filename</span><span class="o">=</span><span class="s1">'mesh.nc'</span><span class="p">,</span> <span class="n">work_dir_target</span><span class="o">=</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">init</span><span class="o">.</span><span class="n">path</span><span class="si">}</span><span class="s1">/culled_mesh.nc'</span>
         <span class="p">)</span>
@@ -371,30 +380,170 @@
                     <span class="p">)</span>
                     <span class="n">plt</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
                     <span class="k">continue</span>
-                <span class="n">plt</span><span class="o">.</span><span class="n">ylim</span><span class="p">(</span><span class="n">ymin</span><span class="p">,</span> <span class="n">ymax</span><span class="p">)</span>
-                <span class="k">if</span> <span class="n">x_limits</span><span class="p">:</span>
-                    <span class="n">x_min</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">limits</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">limits</span> <span class="ow">in</span> <span class="n">x_limits</span><span class="p">)</span>
-                    <span class="n">x_max</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">limits</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="k">for</span> <span class="n">limits</span> <span class="ow">in</span> <span class="n">x_limits</span><span class="p">)</span>
-                    <span class="n">x_margin</span> <span class="o">=</span> <span class="p">(</span><span class="n">x_max</span> <span class="o">-</span> <span class="n">x_min</span><span class="p">)</span> <span class="o">*</span> <span class="mf">0.05</span>
-                    <span class="k">if</span> <span class="n">x_margin</span> <span class="o">==</span> <span class="mf">0.0</span><span class="p">:</span>
-                        <span class="c1"># the field is constant over the visible depths, so</span>
-                        <span class="c1"># fall back to a margin that does not collapse the</span>
-                        <span class="c1"># axis to a single value</span>
-                        <span class="n">x_margin</span> <span class="o">=</span> <span class="mf">0.05</span> <span class="o">*</span> <span class="nb">max</span><span class="p">(</span><span class="nb">abs</span><span class="p">(</span><span class="n">x_min</span><span class="p">),</span> <span class="mf">1.0</span><span class="p">)</span>
-                    <span class="n">plt</span><span class="o">.</span><span class="n">xlim</span><span class="p">(</span><span class="n">x_min</span> <span class="o">-</span> <span class="n">x_margin</span><span class="p">,</span> <span class="n">x_max</span> <span class="o">+</span> <span class="n">x_margin</span><span class="p">)</span>
-                <span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">field_name</span><span class="si">}</span><span class="s1"> (</span><span class="si">{</span><span class="n">field_units</span><span class="si">}</span><span class="s1">)'</span><span class="p">)</span>
-                <span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s1">'z (m)'</span><span class="p">)</span>
-                <span class="c1"># Place a single legend centered below the x-axis</span>
-                <span class="n">fig</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span>
-                    <span class="n">loc</span><span class="o">=</span><span class="s1">'upper center'</span><span class="p">,</span>
-                    <span class="n">bbox_to_anchor</span><span class="o">=</span><span class="p">(</span><span class="mf">0.5</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.08</span><span class="p">),</span>
-                    <span class="n">ncol</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
-                    <span class="n">frameon</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                <span class="n">_finalize_plot</span><span class="p">(</span>
+                    <span class="n">fig</span><span class="p">,</span>
+                    <span class="n">field_name</span><span class="p">,</span>
+                    <span class="n">field_units</span><span class="p">,</span>
+                    <span class="n">ymin</span><span class="p">,</span>
+                    <span class="n">ymax</span><span class="p">,</span>
+                    <span class="n">x_limits</span><span class="p">,</span>
+                    <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">field_name</span><span class="si">}</span><span class="s1">.png'</span><span class="p">,</span>
                 <span class="p">)</span>
-                <span class="n">plt</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">field_name</span><span class="si">}</span><span class="s1">.png'</span><span class="p">,</span> <span class="n">bbox_inches</span><span class="o">=</span><span class="s1">'tight'</span><span class="p">)</span>
-                <span class="n">plt</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></div>
+
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">plot_diff</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">ds_list</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+                <span class="n">_plot_diff_profiles</span><span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">variables</span><span class="p">,</span>
+                    <span class="n">comparisons</span><span class="p">,</span>
+                    <span class="n">ds_list</span><span class="p">,</span>
+                    <span class="n">ds_vert</span><span class="p">,</span>
+                    <span class="n">ymin</span><span class="p">,</span>
+                    <span class="n">ymax</span><span class="p">,</span>
+                <span class="p">)</span></div>
 </div>
 
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_plot_diff_profiles</span><span class="p">(</span>
+    <span class="n">variables</span><span class="p">,</span>
+    <span class="n">comparisons</span><span class="p">,</span>
+    <span class="n">ds_list</span><span class="p">,</span>
+    <span class="n">ds_vert</span><span class="p">,</span>
+    <span class="n">ymin</span><span class="p">,</span>
+    <span class="n">ymax</span><span class="p">,</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">"""Plot difference profiles between two comparison datasets."""</span>
+    <span class="n">comp_names</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">comparisons</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+    <span class="n">name1</span><span class="p">,</span> <span class="n">name2</span> <span class="o">=</span> <span class="n">comp_names</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">comp_names</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+    <span class="n">ds1</span><span class="p">,</span> <span class="n">ds2</span> <span class="o">=</span> <span class="n">ds_list</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">ds_list</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+    <span class="n">diff_label</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">name2</span><span class="si">}</span><span class="s1"> - </span><span class="si">{</span><span class="n">name1</span><span class="si">}</span><span class="s1">'</span>
+
+    <span class="k">for</span> <span class="n">field_name</span><span class="p">,</span> <span class="n">field_units</span> <span class="ow">in</span> <span class="n">variables</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="n">curves_plotted</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">x_limits</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]]</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">fig</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">5</span><span class="p">))</span>
+
+        <span class="k">if</span> <span class="n">field_name</span> <span class="o">==</span> <span class="s1">'velocity'</span><span class="p">:</span>
+            <span class="k">if</span> <span class="p">(</span>
+                <span class="s1">'velocityZonal'</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">ds1</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
+                <span class="ow">or</span> <span class="s1">'velocityZonal'</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">ds2</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
+            <span class="p">):</span>
+                <span class="n">plt</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+                <span class="k">continue</span>
+            <span class="n">u_diff</span> <span class="o">=</span> <span class="n">ds2</span><span class="p">[</span><span class="s1">'velocityZonal'</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="s1">'nCells'</span><span class="p">)</span> <span class="o">-</span> <span class="n">ds1</span><span class="p">[</span>
+                <span class="s1">'velocityZonal'</span>
+            <span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="s1">'nCells'</span><span class="p">)</span>
+            <span class="n">z</span> <span class="o">=</span> <span class="n">vertical_coord_from_location</span><span class="p">(</span>
+                <span class="n">ds2</span><span class="p">,</span>
+                <span class="n">location_for_field</span><span class="p">(</span><span class="n">u_diff</span><span class="p">),</span>
+                <span class="n">allow_reconstruct</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                <span class="n">ds_vert</span><span class="o">=</span><span class="n">ds_vert</span><span class="p">,</span>
+            <span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="s1">'nCells'</span><span class="p">)</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span>
+                <span class="n">u_diff</span><span class="p">,</span>
+                <span class="n">z</span><span class="p">,</span>
+                <span class="s1">'-'</span><span class="p">,</span>
+                <span class="n">color</span><span class="o">=</span><span class="s1">'b'</span><span class="p">,</span>
+                <span class="n">label</span><span class="o">=</span><span class="sa">f</span><span class="s1">'u </span><span class="si">{</span><span class="n">diff_label</span><span class="si">}</span><span class="s1">'</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="n">_add_visible_limits</span><span class="p">(</span><span class="n">x_limits</span><span class="p">,</span> <span class="n">u_diff</span><span class="p">,</span> <span class="n">z</span><span class="p">,</span> <span class="n">ymin</span><span class="p">,</span> <span class="n">ymax</span><span class="p">)</span>
+            <span class="n">v_diff</span> <span class="o">=</span> <span class="n">ds2</span><span class="p">[</span><span class="s1">'velocityMeridional'</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="s1">'nCells'</span><span class="p">)</span> <span class="o">-</span> <span class="n">ds1</span><span class="p">[</span>
+                <span class="s1">'velocityMeridional'</span>
+            <span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="s1">'nCells'</span><span class="p">)</span>
+            <span class="n">z</span> <span class="o">=</span> <span class="n">vertical_coord_from_location</span><span class="p">(</span>
+                <span class="n">ds2</span><span class="p">,</span>
+                <span class="n">location_for_field</span><span class="p">(</span><span class="n">v_diff</span><span class="p">),</span>
+                <span class="n">allow_reconstruct</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                <span class="n">ds_vert</span><span class="o">=</span><span class="n">ds_vert</span><span class="p">,</span>
+            <span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="s1">'nCells'</span><span class="p">)</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span>
+                <span class="n">v_diff</span><span class="p">,</span>
+                <span class="n">z</span><span class="p">,</span>
+                <span class="s1">'--'</span><span class="p">,</span>
+                <span class="n">color</span><span class="o">=</span><span class="s1">'b'</span><span class="p">,</span>
+                <span class="n">label</span><span class="o">=</span><span class="sa">f</span><span class="s1">'v </span><span class="si">{</span><span class="n">diff_label</span><span class="si">}</span><span class="s1">'</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="n">_add_visible_limits</span><span class="p">(</span><span class="n">x_limits</span><span class="p">,</span> <span class="n">v_diff</span><span class="p">,</span> <span class="n">z</span><span class="p">,</span> <span class="n">ymin</span><span class="p">,</span> <span class="n">ymax</span><span class="p">)</span>
+            <span class="n">curves_plotted</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">field_name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">ds1</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span> <span class="ow">or</span> <span class="n">field_name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">ds2</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+                <span class="n">plt</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+                <span class="k">continue</span>
+            <span class="n">var_diff</span> <span class="o">=</span> <span class="n">ds2</span><span class="p">[</span><span class="n">field_name</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="s1">'nCells'</span><span class="p">)</span> <span class="o">-</span> <span class="n">ds1</span><span class="p">[</span>
+                <span class="n">field_name</span>
+            <span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="s1">'nCells'</span><span class="p">)</span>
+            <span class="n">z</span> <span class="o">=</span> <span class="n">vertical_coord_from_location</span><span class="p">(</span>
+                <span class="n">ds2</span><span class="p">,</span>
+                <span class="n">location_for_field</span><span class="p">(</span><span class="n">var_diff</span><span class="p">,</span> <span class="n">field_name</span><span class="p">),</span>
+                <span class="n">allow_reconstruct</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                <span class="n">ds_vert</span><span class="o">=</span><span class="n">ds_vert</span><span class="p">,</span>
+            <span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="s1">'nCells'</span><span class="p">)</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span>
+                <span class="n">var_diff</span><span class="p">,</span>
+                <span class="n">z</span><span class="p">,</span>
+                <span class="s1">'-'</span><span class="p">,</span>
+                <span class="n">color</span><span class="o">=</span><span class="s1">'b'</span><span class="p">,</span>
+                <span class="n">label</span><span class="o">=</span><span class="n">diff_label</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="n">_add_visible_limits</span><span class="p">(</span><span class="n">x_limits</span><span class="p">,</span> <span class="n">var_diff</span><span class="p">,</span> <span class="n">z</span><span class="p">,</span> <span class="n">ymin</span><span class="p">,</span> <span class="n">ymax</span><span class="p">)</span>
+            <span class="n">curves_plotted</span> <span class="o">+=</span> <span class="mi">1</span>
+
+        <span class="k">if</span> <span class="n">curves_plotted</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+            <span class="k">continue</span>
+
+        <span class="n">_finalize_plot</span><span class="p">(</span>
+            <span class="n">fig</span><span class="p">,</span>
+            <span class="n">field_name</span><span class="p">,</span>
+            <span class="n">field_units</span><span class="p">,</span>
+            <span class="n">ymin</span><span class="p">,</span>
+            <span class="n">ymax</span><span class="p">,</span>
+            <span class="n">x_limits</span><span class="p">,</span>
+            <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">field_name</span><span class="si">}</span><span class="s1">_diff.png'</span><span class="p">,</span>
+            <span class="n">is_diff</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_finalize_plot</span><span class="p">(</span>
+    <span class="n">fig</span><span class="p">,</span>
+    <span class="n">field_name</span><span class="p">,</span>
+    <span class="n">field_units</span><span class="p">,</span>
+    <span class="n">ymin</span><span class="p">,</span>
+    <span class="n">ymax</span><span class="p">,</span>
+    <span class="n">x_limits</span><span class="p">,</span>
+    <span class="n">filename</span><span class="p">,</span>
+    <span class="n">is_diff</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">"""Set axis limits, labels, legend, and save figure."""</span>
+    <span class="k">if</span> <span class="n">is_diff</span><span class="p">:</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">axvline</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">'k'</span><span class="p">,</span> <span class="n">linestyle</span><span class="o">=</span><span class="s1">':'</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mf">0.8</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">ylim</span><span class="p">(</span><span class="n">ymin</span><span class="p">,</span> <span class="n">ymax</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">x_limits</span><span class="p">:</span>
+        <span class="n">x_min</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">limits</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">limits</span> <span class="ow">in</span> <span class="n">x_limits</span><span class="p">)</span>
+        <span class="n">x_max</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">limits</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="k">for</span> <span class="n">limits</span> <span class="ow">in</span> <span class="n">x_limits</span><span class="p">)</span>
+        <span class="n">x_margin</span> <span class="o">=</span> <span class="p">(</span><span class="n">x_max</span> <span class="o">-</span> <span class="n">x_min</span><span class="p">)</span> <span class="o">*</span> <span class="mf">0.05</span>
+        <span class="k">if</span> <span class="n">x_margin</span> <span class="o">==</span> <span class="mf">0.0</span><span class="p">:</span>
+            <span class="c1"># the field is constant over the visible depths, so</span>
+            <span class="c1"># fall back to a margin that does not collapse the</span>
+            <span class="c1"># axis to a single value</span>
+            <span class="n">x_margin</span> <span class="o">=</span> <span class="mf">0.05</span> <span class="o">*</span> <span class="nb">max</span><span class="p">(</span><span class="nb">abs</span><span class="p">(</span><span class="n">x_min</span><span class="p">),</span> <span class="mf">1.0</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">xlim</span><span class="p">(</span><span class="n">x_min</span> <span class="o">-</span> <span class="n">x_margin</span><span class="p">,</span> <span class="n">x_max</span> <span class="o">+</span> <span class="n">x_margin</span><span class="p">)</span>
+    <span class="n">unit_str</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">' (</span><span class="si">{</span><span class="n">field_units</span><span class="si">}</span><span class="s1">)'</span> <span class="k">if</span> <span class="n">field_units</span> <span class="k">else</span> <span class="s1">''</span>
+    <span class="n">label</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">field_name</span><span class="si">}</span><span class="s1"> difference</span><span class="si">{</span><span class="n">unit_str</span><span class="si">}</span><span class="s1">'</span>
+        <span class="k">if</span> <span class="n">is_diff</span>
+        <span class="k">else</span> <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">field_name</span><span class="si">}{</span><span class="n">unit_str</span><span class="si">}</span><span class="s1">'</span>
+    <span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="n">label</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s1">'z (m)'</span><span class="p">)</span>
+    <span class="c1"># Place a single legend centered below the x-axis</span>
+    <span class="n">fig</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span>
+        <span class="n">loc</span><span class="o">=</span><span class="s1">'upper center'</span><span class="p">,</span>
+        <span class="n">bbox_to_anchor</span><span class="o">=</span><span class="p">(</span><span class="mf">0.5</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.08</span><span class="p">),</span>
+        <span class="n">ncol</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+        <span class="n">frameon</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">bbox_inches</span><span class="o">=</span><span class="s1">'tight'</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_add_visible_limits</span><span class="p">(</span><span class="n">x_limits</span><span class="p">,</span> <span class="n">var</span><span class="p">,</span> <span class="n">z</span><span class="p">,</span> <span class="n">ymin</span><span class="p">,</span> <span class="n">ymax</span><span class="p">):</span>

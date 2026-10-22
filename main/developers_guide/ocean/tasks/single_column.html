@@ -97,6 +97,7 @@
 <li class="toctree-l4"><a class="reference internal" href="#inertial">inertial</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#kpp-regimes">KPP regimes</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#thermo">thermo</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#shortwave-pen">shortwave_pen</a></li>
 </ul>
 </li>
 </ul>
@@ -168,6 +169,9 @@ the vertical dynamics of the ocean model only. The test cases are:</p>
 <li><p>Testing the Ekman solution under wind forcing</p></li>
 <li><p>Testing KPP boundary-layer regimes; see
 <a class="reference internal" href="#dev-ocean-single-column-kpp"><span class="std std-ref">KPP regimes</span></a>.</p></li>
+<li><p>Comparing Omega’s penetrating-shortwave-radiation scheme against
+surface-absorbed shortwave heating</p></li>
+<li><p>Comparing penetrating-shortwave-radiation schemes across Jerlov water types</p></li>
 </ul>
 <p>Here, we describe the tests and their shared framework.</p>
 <section id="framework">
@@ -545,6 +549,62 @@ salinity flux.</p></li>
 also carry an SST-/freezing-point-dependent enthalpy heat flux, the heat
 budget is skipped for those runs.  For MPAS-Ocean (Boussinesq), which has no
 pseudo-thickness, the geometric <code class="docutils literal notranslate"><span class="pre">layerThickness</span></code> is used instead.</p>
+</section>
+</section>
+<section id="shortwave-pen">
+<h2>shortwave_pen<a class="headerlink" href="#shortwave-pen" title="Link to this heading"></a></h2>
+<p>The <a class="reference internal" href="../generated/polaris.tasks.ocean.single_column.shortwave_pen.ShortwavePen.html#polaris.tasks.ocean.single_column.shortwave_pen.ShortwavePen" title="polaris.tasks.ocean.single_column.shortwave_pen.ShortwavePen"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.tasks.ocean.single_column.shortwave_pen.ShortwavePen</span></code></a>
+task compares penetrating shortwave radiation across Jerlov water types. It
+supports both MPAS-Ocean and Omega. MPAS-Ocean uses its two-band Jerlov
+scheme. Omega runs an equivalent configuration and a three-band Manizza
+configuration with distinct red and blue extinction coefficients.</p>
+<section id="extinction">
+<h3>extinction<a class="headerlink" href="#extinction" title="Link to this heading"></a></h3>
+<p>The
+<a class="reference internal" href="../generated/polaris.tasks.ocean.single_column.shortwave_pen.extinction.Extinction.html#polaris.tasks.ocean.single_column.shortwave_pen.extinction.Extinction" title="polaris.tasks.ocean.single_column.shortwave_pen.extinction.Extinction"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.tasks.ocean.single_column.shortwave_pen.extinction.Extinction</span></code></a>
+step is the helper step that builds the extinction-coefficient forcing file,
+<code class="docutils literal notranslate"><span class="pre">shortwave_extinction_coeffs.nc</span></code>, read by Omega’s penetrating-shortwave
+scheme. It writes uniform <code class="docutils literal notranslate"><span class="pre">ExtinctionCoeffRedCell</span></code> and
+<code class="docutils literal notranslate"><span class="pre">ExtinctionCoeffBlueCell</span></code> fields. The type-I coefficients are taken from
+<code class="docutils literal notranslate"><span class="pre">single_column_shortwave_pen:extinction_coeff_red</span></code> and
+<code class="docutils literal notranslate"><span class="pre">single_column_shortwave_pen:extinction_coeff_blue</span></code>; other water types scale
+both coefficients by the Jerlov visible-depth ratio.</p>
+</section>
+<section id="id2">
+<h3>forward<a class="headerlink" href="#id2" title="Link to this heading"></a></h3>
+<p>The
+<a class="reference internal" href="../generated/polaris.tasks.ocean.single_column.shortwave_pen.forward.ShortwavePenForward.html#polaris.tasks.ocean.single_column.shortwave_pen.forward.ShortwavePenForward" title="polaris.tasks.ocean.single_column.shortwave_pen.forward.ShortwavePenForward"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.tasks.ocean.single_column.shortwave_pen.forward.ShortwavePenForward</span></code></a>
+step subclasses
+<a class="reference internal" href="../generated/polaris.tasks.ocean.single_column.forward.Forward.html#polaris.tasks.ocean.single_column.forward.Forward" title="polaris.tasks.ocean.single_column.forward.Forward"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.tasks.ocean.single_column.forward.Forward</span></code></a>. Jerlov steps
+configure <code class="docutils literal notranslate"><span class="pre">config_sw_absorption_type</span> <span class="pre">=</span> <span class="pre">'jerlov'</span></code> and
+<code class="docutils literal notranslate"><span class="pre">config_jerlov_water_type</span></code> for MPAS-Ocean. For Omega they enable
+<code class="docutils literal notranslate"><span class="pre">Tendencies:PenetratingShortwaveTendency:Enable</span></code> and set the four band
+parameters. MPAS-Ocean also enables
+<code class="docutils literal notranslate"><span class="pre">config_enable_shortwave_energy_fixer</span></code> to deposit the residual below the 200 m
+cutoff in the bottom layer. Every forward step disables
+<code class="docutils literal notranslate"><span class="pre">config_use_cvmix_convection</span></code> and <code class="docutils literal notranslate"><span class="pre">config_use_cvmix_shear</span></code> to isolate radiative
+heating, and the task runs for 3 hours rather than the usual multi-day
+duration.</p>
+</section>
+<section id="id3">
+<h3>analysis<a class="headerlink" href="#id3" title="Link to this heading"></a></h3>
+<p>The
+<a class="reference internal" href="../generated/polaris.tasks.ocean.single_column.shortwave_pen.analysis.Analysis.html#polaris.tasks.ocean.single_column.shortwave_pen.analysis.Analysis" title="polaris.tasks.ocean.single_column.shortwave_pen.analysis.Analysis"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.tasks.ocean.single_column.shortwave_pen.analysis.Analysis</span></code></a>
+step reads the Jerlov-equivalent outputs and checks that the column
+potential-energy increase decreases as the water becomes more turbid. Energy
+conservation itself is provided by the property checks registered by the
+shared <code class="docutils literal notranslate"><span class="pre">Forward</span></code> step, which use
+<a class="reference internal" href="../generated/polaris.ocean.conservation.compute_total_energy.html#polaris.ocean.conservation.compute_total_energy" title="polaris.ocean.conservation.compute_total_energy"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.ocean.conservation.compute_total_energy()</span></code></a> and
+<code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.ocean.conservation.compute_flux_forcing()</span></code>.</p>
+</section>
+<section id="id4">
+<h3>viz<a class="headerlink" href="#id4" title="Link to this heading"></a></h3>
+<p>The task-local
+<a class="reference internal" href="../generated/polaris.tasks.ocean.single_column.shortwave_pen.viz.Viz.html#polaris.tasks.ocean.single_column.shortwave_pen.viz.Viz" title="polaris.tasks.ocean.single_column.shortwave_pen.viz.Viz"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.tasks.ocean.single_column.shortwave_pen.viz.Viz</span></code></a>
+step plots temperature profiles and anomalies for every water type, and an
+analytic absorption-fraction comparison between the two-band Jerlov and
+three-band Manizza schemes. It can overlay outputs from a run using the other
+ocean model when <code class="docutils literal notranslate"><span class="pre">reference_output_dir</span></code> is configured.</p>
 </section>
 </section>
 </section>

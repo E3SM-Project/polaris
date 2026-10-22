@@ -1,0 +1,70 @@
+﻿polaris.tasks.ocean.single\_column.shortwave\_pen.extinction.Extinction
+=======================================================================
+
+.. currentmodule:: polaris.tasks.ocean.single_column.shortwave_pen.extinction
+
+.. autoclass:: Extinction
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~Extinction.__init__
+      ~Extinction.add_cf_check
+      ~Extinction.add_dependency
+      ~Extinction.add_horiz_mesh_input_file
+      ~Extinction.add_init_input_file
+      ~Extinction.add_input_file
+      ~Extinction.add_output_file
+      ~Extinction.add_output_files_for_ocean_model_input
+      ~Extinction.add_produced_file
+      ~Extinction.add_property_check
+      ~Extinction.add_vert_coord_input_file
+      ~Extinction.check_cf
+      ~Extinction.check_properties
+      ~Extinction.constrain_resources
+      ~Extinction.get_forcing_filename
+      ~Extinction.get_horiz_mesh_filename
+      ~Extinction.get_init_filename
+      ~Extinction.get_vert_coord_filename
+      ~Extinction.map_from_native_model_vars
+      ~Extinction.map_to_native_model_vars
+      ~Extinction.open_model_dataset
+      ~Extinction.open_vert_coord_dataset
+      ~Extinction.process_inputs_and_outputs
+      ~Extinction.run
+      ~Extinction.runtime_setup
+      ~Extinction.set_resources
+      ~Extinction.set_shared_config
+      ~Extinction.setup
+      ~Extinction.validate_baselines
+      ~Extinction.work_path
+      ~Extinction.write_forcing_dataset
+      ~Extinction.write_horiz_mesh_dataset
+      ~Extinction.write_initial_state_dataset
+      ~Extinction.write_model_dataset
+      ~Extinction.write_vert_coord_dataset
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~Extinction.cores
+      ~Extinction.gpus
+      ~Extinction.may_span_nodes
+      ~Extinction.min_cores
+      ~Extinction.min_gpus
+      ~Extinction.component
+      ~Extinction.config
+      ~Extinction.input_data
+      ~Extinction.logger
+   
+   
