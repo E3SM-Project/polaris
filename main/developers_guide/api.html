@@ -123,6 +123,15 @@
 <li class="toctree-l4"><a class="reference internal" href="generated/polaris.baselines.check_build.html">polaris.baselines.check_build</a></li>
 </ul>
 </li>
+<li class="toctree-l3"><a class="reference internal" href="#cf">cf</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="generated/polaris.cf.add_cf_conventions.html">polaris.cf.add_cf_conventions</a></li>
+<li class="toctree-l4"><a class="reference internal" href="generated/polaris.cf.add_lat_lon_attrs.html">polaris.cf.add_lat_lon_attrs</a></li>
+<li class="toctree-l4"><a class="reference internal" href="generated/polaris.cf.add_var_attrs.html">polaris.cf.add_var_attrs</a></li>
+<li class="toctree-l4"><a class="reference internal" href="generated/polaris.cf.drop_dangling_references.html">polaris.cf.drop_dangling_references</a></li>
+<li class="toctree-l4"><a class="reference internal" href="generated/polaris.cf.drop_inherited_attrs.html">polaris.cf.drop_inherited_attrs</a></li>
+<li class="toctree-l4"><a class="reference internal" href="generated/polaris.cf.read_var_attrs.html">polaris.cf.read_var_attrs</a></li>
+</ul>
+</li>
 <li class="toctree-l3"><a class="reference internal" href="#cf-check">cf_check</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="generated/polaris.cf_check.add_cf_tables.html">polaris.cf_check.add_cf_tables</a></li>
 <li class="toctree-l4"><a class="reference internal" href="generated/polaris.cf_check.resolve_cf_check_files.html">polaris.cf_check.resolve_cf_check_files</a></li>
@@ -174,6 +183,7 @@
 <li class="toctree-l3"><a class="reference internal" href="#mesh">mesh</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="generated/polaris.mesh.info.is_planar.html">polaris.mesh.info.is_planar</a></li>
 <li class="toctree-l4"><a class="reference internal" href="generated/polaris.mesh.info.is_spherical.html">polaris.mesh.info.is_spherical</a></li>
+<li class="toctree-l4"><a class="reference internal" href="generated/polaris.mesh.attrs.add_mesh_var_attrs.html">polaris.mesh.attrs.add_mesh_var_attrs</a></li>
 <li class="toctree-l4"><a class="reference internal" href="generated/polaris.mesh.planar.compute_planar_hex_nx_ny.html">polaris.mesh.planar.compute_planar_hex_nx_ny</a></li>
 <li class="toctree-l4"><a class="reference internal" href="generated/polaris.mesh.connectivity.active_edge_masks.html">polaris.mesh.connectivity.active_edge_masks</a></li>
 <li class="toctree-l4"><a class="reference internal" href="generated/polaris.mesh.connectivity.count_active_edges.html">polaris.mesh.connectivity.count_active_edges</a></li>
@@ -878,6 +888,31 @@ documentation.</p>
 </tbody>
 </table>
 </section>
+<section id="cf">
+<h3>cf<a class="headerlink" href="#cf" title="Link to this heading"></a></h3>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.cf.add_cf_conventions.html#polaris.cf.add_cf_conventions" title="polaris.cf.add_cf_conventions"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_cf_conventions</span></code></a>(ds)</p></td>
+<td><p>Add <code class="docutils literal notranslate"><span class="pre">CF-&lt;version&gt;</span></code> to the <code class="docutils literal notranslate"><span class="pre">Conventions</span></code> global attribute of a dataset that has no CF entry.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.cf.add_lat_lon_attrs.html#polaris.cf.add_lat_lon_attrs" title="polaris.cf.add_lat_lon_attrs"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_lat_lon_attrs</span></code></a>(ds)</p></td>
+<td><p>Fill in <code class="docutils literal notranslate"><span class="pre">long_name</span></code>, <code class="docutils literal notranslate"><span class="pre">standard_name</span></code> and <code class="docutils literal notranslate"><span class="pre">units</span></code> for the <code class="docutils literal notranslate"><span class="pre">lat</span></code> and <code class="docutils literal notranslate"><span class="pre">lon</span></code> coordinates of a dataset on a regular latitude-longitude grid, without changing any attribute they already have.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.cf.add_var_attrs.html#polaris.cf.add_var_attrs" title="polaris.cf.add_var_attrs"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_var_attrs</span></code></a>(ds, var_attrs)</p></td>
+<td><p>Fill in attributes (<code class="docutils literal notranslate"><span class="pre">units</span></code>, <code class="docutils literal notranslate"><span class="pre">long_name</span></code>, ...) for the variables of a dataset from a table, without changing any attribute a variable already has.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.cf.drop_dangling_references.html#polaris.cf.drop_dangling_references" title="polaris.cf.drop_dangling_references"><code class="xref py py-obj docutils literal notranslate"><span class="pre">drop_dangling_references</span></code></a>(ds)</p></td>
+<td><p>Drop each attribute that names a variable the dataset does not have.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.cf.drop_inherited_attrs.html#polaris.cf.drop_inherited_attrs" title="polaris.cf.drop_inherited_attrs"><code class="xref py py-obj docutils literal notranslate"><span class="pre">drop_inherited_attrs</span></code></a>(ds, names)</p></td>
+<td><p>Clear the attributes of each named variable whose attributes are identical to another variable's.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.cf.read_var_attrs.html#polaris.cf.read_var_attrs" title="polaris.cf.read_var_attrs"><code class="xref py py-obj docutils literal notranslate"><span class="pre">read_var_attrs</span></code></a>(package, filename)</p></td>
+<td><p>Read a table of variable attributes from a YAML file in a package.</p></td>
+</tr>
+</tbody>
+</table>
+</section>
 <section id="cf-check">
 <h3>cf_check<a class="headerlink" href="#cf-check" title="Link to this heading"></a></h3>
 <table class="autosummary longtable docutils align-default">
@@ -1032,103 +1067,106 @@ documentation.</p>
 <tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.mesh.info.is_spherical.html#polaris.mesh.info.is_spherical" title="polaris.mesh.info.is_spherical"><code class="xref py py-obj docutils literal notranslate"><span class="pre">info.is_spherical</span></code></a>(ds[, default])</p></td>
 <td><p>Whether an MPAS mesh is on a sphere, based on the <code class="docutils literal notranslate"><span class="pre">on_a_sphere</span></code> global attribute of <code class="docutils literal notranslate"><span class="pre">ds</span></code></p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.mesh.planar.compute_planar_hex_nx_ny.html#polaris.mesh.planar.compute_planar_hex_nx_ny" title="polaris.mesh.planar.compute_planar_hex_nx_ny"><code class="xref py py-obj docutils literal notranslate"><span class="pre">planar.compute_planar_hex_nx_ny</span></code></a>(lx, ly, ...)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.mesh.attrs.add_mesh_var_attrs.html#polaris.mesh.attrs.add_mesh_var_attrs" title="polaris.mesh.attrs.add_mesh_var_attrs"><code class="xref py py-obj docutils literal notranslate"><span class="pre">attrs.add_mesh_var_attrs</span></code></a>(ds)</p></td>
+<td><p>Fill in the <code class="docutils literal notranslate"><span class="pre">units</span></code> and <code class="docutils literal notranslate"><span class="pre">long_name</span></code> attributes of the MPAS mesh variables in a dataset, for those that do not already have them.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.mesh.planar.compute_planar_hex_nx_ny.html#polaris.mesh.planar.compute_planar_hex_nx_ny" title="polaris.mesh.planar.compute_planar_hex_nx_ny"><code class="xref py py-obj docutils literal notranslate"><span class="pre">planar.compute_planar_hex_nx_ny</span></code></a>(lx, ly, ...)</p></td>
 <td><p>Compute number of grid cells in each direction for the uniform, hexagonal planar mesh with the given physical sizes and resolution.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.mesh.connectivity.active_edge_masks.html#polaris.mesh.connectivity.active_edge_masks" title="polaris.mesh.connectivity.active_edge_masks"><code class="xref py py-obj docutils literal notranslate"><span class="pre">connectivity.active_edge_masks</span></code></a>(ds_mesh, ...)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.mesh.connectivity.active_edge_masks.html#polaris.mesh.connectivity.active_edge_masks" title="polaris.mesh.connectivity.active_edge_masks"><code class="xref py py-obj docutils literal notranslate"><span class="pre">connectivity.active_edge_masks</span></code></a>(ds_mesh, ...)</p></td>
 <td><p>Find, for each local edge of each cell, whether the neighboring cell across that edge and across the next and previous edges around the same cell belong to the domain.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.mesh.connectivity.count_active_edges.html#polaris.mesh.connectivity.count_active_edges" title="polaris.mesh.connectivity.count_active_edges"><code class="xref py py-obj docutils literal notranslate"><span class="pre">connectivity.count_active_edges</span></code></a>(ds_mesh, ...)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.mesh.connectivity.count_active_edges.html#polaris.mesh.connectivity.count_active_edges" title="polaris.mesh.connectivity.count_active_edges"><code class="xref py py-obj docutils literal notranslate"><span class="pre">connectivity.count_active_edges</span></code></a>(ds_mesh, ...)</p></td>
 <td><p>Count the active edges of each cell.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.mesh.connectivity.has_active_vertex.html#polaris.mesh.connectivity.has_active_vertex" title="polaris.mesh.connectivity.has_active_vertex"><code class="xref py py-obj docutils literal notranslate"><span class="pre">connectivity.has_active_vertex</span></code></a>(ds_mesh, ...)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.mesh.connectivity.has_active_vertex.html#polaris.mesh.connectivity.has_active_vertex" title="polaris.mesh.connectivity.has_active_vertex"><code class="xref py py-obj docutils literal notranslate"><span class="pre">connectivity.has_active_vertex</span></code></a>(ds_mesh, ...)</p></td>
 <td><p>Find the cells with at least one active vertex, meaning a vertex all of whose surrounding cells are in the domain.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.mesh.connectivity.transport_link_mask.html#polaris.mesh.connectivity.transport_link_mask" title="polaris.mesh.connectivity.transport_link_mask"><code class="xref py py-obj docutils literal notranslate"><span class="pre">connectivity.transport_link_mask</span></code></a>(ds_mesh, ...)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.mesh.connectivity.transport_link_mask.html#polaris.mesh.connectivity.transport_link_mask" title="polaris.mesh.connectivity.transport_link_mask"><code class="xref py py-obj docutils literal notranslate"><span class="pre">connectivity.transport_link_mask</span></code></a>(ds_mesh, ...)</p></td>
 <td><p>Find the active edges across which a B-grid can move sea ice.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.mesh.connectivity.connected_to_seeds.html#polaris.mesh.connectivity.connected_to_seeds" title="polaris.mesh.connectivity.connected_to_seeds"><code class="xref py py-obj docutils literal notranslate"><span class="pre">connectivity.connected_to_seeds</span></code></a>(ds_mesh, ...)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.mesh.connectivity.connected_to_seeds.html#polaris.mesh.connectivity.connected_to_seeds" title="polaris.mesh.connectivity.connected_to_seeds"><code class="xref py py-obj docutils literal notranslate"><span class="pre">connectivity.connected_to_seeds</span></code></a>(ds_mesh, ...)</p></td>
 <td><p>Find the cells of the domain that are connected to at least one seed cell.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.mesh.connectivity.seed_mask_from_points.html#polaris.mesh.connectivity.seed_mask_from_points" title="polaris.mesh.connectivity.seed_mask_from_points"><code class="xref py py-obj docutils literal notranslate"><span class="pre">connectivity.seed_mask_from_points</span></code></a>(ds_mesh, ...)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.mesh.connectivity.seed_mask_from_points.html#polaris.mesh.connectivity.seed_mask_from_points" title="polaris.mesh.connectivity.seed_mask_from_points"><code class="xref py py-obj docutils literal notranslate"><span class="pre">connectivity.seed_mask_from_points</span></code></a>(ds_mesh, ...)</p></td>
 <td><p>Find the cells nearest to a set of seed points.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.mesh.vector.get_coordinate_matrix.html#polaris.mesh.vector.get_coordinate_matrix" title="polaris.mesh.vector.get_coordinate_matrix"><code class="xref py py-obj docutils literal notranslate"><span class="pre">vector.get_coordinate_matrix</span></code></a>(ds[, location])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.mesh.vector.get_coordinate_matrix.html#polaris.mesh.vector.get_coordinate_matrix" title="polaris.mesh.vector.get_coordinate_matrix"><code class="xref py py-obj docutils literal notranslate"><span class="pre">vector.get_coordinate_matrix</span></code></a>(ds[, location])</p></td>
 <td><p>Get the Cartesian coordinates of the mesh elements at a given location as a single array</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.mesh.vector.compute_edge_normal_vec.html#polaris.mesh.vector.compute_edge_normal_vec" title="polaris.mesh.vector.compute_edge_normal_vec"><code class="xref py py-obj docutils literal notranslate"><span class="pre">vector.compute_edge_normal_vec</span></code></a>(ds)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.mesh.vector.compute_edge_normal_vec.html#polaris.mesh.vector.compute_edge_normal_vec" title="polaris.mesh.vector.compute_edge_normal_vec"><code class="xref py py-obj docutils literal notranslate"><span class="pre">vector.compute_edge_normal_vec</span></code></a>(ds)</p></td>
 <td><p>Compute the normal vector for each edge in a mesh</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.mesh.reconstruct.compute_reconstruction_weights.html#polaris.mesh.reconstruct.compute_reconstruction_weights" title="polaris.mesh.reconstruct.compute_reconstruction_weights"><code class="xref py py-obj docutils literal notranslate"><span class="pre">reconstruct.compute_reconstruction_weights</span></code></a>(ds)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.mesh.reconstruct.compute_reconstruction_weights.html#polaris.mesh.reconstruct.compute_reconstruction_weights" title="polaris.mesh.reconstruct.compute_reconstruction_weights"><code class="xref py py-obj docutils literal notranslate"><span class="pre">reconstruct.compute_reconstruction_weights</span></code></a>(ds)</p></td>
 <td><p>Compute the weights and stencil indices needed for reconstruction a edge normal vector field at cell or vertex centers</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.mesh.reconstruct.add_reconstruction_weights_to_dataset.html#polaris.mesh.reconstruct.add_reconstruction_weights_to_dataset" title="polaris.mesh.reconstruct.add_reconstruction_weights_to_dataset"><code class="xref py py-obj docutils literal notranslate"><span class="pre">reconstruct.add_reconstruction_weights_to_dataset</span></code></a>(ds_mesh)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.mesh.reconstruct.add_reconstruction_weights_to_dataset.html#polaris.mesh.reconstruct.add_reconstruction_weights_to_dataset" title="polaris.mesh.reconstruct.add_reconstruction_weights_to_dataset"><code class="xref py py-obj docutils literal notranslate"><span class="pre">reconstruct.add_reconstruction_weights_to_dataset</span></code></a>(ds_mesh)</p></td>
 <td><p>Add vector-reconstruction stencil and weight fields to a mesh dataset.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.mesh.reconstruct.tangential_reconstruction.html#polaris.mesh.reconstruct.tangential_reconstruction" title="polaris.mesh.reconstruct.tangential_reconstruction"><code class="xref py py-obj docutils literal notranslate"><span class="pre">reconstruct.tangential_reconstruction</span></code></a>(ds, ...)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.mesh.reconstruct.tangential_reconstruction.html#polaris.mesh.reconstruct.tangential_reconstruction" title="polaris.mesh.reconstruct.tangential_reconstruction"><code class="xref py py-obj docutils literal notranslate"><span class="pre">reconstruct.tangential_reconstruction</span></code></a>(ds, ...)</p></td>
 <td><p>Reconstruct a tangential vector field from an edge-normal vector field.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.mesh.reconstruct.cartesian_to_local_geographic.html#polaris.mesh.reconstruct.cartesian_to_local_geographic" title="polaris.mesh.reconstruct.cartesian_to_local_geographic"><code class="xref py py-obj docutils literal notranslate"><span class="pre">reconstruct.cartesian_to_local_geographic</span></code></a>(ds, ...)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.mesh.reconstruct.cartesian_to_local_geographic.html#polaris.mesh.reconstruct.cartesian_to_local_geographic" title="polaris.mesh.reconstruct.cartesian_to_local_geographic"><code class="xref py py-obj docutils literal notranslate"><span class="pre">reconstruct.cartesian_to_local_geographic</span></code></a>(ds, ...)</p></td>
 <td><p>Convert a vector field from Cartesian coordinates to local geographic coordinates (zonal, meridional, radial) at the reconstruction point.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.mesh.reconstruct.get_reconstruction_validate_vars.html#polaris.mesh.reconstruct.get_reconstruction_validate_vars" title="polaris.mesh.reconstruct.get_reconstruction_validate_vars"><code class="xref py py-obj docutils literal notranslate"><span class="pre">reconstruct.get_reconstruction_validate_vars</span></code></a>([...])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.mesh.reconstruct.get_reconstruction_validate_vars.html#polaris.mesh.reconstruct.get_reconstruction_validate_vars" title="polaris.mesh.reconstruct.get_reconstruction_validate_vars"><code class="xref py py-obj docutils literal notranslate"><span class="pre">reconstruct.get_reconstruction_validate_vars</span></code></a>([...])</p></td>
 <td><p>Get the variables in a reconstruction-weights file that should be compared against a baseline</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.mesh.validate.MPAS_MESH_VALIDATE_VARS.html#polaris.mesh.validate.MPAS_MESH_VALIDATE_VARS" title="polaris.mesh.validate.MPAS_MESH_VALIDATE_VARS"><code class="xref py py-obj docutils literal notranslate"><span class="pre">validate.MPAS_MESH_VALIDATE_VARS</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.mesh.validate.MPAS_MESH_VALIDATE_VARS.html#polaris.mesh.validate.MPAS_MESH_VALIDATE_VARS" title="polaris.mesh.validate.MPAS_MESH_VALIDATE_VARS"><code class="xref py py-obj docutils literal notranslate"><span class="pre">validate.MPAS_MESH_VALIDATE_VARS</span></code></a></p></td>
 <td><p>Variables in an MPAS mesh file to compare against a baseline.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.mesh.validate.CELL_WIDTH_VALIDATE_VARS.html#polaris.mesh.validate.CELL_WIDTH_VALIDATE_VARS" title="polaris.mesh.validate.CELL_WIDTH_VALIDATE_VARS"><code class="xref py py-obj docutils literal notranslate"><span class="pre">validate.CELL_WIDTH_VALIDATE_VARS</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.mesh.validate.CELL_WIDTH_VALIDATE_VARS.html#polaris.mesh.validate.CELL_WIDTH_VALIDATE_VARS" title="polaris.mesh.validate.CELL_WIDTH_VALIDATE_VARS"><code class="xref py py-obj docutils literal notranslate"><span class="pre">validate.CELL_WIDTH_VALIDATE_VARS</span></code></a></p></td>
 <td><p>Variables in a lon/lat cell-width file to compare against a baseline</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.mesh.spherical.SphericalBaseStep.html#polaris.mesh.spherical.SphericalBaseStep" title="polaris.mesh.spherical.SphericalBaseStep"><code class="xref py py-obj docutils literal notranslate"><span class="pre">spherical.SphericalBaseStep</span></code></a>(component, name, ...)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.mesh.spherical.SphericalBaseStep.html#polaris.mesh.spherical.SphericalBaseStep" title="polaris.mesh.spherical.SphericalBaseStep"><code class="xref py py-obj docutils literal notranslate"><span class="pre">spherical.SphericalBaseStep</span></code></a>(component, name, ...)</p></td>
 <td><p>A base class for steps that create a JIGSAW spherical mesh</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.mesh.spherical.SphericalBaseStep.setup.html#polaris.mesh.spherical.SphericalBaseStep.setup" title="polaris.mesh.spherical.SphericalBaseStep.setup"><code class="xref py py-obj docutils literal notranslate"><span class="pre">spherical.SphericalBaseStep.setup</span></code></a>()</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.mesh.spherical.SphericalBaseStep.setup.html#polaris.mesh.spherical.SphericalBaseStep.setup" title="polaris.mesh.spherical.SphericalBaseStep.setup"><code class="xref py py-obj docutils literal notranslate"><span class="pre">spherical.SphericalBaseStep.setup</span></code></a>()</p></td>
 <td><p>Add output files</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.mesh.spherical.SphericalBaseStep.run.html#polaris.mesh.spherical.SphericalBaseStep.run" title="polaris.mesh.spherical.SphericalBaseStep.run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">spherical.SphericalBaseStep.run</span></code></a>()</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.mesh.spherical.SphericalBaseStep.run.html#polaris.mesh.spherical.SphericalBaseStep.run" title="polaris.mesh.spherical.SphericalBaseStep.run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">spherical.SphericalBaseStep.run</span></code></a>()</p></td>
 <td><p>Finish up the step.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.mesh.spherical.SphericalBaseStep.save_and_plot_cell_width.html#polaris.mesh.spherical.SphericalBaseStep.save_and_plot_cell_width" title="polaris.mesh.spherical.SphericalBaseStep.save_and_plot_cell_width"><code class="xref py py-obj docutils literal notranslate"><span class="pre">spherical.SphericalBaseStep.save_and_plot_cell_width</span></code></a>(...)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.mesh.spherical.SphericalBaseStep.save_and_plot_cell_width.html#polaris.mesh.spherical.SphericalBaseStep.save_and_plot_cell_width" title="polaris.mesh.spherical.SphericalBaseStep.save_and_plot_cell_width"><code class="xref py py-obj docutils literal notranslate"><span class="pre">spherical.SphericalBaseStep.save_and_plot_cell_width</span></code></a>(...)</p></td>
 <td><p>Save the cell width field on a lon/lat grid to <code class="docutils literal notranslate"><span class="pre">self.cell_width_filename</span></code> and plot</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.mesh.QuasiUniformSphericalMeshStep.html#polaris.mesh.QuasiUniformSphericalMeshStep" title="polaris.mesh.QuasiUniformSphericalMeshStep"><code class="xref py py-obj docutils literal notranslate"><span class="pre">QuasiUniformSphericalMeshStep</span></code></a>(component[, ...])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.mesh.QuasiUniformSphericalMeshStep.html#polaris.mesh.QuasiUniformSphericalMeshStep" title="polaris.mesh.QuasiUniformSphericalMeshStep"><code class="xref py py-obj docutils literal notranslate"><span class="pre">QuasiUniformSphericalMeshStep</span></code></a>(component[, ...])</p></td>
 <td><p>A step for creating a quasi-uniform JIGSAW mesh with a constant approximate cell width.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.mesh.QuasiUniformSphericalMeshStep.setup.html#polaris.mesh.QuasiUniformSphericalMeshStep.setup" title="polaris.mesh.QuasiUniformSphericalMeshStep.setup"><code class="xref py py-obj docutils literal notranslate"><span class="pre">QuasiUniformSphericalMeshStep.setup</span></code></a>()</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.mesh.QuasiUniformSphericalMeshStep.setup.html#polaris.mesh.QuasiUniformSphericalMeshStep.setup" title="polaris.mesh.QuasiUniformSphericalMeshStep.setup"><code class="xref py py-obj docutils literal notranslate"><span class="pre">QuasiUniformSphericalMeshStep.setup</span></code></a>()</p></td>
 <td><p>Add JIGSAW options based on config options</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.mesh.QuasiUniformSphericalMeshStep.run.html#polaris.mesh.QuasiUniformSphericalMeshStep.run" title="polaris.mesh.QuasiUniformSphericalMeshStep.run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">QuasiUniformSphericalMeshStep.run</span></code></a>()</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.mesh.QuasiUniformSphericalMeshStep.run.html#polaris.mesh.QuasiUniformSphericalMeshStep.run" title="polaris.mesh.QuasiUniformSphericalMeshStep.run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">QuasiUniformSphericalMeshStep.run</span></code></a>()</p></td>
 <td><p>Run this step of the task</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.mesh.QuasiUniformSphericalMeshStep.build_cell_width_lat_lon.html#polaris.mesh.QuasiUniformSphericalMeshStep.build_cell_width_lat_lon" title="polaris.mesh.QuasiUniformSphericalMeshStep.build_cell_width_lat_lon"><code class="xref py py-obj docutils literal notranslate"><span class="pre">QuasiUniformSphericalMeshStep.build_cell_width_lat_lon</span></code></a>()</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.mesh.QuasiUniformSphericalMeshStep.build_cell_width_lat_lon.html#polaris.mesh.QuasiUniformSphericalMeshStep.build_cell_width_lat_lon" title="polaris.mesh.QuasiUniformSphericalMeshStep.build_cell_width_lat_lon"><code class="xref py py-obj docutils literal notranslate"><span class="pre">QuasiUniformSphericalMeshStep.build_cell_width_lat_lon</span></code></a>()</p></td>
 <td><p>A function for creating cell width array for this mesh on a regular latitude-longitude grid.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.mesh.QuasiUniformSphericalMeshStep.make_jigsaw_mesh.html#polaris.mesh.QuasiUniformSphericalMeshStep.make_jigsaw_mesh" title="polaris.mesh.QuasiUniformSphericalMeshStep.make_jigsaw_mesh"><code class="xref py py-obj docutils literal notranslate"><span class="pre">QuasiUniformSphericalMeshStep.make_jigsaw_mesh</span></code></a>(...)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.mesh.QuasiUniformSphericalMeshStep.make_jigsaw_mesh.html#polaris.mesh.QuasiUniformSphericalMeshStep.make_jigsaw_mesh" title="polaris.mesh.QuasiUniformSphericalMeshStep.make_jigsaw_mesh"><code class="xref py py-obj docutils literal notranslate"><span class="pre">QuasiUniformSphericalMeshStep.make_jigsaw_mesh</span></code></a>(...)</p></td>
 <td><p>Build the JIGSAW mesh.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.mesh.IcosahedralMeshStep.html#polaris.mesh.IcosahedralMeshStep" title="polaris.mesh.IcosahedralMeshStep"><code class="xref py py-obj docutils literal notranslate"><span class="pre">IcosahedralMeshStep</span></code></a>(component[, name, ...])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.mesh.IcosahedralMeshStep.html#polaris.mesh.IcosahedralMeshStep" title="polaris.mesh.IcosahedralMeshStep"><code class="xref py py-obj docutils literal notranslate"><span class="pre">IcosahedralMeshStep</span></code></a>(component[, name, ...])</p></td>
 <td><p>A step for creating an icosahedral JIGSAW mesh</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.mesh.IcosahedralMeshStep.setup.html#polaris.mesh.IcosahedralMeshStep.setup" title="polaris.mesh.IcosahedralMeshStep.setup"><code class="xref py py-obj docutils literal notranslate"><span class="pre">IcosahedralMeshStep.setup</span></code></a>()</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.mesh.IcosahedralMeshStep.setup.html#polaris.mesh.IcosahedralMeshStep.setup" title="polaris.mesh.IcosahedralMeshStep.setup"><code class="xref py py-obj docutils literal notranslate"><span class="pre">IcosahedralMeshStep.setup</span></code></a>()</p></td>
 <td><p>Add JIGSAW options based on config options</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.mesh.IcosahedralMeshStep.run.html#polaris.mesh.IcosahedralMeshStep.run" title="polaris.mesh.IcosahedralMeshStep.run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">IcosahedralMeshStep.run</span></code></a>()</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.mesh.IcosahedralMeshStep.run.html#polaris.mesh.IcosahedralMeshStep.run" title="polaris.mesh.IcosahedralMeshStep.run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">IcosahedralMeshStep.run</span></code></a>()</p></td>
 <td><p>Run this step of the task</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.mesh.IcosahedralMeshStep.make_jigsaw_mesh.html#polaris.mesh.IcosahedralMeshStep.make_jigsaw_mesh" title="polaris.mesh.IcosahedralMeshStep.make_jigsaw_mesh"><code class="xref py py-obj docutils literal notranslate"><span class="pre">IcosahedralMeshStep.make_jigsaw_mesh</span></code></a>(...)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.mesh.IcosahedralMeshStep.make_jigsaw_mesh.html#polaris.mesh.IcosahedralMeshStep.make_jigsaw_mesh" title="polaris.mesh.IcosahedralMeshStep.make_jigsaw_mesh"><code class="xref py py-obj docutils literal notranslate"><span class="pre">IcosahedralMeshStep.make_jigsaw_mesh</span></code></a>(...)</p></td>
 <td><p>Make the JIGSAW mesh.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.mesh.IcosahedralMeshStep.build_subdivisions_cell_width_lat_lon.html#polaris.mesh.IcosahedralMeshStep.build_subdivisions_cell_width_lat_lon" title="polaris.mesh.IcosahedralMeshStep.build_subdivisions_cell_width_lat_lon"><code class="xref py py-obj docutils literal notranslate"><span class="pre">IcosahedralMeshStep.build_subdivisions_cell_width_lat_lon</span></code></a>()</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.mesh.IcosahedralMeshStep.build_subdivisions_cell_width_lat_lon.html#polaris.mesh.IcosahedralMeshStep.build_subdivisions_cell_width_lat_lon" title="polaris.mesh.IcosahedralMeshStep.build_subdivisions_cell_width_lat_lon"><code class="xref py py-obj docutils literal notranslate"><span class="pre">IcosahedralMeshStep.build_subdivisions_cell_width_lat_lon</span></code></a>()</p></td>
 <td><p>A function for creating cell width array for this mesh on a regular latitude-longitude grid.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.mesh.IcosahedralMeshStep.get_subdivisions.html#polaris.mesh.IcosahedralMeshStep.get_subdivisions" title="polaris.mesh.IcosahedralMeshStep.get_subdivisions"><code class="xref py py-obj docutils literal notranslate"><span class="pre">IcosahedralMeshStep.get_subdivisions</span></code></a>(cell_width)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.mesh.IcosahedralMeshStep.get_subdivisions.html#polaris.mesh.IcosahedralMeshStep.get_subdivisions" title="polaris.mesh.IcosahedralMeshStep.get_subdivisions"><code class="xref py py-obj docutils literal notranslate"><span class="pre">IcosahedralMeshStep.get_subdivisions</span></code></a>(cell_width)</p></td>
 <td><p>Find the number of subdivisions of an icosahedron to achieve a resolution as close as possible to <code class="docutils literal notranslate"><span class="pre">cell_width</span></code>.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.mesh.IcosahedralMeshStep.get_cell_width.html#polaris.mesh.IcosahedralMeshStep.get_cell_width" title="polaris.mesh.IcosahedralMeshStep.get_cell_width"><code class="xref py py-obj docutils literal notranslate"><span class="pre">IcosahedralMeshStep.get_cell_width</span></code></a>(subdivisions)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.mesh.IcosahedralMeshStep.get_cell_width.html#polaris.mesh.IcosahedralMeshStep.get_cell_width" title="polaris.mesh.IcosahedralMeshStep.get_cell_width"><code class="xref py py-obj docutils literal notranslate"><span class="pre">IcosahedralMeshStep.get_cell_width</span></code></a>(subdivisions)</p></td>
 <td><p>Get the approximate cell width for an icosahedral mesh given either a number of subdivisions of the icosahedron.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.mesh.spherical.quality.check_cell_polygon_quality.html#polaris.mesh.spherical.quality.check_cell_polygon_quality" title="polaris.mesh.spherical.quality.check_cell_polygon_quality"><code class="xref py py-obj docutils literal notranslate"><span class="pre">spherical.quality.check_cell_polygon_quality</span></code></a>(...)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.mesh.spherical.quality.check_cell_polygon_quality.html#polaris.mesh.spherical.quality.check_cell_polygon_quality" title="polaris.mesh.spherical.quality.check_cell_polygon_quality"><code class="xref py py-obj docutils literal notranslate"><span class="pre">spherical.quality.check_cell_polygon_quality</span></code></a>(...)</p></td>
 <td><p>Check MPAS cell polygons for nearly duplicate or collinear vertices.</p></td>
 </tr>
 </tbody>

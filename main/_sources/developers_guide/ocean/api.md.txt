@@ -892,6 +892,7 @@
    OceanIOStep.add_horiz_mesh_input_file
    OceanIOStep.add_vert_coord_input_file
    OceanIOStep.add_init_input_file
+   OceanIOStep.add_output_files_for_ocean_model_input
    OceanIOStep.get_horiz_mesh_filename
    OceanIOStep.get_vert_coord_filename
    OceanIOStep.get_init_filename

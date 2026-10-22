@@ -224,6 +224,37 @@ Omega.</p>
 <p>For standalone conversion of an existing MPAS-Ocean initial-condition file to
 Omega format outside a Polaris task, see
 <a class="reference internal" href="convert_mpaso_ic_to_omega.html#dev-ocean-convert-mpaso-ic-to-omega"><span class="std std-ref">convert_mpaso_ic_to_omega.py</span></a>.</p>
+<section id="cf-metadata">
+<span id="dev-ocean-framework-cf-metadata"></span><h4>CF metadata<a class="headerlink" href="#cf-metadata" title="Link to this heading"></a></h4>
+<p>Every file these write methods produce passes the CF checker, and the methods
+take care of the metadata themselves, so an init step does not normally need
+to.  They add <code class="docutils literal notranslate"><span class="pre">CF-1.8</span></code> to the <code class="docutils literal notranslate"><span class="pre">Conventions</span></code> attribute (keeping the <code class="docutils literal notranslate"><span class="pre">MPAS</span></code>
+entry the MPAS-Tools converter writes) and fill in <code class="docutils literal notranslate"><span class="pre">units</span></code> and <code class="docutils literal notranslate"><span class="pre">long_name</span></code>
+for any mesh variable (from
+<a class="reference external" href="https://github.com/E3SM-Project/polaris/blob/main/polaris/mesh/attrs.yaml">polaris/mesh/attrs.yaml</a>)
+or vertical-coordinate, state or forcing variable (from
+<a class="reference external" href="https://github.com/E3SM-Project/polaris/blob/main/polaris/ocean/model/attrs.yaml">polaris/ocean/model/attrs.yaml</a>)
+that does not already have them.  The tables use MPAS-Ocean names, since the
+metadata is added before variables are renamed for Omega.  <code class="docutils literal notranslate"><span class="pre">temperature</span></code> and
+<code class="docutils literal notranslate"><span class="pre">salinity</span></code> are labeled with the attributes of the model’s tracer convention.
+As a safety net, a variable whose attributes are identical to another
+variable’s is taken to have inherited them (see <a class="reference internal" href="../framework/attrs.html#dev-attrs-inheritance"><span class="std std-ref">xarray propagates attributes</span></a>)
+and gets its own from the table instead.</p>
+<p>Every file registered with
+<a class="reference internal" href="generated/polaris.ocean.model.OceanIOStep.add_output_files_for_ocean_model_input.html#polaris.ocean.model.OceanIOStep.add_output_files_for_ocean_model_input" title="polaris.ocean.model.OceanIOStep.add_output_files_for_ocean_model_input"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.ocean.model.OceanIOStep.add_output_files_for_ocean_model_input()</span></code></a>
+is also checked for CF compliance after the step runs (see
+<a class="reference internal" href="../framework/validation.html#dev-cf-check"><span class="std std-ref">CF compliance checks</span></a>), so a missing or invalid label fails the task.</p>
+<p>A variable built from a mesh variable should start without its attributes, so
+the table can label it:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">ds</span><span class="p">[</span><span class="s1">'ssh'</span><span class="p">]</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">ds</span><span class="o">.</span><span class="n">xCell</span><span class="p">)</span><span class="o">.</span><span class="n">drop_attrs</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>A variable a task adds that is not in either table (a task-specific mask or
+forcing field) gets a <code class="docutils literal notranslate"><span class="pre">long_name</span></code> and, unless it is dimensionless or holds
+fields with different units, <code class="docutils literal notranslate"><span class="pre">units</span></code> where the task creates it, with
+<a class="reference internal" href="../generated/polaris.attrs.set_attrs.html#polaris.attrs.set_attrs" title="polaris.attrs.set_attrs"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.attrs.set_attrs()</span></code></a>.  Add a variable that several tasks
+write to <code class="docutils literal notranslate"><span class="pre">attrs.yaml</span></code> instead.</p>
+</section>
 <section id="canonical-staged-files">
 <h4>Canonical staged files<a class="headerlink" href="#canonical-staged-files" title="Link to this heading"></a></h4>
 <p>The files that flow through the ocean pipeline — horizontal mesh, vertical

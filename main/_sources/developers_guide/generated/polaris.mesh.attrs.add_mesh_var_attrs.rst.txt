@@ -1,0 +1,6 @@
+﻿polaris.mesh.attrs.add\_mesh\_var\_attrs
+========================================
+
+.. currentmodule:: polaris.mesh.attrs
+
+.. autofunction:: add_mesh_var_attrs

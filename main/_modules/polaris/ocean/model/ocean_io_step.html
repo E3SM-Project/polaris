@@ -175,6 +175,8 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">outputs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">work_path</span><span class="p">(</span><span class="n">filename</span><span class="p">))</span></div>
 
 
+<div class="viewcode-block" id="OceanIOStep.add_output_files_for_ocean_model_input">
+<a class="viewcode-back" href="../../../../developers_guide/ocean/generated/polaris.ocean.model.OceanIOStep.add_output_files_for_ocean_model_input.html#polaris.ocean.model.OceanIOStep.add_output_files_for_ocean_model_input">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">add_output_files_for_ocean_model_input</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">horiz_mesh_filename</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
@@ -187,6 +189,9 @@
 <span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Register output files that will be consumed by the ocean model as</span>
 <span class="sd">        inputs (horizontal mesh, initial condition, and model-specific files).</span>
+<span class="sd">        Each netCDF file is also checked for CF compliance after the step</span>
+<span class="sd">        runs (see :py:meth:`polaris.Step.add_cf_check()`), which the</span>
+<span class="sd">        component's write methods make it pass by filling in the metadata.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -224,13 +229,16 @@
 
         <span class="k">if</span> <span class="n">base_mesh_filename</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">add_output_file</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="n">base_mesh_filename</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">add_cf_check</span><span class="p">(</span><span class="n">base_mesh_filename</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">add_output_file</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="n">horiz_mesh_filename</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_cf_check</span><span class="p">(</span><span class="n">horiz_mesh_filename</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">skip_validation</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">add_output_file</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="n">init_filename</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">add_output_file</span><span class="p">(</span>
                 <span class="n">filename</span><span class="o">=</span><span class="n">init_filename</span><span class="p">,</span> <span class="n">validate_class</span><span class="o">=</span><span class="s1">'state'</span>
             <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_cf_check</span><span class="p">(</span><span class="n">init_filename</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">model</span> <span class="o">==</span> <span class="s1">'omega'</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">skip_validation</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">add_output_file</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="n">vert_coord_filename</span><span class="p">)</span>
@@ -238,8 +246,10 @@
                 <span class="bp">self</span><span class="o">.</span><span class="n">add_output_file</span><span class="p">(</span>
                     <span class="n">filename</span><span class="o">=</span><span class="n">vert_coord_filename</span><span class="p">,</span> <span class="n">validate_class</span><span class="o">=</span><span class="s1">'vert_coord'</span>
                 <span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">add_cf_check</span><span class="p">(</span><span class="n">vert_coord_filename</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">model</span> <span class="o">==</span> <span class="s1">'mpas-ocean'</span> <span class="ow">and</span> <span class="n">graph_filename</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">add_output_file</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="n">graph_filename</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">add_output_file</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="n">graph_filename</span><span class="p">)</span></div>
+
 
 <div class="viewcode-block" id="OceanIOStep.open_vert_coord_dataset">
 <a class="viewcode-back" href="../../../../developers_guide/ocean/generated/polaris.ocean.model.OceanIOStep.open_vert_coord_dataset.html#polaris.ocean.model.OceanIOStep.open_vert_coord_dataset">[docs]</a>

@@ -1,0 +1,6 @@
+﻿polaris.cf.add\_cf\_conventions
+===============================
+
+.. currentmodule:: polaris.cf
+
+.. autofunction:: add_cf_conventions

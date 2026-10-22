@@ -120,6 +120,7 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">pyremap</span><span class="w"> </span><span class="kn">import</span> <span class="n">MpasCellMeshDescriptor</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">polaris</span><span class="w"> </span><span class="kn">import</span> <span class="n">Step</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.cf</span><span class="w"> </span><span class="kn">import</span> <span class="n">add_cf_conventions</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">polaris.io</span><span class="w"> </span><span class="kn">import</span> <span class="n">symlink</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">polaris.tasks.e3sm.init.topo.combine.step</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">COMBINE_TOPO_VALIDATE_VARS</span><span class="p">,</span>
@@ -257,6 +258,7 @@
             <span class="n">filename</span><span class="o">=</span><span class="s1">'topography_remapped.nc'</span><span class="p">,</span>
             <span class="n">validate_vars</span><span class="o">=</span><span class="n">get_remapped_topo_validate_vars</span><span class="p">(),</span>
         <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_cf_check</span><span class="p">(</span><span class="s1">'topography_remapped.nc'</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">expand_distance</span> <span class="o">=</span> <span class="mf">0.0</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">expand_factor</span> <span class="o">=</span> <span class="mf">1.0</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">do_remapping</span> <span class="o">=</span> <span class="kc">True</span></div>
@@ -553,7 +555,7 @@
 
         <span class="n">_clean_remapped_attrs</span><span class="p">(</span><span class="n">ds_out</span><span class="p">)</span>
 
-        <span class="n">write_netcdf</span><span class="p">(</span><span class="n">ds_out</span><span class="p">,</span> <span class="s1">'topography_remapped.nc'</span><span class="p">)</span>
+        <span class="n">write_netcdf</span><span class="p">(</span><span class="n">add_cf_conventions</span><span class="p">(</span><span class="n">ds_out</span><span class="p">),</span> <span class="s1">'topography_remapped.nc'</span><span class="p">)</span>
 
         <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">'  Done.'</span><span class="p">)</span></div>
 
@@ -571,11 +573,16 @@
 <span class="sd">    ``grid_mapping`` comes the other way, in from the projected Antarctic</span>
 <span class="sd">    source data, and names a ``mapping`` variable that does not survive</span>
 <span class="sd">    remapping to the MPAS mesh either.</span>
+
+<span class="sd">    xarray moves ``coordinates`` from a variable's attributes into its</span>
+<span class="sd">    encoding when it reads a file, and writes it back from there, so it has</span>
+<span class="sd">    to be dropped from both.</span>
 <span class="sd">    """</span>
     <span class="n">dangling</span> <span class="o">=</span> <span class="p">[</span><span class="s1">'cell_measures'</span><span class="p">,</span> <span class="s1">'coordinates'</span><span class="p">,</span> <span class="s1">'grid_mapping'</span><span class="p">]</span>
     <span class="k">for</span> <span class="n">var</span> <span class="ow">in</span> <span class="n">ds_out</span><span class="o">.</span><span class="n">data_vars</span><span class="p">:</span>
         <span class="k">for</span> <span class="n">attr</span> <span class="ow">in</span> <span class="n">dangling</span><span class="p">:</span>
             <span class="n">ds_out</span><span class="p">[</span><span class="n">var</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">attr</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+            <span class="n">ds_out</span><span class="p">[</span><span class="n">var</span><span class="p">]</span><span class="o">.</span><span class="n">encoding</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">attr</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
 </pre></div>
 
            </div>

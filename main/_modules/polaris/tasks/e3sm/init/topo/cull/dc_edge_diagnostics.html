@@ -222,15 +222,25 @@
     <span class="n">ds_out</span><span class="p">[</span><span class="s1">'oceanEdgeMask'</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
         <span class="p">(</span><span class="s1">'nEdges'</span><span class="p">,),</span>
         <span class="n">ocean_edge</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">),</span>
+        <span class="p">{</span><span class="s1">'long_name'</span><span class="p">:</span> <span class="s1">'mask of ocean-interior edges'</span><span class="p">},</span>
     <span class="p">)</span>
-    <span class="n">ds_out</span><span class="p">[</span><span class="s1">'dcEdgeRatio'</span><span class="p">]</span> <span class="o">=</span> <span class="p">((</span><span class="s1">'nEdges'</span><span class="p">,),</span> <span class="n">ratio</span><span class="p">)</span>
+    <span class="n">ds_out</span><span class="p">[</span><span class="s1">'dcEdgeRatio'</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="p">(</span><span class="s1">'nEdges'</span><span class="p">,),</span>
+        <span class="n">ratio</span><span class="p">,</span>
+        <span class="p">{</span>
+            <span class="s1">'long_name'</span><span class="p">:</span> <span class="s1">'ratio of dcEdge to the ocean background cell width'</span><span class="p">,</span>
+            <span class="s1">'units'</span><span class="p">:</span> <span class="s1">'1'</span><span class="p">,</span>
+        <span class="p">},</span>
+    <span class="p">)</span>
     <span class="n">ds_out</span><span class="p">[</span><span class="s1">'dcEdgeTooSmallMask'</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
         <span class="p">(</span><span class="s1">'nEdges'</span><span class="p">,),</span>
         <span class="n">too_small</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">),</span>
+        <span class="p">{</span><span class="s1">'long_name'</span><span class="p">:</span> <span class="s1">'mask of edges below the minimum dcEdge ratio'</span><span class="p">},</span>
     <span class="p">)</span>
     <span class="n">ds_out</span><span class="p">[</span><span class="s1">'dcEdgeTooLargeMask'</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
         <span class="p">(</span><span class="s1">'nEdges'</span><span class="p">,),</span>
         <span class="n">too_large</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">),</span>
+        <span class="p">{</span><span class="s1">'long_name'</span><span class="p">:</span> <span class="s1">'mask of edges above the maximum dcEdge ratio'</span><span class="p">},</span>
     <span class="p">)</span>
     <span class="n">ds_out</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">'min_dc_edge_ratio'</span><span class="p">]</span> <span class="o">=</span> <span class="n">min_ratio</span>
     <span class="n">ds_out</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">'max_dc_edge_ratio'</span><span class="p">]</span> <span class="o">=</span> <span class="n">max_ratio</span>

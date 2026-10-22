@@ -118,6 +118,7 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">mpas_tools.mesh.interpolation</span><span class="w"> </span><span class="kn">import</span> <span class="n">interp_bilin</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">shapely.geometry</span><span class="w"> </span><span class="kn">import</span> <span class="n">LineString</span>
 
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.cf</span><span class="w"> </span><span class="kn">import</span> <span class="n">add_cf_conventions</span><span class="p">,</span> <span class="n">add_lat_lon_attrs</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">polaris.mesh.spherical.unified.river.geojson</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">read_geojson</span><span class="p">,</span>
     <span class="n">write_geojson</span><span class="p">,</span>
@@ -198,7 +199,8 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">add_output_file</span><span class="p">(</span>
             <span class="n">filename</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">masks_filename</span><span class="p">,</span>
             <span class="n">validate_vars</span><span class="o">=</span><span class="n">RIVER_NETWORK_VALIDATE_VARS</span><span class="p">,</span>
-        <span class="p">)</span></div>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_cf_check</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">masks_filename</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="ClipRiverNetworkStep.run">
@@ -256,6 +258,7 @@
         <span class="n">clipped_fc</span><span class="p">[</span><span class="s1">'metadata'</span><span class="p">]</span> <span class="o">=</span> <span class="n">metadata</span>
         <span class="n">ds_river</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">metadata</span><span class="p">)</span>
         <span class="n">write_geojson</span><span class="p">(</span><span class="n">clipped_fc</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">clipped_filename</span><span class="p">)</span>
+        <span class="n">ds_river</span> <span class="o">=</span> <span class="n">add_cf_conventions</span><span class="p">(</span><span class="n">add_lat_lon_attrs</span><span class="p">(</span><span class="n">ds_river</span><span class="p">))</span>
         <span class="n">ds_river</span><span class="o">.</span><span class="n">to_netcdf</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">masks_filename</span><span class="p">)</span></div>
 </div>
 

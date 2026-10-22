@@ -335,6 +335,18 @@ start time as the origin of the `time` variable's units, and
 [UDUNITS-2](https://www.unidata.ucar.edu/software/udunits/) rejects
 a year-0 origin, so a task that starts in year 0 cannot pass the check.
 
+Mesh and initial-condition files are checked too.  The ocean framework opts
+in every file registered with
+{py:meth}`polaris.ocean.model.OceanIOStep.add_output_files_for_ocean_model_input()`,
+and the spherical base-mesh, `e3sm/init` cull and remap, and
+`realistic_global` init steps opt in the meshes, reconstruction weights,
+topography, remapped hydrography and forcing they write (see
+{ref}`dev-attrs-cf`).  So do the steps that build unified meshes (the
+coastline, river network, sizing field and cull masks) and the steps that
+produce the combined topography, WOA23 hydrography and JRA55-do wind stress.
+Those last few are cached by default, and a cached step is not checked, so
+their check runs only in the tasks that regenerate the cache.
+
 The checker needs the CF standard-name, area-type and region-name tables.
 Their versions are pinned in the `[cf]` section of `default.cfg`, so a table
 update cannot change what a check reports, and each is downloaded once per

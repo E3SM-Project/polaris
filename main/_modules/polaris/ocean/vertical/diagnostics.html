@@ -471,7 +471,9 @@
     <span class="n">velocity</span> <span class="o">=</span> <span class="n">ds</span><span class="p">[</span><span class="n">src_var_name</span><span class="p">]</span>
     <span class="n">spec_vol_interface</span> <span class="o">=</span> <span class="n">_spec_vol_at_interfaces</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="n">ds_vert</span><span class="p">)</span>
     <span class="n">pseudo_velocity</span> <span class="o">=</span> <span class="n">velocity</span> <span class="o">/</span> <span class="p">(</span><span class="n">RhoSw</span> <span class="o">*</span> <span class="n">spec_vol_interface</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">pseudo_velocity</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="o">*</span><span class="n">velocity</span><span class="o">.</span><span class="n">dims</span><span class="p">)</span></div>
+    <span class="c1"># xarray carries the geometric velocity's long_name over, so drop the</span>
+    <span class="c1"># attributes rather than label a pseudo-velocity as a geometric one</span>
+    <span class="k">return</span> <span class="n">pseudo_velocity</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="o">*</span><span class="n">velocity</span><span class="o">.</span><span class="n">dims</span><span class="p">)</span><span class="o">.</span><span class="n">drop_attrs</span><span class="p">()</span></div>
 
 
 
@@ -733,7 +735,9 @@
         <span class="n">min_level_cell</span><span class="o">=</span><span class="n">min_level_cell</span><span class="p">,</span>
         <span class="n">max_level_cell</span><span class="o">=</span><span class="n">max_level_cell</span><span class="p">,</span>
     <span class="p">)</span>
-    <span class="k">return</span> <span class="n">z_interface</span><span class="p">,</span> <span class="n">z_mid</span></div>
+    <span class="c1"># both are computed from layer_thickness and bottom_depth, so drop the</span>
+    <span class="c1"># attributes xarray carries over from them</span>
+    <span class="k">return</span> <span class="n">z_interface</span><span class="o">.</span><span class="n">drop_attrs</span><span class="p">(),</span> <span class="n">z_mid</span><span class="o">.</span><span class="n">drop_attrs</span><span class="p">()</span></div>
 
 
 

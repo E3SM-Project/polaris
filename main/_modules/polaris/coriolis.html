@@ -364,13 +364,13 @@
 <span class="k">def</span><span class="w"> </span><span class="nf">_add_coriolis_attrs</span><span class="p">(</span>
     <span class="n">data_array</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">,</span> <span class="n">location</span><span class="p">:</span> <span class="nb">str</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">:</span>
-    <span class="n">data_array</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
-        <span class="p">{</span>
-            <span class="s1">'long_name'</span><span class="p">:</span> <span class="sa">f</span><span class="s1">'Coriolis parameter at </span><span class="si">{</span><span class="n">location</span><span class="si">}</span><span class="s1">'</span><span class="p">,</span>
-            <span class="s1">'standard_name'</span><span class="p">:</span> <span class="s1">'coriolis_parameter'</span><span class="p">,</span>
-            <span class="s1">'units'</span><span class="p">:</span> <span class="s1">'radians s^-1'</span><span class="p">,</span>
-        <span class="p">}</span>
-    <span class="p">)</span>
+    <span class="c1"># replace rather than update: the fields are computed from mesh</span>
+    <span class="c1"># coordinates, whose attributes xarray carries along</span>
+    <span class="n">data_array</span><span class="o">.</span><span class="n">attrs</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s1">'long_name'</span><span class="p">:</span> <span class="sa">f</span><span class="s1">'Coriolis parameter at </span><span class="si">{</span><span class="n">location</span><span class="si">}</span><span class="s1">'</span><span class="p">,</span>
+        <span class="s1">'standard_name'</span><span class="p">:</span> <span class="s1">'coriolis_parameter'</span><span class="p">,</span>
+        <span class="s1">'units'</span><span class="p">:</span> <span class="s1">'radians s-1'</span><span class="p">,</span>
+    <span class="p">}</span>
     <span class="k">return</span> <span class="n">data_array</span>
 </pre></div>
 

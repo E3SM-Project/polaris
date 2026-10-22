@@ -186,7 +186,8 @@
                 <span class="n">JRA55_ON_MESH_FILENAME</span><span class="p">,</span>
             <span class="p">),</span>
         <span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">add_output_file</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">get_forcing_filename</span><span class="p">())</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_output_file</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">get_forcing_filename</span><span class="p">())</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_cf_check</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_forcing_filename</span><span class="p">())</span></div>
 
 
 <div class="viewcode-block" id="ForcingStep.run">
@@ -198,8 +199,10 @@
         <span class="n">config</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span>
         <span class="k">with</span> <span class="n">xr</span><span class="o">.</span><span class="n">open_dataset</span><span class="p">(</span><span class="n">JRA55_ON_MESH_FILENAME</span><span class="p">)</span> <span class="k">as</span> <span class="n">ds_stress</span><span class="p">:</span>
             <span class="n">ds</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">()</span>
-            <span class="n">ds</span><span class="p">[</span><span class="s1">'windStressZonal'</span><span class="p">]</span> <span class="o">=</span> <span class="n">ds_stress</span><span class="o">.</span><span class="n">taux</span>
-            <span class="n">ds</span><span class="p">[</span><span class="s1">'windStressMeridional'</span><span class="p">]</span> <span class="o">=</span> <span class="n">ds_stress</span><span class="o">.</span><span class="n">tauy</span>
+            <span class="c1"># the remapped lat and lon are not forcing fields, so they are</span>
+            <span class="c1"># left behind</span>
+            <span class="n">ds</span><span class="p">[</span><span class="s1">'windStressZonal'</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="s1">'nCells'</span><span class="p">,</span> <span class="n">ds_stress</span><span class="o">.</span><span class="n">taux</span><span class="o">.</span><span class="n">values</span><span class="p">)</span>
+            <span class="n">ds</span><span class="p">[</span><span class="s1">'windStressMeridional'</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="s1">'nCells'</span><span class="p">,</span> <span class="n">ds_stress</span><span class="o">.</span><span class="n">tauy</span><span class="o">.</span><span class="n">values</span><span class="p">)</span>
 
         <span class="n">ds</span><span class="o">.</span><span class="n">windStressZonal</span><span class="o">.</span><span class="n">attrs</span> <span class="o">=</span> <span class="p">{</span>
             <span class="s1">'units'</span><span class="p">:</span> <span class="s1">'N m-2'</span><span class="p">,</span>

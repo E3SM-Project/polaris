@@ -139,6 +139,16 @@
     <span class="n">update_z_star_layer_thickness</span> <span class="k">as</span> <span class="n">update_z_star_layer_thickness</span><span class="p">,</span>
 <span class="p">)</span>
 
+<span class="c1"># fields that init_vertical_coord() computes from others</span>
+<span class="n">_VERT_COORD_VARS</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s1">'minLevelCell'</span><span class="p">,</span>
+    <span class="s1">'maxLevelCell'</span><span class="p">,</span>
+    <span class="s1">'cellMask'</span><span class="p">,</span>
+    <span class="s1">'layerThickness'</span><span class="p">,</span>
+    <span class="s1">'restingThickness'</span><span class="p">,</span>
+    <span class="s1">'vertCoordMovementWeights'</span><span class="p">,</span>
+<span class="p">]</span>
+
 
 <div class="viewcode-block" id="init_vertical_coord">
 <a class="viewcode-back" href="../../../developers_guide/ocean/generated/polaris.ocean.vertical.init_vertical_coord.html#polaris.ocean.vertical.init_vertical_coord">[docs]</a>
@@ -245,7 +255,12 @@
 
     <span class="c1"># fortran 1-based indexing</span>
     <span class="n">ds</span><span class="p">[</span><span class="s1">'minLevelCell'</span><span class="p">]</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">minLevelCell</span> <span class="o">+</span> <span class="mi">1</span>
-    <span class="n">ds</span><span class="p">[</span><span class="s1">'maxLevelCell'</span><span class="p">]</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">maxLevelCell</span> <span class="o">+</span> <span class="mi">1</span></div>
+    <span class="n">ds</span><span class="p">[</span><span class="s1">'maxLevelCell'</span><span class="p">]</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">maxLevelCell</span> <span class="o">+</span> <span class="mi">1</span>
+
+    <span class="c1"># these are computed from ssh, bottomDepth and the reference grid, and</span>
+    <span class="c1"># xarray carries attributes through that, so start them without any</span>
+    <span class="k">for</span> <span class="n">var</span> <span class="ow">in</span> <span class="n">_VERT_COORD_VARS</span><span class="p">:</span>
+        <span class="n">ds</span><span class="p">[</span><span class="n">var</span><span class="p">]</span> <span class="o">=</span> <span class="n">ds</span><span class="p">[</span><span class="n">var</span><span class="p">]</span><span class="o">.</span><span class="n">drop_attrs</span><span class="p">()</span></div>
 
 
 
@@ -296,7 +311,9 @@
 
     <span class="c1"># add (back) Time dimension</span>
     <span class="n">ds</span><span class="p">[</span><span class="s1">'ssh'</span><span class="p">]</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">ssh</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="s1">'Time'</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
-    <span class="n">ds</span><span class="p">[</span><span class="s1">'layerThickness'</span><span class="p">]</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">layerThickness</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="s1">'Time'</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span></div>
+    <span class="n">ds</span><span class="p">[</span><span class="s1">'layerThickness'</span><span class="p">]</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">layerThickness</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span>
+        <span class="n">dim</span><span class="o">=</span><span class="s1">'Time'</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span>
+    <span class="p">)</span><span class="o">.</span><span class="n">drop_attrs</span><span class="p">()</span></div>
 
 
 

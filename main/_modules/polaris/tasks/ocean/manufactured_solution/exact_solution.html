@@ -184,11 +184,11 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">omega</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">g</span> <span class="o">*</span> <span class="n">bottom_depth</span> <span class="o">*</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">kx</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">ky</span><span class="o">**</span><span class="mi">2</span><span class="p">))</span>
 
         <span class="k">if</span> <span class="n">ds</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">angleEdge</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">angleEdge</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">xCell</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">xCell</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">yCell</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">yCell</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">xEdge</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">xEdge</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">yEdge</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">yEdge</span></div>
+            <span class="bp">self</span><span class="o">.</span><span class="n">angleEdge</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">angleEdge</span><span class="o">.</span><span class="n">drop_attrs</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">xCell</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">xCell</span><span class="o">.</span><span class="n">drop_attrs</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">yCell</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">yCell</span><span class="o">.</span><span class="n">drop_attrs</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">xEdge</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">xEdge</span><span class="o">.</span><span class="n">drop_attrs</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">yEdge</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">yEdge</span><span class="o">.</span><span class="n">drop_attrs</span><span class="p">()</span></div>
 
 
 <div class="viewcode-block" id="ExactSolution.ssh">

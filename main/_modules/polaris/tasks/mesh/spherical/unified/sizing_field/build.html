@@ -117,6 +117,7 @@
 <span class="kn">import</span><span class="w"> </span><span class="nn">xarray</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">xr</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">geometric_features</span><span class="w"> </span><span class="kn">import</span> <span class="n">GeometricFeatures</span>
 
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.cf</span><span class="w"> </span><span class="kn">import</span> <span class="n">add_cf_conventions</span><span class="p">,</span> <span class="n">add_lat_lon_attrs</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">polaris.mesh.spherical.coastline</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">rasterize_critical_transects</span><span class="p">,</span>
     <span class="n">signed_distance_from_ocean_mask</span><span class="p">,</span>
@@ -268,7 +269,8 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">add_output_file</span><span class="p">(</span>
             <span class="n">filename</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">sizing_field_filename</span><span class="p">,</span>
             <span class="n">validate_vars</span><span class="o">=</span><span class="n">validate_vars</span><span class="p">,</span>
-        <span class="p">)</span></div>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_cf_check</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sizing_field_filename</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="BuildSizingFieldStep.run">
@@ -334,10 +336,18 @@
             <span class="n">ds_sizing</span><span class="o">.</span><span class="n">effective_ocean_mask</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">'long_name'</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
                 <span class="s1">'Union of the shared coastline and emulated ocean masks'</span>
             <span class="p">)</span>
+            <span class="n">ds_sizing</span><span class="o">.</span><span class="n">mesh_scale_ocean_fraction</span><span class="o">.</span><span class="n">attrs</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="s1">'long_name'</span><span class="p">:</span> <span class="s1">'Ocean fraction averaged to the mesh scale'</span><span class="p">,</span>
+                <span class="s1">'units'</span><span class="p">:</span> <span class="s1">'1'</span><span class="p">,</span>
+            <span class="p">}</span>
+            <span class="n">ds_sizing</span><span class="o">.</span><span class="n">passages_widened</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">'long_name'</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="s1">'Mask of critical passages widened to the mesh scale'</span>
+            <span class="p">)</span>
         <span class="n">ds_sizing</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">'cull_emulation'</span><span class="p">]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">enable_cull_emulation</span><span class="p">)</span>
 
         <span class="n">ds_sizing</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">'source_coastline_step'</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">coastline_step</span><span class="o">.</span><span class="n">subdir</span>
         <span class="n">ds_sizing</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">'source_river_step'</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">river_step</span><span class="o">.</span><span class="n">subdir</span>
+        <span class="n">ds_sizing</span> <span class="o">=</span> <span class="n">add_cf_conventions</span><span class="p">(</span><span class="n">add_lat_lon_attrs</span><span class="p">(</span><span class="n">ds_sizing</span><span class="p">))</span>
         <span class="n">ds_sizing</span><span class="o">.</span><span class="n">to_netcdf</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sizing_field_filename</span><span class="p">)</span></div>
 
 
@@ -606,15 +616,21 @@
         <span class="n">candidate</span><span class="o">=</span><span class="n">river_channel_candidate</span><span class="p">,</span>
         <span class="n">background</span><span class="o">=</span><span class="n">land_background</span><span class="p">,</span>
     <span class="p">)</span>
-    <span class="n">ds_sizing</span><span class="o">.</span><span class="n">cellWidth</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">'units'</span><span class="p">]</span> <span class="o">=</span> <span class="s1">'km'</span>
+    <span class="n">long_names</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s1">'cellWidth'</span><span class="p">:</span> <span class="s1">'Final cell width'</span><span class="p">,</span>
+        <span class="s1">'background_cell_width'</span><span class="p">:</span> <span class="s1">'Background cell width'</span><span class="p">,</span>
+        <span class="s1">'ocean_background_cell_width'</span><span class="p">:</span> <span class="s1">'Ocean background cell width'</span><span class="p">,</span>
+        <span class="s1">'land_river_cell_width'</span><span class="p">:</span> <span class="s1">'Cell width over land with river refinement'</span><span class="p">,</span>
+        <span class="s1">'pre_coastline_cell_width'</span><span class="p">:</span> <span class="s1">'Cell width before coastline refinement'</span><span class="p">,</span>
+        <span class="s1">'coastline_cell_width'</span><span class="p">:</span> <span class="s1">'Cell width with coastline refinement'</span><span class="p">,</span>
+        <span class="s1">'coastal_transition_delta'</span><span class="p">:</span> <span class="p">(</span>
+            <span class="s1">'Change in cell width from coastline refinement'</span>
+        <span class="p">),</span>
+        <span class="s1">'river_channel_cell_width'</span><span class="p">:</span> <span class="s1">'Cell width with river channel refinement'</span><span class="p">,</span>
+    <span class="p">}</span>
+    <span class="k">for</span> <span class="n">var_name</span><span class="p">,</span> <span class="n">long_name</span> <span class="ow">in</span> <span class="n">long_names</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="n">ds_sizing</span><span class="p">[</span><span class="n">var_name</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span> <span class="o">=</span> <span class="p">{</span><span class="s1">'long_name'</span><span class="p">:</span> <span class="n">long_name</span><span class="p">,</span> <span class="s1">'units'</span><span class="p">:</span> <span class="s1">'km'</span><span class="p">}</span>
     <span class="n">ds_sizing</span><span class="o">.</span><span class="n">signed_distance</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">'units'</span><span class="p">]</span> <span class="o">=</span> <span class="s1">'m'</span>
-    <span class="n">ds_sizing</span><span class="o">.</span><span class="n">background_cell_width</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">'units'</span><span class="p">]</span> <span class="o">=</span> <span class="s1">'km'</span>
-    <span class="n">ds_sizing</span><span class="o">.</span><span class="n">ocean_background_cell_width</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">'units'</span><span class="p">]</span> <span class="o">=</span> <span class="s1">'km'</span>
-    <span class="n">ds_sizing</span><span class="o">.</span><span class="n">land_river_cell_width</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">'units'</span><span class="p">]</span> <span class="o">=</span> <span class="s1">'km'</span>
-    <span class="n">ds_sizing</span><span class="o">.</span><span class="n">pre_coastline_cell_width</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">'units'</span><span class="p">]</span> <span class="o">=</span> <span class="s1">'km'</span>
-    <span class="n">ds_sizing</span><span class="o">.</span><span class="n">coastline_cell_width</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">'units'</span><span class="p">]</span> <span class="o">=</span> <span class="s1">'km'</span>
-    <span class="n">ds_sizing</span><span class="o">.</span><span class="n">coastal_transition_delta</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">'units'</span><span class="p">]</span> <span class="o">=</span> <span class="s1">'km'</span>
-    <span class="n">ds_sizing</span><span class="o">.</span><span class="n">river_channel_cell_width</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">'units'</span><span class="p">]</span> <span class="o">=</span> <span class="s1">'km'</span>
     <span class="n">ds_sizing</span><span class="o">.</span><span class="n">active_control</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">'long_name'</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
         <span class="s1">'Index of the active sizing control'</span>
     <span class="p">)</span>

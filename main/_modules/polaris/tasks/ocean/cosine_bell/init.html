@@ -191,10 +191,10 @@
         <span class="n">bottom_depth</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">'bottom_depth'</span><span class="p">)</span>
 
         <span class="n">ds_mesh</span> <span class="o">=</span> <span class="n">open_dataset</span><span class="p">(</span><span class="s1">'mesh.nc'</span><span class="p">)</span>
-        <span class="n">angleEdge</span> <span class="o">=</span> <span class="n">ds_mesh</span><span class="o">.</span><span class="n">angleEdge</span>
-        <span class="n">latCell</span> <span class="o">=</span> <span class="n">ds_mesh</span><span class="o">.</span><span class="n">latCell</span>
-        <span class="n">latEdge</span> <span class="o">=</span> <span class="n">ds_mesh</span><span class="o">.</span><span class="n">latEdge</span>
-        <span class="n">lonCell</span> <span class="o">=</span> <span class="n">ds_mesh</span><span class="o">.</span><span class="n">lonCell</span>
+        <span class="n">angleEdge</span> <span class="o">=</span> <span class="n">ds_mesh</span><span class="o">.</span><span class="n">angleEdge</span><span class="o">.</span><span class="n">drop_attrs</span><span class="p">()</span>
+        <span class="n">latCell</span> <span class="o">=</span> <span class="n">ds_mesh</span><span class="o">.</span><span class="n">latCell</span><span class="o">.</span><span class="n">drop_attrs</span><span class="p">()</span>
+        <span class="n">latEdge</span> <span class="o">=</span> <span class="n">ds_mesh</span><span class="o">.</span><span class="n">latEdge</span><span class="o">.</span><span class="n">drop_attrs</span><span class="p">()</span>
+        <span class="n">lonCell</span> <span class="o">=</span> <span class="n">ds_mesh</span><span class="o">.</span><span class="n">lonCell</span><span class="o">.</span><span class="n">drop_attrs</span><span class="p">()</span>
         <span class="n">sphere_radius</span> <span class="o">=</span> <span class="n">ds_mesh</span><span class="o">.</span><span class="n">sphere_radius</span>
 
         <span class="n">ds_mesh</span> <span class="o">=</span> <span class="n">add_coriolis_to_dataset</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">ds_mesh</span><span class="p">)</span>
@@ -206,7 +206,9 @@
         <span class="n">ds</span><span class="p">[</span><span class="s1">'ssh'</span><span class="p">]</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">latCell</span><span class="p">)</span>
 
         <span class="n">init_vertical_coord</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">ds</span><span class="p">)</span>
-        <span class="n">temperature_array</span> <span class="o">=</span> <span class="n">temperature</span> <span class="o">*</span> <span class="n">xr</span><span class="o">.</span><span class="n">ones_like</span><span class="p">(</span><span class="n">ds_mesh</span><span class="o">.</span><span class="n">latCell</span><span class="p">)</span>
+        <span class="n">temperature_array</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">temperature</span> <span class="o">*</span> <span class="n">xr</span><span class="o">.</span><span class="n">ones_like</span><span class="p">(</span><span class="n">ds_mesh</span><span class="o">.</span><span class="n">latCell</span><span class="p">)</span><span class="o">.</span><span class="n">drop_attrs</span><span class="p">()</span>
+        <span class="p">)</span>
         <span class="n">temperature_array</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">broadcast</span><span class="p">(</span><span class="n">temperature_array</span><span class="p">,</span> <span class="n">ds</span><span class="o">.</span><span class="n">refZMid</span><span class="p">)</span>
         <span class="n">ds</span><span class="p">[</span><span class="s1">'temperature'</span><span class="p">]</span> <span class="o">=</span> <span class="n">temperature_array</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="s1">'Time'</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
         <span class="n">ds</span><span class="p">[</span><span class="s1">'salinity'</span><span class="p">]</span> <span class="o">=</span> <span class="n">salinity</span> <span class="o">*</span> <span class="n">xr</span><span class="o">.</span><span class="n">ones_like</span><span class="p">(</span><span class="n">ds</span><span class="o">.</span><span class="n">temperature</span><span class="p">)</span>

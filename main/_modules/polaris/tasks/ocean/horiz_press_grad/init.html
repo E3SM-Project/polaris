@@ -115,7 +115,6 @@
   <h1>Source code for polaris.tasks.ocean.horiz_press_grad.init</h1><div class="highlight"><pre>
 <span></span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">xarray</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">xr</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">mpas_tools.io</span><span class="w"> </span><span class="kn">import</span> <span class="n">write_netcdf</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">mpas_tools.mesh.conversion</span><span class="w"> </span><span class="kn">import</span> <span class="n">convert</span><span class="p">,</span> <span class="n">cull</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">mpas_tools.planar_hex</span><span class="w"> </span><span class="kn">import</span> <span class="n">make_planar_hex_mesh</span>
 
@@ -241,7 +240,7 @@
         <span class="n">cull_cell</span><span class="p">[</span><span class="n">ncells</span> <span class="o">-</span> <span class="mi">2</span> <span class="o">*</span> <span class="p">(</span><span class="n">nx</span> <span class="o">+</span> <span class="mi">2</span><span class="p">)</span> <span class="p">:</span> <span class="n">ncells</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
         <span class="n">ds_mesh</span><span class="p">[</span><span class="s1">'cullCell'</span><span class="p">]</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">cull_cell</span><span class="p">,</span> <span class="n">dims</span><span class="o">=</span><span class="p">[</span><span class="s1">'nCells'</span><span class="p">])</span>
 
-        <span class="n">write_netcdf</span><span class="p">(</span><span class="n">ds_mesh</span><span class="p">,</span> <span class="s1">'base_mesh.nc'</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">write_model_dataset</span><span class="p">(</span><span class="n">ds_mesh</span><span class="p">,</span> <span class="s1">'base_mesh.nc'</span><span class="p">,</span> <span class="n">config</span><span class="p">)</span>
         <span class="n">ds_mesh</span> <span class="o">=</span> <span class="n">cull</span><span class="p">(</span><span class="n">ds_mesh</span><span class="p">,</span> <span class="n">logger</span><span class="o">=</span><span class="n">logger</span><span class="p">)</span>
         <span class="n">ds_mesh</span> <span class="o">=</span> <span class="n">convert</span><span class="p">(</span>
             <span class="n">ds_mesh</span><span class="p">,</span> <span class="n">graphInfoFileName</span><span class="o">=</span><span class="s1">'culled_graph.info'</span><span class="p">,</span> <span class="n">logger</span><span class="o">=</span><span class="n">logger</span>
@@ -480,6 +479,11 @@
             <span class="s1">'Montgomery potential at layer interfaces (bounds)'</span>
         <span class="p">)</span>
         <span class="n">ds</span><span class="o">.</span><span class="n">MontgomeryInter</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">'units'</span><span class="p">]</span> <span class="o">=</span> <span class="s1">'m2 s-2'</span>
+        <span class="c1"># expand_dims() adds nbnds as an index coordinate with no attributes</span>
+        <span class="n">ds</span><span class="o">.</span><span class="n">nbnds</span><span class="o">.</span><span class="n">attrs</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">'long_name'</span><span class="p">:</span> <span class="s1">'index of the upper (0) and lower (1) interface'</span><span class="p">,</span>
+            <span class="s1">'units'</span><span class="p">:</span> <span class="s1">'1'</span><span class="p">,</span>
+        <span class="p">}</span>
 
         <span class="n">ds</span><span class="p">[</span><span class="s1">'HPGA'</span><span class="p">]</span> <span class="o">=</span> <span class="n">hpga_mid</span>
         <span class="n">ds</span><span class="o">.</span><span class="n">HPGA</span><span class="o">.</span><span class="n">attrs</span> <span class="o">=</span> <span class="p">{</span>

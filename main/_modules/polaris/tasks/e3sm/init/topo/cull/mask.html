@@ -126,6 +126,7 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">mpas_tools.ocean.coastline_alteration</span><span class="w"> </span><span class="kn">import</span> <span class="n">widen_transect_edge_masks</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">polaris</span><span class="w"> </span><span class="kn">import</span> <span class="n">Step</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.cf</span><span class="w"> </span><span class="kn">import</span> <span class="n">add_cf_conventions</span><span class="p">,</span> <span class="n">add_var_attrs</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">polaris.mesh.connectivity</span><span class="w"> </span><span class="kn">import</span> <span class="n">seed_mask_from_points</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">polaris.mesh.spherical.critical_transects</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">load_default_critical_transects</span><span class="p">,</span>
@@ -150,6 +151,23 @@
     <span class="s1">'landCullMask'</span><span class="p">,</span>
     <span class="s1">'landIceMask'</span><span class="p">,</span>
 <span class="p">]</span>
+
+<span class="c1"># labels for the masks in cull_masks.nc</span>
+<span class="n">_CULL_MASK_ATTRS</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s1">'oceanCullMask'</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s1">'long_name'</span><span class="p">:</span> <span class="s1">'cells culled from the ocean mesh (1) or kept (0)'</span><span class="p">,</span>
+    <span class="p">},</span>
+    <span class="s1">'oceanNoCavitiesCullMask'</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s1">'long_name'</span><span class="p">:</span> <span class="s1">'cells culled from the ocean mesh without ice-shelf '</span>
+        <span class="s1">'cavities (1) or kept (0)'</span><span class="p">,</span>
+    <span class="p">},</span>
+    <span class="s1">'landCullMask'</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s1">'long_name'</span><span class="p">:</span> <span class="s1">'cells culled from the land mesh (1) or kept (0)'</span><span class="p">,</span>
+    <span class="p">},</span>
+    <span class="s1">'landIceMask'</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s1">'long_name'</span><span class="p">:</span> <span class="s1">'cells covered by land ice (1) or not (0)'</span><span class="p">,</span>
+    <span class="p">},</span>
+<span class="p">}</span>
 
 
 <div class="viewcode-block" id="CullMaskStep">
@@ -233,6 +251,7 @@
             <span class="n">filename</span><span class="o">=</span><span class="s1">'cull_masks.nc'</span><span class="p">,</span>
             <span class="n">validate_vars</span><span class="o">=</span><span class="n">CULL_MASKS_VALIDATE_VARS</span><span class="p">,</span>
         <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_cf_check</span><span class="p">(</span><span class="s1">'cull_masks.nc'</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_critical_transects</span> <span class="o">=</span> <span class="kc">None</span></div>
 
 
@@ -860,6 +879,8 @@
         <span class="n">ds_masks</span><span class="p">[</span><span class="s1">'landCullMask'</span><span class="p">]</span> <span class="o">=</span> <span class="n">ds_land_cull_mask</span><span class="o">.</span><span class="n">landCullMask</span>
         <span class="n">ds_masks</span><span class="p">[</span><span class="s1">'landIceMask'</span><span class="p">]</span> <span class="o">=</span> <span class="n">ds_land_ice_mask</span><span class="o">.</span><span class="n">landIceMask</span>
 
+        <span class="n">ds_masks</span> <span class="o">=</span> <span class="n">add_var_attrs</span><span class="p">(</span><span class="n">ds_masks</span><span class="p">,</span> <span class="n">_CULL_MASK_ATTRS</span><span class="p">)</span>
+        <span class="n">ds_masks</span> <span class="o">=</span> <span class="n">add_cf_conventions</span><span class="p">(</span><span class="n">ds_masks</span><span class="p">)</span>
         <span class="n">write_netcdf</span><span class="p">(</span><span class="n">ds_masks</span><span class="p">,</span> <span class="s1">'cull_masks.nc'</span><span class="p">)</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">'Wrote cull_masks.nc.'</span><span class="p">)</span>
 

@@ -451,6 +451,17 @@ step running Omega checks the first file of each stream in write mode in its
 start time as the origin of the <code class="docutils literal notranslate"><span class="pre">time</span></code> variable’s units, and
 <a class="reference external" href="https://www.unidata.ucar.edu/software/udunits/">UDUNITS-2</a> rejects
 a year-0 origin, so a task that starts in year 0 cannot pass the check.</p>
+<p>Mesh and initial-condition files are checked too.  The ocean framework opts
+in every file registered with
+<a class="reference internal" href="../ocean/generated/polaris.ocean.model.OceanIOStep.add_output_files_for_ocean_model_input.html#polaris.ocean.model.OceanIOStep.add_output_files_for_ocean_model_input" title="polaris.ocean.model.OceanIOStep.add_output_files_for_ocean_model_input"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.ocean.model.OceanIOStep.add_output_files_for_ocean_model_input()</span></code></a>,
+and the spherical base-mesh, <code class="docutils literal notranslate"><span class="pre">e3sm/init</span></code> cull and remap, and
+<code class="docutils literal notranslate"><span class="pre">realistic_global</span></code> init steps opt in the meshes, reconstruction weights,
+topography, remapped hydrography and forcing they write (see
+<a class="reference internal" href="attrs.html#dev-attrs-cf"><span class="std std-ref">CF conventions</span></a>).  So do the steps that build unified meshes (the
+coastline, river network, sizing field and cull masks) and the steps that
+produce the combined topography, WOA23 hydrography and JRA55-do wind stress.
+Those last few are cached by default, and a cached step is not checked, so
+their check runs only in the tasks that regenerate the cache.</p>
 <p>The checker needs the CF standard-name, area-type and region-name tables.
 Their versions are pinned in the <code class="docutils literal notranslate"><span class="pre">[cf]</span></code> section of <code class="docutils literal notranslate"><span class="pre">default.cfg</span></code>, so a table
 update cannot change what a check reports, and each is downloaded once per

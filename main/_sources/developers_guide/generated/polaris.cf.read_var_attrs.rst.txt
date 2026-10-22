@@ -1,0 +1,6 @@
+﻿polaris.cf.read\_var\_attrs
+===========================
+
+.. currentmodule:: polaris.cf
+
+.. autofunction:: read_var_attrs

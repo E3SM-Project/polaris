@@ -246,7 +246,7 @@
         <span class="p">)</span>
         <span class="n">temperature</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">'long_name'</span><span class="p">]</span> <span class="o">=</span> <span class="s1">'potential temperature'</span>
         <span class="n">salinity</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">'long_name'</span><span class="p">]</span> <span class="o">=</span> <span class="s1">'practical salinity'</span>
-        <span class="n">salinity</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">'units'</span><span class="p">]</span> <span class="o">=</span> <span class="s1">'PSU'</span>
+        <span class="n">salinity</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">'units'</span><span class="p">]</span> <span class="o">=</span> <span class="s1">'1'</span>
     <span class="k">elif</span> <span class="n">eos_type</span> <span class="o">==</span> <span class="s1">'teos-10'</span><span class="p">:</span>
         <span class="n">temperature</span> <span class="o">=</span> <span class="n">ct_from_potential_density</span><span class="p">(</span><span class="n">density</span><span class="p">,</span> <span class="n">salinity</span><span class="p">)</span>
         <span class="n">salinity</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">'long_name'</span><span class="p">]</span> <span class="o">=</span> <span class="s1">'absolute salinity'</span>

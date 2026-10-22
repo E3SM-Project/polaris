@@ -172,11 +172,11 @@
 <span class="sd">        config : polaris.config.PolarisConfigParser</span>
 <span class="sd">            Config options for test case</span>
 <span class="sd">        """</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">angleEdge</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">angleEdge</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">xCell</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">xCell</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">yCell</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">yCell</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">xEdge</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">xEdge</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">yEdge</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">yEdge</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">angleEdge</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">angleEdge</span><span class="o">.</span><span class="n">drop_attrs</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">xCell</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">xCell</span><span class="o">.</span><span class="n">drop_attrs</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">yCell</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">yCell</span><span class="o">.</span><span class="n">drop_attrs</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">xEdge</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">xEdge</span><span class="o">.</span><span class="n">drop_attrs</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">yEdge</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">yEdge</span><span class="o">.</span><span class="n">drop_attrs</span><span class="p">()</span>
 
         <span class="n">bottom_depth</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">'vertical_grid'</span><span class="p">,</span> <span class="s1">'bottom_depth'</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">f0</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">'coriolis'</span><span class="p">,</span> <span class="s1">'constant_f'</span><span class="p">)</span>

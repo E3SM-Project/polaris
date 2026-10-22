@@ -119,6 +119,8 @@
 <span class="kn">import</span><span class="w"> </span><span class="nn">xarray</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">xr</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">mpas_tools.io</span><span class="w"> </span><span class="kn">import</span> <span class="n">write_netcdf</span>
 
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.cf</span><span class="w"> </span><span class="kn">import</span> <span class="n">add_cf_conventions</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.mesh.attrs</span><span class="w"> </span><span class="kn">import</span> <span class="n">add_mesh_var_attrs</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">polaris.ocean.eos</span><span class="w"> </span><span class="kn">import</span> <span class="n">compute_specvol</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">polaris.ocean.vertical.bathymetry_holes</span><span class="w"> </span><span class="kn">import</span> <span class="n">fill_max_level_holes</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">polaris.ocean.vertical.grid_1d</span><span class="w"> </span><span class="kn">import</span> <span class="n">generate_1d_grid</span>
@@ -207,7 +209,8 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">add_output_file</span><span class="p">(</span>
             <span class="s1">'pstar_init.nc'</span><span class="p">,</span>
             <span class="n">validate_vars</span><span class="o">=</span><span class="p">[</span><span class="s1">'ZTildeMid'</span><span class="p">,</span> <span class="s1">'SpecVol'</span><span class="p">,</span> <span class="s1">'temperature'</span><span class="p">,</span> <span class="s1">'salinity'</span><span class="p">],</span>
-        <span class="p">)</span></div>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_cf_check</span><span class="p">(</span><span class="s1">'pstar_init.nc'</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="RealisticPStarInitStep.setup">
@@ -254,6 +257,7 @@
         <span class="n">geom_z_bot</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_clamp_to_representable_depth</span><span class="p">(</span><span class="n">ds_mesh</span><span class="p">,</span> <span class="n">geom_z_bot</span><span class="p">)</span>
 
         <span class="n">ds_out</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_run_pstar_init_filling_holes</span><span class="p">(</span><span class="n">ds_mesh</span><span class="p">,</span> <span class="n">geom_z_bot</span><span class="p">)</span>
+        <span class="n">ds_out</span> <span class="o">=</span> <span class="n">add_cf_conventions</span><span class="p">(</span><span class="n">add_mesh_var_attrs</span><span class="p">(</span><span class="n">ds_out</span><span class="p">))</span>
         <span class="n">write_netcdf</span><span class="p">(</span><span class="n">ds_out</span><span class="p">,</span> <span class="s1">'pstar_init.nc'</span><span class="p">)</span></div>
 
 
