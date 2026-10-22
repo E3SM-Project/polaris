@@ -101,6 +101,38 @@ in the base directory of your local clone of the polaris repo.  Then, you can
 `e3sm_submodules/E3SM-Project/components/mpas-ocean`) and build the code as
 appropriate for whichever of the {ref}`machines` you are using.
 
+(dev-ocean-fanssie)=
+
+## FAnSSIE
+
+The `e3sm_submodules/FAnSSIE` submodule points to the
+[fanssie-ocn-glc-coupling](https://github.com/E3SM-Ocean-Discussion/E3SM/tree/fanssie-ocn-glc-coupling)
+branch of E3SM-Ocean-Discussion/E3SM, the shared development branch of
+FAnSSIE, the Framework for Antarctic System Science in E3SM, for
+ocean–ice-sheet coupling work.  Like Omega's `develop`, it only gains commits:
+feature branches and E3SM `master` are merged in, and nothing is rewritten.
+`FANSSIE.md` at the root of the branch gives its rules and a ledger of each
+change and its upstream status.
+
+E3SM-Project remains the default MPAS-Ocean source.  Tasks that need FAnSSIE,
+including all the ice-shelf tasks, are not in the regular suites.  To run them,
+initialize the submodule and point the build to it:
+
+```bash
+git submodule update --init e3sm_submodules/FAnSSIE
+polaris suite -c ocean -t fanssie_pr --model mpas-ocean \
+    --branch e3sm_submodules/FAnSSIE -w <work_dir> -p <build_dir> \
+    -b <baseline_dir>
+```
+
+The `fanssie_pr` suite (see {ref}`ocean-suite-fanssie-pr`) is the regression
+test for FAnSSIE:
+
+- A task that needs FAnSSIE joins `fanssie_pr`.
+- A change to the FAnSSIE branch, and each update of the submodule, is tested
+  with `fanssie_pr` against a baseline built from the branch's previous
+  commit.
+
 ```{toctree}
 :titlesonly: true
 
