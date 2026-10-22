@@ -16,6 +16,9 @@ class Forward(OceanModelStep):
     horiz_adv_order : int or None
         The horizontal advection order for the test case
 
+    pressure_grad_type : str or None
+        Omega's ``PressureGradType``, or ``None`` for Omega's default
+
     nu : float or None
        The Laplacian viscosity to use for this forward step
     """
@@ -36,6 +39,7 @@ class Forward(OceanModelStep):
         nu=None,
         nu4=None,
         use_mom_del4=False,
+        pressure_grad_type=None,
     ):
         """
         Create a new test case
@@ -81,6 +85,11 @@ class Forward(OceanModelStep):
         nu4 : float, optional
             the biharmonic (del4) viscosity (if different from the default for
             the test group)
+
+        pressure_grad_type : str, optional
+            Omega's horizontal pressure-gradient scheme (``Centered`` or
+            ``FiniteVolume``), if different from Omega's default.  It has no
+            effect on MPAS-Ocean.
         """
         if min_tasks is None:
             min_tasks = ntasks
@@ -101,6 +110,7 @@ class Forward(OceanModelStep):
         self.nu = nu
         self.nu4 = nu4
         self.use_mom_del4 = use_mom_del4
+        self.pressure_grad_type = pressure_grad_type
 
         # make sure output is double precision
         self.add_yaml_file('polaris.ocean.config', 'output.yaml')
@@ -194,6 +204,11 @@ class Forward(OceanModelStep):
         if self.horiz_adv_order == 2:
             self.add_model_config_options(
                 options={'HorzTracerFluxLimiterEnable': False},
+                config_model='Omega',
+            )
+        if self.pressure_grad_type is not None:
+            self.add_model_config_options(
+                options={'PressureGradType': self.pressure_grad_type},
                 config_model='Omega',
             )
 
