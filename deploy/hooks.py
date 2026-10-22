@@ -70,7 +70,14 @@ def pre_spack(ctx: DeployContext) -> dict[str, Any] | None:
         ctx.config, ctx.machine, ctx.machine_config, ctx.args
     )
 
+    with_albany = getattr(ctx.args, 'with_albany', False)
+
     if spack_path is None:
+        if with_albany:
+            raise ValueError(
+                'Albany is only available from a Spack environment, but no '
+                'Spack environment was detected for this run.'
+            )
         ctx.logger.info(
             'No supported shared Spack environment was detected for this '
             'run; disabling Spack and relying on Pixi dependencies instead.'
@@ -82,7 +89,22 @@ def pre_spack(ctx: DeployContext) -> dict[str, Any] | None:
             }
         }
 
-    return {'spack': {'spack_path': spack_path}}
+    updates: Dict[str, Any] = {'spack': {'spack_path': spack_path}}
+
+    if with_albany:
+        _check_albany_supported(ctx.machine, _get_toolchain_pairs(ctx))
+        # Albany gets its own library environments, so environments without
+        # it are not modified
+        updates['spack']['env_name_prefix'] = 'spack_env_albany'
+        # the system cmake is too old for Trilinos on some machines
+        exclude_packages = _get_exclude_packages(ctx.config)
+        if 'cmake' not in exclude_packages:
+            exclude_packages.append('cmake')
+        updates['spack']['exclude_packages'] = exclude_packages
+        # the spack specs template can only see the pins
+        ctx.pins['spack']['albany_enabled'] = 'true'
+
+    return updates
 
 
 def post_publish(ctx: DeployContext) -> None:
@@ -194,6 +216,58 @@ def _get_pixi_mpi(machine, machine_config, args):
                 f"Missing '{mpi_option}' option in 'deploy' section"
             )
     return mpi
+
+
+def _get_toolchain_pairs(ctx):
+    """
+    Get the compiler and MPI library pairs that mache resolved for this
+    deployment
+    """
+    pairs = ctx.runtime.get('toolchain', {}).get('pairs', [])
+    return [(pair['compiler'], pair['mpi']) for pair in pairs]
+
+
+def _check_albany_supported(machine, toolchain_pairs):
+    """
+    Check that Albany is supported for each compiler and MPI library pair
+    """
+    if machine is None:
+        raise ValueError('Albany deployment requires a known machine')
+    if not toolchain_pairs:
+        raise ValueError('Albany deployment requires a compiler and MPI')
+
+    here = os.path.abspath(os.path.dirname(__file__))
+    filename = os.path.join(here, 'albany_supported.txt')
+    supported = set()
+    with open(filename) as f:
+        for line in f:
+            line = line.strip()
+            if not line or line.startswith('#'):
+                continue
+            parts = [part.strip() for part in line.split(',')]
+            if len(parts) != 3:
+                raise ValueError(f'Bad line in {filename}: {line}')
+            if parts[0] == machine:
+                supported.add((parts[1], parts[2]))
+
+    for compiler, mpi in toolchain_pairs:
+        if (compiler, mpi) not in supported:
+            raise ValueError(
+                f'Albany is not supported for {compiler} and {mpi} on '
+                f'{machine}.  See deploy/albany_supported.txt.'
+            )
+
+
+def _get_exclude_packages(config):
+    """
+    Get the machine-provided Spack packages to exclude from the deploy config
+    """
+    exclude_packages = config.get('spack', {}).get('exclude_packages')
+    if exclude_packages is None:
+        return []
+    if isinstance(exclude_packages, str):
+        return exclude_packages.replace(',', ' ').split()
+    return [str(package) for package in exclude_packages]
 
 
 def _get_spack_path(config, machine, machine_config, args):
