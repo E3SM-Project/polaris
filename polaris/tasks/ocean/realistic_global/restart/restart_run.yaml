@@ -1,0 +1,31 @@
+# Overrides applied on top of realistic_global/forward/forward.yaml by the
+# restart task's restart run.  Like the restart run of CIME's ERS test, it
+# continues from the restart the full run wrote partway through and runs to the
+# end of the period.  Its history starts as a copy of the full run's history up
+# to that restart, so that it appends to frames another run wrote: the case in
+# which Omega #482 silently overwrote the earlier frames.
+
+Omega:
+  TimeIntegration:
+    StartType: Continue
+    # The simulation start, deliberately *not* the restart time.  Omega
+    # measures the history time axis from the clock's start time, so a run that
+    # moves the start time restarts that axis at zero and its first frame
+    # collides with the first frame already in the file, which is what
+    # silently overwrote earlier frames in Omega #482.  On a Continue the
+    # clock's current time comes from the restart file instead.
+    StartTime: {{ sim_start_time }}
+  IOStreams:
+    # the full run's restart at the restart time, named rather than found
+    # through a pointer file, since the full run writes another one at its end
+    RestartRead:
+      UsePointerFile: false
+      Filename: {{ restart_read_file }}
+      UseStartEnd: false
+    # into a directory of its own, so that nothing the full run wrote is
+    # replaced
+    RestartWrite:
+      UsePointerFile: false
+      Filename: {{ restart_dir }}/ocn.restart.$Y-$M-$D_$h.$m.$s.nc
+      Freq: 1
+      FreqUnits: OnShutdown

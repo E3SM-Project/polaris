@@ -1,6 +1,11 @@
 from polaris import Task as Task
 from polaris.config import PolarisConfigParser as PolarisConfigParser
-from polaris.tasks.ocean.realistic_global.forward import Forward as Forward
+from polaris.tasks.ocean.realistic_global.forward import (
+    InitialCondition as InitialCondition,
+)
+from polaris.tasks.ocean.realistic_global.mesh_configs import (
+    add_realistic_global_mesh_config,
+)
 from polaris.tasks.ocean.realistic_global.restart.restart_step import (
     RestartStep as RestartStep,
 )
@@ -8,55 +13,45 @@ from polaris.tasks.ocean.realistic_global.restart.validate import (
     Validate as Validate,
 )
 
-#: The start of the simulation, shared by every step so that the history time
-#: axis of the restart chain lines up with that of the full run
-SIM_START_TIME = '0001-01-01_00:00:00'
-
-#: How long each segment of the restart chain runs.  The full run covers two
-#: of these.  The period is short on purpose: this task is about how the model
-#: writes its history across a restart, not about the circulation, and it is
-#: meant to be cheap enough for the pull-request suite.
-SEGMENT_DURATION = '0000_02:00:00'
-
-#: The full run, which the restart chain is compared against
+#: How long the full run covers.  The period is short on purpose: this task is
+#: about how the model restarts and writes its history across a restart, not
+#: about the circulation, and it is meant to be cheap enough for the
+#: pull-request suite.
 FULL_DURATION = '0000_04:00:00'
 
-#: How often a history frame is written.  Two frames per segment, so that a
-#: segment that clobbered rather than appended would be obvious.
-OUTPUT_INTERVAL = '0000_01:00:00'
-OUTPUT_FREQ = '1'
-OUTPUT_FREQ_UNITS = 'hours'
+#: How far into the period the full run writes the restart the restart run
+#: continues from, as the base run of CIME's ERS test does partway through
+RESTART_TIME = '0000_02:00:00'
 
-#: Per-mesh baroclinic and barotropic time steps for the split-explicit time
-#: stepper and biharmonic momentum viscosity (m^4/s).  For QU.240km these are
-#: the settings of the analysis_members tasks: E3SM's MPAS-Ocean time steps
-#: for oQU240, since a 2-hour step grew a surface hotspot along the Aleutians
-#: in a one-year run, and a viscosity well above Omega's default of 1.2e11,
-#: which is meant for much finer meshes and leaves grid-scale noise.
-MESH_INFO = {
-    'QU.240km': dict(dt='01:00:00', btr_dt='00:03:00', mom_del4=1.0e15),
-}
+#: How long the restart run covers: the rest of the period
+RESTART_DURATION = '0000_02:00:00'
+
+#: How often a history frame is written.  Two frames on each side of the
+#: restart, so that a restart run that clobbered rather than appended would be
+#: obvious.
+OUTPUT_INTERVAL = '0000_01:00:00'
 
 
 class Restart(Task):
     """
-    A task that checks that splitting a run across a restart leaves the
-    history output alone.
+    A task that checks that a run continued from a restart reproduces the
+    uninterrupted run, history included, shaped like CIME's ERS test.
 
-    A ``full_run`` covers the whole period in one go.  Two further steps cover
-    the same period in two segments, the second continuing from the restart
-    the first wrote and appending its frames to the history the first left
-    behind.  A ``validate`` step then checks that the two histories hold the
-    same frames at the same times and the same state.
+    A ``full_run`` covers the whole period and writes a restart partway
+    through, along with its history up to that restart in a file of its own.
+    A ``restart_run`` continues from that restart to the end of the period,
+    appending its frames to a copy of that history.  A ``validate`` step then
+    checks that the two histories hold the same frames at the same times and
+    the same state.
 
-    This is a regression test for Omega #482, where the continuing segment
+    Appending is also a regression test for Omega #482, where a continuing run
     measured its history time axis from its own start rather than the
     simulation's, so its first frame collided with the first frame already in
-    the file and silently replaced the earlier half of the run.
+    the file and silently replaced the earlier frames.
     """
 
     def __init__(
-        self, component, subdir, mesh_name, mpaso_id, omega_id, ncells
+        self, component, mesh_name: str, init_condition: InitialCondition
     ):
         """
         Create the task
@@ -66,105 +61,62 @@ class Restart(Task):
         component : polaris.tasks.ocean.Ocean
             The ocean component that this task belongs to
 
-        subdir : str
-            The subdirectory for the task, to which ``restart`` will be
-            appended
-
         mesh_name : str
-            The name of the mesh (e.g. ``QU.240km``)
+            The name of the mesh (e.g. ``e3sm-qu240``)
 
-        mpaso_id : int
-            The ID of the MPAS-Ocean initial condition in the Polaris input
-            database
-
-        omega_id : int
-            The ID of the Omega initial condition in the Polaris input
-            database
-
-        ncells : int
-            The approximate number of cells in the mesh, used to constrain
-            resources
+        init_condition : InitialCondition
+            The source of the model input files, shared by every forward step
         """
-        subdir = f'{subdir}/restart'
+        subdir = f'spherical/realistic_global/{mesh_name}/restart'
         super().__init__(component=component, name='restart', subdir=subdir)
 
+        # the forward-run options, then the per-mesh ones, then this task's,
+        # so that each layer overrides the one before
         config_filename = 'restart.cfg'
         config_path = f'{component.name}/{subdir}/{config_filename}'
         config = PolarisConfigParser(filepath=config_path)
         config.add_from_package(
-            'polaris.tasks.ocean.realistic_global',
-            'realistic_global.cfg',
+            'polaris.tasks.ocean.realistic_global.forward',
+            'forward.cfg',
         )
+        add_realistic_global_mesh_config(config=config, mesh_name=mesh_name)
         config.add_from_package(
             'polaris.tasks.ocean.realistic_global.restart',
             config_filename,
         )
         self.set_shared_config(config, link=config_filename)
 
-        shared = dict(
-            time_integrator='SplitExplicitRK2',
-            dt=MESH_INFO[mesh_name]['dt'],
-            btr_dt=MESH_INFO[mesh_name]['btr_dt'],
-            output_interval=OUTPUT_INTERVAL,
-            output_freq=OUTPUT_FREQ,
-            output_freq_units=OUTPUT_FREQ_UNITS,
-            sim_start_time=SIM_START_TIME,
-        )
-
-        # given to every step, so that the full run and the restart chain
-        # run the same model
-        options = {
-            'ocean': {'config_mom_del4': MESH_INFO[mesh_name]['mom_del4']}
-        }
-
-        mesh_args = dict(
-            mesh_name=mesh_name,
-            mpaso_id=mpaso_id,
-            omega_id=omega_id,
-            ncells=ncells,
-        )
-
-        # the uninterrupted run the restart chain is measured against; it
-        # keeps its own restart directory rather than the one the chain
-        # shares, so that its restart cannot be mistaken for the chain's
-        full_run = Forward(
+        # the uninterrupted run, which also writes the restart and the history
+        # up to it that the restart run starts from
+        full_run = RestartStep(
             component=component,
-            package='polaris.tasks.ocean.realistic_global',
             name='full_run',
             subdir=f'{subdir}/full_run',
-            replacements=dict(shared, run_duration=FULL_DURATION),
-            options=options,
-            **mesh_args,
+            init_condition=init_condition,
+            run_duration=FULL_DURATION,
+            output_interval=OUTPUT_INTERVAL,
+            restart_time=RESTART_TIME,
         )
         full_run.set_shared_config(config, link=config_filename)
         self.add_step(full_run)
 
-        previous_step = None
-        for name, start_type in [
-            ('first_segment', 'StartUp'),
-            ('second_segment', 'Continue'),
-        ]:
-            step = RestartStep(
-                component=component,
-                name=name,
-                subdir=f'{subdir}/{name}',
-                replacements=dict(
-                    shared,
-                    run_duration=SEGMENT_DURATION,
-                    start_type=start_type,
-                ),
-                previous_step=previous_step,
-                options=options,
-                **mesh_args,
-            )
-            step.set_shared_config(config, link=config_filename)
-            self.add_step(step)
-            previous_step = step
+        restart_run = RestartStep(
+            component=component,
+            name='restart_run',
+            subdir=f'{subdir}/restart_run',
+            init_condition=init_condition,
+            run_duration=RESTART_DURATION,
+            output_interval=OUTPUT_INTERVAL,
+            restart_time=RESTART_TIME,
+            restart_from=full_run,
+        )
+        restart_run.set_shared_config(config, link=config_filename)
+        self.add_step(restart_run)
 
         validate = Validate(
             component=component,
             full_run_subdir='full_run',
-            restart_subdir='second_segment',
+            restart_subdir='restart_run',
             indir=subdir,
         )
         validate.set_shared_config(config, link=config_filename)

@@ -20,7 +20,7 @@ def _make_step(model):
     config.add_from_package('polaris.ocean', 'ocean.cfg')
     config.add_from_package(
         'polaris.tasks.ocean.realistic_global.init',
-        'realistic_global_init.cfg',
+        'init.cfg',
     )
     config.set('ocean', 'model', model)
 

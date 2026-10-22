@@ -3,12 +3,10 @@ Omega:
     GlobalStats:
       # Omega's default list plus the two remaining fields the ocean analysis
       # plots time series of.  Both KineticEnergyCell (2D) and SshCell (1D)
-      # have spatial operators registered for their rank.
+      # have spatial operators registered for their rank.  The period and file
+      # name come from the forward step's own yaml.
       Fields: [NormalVelocity, PseudoThickness, Temperature, Salinity,
                KineticEnergyCell, SshCell]
-      ReductionPeriod: []
-      SnapshotPeriod: [1Day]
-      Filename: global_stats
     MonthlyAverages:
       Enable: true
       # The fields the ocean analysis reads: the plotted fields, and what is
@@ -59,12 +57,11 @@ Omega:
       Filename: output/ocn.hist.$Y-$M.nc
       Freq: 1
       FreqUnits: months
-      # One time record per file.  The shared yaml's FileFreq of 9999 years
+      # One time record per file.  The forward step's FileFreq of 9999 years
       # would put every month in one file, since a stream's options merge.
       FileFreq: 1
       FileFreqUnits: months
       IfExists: replace
-      Precision: double
       Contents:
         - Tracers
         - PseudoThickness
@@ -75,11 +72,10 @@ Omega:
         - NormalVelocity
         - KineticEnergyCell
     RestartWrite:
-      # Monthly, which is what a 1Month reduction requires: Omega checks
-      # that the restart interval is divisible by every averaging period,
-      # and on a variable-month calendar that holds only for an interval in
-      # months or years.  The shared yaml's OnShutdown has no alarm and
-      # fails the check.  The run is a whole number of months, so the last
-      # restart still lands on the last time step.
+      # Monthly, so that the year can be continued from any month.  Omega
+      # checkpoints the partial sums of the monthly means, so a restart in
+      # the middle of a month would work as well (E3SM-Project/Omega#611).
+      # The run is a whole number of months, so the last restart still lands
+      # on the last time step.
       Freq: 1
       FreqUnits: months
