@@ -305,36 +305,12 @@ class Forward(OceanModelStep):
                 time_integrator=time_integrator,
             ),
         )
-        template_replacements = dict(
-            output_interval=output_interval_str,
-            output_freq=f'{int(output_interval_seconds)}',
-            RhoSw=get_constant('seawater_density_reference'),
-            sea_ice_reference_salinity=get_constant(
-                'sea_ice_reference_salinity'
-            ),
-            latent_heat_of_fusion=get_constant(
-                'latent_heat_of_fusion_reference'
-            ),
-        )
-        if 'kpp_regimes' in self.task_package:
-            template_replacements['match_technique'] = (
-                self.match_technique or 'SimpleShapes'
-            )
-            template_replacements['use_theory_wave'] = self.use_theory_wave
-            template_replacements['langmuir_mixing_opt'] = (
-                'LWF16' if self.use_langmuir_circulation else 'NONE'
-            )
-            template_replacements['langmuir_entrainment_opt'] = (
-                'LF17' if self.use_langmuir_circulation else 'NONE'
-            )
-            template_replacements['min_OBL_under_sea_ice'] = (
-                self.min_obl_under_sea_ice
-            )
-
         self.add_yaml_file(
             self.task_package,
             'forward.yaml',
-            template_replacements=template_replacements,
+            template_replacements=self._get_template_replacements(
+                output_interval_str, output_interval_seconds
+            ),
         )
 
         # Preserve legacy mixing in non-KPP tests even when model defaults
@@ -457,3 +433,38 @@ class Forward(OceanModelStep):
             options=omega_options,
             config_model='Omega',
         )
+
+        if (
+            config.getint('vertical_grid', 'vert_levels') == 1
+            or self.task_name == 'frazil_one_layer'
+        ):
+            self.add_yaml_file('polaris.ocean.config', 'single_layer.yaml')
+
+    def _get_template_replacements(
+        self, output_interval_str, output_interval_seconds
+    ):
+        """Build the task-specific forward YAML template replacements."""
+        replacements = dict(
+            output_interval=output_interval_str,
+            output_freq=f'{int(output_interval_seconds)}',
+            RhoSw=get_constant('seawater_density_reference'),
+            sea_ice_reference_salinity=get_constant(
+                'sea_ice_reference_salinity'
+            ),
+            latent_heat_of_fusion=get_constant(
+                'latent_heat_of_fusion_reference'
+            ),
+        )
+        if 'kpp_regimes' in self.task_package:
+            replacements['match_technique'] = (
+                self.match_technique or 'SimpleShapes'
+            )
+            replacements['use_theory_wave'] = self.use_theory_wave
+            replacements['langmuir_mixing_opt'] = (
+                'LWF16' if self.use_langmuir_circulation else 'NONE'
+            )
+            replacements['langmuir_entrainment_opt'] = (
+                'LF17' if self.use_langmuir_circulation else 'NONE'
+            )
+            replacements['min_OBL_under_sea_ice'] = self.min_obl_under_sea_ice
+        return replacements
