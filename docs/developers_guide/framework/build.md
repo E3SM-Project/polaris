@@ -11,6 +11,8 @@ Currently supported builders:
 
 - `polaris.build.mpas_ocean` — build MPAS-Ocean from an E3SM checkout
 - `polaris.build.omega` — build Omega from the standalone repo or submodule
+- `polaris.build.mali` — build MALI from an E3SM checkout, with or without
+  Albany
 
 ## How it works
 
@@ -23,16 +25,19 @@ Names of generated scripts within the build directory:
 
 - MPAS-Ocean: `build_mpas_ocean_<machine>_<compiler>_<mpi>.sh`
 - Omega: `build_omega_<machine>_<compiler>.sh`
+- MALI: `build_mali_<machine>_<compiler>_<mpi>.sh`
 
 ## Source record
 
-Before configuring (Omega) or making (MPAS-Ocean), each build script writes a
-record of the source it is building into the build directory:
-`omega_source.txt` or `mpas_ocean_source.txt`.  The record holds the source
-tree's path, its full hash, `git describe --tags --dirty --always`, the last
-five first-parent commits, and `clean_build`.  For Omega, `clean_build` is
-`true` when the build directory had no `CMakeCache.txt`; for MPAS-Ocean, it is
-`true` when the script ran `make clean`.
+Before configuring (Omega) or making (MPAS-Ocean and MALI), each build script
+writes a record of the source it is building into the build directory:
+`omega_source.txt`, `mpas_ocean_source.txt` or `mali_source.txt`.  The record
+holds the source tree's path, its full hash,
+`git describe --tags --dirty --always`, the last five first-parent commits,
+and `clean_build`.  For Omega, `clean_build` is `true` when the build
+directory had no `CMakeCache.txt`; for MPAS-Ocean and MALI, it is `true` when
+the script ran `make clean`.  MALI's record also says whether the build has
+Albany (`albany`).
 
 {py:func}`polaris.build.source_record.read_source_record()` reads the record.
 {ref}`dev-provenance` uses it to record the commit that was built, which may
@@ -58,6 +63,11 @@ Omega:
 - `POLARIS_MACHINE` — machine ID
 - `POLARIS_COMPILER` — compiler toolchain ID
 - `METIS_ROOT`, `PARMETIS_ROOT` — paths to METIS and ParMETIS installs
+
+MALI: the same as MPAS-Ocean, plus
+- `POLARIS_ALBANY_LINK_LIBS` — the libraries a MALI build with Albany links
+  to, set only by load scripts for environments deployed with
+  `--with-albany` (see {ref}`dev-landice-albany`)
 
 Notes:
 - If the `branch` argument points to the corresponding submodule inside
@@ -88,6 +98,22 @@ Python entry points:
 Behavior:
 - Renders `polaris.build/build_omega.template`
 - Writes the script under `./build_omega/`
+- Executes the script with `env -i HOME="$HOME" bash -l <script>`
+
+## MALI builder
+
+Python entry points:
+- {py:func}`polaris.build.mali.build_mali()` — render and run a build
+- {py:func}`polaris.build.mali.make_build_script()` — render the script only
+
+Behavior:
+- Renders `polaris.build/build_mali.template`
+- Builds in `components/mpas-albany-landice` of the branch, initializing none
+  of MALI's optional submodules
+- With Albany, adds `ALBANY=true` and appends `POLARIS_ALBANY_LINK_LIBS` to
+  `MPAS_EXTERNAL_LIBS`
+- Copies `landice_model`, MALI's default namelist and streams files and its
+  processed registry into the build directory
 - Executes the script with `env -i HOME="$HOME" bash -l <script>`
 
 ## Usage examples
