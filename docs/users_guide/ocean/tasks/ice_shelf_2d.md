@@ -39,8 +39,8 @@ run_duration = 1.0
 # Whether to adjust land ice pressure or SSH
 adjust_variable = land_ice_pressure
 
-# Time integration scheme
-time_integrator = split_explicit
+# Time integration scheme: split_explicit_ab2, split_explicit or RK4
+time_integrator = split_explicit_ab2
 
 # Time step in seconds as a function of resolution
 rk4_dt_per_km = 10

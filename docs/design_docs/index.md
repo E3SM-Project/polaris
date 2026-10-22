@@ -7,6 +7,7 @@
 
 global_ocean_init
 horiz_press_grad_reference
+isomip_plus
 land_locked_cells
 ocean_analysis
 ocean_analysis_initial
@@ -14,6 +15,7 @@ omega_pr_testing
 overflow_nonlinear_eos
 pstar_init
 shared_steps
+split_explicit_wetting_drying
 suite_results_file
 task_parallel_analysis_steps
 task_parallelism
