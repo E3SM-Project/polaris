@@ -643,6 +643,7 @@ seaice/api
    mali.get_mali_build_albany
    mali.get_mali_source_dir
    mali.make_build_script
+   mpas_framework.get_framework_check
    mpas_ocean.build_mpas_ocean
    mpas_ocean.make_build_script
    omega.build_omega
