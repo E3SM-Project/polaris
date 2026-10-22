@@ -463,6 +463,62 @@
    viz.Viz.run
 ```
 
+### mixed_layer_eddies
+
+```{eval-rst}
+.. currentmodule:: polaris.tasks.ocean.mixed_layer_eddies
+
+.. autosummary::
+   :toctree: generated/
+
+   add_mixed_layer_eddies_tasks
+
+   init.Init
+   init.Init.setup
+   init.Init.run
+   init.Init.init_tracers
+   init.read_itp77_salinity
+   init.compute_background_salinity
+   init.compute_density_anomaly
+
+   forward.Forward
+   forward.Forward.setup
+   forward.Forward.compute_cell_count
+   forward.Forward.dynamic_model_config
+
+   diagnostics.get_frontal_lines
+   diagnostics.get_frontal_cell_mask
+   diagnostics.get_flux_thickness
+   diagnostics.get_density
+   diagnostics.get_geom_thickness
+   diagnostics.get_z_mid
+   diagnostics.compute_mu
+   diagnostics.compute_buoyancy_gradient
+   diagnostics.compute_line_overturning
+   diagnostics.compute_line_interface_depths
+   diagnostics.compute_eddy_overturning
+   diagnostics.fit_mu_amplitude
+   diagnostics.compute_fk11_stream_function
+   diagnostics.compute_model_stream_function
+   diagnostics.get_consistent_edges
+   diagnostics.compute_potential_energy
+   diagnostics.compute_mixed_layer_n2
+
+   viz.plot_surface_salinity
+
+   resolved.Resolved
+   resolved.analysis.Analysis
+   resolved.analysis.Analysis.run
+
+   coarse.Coarse
+   coarse.verify.Verify
+   coarse.verify.Verify.run
+
+   comparison.Comparison
+   comparison.analysis.Analysis
+   comparison.analysis.Analysis.run
+```
+
 ### overflow
 
 ```{eval-rst}
@@ -959,6 +1015,21 @@
 
    rpe.compute_rpe
 
+```
+
+### Overturning
+
+```{eval-rst}
+.. currentmodule:: polaris.ocean.overturning
+
+.. autosummary::
+   :toctree: generated/
+
+   get_line_edges
+   interp_cell_to_line_edges
+   compute_line_transport
+   compute_overturning
+   bin_line_transport
 ```
 
 ### Surface pressure
