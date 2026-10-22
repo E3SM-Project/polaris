@@ -253,7 +253,9 @@ meshes with the parameterization off and on.  It verifies the
 parameterization: in the last output (`verify_day`) of each run with it
 on, the stream function the model adds on each edge in the frontal zone
 must match the formula evaluated from the run's own state, mixed-layer
-depth and buoyancy frequency within `verify_tolerance`.  Only
+depth and buoyancy frequency. The normalized RMSE (RMSE divided by the
+formula's RMS) must not exceed `verify_tolerance_8km` (0.06) at 8 km or
+`verify_tolerance_16km` (0.035) at 16 km. Only
 edges whose output mixed-layer depth is the one the eddy velocity was
 computed with are compared, and at least `verify_min_consistent_fraction`
 of them must be.

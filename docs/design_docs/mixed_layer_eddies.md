@@ -335,8 +335,10 @@ with nonzero eddy velocity are compared. Elsewhere the output depth is
 not the one the eddy velocity used: in Omega the two come from
 different stages of a time step, and where the mixed layer is nearly
 neutral the diagnosed depth jumps by layers between them. The check
-fails if fewer than half the edges qualify or the relative error on
-them exceeds 15%.
+fails if fewer than half the edges qualify or the normalized RMSE on
+them exceeds 6% at 8 km or 3.5% at 16 km. Normalize RMSE by the formula's
+RMS; these thresholds allow headroom over the reported Omega errors of
+5.2% and 2.9%, respectively.
 
 > **Rationale.** The final runs give errors of 1–5% on 92–100% of
 > edges in Omega and about 1% on all edges in MPAS-Ocean. While the
