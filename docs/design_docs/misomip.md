@@ -541,12 +541,16 @@ without wetting and drying ([D18](#decisions)).
 
 A `landice` component joins `ocean` and `seaice`, with its framework in
 `polaris/landice/`, its tasks in `polaris/tasks/landice/`, a MALI model
-step, a MALI build from FAnSSIE and a landice database area. Its design
-decides how Albany returns: through Polaris's deployment hooks, as
-Compass's `--with-albany` does, or by linking an existing installation.
+step, a MALI build and a landice database area. Albany returns through
+Polaris's own deployment, `./deploy.py --with-albany`. MALI-Dev's
+`develop` stays the landice default, which FAnSSIE also merges in, and
+builds for this work point to FAnSSIE explicitly, as for the ocean
+([D15](#decisions)). The first tasks are Compass's `dome`, with both
+velocity solvers, and they join `fanssie_pr`.
 
 Static and data-mode initial conditions need only MALI's mesh conversion,
-not a MALI build, so WP6 can start before Albany is back.
+which lives in the landice framework, not a MALI build, so WP6 can start
+before Albany is back.
 
 ### WP4: MISMIP+
 
