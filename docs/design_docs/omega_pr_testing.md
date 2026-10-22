@@ -52,7 +52,8 @@ be needed.
 
 ### Requirement: The baseline is Polaris' Omega submodule unless the requester chooses otherwise.
 
-Any other baseline is stated in every report, with the reason.
+Any other baseline, `develop` included, is stated in every report, with a
+reason that rests on evidence, not a guess.
 
 ### Requirement: Each report carries its own provenance.
 
@@ -195,8 +196,12 @@ although it may be at a different Polaris commit, which is recorded.
 
 The pin can lag far enough behind that differences would be hard to blame on
 the pull request, as happened for Omega#481. In that case the requester can
-choose another baseline, usually `base_head`. The reason goes in the
-manifest and in each report.
+choose another baseline, such as `base_head`. Doing so overrides the normal
+practice, so the reason must rest on evidence: a merged PR's Testing comment
+showing that it changed `omega_pr` results, or something checked that
+suggests a merge may change them, stated as only that. A PR's title is not
+evidence. `init` prints the reason in its summary, so the requester sees it
+before the branch is pushed, and it goes in the manifest and in each report.
 
 ### Algorithm Design: Each report carries its own provenance.
 

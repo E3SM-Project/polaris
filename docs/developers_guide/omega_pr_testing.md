@@ -21,7 +21,8 @@ Frontier does not allow such connections, so an agent on Frontier tests its
 rows.
 
 The baseline is the Omega commit Polaris pins in `e3sm_submodules/Omega`,
-unless the requester chooses another and says why.  If the PR needs
+unless the requester chooses another, `develop` included, with a reason
+that rests on evidence rather than a guess.  If the PR needs
 Polaris changes that the baseline Omega cannot run, the PR is tested with a
 Polaris test merge and the baseline runs from a second Polaris checkout
 without those changes.  An existing baseline

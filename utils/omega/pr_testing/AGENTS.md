@@ -87,16 +87,31 @@ Below, `omega_pr_test.py` means `./utils/omega/pr_testing/omega_pr_test.py`.
    omega_pr_test.py init --pr <number>
    ```
    The baseline is the Omega commit that Polaris `main` pins in
-   `e3sm_submodules/Omega`.  Use another baseline only if the requester
-   asks, with `--baseline <ref> --reason "<why>"`.  Every report prints
-   the reason after "because", so write it as a lowercase clause with no
-   final period, such as `"answer-changing PRs have merged into develop
-   since the commit Polaris pins"`.  If `develop` does not
-   build without an unmerged fix, the requester may ask for
-   `--merge-pr <number>` (or `--baseline-merge-pr`).  If the PR does not
-   merge cleanly, stop and tell the requester.  They may resolve the
-   conflicts in a merge of their own, on a branch of the fork, which you
-   then test with `--test-ref <branch>`.
+   `e3sm_submodules/Omega`.  That is the normal practice; `develop` is
+   not a default.  Any other baseline, `develop` included, needs
+   `--baseline <ref> --reason "<why>"`, and the reason must rest on work
+   done to justify overriding the normal practice, never on a guess:
+
+   - If a PR merged since the pin changed `omega_pr` results, its Testing
+     comment shows it.  Name the PR and link that comment.
+   - If what you checked suggests a merge may change results, without
+     showing it, say what you found, and that the other baseline saves a
+     rerun if it does.
+   - A PR's title or branch name is not evidence.  Without such a reason,
+     use the submodule.
+
+   Use another baseline only if the requester asks or agrees, and show
+   them the reason, and what it rests on, before pushing; `init` prints
+   it in its summary.  Every report prints the reason after "because", so
+   write it as a lowercase clause with no final period, such as
+   `"#<number> changed omega_pr results (<link to its Testing comment>)
+   and has merged into develop since the commit Polaris pins"`.
+
+   If `develop` does not build without an unmerged fix, the requester may
+   ask for `--merge-pr <number>` (or `--baseline-merge-pr`).  If the PR
+   does not merge cleanly, stop and tell the requester.  They may
+   resolve the conflicts in a merge of their own, on a branch of the
+   fork, which you then test with `--test-ref <branch>`.
    If the PR needs Polaris changes too, the requester names two branches
    on their Polaris fork (`polaris_fork` in the config): a test merge for
    the PR and a branch for the baseline.  Fetch both into this checkout as
@@ -301,9 +316,11 @@ apply, with these differences:
   `develop` itself does not build, tell the requester, who may start again
   with `init --merge-pr`.  `setup` rebuilds a failed build from scratch the
   next time it runs.
-- **Tasks differ from the baseline.**  With the default baseline, changes
-  merged into `develop` since the Polaris pin can cause differences too.
-  Say which tasks differ and what you think caused it.
+- **Tasks differ from the baseline.**  With the default baseline, a
+  difference may come from this PR or from a change merged into `develop`
+  since the Polaris pin.  Say which tasks differ and what you found in
+  the logs.  Blame a merge only if you checked, for example in its
+  Testing comment, and otherwise say the cause is not known.
 - **CTests fail.**  `ctests.log` is in the PR build directory.
 - **The baseline cannot run on a row**, such as an older Kokkos on a
   new GPU.  Only if the requester asks, run `setup` with

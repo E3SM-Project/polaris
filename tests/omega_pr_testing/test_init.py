@@ -10,6 +10,12 @@ from omega_pr_manifest import (
     get_row,
 )
 
+# a reason for another baseline rests on evidence, never a guess
+REASON = (
+    '#7 changed omega_pr results (see its Testing comment) and has merged '
+    'into develop since the commit Polaris pins'
+)
+
 
 @pytest.fixture
 def fixture(tmp_path, monkeypatch):
@@ -87,7 +93,7 @@ def test_init_replaces_different_branch(fixture):
     second = _initiate(
         fixture,
         baseline_ref='develop',
-        reason='the submodule is behind develop',
+        reason=REASON,
         push=True,
         force=True,
     )
@@ -164,13 +170,14 @@ def test_init_other_baseline_needs_reason(fixture):
     with pytest.raises(omega_pr_init.InitError, match='--reason'):
         _initiate(fixture, baseline_ref='develop')
 
-    result = _initiate(
-        fixture, baseline_ref='develop', reason='the pin is too old'
-    )
+    result = _initiate(fixture, baseline_ref='develop', reason=REASON)
 
     assert result.manifest.baseline_commit == fixture.develop
     assert result.manifest.baseline_source == 'develop'
-    assert result.manifest.baseline_reason == 'the pin is too old'
+    assert result.manifest.baseline_reason == REASON
+    # the requester sees the reason before the branch is pushed
+    summary = omega_pr_init.format_result(result, fixture.config.omega_repo)
+    assert f'Reason:          {REASON}' in summary
 
 
 def test_init_baseline_polaris(fixture):

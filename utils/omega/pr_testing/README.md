@@ -17,10 +17,11 @@ its rows.  An agent on every machine also works, but is discouraged.
 1. **`init`** (your computer) merges the PR into its base branch and pushes
    the result to the requester's fork as a test branch, with a manifest
    that pins the test and baseline commits and the rows to test.  The
-   baseline is the Omega commit that Polaris `main` pins, unless another is
-   given with a reason.  If the PR needs Polaris changes that the baseline
-   Omega cannot run, `--polaris-ref` names a Polaris test merge for the PR
-   and `--baseline-polaris-ref` the Polaris commit for the baseline.
+   baseline is the Omega commit that Polaris `main` pins.  Any other,
+   `develop` included, needs a reason that rests on evidence, not a guess.
+   If the PR needs Polaris changes that the baseline Omega cannot run,
+   `--polaris-ref` names a Polaris test merge for the PR and
+   `--baseline-polaris-ref` the Polaris commit for the baseline.
 2. **`lint`** (your computer) checks pre-commit and the docs build.  When
    Omega's CI has passed on the PR head, there is nothing to post, since
    the PR's checks show it.  Otherwise it runs them and writes a comment

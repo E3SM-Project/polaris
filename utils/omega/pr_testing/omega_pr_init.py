@@ -387,8 +387,11 @@ def format_result(result: InitResult, repo: str) -> str:
         f'Test commit:     {manifest.test_commit}',
         f'Baseline commit: {manifest.baseline_commit} '
         f'({manifest.baseline_source})',
-        f'Polaris commit:  {manifest.polaris_commit}',
     ]
+    # the requester approves the reason here, before every report repeats it
+    if manifest.baseline_reason:
+        lines.append(f'Reason:          {manifest.baseline_reason}')
+    lines.append(f'Polaris commit:  {manifest.polaris_commit}')
     if manifest.baseline_polaris_commit != manifest.polaris_commit:
         lines.append(f'Baseline Polaris: {manifest.baseline_polaris_commit}')
     lines += [

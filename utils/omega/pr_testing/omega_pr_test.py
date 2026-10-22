@@ -201,14 +201,17 @@ def _parse_args():
     init.add_argument(
         '--baseline',
         help='An Omega branch or commit to compare against instead of '
-        "Polaris' Omega submodule",
+        "Polaris' Omega submodule, the normal baseline.  Even develop "
+        'needs a --reason.',
     )
     init.add_argument(
         '--reason',
-        help='Why --baseline is used instead of the submodule, as a '
+        help='Why --baseline is used instead of the submodule, resting on '
+        'evidence you checked, never a guess from a PR title, as a '
         'lowercase clause that reports print after "because", such as '
-        '"answer-changing PRs have merged into develop since the commit '
-        'Polaris pins"',
+        '"#<number> changed omega_pr results (<link to its Testing '
+        'comment>) and has merged into develop since the commit Polaris '
+        'pins"',
     )
     init.add_argument(
         '--test-ref',
