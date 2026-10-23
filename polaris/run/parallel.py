@@ -24,12 +24,14 @@ decomposition depend on scheduling timing, and its results with it.
 
 import argparse
 import os
+import signal
 import socket
 import sys
 import time
+from contextlib import contextmanager
 from datetime import datetime, timedelta
 from functools import partial
-from typing import Dict, List, Optional
+from typing import Dict, Iterator, List, Optional
 
 import mpas_tools.io
 from mache.parallel import PlacementSupport
@@ -102,14 +104,46 @@ def run_tasks(suite_name, quiet=False):
             os.path.join(work_dir, f'{suite_name}_events.jsonl')
         )
         try:
-            failures = _run(
-                suite, suite_name, component, logger, events, work_dir, quiet
-            )
+            with _torn_down_by_sigterm():
+                failures = _run(
+                    suite,
+                    suite_name,
+                    component,
+                    logger,
+                    events,
+                    work_dir,
+                    quiet,
+                )
         finally:
             events.close()
 
     if failures:
         sys.exit(1)
+
+
+@contextmanager
+def _torn_down_by_sigterm() -> Iterator[None]:
+    """
+    Tear the run down on SIGTERM, as on Ctrl-C.
+
+    SIGTERM otherwise ends the scheduler at once, without the teardown that
+    stops the steps it forked, so they run on with nothing watching them.
+    Slurm sends it when a job is cancelled or runs out of time, and a user
+    sends it with ``kill``.  Raising here unwinds the run through that
+    teardown, and the run exits with the status SIGTERM would have given.
+    A second SIGTERM while it tears down is ignored, so that it can finish.
+    """
+    previous = signal.signal(signal.SIGTERM, _raise_on_sigterm)
+    try:
+        yield
+    finally:
+        signal.signal(signal.SIGTERM, previous)
+
+
+def _raise_on_sigterm(signum, frame) -> None:
+    """Unwind the run, and ignore any further SIGTERM while it does."""
+    signal.signal(signal.SIGTERM, signal.SIG_IGN)
+    raise SystemExit(128 + signum)
 
 
 def _run(suite, suite_name, component, logger, events, work_dir, quiet):

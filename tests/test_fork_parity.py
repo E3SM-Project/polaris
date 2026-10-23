@@ -14,6 +14,7 @@ what is under test.
 
 import os
 import re
+import signal
 import time
 
 import pytest
@@ -23,7 +24,7 @@ from polaris.config import PolarisConfigParser
 from polaris.run import STEP_COMPLETE_LOG
 from polaris.run.allocation import NodeResources
 from polaris.run.executor import reap_one, start_step
-from polaris.run.parallel import _abandon
+from polaris.run.parallel import _abandon, _torn_down_by_sigterm
 from polaris.run.pool import ResourcePool
 from polaris.run.serial import run_step_in_process
 
@@ -216,3 +217,58 @@ def test_a_torn_down_run_leaves_nothing_running(tmp_path):
             return
         time.sleep(0.02)
     raise AssertionError(f'pid {pid} is still there after tearing down')
+
+
+def test_sigterm_tears_a_run_down_as_ctrl_c_does(tmp_path):
+    """
+    SIGTERM is what Slurm and ``kill`` send.  Without a handler it ends the
+    scheduler at once, skipping the teardown, and the steps it forked run on
+    with nothing watching them.
+    """
+
+    class _Sleeper(_Writer):
+        def run(self):
+            time.sleep(120)
+
+    step = _writer(tmp_path, 'sleeper')
+    step.__class__ = _Sleeper
+    step.outputs = []
+    noted = tmp_path / 'step_pid'
+
+    # a scheduler of its own, so that the test process is not the one
+    # sent SIGTERM
+    scheduler = os.fork()
+    if scheduler == 0:
+        status = 1
+        try:
+            with _torn_down_by_sigterm():
+                running = {
+                    step.path: start_step(
+                        step,
+                        _reserve(step),
+                        str(tmp_path / 'sleeper.log'),
+                        'node0',
+                    )
+                }
+                noted.write_text(str(running[step.path].pid))
+                try:
+                    reap_one(running)
+                finally:
+                    _abandon(running, _Quiet(), _Quiet())
+        except SystemExit as exit:
+            status = exit.code if isinstance(exit.code, int) else 1
+        finally:
+            os._exit(status)
+
+    for _ in range(500):
+        if noted.exists() and noted.read_text():
+            break
+        time.sleep(0.02)
+    step_pid = int(noted.read_text())
+    os.kill(scheduler, signal.SIGTERM)
+    _, status = os.waitpid(scheduler, 0)
+
+    # it exits as SIGTERM would have it, having stopped its step first
+    assert os.WIFEXITED(status) and os.WEXITSTATUS(status) == 143
+    with pytest.raises(ProcessLookupError):
+        os.kill(step_pid, 0)
