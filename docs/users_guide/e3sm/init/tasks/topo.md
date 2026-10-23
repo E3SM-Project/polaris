@@ -161,4 +161,6 @@ vertex whose surrounding cells are all in that mesh, or ice drifting in
 could never leave.  The mask step fails if any of this does not hold, if
 removing such cells would close a critical ocean passage, in which case it
 names the passage, or if the sea-ice criteria remove a whole sea, in which
-case it gives the sea's location.
+case it gives the sea's location.  Removing a dead end of the ocean, a cell
+left with fewer than two ocean neighbors, cannot close a passage, so a
+passage that ends in one on a coarse mesh does not fail the step.

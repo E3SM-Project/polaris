@@ -2,8 +2,10 @@ import logging
 
 import numpy as np
 import pytest
+import xarray as xr
 
 from polaris.tasks.e3sm.init.topo.cull.consistency import (
+    check_critical_passages,
     check_cull_mask_consistency,
     check_land_locked_criteria,
     check_sea_ice_removed_regions,
@@ -217,4 +219,39 @@ def _check_removed(n_removed_rows, cell_area):
         max_region_cells=10,
         max_region_area=1.0e5,
         logger=logging.getLogger('test_cull_mask_consistency'),
+    )
+
+
+def test_passage_losing_a_cell_fails():
+    with pytest.raises(ValueError, match=r"1 cells culled .* 'Strait': 2"):
+        _check_passage(culled=[0, 0, 1, 0])
+
+
+def test_passage_losing_a_dead_end_passes():
+    _check_passage(culled=[0, 0, 1, 0], dead_ends=[0, 0, 1, 0])
+
+
+def test_passage_dead_ends_do_not_excuse_other_cells():
+    with pytest.raises(ValueError, match=r"1 cells culled .* 'Strait': 1"):
+        _check_passage(culled=[0, 1, 1, 0], dead_ends=[0, 0, 1, 0])
+
+
+def _check_passage(culled, dead_ends=None):
+    """
+    Check a single passage along cells 1 and 2 of four cells.
+    """
+    ds_transects = xr.Dataset(
+        data_vars=dict(
+            transectCellMasks=(
+                ('nCells', 'nTransects'),
+                np.array([[0], [1], [1], [0]]),
+            ),
+            transectNames=('nTransects', ['Strait']),
+        )
+    )
+    check_critical_passages(
+        ocean_cull_mask=np.asarray(culled),
+        ds_transects=ds_transects,
+        logger=logging.getLogger('test_cull_mask_consistency'),
+        dead_end_mask=None if dead_ends is None else np.asarray(dead_ends),
     )

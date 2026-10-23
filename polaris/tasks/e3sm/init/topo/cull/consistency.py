@@ -271,6 +271,7 @@ def check_critical_passages(
     ocean_cull_mask,
     ds_transects,
     logger,
+    dead_end_mask=None,
     max_cells=10,
 ):
     """
@@ -282,6 +283,11 @@ def check_critical_passages(
     mesh cannot support: either it is too coarse to resolve the strait, or
     the transect wanders onto land.  Either way the transect is the thing
     to fix, so the error names it.
+
+    Dead ends of the candidate ocean are the exception.  They form
+    cul-de-sacs, so removing one cannot close a passage; a passage cell
+    among them leads nowhere on this mesh, for example into a bay that is a
+    single cell.
 
     Parameters
     ----------
@@ -296,6 +302,10 @@ def check_critical_passages(
     logger : logging.Logger
         The logger for summary output
 
+    dead_end_mask : xarray.DataArray or numpy.ndarray, optional
+        The dead ends of the candidate ocean (1 for dead ends, 0 elsewhere),
+        whose removal from a passage is not counted
+
     max_cells : int, optional
         The maximum number of offending cell indices to report per transect
 
@@ -307,12 +317,23 @@ def check_critical_passages(
     culled = np.asarray(ocean_cull_mask) > 0
     cell_masks = ds_transects.transectCellMasks.values > 0
     names = [_decode(name) for name in ds_transects.transectNames.values]
+    if dead_end_mask is None:
+        dead_ends = np.zeros(culled.shape, dtype=bool)
+    else:
+        dead_ends = np.asarray(dead_end_mask) > 0
 
     problems: list[str] = []
     for index, name in enumerate(names):
+        on_passage = culled & cell_masks[:, index]
+        n_dead_ends = int(np.count_nonzero(on_passage & dead_ends))
+        if n_dead_ends > 0:
+            logger.info(
+                f'  {name!r} leads nowhere on this mesh: its '
+                f'{n_dead_ends} dead-end cells were removed.'
+            )
         _add_problem(
             problems,
-            mask=culled & cell_masks[:, index],
+            mask=on_passage & ~dead_ends,
             message=f'cells culled from the ocean on {name!r}',
             max_cells=max_cells,
         )

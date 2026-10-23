@@ -28,6 +28,7 @@ from polaris.tasks.e3sm.init.topo.cull.dc_edge_diagnostics import (
     check_ocean_dc_edge,
 )
 from polaris.tasks.e3sm.init.topo.cull.land_locked import (
+    find_dead_end_cells,
     remove_land_locked_cells,
     remove_ocean_land_locked_cells,
 )
@@ -285,7 +286,8 @@ class CullMaskStep(Step):
         circulate, and discards whatever is left unconnected to the open
         ocean. The sea-ice criteria are not applied here; they belong to the
         ocean without ice-shelf cavities and are applied when the two domains
-        are refined together.
+        are refined together.  It also writes the dead ends of the ocean
+        to ``ocean_dead_end_cells.nc`` for the critical-passage check.
 
         Parameters
         ----------
@@ -309,6 +311,19 @@ class CullMaskStep(Step):
             cull_mask=cull_mask,
             mask_name='ocean cull mask',
         )
+
+        # a critical passage cell that is a dead end leads nowhere on this
+        # mesh, so the passage check does not count its removal
+        ds_dead_ends = xr.Dataset()
+        ds_dead_ends['deadEndCellMask'] = xr.DataArray(
+            np.where(
+                find_dead_end_cells(ds_base_mesh, np.logical_not(cull_mask)),
+                1,
+                0,
+            ),
+            dims=('nCells',),
+        )
+        write_netcdf(ds_dead_ends, 'ocean_dead_end_cells.nc')
 
         logger.info('Removing land-locked cells from the ocean.')
         ocean_mask = remove_ocean_land_locked_cells(
@@ -778,11 +793,18 @@ class CullMaskStep(Step):
             )
             return
 
+        dead_end_mask = None
+        if os.path.exists('ocean_dead_end_cells.nc'):
+            dead_end_mask = open_dataset(
+                'ocean_dead_end_cells.nc'
+            ).deadEndCellMask.values
+
         ds_masks = open_dataset('ocean_cull_mask.nc')
         check_critical_passages(
             ocean_cull_mask=ds_masks.oceanCullMask.values,
             ds_transects=open_dataset(filename),
             logger=logger,
+            dead_end_mask=dead_end_mask,
         )
 
     def _check_mask_consistency(self):

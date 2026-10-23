@@ -4,6 +4,7 @@ import numpy as np
 import pytest
 
 from polaris.tasks.e3sm.init.topo.cull.land_locked import (
+    find_dead_end_cells,
     remove_land_locked_cells,
     remove_ocean_land_locked_cells,
 )
@@ -56,6 +57,20 @@ def test_removal_cascades_along_a_chain():
     # sides, which is all the C-grid ocean needs
     assert refined[cell_index(N_COLS, CORRIDOR_COL, 3)]
     assert refined[_block(rows=range(0, 3))].all()
+
+
+def test_dead_ends_are_the_cells_the_cascade_removes():
+    ds_mesh = hex_mesh(N_COLS, N_ROWS)
+    ocean = _block(rows=range(0, 3))
+    for row in CORRIDOR_ROWS:
+        ocean[cell_index(N_COLS, CORRIDOR_COL, row)] = True
+
+    dead_ends = find_dead_end_cells(ds_mesh, ocean)
+
+    expected = np.zeros(N_COLS * N_ROWS, dtype=bool)
+    for row in [6, 5, 4]:
+        expected[cell_index(N_COLS, CORRIDOR_COL, row)] = True
+    np.testing.assert_array_equal(dead_ends, expected)
 
 
 def test_disconnected_region_is_removed_from_the_ocean():
