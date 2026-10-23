@@ -1,0 +1,3 @@
+# a list of supported machine, compiler and mpi combinations for Albany
+
+chrysalis, gnu, openmpi

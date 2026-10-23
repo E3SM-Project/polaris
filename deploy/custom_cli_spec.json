@@ -1,0 +1,11 @@
+{
+  "arguments": [
+    {
+      "flags": ["--with-albany"],
+      "dest": "with_albany",
+      "action": "store_true",
+      "help": "Include Albany and Trilinos, needed for MALI's first-order velocity solver, in the Spack library environment.",
+      "route": ["deploy", "run"]
+    }
+  ]
+}
