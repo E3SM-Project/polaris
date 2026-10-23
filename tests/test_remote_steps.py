@@ -22,7 +22,11 @@ from polaris.run import parallel as parallel_module
 from polaris.run.allocation import NodeResources
 from polaris.run.events import EventStream, read_events
 from polaris.run.graph import build_step_graph
-from polaris.run.parallel import _forks_anywhere, _loop, _start_residents
+from polaris.run.parallel import (
+    _forks_anywhere,
+    _loop,
+    _OnDemandResidents,
+)
 from polaris.run.pool import ResourcePool
 from polaris.run.residents import Residents
 from tests.test_hand_out import _squares
@@ -92,7 +96,7 @@ def _two_nodes():
     ]
 
 
-def _drive(tmp_path, steps, residents):
+def _drive(tmp_path, steps, residents, start_residents=None):
     """Run the scheduler's loop over these steps on the two nodes."""
     for step in steps:
         step.memory_budget = None
@@ -110,6 +114,7 @@ def _drive(tmp_path, steps, residents):
                 str(tmp_path),
                 True,
                 residents=residents,
+                start_residents=start_residents,
             )
     finally:
         recorded = read_events(path)
@@ -185,7 +190,47 @@ def test_a_node_whose_resident_has_gone_is_not_offered_again(
     assert nodes[later.path] == ['node0']
 
 
-def test_a_run_on_two_nodes_starts_residents_for_steps_that_launch_nothing(
+def test_residents_are_started_once_a_step_waits_for_room_here(tmp_path):
+    here = _squares(tmp_path, cores=1, kind=_Sleeps, name='here')
+    there = _squares(tmp_path, cores=1, kind=_WhereAmI, name='there')
+    started = []
+
+    def start_residents():
+        residents = Residents()
+        residents.start_local(['node0', 'node1'])
+        started.append(residents)
+        return residents
+
+    try:
+        outcomes, nodes = _drive(
+            tmp_path, [here, there], None, start_residents=start_residents
+        )
+    finally:
+        for residents in started:
+            residents.stop()
+    # the second step had no room here, so the residents were started, and
+    # the one on node1 forked it
+    assert len(started) == 1
+    assert outcomes[there.path].succeeded
+    assert nodes[there.path] == ['node1']
+
+
+def test_residents_are_not_started_when_nothing_waits_for_room(tmp_path):
+    here = _squares(tmp_path, cores=1, kind=_WhereAmI, name='here')
+    started = []
+
+    def start_residents():
+        started.append(True)
+        return None
+
+    outcomes, _ = _drive(
+        tmp_path, [here], None, start_residents=start_residents
+    )
+    assert outcomes[here.path].succeeded
+    assert started == []
+
+
+def test_a_run_on_two_nodes_starts_its_residents_across_them(
     tmp_path, monkeypatch
 ):
     launched = []
@@ -196,30 +241,22 @@ def test_a_run_on_two_nodes_starts_residents_for_steps_that_launch_nothing(
     )
     config = PolarisConfigParser()
     config.add_from_package('polaris', 'default.cfg')
-    plain = _squares(tmp_path, cores=1, kind=_WhereAmI, name='plain')
     nodes = _two_nodes()
-    pool = ResourcePool(nodes, local_node='node0')
-
-    def start(steps):
-        residents, _ = _start_residents(
-            component=SimpleNamespace(parallel_system=None),
-            config=config,
-            nodes=nodes,
-            pool=pool,
-            graph=build_step_graph(steps),
-            logger=logging.getLogger('test'),
-            events=EventStream(),
-            work_dir=str(tmp_path),
-        )
-        return residents
-
-    assert start([plain]) is not None
+    on_demand = _OnDemandResidents(
+        component=SimpleNamespace(parallel_system=None),
+        config=config,
+        nodes=nodes,
+        pool=ResourcePool(nodes, local_node='node0'),
+        logger=logging.getLogger('test'),
+        events=EventStream(),
+        work_dir=str(tmp_path),
+    )
+    assert on_demand.spans_nodes
+    assert on_demand.residents is None
+    residents = on_demand.start('to test')
+    # started once, however often it is asked
+    assert on_demand.start('again') is residents
     assert launched == [['node0', 'node1']]
-    # a step that launches has nothing for a resident to do
-    plain.args = [['true']]
-    launched.clear()
-    assert start([plain]) is None
-    assert launched == []
 
 
 def test_a_launched_step_placed_elsewhere_is_still_started_here(

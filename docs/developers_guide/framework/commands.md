@@ -183,10 +183,11 @@ the numerical thread pools before numpy can raise one thread per core, and
 why the scheduler reaps in its own loop rather than giving each running step
 a thread to wait on it.
 
-A run on more than one node also has a resident on each node, which forks
-steps that launch nothing there when the scheduler's own node has no room
-for them, and a run with a step that hands out pieces of its work has them
-to fork the pieces (see {ref}`dev-handing-out-work`).
+A run with a step that hands out pieces of its work starts a resident on
+each node to fork the pieces (see {ref}`dev-handing-out-work`).  A run on
+more than one node starts them, too, once a step that launches nothing is
+waiting for room on the scheduler's node, so that a resident on a node
+with room can fork it there.
 {py:class}`polaris.run.residents.Residents` starts them, with one launch
 across the allocation, and stops them when the run ends.  The scheduler
 hears from them in the same loop in which it reaps its children -- a

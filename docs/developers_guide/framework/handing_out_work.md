@@ -165,9 +165,10 @@ in the step's work directory.
 ## How a run starts the residents
 
 `polaris parallel` starts one resident on each node of the allocation when
-the run has a step that hands out work, or is on more than one node and has
-a step that launches nothing, which a resident can fork on its node when the
-scheduler's is full.  It stops them when the run ends, however it ends.  Starting them takes as long as importing Polaris on a
+the run has a step that hands out work.  A run on more than one node also
+starts them once a step that launches nothing is waiting for room on the
+scheduler's node, so that a resident on another node can fork it there.  It
+stops them when the run ends, however it ends.  Starting them takes as long as importing Polaris on a
 compute node, typically some tens of seconds.  The run starts other steps
 in the meantime, and a step that hands out work waits until every resident
 is ready.  `polaris serial` starts them before its first step, if any of

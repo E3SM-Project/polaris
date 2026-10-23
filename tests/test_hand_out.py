@@ -25,7 +25,12 @@ from polaris.run.confinement import PLACEMENT_MISMATCH_LOG, check_confinement
 from polaris.run.events import EventStream, read_events
 from polaris.run.executor import reap_one, start_step
 from polaris.run.graph import build_step_graph
-from polaris.run.parallel import _loop, _report, _start_residents
+from polaris.run.parallel import (
+    _hands_out_work,
+    _loop,
+    _OnDemandResidents,
+    _report,
+)
 from polaris.run.pieces import PIECES_SUMMARY
 from polaris.run.pool import ResourcePool
 from polaris.run.residents import Residents, stop_serial_residents
@@ -291,21 +296,24 @@ def test_residents_that_go_away_before_hello_fail_the_run_at_once(tmp_path):
 
 def test_a_run_with_no_work_to_hand_out_starts_no_residents(tmp_path):
     plain = _squares(tmp_path, cores=1, kind=_Plain, name='plain')
-    graph = build_step_graph([plain])
+    squares = _squares(tmp_path)
+    assert not _hands_out_work(build_step_graph([plain]))
+    assert _hands_out_work(build_step_graph([plain, squares]))
     config = PolarisConfigParser()
     config.add_from_package('polaris', 'default.cfg')
-    residents, timeout = _start_residents(
+    on_demand = _OnDemandResidents(
         component=None,
         config=config,
         nodes=_node0(),
         pool=ResourcePool(_node0(), local_node='node0'),
-        graph=graph,
         logger=logging.getLogger('test'),
         events=EventStream(),
         work_dir=str(tmp_path),
     )
-    assert residents is None
-    assert timeout == 1800.0
+    # nothing started until asked, and on one node, nothing to fork on
+    assert on_demand.residents is None
+    assert not on_demand.spans_nodes
+    assert on_demand.start_timeout == 1800.0
 
 
 def test_polaris_serial_starts_a_resident_for_a_step_that_hands_out_work(

@@ -211,9 +211,17 @@ def _run(
         cores=sum(node.cores for node in nodes),
     )
     started = time.time()
-    residents, start_timeout = _start_residents(
-        component, config, nodes, pool, graph, logger, events, work_dir
+    on_demand = _OnDemandResidents(
+        component, config, nodes, pool, logger, events, work_dir
     )
+    if _hands_out_work(graph):
+        on_demand.start('for the steps that hand out work')
+    start_residents = None
+    if on_demand.spans_nodes:
+        start_residents = partial(
+            on_demand.start,
+            'since a step that launches nothing is waiting for room here',
+        )
     try:
         outcomes, mismatched = _loop(
             graph,
@@ -224,17 +232,12 @@ def _run(
             work_dir,
             quiet,
             tracker,
-            residents=residents,
-            start_timeout=start_timeout,
+            residents=on_demand.residents,
+            start_timeout=on_demand.start_timeout,
+            start_residents=start_residents,
         )
     finally:
-        if residents is not None:
-            stopping = time.time()
-            residents.stop()
-            events.record(
-                'residents_stopped', took=round(time.time() - stopping, 3)
-            )
-            _report_residents(residents, time.time() - stopping, logger)
+        on_demand.stop()
     elapsed = time.time() - started
 
     tracker.finish()
@@ -350,52 +353,99 @@ def _select_steps(suite, logger):
     return steps, task_steps
 
 
-def _start_residents(
-    component, config, nodes, pool, graph, logger, events, work_dir
-):
+class _OnDemandResidents:
     """
-    Start a resident on every node, if any step still to run hands out work,
-    or launches nothing and so could be forked on another node.
+    The run's residents, started the first time the run needs them.
 
-    A run whose allocation is only the node the scheduler is on forks its
-    resident from the scheduler, which is ready at once; any other launches
-    one resident per node.  A run on one node with nothing to hand out
-    starts none, and neither does a run with nothing but launches, so they
-    run exactly as they did before residents existed.
+    A run with a step that hands out work needs them from the start.  A run
+    on several nodes may need them to fork a step that launches nothing on
+    a node other than the scheduler's, but only once such a step is waiting
+    for room on the scheduler's own node.  Most runs never get there, and
+    starting residents costs each node a minute or so of imports, so they
+    are not started until one does.  A run whose allocation is only the
+    node the scheduler is on forks its resident from the scheduler, which
+    is ready at once; any other launches one resident per node.
 
-    Returns
-    -------
+    Attributes
+    ----------
     residents : polaris.run.residents.Residents or None
-        The run's residents, if it needs any
+        The run's residents, once started
 
     start_timeout : float
         How long to wait for them to say hello, in seconds
     """
-    interface, start_timeout = resident_options(config)
-    to_run = [node.step for node in graph.nodes.values() if not node.satisfied]
-    hand_out = any(step.hands_out_work for step in to_run)
-    fork_away = len(nodes) > 1 and any(_forks_anywhere(s) for s in to_run)
-    if not hand_out and not fork_away:
-        return None, start_timeout
 
-    residents = Residents(interface=interface)
-    names = [node.name for node in nodes]
-    if len(names) == 1 and names[0] in ('', pool.local_node):
-        residents.start_local(names)
-        how = 'forked'
-    else:
-        residents.launch(
-            component.parallel_system,
-            names,
-            nodes[0].core_ids[0],
-            log_filename=os.path.join(
-                work_dir, 'case_outputs', 'residents.log'
-            ),
+    def __init__(
+        self, component, config, nodes, pool, logger, events, work_dir
+    ):
+        self.interface, self.start_timeout = resident_options(config)
+        self.residents: Optional[Residents] = None
+        self._component = component
+        self._names = [node.name for node in nodes]
+        self._core_id = nodes[0].core_ids[0]
+        self._local = pool.local_node
+        self._logger = logger
+        self._events = events
+        self._work_dir = work_dir
+
+    @property
+    def spans_nodes(self) -> bool:
+        """Whether there is a node other than the scheduler's to fork on."""
+        return len(self._names) > 1
+
+    def start(self, why: str) -> Residents:
+        """Start the residents, if they are not running already."""
+        if self.residents is not None:
+            return self.residents
+        residents = Residents(interface=self.interface)
+        names = self._names
+        if len(names) == 1 and names[0] in ('', self._local):
+            residents.start_local(names)
+            how = 'forked'
+        else:
+            residents.launch(
+                self._component.parallel_system,
+                names,
+                self._core_id,
+                log_filename=os.path.join(
+                    self._work_dir, 'case_outputs', 'residents.log'
+                ),
+            )
+            how = 'launched'
+        self._events.record('residents_started', nodes=names, how=how)
+        self._logger.info(
+            f'Started a resident on each of {len(names)} node(s), {why}'
         )
-        how = 'launched'
-    events.record('residents_started', nodes=names, how=how)
-    logger.info(f'Started a resident on each of {len(names)} node(s)')
-    return residents, start_timeout
+        self.residents = residents
+        return residents
+
+    def stop(self) -> None:
+        """Stop the residents, if any were started, and say what they cost."""
+        if self.residents is None:
+            return
+        stopping = time.time()
+        self.residents.stop()
+        took = time.time() - stopping
+        self._events.record('residents_stopped', took=round(took, 3))
+        _report_residents(self.residents, took, self._logger)
+
+
+def _hands_out_work(graph) -> bool:
+    """Whether any step still to run hands out work."""
+    return any(
+        node.step.hands_out_work
+        for node in graph.nodes.values()
+        if not node.satisfied
+    )
+
+
+def _waiting_for_room_here(graph, waiting, blocked) -> bool:
+    """Whether a step a resident could fork elsewhere is waiting for room."""
+    return any(
+        blocked.get(path) == 'resources'
+        and _forks_anywhere(graph.nodes[path].step)
+        for path in waiting
+    )
 
 
 def _forks_anywhere(step) -> bool:
@@ -438,8 +488,15 @@ def _loop(
     tracker=None,
     residents=None,
     start_timeout=1800.0,
+    start_residents=None,
 ):
-    """Start what fits, wait for what finishes, and keep going."""
+    """
+    Start what fits, wait for what finishes, and keep going.
+
+    ``start_residents``, if given, starts the residents and returns them,
+    which the loop does the first time a step a resident could fork on
+    another node is waiting for room on this one.
+    """
     succeeded = {path for path, node in graph.nodes.items() if node.satisfied}
     for path in succeeded:
         events.record('step_skipped', step=path, reason='already satisfied')
@@ -469,6 +526,13 @@ def _loop(
                     quiet,
                     residents,
                 )
+                if (
+                    residents is None
+                    and start_residents is not None
+                    and _waiting_for_room_here(graph, waiting, blocked)
+                ):
+                    residents = start_residents()
+                    deadline = time.time() + start_timeout
                 timeout = None
                 if not running:
                     _check_not_stuck(
