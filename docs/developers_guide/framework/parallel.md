@@ -97,24 +97,23 @@ for a step that **declared** `memory` and never for one carrying only the
 framework's `memory_budget`:
 
 ```python
-self.component.run_parallel_command(
-    args=args,
-    cpus_per_task=self.cpus_per_task,
-    ntasks=self.ntasks,
-    openmp_threads=self.openmp_threads,
-    logger=self.logger,
-    gpus=self.gpus,
-    placement=self.placement,
-    memory_cap=self.memory,
+step.component.run_parallel_command(
+    args,
+    step.cpus_per_task,
+    step.ntasks,
+    step.openmp_threads,
+    step.logger,
+    gpus=step.gpus,
+    placement=step.placement,
+    memory_cap=step.memory,
 )
 ```
 
-The framework does this for a step that runs its model through `args`, which
-is every {py:class}`polaris.ModelStep`.  A step that calls
-`run_parallel_command()` itself should pass `memory_cap=self.memory` as
-above; `self.memory` is `None` for a step that declared nothing, which
-renders no cap at all, so the line is correct whether or not the step has
-been measured.
+The framework does this when it launches a step's command (`args`), which is
+the only place a step may launch parallel work (see
+{ref}`dev-step-launch-rule`).  `step.memory` is `None` for a step that
+declared nothing, which renders no cap at all, so the cap is correct whether
+or not the step has been measured.
 
 The reason it is only for a declared figure is that a step which stated a
 number has made a claim and can fairly be held to it, while a step that said

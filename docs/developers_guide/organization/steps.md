@@ -208,11 +208,15 @@ Some attributes are available after calling the base class' constructor
 
 `self.args`
 
-: A list of command-line arguments to call in parallel.  This attribute should
-  be defined as an alternative to overriding the `run()`.  `args` should not
-  include calls to a parallel executable like `srun` or the associated flags
-  for number of MPI tasks, nodes, etc., since these will be added internally by
-  Polaris.
+: A list of commands, each a list of command-line arguments, to launch in
+  parallel one after another.  This attribute should be defined as an
+  alternative to overriding the `run()`.  `args` should not include calls to a
+  parallel executable like `srun` or the associated flags for number of MPI
+  tasks, nodes, etc., since these will be added internally by Polaris.  This
+  is the only way a step may launch parallel work (see
+  {ref}`dev-step-launch-rule`).  A step whose command can only be made at run
+  time should still set `args` (to an empty list, say) when it is created, so
+  that it is known to launch, and set the command in `runtime_setup()`.
 
 Another set of attributes is not useful until `setup()` is called by the
 polaris framework:
@@ -592,6 +596,8 @@ These attributes must be altered by overriding
 Typically, `runtime_setup()` will only be needed when the `args` attribute is
 being defined instead of a `run()` method.  This lets you run a small amount
 of python code before launching an command, often using MPI parallelism.
+Larger work the launch needs belongs in a step of its own (see
+{ref}`dev-step-launch-rule`).
 
 (dev-step-run)=
 
@@ -753,7 +759,8 @@ because we let its superclass `ModelStep` define an `args` attribute instead.
 Rather than call the `run()` method, the command given by these arguments
 will be run on the commandline.  This is capability important for supporting
 task parallelism, since each such command may need to run with its own set of
-MPI, threading and memory resources.
+MPI, threading and memory resources.  A `run()` method must never launch
+parallel work itself (see {ref}`dev-step-launch-rule`).
 
 To get a feel for different types of `run()` methods, it may be best to
 explore different steps that are already implemented in Polaris.
@@ -1209,6 +1216,11 @@ outputs and dependencies the steps declare, so the steps need do nothing for
 it, and it lists the steps it leaves out of each task beside the ones with
 cached outputs.  A step that nothing uses is never left out, since it is there
 for its own sake, and neither is one that a step that runs uses.
+
+This is what lets an expensive cached step be split into several steps, for
+example to keep a launch in a step's command (see
+{ref}`dev-step-launch-rule`), without the steps ahead of it running when it is
+cached.
 
 (dev-step-dependencies)=
 
