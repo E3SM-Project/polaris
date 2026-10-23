@@ -400,18 +400,19 @@ Contributors:
 The risks are operational rather than conceptual, and are worth naming so
 they are designed for rather than discovered.
 
-**Memory is Polaris's to account for, not the batch system's.** This is the
-case the memory declaration introduced in Phase A exists for. What a piece
-of work may hold is what its step declared for it, and it must be taken from
-the declaration rather than inferred from cores: the analysis steps this
-phase is for are the ones whose memory bears no fixed relation to their
-cores, and deriving one from the other gets them wrong in the direction that
-hurts. Steps that reach this phase should carry measured figures rather than
-the proportional default. What a step declares is what a piece will hold
-resident -- its own data and whatever of its inputs it keeps -- and not what
-an equivalent forking program would have needed, which is smaller for the
-reason given above. A Dask worker's memory limit comes from the same
-declaration, and a worker that reaches it is reported rather than restarted.
+**Memory is Polaris's to account for, not the batch system's.** A step that
+hands out work is charged memory as any step is: what it declares, or one
+core's share of a node for each of its cores if it declares nothing, so that
+each piece has one core's share. Measuring every step's memory would be
+laborious, so that default has to serve most steps, and it does serve pieces
+that fit in a core's share. A step whose pieces need more -- the analysis
+steps this phase is for can be ones whose memory bears no fixed relation to
+their cores -- declares what they hold at once: what one piece holds
+resident, its own data and whatever of its inputs it keeps, times its cores.
+That is not what an equivalent forking program would have needed, which is
+smaller for the reason given above. A Dask worker's memory limit comes from
+the same figure, and a worker that reaches it is reported rather than
+restarted.
 
 **Large results should not travel back.** Work that produces files should
 write them and return paths. Returning large arrays moves them across the
@@ -440,7 +441,8 @@ Contributors:
 - Claude
 
 A step's work is sized from what the step declares, not from the
-allocation: the cores it wants and needs, and the memory each piece holds.
+allocation: the cores it wants and needs, and the memory its pieces hold if
+a core's share is not enough.
 The cores are decided once from the whole allocation, as Phase B decides
 every step's width, and the scheduler waits until that many are free rather
 than starting the step on fewer. They may come from several nodes, and they
@@ -455,9 +457,9 @@ go the other way.
 The numbers that make this concrete -- how many cores, how much memory each
 piece -- follow from how much read-only input a piece needs resident, which
 is the open question stated above and which Polaris can answer with one real
-step of the kind. Until it is answered, a step should declare what was
-measured and the run should report what it reserved, rather than carrying a
-default that would be a guess dressed as a number.
+step of the kind. Until it is answered, a step relies on the default unless
+its pieces are known to need more, and the run records what each step
+reserved.
 
 ### Algorithm Design: Where a Step's Child Is Forked
 
