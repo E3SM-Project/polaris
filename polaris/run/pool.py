@@ -29,6 +29,13 @@ on another node.  Two steps in Polaris are like that today.  The fix is for
 such a step to declare ``may_span_nodes=True``, which is what the property
 is for, rather than for the pool to guess from the shape of a step.
 
+**A step that hands out work takes any free cores, on the fewest nodes
+that hold enough.** Its pieces are forked onto those cores by each node's
+resident, which binds each child to its own core, so no launcher applies one
+node's mask list to every node and the cores need not be the same ids on
+each.  Nor does it need the scheduler's node, even when it may not span:
+whichever node its cores are on, the resident there forks its pieces.
+
 **A step's memory is charged in proportion to the cores it took on each
 node.** A step that declares nothing is budgeted at its proportional share
 of a node, so charging it proportionally means a run in which nothing
@@ -170,6 +177,11 @@ class ResourcePool:
         memory = 'no declared memory' if budget is None else f'{budget} MiB'
         if step.may_span_nodes:
             where = 'this allocation'
+        elif step.hands_out_work:
+            where = (
+                'any one node, which is all it may use because it has said '
+                'its resources may not span nodes'
+            )
         else:
             where = (
                 f'node {self.local_node}, which is the only one it may use '
@@ -196,7 +208,9 @@ class ResourcePool:
         reservation : polaris.run.pool.Reservation or None
             What it was given, or ``None`` if it does not fit yet
         """
-        if step.may_span_nodes:
+        if step.hands_out_work:
+            layout = self._fit_pieces(step)
+        elif step.may_span_nodes:
             layout = self._fit_across_nodes(step)
         else:
             layout = self._fit_on_one_node(step)
@@ -282,6 +296,54 @@ class ResourcePool:
                 charge or 0,
             )
         ]
+
+    def _fit_pieces(self, step):
+        """
+        Fit a step that hands out work: any free cores, on the fewest nodes
+        that hold enough.
+
+        The emptiest nodes are taken first, which is what keeps the count of
+        nodes down.  Among nodes that are equally free, the scheduler's own
+        node comes last, since a step that has to take everything from it
+        can run nowhere else, and a stable sort keeps the choice repeatable.
+        """
+        wanted = step.cores
+        candidates = sorted(
+            self._nodes,
+            key=lambda node: (
+                len(node.free_cores),
+                node.name != self.local_node,
+            ),
+            reverse=True,
+        )
+        if not step.may_span_nodes:
+            candidates = candidates[:1]
+
+        chosen: List[Tuple[_Node, int]] = []
+        found = 0
+        for node in candidates:
+            if found == wanted:
+                break
+            take = min(len(node.free_cores), wanted - found)
+            if take > 0:
+                chosen.append((node, take))
+                found += take
+        if found < wanted:
+            return None
+
+        budget = step.memory_budget or 0
+        layout = []
+        charged = 0
+        for index, (node, take) in enumerate(chosen):
+            if index == len(chosen) - 1:
+                charge = budget - charged
+            else:
+                charge = budget * take // wanted
+            charged += charge
+            if not _memory_fits(node, charge if step.memory_budget else None):
+                return None
+            layout.append((node, tuple(node.free_cores[:take]), (), charge))
+        return layout
 
     def _fit_across_nodes(self, step):
         """

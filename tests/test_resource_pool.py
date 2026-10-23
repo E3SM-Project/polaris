@@ -469,3 +469,100 @@ def test_an_even_division_is_unchanged():
 
     counts = [len(c) for c in reservation.cores.values()]
     assert counts == [64, 64, 64, 64]
+
+
+class _HandsOut(Step):
+    """A step that hands out pieces of its work."""
+
+    def run_pieces(self, pieces):
+        pass
+
+
+def _hands_out(name, cores, budget=None, may_span_nodes=None):
+    step = _HandsOut(
+        component=Component(name='ocean'),
+        name=name,
+        subdir=name,
+        cores=cores,
+        may_span_nodes=may_span_nodes,
+    )
+    step.memory_budget = budget
+    return step
+
+
+def test_a_step_that_hands_out_work_takes_the_fewest_nodes():
+    pool = ResourcePool(_nodes(count=3, cores=64))
+    reservation = _reserve(pool, _hands_out('analysis', cores=48))
+    assert len(reservation.cores) == 1
+
+
+def test_a_step_that_hands_out_work_spreads_when_one_node_is_not_enough():
+    pool = ResourcePool(_nodes(count=3, cores=64))
+    reservation = _reserve(pool, _hands_out('analysis', cores=100))
+    taken = sorted(len(cores) for cores in reservation.cores.values())
+    assert taken == [36, 64]
+
+
+def test_a_step_that_hands_out_work_need_not_have_the_same_cores_on_each():
+    pool = ResourcePool(_nodes(count=2, cores=8), local_node='node0')
+    _reserve(pool, _step('first', cores=3))
+    reservation = _reserve(pool, _hands_out('analysis', cores=12))
+    # the emptier node first and all of it, then what the other has left
+    assert reservation.cores['node1'] == tuple(range(8))
+    assert reservation.cores['node0'] == (3, 4, 5, 6)
+    assert reservation.placement.nodes == ('node1', 'node0')
+
+
+def test_a_step_that_hands_out_work_may_land_away_from_the_scheduler():
+    pool = ResourcePool(_nodes(count=2, cores=8), local_node='node0')
+    _reserve(pool, _step('first', cores=6))
+    reservation = _reserve(
+        pool, _hands_out('analysis', cores=4, may_span_nodes=False)
+    )
+    assert list(reservation.cores) == ['node1']
+
+
+def test_a_step_that_hands_out_work_and_may_not_span_waits_for_a_node():
+    pool = ResourcePool(_nodes(count=2, cores=8), local_node='node0')
+    _reserve(pool, _step('first', cores=6))
+    _reserve(pool, _hands_out('second', cores=6, may_span_nodes=False))
+    alone = _hands_out('third', cores=4, may_span_nodes=False)
+    assert pool.reserve(alone) is None
+    assert pool.reserve(_hands_out('fourth', cores=4)) is not None
+
+
+def test_a_step_that_hands_out_work_leaves_the_scheduler_node_for_last():
+    pool = ResourcePool(_nodes(count=3, cores=8), local_node='node1')
+    reservation = _reserve(pool, _hands_out('analysis', cores=12))
+    # every node is as free as the others, and the steps that may only run
+    # on the scheduler's node keep as much of it as they can
+    assert reservation.cores == {
+        'node0': tuple(range(8)),
+        'node2': (0, 1, 2, 3),
+    }
+
+
+def test_memory_is_charged_where_the_pieces_will_run():
+    pool = ResourcePool(
+        _nodes(count=2, cores=8, memory=800), local_node='node0'
+    )
+    reservation = _reserve(pool, _hands_out('analysis', cores=12, budget=1200))
+    assert reservation.memory == {'node1': 800, 'node0': 400}
+
+
+def test_a_step_that_hands_out_work_gives_everything_back():
+    pool = ResourcePool(_nodes(count=2, cores=8))
+    reservation = _reserve(pool, _hands_out('analysis', cores=12))
+    assert pool.reserve(_hands_out('more', cores=8)) is None
+    pool.release(reservation)
+    assert pool.reserve(_hands_out('again', cores=16)) is not None
+
+
+def test_a_step_that_hands_out_more_than_the_allocation_is_named():
+    pool = ResourcePool(_nodes(count=2, cores=8))
+    reason = pool.why_impossible(_hands_out('analysis', cores=17))
+    assert reason is not None and 'ocean/analysis' in reason
+    reason = pool.why_impossible(
+        _hands_out('alone', cores=9, may_span_nodes=False)
+    )
+    assert reason is not None and 'any one node' in reason
