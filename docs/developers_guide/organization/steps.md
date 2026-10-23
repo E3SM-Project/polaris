@@ -793,6 +793,15 @@ already resolves them to absolute paths in `self.inputs` and `self.outputs`.
 See {ref}`dev-task-parallelism` for this and the other properties a step needs
 in order to run concurrently with other steps.
 
+(dev-step-run-pieces)=
+
+### run_pieces() in place of run()
+
+A step whose work is a loop over independent items can override
+`run_pieces()` instead of `run()`, and hand out each item as a piece of work
+that runs on a core of its own, on any node of the allocation.  See
+{ref}`dev-handing-out-work`.
+
 (dev-step-inputs-outputs)=
 
 ## inputs and outputs

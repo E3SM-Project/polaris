@@ -2,9 +2,9 @@
 
 # Writing task-parallel-safe steps
 
-Polaris runs one step at a time today, and a step that changes the process
-working directory or mutates a module-level global is correct under that
-assumption.  It stops being correct as soon as two steps run concurrently in
+`polaris serial` runs one step at a time, and a step that changes the
+process working directory or mutates a module-level global is correct under
+that assumption.  It stops being correct as soon as two steps run concurrently in
 one process, and the failure is timing-dependent: it shows up as intermittent
 wrong answers rather than as a clean error.
 
@@ -166,6 +166,10 @@ it.  Use `self.cpus_per_task`:
 ```python
 n_workers = min(self.cpus_per_task, len(work_items))
 ```
+
+A pool a step starts itself stays on the step's own node.  A step whose work
+is a loop over independent items can instead hand out each item as a piece,
+which can run on any node of the allocation; see {ref}`dev-handing-out-work`.
 
 (dev-task-parallelism-status)=
 

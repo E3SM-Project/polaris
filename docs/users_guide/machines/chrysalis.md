@@ -41,6 +41,15 @@ spack = /lcrc/soft/climate/polaris/chrysalis/spack
 # whether to use the same modules for hdf5, netcdf-c, netcdf-fortran and
 # pnetcdf as E3SM (spack modules are used otherwise)
 use_e3sm_hdf5_netcdf = True
+
+
+# Options for the resident processes a run starts on each node for steps that
+# hand out pieces of their work
+[residents]
+
+# InfiniBand.  A node's hostname resolves to 1 GbE ethernet, which moved
+# 512 MiB between nodes in 5.1 s where ib0 took 1.2 s.
+interface = ib0
 ```
 
 Additionally, some relevant config options come from the
