@@ -22,7 +22,7 @@ import time
 from dataclasses import dataclass
 from multiprocessing import AuthenticationError
 from multiprocessing.connection import Connection, wait
-from typing import Dict, List, Optional, Sequence, cast
+from typing import Dict, List, Optional, Sequence, Tuple, cast
 
 from mache.parallel import ResourcePlacement
 
@@ -248,7 +248,17 @@ class Residents:
         """What a loop should wait on to hear from the residents."""
         return [self._socket, *self._control.values()]
 
-    def hear(self, source) -> None:
+    def inherited(self) -> list:
+        """
+        What a process forked from this one must close: the run's side of
+        its residents, which belongs to the run and not to a step.
+
+        A step that kept them open would keep a resident from noticing that
+        the run had gone.
+        """
+        return [self._registry, *self._control.values()]
+
+    def hear(self, source) -> Optional[Tuple[str, str]]:
         """
         Act on a source from :py:meth:`sources` that has something to say.
 
@@ -256,17 +266,24 @@ class Residents:
         ----------
         source : object
             The socket or connection that ``wait()`` returned
+
+        Returns
+        -------
+        note : tuple of str or None
+            What changed: ``('ready', node)`` when a resident said hello,
+            ``('lost', node)`` when one went away, or ``None``
         """
         if source is self._socket:
-            self._welcome()
-            return
+            return self._welcome()
         for node, conn in list(self._control.items()):
             if conn is source:
                 try:
                     conn.recv()
                 except (EOFError, OSError):
                     self._lose(node)
-                return
+                    return ('lost', node)
+                return None
+        return None
 
     def wait_until_ready(self, timeout: float) -> None:
         """
@@ -323,7 +340,9 @@ class Residents:
             return True
         return pid in self._local
 
-    def exited(self, pid: int, returncode: Optional[int] = None) -> None:
+    def exited(
+        self, pid: int, returncode: Optional[int] = None
+    ) -> Optional[Tuple[str, str]]:
         """
         Note that a resident forked here, or the launch, has exited and
         been reaped.
@@ -335,16 +354,27 @@ class Residents:
 
         returncode : int, optional
             How it exited, if whoever reaped it knows
+
+        Returns
+        -------
+        note : tuple of str or None
+            What changed: ``('launch_ended', returncode)`` or
+            ``('lost', node)``, or ``None``
         """
         if self._launcher is not None and pid == self._launcher.pid:
             self.launcher_returncode = 1 if returncode is None else returncode
-            return
+            return ('launch_ended', str(self.launcher_returncode))
         name = self._local.pop(pid, None)
         if name is not None and name not in self.lost:
             self._lose(name)
+            return ('lost', name)
+        return None
 
     def stop(self) -> None:
         """Tell every resident to stop, and make sure they have."""
+        # residents that never said hello cannot be told, so there is
+        # nothing to wait for before ending their launch
+        told = bool(self._control)
         for conn in self._control.values():
             try:
                 conn.send(('stop', None, None))
@@ -365,7 +395,7 @@ class Residents:
             except (ProcessLookupError, ChildProcessError):
                 pass
             self._local.pop(pid, None)
-        self._stop_launcher(deadline)
+        self._stop_launcher(deadline if told else time.time())
         self._registry.close()
 
     def __enter__(self) -> 'Residents':
@@ -374,23 +404,24 @@ class Residents:
     def __exit__(self, *args) -> None:
         self.stop()
 
-    def _welcome(self) -> None:
+    def _welcome(self) -> Optional[Tuple[str, str]]:
         """Take a resident's hello."""
         try:
             conn = accept(self._registry)
             kind, _, facts = conn.recv()
         except (AuthenticationError, EOFError, OSError):
             # someone without the run's key, or a resident that died at once
-            return
+            return None
         if kind != 'hello':
             conn.close()
-            return
+            return None
         node = facts['node']
         self._control[node] = conn
         self.addresses[node] = tuple(facts['address'])
         self.facts[node] = facts
         if self.ready and self.ready_at is None:
             self.ready_at = time.time()
+        return ('ready', node)
 
     def _lose(self, node: str) -> None:
         """Note that a resident has gone, so that nothing is sent to it."""

@@ -100,6 +100,8 @@ seaice/api
    pool.Reservation
    executor.start_step
    executor.reap_one
+   executor.next_event
+   executor.ChildWakeup
    executor.RunningStep
    executor.StepOutcome
    confinement.check_confinement

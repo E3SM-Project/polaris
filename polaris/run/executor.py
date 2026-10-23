@@ -34,7 +34,8 @@ import sys
 import time
 import traceback
 from dataclasses import dataclass
-from typing import Dict, List, NoReturn, Optional
+from multiprocessing.connection import wait
+from typing import Dict, List, NoReturn, Optional, Sequence, Tuple
 
 from polaris.run.pool import Reservation
 from polaris.run.serial import run_step_in_process
@@ -141,6 +142,7 @@ def start_step(
     log_filename: str,
     local_node: str,
     residents=None,
+    keep_out: Sequence = (),
 ) -> RunningStep:
     """
     Start one step in a forked child.
@@ -170,6 +172,9 @@ def start_step(
     residents : polaris.run.residents.ResidentDirectory, optional
         How to reach the residents, for a step that hands out work
 
+    keep_out : sequence, optional
+        Connections the child must close, which belong to the scheduler
+
     Returns
     -------
     running : polaris.run.executor.RunningStep
@@ -196,7 +201,13 @@ def start_step(
     if pid == 0:
         os.close(hearing)
         _be_the_step(
-            step, reservation.placement, log_filename, cores, saying, residents
+            step,
+            reservation.placement,
+            log_filename,
+            cores,
+            saying,
+            residents,
+            keep_out,
         )
         # unreachable: _be_the_step never returns
 
@@ -205,7 +216,7 @@ def start_step(
 
 
 def _be_the_step(
-    step, placement, log_filename, cores, saying, residents=None
+    step, placement, log_filename, cores, saying, residents=None, keep_out=()
 ) -> NoReturn:
     """
     Become the step, in the forked child, and never come back.
@@ -228,6 +239,15 @@ def _be_the_step(
     try:
         for caught in (signal.SIGINT, signal.SIGTERM, signal.SIGHUP):
             signal.signal(caught, signal.SIG_DFL)
+        # the scheduler's way of hearing that a child has exited, which
+        # this child's own children must not reach
+        signal.set_wakeup_fd(-1)
+        signal.signal(signal.SIGCHLD, signal.SIG_DFL)
+        for each in keep_out:
+            try:
+                each.close()
+            except OSError:
+                pass
 
         if cores:
             try:
@@ -314,6 +334,140 @@ def reap_one(running: Dict[str, 'RunningStep']) -> StepOutcome:
                 time.time() - run.started,
                 run.work_seconds(),
             )
+
+
+class ChildWakeup:
+    """
+    A pipe the kernel writes to when a child exits, so that the scheduler
+    can wait for a step to finish and for its residents at the same time.
+
+    Waiting on child processes and on sockets at once has no single call:
+    ``waitpid`` blocks on children alone and ``wait`` on files alone.  A
+    signal handler that does nothing, with Python's wake-up file set to this
+    pipe, turns every child's exit into a byte the loop can wait on beside
+    the residents' connections, without a thread -- which a scheduler that
+    forks cannot have.
+    """
+
+    def __init__(self):
+        self._read = -1
+        self._write = -1
+        self._previous_handler = None
+        self._previous_fd = -1
+
+    def __enter__(self) -> 'ChildWakeup':
+        self._read, self._write = os.pipe()
+        os.set_blocking(self._read, False)
+        os.set_blocking(self._write, False)
+        self._previous_handler = signal.signal(signal.SIGCHLD, _noticed)
+        self._previous_fd = signal.set_wakeup_fd(
+            self._write, warn_on_full_buffer=False
+        )
+        return self
+
+    def __exit__(self, *args) -> None:
+        signal.set_wakeup_fd(self._previous_fd)
+        signal.signal(signal.SIGCHLD, self._previous_handler)
+        os.close(self._read)
+        os.close(self._write)
+
+    def fileno(self) -> int:
+        return self._read
+
+    def drain(self) -> None:
+        """Empty the pipe, having heard what it had to say."""
+        try:
+            while os.read(self._read, 4096):
+                pass
+        except BlockingIOError:
+            pass
+
+
+def next_event(
+    running: Dict[str, 'RunningStep'],
+    residents,
+    wakeup: ChildWakeup,
+    timeout: Optional[float] = None,
+) -> Tuple[Optional['StepOutcome'], List[tuple]]:
+    """
+    Wait until a step finishes or the residents change, whichever is first.
+
+    Like :py:func:`reap_one`, this reaps in the scheduler's own loop rather
+    than with a thread per running step.
+
+    Parameters
+    ----------
+    running : dict of polaris.run.executor.RunningStep
+        The steps currently running, by path
+
+    residents : polaris.run.residents.Residents or None
+        The run's residents, if it has any
+
+    wakeup : polaris.run.executor.ChildWakeup
+        What hears that a child has exited
+
+    timeout : float, optional
+        How long to wait for anything at all, in seconds
+
+    Returns
+    -------
+    outcome : polaris.run.executor.StepOutcome or None
+        What happened to a step that finished, if one did
+
+    notes : list of tuple
+        What changed among the residents: hellos, losses and the end of
+        their launch
+    """
+    by_pid = {run.pid: (path, run) for path, run in running.items()}
+    deadline = None if timeout is None else time.time() + timeout
+    while True:
+        notes: List[tuple] = []
+        while True:
+            try:
+                pid, status = os.waitpid(-1, os.WNOHANG)
+            except ChildProcessError:
+                break
+            if pid == 0:
+                break
+            if pid in by_pid:
+                path, run = by_pid[pid]
+                outcome = _outcome(
+                    path,
+                    _returncode(status),
+                    time.time() - run.started,
+                    run.work_seconds(),
+                )
+                return outcome, notes
+            if residents is not None and residents.owns(pid):
+                note = residents.exited(pid, _returncode(status))
+                if note is not None:
+                    notes.append(note)
+            # anything else is not ours, and is reaped and forgotten
+        if notes:
+            return None, notes
+
+        sources: list = [wakeup]
+        if residents is not None:
+            sources.extend(residents.sources())
+        remaining = None
+        if deadline is not None:
+            remaining = max(deadline - time.time(), 0.0)
+        ready = wait(sources, timeout=remaining)
+        for source in ready:
+            if source is wakeup:
+                wakeup.drain()
+            else:
+                note = residents.hear(source)
+                if note is not None:
+                    notes.append(note)
+        if notes:
+            return None, notes
+        if deadline is not None and time.time() >= deadline:
+            return None, notes
+
+
+def _noticed(signum, frame) -> None:
+    """Hear that a child has exited; the wake-up pipe is what says so."""
 
 
 def _returncode(status: int) -> int:
