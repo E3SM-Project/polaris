@@ -602,12 +602,19 @@ def _placement_resources(placement, parallel_system):
 
     # a placement carries no memory, because no launcher acts on one.  What
     # a placement does imply is a share of the nodes it names, in the same
-    # proportion as the cores it took from them.
-    memory_per_node = get_memory_per_node(parallel_system)
+    # proportion as the cores it took from them.  Per node, that is the share
+    # of the cores counted in cores_per_node, so that the two describe the
+    # same thing; a whole node's memory beside a part of its cores would
+    # give a step sized from them a budget of whole nodes.
+    node_memory = get_memory_per_node(parallel_system)
     memory = None
+    memory_per_node = None
     machine_cores_per_node = parallel_system.cores_per_node
-    if memory_per_node is not None and machine_cores_per_node:
-        memory = cores * memory_per_node // machine_cores_per_node
+    if node_memory is not None and machine_cores_per_node:
+        memory = cores * node_memory // machine_cores_per_node
+        memory_per_node = (
+            cores_per_node * node_memory // machine_cores_per_node
+        )
 
     return dict(
         cores=cores,
