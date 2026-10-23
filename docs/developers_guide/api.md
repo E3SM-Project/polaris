@@ -126,6 +126,7 @@ seaice/api
    resident.die_with_parent
    residents.Residents
    residents.ResidentDirectory
+   residents.resident_options
    pieces.Pieces
    pieces.PieceFailed
    pieces.slots_from

@@ -16,13 +16,18 @@ needs itself, so a step behaves the same whether `polaris serial` or
 
 import os
 import signal
+import subprocess
+import sys
 import time
 from dataclasses import dataclass
 from multiprocessing import AuthenticationError
 from multiprocessing.connection import Connection, wait
-from typing import Dict, List, Optional, cast
+from typing import Dict, List, Optional, Sequence, cast
+
+from mache.parallel import ResourcePlacement
 
 from polaris.run.connections import (
+    KEY_VARIABLE,
     Address,
     accept,
     listen,
@@ -117,6 +122,9 @@ class Residents:
         self._expected: List[str] = []
         self._control: Dict[str, Connection] = {}
         self._local: Dict[int, str] = {}
+        self._launcher: Optional[subprocess.Popen] = None
+        self._launch_log: Optional[str] = None
+        self.launcher_returncode: Optional[int] = None
 
     @property
     def registry(self) -> Address:
@@ -161,6 +169,81 @@ class Residents:
             )
             self._local[pid] = name
 
+    def launch(
+        self,
+        parallel_system,
+        names: List[str],
+        core_id: int,
+        log_filename: str,
+        preload: Sequence[str] = ('polaris.tasks',),
+    ) -> List[str]:
+        """
+        Start a resident on every node of an allocation, with one launch.
+
+        The launch has one rank per node, confined by placement to one core
+        on each, so the rest of the allocation stays usable.  A resident's
+        children are bound to other cores by the resident itself, which
+        works where a launch is confined by affinity, as on Chrysalis; where
+        a launch is confined by a cgroup instead, its children could not
+        leave it, and that is still to be measured.
+
+        The run's key reaches the residents through the environment, which
+        other users on a node cannot read, rather than on the command line,
+        which they can.
+
+        Parameters
+        ----------
+        parallel_system : mache.parallel.ParallelSystem
+            What renders the launch
+
+        names : list of str
+            The nodes, as the allocation names them
+
+        core_id : int
+            The core each resident is confined to on its node
+
+        log_filename : str
+            Where the launch's output goes
+
+        preload : sequence of str, optional
+            Modules each resident imports once, before forking anything
+
+        Returns
+        -------
+        command : list of str
+            The launch, as rendered
+        """
+        if self.started is None:
+            self.started = time.time()
+        self._expected.extend(names)
+        args = [sys.executable, '-m', 'polaris.run.resident']
+        host, port = self.registry
+        args.append(f'{host}:{port}')
+        if self.interface:
+            args.extend(['--interface', self.interface])
+        args.append('--preload')
+        args.extend(preload)
+        placement = ResourcePlacement(
+            nodes=tuple(names),
+            cores=tuple((core_id,) for _ in names),
+            gpus=0,
+        )
+        command = parallel_system.get_parallel_command(
+            args=args,
+            ntasks=len(names),
+            cpus_per_task=1,
+            placement=placement,
+        )
+        environ = dict(os.environ)
+        environ[KEY_VARIABLE] = self.key.hex()
+        os.makedirs(os.path.dirname(log_filename) or '.', exist_ok=True)
+        self._launch_log = log_filename
+        with open(log_filename, 'w') as log:
+            self._launcher = subprocess.Popen(
+                command, env=environ, stdout=log, stderr=subprocess.STDOUT
+            )
+        return command
+
     def sources(self) -> list:
         """What a loop should wait on to hear from the residents."""
         return [self._socket, *self._control.values()]
@@ -203,6 +286,13 @@ class Residents:
         deadline = time.time() + timeout
         while not self.ready:
             self._reap_local()
+            self._poll_launcher()
+            if self.launcher_returncode is not None:
+                raise RuntimeError(
+                    f'The launch that starts the residents exited with '
+                    f'{self.launcher_returncode} before every resident said '
+                    f'hello. See {self._launch_log}.'
+                )
             if self.lost:
                 raise RuntimeError(
                     f'Resident(s) on {sorted(self.lost)} went away before '
@@ -223,18 +313,32 @@ class Residents:
                 self.hear(source)
 
     def owns(self, pid: int) -> bool:
-        """Whether a child process of this one is one of the residents."""
+        """
+        Whether a child process of this one is a resident or their launch.
+
+        A loop that reaps any child that has exited has to know these, or it
+        would reap them as strangers and nothing would notice they had gone.
+        """
+        if self._launcher is not None and pid == self._launcher.pid:
+            return True
         return pid in self._local
 
-    def exited(self, pid: int) -> None:
+    def exited(self, pid: int, returncode: Optional[int] = None) -> None:
         """
-        Note that a resident forked here has exited and been reaped.
+        Note that a resident forked here, or the launch, has exited and
+        been reaped.
 
         Parameters
         ----------
         pid : int
-            The resident's process id
+            The process id
+
+        returncode : int, optional
+            How it exited, if whoever reaped it knows
         """
+        if self._launcher is not None and pid == self._launcher.pid:
+            self.launcher_returncode = 1 if returncode is None else returncode
+            return
         name = self._local.pop(pid, None)
         if name is not None and name not in self.lost:
             self._lose(name)
@@ -261,6 +365,7 @@ class Residents:
             except (ProcessLookupError, ChildProcessError):
                 pass
             self._local.pop(pid, None)
+        self._stop_launcher(deadline)
         self._registry.close()
 
     def __enter__(self) -> 'Residents':
@@ -295,6 +400,38 @@ class Residents:
         if conn is not None:
             conn.close()
 
+    def _stop_launcher(self, deadline: float) -> None:
+        """
+        Let the launch end, and end it if it will not.
+
+        The residents exit once told to stop, and the launch with them.  One
+        that has not by the deadline is terminated, which the batch system
+        passes on to every resident it started, and their children go with
+        them.
+        """
+        if self._launcher is None or self.launcher_returncode is not None:
+            return
+        try:
+            self.launcher_returncode = self._launcher.wait(
+                timeout=max(deadline - time.time(), 0.1)
+            )
+            return
+        except subprocess.TimeoutExpired:
+            pass
+        self._launcher.terminate()
+        try:
+            self.launcher_returncode = self._launcher.wait(
+                timeout=_STOP_SECONDS
+            )
+        except subprocess.TimeoutExpired:
+            self._launcher.kill()
+            self.launcher_returncode = self._launcher.wait()
+
+    def _poll_launcher(self) -> None:
+        """Notice that the launch has exited, where nothing else reaps it."""
+        if self._launcher is not None and self.launcher_returncode is None:
+            self.launcher_returncode = self._launcher.poll()
+
     def _reap_local(self) -> None:
         """Notice residents forked here that have already exited."""
         for pid in list(self._local):
@@ -309,3 +446,34 @@ class Residents:
 def _short(name: str) -> str:
     """A node's short name, which is how a resident names its node."""
     return name.split('.')[0]
+
+
+def resident_options(config):
+    """
+    How a run's residents are to be started: the network interface to use,
+    and how long to wait for them.
+
+    Work directories set up before these options existed are read with
+    their defaults.
+
+    Parameters
+    ----------
+    config : polaris.config.PolarisConfigParser
+        The run's config
+
+    Returns
+    -------
+    interface : str or None
+        The network interface, or ``None`` for the one a node's hostname
+        resolves to
+
+    start_timeout : float
+        How long to wait for every resident to say hello, in seconds
+    """
+    interface = None
+    start_timeout = 1800.0
+    if config.has_option('residents', 'interface'):
+        interface = config.get('residents', 'interface').strip() or None
+    if config.has_option('residents', 'start_timeout'):
+        start_timeout = config.getfloat('residents', 'start_timeout')
+    return interface, start_timeout

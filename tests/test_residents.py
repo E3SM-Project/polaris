@@ -10,14 +10,20 @@ residents on one machine stand in for two nodes.
 import os
 import pickle
 import signal
+import socket
 import time
 from multiprocessing import AuthenticationError
 from multiprocessing.connection import wait
 
 import pytest
 
+from polaris.config import PolarisConfigParser
 from polaris.run.connections import connect, new_key
-from polaris.run.residents import ResidentDirectory, Residents
+from polaris.run.residents import (
+    ResidentDirectory,
+    Residents,
+    resident_options,
+)
 
 # what the pieces below run, which must be importable from the residents
 # just as a step's work must be
@@ -302,3 +308,90 @@ def test_many_quick_pieces_all_answer(residents):
         kind, request_id, payload = _answer(conn)
         answers[request_id] = (kind, payload.get('value'))
     assert answers == {index: ('done', index + 1) for index in range(40)}
+
+
+class _Launcher:
+    """
+    A parallel system whose launch is just the payload, so that one
+    resident starts on this machine rather than one on each node.
+    """
+
+    def __init__(self, command=None):
+        self.calls = []
+        self._command = command
+
+    def get_parallel_command(self, args, ntasks, cpus_per_task, placement):
+        self.calls.append(
+            {
+                'args': list(args),
+                'ntasks': ntasks,
+                'cpus_per_task': cpus_per_task,
+                'placement': placement,
+            }
+        )
+        return self._command or list(args)
+
+
+def _here():
+    return socket.gethostname().split('.')[0]
+
+
+def test_a_launch_starts_a_resident_on_each_node(tmp_path):
+    core = sorted(os.sched_getaffinity(0))[0]
+    launcher = _Launcher()
+    with Residents() as residents:
+        command = residents.launch(
+            launcher,
+            [_here()],
+            core_id=core,
+            log_filename=str(tmp_path / 'residents.log'),
+            preload=(),
+        )
+        residents.wait_until_ready(timeout=600)
+        assert residents.ready
+    call = launcher.calls[0]
+    assert (call['ntasks'], call['cpus_per_task']) == (1, 1)
+    assert call['placement'].cores == ((core,),)
+    assert call['placement'].gpus == 0
+    # the key travels in the environment, never on a command line
+    assert residents.key.hex() not in ' '.join(command)
+
+
+def test_a_launch_that_fails_is_reported_at_once(tmp_path):
+    with Residents() as residents:
+        residents.launch(
+            _Launcher(command=['false']),
+            ['somewhere'],
+            core_id=0,
+            log_filename=str(tmp_path / 'residents.log'),
+            preload=(),
+        )
+        began = time.time()
+        with pytest.raises(RuntimeError, match='exited with 1 before every'):
+            residents.wait_until_ready(timeout=600)
+        assert time.time() - began < 60
+
+
+def test_stopping_a_launch_leaves_nothing_running(tmp_path):
+    with Residents() as residents:
+        residents.launch(
+            _Launcher(),
+            [_here()],
+            core_id=sorted(os.sched_getaffinity(0))[0],
+            log_filename=str(tmp_path / 'residents.log'),
+            preload=(),
+        )
+        residents.wait_until_ready(timeout=600)
+        resident = residents.facts[_here()]['pid']
+    assert residents.launcher_returncode is not None
+    assert _gone(resident)
+
+
+def test_resident_options_come_from_the_config():
+    config = PolarisConfigParser()
+    assert resident_options(config) == (None, 1800.0)
+    config.add_from_package('polaris', 'default.cfg')
+    assert resident_options(config) == (None, 1800.0)
+    config.set('residents', 'interface', 'ib0')
+    config.set('residents', 'start_timeout', '60')
+    assert resident_options(config) == ('ib0', 60.0)
