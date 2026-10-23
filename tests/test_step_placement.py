@@ -227,9 +227,44 @@ def test_a_placement_carries_a_share_of_the_memory_it_took():
     resources = component.get_available_resources(
         _placement(nodes=('node0001',), cores=32)
     )
-    # half a node's cores, so half a node's memory
+    # half a node's cores, so half a node's memory, in all and per node
     assert resources['memory'] == 128000
-    assert resources['memory_per_node'] == 256000
+    assert resources['memory_per_node'] == 128000
+
+
+def test_a_placed_step_is_given_the_memory_its_cores_imply():
+    """
+    Sized from its placement, a step's default memory is its cores' share of
+    a node, as it is when sized from the whole allocation.  Per node, the
+    view once gave a whole node's memory beside a part of its cores, so a
+    step with one core was budgeted a whole node.
+    """
+    component = _make_component()
+    for nodes, cores, expected in (
+        (('node0001',), 1, 4000),
+        (('node0001',), 32, 128000),
+        (('node0001', 'node0002'), 16, 128000),
+    ):
+        step = Step(component=component, name='step', cores=cores * len(nodes))
+        step.may_span_nodes = len(nodes) > 1
+        step.constrain_resources(
+            component.get_available_resources(_placement(nodes, cores))
+        )
+        assert step.memory_budget == expected
+
+
+def test_a_placement_uneven_across_nodes_shares_memory_by_its_cores():
+    """The case found in practice: 64 cores on one node and 32 on another."""
+    component = _make_component()
+    placement = ResourcePlacement(
+        nodes=('node0001', 'node0002'),
+        cores=(tuple(range(64)), tuple(range(32))),
+        gpus=0,
+    )
+    step = Step(component=component, name='step', cores=96)
+    step.may_span_nodes = True
+    step.constrain_resources(component.get_available_resources(placement))
+    assert step.memory_budget == 96 * 256000 // 64
 
 
 def test_memory_is_left_undeclared_where_a_machine_has_not_said():
