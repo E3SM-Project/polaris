@@ -264,13 +264,14 @@ class Forward(OceanModelStep):
             ),
         )
 
-        # horizontal mixing and the KPP boundary layer are supported by both
-        # models, so they are added in MPAS-Ocean naming and translated to
-        # Omega by OceanModelStep.  Scaled coefficients apply at
-        # hmix_ref_cell_width, which defaults to the mesh's median cell width,
-        # Omega's own reference.  Omega's coefficients are converted when the
-        # reference is something else.  The median needs the mesh, so before
-        # an init-chain mesh exists the run-time call fills it in.
+        # horizontal mixing, the KPP boundary layer and the submesoscale eddy
+        # parameterization are supported by both models, so they are added in
+        # MPAS-Ocean naming and translated to Omega by OceanModelStep.  Scaled
+        # coefficients apply at hmix_ref_cell_width, which defaults to the
+        # mesh's median cell width, Omega's own reference.  Omega's
+        # coefficients are converted when the reference is something else.
+        # The median needs the mesh, so before an init-chain mesh exists the
+        # run-time call fills it in.
         mesh_widths = None
         if stage.hmix_scaling == 'ref_cell_width':
             mesh_widths = self._mesh_widths(at_setup)
@@ -288,6 +289,9 @@ class Forward(OceanModelStep):
         )
         self.add_model_config_options(
             options=stage.vert_mixing_options(), config_model='ocean'
+        )
+        self.add_model_config_options(
+            options=stage.submesoscale_options(), config_model='ocean'
         )
 
         if model == 'omega':

@@ -59,6 +59,16 @@ ocean:
         config_cvmix_kpp_matching: SimpleShapes
         config_cvmix_kpp_use_enhanced_diff: true
         configure_cvmix_kpp_minimum_OBL_under_sea_ice: 10.0
+    # whether to use the submesoscale eddy parameterization is
+    # config_submesoscale_enable, which comes from config; see
+    # ForwardStage.submesoscale_options.  These are its parameters, E3SM's,
+    # which Omega's defaults match.  MPAS-Ocean's Registry default for the
+    # efficiency Ce is 0.06 rather than E3SM's 0.08.
+    submesoscale_eddy_parameterization:
+        config_submesoscale_tau: 172800.0
+        config_submesoscale_Ce: 0.08
+        config_submesoscale_Lfmin: 1000.0
+        config_submesoscale_ds_max: 100000.0
 
 mpas-ocean:
     time_management:
@@ -72,10 +82,9 @@ mpas-ocean:
         # 'PP'.  This is the shear scheme, not the boundary layer, which is
         # config_use_cvmix_kpp and comes from config.
         config_cvmix_shear_mixing_scheme: KPP
-    # The submesoscale parameterization and the pressure gradient are config
-    # options rather than fixed values here, so that a run comparing
-    # MPAS-Ocean with Omega can turn them off, as compare_with_omega.cfg does.
-    # See ForwardStage.mpaso_physics_options.
+    # The pressure gradient is a config option rather than a fixed value here,
+    # so that a run comparing MPAS-Ocean with Omega can change it, as
+    # compare_with_omega.cfg does.  See ForwardStage.mpaso_physics_options.
     Redi_isopycnal_mixing:
         # the Registry default of 6 skips the Redi diagnostic terms in the top
         # 6 layers; Compass computes them everywhere, and matching it keeps the

@@ -298,6 +298,15 @@ config:
     config_eos_linear_densityref: RhoT0S0
 
 - section:
+    submesoscale_eddy_parameterization: Submeso
+  options:
+    config_submesoscale_enable: Enable
+    config_submesoscale_tau: Tau
+    config_submesoscale_Ce: Ce
+    config_submesoscale_Lfmin: LfMin
+    config_submesoscale_ds_max: DsMax
+
+- section:
     cvmix: [VertMix, Background]
   options:
     config_cvmix_background_diffusion: Diffusivity

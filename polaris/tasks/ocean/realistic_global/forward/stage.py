@@ -182,9 +182,8 @@ class ForwardStage:
         Whether to use the CVMix KPP boundary-layer scheme, in both models.
 
     use_submesoscale : bool
-        Whether to use the submesoscale eddy parameterization.  MPAS-Ocean
-        only, and on as in E3SM rather than at the MPAS-Ocean Registry default
-        of off.
+        Whether to use the submesoscale eddy parameterization, in both models.
+        On as in E3SM rather than at both models' default of off.
 
     pressure_gradient_type : str or None
         The MPAS-Ocean horizontal pressure gradient formulation; ``None``
@@ -786,15 +785,32 @@ class ForwardStage:
         """
         return {'config_use_cvmix_kpp': self.use_KPP}
 
+    def submesoscale_options(self) -> Dict[str, Any]:
+        """
+        Submesoscale eddy parameterization options that both models support.
+
+        Like :py:meth:`vert_mixing_options`, these are given in MPAS-Ocean
+        naming and applied with ``config_model='ocean'``.  The
+        parameterization is stated either way rather than only when on, so
+        that turning it off in a user or per-mesh config undoes a default that
+        turned it on.  Its parameters are fixed in ``forward.yaml``.
+
+        Returns
+        -------
+        dict
+            The model config options to add.
+        """
+        return {'config_submesoscale_enable': self.use_submesoscale}
+
     def mpaso_physics_options(self) -> Dict[str, Any]:
         """
         Physics options that only MPAS-Ocean has.
 
         The Leith closure, the horizontal-mixing scaling, Gent-McWilliams,
-        Redi, the submesoscale parameterization, the pressure-gradient
-        formulation and frazil ice have no Omega counterpart in
-        ``mpaso_to_omega``, and GM and Redi are not expected to gain one, so
-        these are applied with ``config_model='mpas-ocean'``.  An option moves
+        Redi, the pressure-gradient formulation and frazil ice have no Omega
+        counterpart in ``mpaso_to_omega``, and GM and Redi are not expected to
+        gain one, so these are applied with ``config_model='mpas-ocean'``.
+        An option moves
         to the neutral options once Omega has a counterpart: left here, it
         would never reach Omega, which would run its own default instead.
         The scaling flags are the exception that stays: Omega's scaling is not
@@ -814,7 +830,6 @@ class ForwardStage:
             'config_use_Leith_del2': self.use_Leith_del2,
             'config_use_GM': self.use_GM,
             'config_use_Redi': self.use_Redi,
-            'config_submesoscale_enable': self.use_submesoscale,
             'config_use_frazil_ice_formation': self.use_frazil_ice_formation,
         }
         if self.pressure_gradient_type is not None:
