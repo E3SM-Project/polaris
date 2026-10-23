@@ -147,9 +147,12 @@ class Step:
         which cores on each and how many GPUs -- or ``None`` to run on the
         whole allocation, as steps have always done.
 
-        Nothing assigns this yet.  Deciding which subset a step should get
-        needs a scheduler, and there is not one: the only caller is the
-        serial path, which assigns no placement.
+        ``polaris parallel`` assigns it from the step's reservation; the
+        serial path assigns none.
+
+    residents : polaris.run.residents.ResidentDirectory or None
+        how to reach the residents that fork the pieces of a step that hands
+        out work, assigned by whatever runs the step, or ``None``
 
     input_data : list of dict
         a list of dict used to define input files typically to be
@@ -421,6 +424,7 @@ class Step:
         self.min_memory = min_memory
         self.memory_budget = None
         self.placement = None
+        self.residents = None
 
         self.path = os.path.join(self.component.name, self.subdir)
 

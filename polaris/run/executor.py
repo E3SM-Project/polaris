@@ -136,7 +136,11 @@ class RunningStep:
 
 
 def start_step(
-    step, reservation: Reservation, log_filename: str, local_node: str
+    step,
+    reservation: Reservation,
+    log_filename: str,
+    local_node: str,
+    residents=None,
 ) -> RunningStep:
     """
     Start one step in a forked child.
@@ -163,13 +167,20 @@ def start_step(
         The node the scheduler is on, which is the only one whose cores a
         child can bind itself to
 
+    residents : polaris.run.residents.ResidentDirectory, optional
+        How to reach the residents, for a step that hands out work
+
     Returns
     -------
     running : polaris.run.executor.RunningStep
         The started step
     """
     os.makedirs(os.path.dirname(log_filename) or '.', exist_ok=True)
-    cores = _local_cores(reservation, local_node)
+    # a step that hands out work does it on its cores through the residents,
+    # and its own process is not reserved one, as an MPI step's is not
+    cores = (
+        None if step.hands_out_work else _local_cores(reservation, local_node)
+    )
 
     # anything still buffered here would be inherited and written twice
     sys.stdout.flush()
@@ -184,14 +195,18 @@ def start_step(
     pid = os.fork()
     if pid == 0:
         os.close(hearing)
-        _be_the_step(step, reservation.placement, log_filename, cores, saying)
+        _be_the_step(
+            step, reservation.placement, log_filename, cores, saying, residents
+        )
         # unreachable: _be_the_step never returns
 
     os.close(saying)
     return RunningStep(step, reservation, pid, log_filename, started, hearing)
 
 
-def _be_the_step(step, placement, log_filename, cores, saying) -> NoReturn:
+def _be_the_step(
+    step, placement, log_filename, cores, saying, residents=None
+) -> NoReturn:
     """
     Become the step, in the forked child, and never come back.
 
@@ -243,6 +258,8 @@ def _be_the_step(step, placement, log_filename, cores, saying) -> NoReturn:
         os.chdir(step.work_dir)
         # this child *is* the separate process that flag asks for
         step.run_as_subprocess = False
+        # handed to the step the way its placement is, in the child
+        step.residents = residents
 
         began = time.time()
         run_step_in_process(step, placement)
