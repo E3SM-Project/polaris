@@ -646,7 +646,7 @@ biharmonic one, so the values given apply at the mesh's median cell width.
 They are raised from Omega's defaults to reduce, but not remove, grid-scale
 noise in the velocity.  On `QU.240km`, the biharmonic viscosity is 1.0e15 m^4/s
 at 240 km.  On `EC30to60E2r2`, the biharmonic viscosity is E3SM's, and the
-harmonic viscosity is 1.0e4 m^2/s rather than E3SM's 1.0e3, which
+harmonic viscosity is E3SM's 1.0e3 m^2/s, which
 checkerboards the divergence along the Gulf Stream and the coasts of the
 Maritime Continent.  These values are provisional until Omega has the fix to
 its pressure-gradient errors over bathymetry.  These are coarse runs for

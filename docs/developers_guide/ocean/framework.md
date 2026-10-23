@@ -204,7 +204,10 @@ to the constructor {py:class}`polaris.ocean.model.OceanModelStep()`.
 
 Omega scales its horizontal mixing coefficients with cell width by default,
 from the mesh's median cell width.  Most tasks are defined with constant
-coefficients, so the constructor turns Omega's `MeshScalingEnable` off.  A
+coefficients, so the constructor turns Omega's `MeshScalingEnable` off.
+When disabled, Omega sets both scaling factors, `MeshScalingDel2` and
+`MeshScalingDel4`, to one on every edge, so `ViscDel2`, `ViscDel4`,
+`EddyDiff2` and `EddyDiff4` are the same everywhere on the mesh.  A
 task that wants scaling turns it back on in a yaml file it adds at setup, as
 the `realistic_global` tasks do.  The default is set in the constructor rather
 than in `dynamic_model_config()` because, at run time, it would otherwise
