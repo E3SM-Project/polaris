@@ -26,6 +26,7 @@ from polaris.run import (
     load_dependencies,
 )
 from polaris.run.confinement import check_confinement
+from polaris.run.memory import format_bytes
 
 
 def run_step(task, step, new_log_file, available_resources, step_log_filename):
@@ -46,7 +47,7 @@ def run_step(task, step, new_log_file, available_resources, step_log_filename):
             f'{step.component.name}/{step.subdir}: {missing_files}'
         )
 
-    load_dependencies(step)
+    dependency_pickles = load_dependencies(step)
 
     # each logger needs a unique name
     logger_name = step.path.replace('/', '_')
@@ -70,6 +71,8 @@ def run_step(task, step, new_log_file, available_resources, step_log_filename):
     ) as step_logger:
         step.logger = step_logger
         os.chdir(step.work_dir)
+
+        _log_dependency_pickles(dependency_pickles, step_logger)
 
         step_logger.info('')
         log_method_call(method=step.constrain_resources, logger=step_logger)
@@ -283,6 +286,19 @@ def accumulate_baselines(
     if baselines_passed is None:
         return status
     return baselines_passed and status
+
+
+def _log_dependency_pickles(pickle_filenames, logger):
+    """
+    Record how large each dependency's pickle was.
+
+    A dependency is unpickled whole into the process running the step, so a
+    pickle that is large for what the step needs from it is memory held
+    before the step has done anything.
+    """
+    for name, filename in pickle_filenames.items():
+        size = format_bytes(os.path.getsize(filename))
+        logger.info(f'loaded dependency {name} from {filename} ({size})')
 
 
 def _log_sizing(step, step_resources, logger, when):

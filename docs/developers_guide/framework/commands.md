@@ -116,6 +116,17 @@ and finally indicates if the overall task execution was `SUCCESS` or `ERROR`.
 Execution times are provided for individual steps, tasks and the suite as a
 whole.
 
+Because every step runs in the same process, each step also reports the
+memory that process used: its peak during the step, what it still held
+afterward and, if the step started the largest subprocess so far, that
+subprocess's peak.  Memory that keeps growing from one step to the next is
+memory that earlier steps left behind.  The numbers come from
+{py:func}`polaris.run.memory.read_process_memory()`, and the peak is reset
+before each step with {py:func}`polaris.run.memory.reset_peak_memory()` where
+the system allows it (Linux).  The log also records the size of each
+dependency's pickle as the step loads it, since a dependency is unpickled
+whole into the process.
+
 `run_tasks()` also writes a machine-readable results file,
 `<suite_name>_results.json` (or `task_results.json` for a single task), next
 to the pickle file. Each task's outcome is held in a

@@ -71,7 +71,14 @@ def load_dependencies(step):
     ----------
     step : polaris.step.Step
         The step object
+
+    Returns
+    -------
+    pickle_filenames : dict
+        The pickle file each dependency was loaded from, with the names of
+        the dependencies as keys
     """
+    pickle_filenames = dict()
     for name, old_dependency in step.dependencies.items():
         if old_dependency.cached:
             continue
@@ -87,6 +94,8 @@ def load_dependencies(step):
         with open(pickle_filename, 'rb') as handle:
             dependency = pickle.load(handle)
             step.dependencies[name] = dependency
+        pickle_filenames[name] = pickle_filename
+    return pickle_filenames
 
 
 def complete_step_run(step):
