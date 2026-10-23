@@ -32,7 +32,10 @@ from polaris.run.memory import (
     read_process_memory,
     reset_peak_memory,
 )
-from polaris.run.residents import stop_serial_residents
+from polaris.run.residents import (
+    start_serial_residents,
+    stop_serial_residents,
+)
 from polaris.run.results import TaskResult, write_suite_results
 from polaris.validate import merge_diff_summary
 from polaris.version import __version__
@@ -123,6 +126,8 @@ def run_tasks(
             task_results[task_name] = TaskResult(path=task.path, log=log)
 
         write_results(0.0, task_results.values(), complete=False)
+
+        _start_residents_first(suite['tasks'], steps_to_run, steps_to_skip)
 
         for task_name in suite['tasks']:
             stdout_logger.info(f'{task_name}')
@@ -332,6 +337,28 @@ def _dispatch(args):
                 'More than one suite was found. Please specify '
                 'which to run: polaris serial <suite>'
             )
+
+
+def _start_residents_first(tasks, steps_to_run, steps_to_skip) -> None:
+    """
+    Start the residents before any step runs, if a step will hand out work.
+
+    Steps run in this process, so a resident forked from it later would
+    inherit whatever an earlier step left behind, and Dask's distributed
+    scheduler leaves a thread pool whose thread does not survive a fork.
+    A step this misses, because a task's config changed which steps run,
+    starts them when it needs them instead.
+    """
+    skipped = set(steps_to_skip or [])
+    for task in tasks.values():
+        names = task.steps_to_run if steps_to_run is None else steps_to_run
+        for name in names:
+            step = task.steps.get(name)
+            if name in skipped or step is None:
+                continue
+            if step.hands_out_work:
+                start_serial_residents(step)
+                return
 
 
 def _update_steps_to_run(

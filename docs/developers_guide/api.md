@@ -131,10 +131,13 @@ seaice/api
    residents.ResidentDirectory
    residents.resident_options
    residents.serial_resources
+   residents.start_serial_residents
    residents.stop_serial_residents
    pieces.Pieces
    pieces.PieceFailed
    pieces.slots_from
+   dask_workers.DaskWorkers
+   dask_workers.WorkerLost
 
 ```
 

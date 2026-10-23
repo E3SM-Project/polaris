@@ -154,6 +154,10 @@ class Step:
         how to reach the residents that fork the pieces of a step that hands
         out work, assigned by whatever runs the step, or ``None``
 
+    reserved_memory : dict of int or None
+        the memory in MiB reserved for the step on each node of its
+        placement, by node, assigned by whatever runs the step, or ``None``
+
     input_data : list of dict
         a list of dict used to define input files typically to be
         downloaded to a database and/or symlinked in the work directory
@@ -425,6 +429,7 @@ class Step:
         self.memory_budget = None
         self.placement = None
         self.residents = None
+        self.reserved_memory = None
 
         self.path = os.path.join(self.component.name, self.subdir)
 

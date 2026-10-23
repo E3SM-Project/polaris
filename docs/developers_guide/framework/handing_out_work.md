@@ -128,6 +128,40 @@ the order the pieces were handed out.  A log nothing was written to is
 removed, so the logs that are left belong to the pieces that had something
 to say, including any that failed.
 
+## Computing with Dask across nodes
+
+A step whose arrays are too big for one node can compute with Dask on its
+cores instead of handing out pieces.  Inside `run_pieces()`, it opens
+`pieces.dask()`, whose value is a `distributed.Client`:
+
+```python
+def run_pieces(self, pieces):
+    with pieces.dask():
+        ds = xr.open_dataset(self.work_path('output.nc'), chunks={'Time': 1})
+        mean = ds.temperature.mean('Time').compute()
+    mean.to_netcdf(self.work_path('mean.nc'))
+```
+
+The resident on each node the step's cores are on forks one Dask worker
+there, bound to those cores, with a thread for each core and the node's
+share of the step's memory as its limit.  The scheduler runs in the step's
+own process.  The workers start when the `with` block is entered and stop
+when it is left, and `map()` cannot be used while they hold the cores.
+Starting them takes a second or two, so this is for a step that needs
+Dask's arrays across nodes, not a replacement for `map()` over a loop.
+
+A worker runs many tasks at once in one process, in its threads, so tasks
+must not change the working directory, set library defaults or write
+outside the step's work directory, as {ref}`dev-task-parallelism`
+describes.
+
+A worker that dies fails the step.  A task that was running on it raises
+Dask's `KilledWorker`, and leaving the `with` block raises
+{py:class}`polaris.run.dask_workers.WorkerLost`, naming the node, even if
+Dask finished the work on another worker.  Nothing restarts a worker or
+retries its tasks.  What each worker says goes to `dask/worker_<node>.log`
+in the step's work directory.
+
 ## How a run starts the residents
 
 `polaris parallel` starts one resident on each node of the allocation when
@@ -135,8 +169,8 @@ the run has a step that hands out work, and stops them when the run ends,
 however it ends.  Starting them takes as long as importing Polaris on a
 compute node, typically some tens of seconds.  The run starts other steps
 in the meantime, and a step that hands out work waits until every resident
-is ready.  `polaris serial` starts the residents when it first reaches a
-step that hands out work, and stops them when it finishes.  What the
+is ready.  `polaris serial` starts them before its first step, if any of
+its steps hands out work, and stops them when it finishes.  What the
 residents themselves print goes to `case_outputs/residents.log`.
 
 Two config options in the `[residents]` section control them:
@@ -173,8 +207,10 @@ Handed-out work: 200 piece(s) from 2 step(s) on 2 node(s); their cores were busy
 
 The share of time the cores were busy is the cost of reserving cores for a
 step: they are idle while the step reads its inputs, between its calls to
-`map()`, and while its last pieces finish.  The run also says how long the
-residents took to be ready and to stop.
+`map()`, and while its last pieces finish.  Cores Dask workers hold count as
+busy.  The run also says how many Dask workers steps started and how long
+they took to start, and how long the residents took to be ready and to
+stop.
 
 A piece that was allowed more than the core it was given is reported in
 `polaris_placement_mismatch.log` in the step's work directory, as a step

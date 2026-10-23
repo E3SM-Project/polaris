@@ -10,13 +10,16 @@ the resident on the step's node.
 
 import logging
 import os
+from types import SimpleNamespace
 
+import dask.array
 import pytest
 
 from polaris import Component, Step
 from polaris.config import PolarisConfigParser
 from polaris.run import STEP_COMPLETE_LOG
 from polaris.run import residents as residents_module
+from polaris.run import serial as serial_module
 from polaris.run.allocation import NodeResources
 from polaris.run.confinement import PLACEMENT_MISMATCH_LOG, check_confinement
 from polaris.run.events import EventStream, read_events
@@ -53,6 +56,16 @@ class _Squares(Step):
             handle.write(','.join(str(each) for each in squares))
         with open(self.work_path('own_cores.txt'), 'w') as handle:
             handle.write(str(len(os.sched_getaffinity(0))))
+
+
+class _DaskSum(Step):
+    """A step that computes with Dask on its cores."""
+
+    def run_pieces(self, pieces):
+        with pieces.dask():
+            total = dask.array.ones((400, 400), chunks=100).sum().compute()
+        with open(self.work_path('sum.txt'), 'w') as handle:
+            handle.write(str(int(total)))
 
 
 @pytest.fixture
@@ -137,6 +150,36 @@ def test_its_own_process_is_not_bound_to_its_cores(tmp_path, residents):
     assert outcome.succeeded, log
     with open(os.path.join(step.work_dir, 'own_cores.txt')) as handle:
         assert int(handle.read()) == len(os.sched_getaffinity(0))
+
+
+def test_a_step_computes_with_dask_as_the_scheduler_runs_it(
+    tmp_path, residents
+):
+    step = _squares(tmp_path, kind=_DaskSum, name='dask_sum')
+    outcome, log = _run(step, tmp_path, residents.directory)
+    assert outcome.succeeded, log
+    with open(os.path.join(step.work_dir, 'sum.txt')) as handle:
+        assert handle.read() == '160000'
+    assert 'started 1 Dask worker(s) with 2 thread(s)' in log
+
+
+def test_a_step_computes_with_dask_under_polaris_serial(tmp_path):
+    step = _squares(tmp_path, kind=_DaskSum, name='dask_sum')
+    # polaris serial runs the step in its own process, but the test process
+    # must never run Dask: what it forks afterwards would hang
+    pid = os.fork()
+    if pid == 0:
+        status = 1
+        try:
+            run_step_in_process(step, quiet=True)
+            status = 0
+        finally:
+            stop_serial_residents()
+            os._exit(status)
+    _, status = os.waitpid(pid, 0)
+    assert os.WIFEXITED(status) and os.WEXITSTATUS(status) == 0
+    with open(os.path.join(step.work_dir, 'sum.txt')) as handle:
+        assert handle.read() == '160000'
 
 
 def test_a_step_that_hands_out_work_without_residents_says_so(tmp_path):
@@ -310,3 +353,40 @@ def test_a_summary_from_an_earlier_run_is_not_reported(tmp_path, residents):
     _drive(tmp_path, [step], residents)
     with open(stale) as handle:
         assert '"pieces": 5' in handle.read()
+
+
+def test_the_run_reports_the_dask_workers_a_step_started(
+    tmp_path, residents, caplog
+):
+    step = _squares(tmp_path, kind=_DaskSum, name='dask_sum')
+    outcomes, recorded = _drive(tmp_path, [step], residents)
+    assert outcomes[step.path].succeeded
+    pieces = [event for event in recorded if event['event'] == 'step_pieces']
+    assert pieces[0]['pieces'] == 0 and pieces[0]['dask_workers'] == 1
+    with caplog.at_level(logging.INFO, logger='report'):
+        _report(
+            outcomes, [], {step.path: step}, logging.getLogger('report'), 1.0
+        )
+    assert 'Dask workers: 1, which took' in caplog.text
+
+
+def test_polaris_serial_starts_residents_before_any_step(
+    tmp_path, monkeypatch
+):
+    started: list = []
+    monkeypatch.setattr(
+        serial_module, 'start_serial_residents', started.append
+    )
+    plain = _squares(tmp_path, cores=1, kind=_Plain, name='plain')
+    squares = _squares(tmp_path)
+    task = SimpleNamespace(
+        steps={'plain': plain, 'squares': squares},
+        steps_to_run=['plain', 'squares'],
+    )
+    serial_module._start_residents_first({'task': task}, None, None)
+    assert started == [squares]
+    # nothing to start when the step that hands out work is skipped
+    started.clear()
+    serial_module._start_residents_first({'task': task}, None, ['squares'])
+    serial_module._start_residents_first({'task': task}, ['plain'], None)
+    assert started == []

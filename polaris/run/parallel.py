@@ -753,6 +753,8 @@ def _record_pieces(step, outcome, events) -> None:
         hosts=summary['hosts'],
         busy=summary['busy_seconds'],
         idle=round(max(reserved - summary['busy_seconds'], 0.0), 3),
+        dask_workers=summary.get('dask_workers', 0),
+        dask_start=summary.get('dask_start_seconds', 0.0),
     )
 
 
@@ -827,6 +829,8 @@ def _report_pieces(outcomes, steps, logger) -> None:
     reserved = 0.0
     hosts: Set[str] = set()
     handing_out = 0
+    workers = 0
+    starting = 0.0
     for path, outcome in outcomes.items():
         summary = _pieces_summary(steps.get(path))
         if summary is None:
@@ -836,6 +840,8 @@ def _report_pieces(outcomes, steps, logger) -> None:
         busy += summary['busy_seconds']
         reserved += summary['cores'] * outcome.seconds
         hosts.update(summary['hosts'])
+        workers += summary.get('dask_workers', 0)
+        starting += summary.get('dask_start_seconds', 0.0)
     if handing_out == 0:
         return
     share = 100.0 * busy / reserved if reserved > 0 else 0.0
@@ -845,6 +851,11 @@ def _report_pieces(outcomes, steps, logger) -> None:
         f'{len(hosts)} node(s); their cores were busy {share:.0f}% of the '
         f'time they were reserved.'
     )
+    if workers > 0:
+        logger.info(
+            f'Dask workers: {workers}, which took {starting:.1f} s in all '
+            f'to start.'
+        )
 
 
 def _comparisons(steps, logger) -> List[str]:

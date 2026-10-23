@@ -14,6 +14,7 @@ needs itself, so a step behaves the same whether `polaris serial` or
 `polaris parallel` is running it.
 """
 
+import logging
 import os
 import signal
 import socket
@@ -37,15 +38,18 @@ from polaris.run.connections import (
     new_key,
 )
 from polaris.run.pool import ResourcePool
-from polaris.run.resident import fork, serve
+from polaris.run.resident import PRELOAD, fork, serve
 
 # how long a resident that was told to stop is given to go before it is
 # killed
 _STOP_SECONDS = 10.0
 
-# the residents polaris serial starts for a run, the first time a step that
-# hands out work needs them
+# the residents polaris serial starts for a run, before its first step if
+# any of its steps hands out work
 _SERIAL: Optional['Residents'] = None
+
+# where what is said about the allocation's cores goes before a step runs
+_LOGGER = logging.getLogger(__name__)
 
 
 @dataclass(frozen=True)
@@ -159,6 +163,12 @@ class Residents:
         it is ready at once.  This is how a run with one node, or none,
         starts its resident, and how the tests start several on one machine.
 
+        This process must not have used Dask yet.  distributed keeps a
+        thread pool whose thread does not survive a fork, so a Dask worker
+        the resident forks later would wait on it forever.  ``polaris
+        serial`` starts its residents before the first step that needs them,
+        which is before any step can use Dask.
+
         Parameters
         ----------
         names : list of str
@@ -182,7 +192,7 @@ class Residents:
         names: List[str],
         core_id: int,
         log_filename: str,
-        preload: Sequence[str] = ('polaris.tasks',),
+        preload: Sequence[str] = PRELOAD,
     ) -> List[str]:
         """
         Start a resident on every node of an allocation, with one launch.
@@ -517,16 +527,18 @@ def resident_options(config):
     return interface, start_timeout
 
 
-def serial_resources(step) -> Tuple[ResidentDirectory, ResourcePlacement]:
+def serial_resources(
+    step,
+) -> Tuple[ResidentDirectory, ResourcePlacement, Dict[str, int]]:
     """
-    The residents and the cores a step that hands out work uses under
-    ``polaris serial``.
+    The residents, the cores and the memory a step that hands out work uses
+    under ``polaris serial``.
 
     ``polaris serial`` runs one step at a time on the whole allocation and
     gives a step no placement, so the step's cores are laid out over the
     allocation's nodes here, by the same pool ``polaris parallel`` uses.  The
-    run's residents are started the first time a step needs them, exactly
-    as ``polaris parallel`` starts them, and kept until
+    run's residents are started by :py:func:`start_serial_residents`, if
+    they have not been already, and kept until
     :py:func:`stop_serial_residents`.
 
     Parameters
@@ -541,12 +553,11 @@ def serial_resources(step) -> Tuple[ResidentDirectory, ResourcePlacement]:
 
     placement : mache.parallel.ResourcePlacement
         Where the step's cores are
+
+    memory : dict of int
+        The memory in MiB the step has on each node, by node
     """
-    global _SERIAL
-    system = step.component.parallel_system
-    names = list(system.node_names or ['']) if system is not None else ['']
-    cores_per_node = system.cores_per_node if system is not None else None
-    core_ids = usable_cores(cores_per_node or os.cpu_count() or 1, step.logger)
+    names, core_ids = _serial_nodes(step, step.logger)
     nodes = [
         NodeResources(
             name=name,
@@ -560,22 +571,49 @@ def serial_resources(step) -> Tuple[ResidentDirectory, ResourcePlacement]:
         )
         for name in names
     ]
-    local = _this_node(names)
-    reservation = ResourcePool(nodes, local_node=local).reserve(step)
+    reservation = ResourcePool(nodes, local_node=_this_node(names)).reserve(
+        step
+    )
     if reservation is None:
         raise RuntimeError(
             f'Step {step.path} hands out work over {step.cores} cores, which '
             f'this allocation does not have.'
         )
+    directory = start_serial_residents(step)
+    return directory, reservation.placement, reservation.memory
 
+
+def start_serial_residents(step) -> ResidentDirectory:
+    """
+    Start the residents for ``polaris serial``, if they are not running yet,
+    exactly as ``polaris parallel`` starts them.
+
+    ``polaris serial`` starts them before running any step when one of its
+    steps hands out work, because a resident forked from a process in which
+    a step has already used Dask's distributed scheduler would inherit a
+    thread pool whose thread did not survive the fork.
+
+    Parameters
+    ----------
+    step : polaris.Step
+        A step that hands out work, whose component's parallel system
+        describes the allocation and whose config says how to start them
+
+    Returns
+    -------
+    directory : polaris.run.residents.ResidentDirectory
+        How to reach the residents
+    """
+    global _SERIAL
     if _SERIAL is None:
+        names, core_ids = _serial_nodes(step, _LOGGER)
         interface, start_timeout = resident_options(step.config)
         residents = Residents(interface=interface)
-        if len(names) == 1 and names[0] in ('', local):
+        if len(names) == 1 and names[0] in ('', _this_node(names)):
             residents.start_local(names)
         else:
             residents.launch(
-                system,
+                step.component.parallel_system,
                 names,
                 core_ids[0],
                 log_filename=os.path.join(
@@ -588,7 +626,7 @@ def serial_resources(step) -> Tuple[ResidentDirectory, ResourcePlacement]:
             residents.stop()
             raise
         _SERIAL = residents
-    return _SERIAL.directory, reservation.placement
+    return _SERIAL.directory
 
 
 def stop_serial_residents() -> None:
@@ -597,6 +635,15 @@ def stop_serial_residents() -> None:
     if _SERIAL is not None:
         _SERIAL.stop()
         _SERIAL = None
+
+
+def _serial_nodes(step, logger) -> Tuple[List[str], Tuple[int, ...]]:
+    """The allocation's nodes, and the cores a step may use on each."""
+    system = step.component.parallel_system
+    names = list(system.node_names or ['']) if system is not None else ['']
+    cores_per_node = system.cores_per_node if system is not None else None
+    core_ids = usable_cores(cores_per_node or os.cpu_count() or 1, logger)
+    return names, tuple(core_ids)
 
 
 def _this_node(names: List[str]) -> str:

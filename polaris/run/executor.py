@@ -208,6 +208,7 @@ def start_step(
             saying,
             residents,
             keep_out,
+            reservation.memory,
         )
         # unreachable: _be_the_step never returns
 
@@ -216,7 +217,14 @@ def start_step(
 
 
 def _be_the_step(
-    step, placement, log_filename, cores, saying, residents=None, keep_out=()
+    step,
+    placement,
+    log_filename,
+    cores,
+    saying,
+    residents=None,
+    keep_out=(),
+    memory=None,
 ) -> NoReturn:
     """
     Become the step, in the forked child, and never come back.
@@ -280,6 +288,7 @@ def _be_the_step(
         step.run_as_subprocess = False
         # handed to the step the way its placement is, in the child
         step.residents = residents
+        step.reserved_memory = memory
 
         began = time.time()
         run_step_in_process(step, placement)

@@ -320,8 +320,9 @@ def _run_pieces(step):
     """
     residents = getattr(step, 'residents', None)
     placement = step.placement
+    memory = getattr(step, 'reserved_memory', None)
     if residents is None and placement is None:
-        residents, placement = serial_resources(step)
+        residents, placement, memory = serial_resources(step)
     elif residents is None:
         raise RuntimeError(
             f'Step {step.path} hands out work, but no residents were started '
@@ -337,7 +338,7 @@ def _run_pieces(step):
         os.remove(os.path.join(step.work_dir, PIECES_SUMMARY))
     except OSError:
         pass
-    with Pieces(step, slots_from(placement), residents) as pieces:
+    with Pieces(step, slots_from(placement), residents, memory) as pieces:
         step.run_pieces(pieces)
 
 

@@ -27,6 +27,7 @@ its children and exits.
 """
 
 import argparse
+import asyncio
 import ctypes
 import importlib
 import logging
@@ -48,6 +49,7 @@ from polaris.run.connections import (
     KEY_VARIABLE,
     Address,
     accept,
+    bind_address,
     connect,
     listen,
     listening_socket,
@@ -60,6 +62,11 @@ _HOUSEKEEPING_SECONDS = 1.0
 
 # prctl's request to be sent a signal when the parent dies
 _PR_SET_PDEATHSIG = 1
+
+# what a resident imports before forking anything: the task tree, so that a
+# piece starts with Polaris imported, and distributed, so that a Dask worker
+# does not import it each time one is started
+PRELOAD = ('polaris.tasks', 'distributed')
 
 
 def main():
@@ -79,7 +86,7 @@ def main():
     parser.add_argument(
         '--preload',
         nargs='*',
-        default=['polaris.tasks'],
+        default=list(PRELOAD),
         help='Modules to import once, before anything is forked',
     )
     args = parser.parse_args()
@@ -170,7 +177,13 @@ def die_with_parent(parent: int) -> None:
 
 
 class _Child:
-    """A child this resident forked, and whom to tell how it went."""
+    """
+    A child this resident forked, and whom to tell how it went.
+
+    A piece answers once, and its answer is the last word.  A Dask worker
+    says when it has started and then runs until it is stopped, so how it
+    ended is always told as well.
+    """
 
     def __init__(
         self,
@@ -178,11 +191,13 @@ class _Child:
         request_id,
         reader: Connection,
         log: Optional[str] = None,
+        kind: str = 'piece',
     ):
         self.client = client
         self.request_id = request_id
         self.reader: Optional[Connection] = reader
         self.log = log
+        self.kind = kind
         self.answered = False
 
 
@@ -258,7 +273,9 @@ class _Resident:
             self._drop(client)
             return
         if kind == 'piece':
-            self._fork_piece(client, request_id, payload)
+            self._fork(client, request_id, payload, _run_piece, kind)
+        elif kind == 'worker':
+            self._fork(client, request_id, payload, _run_worker, kind)
         elif kind == 'cancel':
             for pid, child in self.children.items():
                 if child.client is client and child.request_id == request_id:
@@ -268,16 +285,18 @@ class _Resident:
                 client, ('error', request_id, f'unknown request {kind!r}')
             )
 
-    def _fork_piece(self, client: Connection, request_id, payload) -> None:
-        """Fork one piece of a step's work."""
+    def _fork(
+        self, client: Connection, request_id, payload, target, kind
+    ) -> None:
+        """Fork a piece of a step's work, or one of its Dask workers."""
         reader, writer = Pipe(duplex=False)
         keep_out = [reader, self.control, self.listener]
         keep_out.extend(self.clients)
         keep_out.extend(self.readers)
-        pid = fork(_run_piece, (writer, request_id, payload), keep_out)
+        pid = fork(target, (writer, request_id, payload), keep_out)
         writer.close()
         self.children[pid] = _Child(
-            client, request_id, reader, payload.get('log')
+            client, request_id, reader, payload.get('log'), kind
         )
         self.readers[reader] = pid
 
@@ -294,11 +313,15 @@ class _Resident:
                 child.reader = None
             return
         if child is not None and not child.answered:
-            child.answered = True
+            # what a worker says is never its last word
+            child.answered = child.kind == 'piece'
             self._send(child.client, message, raw=True)
 
     def _reap(self) -> None:
-        """Say which children have exited without a word, and how."""
+        """
+        Say which children have exited without a last word, and how: a
+        piece that died before answering, and any Dask worker.
+        """
         while True:
             try:
                 pid, status = os.waitpid(-1, os.WNOHANG)
@@ -468,6 +491,90 @@ def _run_piece(writer: Connection, request_id, payload) -> None:
             )
         )
     writer.send_bytes(message)
+
+
+def _run_worker(writer: Connection, request_id, payload) -> None:
+    """
+    Be one of a step's Dask workers, on the cores it was given, until it is
+    stopped or its scheduler goes away.
+
+    It says when it has started, and if it could not start, why.  No Nanny
+    looks after it: a worker that dies is reported by the resident that
+    forked it, and nothing restarts it.
+    """
+    try:
+        if payload.get('log'):
+            _write_output_to(payload['log'])
+        cores = payload['cores']
+        try:
+            os.sched_setaffinity(0, cores)
+        except (AttributeError, OSError):
+            # as for a piece: where it ran says so, to be reported
+            pass
+        if payload.get('work_dir'):
+            os.chdir(payload['work_dir'])
+        asyncio.run(_serve_worker(writer, request_id, payload))
+    except BaseException as exception:  # noqa: BLE001
+        # deliberately everything, as for a piece
+        error = traceback.format_exc()
+        sys.stderr.write(error)
+        sys.stderr.flush()
+        writer.send_bytes(
+            pickle.dumps(
+                (
+                    'failed',
+                    request_id,
+                    {
+                        'error': error,
+                        'kind': type(exception).__name__,
+                        'pid': os.getpid(),
+                        'log': payload.get('log'),
+                        'where': _where(),
+                    },
+                )
+            )
+        )
+        # how it ended is reported as well, and must not read as success
+        os._exit(1)
+
+
+async def _serve_worker(writer: Connection, request_id, payload) -> None:
+    """Run a Dask worker, saying where it listens once it has started."""
+    # distributed is preloaded by a resident a run launches, so this costs
+    # nothing there; it is imported here so that a resident forked for a
+    # run on one node does not need it until a step does
+    import dask
+    import distributed
+
+    from polaris.run.dask_workers import HTTP_ADDRESS, NO_ROUTES
+
+    dask.config.set({'distributed.worker.http.routes': NO_ROUTES})
+    async with distributed.Worker(
+        payload['scheduler'],
+        nthreads=len(payload['cores']),
+        name=payload['name'],
+        memory_limit=payload['memory_limit'],
+        security=pickle.loads(payload['security']),
+        local_directory=payload['local_directory'],
+        host=bind_address(payload.get('interface')),
+        death_timeout=payload.get('death_timeout'),
+        dashboard=False,
+        dashboard_address=HTTP_ADDRESS,
+    ) as worker:
+        writer.send_bytes(
+            pickle.dumps(
+                (
+                    'started',
+                    request_id,
+                    {
+                        'address': worker.address,
+                        'pid': os.getpid(),
+                        'where': _where(),
+                    },
+                )
+            )
+        )
+        await worker.finished()
 
 
 def _where() -> dict:

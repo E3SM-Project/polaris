@@ -21,6 +21,9 @@ Functions are pickled by reference, so a piece must be a function a module
 defines.  A lambda or a nested function is refused when it is handed out
 rather than being pickled by value, which would quietly carry whatever it
 closed over -- often the whole step -- to every piece.
+
+A step whose arrays are spread over several nodes can compute with Dask on
+the same cores instead, through :py:meth:`Pieces.dask`.
 """
 
 import json
@@ -33,7 +36,7 @@ from typing import Any, Callable, Deque, Dict, List, Optional, Tuple, cast
 
 from polaris.run.confinement import _ranges, record_mismatch
 from polaris.run.connections import connect
-from polaris.run.residents import ResidentDirectory
+from polaris.run.residents import ResidentDirectory, resident_options
 
 # a core a piece may run on: the node, as the allocation names it, and the
 # core's id there
@@ -85,7 +88,13 @@ class Pieces:
         how it ended, which is what a run reports the step's work from
     """
 
-    def __init__(self, step, slots: List[Slot], directory: ResidentDirectory):
+    def __init__(
+        self,
+        step,
+        slots: List[Slot],
+        directory: ResidentDirectory,
+        memory: Optional[Dict[str, int]] = None,
+    ):
         """
         Parameters
         ----------
@@ -98,6 +107,10 @@ class Pieces:
 
         directory : polaris.run.residents.ResidentDirectory
             How to reach the residents on those nodes
+
+        memory : dict of int, optional
+            The memory in MiB reserved for the step on each node, by node,
+            which a Dask worker there is held to
         """
         if not slots:
             raise ValueError(
@@ -112,6 +125,8 @@ class Pieces:
         self._connections: Dict[str, Connection] = {}
         self._next_request = 0
         self._handed_out = 0
+        self._dask: List[Any] = []
+        self._memory = memory
 
     @property
     def cores(self) -> int:
@@ -144,6 +159,11 @@ class Pieces:
             For the first piece that raised, or whose process died, once
             every other piece still running has been stopped
         """
+        if self._dask and self._dask[-1].open:
+            raise RuntimeError(
+                f'Step {self._step.path} cannot hand out pieces while its '
+                f'Dask workers hold its cores.'
+            )
         items = list(zip(*iterables, strict=True))
         if not items:
             return []
@@ -216,12 +236,65 @@ class Pieces:
             raise failure
         return results
 
+    def dask(self):
+        """
+        Compute with Dask on the step's cores, rather than handing out
+        pieces.
+
+        The resident on each node the step's cores are on forks one Dask
+        worker there, bound to those cores, with a thread for each and the
+        node's share of the step's memory as its limit.  The scheduler runs
+        in the step's own process.  The workers start on entering the
+        context and stop on leaving it, and while they hold the cores,
+        :py:meth:`map` cannot be used.
+
+        This is for a step whose arrays are too big for one node.  A loop
+        over independent items is better handed out with :py:meth:`map`,
+        which starts nothing that is not used.
+
+        Returns
+        -------
+        workers : polaris.run.dask_workers.DaskWorkers
+            A context manager, whose value is the ``distributed.Client``
+            to compute through
+
+        Raises
+        ------
+        polaris.run.dask_workers.WorkerLost
+            On leaving the context, if a worker could not start or died
+            while the step held it
+        """
+        # distributed is slow to import, and few steps compute with it
+        from polaris.run.dask_workers import DaskWorkers
+
+        if self._dask and self._dask[-1].open:
+            raise RuntimeError(
+                f'Step {self._step.path} already has its Dask workers.'
+            )
+        cores: Dict[str, List[int]] = {}
+        for node, core in self.slots:
+            cores.setdefault(node, []).append(core)
+        interface = None
+        if self._step.config is not None:
+            interface, _ = resident_options(self._step.config)
+        workers = DaskWorkers(
+            self._step,
+            cores,
+            self._directory,
+            interface=interface,
+            memory=self._memory,
+        )
+        self._dask.append(workers)
+        return workers
+
     def close(self) -> None:
         """
         Let go of the residents, which stops anything still running, and say
         whether any piece ran somewhere other than the core it was given.
         """
-        if self.records:
+        for workers in self._dask:
+            workers.stop()
+        if self.records or self._dask:
             self._write_summary()
         if self.problems:
             shown = self.problems[:_PROBLEMS_SHOWN]
@@ -250,7 +323,18 @@ class Pieces:
         self.close()
 
     def _write_summary(self) -> None:
-        """Say how much was handed out and how long the cores were busy."""
+        """
+        Say how much was handed out and how long the cores were busy.
+
+        A core is busy while a piece runs on it, or while a Dask worker
+        holds it, whether or not the worker has a task to run.
+        """
+        sessions = [
+            workers.summary for workers in self._dask if workers.summary
+        ]
+        hosts = {record['host'] for record in self.records if record['host']}
+        if sessions:
+            hosts.update(node for node, _ in self.slots if node)
         summary = {
             'pieces': len(self.records),
             'failed': sum(
@@ -258,10 +342,17 @@ class Pieces:
             ),
             'cores': self.cores,
             'busy_seconds': round(
-                sum(record['seconds'] for record in self.records), 3
+                sum(record['seconds'] for record in self.records)
+                + sum(
+                    session['threads'] * session['held_seconds']
+                    for session in sessions
+                ),
+                3,
             ),
-            'hosts': sorted(
-                {record['host'] for record in self.records if record['host']}
+            'hosts': sorted(hosts),
+            'dask_workers': sum(session['workers'] for session in sessions),
+            'dask_start_seconds': round(
+                sum(session['start_seconds'] for session in sessions), 3
             ),
         }
         try:
