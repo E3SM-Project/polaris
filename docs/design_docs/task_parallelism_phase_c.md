@@ -381,7 +381,11 @@ a time.
 
 Starting the residents is one launch per node, confined by Phase A
 placement, so the rest of the allocation stays usable. *Implementation:
-Launching the Residents* says what that launch allows their children.
+Launching the Residents* says what that launch allows their children. A run
+starts them when it first needs them: at once if a step hands out work, and
+otherwise when a step that launches nothing first waits for room on the
+scheduler's node. Started at once, they were ready after 62 to 95 s in
+`omega_pr` and `mpaso_pr` on three Chrysalis nodes, and forked nothing.
 
 A child per piece of work, rather than long-lived workers, is a tentative
 decision made on measured cost and revisited in *Decision: Warm Workers for
