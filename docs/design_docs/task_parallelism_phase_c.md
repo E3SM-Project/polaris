@@ -555,6 +555,26 @@ channel to each resident also sends small messages at once (`TCP_NODELAY`).
 Without that, a reply sent right behind another waited for a delayed
 acknowledgement, which added 40 ms to every piece of work.
 
+### Implementation: Who May Connect
+
+Date last modified: 2026/10/23
+
+Contributors:
+
+- Xylar Asay-Davis
+- Claude
+
+Every connection the residents and Dask open is authenticated. Dask's TCP is
+unauthenticated by default, so on a shared machine anyone who can reach a
+worker's port could run code as the person running the suite.
+
+The channels to the residents use a key generated for the run, which a
+resident receives through its environment rather than its command line,
+since other users on a node can read a process's command line but not its
+environment. Dask uses TLS with certificates generated for the run, which
+needs `cryptography`, and its dashboard is turned off, being one more open
+port.
+
 ### Implementation: What a Piece of Work Carries
 
 Date last modified: 2026/10/23
