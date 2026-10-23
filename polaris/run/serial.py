@@ -27,6 +27,11 @@ from polaris.run.lifecycle import (
     run_step_as_subprocess,
     step_is_complete,
 )
+from polaris.run.memory import (
+    format_bytes,
+    read_process_memory,
+    reset_peak_memory,
+)
 from polaris.run.results import TaskResult, write_suite_results
 from polaris.validate import merge_diff_summary
 from polaris.version import __version__
@@ -658,6 +663,10 @@ def _run_task(task, available_resources):
         else:
             step_log_filename = None
 
+        # every step runs in this process, so what one leaves behind is held
+        # while the next runs; the peak is reset so it is this step's own
+        peak_was_reset = reset_peak_memory()
+        memory_before = read_process_memory()
         try:
             if step.run_as_subprocess:
                 run_step_as_subprocess(logger, step, task.new_step_log_file)
@@ -671,10 +680,12 @@ def _run_task(task, available_resources):
                 )
         except Exception:
             _print_to_stdout(task, f'          execution:        {error_str}')
+            _print_memory(task, memory_before, peak_was_reset)
             raise
         finally:
             # Always restore the working directory, even if a step fails.
             os.chdir(cwd)
+        memory_after = read_process_memory()
 
         _print_to_stdout(task, f'          execution:        {success_str}')
         step_time = time.time() - step_start
@@ -739,8 +750,32 @@ def _run_task(task, available_resources):
             f'          runtime:          '
             f'{start_time_color}{step_time_str}{end_color}',
         )
+        _print_memory(task, memory_before, peak_was_reset, memory_after)
 
     return baselines_passed, diff_summary, cf_passed
+
+
+def _print_memory(task, memory_before, peak_was_reset, memory_after=None):
+    """
+    Report the memory this process held during and after a step, and the
+    largest subprocess the step started if it was the largest so far.
+
+    A subprocess's peak can only be read after it finishes, as the largest
+    over the life of this process, so it is the step's own only when the
+    step raised it.
+    """
+    if memory_after is None:
+        memory_after = read_process_memory()
+    peak_label = 'peak' if peak_was_reset else 'peak since start'
+    message = (
+        f'          memory:           '
+        f'{peak_label} {format_bytes(memory_after.peak)}, '
+        f'held after {format_bytes(memory_after.resident)}'
+    )
+    largest = memory_after.largest_subprocess
+    if largest > memory_before.largest_subprocess:
+        message = f'{message}, subprocess peak {format_bytes(largest)}'
+    _print_to_stdout(task, message)
 
 
 def _check_step_cf(step, step_name) -> Optional[bool]:

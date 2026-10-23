@@ -177,7 +177,8 @@ class Step:
         Whether this step is the dependency of one or more other steps.
 
     tasks : dict
-        The tasks this step is used in
+        The tasks this step is used in.  Setup only: this is empty in a step
+        that has been unpickled (see ``__getstate__()``).
 
     config : polaris.config.PolarisConfigParser
         Configuration options for this step, possibly shared with other tasks
@@ -457,6 +458,41 @@ class Step:
         # output caching
         self.cached = cached
         self.default_cached = False
+
+    def __getstate__(self):
+        """
+        Get the state to pickle, leaving out ``tasks``
+
+        ``tasks`` is a back-reference that lets setup add a step to, and
+        remove it from, the tasks that use it, and nothing reads it once
+        setup is over.  A step shared between tasks links all of them, so
+        pickling it made each step's pickle a copy of every task built at
+        setup.  A step that has run also holds the unpickled copies of its
+        dependencies, so in ``polaris serial`` each pickle held the copies
+        before it as well, and pickles grew with every task that ran.
+
+        Returns
+        -------
+        state : dict
+            The attributes to pickle
+        """
+        state = dict(self.__dict__)
+        state.pop('tasks', None)
+        return state
+
+    def __setstate__(self, state):
+        """
+        Restore a pickled step, giving it an empty ``tasks`` so that it can
+        still be added to a task
+
+        Parameters
+        ----------
+        state : dict
+            The unpickled attributes
+        """
+        self.__dict__.update(state)
+        if 'tasks' not in state:
+            self.tasks = dict()
 
     @property
     def cores(self):
