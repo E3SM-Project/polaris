@@ -2,11 +2,17 @@ import os as os
 import pickle as pickle
 
 from polaris.config import PolarisConfigParser as PolarisConfigParser
+from polaris.step import Step
 
 # what complete_step_run() writes in a step's work directory once the step
 # has finished successfully, and what anything asking "has this already
 # run?" looks for
 STEP_COMPLETE_LOG = 'polaris_step_complete.log'
+
+# a step's references to the rest of the suite, which load_dependencies()
+# leaves pointing at the suite being run rather than at the copies a pickle
+# holds
+_SUITE_REFERENCES = ('component', 'tasks', 'dependencies')
 
 
 def unpickle_suite(suite_name):
@@ -67,6 +73,11 @@ def load_dependencies(step):
     Load each dependency from its pickle file to pick up changes that may have
     happened since it ran
 
+    Each dependency is updated in place rather than replaced, so a step that
+    also refers to it directly sees the same changes.  Its references to
+    other steps, its tasks and its component are left pointing into the
+    suite being run.
+
     Parameters
     ----------
     step : polaris.step.Step
@@ -79,12 +90,12 @@ def load_dependencies(step):
         the dependencies as keys
     """
     pickle_filenames = dict()
-    for name, old_dependency in step.dependencies.items():
-        if old_dependency.cached:
+    for name, dependency in step.dependencies.items():
+        if dependency.cached:
             continue
 
         pickle_filename = os.path.join(
-            old_dependency.work_dir, 'step_after_run.pickle'
+            dependency.work_dir, 'step_after_run.pickle'
         )
         if not os.path.exists(pickle_filename):
             raise ValueError(
@@ -92,8 +103,8 @@ def load_dependencies(step):
             )
 
         with open(pickle_filename, 'rb') as handle:
-            dependency = pickle.load(handle)
-            step.dependencies[name] = dependency
+            unpickled = pickle.load(handle)
+        _update_from_pickle(dependency, unpickled)
         pickle_filenames[name] = pickle_filename
     return pickle_filenames
 
@@ -116,3 +127,24 @@ def complete_step_run(step):
         pickle_filename = os.path.join(step.work_dir, 'step_after_run.pickle')
         with open(pickle_filename, 'wb') as handle:
             pickle.dump(step, handle, protocol=pickle.HIGHEST_PROTOCOL)
+
+
+def _update_from_pickle(step, unpickled):
+    """
+    Give a step the state of its unpickled copy, except for the copy's
+    references to the rest of the suite.
+
+    A step's pickle holds copies of every step it refers to.  Replacing a
+    dependency with its unpickled copy grafted those copies onto the suite,
+    and a step that refers to its dependency both through ``dependencies``
+    and directly, as many do, then pickled the copy and the original alike,
+    so pickles doubled with each step along a chain of dependencies.
+    """
+    state = dict()
+    for key, value in unpickled.__dict__.items():
+        if key in _SUITE_REFERENCES:
+            continue
+        if isinstance(value, Step) and key in step.__dict__:
+            continue
+        state[key] = value
+    step.__dict__.update(state)
