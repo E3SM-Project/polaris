@@ -434,18 +434,18 @@ that belongs to the source rather than to the step for the same reason.
 
 ### Implementation: Comparing MPAS-Ocean with Omega is opt-in
 
-Date last modified: 2026/10/21
+Date last modified: 2026/10/23
 
 Contributors: Xylar Asay-Davis, Claude
 
 
-`compare_with_omega.cfg` in the forward package turns off `use_GM`, `use_Redi`
-and `use_submesoscale` and sets `pressure_gradient_type = pressure_and_zmid`,
+`compare_with_omega.cfg` in the forward package turns off `use_GM` and
+`use_Redi` and sets `pressure_gradient_type = pressure_and_zmid`,
 the ordinary counterpart to Omega's `Centered`. A user passes it, or its lines,
 with `polaris setup -f`, or sets the same options in a step's `forward.cfg`
 before running; the stage is rebuilt from config at run time, so either works.
-The User's Guide includes the file verbatim. `use_KPP` was on the list until
-Omega gained KPP.
+The User's Guide includes the file verbatim. `use_KPP` and `use_submesoscale`
+were on the list until Omega gained them.
 
 `add_realistic_global_cached_forward_tasks` registers one task per entry of
 `forward/tasks.py`'s `CACHED_MESHES`, with a `subdir_name` of `cached_forward`.
@@ -641,7 +641,7 @@ statistics for when that is left empty; the option came with the step from the
 
 ### Implementation: Physics and mixing options vary with the mesh
 
-Date last modified: 2026/10/21
+Date last modified: 2026/10/23
 
 Contributors: Xylar Asay-Davis, Claude
 
@@ -693,17 +693,19 @@ turbulence off for Omega. Omega's advection order and bottom drag defaults have
 since come to match MPAS-Ocean's; stating them keeps the two from drifting apart
 again.
 
-`ForwardStage` gains the corresponding fields and three methods beside the
+`ForwardStage` gains the corresponding fields and four methods beside the
 existing `bottom_drag_options`: `horiz_mixing_options` returns the neutral
 del2/del4 options for momentum and tracers and the biharmonic divergence factor,
-`vert_mixing_options` the neutral KPP switch, and `mpaso_physics_options` the
-MPAS-Ocean-only options — the Leith closure, horizontal-mixing scaling,
-Gent-McWilliams, Redi, the submesoscale parameterization, the pressure-gradient
-formulation and frazil ice. `Forward.dynamic_model_config` adds the first two
-with `config_model='ocean'`, so `OceanModelStep.map_yaml_options` translates them
-for Omega, and the third with `config_model='mpas-ocean'`. KPP began in the third
-bucket and moved once Omega gained it. Left there, it never reached Omega, which
-ran KPP, its default, in tasks that had turned it off.
+`vert_mixing_options` the neutral KPP switch, `submesoscale_options` the neutral
+submesoscale switch, and `mpaso_physics_options` the MPAS-Ocean-only options —
+the Leith closure, horizontal-mixing scaling, Gent-McWilliams, Redi, the
+pressure-gradient formulation and frazil ice. `Forward.dynamic_model_config`
+adds the first three with `config_model='ocean'`, so
+`OceanModelStep.map_yaml_options` translates them for Omega, and the fourth
+with `config_model='mpas-ocean'`. KPP and the submesoscale parameterization
+began in the fourth bucket and moved once Omega gained them. Left there, KPP
+never reached Omega, which ran KPP, its default, in tasks that had turned it
+off.
 
 Per-mesh overrides live in `mesh_configs/<mesh_name>.cfg` under the same
 `[realistic_global_forward]` section, applied by `add_realistic_global_mesh_config`

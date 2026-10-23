@@ -704,7 +704,8 @@ Both `e3sm-qu240` `cached_forward` variants are in the `omega_pr` suite, and the
 each model allows.  For MPAS-Ocean, that is E3SM's: Gent-McWilliams, Redi, KPP,
 the submesoscale parameterization and the `Jacobian_from_TS` pressure gradient,
 with the resolution-dependent mixing each mesh needs.  Omega runs what it has
-of these, which today is KPP, so the two models do not run the same physics.
+of these, which today is KPP and the submesoscale parameterization, so the two
+models do not run the same physics.
 
 To compare them, turn off the MPAS-Ocean physics Omega lacks with the options
 in `compare_with_omega.cfg`, in the forward package.  Add them to the user
@@ -875,17 +876,20 @@ eddying `RRSwISC6to18E3r5` mesh and nowhere else.  It reaches Omega as
 Some settings are not config options because they should not vary: they are
 pinned in `forward.yaml` purely so that MPAS-Ocean and Omega agree: horizontal
 tracer advection order 3, implicit constant bottom drag with a coefficient of
-1e-3, and the CVMix convection, shear-mixing and KPP parameters.  Where the two
-models' own defaults differ, the MPAS-Ocean default wins, so KPP's Langmuir
-turbulence, on by default in Omega, is off.  The rest already match both
-models, and stating them is what keeps them from drifting apart.
+1e-3, the CVMix convection, shear-mixing and KPP parameters, and the
+submesoscale parameters.  Where the two models' own defaults differ, the
+MPAS-Ocean default wins, so KPP's Langmuir turbulence, on by default in Omega,
+is off.  The submesoscale parameters are the exception: they are E3SM's, which
+Omega's defaults match, so the efficiency `Ce` is 0.08 rather than the
+MPAS-Ocean Registry default of 0.06.  The rest already match both models, and
+stating them is what keeps them from drifting apart.
 
-Gent-McWilliams (`use_GM`), Redi (`use_Redi`), the submesoscale eddy
-parameterization (`use_submesoscale`), the Leith closure (`use_Leith_del2`),
-frazil ice (`use_frazil_ice_formation`) and the pressure-gradient formulation
-(`pressure_gradient_type`) are applied only for MPAS-Ocean.  Polaris has no
-Omega counterpart for any of them, and Omega is not expected to gain GM or
-Redi.  The KPP boundary layer (`use_KPP`) applies to both models.
+Gent-McWilliams (`use_GM`), Redi (`use_Redi`), the Leith closure
+(`use_Leith_del2`), frazil ice (`use_frazil_ice_formation`) and the
+pressure-gradient formulation (`pressure_gradient_type`) are applied only for
+MPAS-Ocean.  Polaris has no Omega counterpart for any of them, and Omega is not
+expected to gain GM or Redi.  The KPP boundary layer (`use_KPP`) and the
+submesoscale eddy parameterization (`use_submesoscale`) apply to both models.
 
 They are config options rather than fixed values so that a run comparing
 MPAS-Ocean with Omega can turn off what Omega lacks; see
@@ -1071,9 +1075,9 @@ use_Redi = True
 # turns it on by default, so it is stated for Omega too.
 use_KPP = True
 
-# Whether to use the submesoscale eddy parameterization.  MPAS-Ocean only.  On
-# as in E3SM and in the Compass global_ocean tests; the MPAS-Ocean Registry
-# default is off.
+# Whether to use the submesoscale eddy parameterization, in both models.  On
+# as in E3SM and in the Compass global_ocean tests; both models' defaults are
+# off.  Its parameters are E3SM's, fixed in forward.yaml.
 use_submesoscale = True
 
 # The MPAS-Ocean horizontal pressure gradient formulation.  Leave blank for the
@@ -1082,9 +1086,10 @@ use_submesoscale = True
 # equivalent.
 pressure_gradient_type = Jacobian_from_TS
 
-# Whether to form frazil ice.  MPAS-Ocean only.  Off, unlike in E3SM, because
-# these standalone runs have no sea ice or ice-shelf cavities for the frazil
-# to go to.
+# Whether to form frazil ice.  MPAS-Ocean only: Omega's frazil is off by
+# default, and Polaris does not turn it on.  Off, unlike in E3SM, because these
+# standalone runs have no sea ice or ice-shelf cavities for the frazil to go
+# to.
 use_frazil_ice_formation = False
 
 # Whether to write density to the 3-D output stream.  MPAS-Ocean only; Omega

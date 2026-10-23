@@ -621,6 +621,7 @@
    stage.ForwardStage.omega_hmix_ratio
    stage.ForwardStage.with_median_reference
    stage.ForwardStage.vert_mixing_options
+   stage.ForwardStage.submesoscale_options
    stage.ForwardStage.mpaso_physics_options
    stage.ForwardStage.omega_physics_options
    stage.omega_median_cell_width
