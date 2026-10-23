@@ -560,6 +560,31 @@ def test_vert_mixing_options_are_all_mapped_to_omega():
         step._map_mpaso_to_omega_section_option(option=option, value=value)
 
 
+@pytest.mark.parametrize('use_submesoscale', [True, False])
+def test_submesoscale_options_are_always_stated(use_submesoscale):
+    """
+    The submesoscale parameterization is stated either way rather than only
+    when on, so that turning it off in a user or per-mesh config undoes a
+    default that turned it on.
+    """
+    options = ForwardStage(
+        use_submesoscale=use_submesoscale
+    ).submesoscale_options()
+    assert options == {'config_submesoscale_enable': use_submesoscale}
+
+
+def test_submesoscale_options_are_all_mapped_to_omega():
+    """
+    As for vertical mixing, an unmapped option in this neutral bucket would
+    only warn, so it would be silently dropped for Omega.
+    """
+    step = OceanModelStep.__new__(OceanModelStep)
+    step._read_config_map()
+    for option, value in ForwardStage().submesoscale_options().items():
+        # raises ValueError if the option has no Omega counterpart
+        step._map_mpaso_to_omega_section_option(option=option, value=value)
+
+
 def test_mpaso_physics_options_have_no_omega_counterpart():
     """
     Nothing in the MPAS-Ocean-only bucket may have an Omega counterpart in
@@ -682,20 +707,20 @@ def test_mpaso_physics_options_gm_settings_only_when_gm_is_on():
 
 def test_mpaso_only_physics_is_always_stated():
     """
-    The submesoscale parameterization is stated either way rather than only
-    when on, so that turning it off in a user or per-mesh config undoes a
-    default that turned it on.  The pressure gradient is the exception: a
-    blank value means "leave the model default".
+    Redi is stated either way rather than only when on, so that turning it
+    off in a user or per-mesh config undoes a default that turned it on.  The
+    pressure gradient is the exception: a blank value means "leave the model
+    default".
     """
     on = ForwardStage(
-        use_submesoscale=True,
+        use_Redi=True,
         pressure_gradient_type='Jacobian_from_TS',
     ).mpaso_physics_options()
-    assert on['config_submesoscale_enable']
+    assert on['config_use_Redi']
     assert on['config_pressure_gradient_type'] == 'Jacobian_from_TS'
 
     off = ForwardStage().mpaso_physics_options()
-    assert off['config_submesoscale_enable'] is False
+    assert off['config_use_Redi'] is False
     assert 'config_pressure_gradient_type' not in off
 
 

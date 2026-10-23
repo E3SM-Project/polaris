@@ -303,7 +303,7 @@ def test_cached_meshes_take_the_one_year_runs_viscosities(
 
 
 # the MPAS-Ocean physics production runs have and Omega does not
-_MPASO_ONLY_PHYSICS = ['use_GM', 'use_Redi', 'use_submesoscale']
+_MPASO_ONLY_PHYSICS = ['use_GM', 'use_Redi']
 
 
 @pytest.mark.parametrize('mesh_name', sorted(CACHED_MESHES))
@@ -321,6 +321,7 @@ def test_cached_meshes_run_production_physics(mesh_name):
         )
     assert stage.pressure_gradient_type == 'Jacobian_from_TS'
     assert stage.vert_mixing_options()['config_use_cvmix_kpp']
+    assert stage.submesoscale_options()['config_submesoscale_enable']
 
 
 @pytest.mark.parametrize('mesh_name', sorted(CACHED_MESHES) + ['qu240km'])
@@ -354,8 +355,10 @@ def test_compare_with_omega_cfg_turns_off_what_omega_lacks(mesh_name):
     for option in _MPASO_ONLY_PHYSICS:
         assert not getattr(stage, option), option
     assert stage.pressure_gradient_type == 'pressure_and_zmid'
-    # KPP is in both models, so a comparison keeps it
+    # KPP and the submesoscale parameterization are in both models, so a
+    # comparison keeps them
     assert stage.vert_mixing_options()['config_use_cvmix_kpp']
+    assert stage.submesoscale_options()['config_submesoscale_enable']
 
 
 @pytest.mark.parametrize('time_integrator', TIME_INTEGRATORS)
@@ -387,8 +390,10 @@ def test_cached_forward_model_config_renders(
         )
     assert replacements['time_integrator'] == expected_integrator
     assert replacements['run_duration'] == stage.run_duration
-    # both models have the KPP boundary layer, and both are told so
+    # both models have the KPP boundary layer and the submesoscale
+    # parameterization, and both are told so
     assert stage.vert_mixing_options() == {'config_use_cvmix_kpp': True}
+    assert stage.submesoscale_options() == {'config_submesoscale_enable': True}
 
     yaml = PolarisYaml.read(
         filename='forward.yaml',
@@ -405,7 +410,6 @@ def test_cached_forward_model_config_renders(
         options = stage.mpaso_physics_options()
         assert options['config_use_GM']
         assert options['config_use_Redi']
-        assert options['config_submesoscale_enable']
         assert options['config_pressure_gradient_type'] == 'Jacobian_from_TS'
 
 
