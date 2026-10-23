@@ -1198,6 +1198,18 @@ See {py:class}`polaris.tasks.e3sm.init.topo.combine.task.CubedSphereCombineTask`
 and {py:class}`polaris.tasks.ocean.realistic_global.hydrography.woa23.task.Woa23`
 for concrete examples.
 
+(dev-step-skipped-with-cache)=
+
+### Steps that only cached steps use
+
+A step whose outputs are inputs only to cached steps has nothing to do, so
+setup leaves it out of every task, along with any step that in turn feeds only
+steps that are left out or cached.  Setup works this out from the inputs,
+outputs and dependencies the steps declare, so the steps need do nothing for
+it, and it lists the steps it leaves out of each task beside the ones with
+cached outputs.  A step that nothing uses is never left out, since it is there
+for its own sake, and neither is one that a step that runs uses.
+
 (dev-step-dependencies)=
 
 ### Adding other steps as dependencies

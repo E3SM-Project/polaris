@@ -13,6 +13,8 @@ from polaris.setup import (
     _get_component_args,
     _get_component_configs,
     _setup_configs,
+    _symlink_configs,
+    _write_configs,
 )
 
 
@@ -78,12 +80,13 @@ def setup_configs(basic_config, tasks, work_dir):
         component_in_use.configure(
             component_configs[name], steps_by_component[name]
         )
-    _setup_configs(
+    common_configs, configs = _setup_configs(
         component_configs=component_configs,
         tasks=tasks,
-        work_dir=work_dir,
         copy_executable=False,
     )
+    _write_configs(common_configs, configs, work_dir)
+    _symlink_configs(tasks, work_dir)
     return component_configs
 
 
