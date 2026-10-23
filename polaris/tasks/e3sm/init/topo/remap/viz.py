@@ -48,14 +48,17 @@ class VizRemappedTopoStep(Step):
         )
         self.mesh_name = base_mesh_step.mesh_name
         self.remap_step = remap_step
+        # a dependency so that run() sees the remap step's attributes after
+        # it has run, even in a separate process
+        self.add_dependency(remap_step, name='remap')
 
     def run(self):
         """
         Run this step of the test case
         """
-        remapping_done = self.remap_step.do_remapping
+        remap_step = self.dependencies['remap']
 
-        if not remapping_done:
+        if not remap_step.do_remapping:
             # if the remapping step was not run, then we don't have
             # a remapped topography file to plot
             return
@@ -70,7 +73,7 @@ class VizRemappedTopoStep(Step):
 
         for field in ds.data_vars:
             logger.info(f'Plotting {field}')
-            if self.remap_step.smoothing:
+            if remap_step.smoothing:
                 title = f'{mesh_name} {field} smoothed'
             else:
                 title = f'{mesh_name} {field}'

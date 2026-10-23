@@ -23,20 +23,20 @@ The suites are split into two groups:
 Runs cull-topography tasks for all supported simple base meshes.
 
 ```none
-e3sm/init/Icos480km/topo/cull
-e3sm/init/Icos240km/topo/cull
-e3sm/init/Icos120km/topo/cull
-e3sm/init/Icos60km/topo/cull
-e3sm/init/Icos30km/topo/cull
-e3sm/init/QU480km/topo/cull
-e3sm/init/QU240km/topo/cull
-e3sm/init/QU210km/topo/cull
-e3sm/init/QU180km/topo/cull
-e3sm/init/QU150km/topo/cull
-e3sm/init/QU120km/topo/cull
-e3sm/init/QU90km/topo/cull
-e3sm/init/QU60km/topo/cull
-e3sm/init/QU30km/topo/cull
+e3sm/init/icos480km/topo/cull
+e3sm/init/icos240km/topo/cull
+e3sm/init/icos120km/topo/cull
+e3sm/init/icos60km/topo/cull
+e3sm/init/icos30km/topo/cull
+e3sm/init/qu480km/topo/cull
+e3sm/init/qu240km/topo/cull
+e3sm/init/qu210km/topo/cull
+e3sm/init/qu180km/topo/cull
+e3sm/init/qu150km/topo/cull
+e3sm/init/qu120km/topo/cull
+e3sm/init/qu90km/topo/cull
+e3sm/init/qu60km/topo/cull
+e3sm/init/qu30km/topo/cull
 ```
 
 (e3sm-init-suite-remap-topo-simple)=
@@ -46,20 +46,20 @@ e3sm/init/QU30km/topo/cull
 Runs remap-topography tasks for all supported simple base meshes.
 
 ```none
-e3sm/init/Icos480km/topo/remap
-e3sm/init/Icos240km/topo/remap
-e3sm/init/Icos120km/topo/remap
-e3sm/init/Icos60km/topo/remap
-e3sm/init/Icos30km/topo/remap
-e3sm/init/QU480km/topo/remap
-e3sm/init/QU240km/topo/remap
-e3sm/init/QU210km/topo/remap
-e3sm/init/QU180km/topo/remap
-e3sm/init/QU150km/topo/remap
-e3sm/init/QU120km/topo/remap
-e3sm/init/QU90km/topo/remap
-e3sm/init/QU60km/topo/remap
-e3sm/init/QU30km/topo/remap
+e3sm/init/icos480km/topo/remap
+e3sm/init/icos240km/topo/remap
+e3sm/init/icos120km/topo/remap
+e3sm/init/icos60km/topo/remap
+e3sm/init/icos30km/topo/remap
+e3sm/init/qu480km/topo/remap
+e3sm/init/qu240km/topo/remap
+e3sm/init/qu210km/topo/remap
+e3sm/init/qu180km/topo/remap
+e3sm/init/qu150km/topo/remap
+e3sm/init/qu120km/topo/remap
+e3sm/init/qu90km/topo/remap
+e3sm/init/qu60km/topo/remap
+e3sm/init/qu30km/topo/remap
 ```
 
 (e3sm-init-suite-cull-topo-unified)=
