@@ -10,13 +10,16 @@ reading is preferred, that the safest of the readings wins, and that a
 machine which cannot answer falls back rather than failing.
 """
 
+import contextlib
+import io
 import logging
+import socket
 
 import pytest
 from mache.parallel import PlacementSupport
 
 from polaris import Component
-from polaris.run.allocation import _parse, read_allocation
+from polaris.run.allocation import _PROBE, _parse, read_allocation
 from tests.test_topology import fake_topology
 
 # what a Chrysalis compute node reported in job 1283361
@@ -84,8 +87,7 @@ def test_a_node_is_credited_with_what_it_says_is_available(monkeypatch):
     system = _FakeSystem(
         ['chr-0495'],
         stdout=(
-            f'host=chr-0495\n'
-            f'memtotal={CHRYSALIS_TOTAL_KB}\n'
+            f'host=chr-0495 memtotal={CHRYSALIS_TOTAL_KB} '
             f'memavailable={CHRYSALIS_AVAILABLE_KB}\n'
         ),
     )
@@ -108,9 +110,7 @@ def test_a_cgroup_limit_wins_when_it_is_the_smaller(monkeypatch):
     system = _FakeSystem(
         ['nid001'],
         stdout=(
-            'host=nid001\n'
-            'memtotal=524288000\n'
-            'memavailable=500000000\n'
+            'host=nid001 memtotal=524288000 memavailable=500000000 '
             f'cgroup_limit={200 * 1024 * 1024 * 1024}\n'
         ),
     )
@@ -126,8 +126,7 @@ def test_what_is_available_wins_when_a_cgroup_promises_more(monkeypatch):
     system = _FakeSystem(
         ['nid001'],
         stdout=(
-            'host=nid001\n'
-            'memavailable=104857600\n'
+            'host=nid001 memavailable=104857600 '
             f'cgroup_limit={200 * 1024 * 1024 * 1024}\n'
         ),
     )
@@ -143,8 +142,8 @@ def test_each_node_is_credited_from_its_own_reading(monkeypatch):
     system = _FakeSystem(
         ['x1', 'x2'],
         stdout=(
-            'host=x1\nmemavailable=1162240000\n'
-            'host=x2\nmemavailable=1031168000\n'
+            'host=x1 memavailable=1162240000\n'
+            'host=x2 memavailable=1031168000\n'
         ),
     )
 
@@ -206,7 +205,7 @@ def test_a_machine_that_cannot_place_is_not_asked(monkeypatch):
 def test_a_node_that_did_not_answer_falls_back_on_its_own(monkeypatch):
     """One silent node does not cost the others their readings."""
     system = _FakeSystem(
-        ['x1', 'x2'], stdout='host=x1\nmemavailable=104857600\n'
+        ['x1', 'x2'], stdout='host=x1 memavailable=104857600\n'
     )
 
     nodes = _run(monkeypatch, system)
@@ -215,11 +214,9 @@ def test_a_node_that_did_not_answer_falls_back_on_its_own(monkeypatch):
     assert nodes[1].memory_source == 'config'
 
 
-def test_output_is_grouped_by_the_node_that_printed_it():
+def test_a_label_in_front_of_a_node_line_is_skipped():
     """Launchers label lines with a rank, and mache's srun does."""
-    output = (
-        '0: host=x1\n0: memavailable=1000\n1: host=x2\n1: memavailable=2000\n'
-    )
+    output = '1: host=x2 memavailable=2000\n0: host=x1 memavailable=1000\n'
 
     assert _parse(output) == {
         'x1': {'memavailable': 1000},
@@ -227,13 +224,34 @@ def test_output_is_grouped_by_the_node_that_printed_it():
     }
 
 
+def test_a_label_run_into_a_node_line_is_skipped():
+    """Some launchers leave no space after the label."""
+    output = '[1,0]<stdout>:host=x1 memavailable=1000\n'
+
+    assert _parse(output) == {'x1': {'memavailable': 1000}}
+
+
+def test_the_probe_answers_in_one_line():
+    """
+    Its facts arrive together, so a launcher interleaving two nodes' lines
+    cannot credit one node with another's memory.
+    """
+    namespace: dict = {}
+    with contextlib.redirect_stdout(io.StringIO()) as output:
+        exec(_PROBE, namespace)
+
+    lines = output.getvalue().splitlines()
+    assert len(lines) == 1
+    readings = _parse(lines[0])
+    assert list(readings) == [socket.gethostname().split('.')[0]]
+
+
 def test_nodes_that_differ_are_reported(monkeypatch, caplog):
     """Handled by packing, and still worth saying out loud."""
     system = _FakeSystem(
         ['x1', 'x2'],
         stdout=(
-            'host=x1\nmemavailable=1162240000\n'
-            'host=x2\nmemavailable=524288000\n'
+            'host=x1 memavailable=1162240000\nhost=x2 memavailable=524288000\n'
         ),
     )
 
@@ -411,8 +429,8 @@ def test_a_fully_qualified_node_is_matched_to_its_own_reading(monkeypatch):
     system = _FakeSystem(
         names,
         stdout=(
-            'host=x1\nmemavailable=1162240000\n'
-            'host=x2\nmemavailable=1031168000\n'
+            'host=x1 memavailable=1162240000\n'
+            'host=x2 memavailable=1031168000\n'
         ),
     )
 
