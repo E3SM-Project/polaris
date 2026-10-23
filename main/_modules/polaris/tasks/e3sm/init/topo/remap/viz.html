@@ -164,7 +164,10 @@
             <span class="n">work_dir_target</span><span class="o">=</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">remap_step</span><span class="o">.</span><span class="n">path</span><span class="si">}</span><span class="s1">/topography_remapped.nc'</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">mesh_name</span> <span class="o">=</span> <span class="n">base_mesh_step</span><span class="o">.</span><span class="n">mesh_name</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">remap_step</span> <span class="o">=</span> <span class="n">remap_step</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">remap_step</span> <span class="o">=</span> <span class="n">remap_step</span>
+        <span class="c1"># a dependency so that run() sees the remap step's attributes after</span>
+        <span class="c1"># it has run, even in a separate process</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_dependency</span><span class="p">(</span><span class="n">remap_step</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">'remap'</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="VizRemappedTopoStep.run">
@@ -173,9 +176,9 @@
 <span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Run this step of the test case</span>
 <span class="sd">        """</span>
-        <span class="n">remapping_done</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">remap_step</span><span class="o">.</span><span class="n">do_remapping</span>
+        <span class="n">remap_step</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dependencies</span><span class="p">[</span><span class="s1">'remap'</span><span class="p">]</span>
 
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">remapping_done</span><span class="p">:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">remap_step</span><span class="o">.</span><span class="n">do_remapping</span><span class="p">:</span>
             <span class="c1"># if the remapping step was not run, then we don't have</span>
             <span class="c1"># a remapped topography file to plot</span>
             <span class="k">return</span>
@@ -190,7 +193,7 @@
 
         <span class="k">for</span> <span class="n">field</span> <span class="ow">in</span> <span class="n">ds</span><span class="o">.</span><span class="n">data_vars</span><span class="p">:</span>
             <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">'Plotting </span><span class="si">{</span><span class="n">field</span><span class="si">}</span><span class="s1">'</span><span class="p">)</span>
-            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">remap_step</span><span class="o">.</span><span class="n">smoothing</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">remap_step</span><span class="o">.</span><span class="n">smoothing</span><span class="p">:</span>
                 <span class="n">title</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">mesh_name</span><span class="si">}</span><span class="s1"> </span><span class="si">{</span><span class="n">field</span><span class="si">}</span><span class="s1"> smoothed'</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">title</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">mesh_name</span><span class="si">}</span><span class="s1"> </span><span class="si">{</span><span class="n">field</span><span class="si">}</span><span class="s1">'</span>
