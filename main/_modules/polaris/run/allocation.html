@@ -143,13 +143,15 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">polaris.parallel</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_memory_per_node</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">polaris.run.topology</span><span class="w"> </span><span class="kn">import</span> <span class="n">one_thread_per_core</span>
 
-<span class="c1"># read on each node, one line per fact, so that a machine which cannot</span>
-<span class="c1"># answer one of them simply omits it</span>
+<span class="c1"># read on each node and printed as one line of key=value facts, so that a</span>
+<span class="c1"># machine which cannot answer one of them simply omits it, and so that the</span>
+<span class="c1"># launcher cannot interleave another node's output with a node's facts</span>
 <span class="n">_PROBE</span> <span class="o">=</span> <span class="sa">r</span><span class="s1">'''</span>
 <span class="s1">import os</span>
 <span class="s1">import socket</span>
+<span class="s1">import sys</span>
 
-<span class="s1">print('host=</span><span class="si">%s</span><span class="s1">' </span><span class="si">% s</span><span class="s1">ocket.gethostname().split('.')[0])</span>
+<span class="s1">facts = ['host=</span><span class="si">%s</span><span class="s1">' </span><span class="si">% s</span><span class="s1">ocket.gethostname().split('.')[0]]</span>
 
 <span class="s1">info = </span><span class="si">{}</span>
 <span class="s1">try:</span>
@@ -163,7 +165,7 @@
 <span class="s1">    pass</span>
 <span class="s1">for key in ('MemTotal', 'MemAvailable'):</span>
 <span class="s1">    if key in info:</span>
-<span class="s1">        print('</span><span class="si">%s</span><span class="s1">=</span><span class="si">%s</span><span class="s1">' % (key.lower(), info[key]))</span>
+<span class="s1">        facts.append('</span><span class="si">%s</span><span class="s1">=</span><span class="si">%s</span><span class="s1">' % (key.lower(), info[key]))</span>
 
 
 <span class="s1">def cgroup_limit():</span>
@@ -208,7 +210,10 @@
 
 <span class="s1">limit = cgroup_limit()</span>
 <span class="s1">if limit is not None:</span>
-<span class="s1">    print('cgroup_limit=</span><span class="si">%d</span><span class="s1">' </span><span class="si">% li</span><span class="s1">mit)</span>
+<span class="s1">    facts.append('cgroup_limit=</span><span class="si">%d</span><span class="s1">' </span><span class="si">% li</span><span class="s1">mit)</span>
+
+<span class="s1"># in one write: print() writes the line and its end separately</span>
+<span class="s1">sys.stdout.write(' '.join(facts) + '\n')</span>
 <span class="s1">'''</span>
 
 
@@ -413,30 +418,30 @@
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_parse</span><span class="p">(</span><span class="n">output</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">]]:</span>
 <span class="w">    </span><span class="sd">"""</span>
-<span class="sd">    Group the probe's ``key=value`` lines by the node that printed them.</span>
+<span class="sd">    Read the probe's answers, one line from each node.</span>
 
-<span class="sd">    Launchers label output in their own ways and some interleave it, so the</span>
-<span class="sd">    ``host`` line starts a node's record and everything after it belongs to</span>
-<span class="sd">    that node until the next one.</span>
+<span class="sd">    A node gives all its facts on one line, starting with its host, because</span>
+<span class="sd">    launchers interleave the lines of different ranks: when each fact had a</span>
+<span class="sd">    line of its own, a node's facts could land after the next node's host</span>
+<span class="sd">    and be credited to it.  A label a launcher puts in front of a line, such</span>
+<span class="sd">    as srun's ``0:``, is skipped, whether or not a space follows it.</span>
 <span class="sd">    """</span>
     <span class="n">readings</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{}</span>
-    <span class="n">current</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">output</span><span class="o">.</span><span class="n">splitlines</span><span class="p">():</span>
-        <span class="c1"># a launcher may prefix each line with a rank label</span>
-        <span class="n">_</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">tail</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">rpartition</span><span class="p">(</span><span class="s1">' '</span><span class="p">)</span>
-        <span class="n">key</span><span class="p">,</span> <span class="n">sep</span><span class="p">,</span> <span class="n">value</span> <span class="o">=</span> <span class="p">(</span><span class="n">tail</span> <span class="ow">or</span> <span class="n">line</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">partition</span><span class="p">(</span><span class="s1">'='</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">sep</span> <span class="o">!=</span> <span class="s1">'='</span><span class="p">:</span>
+        <span class="n">facts</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">token</span> <span class="ow">in</span> <span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">():</span>
+            <span class="n">key</span><span class="p">,</span> <span class="n">sep</span><span class="p">,</span> <span class="n">value</span> <span class="o">=</span> <span class="n">token</span><span class="o">.</span><span class="n">partition</span><span class="p">(</span><span class="s1">'='</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">sep</span> <span class="o">==</span> <span class="s1">'='</span><span class="p">:</span>
+                <span class="n">facts</span><span class="p">[</span><span class="n">key</span><span class="o">.</span><span class="n">rpartition</span><span class="p">(</span><span class="s1">':'</span><span class="p">)[</span><span class="mi">2</span><span class="p">]]</span> <span class="o">=</span> <span class="n">value</span>
+        <span class="n">host</span> <span class="o">=</span> <span class="n">facts</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">'host'</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">host</span><span class="p">:</span>
             <span class="k">continue</span>
-        <span class="k">if</span> <span class="n">key</span> <span class="o">==</span> <span class="s1">'host'</span><span class="p">:</span>
-            <span class="n">current</span> <span class="o">=</span> <span class="n">value</span>
-            <span class="n">readings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="n">current</span><span class="p">,</span> <span class="p">{})</span>
-            <span class="k">continue</span>
-        <span class="k">if</span> <span class="n">current</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">continue</span>
-        <span class="k">try</span><span class="p">:</span>
-            <span class="n">readings</span><span class="p">[</span><span class="n">current</span><span class="p">][</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
-        <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
-            <span class="k">continue</span>
+        <span class="n">reading</span> <span class="o">=</span> <span class="n">readings</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="n">host</span><span class="p">,</span> <span class="p">{})</span>
+        <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">facts</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">reading</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+                <span class="k">continue</span>
     <span class="k">return</span> <span class="n">readings</span>
 
 
