@@ -436,6 +436,10 @@ directory or set library defaults exactly as it does today.  The scheduler
 forks a child for each step rather than starting a new `polaris serial`,
 which is what makes starting one cost almost nothing.
 
+A run that is interrupted, with Ctrl-C or with the SIGTERM Slurm sends when
+a job is cancelled or runs out of time, stops the steps it started before
+it exits.
+
 Every step is confined to the part of the allocation it was given.  An MPI
 step's placement reaches its launcher; a step that is not launched is bound
 to its cores by the child itself, which can only be done on the node the
