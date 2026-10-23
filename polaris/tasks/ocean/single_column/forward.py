@@ -157,6 +157,7 @@ class Forward(OceanModelStep):
             min_tasks=min_tasks,
             openmp_threads=openmp_threads,
             graph_target=f'{init.path}/culled_graph.info',
+            update_eos=update_eos,
         )
 
         self.add_horiz_mesh_input_file(
@@ -380,18 +381,14 @@ class Forward(OceanModelStep):
                 }
             )
 
-        if self.frazil_type is not None:
+        if self.frazil_type is not None and model == 'omega':
             omega_options.update(
                 {
                     'FrazilType': self.frazil_type,
                 }
             )
 
-            # Both the basic and teos frazil algorithms require TEOS-10;
-            # compute the EOS options directly (rather than through the
-            # shared ``update_eos`` mechanism) since the ``eos_type``
-            # config option may be shared between basic and teos variants
-            # of the same frazil task.
+            # Both Omega frazil algorithms require TEOS-10.
             eos_options = self._get_teos10_eos_replacements(
                 eos_type='teos-10', model=model
             )

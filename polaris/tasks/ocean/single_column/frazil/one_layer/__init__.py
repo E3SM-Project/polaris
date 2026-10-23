@@ -144,6 +144,7 @@ class FrazilOneLayer(Task):
         model = self.config.get('ocean', 'model')
         if model != 'mpas-ocean':
             return
+        self.config.add_from_package('polaris.ocean.eos', 'linear.cfg')
         for (time_integrator, frazil_type), step in list(
             self._frazil_type_steps.items()
         ):
