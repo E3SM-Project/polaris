@@ -8,6 +8,7 @@ from polaris.step import Step
 from polaris.tasks.e3sm.init import e3sm_init
 from polaris.tasks.e3sm.init.topo.combine.step import CombineStep
 from polaris.tasks.e3sm.init.topo.combine.steps import (
+    get_combine_topo_symlinks,
     get_lat_lon_topo_steps,
 )
 from polaris.tasks.mesh.spherical.unified.coastline.compute import (
@@ -90,9 +91,9 @@ def get_unified_mesh_coastline_steps(
     )
     fine_combine_step = fine_combine_steps[fine_combine_step_name]
 
-    steps: dict[str, Step] = {
-        f'combine_topo_lat_lon_{fine_resolution_name}': fine_combine_step
-    }
+    steps: dict[str, Step] = get_combine_topo_symlinks(
+        fine_combine_step, f'combine_topo_lat_lon_{fine_resolution_name}'
+    )
 
     prepare_subdir = os.path.join(
         'spherical',

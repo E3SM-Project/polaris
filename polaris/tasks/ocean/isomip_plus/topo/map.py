@@ -86,7 +86,7 @@ class TopoMap(MappingFileStep):
             work_dir_target=f'{mesh_step.path}/{mesh_filename}',
         )
 
-    def run(self):
+    def runtime_setup(self):
         """
         Set up the source and destination grids for this step
         """
@@ -109,4 +109,4 @@ class TopoMap(MappingFileStep):
             filename='mesh.nc', mesh_name=self.mesh_name
         )
 
-        super().run()
+        super().runtime_setup()

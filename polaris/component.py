@@ -9,7 +9,10 @@ from mpas_tools.io import open_dataset, write_netcdf
 from mpas_tools.logging import check_call
 
 from polaris.config import PolarisConfigParser
-from polaris.parallel import get_memory_per_node
+from polaris.parallel import (
+    get_memory_per_node,
+    is_launching_step_command,
+)
 
 # attributes that describe how a component was set up rather than what a step
 # needs to run, so they are left out of pickles
@@ -234,7 +237,22 @@ class Component:
 
             .. deprecated:: 1.1.0
                 Use ``gpus`` instead
+
+        Raises
+        ------
+        RuntimeError
+            If the framework is not launching a step's command.  A step
+            launches only through its command (``args``), never from
+            ``run()`` or elsewhere.
         """
+        if not is_launching_step_command():
+            raise RuntimeError(
+                f"{args[0]} was launched from outside a step's command. "
+                f'A step launches at most one thing, and only through its '
+                f'command (args), never from run() or anything else it '
+                f'calls.  Make the launch the command of a step of its own.'
+            )
+
         if self.parallel_system is None:
             raise ValueError(
                 f'Parallel system has not been set for component {self.name}'

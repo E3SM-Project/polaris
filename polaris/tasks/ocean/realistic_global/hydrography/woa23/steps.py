@@ -5,6 +5,7 @@ from polaris.e3sm.init.topo import format_lat_lon_resolution_name
 from polaris.step import Step
 from polaris.tasks.e3sm.init import e3sm_init
 from polaris.tasks.e3sm.init.topo.combine import (
+    get_combine_topo_symlinks,
     get_lat_lon_topo_steps,
 )
 from polaris.tasks.e3sm.init.topo.combine.step import (
@@ -62,9 +63,9 @@ def get_woa23_steps(component, include_viz=False):
     )
     woa23_res_name = format_lat_lon_resolution_name(0.25)
     combine_topo_name = TopoCombineStep.get_name('lat_lon', woa23_res_name)
-    # give the step an simpler symlink name
-    combine_topo_step = topo_steps.pop(combine_topo_name)
-    topo_steps['combine_topo'] = combine_topo_step
+    combine_topo_step = topo_steps[combine_topo_name]
+    # give the steps simpler symlink names
+    topo_steps = get_combine_topo_symlinks(combine_topo_step, 'combine_topo')
 
     combine_subdir = os.path.join(subdir, 'combine')
     combine_step = component.get_or_create_shared_step(

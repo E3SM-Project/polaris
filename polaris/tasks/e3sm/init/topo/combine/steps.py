@@ -3,8 +3,10 @@ import os
 from polaris.config import PolarisConfigParser
 from polaris.e3sm.init.topo import format_lat_lon_resolution_name
 from polaris.step import Step
+from polaris.tasks.e3sm.init.topo.combine.prepare import PrepareCombineStep
 from polaris.tasks.e3sm.init.topo.combine.step import CombineStep
 from polaris.tasks.e3sm.init.topo.combine.viz import VizCombinedStep
+from polaris.tasks.e3sm.init.topo.combine.weights import CombineWeightsStep
 
 _MIN_CUBED_SPHERE_RESOLUTION = 120
 _MAX_LAT_LON_RESOLUTION = 1.0
@@ -16,7 +18,8 @@ def get_cubed_sphere_topo_steps(component, resolution, include_viz=False):
 
     The :class:`CombineStep` sets ``default_cached = True`` in its
     constructor because it is expensive to produce.  Downstream tasks
-    benefit from cached outputs automatically.  Tasks that require
+    benefit from cached outputs automatically, and the steps that only
+    feed it are then left out.  Tasks that require
     free-running execution (e.g. standalone combine tasks) should add each
     returned step's ``subdir`` to ``self.free_running_steps`` in their
     ``__init__``, as :class:`CubedSphereCombineTask` does.
@@ -35,8 +38,9 @@ def get_cubed_sphere_topo_steps(component, resolution, include_viz=False):
     Returns
     -------
     steps : dict of str to polaris.Step
-        The combine topo step and optional visualization step, keyed by step
-        name.
+        The steps that prepare the datasets and make the remapping weights,
+        the combine topo step and the optional visualization step, keyed by
+        step name.
 
     config : polaris.config.PolarisConfigParser
         The shared config options.
@@ -55,7 +59,8 @@ def get_lat_lon_topo_steps(component, resolution, include_viz=False):
 
     The :class:`CombineStep` sets ``default_cached = True`` in its
     constructor because it is expensive to produce.  Downstream tasks
-    benefit from cached outputs automatically.  Tasks that require
+    benefit from cached outputs automatically, and the steps that only
+    feed it are then left out.  Tasks that require
     free-running execution (e.g. standalone combine tasks) should add each
     returned step's ``subdir`` to ``self.free_running_steps`` in their
     ``__init__``, as :class:`LatLonCombineTask` does.
@@ -74,8 +79,9 @@ def get_lat_lon_topo_steps(component, resolution, include_viz=False):
     Returns
     -------
     steps : dict of str to polaris.Step
-        The combine topo step and optional visualization step, keyed by step
-        name.
+        The steps that prepare the datasets and make the remapping weights,
+        the combine topo step and the optional visualization step, keyed by
+        step name.
 
     config : polaris.config.PolarisConfigParser
         The shared config options.
@@ -86,6 +92,34 @@ def get_lat_lon_topo_steps(component, resolution, include_viz=False):
         resolution=resolution,
         include_viz=include_viz,
     )
+
+
+def get_combine_topo_symlinks(combine_step, key):
+    """
+    Get a combine topo step and the steps that prepare for it and make its
+    weights, keyed by symlinks for a task that names the combine step
+    ``key``.
+
+    Parameters
+    ----------
+    combine_step : polaris.tasks.e3sm.init.topo.combine.CombineStep
+        The combine topo step
+
+    key : str
+        The symlink for the combine topo step, which the others' symlinks
+        start with
+
+    Returns
+    -------
+    steps : dict of str to polaris.Step
+        The steps that prepare the datasets and make the remapping weights,
+        and the combine topo step, keyed by symlink
+    """
+    return {
+        f'{key}_prepare': combine_step.prepare_step,
+        f'{key}_weights': combine_step.weights_step,
+        key: combine_step,
+    }
 
 
 def _get_target_topo_steps(component, target_grid, resolution, include_viz):
@@ -109,8 +143,9 @@ def _get_target_topo_steps(component, target_grid, resolution, include_viz):
     Returns
     -------
     steps : dict of str to polaris.Step
-        The combine topo step and optional visualization step, keyed by step
-        name.
+        The steps that prepare the datasets and make the remapping weights,
+        the combine topo step and the optional visualization step, keyed by
+        step name.
 
     config : polaris.config.PolarisConfigParser
         The shared config options.
@@ -149,16 +184,36 @@ def _get_target_topo_steps(component, target_grid, resolution, include_viz):
         filepath=filepath, create=create
     )
 
-    steps: dict[str, Step] = {}
+    combine_name = CombineStep.get_name(target_grid, resolution_name)
+    prepare_step = component.get_or_create_shared_step(
+        step_cls=PrepareCombineStep,
+        subdir=os.path.join(subdir, 'prepare'),
+        config=config,
+        config_filename=config_filename,
+        name=f'{combine_name}_prepare',
+    )
+    weights_step = component.get_or_create_shared_step(
+        step_cls=CombineWeightsStep,
+        subdir=os.path.join(subdir, 'weights'),
+        config=config,
+        config_filename=config_filename,
+        name=f'{combine_name}_weights',
+        prepare_step=prepare_step,
+    )
     combine_step = component.get_or_create_shared_step(
         step_cls=CombineStep,
         subdir=subdir,
         config=config,
         target_grid=target_grid,
         resolution_name=resolution_name,
+        prepare_step=prepare_step,
+        weights_step=weights_step,
     )
-    combine_step._set_res_and_outputs(update=False)
-    steps[combine_step.name] = combine_step
+    combine_step._set_res_and_outputs()
+
+    steps: dict[str, Step] = {}
+    for step in [prepare_step, weights_step, combine_step]:
+        steps[step.name] = step
 
     if include_viz:
         viz_subdir = os.path.join(combine_step.subdir, 'viz')

@@ -367,9 +367,9 @@ def test_get_unified_mesh_coastline_steps_reuses_shared_config_for_viz(
         include_viz=True,
     )
 
-    # 1 combine topo, 2 coastline compute/remap, and optionally 1 viz step
-    assert len(steps_without_viz) == 3
-    assert len(steps_with_viz) == 4
+    # 3 combine topo, 2 coastline compute/remap, and optionally 1 viz step
+    assert len(steps_without_viz) == 5
+    assert len(steps_with_viz) == 6
     assert (
         steps_without_viz['coastline_compute']
         is steps_with_viz['coastline_compute']

@@ -709,7 +709,7 @@ seaice/api
    :toctree: generated/
 
    MappingFileStep
-   MappingFileStep.run
+   MappingFileStep.runtime_setup
 ```
 
 ### resolution

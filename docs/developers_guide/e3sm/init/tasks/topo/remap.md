@@ -14,7 +14,7 @@ simulations.
 The remapping workflow is composed of several modular steps, each responsible for a specific part of the process:
 
 - **Masking**: The {py:class}`polaris.tasks.e3sm.init.topo.remap.MaskTopoStep` applies ocean and land masks to the combined topography dataset on the cubed-sphere grid. This step generates masked versions of all topography fields, as well as fractional land and ocean coverage.
-- **Remapping**: The {py:class}`polaris.tasks.e3sm.init.topo.remap.RemapTopoStep` remaps the masked topography fields from the cubed-sphere grid to the MPAS mesh. This step can be run with or without smoothing, depending on configuration.
+- **Remapping**: The {py:class}`polaris.tasks.e3sm.init.topo.remap.RemapTopoStep` remaps the masked topography fields from the cubed-sphere grid to the MPAS mesh. This step can be run with or without smoothing, depending on configuration. Two steps come ahead of it, so that its one parallel launch is a step's command (see {ref}`dev-step-launch-rule`): {py:class}`polaris.tasks.e3sm.init.topo.remap.PrepareRemapTopoStep` decides on smoothing and makes the SCRIP file for the MPAS mesh, and {py:class}`polaris.tasks.e3sm.init.topo.remap.RemapTopoWeightsStep` makes the remapping weights with `mbtempest`.
 - **Smoothing**: Smoothing is optionally applied during remapping. The workflow supports both unsmoothed and smoothed topography, with the smoothed step depending on the unsmoothed results.
 - **Visualization**: The {py:class}`polaris.tasks.e3sm.init.topo.remap.VizRemappedTopoStep` can be added to generate plots of the remapped fields for quality control.
 
@@ -26,8 +26,10 @@ The typical dependency chain is:
 
 1. `CombineStep` (combines global and Antarctic topography)
 2. `MaskTopoStep` (applies land/ocean masks)
-3. `RemapTopoStep` (remaps to MPAS mesh, optionally with smoothing)
-4. `VizRemappedTopoStep` (optional visualization)
+3. `PrepareRemapTopoStep` (decides on smoothing and makes the MPAS mesh's SCRIP file)
+4. `RemapTopoWeightsStep` (makes the remapping weights)
+5. `RemapTopoStep` (remaps to MPAS mesh, optionally with smoothing)
+6. `VizRemappedTopoStep` (optional visualization)
 
 ## Configuration Options
 
@@ -58,7 +60,7 @@ in the `remap_low_res.cfg` file.
    masks to the combined topography dataset, producing masked fields and
    fractional coverage variables.
 2. **Remapping**: The `RemapTopoStep` remaps the masked topography fields to the MPAS mesh. If smoothing is enabled, both unsmoothed and smoothed steps are created, with the smoothed step depending on the unsmoothed output.
-3. **Smoothing**: Smoothing parameters are controlled via configuration. If no smoothing is requested, the smoothed step simply symlinks the unsmoothed results.
+3. **Smoothing**: Smoothing parameters are controlled via configuration. If no smoothing is requested, the smoothed weights step launches nothing and the smoothed remap step simply symlinks the unsmoothed results.
 4. **Visualization**: The `VizRemappedTopoStep` can be added to plot each remapped field using configuration-driven colormaps and normalization.
 5. **Output**: The final remapped topography is saved as `topography_remapped.nc` for each mesh and smoothing option.
 
@@ -152,8 +154,8 @@ You can then use your custom step in place of the default `MaskTopoStep` when co
 ### Customizing Smoothing Behavior
 
 To implement custom smoothing logic, subclass
-{py:class}`polaris.tasks.e3sm.init.topo.remap.RemapTopoStep` and override the
-`define_smoothing()` method. This method receives the unsmoothed topography
+{py:class}`polaris.tasks.e3sm.init.topo.remap.PrepareRemapTopoStep` and override
+the `define_smoothing()` method. This method receives the unsmoothed topography
 dataset and should return the `expand_distance` and `expand_factor` (either as
 scalars or `xarray.DataArray` objects) to control the smoothing applied during
 remapping.
@@ -161,9 +163,9 @@ remapping.
 **Example:**
 
 ```python
-from polaris.tasks.e3sm.init.topo.remap import RemapTopoStep
+from polaris.tasks.e3sm.init.topo.remap import PrepareRemapTopoStep
 
-class MyCustomRemapStep(RemapTopoStep):
+class MyCustomPrepareStep(PrepareRemapTopoStep):
     def define_smoothing(self, ds_unsmoothed):
         # Custom logic for spatially varying smoothing
         expand_distance = ...  # scalar or DataArray
@@ -180,5 +182,6 @@ To use your custom steps, simply instantiate them in your workflow or override
 the step creation logic in your task or workflow setup.
 
 For more details, refer to the docstrings and source code of
-{py:class}`polaris.tasks.e3sm.init.topo.remap.MaskTopoStep` and
+{py:class}`polaris.tasks.e3sm.init.topo.remap.MaskTopoStep`,
+{py:class}`polaris.tasks.e3sm.init.topo.remap.PrepareRemapTopoStep` and
 {py:class}`polaris.tasks.e3sm.init.topo.remap.RemapTopoStep`.

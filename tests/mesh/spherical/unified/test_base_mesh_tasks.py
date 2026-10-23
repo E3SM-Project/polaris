@@ -30,6 +30,8 @@ def test_add_unified_base_mesh_task_includes_dependencies():
     # returned by get_unified_base_mesh_steps() in
     # test_base_mesh_step_factory_includes_dependencies() below.
     assert list(task.steps.keys()) == [
+        'combine_topo_bedmap3_gebco2023_lat_lon_0.03125_degree_prepare',
+        'combine_topo_bedmap3_gebco2023_lat_lon_0.03125_degree_weights',
         'combine_topo_bedmap3_gebco2023_lat_lon_0.03125_degree',
         'coastline_compute',
         'coastline_remap',
@@ -70,6 +72,8 @@ def test_base_mesh_step_factory_includes_dependencies():
     )
 
     assert list(steps) == [
+        'combine_topo_lat_lon_0.03125_degree_prepare',
+        'combine_topo_lat_lon_0.03125_degree_weights',
         'combine_topo_lat_lon_0.03125_degree',
         'coastline_compute',
         'coastline_final',
@@ -96,7 +100,7 @@ def test_base_mesh_step_factory_reuses_shared_config_for_viz():
 
     non_viz = {k: v for k, v in steps.items() if k != 'base_mesh_viz'}
     assert non_viz == build_steps
-    # 1 combine topo, 2 coastline, 3 river, 1 sizing field, 1 base mesh, and
+    # 3 combine topo, 2 coastline, 3 river, 1 sizing field, 1 base mesh, and
     # optionally 1 viz
-    assert len(steps) == 9
+    assert len(steps) == 11
     assert config is component.configs[config.filepath]

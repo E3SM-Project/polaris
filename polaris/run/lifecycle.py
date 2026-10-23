@@ -19,6 +19,7 @@ from typing import Dict, Optional
 from mpas_tools.logging import LoggingContext, check_call
 
 from polaris.logging import log_method_call
+from polaris.parallel import launching_step_command
 from polaris.run import (
     STEP_COMPLETE_LOG,
     complete_step_run,
@@ -109,16 +110,17 @@ def run_step(task, step, new_log_file, available_resources, step_log_filename):
                 )
                 step_logger.info('')
                 _log_sizing(step, step_resources, step_logger, 'at launch')
-                step.component.run_parallel_command(
-                    args,
-                    step.cpus_per_task,
-                    step.ntasks,
-                    step.openmp_threads,
-                    step.logger,
-                    gpus=step.gpus,
-                    placement=step.placement,
-                    memory_cap=step.memory,
-                )
+                with launching_step_command():
+                    step.component.run_parallel_command(
+                        args,
+                        step.cpus_per_task,
+                        step.ntasks,
+                        step.openmp_threads,
+                        step.logger,
+                        gpus=step.gpus,
+                        placement=step.placement,
+                        memory_cap=step.memory,
+                    )
         else:
             step_logger.info('')
             log_method_call(method=step.run, logger=step_logger)

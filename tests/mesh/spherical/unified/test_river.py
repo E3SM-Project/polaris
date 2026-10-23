@@ -716,13 +716,14 @@ def test_mesh_river_step_factories_reuse_shared_configs():
         unified_steps_first['river_clip'] is unified_steps_second['river_clip']
     )
     assert unified_config_first is unified_config_second
-    # without viz: {combine_topo, coastline_compute, coastline_final,
-    #               river_simplify, river_rasterize, river_clip}
+    # without viz: {combine_topo_prepare, combine_topo_weights, combine_topo,
+    #               coastline_compute, coastline_final, river_simplify,
+    #               river_rasterize, river_clip}
     # with viz: those plus river_viz
     print(unified_steps_first.keys())
     print(unified_steps_second.keys())
-    assert len(unified_steps_first) == 6
-    assert len(unified_steps_second) == 7
+    assert len(unified_steps_first) == 8
+    assert len(unified_steps_second) == 9
 
 
 def test_add_river_tasks_registers_mesh_tasks():

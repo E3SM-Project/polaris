@@ -238,10 +238,9 @@ def setup_tasks(
         _clean_tasks_and_steps(tasks, work_dir)
         print('')
 
-    _setup_configs(
+    common_configs, configs = _setup_configs(
         component_configs=component_configs,
         tasks=tasks,
-        work_dir=work_dir,
         copy_executable=copy_executable,
     )
 
@@ -254,6 +253,15 @@ def setup_tasks(
     # as cached in their configure() methods
     _expand_and_mark_cached_steps(tasks, cached_steps)
 
+    # every step declares its inputs and outputs before any of them is set
+    # up in its work directory, so that steps whose outputs nothing will use
+    # are left out before anything is written or downloaded for them
+    _call_step_setup(tasks, work_dir)
+    skipped_steps = _skip_steps_feeding_only_cached(tasks)
+
+    _write_configs(common_configs, configs, work_dir)
+    _symlink_configs(tasks, work_dir)
+
     print('Setting up tasks:')
     for path, task in tasks.items():
         setup_task(
@@ -263,6 +271,7 @@ def setup_tasks(
             work_dir,
             baseline_dir,
             cached_steps=cached_steps[path],
+            skipped_steps=skipped_steps[path],
         )
 
     _check_dependencies(tasks)
@@ -324,7 +333,9 @@ def setup_tasks(
     return tasks
 
 
-def setup_task(path, task, machine, work_dir, baseline_dir, cached_steps):
+def setup_task(
+    path, task, machine, work_dir, baseline_dir, cached_steps, skipped_steps
+):
     """
     Set up one or more tasks
 
@@ -349,6 +360,10 @@ def setup_task(path, task, machine, work_dir, baseline_dir, cached_steps):
     cached_steps : list of str
         Which steps (if any) should read their outputs from the cache,
         identified by a list of subdirectories in the component
+
+    skipped_steps : list of str
+        The names of steps that were left out of the task because only
+        cached steps use their outputs
     """
 
     print(f'  {path}')
@@ -368,6 +383,10 @@ def setup_task(path, task, machine, work_dir, baseline_dir, cached_steps):
     if len(cached_steps) > 0:
         print_steps = ' '.join(cached_steps)
         print(f'    steps with cached outputs: {print_steps}')
+
+    if len(skipped_steps) > 0:
+        print_steps = ' '.join(skipped_steps)
+        print(f'    steps not needed with cached outputs: {print_steps}')
 
     # iterate over steps
     for step in task.steps.values():
@@ -751,13 +770,163 @@ def _expand_and_mark_cached_steps(tasks, cached_steps):
         ]
 
 
+def _call_step_setup(tasks, work_dir):
+    """
+    Call each step's ``setup()`` once, so that every step has declared its
+    inputs and outputs before any is set up in its work directory
+    """
+    called = set()
+    for task in tasks.values():
+        for step in task.steps.values():
+            if step.setup_complete or step.path in called:
+                continue
+            called.add(step.path)
+            step.work_dir = os.path.join(work_dir, step.path)
+            step.base_work_dir = work_dir
+            step.setup()
+
+
+def _skip_steps_feeding_only_cached(tasks):
+    """
+    Leave out of each task the steps whose outputs only cached steps use.
+
+    A cached step's outputs come from the cache, so the steps that would
+    have made its inputs have nothing to do unless another step that runs
+    uses what they make.  That goes for a step feeding only steps left out
+    in turn, too.  It is worked out from the steps' declared inputs, outputs
+    and dependencies, so it needs nothing from the steps themselves.
+
+    Returns
+    -------
+    skipped_steps : dict of str to list of str
+        The names of the steps left out of each task, keyed by task path
+    """
+    steps = dict()
+    for task in tasks.values():
+        for step in task.steps.values():
+            steps[step.path] = step
+
+    consumers = _find_consumers(steps)
+
+    skipped = set()
+    changed = True
+    while changed:
+        changed = False
+        for path, step in steps.items():
+            if step.cached or path in skipped or not consumers[path]:
+                continue
+            if all(
+                steps[user].cached or user in skipped
+                for user in consumers[path]
+            ):
+                skipped.add(path)
+                changed = True
+
+    skipped_steps = dict()
+    for task_path, task in tasks.items():
+        names = [
+            name for name, step in task.steps.items() if step.path in skipped
+        ]
+        for name in names:
+            task.remove_step(task.steps[name])
+        if names:
+            _set_steps_to_run(task)
+        skipped_steps[task_path] = names
+    return skipped_steps
+
+
+def _find_consumers(steps):
+    """
+    Find the steps that use each step's outputs or name it as a dependency.
+
+    Nothing is linked or downloaded yet, so an input is followed to where
+    it will point once it is, including through another step's input.
+    """
+    producers = dict()
+    for path, step in steps.items():
+        for output in step.outputs:
+            filename = os.path.normpath(os.path.join(step.work_dir, output))
+            producers[filename] = path
+
+    links = dict()
+    targets: Dict[str, List[str]] = dict()
+    for path, step in steps.items():
+        targets[path] = list()
+        for entry in step.input_data:
+            link, target = _declared_input(entry, step)
+            if target is None:
+                continue
+            if link is not None:
+                links[link] = target
+            targets[path].append(target)
+
+    consumers: Dict[str, set] = {path: set() for path in steps}
+    for path, step in steps.items():
+        for dependency in step.dependencies.values():
+            if dependency.path in consumers and dependency.path != path:
+                consumers[dependency.path].add(path)
+        for target in targets[path]:
+            producer = _producer_of(target, producers, links)
+            if producer is not None and producer != path:
+                consumers[producer].add(path)
+    return consumers
+
+
+def _declared_input(entry, step):
+    """
+    Where an input will be linked in the step's work directory and the file
+    it will point to.  The link is ``None`` for a file the step expects in
+    its work directory already, and the file is ``None`` for one that comes
+    from a database, a URL or a package, which no step produces.
+    """
+    filename = os.path.normpath(os.path.join(step.work_dir, entry['filename']))
+    if (
+        entry['database'] is not None
+        or entry['url'] is not None
+        or entry['package'] is not None
+    ):
+        return filename, None
+
+    if entry['work_dir_target'] is not None:
+        target = os.path.join(step.base_work_dir, entry['work_dir_target'])
+    else:
+        target = entry['target']
+
+    if target is None:
+        return None, filename
+
+    # a relative target is relative to the directory the link is in
+    target = os.path.join(os.path.dirname(filename), target)
+    return filename, os.path.normpath(target)
+
+
+def _producer_of(filename, producers, links):
+    """The step that produces a file, following declared links to it"""
+    seen = set()
+    while filename not in producers and filename in links:
+        if filename in seen:
+            break
+        seen.add(filename)
+        filename = links[filename]
+    return producers.get(filename)
+
+
 def _setup_configs(
     component_configs,
     tasks,
-    work_dir,
     copy_executable,
 ):
-    """Set up config parsers for each component in use"""
+    """
+    Set up config parsers for each component in use
+
+    Returns
+    -------
+    common_configs : dict of polaris.config.PolarisConfigParser
+        The config options of each component in use, keyed by its name
+
+    configs : dict of polaris.config.PolarisConfigParser
+        The config parsers of the tasks and shared steps, keyed by file path
+    """
 
     common_configs = dict()
     for name, component_config in component_configs.items():
@@ -782,9 +951,7 @@ def _setup_configs(
         tasks, initial_configs, common_configs
     )
 
-    _write_configs(common_configs, configs, work_dir)
-
-    _symlink_configs(tasks, work_dir)
+    return common_configs, configs
 
 
 def _add_task_configs(tasks, common_configs):
@@ -827,13 +994,7 @@ def _configure_tasks_and_add_step_configs(
     for config in initial_configs.values():
         for task in config.tasks:
             task.configure()
-            config.set(
-                section=f'{task.name}',
-                option='steps_to_run',
-                value=' '.join(task.steps_to_run),
-                comment=f'A list of steps to include when running the '
-                f'{task.name} task',
-            )
+            _set_steps_to_run(task)
 
     # add configs to steps after calling task.configure() on all tasks in case
     # new steps were added
@@ -864,6 +1025,17 @@ def _configure_tasks_and_add_step_configs(
         config.setup()
 
     return configs
+
+
+def _set_steps_to_run(task):
+    """Record the steps a task runs by default in its config options"""
+    task.config.set(
+        section=f'{task.name}',
+        option='steps_to_run',
+        value=' '.join(task.steps_to_run),
+        comment=f'A list of steps to include when running the '
+        f'{task.name} task',
+    )
 
 
 def _check_config_owner(step, owners):
@@ -1485,12 +1657,6 @@ def _setup_step(task, step, work_dir, baseline_dir, task_dir):
         os.makedirs(step_dir)
     except FileExistsError:
         pass
-
-    step.work_dir = step_dir
-    step.base_work_dir = work_dir
-
-    # set up the step
-    step.setup()
 
     # add the baseline directory for this step
     if baseline_dir is not None:
