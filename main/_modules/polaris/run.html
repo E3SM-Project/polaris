@@ -192,7 +192,14 @@
 <span class="sd">    ----------</span>
 <span class="sd">    step : polaris.step.Step</span>
 <span class="sd">        The step object</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    pickle_filenames : dict</span>
+<span class="sd">        The pickle file each dependency was loaded from, with the names of</span>
+<span class="sd">        the dependencies as keys</span>
 <span class="sd">    """</span>
+    <span class="n">pickle_filenames</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
     <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">old_dependency</span> <span class="ow">in</span> <span class="n">step</span><span class="o">.</span><span class="n">dependencies</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
         <span class="k">if</span> <span class="n">old_dependency</span><span class="o">.</span><span class="n">cached</span><span class="p">:</span>
             <span class="k">continue</span>
@@ -207,7 +214,9 @@
 
         <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">pickle_filename</span><span class="p">,</span> <span class="s1">'rb'</span><span class="p">)</span> <span class="k">as</span> <span class="n">handle</span><span class="p">:</span>
             <span class="n">dependency</span> <span class="o">=</span> <span class="n">pickle</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">handle</span><span class="p">)</span>
-            <span class="n">step</span><span class="o">.</span><span class="n">dependencies</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">dependency</span></div>
+            <span class="n">step</span><span class="o">.</span><span class="n">dependencies</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">dependency</span>
+        <span class="n">pickle_filenames</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">pickle_filename</span>
+    <span class="k">return</span> <span class="n">pickle_filenames</span></div>
 
 
 

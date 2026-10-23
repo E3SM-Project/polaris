@@ -265,7 +265,8 @@ file from another step is an input of this step to establish a
 dependency.</p></li>
 <li><p><strong>has_shared_config</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#bool" title="(in Python v3.15)"><em>bool</em></a>) – Whether this step uses a shared config file.</p></li>
 <li><p><strong>is_dependency</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#bool" title="(in Python v3.15)"><em>bool</em></a>) – Whether this step is the dependency of one or more other steps.</p></li>
-<li><p><strong>tasks</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="(in Python v3.15)"><em>dict</em></a>) – The tasks this step is used in</p></li>
+<li><p><strong>tasks</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="(in Python v3.15)"><em>dict</em></a>) – The tasks this step is used in.  Setup only: this is empty in a step
+that has been unpickled (see <code class="docutils literal notranslate"><span class="pre">__getstate__()</span></code>).</p></li>
 <li><p><strong>config</strong> (<a class="reference internal" href="polaris.config.PolarisConfigParser.html#polaris.config.PolarisConfigParser" title="polaris.config.PolarisConfigParser"><em>polaris.config.PolarisConfigParser</em></a>) – Configuration options for this step, possibly shared with other tasks
 and steps</p></li>
 <li><p><strong>machine_info</strong> (<a class="reference external" href="https://docs.e3sm.org/mache/main/developers_guide/generated/mache.MachineInfo.html#mache.MachineInfo" title="(in Mache main)"><em>mache.MachineInfo</em></a>) – Information about E3SM supported machines</p></li>

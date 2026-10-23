@@ -103,6 +103,10 @@ seaice/api
    executor.RunningStep
    executor.StepOutcome
    confinement.check_confinement
+   memory.ProcessMemory
+   memory.read_process_memory
+   memory.reset_peak_memory
+   memory.format_bytes
    events.EventStream
    events.read_events
    parallel.run_tasks

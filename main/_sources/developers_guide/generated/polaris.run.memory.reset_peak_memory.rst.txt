@@ -1,0 +1,6 @@
+﻿polaris.run.memory.reset\_peak\_memory
+======================================
+
+.. currentmodule:: polaris.run.memory
+
+.. autofunction:: reset_peak_memory

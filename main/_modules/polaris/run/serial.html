@@ -141,6 +141,11 @@
     <span class="n">run_step_as_subprocess</span><span class="p">,</span>
     <span class="n">step_is_complete</span><span class="p">,</span>
 <span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.run.memory</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">format_bytes</span><span class="p">,</span>
+    <span class="n">read_process_memory</span><span class="p">,</span>
+    <span class="n">reset_peak_memory</span><span class="p">,</span>
+<span class="p">)</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">polaris.run.results</span><span class="w"> </span><span class="kn">import</span> <span class="n">TaskResult</span><span class="p">,</span> <span class="n">write_suite_results</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">polaris.validate</span><span class="w"> </span><span class="kn">import</span> <span class="n">merge_diff_summary</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">polaris.version</span><span class="w"> </span><span class="kn">import</span> <span class="n">__version__</span>
@@ -781,6 +786,10 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="n">step_log_filename</span> <span class="o">=</span> <span class="kc">None</span>
 
+        <span class="c1"># every step runs in this process, so what one leaves behind is held</span>
+        <span class="c1"># while the next runs; the peak is reset so it is this step's own</span>
+        <span class="n">peak_was_reset</span> <span class="o">=</span> <span class="n">reset_peak_memory</span><span class="p">()</span>
+        <span class="n">memory_before</span> <span class="o">=</span> <span class="n">read_process_memory</span><span class="p">()</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">step</span><span class="o">.</span><span class="n">run_as_subprocess</span><span class="p">:</span>
                 <span class="n">run_step_as_subprocess</span><span class="p">(</span><span class="n">logger</span><span class="p">,</span> <span class="n">step</span><span class="p">,</span> <span class="n">task</span><span class="o">.</span><span class="n">new_step_log_file</span><span class="p">)</span>
@@ -794,10 +803,12 @@
                 <span class="p">)</span>
         <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
             <span class="n">_print_to_stdout</span><span class="p">(</span><span class="n">task</span><span class="p">,</span> <span class="sa">f</span><span class="s1">'          execution:        </span><span class="si">{</span><span class="n">error_str</span><span class="si">}</span><span class="s1">'</span><span class="p">)</span>
+            <span class="n">_print_memory</span><span class="p">(</span><span class="n">task</span><span class="p">,</span> <span class="n">memory_before</span><span class="p">,</span> <span class="n">peak_was_reset</span><span class="p">)</span>
             <span class="k">raise</span>
         <span class="k">finally</span><span class="p">:</span>
             <span class="c1"># Always restore the working directory, even if a step fails.</span>
             <span class="n">os</span><span class="o">.</span><span class="n">chdir</span><span class="p">(</span><span class="n">cwd</span><span class="p">)</span>
+        <span class="n">memory_after</span> <span class="o">=</span> <span class="n">read_process_memory</span><span class="p">()</span>
 
         <span class="n">_print_to_stdout</span><span class="p">(</span><span class="n">task</span><span class="p">,</span> <span class="sa">f</span><span class="s1">'          execution:        </span><span class="si">{</span><span class="n">success_str</span><span class="si">}</span><span class="s1">'</span><span class="p">)</span>
         <span class="n">step_time</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">step_start</span>
@@ -862,8 +873,32 @@
             <span class="sa">f</span><span class="s1">'          runtime:          '</span>
             <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">start_time_color</span><span class="si">}{</span><span class="n">step_time_str</span><span class="si">}{</span><span class="n">end_color</span><span class="si">}</span><span class="s1">'</span><span class="p">,</span>
         <span class="p">)</span>
+        <span class="n">_print_memory</span><span class="p">(</span><span class="n">task</span><span class="p">,</span> <span class="n">memory_before</span><span class="p">,</span> <span class="n">peak_was_reset</span><span class="p">,</span> <span class="n">memory_after</span><span class="p">)</span>
 
     <span class="k">return</span> <span class="n">baselines_passed</span><span class="p">,</span> <span class="n">diff_summary</span><span class="p">,</span> <span class="n">cf_passed</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_print_memory</span><span class="p">(</span><span class="n">task</span><span class="p">,</span> <span class="n">memory_before</span><span class="p">,</span> <span class="n">peak_was_reset</span><span class="p">,</span> <span class="n">memory_after</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Report the memory this process held during and after a step, and the</span>
+<span class="sd">    largest subprocess the step started if it was the largest so far.</span>
+
+<span class="sd">    A subprocess's peak can only be read after it finishes, as the largest</span>
+<span class="sd">    over the life of this process, so it is the step's own only when the</span>
+<span class="sd">    step raised it.</span>
+<span class="sd">    """</span>
+    <span class="k">if</span> <span class="n">memory_after</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">memory_after</span> <span class="o">=</span> <span class="n">read_process_memory</span><span class="p">()</span>
+    <span class="n">peak_label</span> <span class="o">=</span> <span class="s1">'peak'</span> <span class="k">if</span> <span class="n">peak_was_reset</span> <span class="k">else</span> <span class="s1">'peak since start'</span>
+    <span class="n">message</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="sa">f</span><span class="s1">'          memory:           '</span>
+        <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">peak_label</span><span class="si">}</span><span class="s1"> </span><span class="si">{</span><span class="n">format_bytes</span><span class="p">(</span><span class="n">memory_after</span><span class="o">.</span><span class="n">peak</span><span class="p">)</span><span class="si">}</span><span class="s1">, '</span>
+        <span class="sa">f</span><span class="s1">'held after </span><span class="si">{</span><span class="n">format_bytes</span><span class="p">(</span><span class="n">memory_after</span><span class="o">.</span><span class="n">resident</span><span class="p">)</span><span class="si">}</span><span class="s1">'</span>
+    <span class="p">)</span>
+    <span class="n">largest</span> <span class="o">=</span> <span class="n">memory_after</span><span class="o">.</span><span class="n">largest_subprocess</span>
+    <span class="k">if</span> <span class="n">largest</span> <span class="o">&gt;</span> <span class="n">memory_before</span><span class="o">.</span><span class="n">largest_subprocess</span><span class="p">:</span>
+        <span class="n">message</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">message</span><span class="si">}</span><span class="s1">, subprocess peak </span><span class="si">{</span><span class="n">format_bytes</span><span class="p">(</span><span class="n">largest</span><span class="p">)</span><span class="si">}</span><span class="s1">'</span>
+    <span class="n">_print_to_stdout</span><span class="p">(</span><span class="n">task</span><span class="p">,</span> <span class="n">message</span><span class="p">)</span>
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_check_step_cf</span><span class="p">(</span><span class="n">step</span><span class="p">,</span> <span class="n">step_name</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]:</span>

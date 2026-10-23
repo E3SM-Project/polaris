@@ -242,6 +242,16 @@ the execution of each step, indicates whether baseline comparisons <code class="
 and finally indicates if the overall task execution was <code class="docutils literal notranslate"><span class="pre">SUCCESS</span></code> or <code class="docutils literal notranslate"><span class="pre">ERROR</span></code>.
 Execution times are provided for individual steps, tasks and the suite as a
 whole.</p>
+<p>Because every step runs in the same process, each step also reports the
+memory that process used: its peak during the step, what it still held
+afterward and, if the step started the largest subprocess so far, that
+subprocess’s peak.  Memory that keeps growing from one step to the next is
+memory that earlier steps left behind.  The numbers come from
+<a class="reference internal" href="../generated/polaris.run.memory.read_process_memory.html#polaris.run.memory.read_process_memory" title="polaris.run.memory.read_process_memory"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.run.memory.read_process_memory()</span></code></a>, and the peak is reset
+before each step with <a class="reference internal" href="../generated/polaris.run.memory.reset_peak_memory.html#polaris.run.memory.reset_peak_memory" title="polaris.run.memory.reset_peak_memory"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.run.memory.reset_peak_memory()</span></code></a> where
+the system allows it (Linux).  The log also records the size of each
+dependency’s pickle as the step loads it, since a dependency is unpickled
+whole into the process.</p>
 <p><code class="docutils literal notranslate"><span class="pre">run_tasks()</span></code> also writes a machine-readable results file,
 <code class="docutils literal notranslate"><span class="pre">&lt;suite_name&gt;_results.json</span></code> (or <code class="docutils literal notranslate"><span class="pre">task_results.json</span></code> for a single task), next
 to the pickle file. Each task’s outcome is held in a

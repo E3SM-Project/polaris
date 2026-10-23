@@ -292,7 +292,8 @@
 <span class="sd">        Whether this step is the dependency of one or more other steps.</span>
 
 <span class="sd">    tasks : dict</span>
-<span class="sd">        The tasks this step is used in</span>
+<span class="sd">        The tasks this step is used in.  Setup only: this is empty in a step</span>
+<span class="sd">        that has been unpickled (see ``__getstate__()``).</span>
 
 <span class="sd">    config : polaris.config.PolarisConfigParser</span>
 <span class="sd">        Configuration options for this step, possibly shared with other tasks</span>
@@ -575,6 +576,41 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">cached</span> <span class="o">=</span> <span class="n">cached</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">default_cached</span> <span class="o">=</span> <span class="kc">False</span></div>
 
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">__getstate__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">        Get the state to pickle, leaving out ``tasks``</span>
+
+<span class="sd">        ``tasks`` is a back-reference that lets setup add a step to, and</span>
+<span class="sd">        remove it from, the tasks that use it, and nothing reads it once</span>
+<span class="sd">        setup is over.  A step shared between tasks links all of them, so</span>
+<span class="sd">        pickling it made each step's pickle a copy of every task built at</span>
+<span class="sd">        setup.  A step that has run also holds the unpickled copies of its</span>
+<span class="sd">        dependencies, so in ``polaris serial`` each pickle held the copies</span>
+<span class="sd">        before it as well, and pickles grew with every task that ran.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        state : dict</span>
+<span class="sd">            The attributes to pickle</span>
+<span class="sd">        """</span>
+        <span class="n">state</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="vm">__dict__</span><span class="p">)</span>
+        <span class="n">state</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">'tasks'</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">state</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">__setstate__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">state</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">        Restore a pickled step, giving it an empty ``tasks`` so that it can</span>
+<span class="sd">        still be added to a task</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        state : dict</span>
+<span class="sd">            The unpickled attributes</span>
+<span class="sd">        """</span>
+        <span class="bp">self</span><span class="o">.</span><span class="vm">__dict__</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">state</span><span class="p">)</span>
+        <span class="k">if</span> <span class="s1">'tasks'</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">state</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">tasks</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">cores</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
