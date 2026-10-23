@@ -78,6 +78,22 @@ def say(text):
     return text
 
 
+def misbehave_then_look(index):
+    """The first piece breaks the rules; the second says what it sees."""
+    import mpas_tools.io
+
+    if index == 0:
+        os.chdir('/')
+        mpas_tools.io.default_format = 'NETCDF4'
+        os.environ['POLARIS_TEST_LEFT_BEHIND'] = 'yes'
+        return None
+    return {
+        'cwd': os.getcwd(),
+        'format': mpas_tools.io.default_format,
+        'left_behind': os.environ.get('POLARIS_TEST_LEFT_BEHIND'),
+    }
+
+
 @pytest.fixture
 def residents():
     with Residents() as started:
@@ -267,3 +283,19 @@ def test_what_was_handed_out_is_summarized_for_the_run(tmp_path, residents):
     assert summary['cores'] == 2
     assert summary['busy_seconds'] >= 0.6
     assert summary['hosts'] == [socket.gethostname().split('.')[0]]
+
+
+def test_a_piece_sees_nothing_an_earlier_piece_changed(tmp_path, residents):
+    import mpas_tools.io
+
+    first, _ = _two_cores()
+    before = mpas_tools.io.default_format
+    with _pieces(tmp_path, residents, [('nodeA', first)]) as pieces:
+        # one core, so the second piece runs after the first, on the same
+        # node, forked by the same resident
+        _, seen = pieces.map(misbehave_then_look, [0, 1])
+    assert seen == {
+        'cwd': str(tmp_path),
+        'format': before,
+        'left_behind': None,
+    }
