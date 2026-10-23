@@ -34,6 +34,8 @@ def test_get_remap_topo_steps_includes_upstream_base_mesh_steps():
 
     assert list(steps)[: len(base_mesh_steps)] == list(base_mesh_steps)
     assert list(steps)[len(base_mesh_steps) :] == [
+        'combine_topo_cubed_sphere_ne120_prepare',
+        'combine_topo_cubed_sphere_ne120_weights',
         'combine_topo_cubed_sphere_ne120',
         'mask_topo',
         'remap_unsmoothed_topo',
@@ -191,6 +193,8 @@ def test_unified_remap_topo_task_includes_base_mesh_dependencies():
     task = component.tasks[f'{COARSE_MESH_NAME}/topo/remap']
 
     assert list(task.steps.keys()) == [
+        'combine_topo_bedmap3_gebco2023_lat_lon_0.03125_degree_prepare',
+        'combine_topo_bedmap3_gebco2023_lat_lon_0.03125_degree_weights',
         'combine_topo_bedmap3_gebco2023_lat_lon_0.03125_degree',
         'coastline_compute',
         'coastline_remap',
@@ -199,6 +203,8 @@ def test_unified_remap_topo_task_includes_base_mesh_dependencies():
         'river_clip',
         'sizing_field',
         'base_mesh',
+        'combine_topo_bedmap3_gebco2023_cubed_sphere_ne120_prepare',
+        'combine_topo_bedmap3_gebco2023_cubed_sphere_ne120_weights',
         'combine_topo_bedmap3_gebco2023_cubed_sphere_ne120',
         'mask_topo',
         'remap_unsmoothed',
@@ -237,6 +243,8 @@ def test_unified_cull_topo_task_includes_base_mesh_dependencies():
     task = component.tasks[f'{COARSE_MESH_NAME}/topo/cull']
 
     assert list(task.steps.keys()) == [
+        'combine_topo_bedmap3_gebco2023_lat_lon_0.03125_degree_prepare',
+        'combine_topo_bedmap3_gebco2023_lat_lon_0.03125_degree_weights',
         'combine_topo_bedmap3_gebco2023_lat_lon_0.03125_degree',
         'coastline_compute',
         'coastline_remap',
@@ -245,6 +253,8 @@ def test_unified_cull_topo_task_includes_base_mesh_dependencies():
         'river_clip',
         'sizing_field',
         'base_mesh',
+        'combine_topo_bedmap3_gebco2023_cubed_sphere_ne120_prepare',
+        'combine_topo_bedmap3_gebco2023_cubed_sphere_ne120_weights',
         'combine_topo_bedmap3_gebco2023_cubed_sphere_ne120',
         'mask_topo',
         'remap_unsmoothed',

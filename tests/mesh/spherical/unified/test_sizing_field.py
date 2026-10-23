@@ -534,8 +534,8 @@ def test_sizing_field_step_factory_reuses_shared_config_for_viz():
     component = steps['sizing_field'].component
 
     assert steps['sizing_field'] is build_steps['sizing_field']
-    # 1 combine topo, 2 coastline, 3 river, 1 sizing field, 1 viz
-    assert len(steps) == 8
+    # 3 combine topo, 2 coastline, 3 river, 1 sizing field, 1 viz
+    assert len(steps) == 10
     assert config is component.configs[config.filepath]
 
 

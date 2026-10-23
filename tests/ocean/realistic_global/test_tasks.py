@@ -23,12 +23,18 @@ def test_add_realistic_global_tasks_registers_woa23():
         'combine_topo_bedmap3_gebco2023_lat_lon_0.25000_degree'
     )
     assert list(task.steps) == [
+        f'{combine_topo_step_name}_prepare',
+        f'{combine_topo_step_name}_weights',
         combine_topo_step_name,
         'combine',
         'extrapolate',
         'viz',
     ]
     assert task.step_symlinks[combine_topo_step_name] == 'combine_topo'
+    assert (
+        task.step_symlinks[f'{combine_topo_step_name}_prepare']
+        == 'combine_topo_prepare'
+    )
     assert 'spherical/realistic_global/hydrography/woa23/combine' in (
         component.steps
     )
@@ -56,8 +62,9 @@ def test_woa23_steps_hand_back_the_config_their_steps_use():
     assert second_config is first_config
     for name, step in first_steps.items():
         assert second_steps[name] is step, name
-        if name != 'combine_topo':
-            # the combined topography is an e3sm/init step with its own config
+        if not name.startswith('combine_topo'):
+            # the combined topography steps are e3sm/init steps with their own
+            # config
             assert step.config is first_config, name
     # and re-registering what was handed back is a no-op rather than an error
     component.add_config(second_config)

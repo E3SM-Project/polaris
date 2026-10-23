@@ -7,7 +7,10 @@ from polaris.e3sm.init.topo import (
 )
 from polaris.step import Step
 from polaris.tasks.e3sm.init import e3sm_init
-from polaris.tasks.e3sm.init.topo.combine import get_cubed_sphere_topo_steps
+from polaris.tasks.e3sm.init.topo.combine import (
+    get_combine_topo_symlinks,
+    get_cubed_sphere_topo_steps,
+)
 from polaris.tasks.e3sm.init.topo.combine.step import CombineStep
 from polaris.tasks.e3sm.init.topo.remap.mask import MaskTopoStep
 from polaris.tasks.e3sm.init.topo.remap.remap import RemapTopoStep
@@ -84,7 +87,9 @@ def get_remap_topo_steps(mesh_name, smoothing=False, include_viz=False):
     )
 
     steps: dict[str, Step] = dict(base_mesh_steps)
-    steps[combine_topo_key] = combine_topo_step
+    steps.update(
+        get_combine_topo_symlinks(combine_topo_step, combine_topo_key)
+    )
 
     step_name = 'mask_topo'
     subdir = os.path.join(mesh_name, 'topo', 'remap', 'mask')

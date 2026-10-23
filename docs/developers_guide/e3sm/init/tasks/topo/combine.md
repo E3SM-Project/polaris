@@ -18,6 +18,15 @@ and Antarctic topography datasets into a single dataset suitable for use in
 E3SM simulations. The step supports blending datasets across specified latitude
 ranges and remapping them to a target grid.
 
+It does this with two steps ahead of it, so that its one parallel launch is a
+step's command (see {ref}`dev-step-launch-rule`):
+{py:class}`polaris.tasks.e3sm.init.topo.combine.PrepareCombineStep` adds the
+fields MPAS-Ocean needs to the datasets, splits the global dataset into tiles
+and makes the SCRIP files, and
+{py:class}`polaris.tasks.e3sm.init.topo.combine.CombineWeightsStep` makes the
+remapping weights for each tile and for the Antarctic dataset with
+`ESMF_RegridWeightGen`.  `CombineStep` then remaps with `ncremap` and blends.
+
 The
 {py:class}`polaris.tasks.e3sm.init.topo.combine.CubedSphereCombineTask`
 and
@@ -122,33 +131,32 @@ the configuration file. Key options include:
 
 ## Workflow
 
-1. **Setup**: The step downloads required datasets and sets up input/output
-   files.
-2. **Modification**: Antarctic and global datasets are modified to include
-   necessary variables and attributes.
-3. **Remapping**: Datasets are remapped to the target grid using SCRIP files
-   and weight generation.
-4. **Blending**: The datasets are blended across the specified latitude range.
-5. **Output**: The combined dataset is saved in NetCDF format.
-6. **Optional Field Plotting**: Each field in the dataset is rasterized and
+1. **Setup**: The prepare step downloads required datasets, and each step
+   sets up its input/output files.
+2. **Modification**: The prepare step modifies the Antarctic and global
+   datasets to include necessary variables and attributes, splits the global
+   dataset into tiles and makes the SCRIP files.
+3. **Weights**: The weights step makes the weights for remapping each tile and
+   the Antarctic dataset to the target grid.
+4. **Remapping**: `CombineStep` remaps the datasets to the target grid.
+5. **Blending**: The datasets are blended across the specified latitude range.
+6. **Output**: The combined dataset is saved in NetCDF format.
+7. **Optional Field Plotting**: Each field in the dataset is rasterized and
    saved as an image with a colorbar.
 
 ## Example Usage
 
-Below is an example of how the `CombineStep` can be added to a Polaris
-task:
+Below is an example of how the `CombineStep`, along with the steps that
+prepare for it and make its weights, can be added to a Polaris task:
 
 ```python
-from polaris.tasks.e3sm.init.topo.combine import CombineStep
+from polaris.tasks.e3sm.init.topo.combine import get_cubed_sphere_topo_steps
 
-component = task.component
-subdir = CombineStep.get_subdir()
-if subdir in component.steps:
-    step = component.steps[subdir]
-else:
-    step = CombineStep(component=component, subdir=subdir)
-    component.add_step(step)
-task.add_step(step)
+steps, config = get_cubed_sphere_topo_steps(
+    component=task.component, resolution=3000
+)
+for step in steps.values():
+    task.add_step(step)
 ```
 
 To create a cubed-sphere combine task for caching combined datasets:
@@ -178,9 +186,11 @@ viz_step = VizCombinedStep(component=my_component, combine_step=combine_step)
 my_component.add_step(viz_step)
 ```
 
-Since there is a single shared step for each pair of Antarctic and global
-datasets, the step should be added only once to the component and the existing
-step (identifiable via its `subdir`) should be used subsequently.
+Since there is a single set of shared steps for each pair of Antarctic and
+global datasets and each target grid, the steps should be added only once to
+the component and the existing steps (identifiable via their `subdir`) should
+be used subsequently, which is what `get_cubed_sphere_topo_steps()` and
+`get_lat_lon_topo_steps()` do.
 
 The `VizCombinedStep` is typically added only when visualization is explicitly required, as it is not part of the default workflow.
 
@@ -193,7 +203,9 @@ For more details, refer to the source code of the
 Since `CombineStep` is expensive and time-consuming to run, it sets
 `self.default_cached = True` in its `__init__`.  Downstream tasks that add
 a `CombineStep` will therefore automatically use cached outputs without
-needing to opt in via the suite file or `--cached` flag.
+needing to opt in via the suite file or `--cached` flag.  The prepare and
+weights steps are not cached; since only `CombineStep` uses what they make,
+setup leaves them out whenever `CombineStep` is cached.
 
 The standalone
 {py:class}`polaris.tasks.e3sm.init.topo.combine.task.CubedSphereCombineTask`

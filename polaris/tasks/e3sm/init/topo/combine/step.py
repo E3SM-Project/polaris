@@ -1,20 +1,20 @@
 import os
 import pathlib
-from glob import glob
-from typing import Any
 
-import netCDF4
 import numpy as np
-import pyproj
 import xarray as xr
 from mpas_tools.logging import check_call
-from pyremap import ProjectionGridDescriptor, get_lat_lon_descriptor
 
-from polaris.archive import extract_zip_member
 from polaris.attrs import set_attrs
 from polaris.cf import add_cf_conventions, drop_dangling_references
-from polaris.e3sm.init.topo import format_lat_lon_resolution_name
 from polaris.step import Step
+from polaris.tasks.e3sm.init.topo.combine.files import (
+    ANTARCTIC,
+    DATASETS,
+    GLOBAL,
+    get_combine_files,
+    write_netcdf_with_fill_values,
+)
 
 #: variables in a combined topography file to compare against a baseline.
 #: ``ocean_mask`` is deliberately left out.  The combine step writes it, but
@@ -33,7 +33,10 @@ COMBINE_TOPO_VALIDATE_VARS = [
 
 class CombineStep(Step):
     """
-    A step for combining global and antarctic topography datasets
+    A step for combining global and antarctic topography datasets.  It remaps
+    them with the weights from
+    :py:class:`polaris.tasks.e3sm.init.topo.combine.CombineWeightsStep` and
+    blends them.
 
     Attributes
     ----------
@@ -51,39 +54,18 @@ class CombineStep(Step):
 
     exodus_filename : str
         name of the exodus file for the cubed sphere mesh
+
+    prepare_step : polaris.tasks.e3sm.init.topo.combine.PrepareCombineStep
+        The step that gets the datasets ready to remap
+
+    weights_step : polaris.tasks.e3sm.init.topo.combine.CombineWeightsStep
+        The step that makes the remapping weights
     """
 
-    # change these to update to the latest datasets
-    ANTARCTIC = 'bedmap3'
-    GLOBAL = 'gebco2023'
-
-    DATASETS = {
-        'bedmachinev3': {
-            'filename': 'BedMachineAntarctica-v3.nc',
-            'proj4': 'epsg:3031',
-            'mesh_name': 'BedMachineAntarcticav3_500m',
-        },
-        'bedmap3': {
-            'filename': 'bedmap3.nc',
-            'proj4': 'epsg:3031',
-            'mesh_name': 'Bedmap3_500m',
-            'url': (
-                'https://ramadda.data.bas.ac.uk/repository/entry/get/'
-                'bedmap3.nc?entryid=synth%3A2d0e4791-8e20-46a3-80e4-'
-                'f5f6716025d2%3AL2JlZG1hcDMubmM%3D'
-            ),
-        },
-        'gebco2023': {
-            'filename': 'GEBCO_2023.nc',
-            'mesh_name': 'GEBCO_2023',
-            'source_filename': 'gebco_2023.zip',
-            'url': (
-                'https://www.bodc.ac.uk/data/open_download/gebco/'
-                'gebco_2023/zip/'
-            ),
-            'archive_member': 'GEBCO_2023.nc',
-        },
-    }
+    # the datasets are set in polaris.tasks.e3sm.init.topo.combine.files
+    ANTARCTIC = ANTARCTIC
+    GLOBAL = GLOBAL
+    DATASETS = DATASETS
 
     @staticmethod
     def get_subdir():
@@ -111,7 +93,15 @@ class CombineStep(Step):
             f'_{target_grid}_{resolution_name}'
         )
 
-    def __init__(self, component, subdir, target_grid, resolution_name):
+    def __init__(
+        self,
+        component,
+        subdir,
+        target_grid,
+        resolution_name,
+        prepare_step,
+        weights_step,
+    ):
         """
         Create a new step
 
@@ -129,16 +119,23 @@ class CombineStep(Step):
         resolution_name : str
             The target resolution name for the combined topography
 
+        prepare_step : polaris.tasks.e3sm.init.topo.combine.PrepareCombineStep
+            The step that gets the datasets ready to remap
+
+        weights_step : polaris.tasks.e3sm.init.topo.combine.CombineWeightsStep
+            The step that makes the remapping weights
         """
         name = self.get_name(target_grid, resolution_name)
         super().__init__(
             component=component,
             name=name,
             subdir=subdir,
-            ntasks=None,
-            min_tasks=None,
+            ntasks=1,
+            min_tasks=1,
         )
         self.default_cached = True
+        self.prepare_step = prepare_step
+        self.weights_step = weights_step
         self.resolution = None
         self.resolution_name = None
         self.combined_filename = None
@@ -147,193 +144,68 @@ class CombineStep(Step):
 
     def setup(self):
         """
-        Set up the step in the work directory, including downloading any
-        dependencies.
+        Set up the step in the work directory, including linking the files
+        from the steps that prepare the datasets and make the weights
         """
         super().setup()
+        files = get_combine_files(self.config)
+        self._set_res_and_outputs()
 
-        config = self.config
-        section = config['combine_topo']
-
-        # Get input filenames and resolution
-        antarctic_dataset = self.ANTARCTIC
-        global_dataset = self.GLOBAL
-
-        if antarctic_dataset not in self.DATASETS:
-            raise ValueError(
-                f'Unrecognized antarctic dataset: {antarctic_dataset}'
+        prepare_path = self.prepare_step.path
+        weights_path = self.weights_step.path
+        inputs = {
+            files.antarctic_modified: os.path.join(
+                prepare_path, files.antarctic_modified
+            ),
+            files.antarctic_mapping: os.path.join(
+                weights_path, files.antarctic_mapping
+            ),
+            # linked under other names, since this step makes its own links
+            # to these, which are outputs of this step and in the cache
+            _prepared(files.target_scrip): os.path.join(
+                prepare_path, files.target_scrip
+            ),
+        }
+        if files.exodus is not None:
+            inputs[_prepared(files.exodus)] = os.path.join(
+                prepare_path, files.exodus
             )
-        if global_dataset not in self.DATASETS:
-            raise ValueError(f'Unrecognized global dataset: {global_dataset}')
+        for tile in files.tiles:
+            inputs[tile.source] = os.path.join(prepare_path, tile.source)
+            inputs[tile.mapping] = os.path.join(weights_path, tile.mapping)
 
-        antarctic_info = self.DATASETS[antarctic_dataset]
-        global_info = self.DATASETS[global_dataset]
-        antarctic_filename = antarctic_info['filename']
-        global_filename = global_info['filename']
-        antarctic_source = antarctic_info.get(
-            'source_filename', antarctic_filename
-        )
-        global_source = global_info.get('source_filename', global_filename)
-
-        # Add topography data input files
-        self.add_input_file(
-            filename=antarctic_source,
-            target=antarctic_source,
-            database='topo',
-            url=antarctic_info.get('url'),
-        )
-        self.add_input_file(
-            filename=global_source,
-            target=global_source,
-            database='topo',
-            url=global_info.get('url'),
-        )
-        self._set_res_and_outputs(update=False)
-
-        # Get ntasks and min_tasks
-        self.ntasks = section.getint('ntasks')
-        self.min_tasks = section.getint('min_tasks')
-
-    def constrain_resources(self, available_resources):
-        """
-        Constrain ``cpus_per_task`` and ``ntasks`` based on the number of
-        cores available to this step
-
-        Parameters
-        ----------
-        available_resources : dict
-            The total number of cores available to the step
-        """
-        config = self.config
-        self.ntasks = config.getint('combine_topo', 'ntasks')
-        self.min_tasks = config.getint('combine_topo', 'min_tasks')
-        super().constrain_resources(available_resources)
+        for filename, target in inputs.items():
+            self.add_input_file(filename=filename, work_dir_target=target)
 
     def run(self):
         """
         Run this step
         """
-        antarctic_dataset = self.ANTARCTIC
-        global_dataset = self.GLOBAL
-        antarctic_info = self.DATASETS[antarctic_dataset]
-        global_info = self.DATASETS[global_dataset]
-        antarctic_filename = antarctic_info['filename']
-        global_filename = global_info['filename']
-        antarctic_source = antarctic_info.get(
-            'source_filename', antarctic_filename
-        )
-        global_source = global_info.get('source_filename', global_filename)
+        files = get_combine_files(self.config)
 
-        self._set_res_and_outputs(update=True)
-
-        if global_dataset in ['gebco2023']:
-            archive_member = global_info['archive_member']
-            self.logger.info(
-                f'Extracting {archive_member} from {global_source}'
-            )
-            extract_zip_member(global_source, archive_member, global_filename)
-            self.logger.info('  Done.')
-            in_filename = global_filename
-            global_filename = global_filename.replace('.nc', '_cf.nc')
-            self._modify_gebco(
-                in_filename=in_filename,
-                out_filename=global_filename,
-            )
-
-        if antarctic_dataset in ['bedmachinev3']:
-            in_filename = antarctic_source
-            antarctic_filename = antarctic_filename.replace('.nc', '_mod.nc')
-            self._modify_bedmachine(
-                in_filename=in_filename,
-                out_filename=antarctic_filename,
-            )
-        elif antarctic_dataset in ['bedmap3']:
-            in_filename = antarctic_source
-            antarctic_filename = antarctic_filename.replace('.nc', '_mod.nc')
-            self._modify_bedmap3(
-                in_filename=in_filename,
-                out_filename=antarctic_filename,
-            )
-
-        res_name = self.resolution_name
-        assert res_name is not None, 'resolution_name should be set'
-        global_remapped_filename = global_filename.replace(
-            '.nc', f'_{res_name}.nc'
-        )
-        antartic_remapped_filename = antarctic_filename.replace(
-            '.nc', f'_{res_name}.nc'
-        )
-
-        self._create_target_scrip_file()
-        self._remap_global(
-            global_filename=global_filename,
-            out_filename=global_remapped_filename,
-        )
-        self._remap_antarctic(
-            in_filename=antarctic_filename,
-            remapped_filename=antartic_remapped_filename,
-        )
+        self._link_target_grid(files)
+        self._remap_global(files)
+        self._remap_antarctic(files)
         self._combine_datasets(
-            antarctic_filename=antartic_remapped_filename,
-            global_filename=global_remapped_filename,
+            antarctic_filename=files.antarctic_remapped,
+            global_filename=files.global_remapped,
             out_filename=self.combined_filename,
         )
-        self._cleanup()
 
-    def _set_res_and_outputs(self, update):
+    def _set_res_and_outputs(self):
         """
-        Set or update the resolution and output filenames based on config
-        options
+        Set the resolution and output filenames based on config options
         """
-        config = self.config
-        section = config['combine_topo']
-        target_grid = section.get('target_grid')
-
-        if target_grid not in ['cubed_sphere', 'lat_lon']:
-            raise ValueError(
-                f'Unrecognized target grid: {target_grid}. '
-                'Valid options are cubed_sphere or lat_lon'
-            )
-
-        # Get input filenames and resolution
-        antarctic_dataset = self.ANTARCTIC
-        global_dataset = self.GLOBAL
-
-        # Parse resolution and update resolution attributes
-        if target_grid == 'cubed_sphere':
-            resolution = section.getint('resolution_cubedsphere')
-            if update and resolution == self.resolution:
-                # nothing to do
-                return
-            self.resolution = resolution
-            self.resolution_name = f'ne{resolution}'
-        elif target_grid == 'lat_lon':
-            resolution = section.getfloat('resolution_latlon')
-            if update and resolution == self.resolution:
-                # nothing to do
-                return
-            self.resolution = resolution
-            self.resolution_name = format_lat_lon_resolution_name(resolution)
+        files = get_combine_files(self.config)
+        self.resolution = files.resolution
+        self.resolution_name = files.resolution_name
+        self.dst_scrip_filename = files.target_scrip
+        self.combined_filename = files.combined
+        self.exodus_filename = files.exodus
 
         # Start over with empty outputs
         self.outputs = []
         self.validate_vars = dict()
-
-        # Build output filenames
-        res_name = self.resolution_name
-        assert res_name is not None, 'resolution_name should be set'
-        self.dst_scrip_filename = f'{self.resolution_name}.scrip.nc'
-        self.combined_filename = '_'.join(
-            [
-                antarctic_dataset,
-                global_dataset,
-                f'{res_name}.nc',
-            ]
-        )
-        if target_grid == 'cubed_sphere':
-            self.exodus_filename = f'{self.resolution_name}.g'
-        else:
-            self.exodus_filename = None
 
         self.add_output_file(filename=self.dst_scrip_filename)
         self.add_output_file(
@@ -344,345 +216,20 @@ class CombineStep(Step):
         if self.exodus_filename is not None:
             self.add_output_file(filename=self.exodus_filename)
 
-        if update:
-            # We need to set absolute paths
-            step_dir = self.work_dir
-            self.outputs = [
-                os.path.abspath(os.path.join(step_dir, filename))
-                for filename in self.outputs
-            ]
-
-    def _modify_gebco(self, in_filename, out_filename):
+    def _link_target_grid(self, files):
         """
-        Modify GEBCO to include lon/lat bounds and an ocean mask
+        Hard-link the target grid's files from the prepare step, so that
+        they are outputs of this step, as they are in the cache, without
+        copying them.  A symbolic link would make the two steps produce the
+        same file.
         """
-        logger = self.logger
-        logger.info('Adding bounds and an ocean mask to GEBCO')
-
-        # Modify GEBCO
-        gebco = xr.open_dataset(in_filename)
-        lat = gebco.lat
-        lon = gebco.lon
-        dlat = lat.isel(lat=1) - lat.isel(lat=0)
-        dlon = lon.isel(lon=1) - lon.isel(lon=0)
-        lat_bnds = xr.concat([lat - 0.5 * dlat, lat + 0.5 * dlat], dim='bnds')
-        lon_bnds = xr.concat([lon - 0.5 * dlon, lon + 0.5 * dlon], dim='bnds')
-        gebco['lat_bnds'] = lat_bnds.transpose('lat', 'bnds')
-        gebco['lon_bnds'] = lon_bnds.transpose('lon', 'bnds')
-        gebco.lat.attrs['bounds'] = 'lat_bnds'
-        gebco.lon.attrs['bounds'] = 'lon_bnds'
-        gebco['ocean_mask'] = (gebco.elevation < 0.0).astype(float)
-
-        # Write modified GEBCO to netCDF
-        _write_netcdf_with_fill_values(gebco, out_filename)
-        logger.info('  Done.')
-
-    def _modify_bedmachine(self, in_filename, out_filename):
-        """
-        Modify BedMachineAntarctica to compute the fields needed by MPAS-Ocean
-        """
-        logger = self.logger
-        logger.info('Modifying BedMachineAntarctica with MPAS-Ocean names')
-
-        # Load BedMachine and get ice, ocean and grounded masks
-        bedmachine = xr.open_dataset(in_filename)
-        mask = bedmachine.mask
-        ice_mask = (mask != 0).astype(float)
-        ocean_mask = np.logical_or(mask == 0, mask == 3).astype(float)
-        grounded_mask = np.logical_or(
-            np.logical_or(mask == 1, mask == 2), mask == 4
-        ).astype(float)
-
-        # Add new variables and apply ocean mask
-        bedmachine['base_elevation'] = bedmachine.bed
-        bedmachine['ice_thickness'] = bedmachine.thickness
-        bedmachine['ice_draft'] = bedmachine.surface - bedmachine.thickness
-        bedmachine.ice_draft.attrs['units'] = 'm'
-        bedmachine['ice_mask'] = ice_mask
-        bedmachine['grounded_mask'] = grounded_mask
-        bedmachine['ocean_mask'] = ocean_mask
-        bedmachine['valid_mask'] = xr.ones_like(ocean_mask)
-
-        # Remove all other variables
-        varlist = [
-            'base_elevation',
-            'ice_draft',
-            'ice_thickness',
-            'ice_mask',
-            'grounded_mask',
-            'ocean_mask',
-            'valid_mask',
-        ]
-        bedmachine = bedmachine[varlist]
-
-        # Write modified BedMachine to netCDF
-        _write_netcdf_with_fill_values(bedmachine, out_filename)
-        logger.info('  Done.')
-
-    def _modify_bedmap3(self, in_filename, out_filename):
-        """
-        Modify Bedmap3 to compute the fields needed by MPAS-Ocean
-        """
-        logger = self.logger
-        logger.info('Modifying Bedmap3 with MPAS-Ocean names')
-
-        # Load Bedamp3 and get ice, ocean and grounded masks
-        bedmap3 = xr.open_dataset(in_filename)
-        mask = bedmap3.mask
-        # -9999 = open ocean,
-        # 1     = grounded ice,
-        # 2     = transiently grounded ice shelf,
-        # 3     = floating ice shelf,
-        # 4     = rock
-        ice_mask = (mask.notnull()).astype(float)
-        ocean_mask = np.logical_or(mask.isnull(), mask == 3).astype(float)
-        grounded_mask = np.logical_or(
-            np.logical_or(mask == 1, mask == 2), mask == 4
-        ).astype(float)
-
-        # Add new variables and apply ocean mask
-        bedmap3['base_elevation'] = bedmap3.bed_topography
-        bedmap3['ice_thickness'] = bedmap3.ice_thickness
-        bedmap3['ice_draft'] = (
-            bedmap3.surface_topography - bedmap3.ice_thickness
-        )
-        bedmap3.ice_draft.attrs['units'] = 'm'
-        bedmap3['ice_mask'] = ice_mask
-        bedmap3['grounded_mask'] = grounded_mask
-        bedmap3['ocean_mask'] = ocean_mask
-        bedmap3['valid_mask'] = xr.ones_like(ocean_mask)
-
-        # Remove all other variables
-        varlist = [
-            'base_elevation',
-            'ice_draft',
-            'ice_thickness',
-            'ice_mask',
-            'grounded_mask',
-            'ocean_mask',
-            'valid_mask',
-        ]
-        bedmap3 = bedmap3[varlist]
-
-        # Write modified Bdemap3 to netCDF
-        _write_netcdf_with_fill_values(bedmap3, out_filename)
-        logger.info('  Done.')
-
-    def _create_global_tile(self, global_filename, lon_tile, lat_tile):
-        """
-        Create lat/lon tiles of global data to make processing more tractable
-
-        Parameters
-        ----------
-        global_filename : str
-            name of the source global topography file
-        lon_tile : int
-            tile number along lon dim
-        lat_tile : int
-            tile number along lat dim
-        """
-        logger = self.logger
-
-        # Parse config
-        config = self.config
-        section = config['combine_topo']
-        lat_tiles = section.getint('lat_tiles')
-        lon_tiles = section.getint('lon_tiles')
-        global_name = self.GLOBAL
-        out_filename = f'tiles/{global_name}_tile_{lon_tile}_{lat_tile}.nc'
-
-        logger.info(f'    creating {out_filename}')
-
-        # Load dataset
-        ds = xr.open_dataset(global_filename)
-
-        # Build lat and lon arrays for tile
-        nlat = ds.sizes['lat']
-        nlon = ds.sizes['lon']
-        nlat_tile = nlat // lat_tiles
-        nlon_tile = nlon // lon_tiles
-
-        # Build tile latlon indices
-        lat_indices = [lat_tile * nlat_tile, (lat_tile + 1) * nlat_tile]
-        lon_indices = [lon_tile * nlon_tile, (lon_tile + 1) * nlon_tile]
-        if lat_tile == lat_tiles - 1:
-            lat_indices[1] = max([lat_indices[1], nlat])
-        else:
-            lat_indices[1] += 1
-        if lon_tile == lon_tiles - 1:
-            lon_indices[1] = max([lon_indices[1], nlon])
-        else:
-            lon_indices[1] += 1
-        lat_index_array = np.arange(*lat_indices)
-        lon_index_array = np.arange(*lon_indices)
-
-        # Duplicate top and bottom rows to account for poles
-        if lat_tile == 0:
-            lat_index_array = np.insert(lat_index_array, 0, 0)
-        if lat_tile == lat_tiles - 1:
-            lat_index_array = np.append(lat_index_array, lat_index_array[-1])
-
-        # Select tile from dataset
-        tile = ds.isel(lat=lat_index_array, lon=lon_index_array)
-        lat = tile.lat.values.copy()
-        lat_attrs = tile.lat.attrs.copy()
-        # xarray may expose coordinate views from ``isel()`` as read-only.
-        # Reassign corrected pole coordinates instead of mutating in place,
-        # while preserving CF metadata that ESMF uses to detect CFGRID files.
-        if lat_tile == 0:
-            lat[0] = -90.0  # Correct south pole
-        if lat_tile == lat_tiles - 1:
-            lat[-1] = 90.0  # Correct north pole
-        tile = tile.assign_coords(
-            lat=xr.DataArray(lat, dims=tile.lat.dims, attrs=lat_attrs)
-        )
-
-        # Write tile to netCDF
-        _write_netcdf_with_fill_values(tile, out_filename)
-
-    def _create_antarctic_scrip_file(self, in_filename, scrip_filename):
-        """
-        Create SCRIP file for an antarctic dataset on a projection grid using
-        pyremap
-        """
-        logger = self.logger
-        logger.info('    Creating Antarctic SCRIP file')
-
-        antarctic_dataset = self.ANTARCTIC
-        proj4_string = self.DATASETS[antarctic_dataset]['proj4']
-        mesh_name = self.DATASETS[antarctic_dataset]['mesh_name']
-        netcdf4_filename = scrip_filename.replace('.nc', '.netcdf4.nc')
-
-        # Define projection
-        projection = pyproj.Proj(proj4_string)
-
-        # Create SCRIP file using pyremap
-        descriptor = ProjectionGridDescriptor.read(
-            projection=projection,
-            filename=in_filename,
-            mesh_name=mesh_name,
-        )
-        descriptor.to_scrip(netcdf4_filename)
-
-        # writing directly in NETCDF3_64BIT_DATA proved prohibitively slow
-        # so we will use ncks to convert
-        args = [
-            'ncks',
-            '-O',
-            '-5',
-            netcdf4_filename,
-            scrip_filename,
-        ]
-        check_call(args, logger)
-
-        logger.info('  Done.')
-
-    def _create_target_scrip_file(self):
-        """
-        Create SCRIP file for either the x.xxxx degree (lat-lon) mesh or the
-        NExxx (cubed-sphere) mesh, depending on the target grid
-        References:
-          https://acme-climate.atlassian.net/wiki/spaces/DOC/pages/872579110/
-          Running+E3SM+on+New+Atmosphere+Grids
-        """
-        logger = self.logger
-        logger.info(f'Create SCRIP file for {self.resolution_name} mesh')
-
-        section = self.config['combine_topo']
-        target_grid = section.get('target_grid')
-
-        out_filename = self.dst_scrip_filename
-        assert out_filename is not None, 'dst_scrip_filename should be set'
-        stem = pathlib.Path(out_filename).stem
-        netcdf4_filename = f'{stem}.netcdf4.nc'
-
-        exodus_filename = self.exodus_filename
-
-        # Build cubed sphere SCRIP file using tempestremap
-        if target_grid == 'cubed_sphere':
-            # Create EXODUS file
-            args = [
-                'GenerateCSMesh',
-                '--alt',
-                '--res',
-                f'{self.resolution}',
-                '--file',
-                exodus_filename,
-            ]
-            check_call(args, logger)
-
-            # Create SCRIP file
-            args = [
-                'ConvertMeshToSCRIP',
-                '--in',
-                exodus_filename,
-                '--out',
-                netcdf4_filename,
-            ]
-            check_call(args, logger)
-
-        # Build lat-lon SCRIP file using pyremap
-        elif target_grid == 'lat_lon':
-            descriptor = get_lat_lon_descriptor(
-                dlon=self.resolution,
-                dlat=self.resolution,
-            )
-            descriptor.to_scrip(netcdf4_filename)
-
-        # writing out directly to NETCDF3_64BIT_DATA is either very slow or
-        # unsupported, so use ncks
-        args = [
-            'ncks',
-            '-O',
-            '-5',
-            netcdf4_filename,
-            out_filename,
-        ]
-        check_call(args, logger)
-
-        logger.info('  Done.')
-
-    def _create_weights(self, in_filename, out_filename):
-        """
-        Create weights file for remapping to target grid. Filenames
-        are passed as parameters so that the function can be applied to
-        global and Antarctic.
-
-        Parameters
-        ----------
-        in_filename : str
-            source file name
-        out_filename : str
-            weights file name
-        """
-        config = self.config
-        method = config.get('combine_topo', 'method')
-
-        # Generate weights file
-        args = [
-            'ESMF_RegridWeightGen',
-            '--source',
-            in_filename,
-            '--destination',
-            self.dst_scrip_filename,
-            '--weight',
-            out_filename,
-            '--method',
-            method,
-            '--netcdf4',
-            '--src_regional',
-            '--ignore_unmapped',
-        ]
-        self.component.run_parallel_command(
-            args=args,
-            cpus_per_task=self.cpus_per_task,
-            ntasks=self.ntasks,
-            openmp_threads=self.openmp_threads,
-            logger=self.logger,
-            gpus=self.gpus,
-            placement=self.placement,
-            memory_cap=self.memory,
-        )
+        filenames = [files.target_scrip]
+        if files.exodus is not None:
+            filenames.append(files.exodus)
+        for filename in filenames:
+            if os.path.lexists(filename):
+                os.remove(filename)
+            os.link(os.path.realpath(_prepared(filename)), filename)
 
     def _remap_to_target_grid(
         self,
@@ -739,97 +286,53 @@ class CombineStep(Step):
         # Remap to target grid
         check_call(args, self.logger)
 
-    def _remap_global(self, global_filename, out_filename):
+    def _remap_global(self, files):
         """
         Remap global to target grid
         """
         logger = self.logger
         logger.info('Remapping global data')
 
-        # Parse config
-        config = self.config
-        section = config['combine_topo']
-        global_name = self.GLOBAL
-        method = section.get('method')
-        lat_tiles = section.getint('lat_tiles')
-        lon_tiles = section.getint('lon_tiles')
-
-        # Make tiles directory
-        os.makedirs('tiles', exist_ok=True)
-
         # Initialize combined xarray.Dataset
         global_remapped = xr.Dataset()
 
-        # Create tile maps and remapped tiles
-        for lat_tile in range(lat_tiles):
-            for lon_tile in range(lon_tiles):
-                # File names
-                tile_suffix = f'tile_{lon_tile}_{lat_tile}.nc'
-                tile_filename = f'tiles/{global_name}_{tile_suffix}'
-                mapping_filename = (
-                    f'tiles/map_{global_name}_to_{self.resolution_name}'
-                    f'_{method}_{tile_suffix}'
-                )
-                remapped_filename = (
-                    f'tiles/{global_name}_{self.resolution_name}_{tile_suffix}'
-                )
+        # Remap tiles
+        for tile in files.tiles:
+            self._remap_to_target_grid(
+                tile.source,
+                tile.mapping,
+                tile.remapped,
+            )
 
-                # Call remapping functions
-                self._create_global_tile(global_filename, lon_tile, lat_tile)
-                self._create_weights(tile_filename, mapping_filename)
-                self._remap_to_target_grid(
-                    tile_filename,
-                    mapping_filename,
-                    remapped_filename,
-                )
-
-                # Add tile to remapped global topography
-                logger.info(f'    adding {remapped_filename}')
-                ds_tile = xr.open_dataset(remapped_filename)
-                for field in ['elevation', 'ocean_mask']:
-                    da = ds_tile[field]
-                    da = da.where(da.notnull(), 0.0)
-                    if field in global_remapped:
-                        global_remapped[field] = global_remapped[field] + da
-                    else:
-                        global_remapped[field] = da
+            # Add tile to remapped global topography
+            logger.info(f'    adding {tile.remapped}')
+            ds_tile = xr.open_dataset(tile.remapped)
+            for field in ['elevation', 'ocean_mask']:
+                da = ds_tile[field]
+                da = da.where(da.notnull(), 0.0)
+                if field in global_remapped:
+                    global_remapped[field] = global_remapped[field] + da
+                else:
+                    global_remapped[field] = da
 
         # Write tile to netCDF
+        out_filename = files.global_remapped
         logger.info(f'    writing {out_filename}')
-        _write_netcdf_with_fill_values(global_remapped, out_filename)
+        write_netcdf_with_fill_values(global_remapped, out_filename)
 
         logger.info('  Done.')
 
-    def _remap_antarctic(self, in_filename, remapped_filename):
+    def _remap_antarctic(self, files):
         """
         Remap Antarctic dataset to target grid
         """
         logger = self.logger
         logger.info('Remapping Antarctic data')
 
-        # Parse config
-        config = self.config
-        section = config['combine_topo']
-        method = section.get('method')
-        antartic_dataset = self.ANTARCTIC
-
-        mesh_name = self.DATASETS[antartic_dataset]['mesh_name']
-
-        # File names
-        scrip_filename = in_filename.replace('.nc', '.scrip.nc')
-        mapping_filename = (
-            f'map_{mesh_name}_to_{self.resolution_name}_{method}.nc'
-        )
-
-        # Call remapping functions
-        self._create_antarctic_scrip_file(
-            in_filename=in_filename, scrip_filename=scrip_filename
-        )
-        self._create_weights(scrip_filename, mapping_filename)
         self._remap_to_target_grid(
-            in_filename,
-            mapping_filename,
-            remapped_filename,
+            files.antarctic_modified,
+            files.antarctic_mapping,
+            files.antarctic_remapped,
             default_dims=False,
         )
 
@@ -932,7 +435,7 @@ class CombineStep(Step):
         # Save combined bathy to NetCDF.  The lat and lon bounds of the
         # source grids do not come along.
         combined = add_cf_conventions(drop_dangling_references(combined))
-        _write_netcdf_with_fill_values(combined, netcdf4_filename)
+        write_netcdf_with_fill_values(combined, netcdf4_filename)
 
         # writing directly in NETCDF3_64BIT_DATA proved prohibitively slow
         # so we will use ncks to convert
@@ -947,18 +450,10 @@ class CombineStep(Step):
 
         logger.info('  Done.')
 
-    def _cleanup(self):
-        """
-        Clean up work directory
-        """
-        logger = self.logger
-        logger.info('Cleaning up work directory')
 
-        # Remove PETxxx.RegridWeightGen.Log files
-        for f in glob('*.RegridWeightGen.Log'):
-            os.remove(f)
-
-        logger.info('  Done.')
+def _prepared(filename):
+    """The name of the link to a file from the prepare step"""
+    return f'prepared_{filename}'
 
 
 def _label_combined_fields(combined):
@@ -1003,26 +498,3 @@ def _label_combined_fields(combined):
         set_attrs(combined[field], long_name=long_name, units='m')
     for field, standard_name in standard_names.items():
         combined[field].attrs['standard_name'] = standard_name
-
-
-def _write_netcdf_with_fill_values(ds, filename, format='NETCDF4'):
-    """Write an xarray Dataset with NetCDF4 fill values where needed"""
-    ds = ds.copy()
-    fill_values = netCDF4.default_fillvals
-    # a value of None means "write no _FillValue attribute for this
-    # variable", which xarray accepts alongside the numeric fill values
-    encoding: dict[str, dict[str, Any]] = {}
-    vars = list(ds.data_vars.keys()) + list(ds.coords.keys())
-    for var_name in vars:
-        # If there's already a fill value attribute, drop it
-        ds[var_name].attrs.pop('_FillValue', None)
-        is_numeric = np.issubdtype(ds[var_name].dtype, np.number)
-        if is_numeric:
-            dtype = ds[var_name].dtype
-            for fill_type in fill_values:
-                if dtype == np.dtype(fill_type):
-                    encoding[var_name] = {'_FillValue': fill_values[fill_type]}
-                    break
-        else:
-            encoding[var_name] = {'_FillValue': None}
-    ds.to_netcdf(filename, encoding=encoding, format=format)
