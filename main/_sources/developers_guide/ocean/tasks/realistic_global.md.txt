@@ -122,7 +122,9 @@ is a subclass of the shared {ref}`dev-ocean-realistic-global-framework`
 length and the number of MOC bins from the `[analysis_members]` config
 options before the yaml files are added, and adds the `mom_del2` and
 `mom_del4` config options as `config_mom_del2` and `config_mom_del4`, which
-are translated to Omega's `ViscDel2` and `ViscDel4`.
+are translated to Omega's `ViscDel2` and `ViscDel4`.  The shared
+`forward.yaml` turns on Omega's `MeshScalingEnable`, so these apply at the
+mesh's median cell width and scale with cell width from there.
 
 For the `1_year` run, which supports only Omega, `setup()` also adds
 `monthly_output.yaml` after the shared yaml file, so that it overrides it.

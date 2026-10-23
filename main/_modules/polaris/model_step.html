@@ -651,7 +651,8 @@
                 <span class="c1"># extra set of quotes</span>
                 <span class="n">namelist</span><span class="p">[</span><span class="n">option</span><span class="p">]</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"'</span><span class="si">{</span><span class="n">value</span><span class="si">}</span><span class="s2">'"</span>
             <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">float</span><span class="p">):</span>
-                <span class="n">namelist</span><span class="p">[</span><span class="n">option</span><span class="p">]</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">value</span><span class="si">:</span><span class="s1">g</span><span class="si">}</span><span class="s1">'</span>
+                <span class="c1"># full precision ('g' would keep only 6 significant digits)</span>
+                <span class="n">namelist</span><span class="p">[</span><span class="n">option</span><span class="p">]</span> <span class="o">=</span> <span class="nb">repr</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">namelist</span><span class="p">[</span><span class="n">option</span><span class="p">]</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">value</span><span class="si">}</span><span class="s1">'</span>
 

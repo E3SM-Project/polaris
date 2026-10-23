@@ -332,6 +332,16 @@ discussion in <a class="reference internal" href="../framework/model.html#dev-mo
 <p>If the graph partition file has been constructed prior to the ocean model step,
 the path to the graph file should be provided in the <code class="docutils literal notranslate"><span class="pre">graph_target</span></code> argument
 to the constructor <a class="reference internal" href="generated/polaris.ocean.model.OceanModelStep.html#polaris.ocean.model.OceanModelStep" title="polaris.ocean.model.OceanModelStep"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.ocean.model.OceanModelStep()</span></code></a>.</p>
+<p>Omega scales its horizontal mixing coefficients with cell width by default,
+from the mesh’s median cell width.  Most tasks are defined with constant
+coefficients, so the constructor turns Omega’s <code class="docutils literal notranslate"><span class="pre">MeshScalingEnable</span></code> off.
+When disabled, Omega sets both scaling factors, <code class="docutils literal notranslate"><span class="pre">MeshScalingDel2</span></code> and
+<code class="docutils literal notranslate"><span class="pre">MeshScalingDel4</span></code>, to one on every edge, so <code class="docutils literal notranslate"><span class="pre">ViscDel2</span></code>, <code class="docutils literal notranslate"><span class="pre">ViscDel4</span></code>,
+<code class="docutils literal notranslate"><span class="pre">EddyDiff2</span></code> and <code class="docutils literal notranslate"><span class="pre">EddyDiff4</span></code> are the same everywhere on the mesh.  A
+task that wants scaling turns it back on in a yaml file it adds at setup, as
+the <code class="docutils literal notranslate"><span class="pre">realistic_global</span></code> tasks do.  The default is set in the constructor rather
+than in <code class="docutils literal notranslate"><span class="pre">dynamic_model_config()</span></code> because, at run time, it would otherwise
+override a setting from a task’s yaml file.</p>
 <section id="yaml-files-vs-namelists-and-streams">
 <h4>YAML files vs. namelists and streams<a class="headerlink" href="#yaml-files-vs-namelists-and-streams" title="Link to this heading"></a></h4>
 <p>In order to have the same tasks support Omega or MPAS-Ocean, we want

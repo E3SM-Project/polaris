@@ -267,7 +267,9 @@ is a subclass of the shared <a class="reference internal" href="#dev-ocean-reali
 length and the number of MOC bins from the <code class="docutils literal notranslate"><span class="pre">[analysis_members]</span></code> config
 options before the yaml files are added, and adds the <code class="docutils literal notranslate"><span class="pre">mom_del2</span></code> and
 <code class="docutils literal notranslate"><span class="pre">mom_del4</span></code> config options as <code class="docutils literal notranslate"><span class="pre">config_mom_del2</span></code> and <code class="docutils literal notranslate"><span class="pre">config_mom_del4</span></code>, which
-are translated to Omega’s <code class="docutils literal notranslate"><span class="pre">ViscDel2</span></code> and <code class="docutils literal notranslate"><span class="pre">ViscDel4</span></code>.</p>
+are translated to Omega’s <code class="docutils literal notranslate"><span class="pre">ViscDel2</span></code> and <code class="docutils literal notranslate"><span class="pre">ViscDel4</span></code>.  The shared
+<code class="docutils literal notranslate"><span class="pre">forward.yaml</span></code> turns on Omega’s <code class="docutils literal notranslate"><span class="pre">MeshScalingEnable</span></code>, so these apply at the
+mesh’s median cell width and scale with cell width from there.</p>
 <p>For the <code class="docutils literal notranslate"><span class="pre">1_year</span></code> run, which supports only Omega, <code class="docutils literal notranslate"><span class="pre">setup()</span></code> also adds
 <code class="docutils literal notranslate"><span class="pre">monthly_output.yaml</span></code> after the shared yaml file, so that it overrides it.
 The fragment replaces the <code class="docutils literal notranslate"><span class="pre">History</span></code> stream with monthly snapshots in

@@ -398,7 +398,18 @@
             <span class="kc">None</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Dict</span><span class="p">[</span><span class="n">MapSectionKey</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]]</span>
         <span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">graph_target</span> <span class="o">=</span> <span class="n">graph_target</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">update_eos</span> <span class="o">=</span> <span class="n">update_eos</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">update_eos</span> <span class="o">=</span> <span class="n">update_eos</span>
+
+        <span class="c1"># Omega scales horizontal mixing coefficients with cell width by</span>
+        <span class="c1"># default, but most tasks are defined with constant coefficients, so</span>
+        <span class="c1"># scaling is off unless a task turns it on (as realistic_global does).</span>
+        <span class="c1"># It is added here, ahead of the yaml files a task adds at setup, so</span>
+        <span class="c1"># that those win.  It is not added in dynamic_model_config(): at run</span>
+        <span class="c1"># time that would override the task's setting in the yaml file</span>
+        <span class="c1"># written at setup.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_model_config_options</span><span class="p">(</span>
+            <span class="n">options</span><span class="o">=</span><span class="p">{</span><span class="s1">'MeshScalingEnable'</span><span class="p">:</span> <span class="kc">False</span><span class="p">},</span> <span class="n">config_model</span><span class="o">=</span><span class="s1">'Omega'</span>
+        <span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="OceanModelStep.setup">
