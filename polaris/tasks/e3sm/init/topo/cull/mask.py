@@ -376,8 +376,9 @@ class CullMaskStep(Step):
         self._create_ocean_cull_mask()
         self._create_land_ice_mask()
         self._refine_ocean_domains()
-        self._check_sea_ice_removed_regions()
-        self._check_critical_passages()
+        if self._check_geography():
+            self._check_sea_ice_removed_regions()
+            self._check_critical_passages()
         self._create_land_cull_mask()
         self._combine_masks()
         self._check_mask_consistency()
@@ -760,6 +761,25 @@ class CullMaskStep(Step):
         ds_masks = add_cf_conventions(ds_masks)
         write_netcdf(ds_masks, 'cull_masks.nc')
         logger.info('Wrote cull_masks.nc.')
+
+    def _check_geography(self):
+        """
+        Whether the mesh is fine enough to check that no critical passage
+        was closed and no whole sea removed
+        """
+        config = self.config
+        min_cell_width = config.getfloat('spherical_mesh', 'min_cell_width')
+        max_cell_width = config.getfloat(
+            'cull_mesh', 'geography_check_max_cell_width'
+        )
+        if min_cell_width > max_cell_width:
+            self.logger.info(
+                f'The mesh resolution ({min_cell_width:g} km) is coarser '
+                f'than {max_cell_width:g} km, skipping the sea-ice removal '
+                f'and passage checks.'
+            )
+            return False
+        return True
 
     def _check_sea_ice_removed_regions(self):
         """
