@@ -585,11 +585,13 @@ Contributors:
 - Claude
 
 `polaris serial` is the default path and runs every step, so a step that
-hands out work must run there too. Before such a step runs, `polaris serial`
-forks one resident on its own node, and the step's handle uses it exactly as
-it would use residents on other nodes; the pieces then run on that node's
-cores. One mechanism on both paths is what lets their results agree by
-construction.
+hands out work, or computes with Dask across nodes, must run there too.
+Before the first such step runs, `polaris serial` starts residents on the
+allocation's nodes exactly as `polaris parallel` does -- forking a single one
+locally where there is only one node or no allocation -- and the step uses
+them the same way. One local resident would not do: a Dask step that needs
+more than one node's memory would fail on it. One mechanism on both paths is
+also what lets their results agree by construction.
 
 ### Implementation: What a Piece of Work Carries
 
