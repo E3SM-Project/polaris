@@ -115,6 +115,17 @@ seaice/api
    serial.run_step_in_process
    results.TaskResult
    results.write_suite_results
+   connections.connect
+   connections.listen
+   connections.accept
+   connections.bind_address
+   connections.no_delay
+   connections.new_key
+   resident.serve
+   resident.fork
+   resident.die_with_parent
+   residents.Residents
+   residents.ResidentDirectory
 
 ```
 
