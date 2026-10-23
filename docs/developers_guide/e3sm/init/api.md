@@ -141,6 +141,7 @@
    consistency.check_critical_passages
    consistency.check_sea_ice_removed_regions
    dc_edge_diagnostics.check_ocean_dc_edge
+   land_locked.find_dead_end_cells
    land_locked.remove_land_locked_cells
    land_locked.remove_ocean_land_locked_cells
 ```
