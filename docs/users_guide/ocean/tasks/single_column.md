@@ -835,6 +835,17 @@ profile that transitions from warm water near the surface to colder water below
 temperature profile with a sustained negative surface latent heat flux so that
 frazil can form under cooling.
 
+All MPAS-Ocean frazil cases use the linear density equation of state.
+The standard freezing case starts at a uniform temperature
+`temperature_above_freezing` (default 0.001 degC) above the warmest local
+freezing point calculated by `compute_linear_ct_freezing`.
+MPAS-Ocean's frazil formation still uses its own mushy-layer freezing
+relation, which differs from this linear initialization threshold.
+Omega retains the TEOS-10 equation of state and its existing initialization.
+
+MPAS-Ocean frazil tendency figures show the last available output in each
+day, including a partial final day. One-layer cases omit these figures.
+
 MPAS-Ocean conservation checks include frazil contributions to mass, salt,
 and energy using tendency output at every timestep. The conservation summary
 separates surface forcing, frazil contributions, and remaining residuals.
@@ -875,9 +886,13 @@ temperature_lower_melting = -2.0
 # melting case [m]
 transition_depth_melting = 50.0
 
-# Temperature applied uniformly through the water column for the freezing
-# case [degC]
+# Temperature applied uniformly through the water column for the Omega
+# freezing case [degC]
 temperature_freezing = -1.8
+
+# Uniform MPAS-Ocean freezing-case temperature above the warmest local
+# linear-EOS freezing point [degC]
+temperature_above_freezing = 0.001
 
 # Net latent heat flux applied at the surface for the freezing case.
 # Negative values indicate a net loss of heat from the ocean, consistent
