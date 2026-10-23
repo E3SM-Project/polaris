@@ -575,6 +575,22 @@ environment. Dask uses TLS with certificates generated for the run, which
 needs `cryptography`, and its dashboard is turned off, being one more open
 port.
 
+### Implementation: Handing Out Work Under `polaris serial`
+
+Date last modified: 2026/10/23
+
+Contributors:
+
+- Xylar Asay-Davis
+- Claude
+
+`polaris serial` is the default path and runs every step, so a step that
+hands out work must run there too. Before such a step runs, `polaris serial`
+forks one resident on its own node, and the step's handle uses it exactly as
+it would use residents on other nodes; the pieces then run on that node's
+cores. One mechanism on both paths is what lets their results agree by
+construction.
+
 ### Implementation: What a Piece of Work Carries
 
 Date last modified: 2026/10/23
