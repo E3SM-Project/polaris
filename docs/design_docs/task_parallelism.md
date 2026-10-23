@@ -249,13 +249,13 @@ node and is the bound Phase C lifts.
 
 This is where the regression-suite speedup lands.
 
-### Phase C -- Python worker pool
+### Phase C -- Python work across nodes
 
-[Task Parallelism Phase C: Python Worker Pool](task_parallelism_phase_c.md)
+[Task Parallelism Phase C: Python Work Across Nodes](task_parallelism_phase_c.md)
 
 Add a resident process on each node of the allocation, which forks a whole
-step on whichever node has room and runs the pieces of work a step loops
-over inside itself. Analysis in Polaris will be many small Python steps, so
+step on whichever node has room and forks a child for each piece of work a
+step loops over inside itself. Analysis in Polaris will be many small Python steps, so
 forking them anywhere in the allocation is what lifts the single-node
 ceiling that constrains MPAS-Analysis today, and it is the phase the
 analysis capability depends on. The same mechanism lifts Phase B's bound on
