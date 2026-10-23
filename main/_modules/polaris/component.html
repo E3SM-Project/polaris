@@ -760,12 +760,19 @@
 
     <span class="c1"># a placement carries no memory, because no launcher acts on one.  What</span>
     <span class="c1"># a placement does imply is a share of the nodes it names, in the same</span>
-    <span class="c1"># proportion as the cores it took from them.</span>
-    <span class="n">memory_per_node</span> <span class="o">=</span> <span class="n">get_memory_per_node</span><span class="p">(</span><span class="n">parallel_system</span><span class="p">)</span>
+    <span class="c1"># proportion as the cores it took from them.  Per node, that is the share</span>
+    <span class="c1"># of the cores counted in cores_per_node, so that the two describe the</span>
+    <span class="c1"># same thing; a whole node's memory beside a part of its cores would</span>
+    <span class="c1"># give a step sized from them a budget of whole nodes.</span>
+    <span class="n">node_memory</span> <span class="o">=</span> <span class="n">get_memory_per_node</span><span class="p">(</span><span class="n">parallel_system</span><span class="p">)</span>
     <span class="n">memory</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">memory_per_node</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="n">machine_cores_per_node</span> <span class="o">=</span> <span class="n">parallel_system</span><span class="o">.</span><span class="n">cores_per_node</span>
-    <span class="k">if</span> <span class="n">memory_per_node</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">machine_cores_per_node</span><span class="p">:</span>
-        <span class="n">memory</span> <span class="o">=</span> <span class="n">cores</span> <span class="o">*</span> <span class="n">memory_per_node</span> <span class="o">//</span> <span class="n">machine_cores_per_node</span>
+    <span class="k">if</span> <span class="n">node_memory</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">machine_cores_per_node</span><span class="p">:</span>
+        <span class="n">memory</span> <span class="o">=</span> <span class="n">cores</span> <span class="o">*</span> <span class="n">node_memory</span> <span class="o">//</span> <span class="n">machine_cores_per_node</span>
+        <span class="n">memory_per_node</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">cores_per_node</span> <span class="o">*</span> <span class="n">node_memory</span> <span class="o">//</span> <span class="n">machine_cores_per_node</span>
+        <span class="p">)</span>
 
     <span class="k">return</span> <span class="nb">dict</span><span class="p">(</span>
         <span class="n">cores</span><span class="o">=</span><span class="n">cores</span><span class="p">,</span>
