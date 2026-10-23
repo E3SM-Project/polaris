@@ -129,9 +129,10 @@ class LatLonMapStep(MappingFileStep):
         self._update_ntasks()
         super().constrain_resources(available_resources)
 
-    def run(self):
+    def runtime_setup(self):
         """
-        Set up the source and destination grids, then build the mapping file.
+        Set up the source and destination grids, then the command that builds
+        the mapping file.
         """
         self.remapper.src_from_lon_lat(
             filename=self.source_filename,
@@ -143,7 +144,7 @@ class LatLonMapStep(MappingFileStep):
             filename='culled_mesh.nc',
             mesh_name=self.mesh_name,
         )
-        super().run()
+        super().runtime_setup()
 
     def _update_ntasks(self):
         """

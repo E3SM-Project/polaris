@@ -56,12 +56,15 @@ Here is an example of creating a subclass to remap from an MPAS mesh to a
 global lon-lat grid with a given resolution.  This is more convenient when you
 want to use config options to allow users to customize the step.  Note that
 you have to set a source and destination grid before calling
-{py:meth}`polaris.remap.MappingFileStep.run()`.  In the example, the
-resolution of the lon-lat grid and the remapping method will be set using the
-config options provided while setting up the polaris task.  We call the
-`src_*()` and `dst_*()` methods of the `remapper` attribute in the `run()`
-method to make sure we pick up any changes to the config options that a user
-might have made before running the task:
+{py:meth}`polaris.remap.MappingFileStep.runtime_setup()`, which writes the
+files the mapping tool reads and makes the tool's command.  The step has no
+`run()` method: the framework launches that command with the step's MPI
+resources.  In the example, the resolution of the lon-lat grid and the
+remapping method will be set using the config options provided while setting
+up the polaris task.  We call the `src_*()` and `dst_*()` methods of the
+`remapper` attribute in the `runtime_setup()` method to make sure we pick up
+any changes to the config options that a user might have made before running
+the task:
 
 ```python
 
@@ -75,7 +78,7 @@ class VizMap(MappingFileStep):
         self.mesh_name = mesh_name
         self.add_input_file(filename='mesh.nc', target='../mesh/mesh.nc')
 
-    def run(self):
+    def runtime_setup(self):
         config = self.config
         section = config['cosine_bell_viz']
         dlon = section.getfloat('dlon')
@@ -85,7 +88,7 @@ class VizMap(MappingFileStep):
         self.remapper.dst_global_lon_lat(dlon=dlon, dlat=dlat, lon_min=0.)
         self.remapper.method = method
 
-        super().run()
+        super().runtime_setup()
 ```
 
 It is important that the task that the step belongs to includes the required

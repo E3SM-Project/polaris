@@ -77,16 +77,20 @@ class MappingFileStep(Step):
             method=method,
             use_tmp=False,
         )
+        # the mapping tool's command can only be made once the grids have
+        # been read and the step's tasks decided, in runtime_setup(), but the
+        # step has to say from the start that it launches one
+        self.args = []
 
-    def run(self):
+    def runtime_setup(self):
         """
-        Create the mappping file
+        Write the files the mapping tool reads and set the command that
+        creates the mapping file
         """
         config = self.config
         remapper = self.remapper
         remapper.map_tool = config.get('mapping', 'map_tool')
         remapper.ntasks = self.ntasks
-        remapper.parallel_exec = config.get('parallel', 'parallel_executable')
 
         src = remapper.src_grid_info
         dst = remapper.dst_grid_info
@@ -104,5 +108,5 @@ class MappingFileStep(Step):
                     os.path.join(self.work_dir, info['filename'])
                 )
 
-        remapper.build_map(logger=self.logger)
+        self.args = [remapper.prepare_map(logger=self.logger)]
         remapper.map_filename = os.path.abspath(remapper.map_filename)
