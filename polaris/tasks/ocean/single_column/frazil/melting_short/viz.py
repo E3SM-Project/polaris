@@ -12,6 +12,10 @@ from polaris.tasks.ocean.single_column.frazil.utils import (
     _plot_conservation_residuals,
     _plot_frazil_fluxes,
 )
+from polaris.tasks.ocean.single_column.mpas_ocean_frazil_viz import (
+    mpas_ocean_frazil_data,
+    plot_mpas_ocean_frazil,
+)
 from polaris.viz import mplstyle_context
 
 COLUMNS = (
@@ -61,6 +65,10 @@ class MeltingShortViz(OceanIOStep):
         self.add_input_file(
             filename='init.nc', work_dir_target=f'{init.path}/init.nc'
         )
+        self.add_input_file(
+            filename='mesh.nc',
+            work_dir_target=f'{init.path}/culled_mesh.nc',
+        )
 
     def run(self):
         """
@@ -77,6 +85,11 @@ class MeltingShortViz(OceanIOStep):
         ds_init = self.open_model_dataset('init.nc', config=config)
         init_diags = _diagnostics(ds_init, rho_sw, config, model)
         ds_init.close()
+        ds_mesh = (
+            self.open_model_dataset('mesh.nc', config=config)
+            if model == 'mpas-ocean'
+            else None
+        )
 
         series = []
         for comparison_name, comparison_path in self.comparisons.items():
@@ -118,6 +131,11 @@ class MeltingShortViz(OceanIOStep):
                         name: np.asarray(ds[name].mean(dim='nCells').values)
                         for name in FRAZIL_RATE_UNITS
                     }
+            frazil_data = (
+                mpas_ocean_frazil_data(ds, ds_mesh)
+                if model == 'mpas-ocean'
+                else None
+            )
             series.append(
                 {
                     'name': comparison_name,
@@ -125,9 +143,12 @@ class MeltingShortViz(OceanIOStep):
                     'history_hours': days * 24.0,
                     'fields': fields,
                     'frazil_rates': frazil_rates,
+                    'frazil_data': frazil_data,
                 }
             )
             ds.close()
+        if ds_mesh is not None:
+            ds_mesh.close()
 
         stepper_names = list(
             dict.fromkeys(name.rsplit(' ', 1)[0] for name in self.comparisons)
@@ -158,9 +179,10 @@ class MeltingShortViz(OceanIOStep):
                     column_sum=True,
                 )
             else:
+                plot_mpas_ocean_frazil(series, styles)
                 self.logger.info(
-                    'Skipping frazil flux and residual plots for MPAS-Ocean; '
-                    'the requested history fields are Omega-specific.'
+                    'Skipping Omega-specific frazil flux and residual plots '
+                    'for MPAS-Ocean.'
                 )
 
 

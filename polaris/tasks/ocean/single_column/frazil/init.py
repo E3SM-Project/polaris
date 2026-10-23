@@ -3,6 +3,7 @@ import xarray as xr
 
 from polaris.constants import get_constant
 from polaris.ocean.eos import compute_ct_freezing
+from polaris.ocean.eos.linear import compute_linear_ct_freezing
 from polaris.tasks.ocean.single_column.init import Init
 
 
@@ -79,9 +80,10 @@ class FrazilInit(Init):
         profiles.  Salinity increases linearly with depth in both cases.  In
         the melting case, temperature is a constant value above a
         transition depth and a different constant value below it.  In the
-        freezing case, temperature is uniform (and close to the local
-        freezing point once frazil is enabled), or exactly at the local
-        freezing point if ``at_freezing`` is set.  In the ``melting_short``
+        freezing case, temperature is uniform, just above the warmest linear
+        freezing point for MPAS-Ocean or set by ``temperature_freezing`` for
+        Omega. It is exactly at the local freezing point if ``at_freezing``
+        is set. In the ``melting_short``
         case, temperature is constant above the transition depth and a fixed
         amount below the local freezing point beneath it.
         """
@@ -135,6 +137,21 @@ class FrazilInit(Init):
                 salinity.isel(Time=0, nCells=0),
                 pressure=self._compute_pressure(z_mid),
             )
+        elif config.get('ocean', 'model') == 'mpas-ocean':
+            temperature_offset = section.getfloat('temperature_above_freezing')
+            if (
+                not np.isfinite(temperature_offset)
+                or temperature_offset <= 0.0
+            ):
+                raise ValueError(
+                    'temperature_above_freezing must be finite and positive'
+                )
+            ct_freezing = compute_linear_ct_freezing(
+                salinity.isel(Time=0, nCells=0)
+            )
+            temperature_vert = (
+                float(np.max(ct_freezing)) + temperature_offset
+            ) * xr.ones_like(z_mid)
         else:
             temperature_freezing = section.getfloat('temperature_freezing')
             temperature_vert = temperature_freezing * xr.ones_like(z_mid)

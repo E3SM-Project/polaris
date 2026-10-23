@@ -108,6 +108,7 @@ class Frazil(Task):
             indir=subdir,
             init=init_step,
             comparisons=comparisons,
+            mpas_ocean_frazil=True,
         )
         self.add_step(
             self.viz,
@@ -123,6 +124,7 @@ class Frazil(Task):
         model = self.config.get('ocean', 'model')
         if model != 'mpas-ocean':
             return
+        self.config.add_from_package('polaris.ocean.eos', 'linear.cfg')
         for step in self._frazil_type_steps.values():
             step.frazil_conservation = True
         self.conservation_summary.frazil_diagnostics = True
@@ -130,4 +132,14 @@ class Frazil(Task):
         if teos_step is not None:
             self.remove_step(teos_step)
             self.conservation_summary.forward_steps.pop(teos_step.name, None)
-        self.viz.comparisons.pop('teos', None)
+            comparisons = dict(self.viz.comparisons)
+            comparisons.pop('teos', None)
+            self.remove_step(self.viz)
+            self.viz = Viz(
+                component=self.component,
+                indir=self.subdir,
+                init=self.steps['init'],
+                comparisons=comparisons,
+                mpas_ocean_frazil=True,
+            )
+            self.add_step(self.viz, run_by_default=False)
