@@ -36,11 +36,11 @@ equivalent to MPAS-Analysis, which already parallelizes this kind of work
 with Python's `multiprocessing` -- bounded to one node. At high resolution,
 which is Omega's target, one node is not enough.
 
-Phase C stands on Phase A and Phase B. The residents occupy a defined part
-of the allocation, so ordinary steps continue to run in the rest; the
-scheduler from Phase B accounts for that share as it would any other
-reservation. Making the share change as the amount of Python work changes is
-Phase D.
+Phase C stands on Phase A and Phase B. A step that hands out work reserves
+the cores its pieces run on, as any step that spans nodes reserves its
+cores, and gives them back when it ends; the rest of the allocation stays
+with ordinary steps. Since nothing holds cores beyond the step using them,
+there is no share for Phase D to resize.
 
 ### What the measurement showed
 
@@ -121,35 +121,35 @@ needs is imports, plus whatever of the shared inputs its work touches, plus
 its own data -- and the middle term was never measured because forking made
 it free.
 
-### Sizing a pool, and what not to assume while doing it
+### Sizing a step's work, and what not to assume while doing it
 
-The question that sizes a pool is therefore **how much read-only input a
-step needs resident**, and it is deliberately phrased that way rather than
-in terms of any particular kind of input. If steps can work on subsets,
-memory stops binding and a pool is limited by cores. If each step needs all
-of it, the same node supports far fewer workers than it has cores. Polaris
-can measure this as soon as it has one real step of the kind, and should,
-before choosing a pool size.
+The question that sizes a step's work is therefore **how much read-only
+input each piece needs resident**, and it is deliberately phrased that way
+rather than in terms of any particular kind of input. If pieces can work on
+subsets, memory stops binding and a step is limited by cores. If each piece
+needs all of it, the same node supports far fewer pieces at once than it has
+cores. Polaris can measure this as soon as it has one real step of the kind,
+and should, before steps declare their figures.
 
 Two things follow that are easy to get wrong in opposite directions.
 
-**The pool must not be designed around a shared dataset.** Analysis happens
-to be a workload where many tasks read from one large input, and it is
-tempting to build for that. Most Polaris workflows have no such thing, and a
-pool that assumes one -- in how it starts workers, in how it accounts for
-their memory, or in what it expects a task to be given -- would be a pool
-that serves one purpose well and the general case badly. Task parallelism is
-the general facility; analysis is its first demanding customer, not its
+**Handing out work must not be designed around a shared dataset.** Analysis
+happens to be a workload where many tasks read from one large input, and it
+is tempting to build for that. Most Polaris workflows have no such thing,
+and a mechanism that assumes one -- in how it starts children, in how it
+accounts for their memory, or in what it expects a piece of work to be given
+-- would serve one purpose well and the general case badly. Task parallelism
+is the general facility; analysis is its first demanding customer, not its
 specification.
 
-**But a worker's memory should not be assumed private either.** Where many
-tasks on a node do read the same large input, holding one copy per node
-rather than one per worker is the distributed equivalent of what forking
+**But a child's memory should not be assumed private either.** Where many
+pieces on a node do read the same large input, holding one copy per node
+rather than one per child is the distributed equivalent of what forking
 gives for free, and the difference is large enough to change how many
-workers fit. This is worth leaving room for and is not worth building now:
+pieces fit. This is worth leaving room for and is not worth building now:
 nothing has been measured that needs it, and the measurement that would
-justify it is the one described above. It is recorded here so that it is not
-rediscovered late, and so that nothing in the pool's design forecloses it.
+justify it is the one described above. It is recorded here so that it is
+not rediscovered late, and so that nothing in the design forecloses it.
 
 ### A task larger than one node
 
@@ -159,21 +159,19 @@ acquire that restriction by accident.
 Polaris already runs steps that span nodes: every MPI model run does. What
 is bounded to one node is a non-MPI step running in its own process, which
 is a property of processes rather than a decision Polaris made. A step that
-hands its work to the pool is not in that category.
+hands its work out is not in that category.
 
 Phase A provides the property this turns on: a step declares whether its
-resources may be drawn from more than one node, defaulting to no. A step
-using the pool declares that they may, and this phase is where anything
-first does. Its cores are then a reservation rather than a placement:
-Polaris launches the step's driver, which needs about one core, and accounts
-the rest against the pool's share.
+resources may be drawn from more than one node, defaulting to no for a step
+with one task. A step that hands out work declares that they may, and this
+phase is where anything first does. Its cores are then a reservation rather
+than a placement: the step's own process needs about one core, and the rest
+are where its pieces of work are forked.
 
-The property covers GPUs on the same terms. A pool whose workers use GPUs
-draws them from the nodes those workers are on, so a step's GPU count is a
-claim against the pool exactly as its core count is. `gpus` is already a
-per-step total, but the pool has to account for it, and a step that
-distributes GPU work should not have GPUs reserved on the node its driver
-sits on.
+The property covers GPUs on the same terms. A piece of work that uses GPUs
+draws them from the node it is forked on, so a step's GPUs are reserved
+where its pieces run, exactly as its cores are, and not on the node its own
+process sits on.
 
 This phase is where a limitation carried harmlessly through Phase A and
 Phase B stops being harmless. On PBS with PALS, a launch needing no GPUs is
@@ -255,34 +253,33 @@ data are spread across the memory of several nodes. Both shall be possible.
 The second is not expected to be common, but designing it out would be a
 mistake.
 
-### Requirement: The Pool Occupies a Known Share
+### Requirement: Work Runs on Cores Reserved for It
 
-Date last modified: 2026/08/23
+Date last modified: 2026/10/23
 
 Contributors:
 
 - Xylar Asay-Davis
 - Claude
 
-The pool shall be confined to a defined set of resources, and the scheduler
-shall know about that reservation.
+The pieces of work a step hands out shall run only on resources the
+scheduler reserved for that step, and those resources shall be returned when
+the step ends.
 
 An earlier attempt launched a worker pool without bounding it, which claimed
-the whole allocation and prevented model runs from starting at all. With
-Phase A the pool is placed like anything else, and the scheduler simply sees
-fewer free resources while it exists.
+the whole allocation and prevented model runs from starting at all.
 
-### Requirement: Steps Ask for Workers Explicitly
+### Requirement: Steps Ask Explicitly for Cores for Their Work
 
-Date last modified: 2026/09/09
+Date last modified: 2026/10/23
 
 Contributors:
 
 - Xylar Asay-Davis
 - Claude
 
-A step shall have to opt in to using the pool, and shall declare how many
-workers it wants and needs.
+A step shall have to opt in to handing out work, and shall declare how many
+cores its work wants and needs.
 
 Ordinary steps shall continue to run as a forked child, as in Phase B, and
 adding this phase shall not change how any existing step runs. A step forked
@@ -333,22 +330,22 @@ A child or worker that dies shall be reported as the failure of what it was
 running, and nothing shall be retried silently. Absorbing a crash quietly
 turns it into a mysterious slowdown.
 
-### Requirement: The Pool's Cost Is Visible
+### Requirement: The Cost Is Visible
 
-Date last modified: 2026/08/23
+Date last modified: 2026/10/23
 
 Contributors:
 
 - Xylar Asay-Davis
 - Claude
 
-The time spent starting and stopping the pool, and the resources it held
-while idle, shall be recorded.
+The time spent starting and stopping the residents, and the cores a step
+held while none of its work was running on them, shall be recorded.
 
-A pool is only worth having if the work it enables outweighs what it costs.
-Earlier measurements found a worker pool spending around 9% of a suite's wall
-time on its own lifecycle, which is the sort of thing that must be visible
-rather than inferred.
+Handing out work is only worth it if what it enables outweighs what it
+costs. Earlier measurements found a worker pool spending around 9% of a
+suite's wall time on its own lifecycle, which is the sort of thing that must
+be visible rather than inferred.
 
 ## Algorithm Design
 
@@ -378,8 +375,9 @@ and loaded a read-only input forks children that inherit that state at
 copy-on-write cost. Building one mechanism rather than two is the reason
 this phase absorbs Phase B's single-node bound instead of leaving it.
 
-A step that opts in is given a handle to the pool and a lease saying how
-many workers it may use, submits pieces of work, and collects results.
+A step that opts in is given a handle, submits pieces of work, and collects
+results. The pieces run on the cores reserved for the step, one per core at
+a time.
 
 Starting the residents is one launch per node, confined by Phase A
 placement, so the rest of the allocation stays usable.
@@ -431,29 +429,33 @@ it and answering costs about 18 ms, measured on Chrysalis. That is noise
 beside a five-second task, and it is why work far shorter than a second
 should be handed out in batches rather than item by item.
 
-### Algorithm Design: Sizing the Pool
+### Algorithm Design: Sizing a Step's Work
 
-Date last modified: 2026/08/23
+Date last modified: 2026/10/23
 
 Contributors:
 
 - Xylar Asay-Davis
 - Claude
 
-The pool should be sized from the work that is ready to run, not from the
-allocation. If three analysis steps are ready and together they want twelve
-workers, twelve is the number, regardless of how many nodes are free.
+A step's work is sized from what the step declares, not from the
+allocation: the cores it wants and needs, and the memory each piece holds.
+The cores are decided once from the whole allocation, as Phase B decides
+every step's width, and the scheduler waits until that many are free rather
+than starting the step on fewer. They may come from several nodes, and they
+go back when the step ends.
 
-Phase C may size the pool once, when the first step that needs it runs, and
-keep it until the run ends. That is simple and adequate while Python work is
-a small part of a suite. It is also the thing Phase D fixes, because a pool
-sized once holds its share even after the Python work is finished.
+Each reserved core runs one piece at a time. Once a step has fewer pieces
+left than cores, the spare cores sit idle until its last piece finishes, a
+tail of about one piece's length. That is what not holding a shared pool
+costs; *Decision: A Shared Pool Held for the Run* says when the trade would
+go the other way.
 
-The numbers that make this concrete -- how many workers, how much memory each
--- follow from how much read-only input a step needs resident, which is the
-open question stated above and which Polaris can answer with one real step
-of the kind. Until it is answered, a pool should be sized from what its
-steps declare and should report what it chose, rather than carrying a
+The numbers that make this concrete -- how many cores, how much memory each
+piece -- follow from how much read-only input a piece needs resident, which
+is the open question stated above and which Polaris can answer with one real
+step of the kind. Until it is answered, a step should declare what was
+measured and the run should report what it reserved, rather than carrying a
 default that would be a guess dressed as a number.
 
 ### Algorithm Design: Where a Step's Child Is Forked
@@ -477,23 +479,26 @@ it does not decide what runs.
 
 ## Implementation
 
-### Implementation: Pool Lifecycle
+### Implementation: Residents and the Step Hook
 
-Date last modified: 2026/08/23
+Date last modified: 2026/10/23
 
 Contributors:
 
 - Xylar Asay-Davis
 - Claude
 
-- a module owning the pool: starting it with a placement, handing out
-  leases, shutting it down, and reporting its cost;
+- a module owning the residents: starting them with one launch per node,
+  connecting to them, stopping them, and reporting what they cost;
+- a handle through which a step hands out work: it asks the resident on each
+  node of the step's reservation to fork pieces onto the reserved cores, one
+  per core at a time, and collects what they return;
 - a step hook -- a separate method from `run()` -- through which a step
-  receives the pool and its lease. Keeping it separate means the meaning of
-  `run()` is unchanged for every existing step.
+  receives the handle. Keeping it separate means the meaning of `run()` is
+  unchanged for every existing step.
 
-The pool must be shut down cleanly at the end of a run, including when the
-run fails, or its workers outlive the job.
+The residents must be stopped at the end of a run, including when the run
+fails, or their children outlive the job.
 
 ### Implementation: What a Piece of Work Carries
 
@@ -564,19 +569,38 @@ analysis is many small steps, and each would pay the start-up -- 0.2 to
 0.7 s, measured -- before its first piece ran. It is kept only for a step
 whose arrays span nodes, which is rare and long enough to absorb it.
 
-## Testing
+### Decision: A Shared Pool Held for the Run
 
-### Testing and Validation: Multi-Node Distribution
-
-Date last modified: 2026/08/23
+Date last modified: 2026/10/23
 
 Contributors:
 
 - Xylar Asay-Davis
 - Claude
 
-A test shall submit work to the pool and verify from the results which node
-each piece ran on, confirming that more than one node was used. This is the
+**Set aside.** Earlier versions of this design reserved a block of the
+allocation for handed-out work when the first such step started, kept it
+until the run ended, and gave each step a lease within it. With a child per
+piece there are no workers to keep warm, so the block buys only one thing:
+another step's pieces can fill a step's idle cores while its last pieces
+finish. What it costs is a share held after the Python work is done, which
+is what Phase D existed to give back. A step reserving its own cores costs a
+tail of about one piece's length instead. To be revisited if real testing
+shows a shared pool doing better.
+
+## Testing
+
+### Testing and Validation: Multi-Node Distribution
+
+Date last modified: 2026/10/23
+
+Contributors:
+
+- Xylar Asay-Davis
+- Claude
+
+A test shall hand out work and verify from the results which node each
+piece ran on, confirming that more than one node was used. This is the
 central claim of the phase and should be checked directly rather than
 inferred from timing.
 
@@ -615,7 +639,7 @@ error, and the run shall not hang.
 
 ### Testing and Validation: Is It Worth It
 
-Date last modified: 2026/08/23
+Date last modified: 2026/10/23
 
 Contributors:
 
@@ -623,17 +647,20 @@ Contributors:
 - Claude
 
 Validation shall compare the same analysis workload run three ways: as
-ordinary Phase B steps, through the pool on one node, and through the pool on
-several. The comparison shall include the pool's own lifecycle cost.
+ordinary Phase B steps, as one step handing out its work on one node, and as
+the same step on several. The comparison shall include what starting the
+residents costs.
 
-If the pool does not beat Phase B steps on the real workload, that is a
-finding, and it should be recorded rather than worked around.
+If handing out work does not beat Phase B steps on the real workload, that
+is a finding, and it should be recorded rather than worked around. The same
+comparison is what revisits the two tentative decisions: whether warm
+workers, or a shared pool, would have done better.
 
 The measurement already in hand does not decide this, and it is worth being
 clear about why. It was taken on one program, on one node, using fork, with
 a critical path dominated by tasks that would be rewritten before they ever
-ran here. It establishes that the work is fine-grained and that a worker's
-resident inputs are the quantity to watch. It does not establish what a pool
-is worth, because the version of the workload that would run under one does
-not exist yet. The comparison has to be made against Polaris's own steps,
+ran here. It establishes that the work is fine-grained and that a child's
+resident inputs are the quantity to watch. It does not establish what
+handing out work is worth, because the version of the workload that would
+run that way does not exist yet. The comparison has to be made against Polaris's own steps,
 and this phase should not claim a speedup it has not measured on them.
