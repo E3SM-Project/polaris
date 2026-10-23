@@ -41,6 +41,40 @@ For background on how these files are rendered and used, see:
 If Spack dependencies changed in a way that affects shared machine deployments,
 follow the full workflow in {ref}`dev-updating-spack`.
 
+(dev-dependency-branch)=
+
+## Testing a Dependency from a Branch
+
+To test a branch of one of polaris' python dependencies, such as
+`geometric_features`, `mpas_tools` or `mosaic`, before it is released, deploy
+polaris as usual and then install the branch into the polaris environment:
+
+```bash
+source load_polaris_<machine>_<compiler>_<mpi>.sh
+git clone -b <branch> git@github.com:<org>/<repo>.git <path>
+python -m pip install --no-deps --no-build-isolation -e <path>
+```
+
+For `mpas_tools`, install `<path>/conda_package` instead.  Only the python
+package comes from the branch; the compiled tools that come with `mpas_tools`
+stay those of the release.
+
+Since the install is editable, pulling new commits to the branch is enough to
+pick them up.  Rerunning `./deploy.py` puts the release back, so repeat the
+`pip install` after each deployment.
+
+`geometric_features` needs one more step.  The load script points
+`GEOMETRIC_DATA_DIR` at the data that came with the release, so features that
+the branch adds or changes are missing (they fail to download with a 404
+error).  After each time you source the load script, run:
+
+```bash
+export GEOMETRIC_DATA_DIR=<path>/geometric_data
+```
+
+Job scripts source the load script themselves, so add the same line to a job
+script just after its `source load_polaris_env.sh`.
+
 ## Notes
 
 - Miniforge/Micromamba/Miniconda are no longer required for deployment.
