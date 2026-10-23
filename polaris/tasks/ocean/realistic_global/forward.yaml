@@ -91,6 +91,12 @@ mpas-ocean:
       - rmsGlobalStats
 
 Omega:
+  HorzMesh:
+    # scale the horizontal mixing coefficients with cell width, so that they
+    # apply at the mesh's median cell width.  Stated rather than left to
+    # Omega's default, so that the coefficients set here and the scaling
+    # they assume cannot come apart.
+    MeshScalingEnable: true
   Tendencies:
     TracerDiffTendencyEnable: false
     TracerHyperDiffTendencyEnable: false
