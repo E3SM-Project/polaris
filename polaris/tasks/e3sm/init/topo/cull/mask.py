@@ -783,9 +783,21 @@ class CullMaskStep(Step):
     def _check_critical_passages(self):
         """
         Check that removing land-locked cells did not close any critical
-        ocean passage.
+        ocean passage, unless the mesh is too coarse to keep them open.
         """
         logger = self.logger
+        config = self.config
+        min_cell_width = config.getfloat('spherical_mesh', 'min_cell_width')
+        max_cell_width = config.getfloat(
+            'cull_mesh', 'critical_passage_check_max_cell_width'
+        )
+        if min_cell_width > max_cell_width:
+            logger.info(
+                f'The mesh resolution ({min_cell_width:g} km) is coarser '
+                f'than {max_cell_width:g} km, skipping the passage check.'
+            )
+            return
+
         filename = 'critical_ocean_transects_widened.nc'
         if not os.path.exists(filename):
             logger.info(

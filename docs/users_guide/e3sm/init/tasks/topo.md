@@ -117,6 +117,10 @@ Common user-tunable options are:
 - `cpus_per_task` and `min_cpus_per_task`: Thread-count settings for culling.
 - `include_critical_transects`: Whether critical land and ocean transects from
 	`geometric_features` are enforced during masking.
+- `critical_passage_check_max_cell_width`: The coarsest mesh resolution
+	(in km, compared with `min_cell_width`) at which the mask step checks that
+	no critical ocean passage loses cells.  The check is skipped on coarser
+	meshes.
 - `sea_ice_latitude_threshold`: Latitude poleward of which ocean transects are
 	widened and sea ice is taken to form, so cells without a usable velocity
 	vertex are removed from the sea-ice domain.
@@ -163,4 +167,6 @@ removing such cells would close a critical ocean passage, in which case it
 names the passage, or if the sea-ice criteria remove a whole sea, in which
 case it gives the sea's location.  Removing a dead end of the ocean, a cell
 left with fewer than two ocean neighbors, cannot close a passage, so a
-passage that ends in one on a coarse mesh does not fail the step.
+passage that ends in one on a coarse mesh does not fail the step.  The
+passage check is skipped on meshes coarser than
+`critical_passage_check_max_cell_width` (240 km by default).
