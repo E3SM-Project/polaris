@@ -23,6 +23,7 @@ rather than being pickled by value, which would quietly carry whatever it
 closed over -- often the whole step -- to every piece.
 """
 
+import json
 import os
 import pickle
 import time
@@ -41,6 +42,10 @@ Slot = Tuple[str, int]
 # how many pieces that ran somewhere other than their core are described
 # one by one before the rest are only counted
 _PROBLEMS_SHOWN = 10
+
+# written beside a step that handed out work, saying how much it handed out
+# and how long its cores were busy, for the run to report
+PIECES_SUMMARY = 'polaris_pieces.json'
 
 
 class PieceFailed(RuntimeError):
@@ -216,6 +221,8 @@ class Pieces:
         Let go of the residents, which stops anything still running, and say
         whether any piece ran somewhere other than the core it was given.
         """
+        if self.records:
+            self._write_summary()
         if self.problems:
             shown = self.problems[:_PROBLEMS_SHOWN]
             hidden = len(self.problems) - len(shown)
@@ -241,6 +248,30 @@ class Pieces:
 
     def __exit__(self, *args) -> None:
         self.close()
+
+    def _write_summary(self) -> None:
+        """Say how much was handed out and how long the cores were busy."""
+        summary = {
+            'pieces': len(self.records),
+            'failed': sum(
+                1 for record in self.records if record['outcome'] != 'done'
+            ),
+            'cores': self.cores,
+            'busy_seconds': round(
+                sum(record['seconds'] for record in self.records), 3
+            ),
+            'hosts': sorted(
+                {record['host'] for record in self.records if record['host']}
+            ),
+        }
+        try:
+            with open(
+                os.path.join(self._step.work_dir, PIECES_SUMMARY), 'w'
+            ) as handle:
+                json.dump(summary, handle)
+        except OSError:
+            # what the step did is in its log either way
+            pass
 
     def _check_where(self, slot: Slot, where: dict) -> None:
         """

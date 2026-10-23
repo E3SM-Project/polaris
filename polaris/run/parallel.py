@@ -23,6 +23,7 @@ decomposition depend on scheduling timing, and its results with it.
 """
 
 import argparse
+import json
 import os
 import signal
 import socket
@@ -31,7 +32,7 @@ import time
 from contextlib import contextmanager
 from datetime import datetime, timedelta
 from functools import partial
-from typing import Dict, Iterator, List, Optional
+from typing import Dict, Iterator, List, Optional, Set
 
 import mpas_tools.io
 from mache.parallel import PlacementSupport
@@ -58,6 +59,7 @@ from polaris.run.lifecycle import (
     read_cf_status_from_logs,
     read_property_status_from_logs,
 )
+from polaris.run.pieces import PIECES_SUMMARY
 from polaris.run.pool import ResourcePool
 from polaris.run.residents import Residents, resident_options
 from polaris.run.results import TaskResult, write_suite_results
@@ -225,8 +227,12 @@ def _run(
         )
     finally:
         if residents is not None:
+            stopping = time.time()
             residents.stop()
-            events.record('residents_stopped')
+            events.record(
+                'residents_stopped', took=round(time.time() - stopping, 3)
+            )
+            _report_residents(residents, time.time() - stopping, logger)
     elapsed = time.time() - started
 
     tracker.finish()
@@ -671,6 +677,8 @@ def _finish(
         neighbors = describe_neighbors(pool, step_run.reservation, steps)
     pool.release(step_run.reservation)
 
+    _record_pieces(steps.get(outcome.step_path), outcome, events)
+
     if outcome.succeeded:
         succeeded.add(outcome.step_path)
         events.record(
@@ -722,6 +730,59 @@ def _finish(
         )
 
 
+def _record_pieces(step, outcome, events) -> None:
+    """
+    Record how much work a step handed out, and how much of the time it held
+    its cores they were idle.
+
+    Its cores are reserved for as long as it runs, and a piece runs on each
+    only while there is one to run, so the difference is what reserving
+    cores per step costs: the tail while its last pieces finish, and any
+    time it spent doing something else.
+    """
+    summary = _pieces_summary(step)
+    if summary is None:
+        return
+    reserved = summary['cores'] * outcome.seconds
+    events.record(
+        'step_pieces',
+        step=outcome.step_path,
+        pieces=summary['pieces'],
+        failed=summary['failed'],
+        cores=summary['cores'],
+        hosts=summary['hosts'],
+        busy=summary['busy_seconds'],
+        idle=round(max(reserved - summary['busy_seconds'], 0.0), 3),
+    )
+
+
+def _pieces_summary(step) -> Optional[dict]:
+    """What a step that handed out work left beside its log, if anything."""
+    if step is None or not step.hands_out_work:
+        return None
+    filename = os.path.join(step.work_dir, PIECES_SUMMARY)
+    try:
+        with open(filename) as handle:
+            return json.load(handle)
+    except (OSError, ValueError):
+        return None
+
+
+def _report_residents(residents, stop_seconds, logger) -> None:
+    """Say what having residents cost: starting them and stopping them."""
+    nodes = len(residents.facts) + len(residents.lost)
+    if residents.ready_at is not None and residents.started is not None:
+        ready = f'ready after {residents.ready_at - residents.started:.1f}s'
+    else:
+        ready = 'never all ready'
+    logger.info('')
+    logger.info(
+        f'Residents: {nodes} node(s), {ready}, {stop_seconds:.1f}s to stop'
+    )
+    if residents.lost:
+        logger.warning(f'  residents lost: {sorted(residents.lost)}')
+
+
 def _log_filename(work_dir: str, path: str) -> str:
     """
     Where one step's output goes.
@@ -754,6 +815,36 @@ def _placement_mismatch(step, logger) -> bool:
         logger.warning('')
         logger.warning(handle.read().rstrip())
     return True
+
+
+def _report_pieces(outcomes, steps, logger) -> None:
+    """
+    Say how much work the steps handed out, over how many nodes, and how
+    busy the cores they reserved for it were.
+    """
+    pieces = 0
+    busy = 0.0
+    reserved = 0.0
+    hosts: Set[str] = set()
+    handing_out = 0
+    for path, outcome in outcomes.items():
+        summary = _pieces_summary(steps.get(path))
+        if summary is None:
+            continue
+        handing_out += 1
+        pieces += summary['pieces']
+        busy += summary['busy_seconds']
+        reserved += summary['cores'] * outcome.seconds
+        hosts.update(summary['hosts'])
+    if handing_out == 0:
+        return
+    share = 100.0 * busy / reserved if reserved > 0 else 0.0
+    logger.info('')
+    logger.info(
+        f'Handed-out work: {pieces} piece(s) from {handing_out} step(s) on '
+        f'{len(hosts)} node(s); their cores were busy {share:.0f}% of the '
+        f'time they were reserved.'
+    )
 
 
 def _comparisons(steps, logger) -> List[str]:
@@ -833,6 +924,8 @@ def _report(outcomes, mismatched, steps, logger, elapsed) -> List[str]:
     for path, outcome in outcomes.items():
         status = success_str if outcome.succeeded else fail_str
         logger.info(f'  {outcome.seconds:8.1f}s {status} {path}')
+
+    _report_pieces(outcomes, steps, logger)
 
     elapsed_str = str(timedelta(seconds=round(elapsed)))
     logger.info(f'Total runtime: {elapsed_str}')

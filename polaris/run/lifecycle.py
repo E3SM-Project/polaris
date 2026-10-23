@@ -27,7 +27,7 @@ from polaris.run import (
 )
 from polaris.run.confinement import check_confinement
 from polaris.run.memory import format_bytes
-from polaris.run.pieces import Pieces, slots_from
+from polaris.run.pieces import PIECES_SUMMARY, Pieces, slots_from
 from polaris.run.residents import serial_resources
 
 
@@ -332,6 +332,11 @@ def _run_pieces(step):
             f'Step {step.path} hands out work, but was given no cores to '
             f'hand it out to.'
         )
+    # a summary left by an earlier run describes that run and not this one
+    try:
+        os.remove(os.path.join(step.work_dir, PIECES_SUMMARY))
+    except OSError:
+        pass
     with Pieces(step, slots_from(placement), residents) as pieces:
         step.run_pieces(pieces)
 

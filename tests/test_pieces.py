@@ -7,6 +7,7 @@ and end times the pieces themselves recorded, never from how long a call
 took.
 """
 
+import json
 import os
 import signal
 import socket
@@ -17,7 +18,12 @@ from mache.parallel import ResourcePlacement
 
 from polaris import Component, Step
 from polaris.run.confinement import PLACEMENT_MISMATCH_LOG
-from polaris.run.pieces import PieceFailed, Pieces, slots_from
+from polaris.run.pieces import (
+    PIECES_SUMMARY,
+    PieceFailed,
+    Pieces,
+    slots_from,
+)
 from polaris.run.residents import Residents
 
 # what the pieces run, which must be importable from the residents just as a
@@ -249,3 +255,15 @@ def test_pieces_that_ran_where_they_were_meant_to_leave_no_report(
     assert {record['host'] for record in pieces.records} == {
         socket.gethostname().split('.')[0]
     }
+
+
+def test_what_was_handed_out_is_summarized_for_the_run(tmp_path, residents):
+    with _pieces(tmp_path, residents) as pieces:
+        pieces.map(span, [0.2, 0.2, 0.2])
+    with open(tmp_path / PIECES_SUMMARY) as handle:
+        summary = json.load(handle)
+    assert summary['pieces'] == 3
+    assert summary['failed'] == 0
+    assert summary['cores'] == 2
+    assert summary['busy_seconds'] >= 0.6
+    assert summary['hosts'] == [socket.gethostname().split('.')[0]]

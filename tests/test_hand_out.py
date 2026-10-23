@@ -22,7 +22,8 @@ from polaris.run.confinement import PLACEMENT_MISMATCH_LOG, check_confinement
 from polaris.run.events import EventStream, read_events
 from polaris.run.executor import reap_one, start_step
 from polaris.run.graph import build_step_graph
-from polaris.run.parallel import _loop, _start_residents
+from polaris.run.parallel import _loop, _report, _start_residents
+from polaris.run.pieces import PIECES_SUMMARY
 from polaris.run.pool import ResourcePool
 from polaris.run.residents import Residents, stop_serial_residents
 from polaris.run.serial import run_step_in_process
@@ -281,3 +282,31 @@ def test_polaris_serial_starts_a_resident_for_a_step_that_hands_out_work(
     for pid in resident_pids:
         with pytest.raises(ChildProcessError):
             os.waitpid(pid, os.WNOHANG)
+
+
+def test_the_run_records_and_reports_what_was_handed_out(
+    tmp_path, residents, caplog
+):
+    step = _squares(tmp_path)
+    outcomes, recorded = _drive(tmp_path, [step], residents)
+    pieces = [event for event in recorded if event['event'] == 'step_pieces']
+    assert len(pieces) == 1
+    assert pieces[0]['pieces'] == 5 and pieces[0]['cores'] == 2
+    assert pieces[0]['idle'] >= 0.0
+    with caplog.at_level(logging.INFO, logger='report'):
+        _report(
+            outcomes, [], {step.path: step}, logging.getLogger('report'), 1.0
+        )
+    assert 'Handed-out work: 5 piece(s) from 1 step(s) on 1 node(s)' in (
+        caplog.text
+    )
+
+
+def test_a_summary_from_an_earlier_run_is_not_reported(tmp_path, residents):
+    step = _squares(tmp_path)
+    stale = os.path.join(step.work_dir, PIECES_SUMMARY)
+    with open(stale, 'w') as handle:
+        handle.write('{"pieces": 99}')
+    _drive(tmp_path, [step], residents)
+    with open(stale) as handle:
+        assert '"pieces": 5' in handle.read()
