@@ -13,8 +13,10 @@ from polaris.tasks.e3sm.init.topo.combine import (
 )
 from polaris.tasks.e3sm.init.topo.combine.step import CombineStep
 from polaris.tasks.e3sm.init.topo.remap.mask import MaskTopoStep
+from polaris.tasks.e3sm.init.topo.remap.prepare import PrepareRemapTopoStep
 from polaris.tasks.e3sm.init.topo.remap.remap import RemapTopoStep
 from polaris.tasks.e3sm.init.topo.remap.viz import VizRemappedTopoStep
+from polaris.tasks.e3sm.init.topo.remap.weights import RemapTopoWeightsStep
 from polaris.tasks.mesh.base.steps import get_base_mesh_steps
 
 
@@ -112,6 +114,26 @@ def get_remap_topo_steps(mesh_name, smoothing=False, include_viz=False):
     for suffix in suffixes:
         step_name = f'remap_{suffix}'
         subdir = os.path.join(mesh_name, 'topo', 'remap', suffix)
+        smoothing = suffix == 'smoothed'
+        prepare_step = component.get_or_create_shared_step(
+            step_cls=PrepareRemapTopoStep,
+            subdir=os.path.join(subdir, 'prepare'),
+            config=config,
+            config_filename=config_filename,
+            base_mesh_step=base_mesh_step,
+            name=f'{step_name}_prepare',
+            smoothing=smoothing,
+            unsmoothed_topo=unsmoothed_topo,
+        )
+        weights_step = component.get_or_create_shared_step(
+            step_cls=RemapTopoWeightsStep,
+            subdir=os.path.join(subdir, 'weights'),
+            config=config,
+            config_filename=config_filename,
+            prepare_step=prepare_step,
+            combine_topo_step=combine_topo_step,
+            name=f'{step_name}_weights',
+        )
         remap_step = component.get_or_create_shared_step(
             step_cls=RemapTopoStep,
             subdir=subdir,
@@ -120,16 +142,19 @@ def get_remap_topo_steps(mesh_name, smoothing=False, include_viz=False):
             base_mesh_step=base_mesh_step,
             mask_topo_step=mask_step,
             combine_topo_step=combine_topo_step,
+            prepare_step=prepare_step,
+            weights_step=weights_step,
             name=step_name,
-            smoothing=(suffix == 'smoothed'),
+            smoothing=smoothing,
             unsmoothed_topo=unsmoothed_topo,
         )
 
+        key = f'remap_{suffix}_topo'
+        steps[f'{key}_prepare'] = prepare_step
+        steps[f'{key}_weights'] = weights_step
+        steps[key] = remap_step
         if suffix == 'unsmoothed':
             unsmoothed_topo = remap_step
-            steps['remap_unsmoothed_topo'] = remap_step
-        else:
-            steps['remap_smoothed_topo'] = remap_step
 
         if include_viz:
             step_name = f'viz_remapped_{suffix}'

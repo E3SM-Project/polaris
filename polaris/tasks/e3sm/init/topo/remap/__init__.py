@@ -1,6 +1,9 @@
 from polaris.tasks.e3sm.init.topo.remap.mask import (
     MaskTopoStep as MaskTopoStep,
 )
+from polaris.tasks.e3sm.init.topo.remap.prepare import (
+    PrepareRemapTopoStep as PrepareRemapTopoStep,
+)
 from polaris.tasks.e3sm.init.topo.remap.remap import (
     RemapTopoStep as RemapTopoStep,
 )
@@ -15,4 +18,7 @@ from polaris.tasks.e3sm.init.topo.remap.tasks import (
 )
 from polaris.tasks.e3sm.init.topo.remap.viz import (
     VizRemappedTopoStep as VizRemappedTopoStep,
+)
+from polaris.tasks.e3sm.init.topo.remap.weights import (
+    RemapTopoWeightsStep as RemapTopoWeightsStep,
 )

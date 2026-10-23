@@ -85,10 +85,18 @@
    MaskTopoStep.define_masks
    MaskTopoStep.run
 
+   PrepareRemapTopoStep
+   PrepareRemapTopoStep.setup
+   PrepareRemapTopoStep.define_smoothing
+   PrepareRemapTopoStep.run
+
+   RemapTopoWeightsStep
+   RemapTopoWeightsStep.setup
+   RemapTopoWeightsStep.constrain_resources
+   RemapTopoWeightsStep.runtime_setup
+
    RemapTopoStep
    RemapTopoStep.setup
-   RemapTopoStep.constrain_resources
-   RemapTopoStep.define_smoothing
    RemapTopoStep.run
 
    RemapTopoTask

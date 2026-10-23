@@ -4,7 +4,6 @@ import numpy as np
 import xarray as xr
 from mpas_tools.io import open_dataset, write_netcdf
 from mpas_tools.logging import check_call
-from pyremap import MpasCellMeshDescriptor
 
 from polaris import Step
 from polaris.cf import add_cf_conventions
@@ -12,6 +11,7 @@ from polaris.io import symlink
 from polaris.tasks.e3sm.init.topo.combine.step import (
     COMBINE_TOPO_VALIDATE_VARS,
 )
+from polaris.tasks.e3sm.init.topo.remap.weights import MAPPING_FILENAME
 
 
 def get_remapped_topo_validate_vars():
@@ -50,10 +50,12 @@ def _frac_name(var):
 class RemapTopoStep(Step):
     """
     A step for remapping topography data such as base elevation and ice sheet
-    properites from a cubed-sphere grid to a global MPAS base mesh.
+    properties from a cubed-sphere grid to a global MPAS base mesh, using the
+    weights from
+    {py:class}`polaris.tasks.e3sm.init.topo.remap.RemapTopoWeightsStep`.
 
-    Note: This step cannot descend from
-    {py:class}`polaris.remap.MappingFileStep` because the soruce mesh is a
+    Note: The step for making the weights cannot descend from
+    {py:class}`polaris.remap.MappingFileStep` because the source mesh is a
     cubed-sphere grid, which is not currently supported by pyremap.
 
     Attributes
@@ -69,17 +71,18 @@ class RemapTopoStep(Step):
         The step that applies a mask to a global topography dataset on a cubed
         sphere grid
 
+    prepare_step : polaris.tasks.e3sm.init.topo.remap.PrepareRemapTopoStep
+        The step that decides on smoothing and makes the SCRIP file for the
+        MPAS mesh
+
+    weights_step : polaris.tasks.e3sm.init.topo.remap.RemapTopoWeightsStep
+        The step that makes the remapping weights
+
     smoothing : bool, optional
         Whether smoothing will be applied as part of the remapping
 
     unsmoothed_topo : polaris.tasks.e3sm.init.topo.RemapTopoStep, optional
         A step with unsmoothed topography
-
-    expand_distance : float or xarray.DataArray
-        The distance to expand the topography mask
-
-    expand_factor : float or xarray.DataArray
-        The factor to expand the topography mask
 
     do_remapping : bool
         Whether to remap the topography.  If False, the step will symlink
@@ -92,6 +95,8 @@ class RemapTopoStep(Step):
         base_mesh_step,
         combine_topo_step,
         mask_topo_step,
+        prepare_step,
+        weights_step,
         name,
         subdir,
         smoothing=False,
@@ -116,6 +121,13 @@ class RemapTopoStep(Step):
             The step that applies a mask to a global topography dataset on a
             cubed sphere grid
 
+        prepare_step : polaris.tasks.e3sm.init.topo.remap.PrepareRemapTopoStep
+            The step that decides on smoothing and makes the SCRIP file for
+            the MPAS mesh
+
+        weights_step : polaris.tasks.e3sm.init.topo.remap.RemapTopoWeightsStep
+            The step that makes the remapping weights
+
         name : str
             the name of the step
 
@@ -134,225 +146,75 @@ class RemapTopoStep(Step):
         self.base_mesh_step = base_mesh_step
         self.combine_topo_step = combine_topo_step
         self.mask_topo_step = mask_topo_step
+        self.prepare_step = prepare_step
+        self.weights_step = weights_step
         self.smoothing = smoothing
         self.unsmoothed_topo = unsmoothed_topo
+        self.do_remapping = True
+
+        # whether there is remapping to do is decided by the prepare step
+        # when it runs, and the weights exist only if there is, so both
+        # steps are found through dependencies rather than input files
+        self.add_dependency(prepare_step, name='prepare')
+        self.add_dependency(weights_step, name='weights')
 
         self.add_output_file(
             filename='topography_remapped.nc',
             validate_vars=get_remapped_topo_validate_vars(),
         )
         self.add_cf_check('topography_remapped.nc')
-        self.expand_distance = 0.0
-        self.expand_factor = 1.0
-        self.do_remapping = True
 
     def setup(self):
         """
-        Set up the step in the work directory, including downloading any
-        dependencies.
+        Set up the step in the work directory, including linking input files
         """
         super().setup()
-        config = self.config
-        section = config['remap_topography']
-
-        base_path = self.base_mesh_step.path
-        base_filename = self.base_mesh_step.config.get(
-            'spherical_mesh',
-            'mpas_mesh_filename',
-        )
-        target = os.path.join(base_path, base_filename)
-        self.add_input_file(filename='base_mesh.nc', work_dir_target=target)
-
-        combine_topo_step = self.combine_topo_step
-        src_scrip_filename = combine_topo_step.dst_scrip_filename
 
         masked_topo_step = self.mask_topo_step
-        topo_filename = 'topography_masked.nc'
-
         self.add_input_file(
             filename='topography.nc',
-            work_dir_target=os.path.join(masked_topo_step.path, topo_filename),
-        )
-        self.add_input_file(
-            filename='source.scrip.nc',
             work_dir_target=os.path.join(
-                combine_topo_step.path, src_scrip_filename
+                masked_topo_step.path, 'topography_masked.nc'
             ),
         )
 
-        self.ntasks = section.getint('ntasks')
-        self.min_tasks = section.getint('min_tasks')
-
-    def constrain_resources(self, available_resources):
-        """
-        Constrain ``cpus_per_task`` and ``ntasks`` based on the number of
-        cores available to this step
-
-        Parameters
-        ----------
-        available_resources : dict
-            The total number of cores available to the step
-        """
-        config = self.config
-        section = config['remap_topography']
-        self.ntasks = section.getint('ntasks')
-        self.min_tasks = section.getint('min_tasks')
-        super().constrain_resources(available_resources)
-
-    def define_smoothing(self, ds_unsmoothed):
-        """
-        Define smoothing ``expand_distance`` and ``expand_factor`` fields.
-        Derived classes should override this method to create spatially
-        varying smoothing fields.  An ``expand_distance`` of 0.0 and an
-        ``expand_factor`` of 1.0 will not smooth the topography
-
-        The default implementation returns constant values from the config
-        file.
-
-        Parameters
-        ----------
-        ds_unsmoothed : polaris.tasks.e3sm.init.topo.RemapTopoStep
-            The step with unsmoothed topography
-
-        Returns
-        -------
-        expand_distance : xarray.DataArray or float
-            The distance to expand the topography mask, same shape as
-            fields in ``ds_unsmoothed`` if not constant
-
-        expand_factor : xarray.DataArray or float
-            The factor to expand the topography mask, same shape as
-            fields in ``ds_unsmoothed`` if not constant
-        """
-        config = self.config
-        section = config['remap_topography']
-        expand_distance = section.getfloat('expand_distance')
-        expand_factor = section.getfloat('expand_factor')
-
-        return expand_distance, expand_factor
+        if self.smoothing and self.unsmoothed_topo is not None:
+            self.add_input_file(
+                filename='topography_unsmoothed.nc',
+                work_dir_target=os.path.join(
+                    self.unsmoothed_topo.path, 'topography_remapped.nc'
+                ),
+            )
 
     def run(self):
         """
         Run this step of the test case
         """
-        super().run()
-        self._setup_smoothing()
+        self.do_remapping = self.dependencies['prepare'].do_remapping
+        if not self.do_remapping:
+            # we already have unsmoothed topography and we're not doing
+            # smoothing so we can just symlink the unsmoothed results
+            symlink('topography_unsmoothed.nc', 'topography_remapped.nc')
+            return
 
-        if self.do_remapping:
-            self._create_target_scrip_file()
-            self._create_weights()
-            self._remap_to_target()
-            self._renormalize_remapped_topo()
-
-    def _setup_smoothing(self):
-        """
-        If we are smoothing but no smoothing was actually requested, symlink
-        to the unsmoothed topography
-        """
-        if self.smoothing and self.unsmoothed_topo is not None:
-            unsmoothed_filename = 'topography_unsmoothed.nc'
-            target_filename = 'topography_remapped.nc'
-            unsmoothed_path = self.unsmoothed_topo.work_dir
-            target = os.path.join(unsmoothed_path, target_filename)
-            symlink(target, unsmoothed_filename)
-
-            ds_unsmoothed = open_dataset(unsmoothed_filename)
-            self.expand_distance, self.expand_factor = self.define_smoothing(
-                ds_unsmoothed
-            )
-
-            if self.expand_distance == 0.0 and self.expand_factor == 1.0:
-                # we already have unsmoothed topography and we're not doing
-                # smoothing so we can just symlink the unsmoothed results
-                symlink(unsmoothed_filename, target_filename)
-
-                self.do_remapping = False
-
-    def _create_target_scrip_file(self):
-        """
-        Create target SCRIP file from MPAS mesh file.
-        """
-        logger = self.logger
-        logger.info('Create source SCRIP file')
-        netcdf4_filename = 'target.scrip.netcdf4.nc'
-
-        mesh_name = self.base_mesh_step.mesh_name
-
-        descriptor = MpasCellMeshDescriptor(
-            filename='base_mesh.nc',
-            mesh_name=mesh_name,
+        mapping_filename = os.path.join(
+            self.dependencies['weights'].work_dir, MAPPING_FILENAME
         )
-        descriptor.to_scrip(
-            netcdf4_filename,
-            expand_dist=self.expand_distance,
-            expand_factor=self.expand_factor,
-        )
+        self._remap_to_target(mapping_filename)
+        self._renormalize_remapped_topo()
 
-        # writing directly in NETCDF3_64BIT_DATA proved prohibitively slow
-        # so we will use ncks to convert
-        args = [
-            'ncks',
-            '-O',
-            '-5',
-            netcdf4_filename,
-            'target.scrip.nc',
-        ]
-        check_call(args, logger)
-
-        logger.info('  Done.')
-
-    def _create_weights(self):
-        """
-        Create mapping weights file using mbtempest
-        """
-        logger = self.logger
-        logger.info('Create weights file')
-
-        method = 'conserve'
-
-        args = [
-            'mbtempest',
-            '--type',
-            '5',
-            '--load',
-            'source.scrip.nc',
-            '--load',
-            'target.scrip.nc',
-            '--file',
-            f'map_source_to_target_{method}.nc',
-            '--weights',
-            '--gnomonic',
-            '--boxeps',
-            '1e-9',
-        ]
-
-        self.component.run_parallel_command(
-            args=args,
-            cpus_per_task=self.cpus_per_task,
-            ntasks=self.ntasks,
-            openmp_threads=self.openmp_threads,
-            logger=self.logger,
-            gpus=self.gpus,
-            placement=self.placement,
-            memory_cap=self.memory,
-        )
-
-        logger.info('  Done.')
-
-    def _remap_to_target(self):
+    def _remap_to_target(self, mapping_filename):
         """
         Remap topography onto MPAS target mesh
         """
         logger = self.logger
         logger.info('Remap to target')
 
-        method = 'conserve'
-
         # Build command args
         args = [
             'ncremap',
             '-m',
-            f'map_source_to_target_{method}.nc',
+            mapping_filename,
             '--vrb=1',
             'topography.nc',
             'topography_ncremap.nc',
