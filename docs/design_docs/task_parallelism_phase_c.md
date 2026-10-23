@@ -718,11 +718,12 @@ A test shall hand out a piece of work that changes the working directory and
 mutates a library default, and confirm that the next piece forked on the
 same node sees neither.
 
-For work handed to Dask workers, tests shall include work that deliberately
-violates the rules -- changes the working directory, mutates a library
-default, writes outside its work directory -- and confirm the conformance
-checks catch it. A test shall also run two pieces in one worker at the same
-time and confirm that neither affects the other's results.
+Checking that work handed to Dask workers follows the rules -- that it
+leaves the working directory and library defaults alone and writes only in
+its step's work directory, even with other tasks running beside it in the
+same worker -- is deferred until there are steps that use Dask. Those will
+show which defaults matter. Until then, a Dask task is trusted to follow the
+rules, as a step's own `run()` is.
 
 ### Testing and Validation: Failure Handling
 
