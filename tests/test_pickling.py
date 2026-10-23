@@ -8,10 +8,12 @@ so anything that keeps that link makes each step's pickle a copy of the
 whole component.
 """
 
+import os
 import pickle
 
 from polaris import Component, Step, Task
 from polaris.config import PolarisConfigParser
+from polaris.run import complete_step_run, load_dependencies
 
 
 def _make_component(name='ocean', task_count=1):
@@ -27,6 +29,30 @@ def _make_component(name='ocean', task_count=1):
 def _first_step(component):
     task = component.tasks['task_0']
     return task.steps['step_0']
+
+
+def _make_tasks_sharing_a_step(work_dir, task_count):
+    """
+    Build ``task_count`` tasks that share one step, as tasks share a base
+    mesh or topography step.  Each also has a step that depends on another
+    of its own, which is what ``polaris serial`` pickles and loads.
+    """
+    component = Component(name='ocean')
+    shared = Step(component=component, name='shared')
+    pairs = []
+    for index in range(task_count):
+        task = Task(component=component, name=f'task_{index}')
+        task.add_step(shared)
+        dependency = Step(component=component, name=f'dependency_{index}')
+        dependent = Step(component=component, name=f'dependent_{index}')
+        dependent.add_dependency(dependency)
+        for step in (dependency, dependent):
+            step.work_dir = os.path.join(work_dir, step.name)
+            os.makedirs(step.work_dir)
+            task.add_step(step)
+        component.add_task(task)
+        pairs.append((dependency, dependent))
+    return shared, pairs
 
 
 def test_a_step_keeps_its_own_state():
@@ -98,6 +124,53 @@ def test_a_step_does_not_carry_the_rest_of_the_component():
     assert restored.component.tasks == dict()
     assert restored.component.steps == dict()
     assert restored.component.configs == dict()
+
+
+def test_a_step_does_not_carry_the_tasks_that_share_it(tmp_path):
+    """
+    ``tasks`` lets setup add and remove a step, and nothing reads it after
+    setup.  For a step shared between tasks, it reaches all of them.
+    """
+    shared, _ = _make_tasks_sharing_a_step(str(tmp_path), task_count=3)
+    assert len(shared.tasks) == 3
+
+    restored = pickle.loads(pickle.dumps(shared))
+
+    assert restored.tasks == dict()
+
+
+def test_a_shared_step_pickle_does_not_grow_with_the_tasks_sharing_it(
+    tmp_path,
+):
+    few, _ = _make_tasks_sharing_a_step(str(tmp_path / 'few'), task_count=1)
+    many, _ = _make_tasks_sharing_a_step(str(tmp_path / 'many'), task_count=20)
+
+    assert len(pickle.dumps(few)) == len(pickle.dumps(many))
+
+
+def test_step_pickles_do_not_grow_as_tasks_run_in_one_process(
+    tmp_path, monkeypatch
+):
+    """
+    ``polaris serial`` replaces each dependency with the copy it unpickles,
+    and the copy stays in the process for the rest of the run.  A pickle that
+    could reach other tasks carried every earlier copy along, so each task's
+    pickles were larger than the last task's.
+    """
+    monkeypatch.chdir(tmp_path)
+    _, pairs = _make_tasks_sharing_a_step(str(tmp_path), task_count=4)
+
+    sizes = []
+    for dependency, dependent in pairs:
+        complete_step_run(dependency)
+        load_dependencies(dependent)
+        sizes.append(
+            os.path.getsize(
+                os.path.join(dependency.work_dir, 'step_after_run.pickle')
+            )
+        )
+
+    assert sizes == [sizes[0]] * len(sizes)
 
 
 def test_a_config_does_not_carry_the_tasks_that_share_it():
