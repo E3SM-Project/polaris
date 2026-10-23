@@ -142,6 +142,11 @@ a step of its own ahead of it.  Since a step with a command never calls
 own that uses the launch's outputs.  Splitting a cached step this way costs
 nothing when it is cached: setup leaves out the steps whose outputs only
 cached steps use (see {ref}`dev-step-skipped-with-cache`).
+{py:class}`polaris.remap.MappingFileStep` and the steps that combine and remap
+topography in `e3sm/init` are examples.
+
+{py:meth}`polaris.Component.run_parallel_command` raises an error when it is
+called anywhere but in the framework's launch of a step's command.
 
 ### Declare the resources you need
 

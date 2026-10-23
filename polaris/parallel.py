@@ -1,10 +1,18 @@
+import contextvars
 import inspect
+from contextlib import contextmanager
 
 import mache
 from mache.parallel import ParallelSystem, ResourcePlacement
 
 from polaris.component_graph import get_components_in_use
 from polaris.config import PolarisConfigParser
+
+# whether the framework is launching a step's command, the only time a
+# parallel command may be run
+_launching_step_command = contextvars.ContextVar(
+    'launching_step_command', default=False
+)
 
 
 def check_mache_supports_placement():
@@ -113,6 +121,37 @@ def _check_placement_gpus_are_per_node():
             f'Update mache to a release that gives a placement one set '
             f'of GPUs per node.'
         )
+
+
+@contextmanager
+def launching_step_command():
+    """
+    Mark the framework's launch of a step's command, the only place
+    :py:meth:`polaris.Component.run_parallel_command` may be called.
+
+    A step launches at most one thing, and only through its command
+    (``args``).  Under ``polaris parallel``, a launch from anywhere else is
+    not confined to the step's part of the allocation, and a step with no
+    command may be run on another node, where a launch would start from
+    inside a job step.
+    """
+    token = _launching_step_command.set(True)
+    try:
+        yield
+    finally:
+        _launching_step_command.reset(token)
+
+
+def is_launching_step_command():
+    """
+    Whether the framework is launching a step's command
+
+    Returns
+    -------
+    launching : bool
+        True inside :py:func:`polaris.parallel.launching_step_command`
+    """
+    return _launching_step_command.get()
 
 
 def set_parallel_systems(tasks, config: PolarisConfigParser):

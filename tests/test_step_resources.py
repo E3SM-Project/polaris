@@ -13,6 +13,7 @@ import pickle
 import pytest
 
 from polaris import Component, Step
+from polaris.parallel import launching_step_command
 
 
 def _make_step(**kwargs):
@@ -200,13 +201,14 @@ class _RecordingSystem:
 
 
 def _run(component, **kwargs):
-    component.run_parallel_command(
-        args=['model'],
-        cpus_per_task=1,
-        openmp_threads=1,
-        logger=logging.getLogger('test'),
-        **kwargs,
-    )
+    with launching_step_command():
+        component.run_parallel_command(
+            args=['model'],
+            cpus_per_task=1,
+            openmp_threads=1,
+            logger=logging.getLogger('test'),
+            **kwargs,
+        )
     return component.parallel_system.calls[-1]
 
 

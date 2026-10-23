@@ -14,6 +14,7 @@ import pytest
 from mache.parallel import ResourcePlacement
 
 from polaris import Component, Step
+from polaris.parallel import launching_step_command
 
 
 class _RecordingSystem:
@@ -75,27 +76,29 @@ def test_a_step_is_not_confined_by_default():
 def test_no_placement_reaches_the_launcher_as_none():
     """A step that does not ask to be confined gets today's command."""
     component = _make_component()
-    component.run_parallel_command(
-        args=['model'],
-        cpus_per_task=1,
-        ntasks=2,
-        openmp_threads=1,
-        logger=logging.getLogger('test'),
-    )
+    with launching_step_command():
+        component.run_parallel_command(
+            args=['model'],
+            cpus_per_task=1,
+            ntasks=2,
+            openmp_threads=1,
+            logger=logging.getLogger('test'),
+        )
     assert component.parallel_system.calls[-1]['placement'] is None
 
 
 def test_a_placement_reaches_the_launcher_untouched():
     component = _make_component()
     placement = _placement()
-    component.run_parallel_command(
-        args=['model'],
-        cpus_per_task=1,
-        ntasks=2,
-        openmp_threads=1,
-        logger=logging.getLogger('test'),
-        placement=placement,
-    )
+    with launching_step_command():
+        component.run_parallel_command(
+            args=['model'],
+            cpus_per_task=1,
+            ntasks=2,
+            openmp_threads=1,
+            logger=logging.getLogger('test'),
+            placement=placement,
+        )
     assert component.parallel_system.calls[-1]['placement'] is placement
 
 
@@ -105,7 +108,10 @@ def test_a_placement_that_disagrees_about_gpus_is_refused():
     means whatever built the placement has drifted from the step.
     """
     component = _make_component()
-    with pytest.raises(ValueError, match='They must agree'):
+    with (
+        launching_step_command(),
+        pytest.raises(ValueError, match='They must agree'),
+    ):
         component.run_parallel_command(
             args=['model'],
             cpus_per_task=1,
