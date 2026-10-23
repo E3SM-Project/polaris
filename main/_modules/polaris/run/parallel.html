@@ -138,12 +138,14 @@
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">argparse</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">signal</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">socket</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">sys</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">time</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">contextlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">contextmanager</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">datetime</span><span class="p">,</span> <span class="n">timedelta</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">functools</span><span class="w"> </span><span class="kn">import</span> <span class="n">partial</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Iterator</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">mpas_tools.io</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">mache.parallel</span><span class="w"> </span><span class="kn">import</span> <span class="n">PlacementSupport</span>
@@ -218,15 +220,47 @@
             <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">work_dir</span><span class="p">,</span> <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">suite_name</span><span class="si">}</span><span class="s1">_events.jsonl'</span><span class="p">)</span>
         <span class="p">)</span>
         <span class="k">try</span><span class="p">:</span>
-            <span class="n">failures</span> <span class="o">=</span> <span class="n">_run</span><span class="p">(</span>
-                <span class="n">suite</span><span class="p">,</span> <span class="n">suite_name</span><span class="p">,</span> <span class="n">component</span><span class="p">,</span> <span class="n">logger</span><span class="p">,</span> <span class="n">events</span><span class="p">,</span> <span class="n">work_dir</span><span class="p">,</span> <span class="n">quiet</span>
-            <span class="p">)</span>
+            <span class="k">with</span> <span class="n">_torn_down_by_sigterm</span><span class="p">():</span>
+                <span class="n">failures</span> <span class="o">=</span> <span class="n">_run</span><span class="p">(</span>
+                    <span class="n">suite</span><span class="p">,</span>
+                    <span class="n">suite_name</span><span class="p">,</span>
+                    <span class="n">component</span><span class="p">,</span>
+                    <span class="n">logger</span><span class="p">,</span>
+                    <span class="n">events</span><span class="p">,</span>
+                    <span class="n">work_dir</span><span class="p">,</span>
+                    <span class="n">quiet</span><span class="p">,</span>
+                <span class="p">)</span>
         <span class="k">finally</span><span class="p">:</span>
             <span class="n">events</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
 
     <span class="k">if</span> <span class="n">failures</span><span class="p">:</span>
         <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span></div>
 
+
+
+<span class="nd">@contextmanager</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_torn_down_by_sigterm</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="kc">None</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Tear the run down on SIGTERM, as on Ctrl-C.</span>
+
+<span class="sd">    SIGTERM otherwise ends the scheduler at once, without the teardown that</span>
+<span class="sd">    stops the steps it forked, so they run on with nothing watching them.</span>
+<span class="sd">    Slurm sends it when a job is cancelled or runs out of time, and a user</span>
+<span class="sd">    sends it with ``kill``.  Raising here unwinds the run through that</span>
+<span class="sd">    teardown, and the run exits with the status SIGTERM would have given.</span>
+<span class="sd">    A second SIGTERM while it tears down is ignored, so that it can finish.</span>
+<span class="sd">    """</span>
+    <span class="n">previous</span> <span class="o">=</span> <span class="n">signal</span><span class="o">.</span><span class="n">signal</span><span class="p">(</span><span class="n">signal</span><span class="o">.</span><span class="n">SIGTERM</span><span class="p">,</span> <span class="n">_raise_on_sigterm</span><span class="p">)</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">yield</span>
+    <span class="k">finally</span><span class="p">:</span>
+        <span class="n">signal</span><span class="o">.</span><span class="n">signal</span><span class="p">(</span><span class="n">signal</span><span class="o">.</span><span class="n">SIGTERM</span><span class="p">,</span> <span class="n">previous</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_raise_on_sigterm</span><span class="p">(</span><span class="n">signum</span><span class="p">,</span> <span class="n">frame</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Unwind the run, and ignore any further SIGTERM while it does."""</span>
+    <span class="n">signal</span><span class="o">.</span><span class="n">signal</span><span class="p">(</span><span class="n">signal</span><span class="o">.</span><span class="n">SIGTERM</span><span class="p">,</span> <span class="n">signal</span><span class="o">.</span><span class="n">SIG_IGN</span><span class="p">)</span>
+    <span class="k">raise</span> <span class="ne">SystemExit</span><span class="p">(</span><span class="mi">128</span> <span class="o">+</span> <span class="n">signum</span><span class="p">)</span>
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_run</span><span class="p">(</span><span class="n">suite</span><span class="p">,</span> <span class="n">suite_name</span><span class="p">,</span> <span class="n">component</span><span class="p">,</span> <span class="n">logger</span><span class="p">,</span> <span class="n">events</span><span class="p">,</span> <span class="n">work_dir</span><span class="p">,</span> <span class="n">quiet</span><span class="p">):</span>
