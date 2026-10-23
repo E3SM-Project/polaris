@@ -78,6 +78,7 @@
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Updating Deployment Dependencies</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#where-to-update-dependencies">Where to Update Dependencies</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#recommended-workflow">Recommended Workflow</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#testing-a-dependency-from-a-branch">Testing a Dependency from a Branch</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#notes">Notes</a></li>
 </ul>
 </li>
@@ -157,6 +158,32 @@ configuration, not through the old standalone conda setup workflow.</p>
 </ol>
 <p>If Spack dependencies changed in a way that affects shared machine deployments,
 follow the full workflow in <a class="reference internal" href="updating_spack/index.html#dev-updating-spack"><span class="std std-ref">Updating Shared Spack Environments</span></a>.</p>
+</section>
+<section id="testing-a-dependency-from-a-branch">
+<span id="dev-dependency-branch"></span><h2>Testing a Dependency from a Branch<a class="headerlink" href="#testing-a-dependency-from-a-branch" title="Link to this heading"></a></h2>
+<p>To test a branch of one of polaris’ python dependencies, such as
+<code class="docutils literal notranslate"><span class="pre">geometric_features</span></code>, <code class="docutils literal notranslate"><span class="pre">mpas_tools</span></code> or <code class="docutils literal notranslate"><span class="pre">mosaic</span></code>, before it is released, deploy
+polaris as usual and then install the branch into the polaris environment:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">source</span><span class="w"> </span>load_polaris_&lt;machine&gt;_&lt;compiler&gt;_&lt;mpi&gt;.sh
+git<span class="w"> </span>clone<span class="w"> </span>-b<span class="w"> </span>&lt;branch&gt;<span class="w"> </span>git@github.com:&lt;org&gt;/&lt;repo&gt;.git<span class="w"> </span>&lt;path&gt;
+python<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>--no-deps<span class="w"> </span>--no-build-isolation<span class="w"> </span>-e<span class="w"> </span>&lt;path&gt;
+</pre></div>
+</div>
+<p>For <code class="docutils literal notranslate"><span class="pre">mpas_tools</span></code>, install <code class="docutils literal notranslate"><span class="pre">&lt;path&gt;/conda_package</span></code> instead.  Only the python
+package comes from the branch; the compiled tools that come with <code class="docutils literal notranslate"><span class="pre">mpas_tools</span></code>
+stay those of the release.</p>
+<p>Since the install is editable, pulling new commits to the branch is enough to
+pick them up.  Rerunning <code class="docutils literal notranslate"><span class="pre">./deploy.py</span></code> puts the release back, so repeat the
+<code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span></code> after each deployment.</p>
+<p><code class="docutils literal notranslate"><span class="pre">geometric_features</span></code> needs one more step.  The load script points
+<code class="docutils literal notranslate"><span class="pre">GEOMETRIC_DATA_DIR</span></code> at the data that came with the release, so features that
+the branch adds or changes are missing (they fail to download with a 404
+error).  After each time you source the load script, run:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">export</span><span class="w"> </span><span class="nv">GEOMETRIC_DATA_DIR</span><span class="o">=</span>&lt;path&gt;/geometric_data
+</pre></div>
+</div>
+<p>Job scripts source the load script themselves, so add the same line to a job
+script just after its <code class="docutils literal notranslate"><span class="pre">source</span> <span class="pre">load_polaris_env.sh</span></code>.</p>
 </section>
 <section id="notes">
 <h2>Notes<a class="headerlink" href="#notes" title="Link to this heading"></a></h2>
