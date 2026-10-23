@@ -705,6 +705,16 @@ piece ran on, confirming that more than one node was used. This is the
 central claim of the phase and should be checked directly rather than
 inferred from timing.
 
+It was done on two Chrysalis nodes in October 2026, under both `polaris
+parallel` and `polaris serial`. A step handing out 192 two-second pieces
+over 96 cores took 64 on one node and 32 on the other, and every piece
+reported its host and a single core. A step computing with Dask had a worker
+on each node, with 64 and 32 threads, and each worker's memory limit was
+what the scheduler had reserved on its node. Of 100 two-minute steps that
+launch nothing, the 64 that fit on the scheduler's node ran there and the
+other 36 were forked by the other node's resident. `omega_pr` and `mpaso_pr`
+on three nodes matched baselines from `main`, 128 to 0 and 90 to 0.
+
 ### Testing and Validation: Safety of Work Handed Out
 
 Date last modified: 2026/10/23
@@ -738,6 +748,13 @@ Tests shall cover a piece of work that raises, one that exits its process
 outright, a resident lost mid-run and, for Dask, a worker lost mid-run. In
 each case the step that handed the work out shall fail with an attributable
 error, and the run shall not hang.
+
+Unit tests cover each case. Chrysalis repeated the ones a test machine
+cannot show: a piece that raised failed its step, naming its call, core and
+node and giving its traceback; a Dask worker killed under a task failed its
+step, naming the node and the worker's log; and interrupting the scheduler
+with SIGINT or SIGTERM while pieces, Dask tasks or steps forked by
+residents ran left nothing on any node ten seconds later.
 
 ### Testing and Validation: Is It Worth It
 
