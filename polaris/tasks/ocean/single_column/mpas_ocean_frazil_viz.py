@@ -9,7 +9,7 @@ from polaris.ocean.vertical.diagnostics import (
 MPAS_OCEAN_FRAZIL_TENDENCIES = {
     'frazilLayerThicknessTendency': 'm s$^{-1}$',
     'frazilSalinityTendency': 's$^{-1}$',
-    'frazilTemperatureTendency': 'm degC s$^{-1}$',
+    'frazilTemperatureTendency': 'degC s$^{-1}$',
 }
 
 MPAS_OCEAN_FRAZIL_ACCUMULATED = {
