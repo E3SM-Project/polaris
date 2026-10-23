@@ -16,6 +16,7 @@ import pytest
 from polaris import Component, Step
 from polaris.config import PolarisConfigParser
 from polaris.run import STEP_COMPLETE_LOG
+from polaris.run import residents as residents_module
 from polaris.run.allocation import NodeResources
 from polaris.run.confinement import PLACEMENT_MISMATCH_LOG, check_confinement
 from polaris.run.events import EventStream, read_events
@@ -23,7 +24,8 @@ from polaris.run.executor import reap_one, start_step
 from polaris.run.graph import build_step_graph
 from polaris.run.parallel import _loop, _start_residents
 from polaris.run.pool import ResourcePool
-from polaris.run.residents import Residents
+from polaris.run.residents import Residents, stop_serial_residents
+from polaris.run.serial import run_step_in_process
 
 PREAMBLE = 'Running step:'
 FOOTER = 'execution:'
@@ -260,3 +262,22 @@ def test_a_run_with_no_work_to_hand_out_starts_no_residents(tmp_path):
     )
     assert residents is None
     assert timeout == 1800.0
+
+
+def test_polaris_serial_starts_a_resident_for_a_step_that_hands_out_work(
+    tmp_path,
+):
+    step = _squares(tmp_path)
+    try:
+        run_step_in_process(step, quiet=True)
+        started = residents_module._SERIAL
+        assert started is not None
+        resident_pids = [facts['pid'] for facts in started.facts.values()]
+    finally:
+        stop_serial_residents()
+    with open(os.path.join(step.work_dir, 'squares.txt')) as handle:
+        assert handle.read() == '0,1,4,9,16'
+    assert residents_module._SERIAL is None
+    for pid in resident_pids:
+        with pytest.raises(ChildProcessError):
+            os.waitpid(pid, os.WNOHANG)

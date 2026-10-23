@@ -129,6 +129,8 @@ seaice/api
    residents.Residents
    residents.ResidentDirectory
    residents.resident_options
+   residents.serial_resources
+   residents.stop_serial_residents
    pieces.Pieces
    pieces.PieceFailed
    pieces.slots_from

@@ -28,6 +28,7 @@ from polaris.run import (
 from polaris.run.confinement import check_confinement
 from polaris.run.memory import format_bytes
 from polaris.run.pieces import Pieces, slots_from
+from polaris.run.residents import serial_resources
 
 
 def run_step(task, step, new_log_file, available_resources, step_log_filename):
@@ -311,21 +312,27 @@ def _run_pieces(step):
     """
     Run a step that hands out work, through the residents on its cores.
 
-    The cores are the step's placement, and the residents are whatever ran
-    the step handed it, so a step behaves the same however it was started.
+    Under ``polaris parallel`` the cores are the step's placement and the
+    residents are the run's, both handed to the step by the scheduler.
+    ``polaris serial`` gives a step neither, so the step's cores are laid
+    out over the allocation and the run's residents started here, the first
+    time a step needs them.  Either way the step sees the same thing.
     """
     residents = getattr(step, 'residents', None)
-    if residents is None:
+    placement = step.placement
+    if residents is None and placement is None:
+        residents, placement = serial_resources(step)
+    elif residents is None:
         raise RuntimeError(
             f'Step {step.path} hands out work, but no residents were started '
             f'to fork its pieces.'
         )
-    if step.placement is None:
+    elif placement is None:
         raise RuntimeError(
             f'Step {step.path} hands out work, but was given no cores to '
             f'hand it out to.'
         )
-    with Pieces(step, slots_from(step.placement), residents) as pieces:
+    with Pieces(step, slots_from(placement), residents) as pieces:
         step.run_pieces(pieces)
 
 

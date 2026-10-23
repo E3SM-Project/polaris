@@ -16,6 +16,7 @@ needs itself, so a step behaves the same whether `polaris serial` or
 
 import os
 import signal
+import socket
 import subprocess
 import sys
 import time
@@ -26,6 +27,7 @@ from typing import Dict, List, Optional, Sequence, Tuple, cast
 
 from mache.parallel import ResourcePlacement
 
+from polaris.run.allocation import NodeResources, usable_cores
 from polaris.run.connections import (
     KEY_VARIABLE,
     Address,
@@ -34,11 +36,16 @@ from polaris.run.connections import (
     listening_socket,
     new_key,
 )
+from polaris.run.pool import ResourcePool
 from polaris.run.resident import fork, serve
 
 # how long a resident that was told to stop is given to go before it is
 # killed
 _STOP_SECONDS = 10.0
+
+# the residents polaris serial starts for a run, the first time a step that
+# hands out work needs them
+_SERIAL: Optional['Residents'] = None
 
 
 @dataclass(frozen=True)
@@ -508,3 +515,94 @@ def resident_options(config):
     if config.has_option('residents', 'start_timeout'):
         start_timeout = config.getfloat('residents', 'start_timeout')
     return interface, start_timeout
+
+
+def serial_resources(step) -> Tuple[ResidentDirectory, ResourcePlacement]:
+    """
+    The residents and the cores a step that hands out work uses under
+    ``polaris serial``.
+
+    ``polaris serial`` runs one step at a time on the whole allocation and
+    gives a step no placement, so the step's cores are laid out over the
+    allocation's nodes here, by the same pool ``polaris parallel`` uses.  The
+    run's residents are started the first time a step needs them, exactly
+    as ``polaris parallel`` starts them, and kept until
+    :py:func:`stop_serial_residents`.
+
+    Parameters
+    ----------
+    step : polaris.Step
+        The step, with its resources already constrained
+
+    Returns
+    -------
+    directory : polaris.run.residents.ResidentDirectory
+        How to reach the residents
+
+    placement : mache.parallel.ResourcePlacement
+        Where the step's cores are
+    """
+    global _SERIAL
+    system = step.component.parallel_system
+    names = list(system.node_names or ['']) if system is not None else ['']
+    cores_per_node = system.cores_per_node if system is not None else None
+    core_ids = usable_cores(cores_per_node or os.cpu_count() or 1, step.logger)
+    nodes = [
+        NodeResources(
+            name=name,
+            cores=len(core_ids),
+            core_ids=core_ids,
+            gpus=0,
+            memory=None,
+            memory_source='config',
+            memory_total=None,
+            memory_configured=None,
+        )
+        for name in names
+    ]
+    local = _this_node(names)
+    reservation = ResourcePool(nodes, local_node=local).reserve(step)
+    if reservation is None:
+        raise RuntimeError(
+            f'Step {step.path} hands out work over {step.cores} cores, which '
+            f'this allocation does not have.'
+        )
+
+    if _SERIAL is None:
+        interface, start_timeout = resident_options(step.config)
+        residents = Residents(interface=interface)
+        if len(names) == 1 and names[0] in ('', local):
+            residents.start_local(names)
+        else:
+            residents.launch(
+                system,
+                names,
+                core_ids[0],
+                log_filename=os.path.join(
+                    step.base_work_dir, 'case_outputs', 'residents.log'
+                ),
+            )
+        try:
+            residents.wait_until_ready(start_timeout)
+        except BaseException:
+            residents.stop()
+            raise
+        _SERIAL = residents
+    return _SERIAL.directory, reservation.placement
+
+
+def stop_serial_residents() -> None:
+    """Stop the residents ``polaris serial`` started for this run, if any."""
+    global _SERIAL
+    if _SERIAL is not None:
+        _SERIAL.stop()
+        _SERIAL = None
+
+
+def _this_node(names: List[str]) -> str:
+    """Which of these nodes this process is on, or the first."""
+    here = _short(socket.gethostname())
+    for name in names:
+        if _short(name) == here:
+            return name
+    return names[0]

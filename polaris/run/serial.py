@@ -32,6 +32,7 @@ from polaris.run.memory import (
     read_process_memory,
     reset_peak_memory,
 )
+from polaris.run.residents import stop_serial_residents
 from polaris.run.results import TaskResult, write_suite_results
 from polaris.validate import merge_diff_summary
 from polaris.version import __version__
@@ -288,6 +289,16 @@ def main():
     )
     args = parser.parse_args(sys.argv[2:])
 
+    # residents are started only for a step that hands out work, and are
+    # stopped however the run ends
+    try:
+        _dispatch(args)
+    finally:
+        stop_serial_residents()
+
+
+def _dispatch(args):
+    """Run the suite, task or step the command line names."""
     if args.suite is not None:
         # Running a specified suite from the base work directory
         run_tasks(args.suite, quiet=args.quiet)
