@@ -573,9 +573,11 @@ worker's port could run code as the person running the suite.
 The channels to the residents use a key generated for the run, which a
 resident receives through its environment rather than its command line,
 since other users on a node can read a process's command line but not its
-environment. Dask uses TLS with certificates generated for the run, which
-needs `cryptography`, and its dashboard is turned off, being one more open
-port.
+environment. Dask uses TLS with certificates generated for each step that
+starts workers, which needs `cryptography`. Its dashboard is turned off,
+being one more open port, but Dask opens an HTTP port on the scheduler and
+on each worker regardless, so those listen on their own node only and serve
+nothing.
 
 ### Implementation: Handing Out Work Under `polaris serial`
 
