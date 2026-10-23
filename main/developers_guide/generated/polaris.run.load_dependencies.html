@@ -166,6 +166,10 @@
 <span class="sig-prename descclassname"><span class="pre">polaris.run.</span></span><span class="sig-name descname"><span class="pre">load_dependencies</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">step</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/polaris/run.html#load_dependencies"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#polaris.run.load_dependencies" title="Link to this definition"></a></dt>
 <dd><p>Load each dependency from its pickle file to pick up changes that may have
 happened since it ran</p>
+<p>Each dependency is updated in place rather than replaced, so a step that
+also refers to it directly sees the same changes.  Its references to
+other steps, its tasks and its component are left pointing into the
+suite being run.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>step</strong> (<a class="reference internal" href="polaris.Step.html#polaris.Step" title="polaris.step.Step"><em>polaris.step.Step</em></a>) – The step object</p>

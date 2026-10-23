@@ -1243,9 +1243,14 @@ and using shared steps.
 
 When a step is added as a dependency, after it runs, its state will be stored
 in a pickle file (see {ref}`dev-setup`) that contains any modifications to its
-state during the run.  When the dependent step is run, the the state of
+state during the run.  When the dependent step is run, the state of
 each dependency is "unpickled" along with the state of the step itself so that
-the dependent step can make use of runtime updates to its dependencies.
+the dependent step can make use of runtime updates to its dependencies.  Each
+dependency is updated in place, so these updates are seen both through
+`self.dependencies` and through any attribute of the dependent step that
+refers to the same step.  Only the dependency's own state is updated: other
+steps that it refers to are left as they are, so a step that needs the
+runtime state of another step should add that step as a dependency too.
 
 ```{note}
 There is some non-negligible overhead involved in pickling and unpickling
