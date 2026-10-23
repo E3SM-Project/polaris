@@ -6,6 +6,7 @@ import pytest
 from polaris.tasks.e3sm.init.topo.cull.consistency import (
     check_cull_mask_consistency,
     check_land_locked_criteria,
+    check_sea_ice_removed_regions,
 )
 from tests.mesh.hex_mesh import cell_index, hex_mesh
 
@@ -175,3 +176,45 @@ def _all_cells(n_cols, n_rows):
 
 def _cull(keep_mask):
     return np.where(keep_mask, 0, 1)
+
+
+def test_removing_a_small_pocket_passes():
+    # a few small cells removed is a pocket, not a sea
+    _check_removed(n_removed_rows=1, cell_area=1.0e3)
+
+
+def test_removing_many_small_cells_passes():
+    # many cells but a small area, like a fjord on a fine mesh
+    _check_removed(n_removed_rows=3, cell_area=1.0e3)
+
+
+def test_removing_a_few_large_cells_passes():
+    # a large area but few cells, like a pocket on a coarse mesh
+    _check_removed(n_removed_rows=1, cell_area=1.0e5)
+
+
+def test_removing_a_sea_fails():
+    with pytest.raises(ValueError, match=r'whole seas.*\n  15 cells'):
+        _check_removed(n_removed_rows=3, cell_area=1.0e5)
+
+
+def _check_removed(n_removed_rows, cell_area):
+    """
+    Remove the top rows of a 5x5 lattice of cells, each ``cell_area`` km^2,
+    and check the result against limits of 10 cells and 1e5 km^2.
+    """
+    ds_mesh = hex_mesh(5, 5)
+    ds_mesh['areaCell'] = ('nCells', np.full(25, cell_area * 1e6))
+    preliminary = _cull(_all_cells(5, 5))
+    final = preliminary.copy()
+    for row in range(5 - n_removed_rows, 5):
+        for col in range(5):
+            final[cell_index(5, col, row)] = 1
+    check_sea_ice_removed_regions(
+        ds_mesh=ds_mesh,
+        preliminary_ocean_cull_mask=preliminary,
+        ocean_cull_mask=final,
+        max_region_cells=10,
+        max_region_area=1.0e5,
+        logger=logging.getLogger('test_cull_mask_consistency'),
+    )
