@@ -244,8 +244,8 @@ This is the requirement that distinguishes Phase C from what MPAS-Analysis
 can already do. A capability limited to a single node would not address the
 problem that motivates the phase.
 
-A non-MPI step shall also be able to run on a node other than the
-scheduler's, which is the bound Phase B accepted and this phase lifts.
+A step that launches nothing shall also be able to run on a node other than
+the scheduler's, which is the bound Phase B accepted and this phase lifts.
 
 This covers two things that should not be conflated: many independent pieces
 of work running at once on different nodes, and a single computation whose
@@ -460,7 +460,7 @@ default that would be a guess dressed as a number.
 
 ### Algorithm Design: Where a Step's Child Is Forked
 
-Date last modified: 2026/09/09
+Date last modified: 2026/10/23
 
 Contributors:
 
@@ -469,8 +469,15 @@ Contributors:
 
 The scheduler from Phase B does not change shape. It still decides what may
 run and what resources each thing gets. What changes is where a step's child
-is forked -- by the scheduler, or by a resident on another node -- and
-whether a step that opted in is also handed the pool.
+is forked -- by the scheduler, or by the resident on the node its cores are
+on -- and whether a step that opted in is also given a way to hand out work.
+
+Polaris requires a step to launch only through its command, never from
+`run()`. So a step whose `args` is `None` launches nothing, and its child
+can be forked by any resident, with its cores drawn from any node that has
+room. A step with a command -- even an empty one, which some steps fill in
+at run time -- is forked by the scheduler as in Phase B. Its child launches,
+and launching from inside a resident's own launch is what Phase B set aside.
 
 Keeping the decision "what runs next" separate from "how it is executed" is
 what prevents the scheduler from acquiring the mode-switching complexity that
