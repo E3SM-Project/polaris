@@ -380,7 +380,8 @@ results. The pieces run on the cores reserved for the step, one per core at
 a time.
 
 Starting the residents is one launch per node, confined by Phase A
-placement, so the rest of the allocation stays usable.
+placement, so the rest of the allocation stays usable. *Implementation:
+Launching the Residents* says what that launch allows their children.
 
 A child per piece of work, rather than long-lived workers, is a tentative
 decision made on measured cost and revisited in *Decision: Warm Workers for
@@ -506,6 +507,53 @@ Contributors:
 
 The residents must be stopped at the end of a run, including when the run
 fails, or their children outlive the job.
+
+### Implementation: Launching the Residents
+
+Date last modified: 2026/10/23
+
+Contributors:
+
+- Xylar Asay-Davis
+- Claude
+
+A resident is a single-threaded fork server. It imports Polaris,
+`distributed` and the task tree once, starts no thread of its own, and
+afterwards only forks: anything that starts threads -- a step, a piece of
+work, a Dask worker -- does so in a child. Measured on Chrysalis, a resident
+holds 283 MiB and two OS threads, the second being jemalloc's background
+thread, which takes its own locks around a fork. It is ready 19 to 61 s
+after its launch, almost all of it imports, paid once per node and in
+parallel.
+
+There is no Dask Nanny. A Nanny restarts a worker that dies and retries what
+it held, which is the absorbed failure the requirements forbid. A resident
+reaps its children itself, reports how each ended and restarts nothing, and
+Dask's `allowed-failures` is set to zero so that a worker lost under a task
+fails that task by name, which was measured to take 20 ms.
+
+What a resident's launch lets its children use depends on how a machine
+confines a launch. Chrysalis confines by CPU affinity alone -- Slurm 20.02
+with `task/affinity` and `proctrack/pgid`, and no cgroup -- so a resident
+launched on one core can bind its children to any core of its node, which
+was measured. Where a launch is confined by a cgroup, its children cannot
+leave it, so the resident would have to be launched over its whole node and
+overlap the launches the scheduler makes. That has to be measured on each
+such machine and probably needs a change in `mache`.
+
+Nothing outlives the run. A resident exits when its connection to the
+scheduler closes, and the batch system's process tracking is the backstop:
+on Chrysalis, a resident killed outright had its children removed within
+5 s while the other residents carried on, and stopping the launch left
+nothing on any node.
+
+Traffic between the scheduler, the residents and Dask goes over each
+machine's fast interface, which is a per-machine setting. Dask otherwise
+takes the interface a node's hostname resolves to, which on Chrysalis is
+1 GbE: 512 MiB took 5.1 s there and 1.2 s over InfiniBand with TLS. The
+channel to each resident also sends small messages at once (`TCP_NODELAY`).
+Without that, a reply sent right behind another waited for a delayed
+acknowledgement, which added 40 ms to every piece of work.
 
 ### Implementation: What a Piece of Work Carries
 
