@@ -443,10 +443,12 @@ it exits.
 Every step is confined to the part of the allocation it was given.  An MPI
 step's placement reaches its launcher; a step that is not launched is bound
 to its cores by the child itself, which can only be done on the node the
-scheduler is running on -- so such steps are given cores there.  A step
-that hands out pieces of its work is the exception: a resident process on
-each node forks the pieces there and binds each one to its core, so its
-cores can come from any node (see {ref}`dev-handing-out-work`).
+scheduler is running on -- so such steps are given cores there.  When that
+node is full, a step that launches nothing is forked instead by a resident
+process on another node with room, which binds it to its cores there.  A
+step that hands out pieces of its work has the residents fork its pieces
+on whichever nodes its cores are on, so those can come from any node (see
+{ref}`dev-handing-out-work`).
 
 ### Asking setup for a concurrent job script
 

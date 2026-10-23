@@ -183,15 +183,20 @@ the numerical thread pools before numpy can raise one thread per core, and
 why the scheduler reaps in its own loop rather than giving each running step
 a thread to wait on it.
 
-A run with a step that hands out pieces of its work also needs a resident on
-each node to fork the pieces there (see {ref}`dev-handing-out-work`).
+A run on more than one node also has a resident on each node, which forks
+steps that launch nothing there when the scheduler's own node has no room
+for them, and a run with a step that hands out pieces of its work has them
+to fork the pieces (see {ref}`dev-handing-out-work`).
 {py:class}`polaris.run.residents.Residents` starts them, with one launch
 across the allocation, and stops them when the run ends.  The scheduler
 hears from them in the same loop in which it reaps its children -- a
-resident saying hello, or one going away -- so that it never waits on one
-while the other has something to say.  The step hands its pieces out
-through {py:class}`polaris.run.pieces.Pieces`, which connects to the
-residents directly.
+resident saying hello, one going away, or a step it forked ending -- so
+that it never waits on one while another has something to say.
+{py:func}`polaris.run.executor.start_remote_step` has a resident fork a
+step, which then runs through the same lifecycle as one the scheduler
+forks.  A step that hands out work does so through
+{py:class}`polaris.run.pieces.Pieces`, which connects to the residents
+directly.
 
 Each step's output goes to its own log under `case_outputs`, since steps no
 longer take turns and cannot share a stream.  The scheduler also writes an

@@ -61,9 +61,9 @@ def _step(
     return step
 
 
-def _reserve(pool, step):
+def _reserve(pool, step, elsewhere=()):
     """Reserve, and say so as a test failure rather than as a type error."""
-    reservation = pool.reserve(step)
+    reservation = pool.reserve(step, elsewhere=elsewhere)
     assert reservation is not None
     return reservation
 
@@ -566,3 +566,31 @@ def test_a_step_that_hands_out_more_than_the_allocation_is_named():
         _hands_out('alone', cores=9, may_span_nodes=False)
     )
     assert reason is not None and 'any one node' in reason
+
+
+def test_a_step_that_may_go_elsewhere_still_starts_here_first():
+    pool = ResourcePool(_nodes(count=2, cores=8), local_node='node0')
+    step = _step('python', cores=2)
+    reservation = _reserve(pool, step, elsewhere={'node1'})
+    assert list(reservation.cores) == ['node0']
+
+
+def test_a_step_that_may_go_elsewhere_takes_the_fullest_node_with_room():
+    pool = ResourcePool(_nodes(count=3, cores=8), local_node='node0')
+    _reserve(pool, _step('here', cores=8))
+    others = {'node1', 'node2'}
+    # node1 and node2 are equally free, so the first of them is taken
+    there = _reserve(pool, _step('there', cores=5), elsewhere=others)
+    assert list(there.cores) == ['node1']
+    # node1 now has 3 cores free and node2 has 8, so node1 is the better fit
+    reservation = _reserve(pool, _step('python', cores=2), elsewhere=others)
+    assert list(reservation.cores) == ['node1']
+    assert pool.reserve(_step('more', cores=1)) is None
+
+
+def test_a_step_goes_only_where_it_may():
+    pool = ResourcePool(_nodes(count=3, cores=8), local_node='node0')
+    _reserve(pool, _step('here', cores=8))
+    reservation = _reserve(pool, _step('python', cores=1), elsewhere={'node2'})
+    assert list(reservation.cores) == ['node2']
+    assert pool.node_names == ['node0', 'node1', 'node2']

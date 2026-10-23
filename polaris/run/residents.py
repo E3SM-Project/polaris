@@ -147,6 +147,20 @@ class Residents:
         """What a step needs to reach the residents ready so far."""
         return ResidentDirectory(key=self.key, addresses=dict(self.addresses))
 
+    def reaches(self, node: str) -> bool:
+        """
+        Whether a node's resident has said hello and has not gone since.
+
+        Parameters
+        ----------
+        node : str
+            The node, as the allocation names it
+        """
+        said = {
+            _short(name) for name in self.addresses if name not in self.lost
+        }
+        return _short(node) in said
+
     @property
     def ready(self) -> bool:
         """Whether every resident that was started has said hello."""

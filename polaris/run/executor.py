@@ -20,7 +20,9 @@ launcher, which puts the work where it says.  A step that is not launched
 does its work in the child itself, and nothing between the scheduler and
 that child acts on a placement -- so the child sets its own affinity, which
 it can only do on the node it is running on.  That is why the pool gives
-such a step cores on the scheduler's node.
+such a step cores on the scheduler's node, and why, when that node has no
+room for it, the step is forked by the resident on the node that does
+instead (see :py:func:`start_remote_step`).
 
 Forking safely requires the scheduler to hold no other thread; see
 `polaris/__init__.py`, which pins the numerical thread pools before numpy
@@ -29,14 +31,25 @@ does not give each running step a thread to wait on it.
 """
 
 import os
+import pickle
 import signal
 import sys
 import time
 import traceback
 from dataclasses import dataclass
-from multiprocessing.connection import wait
-from typing import Dict, List, NoReturn, Optional, Sequence, Tuple
+from multiprocessing.connection import Connection, wait
+from typing import (
+    Dict,
+    List,
+    NoReturn,
+    Optional,
+    Sequence,
+    Tuple,
+    Union,
+    cast,
+)
 
+from polaris.run.connections import connect
 from polaris.run.pool import Reservation
 from polaris.run.serial import run_step_in_process
 
@@ -134,6 +147,127 @@ class RunningStep:
         except ProcessLookupError:
             # it finished between deciding to kill it and doing so
             pass
+
+
+class RemoteStep:
+    """
+    A step the resident on another node forked, which has not finished.
+
+    Attributes
+    ----------
+    step : polaris.Step
+        The step being run.
+
+    reservation : polaris.run.pool.Reservation
+        What it was given, which is handed back when it ends.
+
+    log_filename : str
+        Where its output is going.
+
+    node : str
+        The node it is running on.
+
+    connection : multiprocessing.connection.Connection
+        Where its resident says how it ended
+    """
+
+    def __init__(
+        self, step, reservation, log_filename, started, connection, node
+    ):
+        self.step = step
+        self.reservation = reservation
+        self.log_filename = log_filename
+        self.started = started
+        self.connection = connection
+        self.node = node
+
+    @property
+    def pid(self) -> Optional[int]:
+        """``None``: its process is on another node."""
+        return None
+
+    def kill(self) -> None:
+        """Stop the step: its resident kills it once this goes away."""
+        try:
+            self.connection.close()
+        except OSError:
+            pass
+
+    def outcome(self, path: str) -> 'StepOutcome':
+        """Hear from its resident how the step ended."""
+        try:
+            kind, _, payload = self.connection.recv()
+        except (EOFError, OSError):
+            kind, payload = 'lost', {}
+        self.kill()
+        seconds = time.time() - self.started
+        if kind == 'done':
+            return _outcome(path, 0, seconds, payload.get('work_seconds'))
+        if kind == 'died':
+            # how it died is not in its log, since it did not get to say
+            _say(
+                self.log_filename,
+                f'The step died on node {self.node} with exit code '
+                f'{payload["returncode"]}.',
+            )
+            return _outcome(path, payload['returncode'], seconds)
+        if kind == 'lost':
+            _say(
+                self.log_filename,
+                f'The step was lost when the resident on node {self.node} '
+                f'went away.',
+            )
+        # a step that raised has said why in its log already
+        return _outcome(path, 1, seconds)
+
+
+def start_remote_step(
+    step, reservation: Reservation, log_filename: str, directory
+) -> RemoteStep:
+    """
+    Have the resident on a step's node fork it there.
+
+    For a step that launches nothing, given a node other than the
+    scheduler's.  The resident forks it from what it imported once, binds
+    it to its cores, sends its output to its log and runs it through the
+    same lifecycle as a step the scheduler forks, so the step cannot tell
+    the difference.  The step itself travels pickled, as the scheduler
+    holds it.
+
+    Parameters
+    ----------
+    step : polaris.Step
+        The step to run, which must already be set up and sized
+
+    reservation : polaris.run.pool.Reservation
+        What the pool gave it, on one node
+
+    log_filename : str
+        Where to send its output
+
+    directory : polaris.run.residents.ResidentDirectory
+        How to reach the residents
+
+    Returns
+    -------
+    running : polaris.run.executor.RemoteStep
+        The started step
+    """
+    (node,) = list(reservation.cores)
+    os.makedirs(os.path.dirname(log_filename) or '.', exist_ok=True)
+    payload = {
+        'step': pickle.dumps(step),
+        'placement': reservation.placement,
+        'cores': list(reservation.cores[node]),
+        'memory': dict(reservation.memory),
+        'log': log_filename,
+    }
+    connection = connect(directory.address(node), directory.key)
+    started = time.time()
+    connection.send(('step', 0, payload))
+    return RemoteStep(
+        step, reservation, log_filename, started, connection, node
+    )
 
 
 def start_step(
@@ -393,7 +527,7 @@ class ChildWakeup:
 
 
 def next_event(
-    running: Dict[str, 'RunningStep'],
+    running: Dict[str, Union['RunningStep', 'RemoteStep']],
     residents,
     wakeup: ChildWakeup,
     timeout: Optional[float] = None,
@@ -406,8 +540,8 @@ def next_event(
 
     Parameters
     ----------
-    running : dict of polaris.run.executor.RunningStep
-        The steps currently running, by path
+    running : dict of polaris.run.executor.RunningStep or RemoteStep
+        The steps currently running, by path, here or on other nodes
 
     residents : polaris.run.residents.Residents or None
         The run's residents, if it has any
@@ -427,7 +561,16 @@ def next_event(
         What changed among the residents: hellos, losses and the end of
         their launch
     """
-    by_pid = {run.pid: (path, run) for path, run in running.items()}
+    by_pid = {
+        run.pid: (path, run)
+        for path, run in running.items()
+        if isinstance(run, RunningStep)
+    }
+    remote = {
+        run.connection: (path, run)
+        for path, run in running.items()
+        if isinstance(run, RemoteStep)
+    }
     deadline = None if timeout is None else time.time() + timeout
     while True:
         notes: List[tuple] = []
@@ -455,7 +598,7 @@ def next_event(
         if notes:
             return None, notes
 
-        sources: list = [wakeup]
+        sources: list = [wakeup, *remote]
         if residents is not None:
             sources.extend(residents.sources())
         remaining = None
@@ -465,6 +608,9 @@ def next_event(
         for source in ready:
             if source is wakeup:
                 wakeup.drain()
+            elif source in remote:
+                path, away = remote[cast(Connection, source)]
+                return away.outcome(path), notes
             else:
                 note = residents.hear(source)
                 if note is not None:
@@ -473,6 +619,15 @@ def next_event(
             return None, notes
         if deadline is not None and time.time() >= deadline:
             return None, notes
+
+
+def _say(log_filename: str, message: str) -> None:
+    """Add a line to a step's log, for what the step could not say."""
+    try:
+        with open(log_filename, 'a') as handle:
+            handle.write(f'{message}\n')
+    except OSError:
+        pass
 
 
 def _noticed(signum, frame) -> None:

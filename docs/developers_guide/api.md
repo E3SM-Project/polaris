@@ -99,6 +99,8 @@ seaice/api
    pool.ResourcePool
    pool.Reservation
    executor.start_step
+   executor.start_remote_step
+   executor.RemoteStep
    executor.reap_one
    executor.next_event
    executor.ChildWakeup

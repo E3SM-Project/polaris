@@ -32,7 +32,7 @@ import time
 from contextlib import contextmanager
 from datetime import datetime, timedelta
 from functools import partial
-from typing import Dict, Iterator, List, Optional, Set
+from typing import Dict, Iterator, List, Optional, Set, Union, cast
 
 import mpas_tools.io
 from mache.parallel import PlacementSupport
@@ -45,10 +45,12 @@ from polaris.run.confinement import PLACEMENT_MISMATCH_LOG
 from polaris.run.events import EventStream
 from polaris.run.executor import (
     ChildWakeup,
+    RemoteStep,
     RunningStep,
     StepOutcome,
     describe_neighbors,
     next_event,
+    start_remote_step,
     start_step,
 )
 from polaris.run.graph import build_step_graph
@@ -352,12 +354,14 @@ def _start_residents(
     component, config, nodes, pool, graph, logger, events, work_dir
 ):
     """
-    Start a resident on every node, if any step still to run hands out work.
+    Start a resident on every node, if any step still to run hands out work,
+    or launches nothing and so could be forked on another node.
 
     A run whose allocation is only the node the scheduler is on forks its
     resident from the scheduler, which is ready at once; any other launches
-    one resident per node.  A run with nothing to hand out starts none, so
-    it runs exactly as it did before residents existed.
+    one resident per node.  A run on one node with nothing to hand out
+    starts none, and neither does a run with nothing but launches, so they
+    run exactly as they did before residents existed.
 
     Returns
     -------
@@ -368,12 +372,10 @@ def _start_residents(
         How long to wait for them to say hello, in seconds
     """
     interface, start_timeout = resident_options(config)
-    needed = any(
-        node.step.hands_out_work
-        for node in graph.nodes.values()
-        if not node.satisfied
-    )
-    if not needed:
+    to_run = [node.step for node in graph.nodes.values() if not node.satisfied]
+    hand_out = any(step.hands_out_work for step in to_run)
+    fork_away = len(nodes) > 1 and any(_forks_anywhere(s) for s in to_run)
+    if not hand_out and not fork_away:
         return None, start_timeout
 
     residents = Residents(interface=interface)
@@ -392,11 +394,21 @@ def _start_residents(
         )
         how = 'launched'
     events.record('residents_started', nodes=names, how=how)
-    logger.info(
-        f'Started a resident on each of {len(names)} node(s) for the step(s) '
-        f'that hand out work'
-    )
+    logger.info(f'Started a resident on each of {len(names)} node(s)')
     return residents, start_timeout
+
+
+def _forks_anywhere(step) -> bool:
+    """
+    Whether a resident could fork a step on whichever node has room.
+
+    A step launches only through its command, so a step without one
+    launches nothing and needs nothing from the scheduler's node.  A step
+    that hands out work stays with the scheduler, since its pieces go to
+    other nodes anyway, and so does one asking for GPUs, whose devices are
+    named by the launch it does not have.
+    """
+    return step.args is None and not step.hands_out_work and not step.gpus
 
 
 def _local_node(nodes) -> str:
@@ -437,7 +449,7 @@ def _loop(
     outcomes: Dict[str, StepOutcome] = {}
     mismatched: List[str] = []
     blocked: Dict[str, str] = {}
-    running: Dict[str, RunningStep] = {}
+    running: Dict[str, Union[RunningStep, RemoteStep]] = {}
     waiting = set(graph.nodes) - succeeded
 
     deadline = time.time() + start_timeout
@@ -583,7 +595,9 @@ def _abandon(running, logger, events) -> None:
         logger.warning(f'  * {path}: stopping, the run is being torn down')
         events.record('step_abandoned', step=path, pid=step_run.pid)
         step_run.kill()
-    for _ in running:
+    # a step on another node is not a child of this process: its resident
+    # kills it, and is itself stopped with the run
+    for _ in [run for run in running.values() if run.pid is not None]:
         try:
             os.waitpid(-1, 0)
         except ChildProcessError:
@@ -617,23 +631,55 @@ def _start_what_fits(
                 blocked[path] = 'residents'
                 events.record('step_blocked', step=path, reason='residents')
             continue
-        reservation = pool.reserve(node.step)
+        elsewhere: Set[str] = set()
+        if (
+            residents is not None
+            and residents.ready
+            and _forks_anywhere(node.step)
+        ):
+            elsewhere = {
+                name for name in pool.node_names if residents.reaches(name)
+            }
+        reservation = pool.reserve(node.step, elsewhere=elsewhere)
         if reservation is None:
             if blocked.get(path) != 'resources':
                 blocked[path] = 'resources'
                 events.record('step_blocked', step=path, reason='resources')
             continue
+        log_filename = _log_filename(work_dir, path)
+        # only a step offered other nodes is forked by their residents; a
+        # launched step placed on other nodes is forked here, and launches
+        # its work there itself
+        away = bool(elsewhere) and list(reservation.cores) not in (
+            [pool.local_node],
+            [''],
+        )
+        if away:
+            try:
+                step_run: Union[RunningStep, RemoteStep] = start_remote_step(
+                    node.step,
+                    reservation,
+                    log_filename,
+                    cast(Residents, residents).directory,
+                )
+            except (OSError, EOFError, KeyError):
+                # its resident has gone, which the run hears of separately;
+                # the step waits, and is not offered that node again
+                pool.release(reservation)
+                continue
+        else:
+            step_run = start_step(
+                node.step,
+                reservation,
+                log_filename,
+                pool.local_node,
+                residents=residents.directory if hands_out_work else None,
+                keep_out=(
+                    residents.inherited() if residents is not None else ()
+                ),
+            )
         blocked.pop(path, None)
         waiting.discard(path)
-        log_filename = _log_filename(work_dir, path)
-        step_run = start_step(
-            node.step,
-            reservation,
-            log_filename,
-            pool.local_node,
-            residents=residents.directory if hands_out_work else None,
-            keep_out=residents.inherited() if residents is not None else (),
-        )
         running[path] = step_run
         started_any = True
         events.record(

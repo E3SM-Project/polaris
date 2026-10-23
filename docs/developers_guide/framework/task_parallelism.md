@@ -131,8 +131,8 @@ There are two reasons:
   cores and GPUs given to other steps, and the placement check cannot see it,
   because its probe is launched with the placement.
 - A step without a command needs nothing from the scheduler's node, which is
-  what will let the scheduler run it on another node.  A launch from there
-  would start from inside a job step.
+  what lets the scheduler run it on another node when its own is full.  A
+  launch from there would start from inside a job step.
 
 `args` is a list of commands, which run one after another with the step's
 resources.  Small serial work the launch needs, such as writing SCRIP files,

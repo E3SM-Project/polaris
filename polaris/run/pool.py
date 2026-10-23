@@ -45,7 +45,7 @@ would not have fit.
 """
 
 from dataclasses import dataclass, field
-from typing import Dict, List, Optional, Tuple
+from typing import Collection, Dict, List, Optional, Tuple
 
 from mache.parallel import ResourcePlacement
 
@@ -144,7 +144,9 @@ class ResourcePool:
         self.local_node = local_node
         self._names_gpus = names_gpus
 
-    def why_impossible(self, step) -> Optional[str]:
+    def why_impossible(
+        self, step, elsewhere: Collection[str] = ()
+    ) -> Optional[str]:
         """
         Say why a step could never run here, or ``None`` if it could.
 
@@ -160,6 +162,10 @@ class ResourcePool:
             The step to ask about, with its resources already constrained
             against the whole allocation
 
+        elsewhere : collection of str, optional
+            The nodes besides the scheduler's the step may be given, as in
+            :py:meth:`reserve`
+
         Returns
         -------
         reason : str or None
@@ -170,14 +176,14 @@ class ResourcePool:
             local_node=self.local_node,
             names_gpus=self._names_gpus,
         )
-        if empty.reserve(step) is not None:
+        if empty.reserve(step, elsewhere=elsewhere) is not None:
             return None
 
         budget = step.memory_budget
         memory = 'no declared memory' if budget is None else f'{budget} MiB'
         if step.may_span_nodes:
             where = 'this allocation'
-        elif step.hands_out_work:
+        elif step.hands_out_work or elsewhere:
             where = (
                 'any one node, which is all it may use because it has said '
                 'its resources may not span nodes'
@@ -193,7 +199,9 @@ class ResourcePool:
             f'nothing else running.'
         )
 
-    def reserve(self, step) -> Optional[Reservation]:
+    def reserve(
+        self, step, elsewhere: Collection[str] = ()
+    ) -> Optional[Reservation]:
         """
         Give a step what it needs, if what it needs is free right now.
 
@@ -202,6 +210,12 @@ class ResourcePool:
         step : polaris.Step
             The step to try to start, with its resources already
             constrained against the whole allocation
+
+        elsewhere : collection of str, optional
+            The nodes besides the scheduler's that a step held to one node
+            may be given, which are those whose resident could fork it.
+            The scheduler's node is still tried first, since a step forked
+            there needs nothing more.
 
         Returns
         -------
@@ -214,6 +228,8 @@ class ResourcePool:
             layout = self._fit_across_nodes(step)
         else:
             layout = self._fit_on_one_node(step)
+            if layout is None and elsewhere:
+                layout = self._fit_on_another_node(step, elsewhere)
         if layout is None:
             return None
         return self._take(step, layout)
@@ -241,6 +257,11 @@ class ResourcePool:
             resident = self._by_name[name].resident
             if reservation.step_path in resident:
                 resident.remove(reservation.step_path)
+
+    @property
+    def node_names(self) -> List[str]:
+        """The allocation's nodes, by name, in the order it lists them."""
+        return [node.name for node in self._nodes]
 
     def resident(self, node_name: str) -> Tuple[str, ...]:
         """
@@ -288,6 +309,37 @@ class ResourcePool:
         charge = step.memory_budget
         if not _memory_fits(node, charge):
             return None
+        return [
+            (
+                node,
+                tuple(node.free_cores[:cores]),
+                tuple(node.free_gpus[:gpus]),
+                charge or 0,
+            )
+        ]
+
+    def _fit_on_another_node(self, step, elsewhere: Collection[str]):
+        """
+        Fit a step held to one node on another of the nodes it may use.
+
+        Of the nodes with room, the fullest is taken, so that whole nodes
+        stay free for as long as possible for the steps that need them.
+        """
+        cores = step.cores
+        gpus = step.gpus or 0
+        charge = step.memory_budget
+        fits = [
+            node
+            for node in self._nodes
+            if node.name != self.local_node
+            and node.name in elsewhere
+            and len(node.free_cores) >= cores
+            and len(node.free_gpus) >= gpus
+            and _memory_fits(node, charge)
+        ]
+        if not fits:
+            return None
+        node = min(fits, key=lambda node: len(node.free_cores))
         return [
             (
                 node,

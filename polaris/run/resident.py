@@ -17,9 +17,11 @@ background thread, which importing Polaris starts and which jemalloc keeps
 safe across a fork; the scheduler forks beside the same thread.
 
 What it forks is decided elsewhere.  A step that hands out work connects and
-asks for a piece of that work to be forked onto one of its cores; the
-resident forks it, and passes back what the child says without reading it.
-A resident is asked to fork; it does not decide what runs.
+asks for a piece of that work to be forked onto one of its cores, or for a
+Dask worker; the scheduler asks for a whole step that launches nothing when
+its own node has no room for it.  The resident forks it, and passes back
+what the child says without reading it.  A resident is asked to fork; it
+does not decide what runs.
 
 Nothing it forks outlives it.  Each child asks the kernel to kill it if the
 resident dies first, and a resident whose connection to its run closes kills
@@ -276,6 +278,8 @@ class _Resident:
             self._fork(client, request_id, payload, _run_piece, kind)
         elif kind == 'worker':
             self._fork(client, request_id, payload, _run_worker, kind)
+        elif kind == 'step':
+            self._fork(client, request_id, payload, _run_step, kind)
         elif kind == 'cancel':
             for pid, child in self.children.items():
                 if child.client is client and child.request_id == request_id:
@@ -314,7 +318,7 @@ class _Resident:
             return
         if child is not None and not child.answered:
             # what a worker says is never its last word
-            child.answered = child.kind == 'piece'
+            child.answered = child.kind != 'worker'
             self._send(child.client, message, raw=True)
 
     def _reap(self) -> None:
@@ -434,6 +438,59 @@ def fork(target, args, keep_out) -> int:
         traceback.print_exc()
     finally:
         os._exit(status)
+
+
+def _run_step(writer: Connection, request_id, payload) -> None:
+    """
+    Be a whole step, as the scheduler's own child would be: bound to its
+    cores, writing to its log, in its work directory, through the same
+    lifecycle.  Say how long it took, or why it failed.
+    """
+    # the lifecycle imports the run machinery, which a resident need not
+    # have loaded until a step is forked here
+    from polaris.run.serial import run_step_in_process
+
+    _write_output_to(payload['log'])
+    try:
+        os.sched_setaffinity(0, payload['cores'])
+    except (AttributeError, OSError):
+        # as for a step the scheduler forks: where it ran is checked by
+        # the step itself, and reported rather than fatal
+        pass
+    step = pickle.loads(payload['step'])
+    os.chdir(step.work_dir)
+    # this child is the separate process that flag asks for
+    step.run_as_subprocess = False
+    step.reserved_memory = payload.get('memory')
+    began = time.time()
+    try:
+        run_step_in_process(step, payload['placement'])
+    except BaseException as exception:  # noqa: BLE001
+        # deliberately everything, as for a piece
+        error = traceback.format_exc()
+        sys.stderr.write(error)
+        sys.stderr.flush()
+        writer.send_bytes(
+            pickle.dumps(
+                (
+                    'failed',
+                    request_id,
+                    {'kind': type(exception).__name__, 'error': error},
+                )
+            )
+        )
+        return
+    sys.stdout.flush()
+    sys.stderr.flush()
+    writer.send_bytes(
+        pickle.dumps(
+            (
+                'done',
+                request_id,
+                {'work_seconds': time.time() - began, 'where': _where()},
+            )
+        )
+    )
 
 
 def _run_piece(writer: Connection, request_id, payload) -> None:
