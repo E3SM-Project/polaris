@@ -520,3 +520,54 @@ def test_a_pickled_step_still_constrains_the_same_way():
     # the budget describes the four tasks it ended up with, not the eight
     # it asked for
     assert restored.memory_budget == 4 * 253000 // 64
+
+
+class _HandsOut(Step):
+    """A step that hands out pieces of its work."""
+
+    def run_pieces(self, pieces):
+        pieces.map(print, [1])
+
+
+def _hands_out(**kwargs):
+    return _HandsOut(component=Component(name='ocean'), name='step', **kwargs)
+
+
+def test_a_step_hands_out_work_by_overriding_run_pieces():
+    assert _hands_out(cores=4).hands_out_work
+    assert not _make_step(cores=4).hands_out_work
+
+
+def test_a_step_that_hands_out_work_may_span_nodes_by_default():
+    assert _hands_out(cores=4).may_span_nodes
+    assert not _hands_out(cores=4, may_span_nodes=False).may_span_nodes
+
+
+def test_a_step_that_hands_out_work_may_take_more_than_a_node():
+    step = _hands_out(cores=100, min_cores=10)
+    step.constrain_resources(_resources(cores=128, cores_per_node=64))
+    assert step.cores == 100
+
+
+def test_a_step_that_hands_out_work_cannot_also_launch():
+    step = _hands_out(cores=4)
+    step.args = [['echo']]
+    with pytest.raises(ValueError, match='cannot also have a command'):
+        step.constrain_resources(_resources())
+
+
+def test_a_step_that_hands_out_work_cannot_ask_for_gpus_yet():
+    step = _hands_out(cores=4, gpus=1)
+    with pytest.raises(ValueError, match='not supported yet'):
+        step.constrain_resources(_resources(gpus=4))
+
+
+def test_a_step_that_hands_out_work_survives_pickling():
+    step = pickle.loads(pickle.dumps(_hands_out(cores=4)))
+    assert step.hands_out_work
+    assert step.may_span_nodes
+
+
+def test_a_step_that_does_not_hand_out_work_says_so_if_asked_to():
+    with pytest.raises(NotImplementedError, match='override run_pieces'):
+        _make_step().run_pieces(None)
