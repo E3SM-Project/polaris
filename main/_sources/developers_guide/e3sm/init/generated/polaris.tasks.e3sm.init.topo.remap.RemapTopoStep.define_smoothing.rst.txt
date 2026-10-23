@@ -1,6 +1,0 @@
-﻿polaris.tasks.e3sm.init.topo.remap.RemapTopoStep.define\_smoothing
-==================================================================
-
-.. currentmodule:: polaris.tasks.e3sm.init.topo.remap
-
-.. automethod:: RemapTopoStep.define_smoothing

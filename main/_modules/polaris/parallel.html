@@ -111,13 +111,21 @@
            <div itemprop="articleBody">
              
   <h1>Source code for polaris.parallel</h1><div class="highlight"><pre>
-<span></span><span class="kn">import</span><span class="w"> </span><span class="nn">inspect</span>
+<span></span><span class="kn">import</span><span class="w"> </span><span class="nn">contextvars</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">inspect</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">contextlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">contextmanager</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">mache</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">mache.parallel</span><span class="w"> </span><span class="kn">import</span> <span class="n">ParallelSystem</span><span class="p">,</span> <span class="n">ResourcePlacement</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">polaris.component_graph</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_components_in_use</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">polaris.config</span><span class="w"> </span><span class="kn">import</span> <span class="n">PolarisConfigParser</span>
+
+<span class="c1"># whether the framework is launching a step's command, the only time a</span>
+<span class="c1"># parallel command may be run</span>
+<span class="n">_launching_step_command</span> <span class="o">=</span> <span class="n">contextvars</span><span class="o">.</span><span class="n">ContextVar</span><span class="p">(</span>
+    <span class="s1">'launching_step_command'</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">False</span>
+<span class="p">)</span>
 
 
 <div class="viewcode-block" id="check_mache_supports_placement">
@@ -229,6 +237,37 @@
             <span class="sa">f</span><span class="s1">'Update mache to a release that gives a placement one set '</span>
             <span class="sa">f</span><span class="s1">'of GPUs per node.'</span>
         <span class="p">)</span>
+
+
+<span class="nd">@contextmanager</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">launching_step_command</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Mark the framework's launch of a step's command, the only place</span>
+<span class="sd">    :py:meth:`polaris.Component.run_parallel_command` may be called.</span>
+
+<span class="sd">    A step launches at most one thing, and only through its command</span>
+<span class="sd">    (``args``).  Under ``polaris parallel``, a launch from anywhere else is</span>
+<span class="sd">    not confined to the step's part of the allocation, and a step with no</span>
+<span class="sd">    command may be run on another node, where a launch would start from</span>
+<span class="sd">    inside a job step.</span>
+<span class="sd">    """</span>
+    <span class="n">token</span> <span class="o">=</span> <span class="n">_launching_step_command</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">yield</span>
+    <span class="k">finally</span><span class="p">:</span>
+        <span class="n">_launching_step_command</span><span class="o">.</span><span class="n">reset</span><span class="p">(</span><span class="n">token</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">is_launching_step_command</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Whether the framework is launching a step's command</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    launching : bool</span>
+<span class="sd">        True inside :py:func:`polaris.parallel.launching_step_command`</span>
+<span class="sd">    """</span>
+    <span class="k">return</span> <span class="n">_launching_step_command</span><span class="o">.</span><span class="n">get</span><span class="p">()</span>
 
 
 <div class="viewcode-block" id="set_parallel_systems">

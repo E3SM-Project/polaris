@@ -133,6 +133,7 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">mpas_tools.logging</span><span class="w"> </span><span class="kn">import</span> <span class="n">LoggingContext</span><span class="p">,</span> <span class="n">check_call</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">polaris.logging</span><span class="w"> </span><span class="kn">import</span> <span class="n">log_method_call</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.parallel</span><span class="w"> </span><span class="kn">import</span> <span class="n">launching_step_command</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">polaris.run</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">STEP_COMPLETE_LOG</span><span class="p">,</span>
     <span class="n">complete_step_run</span><span class="p">,</span>
@@ -225,16 +226,17 @@
                 <span class="p">)</span>
                 <span class="n">step_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">''</span><span class="p">)</span>
                 <span class="n">_log_sizing</span><span class="p">(</span><span class="n">step</span><span class="p">,</span> <span class="n">step_resources</span><span class="p">,</span> <span class="n">step_logger</span><span class="p">,</span> <span class="s1">'at launch'</span><span class="p">)</span>
-                <span class="n">step</span><span class="o">.</span><span class="n">component</span><span class="o">.</span><span class="n">run_parallel_command</span><span class="p">(</span>
-                    <span class="n">args</span><span class="p">,</span>
-                    <span class="n">step</span><span class="o">.</span><span class="n">cpus_per_task</span><span class="p">,</span>
-                    <span class="n">step</span><span class="o">.</span><span class="n">ntasks</span><span class="p">,</span>
-                    <span class="n">step</span><span class="o">.</span><span class="n">openmp_threads</span><span class="p">,</span>
-                    <span class="n">step</span><span class="o">.</span><span class="n">logger</span><span class="p">,</span>
-                    <span class="n">gpus</span><span class="o">=</span><span class="n">step</span><span class="o">.</span><span class="n">gpus</span><span class="p">,</span>
-                    <span class="n">placement</span><span class="o">=</span><span class="n">step</span><span class="o">.</span><span class="n">placement</span><span class="p">,</span>
-                    <span class="n">memory_cap</span><span class="o">=</span><span class="n">step</span><span class="o">.</span><span class="n">memory</span><span class="p">,</span>
-                <span class="p">)</span>
+                <span class="k">with</span> <span class="n">launching_step_command</span><span class="p">():</span>
+                    <span class="n">step</span><span class="o">.</span><span class="n">component</span><span class="o">.</span><span class="n">run_parallel_command</span><span class="p">(</span>
+                        <span class="n">args</span><span class="p">,</span>
+                        <span class="n">step</span><span class="o">.</span><span class="n">cpus_per_task</span><span class="p">,</span>
+                        <span class="n">step</span><span class="o">.</span><span class="n">ntasks</span><span class="p">,</span>
+                        <span class="n">step</span><span class="o">.</span><span class="n">openmp_threads</span><span class="p">,</span>
+                        <span class="n">step</span><span class="o">.</span><span class="n">logger</span><span class="p">,</span>
+                        <span class="n">gpus</span><span class="o">=</span><span class="n">step</span><span class="o">.</span><span class="n">gpus</span><span class="p">,</span>
+                        <span class="n">placement</span><span class="o">=</span><span class="n">step</span><span class="o">.</span><span class="n">placement</span><span class="p">,</span>
+                        <span class="n">memory_cap</span><span class="o">=</span><span class="n">step</span><span class="o">.</span><span class="n">memory</span><span class="p">,</span>
+                    <span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">step_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">''</span><span class="p">)</span>
             <span class="n">log_method_call</span><span class="p">(</span><span class="n">method</span><span class="o">=</span><span class="n">step</span><span class="o">.</span><span class="n">run</span><span class="p">,</span> <span class="n">logger</span><span class="o">=</span><span class="n">step_logger</span><span class="p">)</span>

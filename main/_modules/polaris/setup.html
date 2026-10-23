@@ -353,10 +353,9 @@
         <span class="n">_clean_tasks_and_steps</span><span class="p">(</span><span class="n">tasks</span><span class="p">,</span> <span class="n">work_dir</span><span class="p">)</span>
         <span class="nb">print</span><span class="p">(</span><span class="s1">''</span><span class="p">)</span>
 
-    <span class="n">_setup_configs</span><span class="p">(</span>
+    <span class="n">common_configs</span><span class="p">,</span> <span class="n">configs</span> <span class="o">=</span> <span class="n">_setup_configs</span><span class="p">(</span>
         <span class="n">component_configs</span><span class="o">=</span><span class="n">component_configs</span><span class="p">,</span>
         <span class="n">tasks</span><span class="o">=</span><span class="n">tasks</span><span class="p">,</span>
-        <span class="n">work_dir</span><span class="o">=</span><span class="n">work_dir</span><span class="p">,</span>
         <span class="n">copy_executable</span><span class="o">=</span><span class="n">copy_executable</span><span class="p">,</span>
     <span class="p">)</span>
 
@@ -369,6 +368,15 @@
     <span class="c1"># as cached in their configure() methods</span>
     <span class="n">_expand_and_mark_cached_steps</span><span class="p">(</span><span class="n">tasks</span><span class="p">,</span> <span class="n">cached_steps</span><span class="p">)</span>
 
+    <span class="c1"># every step declares its inputs and outputs before any of them is set</span>
+    <span class="c1"># up in its work directory, so that steps whose outputs nothing will use</span>
+    <span class="c1"># are left out before anything is written or downloaded for them</span>
+    <span class="n">_call_step_setup</span><span class="p">(</span><span class="n">tasks</span><span class="p">,</span> <span class="n">work_dir</span><span class="p">)</span>
+    <span class="n">skipped_steps</span> <span class="o">=</span> <span class="n">_skip_steps_feeding_only_cached</span><span class="p">(</span><span class="n">tasks</span><span class="p">)</span>
+
+    <span class="n">_write_configs</span><span class="p">(</span><span class="n">common_configs</span><span class="p">,</span> <span class="n">configs</span><span class="p">,</span> <span class="n">work_dir</span><span class="p">)</span>
+    <span class="n">_symlink_configs</span><span class="p">(</span><span class="n">tasks</span><span class="p">,</span> <span class="n">work_dir</span><span class="p">)</span>
+
     <span class="nb">print</span><span class="p">(</span><span class="s1">'Setting up tasks:'</span><span class="p">)</span>
     <span class="k">for</span> <span class="n">path</span><span class="p">,</span> <span class="n">task</span> <span class="ow">in</span> <span class="n">tasks</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
         <span class="n">setup_task</span><span class="p">(</span>
@@ -378,6 +386,7 @@
             <span class="n">work_dir</span><span class="p">,</span>
             <span class="n">baseline_dir</span><span class="p">,</span>
             <span class="n">cached_steps</span><span class="o">=</span><span class="n">cached_steps</span><span class="p">[</span><span class="n">path</span><span class="p">],</span>
+            <span class="n">skipped_steps</span><span class="o">=</span><span class="n">skipped_steps</span><span class="p">[</span><span class="n">path</span><span class="p">],</span>
         <span class="p">)</span>
 
     <span class="n">_check_dependencies</span><span class="p">(</span><span class="n">tasks</span><span class="p">)</span>
@@ -442,7 +451,9 @@
 
 <div class="viewcode-block" id="setup_task">
 <a class="viewcode-back" href="../../developers_guide/generated/polaris.setup.setup_task.html#polaris.setup.setup_task">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">setup_task</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">task</span><span class="p">,</span> <span class="n">machine</span><span class="p">,</span> <span class="n">work_dir</span><span class="p">,</span> <span class="n">baseline_dir</span><span class="p">,</span> <span class="n">cached_steps</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">setup_task</span><span class="p">(</span>
+    <span class="n">path</span><span class="p">,</span> <span class="n">task</span><span class="p">,</span> <span class="n">machine</span><span class="p">,</span> <span class="n">work_dir</span><span class="p">,</span> <span class="n">baseline_dir</span><span class="p">,</span> <span class="n">cached_steps</span><span class="p">,</span> <span class="n">skipped_steps</span>
+<span class="p">):</span>
 <span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Set up one or more tasks</span>
 
@@ -467,6 +478,10 @@
 <span class="sd">    cached_steps : list of str</span>
 <span class="sd">        Which steps (if any) should read their outputs from the cache,</span>
 <span class="sd">        identified by a list of subdirectories in the component</span>
+
+<span class="sd">    skipped_steps : list of str</span>
+<span class="sd">        The names of steps that were left out of the task because only</span>
+<span class="sd">        cached steps use their outputs</span>
 <span class="sd">    """</span>
 
     <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">'  </span><span class="si">{</span><span class="n">path</span><span class="si">}</span><span class="s1">'</span><span class="p">)</span>
@@ -486,6 +501,10 @@
     <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">cached_steps</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
         <span class="n">print_steps</span> <span class="o">=</span> <span class="s1">' '</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">cached_steps</span><span class="p">)</span>
         <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">'    steps with cached outputs: </span><span class="si">{</span><span class="n">print_steps</span><span class="si">}</span><span class="s1">'</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">skipped_steps</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">print_steps</span> <span class="o">=</span> <span class="s1">' '</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">skipped_steps</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">'    steps not needed with cached outputs: </span><span class="si">{</span><span class="n">print_steps</span><span class="si">}</span><span class="s1">'</span><span class="p">)</span>
 
     <span class="c1"># iterate over steps</span>
     <span class="k">for</span> <span class="n">step</span> <span class="ow">in</span> <span class="n">task</span><span class="o">.</span><span class="n">steps</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
@@ -870,13 +889,163 @@
         <span class="p">]</span>
 
 
+<span class="k">def</span><span class="w"> </span><span class="nf">_call_step_setup</span><span class="p">(</span><span class="n">tasks</span><span class="p">,</span> <span class="n">work_dir</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Call each step's ``setup()`` once, so that every step has declared its</span>
+<span class="sd">    inputs and outputs before any is set up in its work directory</span>
+<span class="sd">    """</span>
+    <span class="n">called</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">task</span> <span class="ow">in</span> <span class="n">tasks</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+        <span class="k">for</span> <span class="n">step</span> <span class="ow">in</span> <span class="n">task</span><span class="o">.</span><span class="n">steps</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">step</span><span class="o">.</span><span class="n">setup_complete</span> <span class="ow">or</span> <span class="n">step</span><span class="o">.</span><span class="n">path</span> <span class="ow">in</span> <span class="n">called</span><span class="p">:</span>
+                <span class="k">continue</span>
+            <span class="n">called</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">step</span><span class="o">.</span><span class="n">path</span><span class="p">)</span>
+            <span class="n">step</span><span class="o">.</span><span class="n">work_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">work_dir</span><span class="p">,</span> <span class="n">step</span><span class="o">.</span><span class="n">path</span><span class="p">)</span>
+            <span class="n">step</span><span class="o">.</span><span class="n">base_work_dir</span> <span class="o">=</span> <span class="n">work_dir</span>
+            <span class="n">step</span><span class="o">.</span><span class="n">setup</span><span class="p">()</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_skip_steps_feeding_only_cached</span><span class="p">(</span><span class="n">tasks</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Leave out of each task the steps whose outputs only cached steps use.</span>
+
+<span class="sd">    A cached step's outputs come from the cache, so the steps that would</span>
+<span class="sd">    have made its inputs have nothing to do unless another step that runs</span>
+<span class="sd">    uses what they make.  That goes for a step feeding only steps left out</span>
+<span class="sd">    in turn, too.  It is worked out from the steps' declared inputs, outputs</span>
+<span class="sd">    and dependencies, so it needs nothing from the steps themselves.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    skipped_steps : dict of str to list of str</span>
+<span class="sd">        The names of the steps left out of each task, keyed by task path</span>
+<span class="sd">    """</span>
+    <span class="n">steps</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">task</span> <span class="ow">in</span> <span class="n">tasks</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+        <span class="k">for</span> <span class="n">step</span> <span class="ow">in</span> <span class="n">task</span><span class="o">.</span><span class="n">steps</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+            <span class="n">steps</span><span class="p">[</span><span class="n">step</span><span class="o">.</span><span class="n">path</span><span class="p">]</span> <span class="o">=</span> <span class="n">step</span>
+
+    <span class="n">consumers</span> <span class="o">=</span> <span class="n">_find_consumers</span><span class="p">(</span><span class="n">steps</span><span class="p">)</span>
+
+    <span class="n">skipped</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+    <span class="n">changed</span> <span class="o">=</span> <span class="kc">True</span>
+    <span class="k">while</span> <span class="n">changed</span><span class="p">:</span>
+        <span class="n">changed</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="k">for</span> <span class="n">path</span><span class="p">,</span> <span class="n">step</span> <span class="ow">in</span> <span class="n">steps</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">step</span><span class="o">.</span><span class="n">cached</span> <span class="ow">or</span> <span class="n">path</span> <span class="ow">in</span> <span class="n">skipped</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">consumers</span><span class="p">[</span><span class="n">path</span><span class="p">]:</span>
+                <span class="k">continue</span>
+            <span class="k">if</span> <span class="nb">all</span><span class="p">(</span>
+                <span class="n">steps</span><span class="p">[</span><span class="n">user</span><span class="p">]</span><span class="o">.</span><span class="n">cached</span> <span class="ow">or</span> <span class="n">user</span> <span class="ow">in</span> <span class="n">skipped</span>
+                <span class="k">for</span> <span class="n">user</span> <span class="ow">in</span> <span class="n">consumers</span><span class="p">[</span><span class="n">path</span><span class="p">]</span>
+            <span class="p">):</span>
+                <span class="n">skipped</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+                <span class="n">changed</span> <span class="o">=</span> <span class="kc">True</span>
+
+    <span class="n">skipped_steps</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">task_path</span><span class="p">,</span> <span class="n">task</span> <span class="ow">in</span> <span class="n">tasks</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="n">names</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">name</span> <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">step</span> <span class="ow">in</span> <span class="n">task</span><span class="o">.</span><span class="n">steps</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">step</span><span class="o">.</span><span class="n">path</span> <span class="ow">in</span> <span class="n">skipped</span>
+        <span class="p">]</span>
+        <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">names</span><span class="p">:</span>
+            <span class="n">task</span><span class="o">.</span><span class="n">remove_step</span><span class="p">(</span><span class="n">task</span><span class="o">.</span><span class="n">steps</span><span class="p">[</span><span class="n">name</span><span class="p">])</span>
+        <span class="k">if</span> <span class="n">names</span><span class="p">:</span>
+            <span class="n">_set_steps_to_run</span><span class="p">(</span><span class="n">task</span><span class="p">)</span>
+        <span class="n">skipped_steps</span><span class="p">[</span><span class="n">task_path</span><span class="p">]</span> <span class="o">=</span> <span class="n">names</span>
+    <span class="k">return</span> <span class="n">skipped_steps</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_find_consumers</span><span class="p">(</span><span class="n">steps</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Find the steps that use each step's outputs or name it as a dependency.</span>
+
+<span class="sd">    Nothing is linked or downloaded yet, so an input is followed to where</span>
+<span class="sd">    it will point once it is, including through another step's input.</span>
+<span class="sd">    """</span>
+    <span class="n">producers</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">path</span><span class="p">,</span> <span class="n">step</span> <span class="ow">in</span> <span class="n">steps</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="k">for</span> <span class="n">output</span> <span class="ow">in</span> <span class="n">step</span><span class="o">.</span><span class="n">outputs</span><span class="p">:</span>
+            <span class="n">filename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">normpath</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">step</span><span class="o">.</span><span class="n">work_dir</span><span class="p">,</span> <span class="n">output</span><span class="p">))</span>
+            <span class="n">producers</span><span class="p">[</span><span class="n">filename</span><span class="p">]</span> <span class="o">=</span> <span class="n">path</span>
+
+    <span class="n">links</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+    <span class="n">targets</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">path</span><span class="p">,</span> <span class="n">step</span> <span class="ow">in</span> <span class="n">steps</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="n">targets</span><span class="p">[</span><span class="n">path</span><span class="p">]</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">entry</span> <span class="ow">in</span> <span class="n">step</span><span class="o">.</span><span class="n">input_data</span><span class="p">:</span>
+            <span class="n">link</span><span class="p">,</span> <span class="n">target</span> <span class="o">=</span> <span class="n">_declared_input</span><span class="p">(</span><span class="n">entry</span><span class="p">,</span> <span class="n">step</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">target</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">continue</span>
+            <span class="k">if</span> <span class="n">link</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">links</span><span class="p">[</span><span class="n">link</span><span class="p">]</span> <span class="o">=</span> <span class="n">target</span>
+            <span class="n">targets</span><span class="p">[</span><span class="n">path</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">target</span><span class="p">)</span>
+
+    <span class="n">consumers</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">set</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="n">path</span><span class="p">:</span> <span class="nb">set</span><span class="p">()</span> <span class="k">for</span> <span class="n">path</span> <span class="ow">in</span> <span class="n">steps</span><span class="p">}</span>
+    <span class="k">for</span> <span class="n">path</span><span class="p">,</span> <span class="n">step</span> <span class="ow">in</span> <span class="n">steps</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="k">for</span> <span class="n">dependency</span> <span class="ow">in</span> <span class="n">step</span><span class="o">.</span><span class="n">dependencies</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">dependency</span><span class="o">.</span><span class="n">path</span> <span class="ow">in</span> <span class="n">consumers</span> <span class="ow">and</span> <span class="n">dependency</span><span class="o">.</span><span class="n">path</span> <span class="o">!=</span> <span class="n">path</span><span class="p">:</span>
+                <span class="n">consumers</span><span class="p">[</span><span class="n">dependency</span><span class="o">.</span><span class="n">path</span><span class="p">]</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">target</span> <span class="ow">in</span> <span class="n">targets</span><span class="p">[</span><span class="n">path</span><span class="p">]:</span>
+            <span class="n">producer</span> <span class="o">=</span> <span class="n">_producer_of</span><span class="p">(</span><span class="n">target</span><span class="p">,</span> <span class="n">producers</span><span class="p">,</span> <span class="n">links</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">producer</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">producer</span> <span class="o">!=</span> <span class="n">path</span><span class="p">:</span>
+                <span class="n">consumers</span><span class="p">[</span><span class="n">producer</span><span class="p">]</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">consumers</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_declared_input</span><span class="p">(</span><span class="n">entry</span><span class="p">,</span> <span class="n">step</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Where an input will be linked in the step's work directory and the file</span>
+<span class="sd">    it will point to.  The link is ``None`` for a file the step expects in</span>
+<span class="sd">    its work directory already, and the file is ``None`` for one that comes</span>
+<span class="sd">    from a database, a URL or a package, which no step produces.</span>
+<span class="sd">    """</span>
+    <span class="n">filename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">normpath</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">step</span><span class="o">.</span><span class="n">work_dir</span><span class="p">,</span> <span class="n">entry</span><span class="p">[</span><span class="s1">'filename'</span><span class="p">]))</span>
+    <span class="k">if</span> <span class="p">(</span>
+        <span class="n">entry</span><span class="p">[</span><span class="s1">'database'</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+        <span class="ow">or</span> <span class="n">entry</span><span class="p">[</span><span class="s1">'url'</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+        <span class="ow">or</span> <span class="n">entry</span><span class="p">[</span><span class="s1">'package'</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+    <span class="p">):</span>
+        <span class="k">return</span> <span class="n">filename</span><span class="p">,</span> <span class="kc">None</span>
+
+    <span class="k">if</span> <span class="n">entry</span><span class="p">[</span><span class="s1">'work_dir_target'</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">target</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">step</span><span class="o">.</span><span class="n">base_work_dir</span><span class="p">,</span> <span class="n">entry</span><span class="p">[</span><span class="s1">'work_dir_target'</span><span class="p">])</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">target</span> <span class="o">=</span> <span class="n">entry</span><span class="p">[</span><span class="s1">'target'</span><span class="p">]</span>
+
+    <span class="k">if</span> <span class="n">target</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">None</span><span class="p">,</span> <span class="n">filename</span>
+
+    <span class="c1"># a relative target is relative to the directory the link is in</span>
+    <span class="n">target</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">filename</span><span class="p">),</span> <span class="n">target</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">filename</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">normpath</span><span class="p">(</span><span class="n">target</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_producer_of</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">producers</span><span class="p">,</span> <span class="n">links</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""The step that produces a file, following declared links to it"""</span>
+    <span class="n">seen</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+    <span class="k">while</span> <span class="n">filename</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">producers</span> <span class="ow">and</span> <span class="n">filename</span> <span class="ow">in</span> <span class="n">links</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">filename</span> <span class="ow">in</span> <span class="n">seen</span><span class="p">:</span>
+            <span class="k">break</span>
+        <span class="n">seen</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
+        <span class="n">filename</span> <span class="o">=</span> <span class="n">links</span><span class="p">[</span><span class="n">filename</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">producers</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
+
+
 <span class="k">def</span><span class="w"> </span><span class="nf">_setup_configs</span><span class="p">(</span>
     <span class="n">component_configs</span><span class="p">,</span>
     <span class="n">tasks</span><span class="p">,</span>
-    <span class="n">work_dir</span><span class="p">,</span>
     <span class="n">copy_executable</span><span class="p">,</span>
 <span class="p">):</span>
-<span class="w">    </span><span class="sd">"""Set up config parsers for each component in use"""</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Set up config parsers for each component in use</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    common_configs : dict of polaris.config.PolarisConfigParser</span>
+<span class="sd">        The config options of each component in use, keyed by its name</span>
+
+<span class="sd">    configs : dict of polaris.config.PolarisConfigParser</span>
+<span class="sd">        The config parsers of the tasks and shared steps, keyed by file path</span>
+<span class="sd">    """</span>
 
     <span class="n">common_configs</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
     <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">component_config</span> <span class="ow">in</span> <span class="n">component_configs</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
@@ -901,9 +1070,7 @@
         <span class="n">tasks</span><span class="p">,</span> <span class="n">initial_configs</span><span class="p">,</span> <span class="n">common_configs</span>
     <span class="p">)</span>
 
-    <span class="n">_write_configs</span><span class="p">(</span><span class="n">common_configs</span><span class="p">,</span> <span class="n">configs</span><span class="p">,</span> <span class="n">work_dir</span><span class="p">)</span>
-
-    <span class="n">_symlink_configs</span><span class="p">(</span><span class="n">tasks</span><span class="p">,</span> <span class="n">work_dir</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">common_configs</span><span class="p">,</span> <span class="n">configs</span>
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_add_task_configs</span><span class="p">(</span><span class="n">tasks</span><span class="p">,</span> <span class="n">common_configs</span><span class="p">):</span>
@@ -946,13 +1113,7 @@
     <span class="k">for</span> <span class="n">config</span> <span class="ow">in</span> <span class="n">initial_configs</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
         <span class="k">for</span> <span class="n">task</span> <span class="ow">in</span> <span class="n">config</span><span class="o">.</span><span class="n">tasks</span><span class="p">:</span>
             <span class="n">task</span><span class="o">.</span><span class="n">configure</span><span class="p">()</span>
-            <span class="n">config</span><span class="o">.</span><span class="n">set</span><span class="p">(</span>
-                <span class="n">section</span><span class="o">=</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">task</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s1">'</span><span class="p">,</span>
-                <span class="n">option</span><span class="o">=</span><span class="s1">'steps_to_run'</span><span class="p">,</span>
-                <span class="n">value</span><span class="o">=</span><span class="s1">' '</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">task</span><span class="o">.</span><span class="n">steps_to_run</span><span class="p">),</span>
-                <span class="n">comment</span><span class="o">=</span><span class="sa">f</span><span class="s1">'A list of steps to include when running the '</span>
-                <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">task</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s1"> task'</span><span class="p">,</span>
-            <span class="p">)</span>
+            <span class="n">_set_steps_to_run</span><span class="p">(</span><span class="n">task</span><span class="p">)</span>
 
     <span class="c1"># add configs to steps after calling task.configure() on all tasks in case</span>
     <span class="c1"># new steps were added</span>
@@ -983,6 +1144,17 @@
         <span class="n">config</span><span class="o">.</span><span class="n">setup</span><span class="p">()</span>
 
     <span class="k">return</span> <span class="n">configs</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_set_steps_to_run</span><span class="p">(</span><span class="n">task</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""Record the steps a task runs by default in its config options"""</span>
+    <span class="n">task</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">set</span><span class="p">(</span>
+        <span class="n">section</span><span class="o">=</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">task</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s1">'</span><span class="p">,</span>
+        <span class="n">option</span><span class="o">=</span><span class="s1">'steps_to_run'</span><span class="p">,</span>
+        <span class="n">value</span><span class="o">=</span><span class="s1">' '</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">task</span><span class="o">.</span><span class="n">steps_to_run</span><span class="p">),</span>
+        <span class="n">comment</span><span class="o">=</span><span class="sa">f</span><span class="s1">'A list of steps to include when running the '</span>
+        <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">task</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s1"> task'</span><span class="p">,</span>
+    <span class="p">)</span>
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_check_config_owner</span><span class="p">(</span><span class="n">step</span><span class="p">,</span> <span class="n">owners</span><span class="p">):</span>
@@ -1604,12 +1776,6 @@
         <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">step_dir</span><span class="p">)</span>
     <span class="k">except</span> <span class="ne">FileExistsError</span><span class="p">:</span>
         <span class="k">pass</span>
-
-    <span class="n">step</span><span class="o">.</span><span class="n">work_dir</span> <span class="o">=</span> <span class="n">step_dir</span>
-    <span class="n">step</span><span class="o">.</span><span class="n">base_work_dir</span> <span class="o">=</span> <span class="n">work_dir</span>
-
-    <span class="c1"># set up the step</span>
-    <span class="n">step</span><span class="o">.</span><span class="n">setup</span><span class="p">()</span>
 
     <span class="c1"># add the baseline directory for this step</span>
     <span class="k">if</span> <span class="n">baseline_dir</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>

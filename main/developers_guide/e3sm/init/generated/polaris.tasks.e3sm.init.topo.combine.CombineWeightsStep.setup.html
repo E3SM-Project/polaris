@@ -6,7 +6,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>polaris.tasks.e3sm.init.topo.remap.RemapTopoStep.constrain_resources</title>
+  <title>polaris.tasks.e3sm.init.topo.combine.CombineWeightsStep.setup</title>
       <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css?v=9edc463e" />
 
@@ -19,8 +19,8 @@
     <script src="../../../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../../../genindex.html" />
     <link rel="search" title="Search" href="../../../../search.html" />
-    <link rel="next" title="polaris.tasks.e3sm.init.topo.remap.RemapTopoStep.define_smoothing" href="polaris.tasks.e3sm.init.topo.remap.RemapTopoStep.define_smoothing.html" />
-    <link rel="prev" title="polaris.tasks.e3sm.init.topo.remap.RemapTopoStep.setup" href="polaris.tasks.e3sm.init.topo.remap.RemapTopoStep.setup.html" />
+    <link rel="next" title="polaris.tasks.e3sm.init.topo.combine.CombineWeightsStep.constrain_resources" href="polaris.tasks.e3sm.init.topo.combine.CombineWeightsStep.constrain_resources.html" />
+    <link rel="prev" title="polaris.tasks.e3sm.init.topo.combine.CombineWeightsStep" href="polaris.tasks.e3sm.init.topo.combine.CombineWeightsStep.html" />
     <link href="../../../../_static/style.css" rel="stylesheet" type="text/css">
 
 </head>
@@ -119,9 +119,9 @@
       <li><a href="../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
           <li class="breadcrumb-item"><a href="../../../api.html">API reference</a></li>
           <li class="breadcrumb-item"><a href="../api.html">e3sm/init</a></li>
-      <li class="breadcrumb-item active">polaris.tasks.e3sm.init.topo.remap.RemapTopoStep.constrain_resources</li>
+      <li class="breadcrumb-item active">polaris.tasks.e3sm.init.topo.combine.CombineWeightsStep.setup</li>
       <li class="wy-breadcrumbs-aside">
-            <a href="../../../../_sources/developers_guide/e3sm/init/generated/polaris.tasks.e3sm.init.topo.remap.RemapTopoStep.constrain_resources.rst.txt" rel="nofollow"> View page source</a>
+            <a href="../../../../_sources/developers_guide/e3sm/init/generated/polaris.tasks.e3sm.init.topo.combine.CombineWeightsStep.setup.rst.txt" rel="nofollow"> View page source</a>
       </li>
   </ul>
   <hr/>
@@ -129,18 +129,13 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="polaris-tasks-e3sm-init-topo-remap-remaptopostep-constrain-resources">
-<h1>polaris.tasks.e3sm.init.topo.remap.RemapTopoStep.constrain_resources<a class="headerlink" href="#polaris-tasks-e3sm-init-topo-remap-remaptopostep-constrain-resources" title="Link to this heading"></a></h1>
+  <section id="polaris-tasks-e3sm-init-topo-combine-combineweightsstep-setup">
+<h1>polaris.tasks.e3sm.init.topo.combine.CombineWeightsStep.setup<a class="headerlink" href="#polaris-tasks-e3sm-init-topo-combine-combineweightsstep-setup" title="Link to this heading"></a></h1>
 <dl class="py method">
-<dt class="sig sig-object py" id="polaris.tasks.e3sm.init.topo.remap.RemapTopoStep.constrain_resources">
-<span class="sig-prename descclassname"><span class="pre">RemapTopoStep.</span></span><span class="sig-name descname"><span class="pre">constrain_resources</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">available_resources</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/polaris/tasks/e3sm/init/topo/remap/remap.html#RemapTopoStep.constrain_resources"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#polaris.tasks.e3sm.init.topo.remap.RemapTopoStep.constrain_resources" title="Link to this definition"></a></dt>
-<dd><p>Constrain <code class="docutils literal notranslate"><span class="pre">cpus_per_task</span></code> and <code class="docutils literal notranslate"><span class="pre">ntasks</span></code> based on the number of
-cores available to this step</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>available_resources</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="(in Python v3.15)"><em>dict</em></a>) – The total number of cores available to the step</p>
-</dd>
-</dl>
+<dt class="sig sig-object py" id="polaris.tasks.e3sm.init.topo.combine.CombineWeightsStep.setup">
+<span class="sig-prename descclassname"><span class="pre">CombineWeightsStep.</span></span><span class="sig-name descname"><span class="pre">setup</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/polaris/tasks/e3sm/init/topo/combine/weights.html#CombineWeightsStep.setup"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#polaris.tasks.e3sm.init.topo.combine.CombineWeightsStep.setup" title="Link to this definition"></a></dt>
+<dd><p>Set up the step in the work directory, including linking the tiles
+and SCRIP files and making the commands</p>
 </dd></dl>
 
 </section>
@@ -149,8 +144,8 @@ cores available to this step</p>
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="polaris.tasks.e3sm.init.topo.remap.RemapTopoStep.setup.html" class="btn btn-neutral float-left" title="polaris.tasks.e3sm.init.topo.remap.RemapTopoStep.setup" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="polaris.tasks.e3sm.init.topo.remap.RemapTopoStep.define_smoothing.html" class="btn btn-neutral float-right" title="polaris.tasks.e3sm.init.topo.remap.RemapTopoStep.define_smoothing" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="polaris.tasks.e3sm.init.topo.combine.CombineWeightsStep.html" class="btn btn-neutral float-left" title="polaris.tasks.e3sm.init.topo.combine.CombineWeightsStep" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="polaris.tasks.e3sm.init.topo.combine.CombineWeightsStep.constrain_resources.html" class="btn btn-neutral float-right" title="polaris.tasks.e3sm.init.topo.combine.CombineWeightsStep.constrain_resources" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>

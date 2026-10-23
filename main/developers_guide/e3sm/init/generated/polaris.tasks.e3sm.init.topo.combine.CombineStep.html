@@ -20,7 +20,7 @@
     <link rel="index" title="Index" href="../../../../genindex.html" />
     <link rel="search" title="Search" href="../../../../search.html" />
     <link rel="next" title="polaris.tasks.e3sm.init.topo.combine.CombineStep.get_subdir" href="polaris.tasks.e3sm.init.topo.combine.CombineStep.get_subdir.html" />
-    <link rel="prev" title="polaris.e3sm.init.topo.uses_low_res_cubed_sphere" href="polaris.e3sm.init.topo.uses_low_res_cubed_sphere.html" />
+    <link rel="prev" title="polaris.tasks.e3sm.init.topo.combine.CombineWeightsStep.constrain_resources" href="polaris.tasks.e3sm.init.topo.combine.CombineWeightsStep.constrain_resources.html" />
     <link href="../../../../_static/style.css" rel="stylesheet" type="text/css">
 
 </head>
@@ -133,8 +133,11 @@
 <h1>polaris.tasks.e3sm.init.topo.combine.CombineStep<a class="headerlink" href="#polaris-tasks-e3sm-init-topo-combine-combinestep" title="Link to this heading"></a></h1>
 <dl class="py class">
 <dt class="sig sig-object py" id="polaris.tasks.e3sm.init.topo.combine.CombineStep">
-<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">polaris.tasks.e3sm.init.topo.combine.</span></span><span class="sig-name descname"><span class="pre">CombineStep</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">component</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">subdir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target_grid</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">resolution_name</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/polaris/tasks/e3sm/init/topo/combine/step.html#CombineStep"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#polaris.tasks.e3sm.init.topo.combine.CombineStep" title="Link to this definition"></a></dt>
-<dd><p>A step for combining global and antarctic topography datasets</p>
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">polaris.tasks.e3sm.init.topo.combine.</span></span><span class="sig-name descname"><span class="pre">CombineStep</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">component</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">subdir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target_grid</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">resolution_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">prepare_step</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">weights_step</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/polaris/tasks/e3sm/init/topo/combine/step.html#CombineStep"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#polaris.tasks.e3sm.init.topo.combine.CombineStep" title="Link to this definition"></a></dt>
+<dd><p>A step for combining global and antarctic topography datasets.  It remaps
+them with the weights from
+<a class="reference internal" href="polaris.tasks.e3sm.init.topo.combine.CombineWeightsStep.html#polaris.tasks.e3sm.init.topo.combine.CombineWeightsStep" title="polaris.tasks.e3sm.init.topo.combine.CombineWeightsStep"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.tasks.e3sm.init.topo.combine.CombineWeightsStep</span></code></a> and
+blends them.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Variables<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -143,12 +146,14 @@
 <li><p><strong>combined_filename</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><em>str</em></a>) – name of the combined topography file</p></li>
 <li><p><strong>dst_scrip_filename</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><em>str</em></a>) – name of the destination SCRIP file</p></li>
 <li><p><strong>exodus_filename</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><em>str</em></a>) – name of the exodus file for the cubed sphere mesh</p></li>
+<li><p><strong>prepare_step</strong> (<a class="reference internal" href="polaris.tasks.e3sm.init.topo.combine.PrepareCombineStep.html#polaris.tasks.e3sm.init.topo.combine.PrepareCombineStep" title="polaris.tasks.e3sm.init.topo.combine.PrepareCombineStep"><em>polaris.tasks.e3sm.init.topo.combine.PrepareCombineStep</em></a>) – The step that gets the datasets ready to remap</p></li>
+<li><p><strong>weights_step</strong> (<a class="reference internal" href="polaris.tasks.e3sm.init.topo.combine.CombineWeightsStep.html#polaris.tasks.e3sm.init.topo.combine.CombineWeightsStep" title="polaris.tasks.e3sm.init.topo.combine.CombineWeightsStep"><em>polaris.tasks.e3sm.init.topo.combine.CombineWeightsStep</em></a>) – The step that makes the remapping weights</p></li>
 </ul>
 </dd>
 </dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="polaris.tasks.e3sm.init.topo.combine.CombineStep.__init__">
-<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">component</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">subdir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target_grid</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">resolution_name</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/polaris/tasks/e3sm/init/topo/combine/step.html#CombineStep.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#polaris.tasks.e3sm.init.topo.combine.CombineStep.__init__" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">component</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">subdir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target_grid</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">resolution_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">prepare_step</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">weights_step</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/polaris/tasks/e3sm/init/topo/combine/step.html#CombineStep.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#polaris.tasks.e3sm.init.topo.combine.CombineStep.__init__" title="Link to this definition"></a></dt>
 <dd><p>Create a new step</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -157,6 +162,8 @@
 <li><p><strong>subdir</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><em>str</em></a>) – The subdirectory within the component’s work directory</p></li>
 <li><p><strong>target_grid</strong> (<em>{'cubed_sphere'</em><em>, </em><em>'lat_lon'}</em>) – The type of target grid for the combined topography</p></li>
 <li><p><strong>resolution_name</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><em>str</em></a>) – The target resolution name for the combined topography</p></li>
+<li><p><strong>prepare_step</strong> (<a class="reference internal" href="polaris.tasks.e3sm.init.topo.combine.PrepareCombineStep.html#polaris.tasks.e3sm.init.topo.combine.PrepareCombineStep" title="polaris.tasks.e3sm.init.topo.combine.PrepareCombineStep"><em>polaris.tasks.e3sm.init.topo.combine.PrepareCombineStep</em></a>) – The step that gets the datasets ready to remap</p></li>
+<li><p><strong>weights_step</strong> (<a class="reference internal" href="polaris.tasks.e3sm.init.topo.combine.CombineWeightsStep.html#polaris.tasks.e3sm.init.topo.combine.CombineWeightsStep" title="polaris.tasks.e3sm.init.topo.combine.CombineWeightsStep"><em>polaris.tasks.e3sm.init.topo.combine.CombineWeightsStep</em></a>) – The step that makes the remapping weights</p></li>
 </ul>
 </dd>
 </dl>
@@ -189,7 +196,7 @@
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">check_properties</span></code>()</p></td>
 <td><p>Check conservation properties of the output files of this step.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="polaris.tasks.e3sm.init.topo.combine.CombineStep.constrain_resources.html#polaris.tasks.e3sm.init.topo.combine.CombineStep.constrain_resources" title="polaris.tasks.e3sm.init.topo.combine.CombineStep.constrain_resources"><code class="xref py py-obj docutils literal notranslate"><span class="pre">constrain_resources</span></code></a>(available_resources)</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">constrain_resources</span></code>(available_resources)</p></td>
 <td><p>Constrain <code class="docutils literal notranslate"><span class="pre">cpus_per_task</span></code> and <code class="docutils literal notranslate"><span class="pre">ntasks</span></code> based on the number of cores available to this step</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="polaris.tasks.e3sm.init.topo.combine.CombineStep.get_name.html#polaris.tasks.e3sm.init.topo.combine.CombineStep.get_name" title="polaris.tasks.e3sm.init.topo.combine.CombineStep.get_name"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_name</span></code></a>(target_grid, resolution_name)</p></td>
@@ -214,7 +221,7 @@
 <td><p>Replace the step's config parser with the shared config parser</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="polaris.tasks.e3sm.init.topo.combine.CombineStep.setup.html#polaris.tasks.e3sm.init.topo.combine.CombineStep.setup" title="polaris.tasks.e3sm.init.topo.combine.CombineStep.setup"><code class="xref py py-obj docutils literal notranslate"><span class="pre">setup</span></code></a>()</p></td>
-<td><p>Set up the step in the work directory, including downloading any dependencies.</p></td>
+<td><p>Set up the step in the work directory, including linking the files from the steps that prepare the datasets and make the weights</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">validate_baselines</span></code>()</p></td>
 <td><p>Compare variables between output files in this step and in the same step from a baseline run if one was provided.</p></td>
@@ -261,7 +268,7 @@
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="polaris.e3sm.init.topo.uses_low_res_cubed_sphere.html" class="btn btn-neutral float-left" title="polaris.e3sm.init.topo.uses_low_res_cubed_sphere" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="polaris.tasks.e3sm.init.topo.combine.CombineWeightsStep.constrain_resources.html" class="btn btn-neutral float-left" title="polaris.tasks.e3sm.init.topo.combine.CombineWeightsStep.constrain_resources" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
         <a href="polaris.tasks.e3sm.init.topo.combine.CombineStep.get_subdir.html" class="btn btn-neutral float-right" title="polaris.tasks.e3sm.init.topo.combine.CombineStep.get_subdir" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 

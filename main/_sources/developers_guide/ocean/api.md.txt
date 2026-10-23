@@ -641,7 +641,7 @@
    lat_lon_map.LatLonMapStep
    lat_lon_map.LatLonMapStep.setup
    lat_lon_map.LatLonMapStep.constrain_resources
-   lat_lon_map.LatLonMapStep.run
+   lat_lon_map.LatLonMapStep.runtime_setup
 
    woa23_map.Woa23MapStep
 

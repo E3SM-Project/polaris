@@ -233,24 +233,23 @@ an environment and read back.</p>
 <code class="docutils literal notranslate"><span class="pre">mache</span></code> renders the flag only where it is enforced.  Polaris passes the cap
 for a step that <strong>declared</strong> <code class="docutils literal notranslate"><span class="pre">memory</span></code> and never for one carrying only the
 framework’s <code class="docutils literal notranslate"><span class="pre">memory_budget</span></code>:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="bp">self</span><span class="o">.</span><span class="n">component</span><span class="o">.</span><span class="n">run_parallel_command</span><span class="p">(</span>
-    <span class="n">args</span><span class="o">=</span><span class="n">args</span><span class="p">,</span>
-    <span class="n">cpus_per_task</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">cpus_per_task</span><span class="p">,</span>
-    <span class="n">ntasks</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">ntasks</span><span class="p">,</span>
-    <span class="n">openmp_threads</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">openmp_threads</span><span class="p">,</span>
-    <span class="n">logger</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="p">,</span>
-    <span class="n">gpus</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">gpus</span><span class="p">,</span>
-    <span class="n">placement</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">placement</span><span class="p">,</span>
-    <span class="n">memory_cap</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">memory</span><span class="p">,</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">step</span><span class="o">.</span><span class="n">component</span><span class="o">.</span><span class="n">run_parallel_command</span><span class="p">(</span>
+    <span class="n">args</span><span class="p">,</span>
+    <span class="n">step</span><span class="o">.</span><span class="n">cpus_per_task</span><span class="p">,</span>
+    <span class="n">step</span><span class="o">.</span><span class="n">ntasks</span><span class="p">,</span>
+    <span class="n">step</span><span class="o">.</span><span class="n">openmp_threads</span><span class="p">,</span>
+    <span class="n">step</span><span class="o">.</span><span class="n">logger</span><span class="p">,</span>
+    <span class="n">gpus</span><span class="o">=</span><span class="n">step</span><span class="o">.</span><span class="n">gpus</span><span class="p">,</span>
+    <span class="n">placement</span><span class="o">=</span><span class="n">step</span><span class="o">.</span><span class="n">placement</span><span class="p">,</span>
+    <span class="n">memory_cap</span><span class="o">=</span><span class="n">step</span><span class="o">.</span><span class="n">memory</span><span class="p">,</span>
 <span class="p">)</span>
 </pre></div>
 </div>
-<p>The framework does this for a step that runs its model through <code class="docutils literal notranslate"><span class="pre">args</span></code>, which
-is every <a class="reference internal" href="../generated/polaris.ModelStep.html#polaris.ModelStep" title="polaris.ModelStep"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.ModelStep</span></code></a>.  A step that calls
-<code class="docutils literal notranslate"><span class="pre">run_parallel_command()</span></code> itself should pass <code class="docutils literal notranslate"><span class="pre">memory_cap=self.memory</span></code> as
-above; <code class="docutils literal notranslate"><span class="pre">self.memory</span></code> is <code class="docutils literal notranslate"><span class="pre">None</span></code> for a step that declared nothing, which
-renders no cap at all, so the line is correct whether or not the step has
-been measured.</p>
+<p>The framework does this when it launches a step’s command (<code class="docutils literal notranslate"><span class="pre">args</span></code>), which is
+the only place a step may launch parallel work (see
+<a class="reference internal" href="task_parallelism.html#dev-step-launch-rule"><span class="std std-ref">Launch only through the step’s command</span></a>).  <code class="docutils literal notranslate"><span class="pre">step.memory</span></code> is <code class="docutils literal notranslate"><span class="pre">None</span></code> for a step that
+declared nothing, which renders no cap at all, so the cap is correct whether
+or not the step has been measured.</p>
 <p>The reason it is only for a declared figure is that a step which stated a
 number has made a claim and can fairly be held to it, while a step that said
 nothing is being estimated by the framework, and killing it for exceeding the

@@ -121,6 +121,7 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">polaris.tasks.e3sm.init</span><span class="w"> </span><span class="kn">import</span> <span class="n">e3sm_init</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">polaris.tasks.e3sm.init.topo.combine.step</span><span class="w"> </span><span class="kn">import</span> <span class="n">CombineStep</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">polaris.tasks.e3sm.init.topo.combine.steps</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">get_combine_topo_symlinks</span><span class="p">,</span>
     <span class="n">get_lat_lon_topo_steps</span><span class="p">,</span>
 <span class="p">)</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">polaris.tasks.mesh.spherical.unified.coastline.compute</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
@@ -205,9 +206,9 @@
     <span class="p">)</span>
     <span class="n">fine_combine_step</span> <span class="o">=</span> <span class="n">fine_combine_steps</span><span class="p">[</span><span class="n">fine_combine_step_name</span><span class="p">]</span>
 
-    <span class="n">steps</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Step</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
-        <span class="sa">f</span><span class="s1">'combine_topo_lat_lon_</span><span class="si">{</span><span class="n">fine_resolution_name</span><span class="si">}</span><span class="s1">'</span><span class="p">:</span> <span class="n">fine_combine_step</span>
-    <span class="p">}</span>
+    <span class="n">steps</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Step</span><span class="p">]</span> <span class="o">=</span> <span class="n">get_combine_topo_symlinks</span><span class="p">(</span>
+        <span class="n">fine_combine_step</span><span class="p">,</span> <span class="sa">f</span><span class="s1">'combine_topo_lat_lon_</span><span class="si">{</span><span class="n">fine_resolution_name</span><span class="si">}</span><span class="s1">'</span>
+    <span class="p">)</span>
 
     <span class="n">prepare_subdir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
         <span class="s1">'spherical'</span><span class="p">,</span>

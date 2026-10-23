@@ -186,12 +186,15 @@ method:</p>
 global lon-lat grid with a given resolution.  This is more convenient when you
 want to use config options to allow users to customize the step.  Note that
 you have to set a source and destination grid before calling
-<a class="reference internal" href="../generated/polaris.remap.MappingFileStep.run.html#polaris.remap.MappingFileStep.run" title="polaris.remap.MappingFileStep.run"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.remap.MappingFileStep.run()</span></code></a>.  In the example, the
-resolution of the lon-lat grid and the remapping method will be set using the
-config options provided while setting up the polaris task.  We call the
-<code class="docutils literal notranslate"><span class="pre">src_*()</span></code> and <code class="docutils literal notranslate"><span class="pre">dst_*()</span></code> methods of the <code class="docutils literal notranslate"><span class="pre">remapper</span></code> attribute in the <code class="docutils literal notranslate"><span class="pre">run()</span></code>
-method to make sure we pick up any changes to the config options that a user
-might have made before running the task:</p>
+<a class="reference internal" href="../generated/polaris.remap.MappingFileStep.runtime_setup.html#polaris.remap.MappingFileStep.runtime_setup" title="polaris.remap.MappingFileStep.runtime_setup"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.remap.MappingFileStep.runtime_setup()</span></code></a>, which writes the
+files the mapping tool reads and makes the tool’s command.  The step has no
+<code class="docutils literal notranslate"><span class="pre">run()</span></code> method: the framework launches that command with the step’s MPI
+resources.  In the example, the resolution of the lon-lat grid and the
+remapping method will be set using the config options provided while setting
+up the polaris task.  We call the <code class="docutils literal notranslate"><span class="pre">src_*()</span></code> and <code class="docutils literal notranslate"><span class="pre">dst_*()</span></code> methods of the
+<code class="docutils literal notranslate"><span class="pre">remapper</span></code> attribute in the <code class="docutils literal notranslate"><span class="pre">runtime_setup()</span></code> method to make sure we pick up
+any changes to the config options that a user might have made before running
+the task:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">polaris.remap</span><span class="w"> </span><span class="kn">import</span> <span class="n">MappingFileStep</span>
 
@@ -203,7 +206,7 @@ might have made before running the task:</p>
         <span class="bp">self</span><span class="o">.</span><span class="n">mesh_name</span> <span class="o">=</span> <span class="n">mesh_name</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">add_input_file</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="s1">'mesh.nc'</span><span class="p">,</span> <span class="n">target</span><span class="o">=</span><span class="s1">'../mesh/mesh.nc'</span><span class="p">)</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">runtime_setup</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">config</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span>
         <span class="n">section</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s1">'cosine_bell_viz'</span><span class="p">]</span>
         <span class="n">dlon</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">'dlon'</span><span class="p">)</span>
@@ -213,7 +216,7 @@ might have made before running the task:</p>
         <span class="bp">self</span><span class="o">.</span><span class="n">remapper</span><span class="o">.</span><span class="n">dst_global_lon_lat</span><span class="p">(</span><span class="n">dlon</span><span class="o">=</span><span class="n">dlon</span><span class="p">,</span> <span class="n">dlat</span><span class="o">=</span><span class="n">dlat</span><span class="p">,</span> <span class="n">lon_min</span><span class="o">=</span><span class="mf">0.</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">remapper</span><span class="o">.</span><span class="n">method</span> <span class="o">=</span> <span class="n">method</span>
 
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">runtime_setup</span><span class="p">()</span>
 </pre></div>
 </div>
 <p>It is important that the task that the step belongs to includes the required

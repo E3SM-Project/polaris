@@ -20,7 +20,7 @@
     <link rel="index" title="Index" href="../../../../genindex.html" />
     <link rel="search" title="Search" href="../../../../search.html" />
     <link rel="next" title="polaris.tasks.e3sm.init.topo.remap.RemapTopoStep.setup" href="polaris.tasks.e3sm.init.topo.remap.RemapTopoStep.setup.html" />
-    <link rel="prev" title="polaris.tasks.e3sm.init.topo.remap.MaskTopoStep.run" href="polaris.tasks.e3sm.init.topo.remap.MaskTopoStep.run.html" />
+    <link rel="prev" title="polaris.tasks.e3sm.init.topo.remap.RemapTopoWeightsStep.runtime_setup" href="polaris.tasks.e3sm.init.topo.remap.RemapTopoWeightsStep.runtime_setup.html" />
     <link href="../../../../_static/style.css" rel="stylesheet" type="text/css">
 
 </head>
@@ -133,11 +133,13 @@
 <h1>polaris.tasks.e3sm.init.topo.remap.RemapTopoStep<a class="headerlink" href="#polaris-tasks-e3sm-init-topo-remap-remaptopostep" title="Link to this heading"></a></h1>
 <dl class="py class">
 <dt class="sig sig-object py" id="polaris.tasks.e3sm.init.topo.remap.RemapTopoStep">
-<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">polaris.tasks.e3sm.init.topo.remap.</span></span><span class="sig-name descname"><span class="pre">RemapTopoStep</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">component</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">base_mesh_step</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">combine_topo_step</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mask_topo_step</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">subdir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">smoothing</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">unsmoothed_topo</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/polaris/tasks/e3sm/init/topo/remap/remap.html#RemapTopoStep"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#polaris.tasks.e3sm.init.topo.remap.RemapTopoStep" title="Link to this definition"></a></dt>
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">polaris.tasks.e3sm.init.topo.remap.</span></span><span class="sig-name descname"><span class="pre">RemapTopoStep</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">component</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">base_mesh_step</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">combine_topo_step</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mask_topo_step</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">prepare_step</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">weights_step</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">subdir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">smoothing</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">unsmoothed_topo</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/polaris/tasks/e3sm/init/topo/remap/remap.html#RemapTopoStep"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#polaris.tasks.e3sm.init.topo.remap.RemapTopoStep" title="Link to this definition"></a></dt>
 <dd><p>A step for remapping topography data such as base elevation and ice sheet
-properites from a cubed-sphere grid to a global MPAS base mesh.</p>
-<p>Note: This step cannot descend from
-{py:class}`polaris.remap.MappingFileStep` because the soruce mesh is a
+properties from a cubed-sphere grid to a global MPAS base mesh, using the
+weights from
+{py:class}`polaris.tasks.e3sm.init.topo.remap.RemapTopoWeightsStep`.</p>
+<p>Note: The step for making the weights cannot descend from
+{py:class}`polaris.remap.MappingFileStep` because the source mesh is a
 cubed-sphere grid, which is not currently supported by pyremap.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Variables<span class="colon">:</span></dt>
@@ -147,10 +149,11 @@ cubed-sphere grid, which is not currently supported by pyremap.</p>
 sphere grid</p></li>
 <li><p><strong>mask_topo_step</strong> (<em>polaris.tasks.e3sm.init.topo.MaskTopoStep</em>) – The step that applies a mask to a global topography dataset on a cubed
 sphere grid</p></li>
+<li><p><strong>prepare_step</strong> (<a class="reference internal" href="polaris.tasks.e3sm.init.topo.remap.PrepareRemapTopoStep.html#polaris.tasks.e3sm.init.topo.remap.PrepareRemapTopoStep" title="polaris.tasks.e3sm.init.topo.remap.PrepareRemapTopoStep"><em>polaris.tasks.e3sm.init.topo.remap.PrepareRemapTopoStep</em></a>) – The step that decides on smoothing and makes the SCRIP file for the
+MPAS mesh</p></li>
+<li><p><strong>weights_step</strong> (<a class="reference internal" href="polaris.tasks.e3sm.init.topo.remap.RemapTopoWeightsStep.html#polaris.tasks.e3sm.init.topo.remap.RemapTopoWeightsStep" title="polaris.tasks.e3sm.init.topo.remap.RemapTopoWeightsStep"><em>polaris.tasks.e3sm.init.topo.remap.RemapTopoWeightsStep</em></a>) – The step that makes the remapping weights</p></li>
 <li><p><strong>smoothing</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#bool" title="(in Python v3.15)"><em>bool</em></a><em>, </em><em>optional</em>) – Whether smoothing will be applied as part of the remapping</p></li>
 <li><p><strong>unsmoothed_topo</strong> (<em>polaris.tasks.e3sm.init.topo.RemapTopoStep</em><em>, </em><em>optional</em>) – A step with unsmoothed topography</p></li>
-<li><p><strong>expand_distance</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#float" title="(in Python v3.15)"><em>float</em></a><em> or </em><a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="(in xarray v2026.9.0)"><em>xarray.DataArray</em></a>) – The distance to expand the topography mask</p></li>
-<li><p><strong>expand_factor</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#float" title="(in Python v3.15)"><em>float</em></a><em> or </em><a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="(in xarray v2026.9.0)"><em>xarray.DataArray</em></a>) – The factor to expand the topography mask</p></li>
 <li><p><strong>do_remapping</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#bool" title="(in Python v3.15)"><em>bool</em></a>) – Whether to remap the topography.  If False, the step will symlink
 to the unsmoothed topography file.</p></li>
 </ul>
@@ -158,7 +161,7 @@ to the unsmoothed topography file.</p></li>
 </dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="polaris.tasks.e3sm.init.topo.remap.RemapTopoStep.__init__">
-<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">component</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">base_mesh_step</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">combine_topo_step</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mask_topo_step</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">subdir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">smoothing</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">unsmoothed_topo</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/polaris/tasks/e3sm/init/topo/remap/remap.html#RemapTopoStep.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#polaris.tasks.e3sm.init.topo.remap.RemapTopoStep.__init__" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">component</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">base_mesh_step</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">combine_topo_step</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mask_topo_step</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">prepare_step</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">weights_step</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">subdir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">smoothing</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">unsmoothed_topo</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/polaris/tasks/e3sm/init/topo/remap/remap.html#RemapTopoStep.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#polaris.tasks.e3sm.init.topo.remap.RemapTopoStep.__init__" title="Link to this definition"></a></dt>
 <dd><p>Create a new step</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -169,6 +172,9 @@ to the unsmoothed topography file.</p></li>
 sphere grid</p></li>
 <li><p><strong>mask_topo_step</strong> (<em>polaris.tasks.e3sm.init.topo.MaskTopoStep</em>) – The step that applies a mask to a global topography dataset on a
 cubed sphere grid</p></li>
+<li><p><strong>prepare_step</strong> (<a class="reference internal" href="polaris.tasks.e3sm.init.topo.remap.PrepareRemapTopoStep.html#polaris.tasks.e3sm.init.topo.remap.PrepareRemapTopoStep" title="polaris.tasks.e3sm.init.topo.remap.PrepareRemapTopoStep"><em>polaris.tasks.e3sm.init.topo.remap.PrepareRemapTopoStep</em></a>) – The step that decides on smoothing and makes the SCRIP file for
+the MPAS mesh</p></li>
+<li><p><strong>weights_step</strong> (<a class="reference internal" href="polaris.tasks.e3sm.init.topo.remap.RemapTopoWeightsStep.html#polaris.tasks.e3sm.init.topo.remap.RemapTopoWeightsStep" title="polaris.tasks.e3sm.init.topo.remap.RemapTopoWeightsStep"><em>polaris.tasks.e3sm.init.topo.remap.RemapTopoWeightsStep</em></a>) – The step that makes the remapping weights</p></li>
 <li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><em>str</em></a>) – the name of the step</p></li>
 <li><p><strong>subdir</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><em>str</em></a>) – the subdirectory for the step</p></li>
 <li><p><strong>smoothing</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#bool" title="(in Python v3.15)"><em>bool</em></a><em>, </em><em>optional</em>) – Whether smoothing will be applied as part of the remapping</p></li>
@@ -205,34 +211,31 @@ cubed sphere grid</p></li>
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">check_properties</span></code>()</p></td>
 <td><p>Check conservation properties of the output files of this step.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="polaris.tasks.e3sm.init.topo.remap.RemapTopoStep.constrain_resources.html#polaris.tasks.e3sm.init.topo.remap.RemapTopoStep.constrain_resources" title="polaris.tasks.e3sm.init.topo.remap.RemapTopoStep.constrain_resources"><code class="xref py py-obj docutils literal notranslate"><span class="pre">constrain_resources</span></code></a>(available_resources)</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">constrain_resources</span></code>(available_resources)</p></td>
 <td><p>Constrain <code class="docutils literal notranslate"><span class="pre">cpus_per_task</span></code> and <code class="docutils literal notranslate"><span class="pre">ntasks</span></code> based on the number of cores available to this step</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="polaris.tasks.e3sm.init.topo.remap.RemapTopoStep.define_smoothing.html#polaris.tasks.e3sm.init.topo.remap.RemapTopoStep.define_smoothing" title="polaris.tasks.e3sm.init.topo.remap.RemapTopoStep.define_smoothing"><code class="xref py py-obj docutils literal notranslate"><span class="pre">define_smoothing</span></code></a>(ds_unsmoothed)</p></td>
-<td><p>Define smoothing <code class="docutils literal notranslate"><span class="pre">expand_distance</span></code> and <code class="docutils literal notranslate"><span class="pre">expand_factor</span></code> fields.</p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">process_inputs_and_outputs</span></code>()</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">process_inputs_and_outputs</span></code>()</p></td>
 <td><p>Process the inputs to and outputs from a step added with <a class="reference internal" href="../../../generated/polaris.Step.add_input_file.html#polaris.Step.add_input_file" title="polaris.Step.add_input_file"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.Step.add_input_file()</span></code></a> and <a class="reference internal" href="../../../generated/polaris.Step.add_output_file.html#polaris.Step.add_output_file" title="polaris.Step.add_output_file"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.Step.add_output_file()</span></code></a>.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="polaris.tasks.e3sm.init.topo.remap.RemapTopoStep.run.html#polaris.tasks.e3sm.init.topo.remap.RemapTopoStep.run" title="polaris.tasks.e3sm.init.topo.remap.RemapTopoStep.run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">run</span></code></a>()</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="polaris.tasks.e3sm.init.topo.remap.RemapTopoStep.run.html#polaris.tasks.e3sm.init.topo.remap.RemapTopoStep.run" title="polaris.tasks.e3sm.init.topo.remap.RemapTopoStep.run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">run</span></code></a>()</p></td>
 <td><p>Run this step of the test case</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">runtime_setup</span></code>()</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">runtime_setup</span></code>()</p></td>
 <td><p>Update attributes of the step at runtime before calling the <code class="docutils literal notranslate"><span class="pre">run()</span></code> method.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_resources</span></code>([cpus_per_task, ...])</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_resources</span></code>([cpus_per_task, ...])</p></td>
 <td><p>Update the resources for the subtask.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_shared_config</span></code>(config[, link])</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_shared_config</span></code>(config[, link])</p></td>
 <td><p>Replace the step's config parser with the shared config parser</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="polaris.tasks.e3sm.init.topo.remap.RemapTopoStep.setup.html#polaris.tasks.e3sm.init.topo.remap.RemapTopoStep.setup" title="polaris.tasks.e3sm.init.topo.remap.RemapTopoStep.setup"><code class="xref py py-obj docutils literal notranslate"><span class="pre">setup</span></code></a>()</p></td>
-<td><p>Set up the step in the work directory, including downloading any dependencies.</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="polaris.tasks.e3sm.init.topo.remap.RemapTopoStep.setup.html#polaris.tasks.e3sm.init.topo.remap.RemapTopoStep.setup" title="polaris.tasks.e3sm.init.topo.remap.RemapTopoStep.setup"><code class="xref py py-obj docutils literal notranslate"><span class="pre">setup</span></code></a>()</p></td>
+<td><p>Set up the step in the work directory, including linking input files</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">validate_baselines</span></code>()</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">validate_baselines</span></code>()</p></td>
 <td><p>Compare variables between output files in this step and in the same step from a baseline run if one was provided.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">work_path</span></code>(*filenames)</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">work_path</span></code>(*filenames)</p></td>
 <td><p>Get the absolute path to a file or directory in the step's work directory</p></td>
 </tr>
 </tbody>
@@ -265,7 +268,7 @@ cubed sphere grid</p></li>
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="polaris.tasks.e3sm.init.topo.remap.MaskTopoStep.run.html" class="btn btn-neutral float-left" title="polaris.tasks.e3sm.init.topo.remap.MaskTopoStep.run" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="polaris.tasks.e3sm.init.topo.remap.RemapTopoWeightsStep.runtime_setup.html" class="btn btn-neutral float-left" title="polaris.tasks.e3sm.init.topo.remap.RemapTopoWeightsStep.runtime_setup" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
         <a href="polaris.tasks.e3sm.init.topo.remap.RemapTopoStep.setup.html" class="btn btn-neutral float-right" title="polaris.tasks.e3sm.init.topo.remap.RemapTopoStep.setup" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 

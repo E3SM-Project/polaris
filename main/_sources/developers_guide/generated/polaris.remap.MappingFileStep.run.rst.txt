@@ -1,6 +1,0 @@
-﻿polaris.remap.MappingFileStep.run
-=================================
-
-.. currentmodule:: polaris.remap
-
-.. automethod:: MappingFileStep.run

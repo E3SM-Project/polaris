@@ -186,8 +186,26 @@
 <h4>combine<a class="headerlink" href="#combine" title="Link to this heading"></a></h4>
 <table class="autosummary longtable docutils align-default">
 <tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.e3sm.init.topo.combine.PrepareCombineStep.html#polaris.tasks.e3sm.init.topo.combine.PrepareCombineStep" title="polaris.tasks.e3sm.init.topo.combine.PrepareCombineStep"><code class="xref py py-obj docutils literal notranslate"><span class="pre">PrepareCombineStep</span></code></a>(component, subdir, name)</p></td>
+<td><p>A step for getting the global and Antarctic topography datasets ready to be remapped to the target grid of combined topography.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.e3sm.init.topo.combine.PrepareCombineStep.setup.html#polaris.tasks.e3sm.init.topo.combine.PrepareCombineStep.setup" title="polaris.tasks.e3sm.init.topo.combine.PrepareCombineStep.setup"><code class="xref py py-obj docutils literal notranslate"><span class="pre">PrepareCombineStep.setup</span></code></a>()</p></td>
+<td><p>Set up the step in the work directory, including downloading the datasets</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.e3sm.init.topo.combine.PrepareCombineStep.run.html#polaris.tasks.e3sm.init.topo.combine.PrepareCombineStep.run" title="polaris.tasks.e3sm.init.topo.combine.PrepareCombineStep.run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">PrepareCombineStep.run</span></code></a>()</p></td>
+<td><p>Run this step</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.e3sm.init.topo.combine.CombineWeightsStep.html#polaris.tasks.e3sm.init.topo.combine.CombineWeightsStep" title="polaris.tasks.e3sm.init.topo.combine.CombineWeightsStep"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CombineWeightsStep</span></code></a>(component, subdir, name, ...)</p></td>
+<td><p>A step for making the weights that remap each tile of the global dataset and the Antarctic dataset to the target grid of combined topography.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.e3sm.init.topo.combine.CombineWeightsStep.setup.html#polaris.tasks.e3sm.init.topo.combine.CombineWeightsStep.setup" title="polaris.tasks.e3sm.init.topo.combine.CombineWeightsStep.setup"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CombineWeightsStep.setup</span></code></a>()</p></td>
+<td><p>Set up the step in the work directory, including linking the tiles and SCRIP files and making the commands</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.e3sm.init.topo.combine.CombineWeightsStep.constrain_resources.html#polaris.tasks.e3sm.init.topo.combine.CombineWeightsStep.constrain_resources" title="polaris.tasks.e3sm.init.topo.combine.CombineWeightsStep.constrain_resources"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CombineWeightsStep.constrain_resources</span></code></a>(...)</p></td>
+<td><p>Constrain <code class="docutils literal notranslate"><span class="pre">cpus_per_task</span></code> and <code class="docutils literal notranslate"><span class="pre">ntasks</span></code> based on the number of cores available to this step</p></td>
+</tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.e3sm.init.topo.combine.CombineStep.html#polaris.tasks.e3sm.init.topo.combine.CombineStep" title="polaris.tasks.e3sm.init.topo.combine.CombineStep"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CombineStep</span></code></a>(component, subdir, target_grid, ...)</p></td>
-<td><p>A step for combining global and antarctic topography datasets</p></td>
+<td><p>A step for combining global and antarctic topography datasets.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.e3sm.init.topo.combine.CombineStep.get_subdir.html#polaris.tasks.e3sm.init.topo.combine.CombineStep.get_subdir" title="polaris.tasks.e3sm.init.topo.combine.CombineStep.get_subdir"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CombineStep.get_subdir</span></code></a>()</p></td>
 <td><p>Get the base subdirectory for the step based on the datasets.</p></td>
@@ -196,19 +214,19 @@
 <td><p>Get the step name based on the current datasets and target grid.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.e3sm.init.topo.combine.CombineStep.setup.html#polaris.tasks.e3sm.init.topo.combine.CombineStep.setup" title="polaris.tasks.e3sm.init.topo.combine.CombineStep.setup"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CombineStep.setup</span></code></a>()</p></td>
-<td><p>Set up the step in the work directory, including downloading any dependencies.</p></td>
+<td><p>Set up the step in the work directory, including linking the files from the steps that prepare the datasets and make the weights</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.e3sm.init.topo.combine.CombineStep.constrain_resources.html#polaris.tasks.e3sm.init.topo.combine.CombineStep.constrain_resources" title="polaris.tasks.e3sm.init.topo.combine.CombineStep.constrain_resources"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CombineStep.constrain_resources</span></code></a>(...)</p></td>
-<td><p>Constrain <code class="docutils literal notranslate"><span class="pre">cpus_per_task</span></code> and <code class="docutils literal notranslate"><span class="pre">ntasks</span></code> based on the number of cores available to this step</p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.e3sm.init.topo.combine.CombineStep.run.html#polaris.tasks.e3sm.init.topo.combine.CombineStep.run" title="polaris.tasks.e3sm.init.topo.combine.CombineStep.run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CombineStep.run</span></code></a>()</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.e3sm.init.topo.combine.CombineStep.run.html#polaris.tasks.e3sm.init.topo.combine.CombineStep.run" title="polaris.tasks.e3sm.init.topo.combine.CombineStep.run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CombineStep.run</span></code></a>()</p></td>
 <td><p>Run this step</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.e3sm.init.topo.combine.get_cubed_sphere_topo_steps.html#polaris.tasks.e3sm.init.topo.combine.get_cubed_sphere_topo_steps" title="polaris.tasks.e3sm.init.topo.combine.get_cubed_sphere_topo_steps"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_cubed_sphere_topo_steps</span></code></a>(component, ...)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.e3sm.init.topo.combine.get_cubed_sphere_topo_steps.html#polaris.tasks.e3sm.init.topo.combine.get_cubed_sphere_topo_steps" title="polaris.tasks.e3sm.init.topo.combine.get_cubed_sphere_topo_steps"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_cubed_sphere_topo_steps</span></code></a>(component, ...)</p></td>
 <td><p>Get shared combined-topography steps for a cubed-sphere target grid.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.e3sm.init.topo.combine.get_lat_lon_topo_steps.html#polaris.tasks.e3sm.init.topo.combine.get_lat_lon_topo_steps" title="polaris.tasks.e3sm.init.topo.combine.get_lat_lon_topo_steps"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_lat_lon_topo_steps</span></code></a>(component, resolution)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.e3sm.init.topo.combine.get_lat_lon_topo_steps.html#polaris.tasks.e3sm.init.topo.combine.get_lat_lon_topo_steps" title="polaris.tasks.e3sm.init.topo.combine.get_lat_lon_topo_steps"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_lat_lon_topo_steps</span></code></a>(component, resolution)</p></td>
 <td><p>Get shared combined-topography steps for a latitude-longitude target grid.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.e3sm.init.topo.combine.get_combine_topo_symlinks.html#polaris.tasks.e3sm.init.topo.combine.get_combine_topo_symlinks" title="polaris.tasks.e3sm.init.topo.combine.get_combine_topo_symlinks"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_combine_topo_symlinks</span></code></a>(combine_step, key)</p></td>
+<td><p>Get a combine topo step and the steps that prepare for it and make its weights, keyed by symlinks for a task that names the combine step <code class="docutils literal notranslate"><span class="pre">key</span></code>.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.e3sm.init.topo.combine.CubedSphereCombineTask.html#polaris.tasks.e3sm.init.topo.combine.CubedSphereCombineTask" title="polaris.tasks.e3sm.init.topo.combine.CubedSphereCombineTask"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CubedSphereCombineTask</span></code></a>(component, resolution)</p></td>
 <td><p>A task for creating combined topography on a cubed-sphere target grid.</p></td>
@@ -247,17 +265,35 @@
 <tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.e3sm.init.topo.remap.MaskTopoStep.run.html#polaris.tasks.e3sm.init.topo.remap.MaskTopoStep.run" title="polaris.tasks.e3sm.init.topo.remap.MaskTopoStep.run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MaskTopoStep.run</span></code></a>()</p></td>
 <td><p>Run the step.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.e3sm.init.topo.remap.RemapTopoStep.html#polaris.tasks.e3sm.init.topo.remap.RemapTopoStep" title="polaris.tasks.e3sm.init.topo.remap.RemapTopoStep"><code class="xref py py-obj docutils literal notranslate"><span class="pre">RemapTopoStep</span></code></a>(component, base_mesh_step, ...)</p></td>
-<td><p>A step for remapping topography data such as base elevation and ice sheet properites from a cubed-sphere grid to a global MPAS base mesh.</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.e3sm.init.topo.remap.PrepareRemapTopoStep.html#polaris.tasks.e3sm.init.topo.remap.PrepareRemapTopoStep" title="polaris.tasks.e3sm.init.topo.remap.PrepareRemapTopoStep"><code class="xref py py-obj docutils literal notranslate"><span class="pre">PrepareRemapTopoStep</span></code></a>(component, ...[, ...])</p></td>
+<td><p>A step for deciding how to smooth topography remapped to a global MPAS base mesh and making the SCRIP file for the mesh, expanded to smooth.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.e3sm.init.topo.remap.RemapTopoStep.setup.html#polaris.tasks.e3sm.init.topo.remap.RemapTopoStep.setup" title="polaris.tasks.e3sm.init.topo.remap.RemapTopoStep.setup"><code class="xref py py-obj docutils literal notranslate"><span class="pre">RemapTopoStep.setup</span></code></a>()</p></td>
-<td><p>Set up the step in the work directory, including downloading any dependencies.</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.e3sm.init.topo.remap.PrepareRemapTopoStep.setup.html#polaris.tasks.e3sm.init.topo.remap.PrepareRemapTopoStep.setup" title="polaris.tasks.e3sm.init.topo.remap.PrepareRemapTopoStep.setup"><code class="xref py py-obj docutils literal notranslate"><span class="pre">PrepareRemapTopoStep.setup</span></code></a>()</p></td>
+<td><p>Set up the step in the work directory, including linking input files</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.e3sm.init.topo.remap.RemapTopoStep.constrain_resources.html#polaris.tasks.e3sm.init.topo.remap.RemapTopoStep.constrain_resources" title="polaris.tasks.e3sm.init.topo.remap.RemapTopoStep.constrain_resources"><code class="xref py py-obj docutils literal notranslate"><span class="pre">RemapTopoStep.constrain_resources</span></code></a>(...)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.e3sm.init.topo.remap.PrepareRemapTopoStep.define_smoothing.html#polaris.tasks.e3sm.init.topo.remap.PrepareRemapTopoStep.define_smoothing" title="polaris.tasks.e3sm.init.topo.remap.PrepareRemapTopoStep.define_smoothing"><code class="xref py py-obj docutils literal notranslate"><span class="pre">PrepareRemapTopoStep.define_smoothing</span></code></a>(...)</p></td>
+<td><p>Define smoothing <code class="docutils literal notranslate"><span class="pre">expand_distance</span></code> and <code class="docutils literal notranslate"><span class="pre">expand_factor</span></code> fields.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.e3sm.init.topo.remap.PrepareRemapTopoStep.run.html#polaris.tasks.e3sm.init.topo.remap.PrepareRemapTopoStep.run" title="polaris.tasks.e3sm.init.topo.remap.PrepareRemapTopoStep.run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">PrepareRemapTopoStep.run</span></code></a>()</p></td>
+<td><p>Run this step of the test case</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.e3sm.init.topo.remap.RemapTopoWeightsStep.html#polaris.tasks.e3sm.init.topo.remap.RemapTopoWeightsStep" title="polaris.tasks.e3sm.init.topo.remap.RemapTopoWeightsStep"><code class="xref py py-obj docutils literal notranslate"><span class="pre">RemapTopoWeightsStep</span></code></a>(component, ...)</p></td>
+<td><p>A step for making the weights that remap topography from a cubed-sphere grid to a global MPAS base mesh.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.e3sm.init.topo.remap.RemapTopoWeightsStep.setup.html#polaris.tasks.e3sm.init.topo.remap.RemapTopoWeightsStep.setup" title="polaris.tasks.e3sm.init.topo.remap.RemapTopoWeightsStep.setup"><code class="xref py py-obj docutils literal notranslate"><span class="pre">RemapTopoWeightsStep.setup</span></code></a>()</p></td>
+<td><p>Set up the step in the work directory, including linking input files and making the command</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.e3sm.init.topo.remap.RemapTopoWeightsStep.constrain_resources.html#polaris.tasks.e3sm.init.topo.remap.RemapTopoWeightsStep.constrain_resources" title="polaris.tasks.e3sm.init.topo.remap.RemapTopoWeightsStep.constrain_resources"><code class="xref py py-obj docutils literal notranslate"><span class="pre">RemapTopoWeightsStep.constrain_resources</span></code></a>(...)</p></td>
 <td><p>Constrain <code class="docutils literal notranslate"><span class="pre">cpus_per_task</span></code> and <code class="docutils literal notranslate"><span class="pre">ntasks</span></code> based on the number of cores available to this step</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.e3sm.init.topo.remap.RemapTopoStep.define_smoothing.html#polaris.tasks.e3sm.init.topo.remap.RemapTopoStep.define_smoothing" title="polaris.tasks.e3sm.init.topo.remap.RemapTopoStep.define_smoothing"><code class="xref py py-obj docutils literal notranslate"><span class="pre">RemapTopoStep.define_smoothing</span></code></a>(ds_unsmoothed)</p></td>
-<td><p>Define smoothing <code class="docutils literal notranslate"><span class="pre">expand_distance</span></code> and <code class="docutils literal notranslate"><span class="pre">expand_factor</span></code> fields.</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.e3sm.init.topo.remap.RemapTopoWeightsStep.runtime_setup.html#polaris.tasks.e3sm.init.topo.remap.RemapTopoWeightsStep.runtime_setup" title="polaris.tasks.e3sm.init.topo.remap.RemapTopoWeightsStep.runtime_setup"><code class="xref py py-obj docutils literal notranslate"><span class="pre">RemapTopoWeightsStep.runtime_setup</span></code></a>()</p></td>
+<td><p>Launch nothing if the prepare step found no remapping to do</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.e3sm.init.topo.remap.RemapTopoStep.html#polaris.tasks.e3sm.init.topo.remap.RemapTopoStep" title="polaris.tasks.e3sm.init.topo.remap.RemapTopoStep"><code class="xref py py-obj docutils literal notranslate"><span class="pre">RemapTopoStep</span></code></a>(component, base_mesh_step, ...)</p></td>
+<td><p>A step for remapping topography data such as base elevation and ice sheet properties from a cubed-sphere grid to a global MPAS base mesh, using the weights from {py:class}`polaris.tasks.e3sm.init.topo.remap.RemapTopoWeightsStep`.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.e3sm.init.topo.remap.RemapTopoStep.setup.html#polaris.tasks.e3sm.init.topo.remap.RemapTopoStep.setup" title="polaris.tasks.e3sm.init.topo.remap.RemapTopoStep.setup"><code class="xref py py-obj docutils literal notranslate"><span class="pre">RemapTopoStep.setup</span></code></a>()</p></td>
+<td><p>Set up the step in the work directory, including linking input files</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.e3sm.init.topo.remap.RemapTopoStep.run.html#polaris.tasks.e3sm.init.topo.remap.RemapTopoStep.run" title="polaris.tasks.e3sm.init.topo.remap.RemapTopoStep.run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">RemapTopoStep.run</span></code></a>()</p></td>
 <td><p>Run this step of the test case</p></td>

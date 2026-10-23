@@ -1,6 +1,0 @@
-﻿polaris.tasks.e3sm.init.topo.combine.CombineStep.constrain\_resources
-=====================================================================
-
-.. currentmodule:: polaris.tasks.e3sm.init.topo.combine
-
-.. automethod:: CombineStep.constrain_resources

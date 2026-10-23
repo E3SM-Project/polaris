@@ -1,0 +1,6 @@
+﻿polaris.tasks.e3sm.init.topo.remap.RemapTopoWeightsStep.constrain\_resources
+============================================================================
+
+.. currentmodule:: polaris.tasks.e3sm.init.topo.remap
+
+.. automethod:: RemapTopoWeightsStep.constrain_resources

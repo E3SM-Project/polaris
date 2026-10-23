@@ -187,6 +187,11 @@ framework and must not be killed for the framework’s guess.</p></li>
 </p></li>
 </ul>
 </dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/builtins/exceptions.html#RuntimeError" title="(in Python v3.15)"><strong>RuntimeError</strong></a> – If the framework is not launching a step’s command.  A step
+    launches only through its command (<code class="docutils literal notranslate"><span class="pre">args</span></code>), never from
+    <code class="docutils literal notranslate"><span class="pre">run()</span></code> or elsewhere.</p>
+</dd>
 </dl>
 </dd></dl>
 

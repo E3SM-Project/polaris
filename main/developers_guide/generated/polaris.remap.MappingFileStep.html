@@ -19,7 +19,7 @@
     <script src="../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
-    <link rel="next" title="polaris.remap.MappingFileStep.run" href="polaris.remap.MappingFileStep.run.html" />
+    <link rel="next" title="polaris.remap.MappingFileStep.runtime_setup" href="polaris.remap.MappingFileStep.runtime_setup.html" />
     <link rel="prev" title="polaris.provenance.read" href="polaris.provenance.read.html" />
     <link href="../../_static/style.css" rel="stylesheet" type="text/css">
 
@@ -106,7 +106,7 @@
 <li class="toctree-l3"><a class="reference internal" href="../api.html#provenance">provenance</a></li>
 <li class="toctree-l3 current"><a class="reference internal" href="../api.html#remap">remap</a><ul class="current">
 <li class="toctree-l4 current"><a class="current reference internal" href="#">polaris.remap.MappingFileStep</a></li>
-<li class="toctree-l4"><a class="reference internal" href="polaris.remap.MappingFileStep.run.html">polaris.remap.MappingFileStep.run</a></li>
+<li class="toctree-l4"><a class="reference internal" href="polaris.remap.MappingFileStep.runtime_setup.html">polaris.remap.MappingFileStep.runtime_setup</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="../api.html#resolution">resolution</a></li>
@@ -224,11 +224,11 @@ grids</p>
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">process_inputs_and_outputs</span></code>()</p></td>
 <td><p>Process the inputs to and outputs from a step added with <a class="reference internal" href="polaris.Step.add_input_file.html#polaris.Step.add_input_file" title="polaris.Step.add_input_file"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.Step.add_input_file()</span></code></a> and <a class="reference internal" href="polaris.Step.add_output_file.html#polaris.Step.add_output_file" title="polaris.Step.add_output_file"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.Step.add_output_file()</span></code></a>.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="polaris.remap.MappingFileStep.run.html#polaris.remap.MappingFileStep.run" title="polaris.remap.MappingFileStep.run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">run</span></code></a>()</p></td>
-<td><p>Create the mappping file</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">run</span></code>()</p></td>
+<td><p>Run the step.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">runtime_setup</span></code>()</p></td>
-<td><p>Update attributes of the step at runtime before calling the <code class="docutils literal notranslate"><span class="pre">run()</span></code> method.</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="polaris.remap.MappingFileStep.runtime_setup.html#polaris.remap.MappingFileStep.runtime_setup" title="polaris.remap.MappingFileStep.runtime_setup"><code class="xref py py-obj docutils literal notranslate"><span class="pre">runtime_setup</span></code></a>()</p></td>
+<td><p>Write the files the mapping tool reads and set the command that creates the mapping file</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_resources</span></code>([cpus_per_task, ...])</p></td>
 <td><p>Update the resources for the subtask.</p></td>
@@ -276,7 +276,7 @@ grids</p>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
         <a href="polaris.provenance.read.html" class="btn btn-neutral float-left" title="polaris.provenance.read" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="polaris.remap.MappingFileStep.run.html" class="btn btn-neutral float-right" title="polaris.remap.MappingFileStep.run" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="polaris.remap.MappingFileStep.runtime_setup.html" class="btn btn-neutral float-right" title="polaris.remap.MappingFileStep.runtime_setup" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>

@@ -193,20 +193,24 @@
             <span class="n">map_filename</span><span class="o">=</span><span class="n">map_filename</span><span class="p">,</span>
             <span class="n">method</span><span class="o">=</span><span class="n">method</span><span class="p">,</span>
             <span class="n">use_tmp</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-        <span class="p">)</span></div>
+        <span class="p">)</span>
+        <span class="c1"># the mapping tool's command can only be made once the grids have</span>
+        <span class="c1"># been read and the step's tasks decided, in runtime_setup(), but the</span>
+        <span class="c1"># step has to say from the start that it launches one</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">args</span> <span class="o">=</span> <span class="p">[]</span></div>
 
 
-<div class="viewcode-block" id="MappingFileStep.run">
-<a class="viewcode-back" href="../../../developers_guide/generated/polaris.remap.MappingFileStep.run.html#polaris.remap.MappingFileStep.run">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="MappingFileStep.runtime_setup">
+<a class="viewcode-back" href="../../../developers_guide/generated/polaris.remap.MappingFileStep.runtime_setup.html#polaris.remap.MappingFileStep.runtime_setup">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">runtime_setup</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">"""</span>
-<span class="sd">        Create the mappping file</span>
+<span class="sd">        Write the files the mapping tool reads and set the command that</span>
+<span class="sd">        creates the mapping file</span>
 <span class="sd">        """</span>
         <span class="n">config</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span>
         <span class="n">remapper</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">remapper</span>
         <span class="n">remapper</span><span class="o">.</span><span class="n">map_tool</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'mapping'</span><span class="p">,</span> <span class="s1">'map_tool'</span><span class="p">)</span>
         <span class="n">remapper</span><span class="o">.</span><span class="n">ntasks</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ntasks</span>
-        <span class="n">remapper</span><span class="o">.</span><span class="n">parallel_exec</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'parallel'</span><span class="p">,</span> <span class="s1">'parallel_executable'</span><span class="p">)</span>
 
         <span class="n">src</span> <span class="o">=</span> <span class="n">remapper</span><span class="o">.</span><span class="n">src_grid_info</span>
         <span class="n">dst</span> <span class="o">=</span> <span class="n">remapper</span><span class="o">.</span><span class="n">dst_grid_info</span>
@@ -224,7 +228,7 @@
                     <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">work_dir</span><span class="p">,</span> <span class="n">info</span><span class="p">[</span><span class="s1">'filename'</span><span class="p">])</span>
                 <span class="p">)</span>
 
-        <span class="n">remapper</span><span class="o">.</span><span class="n">build_map</span><span class="p">(</span><span class="n">logger</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">args</span> <span class="o">=</span> <span class="p">[</span><span class="n">remapper</span><span class="o">.</span><span class="n">prepare_map</span><span class="p">(</span><span class="n">logger</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="p">)]</span>
         <span class="n">remapper</span><span class="o">.</span><span class="n">map_filename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">remapper</span><span class="o">.</span><span class="n">map_filename</span><span class="p">)</span></div>
 </div>
 

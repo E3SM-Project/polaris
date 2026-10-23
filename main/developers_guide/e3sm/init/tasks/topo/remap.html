@@ -139,7 +139,7 @@ simulations.</p>
 <p>The remapping workflow is composed of several modular steps, each responsible for a specific part of the process:</p>
 <ul class="simple">
 <li><p><strong>Masking</strong>: The <a class="reference internal" href="../../generated/polaris.tasks.e3sm.init.topo.remap.MaskTopoStep.html#polaris.tasks.e3sm.init.topo.remap.MaskTopoStep" title="polaris.tasks.e3sm.init.topo.remap.MaskTopoStep"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.tasks.e3sm.init.topo.remap.MaskTopoStep</span></code></a> applies ocean and land masks to the combined topography dataset on the cubed-sphere grid. This step generates masked versions of all topography fields, as well as fractional land and ocean coverage.</p></li>
-<li><p><strong>Remapping</strong>: The <a class="reference internal" href="../../generated/polaris.tasks.e3sm.init.topo.remap.RemapTopoStep.html#polaris.tasks.e3sm.init.topo.remap.RemapTopoStep" title="polaris.tasks.e3sm.init.topo.remap.RemapTopoStep"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.tasks.e3sm.init.topo.remap.RemapTopoStep</span></code></a> remaps the masked topography fields from the cubed-sphere grid to the MPAS mesh. This step can be run with or without smoothing, depending on configuration.</p></li>
+<li><p><strong>Remapping</strong>: The <a class="reference internal" href="../../generated/polaris.tasks.e3sm.init.topo.remap.RemapTopoStep.html#polaris.tasks.e3sm.init.topo.remap.RemapTopoStep" title="polaris.tasks.e3sm.init.topo.remap.RemapTopoStep"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.tasks.e3sm.init.topo.remap.RemapTopoStep</span></code></a> remaps the masked topography fields from the cubed-sphere grid to the MPAS mesh. This step can be run with or without smoothing, depending on configuration. Two steps come ahead of it, so that its one parallel launch is a step’s command (see <a class="reference internal" href="../../../../framework/task_parallelism.html#dev-step-launch-rule"><span class="std std-ref">Launch only through the step’s command</span></a>): <a class="reference internal" href="../../generated/polaris.tasks.e3sm.init.topo.remap.PrepareRemapTopoStep.html#polaris.tasks.e3sm.init.topo.remap.PrepareRemapTopoStep" title="polaris.tasks.e3sm.init.topo.remap.PrepareRemapTopoStep"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.tasks.e3sm.init.topo.remap.PrepareRemapTopoStep</span></code></a> decides on smoothing and makes the SCRIP file for the MPAS mesh, and <a class="reference internal" href="../../generated/polaris.tasks.e3sm.init.topo.remap.RemapTopoWeightsStep.html#polaris.tasks.e3sm.init.topo.remap.RemapTopoWeightsStep" title="polaris.tasks.e3sm.init.topo.remap.RemapTopoWeightsStep"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.tasks.e3sm.init.topo.remap.RemapTopoWeightsStep</span></code></a> makes the remapping weights with <code class="docutils literal notranslate"><span class="pre">mbtempest</span></code>.</p></li>
 <li><p><strong>Smoothing</strong>: Smoothing is optionally applied during remapping. The workflow supports both unsmoothed and smoothed topography, with the smoothed step depending on the unsmoothed results.</p></li>
 <li><p><strong>Visualization</strong>: The <a class="reference internal" href="../../generated/polaris.tasks.e3sm.init.topo.remap.VizRemappedTopoStep.html#polaris.tasks.e3sm.init.topo.remap.VizRemappedTopoStep" title="polaris.tasks.e3sm.init.topo.remap.VizRemappedTopoStep"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.tasks.e3sm.init.topo.remap.VizRemappedTopoStep</span></code></a> can be added to generate plots of the remapped fields for quality control.</p></li>
 </ul>
@@ -151,6 +151,8 @@ simulations.</p>
 <ol class="arabic simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">CombineStep</span></code> (combines global and Antarctic topography)</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">MaskTopoStep</span></code> (applies land/ocean masks)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">PrepareRemapTopoStep</span></code> (decides on smoothing and makes the MPAS mesh’s SCRIP file)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">RemapTopoWeightsStep</span></code> (makes the remapping weights)</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">RemapTopoStep</span></code> (remaps to MPAS mesh, optionally with smoothing)</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">VizRemappedTopoStep</span></code> (optional visualization)</p></li>
 </ol>
@@ -184,7 +186,7 @@ in the <code class="docutils literal notranslate"><span class="pre">remap_low_re
 masks to the combined topography dataset, producing masked fields and
 fractional coverage variables.</p></li>
 <li><p><strong>Remapping</strong>: The <code class="docutils literal notranslate"><span class="pre">RemapTopoStep</span></code> remaps the masked topography fields to the MPAS mesh. If smoothing is enabled, both unsmoothed and smoothed steps are created, with the smoothed step depending on the unsmoothed output.</p></li>
-<li><p><strong>Smoothing</strong>: Smoothing parameters are controlled via configuration. If no smoothing is requested, the smoothed step simply symlinks the unsmoothed results.</p></li>
+<li><p><strong>Smoothing</strong>: Smoothing parameters are controlled via configuration. If no smoothing is requested, the smoothed weights step launches nothing and the smoothed remap step simply symlinks the unsmoothed results.</p></li>
 <li><p><strong>Visualization</strong>: The <code class="docutils literal notranslate"><span class="pre">VizRemappedTopoStep</span></code> can be added to plot each remapped field using configuration-driven colormaps and normalization.</p></li>
 <li><p><strong>Output</strong>: The final remapped topography is saved as <code class="docutils literal notranslate"><span class="pre">topography_remapped.nc</span></code> for each mesh and smoothing option.</p></li>
 </ol>
@@ -265,15 +267,15 @@ masks, respectively.</p>
 <section id="customizing-smoothing-behavior">
 <h3>Customizing Smoothing Behavior<a class="headerlink" href="#customizing-smoothing-behavior" title="Link to this heading"></a></h3>
 <p>To implement custom smoothing logic, subclass
-<a class="reference internal" href="../../generated/polaris.tasks.e3sm.init.topo.remap.RemapTopoStep.html#polaris.tasks.e3sm.init.topo.remap.RemapTopoStep" title="polaris.tasks.e3sm.init.topo.remap.RemapTopoStep"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.tasks.e3sm.init.topo.remap.RemapTopoStep</span></code></a> and override the
-<code class="docutils literal notranslate"><span class="pre">define_smoothing()</span></code> method. This method receives the unsmoothed topography
+<a class="reference internal" href="../../generated/polaris.tasks.e3sm.init.topo.remap.PrepareRemapTopoStep.html#polaris.tasks.e3sm.init.topo.remap.PrepareRemapTopoStep" title="polaris.tasks.e3sm.init.topo.remap.PrepareRemapTopoStep"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.tasks.e3sm.init.topo.remap.PrepareRemapTopoStep</span></code></a> and override
+the <code class="docutils literal notranslate"><span class="pre">define_smoothing()</span></code> method. This method receives the unsmoothed topography
 dataset and should return the <code class="docutils literal notranslate"><span class="pre">expand_distance</span></code> and <code class="docutils literal notranslate"><span class="pre">expand_factor</span></code> (either as
 scalars or <code class="docutils literal notranslate"><span class="pre">xarray.DataArray</span></code> objects) to control the smoothing applied during
 remapping.</p>
 <p><strong>Example:</strong></p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">polaris.tasks.e3sm.init.topo.remap</span><span class="w"> </span><span class="kn">import</span> <span class="n">RemapTopoStep</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">polaris.tasks.e3sm.init.topo.remap</span><span class="w"> </span><span class="kn">import</span> <span class="n">PrepareRemapTopoStep</span>
 
-<span class="k">class</span><span class="w"> </span><span class="nc">MyCustomRemapStep</span><span class="p">(</span><span class="n">RemapTopoStep</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">MyCustomPrepareStep</span><span class="p">(</span><span class="n">PrepareRemapTopoStep</span><span class="p">):</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">define_smoothing</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ds_unsmoothed</span><span class="p">):</span>
         <span class="c1"># Custom logic for spatially varying smoothing</span>
         <span class="n">expand_distance</span> <span class="o">=</span> <span class="o">...</span>  <span class="c1"># scalar or DataArray</span>
@@ -289,7 +291,8 @@ parameters based on mesh properties or scientific requirements.</p>
 <p>To use your custom steps, simply instantiate them in your workflow or override
 the step creation logic in your task or workflow setup.</p>
 <p>For more details, refer to the docstrings and source code of
-<a class="reference internal" href="../../generated/polaris.tasks.e3sm.init.topo.remap.MaskTopoStep.html#polaris.tasks.e3sm.init.topo.remap.MaskTopoStep" title="polaris.tasks.e3sm.init.topo.remap.MaskTopoStep"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.tasks.e3sm.init.topo.remap.MaskTopoStep</span></code></a> and
+<a class="reference internal" href="../../generated/polaris.tasks.e3sm.init.topo.remap.MaskTopoStep.html#polaris.tasks.e3sm.init.topo.remap.MaskTopoStep" title="polaris.tasks.e3sm.init.topo.remap.MaskTopoStep"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.tasks.e3sm.init.topo.remap.MaskTopoStep</span></code></a>,
+<a class="reference internal" href="../../generated/polaris.tasks.e3sm.init.topo.remap.PrepareRemapTopoStep.html#polaris.tasks.e3sm.init.topo.remap.PrepareRemapTopoStep" title="polaris.tasks.e3sm.init.topo.remap.PrepareRemapTopoStep"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.tasks.e3sm.init.topo.remap.PrepareRemapTopoStep</span></code></a> and
 <a class="reference internal" href="../../generated/polaris.tasks.e3sm.init.topo.remap.RemapTopoStep.html#polaris.tasks.e3sm.init.topo.remap.RemapTopoStep" title="polaris.tasks.e3sm.init.topo.remap.RemapTopoStep"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.tasks.e3sm.init.topo.remap.RemapTopoStep</span></code></a>.</p>
 </section>
 </section>

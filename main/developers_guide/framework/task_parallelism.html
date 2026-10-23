@@ -87,6 +87,7 @@
 <li class="toctree-l4"><a class="reference internal" href="#use-the-object-oriented-figure-api">Use the object-oriented figure API</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#keep-temporary-files-in-the-step-s-work-directory">Keep temporary files in the step’s work directory</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#log-through-the-step-s-logger">Log through the step’s logger</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#launch-only-through-the-step-s-command">Launch only through the step’s command</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#declare-the-resources-you-need">Declare the resources you need</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#size-internal-parallelism-from-what-you-were-given">Size internal parallelism from what you were given</a></li>
 </ul>
@@ -253,6 +254,38 @@ not read a file that a concurrently running step is still writing.</p>
 several steps run at once, and the resulting log cannot be attributed to a
 step.  Pass <code class="docutils literal notranslate"><span class="pre">self.logger</span></code> to any helper function or subprocess that produces
 output; see <a class="reference internal" href="logging.html#dev-logging"><span class="std std-ref">Logging</span></a>.</p>
+</section>
+<section id="launch-only-through-the-step-s-command">
+<span id="dev-step-launch-rule"></span><h3>Launch only through the step’s command<a class="headerlink" href="#launch-only-through-the-step-s-command" title="Link to this heading"></a></h3>
+<p>A step launches at most one thing, and only through its command: the <code class="docutils literal notranslate"><span class="pre">args</span></code>
+attribute, which the framework launches with the step’s resources (see
+<a class="reference internal" href="../organization/steps.html#dev-step-attributes"><span class="std std-ref">Step attributes</span></a>).  Its <code class="docutils literal notranslate"><span class="pre">run()</span></code> method never launches anything.  It
+must not call <a class="reference internal" href="../generated/polaris.Component.run_parallel_command.html#polaris.Component.run_parallel_command" title="polaris.Component.run_parallel_command"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.Component.run_parallel_command()</span></code></a>, run <code class="docutils literal notranslate"><span class="pre">srun</span></code> or
+<code class="docutils literal notranslate"><span class="pre">mpirun</span></code>, or call a tool that runs them itself, as pyremap’s
+<code class="docutils literal notranslate"><span class="pre">Remapper.build_map()</span></code> does.  Serial tools a step runs on its own node, such as
+<code class="docutils literal notranslate"><span class="pre">ncks</span></code>, <code class="docutils literal notranslate"><span class="pre">ncremap</span></code> or <code class="docutils literal notranslate"><span class="pre">jigsaw</span></code>, are not launches.</p>
+<p>There are two reasons:</p>
+<ul class="simple">
+<li><p>Under <code class="docutils literal notranslate"><span class="pre">polaris</span> <span class="pre">parallel</span></code>, a step is confined to its part of the allocation
+only in the launch the framework makes for it.  Any other launch can land on
+cores and GPUs given to other steps, and the placement check cannot see it,
+because its probe is launched with the placement.</p></li>
+<li><p>A step without a command needs nothing from the scheduler’s node, which is
+what will let the scheduler run it on another node.  A launch from there
+would start from inside a job step.</p></li>
+</ul>
+<p><code class="docutils literal notranslate"><span class="pre">args</span></code> is a list of commands, which run one after another with the step’s
+resources.  Small serial work the launch needs, such as writing SCRIP files,
+can go in <code class="docutils literal notranslate"><span class="pre">runtime_setup()</span></code>, which runs just before it.  Larger work belongs in
+a step of its own ahead of it.  Since a step with a command never calls
+<code class="docutils literal notranslate"><span class="pre">run()</span></code>, anything that has to happen after the launch goes in a step of its
+own that uses the launch’s outputs.  Splitting a cached step this way costs
+nothing when it is cached: setup leaves out the steps whose outputs only
+cached steps use (see <a class="reference internal" href="../organization/steps.html#dev-step-skipped-with-cache"><span class="std std-ref">Steps that only cached steps use</span></a>).
+<a class="reference internal" href="../generated/polaris.remap.MappingFileStep.html#polaris.remap.MappingFileStep" title="polaris.remap.MappingFileStep"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.remap.MappingFileStep</span></code></a> and the steps that combine and remap
+topography in <code class="docutils literal notranslate"><span class="pre">e3sm/init</span></code> are examples.</p>
+<p><a class="reference internal" href="../generated/polaris.Component.run_parallel_command.html#polaris.Component.run_parallel_command" title="polaris.Component.run_parallel_command"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.Component.run_parallel_command()</span></code></a> raises an error when it is
+called anywhere but in the framework’s launch of a step’s command.</p>
 </section>
 <section id="declare-the-resources-you-need">
 <h3>Declare the resources you need<a class="headerlink" href="#declare-the-resources-you-need" title="Link to this heading"></a></h3>

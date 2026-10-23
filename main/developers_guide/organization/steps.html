@@ -86,6 +86,7 @@
 <li class="toctree-l4"><a class="reference internal" href="#output-files">Output files</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#cached-output-files">Cached output files</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#automatic-cache-use-with-default-cached-and-free-running-steps">Automatic cache use with <code class="docutils literal notranslate"><span class="pre">default_cached</span></code> and <code class="docutils literal notranslate"><span class="pre">free_running_steps</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#steps-that-only-cached-steps-use">Steps that only cached steps use</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#adding-other-steps-as-dependencies">Adding other steps as dependencies</a></li>
 </ul>
 </li>
@@ -305,11 +306,15 @@ dependency.</p>
 </dd>
 <dt><code class="docutils literal notranslate"><span class="pre">self.is_dependency</span></code></dt><dd><p>Whether this step is the dependency of one or more other steps</p>
 </dd>
-<dt><code class="docutils literal notranslate"><span class="pre">self.args</span></code></dt><dd><p>A list of command-line arguments to call in parallel.  This attribute should
-be defined as an alternative to overriding the <code class="docutils literal notranslate"><span class="pre">run()</span></code>.  <code class="docutils literal notranslate"><span class="pre">args</span></code> should not
-include calls to a parallel executable like <code class="docutils literal notranslate"><span class="pre">srun</span></code> or the associated flags
-for number of MPI tasks, nodes, etc., since these will be added internally by
-Polaris.</p>
+<dt><code class="docutils literal notranslate"><span class="pre">self.args</span></code></dt><dd><p>A list of commands, each a list of command-line arguments, to launch in
+parallel one after another.  This attribute should be defined as an
+alternative to overriding the <code class="docutils literal notranslate"><span class="pre">run()</span></code>.  <code class="docutils literal notranslate"><span class="pre">args</span></code> should not include calls to a
+parallel executable like <code class="docutils literal notranslate"><span class="pre">srun</span></code> or the associated flags for number of MPI
+tasks, nodes, etc., since these will be added internally by Polaris.  This
+is the only way a step may launch parallel work (see
+<a class="reference internal" href="../framework/task_parallelism.html#dev-step-launch-rule"><span class="std std-ref">Launch only through the step’s command</span></a>).  A step whose command can only be made at run
+time should still set <code class="docutils literal notranslate"><span class="pre">args</span></code> (to an empty list, say) when it is created, so
+that it is known to launch, and set the command in <code class="docutils literal notranslate"><span class="pre">runtime_setup()</span></code>.</p>
 </dd>
 </dl>
 <p>Another set of attributes is not useful until <code class="docutils literal notranslate"><span class="pre">setup()</span></code> is called by the
@@ -640,7 +645,9 @@ These attributes must be altered by overriding
 <a class="reference internal" href="#dev-step-constrain-resources"><span class="std std-ref">constrain_resources()</span></a>.</p>
 <p>Typically, <code class="docutils literal notranslate"><span class="pre">runtime_setup()</span></code> will only be needed when the <code class="docutils literal notranslate"><span class="pre">args</span></code> attribute is
 being defined instead of a <code class="docutils literal notranslate"><span class="pre">run()</span></code> method.  This lets you run a small amount
-of python code before launching an command, often using MPI parallelism.</p>
+of python code before launching an command, often using MPI parallelism.
+Larger work the launch needs belongs in a step of its own (see
+<a class="reference internal" href="../framework/task_parallelism.html#dev-step-launch-rule"><span class="std std-ref">Launch only through the step’s command</span></a>).</p>
 </section>
 <section id="run">
 <span id="dev-step-run"></span><h2>run()<a class="headerlink" href="#run" title="Link to this heading"></a></h2>
@@ -796,7 +803,8 @@ because we let its superclass <code class="docutils literal notranslate"><span c
 Rather than call the <code class="docutils literal notranslate"><span class="pre">run()</span></code> method, the command given by these arguments
 will be run on the commandline.  This is capability important for supporting
 task parallelism, since each such command may need to run with its own set of
-MPI, threading and memory resources.</p>
+MPI, threading and memory resources.  A <code class="docutils literal notranslate"><span class="pre">run()</span></code> method must never launch
+parallel work itself (see <a class="reference internal" href="../framework/task_parallelism.html#dev-step-launch-rule"><span class="std std-ref">Launch only through the step’s command</span></a>).</p>
 <p>To get a feel for different types of <code class="docutils literal notranslate"><span class="pre">run()</span></code> methods, it may be best to
 explore different steps that are already implemented in Polaris.</p>
 <section id="paths-within-run">
@@ -1157,6 +1165,20 @@ modifying task code.  A step may not appear in both <code class="docutils litera
 <p>See <a class="reference internal" href="../e3sm/init/generated/polaris.tasks.e3sm.init.topo.combine.CubedSphereCombineTask.html#polaris.tasks.e3sm.init.topo.combine.CubedSphereCombineTask" title="polaris.tasks.e3sm.init.topo.combine.task.CubedSphereCombineTask"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.tasks.e3sm.init.topo.combine.task.CubedSphereCombineTask</span></code></a>
 and <a class="reference internal" href="../ocean/generated/polaris.tasks.ocean.realistic_global.hydrography.woa23.Woa23.html#polaris.tasks.ocean.realistic_global.hydrography.woa23.Woa23" title="polaris.tasks.ocean.realistic_global.hydrography.woa23.task.Woa23"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.tasks.ocean.realistic_global.hydrography.woa23.task.Woa23</span></code></a>
 for concrete examples.</p>
+</section>
+<section id="steps-that-only-cached-steps-use">
+<span id="dev-step-skipped-with-cache"></span><h3>Steps that only cached steps use<a class="headerlink" href="#steps-that-only-cached-steps-use" title="Link to this heading"></a></h3>
+<p>A step whose outputs are inputs only to cached steps has nothing to do, so
+setup leaves it out of every task, along with any step that in turn feeds only
+steps that are left out or cached.  Setup works this out from the inputs,
+outputs and dependencies the steps declare, so the steps need do nothing for
+it, and it lists the steps it leaves out of each task beside the ones with
+cached outputs.  A step that nothing uses is never left out, since it is there
+for its own sake, and neither is one that a step that runs uses.</p>
+<p>This is what lets an expensive cached step be split into several steps, for
+example to keep a launch in a step’s command (see
+<a class="reference internal" href="../framework/task_parallelism.html#dev-step-launch-rule"><span class="std std-ref">Launch only through the step’s command</span></a>), without the steps ahead of it running when it is
+cached.</p>
 </section>
 <section id="adding-other-steps-as-dependencies">
 <span id="dev-step-dependencies"></span><h3>Adding other steps as dependencies<a class="headerlink" href="#adding-other-steps-as-dependencies" title="Link to this heading"></a></h3>

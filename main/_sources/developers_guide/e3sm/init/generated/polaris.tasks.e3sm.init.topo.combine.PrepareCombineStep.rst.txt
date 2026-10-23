@@ -1,0 +1,48 @@
+﻿polaris.tasks.e3sm.init.topo.combine.PrepareCombineStep
+=======================================================
+
+.. currentmodule:: polaris.tasks.e3sm.init.topo.combine
+
+.. autoclass:: PrepareCombineStep
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~PrepareCombineStep.__init__
+      ~PrepareCombineStep.add_cf_check
+      ~PrepareCombineStep.add_dependency
+      ~PrepareCombineStep.add_input_file
+      ~PrepareCombineStep.add_output_file
+      ~PrepareCombineStep.add_property_check
+      ~PrepareCombineStep.check_cf
+      ~PrepareCombineStep.check_properties
+      ~PrepareCombineStep.constrain_resources
+      ~PrepareCombineStep.process_inputs_and_outputs
+      ~PrepareCombineStep.run
+      ~PrepareCombineStep.runtime_setup
+      ~PrepareCombineStep.set_resources
+      ~PrepareCombineStep.set_shared_config
+      ~PrepareCombineStep.setup
+      ~PrepareCombineStep.validate_baselines
+      ~PrepareCombineStep.work_path
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~PrepareCombineStep.cores
+      ~PrepareCombineStep.gpus
+      ~PrepareCombineStep.may_span_nodes
+      ~PrepareCombineStep.min_cores
+      ~PrepareCombineStep.min_gpus
+   
+   

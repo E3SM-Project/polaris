@@ -140,6 +140,14 @@ component of the topography framework. It is responsible for combining global
 and Antarctic topography datasets into a single dataset suitable for use in
 E3SM simulations. The step supports blending datasets across specified latitude
 ranges and remapping them to a target grid.</p>
+<p>It does this with two steps ahead of it, so that its one parallel launch is a
+step’s command (see <a class="reference internal" href="../../../../framework/task_parallelism.html#dev-step-launch-rule"><span class="std std-ref">Launch only through the step’s command</span></a>):
+<a class="reference internal" href="../../generated/polaris.tasks.e3sm.init.topo.combine.PrepareCombineStep.html#polaris.tasks.e3sm.init.topo.combine.PrepareCombineStep" title="polaris.tasks.e3sm.init.topo.combine.PrepareCombineStep"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.tasks.e3sm.init.topo.combine.PrepareCombineStep</span></code></a> adds the
+fields MPAS-Ocean needs to the datasets, splits the global dataset into tiles
+and makes the SCRIP files, and
+<a class="reference internal" href="../../generated/polaris.tasks.e3sm.init.topo.combine.CombineWeightsStep.html#polaris.tasks.e3sm.init.topo.combine.CombineWeightsStep" title="polaris.tasks.e3sm.init.topo.combine.CombineWeightsStep"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.tasks.e3sm.init.topo.combine.CombineWeightsStep</span></code></a> makes the
+remapping weights for each tile and for the Antarctic dataset with
+<code class="docutils literal notranslate"><span class="pre">ESMF_RegridWeightGen</span></code>.  <code class="docutils literal notranslate"><span class="pre">CombineStep</span></code> then remaps with <code class="docutils literal notranslate"><span class="pre">ncremap</span></code> and blends.</p>
 <p>The
 <a class="reference internal" href="../../generated/polaris.tasks.e3sm.init.topo.combine.CubedSphereCombineTask.html#polaris.tasks.e3sm.init.topo.combine.CubedSphereCombineTask" title="polaris.tasks.e3sm.init.topo.combine.CubedSphereCombineTask"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.tasks.e3sm.init.topo.combine.CubedSphereCombineTask</span></code></a>
 and
@@ -244,12 +252,14 @@ the configuration file. Key options include:</p>
 <section id="workflow">
 <h2>Workflow<a class="headerlink" href="#workflow" title="Link to this heading"></a></h2>
 <ol class="arabic simple">
-<li><p><strong>Setup</strong>: The step downloads required datasets and sets up input/output
-files.</p></li>
-<li><p><strong>Modification</strong>: Antarctic and global datasets are modified to include
-necessary variables and attributes.</p></li>
-<li><p><strong>Remapping</strong>: Datasets are remapped to the target grid using SCRIP files
-and weight generation.</p></li>
+<li><p><strong>Setup</strong>: The prepare step downloads required datasets, and each step
+sets up its input/output files.</p></li>
+<li><p><strong>Modification</strong>: The prepare step modifies the Antarctic and global
+datasets to include necessary variables and attributes, splits the global
+dataset into tiles and makes the SCRIP files.</p></li>
+<li><p><strong>Weights</strong>: The weights step makes the weights for remapping each tile and
+the Antarctic dataset to the target grid.</p></li>
+<li><p><strong>Remapping</strong>: <code class="docutils literal notranslate"><span class="pre">CombineStep</span></code> remaps the datasets to the target grid.</p></li>
 <li><p><strong>Blending</strong>: The datasets are blended across the specified latitude range.</p></li>
 <li><p><strong>Output</strong>: The combined dataset is saved in NetCDF format.</p></li>
 <li><p><strong>Optional Field Plotting</strong>: Each field in the dataset is rasterized and
@@ -258,18 +268,15 @@ saved as an image with a colorbar.</p></li>
 </section>
 <section id="example-usage">
 <h2>Example Usage<a class="headerlink" href="#example-usage" title="Link to this heading"></a></h2>
-<p>Below is an example of how the <code class="docutils literal notranslate"><span class="pre">CombineStep</span></code> can be added to a Polaris
-task:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">polaris.tasks.e3sm.init.topo.combine</span><span class="w"> </span><span class="kn">import</span> <span class="n">CombineStep</span>
+<p>Below is an example of how the <code class="docutils literal notranslate"><span class="pre">CombineStep</span></code>, along with the steps that
+prepare for it and make its weights, can be added to a Polaris task:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">polaris.tasks.e3sm.init.topo.combine</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_cubed_sphere_topo_steps</span>
 
-<span class="n">component</span> <span class="o">=</span> <span class="n">task</span><span class="o">.</span><span class="n">component</span>
-<span class="n">subdir</span> <span class="o">=</span> <span class="n">CombineStep</span><span class="o">.</span><span class="n">get_subdir</span><span class="p">()</span>
-<span class="k">if</span> <span class="n">subdir</span> <span class="ow">in</span> <span class="n">component</span><span class="o">.</span><span class="n">steps</span><span class="p">:</span>
-    <span class="n">step</span> <span class="o">=</span> <span class="n">component</span><span class="o">.</span><span class="n">steps</span><span class="p">[</span><span class="n">subdir</span><span class="p">]</span>
-<span class="k">else</span><span class="p">:</span>
-    <span class="n">step</span> <span class="o">=</span> <span class="n">CombineStep</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span> <span class="n">subdir</span><span class="o">=</span><span class="n">subdir</span><span class="p">)</span>
-    <span class="n">component</span><span class="o">.</span><span class="n">add_step</span><span class="p">(</span><span class="n">step</span><span class="p">)</span>
-<span class="n">task</span><span class="o">.</span><span class="n">add_step</span><span class="p">(</span><span class="n">step</span><span class="p">)</span>
+<span class="n">steps</span><span class="p">,</span> <span class="n">config</span> <span class="o">=</span> <span class="n">get_cubed_sphere_topo_steps</span><span class="p">(</span>
+    <span class="n">component</span><span class="o">=</span><span class="n">task</span><span class="o">.</span><span class="n">component</span><span class="p">,</span> <span class="n">resolution</span><span class="o">=</span><span class="mi">3000</span>
+<span class="p">)</span>
+<span class="k">for</span> <span class="n">step</span> <span class="ow">in</span> <span class="n">steps</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+    <span class="n">task</span><span class="o">.</span><span class="n">add_step</span><span class="p">(</span><span class="n">step</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>To create a cubed-sphere combine task for caching combined datasets:</p>
@@ -293,9 +300,11 @@ task:</p>
 <span class="n">my_component</span><span class="o">.</span><span class="n">add_step</span><span class="p">(</span><span class="n">viz_step</span><span class="p">)</span>
 </pre></div>
 </div>
-<p>Since there is a single shared step for each pair of Antarctic and global
-datasets, the step should be added only once to the component and the existing
-step (identifiable via its <code class="docutils literal notranslate"><span class="pre">subdir</span></code>) should be used subsequently.</p>
+<p>Since there is a single set of shared steps for each pair of Antarctic and
+global datasets and each target grid, the steps should be added only once to
+the component and the existing steps (identifiable via their <code class="docutils literal notranslate"><span class="pre">subdir</span></code>) should
+be used subsequently, which is what <code class="docutils literal notranslate"><span class="pre">get_cubed_sphere_topo_steps()</span></code> and
+<code class="docutils literal notranslate"><span class="pre">get_lat_lon_topo_steps()</span></code> do.</p>
 <p>The <code class="docutils literal notranslate"><span class="pre">VizCombinedStep</span></code> is typically added only when visualization is explicitly required, as it is not part of the default workflow.</p>
 <p>For more details, refer to the source code of the
 <a class="reference internal" href="../../generated/polaris.tasks.e3sm.init.topo.combine.CombineStep.html#polaris.tasks.e3sm.init.topo.combine.CombineStep" title="polaris.tasks.e3sm.init.topo.combine.CombineStep"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.tasks.e3sm.init.topo.combine.CombineStep</span></code></a> and
@@ -306,7 +315,9 @@ step (identifiable via its <code class="docutils literal notranslate"><span clas
 <p>Since <code class="docutils literal notranslate"><span class="pre">CombineStep</span></code> is expensive and time-consuming to run, it sets
 <code class="docutils literal notranslate"><span class="pre">self.default_cached</span> <span class="pre">=</span> <span class="pre">True</span></code> in its <code class="docutils literal notranslate"><span class="pre">__init__</span></code>.  Downstream tasks that add
 a <code class="docutils literal notranslate"><span class="pre">CombineStep</span></code> will therefore automatically use cached outputs without
-needing to opt in via the suite file or <code class="docutils literal notranslate"><span class="pre">--cached</span></code> flag.</p>
+needing to opt in via the suite file or <code class="docutils literal notranslate"><span class="pre">--cached</span></code> flag.  The prepare and
+weights steps are not cached; since only <code class="docutils literal notranslate"><span class="pre">CombineStep</span></code> uses what they make,
+setup leaves them out whenever <code class="docutils literal notranslate"><span class="pre">CombineStep</span></code> is cached.</p>
 <p>The standalone
 <a class="reference internal" href="../../generated/polaris.tasks.e3sm.init.topo.combine.CubedSphereCombineTask.html#polaris.tasks.e3sm.init.topo.combine.CubedSphereCombineTask" title="polaris.tasks.e3sm.init.topo.combine.task.CubedSphereCombineTask"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.tasks.e3sm.init.topo.combine.task.CubedSphereCombineTask</span></code></a>
 and

@@ -22,7 +22,6 @@
       ~RemapTopoStep.check_cf
       ~RemapTopoStep.check_properties
       ~RemapTopoStep.constrain_resources
-      ~RemapTopoStep.define_smoothing
       ~RemapTopoStep.process_inputs_and_outputs
       ~RemapTopoStep.run
       ~RemapTopoStep.runtime_setup

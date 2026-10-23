@@ -117,7 +117,6 @@
 <span class="kn">import</span><span class="w"> </span><span class="nn">xarray</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">xr</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">mpas_tools.io</span><span class="w"> </span><span class="kn">import</span> <span class="n">open_dataset</span><span class="p">,</span> <span class="n">write_netcdf</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">mpas_tools.logging</span><span class="w"> </span><span class="kn">import</span> <span class="n">check_call</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">pyremap</span><span class="w"> </span><span class="kn">import</span> <span class="n">MpasCellMeshDescriptor</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">polaris</span><span class="w"> </span><span class="kn">import</span> <span class="n">Step</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">polaris.cf</span><span class="w"> </span><span class="kn">import</span> <span class="n">add_cf_conventions</span>
@@ -125,6 +124,7 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">polaris.tasks.e3sm.init.topo.combine.step</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">COMBINE_TOPO_VALIDATE_VARS</span><span class="p">,</span>
 <span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.tasks.e3sm.init.topo.remap.weights</span><span class="w"> </span><span class="kn">import</span> <span class="n">MAPPING_FILENAME</span>
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">get_remapped_topo_validate_vars</span><span class="p">():</span>
@@ -165,10 +165,12 @@
 <span class="k">class</span><span class="w"> </span><span class="nc">RemapTopoStep</span><span class="p">(</span><span class="n">Step</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    A step for remapping topography data such as base elevation and ice sheet</span>
-<span class="sd">    properites from a cubed-sphere grid to a global MPAS base mesh.</span>
+<span class="sd">    properties from a cubed-sphere grid to a global MPAS base mesh, using the</span>
+<span class="sd">    weights from</span>
+<span class="sd">    {py:class}`polaris.tasks.e3sm.init.topo.remap.RemapTopoWeightsStep`.</span>
 
-<span class="sd">    Note: This step cannot descend from</span>
-<span class="sd">    {py:class}`polaris.remap.MappingFileStep` because the soruce mesh is a</span>
+<span class="sd">    Note: The step for making the weights cannot descend from</span>
+<span class="sd">    {py:class}`polaris.remap.MappingFileStep` because the source mesh is a</span>
 <span class="sd">    cubed-sphere grid, which is not currently supported by pyremap.</span>
 
 <span class="sd">    Attributes</span>
@@ -184,17 +186,18 @@
 <span class="sd">        The step that applies a mask to a global topography dataset on a cubed</span>
 <span class="sd">        sphere grid</span>
 
+<span class="sd">    prepare_step : polaris.tasks.e3sm.init.topo.remap.PrepareRemapTopoStep</span>
+<span class="sd">        The step that decides on smoothing and makes the SCRIP file for the</span>
+<span class="sd">        MPAS mesh</span>
+
+<span class="sd">    weights_step : polaris.tasks.e3sm.init.topo.remap.RemapTopoWeightsStep</span>
+<span class="sd">        The step that makes the remapping weights</span>
+
 <span class="sd">    smoothing : bool, optional</span>
 <span class="sd">        Whether smoothing will be applied as part of the remapping</span>
 
 <span class="sd">    unsmoothed_topo : polaris.tasks.e3sm.init.topo.RemapTopoStep, optional</span>
 <span class="sd">        A step with unsmoothed topography</span>
-
-<span class="sd">    expand_distance : float or xarray.DataArray</span>
-<span class="sd">        The distance to expand the topography mask</span>
-
-<span class="sd">    expand_factor : float or xarray.DataArray</span>
-<span class="sd">        The factor to expand the topography mask</span>
 
 <span class="sd">    do_remapping : bool</span>
 <span class="sd">        Whether to remap the topography.  If False, the step will symlink</span>
@@ -209,6 +212,8 @@
         <span class="n">base_mesh_step</span><span class="p">,</span>
         <span class="n">combine_topo_step</span><span class="p">,</span>
         <span class="n">mask_topo_step</span><span class="p">,</span>
+        <span class="n">prepare_step</span><span class="p">,</span>
+        <span class="n">weights_step</span><span class="p">,</span>
         <span class="n">name</span><span class="p">,</span>
         <span class="n">subdir</span><span class="p">,</span>
         <span class="n">smoothing</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
@@ -233,6 +238,13 @@
 <span class="sd">            The step that applies a mask to a global topography dataset on a</span>
 <span class="sd">            cubed sphere grid</span>
 
+<span class="sd">        prepare_step : polaris.tasks.e3sm.init.topo.remap.PrepareRemapTopoStep</span>
+<span class="sd">            The step that decides on smoothing and makes the SCRIP file for</span>
+<span class="sd">            the MPAS mesh</span>
+
+<span class="sd">        weights_step : polaris.tasks.e3sm.init.topo.remap.RemapTopoWeightsStep</span>
+<span class="sd">            The step that makes the remapping weights</span>
+
 <span class="sd">        name : str</span>
 <span class="sd">            the name of the step</span>
 
@@ -251,111 +263,48 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">base_mesh_step</span> <span class="o">=</span> <span class="n">base_mesh_step</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">combine_topo_step</span> <span class="o">=</span> <span class="n">combine_topo_step</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">mask_topo_step</span> <span class="o">=</span> <span class="n">mask_topo_step</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">prepare_step</span> <span class="o">=</span> <span class="n">prepare_step</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">weights_step</span> <span class="o">=</span> <span class="n">weights_step</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">smoothing</span> <span class="o">=</span> <span class="n">smoothing</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">unsmoothed_topo</span> <span class="o">=</span> <span class="n">unsmoothed_topo</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">do_remapping</span> <span class="o">=</span> <span class="kc">True</span>
+
+        <span class="c1"># whether there is remapping to do is decided by the prepare step</span>
+        <span class="c1"># when it runs, and the weights exist only if there is, so both</span>
+        <span class="c1"># steps are found through dependencies rather than input files</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_dependency</span><span class="p">(</span><span class="n">prepare_step</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">'prepare'</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_dependency</span><span class="p">(</span><span class="n">weights_step</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">'weights'</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">add_output_file</span><span class="p">(</span>
             <span class="n">filename</span><span class="o">=</span><span class="s1">'topography_remapped.nc'</span><span class="p">,</span>
             <span class="n">validate_vars</span><span class="o">=</span><span class="n">get_remapped_topo_validate_vars</span><span class="p">(),</span>
         <span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">add_cf_check</span><span class="p">(</span><span class="s1">'topography_remapped.nc'</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">expand_distance</span> <span class="o">=</span> <span class="mf">0.0</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">expand_factor</span> <span class="o">=</span> <span class="mf">1.0</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">do_remapping</span> <span class="o">=</span> <span class="kc">True</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_cf_check</span><span class="p">(</span><span class="s1">'topography_remapped.nc'</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="RemapTopoStep.setup">
 <a class="viewcode-back" href="../../../../../../../developers_guide/e3sm/init/generated/polaris.tasks.e3sm.init.topo.remap.RemapTopoStep.setup.html#polaris.tasks.e3sm.init.topo.remap.RemapTopoStep.setup">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">setup</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">"""</span>
-<span class="sd">        Set up the step in the work directory, including downloading any</span>
-<span class="sd">        dependencies.</span>
+<span class="sd">        Set up the step in the work directory, including linking input files</span>
 <span class="sd">        """</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">setup</span><span class="p">()</span>
-        <span class="n">config</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span>
-        <span class="n">section</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s1">'remap_topography'</span><span class="p">]</span>
-
-        <span class="n">base_path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">base_mesh_step</span><span class="o">.</span><span class="n">path</span>
-        <span class="n">base_filename</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">base_mesh_step</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
-            <span class="s1">'spherical_mesh'</span><span class="p">,</span>
-            <span class="s1">'mpas_mesh_filename'</span><span class="p">,</span>
-        <span class="p">)</span>
-        <span class="n">target</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">base_path</span><span class="p">,</span> <span class="n">base_filename</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">add_input_file</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="s1">'base_mesh.nc'</span><span class="p">,</span> <span class="n">work_dir_target</span><span class="o">=</span><span class="n">target</span><span class="p">)</span>
-
-        <span class="n">combine_topo_step</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">combine_topo_step</span>
-        <span class="n">src_scrip_filename</span> <span class="o">=</span> <span class="n">combine_topo_step</span><span class="o">.</span><span class="n">dst_scrip_filename</span>
 
         <span class="n">masked_topo_step</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mask_topo_step</span>
-        <span class="n">topo_filename</span> <span class="o">=</span> <span class="s1">'topography_masked.nc'</span>
-
         <span class="bp">self</span><span class="o">.</span><span class="n">add_input_file</span><span class="p">(</span>
             <span class="n">filename</span><span class="o">=</span><span class="s1">'topography.nc'</span><span class="p">,</span>
-            <span class="n">work_dir_target</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">masked_topo_step</span><span class="o">.</span><span class="n">path</span><span class="p">,</span> <span class="n">topo_filename</span><span class="p">),</span>
-        <span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">add_input_file</span><span class="p">(</span>
-            <span class="n">filename</span><span class="o">=</span><span class="s1">'source.scrip.nc'</span><span class="p">,</span>
             <span class="n">work_dir_target</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
-                <span class="n">combine_topo_step</span><span class="o">.</span><span class="n">path</span><span class="p">,</span> <span class="n">src_scrip_filename</span>
+                <span class="n">masked_topo_step</span><span class="o">.</span><span class="n">path</span><span class="p">,</span> <span class="s1">'topography_masked.nc'</span>
             <span class="p">),</span>
         <span class="p">)</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">ntasks</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getint</span><span class="p">(</span><span class="s1">'ntasks'</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">min_tasks</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getint</span><span class="p">(</span><span class="s1">'min_tasks'</span><span class="p">)</span></div>
-
-
-<div class="viewcode-block" id="RemapTopoStep.constrain_resources">
-<a class="viewcode-back" href="../../../../../../../developers_guide/e3sm/init/generated/polaris.tasks.e3sm.init.topo.remap.RemapTopoStep.constrain_resources.html#polaris.tasks.e3sm.init.topo.remap.RemapTopoStep.constrain_resources">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">constrain_resources</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">available_resources</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">"""</span>
-<span class="sd">        Constrain ``cpus_per_task`` and ``ntasks`` based on the number of</span>
-<span class="sd">        cores available to this step</span>
-
-<span class="sd">        Parameters</span>
-<span class="sd">        ----------</span>
-<span class="sd">        available_resources : dict</span>
-<span class="sd">            The total number of cores available to the step</span>
-<span class="sd">        """</span>
-        <span class="n">config</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span>
-        <span class="n">section</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s1">'remap_topography'</span><span class="p">]</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">ntasks</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getint</span><span class="p">(</span><span class="s1">'ntasks'</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">min_tasks</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getint</span><span class="p">(</span><span class="s1">'min_tasks'</span><span class="p">)</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">constrain_resources</span><span class="p">(</span><span class="n">available_resources</span><span class="p">)</span></div>
-
-
-<div class="viewcode-block" id="RemapTopoStep.define_smoothing">
-<a class="viewcode-back" href="../../../../../../../developers_guide/e3sm/init/generated/polaris.tasks.e3sm.init.topo.remap.RemapTopoStep.define_smoothing.html#polaris.tasks.e3sm.init.topo.remap.RemapTopoStep.define_smoothing">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">define_smoothing</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ds_unsmoothed</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">"""</span>
-<span class="sd">        Define smoothing ``expand_distance`` and ``expand_factor`` fields.</span>
-<span class="sd">        Derived classes should override this method to create spatially</span>
-<span class="sd">        varying smoothing fields.  An ``expand_distance`` of 0.0 and an</span>
-<span class="sd">        ``expand_factor`` of 1.0 will not smooth the topography</span>
-
-<span class="sd">        The default implementation returns constant values from the config</span>
-<span class="sd">        file.</span>
-
-<span class="sd">        Parameters</span>
-<span class="sd">        ----------</span>
-<span class="sd">        ds_unsmoothed : polaris.tasks.e3sm.init.topo.RemapTopoStep</span>
-<span class="sd">            The step with unsmoothed topography</span>
-
-<span class="sd">        Returns</span>
-<span class="sd">        -------</span>
-<span class="sd">        expand_distance : xarray.DataArray or float</span>
-<span class="sd">            The distance to expand the topography mask, same shape as</span>
-<span class="sd">            fields in ``ds_unsmoothed`` if not constant</span>
-
-<span class="sd">        expand_factor : xarray.DataArray or float</span>
-<span class="sd">            The factor to expand the topography mask, same shape as</span>
-<span class="sd">            fields in ``ds_unsmoothed`` if not constant</span>
-<span class="sd">        """</span>
-        <span class="n">config</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span>
-        <span class="n">section</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s1">'remap_topography'</span><span class="p">]</span>
-        <span class="n">expand_distance</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">'expand_distance'</span><span class="p">)</span>
-        <span class="n">expand_factor</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">'expand_factor'</span><span class="p">)</span>
-
-        <span class="k">return</span> <span class="n">expand_distance</span><span class="p">,</span> <span class="n">expand_factor</span></div>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">smoothing</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">unsmoothed_topo</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">add_input_file</span><span class="p">(</span>
+                <span class="n">filename</span><span class="o">=</span><span class="s1">'topography_unsmoothed.nc'</span><span class="p">,</span>
+                <span class="n">work_dir_target</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">unsmoothed_topo</span><span class="o">.</span><span class="n">path</span><span class="p">,</span> <span class="s1">'topography_remapped.nc'</span>
+                <span class="p">),</span>
+            <span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="RemapTopoStep.run">
@@ -364,125 +313,32 @@
 <span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Run this step of the test case</span>
 <span class="sd">        """</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_setup_smoothing</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">do_remapping</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dependencies</span><span class="p">[</span><span class="s1">'prepare'</span><span class="p">]</span><span class="o">.</span><span class="n">do_remapping</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">do_remapping</span><span class="p">:</span>
+            <span class="c1"># we already have unsmoothed topography and we're not doing</span>
+            <span class="c1"># smoothing so we can just symlink the unsmoothed results</span>
+            <span class="n">symlink</span><span class="p">(</span><span class="s1">'topography_unsmoothed.nc'</span><span class="p">,</span> <span class="s1">'topography_remapped.nc'</span><span class="p">)</span>
+            <span class="k">return</span>
 
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">do_remapping</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_create_target_scrip_file</span><span class="p">()</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_create_weights</span><span class="p">()</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_remap_to_target</span><span class="p">()</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_renormalize_remapped_topo</span><span class="p">()</span></div>
-
-
-    <span class="k">def</span><span class="w"> </span><span class="nf">_setup_smoothing</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">"""</span>
-<span class="sd">        If we are smoothing but no smoothing was actually requested, symlink</span>
-<span class="sd">        to the unsmoothed topography</span>
-<span class="sd">        """</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">smoothing</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">unsmoothed_topo</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">unsmoothed_filename</span> <span class="o">=</span> <span class="s1">'topography_unsmoothed.nc'</span>
-            <span class="n">target_filename</span> <span class="o">=</span> <span class="s1">'topography_remapped.nc'</span>
-            <span class="n">unsmoothed_path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">unsmoothed_topo</span><span class="o">.</span><span class="n">work_dir</span>
-            <span class="n">target</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">unsmoothed_path</span><span class="p">,</span> <span class="n">target_filename</span><span class="p">)</span>
-            <span class="n">symlink</span><span class="p">(</span><span class="n">target</span><span class="p">,</span> <span class="n">unsmoothed_filename</span><span class="p">)</span>
-
-            <span class="n">ds_unsmoothed</span> <span class="o">=</span> <span class="n">open_dataset</span><span class="p">(</span><span class="n">unsmoothed_filename</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">expand_distance</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">expand_factor</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">define_smoothing</span><span class="p">(</span>
-                <span class="n">ds_unsmoothed</span>
-            <span class="p">)</span>
-
-            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">expand_distance</span> <span class="o">==</span> <span class="mf">0.0</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">expand_factor</span> <span class="o">==</span> <span class="mf">1.0</span><span class="p">:</span>
-                <span class="c1"># we already have unsmoothed topography and we're not doing</span>
-                <span class="c1"># smoothing so we can just symlink the unsmoothed results</span>
-                <span class="n">symlink</span><span class="p">(</span><span class="n">unsmoothed_filename</span><span class="p">,</span> <span class="n">target_filename</span><span class="p">)</span>
-
-                <span class="bp">self</span><span class="o">.</span><span class="n">do_remapping</span> <span class="o">=</span> <span class="kc">False</span>
-
-    <span class="k">def</span><span class="w"> </span><span class="nf">_create_target_scrip_file</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">"""</span>
-<span class="sd">        Create target SCRIP file from MPAS mesh file.</span>
-<span class="sd">        """</span>
-        <span class="n">logger</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">logger</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">'Create source SCRIP file'</span><span class="p">)</span>
-        <span class="n">netcdf4_filename</span> <span class="o">=</span> <span class="s1">'target.scrip.netcdf4.nc'</span>
-
-        <span class="n">mesh_name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">base_mesh_step</span><span class="o">.</span><span class="n">mesh_name</span>
-
-        <span class="n">descriptor</span> <span class="o">=</span> <span class="n">MpasCellMeshDescriptor</span><span class="p">(</span>
-            <span class="n">filename</span><span class="o">=</span><span class="s1">'base_mesh.nc'</span><span class="p">,</span>
-            <span class="n">mesh_name</span><span class="o">=</span><span class="n">mesh_name</span><span class="p">,</span>
+        <span class="n">mapping_filename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">dependencies</span><span class="p">[</span><span class="s1">'weights'</span><span class="p">]</span><span class="o">.</span><span class="n">work_dir</span><span class="p">,</span> <span class="n">MAPPING_FILENAME</span>
         <span class="p">)</span>
-        <span class="n">descriptor</span><span class="o">.</span><span class="n">to_scrip</span><span class="p">(</span>
-            <span class="n">netcdf4_filename</span><span class="p">,</span>
-            <span class="n">expand_dist</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">expand_distance</span><span class="p">,</span>
-            <span class="n">expand_factor</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">expand_factor</span><span class="p">,</span>
-        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_remap_to_target</span><span class="p">(</span><span class="n">mapping_filename</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_renormalize_remapped_topo</span><span class="p">()</span></div>
 
-        <span class="c1"># writing directly in NETCDF3_64BIT_DATA proved prohibitively slow</span>
-        <span class="c1"># so we will use ncks to convert</span>
-        <span class="n">args</span> <span class="o">=</span> <span class="p">[</span>
-            <span class="s1">'ncks'</span><span class="p">,</span>
-            <span class="s1">'-O'</span><span class="p">,</span>
-            <span class="s1">'-5'</span><span class="p">,</span>
-            <span class="n">netcdf4_filename</span><span class="p">,</span>
-            <span class="s1">'target.scrip.nc'</span><span class="p">,</span>
-        <span class="p">]</span>
-        <span class="n">check_call</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">logger</span><span class="p">)</span>
 
-        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">'  Done.'</span><span class="p">)</span>
-
-    <span class="k">def</span><span class="w"> </span><span class="nf">_create_weights</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">"""</span>
-<span class="sd">        Create mapping weights file using mbtempest</span>
-<span class="sd">        """</span>
-        <span class="n">logger</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">logger</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">'Create weights file'</span><span class="p">)</span>
-
-        <span class="n">method</span> <span class="o">=</span> <span class="s1">'conserve'</span>
-
-        <span class="n">args</span> <span class="o">=</span> <span class="p">[</span>
-            <span class="s1">'mbtempest'</span><span class="p">,</span>
-            <span class="s1">'--type'</span><span class="p">,</span>
-            <span class="s1">'5'</span><span class="p">,</span>
-            <span class="s1">'--load'</span><span class="p">,</span>
-            <span class="s1">'source.scrip.nc'</span><span class="p">,</span>
-            <span class="s1">'--load'</span><span class="p">,</span>
-            <span class="s1">'target.scrip.nc'</span><span class="p">,</span>
-            <span class="s1">'--file'</span><span class="p">,</span>
-            <span class="sa">f</span><span class="s1">'map_source_to_target_</span><span class="si">{</span><span class="n">method</span><span class="si">}</span><span class="s1">.nc'</span><span class="p">,</span>
-            <span class="s1">'--weights'</span><span class="p">,</span>
-            <span class="s1">'--gnomonic'</span><span class="p">,</span>
-            <span class="s1">'--boxeps'</span><span class="p">,</span>
-            <span class="s1">'1e-9'</span><span class="p">,</span>
-        <span class="p">]</span>
-
-        <span class="bp">self</span><span class="o">.</span><span class="n">component</span><span class="o">.</span><span class="n">run_parallel_command</span><span class="p">(</span>
-            <span class="n">args</span><span class="o">=</span><span class="n">args</span><span class="p">,</span>
-            <span class="n">cpus_per_task</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">cpus_per_task</span><span class="p">,</span>
-            <span class="n">ntasks</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">ntasks</span><span class="p">,</span>
-            <span class="n">openmp_threads</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">openmp_threads</span><span class="p">,</span>
-            <span class="n">logger</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="p">,</span>
-            <span class="n">gpus</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">gpus</span><span class="p">,</span>
-            <span class="n">placement</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">placement</span><span class="p">,</span>
-            <span class="n">memory_cap</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">memory</span><span class="p">,</span>
-        <span class="p">)</span>
-
-        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">'  Done.'</span><span class="p">)</span>
-
-    <span class="k">def</span><span class="w"> </span><span class="nf">_remap_to_target</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_remap_to_target</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mapping_filename</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Remap topography onto MPAS target mesh</span>
 <span class="sd">        """</span>
         <span class="n">logger</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">logger</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">'Remap to target'</span><span class="p">)</span>
 
-        <span class="n">method</span> <span class="o">=</span> <span class="s1">'conserve'</span>
-
         <span class="c1"># Build command args</span>
         <span class="n">args</span> <span class="o">=</span> <span class="p">[</span>
             <span class="s1">'ncremap'</span><span class="p">,</span>
             <span class="s1">'-m'</span><span class="p">,</span>
-            <span class="sa">f</span><span class="s1">'map_source_to_target_</span><span class="si">{</span><span class="n">method</span><span class="si">}</span><span class="s1">.nc'</span><span class="p">,</span>
+            <span class="n">mapping_filename</span><span class="p">,</span>
             <span class="s1">'--vrb=1'</span><span class="p">,</span>
             <span class="s1">'topography.nc'</span><span class="p">,</span>
             <span class="s1">'topography_ncremap.nc'</span><span class="p">,</span>

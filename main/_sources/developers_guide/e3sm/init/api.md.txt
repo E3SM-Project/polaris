@@ -50,14 +50,20 @@
 .. autosummary::
    :toctree: generated/
 
+   PrepareCombineStep
+   PrepareCombineStep.setup
+   PrepareCombineStep.run
+   CombineWeightsStep
+   CombineWeightsStep.setup
+   CombineWeightsStep.constrain_resources
    CombineStep
    CombineStep.get_subdir
    CombineStep.get_name
    CombineStep.setup
-   CombineStep.constrain_resources
    CombineStep.run
    get_cubed_sphere_topo_steps
    get_lat_lon_topo_steps
+   get_combine_topo_symlinks
    CubedSphereCombineTask
    LatLonCombineTask
    VizCombinedStep
@@ -79,10 +85,18 @@
    MaskTopoStep.define_masks
    MaskTopoStep.run
 
+   PrepareRemapTopoStep
+   PrepareRemapTopoStep.setup
+   PrepareRemapTopoStep.define_smoothing
+   PrepareRemapTopoStep.run
+
+   RemapTopoWeightsStep
+   RemapTopoWeightsStep.setup
+   RemapTopoWeightsStep.constrain_resources
+   RemapTopoWeightsStep.runtime_setup
+
    RemapTopoStep
    RemapTopoStep.setup
-   RemapTopoStep.constrain_resources
-   RemapTopoStep.define_smoothing
    RemapTopoStep.run
 
    RemapTopoTask

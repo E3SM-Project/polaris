@@ -20,7 +20,7 @@
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
     <link rel="next" title="polaris.tasks.ocean.realistic_global.init.remap_woa23.RemapWoa23Step" href="polaris.tasks.ocean.realistic_global.init.remap_woa23.RemapWoa23Step.html" />
-    <link rel="prev" title="polaris.tasks.ocean.realistic_global.init.lat_lon_map.LatLonMapStep.run" href="polaris.tasks.ocean.realistic_global.init.lat_lon_map.LatLonMapStep.run.html" />
+    <link rel="prev" title="polaris.tasks.ocean.realistic_global.init.lat_lon_map.LatLonMapStep.runtime_setup" href="polaris.tasks.ocean.realistic_global.init.lat_lon_map.LatLonMapStep.runtime_setup.html" />
     <link href="../../../_static/style.css" rel="stylesheet" type="text/css">
 
 </head>
@@ -199,10 +199,10 @@ filename).</p></li>
 <td><p>Process the inputs to and outputs from a step added with <a class="reference internal" href="../../generated/polaris.Step.add_input_file.html#polaris.Step.add_input_file" title="polaris.Step.add_input_file"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.Step.add_input_file()</span></code></a> and <a class="reference internal" href="../../generated/polaris.Step.add_output_file.html#polaris.Step.add_output_file" title="polaris.Step.add_output_file"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.Step.add_output_file()</span></code></a>.</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">run</span></code>()</p></td>
-<td><p>Set up the source and destination grids, then build the mapping file.</p></td>
+<td><p>Run the step.</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">runtime_setup</span></code>()</p></td>
-<td><p>Update attributes of the step at runtime before calling the <code class="docutils literal notranslate"><span class="pre">run()</span></code> method.</p></td>
+<td><p>Set up the source and destination grids, then the command that builds the mapping file.</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_resources</span></code>([cpus_per_task, ...])</p></td>
 <td><p>Update the resources for the subtask.</p></td>
@@ -249,7 +249,7 @@ filename).</p></li>
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="polaris.tasks.ocean.realistic_global.init.lat_lon_map.LatLonMapStep.run.html" class="btn btn-neutral float-left" title="polaris.tasks.ocean.realistic_global.init.lat_lon_map.LatLonMapStep.run" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="polaris.tasks.ocean.realistic_global.init.lat_lon_map.LatLonMapStep.runtime_setup.html" class="btn btn-neutral float-left" title="polaris.tasks.ocean.realistic_global.init.lat_lon_map.LatLonMapStep.runtime_setup" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
         <a href="polaris.tasks.ocean.realistic_global.init.remap_woa23.RemapWoa23Step.html" class="btn btn-neutral float-right" title="polaris.tasks.ocean.realistic_global.init.remap_woa23.RemapWoa23Step" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 

@@ -255,11 +255,12 @@
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">constrain_resources</span><span class="p">(</span><span class="n">available_resources</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="LatLonMapStep.run">
-<a class="viewcode-back" href="../../../../../../developers_guide/ocean/generated/polaris.tasks.ocean.realistic_global.init.lat_lon_map.LatLonMapStep.run.html#polaris.tasks.ocean.realistic_global.init.lat_lon_map.LatLonMapStep.run">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="LatLonMapStep.runtime_setup">
+<a class="viewcode-back" href="../../../../../../developers_guide/ocean/generated/polaris.tasks.ocean.realistic_global.init.lat_lon_map.LatLonMapStep.runtime_setup.html#polaris.tasks.ocean.realistic_global.init.lat_lon_map.LatLonMapStep.runtime_setup">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">runtime_setup</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">"""</span>
-<span class="sd">        Set up the source and destination grids, then build the mapping file.</span>
+<span class="sd">        Set up the source and destination grids, then the command that builds</span>
+<span class="sd">        the mapping file.</span>
 <span class="sd">        """</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">remapper</span><span class="o">.</span><span class="n">src_from_lon_lat</span><span class="p">(</span>
             <span class="n">filename</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">source_filename</span><span class="p">,</span>
@@ -271,7 +272,7 @@
             <span class="n">filename</span><span class="o">=</span><span class="s1">'culled_mesh.nc'</span><span class="p">,</span>
             <span class="n">mesh_name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">mesh_name</span><span class="p">,</span>
         <span class="p">)</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">run</span><span class="p">()</span></div>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">runtime_setup</span><span class="p">()</span></div>
 
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_update_ntasks</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>

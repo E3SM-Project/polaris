@@ -137,7 +137,8 @@
 <dd><p>Get shared combined-topography steps for a cubed-sphere target grid.</p>
 <p>The <a class="reference internal" href="polaris.tasks.e3sm.init.topo.combine.CombineStep.html#polaris.tasks.e3sm.init.topo.combine.CombineStep" title="polaris.tasks.e3sm.init.topo.combine.CombineStep"><code class="xref py py-class docutils literal notranslate"><span class="pre">CombineStep</span></code></a> sets <code class="docutils literal notranslate"><span class="pre">default_cached</span> <span class="pre">=</span> <span class="pre">True</span></code> in its
 constructor because it is expensive to produce.  Downstream tasks
-benefit from cached outputs automatically.  Tasks that require
+benefit from cached outputs automatically, and the steps that only
+feed it are then left out.  Tasks that require
 free-running execution (e.g. standalone combine tasks) should add each
 returned step’s <code class="docutils literal notranslate"><span class="pre">subdir</span></code> to <code class="docutils literal notranslate"><span class="pre">self.free_running_steps</span></code> in their
 <code class="docutils literal notranslate"><span class="pre">__init__</span></code>, as <a class="reference internal" href="polaris.tasks.e3sm.init.topo.combine.CubedSphereCombineTask.html#polaris.tasks.e3sm.init.topo.combine.CubedSphereCombineTask" title="polaris.tasks.e3sm.init.topo.combine.CubedSphereCombineTask"><code class="xref py py-class docutils literal notranslate"><span class="pre">CubedSphereCombineTask</span></code></a> does.</p>
@@ -151,8 +152,9 @@ returned step’s <code class="docutils literal notranslate"><span class="pre">s
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p><ul class="simple">
-<li><p><strong>steps</strong> (<em>dict of str to polaris.Step</em>) – The combine topo step and optional visualization step, keyed by step
-name.</p></li>
+<li><p><strong>steps</strong> (<em>dict of str to polaris.Step</em>) – The steps that prepare the datasets and make the remapping weights,
+the combine topo step and the optional visualization step, keyed by
+step name.</p></li>
 <li><p><strong>config</strong> (<em>polaris.config.PolarisConfigParser</em>) – The shared config options.</p></li>
 </ul>
 </p>

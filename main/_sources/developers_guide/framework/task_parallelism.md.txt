@@ -112,6 +112,42 @@ several steps run at once, and the resulting log cannot be attributed to a
 step.  Pass `self.logger` to any helper function or subprocess that produces
 output; see {ref}`dev-logging`.
 
+(dev-step-launch-rule)=
+
+### Launch only through the step's command
+
+A step launches at most one thing, and only through its command: the `args`
+attribute, which the framework launches with the step's resources (see
+{ref}`dev-step-attributes`).  Its `run()` method never launches anything.  It
+must not call {py:meth}`polaris.Component.run_parallel_command`, run `srun` or
+`mpirun`, or call a tool that runs them itself, as pyremap's
+`Remapper.build_map()` does.  Serial tools a step runs on its own node, such as
+`ncks`, `ncremap` or `jigsaw`, are not launches.
+
+There are two reasons:
+
+- Under `polaris parallel`, a step is confined to its part of the allocation
+  only in the launch the framework makes for it.  Any other launch can land on
+  cores and GPUs given to other steps, and the placement check cannot see it,
+  because its probe is launched with the placement.
+- A step without a command needs nothing from the scheduler's node, which is
+  what will let the scheduler run it on another node.  A launch from there
+  would start from inside a job step.
+
+`args` is a list of commands, which run one after another with the step's
+resources.  Small serial work the launch needs, such as writing SCRIP files,
+can go in `runtime_setup()`, which runs just before it.  Larger work belongs in
+a step of its own ahead of it.  Since a step with a command never calls
+`run()`, anything that has to happen after the launch goes in a step of its
+own that uses the launch's outputs.  Splitting a cached step this way costs
+nothing when it is cached: setup leaves out the steps whose outputs only
+cached steps use (see {ref}`dev-step-skipped-with-cache`).
+{py:class}`polaris.remap.MappingFileStep` and the steps that combine and remap
+topography in `e3sm/init` are examples.
+
+{py:meth}`polaris.Component.run_parallel_command` raises an error when it is
+called anywhere but in the framework's launch of a step's command.
+
 ### Declare the resources you need
 
 A step must declare the resources it needs so that the scheduler can decide how

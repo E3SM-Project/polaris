@@ -116,8 +116,10 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">polaris.config</span><span class="w"> </span><span class="kn">import</span> <span class="n">PolarisConfigParser</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">polaris.e3sm.init.topo</span><span class="w"> </span><span class="kn">import</span> <span class="n">format_lat_lon_resolution_name</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">polaris.step</span><span class="w"> </span><span class="kn">import</span> <span class="n">Step</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.tasks.e3sm.init.topo.combine.prepare</span><span class="w"> </span><span class="kn">import</span> <span class="n">PrepareCombineStep</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">polaris.tasks.e3sm.init.topo.combine.step</span><span class="w"> </span><span class="kn">import</span> <span class="n">CombineStep</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">polaris.tasks.e3sm.init.topo.combine.viz</span><span class="w"> </span><span class="kn">import</span> <span class="n">VizCombinedStep</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.tasks.e3sm.init.topo.combine.weights</span><span class="w"> </span><span class="kn">import</span> <span class="n">CombineWeightsStep</span>
 
 <span class="n">_MIN_CUBED_SPHERE_RESOLUTION</span> <span class="o">=</span> <span class="mi">120</span>
 <span class="n">_MAX_LAT_LON_RESOLUTION</span> <span class="o">=</span> <span class="mf">1.0</span>
@@ -131,7 +133,8 @@
 
 <span class="sd">    The :class:`CombineStep` sets ``default_cached = True`` in its</span>
 <span class="sd">    constructor because it is expensive to produce.  Downstream tasks</span>
-<span class="sd">    benefit from cached outputs automatically.  Tasks that require</span>
+<span class="sd">    benefit from cached outputs automatically, and the steps that only</span>
+<span class="sd">    feed it are then left out.  Tasks that require</span>
 <span class="sd">    free-running execution (e.g. standalone combine tasks) should add each</span>
 <span class="sd">    returned step's ``subdir`` to ``self.free_running_steps`` in their</span>
 <span class="sd">    ``__init__``, as :class:`CubedSphereCombineTask` does.</span>
@@ -150,8 +153,9 @@
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
 <span class="sd">    steps : dict of str to polaris.Step</span>
-<span class="sd">        The combine topo step and optional visualization step, keyed by step</span>
-<span class="sd">        name.</span>
+<span class="sd">        The steps that prepare the datasets and make the remapping weights,</span>
+<span class="sd">        the combine topo step and the optional visualization step, keyed by</span>
+<span class="sd">        step name.</span>
 
 <span class="sd">    config : polaris.config.PolarisConfigParser</span>
 <span class="sd">        The shared config options.</span>
@@ -173,7 +177,8 @@
 
 <span class="sd">    The :class:`CombineStep` sets ``default_cached = True`` in its</span>
 <span class="sd">    constructor because it is expensive to produce.  Downstream tasks</span>
-<span class="sd">    benefit from cached outputs automatically.  Tasks that require</span>
+<span class="sd">    benefit from cached outputs automatically, and the steps that only</span>
+<span class="sd">    feed it are then left out.  Tasks that require</span>
 <span class="sd">    free-running execution (e.g. standalone combine tasks) should add each</span>
 <span class="sd">    returned step's ``subdir`` to ``self.free_running_steps`` in their</span>
 <span class="sd">    ``__init__``, as :class:`LatLonCombineTask` does.</span>
@@ -192,8 +197,9 @@
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
 <span class="sd">    steps : dict of str to polaris.Step</span>
-<span class="sd">        The combine topo step and optional visualization step, keyed by step</span>
-<span class="sd">        name.</span>
+<span class="sd">        The steps that prepare the datasets and make the remapping weights,</span>
+<span class="sd">        the combine topo step and the optional visualization step, keyed by</span>
+<span class="sd">        step name.</span>
 
 <span class="sd">    config : polaris.config.PolarisConfigParser</span>
 <span class="sd">        The shared config options.</span>
@@ -204,6 +210,37 @@
         <span class="n">resolution</span><span class="o">=</span><span class="n">resolution</span><span class="p">,</span>
         <span class="n">include_viz</span><span class="o">=</span><span class="n">include_viz</span><span class="p">,</span>
     <span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="get_combine_topo_symlinks">
+<a class="viewcode-back" href="../../../../../../../developers_guide/e3sm/init/generated/polaris.tasks.e3sm.init.topo.combine.get_combine_topo_symlinks.html#polaris.tasks.e3sm.init.topo.combine.get_combine_topo_symlinks">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_combine_topo_symlinks</span><span class="p">(</span><span class="n">combine_step</span><span class="p">,</span> <span class="n">key</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Get a combine topo step and the steps that prepare for it and make its</span>
+<span class="sd">    weights, keyed by symlinks for a task that names the combine step</span>
+<span class="sd">    ``key``.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    combine_step : polaris.tasks.e3sm.init.topo.combine.CombineStep</span>
+<span class="sd">        The combine topo step</span>
+
+<span class="sd">    key : str</span>
+<span class="sd">        The symlink for the combine topo step, which the others' symlinks</span>
+<span class="sd">        start with</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    steps : dict of str to polaris.Step</span>
+<span class="sd">        The steps that prepare the datasets and make the remapping weights,</span>
+<span class="sd">        and the combine topo step, keyed by symlink</span>
+<span class="sd">    """</span>
+    <span class="k">return</span> <span class="p">{</span>
+        <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s1">_prepare'</span><span class="p">:</span> <span class="n">combine_step</span><span class="o">.</span><span class="n">prepare_step</span><span class="p">,</span>
+        <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s1">_weights'</span><span class="p">:</span> <span class="n">combine_step</span><span class="o">.</span><span class="n">weights_step</span><span class="p">,</span>
+        <span class="n">key</span><span class="p">:</span> <span class="n">combine_step</span><span class="p">,</span>
+    <span class="p">}</span></div>
 
 
 
@@ -228,8 +265,9 @@
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
 <span class="sd">    steps : dict of str to polaris.Step</span>
-<span class="sd">        The combine topo step and optional visualization step, keyed by step</span>
-<span class="sd">        name.</span>
+<span class="sd">        The steps that prepare the datasets and make the remapping weights,</span>
+<span class="sd">        the combine topo step and the optional visualization step, keyed by</span>
+<span class="sd">        step name.</span>
 
 <span class="sd">    config : polaris.config.PolarisConfigParser</span>
 <span class="sd">        The shared config options.</span>
@@ -268,16 +306,36 @@
         <span class="n">filepath</span><span class="o">=</span><span class="n">filepath</span><span class="p">,</span> <span class="n">create</span><span class="o">=</span><span class="n">create</span>
     <span class="p">)</span>
 
-    <span class="n">steps</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Step</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="n">combine_name</span> <span class="o">=</span> <span class="n">CombineStep</span><span class="o">.</span><span class="n">get_name</span><span class="p">(</span><span class="n">target_grid</span><span class="p">,</span> <span class="n">resolution_name</span><span class="p">)</span>
+    <span class="n">prepare_step</span> <span class="o">=</span> <span class="n">component</span><span class="o">.</span><span class="n">get_or_create_shared_step</span><span class="p">(</span>
+        <span class="n">step_cls</span><span class="o">=</span><span class="n">PrepareCombineStep</span><span class="p">,</span>
+        <span class="n">subdir</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">subdir</span><span class="p">,</span> <span class="s1">'prepare'</span><span class="p">),</span>
+        <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span>
+        <span class="n">config_filename</span><span class="o">=</span><span class="n">config_filename</span><span class="p">,</span>
+        <span class="n">name</span><span class="o">=</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">combine_name</span><span class="si">}</span><span class="s1">_prepare'</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">weights_step</span> <span class="o">=</span> <span class="n">component</span><span class="o">.</span><span class="n">get_or_create_shared_step</span><span class="p">(</span>
+        <span class="n">step_cls</span><span class="o">=</span><span class="n">CombineWeightsStep</span><span class="p">,</span>
+        <span class="n">subdir</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">subdir</span><span class="p">,</span> <span class="s1">'weights'</span><span class="p">),</span>
+        <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span>
+        <span class="n">config_filename</span><span class="o">=</span><span class="n">config_filename</span><span class="p">,</span>
+        <span class="n">name</span><span class="o">=</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">combine_name</span><span class="si">}</span><span class="s1">_weights'</span><span class="p">,</span>
+        <span class="n">prepare_step</span><span class="o">=</span><span class="n">prepare_step</span><span class="p">,</span>
+    <span class="p">)</span>
     <span class="n">combine_step</span> <span class="o">=</span> <span class="n">component</span><span class="o">.</span><span class="n">get_or_create_shared_step</span><span class="p">(</span>
         <span class="n">step_cls</span><span class="o">=</span><span class="n">CombineStep</span><span class="p">,</span>
         <span class="n">subdir</span><span class="o">=</span><span class="n">subdir</span><span class="p">,</span>
         <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span>
         <span class="n">target_grid</span><span class="o">=</span><span class="n">target_grid</span><span class="p">,</span>
         <span class="n">resolution_name</span><span class="o">=</span><span class="n">resolution_name</span><span class="p">,</span>
+        <span class="n">prepare_step</span><span class="o">=</span><span class="n">prepare_step</span><span class="p">,</span>
+        <span class="n">weights_step</span><span class="o">=</span><span class="n">weights_step</span><span class="p">,</span>
     <span class="p">)</span>
-    <span class="n">combine_step</span><span class="o">.</span><span class="n">_set_res_and_outputs</span><span class="p">(</span><span class="n">update</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
-    <span class="n">steps</span><span class="p">[</span><span class="n">combine_step</span><span class="o">.</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">combine_step</span>
+    <span class="n">combine_step</span><span class="o">.</span><span class="n">_set_res_and_outputs</span><span class="p">()</span>
+
+    <span class="n">steps</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Step</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">step</span> <span class="ow">in</span> <span class="p">[</span><span class="n">prepare_step</span><span class="p">,</span> <span class="n">weights_step</span><span class="p">,</span> <span class="n">combine_step</span><span class="p">]:</span>
+        <span class="n">steps</span><span class="p">[</span><span class="n">step</span><span class="o">.</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">step</span>
 
     <span class="k">if</span> <span class="n">include_viz</span><span class="p">:</span>
         <span class="n">viz_subdir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">combine_step</span><span class="o">.</span><span class="n">subdir</span><span class="p">,</span> <span class="s1">'viz'</span><span class="p">)</span>
