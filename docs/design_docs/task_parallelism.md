@@ -253,16 +253,18 @@ This is where the regression-suite speedup lands.
 
 [Task Parallelism Phase C: Python Worker Pool](task_parallelism_phase_c.md)
 
-Add a resident process on each node of the allocation, which forks children
-for work and hosts a pool of workers for Python work too fine-grained to be
-given a process of its own. This is what lifts the single-node ceiling that
-constrains MPAS-Analysis today, and it is the phase the analysis capability
-depends on. It also lifts Phase B's bound on where a non-MPI step runs,
-using the same mechanism rather than a second one.
+Add a resident process on each node of the allocation, which forks a whole
+step on whichever node has room and runs the pieces of work a step loops
+over inside itself. Analysis in Polaris will be many small Python steps, so
+forking them anywhere in the allocation is what lifts the single-node
+ceiling that constrains MPAS-Analysis today, and it is the phase the
+analysis capability depends on. The same mechanism lifts Phase B's bound on
+where a non-MPI step runs.
 
-Measurement has since confirmed the premise: a high-resolution analysis run
+Measurement has since shown what that needs: a high-resolution analysis run
 is fine-grained, with a median task of about five seconds and half of them
-shorter. Phase C records what else that run showed, including two of its
+shorter, so whatever a resident starts has to start cheaply. Phase C records
+what else that run showed, including two of its
 headline numbers that do not mean what they appear to. It is worth stating
 here that analysis is the pool's first demanding customer and not its
 specification -- most Polaris workflows share no single large input, and a
