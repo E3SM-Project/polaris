@@ -232,13 +232,13 @@
 <span class="k">def</span><span class="w"> </span><span class="nf">_run</span><span class="p">(</span><span class="n">suite</span><span class="p">,</span> <span class="n">suite_name</span><span class="p">,</span> <span class="n">component</span><span class="p">,</span> <span class="n">logger</span><span class="p">,</span> <span class="n">events</span><span class="p">,</span> <span class="n">work_dir</span><span class="p">,</span> <span class="n">quiet</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">"""Set the run up, drive the loop, and report what happened."""</span>
     <span class="n">steps</span><span class="p">,</span> <span class="n">task_steps</span> <span class="o">=</span> <span class="n">_select_steps</span><span class="p">(</span><span class="n">suite</span><span class="p">,</span> <span class="n">logger</span><span class="p">)</span>
+    <span class="n">graph</span> <span class="o">=</span> <span class="n">build_step_graph</span><span class="p">(</span><span class="n">steps</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
 
     <span class="c1"># the nodes are read before the steps are sized, because what they</span>
     <span class="c1"># report is what the sizes have to be taken from</span>
     <span class="n">nodes</span> <span class="o">=</span> <span class="n">read_allocation</span><span class="p">(</span><span class="n">component</span><span class="p">,</span> <span class="n">logger</span><span class="p">)</span>
     <span class="n">available</span> <span class="o">=</span> <span class="n">_credit_memory</span><span class="p">(</span><span class="n">component</span><span class="o">.</span><span class="n">get_available_resources</span><span class="p">(),</span> <span class="n">nodes</span><span class="p">)</span>
-    <span class="k">for</span> <span class="n">step</span> <span class="ow">in</span> <span class="n">steps</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
-        <span class="n">step</span><span class="o">.</span><span class="n">constrain_resources</span><span class="p">(</span><span class="n">available</span><span class="p">)</span>
+    <span class="n">_size_steps</span><span class="p">(</span><span class="n">graph</span><span class="p">,</span> <span class="n">available</span><span class="p">)</span>
 
     <span class="n">support</span> <span class="o">=</span> <span class="n">component</span><span class="o">.</span><span class="n">parallel_system</span><span class="o">.</span><span class="n">placement_support</span>
     <span class="n">pool</span> <span class="o">=</span> <span class="n">ResourcePool</span><span class="p">(</span>
@@ -246,7 +246,6 @@
         <span class="n">local_node</span><span class="o">=</span><span class="n">_local_node</span><span class="p">(</span><span class="n">nodes</span><span class="p">),</span>
         <span class="n">names_gpus</span><span class="o">=</span><span class="n">support</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">PlacementSupport</span><span class="o">.</span><span class="n">SCHEDULER</span><span class="p">,</span>
     <span class="p">)</span>
-    <span class="n">graph</span> <span class="o">=</span> <span class="n">build_step_graph</span><span class="p">(</span><span class="n">steps</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
 
     <span class="n">base_work_dir</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="nb">iter</span><span class="p">(</span><span class="n">suite</span><span class="p">[</span><span class="s1">'tasks'</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">()))</span><span class="o">.</span><span class="n">base_work_dir</span>
     <span class="n">tracker</span> <span class="o">=</span> <span class="n">_TaskTracker</span><span class="p">(</span>
@@ -348,6 +347,27 @@
     <span class="n">available</span><span class="p">[</span><span class="s1">'memory_per_node'</span><span class="p">]</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">credited</span><span class="p">)</span>
     <span class="n">available</span><span class="p">[</span><span class="s1">'memory'</span><span class="p">]</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">credited</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">available</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_size_steps</span><span class="p">(</span><span class="n">graph</span><span class="p">,</span> <span class="n">available</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Size each step that will run against the whole allocation.</span>
+
+<span class="sd">    A step that is cached or already complete will not run, so it is not</span>
+<span class="sd">    sized, as on the serial path.  Setup sized the job without it, and it</span>
+<span class="sd">    may well not fit.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    graph : polaris.run.graph.StepGraph</span>
+<span class="sd">        The graph of the steps being run</span>
+
+<span class="sd">    available : dict</span>
+<span class="sd">        The resource view the steps are sized against</span>
+<span class="sd">    """</span>
+    <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">graph</span><span class="o">.</span><span class="n">nodes</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">node</span><span class="o">.</span><span class="n">satisfied</span><span class="p">:</span>
+            <span class="n">node</span><span class="o">.</span><span class="n">step</span><span class="o">.</span><span class="n">constrain_resources</span><span class="p">(</span><span class="n">available</span><span class="p">)</span>
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_select_steps</span><span class="p">(</span><span class="n">suite</span><span class="p">,</span> <span class="n">logger</span><span class="p">):</span>
