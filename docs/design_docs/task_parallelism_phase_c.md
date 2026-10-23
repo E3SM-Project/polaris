@@ -23,9 +23,11 @@ and lifting it is the point.
 
 Two capabilities follow from one mechanism. A resident process on a node can
 fork a whole step, which lifts Phase B's bound without a second executor.
-And it can host a pool of workers for work too fine-grained to track
-individually, which is what an analysis step submitting hundreds of tasks
-needs.
+Analysis in Polaris will be many small Python steps, as MPAS-Analysis is
+many small tasks, so this is the capability it depends on most. And a
+resident can run the pieces of work a step loops over inside itself --
+seasons, elevations, regions -- so that a step's own loop can use other
+nodes too.
 
 The motivating workload is analysis. Polaris is to gain analysis capability
 equivalent to MPAS-Analysis, which already parallelizes this kind of work
@@ -40,16 +42,15 @@ Phase D.
 
 ### What the measurement showed
 
-Whether a pool is needed at all was an empirical question, and it has been
+How fine-grained analysis work is was an empirical question, and it has been
 answered. A high-resolution MPAS-Analysis run was instrumented for per-task
 duration, peak memory and dependency-graph width, and run cold on one node:
 1231 tasks, none failed, 7h29m.
 
-The question this phase turned on was whether analysis work is coarse --
-minutes each, tens of them, in which case Phase B already handles it -- or
-fine-grained, in which case a pool is needed. It is fine-grained. The median
-task is 5.2 seconds and 49% run in under five, at the resolution that
-matters. This document proceeds as written.
+The work is fine-grained. The median task is 5.2 seconds and 49% run in
+under five, at the resolution that matters. So whatever a resident starts --
+a step, or a piece of one -- has to start in a small fraction of a second,
+which forking from a process that has already imported Polaris does.
 
 Two of that measurement's headline numbers should not be carried into this
 design without their qualification, and the qualification is the same for
@@ -349,7 +350,7 @@ rather than inferred.
 
 ### Algorithm Design: What the Resident Process Is
 
-Date last modified: 2026/09/09
+Date last modified: 2026/10/23
 
 Contributors:
 
@@ -362,8 +363,9 @@ scheduler and this phase pays once per node, in parallel.
 
 A resident serves two kinds of request. It forks a child to run a whole
 step, which is Phase B's mechanism made available on a node that is not the
-scheduler's. And it hosts worker processes that run many small pieces of
-work submitted by a step, which is what an analysis step needs.
+scheduler's, and which is what many small analysis steps need. And it runs
+the pieces of work a step hands out from its own loops, so that a step can
+spread a loop over other nodes.
 
 The two share their expensive part. A resident that has imported Polaris and
 loaded a read-only input can fork either a step or a worker, and both
