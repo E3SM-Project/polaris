@@ -28,7 +28,13 @@ from polaris.run.allocation import NodeResources
 from polaris.run.confinement import PLACEMENT_MISMATCH_LOG
 from polaris.run.events import EventStream, read_events
 from polaris.run.graph import build_step_graph
-from polaris.run.parallel import _credit_memory, _loop, _report, _TaskTracker
+from polaris.run.parallel import (
+    _credit_memory,
+    _loop,
+    _report,
+    _size_steps,
+    _TaskTracker,
+)
 from polaris.run.pool import ResourcePool
 from polaris.run.results import write_suite_results
 
@@ -94,6 +100,21 @@ def _step(tmp_path, name, body, cores=1, inputs=(), outputs=()):
     step.memory_budget = None
     with open(os.path.join(step.work_dir, STEP_SCRIPT), 'w') as handle:
         handle.write(body)
+    return step
+
+
+def _mpi_step(tmp_path, name, min_tasks, cached=False):
+    """A step that wants 1024 MPI tasks and will take no fewer than some."""
+    step = Step(
+        component=Component(name='ocean'),
+        name=name,
+        subdir=name,
+        ntasks=1024,
+        min_tasks=min_tasks,
+        cached=cached,
+    )
+    step.work_dir = str(tmp_path / name)
+    os.makedirs(step.work_dir, exist_ok=True)
     return step
 
 
@@ -364,6 +385,42 @@ def test_a_step_is_sized_against_what_the_nodes_credit():
 
     assert pool.why_impossible(step) is None
     assert pool.reserve(step) is not None
+
+
+def test_only_steps_that_will_run_are_sized(tmp_path):
+    """
+    What stopped a topography suite before anything ran.
+
+    Setup sizes the job without the steps that will not run, so a cached or
+    completed step can need more than the allocation has.  Sizing it anyway
+    fails the whole run over a step that was never going to start.
+    """
+    available = dict(
+        cores=448,
+        nodes=7,
+        cores_per_node=64,
+        gpus=0,
+        gpus_per_node=0,
+        memory=253000 * 7,
+        memory_per_node=253000,
+        mpi_allowed=True,
+    )
+    cached = _mpi_step(tmp_path, 'cached', min_tasks=512, cached=True)
+    done = _mpi_step(tmp_path, 'done', min_tasks=512)
+    with open(os.path.join(done.work_dir, STEP_COMPLETE_LOG), 'w') as handle:
+        handle.write('done')
+    wide = _mpi_step(tmp_path, 'wide', min_tasks=128)
+
+    _size_steps(build_step_graph([cached, done, wide]), available)
+
+    assert cached.ntasks == 1024
+    assert done.ntasks == 1024
+    assert wide.ntasks == 448
+
+    # a step that will run is still held to its minimum
+    wider = _mpi_step(tmp_path, 'wider', min_tasks=512)
+    with pytest.raises(ValueError, match='below the minimum'):
+        _size_steps(build_step_graph([wider]), available)
 
 
 def test_a_view_from_nodes_that_said_nothing_is_left_alone():

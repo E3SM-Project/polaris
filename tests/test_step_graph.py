@@ -77,8 +77,8 @@ def test_a_link_to_what_another_step_will_produce_is_an_edge(tmp_path):
     Setup links a step's inputs into its own work directory, so a step
     consuming another's output names a link pointing there.  Until the
     other step runs that link dangles: it does not exist, and the file it
-    waits for has a different path.  Comparing what the link resolves to is
-    what connects the two.
+    waits for has a different path.  Following the link is what connects
+    the two.
     """
     produced = tmp_path / 'producer' / 'init.nc'
     producer = _make_step(tmp_path, 'producer', outputs=[produced])
@@ -173,6 +173,95 @@ def test_two_steps_producing_one_file_are_rejected(tmp_path):
 
     with pytest.raises(ValueError, match='both produce'):
         build_step_graph([first, second])
+
+
+def test_an_output_linked_to_another_steps_output_is_not_a_collision(
+    tmp_path,
+):
+    """
+    What a resumed topography suite exposed.
+
+    A step may finish by making its output a link to another step's output,
+    as a smoothing step does when there is no smoothing to do.  On a rerun
+    that link is there, and following it made the two steps produce one
+    file.  The step that made the link never writes to its target.
+    """
+    original = tmp_path / 'original' / 'out.nc'
+    first = _make_step(tmp_path, 'original', outputs=[original])
+    original.write_text('')
+    linked = tmp_path / 'linked' / 'out.nc'
+    second = _make_step(tmp_path, 'linked', outputs=[linked])
+    # relative, as the smoothing step leaves it
+    os.symlink(os.path.join('..', 'original', 'out.nc'), linked)
+    _mark_complete(first)
+    _mark_complete(second)
+
+    graph = build_step_graph([first, second])
+
+    assert graph.nodes['ocean/linked'].requires == frozenset()
+    assert graph.nodes['ocean/linked'].satisfied
+
+
+def test_an_input_waits_for_the_step_whose_output_it_names(tmp_path):
+    """
+    Not for the step whose output that one links to.
+
+    Following every link to its end would make the consumer of a linked
+    output wait for the wrong step, and start before the step it needs has
+    rerun.
+    """
+    original = tmp_path / 'original' / 'out.nc'
+    first = _make_step(tmp_path, 'original', outputs=[original])
+    original.write_text('')
+    linked = tmp_path / 'linked' / 'out.nc'
+    second = _make_step(tmp_path, 'linked', outputs=[linked])
+    os.symlink(original, linked)
+    consumer = _make_step(tmp_path, 'consumer')
+    consumer_input = tmp_path / 'consumer' / 'in.nc'
+    os.symlink(linked, consumer_input)
+    consumer.inputs = [str(consumer_input)]
+
+    graph = build_step_graph([first, second, consumer])
+
+    assert graph.nodes['ocean/consumer'].requires == frozenset(
+        {'ocean/linked'}
+    )
+
+
+def test_two_names_for_one_output_through_a_linked_directory_collide(
+    tmp_path,
+):
+    """
+    Not following an output's own link must not hide a real race.
+
+    A task links a shared step's directory into its own, so two names for
+    one file can differ by a linked directory.  Those are still one file.
+    """
+    real = tmp_path / 'real'
+    real.mkdir()
+    alias = tmp_path / 'alias'
+    os.symlink(real, alias)
+    first = _make_step(tmp_path, 'first', outputs=[real / 'out.nc'])
+    second = _make_step(tmp_path, 'second', outputs=[alias / 'out.nc'])
+
+    with pytest.raises(ValueError, match='both produce'):
+        build_step_graph([first, second])
+
+
+def test_an_input_through_a_linked_directory_is_an_edge(tmp_path):
+    """The same file named through a task's link to a shared step."""
+    real = tmp_path / 'real'
+    real.mkdir()
+    alias = tmp_path / 'alias'
+    os.symlink(real, alias)
+    producer = _make_step(tmp_path, 'producer', outputs=[real / 'out.nc'])
+    consumer = _make_step(tmp_path, 'consumer', inputs=[alias / 'out.nc'])
+
+    graph = build_step_graph([producer, consumer])
+
+    assert graph.nodes['ocean/consumer'].requires == frozenset(
+        {'ocean/producer'}
+    )
 
 
 def test_a_completed_step_is_satisfied_rather_than_run(tmp_path):

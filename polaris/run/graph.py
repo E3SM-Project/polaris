@@ -21,7 +21,7 @@ reported at the start.
 """
 
 import os
-from typing import Dict, FrozenSet, Iterable, List, Tuple
+from typing import Dict, FrozenSet, Iterable, List, Optional, Tuple
 
 from polaris.run.lifecycle import step_is_complete
 from polaris.step import Step
@@ -180,11 +180,17 @@ def _find_producers(selected: Dict[str, Step]) -> Dict[str, str]:
     Two steps writing the same file is a race as soon as they can run at
     the same time, and it is rejected here rather than left to whichever
     finishes last.
+
+    An output is compared by where the step puts it, not by what it points
+    to.  A step may make its output a link to another step's output, and
+    after a run the link is there: following it would make two steps
+    produce one file, but the step that made the link never writes to its
+    target.
     """
     producers: Dict[str, str] = {}
     for path, step in selected.items():
         for output in step.outputs:
-            filename = _resolve(output)
+            filename = _resolve_directory(output)
             if filename in producers and producers[filename] != path:
                 raise ValueError(
                     f'Steps {producers[filename]} and {path} both produce '
@@ -195,21 +201,55 @@ def _find_producers(selected: Dict[str, Step]) -> Dict[str, str]:
     return producers
 
 
-def _resolve(filename: str) -> str:
+def _resolve_directory(filename: str) -> str:
     """
-    The path to compare a file by, following any symlinks along the way.
+    The path to compare a file by, following any symlinks in the directory
+    it is in but not the file itself.
+
+    A task links shared steps into its own directory, and a work directory
+    may be reached through a link, so the directories have to be resolved
+    for two names of one file to compare equal.  Whether the file itself is
+    a link is the caller's question.
+    """
+    directory, basename = os.path.split(os.path.abspath(filename))
+    return os.path.join(os.path.realpath(directory), basename)
+
+
+def _find_input_producer(
+    filename: str, producers: Dict[str, str]
+) -> Tuple[Optional[str], str]:
+    """
+    Find the step that produces an input, following links one at a time.
 
     Setup links a step's inputs into its own work directory, so a step that
-    consumes another's output names a link that points there.  Until the
+    consumes another's output may name a link that points there.  Until the
     other step runs, that link dangles: it does not exist, and the file it
-    is waiting for has a different path.  Comparing what a link resolves to
-    is what connects the two.
+    is waiting for has a different path.  Following the link is what
+    connects the two.
 
-    A link that does not exist yet resolves to itself, and a name with no
-    links in it is merely normalized, so this is safe to apply to every
-    path on both sides of the comparison.
+    The first file along the way that a step produces is the one the input
+    waits for.  Going further would skip a producer that made its output a
+    link to some other step's, and the input would then wait on the wrong
+    step.
+
+    Returns
+    -------
+    producer : str or None
+        The path of the step that produces the input, if any does
+
+    filename : str
+        The last file along the way, which is the producer's output or, if
+        nothing produces the input, the file that has to exist already
     """
-    return os.path.realpath(filename)
+    current = _resolve_directory(filename)
+    seen = set()
+    while current not in producers:
+        if not os.path.islink(current) or current in seen:
+            return None, current
+        seen.add(current)
+        target = os.path.join(os.path.dirname(current), os.readlink(current))
+        current = _resolve_directory(target)
+    return producers[current], current
 
 
 def _requirements_of(
@@ -229,8 +269,7 @@ def _requirements_of(
             required.add(dependency.path)
 
     for input_file in step.inputs:
-        filename = _resolve(input_file)
-        producer = producers.get(filename)
+        producer, filename = _find_input_producer(input_file, producers)
         if producer is not None:
             if producer != step.path:
                 required.add(producer)
