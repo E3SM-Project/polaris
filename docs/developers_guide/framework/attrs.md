@@ -81,10 +81,11 @@ as a `note` or a `standard_name`, can be passed as an extra keyword argument.
 A step that writes a netCDF file with xarray or `write_netcdf()` should pass
 the dataset through {py:func}`polaris.cf.add_cf_conventions()` first.  It
 adds `CF-1.8` to the `Conventions` attribute, keeping any other convention
-listed, such as the `MPAS` entry from the MPAS-Tools mesh converter.  For an
-MPAS mesh, {py:func}`polaris.mesh.attrs.add_mesh_var_attrs()` also fills in
-`units` and `long_name` for the mesh variables MPAS-Tools writes without
-them.  Both leave what a variable already has alone.  The ocean component's
+listed, such as the `MPAS` entry from the MPAS-Tools mesh tools.  The meshes
+that MPAS-Tools makes already have CF metadata; for mesh variables copied into
+another dataset, {py:func}`polaris.mesh.attrs.add_mesh_var_attrs()` fills in
+`units`, `long_name` and `standard_name` from the MPAS-Tools table.  Both
+leave what a variable already has alone.  The ocean component's
 write methods do both for you (see {ref}`dev-ocean-framework-cf-metadata`).
 
 A file remapped with `ncremap`, or cut down to a few of its source's
