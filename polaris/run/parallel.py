@@ -115,13 +115,13 @@ def run_tasks(suite_name, quiet=False):
 def _run(suite, suite_name, component, logger, events, work_dir, quiet):
     """Set the run up, drive the loop, and report what happened."""
     steps, task_steps = _select_steps(suite, logger)
+    graph = build_step_graph(steps.values())
 
     # the nodes are read before the steps are sized, because what they
     # report is what the sizes have to be taken from
     nodes = read_allocation(component, logger)
     available = _credit_memory(component.get_available_resources(), nodes)
-    for step in steps.values():
-        step.constrain_resources(available)
+    _size_steps(graph, available)
 
     support = component.parallel_system.placement_support
     pool = ResourcePool(
@@ -129,7 +129,6 @@ def _run(suite, suite_name, component, logger, events, work_dir, quiet):
         local_node=_local_node(nodes),
         names_gpus=support is not PlacementSupport.SCHEDULER,
     )
-    graph = build_step_graph(steps.values())
 
     base_work_dir = next(iter(suite['tasks'].values())).base_work_dir
     tracker = _TaskTracker(
@@ -231,6 +230,27 @@ def _credit_memory(available, nodes):
     available['memory_per_node'] = min(credited)
     available['memory'] = sum(credited)
     return available
+
+
+def _size_steps(graph, available):
+    """
+    Size each step that will run against the whole allocation.
+
+    A step that is cached or already complete will not run, so it is not
+    sized, as on the serial path.  Setup sized the job without it, and it
+    may well not fit.
+
+    Parameters
+    ----------
+    graph : polaris.run.graph.StepGraph
+        The graph of the steps being run
+
+    available : dict
+        The resource view the steps are sized against
+    """
+    for node in graph.nodes.values():
+        if not node.satisfied:
+            node.step.constrain_resources(available)
 
 
 def _select_steps(suite, logger):
