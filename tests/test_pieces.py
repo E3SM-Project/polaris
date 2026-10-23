@@ -9,12 +9,14 @@ took.
 
 import os
 import signal
+import socket
 import time
 
 import pytest
 from mache.parallel import ResourcePlacement
 
 from polaris import Component, Step
+from polaris.run.confinement import PLACEMENT_MISMATCH_LOG
 from polaris.run.pieces import PieceFailed, Pieces, slots_from
 from polaris.run.residents import Residents
 
@@ -226,3 +228,24 @@ def test_slots_come_from_a_placement():
     assert slots_from(named) == [('a', 0), ('a', 1), ('b', 2)]
     unnamed = ResourcePlacement(nodes=(), cores=((3, 4),), gpus=0)
     assert slots_from(unnamed) == [('', 3), ('', 4)]
+
+
+def test_a_piece_that_ran_off_its_core_is_reported(tmp_path, residents):
+    step = _step(tmp_path)
+    slots = [('nodeA', 10**6)]
+    with Pieces(step, slots, residents.directory) as pieces:
+        assert pieces.map(add, [1], [2]) == [3]
+    with open(tmp_path / PLACEMENT_MISMATCH_LOG) as handle:
+        report = handle.read()
+    assert 'given core 1000000 on nodeA was allowed' in report
+
+
+def test_pieces_that_ran_where_they_were_meant_to_leave_no_report(
+    tmp_path, residents
+):
+    with _pieces(tmp_path, residents) as pieces:
+        pieces.map(add, [1, 2], [3, 4])
+    assert not os.path.exists(tmp_path / PLACEMENT_MISMATCH_LOG)
+    assert {record['host'] for record in pieces.records} == {
+        socket.gethostname().split('.')[0]
+    }

@@ -30,12 +30,17 @@ from collections import deque
 from multiprocessing.connection import Connection, wait
 from typing import Any, Callable, Deque, Dict, List, Optional, Tuple, cast
 
+from polaris.run.confinement import _ranges, record_mismatch
 from polaris.run.connections import connect
 from polaris.run.residents import ResidentDirectory
 
 # a core a piece may run on: the node, as the allocation names it, and the
 # core's id there
 Slot = Tuple[str, int]
+
+# how many pieces that ran somewhere other than their core are described
+# one by one before the rest are only counted
+_PROBLEMS_SHOWN = 10
 
 
 class PieceFailed(RuntimeError):
@@ -96,6 +101,7 @@ class Pieces:
             )
         self.slots = list(slots)
         self.records: List[Dict[str, Any]] = []
+        self.problems: List[str] = []
         self._step = step
         self._directory = directory
         self._connections: Dict[str, Connection] = {}
@@ -175,14 +181,17 @@ class Pieces:
             for request_id, kind, payload in self._answers(running):
                 index, slot, piece_log, started = running.pop(request_id)
                 free.append(slot)
+                where = payload.get('where') or {}
                 self.records.append(
                     {
                         'node': slot[0],
                         'core': slot[1],
+                        'host': where.get('host'),
                         'seconds': round(time.time() - started, 3),
                         'outcome': kind,
                     }
                 )
+                self._check_where(slot, where)
                 if kind == 'done':
                     results[index] = payload['value']
                     continue
@@ -203,7 +212,17 @@ class Pieces:
         return results
 
     def close(self) -> None:
-        """Let go of the residents, which stops anything still running."""
+        """
+        Let go of the residents, which stops anything still running, and say
+        whether any piece ran somewhere other than the core it was given.
+        """
+        if self.problems:
+            shown = self.problems[:_PROBLEMS_SHOWN]
+            hidden = len(self.problems) - len(shown)
+            if hidden > 0:
+                shown.append(f'... and {hidden} more piece(s) like these.')
+            record_mismatch(self._step, shown, self._step.logger)
+            self.problems = []
         for conn in self._connections.values():
             try:
                 conn.close()
@@ -222,6 +241,22 @@ class Pieces:
 
     def __exit__(self, *args) -> None:
         self.close()
+
+    def _check_where(self, slot: Slot, where: dict) -> None:
+        """
+        Hold where a piece ran against the core it was given.
+
+        A piece that was allowed more than its core is running in a way the
+        scheduler's accounting does not describe, which is worth knowing
+        rather than correcting, as for any placed step.
+        """
+        cores = where.get('cores')
+        node, core = slot
+        if cores is not None and cores != [core]:
+            self.problems.append(
+                f'A piece given core {core} on {node or "this node"} was '
+                f'allowed {len(cores)} ({_ranges(cores)}).'
+            )
 
     def _pickled(self, function: Callable, args: tuple) -> bytes:
         """Pickle one call, by reference, refusing what cannot be."""

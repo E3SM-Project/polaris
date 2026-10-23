@@ -423,7 +423,12 @@ def _run_piece(writer: Connection, request_id, payload) -> None:
             _write_output_to(log)
         cores = payload.get('cores')
         if cores:
-            os.sched_setaffinity(0, cores)
+            try:
+                os.sched_setaffinity(0, cores)
+            except (AttributeError, OSError):
+                # cores the kernel will not give: the piece still runs, and
+                # where it ran says so, to be reported rather than fatal
+                pass
         if payload.get('work_dir'):
             os.chdir(payload['work_dir'])
         function, args, kwargs = pickle.loads(payload['work'])
@@ -439,6 +444,7 @@ def _run_piece(writer: Connection, request_id, payload) -> None:
                     'seconds': time.time() - began,
                     'pid': os.getpid(),
                     'log': _kept(log),
+                    'where': _where(),
                 },
             )
         )
@@ -457,10 +463,20 @@ def _run_piece(writer: Connection, request_id, payload) -> None:
                     'kind': type(exception).__name__,
                     'pid': os.getpid(),
                     'log': log,
+                    'where': _where(),
                 },
             )
         )
     writer.send_bytes(message)
+
+
+def _where() -> dict:
+    """Where this piece ran: the host, and the cores it was allowed."""
+    try:
+        cores = sorted(os.sched_getaffinity(0))
+    except AttributeError:
+        cores = []
+    return {'host': _short_hostname(), 'cores': cores}
 
 
 def _write_output_to(log: str) -> None:

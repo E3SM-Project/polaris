@@ -395,3 +395,19 @@ def test_resident_options_come_from_the_config():
     config.set('residents', 'interface', 'ib0')
     config.set('residents', 'start_timeout', '60')
     assert resident_options(config) == ('ib0', 60.0)
+
+
+def test_a_piece_says_where_it_ran(residents):
+    core = sorted(os.sched_getaffinity(0))[-1]
+    conn = _client(residents)
+    _hand_out(conn, 1, add, 1, 2, cores=[core])
+    _, _, payload = _answer(conn)
+    assert payload['where'] == {'host': _here(), 'cores': [core]}
+
+
+def test_a_piece_given_a_core_it_cannot_have_still_runs(residents):
+    conn = _client(residents)
+    _hand_out(conn, 1, add, 1, 2, cores=[10**6])
+    kind, _, payload = _answer(conn)
+    assert (kind, payload['value']) == ('done', 3)
+    assert payload['where']['cores'] != [10**6]

@@ -171,7 +171,7 @@ def check_confinement(step, logger) -> None:
         return
 
     if problems:
-        _record(step, problems, logger)
+        record_mismatch(step, problems, logger)
 
 
 def _check_affinity(placement, logger) -> List[str]:
@@ -530,7 +530,7 @@ def _promised(placement) -> Dict[str, Set[int]]:
     }
 
 
-def _record(step, problems: List[str], logger) -> None:
+def record_mismatch(step, problems: List[str], logger) -> None:
     """
     Say what did not match, in the step's log and in a file beside it.
 

@@ -105,6 +105,7 @@ seaice/api
    executor.RunningStep
    executor.StepOutcome
    confinement.check_confinement
+   confinement.record_mismatch
    memory.ProcessMemory
    memory.read_process_memory
    memory.reset_peak_memory
