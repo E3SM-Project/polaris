@@ -29,13 +29,15 @@ from mache.parallel import PlacementSupport, ResourcePlacement
 from polaris.parallel import get_memory_per_node
 from polaris.run.topology import one_thread_per_core
 
-# read on each node, one line per fact, so that a machine which cannot
-# answer one of them simply omits it
+# read on each node and printed as one line of key=value facts, so that a
+# machine which cannot answer one of them simply omits it, and so that the
+# launcher cannot interleave another node's output with a node's facts
 _PROBE = r'''
 import os
 import socket
+import sys
 
-print('host=%s' % socket.gethostname().split('.')[0])
+facts = ['host=%s' % socket.gethostname().split('.')[0]]
 
 info = {}
 try:
@@ -49,7 +51,7 @@ except OSError:
     pass
 for key in ('MemTotal', 'MemAvailable'):
     if key in info:
-        print('%s=%s' % (key.lower(), info[key]))
+        facts.append('%s=%s' % (key.lower(), info[key]))
 
 
 def cgroup_limit():
@@ -94,7 +96,10 @@ def cgroup_limit():
 
 limit = cgroup_limit()
 if limit is not None:
-    print('cgroup_limit=%d' % limit)
+    facts.append('cgroup_limit=%d' % limit)
+
+# in one write: print() writes the line and its end separately
+sys.stdout.write(' '.join(facts) + '\n')
 '''
 
 
@@ -293,30 +298,30 @@ def _read_nodes(
 
 def _parse(output: str) -> Dict[str, Dict[str, int]]:
     """
-    Group the probe's ``key=value`` lines by the node that printed them.
+    Read the probe's answers, one line from each node.
 
-    Launchers label output in their own ways and some interleave it, so the
-    ``host`` line starts a node's record and everything after it belongs to
-    that node until the next one.
+    A node gives all its facts on one line, starting with its host, because
+    launchers interleave the lines of different ranks: when each fact had a
+    line of its own, a node's facts could land after the next node's host
+    and be credited to it.  A label a launcher puts in front of a line, such
+    as srun's ``0:``, is skipped, whether or not a space follows it.
     """
     readings: Dict[str, Dict[str, int]] = {}
-    current: Optional[str] = None
     for line in output.splitlines():
-        # a launcher may prefix each line with a rank label
-        _, _, tail = line.rpartition(' ')
-        key, sep, value = (tail or line).strip().partition('=')
-        if sep != '=':
+        facts: Dict[str, str] = {}
+        for token in line.split():
+            key, sep, value = token.partition('=')
+            if sep == '=':
+                facts[key.rpartition(':')[2]] = value
+        host = facts.pop('host', None)
+        if not host:
             continue
-        if key == 'host':
-            current = value
-            readings.setdefault(current, {})
-            continue
-        if current is None:
-            continue
-        try:
-            readings[current][key] = int(value)
-        except ValueError:
-            continue
+        reading = readings.setdefault(host, {})
+        for key, value in facts.items():
+            try:
+                reading[key] = int(value)
+            except ValueError:
+                continue
     return readings
 
 
