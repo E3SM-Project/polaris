@@ -22,6 +22,7 @@ from polaris.tasks.e3sm.init.topo.cull.consistency import (
     check_critical_passages,
     check_cull_mask_consistency,
     check_land_locked_criteria,
+    check_sea_ice_removed_regions,
 )
 from polaris.tasks.e3sm.init.topo.cull.dc_edge_diagnostics import (
     check_ocean_dc_edge,
@@ -360,6 +361,7 @@ class CullMaskStep(Step):
         self._create_ocean_cull_mask()
         self._create_land_ice_mask()
         self._refine_ocean_domains()
+        self._check_sea_ice_removed_regions()
         self._check_critical_passages()
         self._create_land_cull_mask()
         self._combine_masks()
@@ -743,6 +745,25 @@ class CullMaskStep(Step):
         ds_masks = add_cf_conventions(ds_masks)
         write_netcdf(ds_masks, 'cull_masks.nc')
         logger.info('Wrote cull_masks.nc.')
+
+    def _check_sea_ice_removed_regions(self):
+        """
+        Check that removing the cells in which sea ice would be trapped did
+        not remove a whole sea from the ocean.
+        """
+        section = self.config['cull_mesh']
+        check_sea_ice_removed_regions(
+            ds_mesh=open_dataset('base_mesh.nc'),
+            preliminary_ocean_cull_mask=open_dataset(
+                'ocean_cull_mask_preliminary.nc'
+            ).oceanCullMask.values,
+            ocean_cull_mask=open_dataset(
+                'ocean_cull_mask.nc'
+            ).oceanCullMask.values,
+            max_region_cells=section.getint('max_sea_ice_region_cells'),
+            max_region_area=section.getfloat('max_sea_ice_region_area'),
+            logger=self.logger,
+        )
 
     def _check_critical_passages(self):
         """
