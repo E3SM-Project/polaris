@@ -308,6 +308,7 @@ def _fake_suite(calls):
         work_dir,
         baseline_work_dir=None,
         load_script=None,
+        parallel=False,
     ):
         calls['suite'].append(
             {
@@ -319,6 +320,7 @@ def _fake_suite(calls):
                 'work_dir': work_dir,
                 'baseline_work_dir': baseline_work_dir,
                 'load_script': load_script,
+                'parallel': parallel,
             }
         )
         os.makedirs(work_dir, exist_ok=True)
