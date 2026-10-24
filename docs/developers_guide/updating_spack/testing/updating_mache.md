@@ -137,8 +137,21 @@ label, such as `5.3.0rc1`.
 5. `mache deploy update` leaves Polaris' own deployment files alone:
    `deploy/config.yaml.j2`, `deploy/pixi.toml.j2`, `deploy/spack.yaml.j2`,
    `deploy/hooks.py`, `deploy/load.sh` and `deploy/custom_cli_spec.json`.
-   Read the `mache` release notes, and make in these files any changes the
-   new version asks for.
+   Read the release notes of every `mache` release since the old pin, and
+   the descriptions of the PRs they list.  Look for:
+
+   * changes Polaris' own deployment files need, such as a new Spack
+     variant to request in `deploy/spack.yaml.j2`;
+   * changes to how hooks are called, or to what a hook may do, which
+     `deploy/hooks.py` must follow;
+   * breaking changes that need the shared Spack environments rebuilt, such
+     as a new compiler or module version in a machine's Spack template.  A
+     machine whose shared environments are not rebuilt under the new
+     Polaris version breaks for everyone who loads them;
+   * caveats asking to keep a change out of a release, or out of Polaris,
+     until something else happens, such as Omega or E3SM moving to a new
+     module.  If such a change was released anyway, raise it in the
+     version-update PR before deploying.
 
 6. Review the diff, and commit the regenerated files and the new pins
    together.
