@@ -41,6 +41,7 @@ def run_setup(
     baseline_load_script: Optional[str] = None,
     no_baseline: Optional[str] = None,
     model: Optional[str] = None,
+    parallel: bool = False,
     polaris_dir: str = POLARIS_DIR,
 ) -> List[Tuple[SetupState, str]]:
     """
@@ -72,6 +73,10 @@ def run_setup(
     model : str, optional
         Set up only the load script's row for this model, ``omega`` or
         ``mpas-ocean``, rather than all of its rows
+
+    parallel : bool, optional
+        Whether the PR suites, and baselines that are set up here, run
+        their steps at the same time with ``polaris parallel``
 
     polaris_dir : str, optional
         The Polaris checkout the loaded environment runs
@@ -130,6 +135,7 @@ def run_setup(
             fork,
             branch,
             submit,
+            parallel,
         )
         states.append((state, row_dir))
     return states
@@ -177,6 +183,7 @@ def _set_up_row(
     fork: str,
     branch: str,
     submit: bool,
+    parallel: bool,
 ) -> SetupState:
     """Find or set up a row's baseline, and set up its PR suite and CTests"""
     assert row.model is not None
@@ -218,7 +225,13 @@ def _set_up_row(
             os.path.join(config.work_base, 'baselines')
         ] + config.baseline_search_roots
         baseline = setup_tools.get_baseline(
-            config, criteria, roots, None, baseline_checkout, row.model
+            config,
+            criteria,
+            roots,
+            None,
+            baseline_checkout,
+            row.model,
+            parallel=parallel,
         )
         if baseline.job is not None:
             jobs.append(baseline.job)
@@ -236,6 +249,7 @@ def _set_up_row(
         build_dir=pr_build_dir,
         work_dir=pr_work_dir,
         baseline_work_dir=None if baseline is None else baseline.work_dir,
+        parallel=parallel,
     )
     jobs.append(
         Job(
