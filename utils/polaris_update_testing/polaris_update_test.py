@@ -91,6 +91,8 @@ def _deploy(args):
         spack_path=args.spack_path,
         recreate=args.recreate,
         run=args.run,
+        mache_fork=args.mache_fork,
+        mache_branch=args.mache_branch,
     )
     print(polaris_update_deploy.format_deployments(deployments, POLARIS_DIR))
 
@@ -224,6 +226,15 @@ def _parse_args():
         '--recreate',
         action='store_true',
         help='Recreate environments that exist',
+    )
+    deploy.add_argument(
+        '--mache-fork',
+        help='The mache fork, such as E3SM-Project/mache, of a mache branch '
+        'to deploy with, when the mache the PR needs is not released yet',
+    )
+    deploy.add_argument(
+        '--mache-branch',
+        help='The mache branch on --mache-fork to deploy with',
     )
     deploy.add_argument(
         '--run',

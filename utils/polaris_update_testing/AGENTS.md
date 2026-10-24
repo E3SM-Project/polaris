@@ -32,6 +32,44 @@ Below, `polaris_update_test.py` means
 - **Each report is for one kind of Spack environment**, shared or test,
   which `setup` and `report` read from the loaded load script.
 
+## The PR's mache
+
+A version update often moves to a new mache.  If the requester asks you
+to make that change in the PR's branch, follow
+[Updating Polaris to a new mache](../../docs/developers_guide/updating_spack/testing/updating_mache.md#updating-polaris-to-a-new-mache).
+The steps are:
+
+1. In the PR's branch, run
+   `./deploy.py --bootstrap-only --mache-version <version>`.
+2. Do what it prints: `pixi shell -m deploy_tmp/bootstrap_pixi/pixi.toml`,
+   then `mache deploy update --software polaris --mache-version <version>`
+   in that shell, then `exit`.  This replaces the files mache owns,
+   `deploy.py` and `deploy/cli_spec.json`.
+3. Set `mache` under `[pixi]` in `deploy/pins.cfg` to the new version, and
+   update the other pins the PR changes.  `./deploy.py` refuses to run if
+   the pin and `deploy/cli_spec.json` name different versions of mache.
+4. Show the requester the diff before committing it.
+
+If the mache the PR needs has a tag but is not on conda-forge yet, wait
+for the conda-forge package, or test with its branch, as below.
+
+### An unreleased mache
+
+To deploy test environments with a mache branch that is not released yet,
+the requester names its fork and branch.  Add them to `deploy`:
+
+```bash
+polaris_update_test.py deploy --fork <fork> --branch <branch> \
+    --spack-path <test path on scratch> \
+    --mache-fork <org>/mache --mache-branch <mache branch>
+```
+
+`./deploy.py` installs mache from a clone of the branch.  The report then
+says the mache came "from a branch".  In the notes, name the fork and
+branch, and the commit if the requester gave one.  Deploy the shared
+environments only with a released mache, unless the requester says
+otherwise.
+
 ## Initiator
 
 1. Pin what to test:
@@ -96,8 +134,10 @@ polaris_update_test.py deploy --fork <fork> --branch <branch> \
     [--spack-path <test path on scratch>]
 ```
 
-With permission, run it again with `--run`, under `nohup`, with its output
-in a log under the machine's `work_base`.  It takes hours.  On Perlmutter,
+If the requester named a mache branch, add `--mache-fork` and
+`--mache-branch` (see [An unreleased mache](#an-unreleased-mache)).  With
+permission, run it again with `--run`, under `nohup`, with its output in a
+log under the machine's `work_base`.  It takes hours.  On Perlmutter,
 one `deploy` deploys pm-cpu and then pm-gpu.  When it finishes, it says
 whether each row has a load script that uses the new environments.  If
 one does not, tell the requester.
