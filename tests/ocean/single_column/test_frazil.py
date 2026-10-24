@@ -15,6 +15,16 @@ from polaris.tasks.ocean.single_column.frazil.one_layer import FrazilOneLayer
 
 
 @pytest.mark.parametrize('model', ['mpas-ocean', 'omega'])
+@pytest.mark.parametrize(
+    'case, expected_steps', [('melting', 2), ('freezing', 144)]
+)
+def test_standard_frazil_duration(model, case, expected_steps):
+    task = _make_task(model, case)
+    for step in task._frazil_type_steps.values():
+        assert step.run_duration_steps == expected_steps
+
+
+@pytest.mark.parametrize('model', ['mpas-ocean', 'omega'])
 @pytest.mark.parametrize('case', ['freezing', 'melting', 'one_layer', 'short'])
 def test_frazil_eos(model, case, monkeypatch):
     task = _make_task(model, case)
