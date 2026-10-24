@@ -141,6 +141,36 @@ def compute_total_energy(ds_mesh, ds, model):
     return total_energy
 
 
+def compute_energy_change(ds_mesh, ds_start, ds_end, model):
+    """Integrate local heat-content changes without subtracting totals.
+
+    Factor the difference of thickness-temperature products before summing,
+    using extended precision to retain residuals below float64 total-energy
+    spacing. Each state must contain a single time slice.
+    """
+    start = _reduce_dataset_time_dim(ds_start, caller='compute_energy_change')
+    end = _reduce_dataset_time_dim(ds_end, caller='compute_energy_change')
+    start = start.squeeze(
+        dim=[dim for dim in ['Time', 'time'] if dim in start.dims],
+        drop=True,
+    )
+    end = end.squeeze(
+        dim=[dim for dim in ['Time', 'time'] if dim in end.dims],
+        drop=True,
+    )
+    h_start = _get_mass_thickness(start).astype(np.longdouble)
+    h_end = _get_mass_thickness(end).astype(np.longdouble)
+    t_start = start.temperature.astype(np.longdouble)
+    t_end = end.temperature.astype(np.longdouble)
+    delta = h_end * (t_end - t_start) + t_start * (h_end - h_start)
+    area = ds_mesh.areaCell.astype(np.longdouble)
+    return (
+        np.longdouble(rho_sw)
+        * np.longdouble(cp_sw[model])
+        * (area * delta.sum(dim='nVertLevels')).sum(dim='nCells')
+    )
+
+
 def compute_total_tracer(ds_mesh, ds, tracer_name='tracer1'):
     """
     Compute the total tracer in an ocean model output file

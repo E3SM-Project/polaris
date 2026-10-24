@@ -3,9 +3,9 @@ import os
 
 from polaris import Step
 from polaris.ocean.conservation import (
+    compute_energy_change,
     compute_flux_forcing,
     compute_frazil_fluxes,
-    compute_total_energy,
     compute_total_mass,
     compute_total_salt,
 )
@@ -150,8 +150,9 @@ def _frazil_diagnostics(component, base_work_dir, forward_steps, config):
                 - compute_total_salt(mesh, init.isel(Time=0))
             ),
             'energy': float(
-                compute_total_energy(mesh, output.isel(Time=-1), model)
-                - compute_total_energy(mesh, init.isel(Time=0), model)
+                compute_energy_change(
+                    mesh, init.isel(Time=0), output.isel(Time=-1), model
+                )
             ),
         }
         for budget in BUDGETS:

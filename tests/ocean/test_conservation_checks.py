@@ -16,13 +16,68 @@ import xarray as xr
 
 from polaris.ocean.conservation import (
     TRACERS_TO_CHECK,
+    compute_energy_change,
+    compute_total_energy,
     compute_total_mass,
+    cp_sw,
     rho_sw,
 )
 from polaris.ocean.model.ocean_model_step import (
+    OceanModelStep,
     _elapsed_seconds,
     _expand_properties,
 )
+
+
+@pytest.mark.parametrize(
+    'model, thickness',
+    [('omega', 'pseudoThickness'), ('mpas-ocean', 'layerThickness')],
+)
+@pytest.mark.parametrize('baseline', ['init', 'output'])
+def test_energy_error_below_total_float64_spacing(model, thickness, baseline):
+    mesh = xr.Dataset({'areaCell': ('nCells', [1.0])})
+    start = xr.Dataset(
+        {
+            thickness: (('nCells', 'nVertLevels'), [[1.0, 1.0]]),
+            'temperature': (('nCells', 'nVertLevels'), [[1.0, 0.001]]),
+        }
+    )
+    end = start.copy(deep=True)
+    end.temperature.values[0, 1] = np.nextafter(0.001, np.inf)
+    delta_t = end.temperature.values[0, 1] - 0.001
+    expected = rho_sw * cp_sw[model] * delta_t
+    assert float(compute_total_energy(mesh, end, model)) == float(
+        compute_total_energy(mesh, start, model)
+    )
+    assert float(
+        compute_energy_change(mesh, start, end, model)
+    ) == pytest.approx(expected, rel=1e-12, abs=0.0)
+    output = xr.concat([start, end], dim='Time')
+    step = OceanModelStep.__new__(OceanModelStep)
+    error = step._compute_rel_err(
+        compute_total_energy,
+        ds_mesh=mesh,
+        ds=output,
+        ds_init=start.expand_dims('Time') if baseline == 'init' else None,
+        time_index_end=-1,
+        model=model,
+    )
+    assert error > 0
+    assert error == pytest.approx(delta_t / 1.001, rel=1e-12, abs=0.0)
+    assert f'{error:.6e}' != '0.000000e+00'
+
+
+def test_energy_change_includes_thickness_and_temperature():
+    mesh, start = _mesh_and_state()
+    start['temperature'] = xr.ones_like(start.layerThickness)
+    end = start.copy(deep=True)
+    end['temperature'] = 2.0 * start.temperature
+    end['layerThickness'] = 3.0 * start.layerThickness
+    expected = 5.0 * float(compute_total_energy(mesh, start, 'omega'))
+    assert float(
+        compute_energy_change(mesh, start, end, 'omega')
+    ) == pytest.approx(expected)
+    assert float(compute_energy_change(mesh, start, start, 'omega')) == 0.0
 
 
 def _make_dataset(*tracer_names):
