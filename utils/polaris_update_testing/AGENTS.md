@@ -196,7 +196,8 @@ be submitted as soon as it is set up.
 1. For each of the machine's compilers, in a clean shell with the PR
    checkout's load script for that compiler sourced:
    ```bash
-   polaris_update_test.py setup --fork <fork> --branch <branch> --submit
+   polaris_update_test.py setup --fork <fork> --branch <branch> --submit \
+       --parallel
    ```
    This sets up every row the load script tests, with its baseline from
    the checkout in `polaris_main`, using its load script for the same
@@ -206,8 +207,9 @@ be submitted as soon as it is set up.
    row, ask the requester; with their permission, use
    `--no-baseline "<why>"` instead, a lowercase clause the report prints
    after "because".
-   Add `--parallel` if the requester asks for it, which runs the suites'
-   steps at the same time.
+   `--parallel` runs the suites' steps at the same time with
+   `polaris parallel`.  Use it unless the requester asks for the steps to
+   run one at a time, with `polaris serial`; then leave it off.
    The `setup`s for different compilers may run at the same time.
    MPAS-Ocean builds inside the checkout's E3SM-Project submodule, so a
    second MPAS-Ocean build waits for the first, and says so.

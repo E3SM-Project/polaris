@@ -33,7 +33,8 @@ machine, and its code in [utils/pr_testing](../pr_testing).
    baseline from a checkout of `main`, and sets up the PR suites and
    CTests for the rows the load script tests.  `--submit` submits the
    jobs.  With `--parallel`, the PR suites, and baselines it sets up, run
-   their steps at the same time with `polaris parallel`.
+   their steps at the same time with `polaris parallel`.  Use it unless
+   the maintainer asks for task-serial runs.
 4. **`report`** (each machine) writes one comment for the machine's rows
    with the loaded kind of Spack environment.  It names the loaded mache,
    and says if it came from a branch.
@@ -54,7 +55,7 @@ polaris_update_test.py deploy --fork git@github.com:me/polaris.git \
 # ...then, with each compiler's load script sourced
 # (the baseline runs from the checkout of main that polaris_main names)
 polaris_update_test.py setup --fork git@github.com:me/polaris.git \
-    --branch polaris-update-test/835-6db39cb --submit
+    --branch polaris-update-test/835-6db39cb --submit --parallel
 # ...when all of the machine's jobs finish
 polaris_update_test.py report --fork git@github.com:me/polaris.git \
     --branch polaris-update-test/835-6db39cb
