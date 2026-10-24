@@ -15,7 +15,6 @@ from mpas_tools.viz.paraview_extractor import extract_vtk
 from polaris import Step
 from polaris.cf import add_cf_conventions
 from polaris.constants import get_constant
-from polaris.mesh.attrs import add_mesh_var_attrs
 from polaris.mesh.reconstruct import (
     compute_reconstruction_weights,
     get_reconstruction_validate_vars,
@@ -228,7 +227,6 @@ class SphericalBaseStep(Step):
 
         # open the mesh and rewrite it in the desired NetCDF format
         ds_mesh = open_dataset(tmp_mesh_filename)
-        ds_mesh = add_cf_conventions(add_mesh_var_attrs(ds_mesh))
         write_netcdf(ds_mesh, mpas_mesh_filename)
 
         self._check_cell_polygon_quality(ds_mesh=ds_mesh)
