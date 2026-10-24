@@ -24,9 +24,10 @@ machine, and its code in [utils/pr_testing](../pr_testing).
    fork for the Omega rows to build.
 2. **`deploy`** (each machine) shows the `./deploy.py --deploy-spack`
    command for the compilers and MPI libraries of the machine's supported
-   rows, with
-   `--spack-path` for test environments.  `--run` runs it.  Either way, it
-   checks that each row has a load script that uses the environments.
+   rows, with `--spack-path` for test environments, and with
+   `--mache-fork` and `--mache-branch` for a mache branch that is not
+   released yet.  `--run` runs it.  Either way, it checks that each row
+   has a load script that uses the environments.
 3. **`setup`** (each machine, once per compiler) checks the checkout and
    the loaded load script against the manifest, finds or sets up the
    baseline from a checkout of `main`, and sets up the PR suites and
@@ -34,7 +35,8 @@ machine, and its code in [utils/pr_testing](../pr_testing).
    jobs.  With `--parallel`, the PR suites, and baselines it sets up, run
    their steps at the same time with `polaris parallel`.
 4. **`report`** (each machine) writes one comment for the machine's rows
-   with the loaded kind of Spack environment.
+   with the loaded kind of Spack environment.  It names the loaded mache,
+   and says if it came from a branch.
 5. **`post`** posts a comment that `report` wrote, once someone has read
    it.  `report` never posts by itself.
 6. **`status`** lists which rows have been reported, for each kind of

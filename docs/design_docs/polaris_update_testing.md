@@ -86,7 +86,8 @@ The environments are read from each row's load script, not set by the
 requester. A load script whose Spack environment is under the machine's
 `[deploy] spack` path uses the shared environments. Any other uses test
 environments. The comment's heading names the kind, and the report gives
-the path, the Polaris version and the mache version.
+the path, the Polaris version and the mache version, and says if mache
+came from a branch rather than a release.
 
 > **Rationale:** The report states what was loaded, so it cannot claim the
 > shared environments when a test deployment was sourced by mistake. #835
@@ -98,7 +99,8 @@ the path, the Polaris version and the mache version.
 `deploy` prints the `./deploy.py --deploy-spack` command for a machine. It
 deploys the compilers and MPI libraries of the machine's supported rows at
 the pull request's head. With a test path, it adds
-`--spack-path`. On Perlmutter, pm-cpu and pm-gpu each get their own
+`--spack-path`. With a mache fork and branch, for a mache that is not
+released yet, it adds `--mache-fork` and `--mache-branch`. On Perlmutter, pm-cpu and pm-gpu each get their own
 command. Only with `--run` does `deploy` run the command, under `nohup`,
 with its output in a log. Afterward, `deploy` checks that each of the
 machine's rows has a load script in the checkout, and that the script
@@ -207,7 +209,9 @@ notes: <free text for the requester>
 `setup` reads the Spack environment from the loaded load script and
 compares it with the machine's `[deploy] spack` path. It records the kind
 of environment, `shared` or `test`, with the path and the versions, in
-the row's `setup.json`. Row directories are kept apart by kind:
+the row's `setup.json`. mache came from a branch if pip installed the
+loaded version from a directory, as `./deploy.py --mache-fork` does; a
+conda package's metadata names conda as its installer. Row directories are kept apart by kind:
 
 ```
 <work_base>/polaris-pr<N>-<head sha7>/<shared|test>/
@@ -221,7 +225,8 @@ the row's `setup.json`. Row directories are kept apart by kind:
 ```
 polaris_update_test.py deploy --fork <fork> --branch <branch>
                               [--machine <machine>] [--spack-path <path>]
-                              [--recreate] [--run]
+                              [--recreate] [--mache-fork <org>/mache]
+                              [--mache-branch <branch>] [--run]
 ```
 
 The compilers and MPI libraries come from the rows in
@@ -312,7 +317,9 @@ shared path and under a test path.
 ### Testing and Validation: The requester controls deploying Spack environments.
 
 Unit tests build the `deploy` command from fixture machine configs,
-including Perlmutter's two, and check that nothing runs without `--run`.
+including Perlmutter's two and one with a mache branch, and check that
+nothing runs without `--run`. Others tell a mache from a branch from
+conda packages and pip installs of a release.
 
 ### Testing and Validation: A baseline is optional.
 

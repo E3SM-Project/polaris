@@ -165,6 +165,8 @@ def describe(manifest: Manifest, spack: str, states: List[SetupState]) -> str:
     environment: Dict[str, str] = states[0].environment if states else {}
     mache = environment.get('mache_version')
     with_mache = f' with mache {mache}' if mache else ''
+    if mache and environment.get('mache_source') == 'branch':
+        with_mache = f'{with_mache} from a branch'
     paths = sorted(
         {
             state.environment['spack_path']
