@@ -177,6 +177,7 @@ def _fake_polaris_suite(calls, fixture):
         work_dir,
         baseline_work_dir=None,
         load_script=None,
+        parallel=False,
     ):
         calls['suite'].append(
             {
@@ -188,6 +189,7 @@ def _fake_polaris_suite(calls, fixture):
                 'work_dir': work_dir,
                 'baseline_work_dir': baseline_work_dir,
                 'load_script': load_script,
+                'parallel': parallel,
             }
         )
         omega_hash = git(branch, 'rev-parse', 'HEAD')

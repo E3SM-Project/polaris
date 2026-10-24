@@ -540,6 +540,7 @@ def get_baseline(
     baseline_dir: Optional[str],
     checkout: PolarisCheckout,
     model: str,
+    parallel: bool = False,
 ) -> Baseline:
     """
     Find, wait on or set up a baseline
@@ -565,6 +566,10 @@ def get_baseline(
 
     model : str
         The model the suite runs, such as ``omega``
+
+    parallel : bool, optional
+        Whether a baseline that is set up here runs its steps at the same
+        time with ``polaris parallel``
 
     Returns
     -------
@@ -622,6 +627,7 @@ def get_baseline(
         build_dir=os.path.join(own_dir, 'build'),
         work_dir=work_dir,
         load_script=checkout.load_script,
+        parallel=parallel,
     )
     return Baseline(work_dir, reused=False, job=job)
 
@@ -635,6 +641,7 @@ def polaris_suite(
     work_dir: str,
     baseline_work_dir: Optional[str] = None,
     load_script: Optional[str] = None,
+    parallel: bool = False,
 ) -> None:
     """
     Set up a suite, building the model on this (login) node, with the
@@ -666,12 +673,19 @@ def polaris_suite(
 
     load_script : str, optional
         Another checkout's load script to source in a clean login shell
+
+    parallel : bool, optional
+        Whether the suite's job runs its steps at the same time with
+        ``polaris parallel`` rather than one after another with
+        ``polaris serial``
     """
     args = ['polaris', 'suite', '-c', 'ocean', '-t', suite, '--model', model]
     args.extend(_build_flags(build_dir, model))
     args.extend(['--branch', branch, '-p', build_dir, '-w', work_dir])
     if baseline_work_dir is not None:
         args.extend(['-b', baseline_work_dir])
+    if parallel:
+        args.append('--parallel')
     print(f'\nRunning in {polaris_dir}:\n  {shlex.join(args)}\n', flush=True)
     if load_script is not None:
         print(
