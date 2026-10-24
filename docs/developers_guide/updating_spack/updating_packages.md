@@ -35,7 +35,16 @@ behavior and templates, treat the mache docs as the source of truth:
 
    - Update pinned versions in `deploy/pins.cfg`:
      - `[spack]` for Spack-only pins
-     - `[all]` for pins shared by pixi and Spack
+     - `[all]` for pins shared by pixi and Spack.  These follow the
+       versions that conda-forge builds against
+       (conda-forge-pinning-feedstock), so leave them alone unless a pixi
+       dependency needs a newer one.  For example, mpas_tools 2.2.1 is
+       built against netcdf-fortran 4.6.4 and requires it.
+   - If Spack needs a package version that the e3sm-spack-packages tag
+     pinned by `mache` does not have, add it to
+     [e3sm-spack-packages](https://github.com/E3SM-Project/e3sm-spack-packages),
+     tag a release there, and pin that tag under `spack: pins:` in
+     `deploy/config.yaml.j2`.  This needs no new `mache` release.
    - Update Spack specs in `deploy/spack.yaml.j2` as needed
    - Update deployment defaults/behavior in `deploy/config.yaml.j2` only if
      deployment logic or paths need to change
