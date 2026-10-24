@@ -120,6 +120,8 @@ be submitted as soon as it is set up.
    row, ask the requester; with their permission, use
    `--no-baseline "<why>"` instead, a lowercase clause the report prints
    after "because".
+   Add `--parallel` if the requester asks for it, which runs the suites'
+   steps at the same time.
    The `setup`s for different compilers may run at the same time.
    MPAS-Ocean builds inside the checkout's E3SM-Project submodule, so a
    second MPAS-Ocean build waits for the first, and says so.

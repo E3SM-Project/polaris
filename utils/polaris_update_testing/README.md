@@ -31,7 +31,8 @@ machine, and its code in [utils/pr_testing](../pr_testing).
    the loaded load script against the manifest, finds or sets up the
    baseline from a checkout of `main`, and sets up the PR suites and
    CTests for the rows the load script tests.  `--submit` submits the
-   jobs.
+   jobs.  With `--parallel`, the PR suites, and baselines it sets up, run
+   their steps at the same time with `polaris parallel`.
 4. **`report`** (each machine) writes one comment for the machine's rows
    with the loaded kind of Spack environment.
 5. **`post`** posts a comment that `report` wrote, once someone has read

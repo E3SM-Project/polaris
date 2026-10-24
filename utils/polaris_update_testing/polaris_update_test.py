@@ -105,6 +105,7 @@ def _setup(args):
         baseline_load_script=args.baseline_load_script,
         no_baseline=args.no_baseline,
         model=args.model,
+        parallel=args.parallel,
     )
     for state, row_dir in states:
         machine = state.row.split('/')[0]
@@ -256,6 +257,15 @@ def _parse_args():
         choices=['omega', 'mpas-ocean'],
         help="Set up only the load script's row for this model, such as "
         'to set one up again',
+    )
+    setup.add_argument(
+        '-P',
+        '--parallel',
+        action='store_true',
+        help='Run the steps of the PR suites, and of baselines set up here, '
+        'at the same time with `polaris parallel` rather than one after '
+        'another with `polaris serial`.  A baseline that is reused runs as '
+        'it was set up.',
     )
     setup.add_argument(
         '--submit',
