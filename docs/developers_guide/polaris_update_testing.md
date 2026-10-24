@@ -17,6 +17,10 @@ with the same settings in `~/.config/polaris_pr_test.cfg`.  It also
 deploys the Spack environments, and each machine's report is for one kind
 of Spack environment, shared or test, read from the load script.  An
 optional baseline runs the current `main` with its own shared environments.
+For test environments, `deploy` can use a `mache` branch that is not
+released yet, with `--mache-fork` and `--mache-branch`, and the report then
+says the `mache` came from a branch (see
+[Testing an unreleased mache](updating_spack/testing/updating_mache.md#testing-an-unreleased-mache)).
 
 To start, the requester asks an agent in a Polaris checkout on their
 computer something like:

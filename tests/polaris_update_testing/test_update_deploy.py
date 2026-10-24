@@ -50,6 +50,26 @@ def test_deploy_command(tester):
     ]
 
 
+def test_deploy_command_mache_branch(tester):
+    fixture, manifest, _ = tester
+    (deployment,) = _deploy(
+        fixture,
+        manifest,
+        'aurora',
+        mache_fork='E3SM-Project/mache',
+        mache_branch='update-to-5.3.0',
+    )
+
+    assert deployment.command[-4:] == [
+        '--mache-fork',
+        'E3SM-Project/mache',
+        '--mache-branch',
+        'update-to-5.3.0',
+    ]
+    with pytest.raises(polaris_update_deploy.DeployError, match='both'):
+        _deploy(fixture, manifest, 'aurora', mache_fork='E3SM-Project/mache')
+
+
 def test_deploy_command_supported_compilers(tester):
     fixture, manifest, _ = tester
 
@@ -176,6 +196,7 @@ def test_read_environment(tester, monkeypatch):
     assert environment['spack_path'] == SHARED_PATH
     assert environment['polaris_version'] == '1.2.0-alpha.1'
     assert environment['mache_version']
+    assert environment['mache_source'] in ('branch', 'release')
 
     monkeypatch.delenv('MACHE_DEPLOY_SPACK_LIBRARY_VIEW')
     with pytest.raises(polaris_update_deploy.DeployError, match='no Spack'):
@@ -210,3 +231,44 @@ def _mock_run(monkeypatch, returncode=0):
 
     monkeypatch.setattr(subprocess, 'run', run)
     return ran
+
+
+@pytest.mark.parametrize(
+    'installer, direct_url, source',
+    [
+        ('conda', '{"dir_info": {}, "url": "file:///build"}', 'release'),
+        ('pip', '{"dir_info": {}, "url": "file:///clone"}', 'branch'),
+        ('pip', None, 'release'),
+        ('pip', '{"archive_info": {}, "url": "https://x.whl"}', 'release'),
+    ],
+)
+def test_mache_source(monkeypatch, installer, direct_url, source):
+    loaded = polaris_update_deploy.mache.__version__
+    distributions = {
+        # an older mache's metadata, left behind under the old name
+        'mache': _Distribution('5.0.0rc1', 'pip', '{"dir_info": {}}'),
+        'e3sm-mache': _Distribution(loaded, installer, direct_url),
+    }
+    metadata = polaris_update_deploy.importlib.metadata
+    monkeypatch.setattr(
+        metadata,
+        'packages_distributions',
+        lambda: {'mache': ['mache', 'e3sm-mache']},
+    )
+    monkeypatch.setattr(metadata, 'distribution', distributions.get)
+
+    assert polaris_update_deploy.get_mache_source() == source
+
+
+class _Distribution:
+    """A stand-in for an installed distribution's metadata"""
+
+    def __init__(self, version, installer, direct_url):
+        self.version = version
+        self.files = {
+            'INSTALLER': f'{installer}\n',
+            'direct_url.json': direct_url,
+        }
+
+    def read_text(self, filename):
+        return self.files.get(filename)

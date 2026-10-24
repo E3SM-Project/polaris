@@ -7,6 +7,7 @@ import polaris_update_setup
 import polaris_update_status
 import pr_test_github
 import pr_test_report
+import pr_test_setup
 import pytest
 from polaris_update_manifest import MARKER_PREFIX, OmegaMerge
 from update_fixtures import load_env, make_tester, write_load_script
@@ -106,6 +107,28 @@ def test_describe_omega_merge(finished):
         f'Omega `{manifest.test.omega_commit[:10]}` with '
         f'E3SM-Project/Omega#600 merged in (`mmmmmmmmmm`)'
     ) in text
+
+
+def test_describe_mache_branch(finished):
+    _, manifest = finished
+    state = pr_test_setup.SetupState(
+        fork='fork',
+        branch='branch',
+        row='chrysalis/gnu/openmpi',
+        polaris_hash='p' * 40,
+        baseline_work_dir=None,
+        baseline_reused=False,
+        baseline_job=None,
+        baseline_build_log=None,
+        pr_build_dir='build',
+        pr_work_dir='work',
+        ctest_dir=None,
+        environment={'mache_version': '5.3.0', 'mache_source': 'branch'},
+    )
+
+    text = polaris_update_report.describe(manifest, 'shared', [state])
+
+    assert 'Polaris 1.2.0-alpha.1 with mache 5.3.0 from a branch, ' in text
 
 
 def test_report_not_bit_for_bit(finished):

@@ -5,6 +5,8 @@ which environments a load script uses
 
 import configparser
 import glob
+import importlib.metadata
+import json
 import os
 import shlex
 import subprocess
@@ -72,6 +74,8 @@ def run_deploy(
     recreate: bool = False,
     run: bool = False,
     polaris_dir: str = POLARIS_DIR,
+    mache_fork: Optional[str] = None,
+    mache_branch: Optional[str] = None,
 ) -> List[Deployment]:
     """
     Deploy, or show how to deploy, the Spack environments for a machine's
@@ -105,11 +109,22 @@ def run_deploy(
     polaris_dir : str, optional
         The Polaris checkout to deploy from
 
+    mache_fork : str, optional
+        The mache fork, such as ``E3SM-Project/mache``, to deploy with a
+        mache branch that is not released yet
+
+    mache_branch : str, optional
+        The mache branch on ``mache_fork``
+
     Returns
     -------
     deployments : list of polaris_update_deploy.Deployment
         A deployment for each machine
     """
+    if (mache_fork is None) != (mache_branch is None):
+        raise DeployError(
+            'Pass both --mache-fork and --mache-branch, or neither.'
+        )
     manifest = fetch_manifest(polaris_dir, fork, branch)
     setup_tools.check_checkout(polaris_dir, manifest.pr_head, 'PR head')
     if machine is None:
@@ -134,6 +149,8 @@ def run_deploy(
             [row for row in supported if row.machine == row_machine],
             spack_path,
             recreate,
+            mache_fork,
+            mache_branch,
         )
         log = os.path.join(
             config.work_base, manifest.run_name, f'deploy_{row_machine}.log'
@@ -157,6 +174,8 @@ def get_deploy_command(
     rows: List[Row],
     spack_path: Optional[str] = None,
     recreate: bool = False,
+    mache_fork: Optional[str] = None,
+    mache_branch: Optional[str] = None,
 ) -> List[str]:
     """
     The command that deploys the Spack environments for the compilers and
@@ -177,6 +196,12 @@ def get_deploy_command(
     recreate : bool, optional
         Whether to recreate environments that exist
 
+    mache_fork : str, optional
+        The mache fork to deploy a mache branch from
+
+    mache_branch : str, optional
+        The mache branch on ``mache_fork``
+
     Returns
     -------
     command : list of str
@@ -192,6 +217,8 @@ def get_deploy_command(
         command += ['--spack-path', spack_path]
     if recreate:
         command.append('--recreate')
+    if mache_fork is not None and mache_branch is not None:
+        command += ['--mache-fork', mache_fork, '--mache-branch', mache_branch]
     return command
 
 
@@ -240,8 +267,10 @@ def read_environment(polaris_dir: str, machine: str) -> Dict[str, str]:
     Returns
     -------
     environment : dict
-        ``spack``, ``shared`` or ``test``; ``spack_path``; and the
-        ``polaris_version`` and ``mache_version`` loaded
+        ``spack``, ``shared`` or ``test``; ``spack_path``; the
+        ``polaris_version`` and ``mache_version`` loaded; and
+        ``mache_source``, ``branch`` if mache was installed from a branch
+        and ``release`` otherwise
     """
     view = os.environ.get(SPACK_VIEW_VARIABLE, '').strip()
     if not view:
@@ -255,7 +284,38 @@ def read_environment(polaris_dir: str, machine: str) -> Dict[str, str]:
         'spack_path': get_spack_path(view),
         'polaris_version': os.environ.get('POLARIS_VERSION', ''),
         'mache_version': mache.__version__,
+        'mache_source': get_mache_source(),
     }
+
+
+def get_mache_source() -> str:
+    """
+    ``branch`` if the loaded mache was installed by pip from a directory,
+    as ``./deploy.py --mache-fork --mache-branch`` installs it from its
+    clone of the branch, and ``release`` otherwise
+    """
+    # an environment can also hold the metadata of an older mache, under
+    # the old name ``mache``, so use the one with the loaded version
+    for name in importlib.metadata.packages_distributions().get('mache', []):
+        distribution = importlib.metadata.distribution(name)
+        if distribution.version == mache.__version__:
+            return _get_install_source(distribution)
+    return 'release'
+
+
+def _get_install_source(distribution) -> str:
+    """``branch`` if a distribution was installed by pip from a directory"""
+    # a conda package's metadata also has a direct_url.json with dir_info,
+    # pointing to where it was built, but its installer is conda
+    installer = (distribution.read_text('INSTALLER') or '').strip()
+    direct_url = distribution.read_text('direct_url.json')
+    if installer == 'conda' or not direct_url:
+        return 'release'
+    try:
+        from_directory = 'dir_info' in json.loads(direct_url)
+    except json.JSONDecodeError:
+        from_directory = False
+    return 'branch' if from_directory else 'release'
 
 
 def get_spack_kind(polaris_dir: str, machine: str, view: str) -> str:
