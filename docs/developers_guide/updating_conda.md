@@ -15,6 +15,11 @@ Most dependency updates should be made in deployment templates under `deploy/`:
 - `deploy/config.yaml.j2` for deployment options and defaults
 - `deploy/pins.cfg` for pinned mache/python versions used by `deploy.py`
 
+`deploy.py` and `deploy/cli_spec.json` belong to `mache`.  Don't edit them
+by hand.  To move to a new `mache`, regenerate them and update the pin, as
+described in
+[Updating Polaris to a new mache](updating_spack/testing/updating_mache.md#updating-polaris-to-a-new-mache).
+
 For background on how these files are rendered and used, see:
 
 - [mache deploy user guide](https://docs.e3sm.org/mache/main/users_guide/deploy.html)

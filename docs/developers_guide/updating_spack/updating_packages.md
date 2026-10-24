@@ -22,7 +22,16 @@ behavior and templates, treat the mache docs as the source of truth:
 
    Update `polaris/version.py` to the target version and commit that change.
 
-3. **Update deployment inputs**
+3. **Update `mache`, if needed**
+
+   To move to a new `mache`, regenerate `deploy.py` and
+   `deploy/cli_spec.json` with `./deploy.py --bootstrap-only` and
+   `mache deploy update`, then update the `mache` pin, as described in
+   [Updating Polaris to a new mache](testing/updating_mache.md#updating-polaris-to-a-new-mache).
+   To test a `mache` branch that is not released yet, see
+   [Testing an unreleased mache](testing/updating_mache.md#testing-an-unreleased-mache).
+
+4. **Update deployment inputs**
 
    - Update pinned versions in `deploy/pins.cfg`:
      - `[spack]` for Spack-only pins
@@ -31,14 +40,14 @@ behavior and templates, treat the mache docs as the source of truth:
    - Update deployment defaults/behavior in `deploy/config.yaml.j2` only if
      deployment logic or paths need to change
 
-4. **Open a PR and track testing/deployment**
+5. **Open a PR and track testing/deployment**
 
    Include:
    - an **Updates** section listing changed versions and rationale
    - a **Testing** checklist by machine/compiler/MPI
    - a **Deployment** checklist for final shared deployment
 
-5. **Run test deployments before shared deployment**
+6. **Run test deployments before shared deployment**
 
    Example:
 
@@ -47,7 +56,7 @@ behavior and templates, treat the mache docs as the source of truth:
        --compiler <compiler...> --mpi <mpi...> --recreate
    ```
 
-6. **Run required validation suites**
+7. **Run required validation suites**
 
    Follow the testing pages under `updating_spack/testing/` before final
    deployment.
