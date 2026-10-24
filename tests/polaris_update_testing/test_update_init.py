@@ -56,6 +56,44 @@ def test_init_pins_head_baseline_and_rows(fixture):
     )
 
 
+def test_init_baseline_other_than_main(fixture):
+    on_main = _initiate(fixture, baseline_ref='main', push=True).manifest
+
+    # a commit, even main's, is a baseline other than main, such as an older
+    # main for the rows that today's main cannot run
+    result = _initiate(
+        fixture,
+        baseline_ref=fixture.main,
+        row_names=['aurora/intel/omega'],
+        push=True,
+    )
+
+    manifest = result.manifest
+    suffix = f'-{fixture.main[:7]}'
+    assert not manifest.baseline_is_main
+    assert manifest.branch == f'{on_main.branch}{suffix}'
+    assert manifest.run_name == f'{on_main.run_name}{suffix}'
+    # both branches are on the fork
+    assert fetch_manifest(
+        fixture.polaris_dir, fixture.fork, on_main.branch
+    ) == (on_main)
+    assert fetch_manifest(
+        fixture.polaris_dir, fixture.fork, manifest.branch
+    ) == (manifest)
+    assert result.prompt.endswith(
+        f'The baseline runs from a second checkout of E3SM-Project/polaris '
+        f'at {fixture.main[:12]}, not main.'
+    )
+
+
+def test_manifest_from_before_baseline_is_main(fixture):
+    manifest = _initiate(fixture, baseline_ref='main').manifest
+    text = manifest.to_yaml().replace('baseline_is_main: true\n', '')
+
+    assert 'baseline_is_main' not in text
+    assert Manifest.from_yaml(text) == manifest
+
+
 def test_init_without_baseline(fixture):
     result = _initiate(fixture)
 

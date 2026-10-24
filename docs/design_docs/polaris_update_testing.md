@@ -119,6 +119,12 @@ A row whose compiler the pull request renames uses the former name for the
 baseline, as in the Omega utility. A row the previous version does not
 support runs without a baseline, and its report says so.
 
+Rows that the current `main` cannot run, such as Aurora's Omega rows after
+mache 5.1.0 (#896), get their own manifest, with `init --baseline <older
+commit> --rows ...`. A manifest whose baseline is not `main` adds the
+baseline's short hash to its test branch and run directory, so it does not
+collide with the manifest for the other rows.
+
 Baseline differences can come from the environments, from the submodule
 updates or from Polaris changes in the pull request. Each report names
 the commits on both sides, so the tester can tell which changed.
