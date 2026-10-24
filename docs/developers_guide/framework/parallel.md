@@ -63,10 +63,9 @@ step.placement = ResourcePlacement(
 ```
 
 `Step.placement` is `None` by default, and a step with no placement produces
-exactly the command Polaris has always produced.  **Nothing assigns a
-placement yet.**  Deciding which subset a step should get needs a scheduler,
-which is a later phase; the only caller today is the serial path, which
-assigns none.
+exactly the command Polaris has always produced.  `polaris serial` assigns
+none; `polaris parallel` gives each step the part of the allocation it has
+reserved for it.
 
 Two consequences are worth knowing about:
 
@@ -189,14 +188,14 @@ default and should not be mistaken for an oversight.
 more than one node.
 
 This is deliberately not the same question as whether a step uses MPI.  A
-single process that hands its work to a distributed pool spans nodes
-perfectly well; one that does its work in its own threads cannot; both are
-"not MPI".  Polaris cannot tell them apart, so the step says.
+step that hands out pieces of its work spans nodes perfectly well; one that
+does its work in its own threads cannot; both are "not MPI".
 
-It defaults to whether the step has more than one task, which is the only
-mechanism Polaris has today for reaching another node.  Nothing sets it
-otherwise yet -- it exists so that the worker pool in a later phase has
-something to turn on rather than a rule to remove.
+It defaults to `True` for a step with more than one task, whose launcher
+spreads its ranks over nodes, and for a step that hands out its work, whose
+pieces run on whichever nodes its cores are on (see
+{ref}`dev-handing-out-work`).  Any other step is held to one node unless it
+says otherwise.
 
 `cpus_per_task` is held to one node whatever the step says, because one
 process cannot be given cores on a node it is not running on.  The span
@@ -221,13 +220,6 @@ Frontier -- a step allowed 1 GB and told to take 4 GB is killed -- and not
 enforced on Chrysalis. So a step that declares memory should declare a
 **peak with margin**, not a typical value: on a machine that enforces, the
 number it gives is the number it dies at.
-
-Polaris does not yet pass a memory figure to the launcher, and that is a
-consequence of where the work has got to rather than a decision that it
-never should.  `mache` accepts an optional cap alongside a placement, and
-Polaris will pass it for a step that *declared* a figure once there is a
-scheduler to admit steps -- which is a later phase.  Today nothing is
-admitted and nothing is capped.
 
 What the launcher does not do, on any machine, is *reserve* memory or say
 whether a step fits.  That stays Polaris's own accounting: the only thing
@@ -319,6 +311,5 @@ context (`slurm`, `pbs`, `single_node`, `login`) but implementation is in
 
 ## Notes
 
-- Polaris no longer provides a `polaris.parallel` module.
 - Runtime no longer rewrites `cores_per_node` in config files.
 - Machine and compiler config should provide the desired parallel options.

@@ -29,6 +29,13 @@ on another node.  Two steps in Polaris are like that today.  The fix is for
 such a step to declare ``may_span_nodes=True``, which is what the property
 is for, rather than for the pool to guess from the shape of a step.
 
+**A step that hands out work takes any free cores, on the fewest nodes
+that hold enough.** Its pieces are forked onto those cores by each node's
+resident, which binds each child to its own core, so no launcher applies one
+node's mask list to every node and the cores need not be the same ids on
+each.  Nor does it need the scheduler's node, even when it may not span:
+whichever node its cores are on, the resident there forks its pieces.
+
 **A step's memory is charged in proportion to the cores it took on each
 node.** A step that declares nothing is budgeted at its proportional share
 of a node, so charging it proportionally means a run in which nothing
@@ -38,7 +45,7 @@ would not have fit.
 """
 
 from dataclasses import dataclass, field
-from typing import Dict, List, Optional, Tuple
+from typing import Collection, Dict, List, Optional, Tuple
 
 from mache.parallel import ResourcePlacement
 
@@ -137,7 +144,9 @@ class ResourcePool:
         self.local_node = local_node
         self._names_gpus = names_gpus
 
-    def why_impossible(self, step) -> Optional[str]:
+    def why_impossible(
+        self, step, elsewhere: Collection[str] = ()
+    ) -> Optional[str]:
         """
         Say why a step could never run here, or ``None`` if it could.
 
@@ -153,6 +162,10 @@ class ResourcePool:
             The step to ask about, with its resources already constrained
             against the whole allocation
 
+        elsewhere : collection of str, optional
+            The nodes besides the scheduler's the step may be given, as in
+            :py:meth:`reserve`
+
         Returns
         -------
         reason : str or None
@@ -163,13 +176,18 @@ class ResourcePool:
             local_node=self.local_node,
             names_gpus=self._names_gpus,
         )
-        if empty.reserve(step) is not None:
+        if empty.reserve(step, elsewhere=elsewhere) is not None:
             return None
 
         budget = step.memory_budget
         memory = 'no declared memory' if budget is None else f'{budget} MiB'
         if step.may_span_nodes:
             where = 'this allocation'
+        elif step.hands_out_work or elsewhere:
+            where = (
+                'any one node, which is all it may use because it has said '
+                'its resources may not span nodes'
+            )
         else:
             where = (
                 f'node {self.local_node}, which is the only one it may use '
@@ -181,7 +199,9 @@ class ResourcePool:
             f'nothing else running.'
         )
 
-    def reserve(self, step) -> Optional[Reservation]:
+    def reserve(
+        self, step, elsewhere: Collection[str] = ()
+    ) -> Optional[Reservation]:
         """
         Give a step what it needs, if what it needs is free right now.
 
@@ -191,15 +211,25 @@ class ResourcePool:
             The step to try to start, with its resources already
             constrained against the whole allocation
 
+        elsewhere : collection of str, optional
+            The nodes besides the scheduler's that a step held to one node
+            may be given, which are those whose resident could fork it.
+            The scheduler's node is still tried first, since a step forked
+            there needs nothing more.
+
         Returns
         -------
         reservation : polaris.run.pool.Reservation or None
             What it was given, or ``None`` if it does not fit yet
         """
-        if step.may_span_nodes:
+        if step.hands_out_work:
+            layout = self._fit_pieces(step)
+        elif step.may_span_nodes:
             layout = self._fit_across_nodes(step)
         else:
             layout = self._fit_on_one_node(step)
+            if layout is None and elsewhere:
+                layout = self._fit_on_another_node(step, elsewhere)
         if layout is None:
             return None
         return self._take(step, layout)
@@ -227,6 +257,11 @@ class ResourcePool:
             resident = self._by_name[name].resident
             if reservation.step_path in resident:
                 resident.remove(reservation.step_path)
+
+    @property
+    def node_names(self) -> List[str]:
+        """The allocation's nodes, by name, in the order it lists them."""
+        return [node.name for node in self._nodes]
 
     def resident(self, node_name: str) -> Tuple[str, ...]:
         """
@@ -282,6 +317,85 @@ class ResourcePool:
                 charge or 0,
             )
         ]
+
+    def _fit_on_another_node(self, step, elsewhere: Collection[str]):
+        """
+        Fit a step held to one node on another of the nodes it may use.
+
+        Of the nodes with room, the fullest is taken, so that whole nodes
+        stay free for as long as possible for the steps that need them.
+        """
+        cores = step.cores
+        gpus = step.gpus or 0
+        charge = step.memory_budget
+        fits = [
+            node
+            for node in self._nodes
+            if node.name != self.local_node
+            and node.name in elsewhere
+            and len(node.free_cores) >= cores
+            and len(node.free_gpus) >= gpus
+            and _memory_fits(node, charge)
+        ]
+        if not fits:
+            return None
+        node = min(fits, key=lambda node: len(node.free_cores))
+        return [
+            (
+                node,
+                tuple(node.free_cores[:cores]),
+                tuple(node.free_gpus[:gpus]),
+                charge or 0,
+            )
+        ]
+
+    def _fit_pieces(self, step):
+        """
+        Fit a step that hands out work: any free cores, on the fewest nodes
+        that hold enough.
+
+        The emptiest nodes are taken first, which is what keeps the count of
+        nodes down.  Among nodes that are equally free, the scheduler's own
+        node comes last, since a step that has to take everything from it
+        can run nowhere else, and a stable sort keeps the choice repeatable.
+        """
+        wanted = step.cores
+        candidates = sorted(
+            self._nodes,
+            key=lambda node: (
+                len(node.free_cores),
+                node.name != self.local_node,
+            ),
+            reverse=True,
+        )
+        if not step.may_span_nodes:
+            candidates = candidates[:1]
+
+        chosen: List[Tuple[_Node, int]] = []
+        found = 0
+        for node in candidates:
+            if found == wanted:
+                break
+            take = min(len(node.free_cores), wanted - found)
+            if take > 0:
+                chosen.append((node, take))
+                found += take
+        if found < wanted:
+            return None
+
+        budget = step.memory_budget or 0
+        layout = []
+        charged = 0
+        for index, (node, take) in enumerate(chosen):
+            if index == len(chosen) - 1:
+                charge = budget - charged
+            else:
+                charge = budget * take // wanted
+            charged += charge
+            if not _memory_fits(node, charge if step.memory_budget else None):
+                return None
+            layout.append((node, tuple(node.free_cores[:take]), (), charge))
+        return layout
 
     def _fit_across_nodes(self, step):
         """

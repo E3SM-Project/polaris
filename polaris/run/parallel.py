@@ -23,6 +23,7 @@ decomposition depend on scheduling timing, and its results with it.
 """
 
 import argparse
+import json
 import os
 import signal
 import socket
@@ -31,7 +32,7 @@ import time
 from contextlib import contextmanager
 from datetime import datetime, timedelta
 from functools import partial
-from typing import Dict, Iterator, List, Optional
+from typing import Dict, Iterator, List, Optional, Set, Union, cast
 
 import mpas_tools.io
 from mache.parallel import PlacementSupport
@@ -43,10 +44,13 @@ from polaris.run.allocation import read_allocation
 from polaris.run.confinement import PLACEMENT_MISMATCH_LOG
 from polaris.run.events import EventStream
 from polaris.run.executor import (
+    ChildWakeup,
+    RemoteStep,
     RunningStep,
     StepOutcome,
     describe_neighbors,
-    reap_one,
+    next_event,
+    start_remote_step,
     start_step,
 )
 from polaris.run.graph import build_step_graph
@@ -57,7 +61,9 @@ from polaris.run.lifecycle import (
     read_cf_status_from_logs,
     read_property_status_from_logs,
 )
+from polaris.run.pieces import PIECES_SUMMARY
 from polaris.run.pool import ResourcePool
+from polaris.run.residents import Residents, resident_options
 from polaris.run.results import TaskResult, write_suite_results
 from polaris.run.serial import (
     _pr_results,
@@ -109,6 +115,7 @@ def run_tasks(suite_name, quiet=False):
                     suite,
                     suite_name,
                     component,
+                    common_config,
                     logger,
                     events,
                     work_dir,
@@ -146,7 +153,9 @@ def _raise_on_sigterm(signum, frame) -> None:
     raise SystemExit(128 + signum)
 
 
-def _run(suite, suite_name, component, logger, events, work_dir, quiet):
+def _run(
+    suite, suite_name, component, config, logger, events, work_dir, quiet
+):
     """Set the run up, drive the loop, and report what happened."""
     steps, task_steps = _select_steps(suite, logger)
     graph = build_step_graph(steps.values())
@@ -202,9 +211,33 @@ def _run(suite, suite_name, component, logger, events, work_dir, quiet):
         cores=sum(node.cores for node in nodes),
     )
     started = time.time()
-    outcomes, mismatched = _loop(
-        graph, pool, steps, logger, events, work_dir, quiet, tracker
+    on_demand = _OnDemandResidents(
+        component, config, nodes, pool, logger, events, work_dir
     )
+    if _hands_out_work(graph):
+        on_demand.start('for the steps that hand out work')
+    start_residents = None
+    if on_demand.spans_nodes:
+        start_residents = partial(
+            on_demand.start,
+            'since a step that launches nothing is waiting for room here',
+        )
+    try:
+        outcomes, mismatched = _loop(
+            graph,
+            pool,
+            steps,
+            logger,
+            events,
+            work_dir,
+            quiet,
+            tracker,
+            residents=on_demand.residents,
+            start_timeout=on_demand.start_timeout,
+            start_residents=start_residents,
+        )
+    finally:
+        on_demand.stop()
     elapsed = time.time() - started
 
     tracker.finish()
@@ -320,6 +353,114 @@ def _select_steps(suite, logger):
     return steps, task_steps
 
 
+class _OnDemandResidents:
+    """
+    The run's residents, started the first time the run needs them.
+
+    A run with a step that hands out work needs them from the start.  A run
+    on several nodes may need them to fork a step that launches nothing on
+    a node other than the scheduler's, but only once such a step is waiting
+    for room on the scheduler's own node.  Most runs never get there, and
+    starting residents costs each node a minute or so of imports, so they
+    are not started until one does.  A run whose allocation is only the
+    node the scheduler is on forks its resident from the scheduler, which
+    is ready at once; any other launches one resident per node.
+
+    Attributes
+    ----------
+    residents : polaris.run.residents.Residents or None
+        The run's residents, once started
+
+    start_timeout : float
+        How long to wait for them to say hello, in seconds
+    """
+
+    def __init__(
+        self, component, config, nodes, pool, logger, events, work_dir
+    ):
+        self.interface, self.start_timeout = resident_options(config)
+        self.residents: Optional[Residents] = None
+        self._component = component
+        self._names = [node.name for node in nodes]
+        self._core_id = nodes[0].core_ids[0]
+        self._local = pool.local_node
+        self._logger = logger
+        self._events = events
+        self._work_dir = work_dir
+
+    @property
+    def spans_nodes(self) -> bool:
+        """Whether there is a node other than the scheduler's to fork on."""
+        return len(self._names) > 1
+
+    def start(self, why: str) -> Residents:
+        """Start the residents, if they are not running already."""
+        if self.residents is not None:
+            return self.residents
+        residents = Residents(interface=self.interface)
+        names = self._names
+        if len(names) == 1 and names[0] in ('', self._local):
+            residents.start_local(names)
+            how = 'forked'
+        else:
+            residents.launch(
+                self._component.parallel_system,
+                names,
+                self._core_id,
+                log_filename=os.path.join(
+                    self._work_dir, 'case_outputs', 'residents.log'
+                ),
+            )
+            how = 'launched'
+        self._events.record('residents_started', nodes=names, how=how)
+        self._logger.info(
+            f'Started a resident on each of {len(names)} node(s), {why}'
+        )
+        self.residents = residents
+        return residents
+
+    def stop(self) -> None:
+        """Stop the residents, if any were started, and say what they cost."""
+        if self.residents is None:
+            return
+        stopping = time.time()
+        self.residents.stop()
+        took = time.time() - stopping
+        self._events.record('residents_stopped', took=round(took, 3))
+        _report_residents(self.residents, took, self._logger)
+
+
+def _hands_out_work(graph) -> bool:
+    """Whether any step still to run hands out work."""
+    return any(
+        node.step.hands_out_work
+        for node in graph.nodes.values()
+        if not node.satisfied
+    )
+
+
+def _waiting_for_room_here(graph, waiting, blocked) -> bool:
+    """Whether a step a resident could fork elsewhere is waiting for room."""
+    return any(
+        blocked.get(path) == 'resources'
+        and _forks_anywhere(graph.nodes[path].step)
+        for path in waiting
+    )
+
+
+def _forks_anywhere(step) -> bool:
+    """
+    Whether a resident could fork a step on whichever node has room.
+
+    A step launches only through its command, so a step without one
+    launches nothing and needs nothing from the scheduler's node.  A step
+    that hands out work stays with the scheduler, since its pieces go to
+    other nodes anyway, and so does one asking for GPUs, whose devices are
+    named by the launch it does not have.
+    """
+    return step.args is None and not step.hands_out_work and not step.gpus
+
+
 def _local_node(nodes) -> str:
     """
     Which of the allocation's nodes this process is on.
@@ -336,8 +477,26 @@ def _local_node(nodes) -> str:
     return nodes[0].name if nodes else ''
 
 
-def _loop(graph, pool, steps, logger, events, work_dir, quiet, tracker=None):
-    """Start what fits, wait for what finishes, and keep going."""
+def _loop(
+    graph,
+    pool,
+    steps,
+    logger,
+    events,
+    work_dir,
+    quiet,
+    tracker=None,
+    residents=None,
+    start_timeout=1800.0,
+    start_residents=None,
+):
+    """
+    Start what fits, wait for what finishes, and keep going.
+
+    ``start_residents``, if given, starts the residents and returns them,
+    which the loop does the first time a step a resident could fork on
+    another node is waiting for room on this one.
+    """
     succeeded = {path for path, node in graph.nodes.items() if node.satisfied}
     for path in succeeded:
         events.record('step_skipped', step=path, reason='already satisfied')
@@ -347,56 +506,66 @@ def _loop(graph, pool, steps, logger, events, work_dir, quiet, tracker=None):
     outcomes: Dict[str, StepOutcome] = {}
     mismatched: List[str] = []
     blocked: Dict[str, str] = {}
-    running: Dict[str, RunningStep] = {}
+    running: Dict[str, Union[RunningStep, RemoteStep]] = {}
     waiting = set(graph.nodes) - succeeded
 
+    deadline = time.time() + start_timeout
     try:
-        while waiting or running:
-            started_any = _start_what_fits(
-                graph,
-                pool,
-                waiting,
-                running,
-                succeeded,
-                blocked,
-                logger,
-                events,
-                work_dir,
-                quiet,
-            )
-            if not running:
-                if started_any:
-                    continue
-                # nothing is running and nothing could start, so nothing ever
-                # will.  This is a bug in the scheduler rather than in the run,
-                # and saying which steps are stuck is what makes it findable.
-                events.record('run_stalled', waiting=sorted(waiting))
-                raise RuntimeError(
-                    f'Nothing is running and none of the {len(waiting)} '
-                    f'remaining step(s) can start: {sorted(waiting)}'
+        with ChildWakeup() as wakeup:
+            while waiting or running:
+                _start_what_fits(
+                    graph,
+                    pool,
+                    waiting,
+                    running,
+                    succeeded,
+                    blocked,
+                    logger,
+                    events,
+                    work_dir,
+                    quiet,
+                    residents,
                 )
+                if (
+                    residents is None
+                    and start_residents is not None
+                    and _waiting_for_room_here(graph, waiting, blocked)
+                ):
+                    residents = start_residents()
+                    deadline = time.time() + start_timeout
+                timeout = None
+                if not running:
+                    _check_not_stuck(
+                        graph, waiting, succeeded, residents, deadline, events
+                    )
+                    timeout = max(deadline - time.time(), 0.0)
 
-            # reaped here rather than by a thread per running step:
-            # only the forking thread survives a fork, so a lock held
-            # by any other one then is held forever in the child
-            outcome = reap_one(running)
-            step_run = running.pop(outcome.step_path)
-            _finish(
-                outcome,
-                step_run,
-                graph,
-                pool,
-                steps,
-                succeeded,
-                waiting,
-                outcomes,
-                mismatched,
-                logger,
-                events,
-                quiet,
-            )
-            if tracker is not None:
-                tracker.step_finished(outcome, step_run.started)
+                # reaped here rather than by a thread per running step:
+                # only the forking thread survives a fork, so a lock held
+                # by any other one then is held forever in the child
+                outcome, notes = next_event(
+                    running, residents, wakeup, timeout=timeout
+                )
+                _note_residents(notes, residents, logger, events)
+                if outcome is None:
+                    continue
+                step_run = running.pop(outcome.step_path)
+                _finish(
+                    outcome,
+                    step_run,
+                    graph,
+                    pool,
+                    steps,
+                    succeeded,
+                    waiting,
+                    outcomes,
+                    mismatched,
+                    logger,
+                    events,
+                    quiet,
+                )
+                if tracker is not None:
+                    tracker.step_finished(outcome, step_run.started)
     finally:
         # nothing may outlive the scheduler.  A forked child is a
         # direct child of this process, so an interrupt that left one
@@ -406,6 +575,76 @@ def _loop(graph, pool, steps, logger, events, work_dir, quiet, tracker=None):
         _abandon(running, logger, events)
 
     return outcomes, mismatched
+
+
+def _check_not_stuck(graph, waiting, succeeded, residents, deadline, events):
+    """
+    Raise if nothing is running and nothing ever will start.
+
+    Steps that hand out work waiting for residents still to say hello are
+    not stuck, until the residents have had as long as they are given.
+    Anything else with nothing running is a bug in the scheduler rather than
+    in the run, and saying which steps are stuck is what makes it findable.
+    """
+    if _waiting_for_residents(graph, waiting, succeeded, residents):
+        if residents.lost or residents.launcher_returncode is not None:
+            events.record('run_stalled', waiting=sorted(waiting))
+            raise RuntimeError(
+                f'Steps that hand out work cannot start because residents '
+                f'went away: {sorted(residents.lost)}, launch exit code '
+                f'{residents.launcher_returncode}.'
+            )
+        if time.time() < deadline:
+            return
+        events.record('run_stalled', waiting=sorted(waiting))
+        raise RuntimeError(
+            f'Not every resident said hello in time, so these steps that hand '
+            f'out work cannot start: {sorted(waiting)}'
+        )
+    events.record('run_stalled', waiting=sorted(waiting))
+    raise RuntimeError(
+        f'Nothing is running and none of the {len(waiting)} remaining '
+        f'step(s) can start: {sorted(waiting)}'
+    )
+
+
+def _waiting_for_residents(graph, waiting, succeeded, residents) -> bool:
+    """Whether a step ready to start is held back only for the residents."""
+    if residents is None or residents.ready:
+        return False
+    return any(
+        graph.nodes[path].step.hands_out_work
+        and graph.nodes[path].requires <= succeeded
+        for path in waiting
+    )
+
+
+def _note_residents(notes, residents, logger, events) -> None:
+    """Record what changed among the residents, as it happens."""
+    for note in notes:
+        kind, detail = note
+        if kind == 'ready':
+            facts = residents.facts.get(detail, {})
+            events.record(
+                'resident_ready',
+                node=detail,
+                ready_after=facts.get('ready_after'),
+                threads=facts.get('threads'),
+            )
+            if residents.ready:
+                events.record(
+                    'residents_ready',
+                    after=round(residents.ready_at - residents.started, 3),
+                )
+                logger.info(
+                    f'  * every resident has said hello, after '
+                    f'{residents.ready_at - residents.started:.1f}s'
+                )
+        elif kind == 'lost':
+            events.record('resident_lost', node=detail)
+            logger.warning(f'  * the resident on {detail} has gone')
+        elif kind == 'launch_ended':
+            events.record('residents_launch_ended', returncode=detail)
 
 
 def _abandon(running, logger, events) -> None:
@@ -420,7 +659,9 @@ def _abandon(running, logger, events) -> None:
         logger.warning(f'  * {path}: stopping, the run is being torn down')
         events.record('step_abandoned', step=path, pid=step_run.pid)
         step_run.kill()
-    for _ in running:
+    # a step on another node is not a child of this process: its resident
+    # kills it, and is itself stopped with the run
+    for _ in [run for run in running.values() if run.pid is not None]:
         try:
             os.waitpid(-1, 0)
         except ChildProcessError:
@@ -439,6 +680,7 @@ def _start_what_fits(
     events,
     work_dir,
     quiet,
+    residents=None,
 ):
     """Start every ready step that fits, in the order setup listed them."""
     started_any = False
@@ -447,18 +689,61 @@ def _start_what_fits(
             continue
         if not node.requires <= succeeded:
             continue
-        reservation = pool.reserve(node.step)
+        hands_out_work = node.step.hands_out_work
+        if hands_out_work and (residents is None or not residents.ready):
+            if blocked.get(path) != 'residents':
+                blocked[path] = 'residents'
+                events.record('step_blocked', step=path, reason='residents')
+            continue
+        elsewhere: Set[str] = set()
+        if (
+            residents is not None
+            and residents.ready
+            and _forks_anywhere(node.step)
+        ):
+            elsewhere = {
+                name for name in pool.node_names if residents.reaches(name)
+            }
+        reservation = pool.reserve(node.step, elsewhere=elsewhere)
         if reservation is None:
             if blocked.get(path) != 'resources':
                 blocked[path] = 'resources'
                 events.record('step_blocked', step=path, reason='resources')
             continue
+        log_filename = _log_filename(work_dir, path)
+        # only a step offered other nodes is forked by their residents; a
+        # launched step placed on other nodes is forked here, and launches
+        # its work there itself
+        away = bool(elsewhere) and list(reservation.cores) not in (
+            [pool.local_node],
+            [''],
+        )
+        if away:
+            try:
+                step_run: Union[RunningStep, RemoteStep] = start_remote_step(
+                    node.step,
+                    reservation,
+                    log_filename,
+                    cast(Residents, residents).directory,
+                )
+            except (OSError, EOFError, KeyError):
+                # its resident has gone, which the run hears of separately;
+                # the step waits, and is not offered that node again
+                pool.release(reservation)
+                continue
+        else:
+            step_run = start_step(
+                node.step,
+                reservation,
+                log_filename,
+                pool.local_node,
+                residents=residents.directory if hands_out_work else None,
+                keep_out=(
+                    residents.inherited() if residents is not None else ()
+                ),
+            )
         blocked.pop(path, None)
         waiting.discard(path)
-        log_filename = _log_filename(work_dir, path)
-        step_run = start_step(
-            node.step, reservation, log_filename, pool.local_node
-        )
         running[path] = step_run
         started_any = True
         events.record(
@@ -501,6 +786,8 @@ def _finish(
         # is no longer resident anywhere
         neighbors = describe_neighbors(pool, step_run.reservation, steps)
     pool.release(step_run.reservation)
+
+    _record_pieces(steps.get(outcome.step_path), outcome, events)
 
     if outcome.succeeded:
         succeeded.add(outcome.step_path)
@@ -553,6 +840,61 @@ def _finish(
         )
 
 
+def _record_pieces(step, outcome, events) -> None:
+    """
+    Record how much work a step handed out, and how much of the time it held
+    its cores they were idle.
+
+    Its cores are reserved for as long as it runs, and a piece runs on each
+    only while there is one to run, so the difference is what reserving
+    cores per step costs: the tail while its last pieces finish, and any
+    time it spent doing something else.
+    """
+    summary = _pieces_summary(step)
+    if summary is None:
+        return
+    reserved = summary['cores'] * outcome.seconds
+    events.record(
+        'step_pieces',
+        step=outcome.step_path,
+        pieces=summary['pieces'],
+        failed=summary['failed'],
+        cores=summary['cores'],
+        hosts=summary['hosts'],
+        busy=summary['busy_seconds'],
+        idle=round(max(reserved - summary['busy_seconds'], 0.0), 3),
+        dask_workers=summary.get('dask_workers', 0),
+        dask_start=summary.get('dask_start_seconds', 0.0),
+    )
+
+
+def _pieces_summary(step) -> Optional[dict]:
+    """What a step that handed out work left beside its log, if anything."""
+    if step is None or not step.hands_out_work:
+        return None
+    filename = os.path.join(step.work_dir, PIECES_SUMMARY)
+    try:
+        with open(filename) as handle:
+            return json.load(handle)
+    except (OSError, ValueError):
+        return None
+
+
+def _report_residents(residents, stop_seconds, logger) -> None:
+    """Say what having residents cost: starting them and stopping them."""
+    nodes = len(residents.facts) + len(residents.lost)
+    if residents.ready_at is not None and residents.started is not None:
+        ready = f'ready after {residents.ready_at - residents.started:.1f}s'
+    else:
+        ready = 'never all ready'
+    logger.info('')
+    logger.info(
+        f'Residents: {nodes} node(s), {ready}, {stop_seconds:.1f}s to stop'
+    )
+    if residents.lost:
+        logger.warning(f'  residents lost: {sorted(residents.lost)}')
+
+
 def _log_filename(work_dir: str, path: str) -> str:
     """
     Where one step's output goes.
@@ -585,6 +927,45 @@ def _placement_mismatch(step, logger) -> bool:
         logger.warning('')
         logger.warning(handle.read().rstrip())
     return True
+
+
+def _report_pieces(outcomes, steps, logger) -> None:
+    """
+    Say how much work the steps handed out, over how many nodes, and how
+    busy the cores they reserved for it were.
+    """
+    pieces = 0
+    busy = 0.0
+    reserved = 0.0
+    hosts: Set[str] = set()
+    handing_out = 0
+    workers = 0
+    starting = 0.0
+    for path, outcome in outcomes.items():
+        summary = _pieces_summary(steps.get(path))
+        if summary is None:
+            continue
+        handing_out += 1
+        pieces += summary['pieces']
+        busy += summary['busy_seconds']
+        reserved += summary['cores'] * outcome.seconds
+        hosts.update(summary['hosts'])
+        workers += summary.get('dask_workers', 0)
+        starting += summary.get('dask_start_seconds', 0.0)
+    if handing_out == 0:
+        return
+    share = 100.0 * busy / reserved if reserved > 0 else 0.0
+    logger.info('')
+    logger.info(
+        f'Handed-out work: {pieces} piece(s) from {handing_out} step(s) on '
+        f'{len(hosts)} node(s); their cores were busy {share:.0f}% of the '
+        f'time they were reserved.'
+    )
+    if workers > 0:
+        logger.info(
+            f'Dask workers: {workers}, which took {starting:.1f} s in all '
+            f'to start.'
+        )
 
 
 def _comparisons(steps, logger) -> List[str]:
@@ -664,6 +1045,8 @@ def _report(outcomes, mismatched, steps, logger, elapsed) -> List[str]:
     for path, outcome in outcomes.items():
         status = success_str if outcome.succeeded else fail_str
         logger.info(f'  {outcome.seconds:8.1f}s {status} {path}')
+
+    _report_pieces(outcomes, steps, logger)
 
     elapsed_str = str(timedelta(seconds=round(elapsed)))
     logger.info(f'Total runtime: {elapsed_str}')
