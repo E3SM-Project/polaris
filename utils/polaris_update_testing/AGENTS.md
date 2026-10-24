@@ -48,7 +48,11 @@ The steps are:
 3. Set `mache` under `[pixi]` in `deploy/pins.cfg` to the new version, and
    update the other pins the PR changes.  `./deploy.py` refuses to run if
    the pin and `deploy/cli_spec.json` name different versions of mache.
-4. Show the requester the diff before committing it.
+4. Read the release notes and PRs of each mache release since the old
+   pin, for what that page's step 5 lists, and tell the requester what
+   you find, above all caveats and changes that need Spack environments
+   rebuilt.
+5. Show the requester the diff before committing it.
 
 If the mache the PR needs has a tag but is not on conda-forge yet, wait
 for the conda-forge package, or test with its branch, as below.
