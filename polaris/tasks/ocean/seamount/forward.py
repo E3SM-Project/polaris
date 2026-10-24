@@ -1,6 +1,39 @@
 from polaris.mesh.planar import compute_planar_hex_nx_ny
 from polaris.ocean.model import OceanModelStep, get_time_interval_string
 
+# The horizontal pressure-gradient schemes a forward step can be run with,
+# mapping the Polaris spelling to Omega's PressureGradType.  There is no
+# "centered limit" of the finite-volume scheme: the two are separate
+# implementations and no setting reduces one to the other, so this is a choice
+# between them rather than a parameter of one.  Only the centered scheme
+# exists in MPAS-Ocean, which is why a finite-volume step is added to the
+# default task only when the model is Omega.
+SCHEMES = {
+    'centered': 'Centered',
+    'finite_volume': 'FiniteVolume',
+}
+
+
+def forward_step_name(scheme):
+    """
+    The name of the forward step that runs a given pressure-gradient scheme.
+
+    Every forward step is named for its scheme, including in tasks that run
+    only one, so that an output directory says which scheme produced it
+    without anyone having to open the model config.
+
+    Parameters
+    ----------
+    scheme : str
+        The pressure-gradient scheme, a key of :py:data:`SCHEMES`
+
+    Returns
+    -------
+    str
+        The step name
+    """
+    return f'forward_{scheme}'
+
 
 class Forward(OceanModelStep):
     """
@@ -14,6 +47,9 @@ class Forward(OceanModelStep):
 
     yaml_filename : str
        The name of the yaml file for this forward step
+
+    scheme : str
+       The horizontal pressure-gradient scheme, a key of :py:data:`SCHEMES`
     """
 
     def __init__(
@@ -23,6 +59,7 @@ class Forward(OceanModelStep):
         yaml_filename='forward.yaml',
         name='forward',
         task_name='default',
+        scheme='centered',
         subdir=None,
         indir=None,
         ntasks=None,
@@ -49,6 +86,11 @@ class Forward(OceanModelStep):
         init : polaris.ocean.tasks.internal_wave.init.Init
             the initial state step
 
+        scheme : str, optional
+           The horizontal pressure-gradient scheme to run, a key of
+           :py:data:`SCHEMES`.  Only ``'centered'`` is available in
+           MPAS-Ocean.
+
         subdir : str, optional
             the subdirectory for the step.  The default is ``name``
 
@@ -64,6 +106,11 @@ class Forward(OceanModelStep):
         openmp_threads : int, optional
             the number of OpenMP threads the step will use
         """
+        if scheme not in SCHEMES:
+            raise ValueError(
+                f'Unknown pressure-gradient scheme {scheme!r}; expected one '
+                f'of {sorted(SCHEMES)}.'
+            )
         if min_tasks is None:
             min_tasks = ntasks
         super().__init__(
@@ -79,6 +126,7 @@ class Forward(OceanModelStep):
         )
         self.task_name = task_name
         self.yaml_filename = yaml_filename
+        self.scheme = scheme
 
         # make sure output is double precision
         self.add_yaml_file('polaris.ocean.config', 'output.yaml')
@@ -107,6 +155,12 @@ class Forward(OceanModelStep):
         section = config['seamount']
         model = config.get('ocean', 'model')
         resolution = section.getfloat('resolution')
+
+        if model != 'omega' and self.scheme != 'centered':
+            raise ValueError(
+                f'The {self.scheme} pressure-gradient scheme is only '
+                f'available in Omega, but the model is {model}.'
+            )
 
         # Both models take the same time step with the same integrator
         dt_per_km = section.getfloat('dt_per_km')
@@ -142,6 +196,7 @@ class Forward(OceanModelStep):
             output_freq_units='seconds',
             horiz_adv_order=section.getint('horiz_adv_order'),
             bottom_drag_coeff=section.getfloat('bottom_drag_coeff'),
+            pressure_grad_type=SCHEMES[self.scheme],
         )
         self.add_yaml_file(
             'polaris.tasks.ocean.seamount',
