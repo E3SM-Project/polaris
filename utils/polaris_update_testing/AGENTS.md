@@ -114,6 +114,17 @@ otherwise.
    a fix still in review on some machine, the requester may ask for
    `--merge-omega-pr <number>`.  The merge is pushed to their E3SM fork
    (`fork` in the settings), and every machine's Omega rows build it.
+
+   If `main` cannot run some rows, the requester may name an older commit
+   of `main` as their baseline.  Leave those rows out of the first
+   manifest with `--rows`, and pin them in a second one:
+   ```bash
+   polaris_update_test.py init --pr <number> --baseline <commit> \
+       --rows <machine>/<compiler>/<model>,...
+   ```
+   Its test branch and run directory end in the baseline's short hash, so
+   the two manifests do not collide.  The report says which baseline each
+   machine was compared against.
 2. Show the requester the summary.  With permission, run the push command
    that `init` printed.
 3. List each machine's rows, with its ssh host and Polaris checkout:
@@ -140,7 +151,10 @@ otherwise.
    a load script for each of the machine's compilers that uses `main`'s
    shared environments.  Fast-forward it if it is behind, and run
    `./deploy.py --compiler ...` there, with no Spack flags, if a load
-   script is missing.
+   script is missing.  If the prompt says the baseline is another commit,
+   not `main`, make a worktree of that checkout at the commit instead,
+   deploy it the same way, and pass `setup` its load script with
+   `--baseline-load-script`.
 3. Check `~/.config/polaris_pr_test.cfg` on the machine as the Omega
    utility's AGENTS.md says, including that `omega_repo` is on the same
    filesystem as `work_base`.

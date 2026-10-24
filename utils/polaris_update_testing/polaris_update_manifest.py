@@ -231,6 +231,10 @@ class Manifest:
     omega_merge : polaris_update_manifest.OmegaMerge, optional
         Other Omega PRs merged into the Omega the PR pins, if any, which is
         then built in its place
+
+    baseline_is_main : bool, optional
+        Whether the baseline is the ``main`` of E3SM-Project/polaris when
+        the manifest was made, rather than another commit
     """
 
     requester: str
@@ -240,6 +244,7 @@ class Manifest:
     rows: List[Row] = field(default_factory=list)
     notes: Optional[str] = None
     omega_merge: Optional[OmegaMerge] = None
+    baseline_is_main: bool = True
 
     @property
     def omega_build_commit(self) -> str:
@@ -256,12 +261,28 @@ class Manifest:
     @property
     def branch(self) -> str:
         """The name of the test branch on the requester's Polaris fork"""
-        return f'polaris-update-test/{self.pull_request}-{self.pr_head[:7]}'
+        return (
+            f'polaris-update-test/{self.pull_request}-{self.pr_head[:7]}'
+            f'{self._baseline_suffix}'
+        )
 
     @property
     def run_name(self) -> str:
         """The directory in the work base that this manifest's runs go in"""
-        return f'polaris-pr{self.pull_request}-{self.pr_head[:7]}'
+        return (
+            f'polaris-pr{self.pull_request}-{self.pr_head[:7]}'
+            f'{self._baseline_suffix}'
+        )
+
+    @property
+    def _baseline_suffix(self) -> str:
+        """
+        What tells this manifest's branch and runs from those of a manifest
+        for the same PR head with ``main`` as its baseline
+        """
+        if self.baseline is None or self.baseline_is_main:
+            return ''
+        return f'-{self.baseline.polaris_commit[:7]}'
 
     def get_env_rows(self, machine: str, compiler: str) -> List[Row]:
         """The rows that a machine's load script for a compiler tests"""
@@ -289,6 +310,7 @@ class Manifest:
             'baseline': (
                 None if self.baseline is None else self.baseline.to_dict()
             ),
+            'baseline_is_main': self.baseline_is_main,
             'rows': [
                 {
                     'machine': row.machine,
@@ -369,6 +391,7 @@ class Manifest:
                     if contents.get('omega_merge') is None
                     else OmegaMerge.from_dict(contents['omega_merge'])
                 ),
+                baseline_is_main=bool(contents.get('baseline_is_main', True)),
             )
         except (KeyError, TypeError, ValueError) as exc:
             raise ManifestError(

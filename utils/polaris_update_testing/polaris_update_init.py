@@ -188,6 +188,7 @@ def initiate(
         baseline=baseline,
         rows=rows,
         notes=notes,
+        baseline_is_main=baseline_ref in (None, POLARIS_MAIN),
     )
     if merge_omega_prs:
         manifest.omega_merge = _merge_omega(
@@ -279,10 +280,16 @@ def get_prompt(manifest: Manifest, fork: str) -> str:
         f'{manifest.branch} on {fork}, following '
         f'utils/polaris_update_testing/AGENTS.md.'
     )
-    if manifest.baseline is not None:
+    if manifest.baseline is not None and manifest.baseline_is_main:
         prompt = (
             f'{prompt}  The baseline runs from a second checkout of main on '
             f'E3SM-Project/polaris.'
+        )
+    elif manifest.baseline is not None:
+        prompt = (
+            f'{prompt}  The baseline runs from a second checkout of '
+            f'E3SM-Project/polaris at '
+            f'{manifest.baseline.polaris_commit[:12]}, not main.'
         )
     return prompt
 
