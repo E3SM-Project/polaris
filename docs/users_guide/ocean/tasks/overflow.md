@@ -161,14 +161,10 @@ version of this test; shear mixing is disabled.  MPAS-Ocean uses CVMix
 background and convective mixing, which is equivalent for this
 configuration.
 
-Both models run with explicit bottom drag (drag coefficient 1.0e-3).  For
+As in the compass version of this test, both models use split-explicit
+time stepping and implicit bottom drag (drag coefficient 1.0e-3).  For
 Omega, the bottom-drag tendency is enabled through the mapped MPAS-Ocean
-debug flag `config_disable_vel_explicit_bottom_drag = false`, an interim
-approach until Omega supports implicit bottom drag.  Compared with the
-compass version of this test, split-explicit time stepping and implicit
-bottom drag remain disabled because they are not yet available in Omega:
-the tasks use the RK4 time integrator, and implicit bottom drag will be
-enabled in both models once Omega supports it.
+debug flag `config_disable_vel_explicit_bottom_drag = false`.
 
 ## config options
 
