@@ -115,6 +115,16 @@ label, such as `5.3.0rc1`.
    ./deploy.py --bootstrap-only --mache-version 5.3.0
    ```
 
+   For an hour or more after a release is uploaded, this can fail with "No
+   candidates were found for mache".  Pixi finds packages through the
+   channel's sharded index, `noarch/repodata_shards.msgpack.zst` on
+   `conda.anaconda.org/conda-forge`.  It sees the release only once that
+   index has been rebuilt, even though anaconda.org already lists the
+   package.  `pixi search -c conda-forge 'mache==5.3.0'` finds it once the
+   index has it.  Meanwhile, you can bootstrap from the release's tag with
+   `--mache-fork E3SM-Project/mache --mache-branch 5.3.0` in place of
+   `--mache-version`.
+
 2. Follow the instructions it prints:
 
    ```bash
