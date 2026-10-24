@@ -172,8 +172,11 @@ otherwise.
 The requester tells you whether to deploy test environments, shared ones
 or none, if they are already deployed.  The PR's checkout has no load
 script yet, so source one from another checkout, such as the one on the
-`[machines]` line; `deploy` runs `./deploy.py` in a clean login shell.  In
-the PR's checkout, see what `deploy` would run:
+`[machines]` line; `deploy` runs `./deploy.py` in a clean login shell.
+Source it from inside its own checkout, then change to the PR's: a load
+script refuses to load in a checkout of another Polaris version.  Don't
+`set -u` in a script that sources one, since its activation scripts read
+unset variables.  In the PR's checkout, see what `deploy` would run:
 
 ```bash
 polaris_update_test.py deploy --fork <fork> --branch <branch> \
