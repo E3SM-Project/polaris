@@ -118,6 +118,7 @@ def _setup(args):
         baseline_dir=args.baseline_dir,
         baseline_load_script=args.baseline_load_script,
         no_baseline=args.no_baseline,
+        parallel=args.parallel,
     )
     machine = state.row.split('/')[0]
     row_dir = os.path.dirname(state.pr_work_dir)
@@ -303,6 +304,15 @@ def _parse_args():
         'baseline commit cannot run, with the reason as a lowercase clause '
         'that the report prints after "because".  Only if the requester '
         'asks.',
+    )
+    setup.add_argument(
+        '-P',
+        '--parallel',
+        action='store_true',
+        help='Run the steps of the PR suite, and of a baseline set up here, '
+        'at the same time with `polaris parallel` rather than one after '
+        'another with `polaris serial`.  A baseline that is reused runs as '
+        'it was set up.',
     )
     setup.add_argument(
         '--submit',

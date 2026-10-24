@@ -38,6 +38,7 @@ def run_setup(
     baseline_dir: Optional[str] = None,
     baseline_load_script: Optional[str] = None,
     no_baseline: Optional[str] = None,
+    parallel: bool = False,
     polaris_dir: str = POLARIS_DIR,
 ) -> SetupState:
     """
@@ -68,6 +69,10 @@ def run_setup(
     no_baseline : str, optional
         Why the PR suite runs without a baseline, for a row where the
         baseline commit cannot run
+
+    parallel : bool, optional
+        Whether the PR suite, and a baseline that is set up here, run their
+        steps at the same time with ``polaris parallel``
 
     polaris_dir : str, optional
         The Polaris checkout the loaded environment runs
@@ -129,7 +134,13 @@ def run_setup(
             os.path.join(config.work_base, 'baselines')
         ] + config.baseline_search_roots
         baseline = setup_tools.get_baseline(
-            config, criteria, roots, baseline_dir, baseline_polaris, MODEL
+            config,
+            criteria,
+            roots,
+            baseline_dir,
+            baseline_polaris,
+            MODEL,
+            parallel=parallel,
         )
         if baseline.job is not None:
             jobs.append(baseline.job)
@@ -146,6 +157,7 @@ def run_setup(
         build_dir=pr_build_dir,
         work_dir=pr_work_dir,
         baseline_work_dir=None if baseline is None else baseline.work_dir,
+        parallel=parallel,
     )
     jobs.append(
         Job(

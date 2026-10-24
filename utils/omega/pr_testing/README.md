@@ -32,7 +32,8 @@ its rows.  An agent on every machine also works, but is discouraged.
    `main` that the settings' `polaris_main` names, or the one whose load
    script `--baseline-load-script` gives.  It then builds and sets up the PR suite, and
    prepares the CTests.  It prints the three jobs, or submits them with
-   `--submit`.
+   `--submit`.  With `--parallel`, the PR suite, and a baseline it sets up,
+   run their steps at the same time with `polaris parallel`.
 4. **`report`** (each machine) writes one comment for the machine's rows:
    a table with a line for each row, generated from the results, and for
    each row a collapsed block with the files Polaris and CTest wrote,
