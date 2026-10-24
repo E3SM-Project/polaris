@@ -16,6 +16,17 @@ _polaris_detect_prefix() {
     return 1
 }
 
+# Temporary: on Aurora, mache 5.1.0 and later load oneAPI 2025.3.1 and mpich
+# 51a9474, but Omega's CIME config still builds with oneAPI 2026.1.0 and the
+# mpich it comes with, 87e2045, as the Spack environments are built (see
+# deploy/spack/aurora_intel_mpich.yaml).  An Omega built with one and run with
+# the other cannot find MKL (#896).  Load oneAPI first, which makes the mpich
+# module visible.  Remove this once Omega moves to oneAPI 2025.3.1.
+if [ "$POLARIS_MACHINE" = "aurora" ]; then
+    module load oneapi/release/2026.1.0 >/dev/null 2>&1
+    module load mpich/prd/5.0.0.aurora_test.87e2045 >/dev/null 2>&1
+fi
+
 _polaris_stack_root="${MACHE_DEPLOY_SPACK_LIBRARY_VIEW}"
 if [ -z "${_polaris_stack_root}" ] && [ -n "${CONDA_PREFIX:-}" ]; then
     _polaris_stack_root="${CONDA_PREFIX}"
