@@ -4,7 +4,7 @@ from polaris.tasks.ocean.single_column.conservation_summary import (
 )
 from polaris.tasks.ocean.single_column.forward import Forward
 from polaris.tasks.ocean.single_column.frazil.init import FrazilInit
-from polaris.tasks.ocean.single_column.viz import Viz
+from polaris.tasks.ocean.single_column.frazil.viz import FrazilViz
 
 
 class Frazil(Task):
@@ -76,6 +76,8 @@ class Frazil(Task):
                     'of time steps in one day'
                 )
             frazil_conservation = True
+        elif self.case == 'melting':
+            run_duration_steps = 2
         for frazil_type in ('FixedProperty', 'teos'):
             forward_step = Forward(
                 component=component,
@@ -103,7 +105,7 @@ class Frazil(Task):
             frazil_diagnostics=(case == 'freezing'),
         )
         self.add_step(self.conservation_summary)
-        self.viz = Viz(
+        self.viz = FrazilViz(
             component=component,
             indir=subdir,
             init=init_step,
@@ -135,7 +137,7 @@ class Frazil(Task):
             comparisons = dict(self.viz.comparisons)
             comparisons.pop('teos', None)
             self.remove_step(self.viz)
-            self.viz = Viz(
+            self.viz = FrazilViz(
                 component=self.component,
                 indir=self.subdir,
                 init=self.steps['init'],

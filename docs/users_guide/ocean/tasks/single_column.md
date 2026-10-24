@@ -824,9 +824,10 @@ stratification inside the boundary layer.
 
 The `frazil` task creates four single-column cases that combine the two
 initial-condition regimes (``melting`` and ``freezing``) with the two frazil
-algorithms (``FixedProperty`` and ``teos``). Each run uses the default
-single-column 10-day forward setup and outputs the state and diagnostics needed
-for frazil growth and melting. For MPAS-Ocean, the ``teos`` variant is omitted
+algorithms (``FixedProperty`` and ``teos``). Melting runs for two timesteps
+(20 minutes with the default 600 s timestep), while freezing runs for one day.
+Both output the state and diagnostics needed for frazil growth and melting.
+For MPAS-Ocean, the ``teos`` variant is omitted
 because that model only supports the ``FixedProperty`` algorithm.
 
 The melting case uses a linear salinity profile with depth and a temperature
@@ -845,6 +846,11 @@ Omega retains the TEOS-10 equation of state and its existing initialization.
 
 MPAS-Ocean frazil tendency figures show the last available output in each
 day, including a partial final day. One-layer cases omit these figures.
+
+For Omega, `frazil-fluxes.png` shows the time evolution of cell-mean frazil
+energy, mass, and salt fluxes for both algorithms, using the same panels as
+the one-layer cases. The standard freezing and melting tasks write output
+every timestep so that the melting transient is resolved.
 
 MPAS-Ocean conservation checks include frazil contributions to mass, salt,
 and energy using tendency output at every timestep. The conservation summary
