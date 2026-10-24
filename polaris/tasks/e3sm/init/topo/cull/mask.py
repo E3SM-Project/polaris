@@ -22,11 +22,13 @@ from polaris.tasks.e3sm.init.topo.cull.consistency import (
     check_critical_passages,
     check_cull_mask_consistency,
     check_land_locked_criteria,
+    check_sea_ice_removed_regions,
 )
 from polaris.tasks.e3sm.init.topo.cull.dc_edge_diagnostics import (
     check_ocean_dc_edge,
 )
 from polaris.tasks.e3sm.init.topo.cull.land_locked import (
+    find_dead_end_cells,
     remove_land_locked_cells,
     remove_ocean_land_locked_cells,
 )
@@ -284,7 +286,8 @@ class CullMaskStep(Step):
         circulate, and discards whatever is left unconnected to the open
         ocean. The sea-ice criteria are not applied here; they belong to the
         ocean without ice-shelf cavities and are applied when the two domains
-        are refined together.
+        are refined together.  It also writes the dead ends of the ocean
+        to ``ocean_dead_end_cells.nc`` for the critical-passage check.
 
         Parameters
         ----------
@@ -308,6 +311,19 @@ class CullMaskStep(Step):
             cull_mask=cull_mask,
             mask_name='ocean cull mask',
         )
+
+        # a critical passage cell that is a dead end leads nowhere on this
+        # mesh, so the passage check does not count its removal
+        ds_dead_ends = xr.Dataset()
+        ds_dead_ends['deadEndCellMask'] = xr.DataArray(
+            np.where(
+                find_dead_end_cells(ds_base_mesh, np.logical_not(cull_mask)),
+                1,
+                0,
+            ),
+            dims=('nCells',),
+        )
+        write_netcdf(ds_dead_ends, 'ocean_dead_end_cells.nc')
 
         logger.info('Removing land-locked cells from the ocean.')
         ocean_mask = remove_ocean_land_locked_cells(
@@ -360,6 +376,7 @@ class CullMaskStep(Step):
         self._create_ocean_cull_mask()
         self._create_land_ice_mask()
         self._refine_ocean_domains()
+        self._check_sea_ice_removed_regions()
         self._check_critical_passages()
         self._create_land_cull_mask()
         self._combine_masks()
@@ -744,12 +761,43 @@ class CullMaskStep(Step):
         write_netcdf(ds_masks, 'cull_masks.nc')
         logger.info('Wrote cull_masks.nc.')
 
+    def _check_sea_ice_removed_regions(self):
+        """
+        Check that removing the cells in which sea ice would be trapped did
+        not remove a whole sea from the ocean.
+        """
+        section = self.config['cull_mesh']
+        check_sea_ice_removed_regions(
+            ds_mesh=open_dataset('base_mesh.nc'),
+            preliminary_ocean_cull_mask=open_dataset(
+                'ocean_cull_mask_preliminary.nc'
+            ).oceanCullMask.values,
+            ocean_cull_mask=open_dataset(
+                'ocean_cull_mask.nc'
+            ).oceanCullMask.values,
+            max_region_cells=section.getint('max_sea_ice_region_cells'),
+            max_region_area=section.getfloat('max_sea_ice_region_area'),
+            logger=self.logger,
+        )
+
     def _check_critical_passages(self):
         """
         Check that removing land-locked cells did not close any critical
-        ocean passage.
+        ocean passage, unless the mesh is too coarse to keep them open.
         """
         logger = self.logger
+        config = self.config
+        min_cell_width = config.getfloat('spherical_mesh', 'min_cell_width')
+        max_cell_width = config.getfloat(
+            'cull_mesh', 'critical_passage_check_max_cell_width'
+        )
+        if min_cell_width > max_cell_width:
+            logger.info(
+                f'The mesh resolution ({min_cell_width:g} km) is coarser '
+                f'than {max_cell_width:g} km, skipping the passage check.'
+            )
+            return
+
         filename = 'critical_ocean_transects_widened.nc'
         if not os.path.exists(filename):
             logger.info(
@@ -757,11 +805,18 @@ class CullMaskStep(Step):
             )
             return
 
+        dead_end_mask = None
+        if os.path.exists('ocean_dead_end_cells.nc'):
+            dead_end_mask = open_dataset(
+                'ocean_dead_end_cells.nc'
+            ).deadEndCellMask.values
+
         ds_masks = open_dataset('ocean_cull_mask.nc')
         check_critical_passages(
             ocean_cull_mask=ds_masks.oceanCullMask.values,
             ds_transects=open_dataset(filename),
             logger=logger,
+            dead_end_mask=dead_end_mask,
         )
 
     def _check_mask_consistency(self):

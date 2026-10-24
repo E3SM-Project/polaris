@@ -475,6 +475,7 @@ seaice/api
    connectivity.has_active_vertex
    connectivity.transport_link_mask
    connectivity.connected_to_seeds
+   connectivity.label_regions
    connectivity.seed_mask_from_points
 
    vector.get_coordinate_matrix
