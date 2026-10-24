@@ -54,8 +54,36 @@ The steps are:
    rebuilt.
 5. Show the requester the diff before committing it.
 
-If the mache the PR needs has a tag but is not on conda-forge yet, wait
-for the conda-forge package, or test with its branch, as below.
+### A new mache that pixi cannot find yet
+
+For an hour or more after a mache release reaches conda-forge, step 1 can
+fail with "No candidates were found for mache".  anaconda.org lists the
+release, and its `.conda` file downloads, but pixi solves from the
+channel's sharded index,
+`https://conda.anaconda.org/conda-forge/noarch/repodata_shards.msgpack.zst`.
+That file maps each package name to a shard of its own.  Pixi sees the
+release only once conda-forge rebuilds the index after the upload.  The
+`created_at` inside the index says when it was built.  To check, run:
+
+```bash
+pixi search -c conda-forge 'mache==<version>'
+```
+
+It prints "No packages found" until the index has the release.
+
+While you wait, you can do steps 1 and 2 from the release's tag, whose
+templates are the release's:
+
+```bash
+./deploy.py --bootstrap-only --mache-fork E3SM-Project/mache \
+    --mache-branch <version>
+pixi run -m deploy_tmp/bootstrap_pixi/pixi.toml \
+    mache deploy update --software polaris --mache-version <version>
+```
+
+Then go on with step 3.  Wait for pixi to find the release before you
+deploy, or tell the requester, and deploy only test environments, from
+the tag, as below.
 
 ### An unreleased mache
 
