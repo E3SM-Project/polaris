@@ -112,6 +112,16 @@ spack:
   # mache spack env template for the selected machine/compiler/mpi.
   specs_template: "deploy/spack.yaml.j2"
 
+  # Optional overrides for the Spack, spack-packages and e3sm-spack-packages
+  # sources that mache pins (mache/spack/pins.yaml), each a tag, commit or
+  # branch per repository.  e3sm-spack-packages adds netcdf-fortran 4.6.4,
+  # which mpas_tools 2.2.1 requires, after v2026.06.2, which mache 5.3.0
+  # pins.  Remove this once mache pins a tag that has it.
+  pins:
+    repos:
+      e3sm:
+        commit: c26dfa452f799bae4d4a08f30709ed4b8d96b5ba
+
   # Optional spack build settings
   tmpdir: null
   mirror: null
