@@ -157,6 +157,30 @@ The Developer's Guide also contains details on the framework shared across
 polaris, so any updates to this framework should include relevant additions
 or modifications ot the documentation.
 
+(dev-docs-diagrams)=
+
+## Diagrams
+
+A diagram often explains a workflow, a dependency chain or a sequence of
+steps better than a paragraph does, and the documentation could use more of
+them.  Diagrams are written in [Mermaid](https://mermaid.js.org/), in a fenced
+block whose language is `mermaid`:
+
+````markdown
+```mermaid
+flowchart LR
+    init --> forward --> analysis
+```
+````
+
+Sphinx renders the block as a diagram through
+[sphinxcontrib-mermaid](https://github.com/mgaitan/sphinxcontrib-mermaid), and
+GitHub renders the same block in a file view or a pull request, so the source
+stays readable in both places.  The Mermaid
+[flowchart](https://mermaid.js.org/syntax/flowchart.html) syntax covers most
+needs.  Images (`png` or `svg`) go in an `images` directory beside the page
+that uses them.
+
 (dev-docstrings)=
 
 ## Docstrings

@@ -193,13 +193,16 @@ config:
     config_use_mom_del2: VelDiffTendencyEnable
     config_mom_del2: ViscDel2
     config_use_tracer_del2: TracerDiffTendencyEnable
+    config_tracer_del2: EddyDiff2
 
 - section:
     hmix_del4: Tendencies
   options:
     config_use_mom_del4: VelHyperDiffTendencyEnable
     config_mom_del4: ViscDel4
+    config_mom_del4_div_factor: DivFactor
     config_use_tracer_del4: TracerHyperDiffTendencyEnable
+    config_tracer_del4: EddyDiff4
 
 - section:
     forcing: Tendencies
@@ -293,6 +296,15 @@ config:
     config_eos_linear_alpha: not DRhoDT
     config_eos_linear_beta: DRhoDS
     config_eos_linear_densityref: RhoT0S0
+
+- section:
+    submesoscale_eddy_parameterization: Submeso
+  options:
+    config_submesoscale_enable: Enable
+    config_submesoscale_tau: Tau
+    config_submesoscale_Ce: Ce
+    config_submesoscale_Lfmin: LfMin
+    config_submesoscale_ds_max: DsMax
 
 - section:
     cvmix: [VertMix, Background]

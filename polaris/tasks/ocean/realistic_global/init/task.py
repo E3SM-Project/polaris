@@ -27,7 +27,7 @@ class RealisticGlobalInit(Task):
         mesh_name : str
             The name of the MPAS mesh (e.g. ``'icos240km'``).
         """
-        subdir = f'spherical/realistic_global/{mesh_name}/init/task'
+        subdir = f'spherical/realistic_global/{mesh_name}/init'
         super().__init__(
             component=component,
             name='realistic_global_init',
@@ -37,7 +37,7 @@ class RealisticGlobalInit(Task):
         steps, config = get_realistic_init_steps(
             component=component, mesh_name=mesh_name, include_viz=True
         )
-        self.set_shared_config(config, link='realistic_global_init.cfg')
+        self.set_shared_config(config, link='init.cfg')
 
         for symlink, step in steps.items():
             self.add_step(step, symlink=symlink)
