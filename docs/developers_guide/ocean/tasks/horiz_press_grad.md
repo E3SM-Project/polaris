@@ -63,9 +63,17 @@ pressure in dbar but returns the pressure derivative per Pa; the tests assert
 this rather than trusting it.
 
 {py:mod}`polaris.tasks.ocean.horiz_press_grad.reconstruction` builds the
-mean-preserving linear reconstruction of temperature and salinity in pressure.
-The slope is a centred difference of the layer means against *mid-layer
-pressure*, which is what makes it exact on a non-uniform grid.
+mean-preserving linear and parabolic reconstructions of temperature and
+salinity in pressure.  The linear slope is a centred difference of the layer
+means against *mid-layer pressure*, which is what makes it exact on a
+non-uniform grid.  `ppm_coefficients()` is the unlimited piecewise parabolic
+method of design §3.4: interface values from the polynomial through the
+cumulative integral at the nearest five interfaces, assembled from divided
+differences of the layer means, with the coefficients of a column's two
+outermost layers at each end taken from that polynomial's derivatives at the
+layer midpoint so that a thin end layer does not amplify round-off when it is
+extrapolated.  `reconstruct()` and `layer_deviation()` take an optional
+curvature, and serve xarray, numpy and scalars alike.
 
 {py:mod}`polaris.tasks.ocean.horiz_press_grad.finite_volume` assembles the
 scheme.  The essential piece is `delta_specvol_at_pressure()`, which
