@@ -1,6 +1,10 @@
 from polaris import Task
 from polaris.tasks.landice.dome.forward import Forward
-from polaris.tasks.landice.dome.validate import EXACT_NORMS, Validate
+from polaris.tasks.landice.dome.validate import (
+    EXACT_NORMS,
+    FO_NORMS,
+    Validate,
+)
 
 
 class Restart(Task):
@@ -80,5 +84,8 @@ class Restart(Task):
                 step_subdirs=['full_run', 'restart_run'],
                 indir=self.subdir,
                 norms=EXACT_NORMS,
+                # the first-order solver gives slightly different results
+                # from one run to the next on GPUs
+                gpu_norms=FO_NORMS if velocity_solver == 'FO' else None,
             )
         )

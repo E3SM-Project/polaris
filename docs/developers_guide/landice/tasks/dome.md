@@ -64,4 +64,6 @@ The class {py:class}`polaris.tasks.landice.dome.restart.Restart` runs MALI
 for 2 years in `full_run`, and for 1 year in `restart_run` from the restart
 file `full_run` writes after its first year.  Both runs write output only at
 the end of year 2, using `streams.restart` in the package, and the outputs
-must be bit-for-bit.
+must be bit-for-bit.  With the first-order solver on a machine and compiler
+with GPUs, where Albany gives slightly different results each run, the
+validate step uses the norms of `decomp` instead.
