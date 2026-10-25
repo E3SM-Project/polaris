@@ -31,12 +31,14 @@ ocean/column/horiz_press_grad/ztilde_gradient
 ocean/column/horiz_press_grad/surface_pressure_gradient
 ocean/column/horiz_press_grad/hydrostatic_consistency
 ocean/column/horiz_press_grad/hydrostatic_consistency_linear
+ocean/column/horiz_press_grad/hydrostatic_consistency_quadratic
 ocean/column/horiz_press_grad/bathymetry_step
 ocean/column/horiz_press_grad/bathymetry_step_linear
+ocean/column/horiz_press_grad/bathymetry_step_quadratic
 ```
 
 The first four impose a horizontal gradient and measure convergence toward the
-analytic reference.  The last four are **resting states** whose true HPGA is
+analytic reference.  The last six are **resting states** whose true HPGA is
 identically zero, so the model's HPGA is entirely error and no reference
 solution is involved; see {ref}`ocean-horiz-press-grad-resting`.
 
@@ -304,7 +306,7 @@ option exists.
 (ocean-horiz-press-grad-resting)=
 ## the resting-state variants
 
-The four resting-state variants ask a different question from the other
+The six resting-state variants ask a different question from the other
 four.  Rather than measuring convergence toward a
 reference, they place the ocean in a state whose true HPGA is **identically
 zero**, so that whatever the model returns is error.
@@ -397,6 +399,26 @@ It is also where the scheme's advantage is largest: measured offline at 4 km
 and 256 m layers, `HPGAFiniteVolume` is 4.3e-10 m s⁻² against the centered
 9.1e-5 m s⁻² at a 200 m/km sea-floor gradient — a factor of 2e5, against the
 20–1000× the coordinate-tilt variants show.
+
+### the two `_quadratic` variants
+
+The parabolic reconstruction widens the exact set from profiles linear in
+pressure to profiles quadratic in it.  The two `_quadratic` variants are the
+`_linear` ones with a third node and `profile_interpolation = polynomial`, so
+that the profile is the single quadratic through the three nodes rather than a
+PCHIP interpolant: exactly quadratic in pseudo-height and hence in pressure,
+and still monotone over the node range.
+
+| | linear reconstruction | parabolic reconstruction |
+| --- | --- | --- |
+| `_linear` variants | exact | exact |
+| `_quadratic` variants | curved | exact |
+| `hydrostatic_consistency`, `bathymetry_step` | curved | curved |
+
+For the linear reconstruction a quadratic profile is just another curved one,
+and the scheme is second order there, as on `hydrostatic_consistency`.  Its
+smallest advantage over the centered scheme, measured offline, is 7.71× on
+`hydrostatic_consistency_quadratic` and 15.4× on `bathymetry_step_quadratic`.
 
 ### severity, and why the column is deep
 
@@ -494,6 +516,11 @@ temperature_grad = [0.0, 0.0, 0.0, 0.0, 0.0]
 
 salinity_mid = [35.6, 35.4, 35.0, 34.8, 34.75]
 salinity_grad = [0.0, 0.0, 0.0, 0.0, 0.0]
+
+# how the profiles pass through the nodes: 'pchip', or 'polynomial' for the
+# single polynomial through at most four nodes, which the reference does not
+# support and the resting-state variants use
+profile_interpolation = pchip
 
 # reference settings
 reference_quadrature_method = gauss4

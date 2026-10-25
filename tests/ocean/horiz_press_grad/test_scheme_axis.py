@@ -126,6 +126,8 @@ _WORST_IMPROVEMENT = {
     'hydrostatic_consistency_linear': (4.0, 64.0, 0.1, 29.39),
     'bathymetry_step': (4.0, 256.0, 200.0, 1169.54),
     'bathymetry_step_linear': (4.0, 256.0, 200.0, 58828.46),
+    'hydrostatic_consistency_quadratic': (4.0, 64.0, 0.1, 7.71),
+    'bathymetry_step_quadratic': (4.0, 256.0, 100.0, 15.43),
 }
 
 
