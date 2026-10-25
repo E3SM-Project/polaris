@@ -114,9 +114,16 @@ N/A
 The baroclinic time step is 120 s per km of resolution and the barotropic
 time step is 4 s per km.  Every run lasts 15 days.  The resolved run is
 split into three segments, each continuing from the restart of the one
-before: a 5-day spin-up, days 5–7 (the window in which the eddy overturning
-is diagnosed, with output every 3 hours) and days 7–15.  The other output is
-daily.
+before: a spin-up over elapsed days 0–5 with daily restarts, an eddy-output
+segment over days 5–10, and an extended segment over days 10–15.
+The last two segments write hourly eddy output; all segments also write
+daily state output. In calendar-day numbering, the eddy segment starts
+at the start of day 6 and ends at the start of day 11.
+The overturning diagnostic selects elapsed days 5–7.
+The extended segment is optional in both resolved and comparison tasks.
+Run `polaris serial --steps extended_500m` from either task directory
+to execute it explicitly. Default analyses use only spinup and eddies
+and do not include extended output, even if it exists.
 
 ## config options
 
@@ -179,11 +186,11 @@ run_duration = 15.0
 # window (days)
 spinup_duration = 5.0
 
-# the duration of the eddy diagnosis window (days)
+# the duration of the overturning window (days)
 eddy_window_duration = 2.0
 
 # the interval between snapshots for the eddy diagnostics (hours)
-eddy_output_interval = 3.0
+eddy_output_interval = 1.0
 
 
 # the submesoscale eddy parameterization, when on, with E3SM's coupled
@@ -207,6 +214,11 @@ Both models get the same parameterization settings.  Both coarse grid
 lengths are below `ds_max`, and `tau` has little effect at this latitude.
 The checks and diagnostics are configured in
 `[mixed_layer_eddies_analysis]`.
+Its `flux_average_start_day = 6.0` and `flux_average_end_day = 10.0`
+set the inclusive flux averaging window. The resolved `eddies` segment
+runs from day 5 through day 10, followed by `extended` from day 10 to 15.
+Overturning checks still select days 5--7.
+Both coarse MLE settings write frequent output throughout days 0--15.
 
 Vertical mixing is constant background diffusivity and viscosity of
 10⁻⁵ m² s⁻¹ plus convective and shear mixing; KPP is off.  Bottom drag is
@@ -228,6 +240,14 @@ classes, as the residual minus the Eulerian-mean overturning, and is
 normalized by the scaling $C_e H^2 \overline{\partial_y b} / |f|$ with
 $C_e = 0.08$ and $H = H_m$.  The task fails if the normalized amplitude
 $|\Psi^+|$ at mid-mixed-layer is outside `psi_plus_min` to `psi_plus_max`.
+
+The resolved analysis also writes `combined_buoyancy_flux.png`,
+`combined_buoyancy_flux.csv` and `combined_buoyancy_flux_average.csv`, using
+the sampling and scaling described under
+[Combined buoyancy flux](#combined-buoyancy-flux). This figure contains
+only the resolved run's time-averaged point and the 1:1 reference line.
+Because the parameterization is off, the parameterized flux is exactly
+zero, even if an eddy-velocity field is present in the output.
 
 In Omega, the normalized overturning follows the FFH08 structure function
 $\mu(z)$ with $|\Psi^+| \approx 0.96$.  It reaches below 30 m on the
@@ -276,17 +296,98 @@ to within 5% in Omega and 1.3% in MPAS-Ocean (Omega):
 
 ## comparison
 
-The `ocean/planar/mixed_layer_eddies/comparison` task runs everything above
-and reports, in `restratification.csv`, the potential energy released from
-the end of the Rossby adjustment (`adjustment_days`) to the end of the run
+The `ocean/planar/mixed_layer_eddies/comparison` task runs all five
+simulations, but not the standalone resolved analysis or coarse
+verification steps. It reports, in `restratification.csv`, the potential
+energy released from
+the end of the Rossby adjustment (`adjustment_days`) to elapsed day 10
 by each coarse run, relative to the resolved run.  It plots potential
 energy, the mixed-layer buoyancy frequency in the frontal zone and the
-final surface salinity of every run. PE ratios and time series are
+surface salinity of every run at that same endpoint. Coarse simulations
+still run to day 15, but comparison diagnostics stop at the end of the
+resolved eddy segment (day 10 by default). PE ratios and time series are
 inspection diagnostics only, with no pass/fail check. They are not direct
 targets for tuning $C_e$: the implemented scheme has explicit resolution
 dependence, and coarse and resolved runs restratify on different schedules.
 
-With the parameterization on, the coarse runs restratify the mixed layer
+(combined-buoyancy-flux)=
+
+### Combined buoyancy flux
+
+The comparison also diagnoses the combined resolved and parameterized
+restratifying flux independently in all five simulations: resolved,
+8 km `on`/`off` and 16 km `on`/`off`. It writes
+`combined_buoyancy_flux.png`, snapshot values in
+`combined_buoyancy_flux.csv`, plotted averages in
+`combined_buoyancy_flux_average.csv`. Re-setup and rerun the affected forward
+steps to obtain the longer hourly output and required fields; existing
+files and completion markers are not refreshed automatically.
+
+For each hourly snapshot, it forms the along-front
+covariance $\langle w'b'\rangle_x$ separately on each native mesh row,
+then area-averages over the single band $75 < y < 125$ km. The
+mixed-layer depth $H$ is the area-weighted band mean of the model's
+density-threshold MLD (`DenMixLayerDepth` in Omega, `dThreshMLD` in
+MPAS-Ocean). Every forward run writes this field in daily output and,
+where enabled, hourly output, regardless of the MLE setting.
+Polaris does not diagnose MLD from the buoyancy profile.
+Fluxes are evaluated at $z=-H/2$, where the prescribed shape function is
+one, rather than at half the initial mixed-layer depth.
+
+The parameterized contribution is the vertical component of
+$\boldsymbol\Psi\times\nabla b$, reconstructed from the output eddy
+velocity and fixed-height buoyancy gradient. It is an equivalent
+adiabatic flux, not the numerical tracer flux. Resolved velocities exclude
+the parameterized transport. Omega's vertical pseudo-velocity is converted
+with the model's specific-volume scaling; ALE-total and eddy transport
+velocities are not used for the covariance.
+Omega writes `VerticalPseudoVelocity` in every daily and enabled
+hourly stream, regardless of the MLE setting.
+The parameterized contribution is included only for runs with the
+parameterization enabled. It is zero for the resolved run regardless of
+whether its output contains an eddy-velocity field; enabled runs must
+provide that field.
+
+Each simulation supplies one point, averaged over days 6--10:
+$X=|\langle C_e H^2\overline{b_y}^{\,z}/|f|\rangle_t|$ and
+$Y=|\langle(\overline{w'b'}+\overline{F^*_{b,z}})/\overline{b_y}
+\rangle_t|$.
+Here the denominator is evaluated at $-H/2$, and the gradient in $X$ is
+averaged over the mixed layer. The configured $C_e$ is used for all runs,
+including MLE `off`. Signed instantaneous ratios and scales are averaged
+using trapezoidal integration before taking magnitudes; this is not the
+ratio of separately averaged flux and gradient. Model timestamps select
+the samples. The analysis reports the number of output times within the
+window without checking output intervals or requiring exact endpoints.
+At least two timestamps are needed; integration is normalized by the
+elapsed time between the first and last selected samples, recorded in
+the average table.
+Nominal hourly output supplies 97 snapshots over 96 intervals, about 12 samples
+per inertial period at this latitude. These are not independent
+realizations; compare hourly and 3-hourly subsampling to assess temporal
+convergence. The sample table contains only the averaging window.
+Signed flux components remain in the sample table
+(m² s⁻³), with $H$ (m), gradients (s⁻²), signed scales and ratios
+(m² s⁻¹), and the legacy magnitude diagnostics. The average table records
+the window, sample count, signed means and plotted coordinates.
+
+The figure shows only these points and a 1:1 line, following Figure 1 of
+[Fox-Kemper and Ferrari (2008), Part II](https://doi.org/10.1175/2007JPO3788.1),
+but extending the ordinate to combined transport.
+Resolved is black, 8 km blue and 16 km orange. Filled circles show the
+resolved run and MLE `on` combined flux; filled diamonds show MLE `off`.
+Empty diamonds show the resolved-only contribution within each MLE `on`
+run, using that run's gradient and scaling. The average table includes
+this contribution as `resolved_y`.
+Both axes use logarithmic scales from the smallest `resolved_y` value to
+$10^0$ m² s⁻¹.
+No line is fitted to the combined buoyancy-flux data, and this comparison
+has no fit-based pass/fail check.
+Undefined mixed-layer depths, weak gradients and insufficient
+samples raise errors rather than silently dropping points.
+
+In the earlier 15-day comparison shown below, with the parameterization
+on, the coarse runs restratify the mixed layer
 within a few days, faster than the resolved run, and then release little
 more potential energy.  The resolved run keeps releasing it through day 15,
 so the ratio over 15 days is 0.2–0.5.  Over days 2–7 it is about 0.9 in

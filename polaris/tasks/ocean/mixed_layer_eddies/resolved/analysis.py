@@ -12,6 +12,10 @@ from polaris.tasks.ocean.mixed_layer_eddies.diagnostics import (
     get_frontal_cell_mask,
     get_frontal_lines,
 )
+from polaris.tasks.ocean.mixed_layer_eddies.flux import (
+    analyze_combined_flux,
+    get_snapshot_days,
+)
 from polaris.tasks.ocean.mixed_layer_eddies.viz import plot_surface_salinity
 from polaris.viz import mplstyle_context
 
@@ -19,7 +23,7 @@ from polaris.viz import mplstyle_context
 SURFACE_SALINITY_DAYS = (1, 5, 10, 15)
 
 # the segments of the resolved run, in order
-SEGMENTS = ('spinup', 'eddies', 'extended')
+SEGMENTS = ('spinup', 'eddies')
 
 
 class Analysis(OceanIOStep):
@@ -63,6 +67,9 @@ class Analysis(OceanIOStep):
         self.add_output_file(filename='surface_salinity.png')
         self.add_output_file(filename='eddy_overturning_profile.png')
         self.add_output_file(filename='eddy_overturning_section.png')
+        self.add_output_file(filename='combined_buoyancy_flux.png')
+        self.add_output_file(filename='combined_buoyancy_flux.csv')
+        self.add_output_file(filename='combined_buoyancy_flux_average.csv')
 
     def run(self):
         """
@@ -85,7 +92,16 @@ class Analysis(OceanIOStep):
 
         ds_mesh = self.open_model_dataset('mesh.nc')
         ds_out = self.open_model_dataset('eddy_output.nc')
+        forward = config['mixed_layer_eddies_forward']
+        start = forward.getfloat('spinup_duration')
+        end = start + forward.getfloat('eddy_window_duration')
+        days = get_snapshot_days(ds_out)
+        ds_out = ds_out.isel(
+            Time=np.flatnonzero((days > start) & (days <= end))
+        )
         ntimes = ds_out.sizes['Time']
+        if ntimes == 0:
+            raise ValueError('No snapshots in the eddy overturning window')
         logger.info(f'Diagnosing the eddy overturning from {ntimes} snapshots')
 
         lines = get_frontal_lines(ds_mesh, frontal_zone_fraction)
@@ -141,6 +157,11 @@ class Analysis(OceanIOStep):
         _plot_section(ds_psi, ml_depth)
         self._plot_surface_salinity(ds_mesh)
 
+        analyze_combined_flux(
+            self,
+            [('resolved', 'mesh.nc', 'eddy_output.nc', False)],
+        )
+
         if not psi_plus_min <= abs(psi_plus) <= psi_plus_max:
             raise ValueError(
                 f'|Psi+| = {abs(psi_plus):.3f} is outside the range '
@@ -176,6 +197,8 @@ class Analysis(OceanIOStep):
                 collection = plot_surface_salinity(
                     ax, ds_mesh, ds, f'day {day}', vmin, vmax
                 )
+            for ax in axes.ravel()[len(selected) :]:
+                ax.set_axis_off()
             assert collection is not None
             fig.colorbar(
                 collection,

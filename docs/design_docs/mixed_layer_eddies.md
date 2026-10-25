@@ -39,8 +39,9 @@ Success has three parts:
   (parameterization validation).
 
 The first two say whether the code and the test are correct, and each
-has a pass/fail check. The third is a longer-term scientific question,
-so it is reported but not checked (D13).
+has a pass/fail check. PE-based comparisons remain report-only (D13).
+The combined-flux comparison reports time-averaged scaling without line
+fitting or fit-based pass/fail checks (D16).
 
 ## Open questions
 
@@ -208,10 +209,13 @@ Contributors: Xylar Asay-Davis, Claude
 The 500 m mesh has 600 × 462 cells, about 277,000 in all, which is
 comparable to EC30to60. A 15-day run needs about 2 × 10⁴ time steps.
 The run has three segments, each continuing from the restart the one
-before writes: a spin-up to day 5, SM22's diagnosis window over days
-5–7 and an extension to day 15. All write daily snapshots of the full
-state; the window also writes 3-hourly snapshots of `normalVelocity`,
-layer thickness and salinity.
+before writes: a spin-up to day 5, an eddy-output segment over days
+5–10 and an extension from day 10 to day 15. All write daily snapshots
+of the full state; the eddy and extended segments also write hourly
+snapshots. Spinup writes daily restarts.
+SM22's overturning diagnosis still selects days 5–7.
+The extension shall be opt-in in both resolved and comparison tasks.
+Default analyses shall consume only spinup and eddy-segment output.
 
 ### Algorithm Design: Coarse runs with the parameterization off and on
 
@@ -369,10 +373,41 @@ $PE = \int \rho g z \, dV / A$, and the mixed-layer mean N² in the
 frontal zone. These are among the measures in Omega's design (§5).
 Rossby adjustment releases potential energy in every run, so the
 comparison uses the release after it,
-$\Delta PE = PE(\text{day } 2) - PE(\text{day } 15)$, relative to the
+$\Delta PE = PE(\text{day } 2) - PE(\text{day } 10)$, relative to the
 resolved run. The ratios are written to a table and plotted, with no
 thresholds (D13). Retain these reports and time series for inspection,
 not for tuning C_e (D15).
+Use the resolved eddy segment's endpoint for every run's comparison
+time series and final surface snapshot. Do not require the optional
+extended segment or include it when it happens to exist.
+
+### Algorithm Design: Time-averaged combined flux is compared with its scale
+
+The comparison shall plot one time-averaged point for each of the five
+simulations against a 1:1 line.
+Use the single central frontal band, and form along-front covariance on
+native rows before averaging across the band. Sample hourly at half the
+diagnosed mixed-layer depth. Average signed quantities over days 6--10
+using trapezoidal integration, then take magnitudes.
+Use the area-weighted frontal-band mean of the model's density-threshold
+mixed-layer depth. Write this field in every daily and frequent forward
+output stream, whether the parameterization is on or off.
+
+The abscissa is $|\langle C_e H^2\overline{b_y}^{\,z}/|f|\rangle_t|$.
+The ordinate is the magnitude of the time-averaged ratio of combined
+flux to mean gradient at half depth.
+Recover the parameterized skew flux from the output eddy velocity, not
+from the formula being verified. Use resolved vertical velocity for the
+covariance, excluding ALE-total and parameterized transport velocities.
+Do not fit a line or apply fit-based thresholds to the combined flux (D16).
+MLE `off` runs contribute no parameterized flux.
+Extend the resolved eddy-output segment through day 10 and restart the
+extended segment there. Keep the overturning diagnostic on days 5--7.
+
+> **Rationale.** This adapts Figure 1 of Fox-Kemper and Ferrari (2008),
+> Part II, to the combined transport and five individual simulations.
+> Temporal averaging reduces snapshot variability; these points are not
+> independent samples from the paper's multi-simulation ensemble.
 
 ## Implementation
 
@@ -436,7 +471,10 @@ segment: `full` for the coarse runs, and `spinup`, `eddies` and
 because MPAS-Ocean streams cannot limit output to a time window and
 Polaris builds a task's steps before it knows the model. Restarts go to
 a shared `restarts` directory, and each segment's restart alarm is
-anchored at its start time. The 3-hourly output is about 12 GB.
+anchored at its start time, with daily restarts during spinup and a
+restart at the end of the eddy segment. Hourly output over days 5--10
+increases storage compared with the earlier implementation, which wrote
+3-hourly output over days 5--7.
 
 ### Implementation: Coarse runs with the parameterization off and on
 
@@ -716,6 +754,7 @@ setting was dropped and `on` means E3SM's coupled defaults.
 
 The PE ratios and time series do not fail a task. The original decision
 treated PE release as a tuning target; D15 supersedes that interpretation.
+The combined-flux comparison is also report-only (D16).
 
 ### D14: 15-day runs
 
@@ -730,3 +769,9 @@ The implemented closure has explicit resolution dependence. Resolved
 eddies and parameterized transport also develop on different schedules.
 Retain PE release, PE time series and stratification plots for inspection;
 do not infer a tuned C_e from PE ratios.
+
+### D16: Combined buoyancy flux is compared without line fitting
+
+Use time-averaged points and a fixed 1:1 reference line, with the configured
+C_e. Remove the earlier provisional within-simulation slope fits and
+their normalized-RMSE thresholds.

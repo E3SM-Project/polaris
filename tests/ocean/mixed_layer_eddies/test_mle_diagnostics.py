@@ -4,6 +4,7 @@ import xarray as xr
 from mpas_tools.planar_hex import make_planar_hex_mesh
 
 from polaris.config import PolarisConfigParser
+from polaris.mesh.reconstruct import build_reconstruction_weights
 from polaris.mesh.vector import compute_edge_normal_vec
 from polaris.tasks.ocean.mixed_layer_eddies.diagnostics import (
     Gravity,
@@ -20,6 +21,7 @@ from polaris.tasks.ocean.mixed_layer_eddies.diagnostics import (
     get_frontal_cell_mask,
     get_frontal_lines,
 )
+from polaris.tasks.ocean.mixed_layer_eddies.flux import compute_combined_flux
 
 DC = 1000.0
 CORIOLIS = 1.4e-4
@@ -69,6 +71,105 @@ def test_mu_vanishes_at_the_surface_and_below_the_mixed_layer():
     z = np.array([0.0, -15.0, -30.0, -45.0])
     mu = compute_mu(z, ml_depth)
     np.testing.assert_allclose(mu, [0.0, 1.0, 0.0, 0.0], atol=1e-12)
+
+
+def test_combined_flux_separates_covariance_and_parameterized_transport(
+    config, ds_mesh
+):
+    """Mean vertical flow is excluded; only the eddy contribution scales."""
+    ds = xr.Dataset()
+    ds['layerThickness'] = _uniform_thickness(ds_mesh)
+    ds['ssh'] = xr.zeros_like(ds_mesh.xCell)
+    ds['dThreshMLD'] = 24.0 + 1.0e-4 * ds_mesh.yCell
+    depth = (np.arange(NLEVELS) + 0.5) * THICKNESS
+    phase = 2.0 * np.pi * ds_mesh.xCell / ds_mesh.attrs['x_period']
+    perturbation = np.sin(phase)
+    b_vertical = xr.DataArray(
+        -1.0e-7 * depth - (1.0e-4 - 1.0e-7) * np.maximum(depth - 30.0, 0.0),
+        dims='nVertLevels',
+    )
+    buoyancy = (
+        b_vertical + 1.0e-7 * ds_mesh.yCell + 1.0e-4 * perturbation
+    ).transpose('nCells', 'nVertLevels')
+    ds['salinity'] = _density_to_salinity(
+        config, RhoSw * (1.0 - buoyancy / Gravity)
+    )
+    ds['temperature'] = xr.zeros_like(ds.salinity)
+    ds['vertVelocityTop'] = (3.0 + 2.0 * perturbation).expand_dims(
+        nVertLevelsP1=NLEVELS + 1, axis=1
+    )
+    cells = ds_mesh.cellsOnEdge.values - 1
+    grad_b = (
+        buoyancy.values[cells[:, 1], 0] - buoyancy.values[cells[:, 0], 0]
+    ) / ds_mesh.dcEdge.values
+    z = -np.arange(NLEVELS + 1) * THICKNESS
+    psi = -1.0e6 * grad_b[:, None] * compute_mu(z, 30.0)
+    ds['normalMLEvelocity'] = (
+        ('nEdges', 'nVertLevels'),
+        np.diff(psi, axis=1) / THICKNESS,
+    )
+    stencil, weights = build_reconstruction_weights(ds_mesh, 'cell')
+    first = compute_combined_flux(
+        config, ds_mesh, ds, stencil, weights, mle_enabled=True
+    )
+    np.testing.assert_allclose(first['resolved_flux'], 1.0e-4, rtol=1.0e-8)
+    assert first['parameterized_flux'] > 0.0
+    mask = get_frontal_cell_mask(ds_mesh, 0.125)
+    expected_depth = float(
+        ds.dThreshMLD.where(mask).weighted(ds_mesh.areaCell).mean()
+    )
+    assert first['mixed_layer_depth'] == pytest.approx(expected_depth)
+    ds['normalMLEvelocity'] *= 2.0
+    ds['vertVelocityTop'] = ds['vertVelocityTop'] + 10.0
+    second = compute_combined_flux(
+        config, ds_mesh, ds, stencil, weights, mle_enabled=True
+    )
+    np.testing.assert_allclose(
+        second['resolved_flux'], first['resolved_flux'], rtol=1.0e-10
+    )
+    np.testing.assert_allclose(
+        second['parameterized_flux'], 2.0 * first['parameterized_flux']
+    )
+    np.testing.assert_allclose(
+        second['combined_flux'],
+        first['resolved_flux'] + 2.0 * first['parameterized_flux'],
+    )
+    disabled = compute_combined_flux(
+        config, ds_mesh, ds, stencil, weights, mle_enabled=False
+    )
+    assert disabled['parameterized_flux'] == 0.0
+    assert disabled['combined_flux'] == disabled['resolved_flux']
+    np.testing.assert_allclose(
+        disabled['resolved_flux'], first['resolved_flux'], rtol=1.0e-10
+    )
+    without_eddy_velocity = ds.drop_vars('normalMLEvelocity')
+    absent = compute_combined_flux(
+        config,
+        ds_mesh,
+        without_eddy_velocity,
+        stencil,
+        weights,
+        mle_enabled=False,
+    )
+    assert absent == disabled
+    with pytest.raises(ValueError, match='requires normalMLEvelocity'):
+        compute_combined_flux(
+            config,
+            ds_mesh,
+            without_eddy_velocity,
+            stencil,
+            weights,
+            mle_enabled=True,
+        )
+    with pytest.raises(ValueError, match='requires model mixed-layer depth'):
+        compute_combined_flux(
+            config,
+            ds_mesh,
+            ds.drop_vars('dThreshMLD'),
+            stencil,
+            weights,
+            mle_enabled=False,
+        )
 
 
 def test_fit_recovers_the_amplitude_of_mu():

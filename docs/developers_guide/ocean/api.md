@@ -524,6 +524,9 @@
    diagnostics.compute_line_interface_depths
    diagnostics.compute_eddy_overturning
    diagnostics.fit_mu_amplitude
+   flux.analyze_combined_flux
+   flux.get_snapshot_days
+   flux.compute_combined_flux
    diagnostics.compute_fk11_stream_function
    diagnostics.compute_model_stream_function
    diagnostics.get_consistent_edges

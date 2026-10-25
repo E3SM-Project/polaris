@@ -32,7 +32,11 @@ class Comparison(Task):
         """
         super().__init__(component=component, name='comparison', indir=indir)
         for name, step in resolved_steps.items():
-            self.add_step(step, symlink=f'resolved/{name}')
+            self.add_step(
+                step,
+                symlink=f'resolved/{name}',
+                run_by_default=name != 'extended',
+            )
         for resdir, steps in coarse_steps.items():
             for name, step in steps.items():
                 self.add_step(step, symlink=f'{resdir}/{name}')

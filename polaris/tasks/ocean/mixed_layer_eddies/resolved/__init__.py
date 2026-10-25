@@ -27,7 +27,9 @@ class Resolved(Task):
         """
         super().__init__(component=component, name='resolved', indir=indir)
         for name, step in resolved_steps.items():
-            self.add_step(step, symlink=name)
+            self.add_step(
+                step, symlink=name, run_by_default=name != 'extended'
+            )
         self.add_step(
             Analysis(
                 component=component,
