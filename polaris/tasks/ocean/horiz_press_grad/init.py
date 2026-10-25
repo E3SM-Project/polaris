@@ -15,10 +15,19 @@ from polaris.resolution import resolution_to_string
 from polaris.tasks.ocean.horiz_press_grad.column import (
     get_array_from_mid_grad,
     get_pchip_layer_mean,
+    get_polynomial_layer_mean,
 )
 from polaris.tasks.ocean.horiz_press_grad.finite_volume import (
     finite_volume_hpga,
 )
+
+# How the temperature and salinity profiles pass through their nodes: PCHIP,
+# or the single polynomial through all of them, which is what puts a resting
+# state in the parabolic reconstruction's exact set.
+_LAYER_MEAN = {
+    'pchip': get_pchip_layer_mean,
+    'polynomial': get_polynomial_layer_mean,
+}
 
 
 class Init(PStarInitStep, OceanIOStep):
@@ -641,6 +650,15 @@ class Init(PStarInitStep, OceanIOStep):
         but does affect the residual measured off it.
         """
         z_tilde_node, t_node, s_node = self._get_z_tilde_t_s_nodes(x)
+        interpolation = self.config.get(
+            'horiz_press_grad', 'profile_interpolation'
+        )
+        if interpolation not in _LAYER_MEAN:
+            raise ValueError(
+                f'Unknown profile_interpolation {interpolation!r}; expected '
+                f'one of {sorted(_LAYER_MEAN)}.'
+            )
+        get_layer_mean = _LAYER_MEAN[interpolation]
 
         ncells = ds.sizes['nCells']
         nvertlevels = ds.sizes['nVertLevels']
@@ -682,12 +700,12 @@ class Init(PStarInitStep, OceanIOStep):
                     'define piecewise linear initial conditions.'
                 )
 
-            t_mean = get_pchip_layer_mean(
+            t_mean = get_layer_mean(
                 z_tilde_nodes=z_tilde,
                 values_nodes=temperatures,
                 name='temperature',
             )
-            s_mean = get_pchip_layer_mean(
+            s_mean = get_layer_mean(
                 z_tilde_nodes=z_tilde,
                 values_nodes=salinities,
                 name='salinity',

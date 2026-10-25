@@ -104,6 +104,16 @@ class ReferenceColumn:
             geom_ssh_grad = -p_surf_depression_grad
         self._eta_prime = (geom_ssh_grad / 1000.0) * x_sign
 
+        # The quasi-analytic reference integrates the PCHIP profile.  The
+        # polynomial profiles exist for resting states, which need no
+        # reference, so a gradient variant asking for one is a mistake.
+        interpolation = section.get('profile_interpolation')
+        if interpolation != 'pchip':
+            raise ValueError(
+                'The quasi-analytic reference supports only pchip profiles; '
+                f'got profile_interpolation = {interpolation}.'
+            )
+
         # Evaluate node arrays at x = 0, +eps, -eps in km (config x direction)
         x_eval = np.array([0.0, eps_km, -eps_km])
         z_tilde_nodes = get_array_from_mid_grad(config, 'z_tilde', x_eval)

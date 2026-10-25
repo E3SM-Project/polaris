@@ -14,11 +14,15 @@ The task family includes four such variants:
 - `surface_pressure_gradient`
 
 {py:class}`polaris.tasks.ocean.horiz_press_grad.resting_state_task.HorizPressGradRestingStateTask`
-provides two further variants that are exact resting states, in which the true
+provides further variants that are exact resting states, in which the true
 HPGA is identically zero and no reference solution is used:
 
 - `hydrostatic_consistency`
+- `hydrostatic_consistency_linear`
+- `hydrostatic_consistency_quadratic`
 - `bathymetry_step`
+- `bathymetry_step_linear`
+- `bathymetry_step_quadratic`
 
 ## framework
 
@@ -228,8 +232,10 @@ The class implements the two extension points required by `PStarInitStep`:
 
 - `init_tracers()` reconstructs conservative temperature and absolute salinity
   at p-star layer midpoints by calling the private helper `_interpolate_t_s()`,
-  which applies a PCHIP interpolator to the piecewise pseudo-height profiles
-  defined in the configuration.
+  which averages the pseudo-height profiles defined in the configuration over
+  each layer: the PCHIP interpolant through the nodes, or with
+  `profile_interpolation = polynomial` the single polynomial through them
+  ({py:func}`~polaris.tasks.ocean.horiz_press_grad.column.get_polynomial_layer_mean`).
 - `_build_pstar_coord_ds()` overrides the base-class default to call
   {py:func}`~polaris.ocean.vertical.pstar.init_pstar_vertical_coord()` per
   column, allowing each column to have a different reference pseudo-depth set
@@ -445,6 +451,8 @@ each sweep:
 | `hydrostatic_consistency_linear` | 29.4x | 4 km, 64 m, tilt 0.1 | 15 |
 | `bathymetry_step` | 1170x | 4 km, 256 m, grad 200 | 500 |
 | `bathymetry_step_linear` | 58828x | 4 km, 256 m, grad 200 | 20000 |
+| `hydrostatic_consistency_quadratic` | 7.71x | 4 km, 64 m, tilt 0.1 | 4.0 |
+| `bathymetry_step_quadratic` | 15.4x | 4 km, 256 m, grad 100 | 8.0 |
 
 The ordering is the result, not an accident of the sweeps: the advantage is
 smallest where the profile is curved and only the coordinate tilts, and largest

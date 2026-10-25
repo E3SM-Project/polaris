@@ -202,6 +202,91 @@ def get_pchip_layer_mean(
     return _layer_mean
 
 
+def get_polynomial_layer_mean(
+    z_tilde_nodes: np.ndarray,
+    values_nodes: np.ndarray,
+    name: str,
+) -> Callable[[np.ndarray, np.ndarray], np.ndarray]:
+    """
+    Create a function giving the exact layer mean of the polynomial through a
+    profile's nodes, over a layer's pseudo-height range.
+
+    The polynomial has one degree fewer than there are nodes, so three nodes
+    give a profile exactly quadratic in pseudo-height, and hence in pressure:
+    the exact set of the parabolic reconstruction, which no PCHIP profile
+    reaches, PCHIP through three nodes being two cubic pieces rather than one
+    quadratic.  At most four nodes are accepted, so that the polynomial is at
+    most cubic and a two-point Gauss rule over each layer is exact, for the
+    reason :py:func:`get_pchip_layer_mean` gives for preferring it to an
+    antiderivative.
+
+    Parameters
+    ----------
+    z_tilde_nodes : np.ndarray
+        One-dimensional z-tilde node locations. Must be strictly monotonic
+        (increasing or decreasing).
+    values_nodes : np.ndarray
+        One-dimensional values at ``z_tilde_nodes``.
+    name : str
+        A descriptive name used in error messages.
+
+    Returns
+    -------
+    layer_mean : callable
+        A function of ``(z_tilde_top, z_tilde_bot)`` returning the layer
+        means, with the same restriction to the node range as
+        :py:func:`get_pchip_layer_mean`.
+    """
+    z_tilde_nodes, values_nodes = _check_pchip_nodes(
+        z_tilde_nodes, values_nodes, name
+    )
+    if len(z_tilde_nodes) > 4:
+        raise ValueError(
+            f'At most four nodes are supported for a polynomial {name} '
+            f'profile; got {len(z_tilde_nodes)}.'
+        )
+
+    depth_nodes = -z_tilde_nodes
+    polynomial = np.polynomial.Polynomial.fit(
+        depth_nodes, values_nodes, deg=len(depth_nodes) - 1
+    )
+    depth_min = float(np.min(depth_nodes))
+    depth_max = float(np.max(depth_nodes))
+    depth_tol = 1.0e-9 * (depth_max - depth_min)
+
+    def _layer_mean(
+        z_tilde_top: np.ndarray, z_tilde_bot: np.ndarray
+    ) -> np.ndarray:
+        depth_top = -np.asarray(z_tilde_top, dtype=float)
+        depth_bot = -np.asarray(z_tilde_bot, dtype=float)
+        if depth_top.shape != depth_bot.shape:
+            raise ValueError(
+                'z_tilde_top and z_tilde_bot must have the same shape.'
+            )
+        if np.any(~np.isfinite(depth_top)) or np.any(~np.isfinite(depth_bot)):
+            raise ValueError('Layer interface z_tilde values must be finite.')
+        if np.any(depth_bot <= depth_top):
+            raise ValueError(
+                f'Each layer must have positive thickness for {name}: '
+                'z_tilde_bot must lie below z_tilde_top.'
+            )
+        if np.any(depth_top < depth_min - depth_tol) or np.any(
+            depth_bot > depth_max + depth_tol
+        ):
+            raise ValueError(
+                f'Layers for {name} must fall within the node range; '
+                'extrapolation is not supported.'
+            )
+
+        middle = 0.5 * (depth_top + depth_bot)
+        offset = 0.5 * (depth_bot - depth_top) * _GAUSS_OFFSET
+        return 0.5 * (
+            polynomial(middle - offset) + polynomial(middle + offset)
+        )
+
+    return _layer_mean
+
+
 def get_pchip_interpolator(
     z_tilde_nodes: np.ndarray,
     values_nodes: np.ndarray,
@@ -270,8 +355,9 @@ def _check_pchip_nodes(
     name: str,
 ) -> tuple[np.ndarray, np.ndarray]:
     """
-    Validate a set of profile nodes shared by :py:func:`get_pchip_interpolator`
-    and :py:func:`get_pchip_layer_mean`, returning them as float arrays.
+    Validate a set of profile nodes shared by
+    :py:func:`get_pchip_interpolator`, :py:func:`get_pchip_layer_mean` and
+    :py:func:`get_polynomial_layer_mean`, returning them as float arrays.
     """
     z_tilde_nodes = np.asarray(z_tilde_nodes, dtype=float)
     values_nodes = np.asarray(values_nodes, dtype=float)
