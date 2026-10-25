@@ -60,9 +60,9 @@ mpas-ocean:
       - ssh
       - zMid
       - density
+      - dThreshMLD
 {%- if mle %}
       - normalMLEvelocity
-      - dThreshMLD
       - indMLD
       - BruntVaisalaFreqTop
 {%- endif %}
@@ -77,6 +77,13 @@ mpas-ocean:
       - xtime
       - normalVelocity
       - layerThickness
+      - vertVelocityTop
+      - ssh
+      - zMid
+      - dThreshMLD
+{%- if mle %}
+      - normalMLEvelocity
+{%- endif %}
 {%- endif %}
 
 Omega:
@@ -154,9 +161,10 @@ Omega:
       - SpecVol
       - GeomZMid
       - SshCell
+      - VerticalPseudoVelocity
+      - DenMixLayerDepth
 {%- if mle %}
       - EddyVelocity
-      - DenMixLayerDepth
       - BruntVaisalaFreqSq
 {%- endif %}
 {%- if eddy_output %}
@@ -174,4 +182,12 @@ Omega:
       Contents:
       - State
       - Salinity
+      - SpecVol
+      - GeomZMid
+      - SshCell
+      - VerticalPseudoVelocity
+      - DenMixLayerDepth
+{%- if mle %}
+      - EddyVelocity
+{%- endif %}
 {%- endif %}

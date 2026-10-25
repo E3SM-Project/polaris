@@ -1,5 +1,7 @@
 import os
 
+import numpy as np
+
 from polaris.mesh.planar import compute_planar_hex_nx_ny
 from polaris.ocean.model import OceanModelStep, get_time_interval_string
 
@@ -104,7 +106,7 @@ class Forward(OceanModelStep):
         self.add_init_input_file(work_dir_target=f'{init.path}/init.nc')
 
         self.add_output_file(filename='output.nc', validate_class='state')
-        if segment == 'eddies':
+        if segment in ('eddies', 'extended', 'full'):
             self.add_output_file(filename='eddy_output.nc')
 
     def setup(self):
@@ -164,6 +166,31 @@ class Forward(OceanModelStep):
         run_duration = section.getfloat('run_duration')
         spinup_duration = section.getfloat('spinup_duration')
         window_end = spinup_duration + section.getfloat('eddy_window_duration')
+        analysis = config['mixed_layer_eddies_analysis']
+        average_start = analysis.getfloat('flux_average_start_day')
+        average_end = analysis.getfloat('flux_average_end_day')
+        if not (
+            np.isfinite(
+                [
+                    spinup_duration,
+                    window_end,
+                    average_start,
+                    average_end,
+                    run_duration,
+                ]
+            ).all()
+            and 0.0
+            <= spinup_duration
+            < average_start
+            < average_end
+            <= run_duration
+            and spinup_duration < window_end <= run_duration
+        ):
+            raise ValueError(
+                'Flux averaging and eddy diagnosis windows must lie '
+                'after spinup and within the run duration'
+            )
+        window_end = max(window_end, average_end)
         segment_bounds = dict(
             full=(0.0, run_duration),
             spinup=(0.0, spinup_duration),
@@ -173,6 +200,7 @@ class Forward(OceanModelStep):
         start_day, end_day = segment_bounds[self.segment]
         run_days = end_day - start_day
         write_restart = self.segment in ('spinup', 'eddies')
+        restart_days = 1.0 if self.segment == 'spinup' else run_days
         do_restart = self.segment in ('eddies', 'extended')
 
         dt = section.getfloat('dt_per_km') * resolution
@@ -217,14 +245,14 @@ class Forward(OceanModelStep):
             init_freq='never' if do_restart else 'OnStartup',
             restart_filename=restart_filename,
             restart_interval=(
-                get_time_interval_string(days=run_days)
+                get_time_interval_string(days=restart_days)
                 if write_restart
                 else 'none'
             ),
-            restart_freq=f'{int(run_days)}',
+            restart_freq=f'{int(restart_days)}',
             restart_freq_units='days' if write_restart else 'never',
             mle=self.mle != 'off',
-            eddy_output=self.segment == 'eddies',
+            eddy_output=(self.segment in ('eddies', 'extended', 'full')),
             eddy_output_interval=get_time_interval_string(
                 seconds=3600.0 * eddy_interval_hours
             ),
