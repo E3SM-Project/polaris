@@ -1,4 +1,5 @@
 import logging
+from types import SimpleNamespace
 
 import numpy as np
 import pytest
@@ -13,6 +14,7 @@ from polaris.landice.model import MaliModelStep
 from polaris.tasks.landice import Landice
 from polaris.tasks.landice.add_tasks import add_landice_tasks
 from polaris.tasks.landice.dome.init import _add_dome_initial_condition
+from polaris.tasks.landice.dome.validate import EXACT_NORMS, FO_NORMS
 
 TASKS = [
     f'dome/2km/{solver}/{task}'
@@ -55,6 +57,23 @@ def test_dome_restart_reads_full_run_restart():
     assert inputs['rst.0001.nc']['work_dir_target'] == (
         f'{full.path}/rst.0001.nc'
     )
+
+
+@pytest.mark.parametrize('solver', ['sia', 'fo'])
+@pytest.mark.parametrize('gpus_per_node', [None, 0, 4])
+def test_dome_restart_norms_on_gpus(solver, gpus_per_node):
+    component = Landice()
+    add_landice_tasks(component)
+    if gpus_per_node is not None:
+        component.parallel_system = SimpleNamespace(
+            gpus_per_node=gpus_per_node
+        )
+
+    validate = component.tasks[f'dome/2km/{solver}/restart'].steps['validate']
+
+    # only the first-order solver on GPUs is not bit-for-bit
+    expected = FO_NORMS if solver == 'fo' and gpus_per_node else EXACT_NORMS
+    assert validate._get_norms() is expected
 
 
 def test_make_mali_mesh(tmp_path, monkeypatch):

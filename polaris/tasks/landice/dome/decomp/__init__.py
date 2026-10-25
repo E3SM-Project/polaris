@@ -1,15 +1,10 @@
 from polaris import Task
 from polaris.tasks.landice.dome.forward import Forward
-from polaris.tasks.landice.dome.validate import EXACT_NORMS, Validate
-
-# results with the first-order solver differ slightly between decompositions,
-# so these are the norms Compass allows
-FO_NORMS = {
-    'thickness': dict(l1_norm=1.0e-9, l2_norm=1.0e-11, linf_norm=1.0e-11),
-    'normalVelocity': dict(
-        l1_norm=1.0e-15, l2_norm=1.0e-16, linf_norm=1.0e-18
-    ),
-}
+from polaris.tasks.landice.dome.validate import (
+    EXACT_NORMS,
+    FO_NORMS,
+    Validate,
+)
 
 
 class Decomp(Task):
