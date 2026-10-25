@@ -94,8 +94,12 @@ def pre_spack(ctx: DeployContext) -> dict[str, Any] | None:
     if with_albany:
         _check_albany_supported(ctx.machine, _get_toolchain_pairs(ctx))
         # Albany gets its own library environments, so environments without
-        # it are not modified
+        # it are not modified.  It also gets its own software environment,
+        # since --deploy-spack recreates the software environment, too.
         updates['spack']['env_name_prefix'] = 'spack_env_albany'
+        updates['spack']['software'] = {
+            'env_name': f'{ctx.software}_albany_software'
+        }
         # the system cmake is too old for Trilinos on some machines
         exclude_packages = _get_exclude_packages(ctx.config)
         if 'cmake' not in exclude_packages:
