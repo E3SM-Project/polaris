@@ -433,8 +433,8 @@ each sweep:
 
 | variant | worst ratio | at | gate |
 | --- | --- | --- | --- |
-| `hydrostatic_consistency` | 2.58x | 4 km, 128 m, tilt 50 | 1.5 |
-| `hydrostatic_consistency_linear` | 7.71x | 4 km, 64 m, tilt 50 | 4.0 |
+| `hydrostatic_consistency` | 2.68x | 4 km, 128 m, tilt 50 | 1.5 |
+| `hydrostatic_consistency_linear` | 29.4x | 4 km, 64 m, tilt 0.1 | 15 |
 | `bathymetry_step` | 1170x | 4 km, 256 m, grad 200 | 500 |
 | `bathymetry_step_linear` | 58828x | 4 km, 256 m, grad 200 | 20000 |
 
