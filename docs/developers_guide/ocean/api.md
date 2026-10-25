@@ -359,6 +359,7 @@
    finite_volume.finite_volume_hpga
 
    reconstruction.linear_slope
+   reconstruction.ppm_coefficients
    reconstruction.layer_deviation
    reconstruction.reconstruct
 
