@@ -72,9 +72,10 @@ built with Trilinos in a Polaris Spack library environment deployed with
 ```
 
 Albany has its own library environments, named
-`spack_env_albany_<compiler>_<mpi>`, so environments without it are not
-modified.  Add `--deploy-spack` to build the environment rather than load an
-existing one.  `deploy/albany_supported.txt` lists the machines, compilers
+`spack_env_albany_<compiler>_<mpi>`, and its own software environment,
+`polaris_albany_software`, so environments without it are not modified.
+Add `--deploy-spack` to build these environments rather than load existing
+ones.  `deploy/albany_supported.txt` lists the machines, compilers
 and MPI libraries that support Albany, and `deploy/pins.cfg` pins Albany and
 Trilinos.  A machine can override the Albany and Trilinos variants with
 `albany_variants` and `trilinos_variants` in the `[deploy]` section of its
