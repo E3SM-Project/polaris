@@ -146,7 +146,7 @@ You can trigger these builders directly from the CLI by passing build flags to
   `VAR=VALUE` assignments). For Omega, it is forwarded to CMake as additional
   `-D...` definitions.
 - `--debug`: Enable debug builds (`CMAKE_BUILD_TYPE=Debug` for Omega; adds
-  `debug=TRUE` to MPAS-Ocean make flags).
+  `DEBUG=true` to MPAS-Ocean make flags).
 
 Defaults and directories:
 

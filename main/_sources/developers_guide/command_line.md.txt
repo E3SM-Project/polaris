@@ -240,7 +240,7 @@ The following flags give additional control over this behavior:
    variable assignments); for Omega, it is passed through to CMake as additional
    `-D` definitions.
 - `--debug`: Build in debug mode (Omega sets `CMAKE_BUILD_TYPE=Debug`; MPAS-
-   Ocean adds `debug=TRUE` to make flags).
+   Ocean adds `DEBUG=true` to make flags).
 
 Defaults and paths:
 
