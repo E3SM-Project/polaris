@@ -39,13 +39,23 @@ fi
 {# record this build's configuration before making it, in case it fails #}
 echo "${polaris_build_config}" > "${polaris_build_record}"
 
+{# where netCDF and PnetCDF come from the Spack library view rather than
+   modules (e.g. on Katara), nothing puts the view on the library path, so
+   MALI gets an rpath to it #}
+polaris_view_rpath=""
+if [ -n "${MACHE_DEPLOY_SPACK_LIBRARY_VIEW:-}" ]; then
+    polaris_view_rpath="-Wl,-rpath,${MACHE_DEPLOY_SPACK_LIBRARY_VIEW}/lib"
+fi
+
 {%- if albany %}
 {# deploy/load.sh sets POLARIS_ALBANY_LINK_LIBS from Albany's Spack package #}
 make {{ make_flags }} ALBANY=true \
-    MPAS_EXTERNAL_LIBS="${MPAS_EXTERNAL_LIBS:-} ${POLARIS_ALBANY_LINK_LIBS}" \
+    MPAS_EXTERNAL_LIBS="${MPAS_EXTERNAL_LIBS:-} ${polaris_view_rpath} ${POLARIS_ALBANY_LINK_LIBS}" \
     {{ make_target }}
 {%- else %}
-make {{ make_flags }} {{ make_target }}
+make {{ make_flags }} \
+    MPAS_EXTERNAL_LIBS="${MPAS_EXTERNAL_LIBS:-} ${polaris_view_rpath}" \
+    {{ make_target }}
 {%- endif %}
 
 mkdir -p {{ build_dir }}/default_inputs
