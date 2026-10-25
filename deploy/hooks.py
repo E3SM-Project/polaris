@@ -103,6 +103,13 @@ def pre_spack(ctx: DeployContext) -> dict[str, Any] | None:
         updates['spack']['exclude_packages'] = exclude_packages
         # the spack specs template can only see the pins
         ctx.pins['spack']['albany_enabled'] = 'true'
+        # some machines need other variants, e.g. to build for GPUs
+        for option in ('albany_variants', 'trilinos_variants'):
+            ctx.pins['spack'][option] = _get_machine_override(
+                ctx.machine_config,
+                option=option,
+                fallback=ctx.pins['spack'].get(option, ''),
+            )
 
     return updates
 
@@ -256,6 +263,16 @@ def _check_albany_supported(machine, toolchain_pairs):
                 f'Albany is not supported for {compiler} and {mpi} on '
                 f'{machine}.  See deploy/albany_supported.txt.'
             )
+
+
+def _get_machine_override(machine_config, option, fallback):
+    """
+    Get an option from the machine config's deploy section, or the fallback
+    if the machine does not override it
+    """
+    if machine_config is None or not machine_config.has_section('deploy'):
+        return fallback
+    return machine_config.get('deploy', option, fallback=fallback).strip()
 
 
 def _get_exclude_packages(config):

@@ -1,3 +1,6 @@
 # a list of supported machine, compiler and mpi combinations for Albany
 
 chrysalis, gnu, openmpi
+katara, gnu, openmpi
+pm-cpu, gnu, mpich
+pm-gpu, gnugpu, mpich
