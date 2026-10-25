@@ -90,6 +90,15 @@ into a different one.  `column_scan()` then accumulates the fixed-pressure
 height difference along the column from `anchor_difference()`, and
 `finite_volume_hpga()` forms the layer mean and the tendency.
 
+`matched_pressure_pieces()` and `finite_volume_hpga()` take a
+`vertical_reconstruction`, `'linear'` or `'ppm'`, matching Omega's
+`VerticalReconstruction`.  Every place the kernel needs a column's
+temperature or salinity -- the integrand, the anchor's two short integrals
+and the anchor's carry-down -- goes through the one helper `_column_state()`,
+so the three cannot describe different water, which design §4.5.2 requires.
+With `'linear'` the results are bit-for-bit those of the kernel before the
+parabolic reconstruction existed.
+
 **The scan anchors at the sea floor**, per design §3.7.4, at the deepest
 interface valid in both columns.  This is not a conditioning preference:
 `VertCoord` builds geometric height upward from a prescribed bathymetry by
