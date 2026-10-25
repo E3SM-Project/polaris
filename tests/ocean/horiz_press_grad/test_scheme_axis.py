@@ -19,7 +19,11 @@ import yaml
 from jinja2 import Template
 
 from polaris.component import Component
-from polaris.tasks.ocean.horiz_press_grad.forward import SCHEME_HPGA, SCHEMES
+from polaris.tasks.ocean.horiz_press_grad.forward import (
+    SCHEME_HPGA,
+    SCHEME_VERTICAL_RECONSTRUCTION,
+    SCHEMES,
+)
 from polaris.tasks.ocean.horiz_press_grad.metrics import rms
 from polaris.tasks.ocean.horiz_press_grad.resting_state_task import (
     HorizPressGradRestingStateTask,
@@ -60,10 +64,15 @@ def test_schemes_and_their_polaris_fields_line_up():
     disagreement.
     """
     assert set(SCHEMES) == set(SCHEME_HPGA)
+    assert set(SCHEMES) == set(SCHEME_VERTICAL_RECONSTRUCTION)
     assert SCHEMES['centered'] == 'Centered'
     assert SCHEMES['finite_volume'] == 'FiniteVolume'
+    assert SCHEMES['finite_volume_ppm'] == 'FiniteVolume'
+    assert SCHEME_VERTICAL_RECONSTRUCTION['finite_volume'] == 'linear'
+    assert SCHEME_VERTICAL_RECONSTRUCTION['finite_volume_ppm'] == 'ppm'
     assert SCHEME_HPGA['centered'] == 'HPGA'
     assert SCHEME_HPGA['finite_volume'] == 'HPGAFiniteVolume'
+    assert SCHEME_HPGA['finite_volume_ppm'] == 'HPGAFiniteVolumePPM'
 
 
 @pytest.mark.parametrize('variant', GRADIENT_VARIANTS + VARIANTS)
@@ -104,38 +113,61 @@ def test_forward_yaml_renders_what_omega_expects(scheme):
     """
     text = imp_res.files(_HPG_PKG).joinpath('forward.yaml').read_text()
     rendered = Template(text).render(
-        pressure_grad_type=SCHEMES[scheme], quadrature_points=2
+        pressure_grad_type=SCHEMES[scheme],
+        vertical_reconstruction=SCHEME_VERTICAL_RECONSTRUCTION[scheme],
+        quadrature_points=2,
     )
     block = yaml.safe_load(rendered)['Omega']['PressureGrad']
 
     assert block['PressureGradType'] == SCHEMES[scheme]
     assert isinstance(block['PressureGradType'], str)
     assert block['QuadraturePoints'] == 2
-    # HorzOrder and VerticalReconstruction are deliberately absent, so Omega's
-    # Phase 1 defaults apply; the Phase 2 values are rejected with an error
+    assert (
+        block['VerticalReconstruction']
+        == SCHEME_VERTICAL_RECONSTRUCTION[scheme]
+    )
+    # HorzOrder is deliberately absent, so Omega's default two-cell stencil
+    # applies
     assert 'HorzOrder' not in block
-    assert 'VerticalReconstruction' not in block
 
 
 # The sweep point where each resting-state variant's advantage is smallest,
-# found by scanning the full sweeps offline.  Gating at the worst point is what
-# makes resting_state_improvement_min meaningful; gating at a typical one would
-# pass while the variant regressed somewhere else in its sweep.
+# per finite-volume scheme, found by scanning the full sweeps offline.  Gating
+# at the worst point is what makes resting_state_improvement_min_* meaningful;
+# gating at a typical one would pass while the variant regressed somewhere
+# else in its sweep.
 _WORST_IMPROVEMENT = {
-    'hydrostatic_consistency': (4.0, 128.0, 50.0, 2.68),
-    'hydrostatic_consistency_linear': (4.0, 64.0, 0.1, 29.39),
-    'bathymetry_step': (4.0, 256.0, 200.0, 1169.54),
-    'bathymetry_step_linear': (4.0, 256.0, 200.0, 58828.46),
-    'hydrostatic_consistency_quadratic': (4.0, 64.0, 0.1, 7.71),
-    'bathymetry_step_quadratic': (4.0, 256.0, 100.0, 15.43),
+    'finite_volume': {
+        'hydrostatic_consistency': (4.0, 128.0, 50.0, 2.68),
+        'hydrostatic_consistency_linear': (4.0, 64.0, 0.1, 29.39),
+        'bathymetry_step': (4.0, 256.0, 200.0, 1169.54),
+        'bathymetry_step_linear': (4.0, 256.0, 200.0, 58828.46),
+        'hydrostatic_consistency_quadratic': (4.0, 64.0, 0.1, 7.71),
+        'bathymetry_step_quadratic': (4.0, 256.0, 100.0, 15.43),
+    },
+    'finite_volume_ppm': {
+        'hydrostatic_consistency': (4.0, 128.0, 50.0, 5.05),
+        'hydrostatic_consistency_linear': (4.0, 64.0, 0.1, 29.39),
+        'bathymetry_step': (4.0, 256.0, 1.0, 631.70),
+        'bathymetry_step_linear': (4.0, 256.0, 200.0, 58828.46),
+        'hydrostatic_consistency_quadratic': (4.0, 64.0, 0.1, 27.51),
+        'bathymetry_step_quadratic': (4.0, 256.0, 200.0, 61515.23),
+    },
 }
 
 
-@pytest.mark.parametrize('variant', sorted(_WORST_IMPROVEMENT))
-def test_improvement_gate_is_below_what_the_kernel_delivers(variant):
-    """``resting_state_improvement_min`` is set from measurement, with margin.
+@pytest.mark.parametrize(
+    'scheme, variant',
+    [
+        (scheme, variant)
+        for scheme, worst in sorted(_WORST_IMPROVEMENT.items())
+        for variant in sorted(worst)
+    ],
+)
+def test_improvement_gate_is_below_what_the_kernel_delivers(scheme, variant):
+    """Each ``resting_state_improvement_min_*`` is set from measurement.
 
-    The configured gates were taken from these numbers rather than guessed, so
+    The configured gates were taken from these numbers, with margin, so
     this test is what stops the two drifting apart: if the kernel changes, the
     measured ratio moves and either this assertion or the recorded one fails,
     rather than the gate silently becoming vacuous or unreachable.
@@ -146,21 +178,22 @@ def test_improvement_gate_is_below_what_the_kernel_delivers(variant):
     the profile is resolved and the sea floor steps -- so a single shared gate
     would be either vacuous on one end or wrong on the other.
     """
-    horiz_res, vert_res, tilt, expected = _WORST_IMPROVEMENT[variant]
+    horiz_res, vert_res, tilt, expected = _WORST_IMPROVEMENT[scheme][variant]
     ds = build_state(variant, horiz_res, vert_res, tilt)
     n_valid = int(ds.maxLevelCell.min())
 
     centered = rms(ds.HPGA.isel(Time=0).values[:n_valid])
-    finite_volume = rms(ds.HPGAFiniteVolume.isel(Time=0).values[:n_valid])
+    finite_volume = rms(ds[SCHEME_HPGA[scheme]].isel(Time=0).values[:n_valid])
     measured = centered / finite_volume
 
     np.testing.assert_allclose(measured, expected, rtol=0.02, atol=0.0)
 
     configured = make_config(variant)['horiz_press_grad'].getfloat(
-        'resting_state_improvement_min'
+        f'resting_state_improvement_min_{scheme}'
     )
     assert configured < measured, (
-        f'{variant}: the configured improvement gate {configured:g} is at or '
+        f'{variant}, {scheme}: the configured improvement gate '
+        f'{configured:g} is at or '
         f'above the {measured:.2f}x the kernel actually delivers at its worst '
         'sweep point, so the gate cannot pass'
     )

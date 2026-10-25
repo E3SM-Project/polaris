@@ -299,9 +299,29 @@ is then second-order accurate rather than exact.  On the curved
 `bathymetry_step`, the variant that most resembles the bottom-layer error seen
 in realistic global runs, it is roughly 400 times better.
 
-Nothing selects between the two fields yet: both are written, and which one the
-analysis steps compare against Omega is decided once the corresponding Omega
-option exists.
+### the parabolic reconstruction
+
+The `init` step writes a third field, `HPGAFiniteVolumePPM`: the same scheme
+with the parabolic vertical reconstruction of the design's §3.4, the
+counterpart of Omega's `VerticalReconstruction: ppm`.  Its exact set is
+profiles quadratic in pressure, which the `_quadratic` variants exercise; on
+them the matched-pressure integrand is zero at every quadrature point and, as
+above, what remains is the anchor.
+
+With the two-cell stencil it is 1.5 times more accurate than the linear
+reconstruction on `surface_pressure_gradient` and 2.9 times on
+`ztilde_gradient`, and the same on the two variants whose coordinate is level.
+On the curved `hydrostatic_consistency` it is 1.4 to 2.6 times more accurate.
+On `bathymetry_step` at 256 m layers it is about three times *less* accurate:
+the profile's PCHIP node at -3000 m, where its curvature jumps, lies inside the
+polynomial window of the bottom layers.  The finer the layers, the further that
+window stays from the node, and at 128 m it is up to a thousand times more
+accurate.
+
+Which schemes run is set by `pressure_grad_types`, by default all three:
+`centered`, `finite_volume` (the linear reconstruction) and
+`finite_volume_ppm`.  Each has its own forward step over the shared `init`
+step, and the analysis compares each against its own Python field.
 
 (ocean-horiz-press-grad-resting)=
 ## the resting-state variants
@@ -527,20 +547,32 @@ reference_quadrature_method = gauss4
 reference_quadrature_subdivisions = 4
 reference_horiz_eps_km = 1.0e-3
 
-# regression thresholds and convergence checks
+# the schemes to run, and the finite-volume quadrature rule
+pressure_grad_types = ['centered', 'finite_volume', 'finite_volume_ppm']
+quadrature_points = 2
+
+# regression thresholds and convergence checks, the slopes and accuracy
+# ratios per scheme
 omega_vs_polaris_rms_threshold = 1.0e-10
 omega_vs_reference_high_res_rms_threshold = 1.0e-6
-omega_vs_reference_convergence_rate_min = 1.5
-omega_vs_reference_convergence_rate_max = 2.1
+omega_vs_reference_convergence_rate_min_centered = 1.5
+omega_vs_reference_convergence_rate_max_centered = 2.1
+omega_vs_reference_convergence_rate_min_finite_volume = 1.5
+omega_vs_reference_convergence_rate_max_finite_volume = 2.1
+omega_vs_reference_convergence_rate_min_finite_volume_ppm = 1.5
+omega_vs_reference_convergence_rate_max_finite_volume_ppm = 2.1
+omega_vs_reference_accuracy_ratio_min_finite_volume = 0.98
+omega_vs_reference_accuracy_ratio_min_finite_volume_ppm = 0.98
 omega_vs_reference_convergence_fit_max_resolution = 4.0
 ```
 
 The `omega_vs_polaris_rms_threshold` bounds the RMS difference between the Omega
 forward HPGA and the Python-initialized HPGA (the consistency check).  The
 `omega_vs_reference_*` options bound the Omega-vs-reference accuracy: the RMS
-error at the highest resolution, the allowed power-law convergence slope, and
-the finest horizontal resolution included in the convergence fit (all
-resolutions are still shown in the plots).
+error at the highest resolution, the allowed power-law convergence slope of
+each scheme, the ratio of the centered error to each finite-volume scheme's at
+the coarsest resolution, and the finest horizontal resolution included in the
+convergence fit (all resolutions are still shown in the plots).
 
 The four task variants each specialize one horizontal gradient field:
 
@@ -576,6 +608,11 @@ resting_state_max_rms = none
 # maximum allowed |bottomDepth - requested|, so the swept tilt describes the
 # geometry actually tested
 resting_state_max_bathy_error = 1.0e-6
+
+# the ratio of the centered RMS HPGA to each finite-volume scheme's that must
+# be reached at every sweep point, or "none"; each variant sets its own
+resting_state_improvement_min_finite_volume = none
+resting_state_improvement_min_finite_volume_ppm = none
 ```
 
 `resting_state_max_rms` is deliberately unset.  The centered scheme is expected

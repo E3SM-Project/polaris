@@ -268,19 +268,23 @@ scheme**, named `forward_<res>_<scheme>`.
 It runs Omega from the corresponding `init` output and writes `output.nc`
 (with `NormalVelocityTend` validation), using options from `forward.yaml`.
 `forward.yaml` is a Jinja2 template whose `PressureGrad` block is filled in per
-step from the `scheme` argument and the `quadrature_points` config option.
+step: `PressureGradType` and `VerticalReconstruction` from the `scheme`
+argument, and `QuadraturePoints` from the `quadrature_points` config option.
 
 The schemes are listed by the `pressure_grad_types` config option and named in
 the module-level `SCHEMES` dict, which maps the config spelling to Omega's
-`PressureGradType`.  `SCHEME_HPGA` maps each to the field in `init.nc` that is
-its Polaris counterpart, which is what the analysis steps compare Omega
-against.
+`PressureGradType`.  `finite_volume` and `finite_volume_ppm` are the same
+Omega scheme with its linear and its parabolic vertical reconstruction, and
+`SCHEME_VERTICAL_RECONSTRUCTION` gives each its `VerticalReconstruction`.
+`SCHEME_HPGA` maps each to the field in `init.nc` that is its Polaris
+counterpart, which is what the analysis steps compare Omega against.
 
 Two things about this axis are worth stating, because both were decided
 against plausible alternatives:
 
-- **Both schemes share one `Init` step.**  `Init` is scheme-independent -- it
-  writes `HPGA` and `HPGAFiniteVolume` from the same state -- so duplicating it
+- **All the schemes share one `Init` step.**  `Init` is scheme-independent --
+  it writes `HPGA`, `HPGAFiniteVolume` and `HPGAFiniteVolumePPM` from the same
+  state -- so duplicating it
   per scheme would cost run time and, worse, would leave the comparison open to
   the objection that the two schemes ran on different initial conditions.  The
   cost is that the scheme label is in every forward step's directory, so
@@ -288,9 +292,9 @@ against plausible alternatives:
 - **There is no "centered limit" of the finite-volume scheme.**  The two are
   separate implementations and no setting reduces one to the other, so this is
   a choice between schemes rather than a parameter of one.  Omega treats an
-  unrecognized `PressureGradType` as fatal rather than falling back to
-  `Centered`, so a typo aborts the run instead of producing centered answers
-  that read as a pass.
+  unrecognized `PressureGradType` or `VerticalReconstruction` as fatal rather
+  than falling back, so a typo aborts the run instead of producing another
+  scheme's answers that read as a pass.
 
 ### analysis
 
@@ -300,7 +304,8 @@ compares each `forward` result with:
 - the analytic reference solution (built from `ReferenceColumn`), which is a
   property of the state and so is shared by both schemes, and
 - the Python-computed HPGA from `init.nc` **for the matching scheme**:
-  `HPGA` for `centered`, `HPGAFiniteVolume` for `finite_volume`.  Comparing
+  `HPGA` for `centered`, `HPGAFiniteVolume` for `finite_volume` and
+  `HPGAFiniteVolumePPM` for `finite_volume_ppm`.  Comparing
   Omega's finite-volume output against the centered `HPGA` would measure the
   difference between two schemes and report it as an implementation
   disagreement.
@@ -321,8 +326,9 @@ The step enforces regression criteria from `[horiz_press_grad]`:
   (`omega_vs_reference_convergence_rate_{min,max}_{scheme}`);
 - high-resolution RMS threshold for Omega-vs-reference, per scheme;
 - RMS threshold for Omega-vs-Python consistency, per scheme; and
-- `omega_vs_reference_accuracy_ratio_min`, the ratio of the centered to the
-  finite-volume RMS error at the **coarsest** resolution.
+- `omega_vs_reference_accuracy_ratio_min_{scheme}`, for each finite-volume
+  scheme the ratio of the centered RMS error to its own at the **coarsest**
+  resolution.
 
 Three things about the last two are worth knowing, because each was set from
 measurement against a plausible alternative:
@@ -345,6 +351,14 @@ measurement against a plausible alternative:
   configuration with nothing to improve.  `ztilde_gradient` raises it to 1.5
   (measured 1.80 at the coarse end) and `surface_pressure_gradient` to 1.8
   (measured 2.19).
+- **With the parabolic reconstruction the two-cell stencil still sets the
+  order.**  Over the shipped resolutions `finite_volume_ppm` converges at
+  1.63, 1.80, 2.00 and 2.00 on the four variants, so its bands are those of
+  `finite_volume`.  It is 2.8 to 2.9 times more accurate than the linear
+  reconstruction on `ztilde_gradient`, 1.5 times on
+  `surface_pressure_gradient`, and the same on the two level-coordinate
+  variants; its coarse-end gates are 3.0 (measured 5.11) and 2.5 (measured
+  3.27).
 
 `ztilde_gradient` is also where the design's own guidance needs qualifying: the
 advantage there **widens** under refinement, 1.80x at 4 km against 14.8x at
@@ -417,8 +431,8 @@ replaces `Analysis` for these variants.  Per sweep point it:
    layers, for each scheme.  The truth is zero, so this is the error, not a
    difference from a reference;
 4. does the same for the matching Polaris-side field from `init.nc` --
-   `HPGA` or `HPGAFiniteVolume` per `SCHEME_HPGA` -- and RMS-differences the
-   two.
+   `HPGA`, `HPGAFiniteVolume` or `HPGAFiniteVolumePPM` per `SCHEME_HPGA` --
+   and RMS-differences the two.
 
 It then groups the sweep by resolution pair, fits the tilt exponent within each
 group and scheme over the points at or below `tilt_fit_max` when `tilt_fit` is
@@ -442,8 +456,9 @@ checks:
   be requiring the new scheme to fail;
 - `_check_max_rms()` — the consistency gate, applied per scheme and skipped
   while `resting_state_max_rms` is `none`;
-- `_check_improvement()` — the centered RMS divided by the finite-volume RMS
-  must reach `resting_state_improvement_min` at **every** sweep point.  The
+- `_check_improvement()` — for each finite-volume scheme, the centered RMS
+  divided by that scheme's must reach `resting_state_improvement_min_{scheme}`
+  at **every** sweep point.  The
   true HPGA is zero here, so both are pure error and the ratio is a clean
   statement of what the higher-order scheme buys, with no reference solution
   and none of its discretization involved.  The ratio is logged whether or not
@@ -452,7 +467,7 @@ checks:
 The improvement gate is set **per variant** because the advantage spans four
 orders of magnitude, and a shared value would be vacuous at one end and
 unreachable at the other.  Measured offline, the smallest ratio anywhere in
-each sweep:
+each sweep, for the linear reconstruction (`finite_volume`):
 
 | variant | worst ratio | at | gate |
 | --- | --- | --- | --- |
@@ -462,6 +477,27 @@ each sweep:
 | `bathymetry_step_linear` | 58828x | 4 km, 256 m, grad 200 | 20000 |
 | `hydrostatic_consistency_quadratic` | 7.71x | 4 km, 64 m, tilt 0.1 | 4.0 |
 | `bathymetry_step_quadratic` | 15.4x | 4 km, 256 m, grad 100 | 8.0 |
+
+and for the parabolic one (`finite_volume_ppm`):
+
+| variant | worst ratio | at | gate |
+| --- | --- | --- | --- |
+| `hydrostatic_consistency` | 5.05x | 4 km, 128 m, tilt 50 | 2.5 |
+| `hydrostatic_consistency_linear` | 29.4x | 4 km, 64 m, tilt 0.1 | 15 |
+| `bathymetry_step` | 632x | 4 km, 256 m, grad 1 | 300 |
+| `bathymetry_step_linear` | 58828x | 4 km, 256 m, grad 200 | 20000 |
+| `hydrostatic_consistency_quadratic` | 27.5x | 4 km, 64 m, tilt 0.1 | 15 |
+| `bathymetry_step_quadratic` | 61515x | 4 km, 256 m, grad 200 | 20000 |
+
+On the `_linear` variants the two reconstructions agree, and on the
+`_quadratic` ones the parabolic integrand is zero at every quadrature point,
+so what is left of either is the anchor.  On `bathymetry_step` at 256 m layers
+the parabolic reconstruction is about three times *less* accurate than the
+linear one: the profile's PCHIP node at -3000 m, where its curvature jumps,
+falls inside the five-interface window of the bottom layers.  With the node
+moved to -2000 m it is 340 to 510 times more accurate there instead, and at
+128 m layers, whose window stays below the node, it is up to a thousand times
+more accurate as shipped.
 
 The ordering is the result, not an accident of the sweeps: the advantage is
 smallest where the profile is curved and only the coordinate tilts, and largest

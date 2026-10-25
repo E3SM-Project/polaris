@@ -163,6 +163,15 @@ def test_linear_is_the_default_and_unchanged():
     assert matched_pressure_pieces(ds)['curvature_theta'] is None
 
 
+def test_init_writes_the_parabolic_hpga():
+    """``init.nc`` carries the field Omega's ppm output is compared against."""
+    ds = build_state(QUADRATIC_VARIANT, 4.0, 256.0, 50.0)
+    expected = finite_volume_hpga(
+        ds, dx=4.0e3, vertical_reconstruction='ppm'
+    ).values
+    np.testing.assert_array_equal(ds.HPGAFiniteVolumePPM.values, expected)
+
+
 def test_unknown_vertical_reconstruction_is_rejected():
     """A typo must not silently run the linear reconstruction."""
     ds = build_state(LINEAR_VARIANT, 4.0, 256.0, 50.0)
