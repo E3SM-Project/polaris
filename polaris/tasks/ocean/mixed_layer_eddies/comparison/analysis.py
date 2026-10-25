@@ -17,10 +17,10 @@ from polaris.viz import mplstyle_context
 
 class Analysis(OceanIOStep):
     """
-    A step for comparing the restratification of the coarse runs with that
-    of the resolved run.  The comparison is reported, not checked: how the
-    restratification of coarse runs should compare with that of the resolved
-    run is a question for tuning the parameterization.
+    A step for reporting restratification of coarse and resolved runs.
+
+    Potential-energy release and stratification are inspection diagnostics,
+    not pass/fail criteria or direct targets for tuning the model coefficient.
 
     Attributes
     ----------

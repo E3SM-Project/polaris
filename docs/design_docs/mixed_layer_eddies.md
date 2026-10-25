@@ -44,9 +44,7 @@ so it is reported but not checked (D13).
 
 ## Open questions
 
-- Whether C_e should be tuned so the coarse runs release as much
-  potential energy as the resolved run. The comparison reports that
-  ratio as the target for such tuning.
+- PE release is not a coefficient-calibration target (D15).
 
 ## Requirements
 
@@ -373,8 +371,8 @@ Rossby adjustment releases potential energy in every run, so the
 comparison uses the release after it,
 $\Delta PE = PE(\text{day } 2) - PE(\text{day } 15)$, relative to the
 resolved run. The ratios are written to a table and plotted, with no
-thresholds (D13). A ratio near 1 for the `on` runs is the target for
-tuning C_e.
+thresholds (D13). Retain these reports and time series for inspection,
+not for tuning C_e (D15).
 
 ## Implementation
 
@@ -714,12 +712,10 @@ Xylar, 2026/10/20. A third setting set L_f,min = Δs_max = 2 km to hold
 NH/|f| exceeds L_f,min. E3SM has never been run that way, so the
 setting was dropped and `on` means E3SM's coupled defaults.
 
-### D13: The comparison is report-only
+### D13: The PE comparison is report-only
 
-Xylar, 2026/10/20. Only the formula check (`coarse`) and |Ψ⁺|
-(`resolved`) fail a task. The potential-energy ratio measures how well
-the scheme, with a given C_e, matches the resolved restratification. It
-is a target for tuning, not a test of correctness.
+The PE ratios and time series do not fail a task. The original decision
+treated PE release as a tuning target; D15 supersedes that interpretation.
 
 ### D14: 15-day runs
 
@@ -727,3 +723,10 @@ Xylar, 2026/10/20. Luke Van Roekel noted that mixed-layer eddies take
 about 10 days to reach finite amplitude, so 7 days is too short to
 compare restratification. The diagnosis window stays at days 5–7 to
 match SM22.
+
+### D15: PE release is not a coefficient-calibration target
+
+The implemented closure has explicit resolution dependence. Resolved
+eddies and parameterized transport also develop on different schedules.
+Retain PE release, PE time series and stratification plots for inspection;
+do not infer a tuned C_e from PE ratios.

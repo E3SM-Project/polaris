@@ -281,10 +281,10 @@ and reports, in `restratification.csv`, the potential energy released from
 the end of the Rossby adjustment (`adjustment_days`) to the end of the run
 by each coarse run, relative to the resolved run.  It plots potential
 energy, the mixed-layer buoyancy frequency in the frontal zone and the
-final surface salinity of every run.  It has no pass/fail check: the ratio
-measures how well the parameterization, with a given $C_e$, matches the
-resolved restratification, which makes it a target for tuning rather than a
-test of correctness.
+final surface salinity of every run. PE ratios and time series are
+inspection diagnostics only, with no pass/fail check. They are not direct
+targets for tuning $C_e$: the implemented scheme has explicit resolution
+dependence, and coarse and resolved runs restratify on different schedules.
 
 With the parameterization on, the coarse runs restratify the mixed layer
 within a few days, faster than the resolved run, and then release little
