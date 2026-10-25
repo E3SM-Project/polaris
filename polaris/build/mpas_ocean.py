@@ -165,7 +165,7 @@ def make_build_script(
     mpas_ocean_subdir = os.path.join(branch, 'components', 'mpas-ocean')
 
     if debug:
-        make_flags += ' debug=TRUE'
+        make_flags += ' DEBUG=true'
 
     load_script = os.environ['POLARIS_LOAD_SCRIPT']
 
