@@ -113,4 +113,6 @@ first-order solver, they must agree within the norms that Compass used.
 `restart` runs MALI for 2 years in `full_run`, and for 1 year in
 `restart_run`, which starts from the restart file `full_run` writes after
 its first year.  The thickness and normal velocity at the end of the two
-runs must be bit-for-bit.
+runs must be bit-for-bit with the shallow-ice solver.  With the first-order
+solver, results differ slightly between runs placed on different cores, so
+they must agree within the same norms as in `decomp`.

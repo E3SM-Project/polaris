@@ -64,4 +64,7 @@ The class {py:class}`polaris.tasks.landice.dome.restart.Restart` runs MALI
 for 2 years in `full_run`, and for 1 year in `restart_run` from the restart
 file `full_run` writes after its first year.  Both runs write output only at
 the end of year 2, using `streams.restart` in the package, and the outputs
-must be bit-for-bit.
+must be bit-for-bit with the shallow-ice solver.  With the first-order
+solver, Albany's velocity depends slightly on how MPI tasks are placed on
+cores (by about 1e-21 m/s), and the two runs are usually placed differently,
+so the validate step uses the norms of `decomp` instead.
