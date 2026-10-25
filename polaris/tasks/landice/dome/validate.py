@@ -7,6 +7,16 @@ EXACT_NORMS = {
     'normalVelocity': dict(l1_norm=0.0, l2_norm=0.0, linf_norm=0.0),
 }
 
+# results with the first-order solver differ slightly between decompositions,
+# and between runs whose MPI tasks are placed on different cores, so these are
+# the norms Compass allows between decompositions
+FO_NORMS = {
+    'thickness': dict(l1_norm=1.0e-9, l2_norm=1.0e-11, linf_norm=1.0e-11),
+    'normalVelocity': dict(
+        l1_norm=1.0e-15, l2_norm=1.0e-16, linf_norm=1.0e-18
+    ),
+}
+
 
 class Validate(Step):
     """

@@ -1,6 +1,10 @@
 from polaris import Task
 from polaris.tasks.landice.dome.forward import Forward
-from polaris.tasks.landice.dome.validate import EXACT_NORMS, Validate
+from polaris.tasks.landice.dome.validate import (
+    EXACT_NORMS,
+    FO_NORMS,
+    Validate,
+)
 
 
 class Restart(Task):
@@ -79,6 +83,9 @@ class Restart(Task):
                 component=component,
                 step_subdirs=['full_run', 'restart_run'],
                 indir=self.subdir,
-                norms=EXACT_NORMS,
+                # the first-order solver's velocity depends slightly on how
+                # MPI tasks are placed on cores, so runs on different cores
+                # are not bit-for-bit
+                norms=FO_NORMS if velocity_solver == 'FO' else EXACT_NORMS,
             )
         )
