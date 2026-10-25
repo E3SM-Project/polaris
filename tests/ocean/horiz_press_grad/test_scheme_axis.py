@@ -122,8 +122,8 @@ def test_forward_yaml_renders_what_omega_expects(scheme):
 # makes resting_state_improvement_min meaningful; gating at a typical one would
 # pass while the variant regressed somewhere else in its sweep.
 _WORST_IMPROVEMENT = {
-    'hydrostatic_consistency': (4.0, 128.0, 50.0, 2.58),
-    'hydrostatic_consistency_linear': (4.0, 64.0, 50.0, 7.71),
+    'hydrostatic_consistency': (4.0, 128.0, 50.0, 2.68),
+    'hydrostatic_consistency_linear': (4.0, 64.0, 0.1, 29.39),
     'bathymetry_step': (4.0, 256.0, 200.0, 1169.54),
     'bathymetry_step_linear': (4.0, 256.0, 200.0, 58828.46),
 }
