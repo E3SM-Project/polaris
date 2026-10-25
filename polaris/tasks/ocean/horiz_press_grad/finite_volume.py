@@ -1067,14 +1067,16 @@ def finite_volume_hpga(
     values = np.full(ds.sizes['nVertLevels'], np.nan)
     values[: len(mean)] = -(Gravity / dx) * mean
 
+    long_name = (
+        'along-layer pressure gradient acceleration at layer midpoints, '
+        'finite-volume scheme'
+    )
+    if vertical_reconstruction == 'ppm':
+        long_name = f'{long_name}, parabolic reconstruction'
     hpga = xr.DataArray(
         data=values[np.newaxis, :],
         dims=['Time', 'nVertLevels'],
-        attrs={
-            'long_name': 'along-layer pressure gradient acceleration at layer '
-            'midpoints, finite-volume scheme',
-            'units': 'm s-2',
-        },
+        attrs={'long_name': long_name, 'units': 'm s-2'},
     )
     return hpga
 

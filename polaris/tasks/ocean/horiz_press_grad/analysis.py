@@ -130,13 +130,18 @@ class Analysis(OceanIOStep):
                 )
                 target[scheme] = value
 
-        accuracy_ratio_min = section.getfloat(
-            'omega_vs_reference_accuracy_ratio_min'
-        )
-        assert accuracy_ratio_min is not None, (
-            'The "omega_vs_reference_accuracy_ratio_min" configuration '
-            'option must be set in the "horiz_press_grad" section.'
-        )
+        # one accuracy gate per finite-volume scheme, each against centered
+        accuracy_ratio_min: dict[str, float] = {}
+        for scheme in self.schemes:
+            if scheme == 'centered':
+                continue
+            option = f'omega_vs_reference_accuracy_ratio_min_{scheme}'
+            value = section.getfloat(option)
+            assert value is not None, (
+                f'The "{option}" configuration option must be set in the '
+                '"horiz_press_grad" section.'
+            )
+            accuracy_ratio_min[scheme] = value
         omega_vs_reference_convergence_fit_max_resolution = section.getfloat(
             'omega_vs_reference_convergence_fit_max_resolution'
         )
@@ -406,25 +411,25 @@ class Analysis(OceanIOStep):
         # order-based gate would fail where nothing is wrong.  The coarse end
         # is used because that is where the advantage is smallest on the one
         # variant whose schemes differ in order.
-        if 'centered' in ref_error_arrays and (
-            'finite_volume' in ref_error_arrays
-        ):
-            coarsest = int(np.argmax(resolution_array))
-            centered_error = float(ref_error_arrays['centered'][coarsest])
-            finite_error = float(ref_error_arrays['finite_volume'][coarsest])
+        if 'centered' not in ref_error_arrays:
+            return
+        coarsest = int(np.argmax(resolution_array))
+        centered_error = float(ref_error_arrays['centered'][coarsest])
+        for scheme, ratio_min in accuracy_ratio_min.items():
+            finite_error = float(ref_error_arrays[scheme][coarsest])
             ratio = centered_error / finite_error
             logger.info(
-                f'centered / finite_volume RMS at '
+                f'centered / {scheme} RMS at '
                 f'{resolution_array[coarsest]:g} km: {ratio:.2f}x'
             )
-            if ratio < accuracy_ratio_min:
+            if ratio < ratio_min:
                 raise ValueError(
-                    'The finite-volume scheme is not as accurate as '
-                    'omega_vs_reference_accuracy_ratio_min requires at the '
-                    f'coarsest resolution ({resolution_array[coarsest]:g} '
-                    f'km): centered {centered_error:.3e} over finite_volume '
-                    f'{finite_error:.3e} is {ratio:.3f}, below '
-                    f'{accuracy_ratio_min:.3f}'
+                    f'{scheme} is not as accurate as '
+                    f'omega_vs_reference_accuracy_ratio_min_{scheme} requires '
+                    'at the coarsest resolution '
+                    f'({resolution_array[coarsest]:g} km): centered '
+                    f'{centered_error:.3e} over {scheme} {finite_error:.3e} '
+                    f'is {ratio:.3f}, below {ratio_min:.3f}'
                 )
 
 

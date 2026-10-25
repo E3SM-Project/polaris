@@ -289,6 +289,14 @@ class Init(PStarInitStep, OceanIOStep):
         ds['HPGAFiniteVolume'] = finite_volume_hpga(
             ds=ds, dx=dx, order=quadrature_points
         )
+        # and with the parabolic reconstruction, the counterpart of Omega's
+        # VerticalReconstruction: ppm
+        ds['HPGAFiniteVolumePPM'] = finite_volume_hpga(
+            ds=ds,
+            dx=dx,
+            order=quadrature_points,
+            vertical_reconstruction='ppm',
+        )
 
         return ds
 
