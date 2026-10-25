@@ -32,7 +32,7 @@ def test_build_script_builds_in_the_mali_directory(tmp_path, monkeypatch):
 
     mali_dir = tmp_path / 'e3sm' / 'components' / 'mpas-albany-landice'
     assert f'cd {mali_dir}\n' in text
-    assert 'make  gfortran' in text
+    assert _make_command(text).endswith(' gfortran')
     # MALI's optional submodules are not initialized
     assert 'git submodule update' not in text
     for filename in [
@@ -49,7 +49,18 @@ def test_build_script_debug_flag(tmp_path, monkeypatch):
     text = script.read_text(encoding='utf-8')
 
     # the MPAS Makefile reads DEBUG, not debug
-    assert 'make  DEBUG=true gfortran' in text
+    assert _make_command(text).startswith('make  DEBUG=true ')
+
+
+@pytest.mark.parametrize('albany', [False, True])
+def test_build_script_links_to_the_spack_view(tmp_path, monkeypatch, albany):
+    script = _make_script(tmp_path, monkeypatch, albany=albany)
+    text = script.read_text(encoding='utf-8')
+
+    # netCDF and PnetCDF in the Spack view are found at run time on machines
+    # where no module puts them on the library path
+    assert '-Wl,-rpath,${MACHE_DEPLOY_SPACK_LIBRARY_VIEW}/lib' in text
+    assert '${polaris_view_rpath}' in _make_command(text)
 
 
 def test_build_script_initializes_the_mali_dev_submodule(
@@ -190,3 +201,19 @@ def _run_source_record_block(script, cwd):
         start -= 1
     block = '\n'.join(lines[start : end + 1])
     subprocess.check_call(['bash', '-e', '-c', block], cwd=cwd)
+
+
+def _make_command(text):
+    """
+    The build script's make command, with its continued lines joined
+    """
+    lines = text.splitlines()
+    index = next(
+        index for index, line in enumerate(lines) if line.startswith('make ')
+    )
+    command = ''
+    for line in lines[index:]:
+        if not line.endswith('\\'):
+            return command + line.strip()
+        command += line[:-1].lstrip() if command else line[:-1]
+    return command
