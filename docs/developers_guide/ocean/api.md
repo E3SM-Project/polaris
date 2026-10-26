@@ -87,7 +87,6 @@
    heat_content_series.HeatContentSeries.setup
    heat_content_series.HeatContentSeries.setup_inputs
    heat_content_series.HeatContentSeries.product_stamp
-   heat_content_series.HeatContentSeries.computed_ranges
    heat_content_series.HeatContentSeries.run
    heat_content_series.HeatContentSeries.compute_month
    heat_content_series.HeatContentSeries.finalize

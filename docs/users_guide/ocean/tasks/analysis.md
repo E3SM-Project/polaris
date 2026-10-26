@@ -541,8 +541,7 @@ which it wrote, so this needs no option of its own.
 
 The `heat_content_series` task reduces every month of the simulation to the
 globally integrated ocean heat content of each elevation range and plots the
-series.  Heat content drift is what a long coupled simulation is judged on,
-which is why this comes before the vertical machinery that would enrich it.
+series.  Heat content drift is what a long coupled simulation is judged on.
 
 The integral is the same mass-weighted one the maps take, over the same ranges
 from `[ocean_analysis_ohc]`, described under
@@ -576,17 +575,11 @@ Three files land in the step's directory:
 : the reduced months, which is what a later range inherits; see
   {ref}`ocean-analysis-inheritance`.
 
-Only `temperature` and the model's mass-like thickness are read from each
-month, and only one month is held at a time, so the memory this step needs
-does not grow with the length of the record.  A first run over several decades
-at high resolution is the most expensive thing in the suite, and every run
-after it is nearly free.
-
-**Only `top:bottom` is integrated so far**, for the same reason as in the
-maps: a range with a boundary inside a layer needs vertical geometry that is
-not implemented yet.  The ranges that are left out are named in the step's
-log.  A configuration in which *no* range can be integrated -- one with no
-`top:bottom` in it -- is an error at setup rather than an empty plot later.
+Only `temperature`, the model's mass-like thickness and, when a range has a
+bound inside the column, `GeomZInterface` are read from each month, and only
+one month is held at a time, so the memory this step needs does not grow with
+the length of the record.  A first run over several decades at high
+resolution is the expensive one, and every run after it is nearly free.
 
 ## troubleshooting
 
