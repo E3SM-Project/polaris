@@ -238,6 +238,7 @@ def plan_cleanup(
     if now is None:
         now = time.time()
     since = now - keep_days * 86400
+    cited = _with_real_paths(cited)
     runs = [Entry(path, 'run') for path in _subdirs(work_base, _RUN_DIR)]
     for entry in runs:
         entry.keep = _cited_or_recent(entry.path, cited, since)
@@ -412,6 +413,21 @@ def _stale_markers(work_base):
         if name.endswith('.ready')
         and not os.path.isdir(os.path.join(tree_base, name[: -len('.ready')]))
     ]
+
+
+def _with_real_paths(cited):
+    """The cited paths, and the same paths with symlinks resolved, since
+    a pull request may name a directory by another of its paths, such as
+    through a link in the home directory"""
+    paths = set(cited)
+    for path in cited:
+        existing = path
+        rest: List[str] = []
+        while not os.path.exists(existing) and existing != os.sep:
+            rest.insert(0, os.path.basename(existing))
+            existing = os.path.dirname(existing)
+        paths.add(os.path.join(os.path.realpath(existing), *rest))
+    return paths
 
 
 def _cited_or_recent(path, cited, since):

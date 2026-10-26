@@ -115,6 +115,22 @@ def test_plan_cleanup(tmp_path):
     assert notes not in keep
 
 
+def test_plan_cleanup_resolves_links_in_cited_paths(tmp_path):
+    work_base = tmp_path / 'scratch'
+    run = _run(str(work_base), 'pr1-1111111')
+    link = tmp_path / 'link'
+    link.symlink_to(work_base)
+    cited = {str(link / 'pr1-1111111' / 'm_c' / 'gone.log')}
+
+    entries = pr_test_cleanup.plan_cleanup(
+        str(work_base), cited, keep_days=3, polaris_hashes=[], now=NOW
+    )
+
+    assert [entry.keep for entry in entries if entry.path == run] == [
+        f'cited: {run}/m_c/gone.log'
+    ]
+
+
 def test_remove(tmp_path):
     clone = tmp_path / 'clone'
     clone.mkdir()
