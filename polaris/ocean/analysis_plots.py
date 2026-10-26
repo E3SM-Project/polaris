@@ -111,7 +111,7 @@ def plot_global_stats(
         axes[0].set_xlabel(x_label)
         axes[1].set_xlabel(x_label)
         axes[0].set_ylabel(axis_label)
-        axes[1].set_ylabel(rf'$\Delta$ {axis_label}')
+        axes[1].set_ylabel(rf'$\Delta$ {axis_label} from t=0')
         axes[0].set_xlim([min(time), max(time)])
         if title is not None:
             fig.suptitle(title)
