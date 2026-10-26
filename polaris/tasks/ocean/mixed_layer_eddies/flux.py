@@ -355,12 +355,17 @@ def _plot_average_flux(averages, combined):
             name = sample['run']
             resolution = name.split('_')[0]
             color = colors[resolution]
+            label = (
+                '500m (resolved)'
+                if name == 'resolved'
+                else name.replace('_', ' ')
+            )
             ax.scatter(
                 sample['x'],
                 sample['y'],
                 color=color,
                 marker='D' if name.endswith('_off') else 'o',
-                label=name,
+                label=f'{label}, total',
             )
             if name.endswith('_on'):
                 ax.scatter(
@@ -369,7 +374,7 @@ def _plot_average_flux(averages, combined):
                     facecolors='none',
                     edgecolors=color,
                     marker='D',
-                    label=f'{name} resolved only',
+                    label=f'{label}, resolved only',
                 )
         bounds = (
             min(sample['resolved_y'] for sample in averages),
@@ -385,18 +390,9 @@ def _plot_average_flux(averages, combined):
             r'$|\langle C_e H^2 \overline{b_y}^{\,z}/|f|'
             r'\rangle_t|$ (m$^2$ s$^{-1}$)'
         )
-        flux = (
-            r'(\overline{w^\prime b^\prime}+\overline{F^*_{b,z}})'
-            if combined
-            else r'\overline{w^\prime b^\prime}'
-        )
-        ax.set_ylabel(
-            r'$|\langle '
-            + flux
-            + r'/\overline{b_y}\rangle_t|$ (m$^2$ s$^{-1}$)'
-        )
+        ax.set_ylabel('Normalized buoyancy flux (m² s⁻¹)')
         ax.set_title(
-            f'Days {averages[0]["start_day"]:g}--'
+            f'Days {averages[0]["start_day"]:g}–'
             f'{averages[0]["end_day"]:g} time averages'
         )
         ax.legend(fontsize=8)

@@ -310,6 +310,33 @@ inspection diagnostics only, with no pass/fail check. They are not direct
 targets for tuning $C_e$: the implemented scheme has explicit resolution
 dependence, and coarse and resolved runs restratify on different schedules.
 
+In the earlier 15-day comparison shown below, with the parameterization
+on, the coarse runs restratify the mixed layer
+within a few days, faster than the resolved run, and then release little
+more potential energy.  The resolved run keeps releasing it through day 15,
+so the ratio over 15 days is 0.2–0.5.  Over days 2–7 it is about 0.9 in
+Omega.  With the parameterization off, the 8 km run develops its own
+instability after about day 8, and the 16 km run barely restratifies
+(Omega):
+
+```{image} images/mixed_layer_eddies_potential_energy.jpg
+:align: center
+:width: 500 px
+```
+
+```{image} images/mixed_layer_eddies_mixed_layer_n2.jpg
+:align: center
+:width: 500 px
+```
+
+At day 15, the parameterization has slumped the coarse fronts, while the
+resolved run's eddies have stirred them (Omega):
+
+```{image} images/mixed_layer_eddies_final_surface_salinity.jpg
+:align: center
+:width: 600 px
+```
+
 (combined-buoyancy-flux)=
 
 ### Combined buoyancy flux
@@ -374,6 +401,8 @@ the window, sample count, signed means and plotted coordinates.
 The figure shows only these points and a 1:1 line, following Figure 1 of
 [Fox-Kemper and Ferrari (2008), Part II](https://doi.org/10.1175/2007JPO3788.1),
 but extending the ordinate to combined transport.
+The ordinate is total buoyancy flux normalized by the mean buoyancy
+gradient, with units m² s⁻¹.
 Resolved is black, 8 km blue and 16 km orange. Filled circles show the
 resolved run and MLE `on` combined flux; filled diamonds show MLE `off`.
 Empty diamonds show the resolved-only contribution within each MLE `on`
@@ -386,29 +415,7 @@ has no fit-based pass/fail check.
 Undefined mixed-layer depths, weak gradients and insufficient
 samples raise errors rather than silently dropping points.
 
-In the earlier 15-day comparison shown below, with the parameterization
-on, the coarse runs restratify the mixed layer
-within a few days, faster than the resolved run, and then release little
-more potential energy.  The resolved run keeps releasing it through day 15,
-so the ratio over 15 days is 0.2–0.5.  Over days 2–7 it is about 0.9 in
-Omega.  With the parameterization off, the 8 km run develops its own
-instability after about day 8, and the 16 km run barely restratifies
-(Omega):
-
-```{image} images/mixed_layer_eddies_potential_energy.jpg
-:align: center
-:width: 500 px
-```
-
-```{image} images/mixed_layer_eddies_mixed_layer_n2.jpg
-:align: center
-:width: 500 px
-```
-
-At day 15, the parameterization has slumped the coarse fronts, while the
-resolved run's eddies have stirred them (Omega):
-
-```{image} images/mixed_layer_eddies_final_surface_salinity.jpg
+```{image} images/mixed_layer_eddies_combined_buoyancy_flux.png
 :align: center
 :width: 600 px
 ```
