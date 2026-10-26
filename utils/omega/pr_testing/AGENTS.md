@@ -39,7 +39,9 @@ agent on every machine still works, but is discouraged.
 - **Show the requester things in your reply.**  The requester often
   cannot see your command output.  Anything you ask them to look at, such
   as a config file, a summary or a comment before it is posted, goes in
-  your message itself, in a fenced code block.
+  your message itself, in a fenced code block.  That means the message
+  that ends your turn: text you write between commands may be collapsed
+  or never shown, so do not count on the requester having seen it.
 - **Never retype, summarize or edit results.**  Post only the comment that
   `report` or `lint` writes, copied unchanged if it was written on another
   machine.  Your own words go in a notes file passed with `--notes`, and
@@ -124,7 +126,14 @@ Below, `omega_pr_test.py` means `./utils/omega/pr_testing/omega_pr_test.py`.
    E3SM-Project/polaris.  The fork's `main` is never a baseline.
 2. Show the requester the summary.  With permission, run the push command
    that `init` printed.
-3. Check linting and the docs:
+3. If any row is on a machine with no `[machines]` line, such as
+   Frontier, end your turn as soon as the push succeeds, before linting,
+   `status` or anything on a machine.  Open that reply with the prompt
+   `init` printed for an agent there, as it is, in a fenced code block
+   (see [Handoff](#handoff)).  The requester is waiting to start that
+   agent, often before leaving, and its jobs queue too.  Carry on with
+   the steps below once they reply.
+4. Check linting and the docs:
    ```bash
    omega_pr_test.py lint --fork <fork> --branch <branch> --agent "<name>"
    ```
@@ -132,14 +141,13 @@ Below, `omega_pr_test.py` means `./utils/omega/pr_testing/omega_pr_test.py`.
    the PR's own checks already show it.  If `lint` had to run the checks
    itself, read its comment, then post it with `post`, with permission,
    whether they passed or failed.
-4. List each machine's rows, with its ssh host and Polaris checkout:
+5. List each machine's rows, with its ssh host and Polaris checkout:
    ```bash
    omega_pr_test.py status --pr <number> --fork <fork> --branch <branch>
    ```
-   Pm-cpu and pm-gpu rows are tested from the same login nodes.  For a
-   machine with no `[machines]` line, such as Frontier, give the requester
-   the prompt `init` printed for an agent there, as it is (see
-   [Handoff](#handoff)).  Test the other rows yourself over ssh.
+   Pm-cpu and pm-gpu rows are tested from the same login nodes.  Rows on
+   a machine with no `[machines]` line are for the agent you gave the
+   prompt to in step 3.  Test the other rows yourself over ssh.
 
 ## Running commands on a machine
 
@@ -263,8 +271,9 @@ ssh, need an agent on that machine.  It is a tester only.
 ### Handoff
 
 The prompt `init` prints is the whole handoff, and it is the same for
-every machine.  The requester pastes it into the tester's session as it
-is.  The tester works out its own rows, and everything else it needs is in
+every machine.  The initiator gives it to the requester in the reply that
+ends its turn right after the push, and the requester pastes it into the
+tester's session as it is.  The tester works out its own rows, and everything else it needs is in
 this file.  It reads:
 
 ```
