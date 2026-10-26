@@ -42,11 +42,13 @@
       ~ClimatologyMaps.open_model_dataset
       ~ClimatologyMaps.open_vert_coord_dataset
       ~ClimatologyMaps.process_inputs_and_outputs
+      ~ClimatologyMaps.read_fields
       ~ClimatologyMaps.run
       ~ClimatologyMaps.runtime_setup
       ~ClimatologyMaps.set_resources
       ~ClimatologyMaps.set_shared_config
       ~ClimatologyMaps.setup
+      ~ClimatologyMaps.valid_level_range
       ~ClimatologyMaps.validate_baselines
       ~ClimatologyMaps.work_path
       ~ClimatologyMaps.write_forcing_dataset

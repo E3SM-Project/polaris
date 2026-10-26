@@ -42,11 +42,13 @@
       ~AnalysisStep.open_model_dataset
       ~AnalysisStep.open_vert_coord_dataset
       ~AnalysisStep.process_inputs_and_outputs
+      ~AnalysisStep.read_fields
       ~AnalysisStep.run
       ~AnalysisStep.runtime_setup
       ~AnalysisStep.set_resources
       ~AnalysisStep.set_shared_config
       ~AnalysisStep.setup
+      ~AnalysisStep.valid_level_range
       ~AnalysisStep.validate_baselines
       ~AnalysisStep.work_path
       ~AnalysisStep.write_forcing_dataset

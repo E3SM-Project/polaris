@@ -20,7 +20,7 @@
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
     <link rel="next" title="polaris.tasks.ocean.analysis.analysis_step.AnalysisStep.runtime_setup" href="polaris.tasks.ocean.analysis.analysis_step.AnalysisStep.runtime_setup.html" />
-    <link rel="prev" title="polaris.tasks.ocean.analysis.PublishTask.rebuild_steps" href="polaris.tasks.ocean.analysis.PublishTask.rebuild_steps.html" />
+    <link rel="prev" title="polaris.tasks.ocean.analysis.accumulate.stamp_difference" href="polaris.tasks.ocean.analysis.accumulate.stamp_difference.html" />
     <link href="../../../_static/style.css" rel="stylesheet" type="text/css">
 
 </head>
@@ -270,20 +270,26 @@ that a step covering a different range is a different step</p></li>
 <tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">process_inputs_and_outputs</span></code>()</p></td>
 <td><p>Resolve <code class="docutils literal notranslate"><span class="pre">&lt;&lt;&lt;placeholder&gt;&gt;&gt;</span></code> filenames to configured names and drop <code class="docutils literal notranslate"><span class="pre">&lt;&lt;&lt;vert_coord&gt;&gt;&gt;</span></code> entries for MPAS-Ocean before delegating to the base <a class="reference internal" href="../../generated/polaris.Step.html#polaris.Step" title="polaris.Step"><code class="xref py py-class docutils literal notranslate"><span class="pre">Step</span></code></a> processing.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">run</span></code>()</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="polaris.tasks.ocean.analysis.analysis_step.AnalysisStep.read_fields.html#polaris.tasks.ocean.analysis.analysis_step.AnalysisStep.read_fields" title="polaris.tasks.ocean.analysis.analysis_step.AnalysisStep.read_fields"><code class="xref py py-obj docutils literal notranslate"><span class="pre">read_fields</span></code></a>(filename, fields[, suffix])</p></td>
+<td><p>Read a few named fields from a file of the simulation, translating their names but nothing else</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">run</span></code>()</p></td>
 <td><p>Run the step.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="polaris.tasks.ocean.analysis.analysis_step.AnalysisStep.runtime_setup.html#polaris.tasks.ocean.analysis.analysis_step.AnalysisStep.runtime_setup" title="polaris.tasks.ocean.analysis.analysis_step.AnalysisStep.runtime_setup"><code class="xref py py-obj docutils literal notranslate"><span class="pre">runtime_setup</span></code></a>()</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="polaris.tasks.ocean.analysis.analysis_step.AnalysisStep.runtime_setup.html#polaris.tasks.ocean.analysis.analysis_step.AnalysisStep.runtime_setup" title="polaris.tasks.ocean.analysis.analysis_step.AnalysisStep.runtime_setup"><code class="xref py py-obj docutils literal notranslate"><span class="pre">runtime_setup</span></code></a>()</p></td>
 <td><p>Write the empty manifest fragment before the step runs</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_resources</span></code>([cpus_per_task, ...])</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_resources</span></code>([cpus_per_task, ...])</p></td>
 <td><p>Update the resources for the subtask.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_shared_config</span></code>(config[, link])</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_shared_config</span></code>(config[, link])</p></td>
 <td><p>Replace the step's config parser with the shared config parser</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">setup</span></code>()</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">setup</span></code>()</p></td>
 <td><p>Set up the task in the work directory, including downloading any dependencies.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="polaris.tasks.ocean.analysis.analysis_step.AnalysisStep.valid_level_range.html#polaris.tasks.ocean.analysis.analysis_step.AnalysisStep.valid_level_range" title="polaris.tasks.ocean.analysis.analysis_step.AnalysisStep.valid_level_range"><code class="xref py py-obj docutils literal notranslate"><span class="pre">valid_level_range</span></code></a>()</p></td>
+<td><p>Get the topmost and bottommost valid layer of each column, from the vertical coordinate the step linked</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">validate_baselines</span></code>()</p></td>
 <td><p>Compare variables between output files in this step and in the same step from a baseline run if one was provided.</p></td>
@@ -351,7 +357,7 @@ that a step covering a different range is a different step</p></li>
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="polaris.tasks.ocean.analysis.PublishTask.rebuild_steps.html" class="btn btn-neutral float-left" title="polaris.tasks.ocean.analysis.PublishTask.rebuild_steps" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="polaris.tasks.ocean.analysis.accumulate.stamp_difference.html" class="btn btn-neutral float-left" title="polaris.tasks.ocean.analysis.accumulate.stamp_difference" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
         <a href="polaris.tasks.ocean.analysis.analysis_step.AnalysisStep.runtime_setup.html" class="btn btn-neutral float-right" title="polaris.tasks.ocean.analysis.analysis_step.AnalysisStep.runtime_setup" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 

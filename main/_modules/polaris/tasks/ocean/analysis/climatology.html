@@ -477,6 +477,7 @@ window.runMermaid = runMermaid;</script>
 <span class="kn">import</span><span class="w"> </span><span class="nn">xarray</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">xr</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">mpas_tools.logging</span><span class="w"> </span><span class="kn">import</span> <span class="n">check_call</span>
 
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.ocean.model.layer_mass</span><span class="w"> </span><span class="kn">import</span> <span class="n">MASS_THICKNESS_VARIABLES</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">polaris.tasks.ocean.analysis.analysis_step</span><span class="w"> </span><span class="kn">import</span> <span class="n">AnalysisStep</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">polaris.tasks.ocean.analysis.sim_files</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">SimulationFiles</span><span class="p">,</span>
@@ -513,7 +514,7 @@ window.runMermaid = runMermaid;</script>
 <span class="c1"># per unit area they imply and disagree on the geometry, so renaming one to</span>
 <span class="c1"># the other would hide the distinction that matters.  The analysis reads Omega</span>
 <span class="c1"># output only, so this is the Omega spelling.</span>
-<span class="n">MASS_THICKNESS_VARIABLE</span> <span class="o">=</span> <span class="s1">'PseudoThickness'</span>
+<span class="n">MASS_THICKNESS_VARIABLE</span> <span class="o">=</span> <span class="n">MASS_THICKNESS_VARIABLES</span><span class="p">[</span><span class="s1">'omega'</span><span class="p">]</span>
 
 <span class="c1"># ``ncclimo`` names the twelve monthly climatologies by month number, so a</span>
 <span class="c1"># user who asks to plot JAN is asking for the file with 01 in its name</span>

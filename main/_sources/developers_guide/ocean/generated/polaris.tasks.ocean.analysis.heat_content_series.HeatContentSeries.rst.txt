@@ -30,7 +30,9 @@
       ~HeatContentSeries.add_vert_coord_input_file
       ~HeatContentSeries.check_cf
       ~HeatContentSeries.check_properties
+      ~HeatContentSeries.compute_month
       ~HeatContentSeries.constrain_resources
+      ~HeatContentSeries.finalize
       ~HeatContentSeries.get_forcing_filename
       ~HeatContentSeries.get_horiz_mesh_filename
       ~HeatContentSeries.get_init_filename
@@ -42,11 +44,16 @@
       ~HeatContentSeries.open_model_dataset
       ~HeatContentSeries.open_vert_coord_dataset
       ~HeatContentSeries.process_inputs_and_outputs
+      ~HeatContentSeries.product_stamp
+      ~HeatContentSeries.provenance_stamp
+      ~HeatContentSeries.read_fields
       ~HeatContentSeries.run
       ~HeatContentSeries.runtime_setup
       ~HeatContentSeries.set_resources
       ~HeatContentSeries.set_shared_config
       ~HeatContentSeries.setup
+      ~HeatContentSeries.setup_inputs
+      ~HeatContentSeries.valid_level_range
       ~HeatContentSeries.validate_baselines
       ~HeatContentSeries.work_path
       ~HeatContentSeries.write_forcing_dataset

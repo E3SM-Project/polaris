@@ -42,11 +42,13 @@
       ~Moc.open_model_dataset
       ~Moc.open_vert_coord_dataset
       ~Moc.process_inputs_and_outputs
+      ~Moc.read_fields
       ~Moc.run
       ~Moc.runtime_setup
       ~Moc.set_resources
       ~Moc.set_shared_config
       ~Moc.setup
+      ~Moc.valid_level_range
       ~Moc.validate_baselines
       ~Moc.work_path
       ~Moc.write_forcing_dataset

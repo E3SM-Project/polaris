@@ -473,10 +473,19 @@ window.runMermaid = runMermaid;</script>
   <h1>Source code for polaris.tasks.ocean.analysis.analysis_step</h1><div class="highlight"><pre>
 <span></span><span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
 
+<span class="kn">import</span><span class="w"> </span><span class="nn">xarray</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">xr</span>
+
 <span class="kn">from</span><span class="w"> </span><span class="nn">polaris.analysis</span><span class="w"> </span><span class="kn">import</span> <span class="n">Manifest</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">polaris.analysis.manifest</span><span class="w"> </span><span class="kn">import</span> <span class="n">FRAGMENT_FILENAME</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">polaris.ocean.model</span><span class="w"> </span><span class="kn">import</span> <span class="n">OceanIOStep</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.ocean.vertical.elevation</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_valid_level_range</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">polaris.tasks.ocean.analysis.sim_files</span><span class="w"> </span><span class="kn">import</span> <span class="n">SimulationFiles</span>
+
+<span class="c1"># The local names the simulation's mesh and vertical coordinate are linked</span>
+<span class="c1"># into a step's work directory as.  Both are named here rather than in each</span>
+<span class="c1"># step, since a step that reads one reads it under this name.</span>
+<span class="n">MESH_FILENAME</span> <span class="o">=</span> <span class="s1">'mesh.nc'</span>
+<span class="n">VERT_COORD_FILENAME</span> <span class="o">=</span> <span class="s1">'vert_coord.nc'</span>
 
 
 <div class="viewcode-block" id="AnalysisStep">
@@ -706,6 +715,72 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">        """</span>
         <span class="k">for</span> <span class="n">sim_file</span> <span class="ow">in</span> <span class="n">sim_files</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">add_sim_input_file</span><span class="p">(</span><span class="n">sim_file</span><span class="o">.</span><span class="n">path</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="AnalysisStep.read_fields">
+<a class="viewcode-back" href="../../../../../developers_guide/ocean/generated/polaris.tasks.ocean.analysis.analysis_step.AnalysisStep.read_fields.html#polaris.tasks.ocean.analysis.analysis_step.AnalysisStep.read_fields">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">read_fields</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="n">fields</span><span class="p">,</span> <span class="n">suffix</span><span class="o">=</span><span class="s1">''</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">        Read a few named fields from a file of the simulation, translating</span>
+<span class="sd">        their names but nothing else</span>
+
+<span class="sd">        The mesh and the vertical coordinate a simulation names are often</span>
+<span class="sd">        its initial condition, which carries a full model state.  Opening one</span>
+<span class="sd">        as a model data set would then derive specific volume from that</span>
+<span class="sd">        state --- an equation-of-state solve --- to get a handful of fields</span>
+<span class="sd">        that are already there, so the names are translated and nothing else</span>
+<span class="sd">        is done.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        filename : str</span>
+<span class="sd">            The local name of the file in the step's work directory</span>
+
+<span class="sd">        fields : list of str</span>
+<span class="sd">            The MPAS-Ocean names of the fields to read; a field the file does</span>
+<span class="sd">            not have is left out</span>
+
+<span class="sd">        suffix : str, optional</span>
+<span class="sd">            What the file appends to each field's name, which is removed</span>
+<span class="sd">            again: Omega names each field of a monthly mean for the field</span>
+<span class="sd">            and the period, ``Temperature_TimeMean1Month``.  See</span>
+<span class="sd">            :py:func:`polaris.tasks.ocean.analysis.sim_files.time_mean_suffix`</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        ds : xarray.Dataset</span>
+<span class="sd">            The fields that were there, with MPAS-Ocean names, in memory</span>
+<span class="sd">        """</span>
+        <span class="n">wanted</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">component</span><span class="o">.</span><span class="n">map_var_list_to_native_model</span><span class="p">(</span><span class="n">fields</span><span class="p">)</span>
+        <span class="k">with</span> <span class="n">xr</span><span class="o">.</span><span class="n">open_dataset</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">work_path</span><span class="p">(</span><span class="n">filename</span><span class="p">))</span> <span class="k">as</span> <span class="n">ds_native</span><span class="p">:</span>
+            <span class="n">present</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">name</span><span class="si">}{</span><span class="n">suffix</span><span class="si">}</span><span class="s1">'</span><span class="p">:</span> <span class="n">name</span>
+                <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">wanted</span>
+                <span class="k">if</span> <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">name</span><span class="si">}{</span><span class="n">suffix</span><span class="si">}</span><span class="s1">'</span> <span class="ow">in</span> <span class="n">ds_native</span>
+            <span class="p">}</span>
+            <span class="n">ds_native</span> <span class="o">=</span> <span class="n">ds_native</span><span class="p">[</span><span class="nb">list</span><span class="p">(</span><span class="n">present</span><span class="p">)]</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">present</span><span class="p">)</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">map_from_native_model_vars</span><span class="p">(</span><span class="n">ds_native</span><span class="p">)</span><span class="o">.</span><span class="n">load</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="AnalysisStep.valid_level_range">
+<a class="viewcode-back" href="../../../../../developers_guide/ocean/generated/polaris.tasks.ocean.analysis.analysis_step.AnalysisStep.valid_level_range.html#polaris.tasks.ocean.analysis.analysis_step.AnalysisStep.valid_level_range">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">valid_level_range</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">        Get the topmost and bottommost valid layer of each column, from the</span>
+<span class="sd">        vertical coordinate the step linked</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        min_level_cell : xarray.DataArray</span>
+<span class="sd">            The zero-based index of the topmost valid layer of each column</span>
+
+<span class="sd">        max_level_cell : xarray.DataArray</span>
+<span class="sd">            The zero-based index of the bottommost valid layer of each column</span>
+<span class="sd">        """</span>
+        <span class="n">ds</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">read_fields</span><span class="p">(</span>
+            <span class="n">VERT_COORD_FILENAME</span><span class="p">,</span> <span class="p">[</span><span class="s1">'minLevelCell'</span><span class="p">,</span> <span class="s1">'maxLevelCell'</span><span class="p">]</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="n">get_valid_level_range</span><span class="p">(</span><span class="n">ds</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="AnalysisStep.log_inputs">

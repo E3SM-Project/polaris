@@ -674,6 +674,8 @@ window.runMermaid = runMermaid;</script>
 
 
 
+<div class="viewcode-block" id="range_bound_label">
+<a class="viewcode-back" href="../../../../developers_guide/ocean/generated/polaris.ocean.vertical.elevation.range_bound_label.html#polaris.ocean.vertical.elevation.range_bound_label">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">range_bound_label</span><span class="p">(</span><span class="n">elevation</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Get the label one end of an elevation range is identified by</span>
@@ -696,9 +698,12 @@ window.runMermaid = runMermaid;</script>
         <span class="k">return</span> <span class="s1">'top'</span>
     <span class="k">if</span> <span class="n">elevation</span> <span class="o">==</span> <span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">inf</span><span class="p">:</span>
         <span class="k">return</span> <span class="s1">'bottom'</span>
-    <span class="k">return</span> <span class="n">elevation_label</span><span class="p">(</span><span class="n">elevation</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">elevation_label</span><span class="p">(</span><span class="n">elevation</span><span class="p">)</span></div>
 
 
+
+<div class="viewcode-block" id="is_whole_column">
+<a class="viewcode-back" href="../../../../developers_guide/ocean/generated/polaris.ocean.vertical.elevation.is_whole_column.html#polaris.ocean.vertical.elevation.is_whole_column">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">is_whole_column</span><span class="p">(</span><span class="n">reduction</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Whether an elevation range covers every valid layer of every column</span>
@@ -722,9 +727,12 @@ window.runMermaid = runMermaid;</script>
         <span class="n">reduction</span><span class="o">.</span><span class="n">kind</span> <span class="o">==</span> <span class="s1">'range'</span>
         <span class="ow">and</span> <span class="n">reduction</span><span class="o">.</span><span class="n">z_top</span> <span class="o">==</span> <span class="n">np</span><span class="o">.</span><span class="n">inf</span>
         <span class="ow">and</span> <span class="n">reduction</span><span class="o">.</span><span class="n">z_bot</span> <span class="o">==</span> <span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">inf</span>
-    <span class="p">)</span>
+    <span class="p">)</span></div>
 
 
+
+<div class="viewcode-block" id="elevation_range_weights">
+<a class="viewcode-back" href="../../../../developers_guide/ocean/generated/polaris.ocean.vertical.elevation.elevation_range_weights.html#polaris.ocean.vertical.elevation.elevation_range_weights">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">elevation_range_weights</span><span class="p">(</span>
     <span class="n">z_interface</span><span class="p">,</span>
     <span class="n">layer_mass</span><span class="p">,</span>
@@ -822,7 +830,8 @@ window.runMermaid = runMermaid;</script>
         <span class="n">units</span><span class="o">=</span><span class="s1">'kg m-2'</span><span class="p">,</span>
         <span class="n">long_name</span><span class="o">=</span><span class="s1">'mass per unit area within the elevation range'</span><span class="p">,</span>
     <span class="p">)</span>
-    <span class="k">return</span> <span class="n">weights</span>
+    <span class="k">return</span> <span class="n">weights</span></div>
+
 
 
 <div class="viewcode-block" id="apply_vertical_reduction">

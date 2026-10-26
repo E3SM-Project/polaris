@@ -587,11 +587,16 @@ Polaris shall reconstruct them from the normal velocity on edges.</p>
 </section>
 <section id="requirement-ocean-heat-content-maps">
 <h3>Requirement: ocean-heat-content-maps<a class="headerlink" href="#requirement-ocean-heat-content-maps" title="Link to this heading"></a></h3>
-<p>Date last modified: 2026/08/25</p>
+<p>Date last modified: 2026/10/26</p>
 <p>Contributors: Xylar Asay-Davis, Claude</p>
 <p>Polaris shall compute ocean heat content integrated over elevation ranges from
-a climatology of conservative temperature, and shall produce a global map for
-each elevation range and each requested season.</p>
+a climatology of conservative temperature, and shall produce a global map of
+its change from the first monthly mean of the analyzed range for each
+elevation range and each requested season.</p>
+<p>Heat content itself is not mapped, since such a map mostly shows how deep each
+column is; its change shows where heat went.  The initial condition would be
+the better reference, since the first monthly mean depends on the range
+analyzed and already carries a month of adjustment, and is follow-up work.</p>
 <p>This is the elevation-range case of the vertical reduction required above, and
 is delivered as a field of the climatology maps rather than as a product of its
 own.  A heat content map is a climatology map of a field that happens to be
@@ -1023,7 +1028,7 @@ follow-up after September 15 if the fallback is what ships.</p>
 </section>
 <section id="algorithm-design-ocean-heat-content">
 <h3>Algorithm Design: ocean-heat-content<a class="headerlink" href="#algorithm-design-ocean-heat-content" title="Link to this heading"></a></h3>
-<p>Date last modified: 2026/08/25</p>
+<p>Date last modified: 2026/10/26</p>
 <p>Contributors: Xylar Asay-Davis, Claude</p>
 <p><em>This algorithm is shared by the heat content maps and the heat content time
 series; the two differ in what they integrate over and in what they read, not
@@ -1034,12 +1039,13 @@ temperature.  Over an elevation range <span class="math notranslate nohighlight"
 surface, or the seafloor,</p>
 <div class="math notranslate nohighlight">
 \[
-Q(z_{bot}, z_{top}) = c_p^0 \int_{z_{bot}}^{z_{top}} \rho \, \Theta \, dz
-                    = \rho_0 c_p^0 \int_{\tilde{z}_{bot}}^{\tilde{z}_{top}}
+Q(z_{bot}, z_{top}) = c_p \int_{z_{bot}}^{z_{top}} \rho \, \Theta \, dz
+                    = \rho_0 c_p \int_{\tilde{z}_{bot}}^{\tilde{z}_{top}}
                       \Theta \, d\tilde{z}
-                    \approx \rho_0 c_p^0 \sum_k \Theta_k \, \tilde{w}_k
+                    \approx \rho_0 c_p \sum_k \Theta_k \, \tilde{w}_k
 \]</div>
-<p>where <span class="math notranslate nohighlight">\(\Theta\)</span> is conservative temperature, <span class="math notranslate nohighlight">\(\rho\)</span> is in-situ density, and
+<p>where <span class="math notranslate nohighlight">\(\Theta\)</span> is conservative temperature, <span class="math notranslate nohighlight">\(c_p\)</span> is the specific heat
+capacity of seawater, <span class="math notranslate nohighlight">\(\rho\)</span> is in-situ density, and
 <span class="math notranslate nohighlight">\(\tilde{w}_k\)</span> is the pseudo-thickness of the overlap between layer <span class="math notranslate nohighlight">\(k\)</span> and the
 requested range.</p>
 <p>The middle step is the change of variable <span class="math notranslate nohighlight">\(\rho \, dz = \rho_0 \, d\tilde{z}\)</span>
@@ -1123,29 +1129,15 @@ Q_{tot} = \sum_i A_i \, Q_i
 <p>over cells <span class="math notranslate nohighlight">\(i\)</span> with area <code class="docutils literal notranslate"><span class="pre">areaCell</span></code>.</p>
 <section id="choice-of-constants">
 <h4>Choice of constants<a class="headerlink" href="#choice-of-constants" title="Link to this heading"></a></h4>
-<p>Omega uses TEOS-10, in which conservative temperature is <em>defined</em> so that
-potential enthalpy is <span class="math notranslate nohighlight">\(c_p^0 \Theta\)</span> with the exact constant
-<span class="math notranslate nohighlight">\(c_p^0 = 3991.86795711963\)</span> J kg⁻¹ K⁻¹.  Using that constant with conservative
-temperature is therefore not an approximation but the definition of heat
-content.</p>
-<p>Polaris’s Physical Constants Dictionary provides
-<code class="docutils literal notranslate"><span class="pre">seawater_specific_heat_capacity_reference</span></code> = 3996.0 J kg⁻¹ K⁻¹ and
-<code class="docutils literal notranslate"><span class="pre">seawater_density_reference</span></code> = 1026.0 kg m⁻³, which are the values
-MPAS-Analysis uses.  The specific heat capacity differs from the TEOS-10
-constant by 0.1%, which is small compared to other uncertainties but is a
-systematic offset in any comparison.</p>
-<p><strong>Decision:</strong> Phase 1 uses the PCD value for <span class="math notranslate nohighlight">\(c_p^0\)</span>.  The TEOS-10 constant is
-not in the PCD today, and adding a constant to it is not something we can
-complete by September 15, so using the PCD is what keeps Polaris consistent
-with the constants the rest of E3SM is using in the meantime.  It is exposed as
-a config option so that a user can experiment with the TEOS-10 value without a
-code change.</p>
-<p>In the long run we do want <span class="math notranslate nohighlight">\(c_p^0\)</span>: because Omega carries conservative
-temperature, <span class="math notranslate nohighlight">\(c_p^0 \Theta\)</span> is potential enthalpy per unit mass by definition,
-so the mass-weighted integral above is the heat content rather than an
-approximation to it.  Adding <span class="math notranslate nohighlight">\(c_p^0\)</span> to the PCD and switching to it is recorded
-as a deferred item in <a class="reference internal" href="ocean_analysis.html#design-ocean-analysis"><span class="std std-ref">Ocean Analysis in Polaris</span></a>.</p>
-<p><strong><span class="math notranslate nohighlight">\(\rho_0\)</span> is not a free parameter.</strong>  Unlike <span class="math notranslate nohighlight">\(c_p^0\)</span>, the reference density in
+<p><strong>Decision:</strong> both constants come from Polaris’s Physical Constants
+Dictionary, and neither is a config option: <span class="math notranslate nohighlight">\(c_p\)</span> is
+<code class="docutils literal notranslate"><span class="pre">seawater_specific_heat_capacity_reference</span></code> = 3996.0 J kg⁻¹ K⁻¹ and <span class="math notranslate nohighlight">\(\rho_0\)</span>
+is <code class="docutils literal notranslate"><span class="pre">seawater_density_reference</span></code> = 1026.0 kg m⁻³.  The PCD is how Polaris, Omega
+and the rest of E3SM agree on a constant, so a model that uses a different
+value is the thing to fix, not the analysis.  TEOS-10 defines potential
+enthalpy with <span class="math notranslate nohighlight">\(c_p^0 = 3991.86795711963\)</span> J kg⁻¹ K⁻¹, 0.1% lower; if E3SM adopts
+that constant, it belongs in the PCD, and the analysis picks it up from there.</p>
+<p><strong><span class="math notranslate nohighlight">\(\rho_0\)</span> is not a free parameter.</strong>  The reference density in
 the discrete sum is not a modeling choice we are making — it is the constant
 that <em>defines</em> pseudo-height in Omega, and the Boussinesq reference density in
 MPAS-Ocean.  Using any other value would make <span class="math notranslate nohighlight">\(\rho_0 \tilde{h}\)</span> something
@@ -1235,7 +1227,7 @@ open questions.</p>
 <h2>Implementation<a class="headerlink" href="#implementation" title="Link to this heading"></a></h2>
 <section id="implementation-analysis-suite">
 <h3>Implementation: analysis-suite<a class="headerlink" href="#implementation-analysis-suite" title="Link to this heading"></a></h3>
-<p>Date last modified: 2026/08/29</p>
+<p>Date last modified: 2026/10/26</p>
 <p>Contributors: Xylar Asay-Davis, Claude</p>
 <section id="tasks-steps-and-the-suite">
 <h4>Tasks, steps, and the suite<a class="headerlink" href="#tasks-steps-and-the-suite" title="Link to this heading"></a></h4>
@@ -1383,11 +1375,6 @@ proposed starting point:</p>
 <span class="c1"># geometric elevations, matching the convention used by MPAS-Analysis and by</span>
 <span class="c1"># observational heat content products; the integral itself is mass-weighted.</span>
 <span class="na">elevation_ranges</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">top:-700.0, -700.0:-2000.0, -2000.0:bottom, top:bottom</span>
-
-<span class="c1"># The specific heat capacity used to convert conservative temperature to heat</span>
-<span class="c1"># content.  By default, this comes from the Physical Constants Dictionary.</span>
-<span class="c1"># The reference density is not a config option; see the algorithm design.</span>
-<span class="c1">#seawater_specific_heat_capacity = 3996.0</span>
 
 
 <span class="k">[ocean_analysis_time_series]</span>
@@ -2465,19 +2452,23 @@ cannot mistake them for an in-situ diagnostic.</p>
 </section>
 <section id="implementation-ocean-heat-content-maps">
 <h3>Implementation: ocean-heat-content-maps<a class="headerlink" href="#implementation-ocean-heat-content-maps" title="Link to this heading"></a></h3>
-<p>Date last modified: 2026/08/25</p>
+<p>Date last modified: 2026/10/26</p>
 <p>Contributors: Xylar Asay-Davis, Claude</p>
 <p>Heat content maps are the <code class="docutils literal notranslate"><span class="pre">heat_content</span></code> field group of <code class="docutils literal notranslate"><span class="pre">ClimatologyMaps</span></code>, not
-a step of their own.  The group differs from the others in two small ways, both
-of which the loop above already accommodates:</p>
+a step of their own.  The group differs from the others in three small ways,
+all of which the loop above already accommodates:</p>
 <ul class="simple">
 <li><p>its field is derived rather than read, by
-<code class="docutils literal notranslate"><span class="pre">heat_content(ds.temperature,</span> <span class="pre">weights,</span> <span class="pre">cp0)</span></code> where <code class="docutils literal notranslate"><span class="pre">weights</span></code> comes from
+<code class="docutils literal notranslate"><span class="pre">heat_content(ds.temperature,</span> <span class="pre">weights)</span></code> where <code class="docutils literal notranslate"><span class="pre">weights</span></code> comes from
 <code class="docutils literal notranslate"><span class="pre">elevation_range_weights</span></code>, so the derivation happens inside the reduction
 loop rather than before it, since the weights depend on the range;</p></li>
 <li><p>its vertical reductions are the configured elevation ranges rather than the
 configured elevations, and they are read from <code class="docutils literal notranslate"><span class="pre">[ocean_analysis_ohc]</span></code> rather
-than from <code class="docutils literal notranslate"><span class="pre">[ocean_analysis_climatology]</span></code>.</p></li>
+than from <code class="docutils literal notranslate"><span class="pre">[ocean_analysis_climatology]</span></code>;</p></li>
+<li><p>what it maps is the change in each range’s heat content from the first
+monthly mean of the range, which the step links at setup and integrates once
+per run the same way as each season, so the two differ only in the state
+they come from.</p></li>
 </ul>
 <p>The layer weights <span class="math notranslate nohighlight">\(\tilde{w}_k\)</span> do depend on the range, so they are not shared
 between ranges — but everything expensive is.  The climatology of <span class="math notranslate nohighlight">\(\Theta\)</span>,
@@ -2491,15 +2482,15 @@ while the accumulator exists only for the time series, where the per-month
 values <em>are</em> the product.  The asymmetry is not an inconsistency — it is the
 difference between wanting a seasonal mean, which the climatology already is,
 and wanting a time axis, which only a pass over every month can give.</p>
-<p>The result is written to netCDF in J m⁻² and plotted in GJ m⁻² — a range of
-<span class="math notranslate nohighlight">\(0\)</span> to <span class="math notranslate nohighlight">\(-700\)</span> m at a typical 10 °C is about 29 GJ m⁻², which is a readable
-number.  Output names follow the same convention as the rest of the maps,
-<code class="docutils literal notranslate"><span class="pre">heat_content_&lt;season&gt;_&lt;range_label&gt;.png</span></code>, for example
-<code class="docutils literal notranslate"><span class="pre">heat_content_ANN_top_to_-700m.png</span></code> and
-<code class="docutils literal notranslate"><span class="pre">heat_content_ANN_-2000m_to_bottom.png</span></code>.  Plot
-titles state the elevation range and the season explicitly, and the netCDF
-carries the range as attributes, so that a plot cannot be mistaken for a
-different range.</p>
+<p>The result is written to netCDF in J m⁻² and plotted in GJ m⁻², the unit
+MPAS-Analysis maps its heat content anomaly in, with a diverging colormap.
+Output names follow the same convention as the rest of the maps,
+<code class="docutils literal notranslate"><span class="pre">heat_content_anomaly_&lt;season&gt;_&lt;range_label&gt;.png</span></code>, for example
+<code class="docutils literal notranslate"><span class="pre">heat_content_anomaly_ANN_top_to_-700m.png</span></code> and
+<code class="docutils literal notranslate"><span class="pre">heat_content_anomaly_ANN_-2000m_to_bottom.png</span></code>.  Plot titles state the
+reference, the elevation range and the season explicitly, and the netCDF
+carries the range and the reference month as attributes, so that a plot
+cannot be mistaken for a different one.</p>
 </section>
 <section id="implementation-global-stats-time-series">
 <h3>Implementation: global-stats-time-series<a class="headerlink" href="#implementation-global-stats-time-series" title="Link to this heading"></a></h3>
@@ -2550,7 +2541,7 @@ is what makes them.</p>
 </section>
 <section id="implementation-ocean-heat-content-time-series">
 <h3>Implementation: ocean-heat-content-time-series<a class="headerlink" href="#implementation-ocean-heat-content-time-series" title="Link to this heading"></a></h3>
-<p>Date last modified: 2026/08/25</p>
+<p>Date last modified: 2026/10/26</p>
 <p>Contributors: Xylar Asay-Davis, Claude</p>
 <p>This product is one accumulator step, <code class="docutils literal notranslate"><span class="pre">HeatContentSeries</span></code>, keyed by the
 requested range.  Its kernel reduces one month to a handful of numbers:</p>
@@ -2563,7 +2554,7 @@ requested range.  Its kernel reduces one month to a handful of numbers:</p>
         <span class="k">for</span> <span class="n">z_top</span><span class="p">,</span> <span class="n">z_bot</span> <span class="ow">in</span> <span class="n">elevation_ranges</span><span class="p">:</span>
             <span class="n">weights</span> <span class="o">=</span> <span class="n">elevation_range_weights</span><span class="p">(</span><span class="n">z_interface</span><span class="p">,</span> <span class="n">layer_mass</span><span class="p">,</span>
                                               <span class="n">k_min</span><span class="p">,</span> <span class="n">k_max</span><span class="p">,</span> <span class="n">z_top</span><span class="p">,</span> <span class="n">z_bot</span><span class="p">)</span>
-            <span class="n">column</span> <span class="o">=</span> <span class="n">heat_content</span><span class="p">(</span><span class="n">ds</span><span class="o">.</span><span class="n">temperature</span><span class="p">,</span> <span class="n">weights</span><span class="p">,</span> <span class="n">cp0</span><span class="p">)</span>
+            <span class="n">column</span> <span class="o">=</span> <span class="n">heat_content</span><span class="p">(</span><span class="n">ds</span><span class="o">.</span><span class="n">temperature</span><span class="p">,</span> <span class="n">weights</span><span class="p">)</span>
             <span class="n">ohc</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">area_cell</span> <span class="o">*</span> <span class="n">column</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="s1">'nCells'</span><span class="p">))</span>
         <span class="k">return</span> <span class="n">xr</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="n">ohc</span><span class="p">)</span>
 </pre></div>
@@ -2977,7 +2968,7 @@ elevation, so that a mistake in the reference pressure is caught.</p></li>
 </section>
 <section id="testing-and-validation-ocean-heat-content">
 <h3>Testing and Validation: ocean-heat-content<a class="headerlink" href="#testing-and-validation-ocean-heat-content" title="Link to this heading"></a></h3>
-<p>Date last modified: 2026/08/25</p>
+<p>Date last modified: 2026/10/26</p>
 <p>Contributors: Xylar Asay-Davis, Claude</p>
 <p>Unit tests on <code class="docutils literal notranslate"><span class="pre">elevation_range_weights</span></code> and <code class="docutils literal notranslate"><span class="pre">heat_content</span></code> are written in
 pseudo-height, since that is the coordinate the
@@ -2988,9 +2979,9 @@ than coincidentally pass:</p>
 <li><p>for a range aligned with layer interfaces, the weights are exactly the layer
 masses <span class="math notranslate nohighlight">\(\rho_0 \tilde{h}_k\)</span> in the range and zero outside;</p></li>
 <li><p>for such a range, a constant temperature <span class="math notranslate nohighlight">\(\Theta_0\)</span> gives heat content
-exactly <span class="math notranslate nohighlight">\(\rho_0 c_p^0 \Theta_0 \Delta\tilde{z}\)</span>, where <span class="math notranslate nohighlight">\(\Delta\tilde{z}\)</span> is
+exactly <span class="math notranslate nohighlight">\(\rho_0 c_p \Theta_0 \Delta\tilde{z}\)</span>, where <span class="math notranslate nohighlight">\(\Delta\tilde{z}\)</span> is
 the pseudo-thickness of the range — <em>not</em> its geometric thickness;</p></li>
-<li><p>the whole-column result equals <span class="math notranslate nohighlight">\(c_p^0 \sum_k \Theta_k \rho_0 \tilde{h}_k\)</span> and
+<li><p>the whole-column result equals <span class="math notranslate nohighlight">\(c_p \sum_k \Theta_k \rho_0 \tilde{h}_k\)</span> and
 is unchanged if the geometric interfaces are perturbed while pseudo-thickness
 is held fixed, which is the property that distinguishes the mass-weighted
 form from the geometric one;</p></li>
@@ -3003,7 +2994,10 @@ seafloor;</p></li>
 <li><p>the whole-ocean range equals the sum of a set of ranges that partition it,
 which is a useful invariant that also exercises the <code class="docutils literal notranslate"><span class="pre">bottom</span></code> keyword;</p></li>
 <li><p>for a column entirely above <span class="math notranslate nohighlight">\(z_{top}\)</span>, the result is zero rather than <code class="docutils literal notranslate"><span class="pre">NaN</span></code>,
-since a <code class="docutils literal notranslate"><span class="pre">NaN</span></code> here would poison the global sum.</p></li>
+since a <code class="docutils literal notranslate"><span class="pre">NaN</span></code> here would poison the global sum;</p></li>
+<li><p>a map is the change from the first monthly mean: a first month uniformly
+colder by <span class="math notranslate nohighlight">\(\Delta\Theta\)</span> than a season gives <span class="math notranslate nohighlight">\(c_p \Delta\Theta\)</span> times the
+mass of the range.</p></li>
 </ul>
 </section>
 <section id="testing-and-validation-time-series-and-moc">
@@ -3095,9 +3089,8 @@ the simulation did not write are skipped rather than raising.</p></li>
 <p>Two questions from earlier drafts are now settled and are recorded here so that
 they are not reopened by accident:</p>
 <ul class="simple">
-<li><p><strong>Constants for heat content:</strong> Phase 1 uses the PCD values, since adding
-<span class="math notranslate nohighlight">\(c_p^0\)</span> to the PCD cannot be completed by September 15.  Switching to the
-TEOS-10 constant is a deferred item in <a class="reference internal" href="ocean_analysis.html#design-ocean-analysis"><span class="std std-ref">Ocean Analysis in Polaris</span></a>.</p></li>
+<li><p><strong>Constants for heat content:</strong> both come from the PCD, and neither is a
+config option.</p></li>
 <li><p><strong>Task granularity for ocean heat content:</strong> one task, two steps.</p></li>
 </ul>
 </section>

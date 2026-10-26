@@ -16,8 +16,6 @@
       <script src="../_static/documentation_options.js?v=a8da1a53"></script>
       <script src="../_static/doctools.js?v=fd6eb6e6"></script>
       <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
-      <script>window.MathJax = {"options": {"processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
-      <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-mml-chtml.js"></script>
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
@@ -1089,20 +1087,12 @@ each expect the same next number, and only the first to merge is right.</p>
 </section>
 <section id="implementation-items-deferred-from-phase-1">
 <h3>Implementation: items deferred from Phase 1<a class="headerlink" href="#implementation-items-deferred-from-phase-1" title="Link to this heading"></a></h3>
-<p>Date last modified: 2026/08/29</p>
+<p>Date last modified: 2026/10/26</p>
 <p>Contributors: Xylar Asay-Davis, Claude</p>
 <p>Things that Phase 1 knowingly does the simpler way because of its September 15
 deadline, recorded here so that they are picked up rather than forgotten.  Each
 is explained in context in <a class="reference internal" href="ocean_analysis_initial.html#design-ocean-analysis-initial"><span class="std std-ref">Initial Omega Analysis Capabilities</span></a>.</p>
 <ul class="simple">
-<li><p><strong>Use the TEOS-10 heat capacity for ocean heat content.</strong>  Omega carries
-conservative temperature, for which <span class="math notranslate nohighlight">\(\rho_0 c_p^0 \Theta\)</span> with
-<span class="math notranslate nohighlight">\(c_p^0 = 3991.86795711963\)</span> J kg⁻¹ K⁻¹ is the <em>definition</em> of heat content
-rather than an approximation.  That constant is not in the Physical Constants
-Dictionary, and adding it is not achievable by September 15, so Phase 1 uses
-the PCD’s <code class="docutils literal notranslate"><span class="pre">seawater_specific_heat_capacity_reference</span></code> (3996 J kg⁻¹ K⁻¹)
-instead — a 0.1% systematic offset.  The follow-up is to add <span class="math notranslate nohighlight">\(c_p^0\)</span> to the
-PCD and switch to it.</p></li>
 <li><p><strong>Replace the offline mixed-layer depth fallback</strong>, if it is what ships, with
 Omega’s in-situ density-threshold diagnostic.  A mixed-layer depth derived
 from monthly-mean profiles cannot represent deep winter mixing events and

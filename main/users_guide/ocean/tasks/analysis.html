@@ -16,6 +16,8 @@
       <script src="../../../_static/documentation_options.js?v=a8da1a53"></script>
       <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
       <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script>window.MathJax = {"options": {"processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+      <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-mml-chtml.js"></script>
     <script src="../../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
@@ -365,7 +367,40 @@ complete.</p></li>
 so analyzing years 21–40 leaves the results for years 1–20 in place.  This
 also makes it impossible to get a plot labelled with one range whose
 contents came from another.</p></li>
+<li><p><strong>An overlapping range inherits rather than recomputes.</strong>  The products that
+reduce the simulation month by month – ocean heat content so far – cache
+each month they reduce, and a later range reads the months an earlier one
+already did instead of reading those monthly means again.  Extending a
+twenty-year series to forty therefore costs twenty years, and re-running a
+sub-range of one already analyzed costs nothing.</p></li>
 </ul>
+<section id="what-may-be-inherited-and-what-may-not">
+<span id="ocean-analysis-inheritance"></span><h3>what may be inherited, and what may not<a class="headerlink" href="#what-may-be-inherited-and-what-may-not" title="Link to this heading"></a></h3>
+<p>Inheriting numbers that were computed from something else is the one way this
+could go quietly wrong, so what a cache has to agree with before it is used is
+deliberately narrow:</p>
+<ul class="simple">
+<li><p>Only directories of <strong>the same product</strong> in <strong>the same work directory</strong> are
+looked at – sibling ranges of that product, and nothing else.</p></li>
+<li><p>Only steps that <strong>finished</strong> are, so a cache left behind by an interrupted
+run is not picked up.  The exception is the step’s own directory: a run that
+was interrupted picks up where it left off when it is re-run.</p></li>
+<li><p>Only caches carrying the same <strong>provenance stamp</strong> are: the simulation’s
+Omega configuration and output directory, the mesh, the config options and
+constants that decide the numbers – the elevation ranges and the specific
+heat capacity for heat content – and a version number for the code that
+computed them.
+The path says nothing about which simulation was analyzed, so the stamp is
+what keeps a work directory pointed at a second simulation from mixing the
+two.</p></li>
+</ul>
+<p>Every run says in its log how many months it inherited and from where, and
+names any candidate it turned down together with the entry of the stamp that
+differs.  The stamp is also written into the cache and into the product beside
+it, so <code class="docutils literal notranslate"><span class="pre">ncdump</span> <span class="pre">-h</span></code> on a result says what it came from.</p>
+<p>Setting <code class="docutils literal notranslate"><span class="pre">reuse_previous</span> <span class="pre">=</span> <span class="pre">False</span></code> in <code class="docutils literal notranslate"><span class="pre">[ocean_analysis]</span></code> turns inheritance off
+and recomputes everything from the monthly means, for anyone who wants
+determinism rather than discovery.</p>
 <p>Re-running <code class="docutils literal notranslate"><span class="pre">polaris</span> <span class="pre">setup</span></code> rewrites the suite pickle at the root of the work
 directory, so the range most recently set up is the one <code class="docutils literal notranslate"><span class="pre">polaris</span> <span class="pre">serial</span></code> will
 run.  Step directories from earlier ranges are untouched, so returning to an
@@ -373,6 +408,7 @@ earlier range means re-running setup with that range’s config.</p>
 <p>Analyzing many ranges accumulates step directories and intermediate files,
 which is what makes re-analyzing an earlier range nearly free.  It is worth
 knowing about on a filesystem with a quota; the climatology files dominate.</p>
+</section>
 </section>
 <section id="products">
 <span id="ocean-analysis-products"></span><h2>products<a class="headerlink" href="#products" title="Link to this heading"></a></h2>
@@ -386,7 +422,7 @@ knowing about on a filesystem with a quota; the climatology files dominate.</p>
 </thead>
 <tbody>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">climatology_maps</span></code></p></td>
-<td><p>map-view climatologies, one step per field group</p></td>
+<td><p>map-view climatologies and maps of the change in ocean heat content, one step per field group</p></td>
 <td><p><a class="reference internal" href="#ocean-analysis-climatology-maps"><span class="std std-ref">available</span></a></p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">global_stats</span></code></p></td>
@@ -395,7 +431,7 @@ knowing about on a filesystem with a quota; the climatology files dominate.</p>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">heat_content_series</span></code></p></td>
 <td><p>time series of globally integrated ocean heat content</p></td>
-<td><p>not yet implemented</p></td>
+<td><p><a class="reference internal" href="#ocean-analysis-heat-content-series"><span class="std std-ref">available</span></a></p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">moc</span></code></p></td>
 <td><p>latitude-elevation plot of the meridional overturning circulation</p></td>
@@ -517,13 +553,62 @@ the climatology of the reconstructed velocity.  It needs <code class="docutils l
 the simulation’s <code class="docutils literal notranslate"><span class="pre">MonthlyAverages</span></code> group; a simulation that writes the
 components themselves has those plotted instead.</p>
 </section>
+<section id="ocean-heat-content">
+<span id="ocean-analysis-heat-content-maps"></span><h4>ocean heat content<a class="headerlink" href="#ocean-heat-content" title="Link to this heading"></a></h4>
+<p>The <code class="docutils literal notranslate"><span class="pre">heat_content</span></code> field group is the one group that derives its field rather
+than reading it.  It is always present, whatever <code class="docutils literal notranslate"><span class="pre">fields</span></code> asks for, since it
+is a diagnostic Polaris computes rather than a variable a simulation writes.</p>
+<p>What it maps is the <strong>change</strong> in heat content from the first monthly mean of
+the range, <code class="docutils literal notranslate"><span class="pre">heat_content_anomaly</span></code>, since a map of heat content itself mostly
+shows how deep each column is.  Each season’s heat content comes from the
+climatology and the first month’s from that monthly mean, computed the same
+way, and the map is the difference.  The first monthly mean stands in for the
+initial condition, so a seasonal map carries the difference between that
+season and the first month as well as any drift.</p>
+<p>Heat content per unit area is a <strong>mass</strong>-weighted integral of conservative
+temperature: the specific heat capacity times the sum over layers of
+temperature weighted by each layer’s mass per unit area.  That mass comes
+from the model’s own mass-like thickness – <code class="docutils literal notranslate"><span class="pre">PseudoThickness</span></code> for Omega,
+<code class="docutils literal notranslate"><span class="pre">layerThickness</span></code> for MPAS-Ocean – times the reference density that defines
+Omega’s pseudo-height.  Weighting by mass rather than by a geometric
+thickness is what removes the in-situ-versus-reference density error of a few
+tenths of a percent that MPAS-Analysis’s formulation carries.</p>
+<p>The ranges to integrate over are given by <code class="docutils literal notranslate"><span class="pre">elevation_ranges</span></code> in
+<code class="docutils literal notranslate"><span class="pre">[ocean_analysis_ohc]</span></code>, written <code class="docutils literal notranslate"><span class="pre">&lt;top&gt;:&lt;bottom&gt;</span></code> in m, positive up:</p>
+<div class="highlight-cfg notranslate"><div class="highlight"><pre><span></span><span class="k">[ocean_analysis_ohc]</span>
+<span class="na">elevation_ranges</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">top:-700.0, -700.0:-2000.0, -2000.0:bottom, top:bottom</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">top</span></code> is the free surface of each column and <code class="docutils literal notranslate"><span class="pre">bottom</span></code> is its seafloor, so
+<code class="docutils literal notranslate"><span class="pre">top:bottom</span></code> is the whole column.  These are geometric elevations, matching
+the convention MPAS-Analysis and the observational products use; the integral
+itself is still mass-weighted.  Writing the upper bound as <code class="docutils literal notranslate"><span class="pre">top</span></code> rather than
+as <code class="docutils literal notranslate"><span class="pre">0.0</span></code> matters: <code class="docutils literal notranslate"><span class="pre">0.0</span></code> would exclude the water between the resting sea
+surface and the free surface, and a different amount of it in every column and
+every season.</p>
+<p>A range boundary usually falls inside a layer rather than on an interface,
+and the geometry enters there and nowhere else: the layer is weighted by the
+fraction of its thickness that the range covers, and that fraction is applied
+to its mass.  A layer lying wholly within the range therefore contributes its
+whole mass whatever the geometry says, and a range that reaches below the
+seafloor is truncated there.  A column with no water in the range at all –
+one shallower than 2000 m, for the <code class="docutils literal notranslate"><span class="pre">-2000.0:bottom</span></code> band – is masked rather
+than plotted as zero.</p>
+<p>The specific heat capacity is the one in Polaris’s Physical Constants
+Dictionary, which is the one the rest of E3SM uses.  Like the reference
+density, it is not a config option.</p>
+<p>Output names follow the rest of the maps, with the range in place of the
+elevation, for example <code class="docutils literal notranslate"><span class="pre">heat_content_anomaly_ANN_top_to_bottom.png</span></code>.  The
+netCDF is written in J m-2, which is the unit the quantity means, and carries
+the range and the month it is a change from as attributes, so a plot cannot be
+mistaken for a different one.  The plot is drawn in GJ m-2 with a diverging
+colormap, set in <code class="docutils literal notranslate"><span class="pre">[ocean_analysis_map_heat_content_anomaly]</span></code>.</p>
+</section>
 <section id="what-is-not-there-yet">
 <h4>what is not there yet<a class="headerlink" href="#what-is-not-there-yet" title="Link to this heading"></a></h4>
 <p><strong><code class="docutils literal notranslate"><span class="pre">mixedLayerDepth</span></code></strong> is in the config file’s field list but is a diagnostic
 Omega does not compute yet, so its maps are reported as skipped in the step’s
 log rather than silently dropped.</p>
-<p>The <code class="docutils literal notranslate"><span class="pre">heat_content</span></code> field group exists but derives nothing yet, so it produces
-no maps.</p>
 </section>
 </section>
 <section id="global-statistics-time-series">
@@ -570,6 +655,44 @@ missing.</p>
 period it is configured with, and it names the variables differently in the
 two cases.  Polaris reads the simulation’s Omega configuration to find out
 which it wrote, so this needs no option of its own.</p>
+</section>
+<section id="ocean-heat-content-time-series">
+<span id="ocean-analysis-heat-content-series"></span><h3>ocean heat content time series<a class="headerlink" href="#ocean-heat-content-time-series" title="Link to this heading"></a></h3>
+<p>The <code class="docutils literal notranslate"><span class="pre">heat_content_series</span></code> task reduces every month of the simulation to the
+globally integrated ocean heat content of each elevation range and plots the
+series.  Heat content drift is what a long coupled simulation is judged on.</p>
+<p>The integral is the same mass-weighted one the maps take, over the same ranges
+from <code class="docutils literal notranslate"><span class="pre">[ocean_analysis_ohc]</span></code>, described under
+<a class="reference internal" href="#ocean-analysis-heat-content-maps"><span class="std std-ref">ocean heat content</span></a>; the difference is that it is taken
+from the monthly means themselves rather than from a climatology.  Averaging
+over the range is exactly what a drift curve must not do, so the climatology
+is no use here.</p>
+<p>The range of years is <code class="docutils literal notranslate"><span class="pre">start_year</span></code> and <code class="docutils literal notranslate"><span class="pre">end_year</span></code> in
+<code class="docutils literal notranslate"><span class="pre">[ocean_analysis_time_series]</span></code>, the same range the global statistics use:</p>
+<div class="highlight-cfg notranslate"><div class="highlight"><pre><span></span><span class="k">[ocean_analysis_time_series]</span>
+<span class="na">start_year</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">1</span>
+<span class="na">end_year</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">60</span>
+</pre></div>
+</div>
+<p>Three files land in the step’s directory:</p>
+<dl class="simple myst">
+<dt><code class="docutils literal notranslate"><span class="pre">heat_content.png</span></code></dt><dd><p>two panels sharing a time axis – the heat content of each range in
+<span class="math notranslate nohighlight">\(10^{22}\)</span> J, which the deep ocean dominates, and its anomaly from the first
+month of the range, which is where a drift of a few tenths of a percent is
+visible at all.</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">heat_content.nc</span></code></dt><dd><p>the same series in J, with the year and the month of each value, and the
+range and the options it was computed under as attributes.</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">ocean_heat_content_cache.nc</span></code></dt><dd><p>the reduced months, which is what a later range inherits; see
+<a class="reference internal" href="#ocean-analysis-inheritance"><span class="std std-ref">what may be inherited, and what may not</span></a>.</p>
+</dd>
+</dl>
+<p>Only <code class="docutils literal notranslate"><span class="pre">temperature</span></code>, the model’s mass-like thickness and, when a range has a
+bound inside the column, <code class="docutils literal notranslate"><span class="pre">GeomZInterface</span></code> are read from each month, and only
+one month is held at a time, so the memory this step needs does not grow with
+the length of the record.  A first run over several decades at high
+resolution is the expensive one, and every run after it is nearly free.</p>
 </section>
 </section>
 <section id="troubleshooting">

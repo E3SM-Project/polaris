@@ -483,19 +483,33 @@ window.runMermaid = runMermaid;</script>
     <span class="n">cartesian_to_local_geographic</span><span class="p">,</span>
     <span class="n">tangential_reconstruction</span><span class="p">,</span>
 <span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.ocean.heat_content</span><span class="w"> </span><span class="kn">import</span> <span class="n">heat_content</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.ocean.model</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_layer_mass</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.ocean.model.layer_mass</span><span class="w"> </span><span class="kn">import</span> <span class="n">MASS_THICKNESS_VARIABLES</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">polaris.ocean.vertical.diagnostics</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_z_mid_and_interface</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">polaris.ocean.vertical.elevation</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">apply_vertical_reduction</span><span class="p">,</span>
-    <span class="n">get_valid_level_range</span><span class="p">,</span>
+    <span class="n">elevation_range_weights</span><span class="p">,</span>
     <span class="n">parse_vertical_reduction</span><span class="p">,</span>
+    <span class="n">range_bound_label</span><span class="p">,</span>
 <span class="p">)</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.tasks.ocean.analysis.analysis_step</span><span class="w"> </span><span class="kn">import</span> <span class="n">AnalysisStep</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.tasks.ocean.analysis.analysis_step</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">MESH_FILENAME</span><span class="p">,</span>
+    <span class="n">VERT_COORD_FILENAME</span><span class="p">,</span>
+    <span class="n">AnalysisStep</span><span class="p">,</span>
+<span class="p">)</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">polaris.tasks.ocean.analysis.climatology</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">VECTOR_RECONSTRUCTIONS</span><span class="p">,</span>
     <span class="n">find_climatology_file</span><span class="p">,</span>
 <span class="p">)</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">polaris.tasks.ocean.analysis.config_sections</span><span class="w"> </span><span class="kn">import</span> <span class="n">map_section</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.tasks.ocean.analysis.sim_files</span><span class="w"> </span><span class="kn">import</span> <span class="n">year_range_key</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.tasks.ocean.analysis.heat_content_config</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">get_elevation_ranges</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.tasks.ocean.analysis.sim_files</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">time_mean_suffix</span><span class="p">,</span>
+    <span class="n">year_range_key</span><span class="p">,</span>
+<span class="p">)</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">polaris.viz</span><span class="w"> </span><span class="kn">import</span> <span class="n">plot_global_mpas_field</span>
 
 <span class="c1"># The field groups maps are chunked into.</span>
@@ -520,7 +534,7 @@ window.runMermaid = runMermaid;</script>
     <span class="s1">'velocity'</span><span class="p">:</span> <span class="p">(</span><span class="s1">'velocityZonal'</span><span class="p">,</span> <span class="s1">'velocityMeridional'</span><span class="p">),</span>
     <span class="s1">'ssh'</span><span class="p">:</span> <span class="p">(</span><span class="s1">'ssh'</span><span class="p">,),</span>
     <span class="s1">'mixed_layer_depth'</span><span class="p">:</span> <span class="p">(</span><span class="s1">'mixedLayerDepth'</span><span class="p">,),</span>
-    <span class="s1">'heat_content'</span><span class="p">:</span> <span class="p">(),</span>
+    <span class="s1">'heat_content'</span><span class="p">:</span> <span class="p">(</span><span class="s1">'heat_content_anomaly'</span><span class="p">,),</span>
 <span class="p">}</span>
 
 <span class="c1"># Heat content is a field group of the maps rather than a product of its own,</span>
@@ -531,6 +545,21 @@ window.runMermaid = runMermaid;</script>
 <span class="c1"># carries, which reconstruct a vector at cell centers from its edge-normal</span>
 <span class="c1"># component</span>
 <span class="n">RECONSTRUCTION_WEIGHT_FIELDS</span> <span class="o">=</span> <span class="p">(</span><span class="s1">'ReconStencilCell'</span><span class="p">,</span> <span class="s1">'ReconWeightsCell'</span><span class="p">)</span>
+
+<span class="c1"># The one field that is computed rather than read.  It is spelled the way a</span>
+<span class="c1"># config section is because it is Polaris's own diagnostic rather than a</span>
+<span class="c1"># variable either model writes, so there is no model spelling to follow.</span>
+<span class="n">HEAT_CONTENT_ANOMALY</span> <span class="o">=</span> <span class="s1">'heat_content_anomaly'</span>
+
+<span class="c1"># The first monthly mean of the range, which heat content is mapped as a</span>
+<span class="c1"># change from.  A map of heat content itself mostly shows the depth of each</span>
+<span class="c1"># column, while its change shows where heat went.</span>
+<span class="n">FIRST_MONTH_FILENAME</span> <span class="o">=</span> <span class="s1">'first_monthly_mean.nc'</span>
+
+<span class="c1"># Heat content is written in J m-2, which is the unit it means, and plotted</span>
+<span class="c1"># in GJ m-2, the unit MPAS-Analysis maps its anomaly in, rather than in</span>
+<span class="c1"># numbers of order 10^9</span>
+<span class="n">J_PER_GJ</span> <span class="o">=</span> <span class="mf">1.0e9</span>
 
 
 <div class="viewcode-block" id="get_field_groups">
@@ -585,6 +614,14 @@ window.runMermaid = runMermaid;</script>
 
 <span class="sd">    fields : list of str</span>
 <span class="sd">        The fields of that group that were requested</span>
+
+<span class="sd">    first_month : tuple of int or None</span>
+<span class="sd">        The year and month of the first monthly mean of the range, which</span>
+<span class="sd">        heat content is mapped as a change from, if this group maps it</span>
+
+<span class="sd">    suffix : str</span>
+<span class="sd">        What the monthly means append to each field's name; see</span>
+<span class="sd">        :py:func:`polaris.tasks.ocean.analysis.sim_files.time_mean_suffix`</span>
 <span class="sd">    """</span>
 
 <div class="viewcode-block" id="ClimatologyMaps.__init__">
@@ -642,6 +679,9 @@ window.runMermaid = runMermaid;</script>
         <span class="bp">self</span><span class="o">.</span><span class="n">_coords</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_mesh_ds</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_reconstruction_mesh</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">first_month</span><span class="p">:</span> <span class="nb">tuple</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">suffix</span> <span class="o">=</span> <span class="s1">''</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_first_month_heat_content</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">add_dependency</span><span class="p">(</span><span class="n">climatology</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">'climatology'</span><span class="p">)</span></div>
 
 
@@ -649,16 +689,26 @@ window.runMermaid = runMermaid;</script>
 <a class="viewcode-back" href="../../../../../developers_guide/ocean/generated/polaris.tasks.ocean.analysis.climatology_maps.ClimatologyMaps.setup.html#polaris.tasks.ocean.analysis.climatology_maps.ClimatologyMaps.setup">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">setup</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">"""</span>
-<span class="sd">        Link the mesh the maps are plotted on and the vertical coordinate</span>
+<span class="sd">        Link the mesh the maps are plotted on and the vertical coordinate,</span>
+<span class="sd">        and the first monthly mean if this group maps heat content</span>
 
 <span class="sd">        The vertical coordinate supplies the topmost and bottommost valid</span>
-<span class="sd">        layer of each column, which the climatology does not carry.</span>
+<span class="sd">        layer of each column, which the climatology does not carry.  The</span>
+<span class="sd">        elevation of the layers themselves does come from the climatology,</span>
+<span class="sd">        since it is the climatological mean of a geometry that moves.</span>
 <span class="sd">        """</span>
         <span class="n">sim_files</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_sim_files</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">add_sim_input_file</span><span class="p">(</span><span class="n">sim_files</span><span class="o">.</span><span class="n">mesh_filename</span><span class="p">(),</span> <span class="s1">'mesh.nc'</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_sim_input_file</span><span class="p">(</span><span class="n">sim_files</span><span class="o">.</span><span class="n">mesh_filename</span><span class="p">(),</span> <span class="n">MESH_FILENAME</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">add_sim_input_file</span><span class="p">(</span>
-            <span class="n">sim_files</span><span class="o">.</span><span class="n">vert_coord_filename</span><span class="p">(),</span> <span class="s1">'vert_coord.nc'</span>
-        <span class="p">)</span></div>
+            <span class="n">sim_files</span><span class="o">.</span><span class="n">vert_coord_filename</span><span class="p">(),</span> <span class="n">VERT_COORD_FILENAME</span>
+        <span class="p">)</span>
+        <span class="k">if</span> <span class="n">HEAT_CONTENT_ANOMALY</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">fields</span><span class="p">:</span>
+            <span class="n">first</span> <span class="o">=</span> <span class="n">sim_files</span><span class="o">.</span><span class="n">monthly_mean_files</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">start_year</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">start_year</span>
+            <span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">add_sim_input_file</span><span class="p">(</span><span class="n">first</span><span class="o">.</span><span class="n">path</span><span class="p">,</span> <span class="n">FIRST_MONTH_FILENAME</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">first_month</span> <span class="o">=</span> <span class="p">(</span><span class="n">first</span><span class="o">.</span><span class="n">year</span><span class="p">,</span> <span class="n">first</span><span class="o">.</span><span class="n">month</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">suffix</span> <span class="o">=</span> <span class="n">time_mean_suffix</span><span class="p">(</span><span class="n">sim_files</span><span class="o">.</span><span class="n">monthly_mean_stream</span><span class="p">())</span></div>
 
 
 <div class="viewcode-block" id="ClimatologyMaps.run">
@@ -669,25 +719,19 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">        vertical reduction that was asked for</span>
 <span class="sd">        """</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">log_inputs</span><span class="p">()</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">fields</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s1">'The </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">field_group</span><span class="si">}</span><span class="s1"> field group is derived rather than '</span>
-                <span class="sa">f</span><span class="s1">'read, and deriving it is not implemented yet, so no maps '</span>
-                <span class="sa">f</span><span class="s1">'are plotted.'</span>
-            <span class="p">)</span>
-            <span class="k">return</span>
-
+        <span class="bp">self</span><span class="o">.</span><span class="n">_first_month_heat_content</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="n">config</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span>
         <span class="n">seasons</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getlist</span><span class="p">(</span><span class="s1">'ocean_analysis_climatology'</span><span class="p">,</span> <span class="s1">'plot_seasons'</span><span class="p">)</span>
         <span class="n">specs</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getlist</span><span class="p">(</span><span class="s1">'ocean_analysis_climatology'</span><span class="p">,</span> <span class="s1">'elevations'</span><span class="p">)</span>
         <span class="n">reductions</span> <span class="o">=</span> <span class="p">[</span><span class="n">parse_vertical_reduction</span><span class="p">(</span><span class="n">spec</span><span class="p">)</span> <span class="k">for</span> <span class="n">spec</span> <span class="ow">in</span> <span class="n">specs</span><span class="p">]</span>
+        <span class="n">ranges</span> <span class="o">=</span> <span class="n">get_elevation_ranges</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_coords</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_mesh_coords</span><span class="p">()</span>
         <span class="c1"># the plotting helper takes MPAS-Ocean names, so the names are</span>
         <span class="c1"># translated here; nothing is read until the plot needs it</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_mesh_ds</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">map_from_native_model_vars</span><span class="p">(</span>
-            <span class="n">xr</span><span class="o">.</span><span class="n">open_dataset</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">work_path</span><span class="p">(</span><span class="s1">'mesh.nc'</span><span class="p">))</span>
+            <span class="n">xr</span><span class="o">.</span><span class="n">open_dataset</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">work_path</span><span class="p">(</span><span class="n">MESH_FILENAME</span><span class="p">))</span>
         <span class="p">)</span>
-        <span class="n">min_level_cell</span><span class="p">,</span> <span class="n">max_level_cell</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_valid_level_range</span><span class="p">()</span>
+        <span class="n">min_level_cell</span><span class="p">,</span> <span class="n">max_level_cell</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">valid_level_range</span><span class="p">()</span>
         <span class="n">climatology_dir</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dependencies</span><span class="p">[</span><span class="s1">'climatology'</span><span class="p">]</span><span class="o">.</span><span class="n">work_dir</span>
 
         <span class="c1"># building the mosaic descriptor is the expensive part of plotting a</span>
@@ -706,6 +750,17 @@ window.runMermaid = runMermaid;</script>
                     <span class="n">ds</span><span class="p">,</span> <span class="n">min_level_cell</span><span class="p">,</span> <span class="n">max_level_cell</span>
                 <span class="p">)</span>
                 <span class="k">for</span> <span class="n">field</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">fields</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">field</span> <span class="o">==</span> <span class="n">HEAT_CONTENT_ANOMALY</span><span class="p">:</span>
+                        <span class="n">descriptor</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_plot_heat_content</span><span class="p">(</span>
+                            <span class="n">ds</span><span class="o">=</span><span class="n">ds</span><span class="p">,</span>
+                            <span class="n">season</span><span class="o">=</span><span class="n">season</span><span class="p">,</span>
+                            <span class="n">ranges</span><span class="o">=</span><span class="n">ranges</span><span class="p">,</span>
+                            <span class="n">z_interface</span><span class="o">=</span><span class="n">z_interface</span><span class="p">,</span>
+                            <span class="n">min_level_cell</span><span class="o">=</span><span class="n">min_level_cell</span><span class="p">,</span>
+                            <span class="n">max_level_cell</span><span class="o">=</span><span class="n">max_level_cell</span><span class="p">,</span>
+                            <span class="n">descriptor</span><span class="o">=</span><span class="n">descriptor</span><span class="p">,</span>
+                        <span class="p">)</span>
+                        <span class="k">continue</span>
                     <span class="k">if</span> <span class="n">field</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">ds</span><span class="p">:</span>
                         <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
                             <span class="sa">f</span><span class="s1">'  the simulation did not write </span><span class="si">{</span><span class="n">field</span><span class="si">}</span><span class="s1">, so its '</span>
@@ -782,8 +837,8 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">        once and kept for every season</span>
 <span class="sd">        """</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_reconstruction_mesh</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">ds</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_read_fields</span><span class="p">(</span>
-                <span class="s1">'mesh.nc'</span><span class="p">,</span>
+            <span class="n">ds</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">read_fields</span><span class="p">(</span>
+                <span class="n">MESH_FILENAME</span><span class="p">,</span>
                 <span class="nb">list</span><span class="p">(</span><span class="n">RECONSTRUCTION_WEIGHT_FIELDS</span><span class="p">)</span> <span class="o">+</span> <span class="p">[</span><span class="s1">'lonCell'</span><span class="p">,</span> <span class="s1">'latCell'</span><span class="p">],</span>
             <span class="p">)</span>
             <span class="n">missing</span> <span class="o">=</span> <span class="p">[</span>
@@ -805,46 +860,130 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">        Get the cell latitudes and longitudes, so that the netCDF beside each</span>
 <span class="sd">        plot carries the coordinates of what was plotted</span>
 <span class="sd">        """</span>
-        <span class="n">ds</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_read_fields</span><span class="p">(</span><span class="s1">'mesh.nc'</span><span class="p">,</span> <span class="p">[</span><span class="s1">'latCell'</span><span class="p">,</span> <span class="s1">'lonCell'</span><span class="p">])</span>
+        <span class="n">ds</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">read_fields</span><span class="p">(</span><span class="n">MESH_FILENAME</span><span class="p">,</span> <span class="p">[</span><span class="s1">'latCell'</span><span class="p">,</span> <span class="s1">'lonCell'</span><span class="p">])</span>
         <span class="k">return</span> <span class="p">{</span><span class="n">name</span><span class="p">:</span> <span class="n">ds</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">ds</span><span class="o">.</span><span class="n">data_vars</span><span class="p">}</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="nf">_valid_level_range</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">"""Get the topmost and bottommost valid layer of each column"""</span>
-        <span class="n">ds</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_read_fields</span><span class="p">(</span>
-            <span class="s1">'vert_coord.nc'</span><span class="p">,</span> <span class="p">[</span><span class="s1">'minLevelCell'</span><span class="p">,</span> <span class="s1">'maxLevelCell'</span><span class="p">]</span>
-        <span class="p">)</span>
-        <span class="k">return</span> <span class="n">get_valid_level_range</span><span class="p">(</span><span class="n">ds</span><span class="p">)</span>
-
-    <span class="k">def</span><span class="w"> </span><span class="nf">_read_fields</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="n">fields</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_plot_heat_content</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">ds</span><span class="p">,</span>
+        <span class="n">season</span><span class="p">,</span>
+        <span class="n">ranges</span><span class="p">,</span>
+        <span class="n">z_interface</span><span class="p">,</span>
+        <span class="n">min_level_cell</span><span class="p">,</span>
+        <span class="n">max_level_cell</span><span class="p">,</span>
+        <span class="n">descriptor</span><span class="p">,</span>
+    <span class="p">):</span>
 <span class="w">        </span><span class="sd">"""</span>
-<span class="sd">        Read a few named fields from a file of the simulation, translating</span>
-<span class="sd">        their names but nothing else</span>
+<span class="sd">        Derive and plot the change in ocean heat content from the first</span>
+<span class="sd">        month over each elevation range</span>
 
-<span class="sd">        The mesh and the vertical coordinate a simulation names are often</span>
-<span class="sd">        its initial condition, which carries a full model state.  Opening one</span>
-<span class="sd">        as a model data set would then derive specific volume from that</span>
-<span class="sd">        state --- an equation-of-state solve --- to get a handful of fields</span>
-<span class="sd">        that are already there, so the names are translated and nothing else</span>
-<span class="sd">        is done.</span>
-
-<span class="sd">        Parameters</span>
-<span class="sd">        ----------</span>
-<span class="sd">        filename : str</span>
-<span class="sd">            The local name of the file in the step's work directory</span>
-
-<span class="sd">        fields : list of str</span>
-<span class="sd">            The MPAS-Ocean names of the fields to read; a field the file does</span>
-<span class="sd">            not have is left out</span>
-
-<span class="sd">        Returns</span>
-<span class="sd">        -------</span>
-<span class="sd">        ds : xarray.Dataset</span>
-<span class="sd">            The fields that were there, with MPAS-Ocean names, in memory</span>
+<span class="sd">        The climatology of temperature and of the layer mass is read once per</span>
+<span class="sd">        season and every range is a weighted sum over levels of what was</span>
+<span class="sd">        read, which is negligible beside the read.  That is why the ranges</span>
+<span class="sd">        are a loop in here rather than an axis the steps are split along.</span>
 <span class="sd">        """</span>
-        <span class="n">wanted</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">component</span><span class="o">.</span><span class="n">map_var_list_to_native_model</span><span class="p">(</span><span class="n">fields</span><span class="p">)</span>
-        <span class="k">with</span> <span class="n">xr</span><span class="o">.</span><span class="n">open_dataset</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">work_path</span><span class="p">(</span><span class="n">filename</span><span class="p">))</span> <span class="k">as</span> <span class="n">ds_native</span><span class="p">:</span>
-            <span class="n">present</span> <span class="o">=</span> <span class="p">[</span><span class="n">name</span> <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">wanted</span> <span class="k">if</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">ds_native</span><span class="p">]</span>
-            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">map_from_native_model_vars</span><span class="p">(</span><span class="n">ds_native</span><span class="p">[</span><span class="n">present</span><span class="p">])</span><span class="o">.</span><span class="n">load</span><span class="p">()</span>
+        <span class="n">missing</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_missing_heat_content_fields</span><span class="p">(</span><span class="n">ds</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">missing</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s1">'  the simulation did not write </span><span class="si">{</span><span class="s2">", "</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">missing</span><span class="p">)</span><span class="si">}</span><span class="s1">, so '</span>
+                <span class="sa">f</span><span class="s1">'heat content maps are skipped'</span>
+            <span class="p">)</span>
+            <span class="k">return</span> <span class="n">descriptor</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_first_month_heat_content</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_first_month_heat_content</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_read_first_month</span><span class="p">(</span>
+                <span class="n">ranges</span><span class="p">,</span> <span class="n">min_level_cell</span><span class="p">,</span> <span class="n">max_level_cell</span>
+            <span class="p">)</span>
+        <span class="n">contents</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_heat_content_by_range</span><span class="p">(</span>
+            <span class="n">ds</span><span class="p">,</span> <span class="n">ranges</span><span class="p">,</span> <span class="n">z_interface</span><span class="p">,</span> <span class="n">min_level_cell</span><span class="p">,</span> <span class="n">max_level_cell</span>
+        <span class="p">)</span>
+        <span class="c1"># setup() found the first monthly mean, since this group maps it</span>
+        <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">first_month</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+        <span class="n">year</span><span class="p">,</span> <span class="n">month</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">first_month</span>
+        <span class="k">for</span> <span class="n">reduction</span> <span class="ow">in</span> <span class="n">ranges</span><span class="p">:</span>
+            <span class="n">da_map</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="n">contents</span><span class="p">[</span><span class="n">reduction</span><span class="o">.</span><span class="n">label</span><span class="p">]</span>
+                <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">_first_month_heat_content</span><span class="p">[</span><span class="n">reduction</span><span class="o">.</span><span class="n">label</span><span class="p">]</span>
+            <span class="p">)</span>
+            <span class="n">da_map</span><span class="o">.</span><span class="n">attrs</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span>
+                <span class="n">units</span><span class="o">=</span><span class="s1">'J m-2'</span><span class="p">,</span>
+                <span class="n">long_name</span><span class="o">=</span><span class="p">(</span>
+                    <span class="s1">'change in vertically integrated ocean heat content per '</span>
+                    <span class="s1">'unit area from the first monthly mean'</span>
+                <span class="p">),</span>
+                <span class="n">reference_year</span><span class="o">=</span><span class="n">year</span><span class="p">,</span>
+                <span class="n">reference_month</span><span class="o">=</span><span class="n">month</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="n">da_plot</span> <span class="o">=</span> <span class="n">da_map</span> <span class="o">/</span> <span class="n">J_PER_GJ</span>
+            <span class="n">da_plot</span><span class="o">.</span><span class="n">attrs</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">da_map</span><span class="o">.</span><span class="n">attrs</span><span class="p">,</span> <span class="n">units</span><span class="o">=</span><span class="s1">'GJ m-2'</span><span class="p">)</span>
+            <span class="n">span</span> <span class="o">=</span> <span class="n">reduction</span><span class="o">.</span><span class="n">label</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">'_'</span><span class="p">,</span> <span class="s1">' '</span><span class="p">)</span>
+            <span class="n">descriptor</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_plot_map</span><span class="p">(</span>
+                <span class="n">da_map</span><span class="o">=</span><span class="n">da_map</span><span class="p">,</span>
+                <span class="n">field</span><span class="o">=</span><span class="n">HEAT_CONTENT_ANOMALY</span><span class="p">,</span>
+                <span class="n">season</span><span class="o">=</span><span class="n">season</span><span class="p">,</span>
+                <span class="n">basename</span><span class="o">=</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">HEAT_CONTENT_ANOMALY</span><span class="si">}</span><span class="s1">_</span><span class="si">{</span><span class="n">season</span><span class="si">}</span><span class="s1">_</span><span class="si">{</span><span class="n">reduction</span><span class="o">.</span><span class="n">label</span><span class="si">}</span><span class="s1">'</span><span class="p">,</span>
+                <span class="n">title</span><span class="o">=</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s1">'heat content anomaly from first month, </span><span class="si">{</span><span class="n">span</span><span class="si">}</span><span class="s1">, </span><span class="si">{</span><span class="n">season</span><span class="si">}</span><span class="s1">'</span>
+                <span class="p">),</span>
+                <span class="n">descriptor</span><span class="o">=</span><span class="n">descriptor</span><span class="p">,</span>
+                <span class="n">reduction</span><span class="o">=</span><span class="n">reduction</span><span class="p">,</span>
+                <span class="n">da_plot</span><span class="o">=</span><span class="n">da_plot</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="k">return</span> <span class="n">descriptor</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_read_first_month</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ranges</span><span class="p">,</span> <span class="n">min_level_cell</span><span class="p">,</span> <span class="n">max_level_cell</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">        Get the heat content of each range in the first monthly mean, which</span>
+<span class="sd">        every season is mapped as a change from</span>
+
+<span class="sd">        It is computed the way each season's is, geometry included, so the</span>
+<span class="sd">        two differ only in the state they were computed from.</span>
+<span class="sd">        """</span>
+        <span class="n">thickness</span> <span class="o">=</span> <span class="n">MASS_THICKNESS_VARIABLES</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'ocean'</span><span class="p">,</span> <span class="s1">'model'</span><span class="p">)]</span>
+        <span class="n">ds</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">read_fields</span><span class="p">(</span>
+            <span class="n">FIRST_MONTH_FILENAME</span><span class="p">,</span>
+            <span class="p">[</span><span class="s1">'temperature'</span><span class="p">,</span> <span class="n">thickness</span><span class="p">,</span> <span class="s1">'GeomZInterface'</span><span class="p">],</span>
+            <span class="n">suffix</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">suffix</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">missing</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_missing_heat_content_fields</span><span class="p">(</span><span class="n">ds</span><span class="p">)</span>
+        <span class="k">if</span> <span class="s1">'GeomZInterface'</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">ds</span><span class="p">:</span>
+            <span class="n">missing</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">'GeomZInterface'</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">missing</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s1">'The first monthly mean has no </span><span class="si">{</span><span class="s2">", "</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">missing</span><span class="p">)</span><span class="si">}</span><span class="s1">, so '</span>
+                <span class="sa">f</span><span class="s1">'there is no heat content to map the change from.'</span>
+            <span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_heat_content_by_range</span><span class="p">(</span>
+            <span class="n">ds</span><span class="p">,</span>
+            <span class="n">ranges</span><span class="p">,</span>
+            <span class="n">_drop_time</span><span class="p">(</span><span class="n">ds</span><span class="o">.</span><span class="n">GeomZInterface</span><span class="p">),</span>
+            <span class="n">min_level_cell</span><span class="p">,</span>
+            <span class="n">max_level_cell</span><span class="p">,</span>
+        <span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_heat_content_by_range</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">ds</span><span class="p">,</span> <span class="n">ranges</span><span class="p">,</span> <span class="n">z_interface</span><span class="p">,</span> <span class="n">min_level_cell</span><span class="p">,</span> <span class="n">max_level_cell</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">"""The heat content of each range, from one state of the ocean"""</span>
+        <span class="n">temperature</span> <span class="o">=</span> <span class="n">_drop_time</span><span class="p">(</span><span class="n">ds</span><span class="o">.</span><span class="n">temperature</span><span class="p">)</span>
+        <span class="n">layer_mass</span> <span class="o">=</span> <span class="n">_drop_time</span><span class="p">(</span><span class="n">get_layer_mass</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">))</span>
+        <span class="n">contents</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">reduction</span> <span class="ow">in</span> <span class="n">ranges</span><span class="p">:</span>
+            <span class="n">weights</span> <span class="o">=</span> <span class="n">elevation_range_weights</span><span class="p">(</span>
+                <span class="n">z_interface</span><span class="o">=</span><span class="n">z_interface</span><span class="p">,</span>
+                <span class="n">layer_mass</span><span class="o">=</span><span class="n">layer_mass</span><span class="p">,</span>
+                <span class="n">min_level_cell</span><span class="o">=</span><span class="n">min_level_cell</span><span class="p">,</span>
+                <span class="n">max_level_cell</span><span class="o">=</span><span class="n">max_level_cell</span><span class="p">,</span>
+                <span class="n">z_top</span><span class="o">=</span><span class="n">reduction</span><span class="o">.</span><span class="n">z_top</span><span class="p">,</span>
+                <span class="n">z_bot</span><span class="o">=</span><span class="n">reduction</span><span class="o">.</span><span class="n">z_bot</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="n">contents</span><span class="p">[</span><span class="n">reduction</span><span class="o">.</span><span class="n">label</span><span class="p">]</span> <span class="o">=</span> <span class="n">heat_content</span><span class="p">(</span><span class="n">temperature</span><span class="p">,</span> <span class="n">weights</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">contents</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_missing_heat_content_fields</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ds</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""The fields heat content is derived from that a data set lacks"""</span>
+        <span class="n">thickness</span> <span class="o">=</span> <span class="n">MASS_THICKNESS_VARIABLES</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'ocean'</span><span class="p">,</span> <span class="s1">'model'</span><span class="p">)]</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">name</span> <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="p">(</span><span class="s1">'temperature'</span><span class="p">,</span> <span class="n">thickness</span><span class="p">)</span> <span class="k">if</span> <span class="n">name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">ds</span><span class="p">]</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_plot_field</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
@@ -889,7 +1028,7 @@ window.runMermaid = runMermaid;</script>
                 <span class="n">basename</span><span class="o">=</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">field</span><span class="si">}</span><span class="s1">_</span><span class="si">{</span><span class="n">season</span><span class="si">}</span><span class="s1">_</span><span class="si">{</span><span class="n">reduction</span><span class="o">.</span><span class="n">label</span><span class="si">}</span><span class="s1">'</span><span class="p">,</span>
                 <span class="n">title</span><span class="o">=</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">field</span><span class="si">}</span><span class="s1"> at </span><span class="si">{</span><span class="n">reduction</span><span class="o">.</span><span class="n">label</span><span class="si">}</span><span class="s1">, </span><span class="si">{</span><span class="n">season</span><span class="si">}</span><span class="s1">'</span><span class="p">,</span>
                 <span class="n">descriptor</span><span class="o">=</span><span class="n">descriptor</span><span class="p">,</span>
-                <span class="n">reduction</span><span class="o">=</span><span class="n">reduction</span><span class="o">.</span><span class="n">label</span><span class="p">,</span>
+                <span class="n">reduction</span><span class="o">=</span><span class="n">reduction</span><span class="p">,</span>
             <span class="p">)</span>
         <span class="k">return</span> <span class="n">descriptor</span>
 
@@ -902,8 +1041,15 @@ window.runMermaid = runMermaid;</script>
         <span class="n">title</span><span class="p">,</span>
         <span class="n">descriptor</span><span class="p">,</span>
         <span class="n">reduction</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">da_plot</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
     <span class="p">):</span>
-<span class="w">        </span><span class="sd">"""Write one map to netCDF and plot it, and register both"""</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">        Write one map to netCDF and plot it, and register both</span>
+
+<span class="sd">        ``da_plot`` is what is plotted where that differs from what is</span>
+<span class="sd">        written, which is how heat content is stored in the unit it means and</span>
+<span class="sd">        shown in the unit that reads.</span>
+<span class="sd">        """</span>
         <span class="n">config</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span>
         <span class="n">section</span> <span class="o">=</span> <span class="n">map_section</span><span class="p">(</span><span class="n">field</span><span class="p">)</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">config</span><span class="o">.</span><span class="n">has_section</span><span class="p">(</span><span class="n">section</span><span class="p">):</span>
@@ -917,16 +1063,19 @@ window.runMermaid = runMermaid;</script>
         <span class="n">png_filename</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">work_path</span><span class="p">(</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">basename</span><span class="si">}</span><span class="s1">.png'</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_write_netcdf</span><span class="p">(</span><span class="n">da_map</span><span class="p">,</span> <span class="n">field</span><span class="p">,</span> <span class="n">season</span><span class="p">,</span> <span class="n">nc_filename</span><span class="p">,</span> <span class="n">reduction</span><span class="p">)</span>
 
+        <span class="k">if</span> <span class="n">da_plot</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">da_plot</span> <span class="o">=</span> <span class="n">da_map</span>
+
         <span class="n">simulation_name</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'ocean_analysis'</span><span class="p">,</span> <span class="s1">'simulation_name'</span><span class="p">)</span>
         <span class="n">descriptor</span> <span class="o">=</span> <span class="n">plot_global_mpas_field</span><span class="p">(</span>
-            <span class="n">da</span><span class="o">=</span><span class="n">da_map</span><span class="p">,</span>
+            <span class="n">da</span><span class="o">=</span><span class="n">da_plot</span><span class="p">,</span>
             <span class="n">out_filename</span><span class="o">=</span><span class="n">png_filename</span><span class="p">,</span>
             <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span>
             <span class="n">colormap_section</span><span class="o">=</span><span class="n">section</span><span class="p">,</span>
             <span class="n">mesh_ds</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_mesh_ds</span><span class="p">,</span>
             <span class="n">descriptor</span><span class="o">=</span><span class="n">descriptor</span><span class="p">,</span>
             <span class="n">title</span><span class="o">=</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">simulation_name</span><span class="si">}</span><span class="s1">: </span><span class="si">{</span><span class="n">title</span><span class="si">}</span><span class="s1">, years </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_range_key</span><span class="p">()</span><span class="si">}</span><span class="s1">'</span><span class="p">,</span>
-            <span class="n">colorbar_label</span><span class="o">=</span><span class="n">units_to_mathtext</span><span class="p">(</span><span class="n">da_map</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'units'</span><span class="p">,</span> <span class="s1">''</span><span class="p">)),</span>
+            <span class="n">colorbar_label</span><span class="o">=</span><span class="n">units_to_mathtext</span><span class="p">(</span><span class="n">da_plot</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'units'</span><span class="p">,</span> <span class="s1">''</span><span class="p">)),</span>
         <span class="p">)</span>
 
         <span class="c1"># The outputs are registered here rather than in setup() because a</span>
@@ -945,7 +1094,9 @@ window.runMermaid = runMermaid;</script>
             <span class="n">title</span><span class="o">=</span><span class="n">title</span><span class="p">,</span>
             <span class="n">field</span><span class="o">=</span><span class="n">field</span><span class="p">,</span>
             <span class="n">season</span><span class="o">=</span><span class="n">season</span><span class="p">,</span>
-            <span class="n">reduction</span><span class="o">=</span><span class="n">reduction</span><span class="p">,</span>
+            <span class="c1"># the facet is the label, not the reduction itself: a facet is</span>
+            <span class="c1"># written to the fragment as JSON</span>
+            <span class="n">reduction</span><span class="o">=</span><span class="kc">None</span> <span class="k">if</span> <span class="n">reduction</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">reduction</span><span class="o">.</span><span class="n">label</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">'  </span><span class="si">{</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">png_filename</span><span class="p">)</span><span class="si">}</span><span class="s1">'</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">descriptor</span>
@@ -959,11 +1110,21 @@ window.runMermaid = runMermaid;</script>
             <span class="n">simulation_name</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'ocean_analysis'</span><span class="p">,</span> <span class="s1">'simulation_name'</span><span class="p">),</span>
             <span class="n">field</span><span class="o">=</span><span class="n">field</span><span class="p">,</span>
             <span class="n">season</span><span class="o">=</span><span class="n">season</span><span class="p">,</span>
-            <span class="n">vertical_reduction</span><span class="o">=</span><span class="s1">'none'</span> <span class="k">if</span> <span class="n">reduction</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">reduction</span><span class="p">,</span>
+            <span class="n">vertical_reduction</span><span class="o">=</span><span class="p">(</span>
+                <span class="s1">'none'</span> <span class="k">if</span> <span class="n">reduction</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">reduction</span><span class="o">.</span><span class="n">label</span>
+            <span class="p">),</span>
             <span class="n">start_year</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">start_year</span><span class="p">,</span>
             <span class="n">end_year</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">end_year</span><span class="p">,</span>
             <span class="n">year_range</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_range_key</span><span class="p">(),</span>
         <span class="p">)</span>
+        <span class="k">if</span> <span class="n">reduction</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">reduction</span><span class="o">.</span><span class="n">kind</span> <span class="o">==</span> <span class="s1">'range'</span><span class="p">:</span>
+            <span class="c1"># so that a plot cannot be mistaken for a different range</span>
+            <span class="n">ds</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">'elevation_range_top'</span><span class="p">]</span> <span class="o">=</span> <span class="n">range_bound_label</span><span class="p">(</span>
+                <span class="n">reduction</span><span class="o">.</span><span class="n">z_top</span>
+            <span class="p">)</span>
+            <span class="n">ds</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">'elevation_range_bottom'</span><span class="p">]</span> <span class="o">=</span> <span class="n">range_bound_label</span><span class="p">(</span>
+                <span class="n">reduction</span><span class="o">.</span><span class="n">z_bot</span>
+            <span class="p">)</span>
         <span class="n">write_netcdf</span><span class="p">(</span><span class="n">ds</span><span class="o">=</span><span class="n">ds</span><span class="p">,</span> <span class="n">fileName</span><span class="o">=</span><span class="n">filename</span><span class="p">)</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_range_key</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -1038,7 +1199,7 @@ window.runMermaid = runMermaid;</script>
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_drop_time</span><span class="p">(</span><span class="n">da</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">"""Drop the singleton time dimension a climatology carries"""</span>
+<span class="w">    </span><span class="sd">"""A climatology holds one time, which is not an axis of a map"""</span>
     <span class="k">if</span> <span class="s1">'Time'</span> <span class="ow">in</span> <span class="n">da</span><span class="o">.</span><span class="n">dims</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">da</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span><span class="n">Time</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">da</span>

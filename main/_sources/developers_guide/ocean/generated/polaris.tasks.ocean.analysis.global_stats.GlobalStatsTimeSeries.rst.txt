@@ -42,11 +42,13 @@
       ~GlobalStatsTimeSeries.open_model_dataset
       ~GlobalStatsTimeSeries.open_vert_coord_dataset
       ~GlobalStatsTimeSeries.process_inputs_and_outputs
+      ~GlobalStatsTimeSeries.read_fields
       ~GlobalStatsTimeSeries.run
       ~GlobalStatsTimeSeries.runtime_setup
       ~GlobalStatsTimeSeries.set_resources
       ~GlobalStatsTimeSeries.set_shared_config
       ~GlobalStatsTimeSeries.setup
+      ~GlobalStatsTimeSeries.valid_level_range
       ~GlobalStatsTimeSeries.validate_baselines
       ~GlobalStatsTimeSeries.work_path
       ~GlobalStatsTimeSeries.write_forcing_dataset
