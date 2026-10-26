@@ -320,7 +320,12 @@ class Viz(OceanIOStep):
                     f'{field_name}.png',
                 )
 
-            if self.plot_diff and len(ds_list) == 2:
+            if self.plot_diff and len(comparison_data) == 2:
+                comparisons = {
+                    name: self.comparisons[name]
+                    for name, _, _ in comparison_data
+                }
+                ds_list = [ds for _, ds, _ in comparison_data]
                 _plot_diff_profiles(
                     self.variables,
                     comparisons,
@@ -329,6 +334,31 @@ class Viz(OceanIOStep):
                     ymin,
                     ymax,
                 )
+
+            if model == 'mpas-ocean' and self.mpas_ocean_frazil:
+                self._plot_mpas_ocean_frazil()
+
+    def _plot_mpas_ocean_frazil(self):
+        """Plot MPAS-Ocean frazil profiles and accumulated quantities."""
+        ds_mesh = self.open_model_dataset('mesh.nc', config=self.config)
+        series = []
+        for comparison_name in self.comparisons:
+            filename = f'{comparison_name}.nc'
+            if not os.path.exists(filename):
+                continue
+            ds = self.open_model_dataset(
+                filename, config=self.config, decode_times=True
+            )
+            series.append(
+                {
+                    'name': comparison_name,
+                    'frazil_data': mpas_ocean_frazil_data(ds, ds_mesh),
+                }
+            )
+            ds.close()
+        ds_mesh.close()
+        styles = {item['name']: {'linestyle': '-'} for item in series}
+        plot_mpas_ocean_frazil(series, styles)
 
 
 def _plot_diff_profiles(
@@ -472,31 +502,6 @@ def _finalize_plot(
     )
     plt.savefig(filename, bbox_inches='tight')
     plt.close()
-
-            if model == 'mpas-ocean' and self.mpas_ocean_frazil:
-                self._plot_mpas_ocean_frazil()
-
-    def _plot_mpas_ocean_frazil(self):
-        """Plot MPAS-Ocean frazil profiles and accumulated quantities."""
-        ds_mesh = self.open_model_dataset('mesh.nc', config=self.config)
-        series = []
-        for comparison_name in self.comparisons:
-            filename = f'{comparison_name}.nc'
-            if not os.path.exists(filename):
-                continue
-            ds = self.open_model_dataset(
-                filename, config=self.config, decode_times=True
-            )
-            series.append(
-                {
-                    'name': comparison_name,
-                    'frazil_data': mpas_ocean_frazil_data(ds, ds_mesh),
-                }
-            )
-            ds.close()
-        ds_mesh.close()
-        styles = {item['name']: {'linestyle': '-'} for item in series}
-        plot_mpas_ocean_frazil(series, styles)
 
 
 def _add_visible_limits(x_limits, var, z, ymin, ymax):
