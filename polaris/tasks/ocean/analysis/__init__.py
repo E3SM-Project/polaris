@@ -192,7 +192,7 @@ class ClimatologyMapsTask(AnalysisTask):
 
         self._remove_all_steps()
 
-        self._add_shared_step(
+        climatology = self._add_shared_step(
             step_cls=Climatology,
             subdir=f'analysis/climatology/{key}',
             symlink='climatology',
@@ -209,6 +209,7 @@ class ClimatologyMapsTask(AnalysisTask):
                 fields=group_fields,
                 start_year=start_year,
                 end_year=end_year,
+                climatology=climatology,
             )
 
 
