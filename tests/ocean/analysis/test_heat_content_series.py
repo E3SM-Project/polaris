@@ -4,8 +4,8 @@ Unit tests for the ocean heat content time series step.
 The kernel itself is tested in ``tests/ocean/test_heat_content.py``; what is
 tested here is the step around it: that the global integral is the
 mass-weighted one, that a land column drops out of it rather than poisoning
-it with a ``NaN``, that a range the vertical machinery cannot reach yet is
-left out and said so, and that what the step publishes is what it declared.
+it with a ``NaN``, that a range with a bound inside a layer takes the part of
+that layer it covers, and that what the step publishes is what it declared.
 
 Everything is synthetic and small, but it is read through the same
 ``open_model_dataset`` path as real Omega output, with Omega's names and
@@ -38,6 +38,9 @@ N_LEVELS = 3
 # a uniform pseudo-thickness, so that the mass of a column is a number that
 # can be written down
 THICKNESS = 50.0
+
+# the layer interfaces of a resting column of that uniform thickness
+Z_INTERFACE = -THICKNESS * np.arange(N_LEVELS + 1)
 
 AREA_CELL = np.array([1.0e6, 2.0e6, 3.0e6, 4.0e6])
 
@@ -119,30 +122,48 @@ def test_the_series_says_what_it_was_computed_from(step):
     assert attrs['provenance_kernel_version'] == '1'
 
 
-def test_a_range_that_is_not_implemented_yet_is_left_out(tmp_path, caplog):
-    step = _make_step(tmp_path, ranges='top:-700.0, top:bottom')
-    with caplog.at_level(logging.INFO):
-        step.run()
-    assert 'top_to_-700m' in caplog.text
-    assert 'not implemented yet' in caplog.text
+def test_a_range_takes_the_part_of_each_layer_it_covers(tmp_path):
+    """-75 m is halfway through the second layer of this uniform 50 m grid,
+    so the range above it covers the top layer whole and half of the next,
+    and the range below it covers the rest."""
+    step = _make_step(tmp_path, ranges='top:-75.0, -75.0:bottom, top:bottom')
+    step.run()
     with xr.open_dataset(os.path.join(step.work_dir, SERIES_FILENAME)) as ds:
-        assert WHOLE_COLUMN in ds
-        assert series_variable('top_to_-700m') not in ds
+        upper = ds[series_variable('top_to_-75m')].values
+        lower = ds[series_variable('-75m_to_bottom')].values
+        whole = ds[WHOLE_COLUMN].values
+        months = ds.month.values
+    expected = [_expected(month, [1.0, 0.5, 0.0]) for month in months]
+    np.testing.assert_allclose(upper, expected, rtol=1e-12)
+    np.testing.assert_allclose(upper + lower, whole, rtol=1e-12)
 
 
-def test_the_stamp_names_the_ranges_that_were_computed(tmp_path):
-    """A cache holding the whole column alone must not be inherited by a run
-    that can integrate every range, so the stamp says what was computed and
-    not what was asked for."""
+def test_the_stamp_names_every_range(tmp_path):
+    """A cache made when only the whole column was integrated must not be
+    inherited by a run that integrates the bands as well."""
     step = _make_step(tmp_path, ranges='top:-700.0, -700.0:bottom, top:bottom')
-    assert step.stamp['elevation_ranges'] == 'top_to_bottom'
+    assert step.stamp['elevation_ranges'] == (
+        'top_to_-700m,-700m_to_bottom,top_to_bottom'
+    )
 
 
-def test_a_configuration_with_no_computable_range_is_reported_at_setup(
-    tmp_path,
-):
-    with pytest.raises(ValueError, match='top:bottom'):
-        _make_step(tmp_path, ranges='top:-700.0')
+def test_an_entry_that_is_not_a_range_is_reported_at_setup(tmp_path):
+    with pytest.raises(ValueError, match='not an elevation range'):
+        _make_step(tmp_path, ranges='-700.0')
+
+
+def test_the_whole_column_needs_no_geometry(tmp_path):
+    """The geometry is a third three-dimensional read, so a series of the
+    whole column alone does without it."""
+    step = _make_step(tmp_path, with_geometry=False)
+    step.run()
+    assert os.path.exists(os.path.join(step.work_dir, SERIES_FILENAME))
+
+
+def test_a_band_without_the_geometry_is_an_error(tmp_path):
+    step = _make_step(tmp_path, ranges='top:-75.0', with_geometry=False)
+    with pytest.raises(ValueError, match='GeomZInterface'):
+        step.run()
 
 
 def test_a_month_the_integral_cannot_be_taken_from_is_an_error(tmp_path):
@@ -186,20 +207,23 @@ def _temperature(month):
     return float(month) + 0.5 * levels + 0.25 * cells
 
 
-def _expected(month):
+def _expected(month, fractions=(1.0,) * N_LEVELS):
     """
     The mass-weighted global integral, written out here rather than taken
-    from the code under test
+    from the code under test, over the given fraction of each layer
 
     The land column is left out, since a column with no valid layer has no
     heat content to contribute rather than a heat content of zero.
     """
-    column = _temperature(month).sum(axis=1) * RhoSw * THICKNESS
+    temperature = _temperature(month) * np.asarray(fractions)[None, :]
+    column = temperature.sum(axis=1) * RhoSw * THICKNESS
     ocean = [cell for cell in range(N_CELLS) if cell != LAND_CELL]
     return CpSw * float(sum(AREA_CELL[cell] * column[cell] for cell in ocean))
 
 
-def _write_simulation(sim_path, start_year, end_year, with_temperature):
+def _write_simulation(
+    sim_path, start_year, end_year, with_temperature, with_geometry
+):
     """
     The Omega configuration, the mesh, the vertical coordinate and the
     monthly means, Omega-style
@@ -236,6 +260,13 @@ def _write_simulation(sim_path, start_year, end_year, with_temperature):
                     ('time', 'NCells', 'NVertLayers'),
                     _temperature(month)[None, :, :],
                 )
+            if with_geometry:
+                data[f'GeomZInterface{SUFFIX}'] = (
+                    ('time', 'NCells', 'NVertLayersP1'),
+                    np.broadcast_to(
+                        Z_INTERFACE, (1, N_CELLS, N_LEVELS + 1)
+                    ).copy(),
+                )
             # named for the month after the one it covers
             named_year, named_month = year, month + 1
             if named_month > 12:
@@ -253,11 +284,14 @@ def _make_step(
     start_year=1,
     end_year=1,
     with_temperature=True,
+    with_geometry=True,
 ):
     """A step with a synthetic simulation to read, set up as Polaris would"""
     sim_path = tmp_path / 'sim'
     sim_path.mkdir()
-    _write_simulation(str(sim_path), start_year, end_year, with_temperature)
+    _write_simulation(
+        str(sim_path), start_year, end_year, with_temperature, with_geometry
+    )
 
     key = year_range_key(start_year, end_year)
     work_dir = tmp_path / 'work' / 'analysis' / 'heat_content_series' / key
