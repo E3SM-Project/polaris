@@ -124,7 +124,6 @@ class InitialStateStep(OceanIOStep):
             horiz_mesh_filename='mesh.nc',
             vert_coord_filename='vert_coord.nc',
             init_filename='init.nc',
-            graph_filename='culled_graph.info',
         )
 
     def run(self):
