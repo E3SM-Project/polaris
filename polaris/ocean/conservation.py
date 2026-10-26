@@ -2,9 +2,10 @@ import numpy as np
 
 from polaris.constants import get_constant
 
-# TODO update once this is used by Omega
-# cp_sw = get_constant('seawater_specific_heat_capacity_reference')
-cp_sw = {'omega': 3991.86795711963, 'mpas-ocean': 3996.0}
+cp_sw = {
+    'omega': get_constant('seawater_specific_heat_capacity_teos10'),
+    'mpas-ocean': get_constant('seawater_specific_heat_capacity_reference'),
+}
 rho_sw = get_constant('seawater_density_reference')
 latent_heat_fusion = {
     'omega': get_constant('latent_heat_of_fusion_reference'),

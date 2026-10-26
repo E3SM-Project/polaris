@@ -4,11 +4,9 @@ import xarray as xr
 from polaris.constants import get_constant
 from polaris.ocean.model import OceanIOStep, get_time_since_start
 
-# Omega hard-codes the TEOS-10 reference specific heat of seawater in
-# GlobalConstants.h (Cp0Sw = 1 / HFluxFac / RhoSw).  This differs from the PCD
-# value ``seawater_specific_heat_capacity_reference`` so it is reproduced here
-# to keep the heat budget consistent with what the model actually integrates.
-CP0_SW = 3991.86795711963
+# The TEOS-10 specific heat of seawater that Omega uses for its heat budget
+# (Cp0Sw = 1 / HFluxFac / RhoSw in GlobalConstants.h)
+CP0_SW = get_constant('seawater_specific_heat_capacity_teos10')
 
 # Freshwater/mass fluxes that Omega adds to the (pseudo-)thickness equation in
 # ``SfcThicknessForcingOnCell`` (TendencyTerms.h).  ``seaIceSalinityFlux`` also
