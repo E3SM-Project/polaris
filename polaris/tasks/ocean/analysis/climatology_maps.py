@@ -10,19 +10,33 @@ from polaris.mesh.reconstruct import (
     cartesian_to_local_geographic,
     tangential_reconstruction,
 )
+from polaris.ocean.heat_content import heat_content
+from polaris.ocean.model import get_layer_mass
+from polaris.ocean.model.layer_mass import MASS_THICKNESS_VARIABLES
 from polaris.ocean.vertical.diagnostics import get_z_mid_and_interface
 from polaris.ocean.vertical.elevation import (
     apply_vertical_reduction,
-    get_valid_level_range,
+    elevation_range_weights,
     parse_vertical_reduction,
+    range_bound_label,
 )
-from polaris.tasks.ocean.analysis.analysis_step import AnalysisStep
+from polaris.tasks.ocean.analysis.analysis_step import (
+    MESH_FILENAME,
+    VERT_COORD_FILENAME,
+    AnalysisStep,
+)
 from polaris.tasks.ocean.analysis.climatology import (
     VECTOR_RECONSTRUCTIONS,
     find_climatology_file,
 )
 from polaris.tasks.ocean.analysis.config_sections import map_section
-from polaris.tasks.ocean.analysis.sim_files import year_range_key
+from polaris.tasks.ocean.analysis.heat_content_config import (
+    get_elevation_ranges,
+)
+from polaris.tasks.ocean.analysis.sim_files import (
+    time_mean_suffix,
+    year_range_key,
+)
 from polaris.viz import plot_global_mpas_field
 
 # The field groups maps are chunked into.
@@ -47,7 +61,7 @@ FIELD_GROUPS = {
     'velocity': ('velocityZonal', 'velocityMeridional'),
     'ssh': ('ssh',),
     'mixed_layer_depth': ('mixedLayerDepth',),
-    'heat_content': (),
+    'heat_content': ('heat_content_anomaly',),
 }
 
 # Heat content is a field group of the maps rather than a product of its own,
@@ -58,6 +72,21 @@ DERIVED_FIELD_GROUPS = ('heat_content',)
 # carries, which reconstruct a vector at cell centers from its edge-normal
 # component
 RECONSTRUCTION_WEIGHT_FIELDS = ('ReconStencilCell', 'ReconWeightsCell')
+
+# The one field that is computed rather than read.  It is spelled the way a
+# config section is because it is Polaris's own diagnostic rather than a
+# variable either model writes, so there is no model spelling to follow.
+HEAT_CONTENT_ANOMALY = 'heat_content_anomaly'
+
+# The first monthly mean of the range, which heat content is mapped as a
+# change from.  A map of heat content itself mostly shows the depth of each
+# column, while its change shows where heat went.
+FIRST_MONTH_FILENAME = 'first_monthly_mean.nc'
+
+# Heat content is written in J m-2, which is the unit it means, and plotted
+# in GJ m-2, the unit MPAS-Analysis maps its anomaly in, rather than in
+# numbers of order 10^9
+J_PER_GJ = 1.0e9
 
 
 def get_field_groups(fields):
@@ -107,6 +136,14 @@ class ClimatologyMaps(AnalysisStep):
 
     fields : list of str
         The fields of that group that were requested
+
+    first_month : tuple of int or None
+        The year and month of the first monthly mean of the range, which
+        heat content is mapped as a change from, if this group maps it
+
+    suffix : str
+        What the monthly means append to each field's name; see
+        :py:func:`polaris.tasks.ocean.analysis.sim_files.time_mean_suffix`
     """
 
     def __init__(
@@ -162,20 +199,33 @@ class ClimatologyMaps(AnalysisStep):
         self._coords: dict = {}
         self._mesh_ds: xr.Dataset | None = None
         self._reconstruction_mesh: xr.Dataset | None = None
+        self.first_month: tuple | None = None
+        self.suffix = ''
+        self._first_month_heat_content: dict | None = None
         self.add_dependency(climatology, name='climatology')
 
     def setup(self):
         """
-        Link the mesh the maps are plotted on and the vertical coordinate
+        Link the mesh the maps are plotted on and the vertical coordinate,
+        and the first monthly mean if this group maps heat content
 
         The vertical coordinate supplies the topmost and bottommost valid
-        layer of each column, which the climatology does not carry.
+        layer of each column, which the climatology does not carry.  The
+        elevation of the layers themselves does come from the climatology,
+        since it is the climatological mean of a geometry that moves.
         """
         sim_files = self.get_sim_files()
-        self.add_sim_input_file(sim_files.mesh_filename(), 'mesh.nc')
+        self.add_sim_input_file(sim_files.mesh_filename(), MESH_FILENAME)
         self.add_sim_input_file(
-            sim_files.vert_coord_filename(), 'vert_coord.nc'
+            sim_files.vert_coord_filename(), VERT_COORD_FILENAME
         )
+        if HEAT_CONTENT_ANOMALY in self.fields:
+            first = sim_files.monthly_mean_files(
+                self.start_year, self.start_year
+            )[0]
+            self.add_sim_input_file(first.path, FIRST_MONTH_FILENAME)
+            self.first_month = (first.year, first.month)
+            self.suffix = time_mean_suffix(sim_files.monthly_mean_stream())
 
     def run(self):
         """
@@ -183,25 +233,19 @@ class ClimatologyMaps(AnalysisStep):
         vertical reduction that was asked for
         """
         self.log_inputs()
-        if not self.fields:
-            self.logger.info(
-                f'The {self.field_group} field group is derived rather than '
-                f'read, and deriving it is not implemented yet, so no maps '
-                f'are plotted.'
-            )
-            return
-
+        self._first_month_heat_content = None
         config = self.config
         seasons = config.getlist('ocean_analysis_climatology', 'plot_seasons')
         specs = config.getlist('ocean_analysis_climatology', 'elevations')
         reductions = [parse_vertical_reduction(spec) for spec in specs]
+        ranges = get_elevation_ranges(config)
         self._coords = self._mesh_coords()
         # the plotting helper takes MPAS-Ocean names, so the names are
         # translated here; nothing is read until the plot needs it
         self._mesh_ds = self.map_from_native_model_vars(
-            xr.open_dataset(self.work_path('mesh.nc'))
+            xr.open_dataset(self.work_path(MESH_FILENAME))
         )
-        min_level_cell, max_level_cell = self._valid_level_range()
+        min_level_cell, max_level_cell = self.valid_level_range()
         climatology_dir = self.dependencies['climatology'].work_dir
 
         # building the mosaic descriptor is the expensive part of plotting a
@@ -220,6 +264,17 @@ class ClimatologyMaps(AnalysisStep):
                     ds, min_level_cell, max_level_cell
                 )
                 for field in self.fields:
+                    if field == HEAT_CONTENT_ANOMALY:
+                        descriptor = self._plot_heat_content(
+                            ds=ds,
+                            season=season,
+                            ranges=ranges,
+                            z_interface=z_interface,
+                            min_level_cell=min_level_cell,
+                            max_level_cell=max_level_cell,
+                            descriptor=descriptor,
+                        )
+                        continue
                     if field not in ds:
                         self.logger.info(
                             f'  the simulation did not write {field}, so its '
@@ -295,8 +350,8 @@ class ClimatologyMaps(AnalysisStep):
         once and kept for every season
         """
         if self._reconstruction_mesh is None:
-            ds = self._read_fields(
-                'mesh.nc',
+            ds = self.read_fields(
+                MESH_FILENAME,
                 list(RECONSTRUCTION_WEIGHT_FIELDS) + ['lonCell', 'latCell'],
             )
             missing = [
@@ -318,46 +373,130 @@ class ClimatologyMaps(AnalysisStep):
         Get the cell latitudes and longitudes, so that the netCDF beside each
         plot carries the coordinates of what was plotted
         """
-        ds = self._read_fields('mesh.nc', ['latCell', 'lonCell'])
+        ds = self.read_fields(MESH_FILENAME, ['latCell', 'lonCell'])
         return {name: ds[name] for name in ds.data_vars}
 
-    def _valid_level_range(self):
-        """Get the topmost and bottommost valid layer of each column"""
-        ds = self._read_fields(
-            'vert_coord.nc', ['minLevelCell', 'maxLevelCell']
+    def _plot_heat_content(
+        self,
+        ds,
+        season,
+        ranges,
+        z_interface,
+        min_level_cell,
+        max_level_cell,
+        descriptor,
+    ):
+        """
+        Derive and plot the change in ocean heat content from the first
+        month over each elevation range
+
+        The climatology of temperature and of the layer mass is read once per
+        season and every range is a weighted sum over levels of what was
+        read, which is negligible beside the read.  That is why the ranges
+        are a loop in here rather than an axis the steps are split along.
+        """
+        missing = self._missing_heat_content_fields(ds)
+        if missing:
+            self.logger.info(
+                f'  the simulation did not write {", ".join(missing)}, so '
+                f'heat content maps are skipped'
+            )
+            return descriptor
+
+        if self._first_month_heat_content is None:
+            self._first_month_heat_content = self._read_first_month(
+                ranges, min_level_cell, max_level_cell
+            )
+        contents = self._heat_content_by_range(
+            ds, ranges, z_interface, min_level_cell, max_level_cell
         )
-        return get_valid_level_range(ds)
+        # setup() found the first monthly mean, since this group maps it
+        assert self.first_month is not None
+        year, month = self.first_month
+        for reduction in ranges:
+            da_map = (
+                contents[reduction.label]
+                - self._first_month_heat_content[reduction.label]
+            )
+            da_map.attrs = dict(
+                units='J m-2',
+                long_name=(
+                    'change in vertically integrated ocean heat content per '
+                    'unit area from the first monthly mean'
+                ),
+                reference_year=year,
+                reference_month=month,
+            )
+            da_plot = da_map / J_PER_GJ
+            da_plot.attrs = dict(da_map.attrs, units='GJ m-2')
+            span = reduction.label.replace('_', ' ')
+            descriptor = self._plot_map(
+                da_map=da_map,
+                field=HEAT_CONTENT_ANOMALY,
+                season=season,
+                basename=f'{HEAT_CONTENT_ANOMALY}_{season}_{reduction.label}',
+                title=(
+                    f'heat content anomaly from first month, {span}, {season}'
+                ),
+                descriptor=descriptor,
+                reduction=reduction,
+                da_plot=da_plot,
+            )
+        return descriptor
 
-    def _read_fields(self, filename, fields):
+    def _read_first_month(self, ranges, min_level_cell, max_level_cell):
         """
-        Read a few named fields from a file of the simulation, translating
-        their names but nothing else
+        Get the heat content of each range in the first monthly mean, which
+        every season is mapped as a change from
 
-        The mesh and the vertical coordinate a simulation names are often
-        its initial condition, which carries a full model state.  Opening one
-        as a model data set would then derive specific volume from that
-        state --- an equation-of-state solve --- to get a handful of fields
-        that are already there, so the names are translated and nothing else
-        is done.
-
-        Parameters
-        ----------
-        filename : str
-            The local name of the file in the step's work directory
-
-        fields : list of str
-            The MPAS-Ocean names of the fields to read; a field the file does
-            not have is left out
-
-        Returns
-        -------
-        ds : xarray.Dataset
-            The fields that were there, with MPAS-Ocean names, in memory
+        It is computed the way each season's is, geometry included, so the
+        two differ only in the state they were computed from.
         """
-        wanted = self.component.map_var_list_to_native_model(fields)
-        with xr.open_dataset(self.work_path(filename)) as ds_native:
-            present = [name for name in wanted if name in ds_native]
-            return self.map_from_native_model_vars(ds_native[present]).load()
+        thickness = MASS_THICKNESS_VARIABLES[self.config.get('ocean', 'model')]
+        ds = self.read_fields(
+            FIRST_MONTH_FILENAME,
+            ['temperature', thickness, 'GeomZInterface'],
+            suffix=self.suffix,
+        )
+        missing = self._missing_heat_content_fields(ds)
+        if 'GeomZInterface' not in ds:
+            missing.append('GeomZInterface')
+        if missing:
+            raise ValueError(
+                f'The first monthly mean has no {", ".join(missing)}, so '
+                f'there is no heat content to map the change from.'
+            )
+        return self._heat_content_by_range(
+            ds,
+            ranges,
+            _drop_time(ds.GeomZInterface),
+            min_level_cell,
+            max_level_cell,
+        )
+
+    def _heat_content_by_range(
+        self, ds, ranges, z_interface, min_level_cell, max_level_cell
+    ):
+        """The heat content of each range, from one state of the ocean"""
+        temperature = _drop_time(ds.temperature)
+        layer_mass = _drop_time(get_layer_mass(ds, self.config))
+        contents = {}
+        for reduction in ranges:
+            weights = elevation_range_weights(
+                z_interface=z_interface,
+                layer_mass=layer_mass,
+                min_level_cell=min_level_cell,
+                max_level_cell=max_level_cell,
+                z_top=reduction.z_top,
+                z_bot=reduction.z_bot,
+            )
+            contents[reduction.label] = heat_content(temperature, weights)
+        return contents
+
+    def _missing_heat_content_fields(self, ds):
+        """The fields heat content is derived from that a data set lacks"""
+        thickness = MASS_THICKNESS_VARIABLES[self.config.get('ocean', 'model')]
+        return [name for name in ('temperature', thickness) if name not in ds]
 
     def _plot_field(
         self,
@@ -402,7 +541,7 @@ class ClimatologyMaps(AnalysisStep):
                 basename=f'{field}_{season}_{reduction.label}',
                 title=f'{field} at {reduction.label}, {season}',
                 descriptor=descriptor,
-                reduction=reduction.label,
+                reduction=reduction,
             )
         return descriptor
 
@@ -415,8 +554,15 @@ class ClimatologyMaps(AnalysisStep):
         title,
         descriptor,
         reduction=None,
+        da_plot=None,
     ):
-        """Write one map to netCDF and plot it, and register both"""
+        """
+        Write one map to netCDF and plot it, and register both
+
+        ``da_plot`` is what is plotted where that differs from what is
+        written, which is how heat content is stored in the unit it means and
+        shown in the unit that reads.
+        """
         config = self.config
         section = map_section(field)
         if not config.has_section(section):
@@ -430,16 +576,19 @@ class ClimatologyMaps(AnalysisStep):
         png_filename = self.work_path(f'{basename}.png')
         self._write_netcdf(da_map, field, season, nc_filename, reduction)
 
+        if da_plot is None:
+            da_plot = da_map
+
         simulation_name = config.get('ocean_analysis', 'simulation_name')
         descriptor = plot_global_mpas_field(
-            da=da_map,
+            da=da_plot,
             out_filename=png_filename,
             config=config,
             colormap_section=section,
             mesh_ds=self._mesh_ds,
             descriptor=descriptor,
             title=f'{simulation_name}: {title}, years {self._range_key()}',
-            colorbar_label=units_to_mathtext(da_map.attrs.get('units', '')),
+            colorbar_label=units_to_mathtext(da_plot.attrs.get('units', '')),
         )
 
         # The outputs are registered here rather than in setup() because a
@@ -458,7 +607,9 @@ class ClimatologyMaps(AnalysisStep):
             title=title,
             field=field,
             season=season,
-            reduction=reduction,
+            # the facet is the label, not the reduction itself: a facet is
+            # written to the fragment as JSON
+            reduction=None if reduction is None else reduction.label,
         )
         self.logger.info(f'  {os.path.basename(png_filename)}')
         return descriptor
@@ -472,11 +623,21 @@ class ClimatologyMaps(AnalysisStep):
             simulation_name=config.get('ocean_analysis', 'simulation_name'),
             field=field,
             season=season,
-            vertical_reduction='none' if reduction is None else reduction,
+            vertical_reduction=(
+                'none' if reduction is None else reduction.label
+            ),
             start_year=self.start_year,
             end_year=self.end_year,
             year_range=self._range_key(),
         )
+        if reduction is not None and reduction.kind == 'range':
+            # so that a plot cannot be mistaken for a different range
+            ds.attrs['elevation_range_top'] = range_bound_label(
+                reduction.z_top
+            )
+            ds.attrs['elevation_range_bottom'] = range_bound_label(
+                reduction.z_bot
+            )
         write_netcdf(ds=ds, fileName=filename)
 
     def _range_key(self):
@@ -550,7 +711,7 @@ def _group_for_field(field):
 
 
 def _drop_time(da):
-    """Drop the singleton time dimension a climatology carries"""
+    """A climatology holds one time, which is not an axis of a map"""
     if 'Time' in da.dims:
         return da.isel(Time=0)
     return da
