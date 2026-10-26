@@ -8,6 +8,7 @@ from polaris.tasks.ocean.realistic_global.mesh_configs import (
 from polaris.tasks.ocean.realistic_global.mesh_info import (
     estimate_cell_count,
     estimate_ocean_cell_count,
+    min_res_for_mesh,
 )
 
 # -----------------------------------------------------------------------
@@ -95,3 +96,18 @@ def test_estimate_ocean_cell_count_given_config_without_option():
     assert estimate_ocean_cell_count(
         'icos240km', config=config
     ) == estimate_cell_count('icos240km')
+
+
+# -----------------------------------------------------------------------
+# min_res_for_mesh
+# -----------------------------------------------------------------------
+
+
+def test_min_res_for_mesh_base_mesh():
+    assert min_res_for_mesh('icos240km') == pytest.approx(240.0)
+
+
+def test_min_res_for_mesh_unified_uses_ocean_resolution():
+    """Unified min_res is the ocean resolution, not land/river refinement."""
+    # u-oi30-lr10 has 30 km ocean but 10 km land/river; ocean wins
+    assert min_res_for_mesh('u-oi30-lr10') == pytest.approx(30.0)

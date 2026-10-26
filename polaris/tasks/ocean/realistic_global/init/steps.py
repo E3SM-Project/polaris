@@ -91,7 +91,7 @@ def get_realistic_init_steps(component, mesh_name, include_viz=False):
     stress_step = jra55_steps['jra55_stress']
 
     base_subdir = f'spherical/realistic_global/{mesh_name}/init'
-    config_filename = 'realistic_global_init.cfg'
+    config_filename = 'init.cfg'
     config = _get_init_config(
         component, base_subdir, config_filename, mesh_name
     )
@@ -204,7 +204,7 @@ def _get_init_config(component, subdir, config_filename, mesh_name):
     Per-mesh overrides from
     :py:mod:`polaris.tasks.ocean.realistic_global.mesh_configs` are added last
     so that they take precedence over the defaults in
-    ``realistic_global_init.cfg``.
+    ``init.cfg``.
 
     Parameters
     ----------
