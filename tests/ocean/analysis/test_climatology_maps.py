@@ -272,7 +272,7 @@ def test_the_anomaly_is_the_change_in_the_mass_weighted_integral(ohc_step):
     column's mass."""
     ohc_step.run()
     rho_sw = get_constant('seawater_density_reference')
-    specific_heat = get_constant('seawater_specific_heat_capacity_reference')
+    specific_heat = get_constant('seawater_specific_heat_capacity_teos10')
     # MinLayerCell is 1 and MaxLayerCell is N_LEVELS in the one-based
     # indices both models write, so every layer of every column is valid
     column_mass = rho_sw * THICKNESS * N_LEVELS
@@ -343,7 +343,7 @@ def test_a_heat_content_map_is_plotted_over_a_partial_range(ohc_step):
     }
 
     rho_sw = get_constant('seawater_density_reference')
-    specific_heat = get_constant('seawater_specific_heat_capacity_reference')
+    specific_heat = get_constant('seawater_specific_heat_capacity_teos10')
     values = _read_map(
         ohc_step, 'heat_content_anomaly_ANN_top_to_-150m.nc'
     ).values
