@@ -293,7 +293,7 @@ The suite is being built up product by product.  What exists so far:
 
 | task | product | status |
 | --- | --- | --- |
-| `climatology_maps` | map-view climatologies and ocean heat content maps, one step per field group | {ref}`available <ocean-analysis-climatology-maps>` |
+| `climatology_maps` | map-view climatologies and maps of the change in ocean heat content, one step per field group | {ref}`available <ocean-analysis-climatology-maps>` |
 | `global_stats` | time series of the simulation's global statistics | {ref}`available <ocean-analysis-global-stats>` |
 | `heat_content_series` | time series of globally integrated ocean heat content | {ref}`available <ocean-analysis-heat-content-series>` |
 | `moc` | latitude-elevation plot of the meridional overturning circulation | not yet implemented |
@@ -434,6 +434,14 @@ The `heat_content` field group is the one group that derives its field rather
 than reading it.  It is always present, whatever `fields` asks for, since it
 is a diagnostic Polaris computes rather than a variable a simulation writes.
 
+What it maps is the **change** in heat content from the first monthly mean of
+the range, `heat_content_anomaly`, since a map of heat content itself mostly
+shows how deep each column is.  Each season's heat content comes from the
+climatology and the first month's from that monthly mean, computed the same
+way, and the map is the difference.  The first monthly mean stands in for the
+initial condition, so a seasonal map carries the difference between that
+season and the first month as well as any drift.
+
 Heat content per unit area is a **mass**-weighted integral of conservative
 temperature: the specific heat capacity times the sum over layers of
 temperature weighted by each layer's mass per unit area.  That mass comes
@@ -473,10 +481,11 @@ Dictionary, which is the one the rest of E3SM uses.  Like the reference
 density, it is not a config option.
 
 Output names follow the rest of the maps, with the range in place of the
-elevation, for example `heat_content_ANN_top_to_bottom.png`.  The netCDF is
-written in J m-2, which is the unit the quantity means, and carries the range
-as attributes so a plot cannot be mistaken for a different one; the plot is
-drawn in GJ m-2, which is a readable number.
+elevation, for example `heat_content_anomaly_ANN_top_to_bottom.png`.  The
+netCDF is written in J m-2, which is the unit the quantity means, and carries
+the range and the month it is a change from as attributes, so a plot cannot be
+mistaken for a different one.  The plot is drawn in GJ m-2 with a diverging
+colormap, set in `[ocean_analysis_map_heat_content_anomaly]`.
 
 #### what is not there yet
 
