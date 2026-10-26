@@ -13,6 +13,8 @@ utility's script puts this directory on `sys.path`.
   CTests and job submission
 - `pr_test_report.py`: markers, the table of a machine's rows and posting
 - `pr_test_status.py`: which rows have results on a PR
+- `pr_test_cleanup.py`: old runs, baselines and worktrees in `work_base`,
+  and the paths open pull requests cite
 - `pr_test_warnings.py`: the build log parser
 
 Their tests are in `tests/pr_testing`.

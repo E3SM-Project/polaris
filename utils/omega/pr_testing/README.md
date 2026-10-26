@@ -45,6 +45,12 @@ its rows.  An agent on every machine also works, but is discouraged.
 6. **`status`** lists which rows have been reported and whether they are
    for the PR's current head.  Given the test branch, it lists the rows to
    test from each machine.
+7. **`cleanup`** (each machine), only when you ask, lists the old runs,
+   baselines and Omega worktrees in `work_base`, and removes them with
+   `--delete`.  It keeps anything an open Omega or Polaris PR cites, which
+   **`cited`** lists on your computer, and anything modified in the last
+   few days.  With `--branches` on your computer, it also deletes the test
+   branches of PRs that have merged or closed.
 
 ## Setup
 
@@ -111,6 +117,13 @@ omega_pr_test.py post --pr 553 \
     <work_base>/pr553-54456ec/report_chrysalis.md
 
 omega_pr_test.py status --pr 553
+
+# cleaning up, when you choose to: on your computer
+omega_pr_test.py cited
+omega_pr_test.py cleanup --branches
+# copy <work_base>/cited_paths.txt to work_base on each machine, then there
+omega_pr_test.py cleanup
+# ...and once the lists look right, run each again with --delete
 ```
 
 ## Layout
@@ -120,6 +133,7 @@ omega_pr_test.py status --pr 553
   omega/<sha12>/                  Omega worktrees, one per commit
   baselines/<machine>_<compiler>_polaris-<sha7>_omega-<sha7>/
     build/  omega_pr/             baselines, reused across PRs
+  cited_paths.txt                 paths open PRs cite, for cleanup
   pr<N>-<head sha7>/
     lint/                         lint report (and local logs)
     report_<machine>.md           a machine's comment
@@ -132,4 +146,5 @@ The modules this utility shares with other PR testing utilities are in
 [utils/pr_testing](../../pr_testing).
 
 Test branches, `omega-pr-test/<N>-<head sha7>` and its `-baseline`
-branch, can be deleted from the fork once the PR merges.
+branch, can be deleted from the fork once the PR merges or closes, which
+`cleanup --branches` does.

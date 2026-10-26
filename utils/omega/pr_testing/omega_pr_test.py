@@ -21,6 +21,7 @@ sys.path.insert(
     ),
 )
 
+import omega_pr_cleanup  # noqa: E402
 import omega_pr_init  # noqa: E402
 import omega_pr_lint  # noqa: E402
 import omega_pr_report  # noqa: E402
@@ -33,6 +34,13 @@ from omega_pr_manifest import (  # noqa: E402
     fetch_manifest,
     get_row,
 )
+from pr_test_cleanup import (  # noqa: E402
+    CITED_FILENAME,
+    DEFAULT_KEEP_DAYS,
+    CleanupError,
+    collect_citations,
+    write_citations,
+)
 from pr_test_config import ConfigError, read_config  # noqa: E402
 from pr_test_git import GitError  # noqa: E402
 from pr_test_github import GitHubError  # noqa: E402
@@ -43,6 +51,7 @@ from polaris.job import SubmissionError  # noqa: E402
 
 #: the errors that are reported as a message rather than a traceback
 EXPECTED_ERRORS = (
+    CleanupError,
     ConfigError,
     GitError,
     GitHubError,
@@ -154,6 +163,52 @@ def _status(args):
         config = read_config(args.config_file)
         manifest = fetch_manifest(config.omega_repo, args.fork, args.branch)
     print(omega_pr_status.run_status(args.pr, manifest, config))
+
+
+def _cited(args):
+    output = args.output
+    if output is None:
+        config = read_config(args.config_file)
+        output = os.path.join(config.work_base, CITED_FILENAME)
+    citations = collect_citations()
+    write_citations(output, citations)
+    print(
+        f'Wrote {len(citations)} paths cited by open pull requests to '
+        f'{output}.  Copy it to work_base on each machine to clean up '
+        f'there.'
+    )
+
+
+def _cleanup(args):
+    config = read_config(args.config_file)
+    print(
+        omega_pr_cleanup.run_cleanup(
+            config=config,
+            cited_file=args.cited,
+            keep_days=args.keep_days,
+            delete=args.delete,
+        )
+    )
+    if args.branches:
+        if config.fork is None:
+            raise ValueError('--branches needs "fork" in the config file.')
+        branches = omega_pr_cleanup.find_test_branches(
+            config.omega_repo, config.fork
+        )
+        if args.delete:
+            omega_pr_cleanup.delete_test_branches(
+                config.omega_repo,
+                config.fork,
+                [branch for branch in branches if branch.state != 'OPEN'],
+            )
+        print()
+        print(
+            omega_pr_cleanup.format_branches(
+                branches, config.fork, args.delete
+            )
+        )
+    if not args.delete:
+        print('\nNothing was removed.  Pass --delete to remove it.')
 
 
 def _print_written(path):
@@ -363,6 +418,50 @@ def _parse_args():
         '--branch', help="The test branch, to list the manifest's rows"
     )
     status.set_defaults(func=_status)
+
+    cited = subparsers.add_parser(
+        'cited',
+        help='Write the paths that open Omega and Polaris pull requests '
+        'cite, which cleanup keeps (where gh is logged in)',
+    )
+    cited.add_argument(
+        '-o',
+        '--output',
+        help=f'The file to write, {CITED_FILENAME} in work_base by default',
+    )
+    cited.set_defaults(func=_cited)
+
+    cleanup = subparsers.add_parser(
+        'cleanup',
+        help='List, or remove with --delete, the old runs, baselines and '
+        'Omega worktrees in work_base, keeping anything an open pull '
+        'request cites.  Only when the requester asks.',
+    )
+    cleanup.add_argument(
+        '--cited',
+        help='The paths open pull requests cite, from the cited command, '
+        f'{CITED_FILENAME} in work_base by default',
+    )
+    cleanup.add_argument(
+        '--keep-days',
+        type=float,
+        default=DEFAULT_KEEP_DAYS,
+        help='Keep anything modified in this many days, since it may be in '
+        f'use ({DEFAULT_KEEP_DAYS:g} by default)',
+    )
+    cleanup.add_argument(
+        '--branches',
+        action='store_true',
+        help="Also clean up the test branches on the requester's fork whose "
+        'PRs have merged or closed (initiator)',
+    )
+    cleanup.add_argument(
+        '--delete',
+        action='store_true',
+        help='Remove what is not kept.  Agents pass this only with the '
+        "requester's permission.",
+    )
+    cleanup.set_defaults(func=_cleanup)
 
     return parser.parse_args()
 
