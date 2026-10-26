@@ -132,7 +132,9 @@ Below, `omega_pr_test.py` means `./utils/omega/pr_testing/omega_pr_test.py`.
    `init` printed for an agent there, as it is, in a fenced code block
    (see [Handoff](#handoff)).  The requester is waiting to start that
    agent, often before leaving, and its jobs queue too.  Carry on with
-   the steps below once they reply.
+   the steps below once they reply.  If every row is tested over ssh,
+   for example when Frontier is not being tested, there is no prompt to
+   give, so do not stop here.
 4. Check linting and the docs:
    ```bash
    omega_pr_test.py lint --fork <fork> --branch <branch> --agent "<name>"
