@@ -120,11 +120,12 @@ class InitialStateStep(OceanIOStep):
                 'culled_ocean_reconstruction_weights.nc',
             ),
         )
+        # culled_graph.info is only linked here for the forward steps, not
+        # written, so it is the cull step's output rather than this one's
         self.add_output_files_for_ocean_model_input(
             horiz_mesh_filename='mesh.nc',
             vert_coord_filename='vert_coord.nc',
             init_filename='init.nc',
-            graph_filename='culled_graph.info',
         )
 
     def run(self):
