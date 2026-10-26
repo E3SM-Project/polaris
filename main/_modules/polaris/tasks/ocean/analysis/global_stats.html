@@ -276,10 +276,11 @@
         <span class="n">plot_global_stats</span><span class="p">(</span>
             <span class="n">time</span><span class="o">=</span><span class="n">time</span><span class="p">,</span>
             <span class="n">stats</span><span class="o">=</span><span class="n">values</span><span class="p">,</span>
-            <span class="n">field_name</span><span class="o">=</span><span class="n">_axis_label</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="n">field</span><span class="p">,</span> <span class="n">field_stats</span><span class="p">),</span>
+            <span class="n">field_name</span><span class="o">=</span><span class="n">field</span><span class="p">,</span>
             <span class="n">out_filename</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">work_path</span><span class="p">(</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s1">.png'</span><span class="p">),</span>
             <span class="n">x_label</span><span class="o">=</span><span class="s1">'Simulation years'</span><span class="p">,</span>
             <span class="n">title</span><span class="o">=</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">simulation_name</span><span class="si">}</span><span class="s1">: global </span><span class="si">{</span><span class="n">field</span><span class="si">}</span><span class="s1">'</span><span class="p">,</span>
+            <span class="n">units</span><span class="o">=</span><span class="n">units_to_mathtext</span><span class="p">(</span><span class="n">_units</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="n">field_stats</span><span class="p">)),</span>
         <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">add_produced_file</span><span class="p">(</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s1">.png'</span><span class="p">)</span>
 
@@ -353,14 +354,6 @@
         <span class="p">}</span>
         <span class="n">ds_out</span><span class="o">.</span><span class="n">to_netcdf</span><span class="p">(</span><span class="n">out_filename</span><span class="p">)</span></div>
 
-
-
-<span class="k">def</span><span class="w"> </span><span class="nf">_axis_label</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="n">field</span><span class="p">,</span> <span class="n">field_stats</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">"""Label the vertical axes with the field and its units, if it has any"""</span>
-    <span class="n">units</span> <span class="o">=</span> <span class="n">units_to_mathtext</span><span class="p">(</span><span class="n">_units</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="n">field_stats</span><span class="p">))</span>
-    <span class="k">if</span> <span class="n">units</span><span class="p">:</span>
-        <span class="k">return</span> <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">field</span><span class="si">}</span><span class="s1"> (</span><span class="si">{</span><span class="n">units</span><span class="si">}</span><span class="s1">)'</span>
-    <span class="k">return</span> <span class="n">field</span>
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_units</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="n">field_stats</span><span class="p">):</span>
