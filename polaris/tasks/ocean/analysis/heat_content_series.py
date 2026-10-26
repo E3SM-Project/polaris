@@ -164,26 +164,21 @@ class HeatContentSeries(Accumulator):
         self.add_sim_input_file(
             sim_files.vert_coord_filename(), VERT_COORD_FILENAME
         )
-        # so that a configuration this step can make nothing of is reported at
+        # so that an entry that is not an elevation range is reported at
         # setup rather than after the monthly means have been read
-        self.computed_ranges()
+        get_elevation_ranges(self.config)
 
     def product_stamp(self):
         """
         Get the config options and constants that decide what a reduced month
         contains
 
-        The ranges here are the ones that are actually integrated rather than
-        the ones that were asked for, which is what keeps a cache computed
-        over the whole column alone from being inherited once every range can
-        be integrated.
-
         Returns
         -------
         stamp : dict
             The options, as strings
         """
-        ranges = self.computed_ranges()
+        ranges = get_elevation_ranges(self.config)
         return {
             'elevation_ranges': ','.join(
                 reduction.label for reduction in ranges
@@ -195,35 +190,6 @@ class HeatContentSeries(Accumulator):
             'mesh': self.mesh_path,
         }
 
-    def computed_ranges(self):
-        """
-        Get the elevation ranges that can be integrated over
-
-        Returns
-        -------
-        ranges : list of polaris.ocean.vertical.elevation.VerticalReduction
-            The requested ranges that need no vertical geometry
-
-        Raises
-        ------
-        ValueError
-            If none of the requested ranges can be integrated yet
-        """
-        ranges = [
-            reduction
-            for reduction in get_elevation_ranges(self.config)
-            if is_whole_column(reduction)
-        ]
-        if not ranges:
-            raise ValueError(
-                'None of the ranges in [ocean_analysis_ohc] '
-                'elevation_ranges can be integrated yet, so the time series '
-                'would have nothing in it.  A range with a boundary in the '
-                'interior of a layer needs the vertical geometry, which is '
-                'not implemented; add top:bottom, the whole column.'
-            )
-        return ranges
-
     def run(self):
         """
         Reduce the months that were not inherited, and plot the series
@@ -233,13 +199,6 @@ class HeatContentSeries(Accumulator):
         # what the monthly means append to each field's name
         sim_files = SimulationFiles(self.config, log=self.logger.info)
         self._suffix = time_mean_suffix(sim_files.monthly_mean_stream())
-        for reduction in get_elevation_ranges(self.config):
-            if not is_whole_column(reduction):
-                self.logger.info(
-                    f'integrating over {reduction.label} needs the vertical '
-                    f'geometry, which is not implemented yet, so it is left '
-                    f'out of the time series'
-                )
         super().run()
 
     def compute_month(self, filename, year, month):
@@ -247,9 +206,10 @@ class HeatContentSeries(Accumulator):
         Reduce one month to the globally integrated heat content of each
         elevation range
 
-        Only ``temperature`` and the model's mass-like thickness are read from
-        the month, which is what keeps the read that dominates this step as
-        small as it can be.
+        Only ``temperature``, the model's mass-like thickness and, when a range
+        has a bound inside the column, the elevation of the layer interfaces
+        are read from the month, which is what keeps the read that dominates
+        this step as small as it can be.
 
         Parameters
         ----------
@@ -268,28 +228,37 @@ class HeatContentSeries(Accumulator):
             One variable per elevation range, in J
         """
         config = self.config
+        ranges = get_elevation_ranges(config)
         area_cell = self._get_area_cell()
         min_level_cell, max_level_cell = self._get_level_range()
 
         thickness = MASS_THICKNESS_VARIABLES[config.get('ocean', 'model')]
-        # only the two fields the integral needs are read: a month of global
+        # only the fields the integral needs are read: a month of global
         # three-dimensional output is what this step's memory footprint and
         # its cost are, so reading the rest of the file would be most of both
-        ds = self.read_fields(
-            filename, ['temperature', thickness], suffix=self._suffix
-        )
+        fields = ['temperature', thickness]
+        # the geometry is one more such field, and only a range with a bound
+        # inside the column needs it
+        if not all(is_whole_column(reduction) for reduction in ranges):
+            fields.append('GeomZInterface')
+        ds = self.read_fields(filename, fields, suffix=self._suffix)
         if 'Time' in ds.dims:
             # a monthly mean holds one time, which the series gives back
             ds = ds.isel(Time=0)
-        self._check_fields(ds, filename)
+        self._check_fields(ds, filename, fields)
 
         temperature = ds.temperature
         layer_mass = get_layer_mass(ds, config)
 
         data = {}
-        for reduction in self.computed_ranges():
+        for reduction in ranges:
+            # the whole column is the mass of every valid layer, which needs
+            # no geometry, so it stays exact rather than a sum of fractions
+            z_interface = (
+                None if is_whole_column(reduction) else ds.GeomZInterface
+            )
             weights = elevation_range_weights(
-                z_interface=None,
+                z_interface=z_interface,
                 layer_mass=layer_mass,
                 min_level_cell=min_level_cell,
                 max_level_cell=max_level_cell,
@@ -348,7 +317,7 @@ class HeatContentSeries(Accumulator):
         changing, which is what a drift is and is invisible beside the
         absolute value.
         """
-        ranges = self.computed_ranges()
+        ranges = get_elevation_ranges(self.config)
         years = ds.simulationYear.values
         simulation_name = self.config.get('ocean_analysis', 'simulation_name')
         key = year_range_key(self.start_year, self.end_year)
@@ -389,13 +358,9 @@ class HeatContentSeries(Accumulator):
             field='heat_content',
         )
 
-    def _check_fields(self, ds, filename):
+    def _check_fields(self, ds, filename, fields):
         """Report what a month is missing, rather than raising on a name"""
-        model = self.config.get('ocean', 'model')
-        thickness = MASS_THICKNESS_VARIABLES[model]
-        missing = [
-            name for name in ('temperature', thickness) if name not in ds
-        ]
+        missing = [name for name in fields if name not in ds]
         if missing:
             raise ValueError(
                 f'{filename} has no {", ".join(missing)}, so its heat '
