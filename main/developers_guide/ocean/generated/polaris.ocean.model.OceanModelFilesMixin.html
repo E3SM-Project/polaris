@@ -144,8 +144,8 @@
 <dt class="sig sig-object py" id="polaris.ocean.model.OceanModelFilesMixin">
 <span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">polaris.ocean.model.</span></span><span class="sig-name descname"><span class="pre">OceanModelFilesMixin</span></span><a class="reference internal" href="../../../_modules/polaris/ocean/model/ocean_model_files_mixin.html#OceanModelFilesMixin"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#polaris.ocean.model.OceanModelFilesMixin" title="Link to this definition"></a></dt>
 <dd><p>Mixin providing access to the <code class="docutils literal notranslate"><span class="pre">[ocean_staged_files]</span></code> config section and
-the shared placeholder mechanism for the three canonical ocean dataset
-files (horizontal mesh, vertical coordinate, initial state).</p>
+the shared placeholder mechanism for the canonical ocean dataset files
+(horizontal mesh, vertical coordinate, initial state, surface forcing).</p>
 <p>Must be combined with a Step subclass that sets <code class="docutils literal notranslate"><span class="pre">self.config</span></code> and
 provides <code class="docutils literal notranslate"><span class="pre">self.add_input_file()</span></code>.  The <code class="docutils literal notranslate"><span class="pre">add_*_input_file()</span></code> methods
 are safe to call from <code class="docutils literal notranslate"><span class="pre">__init__()</span></code> because the model check is deferred
@@ -162,31 +162,34 @@ to <code class="xref py py-meth docutils literal notranslate"><span class="pre">
 <tr class="row-odd"><td><p><a class="reference internal" href="#polaris.ocean.model.OceanModelFilesMixin.__init__" title="polaris.ocean.model.OceanModelFilesMixin.__init__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code></a>()</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_horiz_mesh_input_file</span></code>(**kwargs)</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_forcing_input_file</span></code>(**kwargs)</p></td>
+<td><p>Add the surface-forcing input file using a placeholder that is resolved to the configured filename at <code class="xref py py-meth docutils literal notranslate"><span class="pre">process_inputs_and_outputs()</span></code> time.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_horiz_mesh_input_file</span></code>(**kwargs)</p></td>
 <td><p>Add the horizontal-mesh input file using a placeholder that is resolved to the configured filename at <code class="xref py py-meth docutils literal notranslate"><span class="pre">process_inputs_and_outputs()</span></code> time.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_init_input_file</span></code>(**kwargs)</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_init_input_file</span></code>(**kwargs)</p></td>
 <td><p>Add the initial-condition input file using a placeholder that is resolved to the configured filename at <code class="xref py py-meth docutils literal notranslate"><span class="pre">process_inputs_and_outputs()</span></code> time.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_output_file</span></code>(filename[, validate_vars, ...])</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_output_file</span></code>(filename[, validate_vars, ...])</p></td>
 <td><p>Add an output file, optionally resolving <code class="docutils literal notranslate"><span class="pre">validate_class</span></code> to a pre-defined list of variables from the Ocean component.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_vert_coord_input_file</span></code>([filename])</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_vert_coord_input_file</span></code>([filename])</p></td>
 <td><p>Add the vertical-coordinate input file.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_forcing_filename</span></code>()</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_forcing_filename</span></code>()</p></td>
 <td><p>Get the configured local filename for the surface forcing file.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_horiz_mesh_filename</span></code>()</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_horiz_mesh_filename</span></code>()</p></td>
 <td><p>Get the configured local filename for the horizontal mesh file.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_init_filename</span></code>()</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_init_filename</span></code>()</p></td>
 <td><p>Get the configured local filename for the initial-condition file.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_vert_coord_filename</span></code>()</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_vert_coord_filename</span></code>()</p></td>
 <td><p>Get the configured local filename for the vertical coordinate file.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">open_model_dataset</span></code>(filename[, config, ...])</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">open_model_dataset</span></code>(filename[, config, ...])</p></td>
 <td><p>Open the given dataset, mapping variable and dimension names from Omega to MPAS-Ocean names if appropriate</p></td>
 </tr>
 </tbody>

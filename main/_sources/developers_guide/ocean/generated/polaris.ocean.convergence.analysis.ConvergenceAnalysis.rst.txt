@@ -16,6 +16,7 @@
       ~ConvergenceAnalysis.__init__
       ~ConvergenceAnalysis.add_cf_check
       ~ConvergenceAnalysis.add_dependency
+      ~ConvergenceAnalysis.add_forcing_input_file
       ~ConvergenceAnalysis.add_horiz_mesh_input_file
       ~ConvergenceAnalysis.add_init_input_file
       ~ConvergenceAnalysis.add_input_file

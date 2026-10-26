@@ -16,6 +16,7 @@
       ~Forward.__init__
       ~Forward.add_cf_check
       ~Forward.add_dependency
+      ~Forward.add_forcing_input_file
       ~Forward.add_horiz_mesh_input_file
       ~Forward.add_init_input_file
       ~Forward.add_input_file

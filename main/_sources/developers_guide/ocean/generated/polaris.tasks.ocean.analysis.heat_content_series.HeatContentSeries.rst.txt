@@ -16,6 +16,7 @@
       ~HeatContentSeries.__init__
       ~HeatContentSeries.add_cf_check
       ~HeatContentSeries.add_dependency
+      ~HeatContentSeries.add_forcing_input_file
       ~HeatContentSeries.add_horiz_mesh_input_file
       ~HeatContentSeries.add_init_input_file
       ~HeatContentSeries.add_input_file

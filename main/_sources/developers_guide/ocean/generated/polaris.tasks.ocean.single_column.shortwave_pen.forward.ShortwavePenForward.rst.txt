@@ -16,6 +16,7 @@
       ~ShortwavePenForward.__init__
       ~ShortwavePenForward.add_cf_check
       ~ShortwavePenForward.add_dependency
+      ~ShortwavePenForward.add_forcing_input_file
       ~ShortwavePenForward.add_horiz_mesh_input_file
       ~ShortwavePenForward.add_init_input_file
       ~ShortwavePenForward.add_input_file

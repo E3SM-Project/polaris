@@ -1,0 +1,6 @@
+﻿polaris.tasks.ocean.realistic\_global.forward.stage.ForwardStage.check\_damping\_supported
+==========================================================================================
+
+.. currentmodule:: polaris.tasks.ocean.realistic_global.forward.stage
+
+.. automethod:: ForwardStage.check_damping_supported

@@ -16,6 +16,7 @@
       ~AnalysisStep.__init__
       ~AnalysisStep.add_cf_check
       ~AnalysisStep.add_dependency
+      ~AnalysisStep.add_forcing_input_file
       ~AnalysisStep.add_horiz_mesh_input_file
       ~AnalysisStep.add_init_input_file
       ~AnalysisStep.add_input_file

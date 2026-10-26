@@ -16,6 +16,7 @@
       ~Analysis.__init__
       ~Analysis.add_cf_check
       ~Analysis.add_dependency
+      ~Analysis.add_forcing_input_file
       ~Analysis.add_horiz_mesh_input_file
       ~Analysis.add_init_input_file
       ~Analysis.add_input_file

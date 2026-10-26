@@ -283,7 +283,8 @@ from upstream using the same names.</p>
 from config.</p></li>
 <li><p><strong>Input-file registration</strong> — <code class="docutils literal notranslate"><span class="pre">add_horiz_mesh_input_file(**kwargs)</span></code>,
 <code class="docutils literal notranslate"><span class="pre">add_vert_coord_input_file(filename=None,</span> <span class="pre">**kwargs)</span></code>,
-<code class="docutils literal notranslate"><span class="pre">add_init_input_file(**kwargs)</span></code> — all safe to call from <code class="docutils literal notranslate"><span class="pre">__init__()</span></code>.
+<code class="docutils literal notranslate"><span class="pre">add_init_input_file(**kwargs)</span></code>, <code class="docutils literal notranslate"><span class="pre">add_forcing_input_file(**kwargs)</span></code> — all
+safe to call from <code class="docutils literal notranslate"><span class="pre">__init__()</span></code>.
 The model check is deferred to <code class="docutils literal notranslate"><span class="pre">process_inputs_and_outputs()</span></code>, so no
 <code class="docutils literal notranslate"><span class="pre">if</span> <span class="pre">model</span> <span class="pre">==</span> <span class="pre">'omega':</span></code> guards are needed in <code class="docutils literal notranslate"><span class="pre">__init__()</span></code>.
 <code class="docutils literal notranslate"><span class="pre">add_vert_coord_input_file()</span></code> is a no-op for MPAS-Ocean when the default
@@ -291,6 +292,14 @@ placeholder is used.  When an explicit <code class="docutils literal notranslate
 per-resolution files such as <code class="docutils literal notranslate"><span class="pre">'vert_coord_r04.nc'</span></code>), it must be called
 from <code class="docutils literal notranslate"><span class="pre">setup()</span></code> or later because <code class="docutils literal notranslate"><span class="pre">self.config</span></code> is required.</p></li>
 </ul>
+<p>Unlike the other three, the forcing file is optional: only steps that actually
+have one register it, and unforced runs simply never call
+<code class="docutils literal notranslate"><span class="pre">add_forcing_input_file()</span></code>.  Note also that the forcing file is not the same
+shape for both models — <code class="docutils literal notranslate"><span class="pre">write_forcing_dataset()</span></code> gives it a <code class="docutils literal notranslate"><span class="pre">Time</span></code> dimension
+for MPAS-Ocean and none for Omega, because MPAS-Ocean’s Registry declares
+<code class="docutils literal notranslate"><span class="pre">dimensions=&quot;nCells</span> <span class="pre">Time&quot;</span></code> while Omega’s <code class="docutils literal notranslate"><span class="pre">SfcStressForcingVars</span></code> registers 1-D
+fields on <code class="docutils literal notranslate"><span class="pre">NCells</span></code>.  A step that reads the file back has to expect that
+asymmetry.</p>
 <p>A typical viz or analysis step that reads vert-coord variables:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">class</span><span class="w"> </span><span class="nc">Viz</span><span class="p">(</span><span class="n">OceanIOStep</span><span class="p">):</span>
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">component</span><span class="p">,</span> <span class="n">indir</span><span class="p">,</span> <span class="n">init</span><span class="p">):</span>
@@ -341,8 +350,9 @@ coefficients, so the constructor turns Omega’s <code class="docutils literal n
 When disabled, Omega sets both scaling factors, <code class="docutils literal notranslate"><span class="pre">MeshScalingDel2</span></code> and
 <code class="docutils literal notranslate"><span class="pre">MeshScalingDel4</span></code>, to one on every edge, so <code class="docutils literal notranslate"><span class="pre">ViscDel2</span></code>, <code class="docutils literal notranslate"><span class="pre">ViscDel4</span></code>,
 <code class="docutils literal notranslate"><span class="pre">EddyDiff2</span></code> and <code class="docutils literal notranslate"><span class="pre">EddyDiff4</span></code> are the same everywhere on the mesh.  A
-task that wants scaling turns it back on in a yaml file it adds at setup, as
-the <code class="docutils literal notranslate"><span class="pre">realistic_global</span></code> tasks do.  The default is set in the constructor rather
+task that wants scaling turns it back on, either in a yaml file it adds at
+setup or, as the <code class="docutils literal notranslate"><span class="pre">realistic_global</span></code> forward steps do, in its step’s own
+<code class="docutils literal notranslate"><span class="pre">dynamic_model_config()</span></code>.  The default is set in the constructor rather
 than in <code class="docutils literal notranslate"><span class="pre">dynamic_model_config()</span></code> because, at run time, it would otherwise
 override a setting from a task’s yaml file.</p>
 <section id="yaml-files-vs-namelists-and-streams">
@@ -1145,8 +1155,8 @@ global statistics output and name it after the two, so
 <code class="docutils literal notranslate"><span class="pre">polaris.ocean.global_stats_names</span></code> builds the names rather than listing them.
 It is a leaf module for the same reason <code class="docutils literal notranslate"><span class="pre">sim_files</span></code> is, and it lives under
 <code class="docutils literal notranslate"><span class="pre">polaris.ocean</span></code> rather than under the analysis package because the
-<code class="docutils literal notranslate"><span class="pre">realistic_global</span></code> <code class="docutils literal notranslate"><span class="pre">analysis_members</span></code> task reads the same kind of output from
-a forward step in its own task.</p>
+<code class="docutils literal notranslate"><span class="pre">global_stats</span></code> step of the <code class="docutils literal notranslate"><span class="pre">realistic_global</span></code> forward tasks reads the same
+kind of output from a forward step in its own task.</p>
 <p>Three things about it are worth knowing:</p>
 <ul class="simple">
 <li><p><strong>The names are built, not mapped.</strong>  <code class="docutils literal notranslate"><span class="pre">mpaso_to_omega.yaml</span></code> needs an entry

@@ -20,7 +20,7 @@
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="Reworked HPG Reference Solution" href="horiz_press_grad_reference.html" />
-    <link rel="prev" title="Design Documents" href="index.html" />
+    <link rel="prev" title="Global Ocean Forward Runs" href="global_ocean_forward.html" />
     <link href="../_static/style.css" rel="stylesheet" type="text/css">
 
 </head>
@@ -79,6 +79,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../developers_guide/updating_spack/index.html">Updating Shared Spack Environments</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../developers_guide/api.html">API reference</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="index.html">Design Documents</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="global_ocean_forward.html">Global Ocean Forward Runs</a></li>
 <li class="toctree-l2 current"><a class="current reference internal" href="#">Realistic Ocean Initial Conditions</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#summary">Summary</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#requirements">Requirements</a><ul>
@@ -558,8 +559,8 @@ pre-processed WOA hydrography product remapped to the MPAS horizontal mesh,
 using the p-star layer midpoints from the current iteration as the vertical
 interpolation target.</p>
 <p>The reference 1D vertical grid that establishes the initial layer structure is
-configured by setting <code class="docutils literal notranslate"><span class="pre">grid_type</span></code> in the <code class="docutils literal notranslate"><span class="pre">[vertical_grid]</span></code> section of
-<code class="docutils literal notranslate"><span class="pre">realistic_global_init.cfg</span></code>. The <code class="docutils literal notranslate"><span class="pre">pstar_init</span></code> step passes this reference grid
+configured by setting <code class="docutils literal notranslate"><span class="pre">grid_type</span></code> in the <code class="docutils literal notranslate"><span class="pre">[vertical_grid]</span></code> section of the
+init package’s <code class="docutils literal notranslate"><span class="pre">init.cfg</span></code>. The <code class="docutils literal notranslate"><span class="pre">pstar_init</span></code> step passes this reference grid
 to <code class="docutils literal notranslate"><span class="pre">generate_1d_grid</span></code> (in <code class="docutils literal notranslate"><span class="pre">polaris/ocean/vertical/grid_1d/__init__.py</span></code>),
 which returns the interface depths used to dimension the p-star iteration. The
 default for the realistic global init task is the pre-defined <code class="docutils literal notranslate"><span class="pre">80layerE3SMv1</span></code>
@@ -573,9 +574,10 @@ therefore override it. The three 240 km meshes replace the 80-layer default
 with a 16-level <code class="docutils literal notranslate"><span class="pre">tanh_dz</span></code> grid over a 3000 m bottom depth, because they exist
 for fast smoke-testing rather than for realistic simulation. The same mechanism
 carries the ocean-culled cell count used to size MPI tasks, and is where
-per-mesh forward-run options belong as well. Anything that describes what the
-<em>ocean</em> does on a mesh belongs there rather than in the mesh component’s own
-per-mesh config, which describes the mesh itself.</p>
+per-mesh forward-run options belong as well (see
+<a class="reference internal" href="global_ocean_forward.html"><span class="std std-doc">global_ocean_forward.md</span></a>). Anything that describes
+what the <em>ocean</em> does on a mesh belongs there rather than in the mesh
+component’s own per-mesh config, which describes the mesh itself.</p>
 <p>Three behaviors of the iteration were settled during implementation rather than
 in <a class="reference internal" href="pstar_init.html"><span class="std std-doc">pstar_init.md</span></a>, which specifies the fixed-point algorithm
 itself. The column is anchored at the prescribed sea surface, so <code class="docutils literal notranslate"><span class="pre">ssh</span></code> matches
@@ -676,10 +678,10 @@ step size its own task count from the estimated ocean cell count while the
 used elsewhere in Polaris. It is created as a shared step but returned — and so
 run — only when <code class="docutils literal notranslate"><span class="pre">include_viz=True</span></code>, which the standalone <code class="docutils literal notranslate"><span class="pre">RealisticGlobalInit</span></code>
 task passes and consumers that reuse the init outputs as dependencies do not.
-Workflows that build on the initial condition, such as forward runs and
-dynamic adjustment, are meant to call <code class="docutils literal notranslate"><span class="pre">get_realistic_init_steps</span></code> the same way
-and get the same step instances rather than a second copy of a chain that
-costs hours.</p>
+Workflows that build on the initial condition, such as
+<a class="reference internal" href="global_ocean_forward.html"><span class="std std-doc">forward runs</span></a> and dynamic adjustment, are meant to
+call <code class="docutils literal notranslate"><span class="pre">get_realistic_init_steps</span></code> the same way and get the same step instances
+rather than a second copy of a chain that costs hours.</p>
 <p>The <code class="docutils literal notranslate"><span class="pre">viz</span></code> step makes Omega’s geometric <code class="docutils literal notranslate"><span class="pre">layerThickness</span></code> itself. Omega’s initial
 state carries <code class="docutils literal notranslate"><span class="pre">PseudoThickness</span></code> and no <code class="docutils literal notranslate"><span class="pre">SpecVol</span></code>, and <code class="docutils literal notranslate"><span class="pre">open_model_dataset</span></code> no
 longer derives equation-of-state fields (#817), so it only turns a
@@ -845,7 +847,7 @@ database, so the multi-GiB download happens only when the standalone <code class
 task regenerates the product.</p>
 <p>The read side – staging <code class="docutils literal notranslate"><span class="pre">forcing.nc</span></code> as a model <em>input</em>, and the associated
 namelist and config settings – belongs to the forward-model work rather than
-to this design.</p>
+to this design; see <a class="reference internal" href="global_ocean_forward.html"><span class="std std-doc">global_ocean_forward.md</span></a>.</p>
 </section>
 <section id="implementation-the-workflow-is-practical-for-very-large-global-meshes">
 <h3>Implementation: The workflow is practical for very large global meshes<a class="headerlink" href="#implementation-the-workflow-is-practical-for-very-large-global-meshes" title="Link to this heading"></a></h3>
@@ -991,7 +993,7 @@ once cavity support is added.</p>
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="index.html" class="btn btn-neutral float-left" title="Design Documents" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="global_ocean_forward.html" class="btn btn-neutral float-left" title="Global Ocean Forward Runs" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
         <a href="horiz_press_grad_reference.html" class="btn btn-neutral float-right" title="Reworked HPG Reference Solution" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 

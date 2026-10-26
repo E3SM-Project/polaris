@@ -16,6 +16,7 @@
       ~VizInitStep.__init__
       ~VizInitStep.add_cf_check
       ~VizInitStep.add_dependency
+      ~VizInitStep.add_forcing_input_file
       ~VizInitStep.add_horiz_mesh_input_file
       ~VizInitStep.add_init_input_file
       ~VizInitStep.add_input_file

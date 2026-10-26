@@ -16,6 +16,7 @@
       ~GlobalStatsTimeSeries.__init__
       ~GlobalStatsTimeSeries.add_cf_check
       ~GlobalStatsTimeSeries.add_dependency
+      ~GlobalStatsTimeSeries.add_forcing_input_file
       ~GlobalStatsTimeSeries.add_horiz_mesh_input_file
       ~GlobalStatsTimeSeries.add_init_input_file
       ~GlobalStatsTimeSeries.add_input_file

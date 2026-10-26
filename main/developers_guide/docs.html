@@ -72,6 +72,7 @@
 <li class="toctree-l1"><a class="reference internal" href="omega_pr_testing.html">Testing an Omega pull request</a></li>
 <li class="toctree-l1"><a class="reference internal" href="troubleshooting.html">Troubleshooting</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Documentation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#diagrams">Diagrams</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#docstrings">Docstrings</a></li>
 </ul>
 </li>
@@ -256,6 +257,26 @@ be added to <code class="docutils literal notranslate"><span class="pre">docs/&l
 <p>The Developer’s Guide also contains details on the framework shared across
 polaris, so any updates to this framework should include relevant additions
 or modifications ot the documentation.</p>
+<section id="diagrams">
+<span id="dev-docs-diagrams"></span><h2>Diagrams<a class="headerlink" href="#diagrams" title="Link to this heading"></a></h2>
+<p>A diagram often explains a workflow, a dependency chain or a sequence of
+steps better than a paragraph does, and the documentation could use more of
+them.  Diagrams are written in <a class="reference external" href="https://mermaid.js.org/">Mermaid</a>, in a fenced
+block whose language is <code class="docutils literal notranslate"><span class="pre">mermaid</span></code>:</p>
+<div class="highlight-markdown notranslate"><div class="highlight"><pre><span></span><span class="sb">```mermaid</span>
+<span class="s">flowchart LR</span>
+<span class="s">    init --&gt; forward --&gt; analysis</span>
+<span class="sb">```</span>
+</pre></div>
+</div>
+<p>Sphinx renders the block as a diagram through
+<a class="reference external" href="https://github.com/mgaitan/sphinxcontrib-mermaid">sphinxcontrib-mermaid</a>, and
+GitHub renders the same block in a file view or a pull request, so the source
+stays readable in both places.  The Mermaid
+<a class="reference external" href="https://mermaid.js.org/syntax/flowchart.html">flowchart</a> syntax covers most
+needs.  Images (<code class="docutils literal notranslate"><span class="pre">png</span></code> or <code class="docutils literal notranslate"><span class="pre">svg</span></code>) go in an <code class="docutils literal notranslate"><span class="pre">images</span></code> directory beside the page
+that uses them.</p>
+</section>
 <section id="docstrings">
 <span id="dev-docstrings"></span><h2>Docstrings<a class="headerlink" href="#docstrings" title="Link to this heading"></a></h2>
 <p>The Developer’s Guide includes a <a class="reference internal" href="api.html#dev-api"><span class="std std-ref">API reference</span></a> that is automatically generated

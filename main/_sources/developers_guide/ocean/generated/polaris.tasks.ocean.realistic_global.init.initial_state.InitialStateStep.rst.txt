@@ -16,6 +16,7 @@
       ~InitialStateStep.__init__
       ~InitialStateStep.add_cf_check
       ~InitialStateStep.add_dependency
+      ~InitialStateStep.add_forcing_input_file
       ~InitialStateStep.add_horiz_mesh_input_file
       ~InitialStateStep.add_init_input_file
       ~InitialStateStep.add_input_file

@@ -16,6 +16,7 @@
       ~SshForward.__init__
       ~SshForward.add_cf_check
       ~SshForward.add_dependency
+      ~SshForward.add_forcing_input_file
       ~SshForward.add_horiz_mesh_input_file
       ~SshForward.add_init_input_file
       ~SshForward.add_input_file

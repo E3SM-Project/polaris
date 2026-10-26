@@ -16,6 +16,7 @@
       ~Init.__init__
       ~Init.add_cf_check
       ~Init.add_dependency
+      ~Init.add_forcing_input_file
       ~Init.add_horiz_mesh_input_file
       ~Init.add_init_input_file
       ~Init.add_input_file

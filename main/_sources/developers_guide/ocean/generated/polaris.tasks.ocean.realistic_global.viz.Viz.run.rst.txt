@@ -1,6 +1,0 @@
-﻿polaris.tasks.ocean.realistic\_global.viz.Viz.run
-=================================================
-
-.. currentmodule:: polaris.tasks.ocean.realistic_global.viz
-
-.. automethod:: Viz.run

@@ -16,6 +16,7 @@
       ~Viz.__init__
       ~Viz.add_cf_check
       ~Viz.add_dependency
+      ~Viz.add_forcing_input_file
       ~Viz.add_horiz_mesh_input_file
       ~Viz.add_init_input_file
       ~Viz.add_input_file

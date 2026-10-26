@@ -16,6 +16,7 @@
       ~OceanIOStep.__init__
       ~OceanIOStep.add_cf_check
       ~OceanIOStep.add_dependency
+      ~OceanIOStep.add_forcing_input_file
       ~OceanIOStep.add_horiz_mesh_input_file
       ~OceanIOStep.add_init_input_file
       ~OceanIOStep.add_input_file

@@ -1,0 +1,1001 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Global Ocean Forward Runs</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=a8da1a53"></script>
+      <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Realistic Ocean Initial Conditions" href="global_ocean_init.html" />
+    <link rel="prev" title="Design Documents" href="index.html" />
+    <link href="../_static/style.css" rel="stylesheet" type="text/css">
+
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            Polaris
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">User's guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../users_guide/quick_start.html">Quick Start for Users</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../users_guide/tasks.html">Tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../users_guide/config_files.html">Config Files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../users_guide/suites.html">Suites</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../users_guide/mesh/index.html">Mesh component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../users_guide/e3sm/init/index.html">E3SM Initial Condition Component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../users_guide/ocean/index.html">Ocean component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../users_guide/seaice/index.html">Sea ice component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../users_guide/machines/index.html">Machines</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Developer's guide</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/quick_start.html">Quick Start for Developers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/command_line.html">Command-line interface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/organization/index.html">Organization of Tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/e3sm/init/index.html">E3SM initial condition (e3sm/init) component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/mesh/index.html">Mesh component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/ocean/index.html">Ocean component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/seaice/index.html">Sea ice component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/framework/index.html">Framework</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/machines/index.html">Machines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/benchmarking.html">Benchmarking a branch against a baseline</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/omega_pr_testing.html">Testing an Omega pull request</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/troubleshooting.html">Troubleshooting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/docs.html">Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/building_docs.html">Building the Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/building_docs.html#previewing-the-documentation">Previewing the Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/conda_vs_spack.html">How Conda and Spack Work Together in Polaris</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/updating_conda.html">Updating Deployment Dependencies</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/updating_spack/index.html">Updating Shared Spack Environments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/api.html">API reference</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">Design Documents</a><ul class="current">
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Global Ocean Forward Runs</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#summary">Summary</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#requirements">Requirements</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#requirement-a-reusable-forward-run-capability-runs-a-realistic-global-ocean-simulation">Requirement: A reusable forward-run capability runs a realistic global ocean simulation</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#requirement-forward-runs-can-start-from-a-database-initial-condition-or-from-the-init-workflow">Requirement: Forward runs can start from a database initial condition or from the init workflow</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#requirement-comparing-mpas-ocean-with-omega-is-opt-in">Requirement: Comparing MPAS-Ocean with Omega is opt-in</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#requirement-per-run-settings-are-described-in-a-common-model-agnostic-form">Requirement: Per-run settings are described in a common, model-agnostic form</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#requirement-the-framework-composes-into-restart-and-dynamic-adjustment-workflows">Requirement: The framework composes into restart and dynamic-adjustment workflows</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#requirement-forward-steps-produce-inspectable-outputs-and-support-basic-validation">Requirement: Forward steps produce inspectable outputs and support basic validation</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#requirement-physics-and-mixing-options-vary-with-the-mesh">Requirement: Physics and mixing options vary with the mesh</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#algorithm-design">Algorithm Design</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#algorithm-design-a-reusable-forward-run-capability-runs-a-realistic-global-ocean-simulation">Algorithm Design: A reusable forward-run capability runs a realistic global ocean simulation</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#algorithm-design-forward-runs-can-start-from-a-database-initial-condition-or-from-the-init-workflow">Algorithm Design: Forward runs can start from a database initial condition or from the init workflow</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#algorithm-design-comparing-mpas-ocean-with-omega-is-opt-in">Algorithm Design: Comparing MPAS-Ocean with Omega is opt-in</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#algorithm-design-per-run-settings-are-described-in-a-common-model-agnostic-form">Algorithm Design: Per-run settings are described in a common, model-agnostic form</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#algorithm-design-the-framework-composes-into-restart-and-dynamic-adjustment-workflows">Algorithm Design: The framework composes into restart and dynamic-adjustment workflows</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#algorithm-design-forward-steps-produce-inspectable-outputs-and-support-basic-validation">Algorithm Design: Forward steps produce inspectable outputs and support basic validation</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#algorithm-design-physics-and-mixing-options-vary-with-the-mesh">Algorithm Design: Physics and mixing options vary with the mesh</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#implementation">Implementation</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#implementation-a-reusable-forward-run-capability-runs-a-realistic-global-ocean-simulation">Implementation: A reusable forward-run capability runs a realistic global ocean simulation</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#implementation-forward-runs-can-start-from-a-database-initial-condition-or-from-the-init-workflow">Implementation: Forward runs can start from a database initial condition or from the init workflow</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#implementation-comparing-mpas-ocean-with-omega-is-opt-in">Implementation: Comparing MPAS-Ocean with Omega is opt-in</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#implementation-per-run-settings-are-described-in-a-common-model-agnostic-form">Implementation: Per-run settings are described in a common, model-agnostic form</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#implementation-the-framework-composes-into-restart-and-dynamic-adjustment-workflows">Implementation: The framework composes into restart and dynamic-adjustment workflows</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#implementation-forward-steps-produce-inspectable-outputs-and-support-basic-validation">Implementation: Forward steps produce inspectable outputs and support basic validation</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#implementation-physics-and-mixing-options-vary-with-the-mesh">Implementation: Physics and mixing options vary with the mesh</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#testing">Testing</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#testing-and-validation-a-reusable-forward-run-capability-runs-a-realistic-global-ocean-simulation">Testing and Validation: A reusable forward-run capability runs a realistic global ocean simulation</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#testing-and-validation-forward-runs-can-start-from-a-database-initial-condition-or-from-the-init-workflow">Testing and Validation: Forward runs can start from a database initial condition or from the init workflow</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#testing-and-validation-comparing-mpas-ocean-with-omega-is-opt-in">Testing and Validation: Comparing MPAS-Ocean with Omega is opt-in</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#testing-and-validation-per-run-settings-are-described-in-a-common-model-agnostic-form">Testing and Validation: Per-run settings are described in a common, model-agnostic form</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#testing-and-validation-the-framework-composes-into-restart-and-dynamic-adjustment-workflows">Testing and Validation: The framework composes into restart and dynamic-adjustment workflows</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#testing-and-validation-forward-steps-produce-inspectable-outputs-and-support-basic-validation">Testing and Validation: Forward steps produce inspectable outputs and support basic validation</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#testing-and-validation-physics-and-mixing-options-vary-with-the-mesh">Testing and Validation: Physics and mixing options vary with the mesh</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="global_ocean_init.html">Realistic Ocean Initial Conditions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="horiz_press_grad_reference.html">Reworked HPG Reference Solution</a></li>
+<li class="toctree-l2"><a class="reference internal" href="land_locked_cells.html">Land-Locked Cells in the Ocean and Sea-Ice Domains</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ocean_analysis.html">Ocean Analysis in Polaris</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ocean_analysis_initial.html">Initial Omega Analysis Capabilities</a></li>
+<li class="toctree-l2"><a class="reference internal" href="omega_pr_testing.html">Omega Pull Request Testing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="overflow_nonlinear_eos.html">EOS and Vertical-Coordinate Variants of the Overflow Tasks</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pstar_init.html">P-Star Coordinate and Tracer Initialization</a></li>
+<li class="toctree-l2"><a class="reference internal" href="shared_steps.html">Shared steps</a></li>
+<li class="toctree-l2"><a class="reference internal" href="suite_results_file.html">Machine-Readable Suite Results</a></li>
+<li class="toctree-l2"><a class="reference internal" href="task_parallel_analysis_steps.html">Task-Parallel-Safe Analysis Steps in Polaris</a></li>
+<li class="toctree-l2"><a class="reference internal" href="task_parallelism.html">Task Parallelism in Polaris</a></li>
+<li class="toctree-l2"><a class="reference internal" href="task_parallelism_phase_a.html">Task Parallelism Phase A: Placement</a></li>
+<li class="toctree-l2"><a class="reference internal" href="task_parallelism_phase_b.html">Task Parallelism Phase B: Concurrency</a></li>
+<li class="toctree-l2"><a class="reference internal" href="task_parallelism_phase_c.html">Task Parallelism Phase C: Python Worker Pool</a></li>
+<li class="toctree-l2"><a class="reference internal" href="task_parallelism_phase_d.html">Task Parallelism Phase D: Coexistence and Elasticity</a></li>
+<li class="toctree-l2"><a class="reference internal" href="unified_base_mesh.html">Unified Mesh: Global Base Mesh Workflow</a></li>
+<li class="toctree-l2"><a class="reference internal" href="unified_mesh_prepare_coastline.html">Unified Mesh: Coastline Preparation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="unified_mesh_prepare_river_network.html">Unified Mesh: River Network Preparation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="unified_mesh_build_sizing_field.html">Unified Mesh: Sizing-Field Construction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="unified_mesh_create_base_mesh.html">Unified Mesh: Base-Mesh Creation and Downstream Integration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="unified_mesh_cull_leak.html">Unified Mesh: Fixing Resolution Leakage into the Ocean/Sea-Ice Domain</a></li>
+<li class="toctree-l2"><a class="reference internal" href="unified_mesh_dc_edge_noise.html">Unified Mesh: Raising the dcEdge Floor in the Ocean/Sea-Ice Domain</a></li>
+<li class="toctree-l2"><a class="reference internal" href="vector_reconstruction.html">Vector Reconstruction at MPAS Cell Centers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="template.html">Template</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials/dev_add_category_of_tasks/index.html">Developer Tutorial: Adding a New Category of Tasks</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Glossary</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../glossary.html">Glossary</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Polaris</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="index.html">Design Documents</a></li>
+      <li class="breadcrumb-item active">Global Ocean Forward Runs</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/design_docs/global_ocean_forward.md.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section class="tex2jax_ignore mathjax_ignore" id="global-ocean-forward-runs">
+<h1>Global Ocean Forward Runs<a class="headerlink" href="#global-ocean-forward-runs" title="Link to this heading"></a></h1>
+<p>Creation date: 2026/07/03</p>
+<p>Contributors: Xylar Asay-Davis, Claude</p>
+<section id="summary">
+<h2>Summary<a class="headerlink" href="#summary" title="Link to this heading"></a></h2>
+<p>This design document describes a new Polaris capability: a reusable framework for
+realistic, global-ocean forward runs with either MPAS-Ocean or Omega, selected by
+the <code class="docutils literal notranslate"><span class="pre">[ocean]</span> <span class="pre">model</span></code> config option. The framework belongs to the
+<code class="docutils literal notranslate"><span class="pre">ocean/spherical/realistic_global</span></code> family, alongside the initial-condition
+workflow described in <a class="reference internal" href="global_ocean_init.html"><span class="std std-doc">global_ocean_init.md</span></a>. Where that
+workflow produces a model initial condition, this framework runs the configured
+model forward from such a condition.</p>
+<p>The intent is to replace and generalize the forward-run machinery of the legacy
+Compass <code class="docutils literal notranslate"><span class="pre">global_ocean</span></code> test family (<code class="docutils literal notranslate"><span class="pre">compass/ocean/tests/global_ocean/forward.py</span></code>
+and its test cases) using Polaris’ shared-step design and its existing ocean
+model abstraction. The single deliverable of the first phase is a reusable
+forward step plus one runnable “simple forward” task (a run whose duration and
+cadence come from config). The framework is deliberately shaped so that the two
+other forward run types from Compass — a restart test and the staged dynamic
+adjustment described in
+<code class="docutils literal notranslate"><span class="pre">global_ocean_dynamic_adjustment.md</span></code> — are
+straightforward to build on top of it later.</p>
+<p>That first phase has landed, and so has more than it promised. Two runnable
+task families exist rather than one — <code class="docutils literal notranslate"><span class="pre">forward</span></code> on a mesh the <code class="docutils literal notranslate"><span class="pre">init</span></code> workflow
+builds, and <code class="docutils literal notranslate"><span class="pre">cached_forward</span></code> on an initial condition downloaded from the
+Polaris input-file database — and both run the same physics, with comparing
+MPAS-Ocean against Omega left as an opt-in config. Restart chaining
+landed as well and dynamic adjustment is built on it without modifying the
+forward step, exactly as this document called for, as are a restart task and a
+one-year Omega run that writes what the ocean analysis reads. Now that Omega has
+a split-explicit time stepper, it is the default for both models, and every
+short run also comes in an RK4 variant.</p>
+<p>A forward run must be able to obtain its model inputs (horizontal mesh, vertical
+coordinate, initial state, surface forcing, and graph) from either of two
+sources: a file staged in the Polaris input-file database and referenced by
+name, or the outputs of the upstream <code class="docutils literal notranslate"><span class="pre">realistic_global/init</span></code> steps. It must
+express the per-run controls — run duration, output and restart cadence, time
+step, damping, and the mixing and parameterization settings that vary with the
+mesh — in a model-agnostic form and translate them, in a single place, to the
+configuration options of the configured model. It must also write restart
+files, so that a sequence of forward runs can be chained.</p>
+<p>The primary software challenge is not the forward integration itself, which
+Polaris’ <code class="docutils literal notranslate"><span class="pre">OceanModelStep</span></code> already supports, but the workflow abstractions around
+it: a clean separation between <em>where inputs come from</em>, <em>what a run should do</em>,
+and <em>how that maps onto MPAS-Ocean versus Omega</em>. This design is successful if
+Polaris can run a realistic global forward simulation for either model from
+either initial-condition source, if the per-run settings are described once and
+mapped to the model in one isolated location, and if restart and staged
+dynamic-adjustment workflows can reuse the same forward step without modifying
+it.</p>
+</section>
+<section id="requirements">
+<h2>Requirements<a class="headerlink" href="#requirements" title="Link to this heading"></a></h2>
+<section id="requirement-a-reusable-forward-run-capability-runs-a-realistic-global-ocean-simulation">
+<h3>Requirement: A reusable forward-run capability runs a realistic global ocean simulation<a class="headerlink" href="#requirement-a-reusable-forward-run-capability-runs-a-realistic-global-ocean-simulation" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/07/03</p>
+<p>Contributors: Xylar Asay-Davis, Claude</p>
+<p>Polaris shall provide a reusable capability to run a realistic, global-ocean
+simulation forward in time for the ocean model selected by the <code class="docutils literal notranslate"><span class="pre">[ocean]</span> <span class="pre">model</span></code>
+config option (resolved to <code class="docutils literal notranslate"><span class="pre">omega</span></code> or <code class="docutils literal notranslate"><span class="pre">mpas-ocean</span></code> during component setup). A
+given task targets exactly one model.</p>
+<p>The capability shall include at least one runnable task: a simple forward run
+whose duration and output cadence are set through config options rather than
+Python source code. The task shall run to completion on at least one coarse
+global mesh and produce a model output file.</p>
+<p>The capability shall size its own parallel resources from the mesh so that the
+same task can run on meshes of very different sizes without per-mesh code
+changes.</p>
+</section>
+<section id="requirement-forward-runs-can-start-from-a-database-initial-condition-or-from-the-init-workflow">
+<h3>Requirement: Forward runs can start from a database initial condition or from the init workflow<a class="headerlink" href="#requirement-forward-runs-can-start-from-a-database-initial-condition-or-from-the-init-workflow" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/10/21</p>
+<p>Contributors: Xylar Asay-Davis, Claude</p>
+<p>A forward run shall be able to obtain the model inputs it consumes (horizontal
+mesh, vertical coordinate for Omega, initial state, surface forcing, and, for
+MPAS-Ocean, a graph partition file) from either of two sources:</p>
+<ol class="arabic simple">
+<li><p>A file staged in the Polaris input-file database and referenced by name.</p></li>
+<li><p>The outputs of the upstream <code class="docutils literal notranslate"><span class="pre">realistic_global/init</span></code> steps for the same mesh
+and configured model.</p></li>
+</ol>
+<p>The choice of source shall be a property of how the task is assembled, not a
+branch inside the forward step.</p>
+</section>
+<section id="requirement-comparing-mpas-ocean-with-omega-is-opt-in">
+<h3>Requirement: Comparing MPAS-Ocean with Omega is opt-in<a class="headerlink" href="#requirement-comparing-mpas-ocean-with-omega-is-opt-in" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/10/21</p>
+<p>Contributors: Xylar Asay-Davis, Claude</p>
+<p>Every forward run shall be as close to production as each model allows,
+whatever its initial condition. MPAS-Ocean therefore runs physics Omega lacks,
+and a user who wants to compare the two models shall be able to turn that
+physics off through config, without any code or task knowing that a comparison
+is being made.</p>
+<p>The cached initial conditions are E3SM’s, for E3SM meshes, converted for Omega.
+They let Omega run realistic global configurations, and be compared with
+MPAS-Ocean, before Polaris could build its own initial conditions. The tasks
+that use them are temporary.</p>
+</section>
+<section id="requirement-per-run-settings-are-described-in-a-common-model-agnostic-form">
+<h3>Requirement: Per-run settings are described in a common, model-agnostic form<a class="headerlink" href="#requirement-per-run-settings-are-described-in-a-common-model-agnostic-form" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/10/15</p>
+<p>Contributors: Xylar Asay-Davis, Claude</p>
+<p>The controls that define a single forward run — run duration, output interval,
+restart interval, time-step selection, and damping strength — shall be described
+in a single, model-agnostic representation. Polaris shall translate that
+representation into the configuration options appropriate for the configured
+model in exactly one place, so that MPAS-Ocean and Omega differences are isolated
+rather than scattered through the workflow.</p>
+<p>Run, output, and restart durations shall be expressible as duration strings
+compatible with the staged-adjustment schedule format so that a simple forward
+run and a dynamic-adjustment stage can share the same representation. The time
+step shall be derivable from mesh resolution (a value per kilometer scaled by the
+mesh’s minimum resolution) while still allowing an explicit override.</p>
+<p>Split-explicit time stepping shall be the default for both models, since RK4 is
+too expensive for long runs. Every short forward task shall also be available
+with RK4 in both models, for occasional testing.</p>
+</section>
+<section id="requirement-the-framework-composes-into-restart-and-dynamic-adjustment-workflows">
+<h3>Requirement: The framework composes into restart and dynamic-adjustment workflows<a class="headerlink" href="#requirement-the-framework-composes-into-restart-and-dynamic-adjustment-workflows" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/07/03</p>
+<p>Contributors: Xylar Asay-Davis, Claude</p>
+<p>The forward step shall be general enough that a restart test and the staged
+dynamic-adjustment workflow can be built from it without changing the step
+itself. In particular, the step shall be able to write a restart file at a
+configured cadence, and it shall accept the settings needed to continue from an
+existing restart (a restart flag, a start time, and a restart input file).</p>
+<p>The framework itself is not required to implement the restart test or dynamic
+adjustment in this phase; it is required only to leave clean seams for them,
+consistent with
+<code class="docutils literal notranslate"><span class="pre">global_ocean_dynamic_adjustment.md</span></code>, which
+decomposes dynamic adjustment into one restart-chained forward step per stage.</p>
+</section>
+<section id="requirement-forward-steps-produce-inspectable-outputs-and-support-basic-validation">
+<h3>Requirement: Forward steps produce inspectable outputs and support basic validation<a class="headerlink" href="#requirement-forward-steps-produce-inspectable-outputs-and-support-basic-validation" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/07/03</p>
+<p>Contributors: Xylar Asay-Davis, Claude</p>
+<p>A forward step shall produce clearly named, inspectable outputs — at least a
+model output file and, when a restart cadence is configured, restart files — that
+users and developers can examine for sanity checking and debugging.</p>
+<p>The step shall support basic validation of a small set of output variables
+against a baseline and, where applicable, conservation-property checks, so that
+regressions such as numerical blow-up or broken restart chaining can be detected.</p>
+</section>
+<section id="requirement-physics-and-mixing-options-vary-with-the-mesh">
+<h3>Requirement: Physics and mixing options vary with the mesh<a class="headerlink" href="#requirement-physics-and-mixing-options-vary-with-the-mesh" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/10/17</p>
+<p>Contributors: Xylar Asay-Davis, Claude</p>
+<p>The horizontal mixing coefficients, the eddy parameterizations, and the way
+mixing is scaled across a variable-resolution mesh all depend on the mesh a
+forward run uses. A single, mesh-independent set of model config options is not
+sufficient: a 240 km mesh needs a Leith closure and a reference cell width, while
+a 6-to-18 km mesh needs a much smaller biharmonic viscosity, mesh-density
+scaling, and no eddy parameterization at all.</p>
+<p>These settings shall therefore be Polaris config options rather than fixed values
+in the model-config template, with defaults in the task’s own config file and
+per-mesh overrides in <code class="docutils literal notranslate"><span class="pre">mesh_configs/&lt;mesh_name&gt;.cfg</span></code>, using the mechanism that
+already carries the vertical grid and the ocean-culled cell count. Each mesh’s
+values shall follow how that mesh is configured in E3SM, rather than being chosen
+to make MPAS-Ocean and Omega agree; the two models are expected to diverge where
+one lacks a parameterization the other has.</p>
+<p>Options that both models support shall be expressed once, in model-neutral form,
+and translated automatically. Options with no counterpart in the other model
+shall be emitted only for the model that has them, which leaves the other model
+at its own default. An option shall therefore move to the model-neutral form as
+soon as both models have it.</p>
+</section>
+</section>
+<section id="algorithm-design">
+<h2>Algorithm Design<a class="headerlink" href="#algorithm-design" title="Link to this heading"></a></h2>
+<section id="algorithm-design-a-reusable-forward-run-capability-runs-a-realistic-global-ocean-simulation">
+<h3>Algorithm Design: A reusable forward-run capability runs a realistic global ocean simulation<a class="headerlink" href="#algorithm-design-a-reusable-forward-run-capability-runs-a-realistic-global-ocean-simulation" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/07/03</p>
+<p>Contributors: Xylar Asay-Davis, Claude</p>
+<p>The forward run should be a single reusable step built on Polaris’ existing ocean
+model abstraction (<code class="docutils literal notranslate"><span class="pre">OceanModelStep</span></code>), which already selects between MPAS-Ocean
+namelists/streams and an Omega YAML configuration, partitions the graph for
+MPAS-Ocean, and computes the number of MPI tasks dynamically from a mesh cell
+count. The closest existing precedent is the spherical convergence forward
+(<code class="docutils literal notranslate"><span class="pre">polaris.ocean.convergence.forward.ConvergenceForward</span></code> and its spherical
+subclass), which renders a task-level YAML template with run duration, output
+cadence, and time step drawn from a config section and overrides a
+<code class="docutils literal notranslate"><span class="pre">compute_cell_count</span></code> method to size resources. The realistic global forward step
+follows the same shape, but sources its cell count from the actual global mesh
+rather than a convergence resolution heuristic.</p>
+<p>Resource sizing should use the exact number of cells from the mesh when that file
+is available (at run time) and fall back to a configured approximate cell count
+during setup, before the initial condition has been produced. This mirrors the
+approach used in the legacy Compass forward step.</p>
+</section>
+<section id="algorithm-design-forward-runs-can-start-from-a-database-initial-condition-or-from-the-init-workflow">
+<h3>Algorithm Design: Forward runs can start from a database initial condition or from the init workflow<a class="headerlink" href="#algorithm-design-forward-runs-can-start-from-a-database-initial-condition-or-from-the-init-workflow" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/07/03</p>
+<p>Contributors: Xylar Asay-Davis, Claude</p>
+<p>The two initial-condition sources should be captured by a small abstraction — an
+“initial condition” object — whose responsibility is to add the required input
+files to a forward step and to point the step at the correct graph file. The
+forward step holds one such object and defers all questions of provenance to it.</p>
+<p>Two concrete implementations are needed:</p>
+<ol class="arabic simple">
+<li><p>A source backed by the upstream <code class="docutils literal notranslate"><span class="pre">realistic_global/init</span></code> steps, which links the
+<code class="docutils literal notranslate"><span class="pre">mesh</span></code>, <code class="docutils literal notranslate"><span class="pre">vertical</span> <span class="pre">coordinate</span></code>, <code class="docutils literal notranslate"><span class="pre">initial</span> <span class="pre">state</span></code>, <code class="docutils literal notranslate"><span class="pre">forcing</span></code> and <code class="docutils literal notranslate"><span class="pre">graph</span></code> files
+from the initialization steps’ work directories. This is the source used by
+the first runnable task, since those outputs already exist in the same run.</p></li>
+<li><p>A source backed by the Polaris input-file database, which constructs the input
+filename from the mesh, the configured model, and the equation of state, and
+registers it as a database input.</p></li>
+</ol>
+<p>Because the required filenames and the model-specific handling of the vertical
+coordinate and graph depend on the configured model, the source applies its input
+files when the model is known (during step setup) rather than at construction
+time.</p>
+</section>
+<section id="algorithm-design-comparing-mpas-ocean-with-omega-is-opt-in">
+<h3>Algorithm Design: Comparing MPAS-Ocean with Omega is opt-in<a class="headerlink" href="#algorithm-design-comparing-mpas-ocean-with-omega-is-opt-in" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/10/21</p>
+<p>Contributors: Xylar Asay-Davis, Claude</p>
+<p>The settings that separate a production run from a comparison are already
+config options (see “Physics and mixing options vary with the mesh”), so a
+comparison is just a set of values for them, which a user layers on like any
+other config. The forward package ships those values as a reference file that
+Polaris never reads on its own, so that the list is written down, documented
+and tested in one place. It describes what Omega lacks today and should shrink
+as Omega gains capabilities.</p>
+</section>
+<section id="algorithm-design-per-run-settings-are-described-in-a-common-model-agnostic-form">
+<h3>Algorithm Design: Per-run settings are described in a common, model-agnostic form<a class="headerlink" href="#algorithm-design-per-run-settings-are-described-in-a-common-model-agnostic-form" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/10/17</p>
+<p>Contributors: Xylar Asay-Davis, Claude</p>
+<p>A single, model-agnostic settings structure should describe one forward run: its
+name, run duration, output interval, restart interval, time integrator, an
+optional explicit time step (barotropic and baroclinic), per-kilometer time-step
+scalings, a damping strength, and the fields needed to continue from a restart
+(a restart flag, a start time, and a restart input file). A simple forward run
+fills this structure from a config section; a future dynamic-adjustment workflow
+fills a list of them from a schedule file. This is the “common internal
+representation” called for in
+<code class="docutils literal notranslate"><span class="pre">global_ocean_dynamic_adjustment.md</span></code>.</p>
+<p>The mapping from this structure onto model configuration should happen in one
+place. Durations are formatted as model duration strings; the time integrator
+name is translated where the models differ (for example <code class="docutils literal notranslate"><span class="pre">RK4</span></code> to
+<code class="docutils literal notranslate"><span class="pre">RungeKutta4</span></code>). Controls that exist only for one model, such as Rayleigh damping
+for MPAS-Ocean, are emitted only under that model’s section of the template. Where a model lacks a direct equivalent (for example Omega
+damping), the mapping is the natural place to apply the closest available control
+as the capability matures.</p>
+</section>
+<section id="algorithm-design-the-framework-composes-into-restart-and-dynamic-adjustment-workflows">
+<h3>Algorithm Design: The framework composes into restart and dynamic-adjustment workflows<a class="headerlink" href="#algorithm-design-the-framework-composes-into-restart-and-dynamic-adjustment-workflows" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/07/03</p>
+<p>Contributors: Xylar Asay-Davis, Claude</p>
+<p>Restart chaining should be expressed through the same settings structure and the
+same template. Writing a restart is a matter of the restart interval; continuing
+from a restart is a matter of the restart flag, start time, and a restart input
+file. A restart test then becomes two forward steps — a full run that writes a
+restart partway through and a restart run that resumes from it — compared for
+bit-for-bit agreement. A dynamic-adjustment workflow becomes an ordered list of
+settings structures, each producing a restart consumed by the next, exactly as
+laid out in <code class="docutils literal notranslate"><span class="pre">global_ocean_dynamic_adjustment.md</span></code>.</p>
+<p>The forward step does not need to know which of these workflows it participates
+in; it only needs to honor the settings it is given. Keeping start and stop times
+derived from cumulative durations, as in Compass, lets the higher-level workflow
+compute restart filenames deterministically.</p>
+</section>
+<section id="algorithm-design-forward-steps-produce-inspectable-outputs-and-support-basic-validation">
+<h3>Algorithm Design: Forward steps produce inspectable outputs and support basic validation<a class="headerlink" href="#algorithm-design-forward-steps-produce-inspectable-outputs-and-support-basic-validation" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/07/03</p>
+<p>Contributors: Xylar Asay-Davis, Claude</p>
+<p>The output and restart streams should be declared in the task-level YAML template
+so that the set of written variables is easy to inspect and change. The step
+should register its output file as a Polaris output with an optional list of
+variables to validate against a baseline and optional conservation-property
+checks, reusing the validation and property-check machinery already provided by
+the ocean model step base class.</p>
+</section>
+<section id="algorithm-design-physics-and-mixing-options-vary-with-the-mesh">
+<h3>Algorithm Design: Physics and mixing options vary with the mesh<a class="headerlink" href="#algorithm-design-physics-and-mixing-options-vary-with-the-mesh" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/10/17</p>
+<p>Contributors: Xylar Asay-Davis, Claude</p>
+<p>The per-mesh settings should join the same <code class="docutils literal notranslate"><span class="pre">ForwardStage</span></code> structure that already
+carries the per-run settings, so that a forward run continues to have a single
+description of what it should do. They are read from the same
+<code class="docutils literal notranslate"><span class="pre">[realistic_global_forward]</span></code> section, which means a per-mesh config file
+overrides them by the ordinary config-precedence rules and a user can override
+them again in a user config file.</p>
+<p>A coefficient and its enable flag should be a single Polaris option: blank turns
+the term off, a value turns it on with that coefficient. This follows the
+convention the section already uses for the explicit time step and the damping
+coefficient, and it removes the possibility of a config that enables a term
+without a coefficient or sets a coefficient that is never used.</p>
+<p>Where the model offers several independent booleans for what is really one
+choice — MPAS-Ocean’s reference-cell-width and scale-with-mesh flags for
+horizontal mixing — Polaris should expose a single option whose value names the
+scaling, so that the combinations that are not meaningful cannot be expressed.</p>
+<p>The stage should sort the resulting model options into buckets: those both
+models support, emitted in neutral form and translated by the existing
+MPAS-Ocean-to-Omega map, and those only one model has, emitted for that model
+alone. “Both models support” means a one-to-one translation exists, not just
+that each model has something in the same role: two different boundary-layer
+schemes would each go in their own model’s bucket. Most model-specific options
+are MPAS-Ocean’s; Omega’s bucket holds its horizontal-mixing scaling switch,
+which is not a translation of MPAS-Ocean’s. Gent-McWilliams and Redi stay in the MPAS-Ocean bucket for
+good, since Omega has neither and is not expected to gain them. Other options
+move to the neutral bucket as Omega gains them, as KPP has.</p>
+</section>
+</section>
+<section id="implementation">
+<h2>Implementation<a class="headerlink" href="#implementation" title="Link to this heading"></a></h2>
+<section id="implementation-a-reusable-forward-run-capability-runs-a-realistic-global-ocean-simulation">
+<h3>Implementation: A reusable forward-run capability runs a realistic global ocean simulation<a class="headerlink" href="#implementation-a-reusable-forward-run-capability-runs-a-realistic-global-ocean-simulation" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/08/11</p>
+<p>Contributors: Xylar Asay-Davis, Claude</p>
+<p>The framework lives under
+<code class="docutils literal notranslate"><span class="pre">polaris/tasks/ocean/realistic_global/forward/</span></code>. The forward step,
+<code class="docutils literal notranslate"><span class="pre">Forward</span></code>, subclasses <code class="docutils literal notranslate"><span class="pre">polaris.ocean.model.OceanModelStep</span></code> and is modeled closely
+on <code class="docutils literal notranslate"><span class="pre">polaris.ocean.convergence.forward.ConvergenceForward</span></code>. Its constructor adds
+the shared double-precision output YAML (<code class="docutils literal notranslate"><span class="pre">polaris.ocean.config/output.yaml</span></code>),
+stores an initial-condition object and a settings structure, and registers the
+output file. It does not read config in its constructor, because the target model
+is not known until setup.</p>
+<p>Resource sizing overrides <code class="docutils literal notranslate"><span class="pre">compute_cell_count</span></code> to return the exact <code class="docutils literal notranslate"><span class="pre">nCells</span></code> read
+from the mesh input file when it exists, and otherwise an <code class="docutils literal notranslate"><span class="pre">approx_cell_count</span></code>;
+the base class turns this into <code class="docutils literal notranslate"><span class="pre">ntasks</span></code>/<code class="docutils literal notranslate"><span class="pre">min_tasks</span></code> using the existing
+<code class="docutils literal notranslate"><span class="pre">goal_cells_per_core</span></code>/<code class="docutils literal notranslate"><span class="pre">max_cells_per_core</span></code> options. The approximate count is a
+property of the initial condition rather than a config option, since it is the
+initial condition that knows which mesh it is for: a step-backed source takes it
+from <code class="docutils literal notranslate"><span class="pre">mesh_info.estimate_ocean_cell_count</span></code>, and a database-backed one from the
+count recorded for that cached mesh.</p>
+<p>The runnable task is <code class="docutils literal notranslate"><span class="pre">RealisticGlobalForward</span></code>, added once per supported mesh by a
+factory <code class="docutils literal notranslate"><span class="pre">add_realistic_global_forward_tasks</span></code>, following the structure of the init
+factory in <code class="docutils literal notranslate"><span class="pre">polaris/tasks/ocean/realistic_global/init/tasks.py</span></code>. Its work
+directory is mesh-first, <code class="docutils literal notranslate"><span class="pre">spherical/realistic_global/{mesh_name}/{subdir_name}</span></code>,
+matching the init layout, with <code class="docutils literal notranslate"><span class="pre">subdir_name</span></code> distinguishing <code class="docutils literal notranslate"><span class="pre">forward</span></code> from
+<code class="docutils literal notranslate"><span class="pre">cached_forward</span></code>. The factory is registered from
+<code class="docutils literal notranslate"><span class="pre">polaris/tasks/ocean/realistic_global/__init__.py</span></code>.</p>
+<p>The task holds three steps rather than one. The forward run itself is named
+<code class="docutils literal notranslate"><span class="pre">short</span></code> rather than <code class="docutils literal notranslate"><span class="pre">forward</span></code>, because that is what it is: a brief run that
+checks the model is stable on this mesh and initial condition, not a simulation
+worth interpreting. Two diagnostic steps follow it, neither run by default:
+<code class="docutils literal notranslate"><span class="pre">global_stats</span></code> plots time series of the run’s global statistics, and <code class="docutils literal notranslate"><span class="pre">viz</span></code> plots
+global maps of its state.</p>
+</section>
+<section id="implementation-forward-runs-can-start-from-a-database-initial-condition-or-from-the-init-workflow">
+<h3>Implementation: Forward runs can start from a database initial condition or from the init workflow<a class="headerlink" href="#implementation-forward-runs-can-start-from-a-database-initial-condition-or-from-the-init-workflow" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/08/11</p>
+<p>Contributors: Xylar Asay-Davis, Claude</p>
+<p>The initial-condition abstraction lives in
+<code class="docutils literal notranslate"><span class="pre">forward/initial_condition.py</span></code> as an <code class="docutils literal notranslate"><span class="pre">InitialCondition</span></code> base class with two
+subclasses. <code class="docutils literal notranslate"><span class="pre">StepInitialCondition</span></code> wraps the <code class="docutils literal notranslate"><span class="pre">initial_state</span></code> step returned by
+<code class="docutils literal notranslate"><span class="pre">get_realistic_init_steps</span></code> (in
+<code class="docutils literal notranslate"><span class="pre">polaris/tasks/ocean/realistic_global/init/steps.py</span></code>) and, during the forward
+step’s setup, calls the mixin helpers <code class="docutils literal notranslate"><span class="pre">add_horiz_mesh_input_file</span></code>,
+<code class="docutils literal notranslate"><span class="pre">add_vert_coord_input_file</span></code>, and <code class="docutils literal notranslate"><span class="pre">add_init_input_file</span></code> with <code class="docutils literal notranslate"><span class="pre">work_dir_target</span></code>
+pointing into that step’s work directory, and sets the forward step’s
+<code class="docutils literal notranslate"><span class="pre">graph_target</span></code> to the init step’s exported graph file. The vertical-coordinate
+input and the graph are handled correctly per model by the existing
+<code class="docutils literal notranslate"><span class="pre">OceanModelFilesMixin</span></code> and <code class="docutils literal notranslate"><span class="pre">OceanModelStep</span></code> machinery: for MPAS-Ocean the graph
+is linked and partitioned; for Omega the separate vertical-coordinate file is
+used and the graph is not partitioned.</p>
+<p><code class="docutils literal notranslate"><span class="pre">DatabaseInitialCondition</span></code> constructs the input filename from the mesh name, the
+configured model, and the equation of state, and registers it with
+<code class="docutils literal notranslate"><span class="pre">add_init_input_file(database=...,</span> <span class="pre">target=...)</span></code>. It is now wired into the
+<code class="docutils literal notranslate"><span class="pre">cached_forward</span></code> tasks described above. The MPAS-Ocean graph question was
+settled in favor of downloading a prebuilt graph partition file alongside the
+initial condition rather than building one from the mesh; Omega partitions
+internally and needs neither.</p>
+<p>Two things the design did not anticipate fell out of this abstraction once
+surface forcing existed. The initial condition also answers <em>where the wind
+stress lives</em>, through <code class="docutils literal notranslate"><span class="pre">get_forcing_filename()</span></code>: a source that stages a forcing
+file of its own names it, and a source whose stress travels inside the
+initial-condition file names that file instead, so the forcing streams are
+pointed at the right place without the forward step knowing which case it is
+in. And <code class="docutils literal notranslate"><span class="pre">StepInitialCondition</span></code> links the initial state only when the run
+actually reads one, since a stage continuing from a restart does not — a detail
+that belongs to the source rather than to the step for the same reason.</p>
+</section>
+<section id="implementation-comparing-mpas-ocean-with-omega-is-opt-in">
+<h3>Implementation: Comparing MPAS-Ocean with Omega is opt-in<a class="headerlink" href="#implementation-comparing-mpas-ocean-with-omega-is-opt-in" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/10/23</p>
+<p>Contributors: Xylar Asay-Davis, Claude</p>
+<p><code class="docutils literal notranslate"><span class="pre">compare_with_omega.cfg</span></code> in the forward package turns off <code class="docutils literal notranslate"><span class="pre">use_GM</span></code> and
+<code class="docutils literal notranslate"><span class="pre">use_Redi</span></code> and sets <code class="docutils literal notranslate"><span class="pre">pressure_gradient_type</span> <span class="pre">=</span> <span class="pre">pressure_and_zmid</span></code>,
+the ordinary counterpart to Omega’s <code class="docutils literal notranslate"><span class="pre">Centered</span></code>. A user passes it, or its lines,
+with <code class="docutils literal notranslate"><span class="pre">polaris</span> <span class="pre">setup</span> <span class="pre">-f</span></code>, or sets the same options in a step’s <code class="docutils literal notranslate"><span class="pre">forward.cfg</span></code>
+before running; the stage is rebuilt from config at run time, so either works.
+The User’s Guide includes the file verbatim. <code class="docutils literal notranslate"><span class="pre">use_KPP</span></code> and <code class="docutils literal notranslate"><span class="pre">use_submesoscale</span></code>
+were on the list until Omega gained them.</p>
+<p><code class="docutils literal notranslate"><span class="pre">add_realistic_global_cached_forward_tasks</span></code> registers one task per entry of
+<code class="docutils literal notranslate"><span class="pre">forward/tasks.py</span></code>’s <code class="docutils literal notranslate"><span class="pre">CACHED_MESHES</span></code>, with a <code class="docutils literal notranslate"><span class="pre">subdir_name</span></code> of <code class="docutils literal notranslate"><span class="pre">cached_forward</span></code>.
+Each entry gives the MPAS-Ocean and Omega initial-condition IDs on the Polaris
+server, the minimum resolution and the cell count. The two meshes are E3SM’s
+QU240 and EC30to60E2r2, called <code class="docutils literal notranslate"><span class="pre">e3sm-qu240</span></code> and <code class="docutils literal notranslate"><span class="pre">e3sm-ec30to60e2r2</span></code> here so that
+they are lower case like the meshes Polaris builds and cannot be mistaken for
+them; their initial conditions were converted from E3SM’s by
+<code class="docutils literal notranslate"><span class="pre">utils/omega/convert_mpaso_ic_to_omega.py</span></code> and uploaded, and the files on the
+server keep E3SM’s names, which each entry gives as <code class="docutils literal notranslate"><span class="pre">database_name</span></code>.
+A cached mesh’s <code class="docutils literal notranslate"><span class="pre">mesh_configs/&lt;mesh_name&gt;.cfg</span></code> gives its split and RK4 time
+steps, its run duration and the momentum viscosities the one-year Omega runs
+settled on, since none of these follows from a mesh Polaris did not build. Its
+physics is the default, as for every other mesh.</p>
+<p>The cached tasks are the only members of this family cheap enough for a PR
+suite: both variants of
+<code class="docutils literal notranslate"><span class="pre">ocean/spherical/realistic_global/e3sm-qu240/cached_forward</span></code> are in <code class="docutils literal notranslate"><span class="pre">omega_pr</span></code>,
+and the <code class="docutils literal notranslate"><span class="pre">split_explicit</span></code> one is in <code class="docutils literal notranslate"><span class="pre">mpaso_pr</span></code>. Nothing built on the <code class="docutils literal notranslate"><span class="pre">init</span></code>
+chain belongs in a suite, since that chain is hours of preprocessing before the
+model starts.</p>
+<p><code class="docutils literal notranslate"><span class="pre">cached_forward</span></code> is temporary: now that Polaris builds realistic initial
+conditions, the cached tasks will be removed.</p>
+</section>
+<section id="implementation-per-run-settings-are-described-in-a-common-model-agnostic-form">
+<h3>Implementation: Per-run settings are described in a common, model-agnostic form<a class="headerlink" href="#implementation-per-run-settings-are-described-in-a-common-model-agnostic-form" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/10/17</p>
+<p>Contributors: Xylar Asay-Davis, Claude</p>
+<p>The settings structure is a small dataclass, <code class="docutils literal notranslate"><span class="pre">ForwardStage</span></code>, in
+<code class="docutils literal notranslate"><span class="pre">forward/stage.py</span></code>, with a class method that builds one from a
+<code class="docutils literal notranslate"><span class="pre">[realistic_global_forward]</span></code> config section. Its fields cover the run duration,
+output interval, restart interval, statistics interval, the two time
+integrators, optional explicit <code class="docutils literal notranslate"><span class="pre">dt</span></code>/<code class="docutils literal notranslate"><span class="pre">btr_dt</span></code>, <code class="docutils literal notranslate"><span class="pre">dt_per_km</span></code>/<code class="docutils literal notranslate"><span class="pre">btr_dt_per_km</span></code>, a
+damping (Rayleigh) coefficient, the mixing and parameterization options
+described further below, and the restart fields (<code class="docutils literal notranslate"><span class="pre">do_restart</span></code>, <code class="docutils literal notranslate"><span class="pre">start_time</span></code>,
+<code class="docutils literal notranslate"><span class="pre">restart_in</span></code>, <code class="docutils literal notranslate"><span class="pre">restart_out</span></code>). Durations are duration strings of the form
+<code class="docutils literal notranslate"><span class="pre">DDDD_HH:MM:SS</span></code>, matching the schedule format in
+<code class="docutils literal notranslate"><span class="pre">global_ocean_dynamic_adjustment.md</span></code>.</p>
+<p>The time integrator turned out to be the one setting that cannot be shared, so
+there are two fields rather than one: <code class="docutils literal notranslate"><span class="pre">mpaso_time_integrator</span></code>, defaulting to
+<code class="docutils literal notranslate"><span class="pre">split_explicit_ab2</span></code>, and <code class="docutils literal notranslate"><span class="pre">omega_time_integrator</span></code>, defaulting to
+<code class="docutils literal notranslate"><span class="pre">split_explicit</span></code> (Omega’s <code class="docutils literal notranslate"><span class="pre">SplitExplicitRK2</span></code>). Omega’s default was <code class="docutils literal notranslate"><span class="pre">RK4</span></code> until
+it had a split time stepper. The time step follows from that choice rather than
+being chosen separately: a split integrator advances on the long baroclinic
+step and subcycles the barotropic mode, and a non-split integrator has to
+advance on the short barotropic step.</p>
+<p>Every short task is registered twice, as
+<code class="docutils literal notranslate"><span class="pre">&lt;mesh&gt;/&lt;forward|cached_forward&gt;/split_explicit</span></code> and
+<code class="docutils literal notranslate"><span class="pre">&lt;mesh&gt;/&lt;forward|cached_forward&gt;/rk4</span></code>, each holding its own steps. The <code class="docutils literal notranslate"><span class="pre">rk4</span></code> variant adds <code class="docutils literal notranslate"><span class="pre">rk4.cfg</span></code>,
+which sets both integrators to <code class="docutils literal notranslate"><span class="pre">RK4</span></code>. A mesh config can need a split step and
+an RK4 step at once, so the RK4 step has an explicit option of its own,
+<code class="docutils literal notranslate"><span class="pre">rk4_dt</span></code>, which falls back to <code class="docutils literal notranslate"><span class="pre">btr_dt_per_km</span></code> like the barotropic step.</p>
+<p>The mapping onto model configuration happens only in the forward step’s
+<code class="docutils literal notranslate"><span class="pre">dynamic_model_config</span></code>, which renders <code class="docutils literal notranslate"><span class="pre">forward/forward.yaml</span></code> with template
+replacements derived from the stage. Durations are formatted with
+<code class="docutils literal notranslate"><span class="pre">polaris.ocean.model.get_time_interval_string</span></code>; where the time step is not given
+explicitly it is computed as the per-kilometer value times the mesh minimum
+resolution. The time-integrator name is mapped to Omega where needed, exactly as
+<code class="docutils literal notranslate"><span class="pre">ConvergenceForward</span></code> does. The template’s model-neutral <code class="docutils literal notranslate"><span class="pre">ocean:</span></code> block is
+auto-translated to Omega through the existing <code class="docutils literal notranslate"><span class="pre">mpaso_to_omega.yaml</span></code> map, while
+Rayleigh damping appears under the <code class="docutils literal notranslate"><span class="pre">mpas-ocean:</span></code> section. The barotropic time
+step moved to the neutral block once Omega had a split time stepper. The restart controls did gain an Omega counterpart, in
+<code class="docutils literal notranslate"><span class="pre">restart_streams.yaml</span></code> rather than in the main template; see below.</p>
+<p>Where a model cannot honor a setting, the mapping raises rather than dropping
+it: an <code class="docutils literal notranslate"><span class="pre">omega_time_integrator</span></code> Omega does not support, and a non-blank <code class="docutils literal notranslate"><span class="pre">damping</span></code>
+under Omega, which has no Rayleigh damping at all
+(<a class="reference external" href="https://github.com/E3SM-Project/Omega/issues/495">Omega#495</a>). Both raise at
+run time rather than at setup, so that a task can be set up and its config
+changed before it is run. Reporting success on a run that quietly dropped the
+damping it was asked for is the failure mode this avoids.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">dynamic_model_config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">at_setup</span><span class="p">):</span>
+    <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">dynamic_model_config</span><span class="p">(</span><span class="n">at_setup</span><span class="o">=</span><span class="n">at_setup</span><span class="p">)</span>
+    <span class="n">replacements</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">stage</span><span class="o">.</span><span class="n">model_replacements</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">min_res</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">add_yaml_file</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">package</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">yaml_filename</span><span class="p">,</span>
+                       <span class="n">template_replacements</span><span class="o">=</span><span class="n">replacements</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="implementation-the-framework-composes-into-restart-and-dynamic-adjustment-workflows">
+<h3>Implementation: The framework composes into restart and dynamic-adjustment workflows<a class="headerlink" href="#implementation-the-framework-composes-into-restart-and-dynamic-adjustment-workflows" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/10/21</p>
+<p>Contributors: Xylar Asay-Davis, Claude</p>
+<p>The restart stream is declared in <code class="docutils literal notranslate"><span class="pre">restart_streams.yaml</span></code>, added only for a stage
+that is part of a restart chain, and the model-neutral time block carries the
+start time and restart flag. The simple forward task leaves the restart fields
+unset, so it starts from the initial condition and writes a single restart at
+the end of the run.</p>
+<p>Dynamic adjustment is built on exactly this and needed no change to the forward
+step: it builds a list of <code class="docutils literal notranslate"><span class="pre">ForwardStage</span></code>s from a per-mesh YAML schedule and sets
+each one’s <code class="docutils literal notranslate"><span class="pre">restart_in</span></code> and <code class="docutils literal notranslate"><span class="pre">restart_out</span></code> so that consecutive stages share a
+<code class="docutils literal notranslate"><span class="pre">restarts</span></code> directory. For MPAS-Ocean the restart stream is both an input and an
+output stream, so one <code class="docutils literal notranslate"><span class="pre">filename_template</span></code> serves both directions and the read
+side is just <code class="docutils literal notranslate"><span class="pre">config_do_restart</span></code> and <code class="docutils literal notranslate"><span class="pre">config_start_time</span></code>; the start time is
+stated explicitly rather than using a restart-pointer file. Omega decides
+whether to read a restart from its <code class="docutils literal notranslate"><span class="pre">StartType</span></code> and finds it through a pointer
+file. The <code class="docutils literal notranslate"><span class="pre">Omega</span></code> block of <code class="docutils literal notranslate"><span class="pre">restart_streams.yaml</span></code>
+requests the <code class="docutils literal notranslate"><span class="pre">RestartRead</span></code> stream, and
+<code class="docutils literal notranslate"><span class="pre">ForwardStage.restart_stream_replacements</span></code> fills in the start type and the
+directories: each stage writes its restart and pointer into a directory under
+<code class="docutils literal notranslate"><span class="pre">restarts</span></code> named for its restart time, and a restarting stage reads its
+predecessor’s. A shared directory would let a stage’s own restart replace the
+pointer it had just read. <code class="docutils literal notranslate"><span class="pre">ForwardStage.restart_files</span></code> gives the restart each
+model reads and writes, MPAS-Ocean’s in the shared directory and Omega’s in the
+stage’s own, and the forward step declares them as inputs and outputs.</p>
+<p>Two more tasks are built on the forward step without changing it. The
+<code class="docutils literal notranslate"><span class="pre">restart</span></code> task takes the shape of CIME’s ERS test, so that Omega’s restarts
+are tested here the way E3SM will test them: a <code class="docutils literal notranslate"><span class="pre">full_run</span></code> writes a restart
+partway through, a <code class="docutils literal notranslate"><span class="pre">restart_run</span></code> continues from it to the end, and the two
+histories are compared. It reads that restart by name rather than through
+<code class="docutils literal notranslate"><span class="pre">restart_in</span></code>, since the full run writes another at its end. The restart run
+appends to a copy of the full run’s history up to the restart, which the full
+run writes as a second history stream with an end time, so the task is also a
+regression test for Omega #482, where appending to such a file overwrote the
+earlier frames. The <code class="docutils literal notranslate"><span class="pre">analysis_output/1_year</span></code> task runs Omega for a year on
+every mesh and writes the monthly means, overturning streamfunction and
+daily global statistics the ocean analysis reads. It adds a second yaml file
+for the monthly streams and declares every monthly file as an output, so a
+year whose analysis groups did not write fails in Polaris rather than in the
+analysis.</p>
+</section>
+<section id="implementation-forward-steps-produce-inspectable-outputs-and-support-basic-validation">
+<h3>Implementation: Forward steps produce inspectable outputs and support basic validation<a class="headerlink" href="#implementation-forward-steps-produce-inspectable-outputs-and-support-basic-validation" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/09/24</p>
+<p>Contributors: Xylar Asay-Davis, Claude</p>
+<p>The 3-D output stream is declared in <code class="docutils literal notranslate"><span class="pre">forward/forward.yaml</span></code> — an MPAS-Ocean
+<code class="docutils literal notranslate"><span class="pre">output</span></code> stream and the corresponding Omega <code class="docutils literal notranslate"><span class="pre">History</span></code> <code class="docutils literal notranslate"><span class="pre">IOStream</span></code> — and the
+restart streams in <code class="docutils literal notranslate"><span class="pre">restart_streams.yaml</span></code>. The <code class="docutils literal notranslate"><span class="pre">Forward</span></code> step registers its
+output file through <code class="docutils literal notranslate"><span class="pre">add_output_file</span></code> with an optional <code class="docutils literal notranslate"><span class="pre">validate_vars</span></code> list
+(<code class="docutils literal notranslate"><span class="pre">temperature</span></code>, <code class="docutils literal notranslate"><span class="pre">salinity</span></code>, <code class="docutils literal notranslate"><span class="pre">layerThickness</span></code>, <code class="docutils literal notranslate"><span class="pre">normalVelocity</span></code>) and optional
+<code class="docutils literal notranslate"><span class="pre">check_properties</span></code>, reusing the baseline-comparison and conservation checks
+already implemented in <code class="docutils literal notranslate"><span class="pre">OceanModelStep</span></code>.</p>
+<p>The output stream carries more than the prognostic state: kinetic energy and
+relative vorticity for MPAS-Ocean, and for Omega the <code class="docutils literal notranslate"><span class="pre">AuxiliaryState</span></code>, <code class="docutils literal notranslate"><span class="pre">SshCell</span></code>
+and <code class="docutils literal notranslate"><span class="pre">Eos</span></code> groups, which add the vorticity, divergence and del2 terms, the free
+surface and the specific volume and buoyancy frequency. The extra fields cost
+file size and are worth it, because a run that goes wrong can otherwise be seen
+to have gone wrong but not diagnosed, and these runs exist partly to be compared
+against each other. Density is the one field in that stream with a switch of its
+own (<code class="docutils literal notranslate"><span class="pre">output_density</span></code>), because it is 3-D and roughly 13% of the output volume,
+which starts to matter once a workflow writes the stream many times over.</p>
+<p>Global statistics are the other output, and the more useful one. Both models
+write a time series of the global minimum, maximum, mean and RMS of the state
+variables — MPAS-Ocean through its <code class="docutils literal notranslate"><span class="pre">globalStats</span></code> analysis member and Omega
+through its <code class="docutils literal notranslate"><span class="pre">GlobalStats</span></code> analysis group, plus the global CFL number for
+MPAS-Ocean — on a <code class="docutils literal notranslate"><span class="pre">stats_interval</span></code> cadence deliberately separate from the 3-D
+<code class="docutils literal notranslate"><span class="pre">output_interval</span></code>. They are a handful of scalars, so they can be written far
+more often than 3-D fields, which is what makes an excursion <em>within</em> a run
+visible rather than only at its end. Two model differences are handled once, in
+<code class="docutils literal notranslate"><span class="pre">ForwardStage.stats_filename</span></code>, so that everything reading a stage’s statistics
+asks the same question the same way: Omega treats the configured name as a
+prefix and appends its analysis period and the kind of output with no <code class="docutils literal notranslate"><span class="pre">.nc</span></code>
+extension, and Omega’s statistics are taken as instantaneous snapshots rather
+than temporal reductions, both because a snapshot’s name carries no averaging
+period and because an averaging period would constrain the restart interval.
+Each model’s statistics names are built from the field and the statistic by
+<code class="docutils literal notranslate"><span class="pre">polaris.ocean.global_stats_names</span></code> rather than mapped pair by pair in
+<code class="docutils literal notranslate"><span class="pre">mpaso_to_omega.yaml</span></code>, which no longer lists them.</p>
+<p>Surface forcing is no longer out of scope, and it is not optional either. Every
+realistic global forward run is forced by the time-invariant JRA55-do wind
+stress the <code class="docutils literal notranslate"><span class="pre">init</span></code> workflow produces: <code class="docutils literal notranslate"><span class="pre">forcing.yaml</span></code> is always added, and there
+is no config option to run without it. <code class="docutils literal notranslate"><span class="pre">forcing_streams.yaml</span></code> points each model’s
+input stream at whichever file the initial condition names. There is still no
+surface restoring and there are no thermal or freshwater fluxes, so the tracers
+spin down from the initial condition while the momentum input holds up a
+circulation.</p>
+<p>Two diagnostic steps, neither run by default, read these outputs: <code class="docutils literal notranslate"><span class="pre">global_stats</span></code>
+(<code class="docutils literal notranslate"><span class="pre">StatsAnalysis</span></code>) plots the statistics as time series with a
+standard-deviation envelope and an anomaly panel, and <code class="docutils literal notranslate"><span class="pre">viz</span></code> plots global maps of
+each state variable at the start and end of the run along with the wind stress
+that forced it. <code class="docutils literal notranslate"><span class="pre">global_stats</span></code> plots the fields named by
+<code class="docutils literal notranslate"><span class="pre">[realistic_global_forward_stats]</span> <span class="pre">fields</span></code>, or every field the run wrote
+statistics for when that is left empty; the option came with the step from the
+<code class="docutils literal notranslate"><span class="pre">analysis_members</span></code> task this framework replaced, where it was
+<code class="docutils literal notranslate"><span class="pre">[analysis_members]</span> <span class="pre">fields</span></code>.</p>
+</section>
+<section id="implementation-physics-and-mixing-options-vary-with-the-mesh">
+<h3>Implementation: Physics and mixing options vary with the mesh<a class="headerlink" href="#implementation-physics-and-mixing-options-vary-with-the-mesh" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/10/23</p>
+<p>Contributors: Xylar Asay-Davis, Claude</p>
+<p><code class="docutils literal notranslate"><span class="pre">forward.cfg</span></code> gains the mixing and parameterization options:
+<code class="docutils literal notranslate"><span class="pre">mom_del2</span></code>, <code class="docutils literal notranslate"><span class="pre">mom_del4</span></code>, <code class="docutils literal notranslate"><span class="pre">tracer_del2</span></code> and <code class="docutils literal notranslate"><span class="pre">tracer_del4</span></code> (blank meaning off),
+<code class="docutils literal notranslate"><span class="pre">mom_del4_div_factor</span></code>, <code class="docutils literal notranslate"><span class="pre">use_Leith_del2</span></code>, <code class="docutils literal notranslate"><span class="pre">hmix_scaling</span></code> with
+<code class="docutils literal notranslate"><span class="pre">hmix_ref_cell_width</span></code>, <code class="docutils literal notranslate"><span class="pre">use_GM</span></code> with <code class="docutils literal notranslate"><span class="pre">GM_closure</span></code> and <code class="docutils literal notranslate"><span class="pre">GM_constant_kappa</span></code>,
+<code class="docutils literal notranslate"><span class="pre">use_Redi</span></code>, <code class="docutils literal notranslate"><span class="pre">use_KPP</span></code>, <code class="docutils literal notranslate"><span class="pre">use_submesoscale</span></code>, <code class="docutils literal notranslate"><span class="pre">pressure_gradient_type</span></code>,
+<code class="docutils literal notranslate"><span class="pre">use_frazil_ice_formation</span></code> and <code class="docutils literal notranslate"><span class="pre">output_density</span></code>. The list grew past what this
+section first named once the <code class="docutils literal notranslate"><span class="pre">forward</span></code> tasks had to reproduce E3SM’s
+configuration rather than a Compass baseline: the defaults are now E3SM’s,
+and comparing with Omega turns some of them off (see “Comparing MPAS-Ocean
+with Omega is opt-in” above). Several are off in MPAS-Ocean itself, so leaving them alone would
+not have given E3SM’s configuration either.</p>
+<p><code class="docutils literal notranslate"><span class="pre">hmix_scaling</span></code> has two values, <code class="docutils literal notranslate"><span class="pre">none</span></code> and <code class="docutils literal notranslate"><span class="pre">ref_cell_width</span></code>, not the three this
+section anticipated. MPAS-Ocean’s third combination — <code class="docutils literal notranslate"><span class="pre">scaleWithMesh</span></code> with
+<code class="docutils literal notranslate"><span class="pre">use_ref_cell_width</span></code> false — scales by the legacy <code class="docutils literal notranslate"><span class="pre">meshDensity</span></code> field, which
+every E3SM v4 mesh writes as uniformly 1.0, so that branch silently applies no
+scaling at all. Offering it would only let a user ask for scaling and get none.
+The two flags MPAS-Ocean does need are set together by <code class="docutils literal notranslate"><span class="pre">ref_cell_width</span></code>, since
+<code class="docutils literal notranslate"><span class="pre">config_hmix_use_ref_cell_width</span></code> is read only inside
+<code class="docutils literal notranslate"><span class="pre">if</span> <span class="pre">(config_hmix_scaleWithMesh)</span></code> and setting the first alone has the same silent
+failure.</p>
+<p>Omega scales its coefficients too, but from the global median cell width
+(<code class="docutils literal notranslate"><span class="pre">2*sqrt(areaCell/pi)</span></code> over every cell) rather than a reference width, with the
+same per-edge width and powers as MPAS-Ocean. Scaling is the default in both,
+and so is Omega’s reference: a blank <code class="docutils literal notranslate"><span class="pre">hmix_ref_cell_width</span></code> is the median, which
+<code class="docutils literal notranslate"><span class="pre">Forward.dynamic_model_config</span></code> computes from the mesh and gives MPAS-Ocean as
+<code class="docutils literal notranslate"><span class="pre">config_hmix_ref_cell_width</span></code>. A mesh whose coefficients come from E3SM states
+its finest resolution, which E3SM’s per-grid values are referenced to, and for
+Omega <code class="docutils literal notranslate"><span class="pre">horiz_mixing_options</span></code> then multiplies the coefficients by
+<code class="docutils literal notranslate"><span class="pre">W_med/hmix_ref_cell_width</span></code> for <code class="docutils literal notranslate"><span class="pre">del2</span></code> and by its cube for <code class="docutils literal notranslate"><span class="pre">del4</span></code>. So
+<code class="docutils literal notranslate"><span class="pre">hmix_scaling</span></code> is not a one-to-one translation: MPAS-Ocean’s two flags stay
+MPAS-Ocean-only, and Omega gets <code class="docutils literal notranslate"><span class="pre">MeshScalingEnable</span></code> from a new
+<code class="docutils literal notranslate"><span class="pre">omega_physics_options</span></code> bucket, always stated. <code class="docutils literal notranslate"><span class="pre">W_med</span></code> depends on the culled
+mesh, which an init-chain task does not have at setup, so it is computed at run
+time and logged with the coefficients and the range of scaling factors Omega
+should report.</p>
+<p>Settings that should <em>not</em> vary are pinned in <code class="docutils literal notranslate"><span class="pre">forward.yaml</span></code> rather than made
+options, purely so that the two models agree: horizontal tracer advection order
+3, implicit constant bottom drag at 1e-3, the CVMix convection, shear-mixing and
+KPP parameters, and <code class="docutils literal notranslate"><span class="pre">config_Redi_min_layers_diag_terms</span> <span class="pre">=</span> <span class="pre">0</span></code>, which computes the
+Redi diagnostic terms in the top layers the Registry default skips. Where the two
+models’ defaults differ, the MPAS-Ocean default wins, which turns KPP’s Langmuir
+turbulence off for Omega. Omega’s advection order and bottom drag defaults have
+since come to match MPAS-Ocean’s; stating them keeps the two from drifting apart
+again.</p>
+<p><code class="docutils literal notranslate"><span class="pre">ForwardStage</span></code> gains the corresponding fields and four methods beside the
+existing <code class="docutils literal notranslate"><span class="pre">bottom_drag_options</span></code>: <code class="docutils literal notranslate"><span class="pre">horiz_mixing_options</span></code> returns the neutral
+del2/del4 options for momentum and tracers and the biharmonic divergence factor,
+<code class="docutils literal notranslate"><span class="pre">vert_mixing_options</span></code> the neutral KPP switch, <code class="docutils literal notranslate"><span class="pre">submesoscale_options</span></code> the neutral
+submesoscale switch, and <code class="docutils literal notranslate"><span class="pre">mpaso_physics_options</span></code> the MPAS-Ocean-only options —
+the Leith closure, horizontal-mixing scaling, Gent-McWilliams, Redi, the
+pressure-gradient formulation and frazil ice. <code class="docutils literal notranslate"><span class="pre">Forward.dynamic_model_config</span></code>
+adds the first three with <code class="docutils literal notranslate"><span class="pre">config_model='ocean'</span></code>, so
+<code class="docutils literal notranslate"><span class="pre">OceanModelStep.map_yaml_options</span></code> translates them for Omega, and the fourth
+with <code class="docutils literal notranslate"><span class="pre">config_model='mpas-ocean'</span></code>. KPP and the submesoscale parameterization
+began in the fourth bucket and moved once Omega gained them. Left there, KPP
+never reached Omega, which ran KPP, its default, in tasks that had turned it
+off.</p>
+<p>Per-mesh overrides live in <code class="docutils literal notranslate"><span class="pre">mesh_configs/&lt;mesh_name&gt;.cfg</span></code> under the same
+<code class="docutils literal notranslate"><span class="pre">[realistic_global_forward]</span></code> section, applied by <code class="docutils literal notranslate"><span class="pre">add_realistic_global_mesh_config</span></code>
+after the task config so that they take precedence. The values are ported from
+the per-mesh <code class="docutils literal notranslate"><span class="pre">namelist.split_explicit_ab2</span></code> files of the corresponding Compass
+meshes: <code class="docutils literal notranslate"><span class="pre">qu</span></code> for <code class="docutils literal notranslate"><span class="pre">u-oi30-lr10</span></code>, <code class="docutils literal notranslate"><span class="pre">rrs6to18</span></code> for <code class="docutils literal notranslate"><span class="pre">u-oi6to18-lr6to10</span></code>, and
+<code class="docutils literal notranslate"><span class="pre">so12to30</span></code> for <code class="docutils literal notranslate"><span class="pre">u-oi-so12to30-lr10</span></code>. The three 240 km meshes (<code class="docutils literal notranslate"><span class="pre">u-oi240-lr240</span></code>,
+<code class="docutils literal notranslate"><span class="pre">qu240km</span></code> and <code class="docutils literal notranslate"><span class="pre">icos240km</span></code>, which are qualitatively the same mesh and share a
+block) follow E3SM’s <code class="docutils literal notranslate"><span class="pre">oQU240</span></code> instead: a biharmonic momentum viscosity of
+2.0e14 m^4/s alone, referenced to 240 km, and a 1 h / 3 min split time step.
+Compass’s <code class="docutils literal notranslate"><span class="pre">qu240</span></code> coefficients were never scaled there, and at 240 km they are
+almost no viscosity; scaled from the shared 30 km reference, they would be about
+500 times too large.</p>
+<p>Two exceptions to that port are deliberate. The Compass <code class="docutils literal notranslate"><span class="pre">so12to30</span></code> time step is
+not carried over: it is far more conservative than its resolution alone justifies,
+almost certainly because the Compass mesh has ice-shelf cavities, and
+<code class="docutils literal notranslate"><span class="pre">u-oi-so12to30-lr10</span></code> is for now a proof of concept for regional refinement rather
+than a mesh run in earnest. And Compass’s run durations and debug-tracer settings
+are test-harness details that Polaris expresses through its own config options.</p>
+<p>Because the neutral bucket can carry tracer diffusivities, the MPAS-Ocean-to-Omega
+map also gains the two entries it was missing, <code class="docutils literal notranslate"><span class="pre">config_tracer_del2</span></code> to
+<code class="docutils literal notranslate"><span class="pre">EddyDiff2</span></code> and <code class="docutils literal notranslate"><span class="pre">config_tracer_del4</span></code> to <code class="docutils literal notranslate"><span class="pre">EddyDiff4</span></code>; the corresponding enable
+flags were already mapped, so without these a tracer diffusivity set from Polaris
+would have been dropped for Omega with only a warning. It gains
+<code class="docutils literal notranslate"><span class="pre">config_mom_del4_div_factor</span></code> to <code class="docutils literal notranslate"><span class="pre">DivFactor</span></code> as well, which is what lets the
+divergence factor be neutral.</p>
+</section>
+</section>
+<section id="testing">
+<h2>Testing<a class="headerlink" href="#testing" title="Link to this heading"></a></h2>
+<section id="testing-and-validation-a-reusable-forward-run-capability-runs-a-realistic-global-ocean-simulation">
+<h3>Testing and Validation: A reusable forward-run capability runs a realistic global ocean simulation<a class="headerlink" href="#testing-and-validation-a-reusable-forward-run-capability-runs-a-realistic-global-ocean-simulation" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/10/21</p>
+<p>Contributors: Xylar Asay-Davis, Claude</p>
+<p>A <code class="docutils literal notranslate"><span class="pre">polaris</span> <span class="pre">setup</span></code> smoke test on a coarse global mesh, run for both
+<code class="docutils literal notranslate"><span class="pre">[ocean]</span> <span class="pre">model</span> <span class="pre">=</span> <span class="pre">mpas-ocean</span></code> and <code class="docutils literal notranslate"><span class="pre">omega</span></code>, should confirm that the forward work
+directory contains the expected input symlinks and that the generated namelist
+and streams (MPAS-Ocean) or <code class="docutils literal notranslate"><span class="pre">omega.yml</span></code> (Omega) contain the expected run
+duration, cadence, time step, and time integrator, without running the model.
+Where a model build is available, a short end-to-end run on a coarse mesh should
+confirm that the output file and a restart file are written.</p>
+<p>What landed is <code class="docutils literal notranslate"><span class="pre">tests/ocean/realistic_global/test_forward.py</span></code>, which renders the
+model config for both models and checks it rather than requiring a setup, plus
+<code class="docutils literal notranslate"><span class="pre">test_tasks.py</span></code>, which checks that a task is registered per mesh with the step
+list this design calls for. Resource sizing is covered by tests that
+<code class="docutils literal notranslate"><span class="pre">compute_cell_count</span></code> falls back to the initial condition’s estimate before the
+mesh exists, and raises rather than guessing when there is no estimate. The
+end-to-end run is the cached <code class="docutils literal notranslate"><span class="pre">e3sm-qu240</span></code> task in the two PR suites.</p>
+</section>
+<section id="testing-and-validation-forward-runs-can-start-from-a-database-initial-condition-or-from-the-init-workflow">
+<h3>Testing and Validation: Forward runs can start from a database initial condition or from the init workflow<a class="headerlink" href="#testing-and-validation-forward-runs-can-start-from-a-database-initial-condition-or-from-the-init-workflow" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/08/11</p>
+<p>Contributors: Xylar Asay-Davis, Claude</p>
+<p>Unit tests confirm that <code class="docutils literal notranslate"><span class="pre">StepInitialCondition</span></code> registers its inputs and sets the
+graph target from the init step’s work directory, that it skips the initial
+state on a stage continuing from a restart, and that it requires a forcing step
+and wires the forcing file; and that <code class="docutils literal notranslate"><span class="pre">DatabaseInitialCondition</span></code> constructs the
+expected database filename and target for each configured model, raising when an
+Omega run has no Omega initial-condition ID. A further pair of tests checks the
+seam between the two: that the forcing streams point at the staged file for one
+source and at the initial condition itself for the other.</p>
+</section>
+<section id="testing-and-validation-comparing-mpas-ocean-with-omega-is-opt-in">
+<h3>Testing and Validation: Comparing MPAS-Ocean with Omega is opt-in<a class="headerlink" href="#testing-and-validation-comparing-mpas-ocean-with-omega-is-opt-in" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/10/21</p>
+<p>Contributors: Xylar Asay-Davis, Claude</p>
+<p>Unit tests confirm that every cached mesh has a per-mesh config, that the cached
+tasks run the same physics as every other forward run, that the model config a
+cached task renders is what those options imply, that <code class="docutils literal notranslate"><span class="pre">compare_with_omega.cfg</span></code>
+layered on as a user config turns off what Omega lacks and names only real
+options, and that the task’s config carries what the database source needs —
+the equation of state above all, since a cached run never sets the <code class="docutils literal notranslate"><span class="pre">init</span></code>
+workflow’s config up at all and still has to name the equation of state to
+find the right file.</p>
+<p>The end-to-end check is the PR suites, which run the cached <code class="docutils literal notranslate"><span class="pre">e3sm-qu240</span></code> task on
+every pull request: split-explicit in both models, and RK4 in Omega.</p>
+</section>
+<section id="testing-and-validation-per-run-settings-are-described-in-a-common-model-agnostic-form">
+<h3>Testing and Validation: Per-run settings are described in a common, model-agnostic form<a class="headerlink" href="#testing-and-validation-per-run-settings-are-described-in-a-common-model-agnostic-form" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/10/17</p>
+<p>Contributors: Xylar Asay-Davis, Claude</p>
+<p>Unit tests should cover building a <code class="docutils literal notranslate"><span class="pre">ForwardStage</span></code> from config and its mapping onto
+template replacements: correct duration strings, the time-integrator translation
+for Omega, the derivation of the time step from <code class="docutils literal notranslate"><span class="pre">dt_per_km</span></code> and the mesh minimum
+resolution versus an explicit override (<code class="docutils literal notranslate"><span class="pre">rk4_dt</span></code> for RK4), and the presence of
+Rayleigh damping only for MPAS-Ocean.</p>
+</section>
+<section id="testing-and-validation-the-framework-composes-into-restart-and-dynamic-adjustment-workflows">
+<h3>Testing and Validation: The framework composes into restart and dynamic-adjustment workflows<a class="headerlink" href="#testing-and-validation-the-framework-composes-into-restart-and-dynamic-adjustment-workflows" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/10/04</p>
+<p>Contributors: Xylar Asay-Davis, Claude</p>
+<p>Tests confirm that the restart-in settings render the expected restart flag and
+start time, that <code class="docutils literal notranslate"><span class="pre">restart_stream_replacements</span></code> gives a first stage Omega’s
+<code class="docutils literal notranslate"><span class="pre">StartUp</span></code> and a restarting one <code class="docutils literal notranslate"><span class="pre">Continue</span></code> with its predecessor’s restart
+directory, that <code class="docutils literal notranslate"><span class="pre">restart_streams.yaml</span></code> requests Omega’s <code class="docutils literal notranslate"><span class="pre">RestartRead</span></code> stream
+through a pointer file, and that <code class="docutils literal notranslate"><span class="pre">restart_files</span></code> names each model’s restarts.
+Which files a step declares is checked from the dynamic-adjustment side, where
+the chain is built: that a stage in a chain declares both ends of it and that
+a lone stage declares neither.</p>
+</section>
+<section id="testing-and-validation-forward-steps-produce-inspectable-outputs-and-support-basic-validation">
+<h3>Testing and Validation: Forward steps produce inspectable outputs and support basic validation<a class="headerlink" href="#testing-and-validation-forward-steps-produce-inspectable-outputs-and-support-basic-validation" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/08/11</p>
+<p>Contributors: Xylar Asay-Davis, Claude</p>
+<p>Tests should confirm that the output file is registered with the expected
+validation variables and that, when property checks are requested, they are wired
+to the existing conservation checks. Baseline comparison of the validation
+variables should be exercised through the standard Polaris validation path once a
+baseline is available.</p>
+<p>Two classes of test landed that this section did not anticipate, both guarding
+against a failure that is silent by construction. An option in the neutral
+<code class="docutils literal notranslate"><span class="pre">ocean:</span></code> block with no entry in <code class="docutils literal notranslate"><span class="pre">mpaso_to_omega.yaml</span></code> only warns, so a check
+that every neutral option in <code class="docutils literal notranslate"><span class="pre">forward.yaml</span></code>, in <code class="docutils literal notranslate"><span class="pre">forcing.yaml</span></code> and in the
+horizontal-mixing bucket has an Omega counterpart is what keeps the two models
+from quietly running different physics. And the statistics filename moves for
+Omega but not for MPAS-Ocean, and a name that is not found reads as a stage that
+wrote no statistics, so tests pin the filename each model actually writes, that
+it follows the statistics interval for Omega, and that Omega’s statistics are
+snapshots rather than reductions.</p>
+</section>
+<section id="testing-and-validation-physics-and-mixing-options-vary-with-the-mesh">
+<h3>Testing and Validation: Physics and mixing options vary with the mesh<a class="headerlink" href="#testing-and-validation-physics-and-mixing-options-vary-with-the-mesh" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/10/17</p>
+<p>Contributors: Xylar Asay-Davis, Claude</p>
+<p>Unit tests should confirm that <code class="docutils literal notranslate"><span class="pre">ForwardStage.from_config</span></code> reads the new options,
+that a blank coefficient turns its term off while a value turns it on, and that
+the neutral and MPAS-Ocean-only buckets contain the options they are supposed to.
+Because the coefficients are what keep a run stable, a test should also confirm
+that each per-mesh config produces the expected values, and that the three
+qualitatively identical 240 km meshes agree with one another so they cannot drift
+apart unnoticed.</p>
+<p>Two further tests guard against failures that are silent by construction. One
+fails if an option in the MPAS-Ocean-only bucket has an Omega counterpart in the
+map, which is how KPP was left behind. It cannot see an Omega option that is on
+by default and not yet mapped. The other requires every mesh that scales its
+coefficients to reference its own finest resolution, which the 240 km meshes did
+not.</p>
+<p>The end-to-end check is that a short forward run on each mesh completes without
+producing NaNs, which is the failure mode these options exist to prevent.</p>
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="index.html" class="btn btn-neutral float-left" title="Design Documents" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="global_ocean_init.html" class="btn btn-neutral float-right" title="Realistic Ocean Initial Conditions" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2026, Energy Exascale Earth System Model Project.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+   
+
+  <!-- Meta tags for JS to use -->
+  <meta name="doc-version" content="main">
+  <meta name="doc-site-root" content="../">
+
+  <!-- Create version switcher container -->
+  <script>
+    const sidebar = document.querySelector('.wy-side-nav-search');
+    if (sidebar) {
+      const versionDiv = document.createElement('div');
+      versionDiv.id = 'version-switcher';
+      versionDiv.style.marginTop = '1em';
+      sidebar.appendChild(versionDiv);
+    }
+  </script>
+
+  <!-- Load version-switcher.js using the correct relative path -->
+  <script src="../../shared/version-switcher.js"></script>
+
+
+</body>
+</html>

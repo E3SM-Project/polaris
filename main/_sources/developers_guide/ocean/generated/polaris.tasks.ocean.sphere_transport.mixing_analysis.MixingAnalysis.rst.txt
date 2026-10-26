@@ -16,6 +16,7 @@
       ~MixingAnalysis.__init__
       ~MixingAnalysis.add_cf_check
       ~MixingAnalysis.add_dependency
+      ~MixingAnalysis.add_forcing_input_file
       ~MixingAnalysis.add_horiz_mesh_input_file
       ~MixingAnalysis.add_init_input_file
       ~MixingAnalysis.add_input_file

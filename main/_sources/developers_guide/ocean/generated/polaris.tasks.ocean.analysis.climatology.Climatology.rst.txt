@@ -16,6 +16,7 @@
       ~Climatology.__init__
       ~Climatology.add_cf_check
       ~Climatology.add_dependency
+      ~Climatology.add_forcing_input_file
       ~Climatology.add_horiz_mesh_input_file
       ~Climatology.add_init_input_file
       ~Climatology.add_input_file

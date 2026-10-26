@@ -1,0 +1,6 @@
+﻿polaris.tasks.ocean.realistic\_global.analysis\_output.AnalysisOutputForward.setup
+==================================================================================
+
+.. currentmodule:: polaris.tasks.ocean.realistic_global.analysis_output
+
+.. automethod:: AnalysisOutputForward.setup

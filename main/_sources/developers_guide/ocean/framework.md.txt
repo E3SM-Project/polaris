@@ -147,13 +147,23 @@ Both {py:class}`polaris.ocean.model.OceanIOStep` and
   from config.
 - **Input-file registration** — `add_horiz_mesh_input_file(**kwargs)`,
   `add_vert_coord_input_file(filename=None, **kwargs)`,
-  `add_init_input_file(**kwargs)` — all safe to call from `__init__()`.
+  `add_init_input_file(**kwargs)`, `add_forcing_input_file(**kwargs)` — all
+  safe to call from `__init__()`.
   The model check is deferred to `process_inputs_and_outputs()`, so no
   `if model == 'omega':` guards are needed in `__init__()`.
   `add_vert_coord_input_file()` is a no-op for MPAS-Ocean when the default
   placeholder is used.  When an explicit `filename=` is given (for
   per-resolution files such as `'vert_coord_r04.nc'`), it must be called
   from `setup()` or later because `self.config` is required.
+
+Unlike the other three, the forcing file is optional: only steps that actually
+have one register it, and unforced runs simply never call
+`add_forcing_input_file()`.  Note also that the forcing file is not the same
+shape for both models — `write_forcing_dataset()` gives it a `Time` dimension
+for MPAS-Ocean and none for Omega, because MPAS-Ocean's Registry declares
+`dimensions="nCells Time"` while Omega's `SfcStressForcingVars` registers 1-D
+fields on `NCells`.  A step that reads the file back has to expect that
+asymmetry.
 
 A typical viz or analysis step that reads vert-coord variables:
 
@@ -208,8 +218,9 @@ coefficients, so the constructor turns Omega's `MeshScalingEnable` off.
 When disabled, Omega sets both scaling factors, `MeshScalingDel2` and
 `MeshScalingDel4`, to one on every edge, so `ViscDel2`, `ViscDel4`,
 `EddyDiff2` and `EddyDiff4` are the same everywhere on the mesh.  A
-task that wants scaling turns it back on in a yaml file it adds at setup, as
-the `realistic_global` tasks do.  The default is set in the constructor rather
+task that wants scaling turns it back on, either in a yaml file it adds at
+setup or, as the `realistic_global` forward steps do, in its step's own
+`dynamic_model_config()`.  The default is set in the constructor rather
 than in `dynamic_model_config()` because, at run time, it would otherwise
 override a setting from a task's yaml file.
 
@@ -1087,8 +1098,8 @@ global statistics output and name it after the two, so
 `polaris.ocean.global_stats_names` builds the names rather than listing them.
 It is a leaf module for the same reason `sim_files` is, and it lives under
 `polaris.ocean` rather than under the analysis package because the
-`realistic_global` `analysis_members` task reads the same kind of output from
-a forward step in its own task.
+`global_stats` step of the `realistic_global` forward tasks reads the same
+kind of output from a forward step in its own task.
 
 Three things about it are worth knowing:
 

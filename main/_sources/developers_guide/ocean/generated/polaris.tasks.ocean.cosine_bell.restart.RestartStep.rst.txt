@@ -16,6 +16,7 @@
       ~RestartStep.__init__
       ~RestartStep.add_cf_check
       ~RestartStep.add_dependency
+      ~RestartStep.add_forcing_input_file
       ~RestartStep.add_horiz_mesh_input_file
       ~RestartStep.add_init_input_file
       ~RestartStep.add_input_file

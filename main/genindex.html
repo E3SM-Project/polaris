@@ -15,6 +15,364 @@
       <script src="_static/documentation_options.js?v=a8da1a53"></script>
       <script src="_static/doctools.js?v=fd6eb6e6"></script>
       <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script type="module">import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11.12.1/dist/mermaid.esm.min.mjs";
+
+
+
+
+
+const initStyles = () => {
+    const defaultStyle = document.createElement('style');
+    defaultStyle.textContent = "pre.mermaid {\n    /* Same as .mermaid-container > pre */\n    display: block;\n    width: 100%;\n}\n\npre.mermaid > svg {\n    /* Same as .mermaid-container > pre > svg */\n    height: 500px;\n    width: 100%;\n    max-width: 100% !important;\n}";
+    document.head.appendChild(defaultStyle);
+
+    const fullscreenStyle = document.createElement('style');
+    fullscreenStyle.textContent = ".mermaid-container {\n    position: relative;\n    display: flex;\n    flex-direction: row;\n    width: 100%;\n}\n\n.mermaid-container > pre {\n    display: block;\n    width: 100%;\n}\n\n.mermaid-container > pre > svg {\n    height: 500px;\n    width: 100%;\n    max-width: 100% !important;\n}\n\n.mermaid-fullscreen-btn {\n    position: absolute;\n    width: 28px;\n    height: 28px;\n    background: rgba(255, 255, 255, 0.95);\n    border: 1px solid rgba(0, 0, 0, 0.3);\n    border-radius: 4px;\n    cursor: pointer;\n    display: flex;\n    align-items: center;\n    justify-content: center;\n    transition: all 0.2s;\n    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);\n    font-size: 14px;\n    line-height: 1;\n    padding: 0;\n    color: #333;\n}\n\n.mermaid-fullscreen-btn:hover {\n    opacity: 100% !important;\n    background: rgba(255, 255, 255, 1);\n    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.3);\n    transform: scale(1.1);\n}\n\n.mermaid-fullscreen-btn.dark-theme {\n    background: rgba(50, 50, 50, 0.95);\n    border: 1px solid rgba(255, 255, 255, 0.3);\n    color: #e0e0e0;\n}\n\n.mermaid-fullscreen-btn.dark-theme:hover {\n    background: rgba(60, 60, 60, 1);\n    box-shadow: 0 3px 10px rgba(255, 255, 255, 0.2);\n}\n\n.mermaid-fullscreen-modal {\n    display: none;\n    position: fixed !important;\n    top: 0 !important;\n    left: 0 !important;\n    width: 95vw;\n    height: 100vh;\n    background: rgba(255, 255, 255, 0.98);\n    z-index: 9999;\n    padding: 20px;\n    overflow: auto;\n}\n\n.mermaid-fullscreen-modal.dark-theme {\n    background: rgba(0, 0, 0, 0.98);\n}\n\n.mermaid-fullscreen-modal.active {\n    display: flex;\n    align-items: center;\n    justify-content: center;\n}\n\n.mermaid-container-fullscreen {\n    position: relative;\n    width: 95vw;\n    height: 90vh;\n    max-width: 95vw;\n    max-height: 90vh;\n    background: white;\n    border-radius: 8px;\n    padding: 20px;\n    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);\n    overflow: auto;\n    display: flex;\n    align-items: center;\n    justify-content: center;\n}\n\n.mermaid-container-fullscreen.dark-theme {\n    background: #1a1a1a;\n    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.8);\n}\n\n.mermaid-container-fullscreen pre.mermaid {\n    width: 100%;\n    height: 100%;\n    display: flex;\n    align-items: center;\n    justify-content: center;\n}\n\n.mermaid-container-fullscreen .mermaid svg {\n    height: 100% !important;\n    width: 100% !important;\n    cursor: grab;\n}\n\n.mermaid-fullscreen-close {\n    position: fixed !important;\n    top: 20px !important;\n    right: 20px !important;\n    width: 40px;\n    height: 40px;\n    background: rgba(255, 255, 255, 0.95);\n    border: 1px solid rgba(0, 0, 0, 0.2);\n    border-radius: 50%;\n    cursor: pointer;\n    z-index: 10000;\n    display: flex;\n    align-items: center;\n    justify-content: center;\n    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);\n    transition: all 0.2s;\n    font-size: 24px;\n    line-height: 1;\n    color: #333;\n}\n\n.mermaid-fullscreen-close:hover {\n    background: white;\n    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);\n    transform: scale(1.1);\n}\n\n.mermaid-fullscreen-close.dark-theme {\n    background: rgba(50, 50, 50, 0.95);\n    border: 1px solid rgba(255, 255, 255, 0.2);\n    color: #e0e0e0;\n}\n\n.mermaid-fullscreen-close.dark-theme:hover {\n    background: rgba(60, 60, 60, 1);\n    box-shadow: 0 6px 16px rgba(255, 255, 255, 0.2);\n}\n\n.mermaid-fullscreen-modal .mermaid-fullscreen-btn {\n    display: none !important;\n}";
+    document.head.appendChild(fullscreenStyle);
+}
+
+// Detect if page has dark background
+const isDarkTheme = () => {
+    // We use a set of heuristics:
+    // 1. Check for common dark mode classes or attributes
+    // 2. Check computed background color brightness
+    if (document.documentElement.classList.contains('dark') ||
+        document.documentElement.getAttribute('data-theme') === 'dark' ||
+        document.body.classList.contains('dark') ||
+        document.body.getAttribute('data-theme') === 'dark') {
+        // console.log("Dark theme detected via class/attribute");
+        return true;
+    }
+    if (document.documentElement.classList.contains('light') ||
+        document.documentElement.getAttribute('data-theme') === 'light' ||
+        document.body.classList.contains('light') ||
+        document.body.getAttribute('data-theme') === 'light') {
+        // console.log("Light theme detected via class/attribute");
+        return false;
+    }
+    if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        // console.log("Dark theme detected via prefers-color-scheme");
+        return true;
+    }
+    const bgColor = window.getComputedStyle(document.body).backgroundColor;
+    const match = bgColor.match(/rgb\((\d+),\s*(\d+),\s*(\d+)/);
+    if (match) {
+        const r = parseInt(match[1]);
+        const g = parseInt(match[2]);
+        const b = parseInt(match[3]);
+        const brightness = (r * 299 + g * 587 + b * 114) / 1000;
+        // console.log("Background color brightness:", brightness);
+        return brightness < 128;
+    }
+    // console.log("No dark or light theme detected, defaulting to light theme");
+    return false;
+};
+
+let darkTheme = isDarkTheme();
+let modal = null;
+let modalContent = null;
+let previousScrollOffset = [window.scrollX, window.scrollY];
+let _lazyObserver = null;
+let _renderQueue = Promise.resolve();
+let closeModal = () => {};
+
+document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && modal?.classList.contains('active')) {
+        closeModal();
+    }
+});
+
+// Apply d3 zoom to each SVG. Idempotent: an SVG already wrapped is skipped,
+// so this is safe to call both for the initial batch and for diagrams that
+// render lazily once they become visible.
+const addZoomToSvgs = (svgs) => {
+    svgs.each(function() {
+        if (this.getAttribute('data-zoom-applied') === 'true') return;
+        var svg = d3.select(this);
+        svg.html("<g class='wrapper'>" + svg.html() + "</g>");
+        var inner = svg.select("g");
+        var zoom = d3.zoom().on("zoom", function(event) {
+            inner.attr("transform", event.transform);
+        });
+        svg.call(zoom);
+        this.setAttribute('data-zoom-applied', 'true');
+    });
+};
+
+const runMermaid = async (rerun) => {
+    console.log("Running mermaid diagrams, rerun =", rerun);
+    // clear all existing mermaid charts
+    let all_mermaids = document.querySelectorAll(".mermaid");
+
+    if (rerun) {
+        // Disconnect any previous lazy rendering observer
+        if (_lazyObserver) {
+            _lazyObserver.disconnect();
+            _lazyObserver = null;
+        }
+
+        all_mermaids.forEach((el) => {
+            el.removeAttribute('data-mermaid-deferred');
+            el.removeAttribute('data-mermaid-render-failed');
+            if(!el.hasAttribute("data-original-code")) {
+                // store original code
+                // console.log(`Storing original code for first run: `, el.innerHTML);
+                el.setAttribute('data-original-code', el.innerHTML);
+            }
+            if(el.getAttribute("data-processed") === "true") {
+                // remove and restore original
+                el.removeAttribute("data-processed");
+                // console.log(`Restoring original code for re-run: `, el.getAttribute('data-original-code'));
+                el.innerHTML = el.getAttribute('data-original-code');
+            } else {
+                // store original code
+                // console.log(`Storing original code for re-run: `, el.innerHTML);
+                el.setAttribute('data-original-code', el.innerHTML);
+            }
+        });
+
+        // Separate visible and hidden elements. Mermaid's layout engine measures
+        // text dimensions via the DOM, which fails for elements hidden by a parent
+        // (e.g., Reveal.js non-active slides, sphinx-design unopened tabs),
+        // producing broken SVGs. Render visible elements now, defer hidden ones.
+        const visible = [];
+        const hidden = [];
+        all_mermaids.forEach((el) => {
+            // offsetParent is null for display:none ancestors.
+            // getClientRects().length > 0 catches position:fixed elements
+            // (which also have null offsetParent but are still visible).
+            if (el.offsetParent !== null || el.getClientRects().length > 0) {
+                visible.push(el);
+            } else {
+                hidden.push(el);
+                el.setAttribute('data-mermaid-deferred', 'true');
+            }
+        });
+
+        if (visible.length > 0) {
+            try {
+                await mermaid.run({ nodes: visible });
+            } catch (e) {
+                console.error("Mermaid rendering failed:", e);
+            }
+        }
+
+        // Lazily render hidden elements when they become visible.
+        // Uses a promise chain (_renderQueue) to serialize rendering,
+        // since IntersectionObserver may report multiple entries at once
+        // and mermaid.run() is not safe to call concurrently.
+        if (hidden.length > 0) {
+            if (typeof IntersectionObserver === 'undefined') {
+                console.warn("IntersectionObserver not available; hidden mermaid diagrams will not render.");
+            } else {
+                _renderQueue = Promise.resolve();
+                _lazyObserver = new IntersectionObserver((entries) => {
+                    for (const entry of entries) {
+                        if (entry.isIntersecting && entry.target.getAttribute("data-processed") !== "true") {
+                            _lazyObserver.unobserve(entry.target);
+                            const el = entry.target;
+                            _renderQueue = _renderQueue.then(async () => {
+                                try {
+                                    await mermaid.run({ nodes: [el] });
+                                    el.removeAttribute('data-mermaid-deferred');
+                                    // Apply zoom to the now-rendered diagram, matching
+                                    // the decoration visible diagrams receive.
+                                    if (false) {
+                                        addZoomToSvgs(d3.selectAll("").select(function() {
+                                            return this.querySelector("svg");
+                                        }));
+                                    }
+                                } catch (e) {
+                                    console.error("Mermaid deferred rendering failed:", e);
+                                    el.removeAttribute('data-mermaid-deferred');
+                                    el.setAttribute('data-mermaid-render-failed', 'true');
+                                }
+                            });
+                        }
+                    }
+                });
+                hidden.forEach((el) => _lazyObserver.observe(el));
+            }
+        }
+    }
+
+    all_mermaids = document.querySelectorAll(".mermaid");
+    // Exclude deferred (hidden) and render-failed elements from completion checks
+    const mermaids_active = document.querySelectorAll(".mermaid:not([data-mermaid-deferred]):not([data-mermaid-render-failed])");
+    const mermaids_processed = document.querySelectorAll(".mermaid:not([data-mermaid-deferred]):not([data-mermaid-render-failed])[data-processed='true']");
+
+    if (false) {
+        const mermaids_to_add_zoom = 0 === -1 ? mermaids_active.length : 0;
+        if(mermaids_to_add_zoom > 0) {
+            var svgs = d3.selectAll("").select(function() {
+                return this.querySelector("svg");
+            });
+            // Wait until every active (visible) diagram has rendered. Deferred
+            // diagrams are excluded, so a fixed d3_node_count that counts a
+            // hidden diagram no longer loops forever waiting for its SVG.
+            if(mermaids_active.length !== mermaids_processed.length) {
+                setTimeout(() => runMermaid(false), 200);
+                return;
+            }
+            addZoomToSvgs(svgs);
+        }
+    } else if(mermaids_active.length !== mermaids_processed.length) {
+        // Wait for mermaid to process all diagrams
+        setTimeout(() => runMermaid(false), 200);
+        return;
+    }
+
+    // Stop here if not adding fullscreen capability
+    if (!true) return;
+
+    if (modal !== null ) {
+        // Destroy existing modal
+        modal.remove();
+        modal = null;
+        modalContent = null;
+    }
+
+    modal = document.createElement('div');
+    modal.className = 'mermaid-fullscreen-modal' + (darkTheme ? ' dark-theme' : '');
+    modal.setAttribute('role', 'dialog');
+    modal.setAttribute('aria-modal', 'true');
+    modal.setAttribute('aria-label', 'Fullscreen diagram viewer');
+    modal.innerHTML = `
+        <button class="mermaid-fullscreen-close${darkTheme ? ' dark-theme' : ''}" aria-label="Close fullscreen">✕</button>
+        <div class="mermaid-container-fullscreen${darkTheme ? ' dark-theme' : ''}"></div>
+    `;
+    document.body.appendChild(modal);
+
+    modalContent = modal.querySelector('.mermaid-container-fullscreen');
+    const closeBtn = modal.querySelector('.mermaid-fullscreen-close');
+
+    closeModal = () => {
+        modal.classList.remove('active');
+        modalContent.innerHTML = '';
+        document.body.style.overflow = ''
+        window.scrollTo({left: previousScrollOffset[0], top: previousScrollOffset[1], behavior: 'instant'});
+    };
+
+    closeBtn.addEventListener('click', closeModal);
+    modal.addEventListener('click', (e) => {
+        if (e.target === modal) closeModal();
+    });
+    document.querySelectorAll('.mermaid').forEach((mermaidDiv) => {
+        if (mermaidDiv.parentNode.classList.contains('mermaid-container') ||
+            mermaidDiv.closest('.mermaid-fullscreen-modal')) {
+            // Already processed, adjust button class if needed
+            const existingBtn = mermaidDiv.parentNode.querySelector('.mermaid-fullscreen-btn');
+            if (existingBtn) {
+                existingBtn.className = 'mermaid-fullscreen-btn' + (darkTheme ? ' dark-theme' : '');
+            }
+            return;
+        }
+
+        const container = document.createElement('div');
+        container.className = 'mermaid-container';
+        mermaidDiv.parentNode.insertBefore(container, mermaidDiv);
+        container.appendChild(mermaidDiv);
+
+        const fullscreenBtn = document.createElement('button');
+        fullscreenBtn.className = 'mermaid-fullscreen-btn' + (darkTheme ? ' dark-theme' : '');
+        fullscreenBtn.setAttribute('aria-label', 'View diagram in fullscreen');
+        fullscreenBtn.textContent = "\u26f6";
+        fullscreenBtn.style.opacity = "50%";
+
+        // Calculate dynamic position based on diagram's margin and padding
+        const diagramStyle = window.getComputedStyle(mermaidDiv);
+        const marginTop = parseFloat(diagramStyle.marginTop) || 0;
+        const marginRight = parseFloat(diagramStyle.marginRight) || 0;
+        const paddingTop = parseFloat(diagramStyle.paddingTop) || 0;
+        const paddingRight = parseFloat(diagramStyle.paddingRight) || 0;
+        fullscreenBtn.style.top = `${marginTop + paddingTop + 4}px`;
+        fullscreenBtn.style.right = `${marginRight + paddingRight + 4}px`;
+
+        fullscreenBtn.addEventListener('click', () => {
+            previousScrollOffset = [window.scrollX, window.scrollY];
+            const clone = mermaidDiv.cloneNode(true);
+            modalContent.innerHTML = '';
+            modalContent.appendChild(clone);
+
+            const svg = clone.querySelector('svg');
+            if (svg) {
+                svg.removeAttribute('width');
+                svg.removeAttribute('height');
+                svg.style.width = '100%';
+                svg.style.height = 'auto';
+                svg.style.maxWidth = '100%';
+                svg.style.display = 'block';
+
+                if (false) {
+                    setTimeout(() => {
+                        const g = svg.querySelector('g');
+                        if (g) {
+                            var svgD3 = d3.select(svg);
+                            svgD3.html("<g class='wrapper'>" + svgD3.html() + "</g>");
+                            var inner = svgD3.select("g");
+                            var zoom = d3.zoom().on("zoom", function(event) {
+                                inner.attr("transform", event.transform);
+                            });
+                            svgD3.call(zoom);
+                        }
+                    }, 100);
+                }
+            }
+
+            modal.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        });
+        container.appendChild(fullscreenBtn);
+    });
+};
+
+
+
+const load = async () => {
+    initStyles();
+
+
+    await runMermaid(true);
+
+    const reRunIfThemeChanges = async () => {
+        const newDarkTheme = isDarkTheme();
+        if (newDarkTheme !== darkTheme) {
+            darkTheme = newDarkTheme;
+            console.log("Theme change detected, re-running mermaid with", darkTheme ? "dark" : "default", "theme");
+            await mermaid.initialize(
+                {...{"startOnLoad": false},
+                ...{ darkMode: darkTheme, theme: darkTheme ? "dark" : "default" },
+                }
+            );
+            await runMermaid(true);
+        }
+    };
+
+    // Update theme classes when theme changes
+    const themeObserver = new MutationObserver(reRunIfThemeChanges);
+    themeObserver.observe(document.documentElement, {
+        attributes: true,
+        attributeFilter: ['class', 'style', 'data-theme']
+    });
+    themeObserver.observe(document.body, {
+        attributes: true,
+        attributeFilter: ['class', 'style', 'data-theme']
+    });
+};
+
+
+
+
+
+console.log("Initializing mermaid with", darkTheme ? "dark" : "default", "theme");
+mermaid.initialize(
+    {...{"startOnLoad": false},
+    ...{ darkMode: darkTheme, theme: darkTheme ? "dark" : "default" },
+    }
+);
+
+window.addEventListener("load", load);
+window.runMermaid = runMermaid;</script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="#" />
     <link rel="search" title="Search" href="search.html" />
@@ -486,11 +844,9 @@
 </li>
         <li><a href="developers_guide/ocean/generated/polaris.tasks.ocean.overflow.viz.Viz.html#polaris.tasks.ocean.overflow.viz.Viz.__init__">(polaris.tasks.ocean.overflow.viz.Viz method)</a>
 </li>
-        <li><a href="developers_guide/ocean/generated/polaris.tasks.ocean.realistic_global.analysis_members.AnalysisMembers.html#polaris.tasks.ocean.realistic_global.analysis_members.AnalysisMembers.__init__">(polaris.tasks.ocean.realistic_global.analysis_members.AnalysisMembers method)</a>
+        <li><a href="developers_guide/ocean/generated/polaris.tasks.ocean.realistic_global.analysis_output.AnalysisOutput.html#polaris.tasks.ocean.realistic_global.analysis_output.AnalysisOutput.__init__">(polaris.tasks.ocean.realistic_global.analysis_output.AnalysisOutput method)</a>
 </li>
-        <li><a href="developers_guide/ocean/generated/polaris.tasks.ocean.realistic_global.analysis_members.forward.Forward.html#polaris.tasks.ocean.realistic_global.analysis_members.forward.Forward.__init__">(polaris.tasks.ocean.realistic_global.analysis_members.forward.Forward method)</a>
-</li>
-        <li><a href="developers_guide/ocean/generated/polaris.tasks.ocean.realistic_global.analysis_members.stats_analysis.StatsAnalysis.html#polaris.tasks.ocean.realistic_global.analysis_members.stats_analysis.StatsAnalysis.__init__">(polaris.tasks.ocean.realistic_global.analysis_members.stats_analysis.StatsAnalysis method)</a>
+        <li><a href="developers_guide/ocean/generated/polaris.tasks.ocean.realistic_global.analysis_output.AnalysisOutputForward.html#polaris.tasks.ocean.realistic_global.analysis_output.AnalysisOutputForward.__init__">(polaris.tasks.ocean.realistic_global.analysis_output.AnalysisOutputForward method)</a>
 </li>
         <li><a href="developers_guide/ocean/generated/polaris.tasks.ocean.realistic_global.forcing.jra55.Jra55.html#polaris.tasks.ocean.realistic_global.forcing.jra55.Jra55.__init__">(polaris.tasks.ocean.realistic_global.forcing.jra55.Jra55 method)</a>
 </li>
@@ -498,7 +854,21 @@
 </li>
         <li><a href="developers_guide/ocean/generated/polaris.tasks.ocean.realistic_global.forcing.jra55.Jra55VizStep.html#polaris.tasks.ocean.realistic_global.forcing.jra55.Jra55VizStep.__init__">(polaris.tasks.ocean.realistic_global.forcing.jra55.Jra55VizStep method)</a>
 </li>
-        <li><a href="developers_guide/ocean/generated/polaris.tasks.ocean.realistic_global.forward.Forward.html#polaris.tasks.ocean.realistic_global.forward.Forward.__init__">(polaris.tasks.ocean.realistic_global.forward.Forward method)</a>
+        <li><a href="developers_guide/ocean/generated/polaris.tasks.ocean.realistic_global.forward.forward.Forward.html#polaris.tasks.ocean.realistic_global.forward.forward.Forward.__init__">(polaris.tasks.ocean.realistic_global.forward.forward.Forward method)</a>
+</li>
+        <li><a href="developers_guide/ocean/generated/polaris.tasks.ocean.realistic_global.forward.initial_condition.DatabaseInitialCondition.html#polaris.tasks.ocean.realistic_global.forward.initial_condition.DatabaseInitialCondition.__init__">(polaris.tasks.ocean.realistic_global.forward.initial_condition.DatabaseInitialCondition method)</a>
+</li>
+        <li><a href="developers_guide/ocean/generated/polaris.tasks.ocean.realistic_global.forward.initial_condition.InitialCondition.html#polaris.tasks.ocean.realistic_global.forward.initial_condition.InitialCondition.__init__">(polaris.tasks.ocean.realistic_global.forward.initial_condition.InitialCondition method)</a>
+</li>
+        <li><a href="developers_guide/ocean/generated/polaris.tasks.ocean.realistic_global.forward.initial_condition.StepInitialCondition.html#polaris.tasks.ocean.realistic_global.forward.initial_condition.StepInitialCondition.__init__">(polaris.tasks.ocean.realistic_global.forward.initial_condition.StepInitialCondition method)</a>
+</li>
+        <li><a href="developers_guide/ocean/generated/polaris.tasks.ocean.realistic_global.forward.stage.ForwardStage.html#polaris.tasks.ocean.realistic_global.forward.stage.ForwardStage.__init__">(polaris.tasks.ocean.realistic_global.forward.stage.ForwardStage method)</a>
+</li>
+        <li><a href="developers_guide/ocean/generated/polaris.tasks.ocean.realistic_global.forward.stats_analysis.StatsAnalysis.html#polaris.tasks.ocean.realistic_global.forward.stats_analysis.StatsAnalysis.__init__">(polaris.tasks.ocean.realistic_global.forward.stats_analysis.StatsAnalysis method)</a>
+</li>
+        <li><a href="developers_guide/ocean/generated/polaris.tasks.ocean.realistic_global.forward.task.RealisticGlobalForward.html#polaris.tasks.ocean.realistic_global.forward.task.RealisticGlobalForward.__init__">(polaris.tasks.ocean.realistic_global.forward.task.RealisticGlobalForward method)</a>
+</li>
+        <li><a href="developers_guide/ocean/generated/polaris.tasks.ocean.realistic_global.forward.viz.Viz.html#polaris.tasks.ocean.realistic_global.forward.viz.Viz.__init__">(polaris.tasks.ocean.realistic_global.forward.viz.Viz method)</a>
 </li>
         <li><a href="developers_guide/ocean/generated/polaris.tasks.ocean.realistic_global.hydrography.woa23.CombineStep.html#polaris.tasks.ocean.realistic_global.hydrography.woa23.CombineStep.__init__">(polaris.tasks.ocean.realistic_global.hydrography.woa23.CombineStep method)</a>
 </li>
@@ -535,8 +905,6 @@
         <li><a href="developers_guide/ocean/generated/polaris.tasks.ocean.realistic_global.restart.restart_step.RestartStep.html#polaris.tasks.ocean.realistic_global.restart.restart_step.RestartStep.__init__">(polaris.tasks.ocean.realistic_global.restart.restart_step.RestartStep method)</a>
 </li>
         <li><a href="developers_guide/ocean/generated/polaris.tasks.ocean.realistic_global.restart.validate.Validate.html#polaris.tasks.ocean.realistic_global.restart.validate.Validate.__init__">(polaris.tasks.ocean.realistic_global.restart.validate.Validate method)</a>
-</li>
-        <li><a href="developers_guide/ocean/generated/polaris.tasks.ocean.realistic_global.viz.Viz.html#polaris.tasks.ocean.realistic_global.viz.Viz.__init__">(polaris.tasks.ocean.realistic_global.viz.Viz method)</a>
 </li>
         <li><a href="developers_guide/ocean/generated/polaris.tasks.ocean.seamount.default.Default.html#polaris.tasks.ocean.seamount.default.Default.__init__">(polaris.tasks.ocean.seamount.default.Default method)</a>
 </li>
@@ -681,6 +1049,8 @@
       </ul></li>
       <li><a href="developers_guide/generated/polaris.viz.add_fitted_suptitle.html#polaris.viz.add_fitted_suptitle">add_fitted_suptitle() (in module polaris.viz)</a>
 </li>
+      <li><a href="developers_guide/ocean/generated/polaris.ocean.model.OceanIOStep.add_forcing_input_file.html#polaris.ocean.model.OceanIOStep.add_forcing_input_file">add_forcing_input_file() (polaris.ocean.model.OceanIOStep method)</a>
+</li>
       <li><a href="developers_guide/ocean/generated/polaris.tasks.ocean.geostrophic.add_geostrophic_tasks.html#polaris.tasks.ocean.geostrophic.add_geostrophic_tasks">add_geostrophic_tasks() (in module polaris.tasks.ocean.geostrophic)</a>
 </li>
       <li><a href="developers_guide/ocean/generated/polaris.ocean.model.OceanIOStep.add_horiz_mesh_input_file.html#polaris.ocean.model.OceanIOStep.add_horiz_mesh_input_file">add_horiz_mesh_input_file() (polaris.ocean.model.OceanIOStep method)</a>
@@ -695,6 +1065,14 @@
 </li>
       <li><a href="developers_guide/generated/polaris.Step.add_input_file.html#polaris.Step.add_input_file">add_input_file() (polaris.Step method)</a>
 </li>
+      <li><a href="developers_guide/ocean/generated/polaris.tasks.ocean.realistic_global.forward.initial_condition.DatabaseInitialCondition.add_input_files.html#polaris.tasks.ocean.realistic_global.forward.initial_condition.DatabaseInitialCondition.add_input_files">add_input_files() (polaris.tasks.ocean.realistic_global.forward.initial_condition.DatabaseInitialCondition method)</a>
+
+      <ul>
+        <li><a href="developers_guide/ocean/generated/polaris.tasks.ocean.realistic_global.forward.initial_condition.InitialCondition.add_input_files.html#polaris.tasks.ocean.realistic_global.forward.initial_condition.InitialCondition.add_input_files">(polaris.tasks.ocean.realistic_global.forward.initial_condition.InitialCondition method)</a>
+</li>
+        <li><a href="developers_guide/ocean/generated/polaris.tasks.ocean.realistic_global.forward.initial_condition.StepInitialCondition.add_input_files.html#polaris.tasks.ocean.realistic_global.forward.initial_condition.StepInitialCondition.add_input_files">(polaris.tasks.ocean.realistic_global.forward.initial_condition.StepInitialCondition method)</a>
+</li>
+      </ul></li>
       <li><a href="developers_guide/ocean/generated/polaris.tasks.ocean.internal_wave.add_internal_wave_tasks.html#polaris.tasks.ocean.internal_wave.add_internal_wave_tasks">add_internal_wave_tasks() (in module polaris.tasks.ocean.internal_wave)</a>
 </li>
       <li><a href="developers_guide/generated/polaris.cf.add_lat_lon_attrs.html#polaris.cf.add_lat_lon_attrs">add_lat_lon_attrs() (in module polaris.cf)</a>
@@ -729,10 +1107,16 @@
 </li>
       <li><a href="developers_guide/ocean/generated/polaris.ocean.init_state.add_quiescent_normal_velocity.html#polaris.ocean.init_state.add_quiescent_normal_velocity">add_quiescent_normal_velocity() (in module polaris.ocean.init_state)</a>
 </li>
-      <li><a href="developers_guide/ocean/generated/polaris.tasks.ocean.realistic_global.init.tasks.add_realistic_global_init_tasks.html#polaris.tasks.ocean.realistic_global.init.tasks.add_realistic_global_init_tasks">add_realistic_global_init_tasks() (in module polaris.tasks.ocean.realistic_global.init.tasks)</a>
+      <li><a href="developers_guide/ocean/generated/polaris.tasks.ocean.realistic_global.analysis_output.add_realistic_global_analysis_output_tasks.html#polaris.tasks.ocean.realistic_global.analysis_output.add_realistic_global_analysis_output_tasks">add_realistic_global_analysis_output_tasks() (in module polaris.tasks.ocean.realistic_global.analysis_output)</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="developers_guide/ocean/generated/polaris.tasks.ocean.realistic_global.forward.tasks.add_realistic_global_cached_forward_tasks.html#polaris.tasks.ocean.realistic_global.forward.tasks.add_realistic_global_cached_forward_tasks">add_realistic_global_cached_forward_tasks() (in module polaris.tasks.ocean.realistic_global.forward.tasks)</a>
+</li>
+      <li><a href="developers_guide/ocean/generated/polaris.tasks.ocean.realistic_global.forward.tasks.add_realistic_global_forward_tasks.html#polaris.tasks.ocean.realistic_global.forward.tasks.add_realistic_global_forward_tasks">add_realistic_global_forward_tasks() (in module polaris.tasks.ocean.realistic_global.forward.tasks)</a>
+</li>
+      <li><a href="developers_guide/ocean/generated/polaris.tasks.ocean.realistic_global.init.tasks.add_realistic_global_init_tasks.html#polaris.tasks.ocean.realistic_global.init.tasks.add_realistic_global_init_tasks">add_realistic_global_init_tasks() (in module polaris.tasks.ocean.realistic_global.init.tasks)</a>
+</li>
       <li><a href="developers_guide/ocean/generated/polaris.tasks.ocean.realistic_global.mesh_configs.add_realistic_global_mesh_config.html#polaris.tasks.ocean.realistic_global.mesh_configs.add_realistic_global_mesh_config">add_realistic_global_mesh_config() (in module polaris.tasks.ocean.realistic_global.mesh_configs)</a>
 </li>
       <li><a href="developers_guide/ocean/generated/polaris.tasks.ocean.realistic_global.add_realistic_global_tasks.html#polaris.tasks.ocean.realistic_global.add_realistic_global_tasks">add_realistic_global_tasks() (in module polaris.tasks.ocean.realistic_global)</a>
@@ -827,7 +1211,9 @@
 </li>
       <li><a href="developers_guide/ocean/generated/polaris.tasks.ocean.analysis.sim_files.OmegaConfig.analysis_streams.html#polaris.tasks.ocean.analysis.sim_files.OmegaConfig.analysis_streams">analysis_streams() (polaris.tasks.ocean.analysis.sim_files.OmegaConfig method)</a>
 </li>
-      <li><a href="developers_guide/ocean/generated/polaris.tasks.ocean.realistic_global.analysis_members.AnalysisMembers.html#polaris.tasks.ocean.realistic_global.analysis_members.AnalysisMembers">AnalysisMembers (class in polaris.tasks.ocean.realistic_global.analysis_members)</a>
+      <li><a href="developers_guide/ocean/generated/polaris.tasks.ocean.realistic_global.analysis_output.AnalysisOutput.html#polaris.tasks.ocean.realistic_global.analysis_output.AnalysisOutput">AnalysisOutput (class in polaris.tasks.ocean.realistic_global.analysis_output)</a>
+</li>
+      <li><a href="developers_guide/ocean/generated/polaris.tasks.ocean.realistic_global.analysis_output.AnalysisOutputForward.html#polaris.tasks.ocean.realistic_global.analysis_output.AnalysisOutputForward">AnalysisOutputForward (class in polaris.tasks.ocean.realistic_global.analysis_output)</a>
 </li>
       <li><a href="developers_guide/ocean/generated/polaris.tasks.ocean.analysis.analysis_step.AnalysisStep.html#polaris.tasks.ocean.analysis.analysis_step.AnalysisStep">AnalysisStep (class in polaris.tasks.ocean.analysis.analysis_step)</a>
 </li>
@@ -863,6 +1249,8 @@
       </ul></li>
       <li><a href="developers_guide/generated/polaris.mesh.spherical.unified.effective_ocean.block_average.html#polaris.mesh.spherical.unified.effective_ocean.block_average">block_average() (in module polaris.mesh.spherical.unified.effective_ocean)</a>
 </li>
+      <li><a href="developers_guide/ocean/generated/polaris.tasks.ocean.realistic_global.forward.stage.ForwardStage.bottom_drag_options.html#polaris.tasks.ocean.realistic_global.forward.stage.ForwardStage.bottom_drag_options">bottom_drag_options() (polaris.tasks.ocean.realistic_global.forward.stage.ForwardStage method)</a>
+</li>
       <li><a href="developers_guide/generated/polaris.mesh.base.rrs.RRSBaseMesh.build_cell_width_lat_lon.html#polaris.mesh.base.rrs.RRSBaseMesh.build_cell_width_lat_lon">build_cell_width_lat_lon() (polaris.mesh.base.rrs.RRSBaseMesh method)</a>
 
       <ul>
@@ -879,14 +1267,14 @@
         <li><a href="developers_guide/mesh/generated/polaris.tasks.mesh.spherical.unified.coastline.build_coastline_dataset.html#polaris.tasks.mesh.spherical.unified.coastline.build_coastline_dataset">(in module polaris.tasks.mesh.spherical.unified.coastline)</a>
 </li>
       </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="developers_guide/generated/polaris.mesh.spherical.coastline.build_coastline_datasets.html#polaris.mesh.spherical.coastline.build_coastline_datasets">build_coastline_datasets() (in module polaris.mesh.spherical.coastline)</a>
 
       <ul>
         <li><a href="developers_guide/mesh/generated/polaris.tasks.mesh.spherical.unified.coastline.build_coastline_datasets.html#polaris.tasks.mesh.spherical.unified.coastline.build_coastline_datasets">(in module polaris.tasks.mesh.spherical.unified.coastline)</a>
 </li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="developers_guide/generated/polaris.mesh.spherical.unified.effective_ocean.build_effective_ocean_mask.html#polaris.mesh.spherical.unified.effective_ocean.build_effective_ocean_mask">build_effective_ocean_mask() (in module polaris.mesh.spherical.unified.effective_ocean)</a>
 </li>
       <li><a href="developers_guide/mesh/generated/polaris.tasks.mesh.spherical.feature_masks.build_mask_feature_collection.html#polaris.tasks.mesh.spherical.feature_masks.build_mask_feature_collection">build_mask_feature_collection() (in module polaris.tasks.mesh.spherical.feature_masks)</a>
@@ -948,6 +1336,8 @@
       <li><a href="developers_guide/e3sm/init/generated/polaris.tasks.e3sm.init.topo.cull.consistency.check_critical_passages.html#polaris.tasks.e3sm.init.topo.cull.consistency.check_critical_passages">check_critical_passages() (in module polaris.tasks.e3sm.init.topo.cull.consistency)</a>
 </li>
       <li><a href="developers_guide/e3sm/init/generated/polaris.tasks.e3sm.init.topo.cull.consistency.check_cull_mask_consistency.html#polaris.tasks.e3sm.init.topo.cull.consistency.check_cull_mask_consistency">check_cull_mask_consistency() (in module polaris.tasks.e3sm.init.topo.cull.consistency)</a>
+</li>
+      <li><a href="developers_guide/ocean/generated/polaris.tasks.ocean.realistic_global.forward.stage.ForwardStage.check_damping_supported.html#polaris.tasks.ocean.realistic_global.forward.stage.ForwardStage.check_damping_supported">check_damping_supported() (polaris.tasks.ocean.realistic_global.forward.stage.ForwardStage method)</a>
 </li>
       <li><a href="developers_guide/ocean/generated/polaris.tasks.ocean.analysis.sim_files.check_files_exist.html#polaris.tasks.ocean.analysis.sim_files.check_files_exist">check_files_exist() (in module polaris.tasks.ocean.analysis.sim_files)</a>
 </li>
@@ -1022,7 +1412,7 @@
 </li>
         <li><a href="developers_guide/ocean/generated/polaris.tasks.ocean.overflow.forward.Forward.compute_cell_count.html#polaris.tasks.ocean.overflow.forward.Forward.compute_cell_count">(polaris.tasks.ocean.overflow.forward.Forward method)</a>
 </li>
-        <li><a href="developers_guide/ocean/generated/polaris.tasks.ocean.realistic_global.forward.Forward.compute_cell_count.html#polaris.tasks.ocean.realistic_global.forward.Forward.compute_cell_count">(polaris.tasks.ocean.realistic_global.forward.Forward method)</a>
+        <li><a href="developers_guide/ocean/generated/polaris.tasks.ocean.realistic_global.forward.forward.Forward.compute_cell_count.html#polaris.tasks.ocean.realistic_global.forward.forward.Forward.compute_cell_count">(polaris.tasks.ocean.realistic_global.forward.forward.Forward method)</a>
 </li>
         <li><a href="developers_guide/ocean/generated/polaris.tasks.ocean.seamount.forward.Forward.compute_cell_count.html#polaris.tasks.ocean.seamount.forward.Forward.compute_cell_count">(polaris.tasks.ocean.seamount.forward.Forward method)</a>
 </li>
@@ -1049,10 +1439,10 @@
 </li>
       <li><a href="developers_guide/ocean/generated/polaris.ocean.vertical.zlevel.compute_min_max_level_cell.html#polaris.ocean.vertical.zlevel.compute_min_max_level_cell">compute_min_max_level_cell() (in module polaris.ocean.vertical.zlevel)</a>
 </li>
-      <li><a href="developers_guide/generated/polaris.mesh.planar.compute_planar_hex_nx_ny.html#polaris.mesh.planar.compute_planar_hex_nx_ny">compute_planar_hex_nx_ny() (in module polaris.mesh.planar)</a>
-</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="developers_guide/generated/polaris.mesh.planar.compute_planar_hex_nx_ny.html#polaris.mesh.planar.compute_planar_hex_nx_ny">compute_planar_hex_nx_ny() (in module polaris.mesh.planar)</a>
+</li>
       <li><a href="developers_guide/generated/polaris.mesh.reconstruct.compute_reconstruction_weights.html#polaris.mesh.reconstruct.compute_reconstruction_weights">compute_reconstruction_weights() (in module polaris.mesh.reconstruct)</a>
 </li>
       <li><a href="developers_guide/ocean/generated/polaris.ocean.rpe.compute_rpe.html#polaris.ocean.rpe.compute_rpe">compute_rpe() (in module polaris.ocean.rpe)</a>
@@ -1195,6 +1585,8 @@
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="developers_guide/ocean/generated/polaris.tasks.ocean.horiz_press_grad.reference.ReferenceColumn.dalpha_dx.html#polaris.tasks.ocean.horiz_press_grad.reference.ReferenceColumn.dalpha_dx">dalpha_dx() (polaris.tasks.ocean.horiz_press_grad.reference.ReferenceColumn method)</a>
 </li>
+      <li><a href="developers_guide/ocean/generated/polaris.tasks.ocean.realistic_global.forward.initial_condition.DatabaseInitialCondition.html#polaris.tasks.ocean.realistic_global.forward.initial_condition.DatabaseInitialCondition">DatabaseInitialCondition (class in polaris.tasks.ocean.realistic_global.forward.initial_condition)</a>
+</li>
       <li><a href="developers_guide/ocean/generated/polaris.ocean.model.days_per_year.html#polaris.ocean.model.days_per_year">days_per_year() (in module polaris.ocean.model)</a>
 </li>
       <li><a href="developers_guide/ocean/generated/polaris.tasks.ocean.baroclinic_channel.decomp.Decomp.html#polaris.tasks.ocean.baroclinic_channel.decomp.Decomp">Decomp (class in polaris.tasks.ocean.baroclinic_channel.decomp)</a>
@@ -1231,10 +1623,10 @@
 </li>
       <li><a href="developers_guide/generated/polaris.viz.determine_time_variable.html#polaris.viz.determine_time_variable">determine_time_variable() (in module polaris.viz)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="developers_guide/ocean/generated/polaris.ocean.global_stats_names.discover_fields.html#polaris.ocean.global_stats_names.discover_fields">discover_fields() (in module polaris.ocean.global_stats_names)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="developers_guide/generated/polaris.io.download.html#polaris.io.download">download() (in module polaris.io)</a>
 </li>
       <li><a href="developers_guide/generated/polaris.cf.drop_dangling_references.html#polaris.cf.drop_dangling_references">drop_dangling_references() (in module polaris.cf)</a>
@@ -1263,6 +1655,12 @@
         <li><a href="developers_guide/ocean/generated/polaris.tasks.ocean.merry_go_round.forward.Forward.dynamic_model_config.html#polaris.tasks.ocean.merry_go_round.forward.Forward.dynamic_model_config">(polaris.tasks.ocean.merry_go_round.forward.Forward method)</a>
 </li>
         <li><a href="developers_guide/ocean/generated/polaris.tasks.ocean.overflow.forward.Forward.dynamic_model_config.html#polaris.tasks.ocean.overflow.forward.Forward.dynamic_model_config">(polaris.tasks.ocean.overflow.forward.Forward method)</a>
+</li>
+        <li><a href="developers_guide/ocean/generated/polaris.tasks.ocean.realistic_global.analysis_output.AnalysisOutputForward.dynamic_model_config.html#polaris.tasks.ocean.realistic_global.analysis_output.AnalysisOutputForward.dynamic_model_config">(polaris.tasks.ocean.realistic_global.analysis_output.AnalysisOutputForward method)</a>
+</li>
+        <li><a href="developers_guide/ocean/generated/polaris.tasks.ocean.realistic_global.forward.forward.Forward.dynamic_model_config.html#polaris.tasks.ocean.realistic_global.forward.forward.Forward.dynamic_model_config">(polaris.tasks.ocean.realistic_global.forward.forward.Forward method)</a>
+</li>
+        <li><a href="developers_guide/ocean/generated/polaris.tasks.ocean.realistic_global.restart.restart_step.RestartStep.dynamic_model_config.html#polaris.tasks.ocean.realistic_global.restart.restart_step.RestartStep.dynamic_model_config">(polaris.tasks.ocean.realistic_global.restart.restart_step.RestartStep method)</a>
 </li>
         <li><a href="developers_guide/ocean/generated/polaris.tasks.ocean.seamount.forward.Forward.dynamic_model_config.html#polaris.tasks.ocean.seamount.forward.Forward.dynamic_model_config">(polaris.tasks.ocean.seamount.forward.Forward method)</a>
 </li>
@@ -1366,9 +1764,7 @@
 </li>
         <li><a href="developers_guide/ocean/generated/polaris.tasks.ocean.overflow.forward.Forward.html#polaris.tasks.ocean.overflow.forward.Forward">(class in polaris.tasks.ocean.overflow.forward)</a>
 </li>
-        <li><a href="developers_guide/ocean/generated/polaris.tasks.ocean.realistic_global.analysis_members.forward.Forward.html#polaris.tasks.ocean.realistic_global.analysis_members.forward.Forward">(class in polaris.tasks.ocean.realistic_global.analysis_members.forward)</a>
-</li>
-        <li><a href="developers_guide/ocean/generated/polaris.tasks.ocean.realistic_global.forward.Forward.html#polaris.tasks.ocean.realistic_global.forward.Forward">(class in polaris.tasks.ocean.realistic_global.forward)</a>
+        <li><a href="developers_guide/ocean/generated/polaris.tasks.ocean.realistic_global.forward.forward.Forward.html#polaris.tasks.ocean.realistic_global.forward.forward.Forward">(class in polaris.tasks.ocean.realistic_global.forward.forward)</a>
 </li>
         <li><a href="developers_guide/ocean/generated/polaris.tasks.ocean.seamount.forward.Forward.html#polaris.tasks.ocean.seamount.forward.Forward">(class in polaris.tasks.ocean.seamount.forward)</a>
 </li>
@@ -1381,6 +1777,10 @@
       </ul></li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="developers_guide/ocean/generated/polaris.tasks.ocean.realistic_global.forward.stage.ForwardStage.html#polaris.tasks.ocean.realistic_global.forward.stage.ForwardStage">ForwardStage (class in polaris.tasks.ocean.realistic_global.forward.stage)</a>
+</li>
+      <li><a href="developers_guide/ocean/generated/polaris.tasks.ocean.realistic_global.forward.stage.ForwardStage.from_config.html#polaris.tasks.ocean.realistic_global.forward.stage.ForwardStage.from_config">from_config() (polaris.tasks.ocean.realistic_global.forward.stage.ForwardStage class method)</a>
+</li>
       <li><a href="developers_guide/generated/polaris.analysis.manifest.Product.from_dict.html#polaris.analysis.manifest.Product.from_dict">from_dict() (polaris.analysis.manifest.Product static method)</a>
 </li>
   </ul></td>
@@ -1408,6 +1808,8 @@
       <li><a href="developers_guide/generated/polaris.mesh.base.get_base_mesh_step_names.html#polaris.mesh.base.get_base_mesh_step_names">get_base_mesh_step_names() (in module polaris.mesh.base)</a>
 </li>
       <li><a href="developers_guide/generated/polaris.mesh.base.get_base_mesh_steps.html#polaris.mesh.base.get_base_mesh_steps">get_base_mesh_steps() (in module polaris.mesh.base)</a>
+</li>
+      <li><a href="developers_guide/ocean/generated/polaris.tasks.ocean.realistic_global.forward.tasks.get_cached_initial_condition.html#polaris.tasks.ocean.realistic_global.forward.tasks.get_cached_initial_condition">get_cached_initial_condition() (in module polaris.tasks.ocean.realistic_global.forward.tasks)</a>
 </li>
       <li><a href="developers_guide/generated/polaris.mesh.IcosahedralMeshStep.get_cell_width.html#polaris.mesh.IcosahedralMeshStep.get_cell_width">get_cell_width() (polaris.mesh.IcosahedralMeshStep static method)</a>
 </li>
@@ -1438,7 +1840,13 @@
       <li><a href="developers_guide/ocean/generated/polaris.tasks.ocean.analysis.climatology_maps.get_field_groups.html#polaris.tasks.ocean.analysis.climatology_maps.get_field_groups">get_field_groups() (in module polaris.tasks.ocean.analysis.climatology_maps)</a>
 </li>
       <li><a href="developers_guide/ocean/generated/polaris.ocean.model.OceanIOStep.get_forcing_filename.html#polaris.ocean.model.OceanIOStep.get_forcing_filename">get_forcing_filename() (polaris.ocean.model.OceanIOStep method)</a>
+
+      <ul>
+        <li><a href="developers_guide/ocean/generated/polaris.tasks.ocean.realistic_global.forward.initial_condition.DatabaseInitialCondition.get_forcing_filename.html#polaris.tasks.ocean.realistic_global.forward.initial_condition.DatabaseInitialCondition.get_forcing_filename">(polaris.tasks.ocean.realistic_global.forward.initial_condition.DatabaseInitialCondition method)</a>
 </li>
+        <li><a href="developers_guide/ocean/generated/polaris.tasks.ocean.realistic_global.forward.initial_condition.InitialCondition.get_forcing_filename.html#polaris.tasks.ocean.realistic_global.forward.initial_condition.InitialCondition.get_forcing_filename">(polaris.tasks.ocean.realistic_global.forward.initial_condition.InitialCondition method)</a>
+</li>
+      </ul></li>
       <li><a href="developers_guide/ocean/generated/polaris.ocean.model.OceanIOStep.get_horiz_mesh_filename.html#polaris.ocean.model.OceanIOStep.get_horiz_mesh_filename">get_horiz_mesh_filename() (polaris.ocean.model.OceanIOStep method)</a>
 </li>
       <li><a href="developers_guide/ocean/generated/polaris.ocean.model.OceanIOStep.get_init_filename.html#polaris.ocean.model.OceanIOStep.get_init_filename">get_init_filename() (polaris.ocean.model.OceanIOStep method)</a>
@@ -1448,6 +1856,8 @@
       <li><a href="developers_guide/e3sm/init/generated/polaris.tasks.e3sm.init.topo.combine.get_lat_lon_topo_steps.html#polaris.tasks.e3sm.init.topo.combine.get_lat_lon_topo_steps">get_lat_lon_topo_steps() (in module polaris.tasks.e3sm.init.topo.combine)</a>
 </li>
       <li><a href="developers_guide/ocean/generated/polaris.tasks.ocean.realistic_global.mesh_configs.get_mesh_config_names.html#polaris.tasks.ocean.realistic_global.mesh_configs.get_mesh_config_names">get_mesh_config_names() (in module polaris.tasks.ocean.realistic_global.mesh_configs)</a>
+</li>
+      <li><a href="developers_guide/ocean/generated/polaris.tasks.ocean.realistic_global.analysis_output.forward.get_monthly_filenames.html#polaris.tasks.ocean.realistic_global.analysis_output.forward.get_monthly_filenames">get_monthly_filenames() (in module polaris.tasks.ocean.realistic_global.analysis_output.forward)</a>
 </li>
       <li><a href="developers_guide/e3sm/init/generated/polaris.tasks.e3sm.init.topo.combine.CombineStep.get_name.html#polaris.tasks.e3sm.init.topo.combine.CombineStep.get_name">get_name() (polaris.tasks.e3sm.init.topo.combine.CombineStep class method)</a>
 </li>
@@ -1463,10 +1873,10 @@
         <li><a href="developers_guide/ocean/generated/polaris.tasks.ocean.geostrophic.analysis.Analysis.get_output_field.html#polaris.tasks.ocean.geostrophic.analysis.Analysis.get_output_field">(polaris.tasks.ocean.geostrophic.analysis.Analysis method)</a>
 </li>
       </ul></li>
-      <li><a href="developers_guide/generated/polaris.constants.pcd.get_pcd_version.html#polaris.constants.pcd.get_pcd_version">get_pcd_version() (in module polaris.constants.pcd)</a>
-</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="developers_guide/generated/polaris.constants.pcd.get_pcd_version.html#polaris.constants.pcd.get_pcd_version">get_pcd_version() (in module polaris.constants.pcd)</a>
+</li>
       <li><a href="developers_guide/generated/polaris.constants.pcd.get_pcd_version_from_file.html#polaris.constants.pcd.get_pcd_version_from_file">get_pcd_version_from_file() (in module polaris.constants.pcd)</a>
 </li>
       <li><a href="developers_guide/generated/polaris.viz.get_projection.html#polaris.viz.get_projection">get_projection() (in module polaris.viz)</a>
@@ -1557,6 +1967,8 @@
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="developers_guide/ocean/generated/polaris.tasks.ocean.analysis.HeatContentSeriesTask.html#polaris.tasks.ocean.analysis.HeatContentSeriesTask">HeatContentSeriesTask (class in polaris.tasks.ocean.analysis)</a>
 </li>
+      <li><a href="developers_guide/ocean/generated/polaris.tasks.ocean.realistic_global.forward.stage.ForwardStage.horiz_mixing_options.html#polaris.tasks.ocean.realistic_global.forward.stage.ForwardStage.horiz_mixing_options">horiz_mixing_options() (polaris.tasks.ocean.realistic_global.forward.stage.ForwardStage method)</a>
+</li>
       <li><a href="developers_guide/ocean/generated/polaris.tasks.ocean.horiz_press_grad.task.HorizPressGradTask.html#polaris.tasks.ocean.horiz_press_grad.task.HorizPressGradTask">HorizPressGradTask (class in polaris.tasks.ocean.horiz_press_grad.task)</a>
 </li>
       <li><a href="developers_guide/ocean/generated/polaris.tasks.ocean.horiz_press_grad.reference.ReferenceColumn.hpga.html#polaris.tasks.ocean.horiz_press_grad.reference.ReferenceColumn.hpga">hpga() (polaris.tasks.ocean.horiz_press_grad.reference.ReferenceColumn method)</a>
@@ -1634,6 +2046,8 @@
       <li><a href="developers_guide/ocean/generated/polaris.ocean.vertical.zlevel.init_z_level_vertical_coord.html#polaris.ocean.vertical.zlevel.init_z_level_vertical_coord">init_z_level_vertical_coord() (in module polaris.ocean.vertical.zlevel)</a>
 </li>
       <li><a href="developers_guide/ocean/generated/polaris.ocean.vertical.zstar.init_z_star_vertical_coord.html#polaris.ocean.vertical.zstar.init_z_star_vertical_coord">init_z_star_vertical_coord() (in module polaris.ocean.vertical.zstar)</a>
+</li>
+      <li><a href="developers_guide/ocean/generated/polaris.tasks.ocean.realistic_global.forward.initial_condition.InitialCondition.html#polaris.tasks.ocean.realistic_global.forward.initial_condition.InitialCondition">InitialCondition (class in polaris.tasks.ocean.realistic_global.forward.initial_condition)</a>
 </li>
       <li><a href="developers_guide/ocean/generated/polaris.tasks.ocean.realistic_global.init.initial_state.InitialStateStep.html#polaris.tasks.ocean.realistic_global.init.initial_state.InitialStateStep">InitialStateStep (class in polaris.tasks.ocean.realistic_global.init.initial_state)</a>
 </li>
@@ -1753,14 +2167,14 @@
 </li>
       <li><a href="developers_guide/ocean/generated/polaris.tasks.ocean.Ocean.map_var_list_to_native_model.html#polaris.tasks.ocean.Ocean.map_var_list_to_native_model">map_var_list_to_native_model() (polaris.tasks.ocean.Ocean method)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="developers_guide/generated/polaris.ModelStep.map_yaml_configs.html#polaris.ModelStep.map_yaml_configs">map_yaml_configs() (polaris.ModelStep method)</a>
 
       <ul>
         <li><a href="developers_guide/ocean/generated/polaris.ocean.model.OceanModelStep.map_yaml_configs.html#polaris.ocean.model.OceanModelStep.map_yaml_configs">(polaris.ocean.model.OceanModelStep method)</a>
 </li>
       </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="developers_guide/generated/polaris.ModelStep.map_yaml_options.html#polaris.ModelStep.map_yaml_options">map_yaml_options() (polaris.ModelStep method)</a>
 
       <ul>
@@ -1787,6 +2201,8 @@
 </li>
       <li><a href="developers_guide/ocean/generated/polaris.tasks.ocean.analysis.MocTask.html#polaris.tasks.ocean.analysis.MocTask">MocTask (class in polaris.tasks.ocean.analysis)</a>
 </li>
+      <li><a href="developers_guide/ocean/generated/polaris.tasks.ocean.realistic_global.forward.stage.ForwardStage.model_replacements.html#polaris.tasks.ocean.realistic_global.forward.stage.ForwardStage.model_replacements">model_replacements() (polaris.tasks.ocean.realistic_global.forward.stage.ForwardStage method)</a>
+</li>
       <li><a href="developers_guide/generated/polaris.ModelStep.html#polaris.ModelStep">ModelStep (class in polaris)</a>
 </li>
       <li><a href="developers_guide/ocean/generated/polaris.tasks.ocean.analysis.sim_files.SimulationFiles.monthly_mean_files.html#polaris.tasks.ocean.analysis.sim_files.SimulationFiles.monthly_mean_files">monthly_mean_files() (polaris.tasks.ocean.analysis.sim_files.SimulationFiles method)</a>
@@ -1794,6 +2210,8 @@
       <li><a href="developers_guide/generated/polaris.mesh.validate.MPAS_MESH_VALIDATE_VARS.html#polaris.mesh.validate.MPAS_MESH_VALIDATE_VARS">MPAS_MESH_VALIDATE_VARS (in module polaris.mesh.validate)</a>
 </li>
       <li><a href="developers_guide/generated/polaris.yaml.mpas_namelist_and_streams_to_yaml.html#polaris.yaml.mpas_namelist_and_streams_to_yaml">mpas_namelist_and_streams_to_yaml() (in module polaris.yaml)</a>
+</li>
+      <li><a href="developers_guide/ocean/generated/polaris.tasks.ocean.realistic_global.forward.stage.ForwardStage.mpaso_physics_options.html#polaris.tasks.ocean.realistic_global.forward.stage.ForwardStage.mpaso_physics_options">mpaso_physics_options() (polaris.tasks.ocean.realistic_global.forward.stage.ForwardStage method)</a>
 </li>
       <li><a href="developers_guide/generated/polaris.viz.mplstyle_context.html#polaris.viz.mplstyle_context">mplstyle_context() (in module polaris.viz)</a>
 </li>
@@ -1831,8 +2249,14 @@
 </li>
       <li><a href="developers_guide/ocean/generated/polaris.ocean.model.OceanModelStep.html#polaris.ocean.model.OceanModelStep">OceanModelStep (class in polaris.ocean.model)</a>
 </li>
+      <li><a href="developers_guide/ocean/generated/polaris.tasks.ocean.realistic_global.forward.stage.ForwardStage.omega_hmix_ratio.html#polaris.tasks.ocean.realistic_global.forward.stage.ForwardStage.omega_hmix_ratio">omega_hmix_ratio() (polaris.tasks.ocean.realistic_global.forward.stage.ForwardStage method)</a>
+</li>
+      <li><a href="developers_guide/ocean/generated/polaris.tasks.ocean.realistic_global.forward.stage.omega_median_cell_width.html#polaris.tasks.ocean.realistic_global.forward.stage.omega_median_cell_width">omega_median_cell_width() (in module polaris.tasks.ocean.realistic_global.forward.stage)</a>
+</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="developers_guide/ocean/generated/polaris.tasks.ocean.realistic_global.forward.stage.ForwardStage.omega_physics_options.html#polaris.tasks.ocean.realistic_global.forward.stage.ForwardStage.omega_physics_options">omega_physics_options() (polaris.tasks.ocean.realistic_global.forward.stage.ForwardStage method)</a>
+</li>
       <li><a href="developers_guide/ocean/generated/polaris.tasks.ocean.analysis.sim_files.OmegaConfig.html#polaris.tasks.ocean.analysis.sim_files.OmegaConfig">OmegaConfig (class in polaris.tasks.ocean.analysis.sim_files)</a>
 </li>
       <li><a href="developers_guide/generated/polaris.run.topology.one_thread_per_core.html#polaris.run.topology.one_thread_per_core">one_thread_per_core() (in module polaris.run.topology)</a>
@@ -1967,6 +2391,8 @@
 </li>
       <li><a href="developers_guide/generated/polaris.cf.read_var_attrs.html#polaris.cf.read_var_attrs">read_var_attrs() (in module polaris.cf)</a>
 </li>
+      <li><a href="developers_guide/ocean/generated/polaris.tasks.ocean.realistic_global.forward.task.RealisticGlobalForward.html#polaris.tasks.ocean.realistic_global.forward.task.RealisticGlobalForward">RealisticGlobalForward (class in polaris.tasks.ocean.realistic_global.forward.task)</a>
+</li>
       <li><a href="developers_guide/ocean/generated/polaris.tasks.ocean.realistic_global.init.task.RealisticGlobalInit.html#polaris.tasks.ocean.realistic_global.init.task.RealisticGlobalInit">RealisticGlobalInit (class in polaris.tasks.ocean.realistic_global.init.task)</a>
 </li>
       <li><a href="developers_guide/ocean/generated/polaris.tasks.ocean.realistic_global.init.pstar_init.RealisticPStarInitStep.html#polaris.tasks.ocean.realistic_global.init.pstar_init.RealisticPStarInitStep">RealisticPStarInitStep (class in polaris.tasks.ocean.realistic_global.init.pstar_init)</a>
@@ -2025,6 +2451,8 @@
         <li><a href="developers_guide/ocean/generated/polaris.tasks.ocean.realistic_global.restart.Restart.html#polaris.tasks.ocean.realistic_global.restart.Restart">(class in polaris.tasks.ocean.realistic_global.restart)</a>
 </li>
       </ul></li>
+      <li><a href="developers_guide/ocean/generated/polaris.tasks.ocean.realistic_global.forward.stage.ForwardStage.restart_stream_replacements.html#polaris.tasks.ocean.realistic_global.forward.stage.ForwardStage.restart_stream_replacements">restart_stream_replacements() (polaris.tasks.ocean.realistic_global.forward.stage.ForwardStage method)</a>
+</li>
       <li><a href="developers_guide/ocean/generated/polaris.tasks.ocean.cosine_bell.restart.RestartStep.html#polaris.tasks.ocean.cosine_bell.restart.RestartStep">RestartStep (class in polaris.tasks.ocean.cosine_bell.restart)</a>
 
       <ul>
@@ -2176,11 +2604,13 @@
 </li>
         <li><a href="developers_guide/ocean/generated/polaris.tasks.ocean.overflow.viz.Viz.run.html#polaris.tasks.ocean.overflow.viz.Viz.run">(polaris.tasks.ocean.overflow.viz.Viz method)</a>
 </li>
-        <li><a href="developers_guide/ocean/generated/polaris.tasks.ocean.realistic_global.analysis_members.stats_analysis.StatsAnalysis.run.html#polaris.tasks.ocean.realistic_global.analysis_members.stats_analysis.StatsAnalysis.run">(polaris.tasks.ocean.realistic_global.analysis_members.stats_analysis.StatsAnalysis method)</a>
-</li>
         <li><a href="developers_guide/ocean/generated/polaris.tasks.ocean.realistic_global.forcing.jra55.Jra55StressStep.run.html#polaris.tasks.ocean.realistic_global.forcing.jra55.Jra55StressStep.run">(polaris.tasks.ocean.realistic_global.forcing.jra55.Jra55StressStep method)</a>
 </li>
         <li><a href="developers_guide/ocean/generated/polaris.tasks.ocean.realistic_global.forcing.jra55.Jra55VizStep.run.html#polaris.tasks.ocean.realistic_global.forcing.jra55.Jra55VizStep.run">(polaris.tasks.ocean.realistic_global.forcing.jra55.Jra55VizStep method)</a>
+</li>
+        <li><a href="developers_guide/ocean/generated/polaris.tasks.ocean.realistic_global.forward.stats_analysis.StatsAnalysis.run.html#polaris.tasks.ocean.realistic_global.forward.stats_analysis.StatsAnalysis.run">(polaris.tasks.ocean.realistic_global.forward.stats_analysis.StatsAnalysis method)</a>
+</li>
+        <li><a href="developers_guide/ocean/generated/polaris.tasks.ocean.realistic_global.forward.viz.Viz.run.html#polaris.tasks.ocean.realistic_global.forward.viz.Viz.run">(polaris.tasks.ocean.realistic_global.forward.viz.Viz method)</a>
 </li>
         <li><a href="developers_guide/ocean/generated/polaris.tasks.ocean.realistic_global.hydrography.woa23.CombineStep.run.html#polaris.tasks.ocean.realistic_global.hydrography.woa23.CombineStep.run">(polaris.tasks.ocean.realistic_global.hydrography.woa23.CombineStep method)</a>
 </li>
@@ -2203,8 +2633,6 @@
         <li><a href="developers_guide/ocean/generated/polaris.tasks.ocean.realistic_global.init.viz.VizInitStep.run.html#polaris.tasks.ocean.realistic_global.init.viz.VizInitStep.run">(polaris.tasks.ocean.realistic_global.init.viz.VizInitStep method)</a>
 </li>
         <li><a href="developers_guide/ocean/generated/polaris.tasks.ocean.realistic_global.restart.validate.Validate.run.html#polaris.tasks.ocean.realistic_global.restart.validate.Validate.run">(polaris.tasks.ocean.realistic_global.restart.validate.Validate method)</a>
-</li>
-        <li><a href="developers_guide/ocean/generated/polaris.tasks.ocean.realistic_global.viz.Viz.run.html#polaris.tasks.ocean.realistic_global.viz.Viz.run">(polaris.tasks.ocean.realistic_global.viz.Viz method)</a>
 </li>
         <li><a href="developers_guide/ocean/generated/polaris.tasks.ocean.seamount.init.Init.run.html#polaris.tasks.ocean.seamount.init.Init.run">(polaris.tasks.ocean.seamount.init.Init method)</a>
 </li>
@@ -2275,8 +2703,6 @@
         <li><a href="developers_guide/ocean/generated/polaris.tasks.ocean.customizable_viz.VizHorizField.runtime_setup.html#polaris.tasks.ocean.customizable_viz.VizHorizField.runtime_setup">(polaris.tasks.ocean.customizable_viz.VizHorizField method)</a>
 </li>
         <li><a href="developers_guide/ocean/generated/polaris.tasks.ocean.customizable_viz.VizTransect.runtime_setup.html#polaris.tasks.ocean.customizable_viz.VizTransect.runtime_setup">(polaris.tasks.ocean.customizable_viz.VizTransect method)</a>
-</li>
-        <li><a href="developers_guide/ocean/generated/polaris.tasks.ocean.realistic_global.forward.Forward.runtime_setup.html#polaris.tasks.ocean.realistic_global.forward.Forward.runtime_setup">(polaris.tasks.ocean.realistic_global.forward.Forward method)</a>
 </li>
         <li><a href="developers_guide/ocean/generated/polaris.tasks.ocean.realistic_global.init.lat_lon_map.LatLonMapStep.runtime_setup.html#polaris.tasks.ocean.realistic_global.init.lat_lon_map.LatLonMapStep.runtime_setup">(polaris.tasks.ocean.realistic_global.init.lat_lon_map.LatLonMapStep method)</a>
 </li>
@@ -2412,15 +2838,17 @@
 </li>
         <li><a href="developers_guide/ocean/generated/polaris.tasks.ocean.overflow.pstar_init.PStarInit.setup.html#polaris.tasks.ocean.overflow.pstar_init.PStarInit.setup">(polaris.tasks.ocean.overflow.pstar_init.PStarInit method)</a>
 </li>
-        <li><a href="developers_guide/ocean/generated/polaris.tasks.ocean.realistic_global.analysis_members.forward.Forward.setup.html#polaris.tasks.ocean.realistic_global.analysis_members.forward.Forward.setup">(polaris.tasks.ocean.realistic_global.analysis_members.forward.Forward method)</a>
-</li>
-        <li><a href="developers_guide/ocean/generated/polaris.tasks.ocean.realistic_global.analysis_members.stats_analysis.StatsAnalysis.setup.html#polaris.tasks.ocean.realistic_global.analysis_members.stats_analysis.StatsAnalysis.setup">(polaris.tasks.ocean.realistic_global.analysis_members.stats_analysis.StatsAnalysis method)</a>
+        <li><a href="developers_guide/ocean/generated/polaris.tasks.ocean.realistic_global.analysis_output.AnalysisOutputForward.setup.html#polaris.tasks.ocean.realistic_global.analysis_output.AnalysisOutputForward.setup">(polaris.tasks.ocean.realistic_global.analysis_output.AnalysisOutputForward method)</a>
 </li>
         <li><a href="developers_guide/ocean/generated/polaris.tasks.ocean.realistic_global.forcing.jra55.Jra55StressStep.setup.html#polaris.tasks.ocean.realistic_global.forcing.jra55.Jra55StressStep.setup">(polaris.tasks.ocean.realistic_global.forcing.jra55.Jra55StressStep method)</a>
 </li>
         <li><a href="developers_guide/ocean/generated/polaris.tasks.ocean.realistic_global.forcing.jra55.Jra55VizStep.setup.html#polaris.tasks.ocean.realistic_global.forcing.jra55.Jra55VizStep.setup">(polaris.tasks.ocean.realistic_global.forcing.jra55.Jra55VizStep method)</a>
 </li>
-        <li><a href="developers_guide/ocean/generated/polaris.tasks.ocean.realistic_global.forward.Forward.setup.html#polaris.tasks.ocean.realistic_global.forward.Forward.setup">(polaris.tasks.ocean.realistic_global.forward.Forward method)</a>
+        <li><a href="developers_guide/ocean/generated/polaris.tasks.ocean.realistic_global.forward.forward.Forward.setup.html#polaris.tasks.ocean.realistic_global.forward.forward.Forward.setup">(polaris.tasks.ocean.realistic_global.forward.forward.Forward method)</a>
+</li>
+        <li><a href="developers_guide/ocean/generated/polaris.tasks.ocean.realistic_global.forward.stats_analysis.StatsAnalysis.setup.html#polaris.tasks.ocean.realistic_global.forward.stats_analysis.StatsAnalysis.setup">(polaris.tasks.ocean.realistic_global.forward.stats_analysis.StatsAnalysis method)</a>
+</li>
+        <li><a href="developers_guide/ocean/generated/polaris.tasks.ocean.realistic_global.forward.viz.Viz.setup.html#polaris.tasks.ocean.realistic_global.forward.viz.Viz.setup">(polaris.tasks.ocean.realistic_global.forward.viz.Viz method)</a>
 </li>
         <li><a href="developers_guide/ocean/generated/polaris.tasks.ocean.realistic_global.hydrography.woa23.CombineStep.setup.html#polaris.tasks.ocean.realistic_global.hydrography.woa23.CombineStep.setup">(polaris.tasks.ocean.realistic_global.hydrography.woa23.CombineStep method)</a>
 </li>
@@ -2519,13 +2947,19 @@
 </li>
       <li><a href="developers_guide/generated/polaris.run.executor.start_step.html#polaris.run.executor.start_step">start_step() (in module polaris.run.executor)</a>
 </li>
-      <li><a href="developers_guide/ocean/generated/polaris.tasks.ocean.realistic_global.analysis_members.stats_analysis.StatsAnalysis.html#polaris.tasks.ocean.realistic_global.analysis_members.stats_analysis.StatsAnalysis">StatsAnalysis (class in polaris.tasks.ocean.realistic_global.analysis_members.stats_analysis)</a>
+      <li><a href="developers_guide/ocean/generated/polaris.tasks.ocean.realistic_global.forward.stage.ForwardStage.stats_filename.html#polaris.tasks.ocean.realistic_global.forward.stage.ForwardStage.stats_filename">stats_filename() (polaris.tasks.ocean.realistic_global.forward.stage.ForwardStage method)</a>
+</li>
+      <li><a href="developers_guide/ocean/generated/polaris.tasks.ocean.realistic_global.forward.stage.ForwardStage.stats_period.html#polaris.tasks.ocean.realistic_global.forward.stage.ForwardStage.stats_period">stats_period() (polaris.tasks.ocean.realistic_global.forward.stage.ForwardStage method)</a>
+</li>
+      <li><a href="developers_guide/ocean/generated/polaris.tasks.ocean.realistic_global.forward.stats_analysis.StatsAnalysis.html#polaris.tasks.ocean.realistic_global.forward.stats_analysis.StatsAnalysis">StatsAnalysis (class in polaris.tasks.ocean.realistic_global.forward.stats_analysis)</a>
 </li>
       <li><a href="developers_guide/generated/polaris.Step.html#polaris.Step">Step (class in polaris)</a>
 </li>
       <li><a href="developers_guide/generated/polaris.run.lifecycle.step_is_complete.html#polaris.run.lifecycle.step_is_complete">step_is_complete() (in module polaris.run.lifecycle)</a>
 </li>
       <li><a href="developers_guide/generated/polaris.run.graph.StepGraph.html#polaris.run.graph.StepGraph">StepGraph (class in polaris.run.graph)</a>
+</li>
+      <li><a href="developers_guide/ocean/generated/polaris.tasks.ocean.realistic_global.forward.initial_condition.StepInitialCondition.html#polaris.tasks.ocean.realistic_global.forward.initial_condition.StepInitialCondition">StepInitialCondition (class in polaris.tasks.ocean.realistic_global.forward.initial_condition)</a>
 </li>
       <li><a href="developers_guide/generated/polaris.run.graph.StepNode.html#polaris.run.graph.StepNode">StepNode (class in polaris.run.graph)</a>
 </li>
@@ -2536,6 +2970,8 @@
       <li><a href="developers_guide/ocean/generated/polaris.tasks.ocean.analysis.sim_files.OmegaConfig.stream_status.html#polaris.tasks.ocean.analysis.sim_files.OmegaConfig.stream_status">stream_status() (polaris.tasks.ocean.analysis.sim_files.OmegaConfig method)</a>
 </li>
       <li><a href="developers_guide/ocean/generated/polaris.tasks.ocean.realistic_global.init.remap_jra55.stress_to_cartesian.html#polaris.tasks.ocean.realistic_global.init.remap_jra55.stress_to_cartesian">stress_to_cartesian() (in module polaris.tasks.ocean.realistic_global.init.remap_jra55)</a>
+</li>
+      <li><a href="developers_guide/ocean/generated/polaris.tasks.ocean.realistic_global.forward.stage.ForwardStage.submesoscale_options.html#polaris.tasks.ocean.realistic_global.forward.stage.ForwardStage.submesoscale_options">submesoscale_options() (polaris.tasks.ocean.realistic_global.forward.stage.ForwardStage method)</a>
 </li>
       <li><a href="developers_guide/generated/polaris.job.SubmissionError.html#polaris.job.SubmissionError">SubmissionError</a>
 </li>
@@ -2639,6 +3075,8 @@
 </li>
       <li><a href="developers_guide/ocean/generated/polaris.tasks.ocean.analysis.sim_files.SimulationFiles.vert_coord_filename.html#polaris.tasks.ocean.analysis.sim_files.SimulationFiles.vert_coord_filename">vert_coord_filename() (polaris.tasks.ocean.analysis.sim_files.SimulationFiles method)</a>
 </li>
+      <li><a href="developers_guide/ocean/generated/polaris.tasks.ocean.realistic_global.forward.stage.ForwardStage.vert_mixing_options.html#polaris.tasks.ocean.realistic_global.forward.stage.ForwardStage.vert_mixing_options">vert_mixing_options() (polaris.tasks.ocean.realistic_global.forward.stage.ForwardStage method)</a>
+</li>
       <li><a href="developers_guide/ocean/generated/polaris.ocean.vertical.diagnostics.vert_pseudo_velocity_from_ds.html#polaris.ocean.vertical.diagnostics.vert_pseudo_velocity_from_ds">vert_pseudo_velocity_from_ds() (in module polaris.ocean.vertical.diagnostics)</a>
 </li>
       <li><a href="developers_guide/ocean/generated/polaris.ocean.vertical.diagnostics.vert_velocity_top_from_ds.html#polaris.ocean.vertical.diagnostics.vert_velocity_top_from_ds">vert_velocity_top_from_ds() (in module polaris.ocean.vertical.diagnostics)</a>
@@ -2670,7 +3108,7 @@
 </li>
         <li><a href="developers_guide/ocean/generated/polaris.tasks.ocean.overflow.viz.Viz.html#polaris.tasks.ocean.overflow.viz.Viz">(class in polaris.tasks.ocean.overflow.viz)</a>
 </li>
-        <li><a href="developers_guide/ocean/generated/polaris.tasks.ocean.realistic_global.viz.Viz.html#polaris.tasks.ocean.realistic_global.viz.Viz">(class in polaris.tasks.ocean.realistic_global.viz)</a>
+        <li><a href="developers_guide/ocean/generated/polaris.tasks.ocean.realistic_global.forward.viz.Viz.html#polaris.tasks.ocean.realistic_global.forward.viz.Viz">(class in polaris.tasks.ocean.realistic_global.forward.viz)</a>
 </li>
         <li><a href="developers_guide/ocean/generated/polaris.tasks.ocean.seamount.viz.Viz.html#polaris.tasks.ocean.seamount.viz.Viz">(class in polaris.tasks.ocean.seamount.viz)</a>
 </li>
@@ -2714,6 +3152,8 @@
       <li><a href="developers_guide/generated/polaris.mesh.spherical.unified.effective_ocean.widen_passages.html#polaris.mesh.spherical.unified.effective_ocean.widen_passages">widen_passages() (in module polaris.mesh.spherical.unified.effective_ocean)</a>
 </li>
       <li><a href="developers_guide/ocean/generated/polaris.tasks.ocean.realistic_global.forcing.jra55.stress.wind_stress.html#polaris.tasks.ocean.realistic_global.forcing.jra55.stress.wind_stress">wind_stress() (in module polaris.tasks.ocean.realistic_global.forcing.jra55.stress)</a>
+</li>
+      <li><a href="developers_guide/ocean/generated/polaris.tasks.ocean.realistic_global.forward.stage.ForwardStage.with_median_reference.html#polaris.tasks.ocean.realistic_global.forward.stage.ForwardStage.with_median_reference">with_median_reference() (polaris.tasks.ocean.realistic_global.forward.stage.ForwardStage method)</a>
 </li>
       <li><a href="developers_guide/generated/polaris.run.topology.with_siblings.html#polaris.run.topology.with_siblings">with_siblings() (in module polaris.run.topology)</a>
 </li>

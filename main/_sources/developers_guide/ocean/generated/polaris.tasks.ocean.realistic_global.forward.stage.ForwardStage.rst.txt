@@ -1,0 +1,77 @@
+﻿polaris.tasks.ocean.realistic\_global.forward.stage.ForwardStage
+================================================================
+
+.. currentmodule:: polaris.tasks.ocean.realistic_global.forward.stage
+
+.. autoclass:: ForwardStage
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~ForwardStage.__init__
+      ~ForwardStage.bottom_drag_options
+      ~ForwardStage.check_damping_supported
+      ~ForwardStage.from_config
+      ~ForwardStage.horiz_mixing_options
+      ~ForwardStage.model_replacements
+      ~ForwardStage.mpaso_physics_options
+      ~ForwardStage.omega_hmix_ratio
+      ~ForwardStage.omega_physics_options
+      ~ForwardStage.omega_restart_write_dir
+      ~ForwardStage.restart_files
+      ~ForwardStage.restart_stream_replacements
+      ~ForwardStage.stats_filename
+      ~ForwardStage.stats_period
+      ~ForwardStage.submesoscale_options
+      ~ForwardStage.vert_mixing_options
+      ~ForwardStage.with_median_reference
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~ForwardStage.GM_closure
+      ~ForwardStage.GM_constant_kappa
+      ~ForwardStage.btr_dt
+      ~ForwardStage.btr_dt_per_km
+      ~ForwardStage.damping
+      ~ForwardStage.do_restart
+      ~ForwardStage.dt
+      ~ForwardStage.dt_per_km
+      ~ForwardStage.hmix_ref_cell_width
+      ~ForwardStage.hmix_scaling
+      ~ForwardStage.mom_del2
+      ~ForwardStage.mom_del4
+      ~ForwardStage.mom_del4_div_factor
+      ~ForwardStage.mpaso_time_integrator
+      ~ForwardStage.name
+      ~ForwardStage.omega_time_integrator
+      ~ForwardStage.output_density
+      ~ForwardStage.output_interval
+      ~ForwardStage.pressure_gradient_type
+      ~ForwardStage.restart_in
+      ~ForwardStage.restart_interval
+      ~ForwardStage.restart_out
+      ~ForwardStage.rk4_dt
+      ~ForwardStage.run_duration
+      ~ForwardStage.start_time
+      ~ForwardStage.stats_interval
+      ~ForwardStage.tracer_del2
+      ~ForwardStage.tracer_del4
+      ~ForwardStage.use_GM
+      ~ForwardStage.use_KPP
+      ~ForwardStage.use_Leith_del2
+      ~ForwardStage.use_Redi
+      ~ForwardStage.use_frazil_ice_formation
+      ~ForwardStage.use_submesoscale
+   
+   

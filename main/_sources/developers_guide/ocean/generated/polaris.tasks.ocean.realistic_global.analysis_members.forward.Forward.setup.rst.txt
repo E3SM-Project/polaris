@@ -1,6 +1,0 @@
-﻿polaris.tasks.ocean.realistic\_global.analysis\_members.forward.Forward.setup
-=============================================================================
-
-.. currentmodule:: polaris.tasks.ocean.realistic_global.analysis_members.forward
-
-.. automethod:: Forward.setup

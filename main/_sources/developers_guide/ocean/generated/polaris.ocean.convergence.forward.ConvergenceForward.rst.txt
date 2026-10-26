@@ -16,6 +16,7 @@
       ~ConvergenceForward.__init__
       ~ConvergenceForward.add_cf_check
       ~ConvergenceForward.add_dependency
+      ~ConvergenceForward.add_forcing_input_file
       ~ConvergenceForward.add_horiz_mesh_input_file
       ~ConvergenceForward.add_init_input_file
       ~ConvergenceForward.add_input_file

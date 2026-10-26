@@ -16,6 +16,7 @@
       ~ClimatologyMaps.__init__
       ~ClimatologyMaps.add_cf_check
       ~ClimatologyMaps.add_dependency
+      ~ClimatologyMaps.add_forcing_input_file
       ~ClimatologyMaps.add_horiz_mesh_input_file
       ~ClimatologyMaps.add_init_input_file
       ~ClimatologyMaps.add_input_file

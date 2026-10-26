@@ -16,6 +16,7 @@
       ~SphericalConvergenceForward.__init__
       ~SphericalConvergenceForward.add_cf_check
       ~SphericalConvergenceForward.add_dependency
+      ~SphericalConvergenceForward.add_forcing_input_file
       ~SphericalConvergenceForward.add_horiz_mesh_input_file
       ~SphericalConvergenceForward.add_init_input_file
       ~SphericalConvergenceForward.add_input_file

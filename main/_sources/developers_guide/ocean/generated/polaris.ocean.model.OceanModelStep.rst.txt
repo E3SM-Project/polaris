@@ -16,6 +16,7 @@
       ~OceanModelStep.__init__
       ~OceanModelStep.add_cf_check
       ~OceanModelStep.add_dependency
+      ~OceanModelStep.add_forcing_input_file
       ~OceanModelStep.add_horiz_mesh_input_file
       ~OceanModelStep.add_init_input_file
       ~OceanModelStep.add_input_file

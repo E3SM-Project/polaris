@@ -15,6 +15,364 @@
       <script src="../../../../../../_static/documentation_options.js?v=a8da1a53"></script>
       <script src="../../../../../../_static/doctools.js?v=fd6eb6e6"></script>
       <script src="../../../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script type="module">import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11.12.1/dist/mermaid.esm.min.mjs";
+
+
+
+
+
+const initStyles = () => {
+    const defaultStyle = document.createElement('style');
+    defaultStyle.textContent = "pre.mermaid {\n    /* Same as .mermaid-container > pre */\n    display: block;\n    width: 100%;\n}\n\npre.mermaid > svg {\n    /* Same as .mermaid-container > pre > svg */\n    height: 500px;\n    width: 100%;\n    max-width: 100% !important;\n}";
+    document.head.appendChild(defaultStyle);
+
+    const fullscreenStyle = document.createElement('style');
+    fullscreenStyle.textContent = ".mermaid-container {\n    position: relative;\n    display: flex;\n    flex-direction: row;\n    width: 100%;\n}\n\n.mermaid-container > pre {\n    display: block;\n    width: 100%;\n}\n\n.mermaid-container > pre > svg {\n    height: 500px;\n    width: 100%;\n    max-width: 100% !important;\n}\n\n.mermaid-fullscreen-btn {\n    position: absolute;\n    width: 28px;\n    height: 28px;\n    background: rgba(255, 255, 255, 0.95);\n    border: 1px solid rgba(0, 0, 0, 0.3);\n    border-radius: 4px;\n    cursor: pointer;\n    display: flex;\n    align-items: center;\n    justify-content: center;\n    transition: all 0.2s;\n    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);\n    font-size: 14px;\n    line-height: 1;\n    padding: 0;\n    color: #333;\n}\n\n.mermaid-fullscreen-btn:hover {\n    opacity: 100% !important;\n    background: rgba(255, 255, 255, 1);\n    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.3);\n    transform: scale(1.1);\n}\n\n.mermaid-fullscreen-btn.dark-theme {\n    background: rgba(50, 50, 50, 0.95);\n    border: 1px solid rgba(255, 255, 255, 0.3);\n    color: #e0e0e0;\n}\n\n.mermaid-fullscreen-btn.dark-theme:hover {\n    background: rgba(60, 60, 60, 1);\n    box-shadow: 0 3px 10px rgba(255, 255, 255, 0.2);\n}\n\n.mermaid-fullscreen-modal {\n    display: none;\n    position: fixed !important;\n    top: 0 !important;\n    left: 0 !important;\n    width: 95vw;\n    height: 100vh;\n    background: rgba(255, 255, 255, 0.98);\n    z-index: 9999;\n    padding: 20px;\n    overflow: auto;\n}\n\n.mermaid-fullscreen-modal.dark-theme {\n    background: rgba(0, 0, 0, 0.98);\n}\n\n.mermaid-fullscreen-modal.active {\n    display: flex;\n    align-items: center;\n    justify-content: center;\n}\n\n.mermaid-container-fullscreen {\n    position: relative;\n    width: 95vw;\n    height: 90vh;\n    max-width: 95vw;\n    max-height: 90vh;\n    background: white;\n    border-radius: 8px;\n    padding: 20px;\n    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);\n    overflow: auto;\n    display: flex;\n    align-items: center;\n    justify-content: center;\n}\n\n.mermaid-container-fullscreen.dark-theme {\n    background: #1a1a1a;\n    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.8);\n}\n\n.mermaid-container-fullscreen pre.mermaid {\n    width: 100%;\n    height: 100%;\n    display: flex;\n    align-items: center;\n    justify-content: center;\n}\n\n.mermaid-container-fullscreen .mermaid svg {\n    height: 100% !important;\n    width: 100% !important;\n    cursor: grab;\n}\n\n.mermaid-fullscreen-close {\n    position: fixed !important;\n    top: 20px !important;\n    right: 20px !important;\n    width: 40px;\n    height: 40px;\n    background: rgba(255, 255, 255, 0.95);\n    border: 1px solid rgba(0, 0, 0, 0.2);\n    border-radius: 50%;\n    cursor: pointer;\n    z-index: 10000;\n    display: flex;\n    align-items: center;\n    justify-content: center;\n    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);\n    transition: all 0.2s;\n    font-size: 24px;\n    line-height: 1;\n    color: #333;\n}\n\n.mermaid-fullscreen-close:hover {\n    background: white;\n    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);\n    transform: scale(1.1);\n}\n\n.mermaid-fullscreen-close.dark-theme {\n    background: rgba(50, 50, 50, 0.95);\n    border: 1px solid rgba(255, 255, 255, 0.2);\n    color: #e0e0e0;\n}\n\n.mermaid-fullscreen-close.dark-theme:hover {\n    background: rgba(60, 60, 60, 1);\n    box-shadow: 0 6px 16px rgba(255, 255, 255, 0.2);\n}\n\n.mermaid-fullscreen-modal .mermaid-fullscreen-btn {\n    display: none !important;\n}";
+    document.head.appendChild(fullscreenStyle);
+}
+
+// Detect if page has dark background
+const isDarkTheme = () => {
+    // We use a set of heuristics:
+    // 1. Check for common dark mode classes or attributes
+    // 2. Check computed background color brightness
+    if (document.documentElement.classList.contains('dark') ||
+        document.documentElement.getAttribute('data-theme') === 'dark' ||
+        document.body.classList.contains('dark') ||
+        document.body.getAttribute('data-theme') === 'dark') {
+        // console.log("Dark theme detected via class/attribute");
+        return true;
+    }
+    if (document.documentElement.classList.contains('light') ||
+        document.documentElement.getAttribute('data-theme') === 'light' ||
+        document.body.classList.contains('light') ||
+        document.body.getAttribute('data-theme') === 'light') {
+        // console.log("Light theme detected via class/attribute");
+        return false;
+    }
+    if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        // console.log("Dark theme detected via prefers-color-scheme");
+        return true;
+    }
+    const bgColor = window.getComputedStyle(document.body).backgroundColor;
+    const match = bgColor.match(/rgb\((\d+),\s*(\d+),\s*(\d+)/);
+    if (match) {
+        const r = parseInt(match[1]);
+        const g = parseInt(match[2]);
+        const b = parseInt(match[3]);
+        const brightness = (r * 299 + g * 587 + b * 114) / 1000;
+        // console.log("Background color brightness:", brightness);
+        return brightness < 128;
+    }
+    // console.log("No dark or light theme detected, defaulting to light theme");
+    return false;
+};
+
+let darkTheme = isDarkTheme();
+let modal = null;
+let modalContent = null;
+let previousScrollOffset = [window.scrollX, window.scrollY];
+let _lazyObserver = null;
+let _renderQueue = Promise.resolve();
+let closeModal = () => {};
+
+document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && modal?.classList.contains('active')) {
+        closeModal();
+    }
+});
+
+// Apply d3 zoom to each SVG. Idempotent: an SVG already wrapped is skipped,
+// so this is safe to call both for the initial batch and for diagrams that
+// render lazily once they become visible.
+const addZoomToSvgs = (svgs) => {
+    svgs.each(function() {
+        if (this.getAttribute('data-zoom-applied') === 'true') return;
+        var svg = d3.select(this);
+        svg.html("<g class='wrapper'>" + svg.html() + "</g>");
+        var inner = svg.select("g");
+        var zoom = d3.zoom().on("zoom", function(event) {
+            inner.attr("transform", event.transform);
+        });
+        svg.call(zoom);
+        this.setAttribute('data-zoom-applied', 'true');
+    });
+};
+
+const runMermaid = async (rerun) => {
+    console.log("Running mermaid diagrams, rerun =", rerun);
+    // clear all existing mermaid charts
+    let all_mermaids = document.querySelectorAll(".mermaid");
+
+    if (rerun) {
+        // Disconnect any previous lazy rendering observer
+        if (_lazyObserver) {
+            _lazyObserver.disconnect();
+            _lazyObserver = null;
+        }
+
+        all_mermaids.forEach((el) => {
+            el.removeAttribute('data-mermaid-deferred');
+            el.removeAttribute('data-mermaid-render-failed');
+            if(!el.hasAttribute("data-original-code")) {
+                // store original code
+                // console.log(`Storing original code for first run: `, el.innerHTML);
+                el.setAttribute('data-original-code', el.innerHTML);
+            }
+            if(el.getAttribute("data-processed") === "true") {
+                // remove and restore original
+                el.removeAttribute("data-processed");
+                // console.log(`Restoring original code for re-run: `, el.getAttribute('data-original-code'));
+                el.innerHTML = el.getAttribute('data-original-code');
+            } else {
+                // store original code
+                // console.log(`Storing original code for re-run: `, el.innerHTML);
+                el.setAttribute('data-original-code', el.innerHTML);
+            }
+        });
+
+        // Separate visible and hidden elements. Mermaid's layout engine measures
+        // text dimensions via the DOM, which fails for elements hidden by a parent
+        // (e.g., Reveal.js non-active slides, sphinx-design unopened tabs),
+        // producing broken SVGs. Render visible elements now, defer hidden ones.
+        const visible = [];
+        const hidden = [];
+        all_mermaids.forEach((el) => {
+            // offsetParent is null for display:none ancestors.
+            // getClientRects().length > 0 catches position:fixed elements
+            // (which also have null offsetParent but are still visible).
+            if (el.offsetParent !== null || el.getClientRects().length > 0) {
+                visible.push(el);
+            } else {
+                hidden.push(el);
+                el.setAttribute('data-mermaid-deferred', 'true');
+            }
+        });
+
+        if (visible.length > 0) {
+            try {
+                await mermaid.run({ nodes: visible });
+            } catch (e) {
+                console.error("Mermaid rendering failed:", e);
+            }
+        }
+
+        // Lazily render hidden elements when they become visible.
+        // Uses a promise chain (_renderQueue) to serialize rendering,
+        // since IntersectionObserver may report multiple entries at once
+        // and mermaid.run() is not safe to call concurrently.
+        if (hidden.length > 0) {
+            if (typeof IntersectionObserver === 'undefined') {
+                console.warn("IntersectionObserver not available; hidden mermaid diagrams will not render.");
+            } else {
+                _renderQueue = Promise.resolve();
+                _lazyObserver = new IntersectionObserver((entries) => {
+                    for (const entry of entries) {
+                        if (entry.isIntersecting && entry.target.getAttribute("data-processed") !== "true") {
+                            _lazyObserver.unobserve(entry.target);
+                            const el = entry.target;
+                            _renderQueue = _renderQueue.then(async () => {
+                                try {
+                                    await mermaid.run({ nodes: [el] });
+                                    el.removeAttribute('data-mermaid-deferred');
+                                    // Apply zoom to the now-rendered diagram, matching
+                                    // the decoration visible diagrams receive.
+                                    if (false) {
+                                        addZoomToSvgs(d3.selectAll("").select(function() {
+                                            return this.querySelector("svg");
+                                        }));
+                                    }
+                                } catch (e) {
+                                    console.error("Mermaid deferred rendering failed:", e);
+                                    el.removeAttribute('data-mermaid-deferred');
+                                    el.setAttribute('data-mermaid-render-failed', 'true');
+                                }
+                            });
+                        }
+                    }
+                });
+                hidden.forEach((el) => _lazyObserver.observe(el));
+            }
+        }
+    }
+
+    all_mermaids = document.querySelectorAll(".mermaid");
+    // Exclude deferred (hidden) and render-failed elements from completion checks
+    const mermaids_active = document.querySelectorAll(".mermaid:not([data-mermaid-deferred]):not([data-mermaid-render-failed])");
+    const mermaids_processed = document.querySelectorAll(".mermaid:not([data-mermaid-deferred]):not([data-mermaid-render-failed])[data-processed='true']");
+
+    if (false) {
+        const mermaids_to_add_zoom = 0 === -1 ? mermaids_active.length : 0;
+        if(mermaids_to_add_zoom > 0) {
+            var svgs = d3.selectAll("").select(function() {
+                return this.querySelector("svg");
+            });
+            // Wait until every active (visible) diagram has rendered. Deferred
+            // diagrams are excluded, so a fixed d3_node_count that counts a
+            // hidden diagram no longer loops forever waiting for its SVG.
+            if(mermaids_active.length !== mermaids_processed.length) {
+                setTimeout(() => runMermaid(false), 200);
+                return;
+            }
+            addZoomToSvgs(svgs);
+        }
+    } else if(mermaids_active.length !== mermaids_processed.length) {
+        // Wait for mermaid to process all diagrams
+        setTimeout(() => runMermaid(false), 200);
+        return;
+    }
+
+    // Stop here if not adding fullscreen capability
+    if (!true) return;
+
+    if (modal !== null ) {
+        // Destroy existing modal
+        modal.remove();
+        modal = null;
+        modalContent = null;
+    }
+
+    modal = document.createElement('div');
+    modal.className = 'mermaid-fullscreen-modal' + (darkTheme ? ' dark-theme' : '');
+    modal.setAttribute('role', 'dialog');
+    modal.setAttribute('aria-modal', 'true');
+    modal.setAttribute('aria-label', 'Fullscreen diagram viewer');
+    modal.innerHTML = `
+        <button class="mermaid-fullscreen-close${darkTheme ? ' dark-theme' : ''}" aria-label="Close fullscreen">✕</button>
+        <div class="mermaid-container-fullscreen${darkTheme ? ' dark-theme' : ''}"></div>
+    `;
+    document.body.appendChild(modal);
+
+    modalContent = modal.querySelector('.mermaid-container-fullscreen');
+    const closeBtn = modal.querySelector('.mermaid-fullscreen-close');
+
+    closeModal = () => {
+        modal.classList.remove('active');
+        modalContent.innerHTML = '';
+        document.body.style.overflow = ''
+        window.scrollTo({left: previousScrollOffset[0], top: previousScrollOffset[1], behavior: 'instant'});
+    };
+
+    closeBtn.addEventListener('click', closeModal);
+    modal.addEventListener('click', (e) => {
+        if (e.target === modal) closeModal();
+    });
+    document.querySelectorAll('.mermaid').forEach((mermaidDiv) => {
+        if (mermaidDiv.parentNode.classList.contains('mermaid-container') ||
+            mermaidDiv.closest('.mermaid-fullscreen-modal')) {
+            // Already processed, adjust button class if needed
+            const existingBtn = mermaidDiv.parentNode.querySelector('.mermaid-fullscreen-btn');
+            if (existingBtn) {
+                existingBtn.className = 'mermaid-fullscreen-btn' + (darkTheme ? ' dark-theme' : '');
+            }
+            return;
+        }
+
+        const container = document.createElement('div');
+        container.className = 'mermaid-container';
+        mermaidDiv.parentNode.insertBefore(container, mermaidDiv);
+        container.appendChild(mermaidDiv);
+
+        const fullscreenBtn = document.createElement('button');
+        fullscreenBtn.className = 'mermaid-fullscreen-btn' + (darkTheme ? ' dark-theme' : '');
+        fullscreenBtn.setAttribute('aria-label', 'View diagram in fullscreen');
+        fullscreenBtn.textContent = "\u26f6";
+        fullscreenBtn.style.opacity = "50%";
+
+        // Calculate dynamic position based on diagram's margin and padding
+        const diagramStyle = window.getComputedStyle(mermaidDiv);
+        const marginTop = parseFloat(diagramStyle.marginTop) || 0;
+        const marginRight = parseFloat(diagramStyle.marginRight) || 0;
+        const paddingTop = parseFloat(diagramStyle.paddingTop) || 0;
+        const paddingRight = parseFloat(diagramStyle.paddingRight) || 0;
+        fullscreenBtn.style.top = `${marginTop + paddingTop + 4}px`;
+        fullscreenBtn.style.right = `${marginRight + paddingRight + 4}px`;
+
+        fullscreenBtn.addEventListener('click', () => {
+            previousScrollOffset = [window.scrollX, window.scrollY];
+            const clone = mermaidDiv.cloneNode(true);
+            modalContent.innerHTML = '';
+            modalContent.appendChild(clone);
+
+            const svg = clone.querySelector('svg');
+            if (svg) {
+                svg.removeAttribute('width');
+                svg.removeAttribute('height');
+                svg.style.width = '100%';
+                svg.style.height = 'auto';
+                svg.style.maxWidth = '100%';
+                svg.style.display = 'block';
+
+                if (false) {
+                    setTimeout(() => {
+                        const g = svg.querySelector('g');
+                        if (g) {
+                            var svgD3 = d3.select(svg);
+                            svgD3.html("<g class='wrapper'>" + svgD3.html() + "</g>");
+                            var inner = svgD3.select("g");
+                            var zoom = d3.zoom().on("zoom", function(event) {
+                                inner.attr("transform", event.transform);
+                            });
+                            svgD3.call(zoom);
+                        }
+                    }, 100);
+                }
+            }
+
+            modal.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        });
+        container.appendChild(fullscreenBtn);
+    });
+};
+
+
+
+const load = async () => {
+    initStyles();
+
+
+    await runMermaid(true);
+
+    const reRunIfThemeChanges = async () => {
+        const newDarkTheme = isDarkTheme();
+        if (newDarkTheme !== darkTheme) {
+            darkTheme = newDarkTheme;
+            console.log("Theme change detected, re-running mermaid with", darkTheme ? "dark" : "default", "theme");
+            await mermaid.initialize(
+                {...{"startOnLoad": false},
+                ...{ darkMode: darkTheme, theme: darkTheme ? "dark" : "default" },
+                }
+            );
+            await runMermaid(true);
+        }
+    };
+
+    // Update theme classes when theme changes
+    const themeObserver = new MutationObserver(reRunIfThemeChanges);
+    themeObserver.observe(document.documentElement, {
+        attributes: true,
+        attributeFilter: ['class', 'style', 'data-theme']
+    });
+    themeObserver.observe(document.body, {
+        attributes: true,
+        attributeFilter: ['class', 'style', 'data-theme']
+    });
+};
+
+
+
+
+
+console.log("Initializing mermaid with", darkTheme ? "dark" : "default", "theme");
+mermaid.initialize(
+    {...{"startOnLoad": false},
+    ...{ darkMode: darkTheme, theme: darkTheme ? "dark" : "default" },
+    }
+);
+
+window.addEventListener("load", load);
+window.runMermaid = runMermaid;</script>
     <script src="../../../../../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../../../../../genindex.html" />
     <link rel="search" title="Search" href="../../../../../../search.html" />
@@ -114,33 +472,61 @@
            <div itemprop="articleBody">
              
   <h1>Source code for polaris.tasks.ocean.realistic_global.restart.restart_step</h1><div class="highlight"><pre>
-<span></span><span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span></span><span class="kn">import</span><span class="w"> </span><span class="nn">dataclasses</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">datetime</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">shutil</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Optional</span>
 
-<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.tasks.ocean.realistic_global.forward</span><span class="w"> </span><span class="kn">import</span> <span class="n">Forward</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.mpas.time</span><span class="w"> </span><span class="kn">import</span> <span class="n">duration_to_seconds</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.tasks.ocean.realistic_global.forward</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">Forward</span><span class="p">,</span>
+    <span class="n">ForwardStage</span><span class="p">,</span>
+    <span class="n">InitialCondition</span><span class="p">,</span>
+<span class="p">)</span>
 
 <span class="c1">#: The package holding this task's yaml overrides</span>
 <span class="n">PACKAGE</span> <span class="o">=</span> <span class="s1">'polaris.tasks.ocean.realistic_global.restart'</span>
+
+<span class="c1">#: The history the full run writes up to the restart time, which the restart</span>
+<span class="c1">#: run appends to</span>
+<span class="n">BEFORE_RESTART_FILENAME</span> <span class="o">=</span> <span class="s1">'output_before_restart.nc'</span>
 
 
 <div class="viewcode-block" id="RestartStep">
 <a class="viewcode-back" href="../../../../../../developers_guide/ocean/generated/polaris.tasks.ocean.realistic_global.restart.restart_step.RestartStep.html#polaris.tasks.ocean.realistic_global.restart.restart_step.RestartStep">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">RestartStep</span><span class="p">(</span><span class="n">Forward</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">"""</span>
-<span class="sd">    One segment of the realistic global restart chain.</span>
+<span class="sd">    One forward run of the realistic global restart task, shaped like CIME's</span>
+<span class="sd">    ERS test: the full run, or the restart run that continues from it.</span>
 
-<span class="sd">    The chain is two segments that between them cover the same period as the</span>
-<span class="sd">    task's ``full_run``.  Both segments read and write restarts through a</span>
-<span class="sd">    ``restarts`` directory shared by the whole task, following the restart</span>
-<span class="sd">    chain in ``realistic_global/dynamic_adjustment``, and the continuing</span>
-<span class="sd">    segment appends its history to the frames the first segment already</span>
-<span class="sd">    wrote.</span>
+<span class="sd">    The full run covers the whole period and writes a restart at</span>
+<span class="sd">    ``restart_time``, along with its history up to that time in a file of its</span>
+<span class="sd">    own.  The restart run continues from that restart to the end of the period,</span>
+<span class="sd">    appending its history to a copy of that file.  Each step writes its</span>
+<span class="sd">    restarts into a directory of its own under a ``restarts`` directory shared</span>
+<span class="sd">    by the whole task.</span>
+
+<span class="sd">    The run itself is a realistic_global forward run like any other, built</span>
+<span class="sd">    from the ``[realistic_global_forward]`` config options.  Only the run</span>
+<span class="sd">    duration, the output interval and the restart are the task's own, and this</span>
+<span class="sd">    task's ``full_run.yaml`` or ``restart_run.yaml`` adds Omega's start type,</span>
+<span class="sd">    start time and restart and history streams on top.</span>
 
 <span class="sd">    Attributes</span>
 <span class="sd">    ----------</span>
-<span class="sd">    previous_step : polaris.Step or None</span>
-<span class="sd">        The segment this one continues from, or ``None`` for the first</span>
-<span class="sd">        segment of the chain.</span>
+<span class="sd">    run_duration : str</span>
+<span class="sd">        How long this step runs, as an MPAS-style duration string</span>
+
+<span class="sd">    output_interval : str</span>
+<span class="sd">        The interval between history frames</span>
+
+<span class="sd">    restart_time : str</span>
+<span class="sd">        How far into the period the full run writes the restart the restart</span>
+<span class="sd">        run continues from, as an MPAS-style duration string</span>
+
+<span class="sd">    restart_from : RestartStep or None</span>
+<span class="sd">        The full run this step continues from, or ``None`` for the full run</span>
 <span class="sd">    """</span>
 
 <div class="viewcode-block" id="RestartStep.__init__">
@@ -148,15 +534,13 @@
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">component</span><span class="p">,</span>
-        <span class="n">name</span><span class="p">,</span>
-        <span class="n">subdir</span><span class="p">,</span>
-        <span class="n">mesh_name</span><span class="p">,</span>
-        <span class="n">mpaso_id</span><span class="p">,</span>
-        <span class="n">omega_id</span><span class="p">,</span>
-        <span class="n">ncells</span><span class="p">,</span>
-        <span class="n">replacements</span><span class="p">,</span>
-        <span class="n">previous_step</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-        <span class="n">options</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">subdir</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">init_condition</span><span class="p">:</span> <span class="n">InitialCondition</span><span class="p">,</span>
+        <span class="n">run_duration</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">output_interval</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">restart_time</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">restart_from</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="s1">'RestartStep'</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">):</span>
 <span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Create the step</span>
@@ -172,54 +556,44 @@
 <span class="sd">        subdir : str</span>
 <span class="sd">            The subdirectory for the step</span>
 
-<span class="sd">        mesh_name : str</span>
-<span class="sd">            The name of the mesh (e.g. ``QU.240km``)</span>
+<span class="sd">        init_condition : polaris.tasks.ocean.realistic_global.forward.InitialCondition</span>
+<span class="sd">            The source of the model input files</span>
 
-<span class="sd">        mpaso_id : int</span>
-<span class="sd">            The ID of the MPAS-Ocean initial condition in the Polaris input</span>
-<span class="sd">            database</span>
+<span class="sd">        run_duration : str</span>
+<span class="sd">            How long this step runs, as an MPAS-style duration string</span>
 
-<span class="sd">        omega_id : int</span>
-<span class="sd">            The ID of the Omega initial condition in the Polaris input</span>
-<span class="sd">            database</span>
+<span class="sd">        output_interval : str</span>
+<span class="sd">            The interval between history frames</span>
 
-<span class="sd">        ncells : int</span>
-<span class="sd">            The approximate number of cells in the mesh, used to constrain</span>
-<span class="sd">            resources</span>
+<span class="sd">        restart_time : str</span>
+<span class="sd">            How far into the period the full run writes the restart the</span>
+<span class="sd">            restart run continues from</span>
 
-<span class="sd">        replacements : dict</span>
-<span class="sd">            Template replacements for the forward yaml files</span>
-
-<span class="sd">        previous_step : polaris.Step, optional</span>
-<span class="sd">            The segment this one continues from.  When given, this step reads</span>
-<span class="sd">            that segment's restart and appends to its history file.</span>
-
-<span class="sd">        options : dict, optional</span>
-<span class="sd">            Model config options for this step, keyed by the model they are</span>
-<span class="sd">            for, as for ``Forward``</span>
-<span class="sd">        """</span>
+<span class="sd">        restart_from : RestartStep, optional</span>
+<span class="sd">            The full run this step continues from.  When given, this step</span>
+<span class="sd">            reads that run's restart at ``restart_time`` and appends to its</span>
+<span class="sd">            history up to that time.</span>
+<span class="sd">        """</span>  <span class="c1"># noqa: E501</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
             <span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span>
-            <span class="n">package</span><span class="o">=</span><span class="s1">'polaris.tasks.ocean.realistic_global'</span><span class="p">,</span>
+            <span class="n">init_condition</span><span class="o">=</span><span class="n">init_condition</span><span class="p">,</span>
             <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span>
             <span class="n">subdir</span><span class="o">=</span><span class="n">subdir</span><span class="p">,</span>
-            <span class="n">mesh_name</span><span class="o">=</span><span class="n">mesh_name</span><span class="p">,</span>
-            <span class="n">mpaso_id</span><span class="o">=</span><span class="n">mpaso_id</span><span class="p">,</span>
-            <span class="n">omega_id</span><span class="o">=</span><span class="n">omega_id</span><span class="p">,</span>
-            <span class="n">ncells</span><span class="o">=</span><span class="n">ncells</span><span class="p">,</span>
-            <span class="n">replacements</span><span class="o">=</span><span class="n">replacements</span><span class="p">,</span>
-            <span class="n">options</span><span class="o">=</span><span class="n">options</span><span class="p">,</span>
         <span class="p">)</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">previous_step</span> <span class="o">=</span> <span class="n">previous_step</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">run_duration</span> <span class="o">=</span> <span class="n">run_duration</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">output_interval</span> <span class="o">=</span> <span class="n">output_interval</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">restart_time</span> <span class="o">=</span> <span class="n">restart_time</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">restart_from</span> <span class="o">=</span> <span class="n">restart_from</span>
 
-        <span class="k">if</span> <span class="n">previous_step</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">restart_from</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="c1"># under a name of its own, so that the copy made in</span>
             <span class="c1"># runtime_setup() writes to output.nc rather than through a</span>
-            <span class="c1"># symlink into the previous segment's work directory</span>
+            <span class="c1"># symlink into the full run's work directory</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">add_input_file</span><span class="p">(</span>
                 <span class="n">filename</span><span class="o">=</span><span class="s1">'previous_output.nc'</span><span class="p">,</span>
-                <span class="n">work_dir_target</span><span class="o">=</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">previous_step</span><span class="o">.</span><span class="n">path</span><span class="si">}</span><span class="s1">/output.nc'</span><span class="p">,</span>
+                <span class="n">work_dir_target</span><span class="o">=</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">restart_from</span><span class="o">.</span><span class="n">path</span><span class="si">}</span><span class="s1">/'</span>
+                <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">BEFORE_RESTART_FILENAME</span><span class="si">}</span><span class="s1">'</span><span class="p">,</span>
             <span class="p">)</span></div>
 
 
@@ -227,8 +601,8 @@
 <a class="viewcode-back" href="../../../../../../developers_guide/ocean/generated/polaris.tasks.ocean.realistic_global.restart.restart_step.RestartStep.setup.html#polaris.tasks.ocean.realistic_global.restart.restart_step.RestartStep.setup">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">setup</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">"""</span>
-<span class="sd">        Add this task's overrides on top of the shared realistic_global</span>
-<span class="sd">        forward yaml, which ``Forward.setup()`` adds first</span>
+<span class="sd">        Reject any model but Omega, declare the restart, then set up the</span>
+<span class="sd">        forward run</span>
 <span class="sd">        """</span>
         <span class="n">model</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'ocean'</span><span class="p">,</span> <span class="s1">'model'</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">model</span> <span class="o">!=</span> <span class="s1">'omega'</span><span class="p">:</span>
@@ -241,72 +615,147 @@
                 <span class="sa">f</span><span class="s1">'failure it looks for cannot arise there.'</span>
             <span class="p">)</span>
 
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">setup</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_add_restart_files</span><span class="p">()</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">setup</span><span class="p">()</span></div>
 
-        <span class="n">replacements</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">replacements</span><span class="p">,</span>
-            <span class="n">restart_read_dir</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">restart_read_target</span><span class="p">(),</span>
-            <span class="n">restart_write_dir</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">restart_write_target</span><span class="p">(),</span>
+
+<div class="viewcode-block" id="RestartStep.dynamic_model_config">
+<a class="viewcode-back" href="../../../../../../developers_guide/ocean/generated/polaris.tasks.ocean.realistic_global.restart.restart_step.RestartStep.dynamic_model_config.html#polaris.tasks.ocean.realistic_global.restart.restart_step.RestartStep.dynamic_model_config">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">dynamic_model_config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">at_setup</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">        Build this step's stage from config with the task's run duration and</span>
+<span class="sd">        output interval, then add this task's overrides for the full run or</span>
+<span class="sd">        the restart run on top of the shared forward yaml, which</span>
+<span class="sd">        ``Forward.dynamic_model_config()`` adds first</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        at_setup : bool</span>
+<span class="sd">            Whether this is being run during setup of the step, as opposed to</span>
+<span class="sd">            at run time.</span>
+<span class="sd">        """</span>
+        <span class="c1"># rebuilt every time, as Forward does when it has no stage, so that a</span>
+        <span class="c1"># user's config changes after setup still take effect</span>
+        <span class="n">stage</span> <span class="o">=</span> <span class="n">ForwardStage</span><span class="o">.</span><span class="n">from_config</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">stage</span> <span class="o">=</span> <span class="n">dataclasses</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span>
+            <span class="n">stage</span><span class="p">,</span>
+            <span class="n">run_duration</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">run_duration</span><span class="p">,</span>
+            <span class="n">output_interval</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">output_interval</span><span class="p">,</span>
+            <span class="n">restart_interval</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">run_duration</span><span class="p">,</span>
         <span class="p">)</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">add_yaml_file</span><span class="p">(</span>
-            <span class="n">package</span><span class="o">=</span><span class="n">PACKAGE</span><span class="p">,</span>
-            <span class="n">yaml</span><span class="o">=</span><span class="s1">'forward.yaml'</span><span class="p">,</span>
-            <span class="n">template_replacements</span><span class="o">=</span><span class="n">replacements</span><span class="p">,</span>
-        <span class="p">)</span></div>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">dynamic_model_config</span><span class="p">(</span><span class="n">at_setup</span><span class="o">=</span><span class="n">at_setup</span><span class="p">)</span>
+
+        <span class="n">start_time</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">stage</span><span class="o">.</span><span class="n">start_time</span>
+        <span class="n">restart_seconds</span> <span class="o">=</span> <span class="n">duration_to_seconds</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">restart_time</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">restart_from</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">output_seconds</span> <span class="o">=</span> <span class="n">duration_to_seconds</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">output_interval</span><span class="p">)</span>
+            <span class="c1"># after the frame at the restart time and before the next one</span>
+            <span class="n">end_seconds</span> <span class="o">=</span> <span class="n">restart_seconds</span> <span class="o">+</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="n">output_seconds</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">add_yaml_file</span><span class="p">(</span>
+                <span class="n">package</span><span class="o">=</span><span class="n">PACKAGE</span><span class="p">,</span>
+                <span class="n">yaml</span><span class="o">=</span><span class="s1">'full_run.yaml'</span><span class="p">,</span>
+                <span class="n">template_replacements</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span>
+                    <span class="n">sim_start_time</span><span class="o">=</span><span class="n">start_time</span><span class="p">,</span>
+                    <span class="n">restart_dir</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">restart_target</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">),</span>
+                    <span class="n">restart_freq</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="nb">round</span><span class="p">(</span><span class="n">restart_seconds</span><span class="p">))),</span>
+                    <span class="n">output_freq</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="nb">round</span><span class="p">(</span><span class="n">output_seconds</span><span class="p">))),</span>
+                    <span class="n">before_restart_end</span><span class="o">=</span><span class="n">_time_string</span><span class="p">(</span><span class="n">start_time</span><span class="p">,</span> <span class="n">end_seconds</span><span class="p">),</span>
+                <span class="p">),</span>
+            <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">add_yaml_file</span><span class="p">(</span>
+                <span class="n">package</span><span class="o">=</span><span class="n">PACKAGE</span><span class="p">,</span>
+                <span class="n">yaml</span><span class="o">=</span><span class="s1">'restart_run.yaml'</span><span class="p">,</span>
+                <span class="n">template_replacements</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span>
+                    <span class="n">sim_start_time</span><span class="o">=</span><span class="n">start_time</span><span class="p">,</span>
+                    <span class="n">restart_dir</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">restart_target</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">),</span>
+                    <span class="n">restart_read_file</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">restart_file</span><span class="p">(),</span>
+                <span class="p">),</span>
+            <span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="RestartStep.runtime_setup">
 <a class="viewcode-back" href="../../../../../../developers_guide/ocean/generated/polaris.tasks.ocean.realistic_global.restart.restart_step.RestartStep.runtime_setup.html#polaris.tasks.ocean.realistic_global.restart.restart_step.RestartStep.runtime_setup">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">runtime_setup</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">"""</span>
-<span class="sd">        Make the shared restart directory, and seed the history file with the</span>
-<span class="sd">        previous segment's frames when this segment continues from one</span>
+<span class="sd">        Make this step's restart directory, and seed the restart run's history</span>
+<span class="sd">        file with the full run's history up to the restart</span>
 <span class="sd">        """</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">runtime_setup</span><span class="p">()</span>
 
-        <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">restart_write_dir</span><span class="p">(),</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">restart_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">normpath</span><span class="p">(</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">work_dir</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">restart_target</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">))</span>
+        <span class="p">)</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">restart_dir</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">previous_step</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">restart_from</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">return</span>
 
-        <span class="c1"># Reproduce what a continuation run finds on disk: a history file</span>
-        <span class="c1"># that already holds the earlier frames and has to be appended to.</span>
-        <span class="c1"># This is copied rather than symlinked so that appending to it cannot</span>
-        <span class="c1"># reach back into the previous segment's work directory.</span>
+        <span class="c1"># Reproduce what a continuing run finds on disk: a history file that</span>
+        <span class="c1"># already holds the earlier frames and has to be appended to.  This is</span>
+        <span class="c1"># copied rather than symlinked so that appending to it cannot reach</span>
+        <span class="c1"># back into the full run's work directory.</span>
         <span class="n">shutil</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span>
             <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">work_dir</span><span class="p">,</span> <span class="s1">'previous_output.nc'</span><span class="p">),</span>
             <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">work_dir</span><span class="p">,</span> <span class="s1">'output.nc'</span><span class="p">),</span>
         <span class="p">)</span></div>
 
 
-    <span class="k">def</span><span class="w"> </span><span class="nf">restart_write_dir</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">restart_target</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">step_name</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">"""</span>
-<span class="sd">        The absolute path of the directory this segment writes its restart</span>
-<span class="sd">        into</span>
+<span class="sd">        The path, relative to this step's work directory, of the directory</span>
+<span class="sd">        the step ``step_name`` writes its restarts into.  Each step gets one</span>
+<span class="sd">        of its own, so that the restart run cannot replace a restart the full</span>
+<span class="sd">        run wrote.</span>
 <span class="sd">        """</span>
-        <span class="k">return</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">normpath</span><span class="p">(</span>
-            <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">work_dir</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">restart_write_target</span><span class="p">())</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s1">'../restarts/</span><span class="si">{</span><span class="n">step_name</span><span class="si">}</span><span class="s1">'</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">restart_file</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">        The full run's restart at the restart time, relative to this step's</span>
+<span class="sd">        work directory, named the way Omega names it</span>
+<span class="sd">        """</span>
+        <span class="n">full_run</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">name</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">restart_from</span> <span class="ow">is</span> <span class="kc">None</span>
+            <span class="k">else</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">restart_from</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
         <span class="p">)</span>
+        <span class="n">stage</span> <span class="o">=</span> <span class="n">ForwardStage</span><span class="o">.</span><span class="n">from_config</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+        <span class="n">stamp</span> <span class="o">=</span> <span class="n">_time_string</span><span class="p">(</span>
+            <span class="n">stage</span><span class="o">.</span><span class="n">start_time</span><span class="p">,</span>
+            <span class="n">duration_to_seconds</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">restart_time</span><span class="p">),</span>
+            <span class="n">time_separator</span><span class="o">=</span><span class="s1">'.'</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">restart_target</span><span class="p">(</span><span class="n">full_run</span><span class="p">)</span><span class="si">}</span><span class="s1">/ocn.restart.</span><span class="si">{</span><span class="n">stamp</span><span class="si">}</span><span class="s1">.nc'</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="nf">restart_write_target</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_add_restart_files</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">"""</span>
-<span class="sd">        The path, relative to the step's work directory, that this segment</span>
-<span class="sd">        writes its restart into.  Each segment gets one of its own, so that</span>
-<span class="sd">        a segment's own restart cannot replace the pointer it read from.</span>
+<span class="sd">        Declare the restart to Polaris, so that a restart run whose full run</span>
+<span class="sd">        wrote no restart, or no history up to it, fails before the model</span>
+<span class="sd">        launches</span>
 <span class="sd">        """</span>
-        <span class="k">return</span> <span class="sa">f</span><span class="s1">'../restarts/</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s1">'</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">restart_from</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">add_output_file</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">restart_file</span><span class="p">())</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">add_output_file</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="n">BEFORE_RESTART_FILENAME</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">add_input_file</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">restart_file</span><span class="p">())</span></div>
 
-    <span class="k">def</span><span class="w"> </span><span class="nf">restart_read_target</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">"""</span>
-<span class="sd">        The path, relative to the step's work directory, that this segment</span>
-<span class="sd">        reads a restart from.  A segment that starts from an initial state</span>
-<span class="sd">        never opens it, so it is pointed at its own directory.</span>
-<span class="sd">        """</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">previous_step</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">restart_write_target</span><span class="p">()</span>
-        <span class="k">return</span> <span class="sa">f</span><span class="s1">'../restarts/</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">previous_step</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s1">'</span></div>
 
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_time_string</span><span class="p">(</span><span class="n">start_time</span><span class="p">,</span> <span class="n">seconds</span><span class="p">,</span> <span class="n">time_separator</span><span class="o">=</span><span class="s1">':'</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    The time ``seconds`` after ``start_time``, an MPAS-style time string</span>
+<span class="sd">    (``YYYY-MM-DD_hh:mm:ss``), in the same format, with ``time_separator``</span>
+<span class="sd">    between the hours, minutes and seconds</span>
+<span class="sd">    """</span>
+    <span class="n">start</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">strptime</span><span class="p">(</span><span class="n">start_time</span><span class="p">,</span> <span class="s1">'%Y-%m-</span><span class="si">%d</span><span class="s1">_%H:%M:%S'</span><span class="p">)</span>
+    <span class="n">time</span> <span class="o">=</span> <span class="n">start</span> <span class="o">+</span> <span class="n">datetime</span><span class="o">.</span><span class="n">timedelta</span><span class="p">(</span><span class="n">seconds</span><span class="o">=</span><span class="n">seconds</span><span class="p">)</span>
+    <span class="n">sep</span> <span class="o">=</span> <span class="n">time_separator</span>
+    <span class="k">return</span> <span class="p">(</span>
+        <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">time</span><span class="o">.</span><span class="n">year</span><span class="si">:</span><span class="s1">04d</span><span class="si">}</span><span class="s1">-</span><span class="si">{</span><span class="n">time</span><span class="o">.</span><span class="n">month</span><span class="si">:</span><span class="s1">02d</span><span class="si">}</span><span class="s1">-</span><span class="si">{</span><span class="n">time</span><span class="o">.</span><span class="n">day</span><span class="si">:</span><span class="s1">02d</span><span class="si">}</span><span class="s1">_'</span>
+        <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">time</span><span class="o">.</span><span class="n">hour</span><span class="si">:</span><span class="s1">02d</span><span class="si">}{</span><span class="n">sep</span><span class="si">}{</span><span class="n">time</span><span class="o">.</span><span class="n">minute</span><span class="si">:</span><span class="s1">02d</span><span class="si">}{</span><span class="n">sep</span><span class="si">}{</span><span class="n">time</span><span class="o">.</span><span class="n">second</span><span class="si">:</span><span class="s1">02d</span><span class="si">}</span><span class="s1">'</span>
+    <span class="p">)</span>
 </pre></div>
 
            </div>

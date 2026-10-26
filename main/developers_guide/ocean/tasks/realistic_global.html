@@ -88,7 +88,8 @@
 <li class="toctree-l3"><a class="reference internal" href="overflow.html">overflow</a></li>
 <li class="toctree-l3 current"><a class="current reference internal" href="#">realistic_global</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#framework">framework</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#analysis-members">analysis_members</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#forward">forward</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#analysis-output">analysis_output</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#restart">restart</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#hydrography-woa23">hydrography/woa23</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#forcing-jra55">forcing/jra55</a></li>
@@ -159,7 +160,7 @@
   <section class="tex2jax_ignore mathjax_ignore" id="realistic-global">
 <span id="dev-ocean-realistic-global"></span><h1>realistic_global<a class="headerlink" href="#realistic-global" title="Link to this heading"></a></h1>
 <p>The <code class="docutils literal notranslate"><span class="pre">realistic_global</span></code> tasks in <code class="docutils literal notranslate"><span class="pre">polaris.tasks.ocean.realistic_global</span></code> use
-realistic global ocean meshes, bathymetry and forcing.  They fall into five
+realistic global ocean meshes, bathymetry and forcing.  They fall into seven
 groups:</p>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">hydrography/woa23</span></code>, a mesh-independent preprocessing task that builds a
@@ -169,207 +170,371 @@ reusable hydrography product from the World Ocean Atlas 2023 on its native
 wind-stress product from JRA55-do 10-m winds.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">init</span></code>, which creates mesh-specific ocean initial conditions using that
 hydrography and forcing together with the culled mesh from <code class="docutils literal notranslate"><span class="pre">e3sm/init</span></code>.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">analysis_members</span></code>, forward runs on realistic global meshes that exercise
-the analysis members: short runs in both MPAS-Ocean and Omega, and one-year
-Omega runs that write what the analysis tasks in
-<code class="docutils literal notranslate"><span class="pre">polaris.tasks.ocean.analysis</span></code> read.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">restart</span></code>, a short Omega run split across a restart, checking that the
-history output survives the restart intact.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">forward</span></code>, short forward runs on the meshes <code class="docutils literal notranslate"><span class="pre">init</span></code> builds.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">cached_forward</span></code>, the same forward runs on E3SM initial conditions cached in
+the Polaris input database instead, a temporary task.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">analysis_output</span></code>, one-year Omega runs on either source of initial
+condition that write what the ocean analysis reads.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">restart</span></code>, a short Omega run continued from a restart, checking that it
+matches the uninterrupted run, history output included.</p></li>
 </ul>
 <p>Tasks are added to the ocean component by
 <a class="reference internal" href="../generated/polaris.tasks.ocean.realistic_global.add_realistic_global_tasks.html#polaris.tasks.ocean.realistic_global.add_realistic_global_tasks" title="polaris.tasks.ocean.realistic_global.add_realistic_global_tasks"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.tasks.ocean.realistic_global.add_realistic_global_tasks()</span></code></a>,
 which registers the <code class="docutils literal notranslate"><span class="pre">woa23</span></code> and <code class="docutils literal notranslate"><span class="pre">jra55</span></code> tasks, one <code class="docutils literal notranslate"><span class="pre">init</span></code> task per MPAS mesh,
-an <code class="docutils literal notranslate"><span class="pre">analysis_members</span></code> task for each mesh in
-its <code class="docutils literal notranslate"><span class="pre">mesh_dict</span></code> and each duration in
-<code class="docutils literal notranslate"><span class="pre">polaris.tasks.ocean.realistic_global.analysis_members.DURATIONS</span></code>, and a
-single <code class="docutils literal notranslate"><span class="pre">restart</span></code> task on <code class="docutils literal notranslate"><span class="pre">QU.240km</span></code>.  Adding a new mesh to <code class="docutils literal notranslate"><span class="pre">analysis_members</span></code>
-takes two things: an entry in <code class="docutils literal notranslate"><span class="pre">mesh_dict</span></code> giving the MPAS-Ocean and Omega
-initial-condition IDs and the cell count, and a <code class="docutils literal notranslate"><span class="pre">&lt;mesh&gt;.cfg</span></code> file in the
-<code class="docutils literal notranslate"><span class="pre">analysis_members</span></code> package setting the baroclinic and barotropic time steps
-(<code class="docutils literal notranslate"><span class="pre">dt</span></code> and <code class="docutils literal notranslate"><span class="pre">btr_dt</span></code>), the length of the <code class="docutils literal notranslate"><span class="pre">short</span></code> run (<code class="docutils literal notranslate"><span class="pre">short_run_duration</span></code>),
-the number of MOC latitude bins (<code class="docutils literal notranslate"><span class="pre">moc_num_bins</span></code>) and the momentum viscosities
-(<code class="docutils literal notranslate"><span class="pre">mom_del2</span></code> and <code class="docutils literal notranslate"><span class="pre">mom_del4</span></code>).</p>
+a <code class="docutils literal notranslate"><span class="pre">forward</span></code> task per mesh for each of
+<code class="xref py py-data docutils literal notranslate"><span class="pre">polaris.tasks.ocean.realistic_global.forward.TIME_INTEGRATORS</span></code>, the
+same <code class="docutils literal notranslate"><span class="pre">cached_forward</span></code> variants for each mesh in
+<code class="xref py py-data docutils literal notranslate"><span class="pre">polaris.tasks.ocean.realistic_global.forward.tasks.CACHED_MESHES</span></code>,
+an <code class="docutils literal notranslate"><span class="pre">analysis_output/1_year</span></code> task for every mesh of either kind, and a single
+<code class="docutils literal notranslate"><span class="pre">restart</span></code> task on <code class="docutils literal notranslate"><span class="pre">e3sm-qu240</span></code>.  Adding a cached mesh requires an entry in that
+dictionary, keyed by the E3SM mesh’s name in lower case with an <code class="docutils literal notranslate"><span class="pre">e3sm-</span></code> prefix,
+giving the name the database files carry, the MPAS-Ocean and Omega
+initial-condition IDs, the minimum resolution and the cell count, and a
+<code class="docutils literal notranslate"><span class="pre">&lt;mesh_name&gt;.cfg</span></code> in <code class="docutils literal notranslate"><span class="pre">mesh_configs</span></code> giving the split and RK4 time steps and the
+run duration.  A mesh coarser than
+about a degree should also set fewer MOC latitude bins for its <code class="docutils literal notranslate"><span class="pre">1_year</span></code> run
+(<code class="docutils literal notranslate"><span class="pre">moc_num_bins</span></code> in <code class="docutils literal notranslate"><span class="pre">[analysis_output]</span></code>).</p>
+<p><code class="docutils literal notranslate"><span class="pre">forward</span></code> and <code class="docutils literal notranslate"><span class="pre">cached_forward</span></code> run the same physics.  Comparing MPAS-Ocean
+with Omega is opt-in, through the options in <code class="docutils literal notranslate"><span class="pre">forward/compare_with_omega.cfg</span></code>,
+which Polaris never reads on its own and a unit test keeps honest; see
+<a class="reference internal" href="../../../users_guide/ocean/tasks/realistic_global.html#ocean-realistic-global-forward-purposes"><span class="std std-ref">physics, and comparing with Omega</span></a> in the User’s Guide.</p>
 <section id="framework">
 <span id="dev-ocean-realistic-global-framework"></span><h2>framework<a class="headerlink" href="#framework" title="Link to this heading"></a></h2>
 <p>The config options for these tasks are described in
 <a class="reference internal" href="../../../users_guide/ocean/tasks/realistic_global.html#ocean-realistic-global"><span class="std std-ref">realistic_global</span></a> in the User’s Guide.  The shared colormap
-options for the <code class="docutils literal notranslate"><span class="pre">viz</span></code> step live in <code class="docutils literal notranslate"><span class="pre">realistic_global.cfg</span></code>, while the
-<code class="docutils literal notranslate"><span class="pre">analysis_members</span></code> tasks add <code class="docutils literal notranslate"><span class="pre">analysis_members.cfg</span></code>.</p>
+options for the <code class="docutils literal notranslate"><span class="pre">viz</span></code> step live in <code class="docutils literal notranslate"><span class="pre">realistic_global.cfg</span></code>.</p>
+</section>
 <section id="forward">
-<h3>forward<a class="headerlink" href="#forward" title="Link to this heading"></a></h3>
-<p>The class <a class="reference internal" href="../generated/polaris.tasks.ocean.realistic_global.forward.Forward.html#polaris.tasks.ocean.realistic_global.forward.Forward" title="polaris.tasks.ocean.realistic_global.forward.Forward"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.tasks.ocean.realistic_global.forward.Forward</span></code></a>
-is a shared <a class="reference internal" href="../generated/polaris.ocean.model.OceanModelStep.html#polaris.ocean.model.OceanModelStep" title="polaris.ocean.model.OceanModelStep"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.ocean.model.OceanModelStep</span></code></a> used by tasks in
-this group.  Unlike most Polaris forward steps, it does not build its own
-mesh and initial condition; instead it downloads cached, model-specific files
-from the <code class="docutils literal notranslate"><span class="pre">realistic_global</span></code> section of the Polaris input database.</p>
-<p>Because the file layout differs between the two models, the input files are
-added in <code class="docutils literal notranslate"><span class="pre">setup()</span></code> rather than <code class="docutils literal notranslate"><span class="pre">__init__()</span></code>, once <code class="docutils literal notranslate"><span class="pre">config</span></code> is available and
-the target model is known:</p>
+<span id="dev-ocean-realistic-global-forward"></span><h2>forward<a class="headerlink" href="#forward" title="Link to this heading"></a></h2>
+<p>The <code class="docutils literal notranslate"><span class="pre">realistic_global.forward</span></code> package holds one forward-run capability that
+both the <code class="docutils literal notranslate"><span class="pre">forward</span></code> and <code class="docutils literal notranslate"><span class="pre">cached_forward</span></code> tasks are built from.  They differ in
+one argument: the
+<a class="reference internal" href="../generated/polaris.tasks.ocean.realistic_global.forward.initial_condition.InitialCondition.html#polaris.tasks.ocean.realistic_global.forward.initial_condition.InitialCondition" title="polaris.tasks.ocean.realistic_global.forward.initial_condition.InitialCondition"><code class="xref py py-class docutils literal notranslate"><span class="pre">InitialCondition</span></code></a>
+they are given.  Everything else — the step, the model config, the diagnostics
+— is shared, including the physics, so a cached mesh’s config gives only
+its time steps, viscosities and run duration.</p>
+<p>The package is deliberately split three ways, so that adding a new source of
+initial condition, a new run setting, or a new consumer each touches one place:</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>module</p></th>
+<th class="head"><p>answers</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">initial_condition.py</span></code></p></td>
+<td><p><em>where do the model input files come from?</em></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">stage.py</span></code></p></td>
+<td><p><em>what settings does this run use?</em></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">forward.py</span></code></p></td>
+<td><p><em>run the model</em></p></td>
+</tr>
+</tbody>
+</table>
+<p><a class="reference internal" href="../generated/polaris.tasks.ocean.realistic_global.forward.task.RealisticGlobalForward.html#polaris.tasks.ocean.realistic_global.forward.task.RealisticGlobalForward" title="polaris.tasks.ocean.realistic_global.forward.task.RealisticGlobalForward"><code class="xref py py-class docutils literal notranslate"><span class="pre">RealisticGlobalForward</span></code></a>
+takes a <code class="docutils literal notranslate"><span class="pre">time_integrator</span></code>, <code class="docutils literal notranslate"><span class="pre">split_explicit</span></code> or <code class="docutils literal notranslate"><span class="pre">rk4</span></code>, which names the task’s
+directory under <code class="docutils literal notranslate"><span class="pre">forward</span></code> or <code class="docutils literal notranslate"><span class="pre">cached_forward</span></code>.  The <code class="docutils literal notranslate"><span class="pre">rk4</span></code> variant adds
+<code class="docutils literal notranslate"><span class="pre">rk4.cfg</span></code> after the per-mesh config file, so that it sets both models’
+integrators whatever the mesh config says.</p>
+<section id="id1">
+<h3>Forward<a class="headerlink" href="#id1" title="Link to this heading"></a></h3>
+<p><a class="reference internal" href="../generated/polaris.tasks.ocean.realistic_global.forward.forward.Forward.html#polaris.tasks.ocean.realistic_global.forward.forward.Forward" title="polaris.tasks.ocean.realistic_global.forward.forward.Forward"><code class="xref py py-class docutils literal notranslate"><span class="pre">Forward</span></code></a> is an
+<a class="reference internal" href="../generated/polaris.ocean.model.OceanModelStep.html#polaris.ocean.model.OceanModelStep" title="polaris.ocean.model.OceanModelStep"><code class="xref py py-class docutils literal notranslate"><span class="pre">OceanModelStep</span></code></a> that defers both of those
+questions rather than answering them itself.</p>
+<p><code class="docutils literal notranslate"><span class="pre">setup()</span></code> asks the initial condition to add its input files <em>before</em> calling
+the base class, so that <code class="docutils literal notranslate"><span class="pre">OceanModelStep</span></code> sees a finalized <code class="docutils literal notranslate"><span class="pre">graph_target</span></code> and
+input list.  A step whose graph comes from the input-file database rather than
+an upstream work directory leaves <code class="docutils literal notranslate"><span class="pre">graph_target</span></code> unset and adds <code class="docutils literal notranslate"><span class="pre">graph.info</span></code>
+itself; see <a class="reference internal" href="../generated/polaris.ocean.model.OceanModelStep.setup.html#polaris.ocean.model.OceanModelStep.setup" title="polaris.ocean.model.OceanModelStep.setup"><code class="xref py py-meth docutils literal notranslate"><span class="pre">setup()</span></code></a>.</p>
+<p><code class="docutils literal notranslate"><span class="pre">compute_cell_count()</span></code> reads <code class="docutils literal notranslate"><span class="pre">nCells</span></code> from the mesh once it exists, and before
+that falls back to the initial condition’s <code class="docutils literal notranslate"><span class="pre">approx_cell_count</span></code>.  Both are
+needed: resources are sized during setup, when an initial condition built by
+the <code class="docutils literal notranslate"><span class="pre">init</span></code> workflow has not been produced yet.</p>
+<p><code class="docutils literal notranslate"><span class="pre">dynamic_model_config()</span></code> is the single place where model-agnostic settings
+become model-facing ones.  It renders <code class="docutils literal notranslate"><span class="pre">forward.yaml</span></code> from the stage, always
+adds <code class="docutils literal notranslate"><span class="pre">forcing.yaml</span></code> (every realistic global forward run is wind-forced, and
+there is no option to turn that off), adds <code class="docutils literal notranslate"><span class="pre">forcing_streams.yaml</span></code> when the
+initial condition stages a file for it, and applies the horizontal-mixing
+options in MPAS-Ocean naming so that <code class="docutils literal notranslate"><span class="pre">mpaso_to_omega.yaml</span></code> translates them.</p>
+<p>The files the run writes are given as <code class="docutils literal notranslate"><span class="pre">output_filenames</span></code>, each declared as an
+output; the default is the single <code class="docutils literal notranslate"><span class="pre">output.nc</span></code>.  <code class="docutils literal notranslate"><span class="pre">stream_dirs</span></code> lists the
+directories under the step’s work directory that Omega’s streams write into,
+which the step creates in <code class="docutils literal notranslate"><span class="pre">dynamic_model_config()</span></code> because Omega does not.
+MPAS-Ocean needs no equivalent, since the MPAS framework creates stream
+directories itself.  Both are for a subclass like the one-year
+<code class="docutils literal notranslate"><span class="pre">analysis_output</span></code> step, which writes one file per month into <code class="docutils literal notranslate"><span class="pre">output/</span></code>.</p>
+</section>
+<section id="forwardstage">
+<h3>ForwardStage<a class="headerlink" href="#forwardstage" title="Link to this heading"></a></h3>
+<p><a class="reference internal" href="../generated/polaris.tasks.ocean.realistic_global.forward.stage.ForwardStage.html#polaris.tasks.ocean.realistic_global.forward.stage.ForwardStage" title="polaris.tasks.ocean.realistic_global.forward.stage.ForwardStage"><code class="xref py py-class docutils literal notranslate"><span class="pre">ForwardStage</span></code></a> is
+a dataclass of model-agnostic run settings — durations, cadences, time steps,
+damping, mixing and the physics switches — built from a
+<code class="docutils literal notranslate"><span class="pre">[realistic_global_forward]</span></code> config section by
+<a class="reference internal" href="../generated/polaris.tasks.ocean.realistic_global.forward.stage.ForwardStage.from_config.html#polaris.tasks.ocean.realistic_global.forward.stage.ForwardStage.from_config" title="polaris.tasks.ocean.realistic_global.forward.stage.ForwardStage.from_config"><code class="xref py py-meth docutils literal notranslate"><span class="pre">from_config()</span></code></a>.</p>
+<p>A simple forward run uses one.  It is a <em>stage</em> rather than a <em>config</em> because
+a multi-stage workflow such as dynamic adjustment builds a sequence of them and
+sets the restart fields to chain one into the next; the step supports that
+already even though nothing here uses it yet.</p>
+<p><a class="reference internal" href="../generated/polaris.tasks.ocean.realistic_global.forward.stage.ForwardStage.model_replacements.html#polaris.tasks.ocean.realistic_global.forward.stage.ForwardStage.model_replacements" title="polaris.tasks.ocean.realistic_global.forward.stage.ForwardStage.model_replacements"><code class="xref py py-meth docutils literal notranslate"><span class="pre">model_replacements()</span></code></a>
+maps a stage onto template replacements, and is where the two models diverge:
+the time integrator is chosen per model, the time step follows from that
+choice, and a non-split integrator has to advance on the short barotropic step.
+An explicit <code class="docutils literal notranslate"><span class="pre">dt</span></code> and <code class="docutils literal notranslate"><span class="pre">btr_dt</span></code> are the steps of a split integrator, and <code class="docutils literal notranslate"><span class="pre">rk4_dt</span></code>
+the step of a non-split one, so that one mesh config can give both.
+The MPAS-Ocean-only physics is separated into
+<a class="reference internal" href="../generated/polaris.tasks.ocean.realistic_global.forward.stage.ForwardStage.mpaso_physics_options.html#polaris.tasks.ocean.realistic_global.forward.stage.ForwardStage.mpaso_physics_options" title="polaris.tasks.ocean.realistic_global.forward.stage.ForwardStage.mpaso_physics_options"><code class="xref py py-meth docutils literal notranslate"><span class="pre">mpaso_physics_options()</span></code></a>
+from the options both models share in
+<a class="reference internal" href="../generated/polaris.tasks.ocean.realistic_global.forward.stage.ForwardStage.horiz_mixing_options.html#polaris.tasks.ocean.realistic_global.forward.stage.ForwardStage.horiz_mixing_options" title="polaris.tasks.ocean.realistic_global.forward.stage.ForwardStage.horiz_mixing_options"><code class="xref py py-meth docutils literal notranslate"><span class="pre">horiz_mixing_options()</span></code></a>,
+<a class="reference internal" href="../generated/polaris.tasks.ocean.realistic_global.forward.stage.ForwardStage.vert_mixing_options.html#polaris.tasks.ocean.realistic_global.forward.stage.ForwardStage.vert_mixing_options" title="polaris.tasks.ocean.realistic_global.forward.stage.ForwardStage.vert_mixing_options"><code class="xref py py-meth docutils literal notranslate"><span class="pre">vert_mixing_options()</span></code></a>
+and
+<a class="reference internal" href="../generated/polaris.tasks.ocean.realistic_global.forward.stage.ForwardStage.submesoscale_options.html#polaris.tasks.ocean.realistic_global.forward.stage.ForwardStage.submesoscale_options" title="polaris.tasks.ocean.realistic_global.forward.stage.ForwardStage.submesoscale_options"><code class="xref py py-meth docutils literal notranslate"><span class="pre">submesoscale_options()</span></code></a>.
+An option belongs in the MPAS-Ocean-only bucket only while
+<code class="docutils literal notranslate"><span class="pre">mpaso_to_omega.yaml</span></code> has no Omega counterpart for it.  Once it has one, it
+has to move to a shared bucket: otherwise Omega never sees it and runs its own
+default, which is how Omega came to run KPP in tasks that had turned it off.  A
+unit test fails if a mapped option is left behind, but it cannot see an Omega
+option that is on by default and not yet mapped, so check <code class="docutils literal notranslate"><span class="pre">Default.yml</span></code> when
+updating the Omega submodule.</p>
+<p>Horizontal-mixing scaling is the one setting split across buckets on purpose.
+MPAS-Ocean scales from <code class="docutils literal notranslate"><span class="pre">hmix_ref_cell_width</span></code> and Omega from the mesh’s median
+cell width, so Omega’s <code class="docutils literal notranslate"><span class="pre">MeshScalingEnable</span></code> is not a translation of MPAS-Ocean’s
+flags.  It goes in
+<a class="reference internal" href="../generated/polaris.tasks.ocean.realistic_global.forward.stage.ForwardStage.omega_physics_options.html#polaris.tasks.ocean.realistic_global.forward.stage.ForwardStage.omega_physics_options" title="polaris.tasks.ocean.realistic_global.forward.stage.ForwardStage.omega_physics_options"><code class="xref py py-meth docutils literal notranslate"><span class="pre">omega_physics_options()</span></code></a>.
+A blank reference is the median, from
+<a class="reference internal" href="../generated/polaris.tasks.ocean.realistic_global.forward.stage.omega_median_cell_width.html#polaris.tasks.ocean.realistic_global.forward.stage.omega_median_cell_width" title="polaris.tasks.ocean.realistic_global.forward.stage.omega_median_cell_width"><code class="xref py py-func docutils literal notranslate"><span class="pre">omega_median_cell_width()</span></code></a>,
+which <code class="docutils literal notranslate"><span class="pre">Forward</span></code> computes once the mesh exists and fills in with
+<a class="reference internal" href="../generated/polaris.tasks.ocean.realistic_global.forward.stage.ForwardStage.with_median_reference.html#polaris.tasks.ocean.realistic_global.forward.stage.ForwardStage.with_median_reference" title="polaris.tasks.ocean.realistic_global.forward.stage.ForwardStage.with_median_reference"><code class="xref py py-meth docutils literal notranslate"><span class="pre">with_median_reference()</span></code></a>.
+When a mesh states a reference, <code class="docutils literal notranslate"><span class="pre">horiz_mixing_options</span></code> converts the
+coefficients Omega gets by the ratio of the two widths (cubed for <code class="docutils literal notranslate"><span class="pre">del4</span></code>).  At
+setup, before an init-chain mesh has been made, neither happens until run time
+rewrites the config.  Do not map <code class="docutils literal notranslate"><span class="pre">config_hmix_scaleWithMesh</span></code> to
+<code class="docutils literal notranslate"><span class="pre">MeshScalingEnable</span></code> in <code class="docutils literal notranslate"><span class="pre">mpaso_to_omega.yaml</span></code>: a stated reference would then
+reach Omega unconverted.</p>
+<p>An unsupported <code class="docutils literal notranslate"><span class="pre">omega_time_integrator</span></code>, and a <code class="docutils literal notranslate"><span class="pre">damping</span></code> Omega cannot honor, are
+errors at run time rather than at setup, so that a task can be set up and the
+config changed before it is run.</p>
+</section>
+<section id="initialcondition">
+<h3>InitialCondition<a class="headerlink" href="#initialcondition" title="Link to this heading"></a></h3>
+<p><a class="reference internal" href="../generated/polaris.tasks.ocean.realistic_global.forward.initial_condition.InitialCondition.html#polaris.tasks.ocean.realistic_global.forward.initial_condition.InitialCondition" title="polaris.tasks.ocean.realistic_global.forward.initial_condition.InitialCondition"><code class="xref py py-class docutils literal notranslate"><span class="pre">InitialCondition</span></code></a>
+is the abstraction the whole package is arranged around.  It knows where the
+model input files come from, and the forward step asks rather than deciding.</p>
 <ul class="simple">
-<li><p>For Omega, a single file is linked three times, as <code class="docutils literal notranslate"><span class="pre">mesh.nc</span></code>,
-<code class="docutils literal notranslate"><span class="pre">vert_coord.nc</span></code> and <code class="docutils literal notranslate"><span class="pre">init.nc</span></code>, because a single file contains the converted
-mesh, initial condition, and vertical coordinate from MPAS-Ocean.</p></li>
-<li><p>For MPAS-Ocean, a <code class="docutils literal notranslate"><span class="pre">zerovel</span></code> file is linked as both <code class="docutils literal notranslate"><span class="pre">mesh.nc</span></code> and <code class="docutils literal notranslate"><span class="pre">init.nc</span></code>,
-and the <code class="docutils literal notranslate"><span class="pre">time_integrator</span></code> template replacement is rewritten from
-<code class="docutils literal notranslate"><span class="pre">SplitExplicitRK2</span></code> to MPAS-Ocean’s <code class="docutils literal notranslate"><span class="pre">split_explicit</span></code>.</p></li>
+<li><p><a class="reference internal" href="../generated/polaris.tasks.ocean.realistic_global.forward.initial_condition.StepInitialCondition.html#polaris.tasks.ocean.realistic_global.forward.initial_condition.StepInitialCondition" title="polaris.tasks.ocean.realistic_global.forward.initial_condition.StepInitialCondition"><code class="xref py py-class docutils literal notranslate"><span class="pre">StepInitialCondition</span></code></a>
+links the mesh, vertical coordinate, initial state and forcing from the
+<code class="docutils literal notranslate"><span class="pre">init</span></code> workflow’s step directories, and reuses the graph it already built.
+It links the initial state only when the run reads one, since a stage
+continuing from a restart does not.</p></li>
+<li><p><a class="reference internal" href="../generated/polaris.tasks.ocean.realistic_global.forward.initial_condition.DatabaseInitialCondition.html#polaris.tasks.ocean.realistic_global.forward.initial_condition.DatabaseInitialCondition" title="polaris.tasks.ocean.realistic_global.forward.initial_condition.DatabaseInitialCondition"><code class="xref py py-class docutils literal notranslate"><span class="pre">DatabaseInitialCondition</span></code></a>
+downloads a single cached file that supplies everything at once, plus a
+prebuilt graph for MPAS-Ocean.</p></li>
 </ul>
-<p><code class="docutils literal notranslate"><span class="pre">setup()</span></code> also renders <code class="docutils literal notranslate"><span class="pre">forward.yaml</span></code> with the template replacements supplied
-by the task, so the time step, run duration and output interval can be varied
-per mesh.</p>
-<p>The files the run writes are given as <code class="docutils literal notranslate"><span class="pre">output_filenames</span></code>, each of which is
-declared as an output; the default is the single <code class="docutils literal notranslate"><span class="pre">output.nc</span></code>.  A subclass
-whose streams write one file per month, such as the <code class="docutils literal notranslate"><span class="pre">1_year</span></code>
-<code class="docutils literal notranslate"><span class="pre">analysis_members</span></code> forward step, passes the whole list.</p>
-<p>The helper <code class="docutils literal notranslate"><span class="pre">_make_stream_dirs()</span></code> creates the directories Omega’s streams
-write into, listed in <code class="docutils literal notranslate"><span class="pre">stream_dirs</span></code>: <code class="docutils literal notranslate"><span class="pre">restart/</span></code> for the <code class="docutils literal notranslate"><span class="pre">RestartWrite</span></code>
-stream, plus whatever a subclass appends.  Omega does not create these
-directories itself, so without them the restart write fails at the end of the
-run.  It is called from both <code class="docutils literal notranslate"><span class="pre">setup()</span></code> and <code class="docutils literal notranslate"><span class="pre">runtime_setup()</span></code> so the
-directories exist whether or not setup and run happen in the same invocation.
-MPAS-Ocean needs no equivalent because the MPAS framework creates stream
-directories itself.</p>
-<p><code class="docutils literal notranslate"><span class="pre">compute_cell_count()</span></code> returns the cell count passed in by the task rather
-than reading the mesh, since the mesh is not available at setup time.</p>
+<p><code class="docutils literal notranslate"><span class="pre">get_forcing_filename()</span></code> is what lets both work through one mechanism: a source
+that stages a forcing file names it, and a source whose wind stress travels
+inside the initial condition names that file instead, so the forcing streams
+are pointed at the right place without the step knowing which case it is in.</p>
+</section>
+<section id="the-model-config-files">
+<h3>the model config files<a class="headerlink" href="#the-model-config-files" title="Link to this heading"></a></h3>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>file</p></th>
+<th class="head"><p>what it does</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">forward.yaml</span></code></p></td>
+<td><p>a Jinja2 template: time management, time step, output/restart/statistics streams</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">forcing.yaml</span></code></p></td>
+<td><p>turns wind forcing on; always added</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">forcing_streams.yaml</span></code></p></td>
+<td><p>points each model’s forcing stream at the staged file; added only when one is staged</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">restart_streams.yaml</span></code></p></td>
+<td><p>the restart read/write side; added only for a stage in a restart chain</p></td>
+</tr>
+</tbody>
+</table>
+<p><code class="docutils literal notranslate"><span class="pre">forward.yaml</span></code>’s <code class="docutils literal notranslate"><span class="pre">ocean:</span></code> section is model-neutral and reaches Omega through
+<code class="docutils literal notranslate"><span class="pre">mpaso_to_omega.yaml</span></code>; a unit test checks that every option in it has an Omega
+counterpart, since an unmapped option only warns and would silently give the
+two models different physics.</p>
 </section>
 <section id="viz">
 <h3>viz<a class="headerlink" href="#viz" title="Link to this heading"></a></h3>
-<p>The class <a class="reference internal" href="../generated/polaris.tasks.ocean.realistic_global.viz.Viz.html#polaris.tasks.ocean.realistic_global.viz.Viz" title="polaris.tasks.ocean.realistic_global.viz.Viz"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.tasks.ocean.realistic_global.viz.Viz</span></code></a> plots
-global maps of each state variable at the start and end of the run, plus the
-zonal and meridional wind stress from the initial condition.  The list of
+<p>The class <a class="reference internal" href="../generated/polaris.tasks.ocean.realistic_global.forward.viz.Viz.html#polaris.tasks.ocean.realistic_global.forward.viz.Viz" title="polaris.tasks.ocean.realistic_global.forward.viz.Viz"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.tasks.ocean.realistic_global.forward.viz.Viz</span></code></a>
+plots global maps of each state variable at the start and end of the run, plus
+the zonal and meridional wind stress that forced it.  Which file the stress
+comes from is the forward run’s initial condition’s business: a file of its
+own when the <code class="docutils literal notranslate"><span class="pre">init</span></code> workflow produced one, or the initial condition itself
+when the stress travels inside it.  The list of
 variables comes from the ocean component’s <code class="docutils literal notranslate"><span class="pre">state_vars</span></code>, with
 <code class="docutils literal notranslate"><span class="pre">normalVelocity</span></code> replaced by <code class="docutils literal notranslate"><span class="pre">kineticEnergyCell</span></code> because the normal velocity
 lives on edges and is not directly plottable as a cell field.  Variables
 missing from a given file are logged and skipped, so the step does not fail
 when a model writes a different subset of fields.</p>
 </section>
-</section>
-<section id="analysis-members">
-<span id="dev-ocean-realistic-global-analysis-members"></span><h2>analysis_members<a class="headerlink" href="#analysis-members" title="Link to this heading"></a></h2>
-<p>The <a class="reference internal" href="../generated/polaris.tasks.ocean.realistic_global.analysis_members.AnalysisMembers.html#polaris.tasks.ocean.realistic_global.analysis_members.AnalysisMembers" title="polaris.tasks.ocean.realistic_global.analysis_members.AnalysisMembers"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.tasks.ocean.realistic_global.analysis_members.AnalysisMembers</span></code></a>
-task runs the ocean model with the global-statistics analysis member enabled
-and plots the resulting time series.  It sits at
-<code class="docutils literal notranslate"><span class="pre">spherical/realistic_global/&lt;mesh&gt;/analysis_members/&lt;duration&gt;</span></code>, where the
-duration is <code class="docutils literal notranslate"><span class="pre">short</span></code> or <code class="docutils literal notranslate"><span class="pre">1_year</span></code>.  The <code class="docutils literal notranslate"><span class="pre">short</span></code> task contains a <code class="docutils literal notranslate"><span class="pre">forward</span></code> step,
-a <code class="docutils literal notranslate"><span class="pre">global_stats</span></code> step and a <code class="docutils literal notranslate"><span class="pre">viz</span></code> step.  The <code class="docutils literal notranslate"><span class="pre">1_year</span></code> task has no <code class="docutils literal notranslate"><span class="pre">viz</span></code> step,
-since that step reads the single <code class="docutils literal notranslate"><span class="pre">output.nc</span></code> the <code class="docutils literal notranslate"><span class="pre">short</span></code> run writes.  Only
-<code class="docutils literal notranslate"><span class="pre">forward</span></code> runs by default.</p>
-<p>Each task builds its own <a class="reference internal" href="../../generated/polaris.config.PolarisConfigParser.html#polaris.config.PolarisConfigParser" title="polaris.config.PolarisConfigParser"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.config.PolarisConfigParser</span></code></a> from
-<code class="docutils literal notranslate"><span class="pre">realistic_global.cfg</span></code>, <code class="docutils literal notranslate"><span class="pre">analysis_members.cfg</span></code> and <code class="docutils literal notranslate"><span class="pre">&lt;mesh&gt;.cfg</span></code> and shares it
-with all its steps, so that a user editing the config file in the task work
-directory affects the whole task.</p>
-<section id="id1">
-<h3>forward<a class="headerlink" href="#id1" title="Link to this heading"></a></h3>
+<section id="global-stats">
+<h3>global_stats<a class="headerlink" href="#global-stats" title="Link to this heading"></a></h3>
 <p>The class
-<a class="reference internal" href="../generated/polaris.tasks.ocean.realistic_global.analysis_members.forward.Forward.html#polaris.tasks.ocean.realistic_global.analysis_members.forward.Forward" title="polaris.tasks.ocean.realistic_global.analysis_members.forward.Forward"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.tasks.ocean.realistic_global.analysis_members.forward.Forward</span></code></a>
-is a subclass of the shared <a class="reference internal" href="#dev-ocean-realistic-global-framework"><span class="std std-ref">framework</span></a>
-<code class="docutils literal notranslate"><span class="pre">Forward</span></code>, which supplies the cached initial condition and the shared
-<code class="docutils literal notranslate"><span class="pre">forward.yaml</span></code>.  Its <code class="docutils literal notranslate"><span class="pre">setup()</span></code> fills in the time steps, the <code class="docutils literal notranslate"><span class="pre">short</span></code> run’s
-length and the number of MOC bins from the <code class="docutils literal notranslate"><span class="pre">[analysis_members]</span></code> config
-options before the yaml files are added, and adds the <code class="docutils literal notranslate"><span class="pre">mom_del2</span></code> and
-<code class="docutils literal notranslate"><span class="pre">mom_del4</span></code> config options as <code class="docutils literal notranslate"><span class="pre">config_mom_del2</span></code> and <code class="docutils literal notranslate"><span class="pre">config_mom_del4</span></code>, which
-are translated to Omega’s <code class="docutils literal notranslate"><span class="pre">ViscDel2</span></code> and <code class="docutils literal notranslate"><span class="pre">ViscDel4</span></code>.  The shared
-<code class="docutils literal notranslate"><span class="pre">forward.yaml</span></code> turns on Omega’s <code class="docutils literal notranslate"><span class="pre">MeshScalingEnable</span></code>, so these apply at the
-mesh’s median cell width and scale with cell width from there.</p>
-<p>For the <code class="docutils literal notranslate"><span class="pre">1_year</span></code> run, which supports only Omega, <code class="docutils literal notranslate"><span class="pre">setup()</span></code> also adds
-<code class="docutils literal notranslate"><span class="pre">monthly_output.yaml</span></code> after the shared yaml file, so that it overrides it.
-The fragment replaces the <code class="docutils literal notranslate"><span class="pre">History</span></code> stream with monthly snapshots in
-<code class="docutils literal notranslate"><span class="pre">output/</span></code>, turns on the <code class="docutils literal notranslate"><span class="pre">MonthlyAverages</span></code> and <code class="docutils literal notranslate"><span class="pre">MOC</span></code> analysis groups, adds
-kinetic energy and sea surface height to <code class="docutils literal notranslate"><span class="pre">GlobalStats</span></code>, and makes restarts
-monthly.  A stream’s options merge across yaml files, so the fragment has to
-set the <code class="docutils literal notranslate"><span class="pre">History</span></code> stream’s <code class="docutils literal notranslate"><span class="pre">FileFreq</span></code> explicitly: the shared value of 9999
-years would put every snapshot into one file.  The step appends <code class="docutils literal notranslate"><span class="pre">output</span></code> to
-<code class="docutils literal notranslate"><span class="pre">stream_dirs</span></code>, so that the directory exists before the run.</p>
+<a class="reference internal" href="../generated/polaris.tasks.ocean.realistic_global.forward.stats_analysis.StatsAnalysis.html#polaris.tasks.ocean.realistic_global.forward.stats_analysis.StatsAnalysis" title="polaris.tasks.ocean.realistic_global.forward.stats_analysis.StatsAnalysis"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.tasks.ocean.realistic_global.forward.stats_analysis.StatsAnalysis</span></code></a>
+plots, for each field, the minimum, maximum and mean over time along with a
+shaded standard-deviation envelope, and a companion panel showing the same
+quantities as anomalies relative to their initial values.  The fields are the
+ones named by <code class="docutils literal notranslate"><span class="pre">[realistic_global_forward_stats]</span> <span class="pre">fields</span></code>, or, when that is left
+empty, every field the run wrote statistics for.  The variable names are built
+from the field and the statistic by <code class="docutils literal notranslate"><span class="pre">polaris.ocean.global_stats_names</span></code> rather
+than mapped one by one, so a field that one model writes and the other does not
+needs no special handling.</p>
+<p>This step normalizes two differences between the models:</p>
+<ul class="simple">
+<li><p><strong>Output location.</strong> MPAS-Ocean writes <code class="docutils literal notranslate"><span class="pre">global_stats.nc</span></code> as named, while
+Omega treats the name as a prefix and builds the real one from the analysis
+period and the kind of output: <code class="docutils literal notranslate"><span class="pre">global_stats_1DayInstants</span></code> for daily
+instantaneous samples, or <code class="docutils literal notranslate"><span class="pre">..._1DayTimeStats</span></code> had a temporal reduction been
+asked for.  Both names come from
+<a class="reference internal" href="../generated/polaris.tasks.ocean.realistic_global.forward.stage.ForwardStage.stats_filename.html#polaris.tasks.ocean.realistic_global.forward.stage.ForwardStage.stats_filename" title="polaris.tasks.ocean.realistic_global.forward.stage.ForwardStage.stats_filename"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.tasks.ocean.realistic_global.forward.stage.ForwardStage.stats_filename()</span></code></a>,
+which lives on the stage because the period does; this step only asks it, in
+<code class="docutils literal notranslate"><span class="pre">setup()</span></code>, once the model is known.  Anything else that reads a stage’s
+statistics asks the same question the same way, so the two cannot drift
+apart.</p></li>
+<li><p><strong>Standard deviation.</strong> Omega writes a standard deviation
+(<code class="docutils literal notranslate"><span class="pre">&lt;Field&gt;_SpatialStdDev</span></code>), while MPAS-Ocean writes a true root-mean-square
+(<code class="docutils literal notranslate"><span class="pre">&lt;field&gt;Rms</span></code>), so for MPAS-Ocean the standard deviation is recovered as
+<span class="math notranslate nohighlight">\(\sigma = \sqrt{\mathrm{rms}^2 - \mathrm{mean}^2}\)</span>.</p></li>
+</ul>
+</section>
+</section>
+<section id="analysis-output">
+<span id="dev-ocean-realistic-global-analysis-output"></span><h2>analysis_output<a class="headerlink" href="#analysis-output" title="Link to this heading"></a></h2>
+<p>The <a class="reference internal" href="../generated/polaris.tasks.ocean.realistic_global.analysis_output.AnalysisOutput.html#polaris.tasks.ocean.realistic_global.analysis_output.AnalysisOutput" title="polaris.tasks.ocean.realistic_global.analysis_output.AnalysisOutput"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.tasks.ocean.realistic_global.analysis_output.AnalysisOutput</span></code></a>
+task runs a year of Omega, writing what the ocean analysis reads.  It takes an
+initial condition and optional <code class="docutils literal notranslate"><span class="pre">init_steps</span></code> as <code class="docutils literal notranslate"><span class="pre">RealisticGlobalForward</span></code> does,
+so it is registered on the cached meshes and on every mesh the <code class="docutils literal notranslate"><span class="pre">init</span></code> workflow
+builds.  Its config is built in layers, each overriding the ones before it:</p>
+<ol class="arabic simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">forward.cfg</span></code>, the forward tasks’ config;</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">analysis_output.cfg</span></code>, with the default <code class="docutils literal notranslate"><span class="pre">moc_num_bins</span></code>;</p></li>
+<li><p>the mesh’s file in <code class="docutils literal notranslate"><span class="pre">mesh_configs</span></code>, which sets fewer bins on a coarse mesh;</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">one_year.cfg</span></code>, which sets only the run duration.</p></li>
+</ol>
+<p>So the run is a <code class="docutils literal notranslate"><span class="pre">split_explicit</span></code> <code class="docutils literal notranslate"><span class="pre">forward</span></code> or <code class="docutils literal notranslate"><span class="pre">cached_forward</span></code> run a year long.</p>
+<p>Its step,
+<a class="reference internal" href="../generated/polaris.tasks.ocean.realistic_global.analysis_output.AnalysisOutputForward.html#polaris.tasks.ocean.realistic_global.analysis_output.AnalysisOutputForward" title="polaris.tasks.ocean.realistic_global.analysis_output.AnalysisOutputForward"><code class="xref py py-class docutils literal notranslate"><span class="pre">AnalysisOutputForward</span></code></a>,
+is a forward-package <code class="docutils literal notranslate"><span class="pre">Forward</span></code> whose <code class="docutils literal notranslate"><span class="pre">dynamic_model_config()</span></code> adds
+<code class="docutils literal notranslate"><span class="pre">monthly_output.yaml</span></code> after the forward step’s own yaml files, so that it
+overrides them.  The fragment replaces the <code class="docutils literal notranslate"><span class="pre">History</span></code> stream with monthly
+snapshots in <code class="docutils literal notranslate"><span class="pre">output/</span></code>, turns on the <code class="docutils literal notranslate"><span class="pre">MonthlyAverages</span></code> and <code class="docutils literal notranslate"><span class="pre">MOC</span></code> analysis
+groups with <code class="docutils literal notranslate"><span class="pre">moc_num_bins</span></code> latitude bins, adds kinetic energy and
+sea surface height to <code class="docutils literal notranslate"><span class="pre">GlobalStats</span></code>, and makes restarts monthly.  A stream’s
+options merge across yaml files, so the fragment has to set the <code class="docutils literal notranslate"><span class="pre">History</span></code>
+stream’s <code class="docutils literal notranslate"><span class="pre">FileFreq</span></code> explicitly: the forward step’s value of 9999 years would
+put every snapshot into one file.  The step appends <code class="docutils literal notranslate"><span class="pre">output</span></code> to <code class="docutils literal notranslate"><span class="pre">stream_dirs</span></code>
+and raises at setup unless the model is Omega.</p>
 <p>Every monthly file is declared as an output, so that a run whose analysis
 groups did not write is reported as a missing output rather than found later
 by the analysis.  Omega names a time-mean file for the instant it was
 finalized (E3SM-Project/Omega#554), so a run that starts on <code class="docutils literal notranslate"><span class="pre">0001-01-01</span></code>
 writes the files covering year 1 as <code class="docutils literal notranslate"><span class="pre">0001-02</span></code> through <code class="docutils literal notranslate"><span class="pre">0002-01</span></code>;
-<code class="docutils literal notranslate"><span class="pre">_monthly_filenames()</span></code> builds the names that way, and the snapshots, taken at
-those instants, are named the same way.</p>
-</section>
-<section id="global-stats">
-<h3>global_stats<a class="headerlink" href="#global-stats" title="Link to this heading"></a></h3>
-<p>The class
-<a class="reference internal" href="../generated/polaris.tasks.ocean.realistic_global.analysis_members.stats_analysis.StatsAnalysis.html#polaris.tasks.ocean.realistic_global.analysis_members.stats_analysis.StatsAnalysis" title="polaris.tasks.ocean.realistic_global.analysis_members.stats_analysis.StatsAnalysis"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.tasks.ocean.realistic_global.analysis_members.stats_analysis.StatsAnalysis</span></code></a>
-plots, for each state variable, the minimum, maximum and mean over time along
-with a shaded standard-deviation envelope, and a companion panel showing the
-same quantities as anomalies relative to their initial values.</p>
-<p>This step normalizes two differences between the models:</p>
-<ul class="simple">
-<li><p><strong>Output location.</strong> Omega writes the statistics to a separate
-<code class="docutils literal notranslate"><span class="pre">global_stats_1DayInstants</span></code> file, whereas MPAS-Ocean writes
-<code class="docutils literal notranslate"><span class="pre">global_stats.nc</span></code>.  The input file is therefore selected in <code class="docutils literal notranslate"><span class="pre">setup()</span></code>, once
-the model is known.</p></li>
-<li><p><strong>Standard deviation.</strong> Omega writes the standard deviation directly in its
-<code class="docutils literal notranslate"><span class="pre">Rms</span></code> field, while MPAS-Ocean writes a true root-mean-square, so the
-standard deviation is recovered as
-<span class="math notranslate nohighlight">\(\sigma = \sqrt{\mathrm{rms}^2 - \mathrm{mean}^2}\)</span>.</p></li>
-</ul>
-</section>
+<code class="docutils literal notranslate"><span class="pre">get_monthly_filenames()</span></code> builds the names that way, and the snapshots, taken
+at those instants, are named the same way.</p>
 </section>
 <section id="restart">
 <span id="dev-ocean-realistic-global-restart"></span><h2>restart<a class="headerlink" href="#restart" title="Link to this heading"></a></h2>
-<p>The <a class="reference internal" href="../generated/polaris.tasks.ocean.realistic_global.restart.Restart.html#polaris.tasks.ocean.realistic_global.restart.Restart" title="polaris.tasks.ocean.realistic_global.restart.Restart"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.tasks.ocean.realistic_global.restart.Restart</span></code></a> task is a
-regression test for
-<a class="reference external" href="https://github.com/E3SM-Project/Omega/issues/482">Omega #482</a>.  It runs the
-same period twice, once in one go and once split across a restart, and checks
-that the two histories agree.</p>
+<p>The <a class="reference internal" href="../generated/polaris.tasks.ocean.realistic_global.restart.Restart.html#polaris.tasks.ocean.realistic_global.restart.Restart" title="polaris.tasks.ocean.realistic_global.restart.Restart"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.tasks.ocean.realistic_global.restart.Restart</span></code></a> task is
+shaped like CIME’s ERS (exact restart) test, since Omega’s restarts will be
+tested that way once Omega runs in E3SM.  A <code class="docutils literal notranslate"><span class="pre">full_run</span></code> covers the whole period
+and writes a restart partway through; a <code class="docutils literal notranslate"><span class="pre">restart_run</span></code> continues from that
+restart to the end; and <code class="docutils literal notranslate"><span class="pre">validate</span></code> checks that the two histories agree.  It is
+also a regression test for
+<a class="reference external" href="https://github.com/E3SM-Project/Omega/issues/482">Omega #482</a>, which ERS
+alone would not catch: CIME’s restart run writes history files of its own,
+whereas #482 broke appending to a history file that already held the frames
+from before the restart.  So the full run also writes its history up to the
+restart to a file of its own, and the restart run appends to a copy of it.</p>
 <p>The run lengths live as module-level constants in the task rather than in the
 config file, since they are chosen to make the failure visible – two history
-frames per segment, so that a segment that clobbered rather than appended
-would be obvious – rather than to be tuned by a user.</p>
-<p>The per-mesh time steps and viscosity are module-level constants too.  The
-viscosity is passed to every step as a model config option rather than set in
-the task’s <code class="docutils literal notranslate"><span class="pre">forward.yaml</span></code>, which only the segments of the restart chain read,
-so that the full run and the chain run the same model.</p>
+frames on each side of the restart, so that a restart run that clobbered
+rather than appended would be obvious – rather than to be tuned by a user.</p>
+<p>Everything else comes from the <code class="docutils literal notranslate"><span class="pre">[realistic_global_forward]</span></code> config options,
+as for any other forward run, including the time steps and viscosity in
+<code class="docutils literal notranslate"><span class="pre">e3sm-qu240</span></code>’s per-mesh config file; the task’s <code class="docutils literal notranslate"><span class="pre">restart.cfg</span></code> sets only the
+equation of state.  Both forward steps are <code class="docutils literal notranslate"><span class="pre">RestartStep</span></code>s, so that the two run
+the same model.</p>
 <section id="restart-step">
 <h3>restart_step<a class="headerlink" href="#restart-step" title="Link to this heading"></a></h3>
 <p>The class
 <a class="reference internal" href="../generated/polaris.tasks.ocean.realistic_global.restart.restart_step.RestartStep.html#polaris.tasks.ocean.realistic_global.restart.restart_step.RestartStep" title="polaris.tasks.ocean.realistic_global.restart.restart_step.RestartStep"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.tasks.ocean.realistic_global.restart.restart_step.RestartStep</span></code></a>
-extends the shared <code class="docutils literal notranslate"><span class="pre">Forward</span></code> step with what a segment of a restart chain
-needs.  <code class="docutils literal notranslate"><span class="pre">setup()</span></code> layers the task’s own <code class="docutils literal notranslate"><span class="pre">forward.yaml</span></code> on top of the shared
-one; because model config data is processed in the order it was added, the
-task’s overrides win.  It also rejects any model other than Omega, since the
+extends the
+<a class="reference internal" href="../generated/polaris.tasks.ocean.realistic_global.forward.forward.Forward.html#polaris.tasks.ocean.realistic_global.forward.forward.Forward" title="polaris.tasks.ocean.realistic_global.forward.forward.Forward"><code class="xref py py-class docutils literal notranslate"><span class="pre">Forward</span></code></a> step
+with what the full run and the restart run need.  <code class="docutils literal notranslate"><span class="pre">dynamic_model_config()</span></code>
+builds the step’s
+<a class="reference internal" href="../generated/polaris.tasks.ocean.realistic_global.forward.stage.ForwardStage.html#polaris.tasks.ocean.realistic_global.forward.stage.ForwardStage" title="polaris.tasks.ocean.realistic_global.forward.stage.ForwardStage"><code class="xref py py-class docutils literal notranslate"><span class="pre">ForwardStage</span></code></a>
+from config with the step’s run duration and the task’s history interval, so
+that config changes after setup still take effect, and then layers the task’s
+<code class="docutils literal notranslate"><span class="pre">full_run.yaml</span></code> or <code class="docutils literal notranslate"><span class="pre">restart_run.yaml</span></code> on top of the shared <code class="docutils literal notranslate"><span class="pre">forward.yaml</span></code>;
+because model config data is processed in the order it was added, the task’s
+overrides win.  <code class="docutils literal notranslate"><span class="pre">setup()</span></code> rejects any model other than Omega, since the
 failure being tested cannot arise in MPAS-Ocean.</p>
-<p><code class="docutils literal notranslate"><span class="pre">runtime_setup()</span></code> creates the restart directory this segment writes into,
-which Omega does not create itself, and, for a continuing segment, copies the
-previous segment’s <code class="docutils literal notranslate"><span class="pre">output.nc</span></code> into place.  Each segment gets a directory of
-its own under the task’s <code class="docutils literal notranslate"><span class="pre">restarts</span></code>, named for the step, and a continuing
-segment reads its predecessor’s.  A single shared directory would mean a
-segment’s own end-of-run restart replaced the pointer file it had just read
-from, so re-running that step alone would silently continue from the wrong
-time.  The copy is what makes the test
-meaningful: it reproduces what a continuation run finds on disk, a history
-file that already holds the earlier frames.  It is a copy rather than a
-symlink so that appending to it cannot reach back into the previous segment’s
-work directory.</p>
-<p>The previous segment’s output is also added as an input file under the name
-<code class="docutils literal notranslate"><span class="pre">previous_output.nc</span></code>, which both establishes the dependency between the two
-steps and keeps the symlink out of the way of the copy.</p>
+<p><code class="docutils literal notranslate"><span class="pre">full_run.yaml</span></code> writes a restart every <code class="docutils literal notranslate"><span class="pre">restart_freq</span></code> seconds, so once at the
+restart time and again at the end, with no pointer file.  It also adds a
+<code class="docutils literal notranslate"><span class="pre">HistoryBeforeRestart</span></code> stream: a copy of the base <code class="docutils literal notranslate"><span class="pre">History</span></code> stream, writing
+<code class="docutils literal notranslate"><span class="pre">output_before_restart.nc</span></code>, that stops with an end time between the frame at
+the restart time and the next one, since Omega writes nothing once a stream’s
+end time has passed.  A unit test checks that the copy matches <code class="docutils literal notranslate"><span class="pre">History</span></code> in
+everything else, since the restart run appends to that file with the
+<code class="docutils literal notranslate"><span class="pre">History</span></code> stream.</p>
+<p><code class="docutils literal notranslate"><span class="pre">restart_run.yaml</span></code> continues from the full run’s restart at the restart time,
+read by name rather than through a pointer file, since the full run writes
+another restart at its end.  The restart’s file name is computed in
+<code class="docutils literal notranslate"><span class="pre">restart_file()</span></code> the way Omega stamps it.  Both steps declare that restart to
+Polaris, the full run as an output and the restart run as an input, so a
+missing restart is caught before the model launches.  It does not use the
+<code class="docutils literal notranslate"><span class="pre">restart_in</span></code>/<code class="docutils literal notranslate"><span class="pre">restart_out</span></code> chaining of <code class="docutils literal notranslate"><span class="pre">ForwardStage</span></code>, which is for chaining
+whole runs one after another.</p>
+<p><code class="docutils literal notranslate"><span class="pre">runtime_setup()</span></code> creates the restart directory the step writes into, which
+Omega does not create itself, and, for the restart run, copies the full run’s
+<code class="docutils literal notranslate"><span class="pre">output_before_restart.nc</span></code> into place as <code class="docutils literal notranslate"><span class="pre">output.nc</span></code>.  Each step gets a
+directory of its own under the task’s <code class="docutils literal notranslate"><span class="pre">restarts</span></code>, named for the step, so the
+restart run’s restart at its end cannot replace one the full run wrote.  The
+copy is what makes the #482 check meaningful: it reproduces what a continuing
+run finds on disk, a history file that already holds the earlier frames.  It
+is a copy rather than a symlink so that appending to it cannot reach back into
+the full run’s work directory.  The full run’s history up to the restart is
+also added as an input file under the name <code class="docutils literal notranslate"><span class="pre">previous_output.nc</span></code>, which both
+establishes the dependency between the two steps and keeps the symlink out of
+the way of the copy.</p>
 </section>
 <section id="the-start-time">
 <h3>the start time<a class="headerlink" href="#the-start-time" title="Link to this heading"></a></h3>
-<p>The one subtlety in <code class="docutils literal notranslate"><span class="pre">forward.yaml</span></code> is that every step is given the same
-<code class="docutils literal notranslate"><span class="pre">StartTime</span></code>, the start of the simulation, rather than the start of its own
-segment.  Omega measures the history time axis from the clock’s start time, so
-a segment that moves the start time restarts that axis at zero, and its first
-frame then collides with the first frame already in the file.  That collision
-is what silently overwrote the earlier frames in #482.  On a <code class="docutils literal notranslate"><span class="pre">Continue</span></code> the
-clock’s current time comes from the restart file instead, so the start time
-does not need to move.</p>
+<p>The one subtlety in <code class="docutils literal notranslate"><span class="pre">restart_run.yaml</span></code> is that the restart run is given the
+same <code class="docutils literal notranslate"><span class="pre">StartTime</span></code> as the full run, the start of the simulation, rather than the
+restart time.  Omega measures the history time axis from the clock’s start
+time, so a run that moves the start time restarts that axis at zero, and its
+first frame then collides with the first frame already in the file.  That
+collision is what silently overwrote the earlier frames in #482.  On a
+<code class="docutils literal notranslate"><span class="pre">Continue</span></code> the clock’s current time comes from the restart file instead, so
+the start time does not need to move.</p>
 </section>
 <section id="validate">
 <h3>validate<a class="headerlink" href="#validate" title="Link to this heading"></a></h3>
 <p>The class
 <a class="reference internal" href="../generated/polaris.tasks.ocean.realistic_global.restart.validate.Validate.html#polaris.tasks.ocean.realistic_global.restart.validate.Validate" title="polaris.tasks.ocean.realistic_global.restart.validate.Validate"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.tasks.ocean.realistic_global.restart.validate.Validate</span></code></a>
-compares the history of the restart chain with that of the full run in two
-ways.  It reads the elapsed-time coordinate with <code class="docutils literal notranslate"><span class="pre">xarray</span></code> directly, rather
-than through the Omega-to-MPAS-Ocean renaming in <code class="docutils literal notranslate"><span class="pre">open_model_dataset()</span></code>,
-because that coordinate is the variable under test; it then compares the state
-variables with <a class="reference internal" href="../../generated/polaris.validate.compare_variables.html#polaris.validate.compare_variables" title="polaris.validate.compare_variables"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.validate.compare_variables()</span></code></a> as any other
-exact-restart test would.  A chain that wrote fewer frames than the full run
-is reported as the #482 failure specifically, since that is the shape the bug
-takes.</p>
+compares the history of the restart run with that of the full run.  It reads
+the elapsed-time coordinate with <code class="docutils literal notranslate"><span class="pre">xarray</span></code> directly, rather than through the
+Omega-to-MPAS-Ocean renaming in <code class="docutils literal notranslate"><span class="pre">open_model_dataset()</span></code>, because that coordinate
+is the variable under test; it then compares the state variables with
+<a class="reference internal" href="../../generated/polaris.validate.compare_variables.html#polaris.validate.compare_variables" title="polaris.validate.compare_variables"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.validate.compare_variables()</span></code></a> as any other exact-restart test
+would.  A restart run whose history has fewer frames than the full run’s is
+reported as the #482 failure specifically, since that is the shape the bug
+takes.  It also checks that the history up to the restart holds fewer frames
+than the full run’s and matches its first ones; otherwise the restart run
+would have had nothing to append to, and the time-axis check would pass
+without testing anything.</p>
 </section>
 </section>
 <section id="hydrography-woa23">
@@ -621,7 +786,7 @@ falls back on <code class="docutils literal notranslate"><span class="pre">densi
 since it is practical rather than absolute salinity.  The limits, by
 contrast, are computed per plot from the data range and written into
 <code class="docutils literal notranslate"><span class="pre">[realistic_global_init_viz]</span></code> just before each call.  That is deliberate and
-differs from the <code class="docutils literal notranslate"><span class="pre">analysis_members</span></code> <code class="docutils literal notranslate"><span class="pre">viz</span></code> step, which reads fixed limits from
+differs from the forward <code class="docutils literal notranslate"><span class="pre">viz</span></code> step, which reads fixed limits from
 <code class="docutils literal notranslate"><span class="pre">realistic_global.cfg</span></code>: fixed limits are what you want to compare runs or
 times against each other, and the data range is what you want when the
 question is whether a brand-new initial condition is sane.  For a diverging

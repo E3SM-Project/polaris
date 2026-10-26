@@ -16,6 +16,7 @@
       ~ForcingStep.__init__
       ~ForcingStep.add_cf_check
       ~ForcingStep.add_dependency
+      ~ForcingStep.add_forcing_input_file
       ~ForcingStep.add_horiz_mesh_input_file
       ~ForcingStep.add_init_input_file
       ~ForcingStep.add_input_file

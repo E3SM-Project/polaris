@@ -16,6 +16,7 @@
       ~FilamentAnalysis.__init__
       ~FilamentAnalysis.add_cf_check
       ~FilamentAnalysis.add_dependency
+      ~FilamentAnalysis.add_forcing_input_file
       ~FilamentAnalysis.add_horiz_mesh_input_file
       ~FilamentAnalysis.add_init_input_file
       ~FilamentAnalysis.add_input_file

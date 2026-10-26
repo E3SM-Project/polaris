@@ -16,6 +16,7 @@
       ~Extinction.__init__
       ~Extinction.add_cf_check
       ~Extinction.add_dependency
+      ~Extinction.add_forcing_input_file
       ~Extinction.add_horiz_mesh_input_file
       ~Extinction.add_init_input_file
       ~Extinction.add_input_file

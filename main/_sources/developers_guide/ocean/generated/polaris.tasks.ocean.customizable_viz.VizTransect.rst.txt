@@ -16,6 +16,7 @@
       ~VizTransect.__init__
       ~VizTransect.add_cf_check
       ~VizTransect.add_dependency
+      ~VizTransect.add_forcing_input_file
       ~VizTransect.add_horiz_mesh_input_file
       ~VizTransect.add_init_input_file
       ~VizTransect.add_input_file

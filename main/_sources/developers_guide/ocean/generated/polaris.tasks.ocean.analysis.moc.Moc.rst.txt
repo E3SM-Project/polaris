@@ -16,6 +16,7 @@
       ~Moc.__init__
       ~Moc.add_cf_check
       ~Moc.add_dependency
+      ~Moc.add_forcing_input_file
       ~Moc.add_horiz_mesh_input_file
       ~Moc.add_init_input_file
       ~Moc.add_input_file

@@ -16,6 +16,7 @@
       ~VizHorizField.__init__
       ~VizHorizField.add_cf_check
       ~VizHorizField.add_dependency
+      ~VizHorizField.add_forcing_input_file
       ~VizHorizField.add_horiz_mesh_input_file
       ~VizHorizField.add_init_input_file
       ~VizHorizField.add_input_file

@@ -20,7 +20,7 @@
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
     <link rel="next" title="polaris.tasks.ocean.realistic_global.restart.restart_step.RestartStep" href="polaris.tasks.ocean.realistic_global.restart.restart_step.RestartStep.html" />
-    <link rel="prev" title="polaris.tasks.ocean.realistic_global.analysis_members.stats_analysis.StatsAnalysis.run" href="polaris.tasks.ocean.realistic_global.analysis_members.stats_analysis.StatsAnalysis.run.html" />
+    <link rel="prev" title="polaris.tasks.ocean.realistic_global.analysis_output.forward.get_monthly_filenames" href="polaris.tasks.ocean.realistic_global.analysis_output.forward.get_monthly_filenames.html" />
     <link href="../../../_static/style.css" rel="stylesheet" type="text/css">
 
 </head>
@@ -142,35 +142,29 @@
 <h1>polaris.tasks.ocean.realistic_global.restart.Restart<a class="headerlink" href="#polaris-tasks-ocean-realistic-global-restart-restart" title="Link to this heading"></a></h1>
 <dl class="py class">
 <dt class="sig sig-object py" id="polaris.tasks.ocean.realistic_global.restart.Restart">
-<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">polaris.tasks.ocean.realistic_global.restart.</span></span><span class="sig-name descname"><span class="pre">Restart</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">component</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">subdir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mesh_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mpaso_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">omega_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ncells</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/polaris/tasks/ocean/realistic_global/restart.html#Restart"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#polaris.tasks.ocean.realistic_global.restart.Restart" title="Link to this definition"></a></dt>
-<dd><p>A task that checks that splitting a run across a restart leaves the
-history output alone.</p>
-<p>A <code class="docutils literal notranslate"><span class="pre">full_run</span></code> covers the whole period in one go.  Two further steps cover
-the same period in two segments, the second continuing from the restart
-the first wrote and appending its frames to the history the first left
-behind.  A <code class="docutils literal notranslate"><span class="pre">validate</span></code> step then checks that the two histories hold the
-same frames at the same times and the same state.</p>
-<p>This is a regression test for Omega #482, where the continuing segment
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">polaris.tasks.ocean.realistic_global.restart.</span></span><span class="sig-name descname"><span class="pre">Restart</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">component</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mesh_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">init_condition</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="polaris.tasks.ocean.realistic_global.forward.initial_condition.InitialCondition.html#polaris.tasks.ocean.realistic_global.forward.initial_condition.InitialCondition" title="polaris.tasks.ocean.realistic_global.forward.initial_condition.InitialCondition"><span class="pre">InitialCondition</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/polaris/tasks/ocean/realistic_global/restart.html#Restart"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#polaris.tasks.ocean.realistic_global.restart.Restart" title="Link to this definition"></a></dt>
+<dd><p>A task that checks that a run continued from a restart reproduces the
+uninterrupted run, history included, shaped like CIME’s ERS test.</p>
+<p>A <code class="docutils literal notranslate"><span class="pre">full_run</span></code> covers the whole period and writes a restart partway
+through, along with its history up to that restart in a file of its own.
+A <code class="docutils literal notranslate"><span class="pre">restart_run</span></code> continues from that restart to the end of the period,
+appending its frames to a copy of that history.  A <code class="docutils literal notranslate"><span class="pre">validate</span></code> step then
+checks that the two histories hold the same frames at the same times and
+the same state.</p>
+<p>Appending is also a regression test for Omega #482, where a continuing run
 measured its history time axis from its own start rather than the
 simulation’s, so its first frame collided with the first frame already in
-the file and silently replaced the earlier half of the run.</p>
+the file and silently replaced the earlier frames.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="polaris.tasks.ocean.realistic_global.restart.Restart.__init__">
-<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">component</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">subdir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mesh_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mpaso_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">omega_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ncells</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/polaris/tasks/ocean/realistic_global/restart.html#Restart.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#polaris.tasks.ocean.realistic_global.restart.Restart.__init__" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">component</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mesh_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">init_condition</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="polaris.tasks.ocean.realistic_global.forward.initial_condition.InitialCondition.html#polaris.tasks.ocean.realistic_global.forward.initial_condition.InitialCondition" title="polaris.tasks.ocean.realistic_global.forward.initial_condition.InitialCondition"><span class="pre">InitialCondition</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/polaris/tasks/ocean/realistic_global/restart.html#Restart.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#polaris.tasks.ocean.realistic_global.restart.Restart.__init__" title="Link to this definition"></a></dt>
 <dd><p>Create the task</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>component</strong> (<a class="reference internal" href="polaris.tasks.ocean.Ocean.html#polaris.tasks.ocean.Ocean" title="polaris.tasks.ocean.Ocean"><em>polaris.tasks.ocean.Ocean</em></a>) – The ocean component that this task belongs to</p></li>
-<li><p><strong>subdir</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><em>str</em></a>) – The subdirectory for the task, to which <code class="docutils literal notranslate"><span class="pre">restart</span></code> will be
-appended</p></li>
-<li><p><strong>mesh_name</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><em>str</em></a>) – The name of the mesh (e.g. <code class="docutils literal notranslate"><span class="pre">QU.240km</span></code>)</p></li>
-<li><p><strong>mpaso_id</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.15)"><em>int</em></a>) – The ID of the MPAS-Ocean initial condition in the Polaris input
-database</p></li>
-<li><p><strong>omega_id</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.15)"><em>int</em></a>) – The ID of the Omega initial condition in the Polaris input
-database</p></li>
-<li><p><strong>ncells</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.15)"><em>int</em></a>) – The approximate number of cells in the mesh, used to constrain
-resources</p></li>
+<li><p><strong>mesh_name</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><em>str</em></a>) – The name of the mesh (e.g. <code class="docutils literal notranslate"><span class="pre">e3sm-qu240</span></code>)</p></li>
+<li><p><strong>init_condition</strong> (<a class="reference internal" href="polaris.tasks.ocean.realistic_global.forward.initial_condition.InitialCondition.html#polaris.tasks.ocean.realistic_global.forward.initial_condition.InitialCondition" title="polaris.tasks.ocean.realistic_global.forward.initial_condition.InitialCondition"><em>InitialCondition</em></a>) – The source of the model input files, shared by every forward step</p></li>
 </ul>
 </dd>
 </dl>
@@ -179,7 +173,7 @@ resources</p></li>
 <p class="rubric">Methods</p>
 <table class="autosummary longtable docutils align-default">
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#polaris.tasks.ocean.realistic_global.restart.Restart.__init__" title="polaris.tasks.ocean.realistic_global.restart.Restart.__init__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code></a>(component, subdir, mesh_name, ...)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#polaris.tasks.ocean.realistic_global.restart.Restart.__init__" title="polaris.tasks.ocean.realistic_global.restart.Restart.__init__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code></a>(component, mesh_name, init_condition)</p></td>
 <td><p>Create the task</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_step</span></code>([step, subdir, symlink, run_by_default])</p></td>
@@ -204,7 +198,7 @@ resources</p></li>
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="polaris.tasks.ocean.realistic_global.analysis_members.stats_analysis.StatsAnalysis.run.html" class="btn btn-neutral float-left" title="polaris.tasks.ocean.realistic_global.analysis_members.stats_analysis.StatsAnalysis.run" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="polaris.tasks.ocean.realistic_global.analysis_output.forward.get_monthly_filenames.html" class="btn btn-neutral float-left" title="polaris.tasks.ocean.realistic_global.analysis_output.forward.get_monthly_filenames" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
         <a href="polaris.tasks.ocean.realistic_global.restart.restart_step.RestartStep.html" class="btn btn-neutral float-right" title="polaris.tasks.ocean.realistic_global.restart.restart_step.RestartStep" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 

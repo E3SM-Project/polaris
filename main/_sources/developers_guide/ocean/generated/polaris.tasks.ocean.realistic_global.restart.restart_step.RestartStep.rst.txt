@@ -16,6 +16,7 @@
       ~RestartStep.__init__
       ~RestartStep.add_cf_check
       ~RestartStep.add_dependency
+      ~RestartStep.add_forcing_input_file
       ~RestartStep.add_horiz_mesh_input_file
       ~RestartStep.add_init_input_file
       ~RestartStep.add_input_file
@@ -42,9 +43,8 @@
       ~RestartStep.open_model_dataset
       ~RestartStep.partition
       ~RestartStep.process_inputs_and_outputs
-      ~RestartStep.restart_read_target
-      ~RestartStep.restart_write_dir
-      ~RestartStep.restart_write_target
+      ~RestartStep.restart_file
+      ~RestartStep.restart_target
       ~RestartStep.run
       ~RestartStep.runtime_setup
       ~RestartStep.set_model_resources

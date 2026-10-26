@@ -1,0 +1,26 @@
+﻿polaris.tasks.ocean.realistic\_global.analysis\_output.AnalysisOutput
+=====================================================================
+
+.. currentmodule:: polaris.tasks.ocean.realistic_global.analysis_output
+
+.. autoclass:: AnalysisOutput
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~AnalysisOutput.__init__
+      ~AnalysisOutput.add_step
+      ~AnalysisOutput.configure
+      ~AnalysisOutput.remove_step
+      ~AnalysisOutput.set_shared_config
+   
+   
+
+   
+   
+   

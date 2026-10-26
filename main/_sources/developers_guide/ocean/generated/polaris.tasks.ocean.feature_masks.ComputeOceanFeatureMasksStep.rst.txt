@@ -16,6 +16,7 @@
       ~ComputeOceanFeatureMasksStep.__init__
       ~ComputeOceanFeatureMasksStep.add_cf_check
       ~ComputeOceanFeatureMasksStep.add_dependency
+      ~ComputeOceanFeatureMasksStep.add_forcing_input_file
       ~ComputeOceanFeatureMasksStep.add_horiz_mesh_input_file
       ~ComputeOceanFeatureMasksStep.add_init_input_file
       ~ComputeOceanFeatureMasksStep.add_input_file
