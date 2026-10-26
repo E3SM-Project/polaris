@@ -150,10 +150,11 @@ class GlobalStatsTimeSeries(AnalysisStep):
         plot_global_stats(
             time=time,
             stats=values,
-            field_name=_axis_label(ds, field, field_stats),
+            field_name=field,
             out_filename=self.work_path(f'{prefix}.png'),
             x_label='Simulation years',
             title=f'{simulation_name}: global {field}',
+            units=units_to_mathtext(_units(ds, field_stats)),
         )
         self.add_produced_file(f'{prefix}.png')
 
@@ -226,14 +227,6 @@ class GlobalStatsTimeSeries(AnalysisStep):
             'source_files': ', '.join(self.input_filenames),
         }
         ds_out.to_netcdf(out_filename)
-
-
-def _axis_label(ds, field, field_stats):
-    """Label the vertical axes with the field and its units, if it has any"""
-    units = units_to_mathtext(_units(ds, field_stats))
-    if units:
-        return f'{field} ({units})'
-    return field
 
 
 def _units(ds, field_stats):

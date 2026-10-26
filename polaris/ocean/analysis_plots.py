@@ -28,7 +28,13 @@ _STAT_STYLES = [('min', ':k'), ('max', '--k'), ('mean', '-k')]
 
 
 def plot_global_stats(
-    time, stats, field_name, out_filename, x_label='Days', title=None
+    time,
+    stats,
+    field_name,
+    out_filename,
+    x_label='Days',
+    title=None,
+    units=None,
 ):
     """
     Plot a time series of the global statistics of one field
@@ -60,7 +66,12 @@ def plot_global_stats(
 
     title : str, optional
         A title for the figure
+
+    units : str, optional
+        The units of the field, already formatted for display, used in the
+        labels of both vertical axes
     """
+    axis_label = field_name if not units else f'{field_name} ({units})'
     with mplstyle_context():
         fig, axes = plt.subplots(
             nrows=2, ncols=1, sharex=True, sharey=False, figsize=(5, 8)
@@ -99,8 +110,8 @@ def plot_global_stats(
         )
         axes[0].set_xlabel(x_label)
         axes[1].set_xlabel(x_label)
-        axes[0].set_ylabel(field_name)
-        axes[1].set_ylabel(f'{field_name} - {field_name} at t=0')
+        axes[0].set_ylabel(axis_label)
+        axes[1].set_ylabel(rf'$\Delta$ {axis_label} from t=0')
         axes[0].set_xlim([min(time), max(time)])
         if title is not None:
             fig.suptitle(title)
