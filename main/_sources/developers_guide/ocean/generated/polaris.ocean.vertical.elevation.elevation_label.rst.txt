@@ -1,0 +1,6 @@
+﻿polaris.ocean.vertical.elevation.elevation\_label
+=================================================
+
+.. currentmodule:: polaris.ocean.vertical.elevation
+
+.. autofunction:: elevation_label

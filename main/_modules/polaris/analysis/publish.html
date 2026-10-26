@@ -118,6 +118,7 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">polaris.analysis.thumbnail</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">DEFAULT_FORMAT</span><span class="p">,</span>
     <span class="n">DEFAULT_QUALITY</span><span class="p">,</span>
+    <span class="n">DEFAULT_SCALE</span><span class="p">,</span>
     <span class="n">DEFAULT_SIZE</span><span class="p">,</span>
     <span class="n">THUMBNAILS_DIRNAME</span><span class="p">,</span>
     <span class="n">image_size</span><span class="p">,</span>
@@ -170,6 +171,7 @@
     <span class="n">output_path</span><span class="p">,</span>
     <span class="n">logger</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
     <span class="n">thumbnail_size</span><span class="o">=</span><span class="n">DEFAULT_SIZE</span><span class="p">,</span>
+    <span class="n">thumbnail_scale</span><span class="o">=</span><span class="n">DEFAULT_SCALE</span><span class="p">,</span>
     <span class="n">thumbnail_format</span><span class="o">=</span><span class="n">DEFAULT_FORMAT</span><span class="p">,</span>
     <span class="n">thumbnail_quality</span><span class="o">=</span><span class="n">DEFAULT_QUALITY</span><span class="p">,</span>
 <span class="p">):</span>
@@ -200,7 +202,13 @@
 <span class="sd">        nothing, and what was missing</span>
 
 <span class="sd">    thumbnail_size : tuple of int, optional</span>
-<span class="sd">        The bounding box in pixels each thumbnail is scaled to fit inside</span>
+<span class="sd">        The bounding box, in displayed pixels, each thumbnail is scaled to</span>
+<span class="sd">        fit inside</span>
+
+<span class="sd">    thumbnail_scale : float, optional</span>
+<span class="sd">        The number of image pixels rendered per displayed pixel, so that a</span>
+<span class="sd">        thumbnail is sharp on a high-resolution display; it need not be a</span>
+<span class="sd">        whole number</span>
 
 <span class="sd">    thumbnail_format : {'jpeg', 'webp'}, optional</span>
 <span class="sd">        The format thumbnails are written in</span>
@@ -258,6 +266,7 @@
         <span class="n">published</span><span class="o">=</span><span class="n">published</span><span class="p">,</span>
         <span class="n">output_path</span><span class="o">=</span><span class="n">output_path</span><span class="p">,</span>
         <span class="n">size</span><span class="o">=</span><span class="n">thumbnail_size</span><span class="p">,</span>
+        <span class="n">scale</span><span class="o">=</span><span class="n">thumbnail_scale</span><span class="p">,</span>
         <span class="n">image_format</span><span class="o">=</span><span class="n">thumbnail_format</span><span class="p">,</span>
         <span class="n">quality</span><span class="o">=</span><span class="n">thumbnail_quality</span><span class="p">,</span>
     <span class="p">)</span>
@@ -332,8 +341,13 @@
     <span class="n">os</span><span class="o">.</span><span class="n">symlink</span><span class="p">(</span><span class="n">source</span><span class="p">,</span> <span class="n">link_path</span><span class="p">)</span>
 
 
-<span class="k">def</span><span class="w"> </span><span class="nf">_add_thumbnails</span><span class="p">(</span><span class="n">published</span><span class="p">,</span> <span class="n">output_path</span><span class="p">,</span> <span class="n">size</span><span class="p">,</span> <span class="n">image_format</span><span class="p">,</span> <span class="n">quality</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_add_thumbnails</span><span class="p">(</span>
+    <span class="n">published</span><span class="p">,</span> <span class="n">output_path</span><span class="p">,</span> <span class="n">size</span><span class="p">,</span> <span class="n">scale</span><span class="p">,</span> <span class="n">image_format</span><span class="p">,</span> <span class="n">quality</span>
+<span class="p">):</span>
 <span class="w">    </span><span class="sd">"""Render a thumbnail for each published plot and record it"""</span>
+    <span class="c1"># the box is in displayed pixels, and the image has ``scale`` times as</span>
+    <span class="c1"># many along each side so that it is sharp on a high-resolution display</span>
+    <span class="n">pixels</span> <span class="o">=</span> <span class="p">(</span><span class="nb">round</span><span class="p">(</span><span class="n">size</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">scale</span><span class="p">),</span> <span class="nb">round</span><span class="p">(</span><span class="n">size</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="n">scale</span><span class="p">))</span>
     <span class="n">rendered</span> <span class="o">=</span> <span class="mi">0</span>
     <span class="k">for</span> <span class="n">entry</span> <span class="ow">in</span> <span class="n">published</span><span class="p">:</span>
         <span class="n">basename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">entry</span><span class="p">[</span><span class="s1">'plot'</span><span class="p">])</span>
@@ -342,17 +356,18 @@
         <span class="k">if</span> <span class="n">make_thumbnail</span><span class="p">(</span>
             <span class="n">plot_filename</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">output_path</span><span class="p">,</span> <span class="n">entry</span><span class="p">[</span><span class="s1">'plot'</span><span class="p">]),</span>
             <span class="n">thumbnail_filename</span><span class="o">=</span><span class="n">filename</span><span class="p">,</span>
-            <span class="n">size</span><span class="o">=</span><span class="n">size</span><span class="p">,</span>
+            <span class="n">size</span><span class="o">=</span><span class="n">pixels</span><span class="p">,</span>
             <span class="n">image_format</span><span class="o">=</span><span class="n">image_format</span><span class="p">,</span>
             <span class="n">quality</span><span class="o">=</span><span class="n">quality</span><span class="p">,</span>
         <span class="p">):</span>
             <span class="n">rendered</span> <span class="o">+=</span> <span class="mi">1</span>
         <span class="n">entry</span><span class="p">[</span><span class="s1">'thumbnail'</span><span class="p">]</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">THUMBNAILS_DIRNAME</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span>
-        <span class="c1"># the generated page gives every image its own width and height, so</span>
-        <span class="c1"># that lazy loading does not make the page reflow as they arrive</span>
+        <span class="c1"># the generated page gives every image its own width and height, in</span>
+        <span class="c1"># displayed pixels, so that lazy loading does not make the page</span>
+        <span class="c1"># reflow as they arrive</span>
         <span class="n">width</span><span class="p">,</span> <span class="n">height</span> <span class="o">=</span> <span class="n">image_size</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
-        <span class="n">entry</span><span class="p">[</span><span class="s1">'thumbnail_width'</span><span class="p">]</span> <span class="o">=</span> <span class="n">width</span>
-        <span class="n">entry</span><span class="p">[</span><span class="s1">'thumbnail_height'</span><span class="p">]</span> <span class="o">=</span> <span class="n">height</span>
+        <span class="n">entry</span><span class="p">[</span><span class="s1">'thumbnail_width'</span><span class="p">]</span> <span class="o">=</span> <span class="nb">round</span><span class="p">(</span><span class="n">width</span> <span class="o">/</span> <span class="n">scale</span><span class="p">)</span>
+        <span class="n">entry</span><span class="p">[</span><span class="s1">'thumbnail_height'</span><span class="p">]</span> <span class="o">=</span> <span class="nb">round</span><span class="p">(</span><span class="n">height</span> <span class="o">/</span> <span class="n">scale</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">rendered</span>
 
 

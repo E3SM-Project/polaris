@@ -1,0 +1,750 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>polaris.ocean.vertical.elevation</title>
+      <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../../_static/documentation_options.js?v=a8da1a53"></script>
+      <script src="../../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" />
+    <link href="../../../../_static/style.css" rel="stylesheet" type="text/css">
+
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../../index.html" class="icon icon-home">
+            Polaris
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">User's guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../users_guide/quick_start.html">Quick Start for Users</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../users_guide/tasks.html">Tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../users_guide/config_files.html">Config Files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../users_guide/suites.html">Suites</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../users_guide/mesh/index.html">Mesh component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../users_guide/e3sm/init/index.html">E3SM Initial Condition Component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../users_guide/ocean/index.html">Ocean component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../users_guide/seaice/index.html">Sea ice component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../users_guide/machines/index.html">Machines</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Developer's guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../developers_guide/quick_start.html">Quick Start for Developers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../developers_guide/overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../developers_guide/command_line.html">Command-line interface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../developers_guide/organization/index.html">Organization of Tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../developers_guide/e3sm/init/index.html">E3SM initial condition (e3sm/init) component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../developers_guide/mesh/index.html">Mesh component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../developers_guide/ocean/index.html">Ocean component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../developers_guide/seaice/index.html">Sea ice component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../developers_guide/framework/index.html">Framework</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../developers_guide/machines/index.html">Machines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../developers_guide/benchmarking.html">Benchmarking a branch against a baseline</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../developers_guide/omega_pr_testing.html">Testing an Omega pull request</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../developers_guide/troubleshooting.html">Troubleshooting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../developers_guide/docs.html">Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../developers_guide/building_docs.html">Building the Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../developers_guide/building_docs.html#previewing-the-documentation">Previewing the Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../developers_guide/conda_vs_spack.html">How Conda and Spack Work Together in Polaris</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../developers_guide/updating_conda.html">Updating Deployment Dependencies</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../developers_guide/updating_spack/index.html">Updating Shared Spack Environments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../developers_guide/api.html">API reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../design_docs/index.html">Design Documents</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../tutorials/dev_add_category_of_tasks/index.html">Developer Tutorial: Adding a New Category of Tasks</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Glossary</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../glossary.html">Glossary</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../index.html">Polaris</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../../index.html">Module code</a></li>
+          <li class="breadcrumb-item"><a href="../vertical.html">polaris.ocean.vertical</a></li>
+      <li class="breadcrumb-item active">polaris.ocean.vertical.elevation</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for polaris.ocean.vertical.elevation</h1><div class="highlight"><pre>
+<span></span><span class="sd">"""</span>
+<span class="sd">Reduce a field with a vertical dimension to a horizontal map.</span>
+
+<span class="sd">Slicing at the sea surface, the seafloor, a layer index or an elevation, and</span>
+<span class="sd">integrating over an elevation range, both turn ``nVertLevels`` into nothing,</span>
+<span class="sd">and both are described by the same parsed reduction.  That is what lets ocean</span>
+<span class="sd">heat content be a field group of the climatology maps rather than a product of</span>
+<span class="sd">its own.</span>
+
+<span class="sd">They differ in how they get there.  A slice picks one layer, and</span>
+<span class="sd">``apply_vertical_reduction`` does that for any field.  A range is a weighted</span>
+<span class="sd">integral, so this module supplies the weights --- ``elevation_range_weights``</span>
+<span class="sd">--- and the diagnostic that consumes them supplies the rest, because what the</span>
+<span class="sd">weighted sum of a field means is a property of the diagnostic rather than of</span>
+<span class="sd">the vertical coordinate.</span>
+
+<span class="sd">This module is deliberately dependency-light --- it imports nothing from</span>
+<span class="sd">:py:class:`polaris.Step` --- so that it can be unit tested directly and reused</span>
+<span class="sd">by any vertically reduced diagnostic.</span>
+<span class="sd">"""</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">NamedTuple</span><span class="p">,</span> <span class="n">Optional</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">xarray</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">xr</span>
+
+
+<div class="viewcode-block" id="VerticalReduction">
+<a class="viewcode-back" href="../../../../developers_guide/ocean/generated/polaris.ocean.vertical.elevation.VerticalReduction.html#polaris.ocean.vertical.elevation.VerticalReduction">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">VerticalReduction</span><span class="p">(</span><span class="n">NamedTuple</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    One way of reducing a field with a vertical dimension to a horizontal map</span>
+
+<span class="sd">    Attributes</span>
+<span class="sd">    ----------</span>
+<span class="sd">    kind : str</span>
+<span class="sd">        ``'top'``, ``'bottom'``, ``'index'``, ``'elevation'`` or ``'range'``</span>
+
+<span class="sd">    label : str</span>
+<span class="sd">        The label that identifies the reduction in a file name and a plot</span>
+<span class="sd">        title, e.g. ``'top'``, ``'k10'``, ``'-100m'`` or ``'top_to_-700m'``</span>
+
+<span class="sd">    level : int or None</span>
+<span class="sd">        The zero-based vertical index, for ``'index'``</span>
+
+<span class="sd">    elevation : float or None</span>
+<span class="sd">        The elevation in m, positive up, for ``'elevation'``</span>
+
+<span class="sd">    z_top : float or None</span>
+<span class="sd">        The upper bound of the range in m, positive up, for ``'range'``.  It</span>
+<span class="sd">        is ``inf`` where the bound is the free surface of each column.</span>
+
+<span class="sd">    z_bot : float or None</span>
+<span class="sd">        The lower bound of the range in m, positive up, for ``'range'``.  It</span>
+<span class="sd">        is ``-inf`` where the bound is the seafloor of each column.</span>
+<span class="sd">    """</span>
+
+    <span class="n">kind</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">label</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">level</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">elevation</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">z_top</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">z_bot</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span></div>
+
+
+
+<span class="c1"># The dimension the layer interfaces are along, one longer than ``nVertLevels``</span>
+<span class="n">INTERFACE_DIM</span> <span class="o">=</span> <span class="s1">'nVertLevelsP1'</span>
+
+
+<div class="viewcode-block" id="get_valid_level_range">
+<a class="viewcode-back" href="../../../../developers_guide/ocean/generated/polaris.ocean.vertical.elevation.get_valid_level_range.html#polaris.ocean.vertical.elevation.get_valid_level_range">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_valid_level_range</span><span class="p">(</span><span class="n">ds</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Get the zero-based indices of the topmost and bottommost valid layer of</span>
+<span class="sd">    each column</span>
+
+<span class="sd">    Both models write ``minLevelCell`` and ``maxLevelCell`` with the one-based</span>
+<span class="sd">    indexing of MPAS-Ocean's Fortran, so this is the one place that converts</span>
+<span class="sd">    them to the zero-based indices the reductions use.</span>
+
+<span class="sd">    A data set with no ``minLevelCell`` has no ice-shelf cavities, so the</span>
+<span class="sd">    topmost valid layer is the topmost layer of the grid.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    ds : xarray.Dataset</span>
+<span class="sd">        The vertical coordinate, with MPAS-Ocean names</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    min_level_cell : xarray.DataArray</span>
+<span class="sd">        The zero-based index of the topmost valid layer of each column</span>
+
+<span class="sd">    max_level_cell : xarray.DataArray</span>
+<span class="sd">        The zero-based index of the bottommost valid layer of each column</span>
+
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    ValueError</span>
+<span class="sd">        If the data set has no ``maxLevelCell``, without which a column has</span>
+<span class="sd">        no seafloor</span>
+<span class="sd">    """</span>
+    <span class="k">if</span> <span class="s1">'maxLevelCell'</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">ds</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="s1">'The vertical coordinate has no maxLevelCell, so there is no '</span>
+            <span class="s1">'way to tell the valid layers of a column from the rest.'</span>
+        <span class="p">)</span>
+    <span class="n">max_level_cell</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">maxLevelCell</span> <span class="o">-</span> <span class="mi">1</span>
+    <span class="k">if</span> <span class="s1">'minLevelCell'</span> <span class="ow">in</span> <span class="n">ds</span><span class="p">:</span>
+        <span class="n">min_level_cell</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">minLevelCell</span> <span class="o">-</span> <span class="mi">1</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">min_level_cell</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">max_level_cell</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">min_level_cell</span><span class="p">,</span> <span class="n">max_level_cell</span></div>
+
+
+
+<div class="viewcode-block" id="parse_vertical_reduction">
+<a class="viewcode-back" href="../../../../developers_guide/ocean/generated/polaris.ocean.vertical.elevation.parse_vertical_reduction.html#polaris.ocean.vertical.elevation.parse_vertical_reduction">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">parse_vertical_reduction</span><span class="p">(</span><span class="n">spec</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Parse one entry of the ``elevations`` or the ``elevation_ranges`` config</span>
+<span class="sd">    option</span>
+
+<span class="sd">    Both options describe a way of reducing the ``nVertLevels`` dimension,</span>
+<span class="sd">    so</span>
+<span class="sd">    both are parsed here and the result says which way it is.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    spec : str</span>
+<span class="sd">        One of ``'top'``, ``'bottom'``, ``'k&lt;index&gt;'`` with a zero-based</span>
+<span class="sd">        index, an elevation in m (positive up, so negative within the</span>
+<span class="sd">        ocean), or an elevation range written</span>
+<span class="sd">        ``&lt;top_elevation&gt;:&lt;bottom_elevation&gt;``</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    reduction : VerticalReduction</span>
+<span class="sd">        The parsed reduction</span>
+
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    ValueError</span>
+<span class="sd">        If ``spec`` is none of those</span>
+<span class="sd">    """</span>
+    <span class="n">spec</span> <span class="o">=</span> <span class="n">spec</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+    <span class="n">lowered</span> <span class="o">=</span> <span class="n">spec</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+
+    <span class="k">if</span> <span class="s1">':'</span> <span class="ow">in</span> <span class="n">spec</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">_parse_elevation_range</span><span class="p">(</span><span class="n">spec</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">lowered</span> <span class="ow">in</span> <span class="p">(</span><span class="s1">'top'</span><span class="p">,</span> <span class="s1">'bottom'</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">VerticalReduction</span><span class="p">(</span><span class="n">kind</span><span class="o">=</span><span class="n">lowered</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="n">lowered</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">lowered</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">'k'</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">index</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">spec</span><span class="p">[</span><span class="mi">1</span><span class="p">:])</span>
+        <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+            <span class="n">index</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
+        <span class="k">if</span> <span class="n">index</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s1">'"</span><span class="si">{</span><span class="n">spec</span><span class="si">}</span><span class="s1">" is not a vertical index.  A fixed layer is given '</span>
+                <span class="sa">f</span><span class="s1">'as k&lt;index&gt; with a zero-based index, e.g. k0 for the '</span>
+                <span class="sa">f</span><span class="s1">'topmost layer of the grid.'</span>
+            <span class="p">)</span>
+        <span class="k">return</span> <span class="n">VerticalReduction</span><span class="p">(</span><span class="n">kind</span><span class="o">=</span><span class="s1">'index'</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="sa">f</span><span class="s1">'k</span><span class="si">{</span><span class="n">index</span><span class="si">}</span><span class="s1">'</span><span class="p">,</span> <span class="n">level</span><span class="o">=</span><span class="n">index</span><span class="p">)</span>
+
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">elevation</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">spec</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s1">'"</span><span class="si">{</span><span class="n">spec</span><span class="si">}</span><span class="s1">" is not a vertical reduction.  Use "top", "bottom", '</span>
+            <span class="sa">f</span><span class="s1">'"k&lt;index&gt;" for a fixed layer, or an elevation in m, positive '</span>
+            <span class="sa">f</span><span class="s1">'up, so negative within the ocean.'</span>
+        <span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="kc">None</span>
+    <span class="k">return</span> <span class="n">VerticalReduction</span><span class="p">(</span>
+        <span class="n">kind</span><span class="o">=</span><span class="s1">'elevation'</span><span class="p">,</span>
+        <span class="n">label</span><span class="o">=</span><span class="n">elevation_label</span><span class="p">(</span><span class="n">elevation</span><span class="p">),</span>
+        <span class="n">elevation</span><span class="o">=</span><span class="n">elevation</span><span class="p">,</span>
+    <span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="elevation_label">
+<a class="viewcode-back" href="../../../../developers_guide/ocean/generated/polaris.ocean.vertical.elevation.elevation_label.html#polaris.ocean.vertical.elevation.elevation_label">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">elevation_label</span><span class="p">(</span><span class="n">elevation</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Get the label an elevation is identified by in file names and plot titles</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    elevation : float</span>
+<span class="sd">        The elevation in m, positive up</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    label : str</span>
+<span class="sd">        The label, e.g. ``'-100m'``</span>
+<span class="sd">    """</span>
+    <span class="k">return</span> <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">elevation</span><span class="si">:</span><span class="s1">g</span><span class="si">}</span><span class="s1">m'</span></div>
+
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">range_bound_label</span><span class="p">(</span><span class="n">elevation</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Get the label one end of an elevation range is identified by</span>
+
+<span class="sd">    Which end it is follows from the bound itself, since a bound that</span>
+<span class="sd">    resolves per column is an infinity with the sign of the end it is.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    elevation : float</span>
+<span class="sd">        The elevation of the bound in m, positive up, ``np.inf`` for the sea</span>
+<span class="sd">        surface or ``-np.inf`` for the seafloor</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    label : str</span>
+<span class="sd">        The label, e.g. ``'top'``, ``'bottom'`` or ``'-700m'``</span>
+<span class="sd">    """</span>
+    <span class="k">if</span> <span class="n">elevation</span> <span class="o">==</span> <span class="n">np</span><span class="o">.</span><span class="n">inf</span><span class="p">:</span>
+        <span class="k">return</span> <span class="s1">'top'</span>
+    <span class="k">if</span> <span class="n">elevation</span> <span class="o">==</span> <span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">inf</span><span class="p">:</span>
+        <span class="k">return</span> <span class="s1">'bottom'</span>
+    <span class="k">return</span> <span class="n">elevation_label</span><span class="p">(</span><span class="n">elevation</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">is_whole_column</span><span class="p">(</span><span class="n">reduction</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Whether an elevation range covers every valid layer of every column</span>
+
+<span class="sd">    The whole column is the one range whose weights need no geometry at all.</span>
+<span class="sd">    Every valid layer lies entirely within it, so the overlap fraction is one</span>
+<span class="sd">    and the geometric coordinate drops out of the answer, which is why it is</span>
+<span class="sd">    the range that works before there is any vertical geometry to read.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    reduction : VerticalReduction</span>
+<span class="sd">        The reduction to ask about</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    whole_column : bool</span>
+<span class="sd">        Whether it is the whole column</span>
+<span class="sd">    """</span>
+    <span class="k">return</span> <span class="p">(</span>
+        <span class="n">reduction</span><span class="o">.</span><span class="n">kind</span> <span class="o">==</span> <span class="s1">'range'</span>
+        <span class="ow">and</span> <span class="n">reduction</span><span class="o">.</span><span class="n">z_top</span> <span class="o">==</span> <span class="n">np</span><span class="o">.</span><span class="n">inf</span>
+        <span class="ow">and</span> <span class="n">reduction</span><span class="o">.</span><span class="n">z_bot</span> <span class="o">==</span> <span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">inf</span>
+    <span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">elevation_range_weights</span><span class="p">(</span>
+    <span class="n">z_interface</span><span class="p">,</span>
+    <span class="n">layer_mass</span><span class="p">,</span>
+    <span class="n">min_level_cell</span><span class="p">,</span>
+    <span class="n">max_level_cell</span><span class="p">,</span>
+    <span class="n">z_top</span><span class="p">,</span>
+    <span class="n">z_bot</span><span class="p">,</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">"""</span>
+<span class="sd">    Get the mass per unit area of the part of each layer within an elevation</span>
+<span class="sd">    range</span>
+
+<span class="sd">    The range is given in geometric elevation while the integral it weights is</span>
+<span class="sd">    in mass, so the geometric overlap thickness</span>
+
+<span class="sd">    .. math::</span>
+<span class="sd">        w_k = \max\left(0, \min(z^{int}_k, z_{top}) -</span>
+<span class="sd">              \max(z^{int}_{k+1}, z_{bot})\right)</span>
+
+<span class="sd">    is computed from ``z_interface`` and used only as the fraction</span>
+<span class="sd">    :math:`w_k / h_k` of the layer, which is then applied to ``layer_mass``.</span>
+<span class="sd">    A layer lying entirely within the range therefore contributes its whole</span>
+<span class="sd">    mass, and the geometric coordinate enters only through the partial layers</span>
+<span class="sd">    at the boundaries.</span>
+
+<span class="sd">    The whole column, ``top:bottom``, is the one range in which every valid</span>
+<span class="sd">    layer is whole, so its overlap fraction is one, no ``z_interface`` is read</span>
+<span class="sd">    and none need be passed.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    z_interface : xarray.DataArray or None</span>
+<span class="sd">        The elevation of layer interfaces, needed for any range but the whole</span>
+<span class="sd">        column</span>
+
+<span class="sd">    layer_mass : xarray.DataArray</span>
+<span class="sd">        The mass per unit area of each layer, from</span>
+<span class="sd">        :py:func:`polaris.ocean.model.get_layer_mass`.  Passing differences of</span>
+<span class="sd">        ``z_interface`` instead recovers the purely geometric weights.</span>
+
+<span class="sd">    min_level_cell : xarray.DataArray</span>
+<span class="sd">        The zero-based index of the topmost valid layer of each column</span>
+
+<span class="sd">    max_level_cell : xarray.DataArray</span>
+<span class="sd">        The zero-based index of the bottommost valid layer of each column</span>
+
+<span class="sd">    z_top : float</span>
+<span class="sd">        The upper bound of the range in m, positive up, or ``inf`` for the</span>
+<span class="sd">        free surface of each column</span>
+
+<span class="sd">    z_bot : float</span>
+<span class="sd">        The lower bound of the range in m, positive up, or ``-inf`` for the</span>
+<span class="sd">        seafloor of each column</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    weights : xarray.DataArray</span>
+<span class="sd">        The mass per unit area of the overlap of each layer with the range,</span>
+<span class="sd">        zero outside the valid layers of a column</span>
+
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    ValueError</span>
+<span class="sd">        If a range with a finite bound is asked for without ``z_interface``</span>
+<span class="sd">    """</span>
+    <span class="n">n_levels</span> <span class="o">=</span> <span class="n">layer_mass</span><span class="o">.</span><span class="n">sizes</span><span class="p">[</span><span class="s1">'nVertLevels'</span><span class="p">]</span>
+    <span class="n">levels</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">n_levels</span><span class="p">),</span> <span class="n">dims</span><span class="o">=</span><span class="s1">'nVertLevels'</span><span class="p">)</span>
+    <span class="n">in_column</span> <span class="o">=</span> <span class="p">(</span><span class="n">levels</span> <span class="o">&gt;=</span> <span class="n">min_level_cell</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">levels</span> <span class="o">&lt;=</span> <span class="n">max_level_cell</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">z_interface</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">z_top</span> <span class="o">==</span> <span class="n">np</span><span class="o">.</span><span class="n">inf</span> <span class="ow">and</span> <span class="n">z_bot</span> <span class="o">==</span> <span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">inf</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s1">'z_interface is needed to weigh an elevation range with a '</span>
+                <span class="s1">'bound in the interior of a layer.  The one range that needs '</span>
+                <span class="s1">'no vertical geometry is the whole column, top:bottom, in '</span>
+                <span class="s1">'which every valid layer is whole.'</span>
+            <span class="p">)</span>
+        <span class="n">fraction</span> <span class="o">=</span> <span class="mf">1.0</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">z_upper</span> <span class="o">=</span> <span class="n">_layer_bound</span><span class="p">(</span><span class="n">z_interface</span><span class="p">,</span> <span class="nb">slice</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">))</span>
+        <span class="n">z_lower</span> <span class="o">=</span> <span class="n">_layer_bound</span><span class="p">(</span><span class="n">z_interface</span><span class="p">,</span> <span class="nb">slice</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="kc">None</span><span class="p">))</span>
+        <span class="n">thickness</span> <span class="o">=</span> <span class="n">z_upper</span> <span class="o">-</span> <span class="n">z_lower</span>
+        <span class="n">overlap</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">minimum</span><span class="p">(</span><span class="n">z_upper</span><span class="p">,</span> <span class="n">z_top</span><span class="p">)</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">maximum</span><span class="p">(</span><span class="n">z_lower</span><span class="p">,</span> <span class="n">z_bot</span><span class="p">)</span>
+        <span class="c1"># a layer the range misses entirely has a negative overlap, and one</span>
+        <span class="c1"># with no thickness has no fraction to speak of; both weigh nothing</span>
+        <span class="n">fraction</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">where</span><span class="p">(</span>
+            <span class="n">thickness</span> <span class="o">&gt;</span> <span class="mf">0.0</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">maximum</span><span class="p">(</span><span class="n">overlap</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">)</span> <span class="o">/</span> <span class="n">thickness</span><span class="p">,</span> <span class="mf">0.0</span>
+        <span class="p">)</span>
+
+    <span class="c1"># a layer outside the range or outside the column weighs nothing rather</span>
+    <span class="c1"># than NaN, since a model may write anything below the seafloor and a NaN</span>
+    <span class="c1"># here would poison the sum the weights are for</span>
+    <span class="n">weights</span> <span class="o">=</span> <span class="p">(</span><span class="n">layer_mass</span> <span class="o">*</span> <span class="n">fraction</span><span class="p">)</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">in_column</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">)</span>
+    <span class="n">weights</span><span class="o">.</span><span class="n">attrs</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span>
+        <span class="n">units</span><span class="o">=</span><span class="s1">'kg m-2'</span><span class="p">,</span>
+        <span class="n">long_name</span><span class="o">=</span><span class="s1">'mass per unit area within the elevation range'</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">weights</span>
+
+
+<div class="viewcode-block" id="apply_vertical_reduction">
+<a class="viewcode-back" href="../../../../developers_guide/ocean/generated/polaris.ocean.vertical.elevation.apply_vertical_reduction.html#polaris.ocean.vertical.elevation.apply_vertical_reduction">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">apply_vertical_reduction</span><span class="p">(</span>
+    <span class="n">da</span><span class="p">,</span>
+    <span class="n">reduction</span><span class="p">,</span>
+    <span class="n">z_mid</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">z_interface</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">min_level_cell</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">max_level_cell</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Reduce a field with a vertical dimension to a horizontal map</span>
+
+<span class="sd">    Slicing at the sea surface, the seafloor, a layer index or an elevation</span>
+<span class="sd">    are cases of one operation: each picks one layer of each column, or the</span>
+<span class="sd">    two layers an elevation falls between, for any DataArray.  Only</span>
+<span class="sd">    the last of them reads the vertical geometry.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    da : xarray.DataArray</span>
+<span class="sd">        The field to reduce, with an ``nVertLevels`` dimension</span>
+
+<span class="sd">    reduction : VerticalReduction</span>
+<span class="sd">        How to reduce it, from :py:func:`parse_vertical_reduction`</span>
+
+<span class="sd">    z_mid : xarray.DataArray, optional</span>
+<span class="sd">        The elevation of layer midpoints, needed only to interpolate to an</span>
+<span class="sd">        elevation</span>
+
+<span class="sd">    z_interface : xarray.DataArray, optional</span>
+<span class="sd">        The elevation of layer interfaces, as for ``z_mid``</span>
+
+<span class="sd">    min_level_cell : xarray.DataArray</span>
+<span class="sd">        The zero-based index of the topmost valid layer of each column</span>
+
+<span class="sd">    max_level_cell : xarray.DataArray</span>
+<span class="sd">        The zero-based index of the bottommost valid layer of each column</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    da_map : xarray.DataArray</span>
+<span class="sd">        The reduced field, without an ``nVertLevels`` dimension, masked where</span>
+<span class="sd">        the reduction falls outside the column, and with the attributes of</span>
+<span class="sd">        ``da``, since a slice of a field has the field's units and name</span>
+
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    ValueError</span>
+<span class="sd">        If the reduction is a range, or if what it needs was not passed</span>
+<span class="sd">    """</span>
+    <span class="k">if</span> <span class="n">reduction</span><span class="o">.</span><span class="n">kind</span> <span class="o">==</span> <span class="s1">'range'</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="s1">'An elevation range is not a slice of a field but a weighted '</span>
+            <span class="s1">'integral of it, so it goes through elevation_range_weights and '</span>
+            <span class="s1">'the diagnostic that consumes the weights, rather than through '</span>
+            <span class="s1">'apply_vertical_reduction.'</span>
+        <span class="p">)</span>
+    <span class="k">if</span> <span class="n">min_level_cell</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">max_level_cell</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="s1">'min_level_cell and max_level_cell are needed to tell the valid '</span>
+            <span class="s1">'layers of each column from the rest.'</span>
+        <span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">reduction</span><span class="o">.</span><span class="n">kind</span> <span class="o">==</span> <span class="s1">'elevation'</span><span class="p">:</span>
+        <span class="n">da_map</span> <span class="o">=</span> <span class="n">_interpolate_to_elevation</span><span class="p">(</span>
+            <span class="n">da</span><span class="o">=</span><span class="n">da</span><span class="p">,</span>
+            <span class="n">elevation</span><span class="o">=</span><span class="n">reduction</span><span class="o">.</span><span class="n">elevation</span><span class="p">,</span>
+            <span class="n">z_mid</span><span class="o">=</span><span class="n">z_mid</span><span class="p">,</span>
+            <span class="n">z_interface</span><span class="o">=</span><span class="n">z_interface</span><span class="p">,</span>
+            <span class="n">min_level_cell</span><span class="o">=</span><span class="n">min_level_cell</span><span class="p">,</span>
+            <span class="n">max_level_cell</span><span class="o">=</span><span class="n">max_level_cell</span><span class="p">,</span>
+        <span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">da_map</span> <span class="o">=</span> <span class="n">_select_layer</span><span class="p">(</span>
+            <span class="n">da</span><span class="o">=</span><span class="n">da</span><span class="p">,</span>
+            <span class="n">reduction</span><span class="o">=</span><span class="n">reduction</span><span class="p">,</span>
+            <span class="n">min_level_cell</span><span class="o">=</span><span class="n">min_level_cell</span><span class="p">,</span>
+            <span class="n">max_level_cell</span><span class="o">=</span><span class="n">max_level_cell</span><span class="p">,</span>
+        <span class="p">)</span>
+    <span class="c1"># interpolating drops the attributes and slicing is not promised to keep</span>
+    <span class="c1"># them, while the units and long name of a field are those of a slice of</span>
+    <span class="c1"># it, so they are carried over here rather than by every caller</span>
+    <span class="n">da_map</span><span class="o">.</span><span class="n">attrs</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">da</span><span class="o">.</span><span class="n">attrs</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">da_map</span></div>
+
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_select_layer</span><span class="p">(</span><span class="n">da</span><span class="p">,</span> <span class="n">reduction</span><span class="p">,</span> <span class="n">min_level_cell</span><span class="p">,</span> <span class="n">max_level_cell</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""Pick one layer of each column: its top, its bottom or a fixed index"""</span>
+    <span class="n">n_levels</span> <span class="o">=</span> <span class="n">da</span><span class="o">.</span><span class="n">sizes</span><span class="p">[</span><span class="s1">'nVertLevels'</span><span class="p">]</span>
+    <span class="k">if</span> <span class="n">reduction</span><span class="o">.</span><span class="n">kind</span> <span class="o">==</span> <span class="s1">'top'</span><span class="p">:</span>
+        <span class="n">index</span> <span class="o">=</span> <span class="n">min_level_cell</span>
+    <span class="k">elif</span> <span class="n">reduction</span><span class="o">.</span><span class="n">kind</span> <span class="o">==</span> <span class="s1">'bottom'</span><span class="p">:</span>
+        <span class="n">index</span> <span class="o">=</span> <span class="n">max_level_cell</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">index</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">full_like</span><span class="p">(</span><span class="n">min_level_cell</span><span class="p">,</span> <span class="n">reduction</span><span class="o">.</span><span class="n">level</span><span class="p">)</span>
+
+    <span class="c1"># a column is land where maxLevelCell is above minLevelCell, and an index</span>
+    <span class="c1"># outside the valid range has no value to take, so both are masked rather</span>
+    <span class="c1"># than extrapolated</span>
+    <span class="n">in_column</span> <span class="o">=</span> <span class="p">(</span><span class="n">index</span> <span class="o">&gt;=</span> <span class="n">min_level_cell</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">index</span> <span class="o">&lt;=</span> <span class="n">max_level_cell</span><span class="p">)</span>
+    <span class="c1"># index into the array only where there is something to index, so that a</span>
+    <span class="c1"># masked column cannot raise</span>
+    <span class="n">safe</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">minimum</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">maximum</span><span class="p">(</span><span class="n">index</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="n">n_levels</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
+
+    <span class="n">da_map</span> <span class="o">=</span> <span class="n">da</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span><span class="n">nVertLevels</span><span class="o">=</span><span class="n">safe</span><span class="p">)</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">in_column</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">da_map</span><span class="o">.</span><span class="n">drop_vars</span><span class="p">(</span><span class="s1">'nVertLevels'</span><span class="p">,</span> <span class="n">errors</span><span class="o">=</span><span class="s1">'ignore'</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_layer_bound</span><span class="p">(</span><span class="n">z_interface</span><span class="p">,</span> <span class="n">levels</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""One of the two interfaces bounding each layer, along ``nVertLevels``"""</span>
+    <span class="n">z_bound</span> <span class="o">=</span> <span class="n">z_interface</span><span class="o">.</span><span class="n">isel</span><span class="p">({</span><span class="n">INTERFACE_DIM</span><span class="p">:</span> <span class="n">levels</span><span class="p">})</span>
+    <span class="k">return</span> <span class="n">z_bound</span><span class="o">.</span><span class="n">drop_vars</span><span class="p">(</span><span class="n">INTERFACE_DIM</span><span class="p">,</span> <span class="n">errors</span><span class="o">=</span><span class="s1">'ignore'</span><span class="p">)</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span>
+        <span class="p">{</span><span class="n">INTERFACE_DIM</span><span class="p">:</span> <span class="s1">'nVertLevels'</span><span class="p">}</span>
+    <span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_interpolate_to_elevation</span><span class="p">(</span>
+    <span class="n">da</span><span class="p">,</span> <span class="n">elevation</span><span class="p">,</span> <span class="n">z_mid</span><span class="p">,</span> <span class="n">z_interface</span><span class="p">,</span> <span class="n">min_level_cell</span><span class="p">,</span> <span class="n">max_level_cell</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Interpolate a field linearly in elevation between the two layer midpoints</span>
+<span class="sd">    an elevation falls between</span>
+
+<span class="sd">    The search for the upper of the two layers is a count rather than a loop</span>
+<span class="sd">    over columns: with the midpoints outside the valid range set to ``NaN``,</span>
+<span class="sd">    the number of valid midpoints at or above the elevation says how far</span>
+<span class="sd">    below the topmost valid layer it lies.</span>
+
+<span class="sd">    Above the topmost midpoint the topmost value is returned, and below the</span>
+<span class="sd">    bottommost midpoint the bottommost one, rather than either being masked</span>
+<span class="sd">    or extrapolated.  Both fall out of clamping the interpolation weight into</span>
+<span class="sd">    ``[0, 1]``, and the clamping at the top is deliberate: a request for 0 m</span>
+<span class="sd">    or -5 m lies above every midpoint, and masking it would leave a</span>
+<span class="sd">    near-surface map empty everywhere.</span>
+<span class="sd">    """</span>
+    <span class="k">if</span> <span class="n">z_mid</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">z_interface</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="s1">'z_mid and z_interface are needed to interpolate to an '</span>
+            <span class="s1">'elevation, which is a position in the vertical geometry rather '</span>
+            <span class="s1">'than a layer of the grid.'</span>
+        <span class="p">)</span>
+
+    <span class="n">n_levels</span> <span class="o">=</span> <span class="n">da</span><span class="o">.</span><span class="n">sizes</span><span class="p">[</span><span class="s1">'nVertLevels'</span><span class="p">]</span>
+    <span class="n">levels</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">n_levels</span><span class="p">),</span> <span class="n">dims</span><span class="o">=</span><span class="s1">'nVertLevels'</span><span class="p">)</span>
+    <span class="n">in_column</span> <span class="o">=</span> <span class="p">(</span><span class="n">levels</span> <span class="o">&gt;=</span> <span class="n">min_level_cell</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">levels</span> <span class="o">&lt;=</span> <span class="n">max_level_cell</span><span class="p">)</span>
+    <span class="c1"># a layer outside the valid range has no position in the column, so it</span>
+    <span class="c1"># takes no part in the search and cannot supply a value</span>
+    <span class="n">z_valid</span> <span class="o">=</span> <span class="n">z_mid</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">in_column</span><span class="p">)</span>
+
+    <span class="c1"># the count is of valid midpoints, so it is measured from the topmost</span>
+    <span class="c1"># valid layer of the column rather than from layer zero, which is not the</span>
+    <span class="c1"># same thing under an ice-shelf cavity</span>
+    <span class="n">above</span> <span class="o">=</span> <span class="p">(</span><span class="n">z_valid</span> <span class="o">&gt;=</span> <span class="n">elevation</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="s1">'nVertLevels'</span><span class="p">)</span>
+    <span class="n">k_upper</span> <span class="o">=</span> <span class="n">min_level_cell</span> <span class="o">+</span> <span class="n">above</span> <span class="o">-</span> <span class="mi">1</span>
+    <span class="c1"># the pair is (k_upper, k_upper + 1), so the lowest pair of a column</span>
+    <span class="c1"># starts one layer above its seafloor.  A column with a single valid</span>
+    <span class="c1"># layer has no pair at all and is handled below; land has none either and</span>
+    <span class="c1"># is masked, so both only need an index that can be taken safely.</span>
+    <span class="n">lowest_pair</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">maximum</span><span class="p">(</span><span class="n">max_level_cell</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="n">min_level_cell</span><span class="p">)</span>
+    <span class="n">k_upper</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">minimum</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">maximum</span><span class="p">(</span><span class="n">k_upper</span><span class="p">,</span> <span class="n">min_level_cell</span><span class="p">),</span> <span class="n">lowest_pair</span><span class="p">)</span>
+    <span class="n">k_upper</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">minimum</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">maximum</span><span class="p">(</span><span class="n">k_upper</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="n">n_levels</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="n">k_lower</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">minimum</span><span class="p">(</span><span class="n">k_upper</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">n_levels</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
+
+    <span class="n">z_upper</span> <span class="o">=</span> <span class="n">z_valid</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span><span class="n">nVertLevels</span><span class="o">=</span><span class="n">k_upper</span><span class="p">)</span>
+    <span class="n">z_lower</span> <span class="o">=</span> <span class="n">z_valid</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span><span class="n">nVertLevels</span><span class="o">=</span><span class="n">k_lower</span><span class="p">)</span>
+    <span class="n">thickness</span> <span class="o">=</span> <span class="n">z_upper</span> <span class="o">-</span> <span class="n">z_lower</span>
+    <span class="n">weight</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">thickness</span> <span class="o">&gt;</span> <span class="mf">0.0</span><span class="p">,</span> <span class="p">(</span><span class="n">elevation</span> <span class="o">-</span> <span class="n">z_lower</span><span class="p">)</span> <span class="o">/</span> <span class="n">thickness</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">)</span>
+    <span class="n">weight</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">minimum</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">maximum</span><span class="p">(</span><span class="n">weight</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">),</span> <span class="mf">1.0</span><span class="p">)</span>
+
+    <span class="n">da_upper</span> <span class="o">=</span> <span class="n">da</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span><span class="n">nVertLevels</span><span class="o">=</span><span class="n">k_upper</span><span class="p">)</span>
+    <span class="n">da_lower</span> <span class="o">=</span> <span class="n">da</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span><span class="n">nVertLevels</span><span class="o">=</span><span class="n">k_lower</span><span class="p">)</span>
+    <span class="c1"># a column with one valid layer is that layer everywhere within it; the</span>
+    <span class="c1"># layer below is outside the column, so it is selected away rather than</span>
+    <span class="c1"># weighted by zero, which would let a fill value poison the sum</span>
+    <span class="n">single_layer</span> <span class="o">=</span> <span class="n">min_level_cell</span> <span class="o">&gt;=</span> <span class="n">max_level_cell</span>
+    <span class="n">da_map</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">where</span><span class="p">(</span>
+        <span class="n">single_layer</span><span class="p">,</span> <span class="n">da_upper</span><span class="p">,</span> <span class="n">weight</span> <span class="o">*</span> <span class="n">da_upper</span> <span class="o">+</span> <span class="p">(</span><span class="mf">1.0</span> <span class="o">-</span> <span class="n">weight</span><span class="p">)</span> <span class="o">*</span> <span class="n">da_lower</span>
+    <span class="p">)</span>
+
+    <span class="c1"># land has no layer to take a value from, and an elevation below the</span>
+    <span class="c1"># seafloor has no water at it</span>
+    <span class="n">n_interfaces</span> <span class="o">=</span> <span class="n">z_interface</span><span class="o">.</span><span class="n">sizes</span><span class="p">[</span><span class="n">INTERFACE_DIM</span><span class="p">]</span>
+    <span class="n">k_floor</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">minimum</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">maximum</span><span class="p">(</span><span class="n">max_level_cell</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="n">n_interfaces</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="n">z_floor</span> <span class="o">=</span> <span class="n">z_interface</span><span class="o">.</span><span class="n">isel</span><span class="p">({</span><span class="n">INTERFACE_DIM</span><span class="p">:</span> <span class="n">k_floor</span><span class="p">})</span>
+    <span class="n">in_water</span> <span class="o">=</span> <span class="p">(</span><span class="n">max_level_cell</span> <span class="o">&gt;=</span> <span class="n">min_level_cell</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">elevation</span> <span class="o">&gt;=</span> <span class="n">z_floor</span><span class="p">)</span>
+
+    <span class="n">da_map</span> <span class="o">=</span> <span class="n">da_map</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">in_water</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">da_map</span><span class="o">.</span><span class="n">drop_vars</span><span class="p">([</span><span class="s1">'nVertLevels'</span><span class="p">,</span> <span class="n">INTERFACE_DIM</span><span class="p">],</span> <span class="n">errors</span><span class="o">=</span><span class="s1">'ignore'</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_parse_elevation_range</span><span class="p">(</span><span class="n">spec</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""Parse an elevation range written ``&lt;top&gt;:&lt;bottom&gt;``"""</span>
+    <span class="n">parts</span> <span class="o">=</span> <span class="n">spec</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">':'</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">parts</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">2</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s1">'"</span><span class="si">{</span><span class="n">spec</span><span class="si">}</span><span class="s1">" is not an elevation range.  A range is given as '</span>
+            <span class="sa">f</span><span class="s1">'&lt;top&gt;:&lt;bottom&gt; in m, positive up, e.g. top:-700.0.'</span>
+        <span class="p">)</span>
+    <span class="n">z_top</span> <span class="o">=</span> <span class="n">_parse_range_bound</span><span class="p">(</span><span class="n">spec</span><span class="p">,</span> <span class="n">parts</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="s1">'top'</span><span class="p">)</span>
+    <span class="n">z_bot</span> <span class="o">=</span> <span class="n">_parse_range_bound</span><span class="p">(</span><span class="n">spec</span><span class="p">,</span> <span class="n">parts</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="s1">'bottom'</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">z_top</span> <span class="o">&lt;=</span> <span class="n">z_bot</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s1">'The elevation range "</span><span class="si">{</span><span class="n">spec</span><span class="si">}</span><span class="s1">" does not descend.  A range is '</span>
+            <span class="sa">f</span><span class="s1">'given as &lt;top&gt;:&lt;bottom&gt; in m, positive up, so the first '</span>
+            <span class="sa">f</span><span class="s1">'elevation is the higher one.'</span>
+        <span class="p">)</span>
+    <span class="n">top_label</span> <span class="o">=</span> <span class="n">range_bound_label</span><span class="p">(</span><span class="n">z_top</span><span class="p">)</span>
+    <span class="n">bot_label</span> <span class="o">=</span> <span class="n">range_bound_label</span><span class="p">(</span><span class="n">z_bot</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">VerticalReduction</span><span class="p">(</span>
+        <span class="n">kind</span><span class="o">=</span><span class="s1">'range'</span><span class="p">,</span>
+        <span class="n">label</span><span class="o">=</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">top_label</span><span class="si">}</span><span class="s1">_to_</span><span class="si">{</span><span class="n">bot_label</span><span class="si">}</span><span class="s1">'</span><span class="p">,</span>
+        <span class="n">z_top</span><span class="o">=</span><span class="n">z_top</span><span class="p">,</span>
+        <span class="n">z_bot</span><span class="o">=</span><span class="n">z_bot</span><span class="p">,</span>
+    <span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_parse_range_bound</span><span class="p">(</span><span class="n">spec</span><span class="p">,</span> <span class="n">text</span><span class="p">,</span> <span class="n">keyword</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""Parse one end of an elevation range, which may be a keyword"""</span>
+    <span class="n">text</span> <span class="o">=</span> <span class="n">text</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">text</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="n">keyword</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">inf</span> <span class="k">if</span> <span class="n">keyword</span> <span class="o">==</span> <span class="s1">'top'</span> <span class="k">else</span> <span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">inf</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s1">'"</span><span class="si">{</span><span class="n">text</span><span class="si">}</span><span class="s1">" is not the </span><span class="si">{</span><span class="n">keyword</span><span class="si">}</span><span class="s1"> of the elevation range "</span><span class="si">{</span><span class="n">spec</span><span class="si">}</span><span class="s1">".'</span>
+            <span class="sa">f</span><span class="s1">'  It is either "</span><span class="si">{</span><span class="n">keyword</span><span class="si">}</span><span class="s1">" or an elevation in m, positive up, '</span>
+            <span class="sa">f</span><span class="s1">'so negative within the ocean.'</span>
+        <span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="kc">None</span>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2026, Energy Exascale Earth System Model Project.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+   
+
+  <!-- Meta tags for JS to use -->
+  <meta name="doc-version" content="main">
+  <meta name="doc-site-root" content="../../../../">
+
+  <!-- Create version switcher container -->
+  <script>
+    const sidebar = document.querySelector('.wy-side-nav-search');
+    if (sidebar) {
+      const versionDiv = document.createElement('div');
+      versionDiv.id = 'version-switcher';
+      versionDiv.style.marginTop = '1em';
+      sidebar.appendChild(versionDiv);
+    }
+  </script>
+
+  <!-- Load version-switcher.js using the correct relative path -->
+  <script src="../../../../../shared/version-switcher.js"></script>
+
+
+</body>
+</html>

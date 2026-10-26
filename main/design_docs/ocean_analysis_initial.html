@@ -487,7 +487,7 @@ following MPAS-Analysis’s familiar layout, and no more, is what Phase 1 ships.
 </section>
 <section id="requirement-omega-monthly-means">
 <h3>Requirement: omega-monthly-means<a class="headerlink" href="#requirement-omega-monthly-means" title="Link to this heading"></a></h3>
-<p>Date last modified: 2026/08/25</p>
+<p>Date last modified: 2026/09/29</p>
 <p>Contributors: Xylar Asay-Davis, Claude</p>
 <p><em>This requirement describes work in Omega, not in Polaris.  It is stated here
 because everything else in this document depends on it.</em></p>
@@ -496,13 +496,11 @@ fields.  The monthly-mean output shall:</p>
 <ul class="simple">
 <li><p>cover, at minimum, the fields needed by this analysis: conservative
 temperature, absolute salinity, pseudo-thickness, sea surface height,
-reconstructed zonal and meridional velocity at cell centers, and mixed-layer
-depth.  Reconstructed velocities are <strong>required</strong> rather than preferred: the
-machinery to write them exists in Omega, two cell-centered fields are about
-two thirds the size of one edge field, and <code class="docutils literal notranslate"><span class="pre">normalVelocity</span></code> is not itself
-plotted by anything here, so there is no reason for a simulation to write the
-larger field and no reason for Polaris to carry a reconstruction it would
-never use;</p></li>
+velocity, and mixed-layer depth.  Velocity may be either the reconstructed
+zonal and meridional components at cell centers or <code class="docutils literal notranslate"><span class="pre">normalVelocity</span></code>, from
+which Polaris reconstructs them (see the velocity section of the
+climatology-maps algorithm design).  The components are preferred, since two
+cell-centered fields are about two thirds the size of one edge field;</p></li>
 <li><p>include the <strong>geometric vertical coordinate</strong>, <code class="docutils literal notranslate"><span class="pre">GeomZMid</span></code> and
 <code class="docutils literal notranslate"><span class="pre">GeomZInterface</span></code>, so that Polaris does not have to reconstruct it (see the
 vertical-geometry algorithm design for why it cannot);</p></li>
@@ -871,7 +869,7 @@ already encodes the range in its output file names
 </section>
 <section id="algorithm-design-climatology-maps">
 <h3>Algorithm Design: climatology-maps<a class="headerlink" href="#algorithm-design-climatology-maps" title="Link to this heading"></a></h3>
-<p>Date last modified: 2026/08/30</p>
+<p>Date last modified: 2026/09/29</p>
 <p>Contributors: Xylar Asay-Davis, Claude</p>
 <section id="vertical-geometry">
 <h4>Vertical geometry<a class="headerlink" href="#vertical-geometry" title="Link to this heading"></a></h4>
@@ -963,34 +961,24 @@ the seafloor.</p>
 </section>
 <section id="velocity">
 <h4>Velocity<a class="headerlink" href="#velocity" title="Link to this heading"></a></h4>
-<p>The map steps plot zonal and meridional velocity at cell centers, read directly
-from the monthly means.  Polaris does not reconstruct them, and Phase 1 has no
-offline reconstruction path at all.</p>
-<p>An earlier draft had one, reconstructing from <code class="docutils literal notranslate"><span class="pre">normalVelocity</span></code> on edges with
-the least-squares weights designed in
-<a class="reference internal" href="vector_reconstruction.html"><span class="std std-doc">Vector Reconstruction</span></a>, so that this product would
-not block on Omega work.  It is not needed: the Omega side is in progress in
-<a class="reference external" href="https://github.com/E3SM-Project/Omega/pull/525">Omega #525</a>, which adds
-velocity-component reconstruction for I/O, so reconstructed velocities become a
-required output rather than a preferred one, and a fallback for a case that
-will not arise is code we would write, test and maintain for nothing.</p>
-<p>That work is still a draft, so this is the one place the design depends on
-something not yet landed upstream.  The consequence is contained: until it
-does, the mock-up files carry <code class="docutils literal notranslate"><span class="pre">NormalVelocity</span></code> and no components, so the
-velocity maps are the one product that reports missing fields and skips, in the
-way described under <code class="docutils literal notranslate"><span class="pre">omega-monthly-means</span></code>.  Nothing else waits on it.  Writing
-the offline path against that gap would cost more than the wait, and would
-leave us maintaining two ways to obtain the same field.</p>
-<p>Polaris’s reconstruction itself is not going away and is being fixed
-independently — <a class="reference external" href="https://github.com/E3SM-Project/polaris/pull/721">Polaris #721</a>
-corrects vector reconstruction on planar meshes, found while doing the Omega
-work.  It stays available for tasks that need it; this analysis simply does not
-read edge velocities.</p>
-<p>The accuracy question that would otherwise decide this does not arise either.
-Reconstruction is linear, so reconstructing from a climatology of normal
-velocity gives exactly the climatology of the reconstructed velocity — doing
-it in the model costs nothing in accuracy, and it saves writing and reading an
-edge field nothing else here wants.</p>
+<p>The map steps plot zonal and meridional velocity at cell centers.  Where the
+monthly means carry the components, they are read directly.  Where they carry
+only <code class="docutils literal notranslate"><span class="pre">normalVelocity</span></code>, Polaris reconstructs the components from its
+climatology with the least-squares weights in the mesh file, designed in
+<a class="reference internal" href="vector_reconstruction.html"><span class="std std-doc">Vector Reconstruction</span></a>.</p>
+<p>This reverses an earlier version of this design, which had no offline path
+and relied on <a class="reference external" href="https://github.com/E3SM-Project/Omega/pull/525">Omega #525</a> to
+make reconstructed velocities a required output.  That work is not expected
+to merge soon, and reconstructing from edge velocities is a capability Polaris
+wants regardless.</p>
+<p>Reconstruction is linear, so reconstructing from the climatology of normal
+velocity gives exactly the climatology of the reconstructed velocity.  The
+climatology therefore carries <code class="docutils literal notranslate"><span class="pre">normalVelocity</span></code> whenever a component is asked
+for and was not written, and the reconstruction is done in the velocity map
+step, once per season.  An edge the monthly means leave as fill — one below
+the seafloor or beside land — is closed, so it is treated as a normal
+velocity of zero, and the reconstructed components are then masked outside
+each column’s valid layers like any other field.</p>
 </section>
 </section>
 <section id="algorithm-design-mixed-layer-depth-fallback-only">
@@ -2168,7 +2156,7 @@ exactly this reason.</p></li>
 </section>
 <section id="implementation-omega-monthly-means">
 <h3>Implementation: omega-monthly-means<a class="headerlink" href="#implementation-omega-monthly-means" title="Link to this heading"></a></h3>
-<p>Date last modified: 2026/08/27</p>
+<p>Date last modified: 2026/09/29</p>
 <p>Contributors: Xylar Asay-Davis, Claude</p>
 <p>This is Omega work and is implemented in the Omega repository, not in Polaris.
 What Polaris needs to do:</p>
@@ -2211,8 +2199,8 @@ configuration names <code class="docutils literal notranslate"><span class="pre"
 write.  That is a fixture, deliberately, and not something the analysis has
 code for: the mock-up exists to be developed against and then discarded, and
 the monthly means are expected to arrive in their own stream in any case.</p>
-<p>Every product in this design except mixed-layer depth and the reconstructed
-velocity components can be developed and tested against these files today.
+<p>Every product in this design except mixed-layer depth can be developed and
+tested against these files today.
 They are what the order of work assumes: the steps are built against real Omega
 output from the start rather than against synthetic data with a later
 integration step.</p>

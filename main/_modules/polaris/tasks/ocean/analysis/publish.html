@@ -206,6 +206,9 @@
             <span class="n">thumbnail_size</span><span class="o">=</span><span class="nb">tuple</span><span class="p">(</span>
                 <span class="n">config</span><span class="o">.</span><span class="n">getlist</span><span class="p">(</span><span class="s1">'ocean_analysis'</span><span class="p">,</span> <span class="s1">'thumbnail_size'</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">)</span>
             <span class="p">),</span>
+            <span class="n">thumbnail_scale</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span>
+                <span class="s1">'ocean_analysis'</span><span class="p">,</span> <span class="s1">'thumbnail_scale'</span>
+            <span class="p">),</span>
             <span class="n">thumbnail_format</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'ocean_analysis'</span><span class="p">,</span> <span class="s1">'thumbnail_format'</span><span class="p">),</span>
             <span class="n">thumbnail_quality</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">getint</span><span class="p">(</span>
                 <span class="s1">'ocean_analysis'</span><span class="p">,</span> <span class="s1">'thumbnail_quality'</span>

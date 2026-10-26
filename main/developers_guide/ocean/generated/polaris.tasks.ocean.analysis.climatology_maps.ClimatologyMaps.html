@@ -20,7 +20,7 @@
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
     <link rel="next" title="polaris.tasks.ocean.analysis.climatology_maps.ClimatologyMaps.setup" href="polaris.tasks.ocean.analysis.climatology_maps.ClimatologyMaps.setup.html" />
-    <link rel="prev" title="polaris.tasks.ocean.analysis.climatology.Climatology.run" href="polaris.tasks.ocean.analysis.climatology.Climatology.run.html" />
+    <link rel="prev" title="polaris.tasks.ocean.analysis.climatology.find_climatology_file" href="polaris.tasks.ocean.analysis.climatology.find_climatology_file.html" />
     <link href="../../../_static/style.css" rel="stylesheet" type="text/css">
 
 </head>
@@ -142,7 +142,7 @@
 <h1>polaris.tasks.ocean.analysis.climatology_maps.ClimatologyMaps<a class="headerlink" href="#polaris-tasks-ocean-analysis-climatology-maps-climatologymaps" title="Link to this heading"></a></h1>
 <dl class="py class">
 <dt class="sig sig-object py" id="polaris.tasks.ocean.analysis.climatology_maps.ClimatologyMaps">
-<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">polaris.tasks.ocean.analysis.climatology_maps.</span></span><span class="sig-name descname"><span class="pre">ClimatologyMaps</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">component</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">subdir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">field_group</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fields</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start_year</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">end_year</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/polaris/tasks/ocean/analysis/climatology_maps.html#ClimatologyMaps"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#polaris.tasks.ocean.analysis.climatology_maps.ClimatologyMaps" title="Link to this definition"></a></dt>
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">polaris.tasks.ocean.analysis.climatology_maps.</span></span><span class="sig-name descname"><span class="pre">ClimatologyMaps</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">component</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">subdir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">field_group</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fields</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start_year</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">end_year</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">climatology</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/polaris/tasks/ocean/analysis/climatology_maps.html#ClimatologyMaps"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#polaris.tasks.ocean.analysis.climatology_maps.ClimatologyMaps" title="Link to this definition"></a></dt>
 <dd><p>A step that plots maps of one field group from the climatology</p>
 <dl class="field-list simple">
 <dt class="field-odd">Variables<span class="colon">:</span></dt>
@@ -155,7 +155,7 @@ shared computation rather than a heading products are gathered under</p></li>
 </dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="polaris.tasks.ocean.analysis.climatology_maps.ClimatologyMaps.__init__">
-<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">component</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">subdir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">field_group</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fields</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start_year</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">end_year</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/polaris/tasks/ocean/analysis/climatology_maps.html#ClimatologyMaps.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#polaris.tasks.ocean.analysis.climatology_maps.ClimatologyMaps.__init__" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">component</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">subdir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">field_group</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fields</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start_year</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">end_year</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">climatology</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/polaris/tasks/ocean/analysis/climatology_maps.html#ClimatologyMaps.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#polaris.tasks.ocean.analysis.climatology_maps.ClimatologyMaps.__init__" title="Link to this definition"></a></dt>
 <dd><p>Create a climatology map step for one field group</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -166,6 +166,10 @@ shared computation rather than a heading products are gathered under</p></li>
 <li><p><strong>fields</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#list" title="(in Python v3.15)"><em>list</em></a><em> of </em><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><em>str</em></a>) – The fields of that group that were requested</p></li>
 <li><p><strong>start_year</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.15)"><em>int</em></a>) – The first year of the climatology, inclusive</p></li>
 <li><p><strong>end_year</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.15)"><em>int</em></a>) – The last year of the climatology, inclusive</p></li>
+<li><p><strong>climatology</strong> (<em>polaris.tasks.ocean.analysis.Climatology</em>) – The climatology this step plots maps of.  It is a dependency
+rather than an input file because <code class="docutils literal notranslate"><span class="pre">ncclimo</span></code> names its output
+for the case and the dates, so the file names are not known
+until it has run.</p></li>
 </ul>
 </dd>
 </dl>
@@ -259,7 +263,7 @@ shared computation rather than a heading products are gathered under</p></li>
 <td><p>Resolve <code class="docutils literal notranslate"><span class="pre">&lt;&lt;&lt;placeholder&gt;&gt;&gt;</span></code> filenames to configured names and drop <code class="docutils literal notranslate"><span class="pre">&lt;&lt;&lt;vert_coord&gt;&gt;&gt;</span></code> entries for MPAS-Ocean before delegating to the base <a class="reference internal" href="../../generated/polaris.Step.html#polaris.Step" title="polaris.Step"><code class="xref py py-class docutils literal notranslate"><span class="pre">Step</span></code></a> processing.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="polaris.tasks.ocean.analysis.climatology_maps.ClimatologyMaps.run.html#polaris.tasks.ocean.analysis.climatology_maps.ClimatologyMaps.run" title="polaris.tasks.ocean.analysis.climatology_maps.ClimatologyMaps.run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">run</span></code></a>()</p></td>
-<td><p>Report the fields and inputs; no maps are plotted yet</p></td>
+<td><p>Plot a map of each field of this group, for each season and each vertical reduction that was asked for</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">runtime_setup</span></code>()</p></td>
 <td><p>Write the empty manifest fragment before the step runs</p></td>
@@ -271,7 +275,7 @@ shared computation rather than a heading products are gathered under</p></li>
 <td><p>Replace the step's config parser with the shared config parser</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="polaris.tasks.ocean.analysis.climatology_maps.ClimatologyMaps.setup.html#polaris.tasks.ocean.analysis.climatology_maps.ClimatologyMaps.setup" title="polaris.tasks.ocean.analysis.climatology_maps.ClimatologyMaps.setup"><code class="xref py py-obj docutils literal notranslate"><span class="pre">setup</span></code></a>()</p></td>
-<td><p>Link the mesh the maps are plotted on</p></td>
+<td><p>Link the mesh the maps are plotted on and the vertical coordinate</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">validate_baselines</span></code>()</p></td>
 <td><p>Compare variables between output files in this step and in the same step from a baseline run if one was provided.</p></td>
@@ -339,7 +343,7 @@ shared computation rather than a heading products are gathered under</p></li>
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="polaris.tasks.ocean.analysis.climatology.Climatology.run.html" class="btn btn-neutral float-left" title="polaris.tasks.ocean.analysis.climatology.Climatology.run" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="polaris.tasks.ocean.analysis.climatology.find_climatology_file.html" class="btn btn-neutral float-left" title="polaris.tasks.ocean.analysis.climatology.find_climatology_file" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
         <a href="polaris.tasks.ocean.analysis.climatology_maps.ClimatologyMaps.setup.html" class="btn btn-neutral float-right" title="polaris.tasks.ocean.analysis.climatology_maps.ClimatologyMaps.setup" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 

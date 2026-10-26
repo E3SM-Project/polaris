@@ -1,0 +1,6 @@
+﻿polaris.ocean.vertical.elevation.apply\_vertical\_reduction
+===========================================================
+
+.. currentmodule:: polaris.ocean.vertical.elevation
+
+.. autofunction:: apply_vertical_reduction

@@ -128,6 +128,9 @@
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">polaris.yaml</span><span class="w"> </span><span class="kn">import</span> <span class="n">PolarisYaml</span>
 
+<span class="c1"># the Omega analysis group that writes the monthly means the analysis reads</span>
+<span class="n">MONTHLY_MEAN_GROUP</span> <span class="o">=</span> <span class="s1">'MonthlyAverages'</span>
+
 
 <div class="viewcode-block" id="SimFile">
 <a class="viewcode-back" href="../../../../../developers_guide/ocean/generated/polaris.tasks.ocean.analysis.sim_files.SimFile.html#polaris.tasks.ocean.analysis.sim_files.SimFile">[docs]</a>
@@ -153,6 +156,31 @@
     <span class="n">year</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span>
     <span class="n">month</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span></div>
 
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">time_mean_suffix</span><span class="p">(</span><span class="n">stream</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Get the suffix Omega appends to the name of each field of a time mean</span>
+
+<span class="sd">    Omega names the time mean of ``Temperature`` over a month</span>
+<span class="sd">    ``Temperature_TimeMean1Month``.  The analysis strips the suffix from the</span>
+<span class="sd">    files it produces from such output, so that the rest of Polaris sees the</span>
+<span class="sd">    field's own name.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    stream : AnalysisStream</span>
+<span class="sd">        The stream the time means are read from</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    suffix : str</span>
+<span class="sd">        The suffix, e.g. ``'_TimeMean1Month'``, or an empty string if the</span>
+<span class="sd">        stream holds snapshots</span>
+<span class="sd">    """</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">stream</span><span class="o">.</span><span class="n">is_reduction</span><span class="p">:</span>
+        <span class="k">return</span> <span class="s1">''</span>
+    <span class="k">return</span> <span class="sa">f</span><span class="s1">'_TimeMean</span><span class="si">{</span><span class="n">stream</span><span class="o">.</span><span class="n">period</span><span class="si">}</span><span class="s1">'</span>
 
 
 <div class="viewcode-block" id="year_range_key">
@@ -184,7 +212,9 @@
 
 <div class="viewcode-block" id="expand_template">
 <a class="viewcode-back" href="../../../../../developers_guide/ocean/generated/polaris.tasks.ocean.analysis.sim_files.expand_template.html#polaris.tasks.ocean.analysis.sim_files.expand_template">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">expand_template</span><span class="p">(</span><span class="n">template</span><span class="p">,</span> <span class="n">start_year</span><span class="p">,</span> <span class="n">end_year</span><span class="p">,</span> <span class="n">simulation_path</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">expand_template</span><span class="p">(</span>
+    <span class="n">template</span><span class="p">,</span> <span class="n">start_year</span><span class="p">,</span> <span class="n">end_year</span><span class="p">,</span> <span class="n">simulation_path</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">month_offset</span><span class="o">=</span><span class="mi">0</span>
+<span class="p">):</span>
 <span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Expand a file-name template over a range of years</span>
 
@@ -206,6 +236,13 @@
 
 <span class="sd">    simulation_path : str, optional</span>
 <span class="sd">        The directory a relative template is resolved against</span>
+
+<span class="sd">    month_offset : int, optional</span>
+<span class="sd">        The number of months after the one a file covers that it is named</span>
+<span class="sd">        for.  Omega names a monthly mean for the instant it was finalized,</span>
+<span class="sd">        the start of the following month (E3SM-Project/Omega#554), so the</span>
+<span class="sd">        mean for January of year 1 is in the file named ``0001-02``.  The</span>
+<span class="sd">        ``year`` and ``month`` of each file are the ones it covers.</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
@@ -238,18 +275,16 @@
 
     <span class="n">sim_files</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="k">for</span> <span class="n">year</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">start_year</span><span class="p">,</span> <span class="n">end_year</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
-        <span class="n">path</span> <span class="o">=</span> <span class="n">template</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">'$Y'</span><span class="p">,</span> <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">year</span><span class="si">:</span><span class="s1">04d</span><span class="si">}</span><span class="s1">'</span><span class="p">)</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">has_month</span><span class="p">:</span>
+            <span class="n">path</span> <span class="o">=</span> <span class="n">template</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">'$Y'</span><span class="p">,</span> <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">year</span><span class="si">:</span><span class="s1">04d</span><span class="si">}</span><span class="s1">'</span><span class="p">)</span>
             <span class="n">sim_files</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">SimFile</span><span class="p">(</span><span class="n">path</span><span class="o">=</span><span class="n">path</span><span class="p">,</span> <span class="n">year</span><span class="o">=</span><span class="n">year</span><span class="p">,</span> <span class="n">month</span><span class="o">=</span><span class="kc">None</span><span class="p">))</span>
             <span class="k">continue</span>
         <span class="k">for</span> <span class="n">month</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">13</span><span class="p">):</span>
-            <span class="n">sim_files</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-                <span class="n">SimFile</span><span class="p">(</span>
-                    <span class="n">path</span><span class="o">=</span><span class="n">path</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">'$M'</span><span class="p">,</span> <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">month</span><span class="si">:</span><span class="s1">02d</span><span class="si">}</span><span class="s1">'</span><span class="p">),</span>
-                    <span class="n">year</span><span class="o">=</span><span class="n">year</span><span class="p">,</span>
-                    <span class="n">month</span><span class="o">=</span><span class="n">month</span><span class="p">,</span>
-                <span class="p">)</span>
+            <span class="n">named_year</span><span class="p">,</span> <span class="n">named_month</span> <span class="o">=</span> <span class="n">_shift_month</span><span class="p">(</span><span class="n">year</span><span class="p">,</span> <span class="n">month</span><span class="p">,</span> <span class="n">month_offset</span><span class="p">)</span>
+            <span class="n">path</span> <span class="o">=</span> <span class="n">template</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">'$Y'</span><span class="p">,</span> <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">named_year</span><span class="si">:</span><span class="s1">04d</span><span class="si">}</span><span class="s1">'</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span>
+                <span class="s1">'$M'</span><span class="p">,</span> <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">named_month</span><span class="si">:</span><span class="s1">02d</span><span class="si">}</span><span class="s1">'</span>
             <span class="p">)</span>
+            <span class="n">sim_files</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">SimFile</span><span class="p">(</span><span class="n">path</span><span class="o">=</span><span class="n">path</span><span class="p">,</span> <span class="n">year</span><span class="o">=</span><span class="n">year</span><span class="p">,</span> <span class="n">month</span><span class="o">=</span><span class="n">month</span><span class="p">))</span>
 
     <span class="k">return</span> <span class="n">sim_files</span></div>
 
@@ -704,17 +739,44 @@
 <span class="sd">        sim_files : list of SimFile</span>
 <span class="sd">            The monthly-mean files, which are known to exist</span>
 <span class="sd">        """</span>
-        <span class="n">template</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_stream_template</span><span class="p">(</span>
-            <span class="n">stream_name</span><span class="o">=</span><span class="s1">'History'</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s1">'monthly means'</span>
+        <span class="n">stream</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_analysis_stream</span><span class="p">(</span>
+            <span class="n">group_name</span><span class="o">=</span><span class="n">MONTHLY_MEAN_GROUP</span><span class="p">,</span>
+            <span class="n">description</span><span class="o">=</span><span class="s1">'monthly means'</span><span class="p">,</span>
+            <span class="n">required</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
         <span class="p">)</span>
+        <span class="k">assert</span> <span class="n">stream</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_expand_and_check</span><span class="p">(</span>
-            <span class="n">template</span><span class="o">=</span><span class="n">template</span><span class="p">,</span>
+            <span class="n">stream</span><span class="o">=</span><span class="n">stream</span><span class="p">,</span>
             <span class="n">start_year</span><span class="o">=</span><span class="n">start_year</span><span class="p">,</span>
             <span class="n">end_year</span><span class="o">=</span><span class="n">end_year</span><span class="p">,</span>
             <span class="n">description</span><span class="o">=</span><span class="s1">'monthly-mean'</span><span class="p">,</span>
-            <span class="n">source</span><span class="o">=</span><span class="sa">f</span><span class="s1">'the History stream in </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">omega_config</span><span class="o">.</span><span class="n">filename</span><span class="si">}</span><span class="s1">'</span><span class="p">,</span>
+            <span class="n">source</span><span class="o">=</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s1">'the </span><span class="si">{</span><span class="n">MONTHLY_MEAN_GROUP</span><span class="si">}</span><span class="s1"> analysis group in '</span>
+                <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">omega_config</span><span class="o">.</span><span class="n">filename</span><span class="si">}</span><span class="s1">'</span>
+            <span class="p">),</span>
         <span class="p">)</span></div>
 
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">monthly_mean_stream</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">        Get the output stream the monthly means are read from</span>
+
+<span class="sd">        Omega names each variable of a time mean for the field and the</span>
+<span class="sd">        period, so a step that reads the files needs the stream and not just</span>
+<span class="sd">        its file name; see :py:func:`time_mean_suffix`.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        stream : AnalysisStream</span>
+<span class="sd">            The stream</span>
+<span class="sd">        """</span>
+        <span class="n">stream</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_analysis_stream</span><span class="p">(</span>
+            <span class="n">group_name</span><span class="o">=</span><span class="n">MONTHLY_MEAN_GROUP</span><span class="p">,</span>
+            <span class="n">description</span><span class="o">=</span><span class="s1">'monthly means'</span><span class="p">,</span>
+            <span class="n">required</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="k">assert</span> <span class="n">stream</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+        <span class="k">return</span> <span class="n">stream</span>
 
 <div class="viewcode-block" id="SimulationFiles.global_stats_files">
 <a class="viewcode-back" href="../../../../../developers_guide/ocean/generated/polaris.tasks.ocean.analysis.sim_files.SimulationFiles.global_stats_files.html#polaris.tasks.ocean.analysis.sim_files.SimulationFiles.global_stats_files">[docs]</a>
@@ -735,14 +797,14 @@
 <span class="sd">        sim_files : list of SimFile</span>
 <span class="sd">            The global statistics files, which are known to exist</span>
 <span class="sd">        """</span>
-        <span class="n">template</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_analysis_template</span><span class="p">(</span>
+        <span class="n">stream</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_analysis_stream</span><span class="p">(</span>
             <span class="n">group_name</span><span class="o">=</span><span class="s1">'GlobalStats'</span><span class="p">,</span>
             <span class="n">description</span><span class="o">=</span><span class="s1">'global statistics'</span><span class="p">,</span>
             <span class="n">required</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
         <span class="p">)</span>
-        <span class="k">assert</span> <span class="n">template</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+        <span class="k">assert</span> <span class="n">stream</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_expand_and_check</span><span class="p">(</span>
-            <span class="n">template</span><span class="o">=</span><span class="n">template</span><span class="p">,</span>
+            <span class="n">stream</span><span class="o">=</span><span class="n">stream</span><span class="p">,</span>
             <span class="n">start_year</span><span class="o">=</span><span class="n">start_year</span><span class="p">,</span>
             <span class="n">end_year</span><span class="o">=</span><span class="n">end_year</span><span class="p">,</span>
             <span class="n">description</span><span class="o">=</span><span class="s1">'global statistics'</span><span class="p">,</span>
@@ -797,15 +859,15 @@
 <span class="sd">            The MOC files, which are known to exist, or ``None`` if the</span>
 <span class="sd">            simulation does not write MOC output</span>
 <span class="sd">        """</span>
-        <span class="n">template</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_analysis_template</span><span class="p">(</span>
+        <span class="n">stream</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_analysis_stream</span><span class="p">(</span>
             <span class="n">group_name</span><span class="o">=</span><span class="s1">'Moc'</span><span class="p">,</span>
             <span class="n">description</span><span class="o">=</span><span class="s1">'meridional overturning circulation'</span><span class="p">,</span>
             <span class="n">required</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
         <span class="p">)</span>
-        <span class="k">if</span> <span class="n">template</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">stream</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">return</span> <span class="kc">None</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_expand_and_check</span><span class="p">(</span>
-            <span class="n">template</span><span class="o">=</span><span class="n">template</span><span class="p">,</span>
+            <span class="n">stream</span><span class="o">=</span><span class="n">stream</span><span class="p">,</span>
             <span class="n">start_year</span><span class="o">=</span><span class="n">start_year</span><span class="p">,</span>
             <span class="n">end_year</span><span class="o">=</span><span class="n">end_year</span><span class="p">,</span>
             <span class="n">description</span><span class="o">=</span><span class="s1">'MOC'</span><span class="p">,</span>
@@ -864,8 +926,8 @@
         <span class="p">)</span>
         <span class="k">return</span> <span class="n">value</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="nf">_analysis_template</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">group_name</span><span class="p">,</span> <span class="n">description</span><span class="p">,</span> <span class="n">required</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">"""Get a file-name template from an Omega analysis group"""</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_analysis_stream</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">group_name</span><span class="p">,</span> <span class="n">description</span><span class="p">,</span> <span class="n">required</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Get the output stream to read from an Omega analysis group"""</span>
         <span class="n">reason</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_analysis_group_problem</span><span class="p">(</span><span class="n">group_name</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">reason</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">streams</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">omega_config</span><span class="o">.</span><span class="n">analysis_streams</span><span class="p">(</span><span class="n">group_name</span><span class="p">)</span>
@@ -882,7 +944,7 @@
                     <span class="sa">f</span><span class="s2">"config's </span><span class="si">{</span><span class="n">group_name</span><span class="si">}</span><span class="s2"> group, the </span><span class="si">{</span><span class="n">stream</span><span class="o">.</span><span class="n">period</span><span class="si">}</span><span class="s2"> "</span>
                     <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">kind</span><span class="si">}</span><span class="s1"> stream)'</span>
                 <span class="p">)</span>
-                <span class="k">return</span> <span class="n">stream</span><span class="o">.</span><span class="n">filename</span>
+                <span class="k">return</span> <span class="n">stream</span>
 
         <span class="k">if</span> <span class="n">required</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
@@ -911,14 +973,22 @@
         <span class="k">return</span> <span class="kc">None</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_expand_and_check</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span> <span class="n">template</span><span class="p">,</span> <span class="n">start_year</span><span class="p">,</span> <span class="n">end_year</span><span class="p">,</span> <span class="n">description</span><span class="p">,</span> <span class="n">source</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">stream</span><span class="p">,</span> <span class="n">start_year</span><span class="p">,</span> <span class="n">end_year</span><span class="p">,</span> <span class="n">description</span><span class="p">,</span> <span class="n">source</span>
     <span class="p">):</span>
-<span class="w">        </span><span class="sd">"""Expand a template over a year range and check that it all exists"""</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">        Expand a stream's template over a year range and check that it all</span>
+<span class="sd">        exists</span>
+<span class="sd">        """</span>
+        <span class="n">template</span> <span class="o">=</span> <span class="n">stream</span><span class="o">.</span><span class="n">filename</span>
+        <span class="c1"># a file of monthly means is named for the month after the one it</span>
+        <span class="c1"># covers; see expand_template</span>
+        <span class="n">month_offset</span> <span class="o">=</span> <span class="mi">1</span> <span class="k">if</span> <span class="n">stream</span><span class="o">.</span><span class="n">is_reduction</span> <span class="ow">and</span> <span class="s1">'$M'</span> <span class="ow">in</span> <span class="n">template</span> <span class="k">else</span> <span class="mi">0</span>
         <span class="n">sim_files</span> <span class="o">=</span> <span class="n">expand_template</span><span class="p">(</span>
             <span class="n">template</span><span class="o">=</span><span class="n">template</span><span class="p">,</span>
             <span class="n">start_year</span><span class="o">=</span><span class="n">start_year</span><span class="p">,</span>
             <span class="n">end_year</span><span class="o">=</span><span class="n">end_year</span><span class="p">,</span>
             <span class="n">simulation_path</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">simulation_path</span><span class="p">,</span>
+            <span class="n">month_offset</span><span class="o">=</span><span class="n">month_offset</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="n">check_files_exist</span><span class="p">(</span>
             <span class="n">sim_files</span><span class="o">=</span><span class="n">sim_files</span><span class="p">,</span>
@@ -973,6 +1043,12 @@
             <span class="sa">f</span><span class="s1">'Only $Y and $M are supported, since the analysis reads output '</span>
             <span class="sa">f</span><span class="s1">'written no more often than monthly.'</span>
         <span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_shift_month</span><span class="p">(</span><span class="n">year</span><span class="p">,</span> <span class="n">month</span><span class="p">,</span> <span class="n">month_offset</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""Get the year and month some number of months after a given one"""</span>
+    <span class="n">index</span> <span class="o">=</span> <span class="n">year</span> <span class="o">*</span> <span class="mi">12</span> <span class="o">+</span> <span class="p">(</span><span class="n">month</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">+</span> <span class="n">month_offset</span>
+    <span class="k">return</span> <span class="n">index</span> <span class="o">//</span> <span class="mi">12</span><span class="p">,</span> <span class="n">index</span> <span class="o">%</span> <span class="mi">12</span> <span class="o">+</span> <span class="mi">1</span>
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_omega_analysis_filename</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">period</span><span class="p">,</span> <span class="n">is_reduction</span><span class="p">):</span>

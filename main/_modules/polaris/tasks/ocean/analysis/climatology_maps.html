@@ -113,7 +113,32 @@
            <div itemprop="articleBody">
              
   <h1>Source code for polaris.tasks.ocean.analysis.climatology_maps</h1><div class="highlight"><pre>
-<span></span><span class="kn">from</span><span class="w"> </span><span class="nn">polaris.tasks.ocean.analysis.analysis_step</span><span class="w"> </span><span class="kn">import</span> <span class="n">AnalysisStep</span>
+<span></span><span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">xarray</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">xr</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mpas_tools.io</span><span class="w"> </span><span class="kn">import</span> <span class="n">write_netcdf</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.analysis.units</span><span class="w"> </span><span class="kn">import</span> <span class="n">units_to_mathtext</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.attrs</span><span class="w"> </span><span class="kn">import</span> <span class="n">set_attrs</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.mesh.reconstruct</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">cartesian_to_local_geographic</span><span class="p">,</span>
+    <span class="n">tangential_reconstruction</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.ocean.vertical.diagnostics</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_z_mid_and_interface</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.ocean.vertical.elevation</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">apply_vertical_reduction</span><span class="p">,</span>
+    <span class="n">get_valid_level_range</span><span class="p">,</span>
+    <span class="n">parse_vertical_reduction</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.tasks.ocean.analysis.analysis_step</span><span class="w"> </span><span class="kn">import</span> <span class="n">AnalysisStep</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.tasks.ocean.analysis.climatology</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">VECTOR_RECONSTRUCTIONS</span><span class="p">,</span>
+    <span class="n">find_climatology_file</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.tasks.ocean.analysis.config_sections</span><span class="w"> </span><span class="kn">import</span> <span class="n">map_section</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.tasks.ocean.analysis.sim_files</span><span class="w"> </span><span class="kn">import</span> <span class="n">year_range_key</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.viz</span><span class="w"> </span><span class="kn">import</span> <span class="n">plot_global_mpas_field</span>
 
 <span class="c1"># The field groups maps are chunked into.</span>
 <span class="c1">#</span>
@@ -143,6 +168,11 @@
 <span class="c1"># Heat content is a field group of the maps rather than a product of its own,</span>
 <span class="c1"># and it is not one of the fields a user lists, so it is always present</span>
 <span class="n">DERIVED_FIELD_GROUPS</span> <span class="o">=</span> <span class="p">(</span><span class="s1">'heat_content'</span><span class="p">,)</span>
+
+<span class="c1"># The least-squares stencil and weights every Omega mesh Polaris writes</span>
+<span class="c1"># carries, which reconstruct a vector at cell centers from its edge-normal</span>
+<span class="c1"># component</span>
+<span class="n">RECONSTRUCTION_WEIGHT_FIELDS</span> <span class="o">=</span> <span class="p">(</span><span class="s1">'ReconStencilCell'</span><span class="p">,</span> <span class="s1">'ReconWeightsCell'</span><span class="p">)</span>
 
 
 <div class="viewcode-block" id="get_field_groups">
@@ -202,7 +232,14 @@
 <div class="viewcode-block" id="ClimatologyMaps.__init__">
 <a class="viewcode-back" href="../../../../../developers_guide/ocean/generated/polaris.tasks.ocean.analysis.climatology_maps.ClimatologyMaps.html#polaris.tasks.ocean.analysis.climatology_maps.ClimatologyMaps.__init__">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span> <span class="n">component</span><span class="p">,</span> <span class="n">subdir</span><span class="p">,</span> <span class="n">field_group</span><span class="p">,</span> <span class="n">fields</span><span class="p">,</span> <span class="n">start_year</span><span class="p">,</span> <span class="n">end_year</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">component</span><span class="p">,</span>
+        <span class="n">subdir</span><span class="p">,</span>
+        <span class="n">field_group</span><span class="p">,</span>
+        <span class="n">fields</span><span class="p">,</span>
+        <span class="n">start_year</span><span class="p">,</span>
+        <span class="n">end_year</span><span class="p">,</span>
+        <span class="n">climatology</span><span class="p">,</span>
     <span class="p">):</span>
 <span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Create a climatology map step for one field group</span>
@@ -226,6 +263,12 @@
 
 <span class="sd">        end_year : int</span>
 <span class="sd">            The last year of the climatology, inclusive</span>
+
+<span class="sd">        climatology : polaris.tasks.ocean.analysis.Climatology</span>
+<span class="sd">            The climatology this step plots maps of.  It is a dependency</span>
+<span class="sd">            rather than an input file because ``ncclimo`` names its output</span>
+<span class="sd">            for the case and the dates, so the file names are not known</span>
+<span class="sd">            until it has run.</span>
 <span class="sd">        """</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
             <span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span>
@@ -237,32 +280,388 @@
             <span class="n">cpus_per_task</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">field_group</span> <span class="o">=</span> <span class="n">field_group</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">fields</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">fields</span><span class="p">)</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">fields</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">fields</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_coords</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_mesh_ds</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_reconstruction_mesh</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_dependency</span><span class="p">(</span><span class="n">climatology</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">'climatology'</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="ClimatologyMaps.setup">
 <a class="viewcode-back" href="../../../../../developers_guide/ocean/generated/polaris.tasks.ocean.analysis.climatology_maps.ClimatologyMaps.setup.html#polaris.tasks.ocean.analysis.climatology_maps.ClimatologyMaps.setup">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">setup</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">"""</span>
-<span class="sd">        Link the mesh the maps are plotted on</span>
+<span class="sd">        Link the mesh the maps are plotted on and the vertical coordinate</span>
+
+<span class="sd">        The vertical coordinate supplies the topmost and bottommost valid</span>
+<span class="sd">        layer of each column, which the climatology does not carry.</span>
 <span class="sd">        """</span>
         <span class="n">sim_files</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_sim_files</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">add_sim_input_file</span><span class="p">(</span><span class="n">sim_files</span><span class="o">.</span><span class="n">mesh_filename</span><span class="p">(),</span> <span class="s1">'mesh.nc'</span><span class="p">)</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_sim_input_file</span><span class="p">(</span><span class="n">sim_files</span><span class="o">.</span><span class="n">mesh_filename</span><span class="p">(),</span> <span class="s1">'mesh.nc'</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_sim_input_file</span><span class="p">(</span>
+            <span class="n">sim_files</span><span class="o">.</span><span class="n">vert_coord_filename</span><span class="p">(),</span> <span class="s1">'vert_coord.nc'</span>
+        <span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="ClimatologyMaps.run">
 <a class="viewcode-back" href="../../../../../developers_guide/ocean/generated/polaris.tasks.ocean.analysis.climatology_maps.ClimatologyMaps.run.html#polaris.tasks.ocean.analysis.climatology_maps.ClimatologyMaps.run">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">"""</span>
-<span class="sd">        Report the fields and inputs; no maps are plotted yet</span>
+<span class="sd">        Plot a map of each field of this group, for each season and each</span>
+<span class="sd">        vertical reduction that was asked for</span>
 <span class="sd">        """</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s1">'field group </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">field_group</span><span class="si">}</span><span class="s1">: '</span>
-            <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="s2">", "</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fields</span><span class="p">)</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="bp">self</span><span class="o">.</span><span class="n">fields</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="s2">"derived"</span><span class="si">}</span><span class="s1">'</span>
-        <span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">log_inputs</span><span class="p">()</span></div>
-</div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">log_inputs</span><span class="p">()</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">fields</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s1">'The </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">field_group</span><span class="si">}</span><span class="s1"> field group is derived rather than '</span>
+                <span class="sa">f</span><span class="s1">'read, and deriving it is not implemented yet, so no maps '</span>
+                <span class="sa">f</span><span class="s1">'are plotted.'</span>
+            <span class="p">)</span>
+            <span class="k">return</span>
 
+        <span class="n">config</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span>
+        <span class="n">seasons</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getlist</span><span class="p">(</span><span class="s1">'ocean_analysis_climatology'</span><span class="p">,</span> <span class="s1">'plot_seasons'</span><span class="p">)</span>
+        <span class="n">specs</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getlist</span><span class="p">(</span><span class="s1">'ocean_analysis_climatology'</span><span class="p">,</span> <span class="s1">'elevations'</span><span class="p">)</span>
+        <span class="n">reductions</span> <span class="o">=</span> <span class="p">[</span><span class="n">parse_vertical_reduction</span><span class="p">(</span><span class="n">spec</span><span class="p">)</span> <span class="k">for</span> <span class="n">spec</span> <span class="ow">in</span> <span class="n">specs</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_coords</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_mesh_coords</span><span class="p">()</span>
+        <span class="c1"># the plotting helper takes MPAS-Ocean names, so the names are</span>
+        <span class="c1"># translated here; nothing is read until the plot needs it</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_mesh_ds</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">map_from_native_model_vars</span><span class="p">(</span>
+            <span class="n">xr</span><span class="o">.</span><span class="n">open_dataset</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">work_path</span><span class="p">(</span><span class="s1">'mesh.nc'</span><span class="p">))</span>
+        <span class="p">)</span>
+        <span class="n">min_level_cell</span><span class="p">,</span> <span class="n">max_level_cell</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_valid_level_range</span><span class="p">()</span>
+        <span class="n">climatology_dir</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dependencies</span><span class="p">[</span><span class="s1">'climatology'</span><span class="p">]</span><span class="o">.</span><span class="n">work_dir</span>
+
+        <span class="c1"># building the mosaic descriptor is the expensive part of plotting a</span>
+        <span class="c1"># global mesh, so it is built once and shared by every plot</span>
+        <span class="n">descriptor</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">for</span> <span class="n">season</span> <span class="ow">in</span> <span class="n">seasons</span><span class="p">:</span>
+            <span class="n">filename</span> <span class="o">=</span> <span class="n">find_climatology_file</span><span class="p">(</span><span class="n">climatology_dir</span><span class="p">,</span> <span class="n">season</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">season</span><span class="si">}</span><span class="s1">: </span><span class="si">{</span><span class="n">filename</span><span class="si">}</span><span class="s1">'</span><span class="p">)</span>
+            <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">open_model_dataset</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">config</span><span class="p">)</span> <span class="k">as</span> <span class="n">ds</span><span class="p">:</span>
+                <span class="c1"># the climatological-mean layer geometry, which is what a map</span>
+                <span class="c1"># at an elevation is a map on</span>
+                <span class="n">z_mid</span><span class="p">,</span> <span class="n">z_interface</span> <span class="o">=</span> <span class="n">get_z_mid_and_interface</span><span class="p">(</span><span class="n">ds</span><span class="p">)</span>
+                <span class="n">z_mid</span> <span class="o">=</span> <span class="n">_drop_time</span><span class="p">(</span><span class="n">z_mid</span><span class="p">)</span>
+                <span class="n">z_interface</span> <span class="o">=</span> <span class="n">_drop_time</span><span class="p">(</span><span class="n">z_interface</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_reconstruct_components</span><span class="p">(</span>
+                    <span class="n">ds</span><span class="p">,</span> <span class="n">min_level_cell</span><span class="p">,</span> <span class="n">max_level_cell</span>
+                <span class="p">)</span>
+                <span class="k">for</span> <span class="n">field</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">fields</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">field</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">ds</span><span class="p">:</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+                            <span class="sa">f</span><span class="s1">'  the simulation did not write </span><span class="si">{</span><span class="n">field</span><span class="si">}</span><span class="s1">, so its '</span>
+                            <span class="sa">f</span><span class="s1">'maps are skipped'</span>
+                        <span class="p">)</span>
+                        <span class="k">continue</span>
+                    <span class="n">descriptor</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_plot_field</span><span class="p">(</span>
+                        <span class="n">da</span><span class="o">=</span><span class="n">ds</span><span class="p">[</span><span class="n">field</span><span class="p">],</span>
+                        <span class="n">field</span><span class="o">=</span><span class="n">field</span><span class="p">,</span>
+                        <span class="n">season</span><span class="o">=</span><span class="n">season</span><span class="p">,</span>
+                        <span class="n">reductions</span><span class="o">=</span><span class="n">reductions</span><span class="p">,</span>
+                        <span class="n">z_mid</span><span class="o">=</span><span class="n">z_mid</span><span class="p">,</span>
+                        <span class="n">z_interface</span><span class="o">=</span><span class="n">z_interface</span><span class="p">,</span>
+                        <span class="n">min_level_cell</span><span class="o">=</span><span class="n">min_level_cell</span><span class="p">,</span>
+                        <span class="n">max_level_cell</span><span class="o">=</span><span class="n">max_level_cell</span><span class="p">,</span>
+                        <span class="n">descriptor</span><span class="o">=</span><span class="n">descriptor</span><span class="p">,</span>
+                    <span class="p">)</span></div>
+
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_reconstruct_components</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ds</span><span class="p">,</span> <span class="n">min_level_cell</span><span class="p">,</span> <span class="n">max_level_cell</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">        Add the vector components of this group that the simulation did not</span>
+<span class="sd">        write, reconstructed from the edge-normal field they are components</span>
+<span class="sd">        of, if the climatology has it</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        ds : xarray.Dataset</span>
+<span class="sd">            The climatology, to which the components are added</span>
+
+<span class="sd">        min_level_cell : xarray.DataArray</span>
+<span class="sd">            The zero-based index of the topmost valid layer of each column</span>
+
+<span class="sd">        max_level_cell : xarray.DataArray</span>
+<span class="sd">            The zero-based index of the bottommost valid layer of each column</span>
+<span class="sd">        """</span>
+        <span class="k">for</span> <span class="n">source</span><span class="p">,</span> <span class="n">components</span> <span class="ow">in</span> <span class="n">VECTOR_RECONSTRUCTIONS</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">missing</span> <span class="o">=</span> <span class="p">[</span>
+                <span class="n">component</span>
+                <span class="k">for</span> <span class="n">component</span> <span class="ow">in</span> <span class="n">components</span>
+                <span class="k">if</span> <span class="n">component</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">fields</span> <span class="ow">and</span> <span class="n">component</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">ds</span>
+            <span class="p">]</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">missing</span> <span class="ow">or</span> <span class="n">source</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">ds</span><span class="p">:</span>
+                <span class="k">continue</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s1">'  reconstructing </span><span class="si">{</span><span class="s2">", "</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">missing</span><span class="p">)</span><span class="si">}</span><span class="s1"> from </span><span class="si">{</span><span class="n">source</span><span class="si">}</span><span class="s1">'</span>
+            <span class="p">)</span>
+            <span class="n">u_zonal</span><span class="p">,</span> <span class="n">u_meridional</span> <span class="o">=</span> <span class="n">_reconstruct_zonal_meridional</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_get_reconstruction_mesh</span><span class="p">(</span><span class="n">source</span><span class="p">,</span> <span class="n">missing</span><span class="p">),</span> <span class="n">ds</span><span class="p">[</span><span class="n">source</span><span class="p">]</span>
+            <span class="p">)</span>
+            <span class="n">n_levels</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">sizes</span><span class="p">[</span><span class="s1">'nVertLevels'</span><span class="p">]</span>
+            <span class="n">levels</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">n_levels</span><span class="p">),</span> <span class="n">dims</span><span class="o">=</span><span class="s1">'nVertLevels'</span><span class="p">)</span>
+            <span class="n">in_column</span> <span class="o">=</span> <span class="p">(</span><span class="n">levels</span> <span class="o">&gt;=</span> <span class="n">min_level_cell</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">levels</span> <span class="o">&lt;=</span> <span class="n">max_level_cell</span><span class="p">)</span>
+            <span class="n">units</span> <span class="o">=</span> <span class="n">ds</span><span class="p">[</span><span class="n">source</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'units'</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">component</span><span class="p">,</span> <span class="n">direction</span><span class="p">,</span> <span class="n">da</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span>
+                <span class="n">components</span><span class="p">,</span>
+                <span class="p">(</span><span class="s1">'zonal'</span><span class="p">,</span> <span class="s1">'meridional'</span><span class="p">),</span>
+                <span class="p">(</span><span class="n">u_zonal</span><span class="p">,</span> <span class="n">u_meridional</span><span class="p">),</span>
+                <span class="n">strict</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="p">):</span>
+                <span class="k">if</span> <span class="n">component</span> <span class="ow">in</span> <span class="n">missing</span><span class="p">:</span>
+                    <span class="c1"># a layer outside the column is fill, as it is in any</span>
+                    <span class="c1"># field the model wrote</span>
+                    <span class="n">ds</span><span class="p">[</span><span class="n">component</span><span class="p">]</span> <span class="o">=</span> <span class="n">set_attrs</span><span class="p">(</span>
+                        <span class="n">da</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">in_column</span><span class="p">),</span>
+                        <span class="n">long_name</span><span class="o">=</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">direction</span><span class="si">}</span><span class="s1"> component of </span><span class="si">{</span><span class="n">source</span><span class="si">}</span><span class="s1">, '</span>
+                        <span class="sa">f</span><span class="s1">'reconstructed at cell centers'</span><span class="p">,</span>
+                        <span class="n">units</span><span class="o">=</span><span class="n">units</span><span class="p">,</span>
+                    <span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_get_reconstruction_mesh</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">source</span><span class="p">,</span> <span class="n">components</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">        Get the reconstruction weights and cell locations, read from the mesh</span>
+<span class="sd">        once and kept for every season</span>
+<span class="sd">        """</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_reconstruction_mesh</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">ds</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_read_fields</span><span class="p">(</span>
+                <span class="s1">'mesh.nc'</span><span class="p">,</span>
+                <span class="nb">list</span><span class="p">(</span><span class="n">RECONSTRUCTION_WEIGHT_FIELDS</span><span class="p">)</span> <span class="o">+</span> <span class="p">[</span><span class="s1">'lonCell'</span><span class="p">,</span> <span class="s1">'latCell'</span><span class="p">],</span>
+            <span class="p">)</span>
+            <span class="n">missing</span> <span class="o">=</span> <span class="p">[</span>
+                <span class="n">name</span> <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">RECONSTRUCTION_WEIGHT_FIELDS</span> <span class="k">if</span> <span class="n">name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">ds</span>
+            <span class="p">]</span>
+            <span class="k">if</span> <span class="n">missing</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s1">'The mesh has no </span><span class="si">{</span><span class="s2">", "</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">missing</span><span class="p">)</span><span class="si">}</span><span class="s1">, so '</span>
+                    <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="s2">", "</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">components</span><span class="p">)</span><span class="si">}</span><span class="s1"> cannot be reconstructed from '</span>
+                    <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">source</span><span class="si">}</span><span class="s1">.  Polaris writes these weights into every '</span>
+                    <span class="sa">f</span><span class="s1">'Omega mesh it builds; a mesh from elsewhere needs them '</span>
+                    <span class="sa">f</span><span class="s1">'added with utils/omega/add_reconstruction_weights.py.'</span>
+                <span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_reconstruction_mesh</span> <span class="o">=</span> <span class="n">ds</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_reconstruction_mesh</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_mesh_coords</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">        Get the cell latitudes and longitudes, so that the netCDF beside each</span>
+<span class="sd">        plot carries the coordinates of what was plotted</span>
+<span class="sd">        """</span>
+        <span class="n">ds</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_read_fields</span><span class="p">(</span><span class="s1">'mesh.nc'</span><span class="p">,</span> <span class="p">[</span><span class="s1">'latCell'</span><span class="p">,</span> <span class="s1">'lonCell'</span><span class="p">])</span>
+        <span class="k">return</span> <span class="p">{</span><span class="n">name</span><span class="p">:</span> <span class="n">ds</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">ds</span><span class="o">.</span><span class="n">data_vars</span><span class="p">}</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_valid_level_range</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Get the topmost and bottommost valid layer of each column"""</span>
+        <span class="n">ds</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_read_fields</span><span class="p">(</span>
+            <span class="s1">'vert_coord.nc'</span><span class="p">,</span> <span class="p">[</span><span class="s1">'minLevelCell'</span><span class="p">,</span> <span class="s1">'maxLevelCell'</span><span class="p">]</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="n">get_valid_level_range</span><span class="p">(</span><span class="n">ds</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_read_fields</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="n">fields</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">        Read a few named fields from a file of the simulation, translating</span>
+<span class="sd">        their names but nothing else</span>
+
+<span class="sd">        The mesh and the vertical coordinate a simulation names are often</span>
+<span class="sd">        its initial condition, which carries a full model state.  Opening one</span>
+<span class="sd">        as a model data set would then derive specific volume from that</span>
+<span class="sd">        state --- an equation-of-state solve --- to get a handful of fields</span>
+<span class="sd">        that are already there, so the names are translated and nothing else</span>
+<span class="sd">        is done.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        filename : str</span>
+<span class="sd">            The local name of the file in the step's work directory</span>
+
+<span class="sd">        fields : list of str</span>
+<span class="sd">            The MPAS-Ocean names of the fields to read; a field the file does</span>
+<span class="sd">            not have is left out</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        ds : xarray.Dataset</span>
+<span class="sd">            The fields that were there, with MPAS-Ocean names, in memory</span>
+<span class="sd">        """</span>
+        <span class="n">wanted</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">component</span><span class="o">.</span><span class="n">map_var_list_to_native_model</span><span class="p">(</span><span class="n">fields</span><span class="p">)</span>
+        <span class="k">with</span> <span class="n">xr</span><span class="o">.</span><span class="n">open_dataset</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">work_path</span><span class="p">(</span><span class="n">filename</span><span class="p">))</span> <span class="k">as</span> <span class="n">ds_native</span><span class="p">:</span>
+            <span class="n">present</span> <span class="o">=</span> <span class="p">[</span><span class="n">name</span> <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">wanted</span> <span class="k">if</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">ds_native</span><span class="p">]</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">map_from_native_model_vars</span><span class="p">(</span><span class="n">ds_native</span><span class="p">[</span><span class="n">present</span><span class="p">])</span><span class="o">.</span><span class="n">load</span><span class="p">()</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_plot_field</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">da</span><span class="p">,</span>
+        <span class="n">field</span><span class="p">,</span>
+        <span class="n">season</span><span class="p">,</span>
+        <span class="n">reductions</span><span class="p">,</span>
+        <span class="n">z_mid</span><span class="p">,</span>
+        <span class="n">z_interface</span><span class="p">,</span>
+        <span class="n">min_level_cell</span><span class="p">,</span>
+        <span class="n">max_level_cell</span><span class="p">,</span>
+        <span class="n">descriptor</span><span class="p">,</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Plot one field for one season, at every reduction that applies"""</span>
+        <span class="n">da</span> <span class="o">=</span> <span class="n">_drop_time</span><span class="p">(</span><span class="n">da</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="s1">'nVertLevels'</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">da</span><span class="o">.</span><span class="n">dims</span><span class="p">:</span>
+            <span class="c1"># a field with no vertical dimension is already a map, so there</span>
+            <span class="c1"># is nothing to reduce and nothing to label it with</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_plot_map</span><span class="p">(</span>
+                <span class="n">da_map</span><span class="o">=</span><span class="n">da</span><span class="p">,</span>
+                <span class="n">field</span><span class="o">=</span><span class="n">field</span><span class="p">,</span>
+                <span class="n">season</span><span class="o">=</span><span class="n">season</span><span class="p">,</span>
+                <span class="n">basename</span><span class="o">=</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">field</span><span class="si">}</span><span class="s1">_</span><span class="si">{</span><span class="n">season</span><span class="si">}</span><span class="s1">'</span><span class="p">,</span>
+                <span class="n">title</span><span class="o">=</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">field</span><span class="si">}</span><span class="s1">, </span><span class="si">{</span><span class="n">season</span><span class="si">}</span><span class="s1">'</span><span class="p">,</span>
+                <span class="n">descriptor</span><span class="o">=</span><span class="n">descriptor</span><span class="p">,</span>
+            <span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">reduction</span> <span class="ow">in</span> <span class="n">reductions</span><span class="p">:</span>
+            <span class="n">da_map</span> <span class="o">=</span> <span class="n">apply_vertical_reduction</span><span class="p">(</span>
+                <span class="n">da</span><span class="p">,</span>
+                <span class="n">reduction</span><span class="p">,</span>
+                <span class="n">z_mid</span><span class="o">=</span><span class="n">z_mid</span><span class="p">,</span>
+                <span class="n">z_interface</span><span class="o">=</span><span class="n">z_interface</span><span class="p">,</span>
+                <span class="n">min_level_cell</span><span class="o">=</span><span class="n">min_level_cell</span><span class="p">,</span>
+                <span class="n">max_level_cell</span><span class="o">=</span><span class="n">max_level_cell</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="n">descriptor</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_plot_map</span><span class="p">(</span>
+                <span class="n">da_map</span><span class="o">=</span><span class="n">da_map</span><span class="p">,</span>
+                <span class="n">field</span><span class="o">=</span><span class="n">field</span><span class="p">,</span>
+                <span class="n">season</span><span class="o">=</span><span class="n">season</span><span class="p">,</span>
+                <span class="n">basename</span><span class="o">=</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">field</span><span class="si">}</span><span class="s1">_</span><span class="si">{</span><span class="n">season</span><span class="si">}</span><span class="s1">_</span><span class="si">{</span><span class="n">reduction</span><span class="o">.</span><span class="n">label</span><span class="si">}</span><span class="s1">'</span><span class="p">,</span>
+                <span class="n">title</span><span class="o">=</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">field</span><span class="si">}</span><span class="s1"> at </span><span class="si">{</span><span class="n">reduction</span><span class="o">.</span><span class="n">label</span><span class="si">}</span><span class="s1">, </span><span class="si">{</span><span class="n">season</span><span class="si">}</span><span class="s1">'</span><span class="p">,</span>
+                <span class="n">descriptor</span><span class="o">=</span><span class="n">descriptor</span><span class="p">,</span>
+                <span class="n">reduction</span><span class="o">=</span><span class="n">reduction</span><span class="o">.</span><span class="n">label</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="k">return</span> <span class="n">descriptor</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_plot_map</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">da_map</span><span class="p">,</span>
+        <span class="n">field</span><span class="p">,</span>
+        <span class="n">season</span><span class="p">,</span>
+        <span class="n">basename</span><span class="p">,</span>
+        <span class="n">title</span><span class="p">,</span>
+        <span class="n">descriptor</span><span class="p">,</span>
+        <span class="n">reduction</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Write one map to netCDF and plot it, and register both"""</span>
+        <span class="n">config</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span>
+        <span class="n">section</span> <span class="o">=</span> <span class="n">map_section</span><span class="p">(</span><span class="n">field</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">config</span><span class="o">.</span><span class="n">has_section</span><span class="p">(</span><span class="n">section</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s1">'There is no [</span><span class="si">{</span><span class="n">section</span><span class="si">}</span><span class="s1">] section giving the colormap for '</span>
+                <span class="sa">f</span><span class="s1">'maps of </span><span class="si">{</span><span class="n">field</span><span class="si">}</span><span class="s1">.  Every field that can be mapped needs '</span>
+                <span class="sa">f</span><span class="s1">'one; see analysis.cfg.'</span>
+            <span class="p">)</span>
+
+        <span class="n">nc_filename</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">work_path</span><span class="p">(</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">basename</span><span class="si">}</span><span class="s1">.nc'</span><span class="p">)</span>
+        <span class="n">png_filename</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">work_path</span><span class="p">(</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">basename</span><span class="si">}</span><span class="s1">.png'</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_write_netcdf</span><span class="p">(</span><span class="n">da_map</span><span class="p">,</span> <span class="n">field</span><span class="p">,</span> <span class="n">season</span><span class="p">,</span> <span class="n">nc_filename</span><span class="p">,</span> <span class="n">reduction</span><span class="p">)</span>
+
+        <span class="n">simulation_name</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'ocean_analysis'</span><span class="p">,</span> <span class="s1">'simulation_name'</span><span class="p">)</span>
+        <span class="n">descriptor</span> <span class="o">=</span> <span class="n">plot_global_mpas_field</span><span class="p">(</span>
+            <span class="n">da</span><span class="o">=</span><span class="n">da_map</span><span class="p">,</span>
+            <span class="n">out_filename</span><span class="o">=</span><span class="n">png_filename</span><span class="p">,</span>
+            <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span>
+            <span class="n">colormap_section</span><span class="o">=</span><span class="n">section</span><span class="p">,</span>
+            <span class="n">mesh_ds</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_mesh_ds</span><span class="p">,</span>
+            <span class="n">descriptor</span><span class="o">=</span><span class="n">descriptor</span><span class="p">,</span>
+            <span class="n">title</span><span class="o">=</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">simulation_name</span><span class="si">}</span><span class="s1">: </span><span class="si">{</span><span class="n">title</span><span class="si">}</span><span class="s1">, years </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_range_key</span><span class="p">()</span><span class="si">}</span><span class="s1">'</span><span class="p">,</span>
+            <span class="n">colorbar_label</span><span class="o">=</span><span class="n">units_to_mathtext</span><span class="p">(</span><span class="n">da_map</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'units'</span><span class="p">,</span> <span class="s1">''</span><span class="p">)),</span>
+        <span class="p">)</span>
+
+        <span class="c1"># The outputs are registered here rather than in setup() because a</span>
+        <span class="c1"># field the simulation did not write is skipped, and a step that had</span>
+        <span class="c1"># declared its plots at setup would fail on the missing files</span>
+        <span class="c1"># instead.</span>
+        <span class="k">for</span> <span class="n">filename</span> <span class="ow">in</span> <span class="p">(</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">basename</span><span class="si">}</span><span class="s1">.nc'</span><span class="p">,</span> <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">basename</span><span class="si">}</span><span class="s1">.png'</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">add_produced_file</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
+        <span class="c1"># a gallery per field, so the landing page shows one thumbnail for</span>
+        <span class="c1"># each field rather than one for the whole group of maps</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_product</span><span class="p">(</span>
+            <span class="n">plot</span><span class="o">=</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">basename</span><span class="si">}</span><span class="s1">.png'</span><span class="p">,</span>
+            <span class="n">data</span><span class="o">=</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">basename</span><span class="si">}</span><span class="s1">.nc'</span><span class="p">,</span>
+            <span class="n">group</span><span class="o">=</span><span class="s1">'climatology_maps'</span><span class="p">,</span>
+            <span class="n">gallery</span><span class="o">=</span><span class="n">field</span><span class="p">,</span>
+            <span class="n">title</span><span class="o">=</span><span class="n">title</span><span class="p">,</span>
+            <span class="n">field</span><span class="o">=</span><span class="n">field</span><span class="p">,</span>
+            <span class="n">season</span><span class="o">=</span><span class="n">season</span><span class="p">,</span>
+            <span class="n">reduction</span><span class="o">=</span><span class="n">reduction</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">'  </span><span class="si">{</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">png_filename</span><span class="p">)</span><span class="si">}</span><span class="s1">'</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">descriptor</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_write_netcdf</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">da_map</span><span class="p">,</span> <span class="n">field</span><span class="p">,</span> <span class="n">season</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="n">reduction</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Write exactly what was plotted, with what produced it"""</span>
+        <span class="n">config</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span>
+        <span class="n">ds</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">({</span><span class="n">field</span><span class="p">:</span> <span class="n">da_map</span><span class="p">},</span> <span class="n">coords</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_coords</span><span class="p">)</span>
+        <span class="n">ds</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">drop_vars</span><span class="p">(</span><span class="s1">'Time'</span><span class="p">,</span> <span class="n">errors</span><span class="o">=</span><span class="s1">'ignore'</span><span class="p">)</span>
+        <span class="n">ds</span><span class="o">.</span><span class="n">attrs</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span>
+            <span class="n">simulation_name</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'ocean_analysis'</span><span class="p">,</span> <span class="s1">'simulation_name'</span><span class="p">),</span>
+            <span class="n">field</span><span class="o">=</span><span class="n">field</span><span class="p">,</span>
+            <span class="n">season</span><span class="o">=</span><span class="n">season</span><span class="p">,</span>
+            <span class="n">vertical_reduction</span><span class="o">=</span><span class="s1">'none'</span> <span class="k">if</span> <span class="n">reduction</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">reduction</span><span class="p">,</span>
+            <span class="n">start_year</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">start_year</span><span class="p">,</span>
+            <span class="n">end_year</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">end_year</span><span class="p">,</span>
+            <span class="n">year_range</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_range_key</span><span class="p">(),</span>
+        <span class="p">)</span>
+        <span class="n">write_netcdf</span><span class="p">(</span><span class="n">ds</span><span class="o">=</span><span class="n">ds</span><span class="p">,</span> <span class="n">fileName</span><span class="o">=</span><span class="n">filename</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_range_key</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""The zero-padded range of years, as the work tree spells it"""</span>
+        <span class="k">return</span> <span class="n">year_range_key</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">start_year</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">end_year</span><span class="p">)</span></div>
+
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_reconstruct_zonal_meridional</span><span class="p">(</span><span class="n">ds_mesh</span><span class="p">,</span> <span class="n">edge_field</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Reconstruct the zonal and meridional components of a vector at cell</span>
+<span class="sd">    centers from its component normal to each edge</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    ds_mesh : xarray.Dataset</span>
+<span class="sd">        The mesh, with MPAS-Ocean names, carrying ``ReconStencilCell``,</span>
+<span class="sd">        ``ReconWeightsCell``, ``lonCell`` and ``latCell``</span>
+
+<span class="sd">    edge_field : xarray.DataArray</span>
+<span class="sd">        The edge-normal component, with ``nEdges`` and ``nVertLevels``</span>
+<span class="sd">        dimensions</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    u_zonal : xarray.DataArray</span>
+<span class="sd">        The zonal component at cell centers</span>
+
+<span class="sd">    u_meridional : xarray.DataArray</span>
+<span class="sd">        The meridional component at cell centers</span>
+<span class="sd">    """</span>
+    <span class="c1"># an edge outside the valid layers of the columns it joins is closed,</span>
+    <span class="c1"># so nothing crosses it: its fill value is a normal component of zero</span>
+    <span class="n">edge_field</span> <span class="o">=</span> <span class="n">edge_field</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="mf">0.0</span><span class="p">)</span>
+    <span class="c1"># the stencil gathers every edge of a cell's two rings, which is an</span>
+    <span class="c1"># order of magnitude more values than the field has, so one layer is</span>
+    <span class="c1"># gathered at a time</span>
+    <span class="n">layers</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">level</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">edge_field</span><span class="o">.</span><span class="n">sizes</span><span class="p">[</span><span class="s1">'nVertLevels'</span><span class="p">]):</span>
+        <span class="n">u_x</span><span class="p">,</span> <span class="n">u_y</span><span class="p">,</span> <span class="n">u_z</span> <span class="o">=</span> <span class="n">tangential_reconstruction</span><span class="p">(</span>
+            <span class="n">ds_mesh</span><span class="p">,</span>
+            <span class="n">edge_field</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span><span class="n">nVertLevels</span><span class="o">=</span><span class="n">level</span><span class="p">),</span>
+            <span class="n">stencil</span><span class="o">=</span><span class="n">ds_mesh</span><span class="o">.</span><span class="n">ReconStencilCell</span><span class="p">,</span>
+            <span class="n">weights</span><span class="o">=</span><span class="n">ds_mesh</span><span class="o">.</span><span class="n">ReconWeightsCell</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">u_zonal</span><span class="p">,</span> <span class="n">u_meridional</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">cartesian_to_local_geographic</span><span class="p">(</span>
+            <span class="n">ds_mesh</span><span class="p">,</span> <span class="n">u_x</span><span class="p">,</span> <span class="n">u_y</span><span class="p">,</span> <span class="n">u_z</span>
+        <span class="p">)</span>
+        <span class="n">layers</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">xr</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">u_zonal</span><span class="p">,</span> <span class="n">u_meridional</span><span class="p">],</span> <span class="n">dim</span><span class="o">=</span><span class="s1">'component'</span><span class="p">))</span>
+    <span class="n">reconstructed</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">layers</span><span class="p">,</span> <span class="n">dim</span><span class="o">=</span><span class="s1">'nVertLevels'</span><span class="p">)</span><span class="o">.</span><span class="n">drop_vars</span><span class="p">(</span>
+        <span class="p">[</span><span class="s1">'nVertLevels'</span><span class="p">,</span> <span class="s1">'component'</span><span class="p">,</span> <span class="s1">'R3'</span><span class="p">],</span> <span class="n">errors</span><span class="o">=</span><span class="s1">'ignore'</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="p">(</span>
+        <span class="n">reconstructed</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="mi">0</span><span class="p">),</span>
+        <span class="n">reconstructed</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span>
+    <span class="p">)</span>
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_group_for_field</span><span class="p">(</span><span class="n">field</span><span class="p">):</span>
@@ -278,6 +677,13 @@
         <span class="sa">f</span><span class="s1">'to no field group.  The fields that can be mapped are: '</span>
         <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="s2">", "</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">known</span><span class="p">)</span><span class="si">}</span><span class="s1">.'</span>
     <span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_drop_time</span><span class="p">(</span><span class="n">da</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""Drop the singleton time dimension a climatology carries"""</span>
+    <span class="k">if</span> <span class="s1">'Time'</span> <span class="ow">in</span> <span class="n">da</span><span class="o">.</span><span class="n">dims</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">da</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span><span class="n">Time</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">da</span>
 </pre></div>
 
            </div>

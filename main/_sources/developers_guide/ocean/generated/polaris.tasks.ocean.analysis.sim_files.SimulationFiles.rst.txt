@@ -19,6 +19,7 @@
       ~SimulationFiles.mesh_filename
       ~SimulationFiles.moc_files
       ~SimulationFiles.monthly_mean_files
+      ~SimulationFiles.monthly_mean_stream
       ~SimulationFiles.vert_coord_filename
    
    

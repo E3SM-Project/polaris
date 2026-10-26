@@ -118,8 +118,13 @@
 <span class="c1">#: The subdirectory of the staging tree holding the thumbnails</span>
 <span class="n">THUMBNAILS_DIRNAME</span> <span class="o">=</span> <span class="s1">'thumbnails'</span>
 
-<span class="c1">#: The default bounding box, in pixels, a thumbnail is scaled to fit inside</span>
+<span class="c1">#: The default bounding box, in displayed pixels, a thumbnail is scaled to</span>
+<span class="c1">#: fit inside</span>
 <span class="n">DEFAULT_SIZE</span> <span class="o">=</span> <span class="p">(</span><span class="mi">320</span><span class="p">,</span> <span class="mi">240</span><span class="p">)</span>
+
+<span class="c1">#: The default number of image pixels rendered per displayed pixel, so that</span>
+<span class="c1">#: a thumbnail is sharp on a high-resolution display</span>
+<span class="n">DEFAULT_SCALE</span> <span class="o">=</span> <span class="mi">2</span>
 
 <span class="c1">#: The default image format for thumbnails</span>
 <span class="n">DEFAULT_FORMAT</span> <span class="o">=</span> <span class="s1">'jpeg'</span>

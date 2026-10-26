@@ -90,6 +90,9 @@
 <li class="toctree-l4"><a class="reference internal" href="#naming-the-models-global-statistics">Naming the models’ global statistics</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#steps">Steps</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#range-keyed-steps">Range-keyed steps</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#reading-a-climatology">Reading a climatology</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#reducing-a-field-to-a-map">Reducing a field to a map</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#plotting-steps">Plotting steps</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#publishing-what-the-steps-made">Publishing what the steps made</a></li>
 </ul>
 </li>
@@ -1213,6 +1216,104 @@ the simulation’s Omega configuration is not read until step setup.</p>
 <a class="reference internal" href="../generated/polaris.Component.get_or_create_shared_step.html#polaris.Component.get_or_create_shared_step" title="polaris.Component.get_or_create_shared_step"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.Component.get_or_create_shared_step()</span></code></a>, so a step several
 tasks want — the climatology, which every field group of <code class="docutils literal notranslate"><span class="pre">climatology_maps</span></code>
 reads — is built once for a range no matter how many of them ask for it.</p>
+</section>
+<section id="reading-a-climatology">
+<h3>Reading a climatology<a class="headerlink" href="#reading-a-climatology" title="Link to this heading"></a></h3>
+<p><a class="reference internal" href="generated/polaris.tasks.ocean.analysis.climatology.Climatology.html#polaris.tasks.ocean.analysis.climatology.Climatology" title="polaris.tasks.ocean.analysis.climatology.Climatology"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.tasks.ocean.analysis.climatology.Climatology</span></code></a> computes a
+climatology with <code class="docutils literal notranslate"><span class="pre">ncclimo</span></code>, and a step that reads one gets at it in two
+pieces.</p>
+<p>The climatology is added as a <strong>dependency</strong> with
+<a class="reference internal" href="../generated/polaris.Step.add_dependency.html#polaris.Step.add_dependency" title="polaris.Step.add_dependency"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.Step.add_dependency()</span></code></a> rather than as an input file, because
+<code class="docutils literal notranslate"><span class="pre">ncclimo</span></code> names its output <code class="docutils literal notranslate"><span class="pre">&lt;caseid&gt;_&lt;season&gt;_&lt;start&gt;_&lt;end&gt;_climo.nc</span></code> and
+those names are not known until it has run.  The reading step then finds one
+season’s file with
+<a class="reference internal" href="generated/polaris.tasks.ocean.analysis.climatology.find_climatology_file.html#polaris.tasks.ocean.analysis.climatology.find_climatology_file" title="polaris.tasks.ocean.analysis.climatology.find_climatology_file"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.tasks.ocean.analysis.climatology.find_climatology_file()</span></code></a>,
+which globs on the season in the dependency’s work directory — and which
+also knows that <code class="docutils literal notranslate"><span class="pre">ncclimo</span></code> names the twelve monthly climatologies by month
+number rather than <code class="docutils literal notranslate"><span class="pre">JAN</span></code> through <code class="docutils literal notranslate"><span class="pre">DEC</span></code>.</p>
+<p>The variable list is the other piece.
+<a class="reference internal" href="generated/polaris.tasks.ocean.analysis.climatology.get_climatology_variables.html#polaris.tasks.ocean.analysis.climatology.get_climatology_variables" title="polaris.tasks.ocean.analysis.climatology.get_climatology_variables"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.tasks.ocean.analysis.climatology.get_climatology_variables()</span></code></a>
+assembles it from config options rather than from the steps that read the
+climatology, so that the shared step stays neutral with respect to which
+tasks pulled it in.  A step that needs a new variable in the climatology adds
+it there.</p>
+<p>Because <code class="docutils literal notranslate"><span class="pre">ncclimo</span></code> works on files rather than on an opened data set, the list
+is mapped back to the names the files use with
+<a class="reference internal" href="generated/polaris.tasks.ocean.Ocean.map_var_list_to_native_model.html#polaris.tasks.ocean.Ocean.map_var_list_to_native_model" title="polaris.tasks.ocean.Ocean.map_var_list_to_native_model"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.tasks.ocean.Ocean.map_var_list_to_native_model()</span></code></a>.  This is
+the one place in the analysis where model-specific names are unavoidable.</p>
+<p>A vector the model does not write the components of is reconstructed from the
+climatology of its edge-normal component.
+<code class="docutils literal notranslate"><span class="pre">polaris.tasks.ocean.analysis.climatology.VECTOR_RECONSTRUCTIONS</span></code> maps each
+edge-normal field to its zonal and meridional components.
+<code class="docutils literal notranslate"><span class="pre">get_climatology_variables()</span></code> adds the edge-normal field whenever a component
+is asked for, and the climatology step drops it again if the simulation wrote
+every component.  The map step then reconstructs whatever is still missing
+with <a class="reference internal" href="../generated/polaris.mesh.reconstruct.tangential_reconstruction.html#polaris.mesh.reconstruct.tangential_reconstruction" title="polaris.mesh.reconstruct.tangential_reconstruction"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.mesh.reconstruct.tangential_reconstruction()</span></code></a>, using the
+weights in the mesh file, and treats a fill value on an edge as zero, since
+nothing crosses a closed edge.</p>
+</section>
+<section id="reducing-a-field-to-a-map">
+<h3>Reducing a field to a map<a class="headerlink" href="#reducing-a-field-to-a-map" title="Link to this heading"></a></h3>
+<p>A field with a vertical dimension has to be reduced to a horizontal map
+before it can be plotted, and <code class="docutils literal notranslate"><span class="pre">polaris.ocean.vertical.elevation</span></code> is where
+that lives.  It imports nothing from <a class="reference internal" href="../generated/polaris.Step.html#polaris.Step" title="polaris.Step"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.Step</span></code></a>, so it can be
+unit tested directly and reused by any vertically reduced diagnostic.</p>
+<p><a class="reference internal" href="generated/polaris.ocean.vertical.elevation.parse_vertical_reduction.html#polaris.ocean.vertical.elevation.parse_vertical_reduction" title="polaris.ocean.vertical.elevation.parse_vertical_reduction"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.ocean.vertical.elevation.parse_vertical_reduction()</span></code></a> turns one
+entry of the <code class="docutils literal notranslate"><span class="pre">elevations</span></code> config option into a
+<a class="reference internal" href="generated/polaris.ocean.vertical.elevation.VerticalReduction.html#polaris.ocean.vertical.elevation.VerticalReduction" title="polaris.ocean.vertical.elevation.VerticalReduction"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.ocean.vertical.elevation.VerticalReduction</span></code></a>, and
+<a class="reference internal" href="generated/polaris.ocean.vertical.elevation.apply_vertical_reduction.html#polaris.ocean.vertical.elevation.apply_vertical_reduction" title="polaris.ocean.vertical.elevation.apply_vertical_reduction"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.ocean.vertical.elevation.apply_vertical_reduction()</span></code></a> applies
+one.  Every case turns <code class="docutils literal notranslate"><span class="pre">nVertLevels</span></code> into nothing, which is what will let
+ocean heat content be a field group of the climatology maps rather than a
+product of its own.</p>
+<p>The reductions that pick a layer by index — <code class="docutils literal notranslate"><span class="pre">top</span></code>, <code class="docutils literal notranslate"><span class="pre">bottom</span></code> and
+<code class="docutils literal notranslate"><span class="pre">k&lt;index&gt;</span></code> — need no vertical geometry.  Interpolating to an elevation
+does: pass <code class="docutils literal notranslate"><span class="pre">zMid</span></code> and <code class="docutils literal notranslate"><span class="pre">GeomZInterface</span></code>, which
+<a class="reference internal" href="generated/polaris.ocean.vertical.diagnostics.get_z_mid_and_interface.html#polaris.ocean.vertical.diagnostics.get_z_mid_and_interface" title="polaris.ocean.vertical.diagnostics.get_z_mid_and_interface"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.ocean.vertical.diagnostics.get_z_mid_and_interface()</span></code></a> gets
+from what the model wrote.  Take them from the climatology rather than the
+vertical-coordinate file, since a map at an elevation is a map on the
+climatological-mean position of that surface.  An elevation range is not a
+slice but a weighted integral, so it goes through
+<code class="docutils literal notranslate"><span class="pre">polaris.ocean.vertical.elevation.elevation_range_weights()</span></code> instead.</p>
+<p>One detail catches people: both models write <code class="docutils literal notranslate"><span class="pre">minLevelCell</span></code> and
+<code class="docutils literal notranslate"><span class="pre">maxLevelCell</span></code> with the one-based indexing of MPAS-Ocean’s Fortran, Omega’s
+<code class="docutils literal notranslate"><span class="pre">MinLayerCell</span></code> and <code class="docutils literal notranslate"><span class="pre">MaxLayerCell</span></code> included, while the reductions index layers
+from zero.
+<a class="reference internal" href="generated/polaris.ocean.vertical.elevation.get_valid_level_range.html#polaris.ocean.vertical.elevation.get_valid_level_range" title="polaris.ocean.vertical.elevation.get_valid_level_range"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.ocean.vertical.elevation.get_valid_level_range()</span></code></a> is the one
+place that converts, and a step should get the two indices from it rather
+than reading them itself.</p>
+</section>
+<section id="plotting-steps">
+<h3>Plotting steps<a class="headerlink" href="#plotting-steps" title="Link to this heading"></a></h3>
+<p>A step that plots maps writes, beside each PNG, a netCDF file with the same
+base name holding exactly what was plotted and the config options that
+produced it.  Both go in the step’s own work directory.</p>
+<p>Two things are worth copying from
+<a class="reference internal" href="generated/polaris.tasks.ocean.analysis.climatology_maps.ClimatologyMaps.html#polaris.tasks.ocean.analysis.climatology_maps.ClimatologyMaps" title="polaris.tasks.ocean.analysis.climatology_maps.ClimatologyMaps"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.tasks.ocean.analysis.climatology_maps.ClimatologyMaps</span></code></a>:</p>
+<ul class="simple">
+<li><p>The <code class="docutils literal notranslate"><span class="pre">mosaic</span></code> descriptor that
+<a class="reference internal" href="../generated/polaris.viz.plot_global_mpas_field.html#polaris.viz.plot_global_mpas_field" title="polaris.viz.plot_global_mpas_field"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.viz.plot_global_mpas_field()</span></code></a> returns is built once per step
+and passed back in, since building it is the expensive part of plotting a
+global mesh.</p></li>
+<li><p>Outputs are registered during <code class="docutils literal notranslate"><span class="pre">run()</span></code> rather than <code class="docutils literal notranslate"><span class="pre">setup()</span></code>.  A field the
+simulation did not write is reported and skipped, and a step that had
+declared that field’s plots at setup would fail Polaris’s missing-output
+check instead.</p></li>
+</ul>
+<p>The colormap options for a field live in a config section of its own, and
+<a class="reference internal" href="generated/polaris.tasks.ocean.analysis.config_sections.map_section.html#polaris.tasks.ocean.analysis.config_sections.map_section" title="polaris.tasks.ocean.analysis.config_sections.map_section"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.tasks.ocean.analysis.config_sections.map_section()</span></code></a> is what
+names it.  Field names are the models’ own and are therefore camel case, while
+Polaris config sections are lower case with underscores, so <code class="docutils literal notranslate"><span class="pre">velocityZonal</span></code> is
+configured by <code class="docutils literal notranslate"><span class="pre">[ocean_analysis_map_velocity_zonal]</span></code> rather than by the field
+name pasted onto a prefix.  Call <code class="docutils literal notranslate"><span class="pre">map_section()</span></code> rather than building the name,
+so that exactly one place knows the prefix and the spelling rule.</p>
+<p>The mesh and vertical-coordinate files a simulation names are often its
+initial condition, which carries a full model state.  Opening one with
+<a class="reference internal" href="generated/polaris.ocean.model.OceanIOStep.open_model_dataset.html#polaris.ocean.model.OceanIOStep.open_model_dataset" title="polaris.ocean.model.OceanIOStep.open_model_dataset"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.ocean.model.OceanIOStep.open_model_dataset()</span></code></a> would solve the
+equation of state to derive a specific volume that a step wanting two index
+fields has no use for, so read the few fields you need and translate their
+names with
+<a class="reference internal" href="generated/polaris.ocean.model.OceanIOStep.map_from_native_model_vars.html#polaris.ocean.model.OceanIOStep.map_from_native_model_vars" title="polaris.ocean.model.OceanIOStep.map_from_native_model_vars"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.ocean.model.OceanIOStep.map_from_native_model_vars()</span></code></a>
+instead.</p>
 </section>
 <section id="publishing-what-the-steps-made">
 <h3>Publishing what the steps made<a class="headerlink" href="#publishing-what-the-steps-made" title="Link to this heading"></a></h3>

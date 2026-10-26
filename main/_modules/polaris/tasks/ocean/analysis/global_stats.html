@@ -115,6 +115,7 @@
   <h1>Source code for polaris.tasks.ocean.analysis.global_stats</h1><div class="highlight"><pre>
 <span></span><span class="kn">import</span><span class="w"> </span><span class="nn">xarray</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">xr</span>
 
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.analysis.units</span><span class="w"> </span><span class="kn">import</span> <span class="n">units_to_mathtext</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">polaris.ocean.analysis_plots</span><span class="w"> </span><span class="kn">import</span> <span class="n">plot_global_stats</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">polaris.ocean.global_stats_names</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">STAT_DESCRIPTIONS</span><span class="p">,</span>
@@ -356,7 +357,7 @@
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_axis_label</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="n">field</span><span class="p">,</span> <span class="n">field_stats</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">"""Label the vertical axes with the field and its units, if it has any"""</span>
-    <span class="n">units</span> <span class="o">=</span> <span class="n">_units</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="n">field_stats</span><span class="p">)</span>
+    <span class="n">units</span> <span class="o">=</span> <span class="n">units_to_mathtext</span><span class="p">(</span><span class="n">_units</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="n">field_stats</span><span class="p">))</span>
     <span class="k">if</span> <span class="n">units</span><span class="p">:</span>
         <span class="k">return</span> <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">field</span><span class="si">}</span><span class="s1"> (</span><span class="si">{</span><span class="n">units</span><span class="si">}</span><span class="s1">)'</span>
     <span class="k">return</span> <span class="n">field</span>

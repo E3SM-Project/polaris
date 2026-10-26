@@ -1,0 +1,6 @@
+﻿polaris.ocean.vertical.elevation.get\_valid\_level\_range
+=========================================================
+
+.. currentmodule:: polaris.ocean.vertical.elevation
+
+.. autofunction:: get_valid_level_range

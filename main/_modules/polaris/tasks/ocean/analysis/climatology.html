@@ -113,12 +113,163 @@
            <div itemprop="articleBody">
              
   <h1>Source code for polaris.tasks.ocean.analysis.climatology</h1><div class="highlight"><pre>
-<span></span><span class="kn">from</span><span class="w"> </span><span class="nn">polaris.tasks.ocean.analysis.analysis_step</span><span class="w"> </span><span class="kn">import</span> <span class="n">AnalysisStep</span>
+<span></span><span class="kn">import</span><span class="w"> </span><span class="nn">glob</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">xarray</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">xr</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mpas_tools.logging</span><span class="w"> </span><span class="kn">import</span> <span class="n">check_call</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.tasks.ocean.analysis.analysis_step</span><span class="w"> </span><span class="kn">import</span> <span class="n">AnalysisStep</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.tasks.ocean.analysis.sim_files</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">SimulationFiles</span><span class="p">,</span>
+    <span class="n">time_mean_suffix</span><span class="p">,</span>
+<span class="p">)</span>
 
 <span class="c1"># ``ncclimo`` in background mode runs one process per month, so this is what</span>
 <span class="c1"># the step will start and therefore what it declares.  The pool is sized from</span>
 <span class="c1"># this number and never from the size of the machine.</span>
 <span class="n">NCCLIMO_PROCESSES</span> <span class="o">=</span> <span class="mi">12</span>
+
+<span class="c1"># The vertical geometry every map that slices at an elevation needs, and that</span>
+<span class="c1"># the partial layers at a heat content range boundary need.  Both models write</span>
+<span class="c1"># these and both are translated as usual.</span>
+<span class="n">GEOMETRY_VARIABLES</span> <span class="o">=</span> <span class="p">(</span><span class="s1">'zMid'</span><span class="p">,</span> <span class="s1">'GeomZInterface'</span><span class="p">)</span>
+
+<span class="c1"># What ocean heat content is derived from, beside the layer mass below.  Heat</span>
+<span class="c1"># content is a field group of the maps rather than a product a user lists, so</span>
+<span class="c1"># its inputs are always in the climatology.</span>
+<span class="n">HEAT_CONTENT_VARIABLES</span> <span class="o">=</span> <span class="p">(</span><span class="s1">'temperature'</span><span class="p">,)</span>
+
+<span class="c1"># The vector fields Polaris reconstructs at cell centers when the simulation</span>
+<span class="c1"># did not write their components, keyed by the edge-normal field they are</span>
+<span class="c1"># reconstructed from.  Reconstruction is linear, so reconstructing from the</span>
+<span class="c1"># climatology of the edge-normal field gives exactly the climatology of the</span>
+<span class="c1"># reconstructed components.</span>
+<span class="n">VECTOR_RECONSTRUCTIONS</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s1">'normalVelocity'</span><span class="p">:</span> <span class="p">(</span><span class="s1">'velocityZonal'</span><span class="p">,</span> <span class="s1">'velocityMeridional'</span><span class="p">),</span>
+<span class="p">}</span>
+
+<span class="c1"># The model's mass-like thickness, read under its native name.  This is the</span>
+<span class="c1"># one variable the analysis deliberately does not translate: Omega's</span>
+<span class="c1"># ``PseudoThickness`` and MPAS-Ocean's ``layerThickness`` agree on the mass</span>
+<span class="c1"># per unit area they imply and disagree on the geometry, so renaming one to</span>
+<span class="c1"># the other would hide the distinction that matters.  The analysis reads Omega</span>
+<span class="c1"># output only, so this is the Omega spelling.</span>
+<span class="n">MASS_THICKNESS_VARIABLE</span> <span class="o">=</span> <span class="s1">'PseudoThickness'</span>
+
+<span class="c1"># ``ncclimo`` names the twelve monthly climatologies by month number, so a</span>
+<span class="c1"># user who asks to plot JAN is asking for the file with 01 in its name</span>
+<span class="n">SEASON_KEYS</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s1">'JAN'</span><span class="p">:</span> <span class="s1">'01'</span><span class="p">,</span>
+    <span class="s1">'FEB'</span><span class="p">:</span> <span class="s1">'02'</span><span class="p">,</span>
+    <span class="s1">'MAR'</span><span class="p">:</span> <span class="s1">'03'</span><span class="p">,</span>
+    <span class="s1">'APR'</span><span class="p">:</span> <span class="s1">'04'</span><span class="p">,</span>
+    <span class="s1">'MAY'</span><span class="p">:</span> <span class="s1">'05'</span><span class="p">,</span>
+    <span class="s1">'JUN'</span><span class="p">:</span> <span class="s1">'06'</span><span class="p">,</span>
+    <span class="s1">'JUL'</span><span class="p">:</span> <span class="s1">'07'</span><span class="p">,</span>
+    <span class="s1">'AUG'</span><span class="p">:</span> <span class="s1">'08'</span><span class="p">,</span>
+    <span class="s1">'SEP'</span><span class="p">:</span> <span class="s1">'09'</span><span class="p">,</span>
+    <span class="s1">'OCT'</span><span class="p">:</span> <span class="s1">'10'</span><span class="p">,</span>
+    <span class="s1">'NOV'</span><span class="p">:</span> <span class="s1">'11'</span><span class="p">,</span>
+    <span class="s1">'DEC'</span><span class="p">:</span> <span class="s1">'12'</span><span class="p">,</span>
+<span class="p">}</span>
+
+
+<div class="viewcode-block" id="get_climatology_variables">
+<a class="viewcode-back" href="../../../../../developers_guide/ocean/generated/polaris.tasks.ocean.analysis.climatology.get_climatology_variables.html#polaris.tasks.ocean.analysis.climatology.get_climatology_variables">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_climatology_variables</span><span class="p">(</span><span class="n">config</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Get the variables a climatology is computed for, in MPAS-Ocean names</span>
+
+<span class="sd">    The list is the union of the fields requested for maps, the fields ocean</span>
+<span class="sd">    heat content is derived from, the edge-normal field any requested vector</span>
+<span class="sd">    components can be reconstructed from, and the vertical geometry.  It is</span>
+<span class="sd">    assembled</span>
+<span class="sd">    from config options rather than passed in by the steps that read the</span>
+<span class="sd">    climatology, so that the shared step stays neutral with respect to which</span>
+<span class="sd">    tasks pulled it in.</span>
+
+<span class="sd">    The model's mass-like thickness is not here, because it has no MPAS-Ocean</span>
+<span class="sd">    name to translate from; it is added under its native name once the rest of</span>
+<span class="sd">    the list has been mapped into the names the files use.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    config : polaris.config.PolarisConfigParser</span>
+<span class="sd">        The config options for the analysis</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    variables : list of str</span>
+<span class="sd">        The variables, in the order they were requested, with the derived</span>
+<span class="sd">        ones appended</span>
+<span class="sd">    """</span>
+    <span class="n">variables</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">getlist</span><span class="p">(</span><span class="s1">'ocean_analysis_climatology'</span><span class="p">,</span> <span class="s1">'fields'</span><span class="p">))</span>
+    <span class="n">sources</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span>
+        <span class="n">source</span>
+        <span class="k">for</span> <span class="n">source</span><span class="p">,</span> <span class="n">components</span> <span class="ow">in</span> <span class="n">VECTOR_RECONSTRUCTIONS</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+        <span class="k">if</span> <span class="nb">any</span><span class="p">(</span><span class="n">component</span> <span class="ow">in</span> <span class="n">variables</span> <span class="k">for</span> <span class="n">component</span> <span class="ow">in</span> <span class="n">components</span><span class="p">)</span>
+    <span class="p">)</span>
+    <span class="k">for</span> <span class="n">variable</span> <span class="ow">in</span> <span class="n">HEAT_CONTENT_VARIABLES</span> <span class="o">+</span> <span class="n">sources</span> <span class="o">+</span> <span class="n">GEOMETRY_VARIABLES</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">variable</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">variables</span><span class="p">:</span>
+            <span class="n">variables</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">variable</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">variables</span></div>
+
+
+
+<div class="viewcode-block" id="find_climatology_file">
+<a class="viewcode-back" href="../../../../../developers_guide/ocean/generated/polaris.tasks.ocean.analysis.climatology.find_climatology_file.html#polaris.tasks.ocean.analysis.climatology.find_climatology_file">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">find_climatology_file</span><span class="p">(</span><span class="n">work_dir</span><span class="p">,</span> <span class="n">season</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Find the ``ncclimo`` output file for one season</span>
+
+<span class="sd">    ``ncclimo`` names its output ``&lt;caseid&gt;_&lt;season&gt;_&lt;start&gt;_&lt;end&gt;_climo.nc``.</span>
+<span class="sd">    Steps that read a climatology glob on the season rather than</span>
+<span class="sd">    reconstructing that pattern, which is robust to what ``ncclimo`` makes of</span>
+<span class="sd">    the case name and to its naming changing.  The one substitution that has</span>
+<span class="sd">    to be made is that the twelve monthly climatologies are named by month</span>
+<span class="sd">    number rather than by ``JAN`` through ``DEC``.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    work_dir : str</span>
+<span class="sd">        The work directory of the climatology step</span>
+
+<span class="sd">    season : str</span>
+<span class="sd">        The season to find, e.g. ``'ANN'`` or ``'JAN'``</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    filename : str</span>
+<span class="sd">        The absolute path to the climatology file</span>
+
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    FileNotFoundError</span>
+<span class="sd">        If no file for that season is there</span>
+
+<span class="sd">    ValueError</span>
+<span class="sd">        If more than one file matches, which would make the choice arbitrary</span>
+<span class="sd">    """</span>
+    <span class="n">key</span> <span class="o">=</span> <span class="n">SEASON_KEYS</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">season</span><span class="o">.</span><span class="n">upper</span><span class="p">(),</span> <span class="n">season</span><span class="p">)</span>
+    <span class="n">pattern</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">work_dir</span><span class="p">,</span> <span class="sa">f</span><span class="s1">'*_</span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s1">_*_climo.nc'</span><span class="p">)</span>
+    <span class="n">matches</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">glob</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="n">pattern</span><span class="p">))</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">matches</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">FileNotFoundError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s1">'No climatology for season </span><span class="si">{</span><span class="n">season</span><span class="si">}</span><span class="s1"> in </span><span class="si">{</span><span class="n">work_dir</span><span class="si">}</span><span class="s1">.  The '</span>
+            <span class="sa">f</span><span class="s1">'climatology step writes the twelve monthly climatologies and '</span>
+            <span class="sa">f</span><span class="s1">'one file per season in [ocean_analysis_climatology] seasons, '</span>
+            <span class="sa">f</span><span class="s1">'so check that option against plot_seasons.'</span>
+        <span class="p">)</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">matches</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="n">names</span> <span class="o">=</span> <span class="s1">', '</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">match</span><span class="p">)</span> <span class="k">for</span> <span class="n">match</span> <span class="ow">in</span> <span class="n">matches</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">matches</span><span class="p">)</span><span class="si">}</span><span class="s1"> climatology files for season </span><span class="si">{</span><span class="n">season</span><span class="si">}</span><span class="s1"> in '</span>
+            <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">work_dir</span><span class="si">}</span><span class="s1">: </span><span class="si">{</span><span class="n">names</span><span class="si">}</span><span class="s1">.  Only one is expected, so the choice '</span>
+            <span class="sa">f</span><span class="s1">'would be arbitrary.'</span>
+        <span class="p">)</span>
+    <span class="k">return</span> <span class="n">matches</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span></div>
+
 
 
 <div class="viewcode-block" id="Climatology">
@@ -183,11 +334,194 @@
 <a class="viewcode-back" href="../../../../../developers_guide/ocean/generated/polaris.tasks.ocean.analysis.climatology.Climatology.run.html#polaris.tasks.ocean.analysis.climatology.Climatology.run">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">"""</span>
-<span class="sd">        Report the monthly means; the climatology itself is not computed yet</span>
-<span class="sd">        """</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">log_inputs</span><span class="p">()</span></div>
-</div>
+<span class="sd">        Compute the climatology with ``ncclimo``</span>
 
+<span class="sd">        Omega names each field of a monthly mean for the field and the</span>
+<span class="sd">        period, ``Temperature_TimeMean1Month``, and ``ncclimo`` keeps the</span>
+<span class="sd">        names it is given, so the suffix is stripped from every file it</span>
+<span class="sd">        writes.  The climatology then carries each field's own name, which</span>
+<span class="sd">        is what the rest of Polaris translates and derives from.</span>
+<span class="sd">        """</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">log_inputs</span><span class="p">()</span>
+        <span class="n">seasons</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">getlist</span><span class="p">(</span><span class="s1">'ocean_analysis_climatology'</span><span class="p">,</span> <span class="s1">'seasons'</span><span class="p">)</span>
+        <span class="n">sim_files</span> <span class="o">=</span> <span class="n">SimulationFiles</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">,</span> <span class="n">log</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">)</span>
+        <span class="n">suffix</span> <span class="o">=</span> <span class="n">time_mean_suffix</span><span class="p">(</span><span class="n">sim_files</span><span class="o">.</span><span class="n">monthly_mean_stream</span><span class="p">())</span>
+        <span class="n">variables</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_native_variables</span><span class="p">(</span><span class="n">suffix</span><span class="p">)</span>
+        <span class="n">check_call</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_ncclimo_args</span><span class="p">(</span>
+                <span class="p">[</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">variable</span><span class="si">}{</span><span class="n">suffix</span><span class="si">}</span><span class="s1">'</span> <span class="k">for</span> <span class="n">variable</span> <span class="ow">in</span> <span class="n">variables</span><span class="p">],</span> <span class="n">seasons</span>
+            <span class="p">),</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="p">,</span>
+            <span class="n">env</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_ncclimo_env</span><span class="p">(),</span>
+        <span class="p">)</span>
+        <span class="k">if</span> <span class="n">suffix</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_strip_suffix</span><span class="p">(</span><span class="n">variables</span><span class="p">,</span> <span class="n">suffix</span><span class="p">)</span></div>
+
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_native_variables</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">suffix</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">        Get the variables to compute the climatology for, under the names</span>
+<span class="sd">        the model gives the fields, dropping the ones the simulation did not</span>
+<span class="sd">        write</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        suffix : str</span>
+<span class="sd">            What the files append to each field's name</span>
+<span class="sd">        """</span>
+        <span class="n">variables</span> <span class="o">=</span> <span class="n">get_climatology_variables</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">)</span>
+        <span class="n">native</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">component</span><span class="o">.</span><span class="n">map_var_list_to_native_model</span><span class="p">(</span><span class="n">variables</span><span class="p">)</span>
+        <span class="c1"># the mass-like thickness has no MPAS-Ocean name to be mapped from,</span>
+        <span class="c1"># so it joins the list already spelled the way the files spell it</span>
+        <span class="n">pairs</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">variables</span><span class="p">,</span> <span class="n">native</span><span class="p">,</span> <span class="n">strict</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span>
+        <span class="n">pairs</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">MASS_THICKNESS_VARIABLE</span><span class="p">,</span> <span class="n">MASS_THICKNESS_VARIABLE</span><span class="p">))</span>
+
+        <span class="n">written</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_variables_written</span><span class="p">()</span>
+        <span class="n">pairs</span> <span class="o">=</span> <span class="n">_drop_unneeded_for_reconstruction</span><span class="p">(</span><span class="n">pairs</span><span class="p">,</span> <span class="n">written</span><span class="p">,</span> <span class="n">suffix</span><span class="p">)</span>
+        <span class="n">present</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">native</span> <span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">native</span> <span class="ow">in</span> <span class="n">pairs</span> <span class="k">if</span> <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">native</span><span class="si">}{</span><span class="n">suffix</span><span class="si">}</span><span class="s1">'</span> <span class="ow">in</span> <span class="n">written</span>
+        <span class="p">]</span>
+        <span class="n">missing</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">polaris</span><span class="si">}</span><span class="s1"> (</span><span class="si">{</span><span class="n">native</span><span class="si">}{</span><span class="n">suffix</span><span class="si">}</span><span class="s1">)'</span>
+            <span class="k">if</span> <span class="n">native</span> <span class="o">!=</span> <span class="n">polaris</span>
+            <span class="k">else</span> <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">polaris</span><span class="si">}{</span><span class="n">suffix</span><span class="si">}</span><span class="s1">'</span>
+            <span class="k">for</span> <span class="n">polaris</span><span class="p">,</span> <span class="n">native</span> <span class="ow">in</span> <span class="n">pairs</span>
+            <span class="k">if</span> <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">native</span><span class="si">}{</span><span class="n">suffix</span><span class="si">}</span><span class="s1">'</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">written</span>
+        <span class="p">]</span>
+        <span class="k">if</span> <span class="n">missing</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s1">'The simulation did not write </span><span class="si">{</span><span class="s2">", "</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">missing</span><span class="p">)</span><span class="si">}</span><span class="s1">, so '</span>
+                <span class="sa">f</span><span class="s1">'these are left out of the climatology and the products '</span>
+                <span class="sa">f</span><span class="s1">'that need them are skipped.'</span>
+            <span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">present</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s1">'The simulation wrote none of the variables the analysis '</span>
+                <span class="s1">'asked for, so there is nothing to compute a climatology '</span>
+                <span class="s1">'of.  Check the [ocean_analysis_climatology] fields option '</span>
+                <span class="s1">'against the Fields of the MonthlyAverages analysis group.'</span>
+            <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">'climatology variables: </span><span class="si">{</span><span class="s2">", "</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">present</span><span class="p">)</span><span class="si">}</span><span class="s1">'</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">present</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_strip_suffix</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">variables</span><span class="p">,</span> <span class="n">suffix</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Rename the variables of every climatology file in place"""</span>
+        <span class="n">args</span> <span class="o">=</span> <span class="p">[</span><span class="s1">'ncrename'</span><span class="p">,</span> <span class="s1">'-O'</span><span class="p">,</span> <span class="s1">'-h'</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">variable</span> <span class="ow">in</span> <span class="n">variables</span><span class="p">:</span>
+            <span class="n">args</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="s1">'-v'</span><span class="p">,</span> <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">variable</span><span class="si">}{</span><span class="n">suffix</span><span class="si">}</span><span class="s1">,</span><span class="si">{</span><span class="n">variable</span><span class="si">}</span><span class="s1">'</span><span class="p">])</span>
+        <span class="n">filenames</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">glob</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">work_path</span><span class="p">(</span><span class="s1">'*_climo.nc'</span><span class="p">)))</span>
+        <span class="k">for</span> <span class="n">filename</span> <span class="ow">in</span> <span class="n">filenames</span><span class="p">:</span>
+            <span class="n">check_call</span><span class="p">(</span><span class="n">args</span> <span class="o">+</span> <span class="p">[</span><span class="n">filename</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_variables_written</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Get the names of the variables in the monthly means"""</span>
+        <span class="n">filename</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">work_path</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">input_filenames</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="k">with</span> <span class="n">xr</span><span class="o">.</span><span class="n">open_dataset</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">decode_times</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span> <span class="k">as</span> <span class="n">ds</span><span class="p">:</span>
+            <span class="k">return</span> <span class="nb">set</span><span class="p">(</span><span class="n">ds</span><span class="o">.</span><span class="n">variables</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_ncclimo_args</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">variables</span><span class="p">,</span> <span class="n">seasons</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Build the ``ncclimo`` command line"""</span>
+        <span class="c1"># ncclimo's background mode runs one process per month.  The count</span>
+        <span class="c1"># comes from what the step declared it would start, never from the</span>
+        <span class="c1"># size of the machine, so that a step running beside this one does</span>
+        <span class="c1"># not find the node oversubscribed.</span>
+        <span class="n">threads</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cpus_per_task</span>
+        <span class="n">parallel_mode</span> <span class="o">=</span> <span class="s1">'bck'</span> <span class="k">if</span> <span class="n">threads</span> <span class="o">&gt;</span> <span class="mi">1</span> <span class="k">else</span> <span class="s1">'nil'</span>
+        <span class="c1"># The seasonally discontinuous December convention -- every year in</span>
+        <span class="c1"># the range contributes its own December, so no data outside the</span>
+        <span class="c1"># range are needed -- used to be selected with "-a sdd".  NCO 5.3.7</span>
+        <span class="c1"># dropped that option and made the convention its behavior, so asking</span>
+        <span class="c1"># for it now only produces a deprecation warning.  The test of this</span>
+        <span class="c1"># invocation compares DJF against a day-weighted mean of the monthly</span>
+        <span class="c1"># climatologies, which is what would catch the convention changing</span>
+        <span class="c1"># back underneath us.</span>
+        <span class="k">return</span> <span class="p">[</span>
+            <span class="s1">'ncclimo'</span><span class="p">,</span>
+            <span class="s1">'--no_stdin'</span><span class="p">,</span>
+            <span class="s1">'-4'</span><span class="p">,</span>
+            <span class="s1">'--clm_md=mth'</span><span class="p">,</span>
+            <span class="c1"># ncclimo needs a case name to build its output file names from</span>
+            <span class="c1"># when, as here, the input files are given rather than generated</span>
+            <span class="s1">'-c'</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'ocean_analysis'</span><span class="p">,</span> <span class="s1">'simulation_name'</span><span class="p">),</span>
+            <span class="s1">'-p'</span><span class="p">,</span>
+            <span class="n">parallel_mode</span><span class="p">,</span>
+            <span class="s1">'-j'</span><span class="p">,</span>
+            <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">threads</span><span class="si">}</span><span class="s1">'</span><span class="p">,</span>
+            <span class="s1">'-v'</span><span class="p">,</span>
+            <span class="s1">','</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">variables</span><span class="p">),</span>
+            <span class="sa">f</span><span class="s1">'--seasons=</span><span class="si">{</span><span class="s2">","</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">seasons</span><span class="p">)</span><span class="si">}</span><span class="s1">'</span><span class="p">,</span>
+            <span class="s1">'-s'</span><span class="p">,</span>
+            <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">start_year</span><span class="si">}</span><span class="s1">'</span><span class="p">,</span>
+            <span class="s1">'-e'</span><span class="p">,</span>
+            <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">end_year</span><span class="si">}</span><span class="s1">'</span><span class="p">,</span>
+            <span class="c1"># ncclimo resolves the input files it is given against its input</span>
+            <span class="c1"># directory, so the directory is named once and the files are</span>
+            <span class="c1"># named relative to it.  Both are the step's own work directory,</span>
+            <span class="c1"># which is where the monthly means are symlinked.</span>
+            <span class="s1">'-i'</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">work_path</span><span class="p">(),</span>
+            <span class="s1">'-o'</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">work_path</span><span class="p">(),</span>
+        <span class="p">]</span> <span class="o">+</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">input_filenames</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_ncclimo_env</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">        Get the environment to run ``ncclimo`` in, with its scratch space</span>
+<span class="sd">        pointed at the step's own work directory</span>
+
+<span class="sd">        Two climatologies can run at once, so leaving the scratch path to</span>
+<span class="sd">        ``TMPDIR`` would let them collide on it.</span>
+<span class="sd">        """</span>
+        <span class="n">scratch_dir</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">work_path</span><span class="p">(</span><span class="s1">'ncclimo_scratch'</span><span class="p">)</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">scratch_dir</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">env</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">)</span>
+        <span class="n">env</span><span class="p">[</span><span class="s1">'TMPDIR'</span><span class="p">]</span> <span class="o">=</span> <span class="n">scratch_dir</span>
+        <span class="k">return</span> <span class="n">env</span></div>
+
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_drop_unneeded_for_reconstruction</span><span class="p">(</span><span class="n">pairs</span><span class="p">,</span> <span class="n">written</span><span class="p">,</span> <span class="n">suffix</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Drop the variables a vector reconstruction makes unnecessary</span>
+
+<span class="sd">    An edge-normal field is not needed if the simulation wrote every</span>
+<span class="sd">    component asked for, and a component the simulation did not write is not</span>
+<span class="sd">    missing if it can be reconstructed from an edge-normal field it did.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    pairs : list of tuple of str</span>
+<span class="sd">        The MPAS-Ocean and native name of each variable</span>
+
+<span class="sd">    written : set of str</span>
+<span class="sd">        The variables in the monthly means</span>
+
+<span class="sd">    suffix : str</span>
+<span class="sd">        What the files append to each field's name</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    pairs : list of tuple of str</span>
+<span class="sd">        The pairs that are still needed</span>
+<span class="sd">    """</span>
+    <span class="n">is_written</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="n">polaris</span><span class="p">:</span> <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">native</span><span class="si">}{</span><span class="n">suffix</span><span class="si">}</span><span class="s1">'</span> <span class="ow">in</span> <span class="n">written</span> <span class="k">for</span> <span class="n">polaris</span><span class="p">,</span> <span class="n">native</span> <span class="ow">in</span> <span class="n">pairs</span>
+    <span class="p">}</span>
+    <span class="n">unneeded</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">source</span><span class="p">,</span> <span class="n">components</span> <span class="ow">in</span> <span class="n">VECTOR_RECONSTRUCTIONS</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="k">if</span> <span class="n">source</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">is_written</span><span class="p">:</span>
+            <span class="k">continue</span>
+        <span class="n">requested</span> <span class="o">=</span> <span class="p">[</span><span class="n">c</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">components</span> <span class="k">if</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">is_written</span><span class="p">]</span>
+        <span class="k">if</span> <span class="nb">all</span><span class="p">(</span><span class="n">is_written</span><span class="p">[</span><span class="n">c</span><span class="p">]</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">requested</span><span class="p">):</span>
+            <span class="n">unneeded</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">source</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">is_written</span><span class="p">[</span><span class="n">source</span><span class="p">]:</span>
+            <span class="n">unneeded</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">c</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">requested</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">is_written</span><span class="p">[</span><span class="n">c</span><span class="p">])</span>
+    <span class="k">return</span> <span class="p">[</span>
+        <span class="p">(</span><span class="n">polaris</span><span class="p">,</span> <span class="n">native</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">polaris</span><span class="p">,</span> <span class="n">native</span> <span class="ow">in</span> <span class="n">pairs</span>
+        <span class="k">if</span> <span class="n">polaris</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">unneeded</span>
+    <span class="p">]</span>
 </pre></div>
 
            </div>
