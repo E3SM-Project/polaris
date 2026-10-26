@@ -13,8 +13,9 @@ written down: an elevation halfway between two layer midpoints, and a heat
 content range ending halfway through a layer.
 
 Heat content is the one field group that derives its field instead of
-reading it, so what it adds is that the value written is the one the kernel
-gives, in the unit the file claims, while what is plotted is in another.
+reading it, so what it adds is that the value written is the change in what
+the kernel gives from the first monthly mean, in the unit the file claims,
+while what is plotted is in another.
 
 Velocity components the simulation did not write are reconstructed from the
 edge-normal velocity.  The reconstruction itself is tested with the mesh
@@ -63,6 +64,13 @@ N_EDGES = N_CELLS
 
 # the edge that is closed in the bottom layer
 CLOSED_EDGE = 2
+
+# what Omega appends to each field of a monthly mean
+SUFFIX = '_TimeMean1Month'
+
+# how much colder the first monthly mean is than the ANN climatology, which
+# is index 0 of SEASONS; JJA is a further 1 K warmer
+FIRST_MONTH_OFFSET = 1.0
 
 
 def test_a_netcdf_is_registered_beside_every_plot(step):
@@ -239,7 +247,7 @@ def test_the_field_groups_cover_the_fields_that_are_asked_for():
     assert groups['temperature'] == ['temperature']
     assert groups['ssh'] == ['ssh']
     # heat content is derived rather than listed, so it is always there
-    assert groups['heat_content'] == ['heat_content']
+    assert groups['heat_content'] == ['heat_content_anomaly']
 
 
 def test_a_heat_content_map_is_plotted_for_each_season_and_range(ohc_step):
@@ -247,7 +255,7 @@ def test_a_heat_content_map_is_plotted_for_each_season_and_range(ohc_step):
     the whole column."""
     ohc_step.run()
     assert _images(ohc_step) == {
-        f'heat_content_{season}_{label}.png'
+        f'heat_content_anomaly_{season}_{label}.png'
         for season in SEASONS
         for label in (
             'top_to_-700m',
@@ -258,44 +266,49 @@ def test_a_heat_content_map_is_plotted_for_each_season_and_range(ohc_step):
     }
 
 
-def test_the_heat_content_written_is_the_mass_weighted_integral(ohc_step):
-    """The synthetic column is uniform in thickness and linear in depth, so
-    the whole-column answer can be written down."""
+def test_the_anomaly_is_the_change_in_the_mass_weighted_integral(ohc_step):
+    """The first month is uniformly colder than each season, so the change
+    in the whole column can be written down: that many kelvin over the
+    column's mass."""
     ohc_step.run()
     rho_sw = get_constant('seawater_density_reference')
     specific_heat = get_constant('seawater_specific_heat_capacity_reference')
     # MinLayerCell is 1 and MaxLayerCell is N_LEVELS in the one-based
     # indices both models write, so every layer of every column is valid
-    levels = np.arange(N_LEVELS)
-    with xr.open_dataset(
-        os.path.join(ohc_step.work_dir, 'heat_content_ANN_top_to_bottom.nc')
-    ) as ds:
-        values = ds.heat_content.values
-    for cell in range(N_CELLS):
-        # the climatology holds cell + 10 * level for season ANN, index 0
-        temperature = cell + 10.0 * levels
-        expected = specific_heat * np.sum(temperature * rho_sw * THICKNESS)
-        assert values[cell] == pytest.approx(expected)
+    column_mass = rho_sw * THICKNESS * N_LEVELS
+    for index, season in enumerate(SEASONS):
+        values = _read_map(
+            ohc_step, f'heat_content_anomaly_{season}_top_to_bottom.nc'
+        ).values
+        warming = FIRST_MONTH_OFFSET + index
+        np.testing.assert_allclose(
+            values, specific_heat * warming * column_mass, rtol=1e-12
+        )
 
 
-def test_the_heat_content_file_says_which_range_it_is(ohc_step):
+def test_the_anomaly_file_says_what_it_is_a_change_from(ohc_step):
     ohc_step.run()
     with xr.open_dataset(
-        os.path.join(ohc_step.work_dir, 'heat_content_JJA_top_to_bottom.nc')
+        os.path.join(
+            ohc_step.work_dir, 'heat_content_anomaly_JJA_top_to_bottom.nc'
+        )
     ) as ds:
-        assert ds.attrs['field'] == 'heat_content'
+        assert ds.attrs['field'] == 'heat_content_anomaly'
         assert ds.attrs['season'] == 'JJA'
         assert ds.attrs['vertical_reduction'] == 'top_to_bottom'
         assert ds.attrs['elevation_range_top'] == 'top'
         assert ds.attrs['elevation_range_bottom'] == 'bottom'
-        assert ds.heat_content.attrs['units'] == 'J m-2'
+        attrs = ds.heat_content_anomaly.attrs
+        assert attrs['units'] == 'J m-2'
+        assert attrs['reference_year'] == 1
+        assert attrs['reference_month'] == 1
 
 
 def test_heat_content_is_written_in_joules_and_plotted_in_gigajoules(
     ohc_step, monkeypatch
 ):
-    """A whole column at a typical temperature is a few hundred GJ m-2 and a
-    few times 10^11 J m-2, so the plot uses the readable one while the file
+    """The change in a column over a few years is a few GJ m-2 and a few
+    times 10^9 J m-2, so the plot uses the readable one while the file
     keeps the unit the quantity means."""
     plotted = {}
 
@@ -309,12 +322,8 @@ def test_heat_content_is_written_in_joules_and_plotted_in_gigajoules(
     )
     ohc_step.run()
     assert plotted['units'] == 'GJ m-2'
-    with xr.open_dataset(
-        os.path.join(ohc_step.work_dir, 'heat_content_JJA_top_to_bottom.nc')
-    ) as ds:
-        np.testing.assert_allclose(
-            plotted['values'], ds.heat_content.values / 1.0e9
-        )
+    values = _read_map(ohc_step, 'heat_content_anomaly_JJA_top_to_bottom.nc')
+    np.testing.assert_allclose(plotted['values'], values.values / 1.0e9)
 
 
 def test_a_heat_content_map_is_plotted_over_a_partial_range(ohc_step):
@@ -328,22 +337,20 @@ def test_a_heat_content_map_is_plotted_over_a_partial_range(ohc_step):
     )
     ohc_step.run()
     assert _images(ohc_step) == {
-        f'heat_content_{season}_{label}.png'
+        f'heat_content_anomaly_{season}_{label}.png'
         for season in SEASONS
         for label in ('top_to_-150m', 'top_to_bottom')
     }
 
     rho_sw = get_constant('seawater_density_reference')
     specific_heat = get_constant('seawater_specific_heat_capacity_reference')
-    with xr.open_dataset(
-        os.path.join(ohc_step.work_dir, 'heat_content_ANN_top_to_-150m.nc')
-    ) as ds:
-        values = ds.heat_content.values
-    for cell in range(N_CELLS):
-        temperature = cell + 10.0 * np.arange(N_LEVELS)
-        mass = rho_sw * THICKNESS * np.array([1.0, 0.5, 0.0, 0.0])
-        expected = specific_heat * np.sum(temperature * mass)
-        assert values[cell] == pytest.approx(expected)
+    values = _read_map(
+        ohc_step, 'heat_content_anomaly_ANN_top_to_-150m.nc'
+    ).values
+    range_mass = rho_sw * THICKNESS * 1.5
+    np.testing.assert_allclose(
+        values, specific_heat * FIRST_MONTH_OFFSET * range_mass, rtol=1e-12
+    )
 
 
 def test_heat_content_is_skipped_without_the_thickness_it_needs(
@@ -360,6 +367,41 @@ def test_heat_content_is_skipped_without_the_thickness_it_needs(
         ohc_step.run()
     assert 'did not write PseudoThickness' in caplog.text
     assert not _images(ohc_step)
+
+
+def test_the_first_month_needs_the_geometry_too(ohc_step):
+    """The first month is integrated the way each season is, so without its
+    geometry there is no heat content to map a change from."""
+    path = os.path.join(ohc_step.work_dir, 'first_monthly_mean.nc')
+    with xr.open_dataset(path) as ds:
+        trimmed = ds.drop_vars(f'GeomZInterface{SUFFIX}').load()
+    trimmed.to_netcdf(path)
+    with pytest.raises(ValueError, match='first monthly mean has no'):
+        ohc_step.run()
+
+
+def test_setup_links_the_first_monthly_mean_of_the_range(tmp_path):
+    """January of the first year, which Omega names for February"""
+    sim_path = tmp_path / 'sim'
+    sim_path.mkdir()
+    with open(sim_path / 'omega.yml', 'w') as handle:
+        handle.write(OMEGA_CONFIG)
+    # Omega names each file for the analysis group's period as well
+    for month in range(2, 14):
+        year, named = (1, month) if month <= 12 else (2, 1)
+        filename = f'monthly_means_1MonthTimeStats.{year:04d}-{named:02d}.nc'
+        (sim_path / filename).touch()
+    for filename in ('mesh.nc', 'vert_coord.nc'):
+        (sim_path / filename).touch()
+
+    step = _make_step_for_setup(tmp_path, sim_path)
+    step.setup()
+    assert step.first_month == (1, 1)
+    assert step.suffix == SUFFIX
+    linked = {entry['filename']: entry['target'] for entry in step.input_data}
+    assert linked['first_monthly_mean.nc'] == str(
+        sim_path / 'monthly_means_1MonthTimeStats.0001-02.nc'
+    )
 
 
 def test_a_field_in_no_group_is_reported():
@@ -386,7 +428,34 @@ def velocity_step(tmp_path, monkeypatch):
 
 @pytest.fixture
 def ohc_step(tmp_path, monkeypatch):
-    return _make_step(tmp_path, monkeypatch, 'heat_content', ['heat_content'])
+    step = _make_step(
+        tmp_path, monkeypatch, 'heat_content', ['heat_content_anomaly']
+    )
+    # what setup() would have found
+    step.first_month = (1, 1)
+    step.suffix = SUFFIX
+    step.input_filenames.append('first_monthly_mean.nc')
+    _write_first_monthly_mean(step.work_dir)
+    return step
+
+
+# The simulation's Omega configuration, which is how setup() finds the first
+# monthly mean
+OMEGA_CONFIG = """\
+Omega:
+  IOStreams:
+    HorzMeshIn:
+      Filename: mesh.nc
+      Mode: read
+    InitialVertCoord:
+      Filename: vert_coord.nc
+      Mode: read
+  Analysis:
+    MonthlyAverages:
+      Enable: true
+      Filename: monthly_means.$Y-$M.nc
+      ReductionPeriod: [1Month]
+"""
 
 
 def _make_step(tmp_path, monkeypatch, field_group, fields):
@@ -447,6 +516,39 @@ def _make_step(tmp_path, monkeypatch, field_group, fields):
     return step
 
 
+def _make_step_for_setup(tmp_path, sim_path):
+    """A heat content map step pointed at a simulation, to be set up"""
+    config = PolarisConfigParser()
+    config.add_from_package('polaris.ocean', 'ocean.cfg')
+    config.add_from_package('polaris.tasks.ocean.analysis', 'analysis.cfg')
+    config.set('ocean', 'model', 'omega')
+    config.set(
+        'ocean_analysis',
+        'omega_config_filename',
+        str(sim_path / 'omega.yml'),
+    )
+    component = Ocean()
+    component.model = 'omega'
+    climatology = Climatology(
+        component=component,
+        subdir='analysis/climatology/0001-0001',
+        start_year=1,
+        end_year=1,
+    )
+    step = ClimatologyMaps(
+        component=component,
+        subdir='analysis/climatology_maps/0001-0001/heat_content',
+        field_group='heat_content',
+        fields=['heat_content_anomaly'],
+        start_year=1,
+        end_year=1,
+        climatology=climatology,
+    )
+    step.work_dir = str(tmp_path / 'work')
+    step.config = config
+    return step
+
+
 def _fake_plot(da, out_filename, config, colormap_section, **kwargs):
     """Write a placeholder in place of the plot, and hand back a descriptor
     so that the step's reuse of one can be seen to work."""
@@ -493,6 +595,30 @@ def _write_climatology(climatology_dir):
             )
         )
         ds.to_netcdf(f'{climatology_dir}/case_{season}_000101_000312_climo.nc')
+
+
+def _write_first_monthly_mean(work_dir):
+    """The first monthly mean, Omega-style, uniformly colder than ANN"""
+    cells = np.arange(N_CELLS)[:, None]
+    levels = np.arange(N_LEVELS)[None, :]
+    temperature = cells + 10.0 * levels - FIRST_MONTH_OFFSET
+    ds = xr.Dataset(
+        {
+            f'Temperature{SUFFIX}': (
+                ('time', 'NCells', 'NVertLayers'),
+                temperature[None, :, :],
+            ),
+            f'PseudoThickness{SUFFIX}': (
+                ('time', 'NCells', 'NVertLayers'),
+                np.full((1, N_CELLS, N_LEVELS), THICKNESS),
+            ),
+            f'GeomZInterface{SUFFIX}': (
+                ('time', 'NCells', 'NVertLayersP1'),
+                np.tile(Z_INTERFACE, (1, N_CELLS, 1)),
+            ),
+        }
+    )
+    ds.to_netcdf(f'{work_dir}/first_monthly_mean.nc')
 
 
 def _write_mesh_and_vert_coord(work_dir):
