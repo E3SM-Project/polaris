@@ -880,7 +880,7 @@ follow-up after September 15 if the fallback is what ships.
 
 ### Algorithm Design: ocean-heat-content
 
-Date last modified: 2026/08/25
+Date last modified: 2026/10/26
 
 Contributors: Xylar Asay-Davis, Claude
 
@@ -894,13 +894,14 @@ $z_{bot} < z_{top}$, where either boundary may be a fixed elevation, the free
 surface, or the seafloor,
 
 $$
-Q(z_{bot}, z_{top}) = c_p^0 \int_{z_{bot}}^{z_{top}} \rho \, \Theta \, dz
-                    = \rho_0 c_p^0 \int_{\tilde{z}_{bot}}^{\tilde{z}_{top}}
+Q(z_{bot}, z_{top}) = c_p \int_{z_{bot}}^{z_{top}} \rho \, \Theta \, dz
+                    = \rho_0 c_p \int_{\tilde{z}_{bot}}^{\tilde{z}_{top}}
                       \Theta \, d\tilde{z}
-                    \approx \rho_0 c_p^0 \sum_k \Theta_k \, \tilde{w}_k
+                    \approx \rho_0 c_p \sum_k \Theta_k \, \tilde{w}_k
 $$
 
-where $\Theta$ is conservative temperature, $\rho$ is in-situ density, and
+where $\Theta$ is conservative temperature, $c_p$ is the specific heat
+capacity of seawater, $\rho$ is in-situ density, and
 $\tilde{w}_k$ is the pseudo-thickness of the overlap between layer $k$ and the
 requested range.
 
@@ -998,33 +999,16 @@ over cells $i$ with area `areaCell`.
 
 #### Choice of constants
 
-Omega uses TEOS-10, in which conservative temperature is *defined* so that
-potential enthalpy is $c_p^0 \Theta$ with the exact constant
-$c_p^0 = 3991.86795711963$ J kg⁻¹ K⁻¹.  Using that constant with conservative
-temperature is therefore not an approximation but the definition of heat
-content.
+**Decision:** both constants come from Polaris's Physical Constants
+Dictionary, and neither is a config option: $c_p$ is
+`seawater_specific_heat_capacity_reference` = 3996.0 J kg⁻¹ K⁻¹ and $\rho_0$
+is `seawater_density_reference` = 1026.0 kg m⁻³.  The PCD is how Polaris, Omega
+and the rest of E3SM agree on a constant, so a model that uses a different
+value is the thing to fix, not the analysis.  TEOS-10 defines potential
+enthalpy with $c_p^0 = 3991.86795711963$ J kg⁻¹ K⁻¹, 0.1% lower; if E3SM adopts
+that constant, it belongs in the PCD, and the analysis picks it up from there.
 
-Polaris's Physical Constants Dictionary provides
-`seawater_specific_heat_capacity_reference` = 3996.0 J kg⁻¹ K⁻¹ and
-`seawater_density_reference` = 1026.0 kg m⁻³, which are the values
-MPAS-Analysis uses.  The specific heat capacity differs from the TEOS-10
-constant by 0.1%, which is small compared to other uncertainties but is a
-systematic offset in any comparison.
-
-**Decision:** Phase 1 uses the PCD value for $c_p^0$.  The TEOS-10 constant is
-not in the PCD today, and adding a constant to it is not something we can
-complete by September 15, so using the PCD is what keeps Polaris consistent
-with the constants the rest of E3SM is using in the meantime.  It is exposed as
-a config option so that a user can experiment with the TEOS-10 value without a
-code change.
-
-In the long run we do want $c_p^0$: because Omega carries conservative
-temperature, $c_p^0 \Theta$ is potential enthalpy per unit mass by definition,
-so the mass-weighted integral above is the heat content rather than an
-approximation to it.  Adding $c_p^0$ to the PCD and switching to it is recorded
-as a deferred item in {ref}`design-ocean-analysis`.
-
-**$\rho_0$ is not a free parameter.**  Unlike $c_p^0$, the reference density in
+**$\rho_0$ is not a free parameter.**  The reference density in
 the discrete sum is not a modeling choice we are making --- it is the constant
 that *defines* pseudo-height in Omega, and the Boussinesq reference density in
 MPAS-Ocean.  Using any other value would make $\rho_0 \tilde{h}$ something
@@ -1122,7 +1106,7 @@ open questions.
 
 ### Implementation: analysis-suite
 
-Date last modified: 2026/08/29
+Date last modified: 2026/10/26
 
 Contributors: Xylar Asay-Davis, Claude
 
@@ -1284,11 +1268,6 @@ mixed_layer_depth_threshold = 0.03
 # geometric elevations, matching the convention used by MPAS-Analysis and by
 # observational heat content products; the integral itself is mass-weighted.
 elevation_ranges = top:-700.0, -700.0:-2000.0, -2000.0:bottom, top:bottom
-
-# The specific heat capacity used to convert conservative temperature to heat
-# content.  By default, this comes from the Physical Constants Dictionary.
-# The reference density is not a config option; see the algorithm design.
-#seawater_specific_heat_capacity = 3996.0
 
 
 [ocean_analysis_time_series]
@@ -2468,7 +2447,7 @@ cannot mistake them for an in-situ diagnostic.
 
 ### Implementation: ocean-heat-content-maps
 
-Date last modified: 2026/08/25
+Date last modified: 2026/10/26
 
 Contributors: Xylar Asay-Davis, Claude
 
@@ -2477,7 +2456,7 @@ a step of their own.  The group differs from the others in two small ways, both
 of which the loop above already accommodates:
 
 - its field is derived rather than read, by
-  `heat_content(ds.temperature, weights, cp0)` where `weights` comes from
+  `heat_content(ds.temperature, weights)` where `weights` comes from
   `elevation_range_weights`, so the derivation happens inside the reduction
   loop rather than before it, since the weights depend on the range;
 - its vertical reductions are the configured elevation ranges rather than the
@@ -2566,7 +2545,7 @@ is what makes them.
 
 ### Implementation: ocean-heat-content-time-series
 
-Date last modified: 2026/08/25
+Date last modified: 2026/10/26
 
 Contributors: Xylar Asay-Davis, Claude
 
@@ -2583,7 +2562,7 @@ class HeatContentSeries(Accumulator):
         for z_top, z_bot in elevation_ranges:
             weights = elevation_range_weights(z_interface, layer_mass,
                                               k_min, k_max, z_top, z_bot)
-            column = heat_content(ds.temperature, weights, cp0)
+            column = heat_content(ds.temperature, weights)
             ohc.append((area_cell * column).sum('nCells'))
         return xr.merge(ohc)
 ```
@@ -3032,7 +3011,7 @@ If the offline fallback is implemented, unit tests on synthetic profiles:
 
 ### Testing and Validation: ocean-heat-content
 
-Date last modified: 2026/08/25
+Date last modified: 2026/10/26
 
 Contributors: Xylar Asay-Davis, Claude
 
@@ -3045,9 +3024,9 @@ than coincidentally pass:
 - for a range aligned with layer interfaces, the weights are exactly the layer
   masses $\rho_0 \tilde{h}_k$ in the range and zero outside;
 - for such a range, a constant temperature $\Theta_0$ gives heat content
-  exactly $\rho_0 c_p^0 \Theta_0 \Delta\tilde{z}$, where $\Delta\tilde{z}$ is
+  exactly $\rho_0 c_p \Theta_0 \Delta\tilde{z}$, where $\Delta\tilde{z}$ is
   the pseudo-thickness of the range --- *not* its geometric thickness;
-- the whole-column result equals $c_p^0 \sum_k \Theta_k \rho_0 \tilde{h}_k$ and
+- the whole-column result equals $c_p \sum_k \Theta_k \rho_0 \tilde{h}_k$ and
   is unchanged if the geometric interfaces are perturbed while pseudo-thickness
   is held fixed, which is the property that distinguishes the mass-weighted
   form from the geometric one;
@@ -3154,7 +3133,6 @@ They are collected here rather than buried in the sections above.*
 Two questions from earlier drafts are now settled and are recorded here so that
 they are not reopened by accident:
 
-- **Constants for heat content:** Phase 1 uses the PCD values, since adding
-  $c_p^0$ to the PCD cannot be completed by September 15.  Switching to the
-  TEOS-10 constant is a deferred item in {ref}`design-ocean-analysis`.
+- **Constants for heat content:** both come from the PCD, and neither is a
+  config option.
 - **Task granularity for ocean heat content:** one task, two steps.
