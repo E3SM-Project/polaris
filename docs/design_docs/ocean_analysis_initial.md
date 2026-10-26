@@ -436,13 +436,19 @@ Polaris shall reconstruct them from the normal velocity on edges.
 
 ### Requirement: ocean-heat-content-maps
 
-Date last modified: 2026/08/25
+Date last modified: 2026/10/26
 
 Contributors: Xylar Asay-Davis, Claude
 
 Polaris shall compute ocean heat content integrated over elevation ranges from
-a climatology of conservative temperature, and shall produce a global map for
-each elevation range and each requested season.
+a climatology of conservative temperature, and shall produce a global map of
+its change from the first monthly mean of the analyzed range for each
+elevation range and each requested season.
+
+Heat content itself is not mapped, since such a map mostly shows how deep each
+column is; its change shows where heat went.  The initial condition would be
+the better reference, since the first monthly mean depends on the range
+analyzed and already carries a month of adjustment, and is follow-up work.
 
 This is the elevation-range case of the vertical reduction required above, and
 is delivered as a field of the climatology maps rather than as a product of its
@@ -2452,8 +2458,8 @@ Date last modified: 2026/10/26
 Contributors: Xylar Asay-Davis, Claude
 
 Heat content maps are the `heat_content` field group of `ClimatologyMaps`, not
-a step of their own.  The group differs from the others in two small ways, both
-of which the loop above already accommodates:
+a step of their own.  The group differs from the others in three small ways,
+all of which the loop above already accommodates:
 
 - its field is derived rather than read, by
   `heat_content(ds.temperature, weights)` where `weights` comes from
@@ -2461,7 +2467,11 @@ of which the loop above already accommodates:
   loop rather than before it, since the weights depend on the range;
 - its vertical reductions are the configured elevation ranges rather than the
   configured elevations, and they are read from `[ocean_analysis_ohc]` rather
-  than from `[ocean_analysis_climatology]`.
+  than from `[ocean_analysis_climatology]`;
+- what it maps is the change in each range's heat content from the first
+  monthly mean of the range, which the step links at setup and integrates once
+  per run the same way as each season, so the two differ only in the state
+  they come from.
 
 The layer weights $\tilde{w}_k$ do depend on the range, so they are not shared
 between ranges --- but everything expensive is.  The climatology of $\Theta$,
@@ -2477,15 +2487,15 @@ values *are* the product.  The asymmetry is not an inconsistency --- it is the
 difference between wanting a seasonal mean, which the climatology already is,
 and wanting a time axis, which only a pass over every month can give.
 
-The result is written to netCDF in J m⁻² and plotted in GJ m⁻² --- a range of
-$0$ to $-700$ m at a typical 10 °C is about 29 GJ m⁻², which is a readable
-number.  Output names follow the same convention as the rest of the maps,
-`heat_content_<season>_<range_label>.png`, for example
-`heat_content_ANN_top_to_-700m.png` and
-`heat_content_ANN_-2000m_to_bottom.png`.  Plot
-titles state the elevation range and the season explicitly, and the netCDF
-carries the range as attributes, so that a plot cannot be mistaken for a
-different range.
+The result is written to netCDF in J m⁻² and plotted in GJ m⁻², the unit
+MPAS-Analysis maps its heat content anomaly in, with a diverging colormap.
+Output names follow the same convention as the rest of the maps,
+`heat_content_anomaly_<season>_<range_label>.png`, for example
+`heat_content_anomaly_ANN_top_to_-700m.png` and
+`heat_content_anomaly_ANN_-2000m_to_bottom.png`.  Plot titles state the
+reference, the elevation range and the season explicitly, and the netCDF
+carries the range and the reference month as attributes, so that a plot
+cannot be mistaken for a different one.
 
 ### Implementation: global-stats-time-series
 
@@ -3039,7 +3049,10 @@ than coincidentally pass:
 - the whole-ocean range equals the sum of a set of ranges that partition it,
   which is a useful invariant that also exercises the `bottom` keyword;
 - for a column entirely above $z_{top}$, the result is zero rather than `NaN`,
-  since a `NaN` here would poison the global sum.
+  since a `NaN` here would poison the global sum;
+- a map is the change from the first monthly mean: a first month uniformly
+  colder by $\Delta\Theta$ than a season gives $c_p \Delta\Theta$ times the
+  mass of the range.
 
 ### Testing and Validation: time series and MOC
 
