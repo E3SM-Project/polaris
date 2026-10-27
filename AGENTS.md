@@ -35,6 +35,19 @@ These instructions apply to the whole repository unless a deeper
   inputs, delete its `polaris_step_complete.log` first. Otherwise the
   run "succeeds" without running any of the new code.
 
+## Bugs outside the task
+
+- A bug that blocks the task is fixed as part of it, in a commit or branch
+  of its own, and only as far as the task needs. A workaround does not
+  make a blocker a non-blocker if the task's goal needs the feature that
+  fails.
+- Park any other bug, including a review finding the pull request did not
+  introduce, with `utils/bug_hunt/bug_hunt.py park`, and go back to the
+  task. Do not reproduce it, search for issues or fix it. Name it in one
+  line of your report.
+- If you cannot tell whether a bug blocks the task, ask.
+- `utils/bug_hunt/AGENTS.md` has the commands.
+
 ## Python style
 
 - Keep Python lines at 79 characters or fewer whenever possible.
