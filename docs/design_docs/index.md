@@ -5,6 +5,7 @@
 ```{toctree}
 :titlesonly: true
 
+bug_hunting
 global_ocean_forward
 global_ocean_init
 horiz_press_grad_reference
