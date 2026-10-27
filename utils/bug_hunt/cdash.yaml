@@ -1,0 +1,23 @@
+# The CDash builds the bug hunter harvests.  A build is recognized by its
+# name, which must match one of the patterns below in full, so that moving a
+# build to another group on CDash changes nothing.  "rows" lists the
+# <machine>/<compiler> rows that should report each night; "cron" means the
+# rows in cron-scripts/machines/*.cfg.
+project: omega
+builds:
+  # the CTests of Omega develop, from cron-scripts/tasks/omega_cdash.py
+  - name: 'unitest-develop-(?P<compiler>[\w-]+)'
+    source: ctest
+    omega: develop
+    rows: cron
+  # the omega_nightly suite with Polaris' Omega submodule, from
+  # cron-scripts/tasks/polaris_cdash.py
+  - name: 'polaris_omega_nightly-(?P<compiler>[\w-]+)'
+    source: polaris-nightly
+    omega: pin
+    rows: cron
+  # the e3sm_omega_developer suite of coupled tests, run by E3SM's Jenkins
+  - name: 'e3sm_omega_developer_develop_(?P<compiler>[\w-]+)'
+    source: coupled
+    omega: develop
+    rows: [chrysalis/gnu, chrysalis/intel, pm-cpu/gnu, pm-gpu/gnugpu]
