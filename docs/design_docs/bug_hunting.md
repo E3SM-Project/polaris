@@ -428,8 +428,10 @@ P4 findings are listed together, and one answer covers all of them:
 leave out. A finding that is not shown keeps its place for a later digest.
 A tracked bug appears, in one line, only when something about it has
 changed. Commenting on its issue is a decision like any other. Until every
-decision is answered, each of the agent's turns ends with the open ones
-again, never with a pointer to an earlier message.
+decision is answered, or the developer leaves the rest for later, each of
+the agent's turns ends with the open ones again, never with a pointer to an
+earlier message. Decisions left for later stay open in the ledger, and the
+next digest raises them again.
 
 ### Algorithm Design: Minor bugs are batched.
 
