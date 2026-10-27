@@ -1,0 +1,193 @@
+ocean:
+  time_management:
+    config_stop_time: none
+  time_integration:
+    config_time_integrator: {{ time_integrator }}
+  hmix_del2:
+    config_use_mom_del2: true
+    config_use_tracer_del2: false
+  hmix_del4:
+    config_use_mom_del4: true
+    config_use_tracer_del4: false
+  # background, convective and LMD94 shear mixing; KPP is off since there is
+  # no surface forcing
+  cvmix:
+    config_use_cvmix_kpp: false
+    config_use_cvmix_convection: true
+    config_cvmix_convective_diffusion: 1.0
+    config_cvmix_convective_triggerBVF: 0.0
+    config_use_cvmix_shear: true
+    config_cvmix_background_diffusion: 1.0e-5
+    config_cvmix_background_viscosity: 1.0e-5
+  advection:
+    config_horiz_tracer_adv_order: 3
+    config_vert_tracer_adv_flux_order: 3
+
+mpas-ocean:
+  io:
+    config_write_output_on_startup: false
+  bottom_drag:
+    config_bottom_drag_mode: implicit
+    config_implicit_bottom_drag_type: constant
+    config_implicit_constant_bottom_drag_coeff: 2.0e-3
+  # MPAS-Ocean-only cvmix options with no Omega equivalent
+  cvmix:
+    config_use_cvmix: true
+    config_cvmix_convective_viscosity: 1.0
+    config_cvmix_shear_mixing_scheme: KPP
+  debug:
+    config_check_ssh_consistency: false
+    config_disable_thick_sflux: true
+    config_disable_vel_surface_stress: true
+    config_disable_tr_sflux: true
+    config_disable_tr_nonlocalflux: true
+  streams:
+    restart:
+      filename_template: {{ restart_filename }}
+      filename_interval: output_interval
+      reference_time: {{ start_time }}
+      output_interval: {{ restart_interval }}
+    output:
+      type: output
+      filename_template: output.nc
+      output_interval: 0001_00:00:00
+      clobber_mode: truncate
+      contents:
+      - tracers
+      - xtime
+      - normalVelocity
+      - layerThickness
+      - ssh
+      - zMid
+      - density
+      - dThreshMLD
+{%- if mle %}
+      - normalMLEvelocity
+      - indMLD
+      - BruntVaisalaFreqTop
+{%- endif %}
+{%- if eddy_output %}
+    eddyOutput:
+      type: output
+      filename_template: eddy_output.nc
+      output_interval: {{ eddy_output_interval }}
+      clobber_mode: truncate
+      contents:
+      - tracers
+      - xtime
+      - normalVelocity
+      - layerThickness
+      - vertVelocityTop
+      - ssh
+      - zMid
+      - dThreshMLD
+{%- if mle %}
+      - normalMLEvelocity
+{%- endif %}
+{%- endif %}
+
+Omega:
+  Tendencies:
+    KPPNonLocalTracerFluxTendencyEnable: false
+    KPPNonLocalTracerDiagnosticsEnable: false
+    BottomDragTendency:
+      Enable: true
+      Mode: Implicit
+      Type: Constant
+      BottomDragCoeff: 2.0e-3
+  TimeIntegration:
+    StartType: {{ start_type }}
+  Eos:
+    EosType: linear
+  Tracers:
+    Base: [Temperature, Salinity]
+  IOStreams:
+    InitialVertCoord:
+      UsePointerFile: false
+      Filename: vert_coord.nc
+      Mode: read
+      Precision: double
+      Freq: 1
+      FreqUnits: OnStartup
+      UseStartEnd: false
+      Contents:
+      - InitVertCoord
+    InitialState:
+      UsePointerFile: false
+      Filename: init.nc
+      Mode: read
+      Precision: double
+      Freq: 1
+      FreqUnits: {{ init_freq }}
+      UseStartEnd: false
+      Contents:
+      - State
+      - Tracers
+    RestartRead:
+      UsePointerFile: false
+      Filename: {{ restart_filename }}
+      Mode: read
+      Precision: double
+      Freq: 1
+      FreqUnits: OnStartup
+      UseStartEnd: false
+      Contents:
+      - Restart
+    RestartWrite:
+      UsePointerFile: false
+      Filename: {{ restart_filename }}
+      Mode: write
+      IfExists: replace
+      Precision: double
+      Freq: {{ restart_freq }}
+      FreqUnits: {{ restart_freq_units }}
+      UseStartEnd: false
+      Contents:
+      - Restart
+    History:
+      UsePointerFile: false
+      Filename: output.nc
+      FileFreq: 9999
+      FileFreqUnits: Years
+      Mode: write
+      IfExists: append
+      Precision: double
+      Freq: 1
+      FreqUnits: days
+      UseStartEnd: false
+      Contents:
+      - State
+      - Tracers
+      - SpecVol
+      - GeomZMid
+      - SshCell
+      - VerticalPseudoVelocity
+      - DenMixLayerDepth
+{%- if mle %}
+      - EddyVelocity
+      - BruntVaisalaFreqSq
+{%- endif %}
+{%- if eddy_output %}
+    EddyOutput:
+      UsePointerFile: false
+      Filename: eddy_output.nc
+      FileFreq: 9999
+      FileFreqUnits: Years
+      Mode: write
+      IfExists: append
+      Precision: double
+      Freq: {{ eddy_output_freq }}
+      FreqUnits: hours
+      UseStartEnd: false
+      Contents:
+      - State
+      - Salinity
+      - SpecVol
+      - GeomZMid
+      - SshCell
+      - VerticalPseudoVelocity
+      - DenMixLayerDepth
+{%- if mle %}
+      - EddyVelocity
+{%- endif %}
+{%- endif %}
