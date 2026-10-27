@@ -1,0 +1,1216 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>polaris.tasks.ocean.mixed_layer_eddies.diagnostics</title>
+      <link rel="stylesheet" type="text/css" href="../../../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../../../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../../../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../../../_static/documentation_options.js?v=a8da1a53"></script>
+      <script src="../../../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script type="module">import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11.12.1/dist/mermaid.esm.min.mjs";
+
+
+
+
+
+const initStyles = () => {
+    const defaultStyle = document.createElement('style');
+    defaultStyle.textContent = "pre.mermaid {\n    /* Same as .mermaid-container > pre */\n    display: block;\n    width: 100%;\n}\n\npre.mermaid > svg {\n    /* Same as .mermaid-container > pre > svg */\n    height: 500px;\n    width: 100%;\n    max-width: 100% !important;\n}";
+    document.head.appendChild(defaultStyle);
+
+    const fullscreenStyle = document.createElement('style');
+    fullscreenStyle.textContent = ".mermaid-container {\n    position: relative;\n    display: flex;\n    flex-direction: row;\n    width: 100%;\n}\n\n.mermaid-container > pre {\n    display: block;\n    width: 100%;\n}\n\n.mermaid-container > pre > svg {\n    height: 500px;\n    width: 100%;\n    max-width: 100% !important;\n}\n\n.mermaid-fullscreen-btn {\n    position: absolute;\n    width: 28px;\n    height: 28px;\n    background: rgba(255, 255, 255, 0.95);\n    border: 1px solid rgba(0, 0, 0, 0.3);\n    border-radius: 4px;\n    cursor: pointer;\n    display: flex;\n    align-items: center;\n    justify-content: center;\n    transition: all 0.2s;\n    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);\n    font-size: 14px;\n    line-height: 1;\n    padding: 0;\n    color: #333;\n}\n\n.mermaid-fullscreen-btn:hover {\n    opacity: 100% !important;\n    background: rgba(255, 255, 255, 1);\n    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.3);\n    transform: scale(1.1);\n}\n\n.mermaid-fullscreen-btn.dark-theme {\n    background: rgba(50, 50, 50, 0.95);\n    border: 1px solid rgba(255, 255, 255, 0.3);\n    color: #e0e0e0;\n}\n\n.mermaid-fullscreen-btn.dark-theme:hover {\n    background: rgba(60, 60, 60, 1);\n    box-shadow: 0 3px 10px rgba(255, 255, 255, 0.2);\n}\n\n.mermaid-fullscreen-modal {\n    display: none;\n    position: fixed !important;\n    top: 0 !important;\n    left: 0 !important;\n    width: 95vw;\n    height: 100vh;\n    background: rgba(255, 255, 255, 0.98);\n    z-index: 9999;\n    padding: 20px;\n    overflow: auto;\n}\n\n.mermaid-fullscreen-modal.dark-theme {\n    background: rgba(0, 0, 0, 0.98);\n}\n\n.mermaid-fullscreen-modal.active {\n    display: flex;\n    align-items: center;\n    justify-content: center;\n}\n\n.mermaid-container-fullscreen {\n    position: relative;\n    width: 95vw;\n    height: 90vh;\n    max-width: 95vw;\n    max-height: 90vh;\n    background: white;\n    border-radius: 8px;\n    padding: 20px;\n    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);\n    overflow: auto;\n    display: flex;\n    align-items: center;\n    justify-content: center;\n}\n\n.mermaid-container-fullscreen.dark-theme {\n    background: #1a1a1a;\n    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.8);\n}\n\n.mermaid-container-fullscreen pre.mermaid {\n    width: 100%;\n    height: 100%;\n    display: flex;\n    align-items: center;\n    justify-content: center;\n}\n\n.mermaid-container-fullscreen .mermaid svg {\n    height: 100% !important;\n    width: 100% !important;\n    cursor: grab;\n}\n\n.mermaid-fullscreen-close {\n    position: fixed !important;\n    top: 20px !important;\n    right: 20px !important;\n    width: 40px;\n    height: 40px;\n    background: rgba(255, 255, 255, 0.95);\n    border: 1px solid rgba(0, 0, 0, 0.2);\n    border-radius: 50%;\n    cursor: pointer;\n    z-index: 10000;\n    display: flex;\n    align-items: center;\n    justify-content: center;\n    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);\n    transition: all 0.2s;\n    font-size: 24px;\n    line-height: 1;\n    color: #333;\n}\n\n.mermaid-fullscreen-close:hover {\n    background: white;\n    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);\n    transform: scale(1.1);\n}\n\n.mermaid-fullscreen-close.dark-theme {\n    background: rgba(50, 50, 50, 0.95);\n    border: 1px solid rgba(255, 255, 255, 0.2);\n    color: #e0e0e0;\n}\n\n.mermaid-fullscreen-close.dark-theme:hover {\n    background: rgba(60, 60, 60, 1);\n    box-shadow: 0 6px 16px rgba(255, 255, 255, 0.2);\n}\n\n.mermaid-fullscreen-modal .mermaid-fullscreen-btn {\n    display: none !important;\n}";
+    document.head.appendChild(fullscreenStyle);
+}
+
+// Detect if page has dark background
+const isDarkTheme = () => {
+    // We use a set of heuristics:
+    // 1. Check for common dark mode classes or attributes
+    // 2. Check computed background color brightness
+    if (document.documentElement.classList.contains('dark') ||
+        document.documentElement.getAttribute('data-theme') === 'dark' ||
+        document.body.classList.contains('dark') ||
+        document.body.getAttribute('data-theme') === 'dark') {
+        // console.log("Dark theme detected via class/attribute");
+        return true;
+    }
+    if (document.documentElement.classList.contains('light') ||
+        document.documentElement.getAttribute('data-theme') === 'light' ||
+        document.body.classList.contains('light') ||
+        document.body.getAttribute('data-theme') === 'light') {
+        // console.log("Light theme detected via class/attribute");
+        return false;
+    }
+    if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        // console.log("Dark theme detected via prefers-color-scheme");
+        return true;
+    }
+    const bgColor = window.getComputedStyle(document.body).backgroundColor;
+    const match = bgColor.match(/rgb\((\d+),\s*(\d+),\s*(\d+)/);
+    if (match) {
+        const r = parseInt(match[1]);
+        const g = parseInt(match[2]);
+        const b = parseInt(match[3]);
+        const brightness = (r * 299 + g * 587 + b * 114) / 1000;
+        // console.log("Background color brightness:", brightness);
+        return brightness < 128;
+    }
+    // console.log("No dark or light theme detected, defaulting to light theme");
+    return false;
+};
+
+let darkTheme = isDarkTheme();
+let modal = null;
+let modalContent = null;
+let previousScrollOffset = [window.scrollX, window.scrollY];
+let _lazyObserver = null;
+let _renderQueue = Promise.resolve();
+let closeModal = () => {};
+
+document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && modal?.classList.contains('active')) {
+        closeModal();
+    }
+});
+
+// Apply d3 zoom to each SVG. Idempotent: an SVG already wrapped is skipped,
+// so this is safe to call both for the initial batch and for diagrams that
+// render lazily once they become visible.
+const addZoomToSvgs = (svgs) => {
+    svgs.each(function() {
+        if (this.getAttribute('data-zoom-applied') === 'true') return;
+        var svg = d3.select(this);
+        svg.html("<g class='wrapper'>" + svg.html() + "</g>");
+        var inner = svg.select("g");
+        var zoom = d3.zoom().on("zoom", function(event) {
+            inner.attr("transform", event.transform);
+        });
+        svg.call(zoom);
+        this.setAttribute('data-zoom-applied', 'true');
+    });
+};
+
+const runMermaid = async (rerun) => {
+    console.log("Running mermaid diagrams, rerun =", rerun);
+    // clear all existing mermaid charts
+    let all_mermaids = document.querySelectorAll(".mermaid");
+
+    if (rerun) {
+        // Disconnect any previous lazy rendering observer
+        if (_lazyObserver) {
+            _lazyObserver.disconnect();
+            _lazyObserver = null;
+        }
+
+        all_mermaids.forEach((el) => {
+            el.removeAttribute('data-mermaid-deferred');
+            el.removeAttribute('data-mermaid-render-failed');
+            if(!el.hasAttribute("data-original-code")) {
+                // store original code
+                // console.log(`Storing original code for first run: `, el.innerHTML);
+                el.setAttribute('data-original-code', el.innerHTML);
+            }
+            if(el.getAttribute("data-processed") === "true") {
+                // remove and restore original
+                el.removeAttribute("data-processed");
+                // console.log(`Restoring original code for re-run: `, el.getAttribute('data-original-code'));
+                el.innerHTML = el.getAttribute('data-original-code');
+            } else {
+                // store original code
+                // console.log(`Storing original code for re-run: `, el.innerHTML);
+                el.setAttribute('data-original-code', el.innerHTML);
+            }
+        });
+
+        // Separate visible and hidden elements. Mermaid's layout engine measures
+        // text dimensions via the DOM, which fails for elements hidden by a parent
+        // (e.g., Reveal.js non-active slides, sphinx-design unopened tabs),
+        // producing broken SVGs. Render visible elements now, defer hidden ones.
+        const visible = [];
+        const hidden = [];
+        all_mermaids.forEach((el) => {
+            // offsetParent is null for display:none ancestors.
+            // getClientRects().length > 0 catches position:fixed elements
+            // (which also have null offsetParent but are still visible).
+            if (el.offsetParent !== null || el.getClientRects().length > 0) {
+                visible.push(el);
+            } else {
+                hidden.push(el);
+                el.setAttribute('data-mermaid-deferred', 'true');
+            }
+        });
+
+        if (visible.length > 0) {
+            try {
+                await mermaid.run({ nodes: visible });
+            } catch (e) {
+                console.error("Mermaid rendering failed:", e);
+            }
+        }
+
+        // Lazily render hidden elements when they become visible.
+        // Uses a promise chain (_renderQueue) to serialize rendering,
+        // since IntersectionObserver may report multiple entries at once
+        // and mermaid.run() is not safe to call concurrently.
+        if (hidden.length > 0) {
+            if (typeof IntersectionObserver === 'undefined') {
+                console.warn("IntersectionObserver not available; hidden mermaid diagrams will not render.");
+            } else {
+                _renderQueue = Promise.resolve();
+                _lazyObserver = new IntersectionObserver((entries) => {
+                    for (const entry of entries) {
+                        if (entry.isIntersecting && entry.target.getAttribute("data-processed") !== "true") {
+                            _lazyObserver.unobserve(entry.target);
+                            const el = entry.target;
+                            _renderQueue = _renderQueue.then(async () => {
+                                try {
+                                    await mermaid.run({ nodes: [el] });
+                                    el.removeAttribute('data-mermaid-deferred');
+                                    // Apply zoom to the now-rendered diagram, matching
+                                    // the decoration visible diagrams receive.
+                                    if (false) {
+                                        addZoomToSvgs(d3.selectAll("").select(function() {
+                                            return this.querySelector("svg");
+                                        }));
+                                    }
+                                } catch (e) {
+                                    console.error("Mermaid deferred rendering failed:", e);
+                                    el.removeAttribute('data-mermaid-deferred');
+                                    el.setAttribute('data-mermaid-render-failed', 'true');
+                                }
+                            });
+                        }
+                    }
+                });
+                hidden.forEach((el) => _lazyObserver.observe(el));
+            }
+        }
+    }
+
+    all_mermaids = document.querySelectorAll(".mermaid");
+    // Exclude deferred (hidden) and render-failed elements from completion checks
+    const mermaids_active = document.querySelectorAll(".mermaid:not([data-mermaid-deferred]):not([data-mermaid-render-failed])");
+    const mermaids_processed = document.querySelectorAll(".mermaid:not([data-mermaid-deferred]):not([data-mermaid-render-failed])[data-processed='true']");
+
+    if (false) {
+        const mermaids_to_add_zoom = 0 === -1 ? mermaids_active.length : 0;
+        if(mermaids_to_add_zoom > 0) {
+            var svgs = d3.selectAll("").select(function() {
+                return this.querySelector("svg");
+            });
+            // Wait until every active (visible) diagram has rendered. Deferred
+            // diagrams are excluded, so a fixed d3_node_count that counts a
+            // hidden diagram no longer loops forever waiting for its SVG.
+            if(mermaids_active.length !== mermaids_processed.length) {
+                setTimeout(() => runMermaid(false), 200);
+                return;
+            }
+            addZoomToSvgs(svgs);
+        }
+    } else if(mermaids_active.length !== mermaids_processed.length) {
+        // Wait for mermaid to process all diagrams
+        setTimeout(() => runMermaid(false), 200);
+        return;
+    }
+
+    // Stop here if not adding fullscreen capability
+    if (!true) return;
+
+    if (modal !== null ) {
+        // Destroy existing modal
+        modal.remove();
+        modal = null;
+        modalContent = null;
+    }
+
+    modal = document.createElement('div');
+    modal.className = 'mermaid-fullscreen-modal' + (darkTheme ? ' dark-theme' : '');
+    modal.setAttribute('role', 'dialog');
+    modal.setAttribute('aria-modal', 'true');
+    modal.setAttribute('aria-label', 'Fullscreen diagram viewer');
+    modal.innerHTML = `
+        <button class="mermaid-fullscreen-close${darkTheme ? ' dark-theme' : ''}" aria-label="Close fullscreen">✕</button>
+        <div class="mermaid-container-fullscreen${darkTheme ? ' dark-theme' : ''}"></div>
+    `;
+    document.body.appendChild(modal);
+
+    modalContent = modal.querySelector('.mermaid-container-fullscreen');
+    const closeBtn = modal.querySelector('.mermaid-fullscreen-close');
+
+    closeModal = () => {
+        modal.classList.remove('active');
+        modalContent.innerHTML = '';
+        document.body.style.overflow = ''
+        window.scrollTo({left: previousScrollOffset[0], top: previousScrollOffset[1], behavior: 'instant'});
+    };
+
+    closeBtn.addEventListener('click', closeModal);
+    modal.addEventListener('click', (e) => {
+        if (e.target === modal) closeModal();
+    });
+    document.querySelectorAll('.mermaid').forEach((mermaidDiv) => {
+        if (mermaidDiv.parentNode.classList.contains('mermaid-container') ||
+            mermaidDiv.closest('.mermaid-fullscreen-modal')) {
+            // Already processed, adjust button class if needed
+            const existingBtn = mermaidDiv.parentNode.querySelector('.mermaid-fullscreen-btn');
+            if (existingBtn) {
+                existingBtn.className = 'mermaid-fullscreen-btn' + (darkTheme ? ' dark-theme' : '');
+            }
+            return;
+        }
+
+        const container = document.createElement('div');
+        container.className = 'mermaid-container';
+        mermaidDiv.parentNode.insertBefore(container, mermaidDiv);
+        container.appendChild(mermaidDiv);
+
+        const fullscreenBtn = document.createElement('button');
+        fullscreenBtn.className = 'mermaid-fullscreen-btn' + (darkTheme ? ' dark-theme' : '');
+        fullscreenBtn.setAttribute('aria-label', 'View diagram in fullscreen');
+        fullscreenBtn.textContent = "\u26f6";
+        fullscreenBtn.style.opacity = "50%";
+
+        // Calculate dynamic position based on diagram's margin and padding
+        const diagramStyle = window.getComputedStyle(mermaidDiv);
+        const marginTop = parseFloat(diagramStyle.marginTop) || 0;
+        const marginRight = parseFloat(diagramStyle.marginRight) || 0;
+        const paddingTop = parseFloat(diagramStyle.paddingTop) || 0;
+        const paddingRight = parseFloat(diagramStyle.paddingRight) || 0;
+        fullscreenBtn.style.top = `${marginTop + paddingTop + 4}px`;
+        fullscreenBtn.style.right = `${marginRight + paddingRight + 4}px`;
+
+        fullscreenBtn.addEventListener('click', () => {
+            previousScrollOffset = [window.scrollX, window.scrollY];
+            const clone = mermaidDiv.cloneNode(true);
+            modalContent.innerHTML = '';
+            modalContent.appendChild(clone);
+
+            const svg = clone.querySelector('svg');
+            if (svg) {
+                svg.removeAttribute('width');
+                svg.removeAttribute('height');
+                svg.style.width = '100%';
+                svg.style.height = 'auto';
+                svg.style.maxWidth = '100%';
+                svg.style.display = 'block';
+
+                if (false) {
+                    setTimeout(() => {
+                        const g = svg.querySelector('g');
+                        if (g) {
+                            var svgD3 = d3.select(svg);
+                            svgD3.html("<g class='wrapper'>" + svgD3.html() + "</g>");
+                            var inner = svgD3.select("g");
+                            var zoom = d3.zoom().on("zoom", function(event) {
+                                inner.attr("transform", event.transform);
+                            });
+                            svgD3.call(zoom);
+                        }
+                    }, 100);
+                }
+            }
+
+            modal.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        });
+        container.appendChild(fullscreenBtn);
+    });
+};
+
+
+
+const load = async () => {
+    initStyles();
+
+
+    await runMermaid(true);
+
+    const reRunIfThemeChanges = async () => {
+        const newDarkTheme = isDarkTheme();
+        if (newDarkTheme !== darkTheme) {
+            darkTheme = newDarkTheme;
+            console.log("Theme change detected, re-running mermaid with", darkTheme ? "dark" : "default", "theme");
+            await mermaid.initialize(
+                {...{"startOnLoad": false},
+                ...{ darkMode: darkTheme, theme: darkTheme ? "dark" : "default" },
+                }
+            );
+            await runMermaid(true);
+        }
+    };
+
+    // Update theme classes when theme changes
+    const themeObserver = new MutationObserver(reRunIfThemeChanges);
+    themeObserver.observe(document.documentElement, {
+        attributes: true,
+        attributeFilter: ['class', 'style', 'data-theme']
+    });
+    themeObserver.observe(document.body, {
+        attributes: true,
+        attributeFilter: ['class', 'style', 'data-theme']
+    });
+};
+
+
+
+
+
+console.log("Initializing mermaid with", darkTheme ? "dark" : "default", "theme");
+mermaid.initialize(
+    {...{"startOnLoad": false},
+    ...{ darkMode: darkTheme, theme: darkTheme ? "dark" : "default" },
+    }
+);
+
+window.addEventListener("load", load);
+window.runMermaid = runMermaid;</script>
+    <script src="../../../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../../search.html" />
+    <link href="../../../../../_static/style.css" rel="stylesheet" type="text/css">
+
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../../../index.html" class="icon icon-home">
+            Polaris
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">User's guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../users_guide/quick_start.html">Quick Start for Users</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../users_guide/tasks.html">Tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../users_guide/config_files.html">Config Files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../users_guide/suites.html">Suites</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../users_guide/mesh/index.html">Mesh component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../users_guide/e3sm/init/index.html">E3SM Initial Condition Component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../users_guide/ocean/index.html">Ocean component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../users_guide/seaice/index.html">Sea ice component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../users_guide/machines/index.html">Machines</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Developer's guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../developers_guide/quick_start.html">Quick Start for Developers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../developers_guide/overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../developers_guide/command_line.html">Command-line interface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../developers_guide/organization/index.html">Organization of Tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../developers_guide/e3sm/init/index.html">E3SM initial condition (e3sm/init) component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../developers_guide/mesh/index.html">Mesh component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../developers_guide/ocean/index.html">Ocean component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../developers_guide/seaice/index.html">Sea ice component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../developers_guide/framework/index.html">Framework</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../developers_guide/machines/index.html">Machines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../developers_guide/benchmarking.html">Benchmarking a branch against a baseline</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../developers_guide/omega_pr_testing.html">Testing an Omega pull request</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../developers_guide/troubleshooting.html">Troubleshooting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../developers_guide/docs.html">Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../developers_guide/building_docs.html">Building the Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../developers_guide/building_docs.html#previewing-the-documentation">Previewing the Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../developers_guide/conda_vs_spack.html">How Conda and Spack Work Together in Polaris</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../developers_guide/updating_conda.html">Updating Deployment Dependencies</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../developers_guide/updating_spack/index.html">Updating Shared Spack Environments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../developers_guide/api.html">API reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../design_docs/index.html">Design Documents</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../tutorials/dev_add_category_of_tasks/index.html">Developer Tutorial: Adding a New Category of Tasks</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Glossary</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../glossary.html">Glossary</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../../index.html">Polaris</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../../../index.html">Module code</a></li>
+          <li class="breadcrumb-item"><a href="../../ocean.html">polaris.tasks.ocean</a></li>
+          <li class="breadcrumb-item"><a href="../mixed_layer_eddies.html">polaris.tasks.ocean.mixed_layer_eddies</a></li>
+      <li class="breadcrumb-item active">polaris.tasks.ocean.mixed_layer_eddies.diagnostics</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for polaris.tasks.ocean.mixed_layer_eddies.diagnostics</h1><div class="highlight"><pre>
+<span></span><span class="sd">"""</span>
+<span class="sd">Diagnostics of the mixed-layer eddies tasks, shared by their analysis steps.</span>
+
+<span class="sd">Fields are read with MPAS-Ocean names, so one code path serves both</span>
+<span class="sd">models.  Transports use the flux thickness of each model's continuity</span>
+<span class="sd">equation: Omega's pseudo-thickness and MPAS-Ocean's layer thickness.</span>
+<span class="sd">Depths and densities are geometric.  The salinity-only linear equation of</span>
+<span class="sd">state makes density, and therefore buoyancy, a function of salinity alone.</span>
+<span class="sd">"""</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">xarray</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">xr</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.constants</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_constant</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.ocean.eos</span><span class="w"> </span><span class="kn">import</span> <span class="n">compute_density</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.ocean.overturning</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">bin_line_transport</span><span class="p">,</span>
+    <span class="n">compute_line_transport</span><span class="p">,</span>
+    <span class="n">compute_overturning</span><span class="p">,</span>
+    <span class="n">get_line_edges</span><span class="p">,</span>
+    <span class="n">interp_cell_to_line_edges</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.ocean.vertical.ztilde</span><span class="w"> </span><span class="kn">import</span> <span class="n">RhoSw</span>
+
+<span class="n">Gravity</span> <span class="o">=</span> <span class="n">get_constant</span><span class="p">(</span><span class="s1">'standard_acceleration_of_gravity'</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="get_frontal_lines">
+<a class="viewcode-back" href="../../../../../developers_guide/ocean/generated/polaris.tasks.ocean.mixed_layer_eddies.diagnostics.get_frontal_lines.html#polaris.tasks.ocean.mixed_layer_eddies.diagnostics.get_frontal_lines">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_frontal_lines</span><span class="p">(</span><span class="n">ds_mesh</span><span class="p">,</span> <span class="n">frontal_zone_fraction</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Get the lines of constant y between rows of cells in the frontal zone</span>
+<span class="sd">    around ``y = L_y / 2``</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    ds_mesh : xarray.Dataset</span>
+<span class="sd">        The horizontal mesh</span>
+
+<span class="sd">    frontal_zone_fraction : float</span>
+<span class="sd">        The half-width of the frontal zone as a fraction of ``L_y``</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    lines : list of xarray.Dataset</span>
+<span class="sd">        The lines from :py:func:`polaris.ocean.overturning.get_line_edges`</span>
+<span class="sd">    """</span>
+    <span class="n">y_period</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">ds_mesh</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">'y_period'</span><span class="p">])</span>
+    <span class="n">rows</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="n">ds_mesh</span><span class="o">.</span><span class="n">yCell</span><span class="o">.</span><span class="n">values</span><span class="p">,</span> <span class="mi">3</span><span class="p">))</span>
+    <span class="n">y_lines</span> <span class="o">=</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="p">(</span><span class="n">rows</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">rows</span><span class="p">[</span><span class="mi">1</span><span class="p">:])</span>
+    <span class="n">half_width</span> <span class="o">=</span> <span class="n">frontal_zone_fraction</span> <span class="o">*</span> <span class="n">y_period</span>
+    <span class="n">in_zone</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">y_lines</span> <span class="o">-</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="n">y_period</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">half_width</span>
+    <span class="k">return</span> <span class="p">[</span><span class="n">get_line_edges</span><span class="p">(</span><span class="n">ds_mesh</span><span class="p">,</span> <span class="s1">'y'</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span> <span class="k">for</span> <span class="n">y</span> <span class="ow">in</span> <span class="n">y_lines</span><span class="p">[</span><span class="n">in_zone</span><span class="p">]]</span></div>
+
+
+
+<div class="viewcode-block" id="get_frontal_cell_mask">
+<a class="viewcode-back" href="../../../../../developers_guide/ocean/generated/polaris.tasks.ocean.mixed_layer_eddies.diagnostics.get_frontal_cell_mask.html#polaris.tasks.ocean.mixed_layer_eddies.diagnostics.get_frontal_cell_mask">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_frontal_cell_mask</span><span class="p">(</span><span class="n">ds_mesh</span><span class="p">,</span> <span class="n">frontal_zone_fraction</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Get a mask of the cells in the frontal zone around ``y = L_y / 2``</span>
+<span class="sd">    """</span>
+    <span class="n">y_period</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">ds_mesh</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">'y_period'</span><span class="p">])</span>
+    <span class="n">half_width</span> <span class="o">=</span> <span class="n">frontal_zone_fraction</span> <span class="o">*</span> <span class="n">y_period</span>
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">ds_mesh</span><span class="o">.</span><span class="n">yCell</span> <span class="o">-</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="n">y_period</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">half_width</span></div>
+
+
+
+<div class="viewcode-block" id="get_flux_thickness">
+<a class="viewcode-back" href="../../../../../developers_guide/ocean/generated/polaris.tasks.ocean.mixed_layer_eddies.diagnostics.get_flux_thickness.html#polaris.tasks.ocean.mixed_layer_eddies.diagnostics.get_flux_thickness">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_flux_thickness</span><span class="p">(</span><span class="n">ds</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Get the thickness that multiplies velocity in the model's continuity</span>
+<span class="sd">    equation: ``PseudoThickness`` for Omega, ``layerThickness`` for</span>
+<span class="sd">    MPAS-Ocean</span>
+<span class="sd">    """</span>
+    <span class="k">if</span> <span class="s1">'PseudoThickness'</span> <span class="ow">in</span> <span class="n">ds</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">ds</span><span class="o">.</span><span class="n">PseudoThickness</span>
+    <span class="k">return</span> <span class="n">ds</span><span class="o">.</span><span class="n">layerThickness</span></div>
+
+
+
+<div class="viewcode-block" id="get_density">
+<a class="viewcode-back" href="../../../../../developers_guide/ocean/generated/polaris.tasks.ocean.mixed_layer_eddies.diagnostics.get_density.html#polaris.tasks.ocean.mixed_layer_eddies.diagnostics.get_density">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_density</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">ds</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Compute the density from the tracers with the configured equation of</span>
+<span class="sd">    state.  Temperature does not affect density in these tasks, so the</span>
+<span class="sd">    configured constant stands in for it where output omits it.</span>
+<span class="sd">    """</span>
+    <span class="k">if</span> <span class="s1">'temperature'</span> <span class="ow">in</span> <span class="n">ds</span><span class="p">:</span>
+        <span class="n">temperature</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">temperature</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">temperature</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">'mixed_layer_eddies'</span><span class="p">,</span> <span class="s1">'temperature'</span><span class="p">)</span>
+    <span class="n">density</span> <span class="o">=</span> <span class="n">compute_density</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">temperature</span><span class="p">,</span> <span class="n">ds</span><span class="o">.</span><span class="n">salinity</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">density</span><span class="p">,</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">density</span></div>
+
+
+
+<div class="viewcode-block" id="get_geom_thickness">
+<a class="viewcode-back" href="../../../../../developers_guide/ocean/generated/polaris.tasks.ocean.mixed_layer_eddies.diagnostics.get_geom_thickness.html#polaris.tasks.ocean.mixed_layer_eddies.diagnostics.get_geom_thickness">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_geom_thickness</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">ds</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Get the geometric layer thickness, converting Omega's pseudo-thickness</span>
+<span class="sd">    with the density of each layer if need be</span>
+<span class="sd">    """</span>
+    <span class="k">if</span> <span class="s1">'layerThickness'</span> <span class="ow">in</span> <span class="n">ds</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">ds</span><span class="o">.</span><span class="n">layerThickness</span>
+    <span class="k">return</span> <span class="n">ds</span><span class="o">.</span><span class="n">PseudoThickness</span> <span class="o">*</span> <span class="n">RhoSw</span> <span class="o">/</span> <span class="n">get_density</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">ds</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="get_z_mid">
+<a class="viewcode-back" href="../../../../../developers_guide/ocean/generated/polaris.tasks.ocean.mixed_layer_eddies.diagnostics.get_z_mid.html#polaris.tasks.ocean.mixed_layer_eddies.diagnostics.get_z_mid">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_z_mid</span><span class="p">(</span><span class="n">layer_thickness</span><span class="p">,</span> <span class="n">vert_dim</span><span class="o">=</span><span class="s1">'nVertLevels'</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Get the geometric heights of layer midpoints relative to the sea</span>
+<span class="sd">    surface from the geometric layer thicknesses</span>
+<span class="sd">    """</span>
+    <span class="n">z_bot</span> <span class="o">=</span> <span class="o">-</span><span class="n">layer_thickness</span><span class="o">.</span><span class="n">cumsum</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="n">vert_dim</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">z_bot</span> <span class="o">+</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="n">layer_thickness</span></div>
+
+
+
+<div class="viewcode-block" id="compute_mu">
+<a class="viewcode-back" href="../../../../../developers_guide/ocean/generated/polaris.tasks.ocean.mixed_layer_eddies.diagnostics.compute_mu.html#polaris.tasks.ocean.mixed_layer_eddies.diagnostics.compute_mu">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">compute_mu</span><span class="p">(</span><span class="n">z</span><span class="p">,</span> <span class="n">ml_depth</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Compute the vertical structure function of Fox-Kemper et al. (2008),</span>
+<span class="sd">    zero below the mixed layer</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    z : numpy.ndarray or xarray.DataArray</span>
+<span class="sd">        Heights (m, negative) relative to the sea surface</span>
+
+<span class="sd">    ml_depth : float or numpy.ndarray or xarray.DataArray</span>
+<span class="sd">        The mixed-layer depth H (m, positive)</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    mu : numpy.ndarray or xarray.DataArray</span>
+<span class="sd">        The structure function, with a maximum of 1 at ``z = -H/2``</span>
+<span class="sd">    """</span>
+    <span class="n">zeta</span> <span class="o">=</span> <span class="mf">2.0</span> <span class="o">*</span> <span class="n">z</span> <span class="o">/</span> <span class="n">ml_depth</span> <span class="o">+</span> <span class="mf">1.0</span>
+    <span class="n">mu</span> <span class="o">=</span> <span class="p">(</span><span class="mf">1.0</span> <span class="o">-</span> <span class="n">zeta</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="mf">1.0</span> <span class="o">+</span> <span class="p">(</span><span class="mf">5.0</span> <span class="o">/</span> <span class="mf">21.0</span><span class="p">)</span> <span class="o">*</span> <span class="n">zeta</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">maximum</span><span class="p">(</span><span class="n">mu</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="compute_buoyancy_gradient">
+<a class="viewcode-back" href="../../../../../developers_guide/ocean/generated/polaris.tasks.ocean.mixed_layer_eddies.diagnostics.compute_buoyancy_gradient.html#polaris.tasks.ocean.mixed_layer_eddies.diagnostics.compute_buoyancy_gradient">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">compute_buoyancy_gradient</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">ds_mesh</span><span class="p">,</span> <span class="n">ds</span><span class="p">,</span> <span class="n">cell_mask</span><span class="p">,</span> <span class="n">ml_depth</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Compute the mixed-layer mean cross-front buoyancy gradient from</span>
+<span class="sd">    differences of area-weighted means over y-bands one row of cells wide</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    config : polaris.config.PolarisConfigParser</span>
+<span class="sd">        Config options</span>
+
+<span class="sd">    ds_mesh : xarray.Dataset</span>
+<span class="sd">        The horizontal mesh</span>
+
+<span class="sd">    ds : xarray.Dataset</span>
+<span class="sd">        Model output with tracers and a thickness, with or without ``Time``</span>
+
+<span class="sd">    cell_mask : xarray.DataArray</span>
+<span class="sd">        The cells whose bands contribute to the mean gradient</span>
+
+<span class="sd">    ml_depth : float</span>
+<span class="sd">        The depth of the mixed layer (m)</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    buoyancy_gradient : xarray.DataArray</span>
+<span class="sd">        The mean gradient (s-2), with ``Time`` if ``ds`` has it</span>
+<span class="sd">    """</span>
+    <span class="n">density</span> <span class="o">=</span> <span class="n">get_density</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">ds</span><span class="p">)</span>
+    <span class="n">thickness</span> <span class="o">=</span> <span class="n">get_geom_thickness</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">ds</span><span class="p">)</span>
+    <span class="n">z_mid</span> <span class="o">=</span> <span class="n">get_z_mid</span><span class="p">(</span><span class="n">thickness</span><span class="p">)</span>
+    <span class="n">in_ml</span> <span class="o">=</span> <span class="n">z_mid</span> <span class="o">&gt;</span> <span class="o">-</span><span class="n">ml_depth</span>
+    <span class="n">weights</span> <span class="o">=</span> <span class="p">(</span><span class="n">thickness</span> <span class="o">*</span> <span class="n">ds_mesh</span><span class="o">.</span><span class="n">areaCell</span><span class="p">)</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">in_ml</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">)</span>
+    <span class="n">buoyancy</span> <span class="o">=</span> <span class="o">-</span><span class="n">Gravity</span> <span class="o">*</span> <span class="p">(</span><span class="n">density</span> <span class="o">-</span> <span class="n">RhoSw</span><span class="p">)</span> <span class="o">/</span> <span class="n">RhoSw</span>
+
+    <span class="n">rows</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="n">ds_mesh</span><span class="o">.</span><span class="n">yCell</span><span class="o">.</span><span class="n">values</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+    <span class="n">row_values</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">rows</span><span class="p">)</span>
+    <span class="n">row_index</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">(</span>
+        <span class="n">np</span><span class="o">.</span><span class="n">searchsorted</span><span class="p">(</span><span class="n">row_values</span><span class="p">,</span> <span class="n">rows</span><span class="p">),</span> <span class="n">dims</span><span class="o">=</span><span class="p">(</span><span class="s1">'nCells'</span><span class="p">,),</span> <span class="n">name</span><span class="o">=</span><span class="s1">'nRows'</span>
+    <span class="p">)</span>
+    <span class="n">weighted</span> <span class="o">=</span> <span class="p">(</span><span class="n">buoyancy</span> <span class="o">*</span> <span class="n">weights</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="s1">'nVertLevels'</span><span class="p">)</span>
+    <span class="n">total</span> <span class="o">=</span> <span class="n">weights</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="s1">'nVertLevels'</span><span class="p">)</span>
+    <span class="n">band_buoyancy</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">weighted</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="n">row_index</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span> <span class="o">/</span> <span class="n">total</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="n">row_index</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+    <span class="p">)</span>
+
+    <span class="n">gradient</span> <span class="o">=</span> <span class="n">band_buoyancy</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="s1">'nRows'</span><span class="p">)</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">row_values</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
+    <span class="n">mask_rows</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">rows</span><span class="p">[</span><span class="n">cell_mask</span><span class="o">.</span><span class="n">values</span><span class="p">])</span>
+    <span class="n">in_zone</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">row_values</span><span class="p">[</span><span class="mi">1</span><span class="p">:],</span> <span class="n">mask_rows</span><span class="p">)</span> <span class="o">&amp;</span> <span class="n">np</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span>
+        <span class="n">row_values</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">mask_rows</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">gradient</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span><span class="n">nRows</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">flatnonzero</span><span class="p">(</span><span class="n">in_zone</span><span class="p">))</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="s1">'nRows'</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="compute_line_overturning">
+<a class="viewcode-back" href="../../../../../developers_guide/ocean/generated/polaris.tasks.ocean.mixed_layer_eddies.diagnostics.compute_line_overturning.html#polaris.tasks.ocean.mixed_layer_eddies.diagnostics.compute_line_overturning">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">compute_line_overturning</span><span class="p">(</span><span class="n">lines</span><span class="p">,</span> <span class="n">normal_velocity</span><span class="p">,</span> <span class="n">flux_thickness</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Compute the overturning stream function per unit length along each line,</span>
+<span class="sd">    at layer interfaces</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    overturning : xarray.DataArray</span>
+<span class="sd">        The stream function (m2 s-1) with dimension ``nLines`` added</span>
+<span class="sd">    """</span>
+    <span class="n">psi</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">lines</span><span class="p">:</span>
+        <span class="n">transport</span> <span class="o">=</span> <span class="n">compute_line_transport</span><span class="p">(</span>
+            <span class="n">line</span><span class="p">,</span> <span class="n">normal_velocity</span><span class="p">,</span> <span class="n">flux_thickness</span>
+        <span class="p">)</span>
+        <span class="n">psi</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">compute_overturning</span><span class="p">(</span><span class="n">transport</span><span class="p">)</span> <span class="o">/</span> <span class="n">line</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">'length'</span><span class="p">])</span>
+    <span class="k">return</span> <span class="n">xr</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">psi</span><span class="p">,</span> <span class="n">dim</span><span class="o">=</span><span class="s1">'nLines'</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="compute_line_interface_depths">
+<a class="viewcode-back" href="../../../../../developers_guide/ocean/generated/polaris.tasks.ocean.mixed_layer_eddies.diagnostics.compute_line_interface_depths.html#polaris.tasks.ocean.mixed_layer_eddies.diagnostics.compute_line_interface_depths">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">compute_line_interface_depths</span><span class="p">(</span><span class="n">lines</span><span class="p">,</span> <span class="n">geom_thickness</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Compute the along-line mean geometric depths of the layer interfaces of</span>
+<span class="sd">    each line, relative to the sea surface</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    z_interface : xarray.DataArray</span>
+<span class="sd">        Heights (m, negative) with dimensions ``nLines`` and</span>
+<span class="sd">        ``nVertLevelsP1`` (and any others of ``geom_thickness``)</span>
+<span class="sd">    """</span>
+    <span class="n">z_inter</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">lines</span><span class="p">:</span>
+        <span class="n">thickness</span> <span class="o">=</span> <span class="n">interp_cell_to_line_edges</span><span class="p">(</span><span class="n">line</span><span class="p">,</span> <span class="n">geom_thickness</span><span class="p">)</span>
+        <span class="n">mean_thickness</span> <span class="o">=</span> <span class="p">(</span><span class="n">thickness</span> <span class="o">*</span> <span class="n">line</span><span class="o">.</span><span class="n">weight</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span>
+            <span class="n">dim</span><span class="o">=</span><span class="s1">'nLineEdges'</span>
+        <span class="p">)</span> <span class="o">/</span> <span class="n">line</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">'length'</span><span class="p">]</span>
+        <span class="n">z_inter</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">_interfaces_from_thickness</span><span class="p">(</span><span class="n">mean_thickness</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">xr</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">z_inter</span><span class="p">,</span> <span class="n">dim</span><span class="o">=</span><span class="s1">'nLines'</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="compute_eddy_overturning">
+<a class="viewcode-back" href="../../../../../developers_guide/ocean/generated/polaris.tasks.ocean.mixed_layer_eddies.diagnostics.compute_eddy_overturning.html#polaris.tasks.ocean.mixed_layer_eddies.diagnostics.compute_eddy_overturning">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">compute_eddy_overturning</span><span class="p">(</span><span class="n">lines</span><span class="p">,</span> <span class="n">snapshots</span><span class="p">,</span> <span class="n">bins</span><span class="p">,</span> <span class="n">config</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Compute the eddy overturning along each line in the thickness-weighted,</span>
+<span class="sd">    salinity-binned framework of Shrestha &amp; Manucharyan (2022): the</span>
+<span class="sd">    residual overturning in salinity classes minus the Eulerian-mean</span>
+<span class="sd">    overturning at the mean depth of each class (Abernathey et al. 2011),</span>
+<span class="sd">    both averaged over the snapshots</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    lines : list of xarray.Dataset</span>
+<span class="sd">        The lines from :py:func:`get_frontal_lines`</span>
+
+<span class="sd">    snapshots : iterable of xarray.Dataset</span>
+<span class="sd">        Model output at each time, with ``normalVelocity``, ``salinity``,</span>
+<span class="sd">        ``temperature`` and a thickness</span>
+
+<span class="sd">    bins : numpy.ndarray</span>
+<span class="sd">        The boundaries of the salinity classes, increasing</span>
+
+<span class="sd">    config : polaris.config.PolarisConfigParser</span>
+<span class="sd">        Config options, for the equation of state</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    ds_eddy : xarray.Dataset</span>
+<span class="sd">        A dataset with dimensions ``nLines`` and ``nBinsP1`` (salinity class</span>
+<span class="sd">        boundaries) containing ``psiResidual``, ``psiEulerian`` and</span>
+<span class="sd">        ``psiEddy`` (m2 s-1) and ``zClass``, the mean depth of each class</span>
+<span class="sd">        boundary (m)</span>
+<span class="sd">    """</span>
+    <span class="n">nlines</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">lines</span><span class="p">)</span>
+    <span class="n">nbins</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">bins</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span>
+    <span class="n">transport_sum</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">nlines</span><span class="p">,</span> <span class="n">nbins</span><span class="p">))</span>
+    <span class="n">class_thickness_sum</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">nlines</span><span class="p">,</span> <span class="n">nbins</span><span class="p">))</span>
+    <span class="n">psi_eul_sum</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">z_inter_sum</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">count</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">for</span> <span class="n">ds</span> <span class="ow">in</span> <span class="n">snapshots</span><span class="p">:</span>
+        <span class="n">flux_thickness</span> <span class="o">=</span> <span class="n">get_flux_thickness</span><span class="p">(</span><span class="n">ds</span><span class="p">)</span>
+        <span class="n">geom_thickness</span> <span class="o">=</span> <span class="n">get_geom_thickness</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">ds</span><span class="p">)</span>
+        <span class="n">z_inter</span> <span class="o">=</span> <span class="n">compute_line_interface_depths</span><span class="p">(</span><span class="n">lines</span><span class="p">,</span> <span class="n">geom_thickness</span><span class="p">)</span><span class="o">.</span><span class="n">values</span>
+        <span class="n">psi_eul</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">z_inter</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">index</span><span class="p">,</span> <span class="n">line</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">lines</span><span class="p">):</span>
+            <span class="n">transport</span> <span class="o">=</span> <span class="n">compute_line_transport</span><span class="p">(</span>
+                <span class="n">line</span><span class="p">,</span> <span class="n">ds</span><span class="o">.</span><span class="n">normalVelocity</span><span class="p">,</span> <span class="n">flux_thickness</span>
+            <span class="p">)</span>
+            <span class="n">psi_eul</span><span class="p">[</span><span class="n">index</span><span class="p">,</span> <span class="p">:]</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="n">compute_overturning</span><span class="p">(</span><span class="n">transport</span><span class="p">)</span> <span class="o">/</span> <span class="n">line</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">'length'</span><span class="p">]</span>
+            <span class="p">)</span><span class="o">.</span><span class="n">values</span>
+            <span class="n">ds_binned</span> <span class="o">=</span> <span class="n">bin_line_transport</span><span class="p">(</span>
+                <span class="n">transport</span><span class="p">,</span>
+                <span class="n">interp_cell_to_line_edges</span><span class="p">(</span><span class="n">line</span><span class="p">,</span> <span class="n">geom_thickness</span><span class="p">),</span>
+                <span class="n">interp_cell_to_line_edges</span><span class="p">(</span><span class="n">line</span><span class="p">,</span> <span class="n">ds</span><span class="o">.</span><span class="n">salinity</span><span class="p">),</span>
+                <span class="n">bins</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="n">transport_sum</span><span class="p">[</span><span class="n">index</span><span class="p">,</span> <span class="p">:]</span> <span class="o">+=</span> <span class="n">ds_binned</span><span class="o">.</span><span class="n">transport</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span>
+                <span class="n">dim</span><span class="o">=</span><span class="s1">'nLineEdges'</span>
+            <span class="p">)</span><span class="o">.</span><span class="n">values</span>
+            <span class="n">class_thickness_sum</span><span class="p">[</span><span class="n">index</span><span class="p">,</span> <span class="p">:]</span> <span class="o">+=</span> <span class="p">(</span>
+                <span class="p">(</span><span class="n">ds_binned</span><span class="o">.</span><span class="n">thickness</span> <span class="o">*</span> <span class="n">line</span><span class="o">.</span><span class="n">weight</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="s1">'nLineEdges'</span><span class="p">)</span>
+            <span class="p">)</span><span class="o">.</span><span class="n">values</span>
+        <span class="k">if</span> <span class="n">psi_eul_sum</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">psi_eul_sum</span> <span class="o">=</span> <span class="n">psi_eul</span>
+            <span class="n">z_inter_sum</span> <span class="o">=</span> <span class="n">z_inter</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">assert</span> <span class="n">z_inter_sum</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+            <span class="n">psi_eul_sum</span> <span class="o">=</span> <span class="n">psi_eul_sum</span> <span class="o">+</span> <span class="n">psi_eul</span>
+            <span class="n">z_inter_sum</span> <span class="o">=</span> <span class="n">z_inter_sum</span> <span class="o">+</span> <span class="n">z_inter</span>
+        <span class="n">count</span> <span class="o">+=</span> <span class="mi">1</span>
+
+    <span class="k">if</span> <span class="n">count</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">or</span> <span class="n">psi_eul_sum</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">z_inter_sum</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">'No snapshots to compute the eddy overturning from'</span><span class="p">)</span>
+
+    <span class="n">lengths</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">line</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">'length'</span><span class="p">]</span> <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">lines</span><span class="p">])</span>
+    <span class="n">transport_mean</span> <span class="o">=</span> <span class="n">transport_sum</span> <span class="o">/</span> <span class="p">(</span><span class="n">count</span> <span class="o">*</span> <span class="n">lengths</span><span class="p">[:,</span> <span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">])</span>
+    <span class="n">class_thickness_mean</span> <span class="o">=</span> <span class="n">class_thickness_sum</span> <span class="o">/</span> <span class="p">(</span>
+        <span class="n">count</span> <span class="o">*</span> <span class="n">lengths</span><span class="p">[:,</span> <span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">]</span>
+    <span class="p">)</span>
+    <span class="n">psi_eul_mean</span> <span class="o">=</span> <span class="n">psi_eul_sum</span> <span class="o">/</span> <span class="n">count</span>
+    <span class="n">z_inter_mean</span> <span class="o">=</span> <span class="n">z_inter_sum</span> <span class="o">/</span> <span class="n">count</span>
+
+    <span class="c1"># accumulate from the lightest (freshest) class, at the surface</span>
+    <span class="n">zeros</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">nlines</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
+    <span class="n">psi_res</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">(</span>
+        <span class="p">[</span><span class="n">zeros</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">cumsum</span><span class="p">(</span><span class="n">transport_mean</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span>
+    <span class="p">)</span>
+    <span class="n">z_class</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">(</span>
+        <span class="p">[</span><span class="n">zeros</span><span class="p">,</span> <span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">cumsum</span><span class="p">(</span><span class="n">class_thickness_mean</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span>
+    <span class="p">)</span>
+    <span class="n">psi_eul_at_class</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">psi_res</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">index</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">nlines</span><span class="p">):</span>
+        <span class="c1"># np.interp needs increasing heights</span>
+        <span class="n">psi_eul_at_class</span><span class="p">[</span><span class="n">index</span><span class="p">,</span> <span class="p">:]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">interp</span><span class="p">(</span>
+            <span class="n">z_class</span><span class="p">[</span><span class="n">index</span><span class="p">,</span> <span class="p">:],</span>
+            <span class="n">z_inter_mean</span><span class="p">[</span><span class="n">index</span><span class="p">,</span> <span class="p">::</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span>
+            <span class="n">psi_eul_mean</span><span class="p">[</span><span class="n">index</span><span class="p">,</span> <span class="p">::</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span>
+        <span class="p">)</span>
+
+    <span class="n">dims</span> <span class="o">=</span> <span class="p">(</span><span class="s1">'nLines'</span><span class="p">,</span> <span class="s1">'nBinsP1'</span><span class="p">)</span>
+    <span class="n">ds_eddy</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">()</span>
+    <span class="n">ds_eddy</span><span class="p">[</span><span class="s1">'psiResidual'</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">dims</span><span class="p">,</span> <span class="n">psi_res</span><span class="p">)</span>
+    <span class="n">ds_eddy</span><span class="p">[</span><span class="s1">'psiEulerian'</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">dims</span><span class="p">,</span> <span class="n">psi_eul_at_class</span><span class="p">)</span>
+    <span class="n">ds_eddy</span><span class="p">[</span><span class="s1">'psiEddy'</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">dims</span><span class="p">,</span> <span class="n">psi_res</span> <span class="o">-</span> <span class="n">psi_eul_at_class</span><span class="p">)</span>
+    <span class="n">ds_eddy</span><span class="p">[</span><span class="s1">'zClass'</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">dims</span><span class="p">,</span> <span class="n">z_class</span><span class="p">)</span>
+    <span class="n">ds_eddy</span><span class="p">[</span><span class="s1">'salinityClass'</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="s1">'nBinsP1'</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">bins</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">))</span>
+    <span class="n">ds_eddy</span><span class="p">[</span><span class="s1">'yLine'</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="p">(</span><span class="s1">'nLines'</span><span class="p">,),</span>
+        <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">line</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">'value'</span><span class="p">]</span> <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">lines</span><span class="p">]),</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">ds_eddy</span></div>
+
+
+
+<div class="viewcode-block" id="fit_mu_amplitude">
+<a class="viewcode-back" href="../../../../../developers_guide/ocean/generated/polaris.tasks.ocean.mixed_layer_eddies.diagnostics.fit_mu_amplitude.html#polaris.tasks.ocean.mixed_layer_eddies.diagnostics.fit_mu_amplitude">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">fit_mu_amplitude</span><span class="p">(</span><span class="n">psi</span><span class="p">,</span> <span class="n">z</span><span class="p">,</span> <span class="n">ml_depth</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Fit ``psi(z) = amplitude * mu(z)`` by least squares over the mixed layer</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    psi : numpy.ndarray</span>
+<span class="sd">        Stream function values</span>
+
+<span class="sd">    z : numpy.ndarray</span>
+<span class="sd">        Heights (m, negative) of ``psi``</span>
+
+<span class="sd">    ml_depth : float</span>
+<span class="sd">        The mixed-layer depth H (m)</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    amplitude : float</span>
+<span class="sd">        The fitted amplitude, the stream function at ``z = -H/2``</span>
+<span class="sd">    """</span>
+    <span class="n">mu</span> <span class="o">=</span> <span class="n">compute_mu</span><span class="p">(</span><span class="n">z</span><span class="p">,</span> <span class="n">ml_depth</span><span class="p">)</span>
+    <span class="n">valid</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">logical_and</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">psi</span><span class="p">),</span> <span class="n">mu</span> <span class="o">&gt;</span> <span class="mf">0.0</span><span class="p">)</span>
+    <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">psi</span><span class="p">[</span><span class="n">valid</span><span class="p">]</span> <span class="o">*</span> <span class="n">mu</span><span class="p">[</span><span class="n">valid</span><span class="p">])</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">mu</span><span class="p">[</span><span class="n">valid</span><span class="p">]</span> <span class="o">**</span> <span class="mi">2</span><span class="p">))</span></div>
+
+
+
+<div class="viewcode-block" id="compute_fk11_stream_function">
+<a class="viewcode-back" href="../../../../../developers_guide/ocean/generated/polaris.tasks.ocean.mixed_layer_eddies.diagnostics.compute_fk11_stream_function.html#polaris.tasks.ocean.mixed_layer_eddies.diagnostics.compute_fk11_stream_function">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">compute_fk11_stream_function</span><span class="p">(</span>
+    <span class="n">config</span><span class="p">,</span> <span class="n">ds_mesh</span><span class="p">,</span> <span class="n">ds</span><span class="p">,</span> <span class="n">edges</span><span class="p">,</span> <span class="n">mld</span><span class="p">,</span> <span class="n">n2_top</span><span class="p">,</span> <span class="n">mle_section</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="n">ml_index</span><span class="o">=</span><span class="kc">None</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Evaluate the stream function of the Fox-Kemper et al. (2011)</span>
+<span class="sd">    parameterization on edges from model output, as the models discretize</span>
+<span class="sd">    it.  Given each model's mixed-layer depth and buoyancy frequency, the</span>
+<span class="sd">    mixed-layer means of the buoyancy gradient and the buoyancy frequency are</span>
+<span class="sd">    thickness-weighted means over layer interfaces, from the surface to the</span>
+<span class="sd">    top of the first layer whose midpoint is below the mixed-layer depth.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    config : polaris.config.PolarisConfigParser</span>
+<span class="sd">        Config options</span>
+
+<span class="sd">    ds_mesh : xarray.Dataset</span>
+<span class="sd">        The horizontal mesh</span>
+
+<span class="sd">    ds : xarray.Dataset</span>
+<span class="sd">        Model output at one time</span>
+
+<span class="sd">    edges : numpy.ndarray</span>
+<span class="sd">        Zero-based indices of the edges to evaluate the stream function on</span>
+
+<span class="sd">    mld : xarray.DataArray</span>
+<span class="sd">        The model's mixed-layer depth (m) on cells</span>
+
+<span class="sd">    n2_top : xarray.DataArray</span>
+<span class="sd">        The model's buoyancy frequency squared (s-2) at the top of each layer</span>
+<span class="sd">        on cells, with dimension ``nVertLevels`` or ``nVertLevelsP1``</span>
+
+<span class="sd">    mle_section : str</span>
+<span class="sd">        The config section with the parameterization's settings</span>
+
+<span class="sd">    model : {'omega', 'mpas-ocean'}</span>
+<span class="sd">        The model, which sets four details: Omega measures the mixed-layer</span>
+<span class="sd">        depth from the sea surface and MPAS-Ocean from z = 0; the</span>
+<span class="sd">        mixed-layer depth on edges is the minimum of the two cells' in Omega</span>
+<span class="sd">        and the mean in MPAS-Ocean; Omega takes the gradient of specific</span>
+<span class="sd">        volume and MPAS-Ocean that of density; and MPAS-Ocean uses the</span>
+<span class="sd">        gradient at the second interface for the top half-layer</span>
+
+<span class="sd">    ml_index : numpy.ndarray, optional</span>
+<span class="sd">        The model's zero-based index on cells of the first layer whose</span>
+<span class="sd">        midpoint is below the mixed-layer depth.  By default, it is found</span>
+<span class="sd">        from ``mld``, which is ambiguous where the model clamps the</span>
+<span class="sd">        mixed-layer depth to a layer midpoint and the output layer depths</span>
+<span class="sd">        come from a different stage of a time step</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    psi : numpy.ndarray</span>
+<span class="sd">        The stream function (m3 s-1 per m along the edge's normal direction,</span>
+<span class="sd">        i.e. m2 s-1) at layer interfaces, with shape</span>
+<span class="sd">        ``(len(edges), nVertLevels + 1)``</span>
+<span class="sd">    """</span>
+    <span class="n">section</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="n">mle_section</span><span class="p">]</span>
+    <span class="n">tau</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">'tau'</span><span class="p">)</span>
+    <span class="n">ce</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">'ce'</span><span class="p">)</span>
+    <span class="n">lf_min</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">'lf_min'</span><span class="p">)</span>
+    <span class="n">ds_max</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">'ds_max'</span><span class="p">)</span>
+    <span class="n">tiny</span> <span class="o">=</span> <span class="mf">1e-12</span> <span class="k">if</span> <span class="n">model</span> <span class="o">==</span> <span class="s1">'omega'</span> <span class="k">else</span> <span class="mf">1e-20</span>
+
+    <span class="n">density</span> <span class="o">=</span> <span class="n">get_density</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">ds</span><span class="p">)</span><span class="o">.</span><span class="n">values</span>
+    <span class="n">spec_vol</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="o">/</span> <span class="n">density</span>
+    <span class="n">flux_thickness</span> <span class="o">=</span> <span class="n">get_flux_thickness</span><span class="p">(</span><span class="n">ds</span><span class="p">)</span><span class="o">.</span><span class="n">values</span>
+    <span class="n">geom_thickness</span> <span class="o">=</span> <span class="n">get_geom_thickness</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">ds</span><span class="p">)</span>
+    <span class="k">if</span> <span class="s1">'zMid'</span> <span class="ow">in</span> <span class="n">ds</span><span class="p">:</span>
+        <span class="n">z_mid</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">zMid</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="s1">'nCells'</span><span class="p">,</span> <span class="s1">'nVertLevels'</span><span class="p">)</span><span class="o">.</span><span class="n">values</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">z_mid</span> <span class="o">=</span> <span class="n">get_z_mid</span><span class="p">(</span><span class="n">geom_thickness</span><span class="p">)</span><span class="o">.</span><span class="n">values</span>
+    <span class="n">geom_thickness</span> <span class="o">=</span> <span class="n">geom_thickness</span><span class="o">.</span><span class="n">values</span>
+    <span class="n">ssh</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">ssh</span><span class="o">.</span><span class="n">values</span> <span class="k">if</span> <span class="s1">'ssh'</span> <span class="ow">in</span> <span class="n">ds</span> <span class="k">else</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">density</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+    <span class="n">n2</span> <span class="o">=</span> <span class="n">n2_top</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="s1">'nCells'</span><span class="p">,</span> <span class="o">...</span><span class="p">)</span><span class="o">.</span><span class="n">values</span>
+    <span class="n">nlevels</span> <span class="o">=</span> <span class="n">density</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+
+    <span class="k">if</span> <span class="n">ml_index</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="c1"># the first layer whose midpoint is below the mixed-layer depth</span>
+        <span class="n">depth_mid</span> <span class="o">=</span> <span class="o">-</span><span class="n">z_mid</span>
+        <span class="k">if</span> <span class="n">model</span> <span class="o">==</span> <span class="s1">'omega'</span><span class="p">:</span>
+            <span class="n">depth_mid</span> <span class="o">=</span> <span class="n">depth_mid</span> <span class="o">+</span> <span class="n">ssh</span><span class="p">[:,</span> <span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">]</span>
+        <span class="n">ml_index</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">depth_mid</span> <span class="o">&lt;</span> <span class="n">mld</span><span class="o">.</span><span class="n">values</span><span class="p">[:,</span> <span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">ml_index</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">minimum</span><span class="p">(</span><span class="n">ml_index</span><span class="p">,</span> <span class="n">nlevels</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
+
+    <span class="n">cells_on_edge</span> <span class="o">=</span> <span class="n">ds_mesh</span><span class="o">.</span><span class="n">cellsOnEdge</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="n">edges</span><span class="p">]</span> <span class="o">-</span> <span class="mi">1</span>
+    <span class="n">cell1</span> <span class="o">=</span> <span class="n">cells_on_edge</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span>
+    <span class="n">cell2</span> <span class="o">=</span> <span class="n">cells_on_edge</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]</span>
+    <span class="n">dc_edge</span> <span class="o">=</span> <span class="n">ds_mesh</span><span class="o">.</span><span class="n">dcEdge</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="n">edges</span><span class="p">][:,</span> <span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">]</span>
+    <span class="n">f_edge</span> <span class="o">=</span> <span class="n">ds_mesh</span><span class="o">.</span><span class="n">fEdge</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="n">edges</span><span class="p">]</span>
+
+    <span class="n">h_flux</span> <span class="o">=</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="p">(</span><span class="n">flux_thickness</span><span class="p">[</span><span class="n">cell1</span><span class="p">]</span> <span class="o">+</span> <span class="n">flux_thickness</span><span class="p">[</span><span class="n">cell2</span><span class="p">])</span>
+    <span class="n">h_geom</span> <span class="o">=</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="p">(</span><span class="n">geom_thickness</span><span class="p">[</span><span class="n">cell1</span><span class="p">]</span> <span class="o">+</span> <span class="n">geom_thickness</span><span class="p">[</span><span class="n">cell2</span><span class="p">])</span>
+    <span class="k">if</span> <span class="n">model</span> <span class="o">==</span> <span class="s1">'omega'</span><span class="p">:</span>
+        <span class="n">grad</span> <span class="o">=</span> <span class="o">-</span><span class="n">Gravity</span> <span class="o">*</span> <span class="n">RhoSw</span> <span class="o">*</span> <span class="p">(</span><span class="n">spec_vol</span><span class="p">[</span><span class="n">cell2</span><span class="p">]</span> <span class="o">-</span> <span class="n">spec_vol</span><span class="p">[</span><span class="n">cell1</span><span class="p">])</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">grad</span> <span class="o">=</span> <span class="p">(</span><span class="n">Gravity</span> <span class="o">/</span> <span class="n">RhoSw</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="n">density</span><span class="p">[</span><span class="n">cell2</span><span class="p">]</span> <span class="o">-</span> <span class="n">density</span><span class="p">[</span><span class="n">cell1</span><span class="p">])</span>
+    <span class="n">grad</span> <span class="o">=</span> <span class="n">grad</span> <span class="o">/</span> <span class="n">dc_edge</span>
+    <span class="n">dz_dn</span> <span class="o">=</span> <span class="p">(</span><span class="n">z_mid</span><span class="p">[</span><span class="n">cell2</span><span class="p">]</span> <span class="o">-</span> <span class="n">z_mid</span><span class="p">[</span><span class="n">cell1</span><span class="p">])</span> <span class="o">/</span> <span class="n">dc_edge</span>
+    <span class="n">spec_vol_edge</span> <span class="o">=</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="p">(</span><span class="n">spec_vol</span><span class="p">[</span><span class="n">cell1</span><span class="p">]</span> <span class="o">+</span> <span class="n">spec_vol</span><span class="p">[</span><span class="n">cell2</span><span class="p">])</span>
+    <span class="n">n2_edge</span> <span class="o">=</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="p">(</span><span class="n">n2</span><span class="p">[</span><span class="n">cell1</span><span class="p">,</span> <span class="p">:</span><span class="n">nlevels</span><span class="p">]</span> <span class="o">+</span> <span class="n">n2</span><span class="p">[</span><span class="n">cell2</span><span class="p">,</span> <span class="p">:</span><span class="n">nlevels</span><span class="p">])</span>
+    <span class="n">n_edge</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span>
+        <span class="mf">0.5</span>
+        <span class="o">*</span> <span class="p">(</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">maximum</span><span class="p">(</span><span class="n">tiny</span><span class="p">,</span> <span class="n">n2</span><span class="p">[</span><span class="n">cell1</span><span class="p">,</span> <span class="p">:</span><span class="n">nlevels</span><span class="p">])</span>
+            <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">maximum</span><span class="p">(</span><span class="n">tiny</span><span class="p">,</span> <span class="n">n2</span><span class="p">[</span><span class="n">cell2</span><span class="p">,</span> <span class="p">:</span><span class="n">nlevels</span><span class="p">])</span>
+        <span class="p">)</span>
+    <span class="p">)</span>
+
+    <span class="c1"># layer quantities interpolated to the top interface of each layer</span>
+    <span class="n">grad_inter</span> <span class="o">=</span> <span class="n">_to_interfaces</span><span class="p">(</span><span class="n">grad</span><span class="p">,</span> <span class="n">h_flux</span><span class="p">)</span>
+    <span class="n">dz_dn_inter</span> <span class="o">=</span> <span class="n">_to_interfaces</span><span class="p">(</span><span class="n">dz_dn</span><span class="p">,</span> <span class="n">h_flux</span><span class="p">)</span>
+    <span class="n">spec_vol_inter</span> <span class="o">=</span> <span class="n">_to_interfaces</span><span class="p">(</span><span class="n">spec_vol_edge</span><span class="p">,</span> <span class="n">h_flux</span><span class="p">)</span>
+    <span class="n">grad_inter</span> <span class="o">=</span> <span class="n">grad_inter</span> <span class="o">+</span> <span class="n">dz_dn_inter</span> <span class="o">*</span> <span class="n">RhoSw</span> <span class="o">*</span> <span class="n">spec_vol_inter</span> <span class="o">*</span> <span class="n">n2_edge</span>
+    <span class="k">if</span> <span class="n">model</span> <span class="o">!=</span> <span class="s1">'omega'</span><span class="p">:</span>
+        <span class="c1"># MPAS-Ocean uses the second interface for the top half-layer;</span>
+        <span class="c1"># Omega fills its surface buoyancy frequency from the second</span>
+        <span class="c1"># interface itself</span>
+        <span class="n">grad_inter</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">grad_inter</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]</span>
+        <span class="n">n_edge</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">n_edge</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]</span>
+
+    <span class="n">weights</span> <span class="o">=</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="n">h_flux</span>
+    <span class="n">weights</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">:]</span> <span class="o">+=</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="n">h_flux</span><span class="p">[:,</span> <span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+    <span class="n">index_ml</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">minimum</span><span class="p">(</span><span class="n">ml_index</span><span class="p">[</span><span class="n">cell1</span><span class="p">],</span> <span class="n">ml_index</span><span class="p">[</span><span class="n">cell2</span><span class="p">])</span>
+    <span class="n">levels</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">nlevels</span><span class="p">)[</span><span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">,</span> <span class="p">:]</span>
+    <span class="n">weights</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">levels</span> <span class="o">&lt;=</span> <span class="n">index_ml</span><span class="p">[:,</span> <span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">],</span> <span class="n">weights</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">)</span>
+    <span class="n">total</span> <span class="o">=</span> <span class="n">weights</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">grad_ml</span> <span class="o">=</span> <span class="p">(</span><span class="n">weights</span> <span class="o">*</span> <span class="n">grad_inter</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span> <span class="o">/</span> <span class="n">total</span>
+    <span class="n">n_ml</span> <span class="o">=</span> <span class="p">(</span><span class="n">weights</span> <span class="o">*</span> <span class="n">n_edge</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span> <span class="o">/</span> <span class="n">total</span>
+
+    <span class="n">h_ml</span> <span class="o">=</span> <span class="n">_edge_mld</span><span class="p">(</span><span class="n">mld</span><span class="o">.</span><span class="n">values</span><span class="p">,</span> <span class="n">cell1</span><span class="p">,</span> <span class="n">cell2</span><span class="p">,</span> <span class="n">model</span><span class="p">)</span>
+
+    <span class="n">time_scale</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">f_edge</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="mf">1.0</span> <span class="o">/</span> <span class="n">tau</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
+    <span class="n">frontal_width</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">maximum</span><span class="p">(</span>
+        <span class="n">lf_min</span><span class="p">,</span>
+        <span class="n">np</span><span class="o">.</span><span class="n">maximum</span><span class="p">(</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">grad_ml</span><span class="p">)</span> <span class="o">*</span> <span class="n">h_ml</span> <span class="o">/</span> <span class="n">time_scale</span><span class="o">**</span><span class="mi">2</span><span class="p">,</span>
+            <span class="n">n_ml</span> <span class="o">*</span> <span class="n">h_ml</span> <span class="o">/</span> <span class="n">time_scale</span><span class="p">,</span>
+        <span class="p">),</span>
+    <span class="p">)</span>
+    <span class="n">delta_s</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">minimum</span><span class="p">(</span><span class="n">dc_edge</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">ds_max</span><span class="p">)</span>
+    <span class="n">amplitude</span> <span class="o">=</span> <span class="n">ce</span> <span class="o">*</span> <span class="p">(</span><span class="n">delta_s</span> <span class="o">/</span> <span class="n">frontal_width</span><span class="p">)</span> <span class="o">*</span> <span class="n">h_ml</span><span class="o">**</span><span class="mi">2</span> <span class="o">*</span> <span class="n">grad_ml</span> <span class="o">/</span> <span class="n">time_scale</span>
+
+    <span class="n">z_inter</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="nb">len</span><span class="p">(</span><span class="n">edges</span><span class="p">),</span> <span class="n">nlevels</span> <span class="o">+</span> <span class="mi">1</span><span class="p">))</span>
+    <span class="n">z_inter</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">:]</span> <span class="o">=</span> <span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">cumsum</span><span class="p">(</span><span class="n">h_geom</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">amplitude</span><span class="p">[:,</span> <span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">]</span> <span class="o">*</span> <span class="n">compute_mu</span><span class="p">(</span><span class="n">z_inter</span><span class="p">,</span> <span class="n">h_ml</span><span class="p">[:,</span> <span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">])</span></div>
+
+
+
+<div class="viewcode-block" id="compute_model_stream_function">
+<a class="viewcode-back" href="../../../../../developers_guide/ocean/generated/polaris.tasks.ocean.mixed_layer_eddies.diagnostics.compute_model_stream_function.html#polaris.tasks.ocean.mixed_layer_eddies.diagnostics.compute_model_stream_function">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">compute_model_stream_function</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">ds_mesh</span><span class="p">,</span> <span class="n">ds</span><span class="p">,</span> <span class="n">edges</span><span class="p">,</span> <span class="n">eddy_velocity</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Recover the stream function a model's parameterization computed on edges</span>
+<span class="sd">    from its eddy velocity, which both models define as minus the difference</span>
+<span class="sd">    of the stream function across a layer divided by the layer's mean</span>
+<span class="sd">    geometric thickness on the edge</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    psi : numpy.ndarray</span>
+<span class="sd">        The stream function (m2 s-1) at layer interfaces, with shape</span>
+<span class="sd">        ``(len(edges), nVertLevels + 1)``</span>
+<span class="sd">    """</span>
+    <span class="n">geom_thickness</span> <span class="o">=</span> <span class="n">get_geom_thickness</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">ds</span><span class="p">)</span><span class="o">.</span><span class="n">values</span>
+    <span class="n">cells_on_edge</span> <span class="o">=</span> <span class="n">ds_mesh</span><span class="o">.</span><span class="n">cellsOnEdge</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="n">edges</span><span class="p">]</span> <span class="o">-</span> <span class="mi">1</span>
+    <span class="n">h_geom</span> <span class="o">=</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="p">(</span>
+        <span class="n">geom_thickness</span><span class="p">[</span><span class="n">cells_on_edge</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]]</span>
+        <span class="o">+</span> <span class="n">geom_thickness</span><span class="p">[</span><span class="n">cells_on_edge</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]]</span>
+    <span class="p">)</span>
+    <span class="n">velocity</span> <span class="o">=</span> <span class="n">eddy_velocity</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="s1">'nEdges'</span><span class="p">,</span> <span class="s1">'nVertLevels'</span><span class="p">)</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="n">edges</span><span class="p">]</span>
+    <span class="n">psi</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="nb">len</span><span class="p">(</span><span class="n">edges</span><span class="p">),</span> <span class="n">h_geom</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span><span class="p">))</span>
+    <span class="n">psi</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">:]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">cumsum</span><span class="p">(</span><span class="n">velocity</span> <span class="o">*</span> <span class="n">h_geom</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">psi</span></div>
+
+
+
+<div class="viewcode-block" id="get_consistent_edges">
+<a class="viewcode-back" href="../../../../../developers_guide/ocean/generated/polaris.tasks.ocean.mixed_layer_eddies.diagnostics.get_consistent_edges.html#polaris.tasks.ocean.mixed_layer_eddies.diagnostics.get_consistent_edges">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_consistent_edges</span><span class="p">(</span>
+    <span class="n">config</span><span class="p">,</span> <span class="n">ds_mesh</span><span class="p">,</span> <span class="n">ds</span><span class="p">,</span> <span class="n">edges</span><span class="p">,</span> <span class="n">eddy_velocity</span><span class="p">,</span> <span class="n">mld</span><span class="p">,</span> <span class="n">model</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Find the edges where the mixed-layer depth in the output is the one the</span>
+<span class="sd">    eddy velocity in the output was computed with: the depth lies within the</span>
+<span class="sd">    deepest layer with a nonzero eddy velocity.  The two can come from</span>
+<span class="sd">    different stages of a time step, and the mixed-layer depth can jump by</span>
+<span class="sd">    layers between them where the mixed layer is nearly neutral.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    consistent : numpy.ndarray</span>
+<span class="sd">        A boolean mask over ``edges``; edges with no eddy velocity are not</span>
+<span class="sd">        consistent</span>
+<span class="sd">    """</span>
+    <span class="n">geom_thickness</span> <span class="o">=</span> <span class="n">get_geom_thickness</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">ds</span><span class="p">)</span><span class="o">.</span><span class="n">values</span>
+    <span class="n">cells_on_edge</span> <span class="o">=</span> <span class="n">ds_mesh</span><span class="o">.</span><span class="n">cellsOnEdge</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="n">edges</span><span class="p">]</span> <span class="o">-</span> <span class="mi">1</span>
+    <span class="n">cell1</span> <span class="o">=</span> <span class="n">cells_on_edge</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span>
+    <span class="n">cell2</span> <span class="o">=</span> <span class="n">cells_on_edge</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]</span>
+    <span class="n">h_geom</span> <span class="o">=</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="p">(</span><span class="n">geom_thickness</span><span class="p">[</span><span class="n">cell1</span><span class="p">]</span> <span class="o">+</span> <span class="n">geom_thickness</span><span class="p">[</span><span class="n">cell2</span><span class="p">])</span>
+    <span class="n">depth_inter</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="nb">len</span><span class="p">(</span><span class="n">edges</span><span class="p">),</span> <span class="n">h_geom</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span><span class="p">))</span>
+    <span class="n">depth_inter</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">:]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">cumsum</span><span class="p">(</span><span class="n">h_geom</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+    <span class="n">velocity</span> <span class="o">=</span> <span class="n">eddy_velocity</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="s1">'nEdges'</span><span class="p">,</span> <span class="s1">'nVertLevels'</span><span class="p">)</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="n">edges</span><span class="p">]</span>
+    <span class="n">active</span> <span class="o">=</span> <span class="n">velocity</span> <span class="o">!=</span> <span class="mf">0.0</span>
+    <span class="n">has_velocity</span> <span class="o">=</span> <span class="n">active</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">nlevels</span> <span class="o">=</span> <span class="n">active</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+    <span class="n">deepest</span> <span class="o">=</span> <span class="n">nlevels</span> <span class="o">-</span> <span class="mi">1</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span><span class="n">active</span><span class="p">[:,</span> <span class="p">::</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">rows</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">edges</span><span class="p">))</span>
+    <span class="n">top</span> <span class="o">=</span> <span class="n">depth_inter</span><span class="p">[</span><span class="n">rows</span><span class="p">,</span> <span class="n">deepest</span><span class="p">]</span>
+    <span class="n">bottom</span> <span class="o">=</span> <span class="n">depth_inter</span><span class="p">[</span><span class="n">rows</span><span class="p">,</span> <span class="n">deepest</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span>
+    <span class="n">h_ml</span> <span class="o">=</span> <span class="n">_edge_mld</span><span class="p">(</span><span class="n">mld</span><span class="o">.</span><span class="n">values</span><span class="p">,</span> <span class="n">cell1</span><span class="p">,</span> <span class="n">cell2</span><span class="p">,</span> <span class="n">model</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">has_velocity</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">h_ml</span> <span class="o">&gt;=</span> <span class="n">top</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">h_ml</span> <span class="o">&lt;=</span> <span class="n">bottom</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="compute_potential_energy">
+<a class="viewcode-back" href="../../../../../developers_guide/ocean/generated/polaris.tasks.ocean.mixed_layer_eddies.diagnostics.compute_potential_energy.html#polaris.tasks.ocean.mixed_layer_eddies.diagnostics.compute_potential_energy">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">compute_potential_energy</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">ds_mesh</span><span class="p">,</span> <span class="n">ds</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Compute the potential energy per unit area, g rho z h summed over the</span>
+<span class="sd">    column and averaged over the domain (J m-2)</span>
+<span class="sd">    """</span>
+    <span class="n">density</span> <span class="o">=</span> <span class="n">get_density</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">ds</span><span class="p">)</span>
+    <span class="n">thickness</span> <span class="o">=</span> <span class="n">get_geom_thickness</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">ds</span><span class="p">)</span>
+    <span class="k">if</span> <span class="s1">'zMid'</span> <span class="ow">in</span> <span class="n">ds</span><span class="p">:</span>
+        <span class="n">z_mid</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">zMid</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">z_mid</span> <span class="o">=</span> <span class="n">get_z_mid</span><span class="p">(</span><span class="n">thickness</span><span class="p">)</span>
+    <span class="n">column</span> <span class="o">=</span> <span class="p">(</span><span class="n">Gravity</span> <span class="o">*</span> <span class="n">density</span> <span class="o">*</span> <span class="n">z_mid</span> <span class="o">*</span> <span class="n">thickness</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="s1">'nVertLevels'</span><span class="p">)</span>
+    <span class="n">area</span> <span class="o">=</span> <span class="n">ds_mesh</span><span class="o">.</span><span class="n">areaCell</span>
+    <span class="k">return</span> <span class="p">(</span><span class="n">column</span> <span class="o">*</span> <span class="n">area</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="s1">'nCells'</span><span class="p">)</span> <span class="o">/</span> <span class="n">area</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span></div>
+
+
+
+<div class="viewcode-block" id="compute_mixed_layer_n2">
+<a class="viewcode-back" href="../../../../../developers_guide/ocean/generated/polaris.tasks.ocean.mixed_layer_eddies.diagnostics.compute_mixed_layer_n2.html#polaris.tasks.ocean.mixed_layer_eddies.diagnostics.compute_mixed_layer_n2">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">compute_mixed_layer_n2</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">ds_mesh</span><span class="p">,</span> <span class="n">ds</span><span class="p">,</span> <span class="n">cell_mask</span><span class="p">,</span> <span class="n">ml_depth</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Compute the mean buoyancy frequency squared over the mixed layer of the</span>
+<span class="sd">    frontal zone (s-2)</span>
+<span class="sd">    """</span>
+    <span class="n">density</span> <span class="o">=</span> <span class="n">get_density</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">ds</span><span class="p">)</span>
+    <span class="n">thickness</span> <span class="o">=</span> <span class="n">get_geom_thickness</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">ds</span><span class="p">)</span>
+    <span class="n">z_mid</span> <span class="o">=</span> <span class="n">get_z_mid</span><span class="p">(</span><span class="n">thickness</span><span class="p">)</span>
+    <span class="n">dz</span> <span class="o">=</span> <span class="o">-</span><span class="n">z_mid</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="s1">'nVertLevels'</span><span class="p">)</span>
+    <span class="n">drho</span> <span class="o">=</span> <span class="n">density</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="s1">'nVertLevels'</span><span class="p">)</span>
+    <span class="n">n2</span> <span class="o">=</span> <span class="p">(</span><span class="n">Gravity</span> <span class="o">/</span> <span class="n">RhoSw</span><span class="p">)</span> <span class="o">*</span> <span class="n">drho</span> <span class="o">/</span> <span class="n">dz</span>
+    <span class="n">in_ml</span> <span class="o">=</span> <span class="p">(</span><span class="n">z_mid</span> <span class="o">&gt;</span> <span class="o">-</span><span class="n">ml_depth</span><span class="p">)</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span><span class="n">nVertLevels</span><span class="o">=</span><span class="nb">slice</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="kc">None</span><span class="p">))</span>
+    <span class="n">weights</span> <span class="o">=</span> <span class="p">(</span><span class="n">dz</span> <span class="o">*</span> <span class="n">ds_mesh</span><span class="o">.</span><span class="n">areaCell</span><span class="p">)</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">in_ml</span> <span class="o">&amp;</span> <span class="n">cell_mask</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">)</span>
+    <span class="k">return</span> <span class="p">(</span><span class="n">n2</span> <span class="o">*</span> <span class="n">weights</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="p">(</span><span class="s1">'nCells'</span><span class="p">,</span> <span class="s1">'nVertLevels'</span><span class="p">))</span> <span class="o">/</span> <span class="n">weights</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span>
+        <span class="n">dim</span><span class="o">=</span><span class="p">(</span><span class="s1">'nCells'</span><span class="p">,</span> <span class="s1">'nVertLevels'</span><span class="p">)</span>
+    <span class="p">)</span></div>
+
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_interfaces_from_thickness</span><span class="p">(</span><span class="n">thickness</span><span class="p">,</span> <span class="n">vert_dim</span><span class="o">=</span><span class="s1">'nVertLevels'</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Heights of layer interfaces relative to the surface from layer</span>
+<span class="sd">    thicknesses, with ``vert_dim`` replaced by ``nVertLevelsP1``</span>
+<span class="sd">    """</span>
+    <span class="n">z_bot</span> <span class="o">=</span> <span class="o">-</span><span class="n">thickness</span><span class="o">.</span><span class="n">cumsum</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="n">vert_dim</span><span class="p">)</span>
+    <span class="n">surface</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">thickness</span><span class="o">.</span><span class="n">isel</span><span class="p">({</span><span class="n">vert_dim</span><span class="p">:</span> <span class="p">[</span><span class="mi">0</span><span class="p">]}))</span>
+    <span class="n">z_inter</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">surface</span><span class="p">,</span> <span class="n">z_bot</span><span class="p">],</span> <span class="n">dim</span><span class="o">=</span><span class="n">vert_dim</span><span class="p">)</span>
+    <span class="n">z_inter</span> <span class="o">=</span> <span class="n">z_inter</span><span class="o">.</span><span class="n">rename</span><span class="p">({</span><span class="n">vert_dim</span><span class="p">:</span> <span class="s1">'nVertLevelsP1'</span><span class="p">})</span>
+    <span class="n">dims</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="s1">'nVertLevelsP1'</span> <span class="k">if</span> <span class="n">dim</span> <span class="o">==</span> <span class="n">vert_dim</span> <span class="k">else</span> <span class="n">dim</span> <span class="k">for</span> <span class="n">dim</span> <span class="ow">in</span> <span class="n">thickness</span><span class="o">.</span><span class="n">dims</span>
+    <span class="p">]</span>
+    <span class="k">return</span> <span class="n">z_inter</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="o">*</span><span class="n">dims</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_to_interfaces</span><span class="p">(</span><span class="n">layer_field</span><span class="p">,</span> <span class="n">thickness</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Interpolate a layer field (edges by layers) to the top interface of</span>
+<span class="sd">    each layer, weighting the two adjacent layers by their thickness; the</span>
+<span class="sd">    top interface takes the top layer's value</span>
+<span class="sd">    """</span>
+    <span class="n">inter</span> <span class="o">=</span> <span class="n">layer_field</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+    <span class="n">weight_above</span> <span class="o">=</span> <span class="n">thickness</span><span class="p">[:,</span> <span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">/</span> <span class="p">(</span><span class="n">thickness</span><span class="p">[:,</span> <span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">thickness</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">:])</span>
+    <span class="n">inter</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">:]</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">weight_above</span> <span class="o">*</span> <span class="n">layer_field</span><span class="p">[:,</span> <span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+        <span class="o">+</span> <span class="p">(</span><span class="mf">1.0</span> <span class="o">-</span> <span class="n">weight_above</span><span class="p">)</span> <span class="o">*</span> <span class="n">layer_field</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">:]</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">inter</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_edge_mld</span><span class="p">(</span><span class="n">mld</span><span class="p">,</span> <span class="n">cell1</span><span class="p">,</span> <span class="n">cell2</span><span class="p">,</span> <span class="n">model</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    The mixed-layer depth on edges: the minimum of the two cells' in Omega</span>
+<span class="sd">    and the mean in MPAS-Ocean</span>
+<span class="sd">    """</span>
+    <span class="k">if</span> <span class="n">model</span> <span class="o">==</span> <span class="s1">'omega'</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">minimum</span><span class="p">(</span><span class="n">mld</span><span class="p">[</span><span class="n">cell1</span><span class="p">],</span> <span class="n">mld</span><span class="p">[</span><span class="n">cell2</span><span class="p">])</span>
+    <span class="k">return</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="p">(</span><span class="n">mld</span><span class="p">[</span><span class="n">cell1</span><span class="p">]</span> <span class="o">+</span> <span class="n">mld</span><span class="p">[</span><span class="n">cell2</span><span class="p">])</span>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2026, Energy Exascale Earth System Model Project.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+   
+
+  <!-- Meta tags for JS to use -->
+  <meta name="doc-version" content="main">
+  <meta name="doc-site-root" content="../../../../../">
+
+  <!-- Create version switcher container -->
+  <script>
+    const sidebar = document.querySelector('.wy-side-nav-search');
+    if (sidebar) {
+      const versionDiv = document.createElement('div');
+      versionDiv.id = 'version-switcher';
+      versionDiv.style.marginTop = '1em';
+      sidebar.appendChild(versionDiv);
+    }
+  </script>
+
+  <!-- Load version-switcher.js using the correct relative path -->
+  <script src="../../../../../../shared/version-switcher.js"></script>
+
+
+</body>
+</html>

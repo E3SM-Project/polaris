@@ -1,0 +1,1009 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mixed-Layer Eddies Task</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=a8da1a53"></script>
+      <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script>window.MathJax = {"options": {"processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+      <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-mml-chtml.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Ocean Analysis in Polaris" href="ocean_analysis.html" />
+    <link rel="prev" title="Land-Locked Cells in the Ocean and Sea-Ice Domains" href="land_locked_cells.html" />
+    <link href="../_static/style.css" rel="stylesheet" type="text/css">
+
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            Polaris
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">User's guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../users_guide/quick_start.html">Quick Start for Users</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../users_guide/tasks.html">Tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../users_guide/config_files.html">Config Files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../users_guide/suites.html">Suites</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../users_guide/mesh/index.html">Mesh component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../users_guide/e3sm/init/index.html">E3SM Initial Condition Component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../users_guide/ocean/index.html">Ocean component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../users_guide/seaice/index.html">Sea ice component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../users_guide/machines/index.html">Machines</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Developer's guide</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/quick_start.html">Quick Start for Developers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/command_line.html">Command-line interface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/organization/index.html">Organization of Tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/e3sm/init/index.html">E3SM initial condition (e3sm/init) component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/mesh/index.html">Mesh component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/ocean/index.html">Ocean component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/seaice/index.html">Sea ice component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/framework/index.html">Framework</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/machines/index.html">Machines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/benchmarking.html">Benchmarking a branch against a baseline</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/omega_pr_testing.html">Testing an Omega pull request</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/troubleshooting.html">Troubleshooting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/docs.html">Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/building_docs.html">Building the Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/building_docs.html#previewing-the-documentation">Previewing the Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/conda_vs_spack.html">How Conda and Spack Work Together in Polaris</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/updating_conda.html">Updating Deployment Dependencies</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/updating_spack/index.html">Updating Shared Spack Environments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/api.html">API reference</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">Design Documents</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="global_ocean_forward.html">Global Ocean Forward Runs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="global_ocean_init.html">Realistic Ocean Initial Conditions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="horiz_press_grad_reference.html">Reworked HPG Reference Solution</a></li>
+<li class="toctree-l2"><a class="reference internal" href="land_locked_cells.html">Land-Locked Cells in the Ocean and Sea-Ice Domains</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Mixed-Layer Eddies Task</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#summary">Summary</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#open-questions">Open questions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#requirements">Requirements</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#requirement-an-ice-free-mixed-layer-front-spins-down-in-a-doubly-periodic-domain">Requirement: An ice-free mixed-layer front spins down in a doubly periodic domain</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#requirement-omega-runs-on-its-native-coordinate-and-mpas-ocean-runs-for-comparison">Requirement: Omega runs on its native coordinate, and MPAS-Ocean runs for comparison</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#requirement-an-eddy-resolving-reference-run">Requirement: An eddy-resolving reference run</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#requirement-coarse-runs-with-the-parameterization-off-and-on">Requirement: Coarse runs with the parameterization off and on</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#requirement-the-eddy-overturning-is-diagnosed-consistently-with-the-models-discrete-transports">Requirement: The eddy overturning is diagnosed consistently with the models’ discrete transports</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#requirement-the-parameterization-s-implementation-is-verified">Requirement: The parameterization’s implementation is verified</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#requirement-the-test-reproduces-the-published-ice-free-overturning">Requirement: The test reproduces the published ice-free overturning</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#requirement-coarse-runs-are-compared-with-the-resolved-run">Requirement: Coarse runs are compared with the resolved run</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#algorithm-design">Algorithm Design</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#algorithm-design-an-ice-free-mixed-layer-front-spins-down-in-a-doubly-periodic-domain">Algorithm Design: An ice-free mixed-layer front spins down in a doubly periodic domain</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#algorithm-design-omega-runs-on-its-native-coordinate-and-mpas-ocean-runs-for-comparison">Algorithm Design: Omega runs on its native coordinate, and MPAS-Ocean runs for comparison</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#algorithm-design-an-eddy-resolving-reference-run">Algorithm Design: An eddy-resolving reference run</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#algorithm-design-coarse-runs-with-the-parameterization-off-and-on">Algorithm Design: Coarse runs with the parameterization off and on</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#algorithm-design-the-eddy-overturning-is-diagnosed-consistently-with-the-models-discrete-transports">Algorithm Design: The eddy overturning is diagnosed consistently with the models’ discrete transports</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#algorithm-design-the-parameterization-s-implementation-is-verified">Algorithm Design: The parameterization’s implementation is verified</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#algorithm-design-the-test-reproduces-the-published-ice-free-overturning">Algorithm Design: The test reproduces the published ice-free overturning</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#algorithm-design-coarse-runs-are-compared-with-the-resolved-run">Algorithm Design: Coarse runs are compared with the resolved run</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#algorithm-design-time-averaged-combined-flux-is-compared-with-its-scale">Algorithm Design: Time-averaged combined flux is compared with its scale</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#implementation">Implementation</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#implementation-an-ice-free-mixed-layer-front-spins-down-in-a-doubly-periodic-domain">Implementation: An ice-free mixed-layer front spins down in a doubly periodic domain</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#implementation-omega-runs-on-its-native-coordinate-and-mpas-ocean-runs-for-comparison">Implementation: Omega runs on its native coordinate, and MPAS-Ocean runs for comparison</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#implementation-an-eddy-resolving-reference-run">Implementation: An eddy-resolving reference run</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#implementation-coarse-runs-with-the-parameterization-off-and-on">Implementation: Coarse runs with the parameterization off and on</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#implementation-the-eddy-overturning-is-diagnosed-consistently-with-the-models-discrete-transports">Implementation: The eddy overturning is diagnosed consistently with the models’ discrete transports</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#implementation-the-parameterization-s-implementation-is-verified">Implementation: The parameterization’s implementation is verified</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#implementation-the-test-reproduces-the-published-ice-free-overturning">Implementation: The test reproduces the published ice-free overturning</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#implementation-coarse-runs-are-compared-with-the-resolved-run">Implementation: Coarse runs are compared with the resolved run</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#testing">Testing</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#testing-and-validation-an-ice-free-mixed-layer-front-spins-down-in-a-doubly-periodic-domain">Testing and Validation: An ice-free mixed-layer front spins down in a doubly periodic domain</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#testing-and-validation-omega-runs-on-its-native-coordinate-and-mpas-ocean-runs-for-comparison">Testing and Validation: Omega runs on its native coordinate, and MPAS-Ocean runs for comparison</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#testing-and-validation-an-eddy-resolving-reference-run">Testing and Validation: An eddy-resolving reference run</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#testing-and-validation-coarse-runs-with-the-parameterization-off-and-on">Testing and Validation: Coarse runs with the parameterization off and on</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#testing-and-validation-the-eddy-overturning-is-diagnosed-consistently-with-the-models-discrete-transports">Testing and Validation: The eddy overturning is diagnosed consistently with the models’ discrete transports</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#testing-and-validation-the-parameterization-s-implementation-is-verified">Testing and Validation: The parameterization’s implementation is verified</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#testing-and-validation-the-test-reproduces-the-published-ice-free-overturning">Testing and Validation: The test reproduces the published ice-free overturning</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#testing-and-validation-coarse-runs-are-compared-with-the-resolved-run">Testing and Validation: Coarse runs are compared with the resolved run</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#decisions">Decisions</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#d1-a-separate-task-not-a-baroclinic-channel-variant">D1: A separate task, not a <code class="docutils literal notranslate"><span class="pre">baroclinic_channel</span></code> variant</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#d2-ice-free-only-ice-covered-runs-are-future-work">D2: Ice-free only; ice-covered runs are future work</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#d3-sm22-s-configuration-with-ffh08-through-its-scaling">D3: SM22’s configuration, with FFH08 through its scaling</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#d4-doubly-periodic-not-a-channel">D4: Doubly periodic, not a channel</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#d5-start-from-rest">D5: Start from rest</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#d6-64-uniform-levels">D6: 64 uniform levels</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#d7-the-compass-draft-is-a-reference-not-a-port">D7: The Compass draft is a reference, not a port</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#d8-a-mesh-agnostic-stream-function-from-edge-transports">D8: A mesh-agnostic stream function from edge transports</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#d9-e3sm-coupled-defaults-set-explicitly">D9: E3SM coupled defaults, set explicitly</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#d10-full-300-km-domain">D10: Full 300 km domain</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#d11-coarse-runs-at-8-and-16-km">D11: Coarse runs at 8 and 16 km</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#d12-off-and-on-with-no-ffh08-like-setting">D12: Off and on, with no FFH08-like setting</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#d13-the-pe-comparison-is-report-only">D13: The PE comparison is report-only</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#d14-15-day-runs">D14: 15-day runs</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#d15-pe-release-is-not-a-coefficient-calibration-target">D15: PE release is not a coefficient-calibration target</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#d16-combined-buoyancy-flux-is-compared-without-line-fitting">D16: Combined buoyancy flux is compared without line fitting</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="ocean_analysis.html">Ocean Analysis in Polaris</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ocean_analysis_initial.html">Initial Omega Analysis Capabilities</a></li>
+<li class="toctree-l2"><a class="reference internal" href="omega_pr_testing.html">Omega Pull Request Testing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="overflow_nonlinear_eos.html">EOS and Vertical-Coordinate Variants of the Overflow Tasks</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pstar_init.html">P-Star Coordinate and Tracer Initialization</a></li>
+<li class="toctree-l2"><a class="reference internal" href="shared_steps.html">Shared steps</a></li>
+<li class="toctree-l2"><a class="reference internal" href="suite_results_file.html">Machine-Readable Suite Results</a></li>
+<li class="toctree-l2"><a class="reference internal" href="task_parallel_analysis_steps.html">Task-Parallel-Safe Analysis Steps in Polaris</a></li>
+<li class="toctree-l2"><a class="reference internal" href="task_parallelism.html">Task Parallelism in Polaris</a></li>
+<li class="toctree-l2"><a class="reference internal" href="task_parallelism_phase_a.html">Task Parallelism Phase A: Placement</a></li>
+<li class="toctree-l2"><a class="reference internal" href="task_parallelism_phase_b.html">Task Parallelism Phase B: Concurrency</a></li>
+<li class="toctree-l2"><a class="reference internal" href="task_parallelism_phase_c.html">Task Parallelism Phase C: Python Worker Pool</a></li>
+<li class="toctree-l2"><a class="reference internal" href="task_parallelism_phase_d.html">Task Parallelism Phase D: Coexistence and Elasticity</a></li>
+<li class="toctree-l2"><a class="reference internal" href="unified_base_mesh.html">Unified Mesh: Global Base Mesh Workflow</a></li>
+<li class="toctree-l2"><a class="reference internal" href="unified_mesh_prepare_coastline.html">Unified Mesh: Coastline Preparation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="unified_mesh_prepare_river_network.html">Unified Mesh: River Network Preparation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="unified_mesh_build_sizing_field.html">Unified Mesh: Sizing-Field Construction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="unified_mesh_create_base_mesh.html">Unified Mesh: Base-Mesh Creation and Downstream Integration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="unified_mesh_cull_leak.html">Unified Mesh: Fixing Resolution Leakage into the Ocean/Sea-Ice Domain</a></li>
+<li class="toctree-l2"><a class="reference internal" href="unified_mesh_dc_edge_noise.html">Unified Mesh: Raising the dcEdge Floor in the Ocean/Sea-Ice Domain</a></li>
+<li class="toctree-l2"><a class="reference internal" href="vector_reconstruction.html">Vector Reconstruction at MPAS Cell Centers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="template.html">Template</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials/dev_add_category_of_tasks/index.html">Developer Tutorial: Adding a New Category of Tasks</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Glossary</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../glossary.html">Glossary</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Polaris</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="index.html">Design Documents</a></li>
+      <li class="breadcrumb-item active">Mixed-Layer Eddies Task</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/design_docs/mixed_layer_eddies.md.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section class="tex2jax_ignore mathjax_ignore" id="mixed-layer-eddies-task">
+<h1>Mixed-Layer Eddies Task<a class="headerlink" href="#mixed-layer-eddies-task" title="Link to this heading"></a></h1>
+<p>Creation date: 2026/10/19</p>
+<p>Contributors: Xylar Asay-Davis, Claude</p>
+<section id="summary">
+<h2>Summary<a class="headerlink" href="#summary" title="Link to this heading"></a></h2>
+<p>This design adds a planar ocean task, <code class="docutils literal notranslate"><span class="pre">mixed_layer_eddies</span></code>, in which a
+mixed-layer front spins down through mixed-layer instability. It
+reproduces the ice-free (c = 0) experiment of
+<a class="reference external" href="https://doi.org/10.1175/JPO-D-21-0024.1">Shrestha &amp; Manucharyan (2022)</a>
+(SM22). SM22 normalize the eddy overturning by the scaling of
+<a class="reference external" href="https://doi.org/10.1175/2007JPO3792.1">Fox-Kemper, Ferrari &amp; Hallberg (2008)</a>
+(FFH08), so the same run tests that scaling.</p>
+<p>The task validates Omega’s submesoscale eddy parameterization and its
+MPAS-Ocean counterpart (<code class="docutils literal notranslate"><span class="pre">config_submesoscale_*</span></code>). An eddy-resolving
+500 m run is the reference. Coarse runs at 8 and 16 km run with the
+parameterization off and on. The task fills the testing plan in §5 of
+Omega’s
+<a class="reference external" href="https://github.com/E3SM-Project/Omega/blob/develop/components/omega/doc/design/SubmesoscaleEddies.md">submesoscale eddies design</a>.
+Omega is the primary model; MPAS-Ocean is supported for comparison.
+The overturning diagnostic becomes a mesh-agnostic framework helper,
+which other planar tasks such as ISOMIP+ can use.</p>
+<p>The starting point is Carolyn Begeman’s Compass draft, <code class="docutils literal notranslate"><span class="pre">arctic_channel</span></code>
+(<code class="docutils literal notranslate"><span class="pre">cbegeman/compass:add_arctic_test</span></code>). It has SM22’s geometry and
+initial condition, but this design keeps only those (see D7
+under Decisions).</p>
+<p>Success has three parts:</p>
+<ul class="simple">
+<li><p>the parameterization computes what its formula says (implementation
+verification);</p></li>
+<li><p>the resolved run reproduces SM22’s ice-free overturning (test
+validation);</p></li>
+<li><p>the parameterized coarse runs restratify like the resolved run
+(parameterization validation).</p></li>
+</ul>
+<p>The first two say whether the code and the test are correct, and each
+has a pass/fail check. PE-based comparisons remain report-only (D13).
+The combined-flux comparison reports time-averaged scaling without line
+fitting or fit-based pass/fail checks (D16).</p>
+</section>
+<section id="open-questions">
+<h2>Open questions<a class="headerlink" href="#open-questions" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p>PE release is not a coefficient-calibration target (D15).</p></li>
+</ul>
+</section>
+<section id="requirements">
+<h2>Requirements<a class="headerlink" href="#requirements" title="Link to this heading"></a></h2>
+<section id="requirement-an-ice-free-mixed-layer-front-spins-down-in-a-doubly-periodic-domain">
+<h3>Requirement: An ice-free mixed-layer front spins down in a doubly periodic domain<a class="headerlink" href="#requirement-an-ice-free-mixed-layer-front-spins-down-in-a-doubly-periodic-domain" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/10/19</p>
+<p>Contributors: Xylar Asay-Davis, Claude</p>
+<p>The task shall reproduce SM22’s ice-free configuration: a doubly
+periodic, flat-bottomed f-plane domain, 300 km × 200 km × 152 m, with
+f = 1.4 × 10⁻⁴ s⁻¹ and a salinity-only linear equation of state. The
+initial state is at rest. It has a 30 m mixed layer carrying two
+opposing sinusoidal salinity fronts over the ITP77 Arctic profile. There
+is no surface forcing.</p>
+</section>
+<section id="requirement-omega-runs-on-its-native-coordinate-and-mpas-ocean-runs-for-comparison">
+<h3>Requirement: Omega runs on its native coordinate, and MPAS-Ocean runs for comparison<a class="headerlink" href="#requirement-omega-runs-on-its-native-coordinate-and-mpas-ocean-runs-for-comparison" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/10/19</p>
+<p>Contributors: Xylar Asay-Davis, Claude</p>
+<p>Every task shall run with Omega on the p-star vertical coordinate and
+with MPAS-Ocean on z-star, from the same initial state.</p>
+</section>
+<section id="requirement-an-eddy-resolving-reference-run">
+<h3>Requirement: An eddy-resolving reference run<a class="headerlink" href="#requirement-an-eddy-resolving-reference-run" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/10/20</p>
+<p>Contributors: Xylar Asay-Davis, Claude</p>
+<p>A 500 m run shall resolve mixed-layer instability for 15 days without
+the parameterization.</p>
+</section>
+<section id="requirement-coarse-runs-with-the-parameterization-off-and-on">
+<h3>Requirement: Coarse runs with the parameterization off and on<a class="headerlink" href="#requirement-coarse-runs-with-the-parameterization-off-and-on" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/10/20</p>
+<p>Contributors: Xylar Asay-Davis, Claude</p>
+<p>Runs at 8 and 16 km, too coarse to permit mixed-layer instability,
+shall each run with the parameterization off and on with E3SM’s coupled
+defaults. Both models shall use the same parameter values.</p>
+</section>
+<section id="requirement-the-eddy-overturning-is-diagnosed-consistently-with-the-models-discrete-transports">
+<h3>Requirement: The eddy overturning is diagnosed consistently with the models’ discrete transports<a class="headerlink" href="#requirement-the-eddy-overturning-is-diagnosed-consistently-with-the-models-discrete-transports" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/10/19</p>
+<p>Contributors: Xylar Asay-Davis, Claude</p>
+<p>The cross-front overturning stream function Ψ(y, z) shall be computed
+from edge-normal transports, the quantities the models’ continuity
+equations use. This applies to both the resolved eddy overturning and
+the parameterized one.</p>
+<p>The computation shall be exact on any planar MPAS mesh, and other tasks
+shall be able to use it.</p>
+</section>
+<section id="requirement-the-parameterization-s-implementation-is-verified">
+<h3>Requirement: The parameterization’s implementation is verified<a class="headerlink" href="#requirement-the-parameterization-s-implementation-is-verified" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/10/19</p>
+<p>Contributors: Xylar Asay-Davis, Claude</p>
+<p>A coarse run with the parameterization on shall produce the stream
+function that the FK11 formula gives for the run’s own state. A
+mismatch fails the task.</p>
+</section>
+<section id="requirement-the-test-reproduces-the-published-ice-free-overturning">
+<h3>Requirement: The test reproduces the published ice-free overturning<a class="headerlink" href="#requirement-the-test-reproduces-the-published-ice-free-overturning" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/10/19</p>
+<p>Contributors: Xylar Asay-Davis, Claude</p>
+<p>In the resolved run, the normalized overturning |Ψ⁺| in the frontal
+zone, averaged over days 5–7, shall be close to 1, as in SM22. A value
+outside the tolerance fails the task.</p>
+</section>
+<section id="requirement-coarse-runs-are-compared-with-the-resolved-run">
+<h3>Requirement: Coarse runs are compared with the resolved run<a class="headerlink" href="#requirement-coarse-runs-are-compared-with-the-resolved-run" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/10/20</p>
+<p>Contributors: Xylar Asay-Davis, Claude</p>
+<p>The restratification of each coarse run shall be reported relative to
+the resolved run. It does not fail the task.</p>
+</section>
+</section>
+<section id="algorithm-design">
+<h2>Algorithm Design<a class="headerlink" href="#algorithm-design" title="Link to this heading"></a></h2>
+<section id="algorithm-design-an-ice-free-mixed-layer-front-spins-down-in-a-doubly-periodic-domain">
+<h3>Algorithm Design: An ice-free mixed-layer front spins down in a doubly periodic domain<a class="headerlink" href="#algorithm-design-an-ice-free-mixed-layer-front-spins-down-in-a-doubly-periodic-domain" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/10/20</p>
+<p>Contributors: Xylar Asay-Davis, Claude</p>
+<p>The density follows SM22 (their eq. 5 and published <code class="docutils literal notranslate"><span class="pre">gendata.m</span></code>):</p>
+<div class="math notranslate nohighlight">
+\[
+\rho(y, z) = Z_S(z)\left[\Delta\rho_y Y_S(y) - \Delta\rho_z\right]
+  + \rho_{ITP}(z),
+\]</div>
+<div class="math notranslate nohighlight">
+\[
+Z_S(z) = \tfrac{1}{2}\left[1 + \tanh\left(\frac{z + H_m}{\Delta h}\right)\right],
+\qquad
+Y_S(y) = \sin\left(\frac{2\pi (y - L_y/2)}{L_y}\right),
+\]</div>
+<p>with <span class="math notranslate nohighlight">\(H_m = 30\)</span> m, <span class="math notranslate nohighlight">\(\Delta h = 5\)</span> m, <span class="math notranslate nohighlight">\(\Delta\rho_y = 3\)</span> kg m⁻³ and
+<span class="math notranslate nohighlight">\(\Delta\rho_z = \Delta\rho_y/2\)</span>. <span class="math notranslate nohighlight">\(L_y\)</span> is the mesh’s periodic length,
+not the nominal 200 km, so the front is periodic. The front at
+<span class="math notranslate nohighlight">\(y = L_y/2\)</span> is analyzed. The other front, at <span class="math notranslate nohighlight">\(y = 0\)</span>, closes the
+periodic domain.</p>
+<ul class="simple">
+<li><p><strong>EOS:</strong> <span class="math notranslate nohighlight">\(\rho = \rho_0[1 + \beta(S - S_0)]\)</span>, with
+<span class="math notranslate nohighlight">\(\rho_0 = 1027.5\)</span> kg m⁻³, <span class="math notranslate nohighlight">\(S_0 = 34\)</span> and <span class="math notranslate nohighlight">\(\beta = 10^{-3}\)</span>. Salinity
+is <span class="math notranslate nohighlight">\(S = S_0 + (\rho - \rho_0)/(\rho_0 \beta)\)</span>. Temperature is
+constant.</p></li>
+<li><p><strong>Background profile:</strong> <span class="math notranslate nohighlight">\(\rho_{ITP}\)</span> comes from the ITP77 salinity
+profile. Above <span class="math notranslate nohighlight">\(z = -H_m\)</span> it is held at its value at <span class="math notranslate nohighlight">\(z = -H_m\)</span>.</p></li>
+<li><p><strong>Noise:</strong> salinity noise, uniform in ±0.01 and drawn from a fixed
+seed, seeds the instability.</p></li>
+<li><p><strong>Initial flow:</strong> velocity is zero and the surface is flat. The front
+first undergoes Rossby adjustment, which takes about 2 days in SM22.
+See D5.</p></li>
+<li><p><strong>Vertical mixing:</strong> constant background diffusivity and viscosity of
+10⁻⁵ m² s⁻¹, plus convective and LMD94 shear mixing. KPP is off. SM22
+used KPP, but without surface forcing only its interior shear mixing
+acts.</p></li>
+<li><p><strong>Horizontal viscosity:</strong> constant del2 and del4, scaled with
+resolution. SM22 used Smagorinsky viscosity, which Omega does not
+have.</p></li>
+<li><p><strong>Bottom drag:</strong> quadratic, with C_d = 2 × 10⁻³ (SM22).</p></li>
+</ul>
+<blockquote>
+<div><p><strong>Rationale.</strong> The Stone (1970) fastest-growing wavelength is about
+6.5 km and the e-folding time is about 9.5 h (SM22, at Ri ≈ 1). At
+500 m the wavelength spans 13 cells, comparable to FFH08’s
+Δx = L_s/10. At 8 km it is shorter than a cell, so mixed-layer
+instability cannot develop on the coarse grids. At 2 and 4 km it
+does (D11).</p>
+</div></blockquote>
+</section>
+<section id="algorithm-design-omega-runs-on-its-native-coordinate-and-mpas-ocean-runs-for-comparison">
+<h3>Algorithm Design: Omega runs on its native coordinate, and MPAS-Ocean runs for comparison<a class="headerlink" href="#algorithm-design-omega-runs-on-its-native-coordinate-and-mpas-ocean-runs-for-comparison" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/10/19</p>
+<p>Contributors: Xylar Asay-Davis, Claude</p>
+<p>The initial state uses the <a class="reference internal" href="pstar_init.html"><span class="std std-doc">p-star initialization</span></a>. The
+target is a 152 m geometric bottom and the surface pressure is zero.
+The vertical grid has 64 uniform pseudo-height levels, about 2.4 m
+each. As in the overflow p-star trees, MPAS-Ocean runs z-star from the
+converged geometric thicknesses. With a salinity-only linear EOS, pseudo
+and geometric thicknesses differ by under 0.5%.</p>
+</section>
+<section id="algorithm-design-an-eddy-resolving-reference-run">
+<h3>Algorithm Design: An eddy-resolving reference run<a class="headerlink" href="#algorithm-design-an-eddy-resolving-reference-run" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/10/20</p>
+<p>Contributors: Xylar Asay-Davis, Claude</p>
+<p>The 500 m mesh has 600 × 462 cells, about 277,000 in all, which is
+comparable to EC30to60. A 15-day run needs about 2 × 10⁴ time steps.
+The run has three segments, each continuing from the restart the one
+before writes: a spin-up to day 5, an eddy-output segment over days
+5–10 and an extension from day 10 to day 15. All write daily snapshots
+of the full state; the eddy and extended segments also write hourly
+snapshots. Spinup writes daily restarts.
+SM22’s overturning diagnosis still selects days 5–7.
+The extension shall be opt-in in both resolved and comparison tasks.
+Default analyses shall consume only spinup and eddy-segment output.</p>
+</section>
+<section id="algorithm-design-coarse-runs-with-the-parameterization-off-and-on">
+<h3>Algorithm Design: Coarse runs with the parameterization off and on<a class="headerlink" href="#algorithm-design-coarse-runs-with-the-parameterization-off-and-on" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/10/20</p>
+<p>Contributors: Xylar Asay-Davis, Claude</p>
+<p>The coarse runs use the same initial condition, run for 15 days, and
+write daily output. Their parameterization settings are:</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>setting</p></th>
+<th class="head"><p>Enable</p></th>
+<th class="head"><p>C_e</p></th>
+<th class="head"><p>τ (s)</p></th>
+<th class="head"><p>L_f,min</p></th>
+<th class="head"><p>Δs_max</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">off</span></code></p></td>
+<td><p>false</p></td>
+<td><p>—</p></td>
+<td><p>—</p></td>
+<td><p>—</p></td>
+<td><p>—</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">on</span></code></p></td>
+<td><p>true</p></td>
+<td><p>0.08</p></td>
+<td><p>172800</p></td>
+<td><p>1 km</p></td>
+<td><p>100 km</p></td>
+</tr>
+</tbody>
+</table>
+<p>The <code class="docutils literal notranslate"><span class="pre">on</span></code> row is E3SM’s coupled MPAS-Ocean default (in
+<code class="docutils literal notranslate"><span class="pre">namelist_defaults_mpaso.xml</span></code>) and is also Omega’s default. Both grid
+lengths are below Δs_max, so Δs is the edge’s <code class="docutils literal notranslate"><span class="pre">dcEdge</span></code>. Here
+τ⁻¹ ≪ f, so √(f² + τ⁻²) ≈ |f|.</p>
+<blockquote>
+<div><p><strong>Rationale.</strong> The coarse grids still resolve the 200 km front, but
+the scheme multiplies Ψ by Δs/L_f. That is a factor of several here,
+because L_f ≈ 1–1.4 km. The <code class="docutils literal notranslate"><span class="pre">on</span></code> setting shows what E3SM would
+actually do (D12).</p>
+</div></blockquote>
+</section>
+<section id="algorithm-design-the-eddy-overturning-is-diagnosed-consistently-with-the-models-discrete-transports">
+<h3>Algorithm Design: The eddy overturning is diagnosed consistently with the models’ discrete transports<a class="headerlink" href="#algorithm-design-the-eddy-overturning-is-diagnosed-consistently-with-the-models-discrete-transports" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/10/19</p>
+<p>Contributors: Xylar Asay-Davis, Claude</p>
+<p>A line <span class="math notranslate nohighlight">\(y = y_0\)</span> is represented by the set <span class="math notranslate nohighlight">\(B(y_0)\)</span> of edges whose two
+cells lie on opposite sides of it. Edges on a domain boundary are
+excluded, as are edges across a periodic seam, whose cells are more than
+half a period apart. Let edge <span class="math notranslate nohighlight">\(e\)</span> have cells <span class="math notranslate nohighlight">\(c_1, c_2\)</span>
+(<code class="docutils literal notranslate"><span class="pre">cellsOnEdge</span></code>). Then <span class="math notranslate nohighlight">\(s_e = +1\)</span> if <span class="math notranslate nohighlight">\(y_{c_1} &lt; y_0 \le y_{c_2}\)</span> and
+<span class="math notranslate nohighlight">\(-1\)</span> for the reverse, because MPAS normal velocity is positive from
+<span class="math notranslate nohighlight">\(c_1\)</span> to <span class="math notranslate nohighlight">\(c_2\)</span>. The along-front mean stream function at interface <span class="math notranslate nohighlight">\(k\)</span>
+is</p>
+<div class="math notranslate nohighlight">
+\[
+\Psi(y_0, z_k) = \frac{1}{L_x} \sum_{e \in B(y_0)} s_e \, d_e
+  \sum_{k' &lt; k} u_{e,k'} \, h_{e,k'},
+\]</div>
+<p>so <span class="math notranslate nohighlight">\(\Psi = 0\)</span> at the surface and <span class="math notranslate nohighlight">\(\bar v = -\partial \Psi/\partial z\)</span>.
+Here <span class="math notranslate nohighlight">\(d_e\)</span> is <code class="docutils literal notranslate"><span class="pre">dvEdge</span></code> and <span class="math notranslate nohighlight">\(h_e\)</span> is the flux thickness on the edge. For
+Omega that is the pseudo-thickness, which makes the transport a mass
+transport. <span class="math notranslate nohighlight">\(L_x\)</span> is the mesh’s <code class="docutils literal notranslate"><span class="pre">x_period</span></code>.</p>
+<p>The sum is the exact discrete transport from the cells south of <span class="math notranslate nohighlight">\(y_0\)</span>
+to those north of it, on any mesh. On the planar hex mesh, <span class="math notranslate nohighlight">\(B(y_0)\)</span> is
+the zigzag between two rows of cells. On other meshes it is a staircase
+within about one cell of <span class="math notranslate nohighlight">\(y_0\)</span>.</p>
+<p>Along-line means of edge quantities use the weights
+<span class="math notranslate nohighlight">\(w_e = d_e |\Delta y_e| / \delta_e\)</span>, where <span class="math notranslate nohighlight">\(\delta_e\)</span> is <code class="docutils literal notranslate"><span class="pre">dcEdge</span></code>. On a
+Voronoi mesh the edge normal is parallel to the segment joining its
+cell centers, so <span class="math notranslate nohighlight">\(w_e\)</span> is the edge’s length projected onto x. The
+weights sum to <span class="math notranslate nohighlight">\(L_x\)</span>.</p>
+<ul class="simple">
+<li><p><strong>Parameterized Ψ:</strong> take <span class="math notranslate nohighlight">\(u_e\)</span> as the eddy velocity (<code class="docutils literal notranslate"><span class="pre">EddyVelocity</span></code>
+in Omega, <code class="docutils literal notranslate"><span class="pre">normalMLEvelocity</span></code> in MPAS-Ocean). This is exactly the
+transport the scheme adds.</p></li>
+<li><p><strong>Resolved Ψ:</strong> use SM22’s thickness-weighted isopycnal stream
+function (their §2c):</p>
+<ul>
+<li><p>bin each edge-layer transport <span class="math notranslate nohighlight">\(s_e d_e u_e h_e\)</span> by edge salinity,
+which measures density under this EOS;</p></li>
+<li><p>average over days 5–7 and map each salinity surface to its mean
+depth;</p></li>
+<li><p>take the eddy part as this residual overturning minus the
+Eulerian-mean overturning at the same depth (Abernathey et al.
+2011), the integrated form of <span class="math notranslate nohighlight">\(\overline{vh} - \bar v \bar h\)</span>.</p></li>
+</ul>
+</li>
+<li><p><strong>Normalization:</strong></p></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[
+\Psi^+ = \frac{\Psi}{C_e H^2 \, \overline{\partial_y b} \, \mu(z) / |f|},
+\qquad
+\mu(z) = \max\left\{0, \left[1 - \left(\tfrac{2z}{H} + 1\right)^2\right]
+  \left[1 + \tfrac{5}{21}\left(\tfrac{2z}{H} + 1\right)^2\right]\right\},
+\]</div>
+<p>where <span class="math notranslate nohighlight">\(\overline{\partial_y b}\)</span> is the mixed-layer, x- and time-averaged
+buoyancy gradient. It is computed from differences of area-weighted
+means over y-bands about one cell wide, across the frontal zone
+<span class="math notranslate nohighlight">\(|y - L_y/2| &lt; L_y/8\)</span> (SM22’s 75–125 km). <span class="math notranslate nohighlight">\(C_e = 0.08\)</span> and <span class="math notranslate nohighlight">\(H = H_m\)</span>.</p>
+<blockquote>
+<div><p><strong>Rationale.</strong> Cell-reconstructed velocities smooth the field and do
+not close the discrete volume budget. Edge sums do, and need no
+interpolation. They also assume no mesh structure: they use only
+<code class="docutils literal notranslate"><span class="pre">cellsOnEdge</span></code>, <code class="docutils literal notranslate"><span class="pre">yCell</span></code>, <code class="docutils literal notranslate"><span class="pre">dvEdge</span></code> and <code class="docutils literal notranslate"><span class="pre">dcEdge</span></code>. FFH08’s
+Held–Schneider form, <span class="math notranslate nohighlight">\(\overline{w'b'}/\bar b_y\)</span>, needs an Eulerian
+<span class="math notranslate nohighlight">\(w\)</span>. Under z-star or p-star the models provide only velocities across
+moving surfaces. Binning by salinity needs only horizontal
+transports. See D8.</p>
+</div></blockquote>
+</section>
+<section id="algorithm-design-the-parameterization-s-implementation-is-verified">
+<h3>Algorithm Design: The parameterization’s implementation is verified<a class="headerlink" href="#algorithm-design-the-parameterization-s-implementation-is-verified" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/10/20</p>
+<p>Contributors: Xylar Asay-Davis, Claude</p>
+<p>The parameterized Ψ on each frontal-zone edge is recovered from the
+eddy velocity in the last (day-15) output of each coarse <code class="docutils literal notranslate"><span class="pre">on</span></code> run. It
+is compared, edge by edge, with the FK11 formula evaluated from the
+same output as the models discretize it:</p>
+<ul class="simple">
+<li><p>the model’s own mixed-layer depth (<code class="docutils literal notranslate"><span class="pre">DenMixLayerDepth</span></code> or <code class="docutils literal notranslate"><span class="pre">dThreshMLD</span></code>)
+and N² (<code class="docutils literal notranslate"><span class="pre">BruntVaisalaFreqSq</span></code> or <code class="docutils literal notranslate"><span class="pre">BruntVaisalaFreqTop</span></code>);</p></li>
+<li><p>thickness-weighted means over interfaces, from the surface to the top
+of the first layer below the mixed-layer depth. MPAS-Ocean writes that
+layer’s index (<code class="docutils literal notranslate"><span class="pre">indMLD</span></code>). For Omega, it is found from the mixed-layer
+depth, measured from the sea surface;</p></li>
+<li><p>each model’s conventions: H on edges is the minimum of the two cells’
+in Omega and the mean in MPAS-Ocean.</p></li>
+</ul>
+<p>Only edges whose output mixed-layer depth lies within the deepest layer
+with nonzero eddy velocity are compared. Elsewhere the output depth is
+not the one the eddy velocity used: in Omega the two come from
+different stages of a time step, and where the mixed layer is nearly
+neutral the diagnosed depth jumps by layers between them. The check
+fails if fewer than half the edges qualify or the normalized RMSE on
+them exceeds 6% at 8 km or 3.5% at 16 km. Normalize RMSE by the formula’s
+RMS; these thresholds allow headroom over the reported Omega errors of
+5.2% and 2.9%, respectively.</p>
+<blockquote>
+<div><p><strong>Rationale.</strong> The final runs give errors of 1–5% on 92–100% of
+edges in Omega and about 1% on all edges in MPAS-Ocean. While the
+mixed layer restratifies (days 1–7), Omega’s output depth often
+differs from the one its eddy velocity used, so fewer edges qualify
+and errors reach 20% at 16 km. MPAS-Ocean clamps its mixed-layer depth
+to a layer midpoint in places, and its output layer depths differ
+slightly from those it used, so the layer index cannot be recovered
+from the depth; hence <code class="docutils literal notranslate"><span class="pre">indMLD</span></code>. Errors from a sign, a factor, a wrong
+frontal width or C_e of 0.06 instead of 0.08 are larger.</p>
+</div></blockquote>
+</section>
+<section id="algorithm-design-the-test-reproduces-the-published-ice-free-overturning">
+<h3>Algorithm Design: The test reproduces the published ice-free overturning<a class="headerlink" href="#algorithm-design-the-test-reproduces-the-published-ice-free-overturning" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/10/19</p>
+<p>Contributors: Xylar Asay-Davis, Claude</p>
+<p>The check is that |Ψ⁺| at mid-mixed-layer, from the resolved run, lies
+in [0.5, 2]. FFH08 fit C_e = 0.06 to balanced runs and 0.08 to all
+runs, so the window allows for that spread and for the start from rest.</p>
+</section>
+<section id="algorithm-design-coarse-runs-are-compared-with-the-resolved-run">
+<h3>Algorithm Design: Coarse runs are compared with the resolved run<a class="headerlink" href="#algorithm-design-coarse-runs-are-compared-with-the-resolved-run" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/10/20</p>
+<p>Contributors: Xylar Asay-Davis, Claude</p>
+<p>The comparison uses potential energy per unit area,
+<span class="math notranslate nohighlight">\(PE = \int \rho g z \, dV / A\)</span>, and the mixed-layer mean N² in the
+frontal zone. These are among the measures in Omega’s design (§5).
+Rossby adjustment releases potential energy in every run, so the
+comparison uses the release after it,
+<span class="math notranslate nohighlight">\(\Delta PE = PE(\text{day } 2) - PE(\text{day } 10)\)</span>, relative to the
+resolved run. The ratios are written to a table and plotted, with no
+thresholds (D13). Retain these reports and time series for inspection,
+not for tuning C_e (D15).
+Use the resolved eddy segment’s endpoint for every run’s comparison
+time series and final surface snapshot. Do not require the optional
+extended segment or include it when it happens to exist.</p>
+</section>
+<section id="algorithm-design-time-averaged-combined-flux-is-compared-with-its-scale">
+<h3>Algorithm Design: Time-averaged combined flux is compared with its scale<a class="headerlink" href="#algorithm-design-time-averaged-combined-flux-is-compared-with-its-scale" title="Link to this heading"></a></h3>
+<p>The comparison shall plot one time-averaged point for each of the five
+simulations against a 1:1 line.
+Use the single central frontal band, and form along-front covariance on
+native rows before averaging across the band. Sample hourly at half the
+diagnosed mixed-layer depth. Average signed quantities over days 6–10
+using trapezoidal integration, then take magnitudes.
+Use the area-weighted frontal-band mean of the model’s density-threshold
+mixed-layer depth. Write this field in every daily and frequent forward
+output stream, whether the parameterization is on or off.</p>
+<p>The abscissa is <span class="math notranslate nohighlight">\(|\langle C_e H^2\overline{b_y}^{\,z}/|f|\rangle_t|\)</span>.
+The ordinate is the magnitude of the time-averaged ratio of combined
+flux to mean gradient at half depth.
+Recover the parameterized skew flux from the output eddy velocity, not
+from the formula being verified. Use resolved vertical velocity for the
+covariance, excluding ALE-total and parameterized transport velocities.
+Do not fit a line or apply fit-based thresholds to the combined flux (D16).
+MLE <code class="docutils literal notranslate"><span class="pre">off</span></code> runs contribute no parameterized flux.
+Extend the resolved eddy-output segment through day 10 and restart the
+extended segment there. Keep the overturning diagnostic on days 5–7.</p>
+<blockquote>
+<div><p><strong>Rationale.</strong> This adapts Figure 1 of Fox-Kemper and Ferrari (2008),
+Part II, to the combined transport and five individual simulations.
+Temporal averaging reduces snapshot variability; these points are not
+independent samples from the paper’s multi-simulation ensemble.</p>
+</div></blockquote>
+</section>
+</section>
+<section id="implementation">
+<h2>Implementation<a class="headerlink" href="#implementation" title="Link to this heading"></a></h2>
+<section id="implementation-an-ice-free-mixed-layer-front-spins-down-in-a-doubly-periodic-domain">
+<h3>Implementation: An ice-free mixed-layer front spins down in a doubly periodic domain<a class="headerlink" href="#implementation-an-ice-free-mixed-layer-front-spins-down-in-a-doubly-periodic-domain" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/10/20</p>
+<p>Contributors: Xylar Asay-Davis, Claude</p>
+<p>New package <code class="docutils literal notranslate"><span class="pre">polaris/tasks/ocean/mixed_layer_eddies/</span></code>:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">mixed_layer_eddies.cfg</span></code>: domain, front, EOS, Coriolis
+(<code class="docutils literal notranslate"><span class="pre">[coriolis]</span> <span class="pre">type</span> <span class="pre">=</span> <span class="pre">constant</span></code>), vertical grid, run duration and
+check tolerances.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">itp77.csv</span></code>: the ITP77 profile, packaged with its provenance. It is
+about 150 rows at 1 dbar spacing to 153 dbar, from the Compass
+database file <code class="docutils literal notranslate"><span class="pre">mixed_layer_restrat/itp77.csv</span></code>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">init.py</span></code>: <code class="docutils literal notranslate"><span class="pre">Init(PStarInitStep)</span></code> builds a doubly periodic
+<code class="docutils literal notranslate"><span class="pre">make_planar_hex_mesh</span></code> (<code class="docutils literal notranslate"><span class="pre">nonperiodic_x=False</span></code>, <code class="docutils literal notranslate"><span class="pre">nonperiodic_y=False</span></code>)
+and implements <code class="docutils literal notranslate"><span class="pre">init_tracers()</span></code> with the density above.</p></li>
+</ul>
+<p>The linear EOS uses <code class="docutils literal notranslate"><span class="pre">eos_linear_alpha</span> <span class="pre">=</span> <span class="pre">0</span></code>, <code class="docutils literal notranslate"><span class="pre">eos_linear_beta</span> <span class="pre">=</span></code> ρ₀β,
+and a reference density giving ρ₀ at S₀. Omega’s linear EOS rejects a
+nonzero <code class="docutils literal notranslate"><span class="pre">Sref</span></code>.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>ocean/planar/mixed_layer_eddies/
+├── 500m/{init, spinup, eddies, extended}           (shared steps)
+├── 8km/, 16km/{init, forward_off, forward_on}      (shared steps)
+├── resolved       (task: 500m steps + analysis)
+├── coarse         (task: coarse steps + verify)
+└── comparison     (task: all shared steps + analysis)
+</pre></div>
+</div>
+</section>
+<section id="implementation-omega-runs-on-its-native-coordinate-and-mpas-ocean-runs-for-comparison">
+<h3>Implementation: Omega runs on its native coordinate, and MPAS-Ocean runs for comparison<a class="headerlink" href="#implementation-omega-runs-on-its-native-coordinate-and-mpas-ocean-runs-for-comparison" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/10/19</p>
+<p>Contributors: Xylar Asay-Davis, Claude</p>
+<p><code class="docutils literal notranslate"><span class="pre">polaris/ocean/model/mpaso_to_omega.yaml</span></code> gains two mappings:</p>
+<ul class="simple">
+<li><p>the options: <code class="docutils literal notranslate"><span class="pre">submesoscale_eddy_parameterization</span></code> →
+<code class="docutils literal notranslate"><span class="pre">Submeso:</span> <span class="pre">{Enable,</span> <span class="pre">Tau,</span> <span class="pre">Ce,</span> <span class="pre">LfMin,</span> <span class="pre">DsMax}</span></code>;</p></li>
+<li><p>the variables: <code class="docutils literal notranslate"><span class="pre">normalMLEvelocity</span></code> → <code class="docutils literal notranslate"><span class="pre">EddyVelocity</span></code> and
+<code class="docutils literal notranslate"><span class="pre">dThreshMLD</span></code> → <code class="docutils literal notranslate"><span class="pre">DenMixLayerDepth</span></code>.</p></li>
+</ul>
+<p>The config file sets <code class="docutils literal notranslate"><span class="pre">coord_type</span> <span class="pre">=</span> <span class="pre">p-star</span></code>. The step writes both models’
+initial files, as the overflow <code class="docutils literal notranslate"><span class="pre">PStarInit</span></code> does.</p>
+</section>
+<section id="implementation-an-eddy-resolving-reference-run">
+<h3>Implementation: An eddy-resolving reference run<a class="headerlink" href="#implementation-an-eddy-resolving-reference-run" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/10/20</p>
+<p>Contributors: Xylar Asay-Davis, Claude</p>
+<p><code class="docutils literal notranslate"><span class="pre">forward.py</span></code> and <code class="docutils literal notranslate"><span class="pre">forward.yaml</span></code> follow <code class="docutils literal notranslate"><span class="pre">baroclinic_channel</span></code>, with
+<code class="docutils literal notranslate"><span class="pre">dt_per_km</span></code> and <code class="docutils literal notranslate"><span class="pre">btr_dt_per_km</span></code> options. One <code class="docutils literal notranslate"><span class="pre">Forward</span></code> class runs a
+segment: <code class="docutils literal notranslate"><span class="pre">full</span></code> for the coarse runs, and <code class="docutils literal notranslate"><span class="pre">spinup</span></code>, <code class="docutils literal notranslate"><span class="pre">eddies</span></code> and
+<code class="docutils literal notranslate"><span class="pre">extended</span></code> for the resolved run. Both models split the resolved run,
+because MPAS-Ocean streams cannot limit output to a time window and
+Polaris builds a task’s steps before it knows the model. Restarts go to
+a shared <code class="docutils literal notranslate"><span class="pre">restarts</span></code> directory, and each segment’s restart alarm is
+anchored at its start time, with daily restarts during spinup and a
+restart at the end of the eddy segment. Hourly output over days 5–10
+increases storage compared with the earlier implementation, which wrote
+3-hourly output over days 5–7.</p>
+</section>
+<section id="implementation-coarse-runs-with-the-parameterization-off-and-on">
+<h3>Implementation: Coarse runs with the parameterization off and on<a class="headerlink" href="#implementation-coarse-runs-with-the-parameterization-off-and-on" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/10/19</p>
+<p>Contributors: Xylar Asay-Davis, Claude</p>
+<p>One <code class="docutils literal notranslate"><span class="pre">Forward</span></code> class takes the setting name and applies the table above
+through the mapped MPAS-Ocean options. All values are set explicitly,
+because the MPAS-Ocean Registry default C_e (0.06) differs from E3SM’s.</p>
+</section>
+<section id="implementation-the-eddy-overturning-is-diagnosed-consistently-with-the-models-discrete-transports">
+<h3>Implementation: The eddy overturning is diagnosed consistently with the models’ discrete transports<a class="headerlink" href="#implementation-the-eddy-overturning-is-diagnosed-consistently-with-the-models-discrete-transports" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/10/19</p>
+<p>Contributors: Xylar Asay-Davis, Claude</p>
+<p>A new framework module, <code class="docutils literal notranslate"><span class="pre">polaris/ocean/overturning.py</span></code>, works on any
+planar MPAS mesh, for lines of constant x or y:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">get_line_edges(ds_mesh,</span> <span class="pre">coord,</span> <span class="pre">value)</span></code> returns the edges crossing
+the line, with their signs and along-line weights;</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">compute_line_transport(ds_mesh,</span> <span class="pre">line,</span> <span class="pre">normal_velocity,</span> <span class="pre">layer_thickness)</span></code> returns the signed transport per edge and layer,
+using the centered flux thickness that is the default in both models;</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">compute_overturning(transport)</span></code> sums along the line and accumulates
+from the surface to give Ψ at interfaces;</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">bin_line_transport(transport,</span> <span class="pre">tracer,</span> <span class="pre">bins)</span></code> returns the per-edge
+transport and thickness in tracer classes, for density-class
+overturning.</p></li>
+</ul>
+<p>It is a dependency-light leaf module and takes arrays, not model
+output. The task’s <code class="docutils literal notranslate"><span class="pre">diagnostics.py</span></code> builds on it: it computes the
+salinity-binned eddy decomposition, the y-band means and Ψ⁺. It reads
+output through the Polaris variable mapping, so one code path serves
+both models.</p>
+</section>
+<section id="implementation-the-parameterization-s-implementation-is-verified">
+<h3>Implementation: The parameterization’s implementation is verified<a class="headerlink" href="#implementation-the-parameterization-s-implementation-is-verified" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/10/19</p>
+<p>Contributors: Xylar Asay-Davis, Claude</p>
+<p><code class="docutils literal notranslate"><span class="pre">coarse/verify.py</span></code> is an analysis step in the <code class="docutils literal notranslate"><span class="pre">coarse</span></code> task. It
+evaluates the FK11 formula from each coarse run’s last output and
+fails the task if the relative error or the fraction of qualifying
+edges is outside the configured limits. Runs with the parameterization
+on also write N² for this check.</p>
+</section>
+<section id="implementation-the-test-reproduces-the-published-ice-free-overturning">
+<h3>Implementation: The test reproduces the published ice-free overturning<a class="headerlink" href="#implementation-the-test-reproduces-the-published-ice-free-overturning" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/10/19</p>
+<p>Contributors: Xylar Asay-Davis, Claude</p>
+<p><code class="docutils literal notranslate"><span class="pre">resolved/analysis.py</span></code> computes Ψ and Ψ⁺ and plots them: Ψ⁺ against
+μ(z), as in FFH08 Fig. 10 and SM22 Fig. 8. It fails the task if |Ψ⁺|
+falls outside the window.</p>
+</section>
+<section id="implementation-coarse-runs-are-compared-with-the-resolved-run">
+<h3>Implementation: Coarse runs are compared with the resolved run<a class="headerlink" href="#implementation-coarse-runs-are-compared-with-the-resolved-run" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/10/20</p>
+<p>Contributors: Xylar Asay-Davis, Claude</p>
+<p><code class="docutils literal notranslate"><span class="pre">comparison/analysis.py</span></code> plots PE(t), the frontal-zone N²(t) and the
+final surface salinity for all five runs. It writes the release ratios
+to a table and has no check.</p>
+<p>The planned commits are:</p>
+<ol class="arabic simple">
+<li><p>Add this design document.</p></li>
+<li><p>Map the submesoscale options and variables between MPAS-Ocean and
+Omega.</p></li>
+<li><p>Add the <code class="docutils literal notranslate"><span class="pre">polaris.ocean.overturning</span></code> framework module and its unit
+tests.</p></li>
+<li><p>Add the ITP77 profile, config and <code class="docutils literal notranslate"><span class="pre">Init</span></code> step.</p></li>
+<li><p>Add the forward steps and the three tasks.</p></li>
+<li><p>Add the task’s diagnostics and the three analysis steps.</p></li>
+<li><p>Add unit tests for the task.</p></li>
+<li><p>Add the User’s and Developer’s Guide pages, including the
+framework module.</p></li>
+</ol>
+</section>
+</section>
+<section id="testing">
+<h2>Testing<a class="headerlink" href="#testing" title="Link to this heading"></a></h2>
+<section id="testing-and-validation-an-ice-free-mixed-layer-front-spins-down-in-a-doubly-periodic-domain">
+<h3>Testing and Validation: An ice-free mixed-layer front spins down in a doubly periodic domain<a class="headerlink" href="#testing-and-validation-an-ice-free-mixed-layer-front-spins-down-in-a-doubly-periodic-domain" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/10/19</p>
+<p>Contributors: Xylar Asay-Davis, Claude</p>
+<p>Unit tests check the analytic density and salinity, the periodicity of
+<span class="math notranslate nohighlight">\(Y_S\)</span> on the mesh, and that the noise is reproducible. Manual runs
+check that the resolved run’s eddies emerge by about day 3, with
+wavelengths near 6.5 km.</p>
+</section>
+<section id="testing-and-validation-omega-runs-on-its-native-coordinate-and-mpas-ocean-runs-for-comparison">
+<h3>Testing and Validation: Omega runs on its native coordinate, and MPAS-Ocean runs for comparison<a class="headerlink" href="#testing-and-validation-omega-runs-on-its-native-coordinate-and-mpas-ocean-runs-for-comparison" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/10/19</p>
+<p>Contributors: Xylar Asay-Davis, Claude</p>
+<p>Run <code class="docutils literal notranslate"><span class="pre">coarse</span></code> with both models. A unit test covers the new option and
+variable mappings.</p>
+</section>
+<section id="testing-and-validation-an-eddy-resolving-reference-run">
+<h3>Testing and Validation: An eddy-resolving reference run<a class="headerlink" href="#testing-and-validation-an-eddy-resolving-reference-run" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/10/19</p>
+<p>Contributors: Xylar Asay-Davis, Claude</p>
+<p>Run <code class="docutils literal notranslate"><span class="pre">resolved</span></code> once with each model as a job on a compute node, after
+the time step and viscosity are set on <code class="docutils literal notranslate"><span class="pre">coarse</span></code>.</p>
+</section>
+<section id="testing-and-validation-coarse-runs-with-the-parameterization-off-and-on">
+<h3>Testing and Validation: Coarse runs with the parameterization off and on<a class="headerlink" href="#testing-and-validation-coarse-runs-with-the-parameterization-off-and-on" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/10/19</p>
+<p>Contributors: Xylar Asay-Davis, Claude</p>
+<p>Check in the generated <code class="docutils literal notranslate"><span class="pre">omega.yml</span></code> and <code class="docutils literal notranslate"><span class="pre">namelist.ocean</span></code> that the
+settings match the table.</p>
+</section>
+<section id="testing-and-validation-the-eddy-overturning-is-diagnosed-consistently-with-the-models-discrete-transports">
+<h3>Testing and Validation: The eddy overturning is diagnosed consistently with the models’ discrete transports<a class="headerlink" href="#testing-and-validation-the-eddy-overturning-is-diagnosed-consistently-with-the-models-discrete-transports" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/10/19</p>
+<p>Contributors: Xylar Asay-Davis, Claude</p>
+<p>Unit tests in <code class="docutils literal notranslate"><span class="pre">tests/ocean/test_overturning.py</span></code> use small planar hex
+meshes. Lines of constant y give the row zigzag, and lines of constant
+x give staircases. On both kinds of line:</p>
+<ul class="simple">
+<li><p>a uniform flow must give exactly its velocity times the line length;</p></li>
+<li><p>a prescribed Ψ, converted to edge velocities, must be recovered to
+round-off;</p></li>
+<li><p>the weights must sum to the line length.</p></li>
+</ul>
+<p>Periodic and non-periodic meshes check that seam and boundary edges
+are excluded.</p>
+</section>
+<section id="testing-and-validation-the-parameterization-s-implementation-is-verified">
+<h3>Testing and Validation: The parameterization’s implementation is verified<a class="headerlink" href="#testing-and-validation-the-parameterization-s-implementation-is-verified" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/10/19</p>
+<p>Contributors: Xylar Asay-Davis, Claude</p>
+<p>Confirm that the check fails when C_e is perturbed by 20% in one model
+run but not in the analysis.</p>
+</section>
+<section id="testing-and-validation-the-test-reproduces-the-published-ice-free-overturning">
+<h3>Testing and Validation: The test reproduces the published ice-free overturning<a class="headerlink" href="#testing-and-validation-the-test-reproduces-the-published-ice-free-overturning" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/10/19</p>
+<p>Contributors: Xylar Asay-Davis, Claude</p>
+<p>Compare the Ψ⁺ profiles with SM22 Fig. 8 and the Ψ⁺ time series with
+SM22 Fig. 2.</p>
+</section>
+<section id="testing-and-validation-coarse-runs-are-compared-with-the-resolved-run">
+<h3>Testing and Validation: Coarse runs are compared with the resolved run<a class="headerlink" href="#testing-and-validation-coarse-runs-are-compared-with-the-resolved-run" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/10/20</p>
+<p>Contributors: Xylar Asay-Davis, Claude</p>
+<p>Report the release ratios on the PR, with a one-off sweep of C_e
+(0.04 and 0.06) at 8 and 16 km in both models. None of the tasks is
+added to a suite. <code class="docutils literal notranslate"><span class="pre">coarse</span></code> is the candidate if one is ever wanted.</p>
+</section>
+</section>
+<section id="decisions">
+<h2>Decisions<a class="headerlink" href="#decisions" title="Link to this heading"></a></h2>
+<section id="d1-a-separate-task-not-a-baroclinic-channel-variant">
+<h3>D1: A separate task, not a <code class="docutils literal notranslate"><span class="pre">baroclinic_channel</span></code> variant<a class="headerlink" href="#d1-a-separate-task-not-a-baroclinic-channel-variant" title="Link to this heading"></a></h3>
+<p>Xylar, 2026/10/19. The two share only a periodic planar mesh. The
+domain, initial condition, forcing and diagnostics all differ.</p>
+</section>
+<section id="d2-ice-free-only-ice-covered-runs-are-future-work">
+<h3>D2: Ice-free only; ice-covered runs are future work<a class="headerlink" href="#d2-ice-free-only-ice-covered-runs-are-future-work" title="Link to this heading"></a></h3>
+<p>Xylar, 2026/10/19. SM22’s ice runs need ice–ocean drag. Omega has no
+top drag, and no open PR adds it. They also need an ice-aware
+parameterization. For MPAS-Ocean that is
+<a class="reference external" href="https://github.com/E3SM-Project/E3SM/pull/8520">E3SM#8520</a>, which is
+open; Omega has none. SM22’s free-drifting ice becomes nearly immobile
+above c ≈ 0.68. A stationary, concentration-weighted ice lid with
+quadratic drag would therefore capture the regime where Ψ drops about
+fourfold. That is a natural follow-up once Omega has top drag.</p>
+</section>
+<section id="d3-sm22-s-configuration-with-ffh08-through-its-scaling">
+<h3>D3: SM22’s configuration, with FFH08 through its scaling<a class="headerlink" href="#d3-sm22-s-configuration-with-ffh08-through-its-scaling" title="Link to this heading"></a></h3>
+<p>Xylar, 2026/10/19. A single configuration keeps the cost to one
+resolved run. An FFH08-style mid-latitude configuration is a possible
+follow-up. It would have f ≈ 7.3 × 10⁻⁵ s⁻¹, a temperature front and
+a 50–200 m mixed layer.</p>
+</section>
+<section id="d4-doubly-periodic-not-a-channel">
+<h3>D4: Doubly periodic, not a channel<a class="headerlink" href="#d4-doubly-periodic-not-a-channel" title="Link to this heading"></a></h3>
+<p>Xylar, 2026/10/19. SM22 is doubly periodic. A wall-bounded channel, as
+in the Compass draft and FFH08, adds sidewall effects that FFH08 had to
+exclude from their diagnosis window. It also needs culling, and it fits
+a sinusoidal front poorly.</p>
+</section>
+<section id="d5-start-from-rest">
+<h3>D5: Start from rest<a class="headerlink" href="#d5-start-from-rest" title="Link to this heading"></a></h3>
+<p>SM22’s text says the front starts in geostrophic balance. Their
+published configuration, however, reads only salinity. Its initial U,
+V and SSH files are commented out, and they describe a 2-day
+adjustment. FFH08 found balanced and unbalanced starts follow the same
+scaling.</p>
+</section>
+<section id="d6-64-uniform-levels">
+<h3>D6: 64 uniform levels<a class="headerlink" href="#d6-64-uniform-levels" title="Link to this heading"></a></h3>
+<p>This replaces SM22’s 68 stretched levels, which range from 0.2 to
+20 m. New Omega grids use a multiple of 16 levels. About 2.4 m spacing
+is close to SM22’s maximum of 2 m in the mixed layer.</p>
+</section>
+<section id="d7-the-compass-draft-is-a-reference-not-a-port">
+<h3>D7: The Compass draft is a reference, not a port<a class="headerlink" href="#d7-the-compass-draft-is-a-reference-not-a-port" title="Link to this heading"></a></h3>
+<p>Several parts of the draft are not carried over:</p>
+<ul class="simple">
+<li><p>its <code class="docutils literal notranslate"><span class="pre">hydro</span></code>/<code class="docutils literal notranslate"><span class="pre">nonhydro</span></code> split, which needs a nonhydrostatic
+MPAS-Ocean fork;</p></li>
+<li><p>the solitary-wave <code class="docutils literal notranslate"><span class="pre">[visualize]</span></code> options;</p></li>
+<li><p>its stream-function scripts.</p></li>
+</ul>
+<p>Its initial condition also has bugs, which this design avoids:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">fVertex</span></code> is zero;</p></li>
+<li><p>the thermal-wind velocity is too weak by a factor of 2;</p></li>
+<li><p>the SSH sign is inverted;</p></li>
+<li><p>the EOS it uses does not match the model’s;</p></li>
+<li><p>the sine period does not match the domain.</p></li>
+</ul>
+</section>
+<section id="d8-a-mesh-agnostic-stream-function-from-edge-transports">
+<h3>D8: A mesh-agnostic stream function from edge transports<a class="headerlink" href="#d8-a-mesh-agnostic-stream-function-from-edge-transports" title="Link to this heading"></a></h3>
+<p>Xylar, 2026/10/19. Xylar asked whether Ψ should be computed with
+TRiSK-consistent numerics; edge transports are those numerics.</p>
+<ul class="simple">
+<li><p><strong>Mesh-agnostic, not row sums.</strong> A first draft summed the zigzag
+between rows of the planar hex mesh, which would break on any other
+mesh. Xylar preferred a mesh-agnostic form the framework can share.
+It gives identical answers on hex meshes.</p></li>
+<li><p><strong>A second user.</strong> ISOMIP+’s overturning stream function, across
+lines of constant x, can use the same helper.</p></li>
+<li><p><strong>Alternatives rejected.</strong> Cell reconstructions and FFH08’s
+<span class="math notranslate nohighlight">\(\overline{w'b'}\)</span> form were rejected for the reasons in the
+diagnostic’s rationale.</p></li>
+</ul>
+</section>
+<section id="d9-e3sm-coupled-defaults-set-explicitly">
+<h3>D9: E3SM coupled defaults, set explicitly<a class="headerlink" href="#d9-e3sm-coupled-defaults-set-explicitly" title="Link to this heading"></a></h3>
+<p>Xylar, 2026/10/19. The <code class="docutils literal notranslate"><span class="pre">on</span></code> setting uses E3SM’s coupled values. These
+equal Omega’s defaults, but not MPAS-Ocean’s Registry default, whose
+C_e is 0.06.</p>
+</section>
+<section id="d10-full-300-km-domain">
+<h3>D10: Full 300 km domain<a class="headerlink" href="#d10-full-300-km-domain" title="Link to this heading"></a></h3>
+<p>Xylar, 2026/10/19. Shrinking L_x to 100 km would cut the resolved
+run’s cost by a factor of about 3. The full domain keeps comparisons
+with SM22’s figures direct. The task runs on demand.</p>
+</section>
+<section id="d11-coarse-runs-at-8-and-16-km">
+<h3>D11: Coarse runs at 8 and 16 km<a class="headerlink" href="#d11-coarse-runs-at-8-and-16-km" title="Link to this heading"></a></h3>
+<p>Xylar, 2026/10/20, after review by Luke Van Roekel and Carolyn Begeman.
+The first runs included 2 and 4 km. At 2 km the instability is resolved
+and at 4 km it is permitted, so the runs restratified with the
+parameterization off, releasing 0.89 and 0.65 times the resolved run’s
+potential energy. The parameterization is meant for grids that cannot
+permit the eddies, and 8 and 16 km are both below Δs_max.</p>
+</section>
+<section id="d12-off-and-on-with-no-ffh08-like-setting">
+<h3>D12: Off and on, with no FFH08-like setting<a class="headerlink" href="#d12-off-and-on-with-no-ffh08-like-setting" title="Link to this heading"></a></h3>
+<p>Xylar, 2026/10/20. A third setting set L_f,min = Δs_max = 2 km to hold
+Δs/L_f at 1. That does not ensure it: L_f is diagnosed larger once
+NH/|f| exceeds L_f,min. E3SM has never been run that way, so the
+setting was dropped and <code class="docutils literal notranslate"><span class="pre">on</span></code> means E3SM’s coupled defaults.</p>
+</section>
+<section id="d13-the-pe-comparison-is-report-only">
+<h3>D13: The PE comparison is report-only<a class="headerlink" href="#d13-the-pe-comparison-is-report-only" title="Link to this heading"></a></h3>
+<p>The PE ratios and time series do not fail a task. The original decision
+treated PE release as a tuning target; D15 supersedes that interpretation.
+The combined-flux comparison is also report-only (D16).</p>
+</section>
+<section id="d14-15-day-runs">
+<h3>D14: 15-day runs<a class="headerlink" href="#d14-15-day-runs" title="Link to this heading"></a></h3>
+<p>Xylar, 2026/10/20. Luke Van Roekel noted that mixed-layer eddies take
+about 10 days to reach finite amplitude, so 7 days is too short to
+compare restratification. The diagnosis window stays at days 5–7 to
+match SM22.</p>
+</section>
+<section id="d15-pe-release-is-not-a-coefficient-calibration-target">
+<h3>D15: PE release is not a coefficient-calibration target<a class="headerlink" href="#d15-pe-release-is-not-a-coefficient-calibration-target" title="Link to this heading"></a></h3>
+<p>The implemented closure has explicit resolution dependence. Resolved
+eddies and parameterized transport also develop on different schedules.
+Retain PE release, PE time series and stratification plots for inspection;
+do not infer a tuned C_e from PE ratios.</p>
+</section>
+<section id="d16-combined-buoyancy-flux-is-compared-without-line-fitting">
+<h3>D16: Combined buoyancy flux is compared without line fitting<a class="headerlink" href="#d16-combined-buoyancy-flux-is-compared-without-line-fitting" title="Link to this heading"></a></h3>
+<p>Use time-averaged points and a fixed 1:1 reference line, with the configured
+C_e. Remove the earlier provisional within-simulation slope fits and
+their normalized-RMSE thresholds.</p>
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="land_locked_cells.html" class="btn btn-neutral float-left" title="Land-Locked Cells in the Ocean and Sea-Ice Domains" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="ocean_analysis.html" class="btn btn-neutral float-right" title="Ocean Analysis in Polaris" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2026, Energy Exascale Earth System Model Project.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+   
+
+  <!-- Meta tags for JS to use -->
+  <meta name="doc-version" content="main">
+  <meta name="doc-site-root" content="../">
+
+  <!-- Create version switcher container -->
+  <script>
+    const sidebar = document.querySelector('.wy-side-nav-search');
+    if (sidebar) {
+      const versionDiv = document.createElement('div');
+      versionDiv.id = 'version-switcher';
+      versionDiv.style.marginTop = '1em';
+      sidebar.appendChild(versionDiv);
+    }
+  </script>
+
+  <!-- Load version-switcher.js using the correct relative path -->
+  <script src="../../shared/version-switcher.js"></script>
+
+
+</body>
+</html>

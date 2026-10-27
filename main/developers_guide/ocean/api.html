@@ -1008,6 +1008,139 @@
 </tbody>
 </table>
 </section>
+<section id="mixed-layer-eddies">
+<h3>mixed_layer_eddies<a class="headerlink" href="#mixed-layer-eddies" title="Link to this heading"></a></h3>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.mixed_layer_eddies.add_mixed_layer_eddies_tasks.html#polaris.tasks.ocean.mixed_layer_eddies.add_mixed_layer_eddies_tasks" title="polaris.tasks.ocean.mixed_layer_eddies.add_mixed_layer_eddies_tasks"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_mixed_layer_eddies_tasks</span></code></a>(component)</p></td>
+<td><p>Add the mixed-layer eddies tasks to the ocean component</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.mixed_layer_eddies.init.Init.html#polaris.tasks.ocean.mixed_layer_eddies.init.Init" title="polaris.tasks.ocean.mixed_layer_eddies.init.Init"><code class="xref py py-obj docutils literal notranslate"><span class="pre">init.Init</span></code></a>(component, resolution[, name, ...])</p></td>
+<td><p>A step for creating a mesh and initial condition for mixed-layer eddies tasks on the p-star vertical coordinate</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.mixed_layer_eddies.init.Init.setup.html#polaris.tasks.ocean.mixed_layer_eddies.init.Init.setup" title="polaris.tasks.ocean.mixed_layer_eddies.init.Init.setup"><code class="xref py py-obj docutils literal notranslate"><span class="pre">init.Init.setup</span></code></a>()</p></td>
+<td><p>Add the mesh, vertical coordinate and initial state as outputs</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.mixed_layer_eddies.init.Init.run.html#polaris.tasks.ocean.mixed_layer_eddies.init.Init.run" title="polaris.tasks.ocean.mixed_layer_eddies.init.Init.run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">init.Init.run</span></code></a>()</p></td>
+<td><p>Run this step of the task</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.mixed_layer_eddies.init.Init.init_tracers.html#polaris.tasks.ocean.mixed_layer_eddies.init.Init.init_tracers" title="polaris.tasks.ocean.mixed_layer_eddies.init.Init.init_tracers"><code class="xref py py-obj docutils literal notranslate"><span class="pre">init.Init.init_tracers</span></code></a>(ds)</p></td>
+<td><p>Initialize conservative temperature and absolute salinity at the current p-star layer midpoints.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.mixed_layer_eddies.init.read_itp77_salinity.html#polaris.tasks.ocean.mixed_layer_eddies.init.read_itp77_salinity" title="polaris.tasks.ocean.mixed_layer_eddies.init.read_itp77_salinity"><code class="xref py py-obj docutils literal notranslate"><span class="pre">init.read_itp77_salinity</span></code></a>()</p></td>
+<td><p>Read the ITP77 salinity profile</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.mixed_layer_eddies.init.compute_background_salinity.html#polaris.tasks.ocean.mixed_layer_eddies.init.compute_background_salinity" title="polaris.tasks.ocean.mixed_layer_eddies.init.compute_background_salinity"><code class="xref py py-obj docutils literal notranslate"><span class="pre">init.compute_background_salinity</span></code></a>(z, ...)</p></td>
+<td><p>Compute the background salinity: the profile below the base of the mixed layer and its value at the base above it</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.mixed_layer_eddies.init.compute_density_anomaly.html#polaris.tasks.ocean.mixed_layer_eddies.init.compute_density_anomaly" title="polaris.tasks.ocean.mixed_layer_eddies.init.compute_density_anomaly"><code class="xref py py-obj docutils literal notranslate"><span class="pre">init.compute_density_anomaly</span></code></a>(config, y, z, ...)</p></td>
+<td><p>Compute the density anomaly of the mixed layer and its fronts, Z_S(z) [Delta rho_y Y_S(y) - Delta rho_z], from Shrestha &amp; Manucharyan (2022), their eq.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.mixed_layer_eddies.forward.Forward.html#polaris.tasks.ocean.mixed_layer_eddies.forward.Forward" title="polaris.tasks.ocean.mixed_layer_eddies.forward.Forward"><code class="xref py py-obj docutils literal notranslate"><span class="pre">forward.Forward</span></code></a>(component, resolution, init, ...)</p></td>
+<td><p>A step for performing forward ocean runs as part of mixed-layer eddies tasks</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.mixed_layer_eddies.forward.Forward.setup.html#polaris.tasks.ocean.mixed_layer_eddies.forward.Forward.setup" title="polaris.tasks.ocean.mixed_layer_eddies.forward.Forward.setup"><code class="xref py py-obj docutils literal notranslate"><span class="pre">forward.Forward.setup</span></code></a>()</p></td>
+<td><p>Set up the step, adding the OmegaMesh.nc symlink for Omega</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.mixed_layer_eddies.forward.Forward.compute_cell_count.html#polaris.tasks.ocean.mixed_layer_eddies.forward.Forward.compute_cell_count" title="polaris.tasks.ocean.mixed_layer_eddies.forward.Forward.compute_cell_count"><code class="xref py py-obj docutils literal notranslate"><span class="pre">forward.Forward.compute_cell_count</span></code></a>()</p></td>
+<td><p>Compute the approximate number of cells in the mesh, used to constrain resources</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.mixed_layer_eddies.forward.Forward.dynamic_model_config.html#polaris.tasks.ocean.mixed_layer_eddies.forward.Forward.dynamic_model_config" title="polaris.tasks.ocean.mixed_layer_eddies.forward.Forward.dynamic_model_config"><code class="xref py py-obj docutils literal notranslate"><span class="pre">forward.Forward.dynamic_model_config</span></code></a>(at_setup)</p></td>
+<td><p>Add model config options and the yaml file, which depend on config options</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.mixed_layer_eddies.diagnostics.get_frontal_lines.html#polaris.tasks.ocean.mixed_layer_eddies.diagnostics.get_frontal_lines" title="polaris.tasks.ocean.mixed_layer_eddies.diagnostics.get_frontal_lines"><code class="xref py py-obj docutils literal notranslate"><span class="pre">diagnostics.get_frontal_lines</span></code></a>(ds_mesh, ...)</p></td>
+<td><p>Get the lines of constant y between rows of cells in the frontal zone around <code class="docutils literal notranslate"><span class="pre">y</span> <span class="pre">=</span> <span class="pre">L_y</span> <span class="pre">/</span> <span class="pre">2</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.mixed_layer_eddies.diagnostics.get_frontal_cell_mask.html#polaris.tasks.ocean.mixed_layer_eddies.diagnostics.get_frontal_cell_mask" title="polaris.tasks.ocean.mixed_layer_eddies.diagnostics.get_frontal_cell_mask"><code class="xref py py-obj docutils literal notranslate"><span class="pre">diagnostics.get_frontal_cell_mask</span></code></a>(ds_mesh, ...)</p></td>
+<td><p>Get a mask of the cells in the frontal zone around <code class="docutils literal notranslate"><span class="pre">y</span> <span class="pre">=</span> <span class="pre">L_y</span> <span class="pre">/</span> <span class="pre">2</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.mixed_layer_eddies.diagnostics.get_flux_thickness.html#polaris.tasks.ocean.mixed_layer_eddies.diagnostics.get_flux_thickness" title="polaris.tasks.ocean.mixed_layer_eddies.diagnostics.get_flux_thickness"><code class="xref py py-obj docutils literal notranslate"><span class="pre">diagnostics.get_flux_thickness</span></code></a>(ds)</p></td>
+<td><p>Get the thickness that multiplies velocity in the model's continuity equation: <code class="docutils literal notranslate"><span class="pre">PseudoThickness</span></code> for Omega, <code class="docutils literal notranslate"><span class="pre">layerThickness</span></code> for MPAS-Ocean</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.mixed_layer_eddies.diagnostics.get_density.html#polaris.tasks.ocean.mixed_layer_eddies.diagnostics.get_density" title="polaris.tasks.ocean.mixed_layer_eddies.diagnostics.get_density"><code class="xref py py-obj docutils literal notranslate"><span class="pre">diagnostics.get_density</span></code></a>(config, ds)</p></td>
+<td><p>Compute the density from the tracers with the configured equation of state.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.mixed_layer_eddies.diagnostics.get_geom_thickness.html#polaris.tasks.ocean.mixed_layer_eddies.diagnostics.get_geom_thickness" title="polaris.tasks.ocean.mixed_layer_eddies.diagnostics.get_geom_thickness"><code class="xref py py-obj docutils literal notranslate"><span class="pre">diagnostics.get_geom_thickness</span></code></a>(config, ds)</p></td>
+<td><p>Get the geometric layer thickness, converting Omega's pseudo-thickness with the density of each layer if need be</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.mixed_layer_eddies.diagnostics.get_z_mid.html#polaris.tasks.ocean.mixed_layer_eddies.diagnostics.get_z_mid" title="polaris.tasks.ocean.mixed_layer_eddies.diagnostics.get_z_mid"><code class="xref py py-obj docutils literal notranslate"><span class="pre">diagnostics.get_z_mid</span></code></a>(layer_thickness[, ...])</p></td>
+<td><p>Get the geometric heights of layer midpoints relative to the sea surface from the geometric layer thicknesses</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.mixed_layer_eddies.diagnostics.compute_mu.html#polaris.tasks.ocean.mixed_layer_eddies.diagnostics.compute_mu" title="polaris.tasks.ocean.mixed_layer_eddies.diagnostics.compute_mu"><code class="xref py py-obj docutils literal notranslate"><span class="pre">diagnostics.compute_mu</span></code></a>(z, ml_depth)</p></td>
+<td><p>Compute the vertical structure function of Fox-Kemper et al. (2008), zero below the mixed layer.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.mixed_layer_eddies.diagnostics.compute_buoyancy_gradient.html#polaris.tasks.ocean.mixed_layer_eddies.diagnostics.compute_buoyancy_gradient" title="polaris.tasks.ocean.mixed_layer_eddies.diagnostics.compute_buoyancy_gradient"><code class="xref py py-obj docutils literal notranslate"><span class="pre">diagnostics.compute_buoyancy_gradient</span></code></a>(...)</p></td>
+<td><p>Compute the mixed-layer mean cross-front buoyancy gradient from differences of area-weighted means over y-bands one row of cells wide</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.mixed_layer_eddies.diagnostics.compute_line_overturning.html#polaris.tasks.ocean.mixed_layer_eddies.diagnostics.compute_line_overturning" title="polaris.tasks.ocean.mixed_layer_eddies.diagnostics.compute_line_overturning"><code class="xref py py-obj docutils literal notranslate"><span class="pre">diagnostics.compute_line_overturning</span></code></a>(lines, ...)</p></td>
+<td><p>Compute the overturning stream function per unit length along each line, at layer interfaces</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.mixed_layer_eddies.diagnostics.compute_line_interface_depths.html#polaris.tasks.ocean.mixed_layer_eddies.diagnostics.compute_line_interface_depths" title="polaris.tasks.ocean.mixed_layer_eddies.diagnostics.compute_line_interface_depths"><code class="xref py py-obj docutils literal notranslate"><span class="pre">diagnostics.compute_line_interface_depths</span></code></a>(...)</p></td>
+<td><p>Compute the along-line mean geometric depths of the layer interfaces of each line, relative to the sea surface</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.mixed_layer_eddies.diagnostics.compute_eddy_overturning.html#polaris.tasks.ocean.mixed_layer_eddies.diagnostics.compute_eddy_overturning" title="polaris.tasks.ocean.mixed_layer_eddies.diagnostics.compute_eddy_overturning"><code class="xref py py-obj docutils literal notranslate"><span class="pre">diagnostics.compute_eddy_overturning</span></code></a>(lines, ...)</p></td>
+<td><p>Compute the eddy overturning along each line in the thickness-weighted, salinity-binned framework of Shrestha &amp; Manucharyan (2022): the residual overturning in salinity classes minus the Eulerian-mean overturning at the mean depth of each class (Abernathey et al. 2011), both averaged over the snapshots.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.mixed_layer_eddies.diagnostics.fit_mu_amplitude.html#polaris.tasks.ocean.mixed_layer_eddies.diagnostics.fit_mu_amplitude" title="polaris.tasks.ocean.mixed_layer_eddies.diagnostics.fit_mu_amplitude"><code class="xref py py-obj docutils literal notranslate"><span class="pre">diagnostics.fit_mu_amplitude</span></code></a>(psi, z, ml_depth)</p></td>
+<td><p>Fit <code class="docutils literal notranslate"><span class="pre">psi(z)</span> <span class="pre">=</span> <span class="pre">amplitude</span> <span class="pre">*</span> <span class="pre">mu(z)</span></code> by least squares over the mixed layer</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.mixed_layer_eddies.flux.analyze_combined_flux.html#polaris.tasks.ocean.mixed_layer_eddies.flux.analyze_combined_flux" title="polaris.tasks.ocean.mixed_layer_eddies.flux.analyze_combined_flux"><code class="xref py py-obj docutils literal notranslate"><span class="pre">flux.analyze_combined_flux</span></code></a>(step, runs)</p></td>
+<td><p>Plot one time-averaged flux point per run against a 1:1 reference.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.mixed_layer_eddies.flux.get_snapshot_days.html#polaris.tasks.ocean.mixed_layer_eddies.flux.get_snapshot_days" title="polaris.tasks.ocean.mixed_layer_eddies.flux.get_snapshot_days"><code class="xref py py-obj docutils literal notranslate"><span class="pre">flux.get_snapshot_days</span></code></a>(ds)</p></td>
+<td><p>Read absolute simulation days without changing elapsed-time helpers.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.mixed_layer_eddies.flux.compute_combined_flux.html#polaris.tasks.ocean.mixed_layer_eddies.flux.compute_combined_flux" title="polaris.tasks.ocean.mixed_layer_eddies.flux.compute_combined_flux"><code class="xref py py-obj docutils literal notranslate"><span class="pre">flux.compute_combined_flux</span></code></a>(config, mesh, ds, ...)</p></td>
+<td><p>Diagnose one snapshot in the central frontal band.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.mixed_layer_eddies.diagnostics.compute_fk11_stream_function.html#polaris.tasks.ocean.mixed_layer_eddies.diagnostics.compute_fk11_stream_function" title="polaris.tasks.ocean.mixed_layer_eddies.diagnostics.compute_fk11_stream_function"><code class="xref py py-obj docutils literal notranslate"><span class="pre">diagnostics.compute_fk11_stream_function</span></code></a>(...)</p></td>
+<td><p>Evaluate the stream function of the Fox-Kemper et al. (2011) parameterization on edges from model output, as the models discretize it.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.mixed_layer_eddies.diagnostics.compute_model_stream_function.html#polaris.tasks.ocean.mixed_layer_eddies.diagnostics.compute_model_stream_function" title="polaris.tasks.ocean.mixed_layer_eddies.diagnostics.compute_model_stream_function"><code class="xref py py-obj docutils literal notranslate"><span class="pre">diagnostics.compute_model_stream_function</span></code></a>(...)</p></td>
+<td><p>Recover the stream function a model's parameterization computed on edges from its eddy velocity, which both models define as minus the difference of the stream function across a layer divided by the layer's mean geometric thickness on the edge</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.mixed_layer_eddies.diagnostics.get_consistent_edges.html#polaris.tasks.ocean.mixed_layer_eddies.diagnostics.get_consistent_edges" title="polaris.tasks.ocean.mixed_layer_eddies.diagnostics.get_consistent_edges"><code class="xref py py-obj docutils literal notranslate"><span class="pre">diagnostics.get_consistent_edges</span></code></a>(config, ...)</p></td>
+<td><p>Find the edges where the mixed-layer depth in the output is the one the eddy velocity in the output was computed with: the depth lies within the deepest layer with a nonzero eddy velocity.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.mixed_layer_eddies.diagnostics.compute_potential_energy.html#polaris.tasks.ocean.mixed_layer_eddies.diagnostics.compute_potential_energy" title="polaris.tasks.ocean.mixed_layer_eddies.diagnostics.compute_potential_energy"><code class="xref py py-obj docutils literal notranslate"><span class="pre">diagnostics.compute_potential_energy</span></code></a>(config, ...)</p></td>
+<td><p>Compute the potential energy per unit area, g rho z h summed over the column and averaged over the domain (J m-2)</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.mixed_layer_eddies.diagnostics.compute_mixed_layer_n2.html#polaris.tasks.ocean.mixed_layer_eddies.diagnostics.compute_mixed_layer_n2" title="polaris.tasks.ocean.mixed_layer_eddies.diagnostics.compute_mixed_layer_n2"><code class="xref py py-obj docutils literal notranslate"><span class="pre">diagnostics.compute_mixed_layer_n2</span></code></a>(config, ...)</p></td>
+<td><p>Compute the mean buoyancy frequency squared over the mixed layer of the frontal zone (s-2)</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.mixed_layer_eddies.viz.plot_surface_salinity.html#polaris.tasks.ocean.mixed_layer_eddies.viz.plot_surface_salinity" title="polaris.tasks.ocean.mixed_layer_eddies.viz.plot_surface_salinity"><code class="xref py py-obj docutils literal notranslate"><span class="pre">viz.plot_surface_salinity</span></code></a>(ax, ds_mesh, ds, ...)</p></td>
+<td><p>Plot the surface salinity of one snapshot on a panel of a figure, without a colorbar so that panels can share one</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.mixed_layer_eddies.resolved.Resolved.html#polaris.tasks.ocean.mixed_layer_eddies.resolved.Resolved" title="polaris.tasks.ocean.mixed_layer_eddies.resolved.Resolved"><code class="xref py py-obj docutils literal notranslate"><span class="pre">resolved.Resolved</span></code></a>(component, indir, ...)</p></td>
+<td><p>The eddy-resolving reference run of the mixed-layer eddies tasks</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.mixed_layer_eddies.resolved.analysis.Analysis.html#polaris.tasks.ocean.mixed_layer_eddies.resolved.analysis.Analysis" title="polaris.tasks.ocean.mixed_layer_eddies.resolved.analysis.Analysis"><code class="xref py py-obj docutils literal notranslate"><span class="pre">resolved.analysis.Analysis</span></code></a>(component, indir, ...)</p></td>
+<td><p>A step for diagnosing the eddy overturning of the resolved run and comparing it with the scaling of Fox-Kemper et al. (2008), as in Shrestha &amp; Manucharyan (2022).</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.mixed_layer_eddies.resolved.analysis.Analysis.run.html#polaris.tasks.ocean.mixed_layer_eddies.resolved.analysis.Analysis.run" title="polaris.tasks.ocean.mixed_layer_eddies.resolved.analysis.Analysis.run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">resolved.analysis.Analysis.run</span></code></a>()</p></td>
+<td><p>Run this step of the task</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.mixed_layer_eddies.coarse.Coarse.html#polaris.tasks.ocean.mixed_layer_eddies.coarse.Coarse" title="polaris.tasks.ocean.mixed_layer_eddies.coarse.Coarse"><code class="xref py py-obj docutils literal notranslate"><span class="pre">coarse.Coarse</span></code></a>(component, indir, coarse_steps)</p></td>
+<td><p>The coarse runs of the mixed-layer eddies tasks, with the submesoscale eddy parameterization off and on</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.mixed_layer_eddies.coarse.verify.Verify.html#polaris.tasks.ocean.mixed_layer_eddies.coarse.verify.Verify" title="polaris.tasks.ocean.mixed_layer_eddies.coarse.verify.Verify"><code class="xref py py-obj docutils literal notranslate"><span class="pre">coarse.verify.Verify</span></code></a>(component, indir, ...)</p></td>
+<td><p>A step for verifying that the coarse runs' submesoscale eddy parameterization produces the stream function its formula gives for the runs' own state</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.mixed_layer_eddies.coarse.verify.Verify.run.html#polaris.tasks.ocean.mixed_layer_eddies.coarse.verify.Verify.run" title="polaris.tasks.ocean.mixed_layer_eddies.coarse.verify.Verify.run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">coarse.verify.Verify.run</span></code></a>()</p></td>
+<td><p>Run this step of the task</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.mixed_layer_eddies.comparison.Comparison.html#polaris.tasks.ocean.mixed_layer_eddies.comparison.Comparison" title="polaris.tasks.ocean.mixed_layer_eddies.comparison.Comparison"><code class="xref py py-obj docutils literal notranslate"><span class="pre">comparison.Comparison</span></code></a>(component, indir, ...)</p></td>
+<td><p>The comparison of the coarse runs of the mixed-layer eddies tasks with the eddy-resolving reference run</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.mixed_layer_eddies.comparison.analysis.Analysis.html#polaris.tasks.ocean.mixed_layer_eddies.comparison.analysis.Analysis" title="polaris.tasks.ocean.mixed_layer_eddies.comparison.analysis.Analysis"><code class="xref py py-obj docutils literal notranslate"><span class="pre">comparison.analysis.Analysis</span></code></a>(component, ...)</p></td>
+<td><p>A step for reporting restratification and combined buoyancy flux.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.mixed_layer_eddies.comparison.analysis.Analysis.run.html#polaris.tasks.ocean.mixed_layer_eddies.comparison.analysis.Analysis.run" title="polaris.tasks.ocean.mixed_layer_eddies.comparison.analysis.Analysis.run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">comparison.analysis.Analysis.run</span></code></a>()</p></td>
+<td><p>Run this step of the task</p></td>
+</tr>
+</tbody>
+</table>
+</section>
 <section id="overflow">
 <h3>overflow<a class="headerlink" href="#overflow" title="Link to this heading"></a></h3>
 <table class="autosummary longtable docutils align-default">
@@ -1963,6 +2096,28 @@
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.ocean.rpe.compute_rpe.html#polaris.ocean.rpe.compute_rpe" title="polaris.ocean.rpe.compute_rpe"><code class="xref py py-obj docutils literal notranslate"><span class="pre">rpe.compute_rpe</span></code></a>(ds_mesh, ds_init, ds_outputs)</p></td>
 <td><p>Computes the reference (resting) potential energy for the whole domain</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="overturning">
+<h3>Overturning<a class="headerlink" href="#overturning" title="Link to this heading"></a></h3>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.ocean.overturning.get_line_edges.html#polaris.ocean.overturning.get_line_edges" title="polaris.ocean.overturning.get_line_edges"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_line_edges</span></code></a>(ds_mesh, coord, value)</p></td>
+<td><p>Find the edges crossing a line of constant x or y on a planar mesh</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.ocean.overturning.interp_cell_to_line_edges.html#polaris.ocean.overturning.interp_cell_to_line_edges" title="polaris.ocean.overturning.interp_cell_to_line_edges"><code class="xref py py-obj docutils literal notranslate"><span class="pre">interp_cell_to_line_edges</span></code></a>(line, cell_field)</p></td>
+<td><p>Average a cell field to the edges of a line</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.ocean.overturning.compute_line_transport.html#polaris.ocean.overturning.compute_line_transport" title="polaris.ocean.overturning.compute_line_transport"><code class="xref py py-obj docutils literal notranslate"><span class="pre">compute_line_transport</span></code></a>(line, ...)</p></td>
+<td><p>Compute the transport across a line in each layer of each edge</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.ocean.overturning.compute_overturning.html#polaris.ocean.overturning.compute_overturning" title="polaris.ocean.overturning.compute_overturning"><code class="xref py py-obj docutils literal notranslate"><span class="pre">compute_overturning</span></code></a>(transport[, vert_dim])</p></td>
+<td><p>Compute the overturning stream function at layer interfaces</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.ocean.overturning.bin_line_transport.html#polaris.ocean.overturning.bin_line_transport" title="polaris.ocean.overturning.bin_line_transport"><code class="xref py py-obj docutils literal notranslate"><span class="pre">bin_line_transport</span></code></a>(transport, ...[, vert_dim])</p></td>
+<td><p>Sort the transport and thickness on each edge of a line into tracer classes, for overturning in tracer (e.g. density) coordinates.</p></td>
 </tr>
 </tbody>
 </table>

@@ -1,0 +1,6 @@
+﻿polaris.tasks.ocean.mixed\_layer\_eddies.diagnostics.get\_frontal\_cell\_mask
+=============================================================================
+
+.. currentmodule:: polaris.tasks.ocean.mixed_layer_eddies.diagnostics
+
+.. autofunction:: get_frontal_cell_mask

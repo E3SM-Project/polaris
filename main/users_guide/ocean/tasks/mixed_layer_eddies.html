@@ -1,0 +1,587 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>mixed layer eddies</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=a8da1a53"></script>
+      <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script>window.MathJax = {"options": {"processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+      <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-mml-chtml.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+    <link rel="next" title="nondivergent 2-d" href="nondivergent_2d.html" />
+    <link rel="prev" title="merry-go-round" href="merry_go_round.html" />
+    <link href="../../../_static/style.css" rel="stylesheet" type="text/css">
+
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            Polaris
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">User's guide</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../quick_start.html">Quick Start for Users</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tasks.html">Tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../config_files.html">Config Files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../suites.html">Suites</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../mesh/index.html">Mesh component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../e3sm/init/index.html">E3SM Initial Condition Component</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../index.html">Ocean component</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="index.html">Tasks</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="analysis.html">analysis</a></li>
+<li class="toctree-l3"><a class="reference internal" href="baroclinic_channel.html">baroclinic channel</a></li>
+<li class="toctree-l3"><a class="reference internal" href="barotropic_channel.html">barotropic channel</a></li>
+<li class="toctree-l3"><a class="reference internal" href="barotropic_gyre.html">barotropic gyre</a></li>
+<li class="toctree-l3"><a class="reference internal" href="correlated_tracers_2d.html">correlated tracers 2-d</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cosine_bell.html">cosine bell</a></li>
+<li class="toctree-l3"><a class="reference internal" href="customizable_viz.html">customizable viz</a></li>
+<li class="toctree-l3"><a class="reference internal" href="external_gravity_wave.html">external gravity wave</a></li>
+<li class="toctree-l3"><a class="reference internal" href="feature_masks.html">Feature Masks</a></li>
+<li class="toctree-l3"><a class="reference internal" href="geostrophic.html">geostrophic</a></li>
+<li class="toctree-l3"><a class="reference internal" href="realistic_global.html">realistic_global</a></li>
+<li class="toctree-l3"><a class="reference internal" href="horiz_press_grad.html">horizontal pressure gradient</a></li>
+<li class="toctree-l3"><a class="reference internal" href="divergent_2d.html">divergent 2-d</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ice_shelf_2d.html">ice shelf 2d</a></li>
+<li class="toctree-l3"><a class="reference internal" href="inertial_gravity_wave.html">inertial gravity wave</a></li>
+<li class="toctree-l3"><a class="reference internal" href="internal_wave.html">internal wave</a></li>
+<li class="toctree-l3"><a class="reference internal" href="manufactured_solution.html">manufactured solution</a></li>
+<li class="toctree-l3"><a class="reference internal" href="merry_go_round.html">merry-go-round</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">mixed layer eddies</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#supported-models">supported models</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#mesh">mesh</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#vertical-grid">vertical grid</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#initial-conditions">initial conditions</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#forcing">forcing</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#time-step-and-run-duration">time step and run duration</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#config-options">config options</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#cores">cores</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#resolved">resolved</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#coarse">coarse</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#comparison">comparison</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="nondivergent_2d.html">nondivergent 2-d</a></li>
+<li class="toctree-l3"><a class="reference internal" href="overflow.html">overflow</a></li>
+<li class="toctree-l3"><a class="reference internal" href="rotation_2d.html">rotation 2-d</a></li>
+<li class="toctree-l3"><a class="reference internal" href="seamount.html">seamount</a></li>
+<li class="toctree-l3"><a class="reference internal" href="single_column.html">single column</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../framework/index.html">Framework</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../suites.html">Suites</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../suites.html#nightly-suite">nightly suite</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../suites.html#omega-pr-suite">omega_pr suite</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../seaice/index.html">Sea ice component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../machines/index.html">Machines</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Developer's guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/quick_start.html">Quick Start for Developers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/command_line.html">Command-line interface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/organization/index.html">Organization of Tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/e3sm/init/index.html">E3SM initial condition (e3sm/init) component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/mesh/index.html">Mesh component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/ocean/index.html">Ocean component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/seaice/index.html">Sea ice component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/framework/index.html">Framework</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/machines/index.html">Machines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/benchmarking.html">Benchmarking a branch against a baseline</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/omega_pr_testing.html">Testing an Omega pull request</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/troubleshooting.html">Troubleshooting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/docs.html">Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/building_docs.html">Building the Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/building_docs.html#previewing-the-documentation">Previewing the Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/conda_vs_spack.html">How Conda and Spack Work Together in Polaris</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/updating_conda.html">Updating Deployment Dependencies</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/updating_spack/index.html">Updating Shared Spack Environments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/api.html">API reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../design_docs/index.html">Design Documents</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorials/dev_add_category_of_tasks/index.html">Developer Tutorial: Adding a New Category of Tasks</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Glossary</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../glossary.html">Glossary</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">Polaris</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Ocean component</a></li>
+          <li class="breadcrumb-item"><a href="index.html">Tasks</a></li>
+      <li class="breadcrumb-item active">mixed layer eddies</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../../_sources/users_guide/ocean/tasks/mixed_layer_eddies.md.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section class="tex2jax_ignore mathjax_ignore" id="mixed-layer-eddies">
+<span id="ocean-mixed-layer-eddies"></span><h1>mixed layer eddies<a class="headerlink" href="#mixed-layer-eddies" title="Link to this heading"></a></h1>
+<p>The mixed-layer eddies tasks reproduce the ice-free mixed-layer instability
+experiment of
+<a class="reference external" href="https://doi.org/10.1175/JPO-D-21-0024.1">Shrestha &amp; Manucharyan (2022)</a>,
+which normalizes the eddy overturning by the scaling of
+<a class="reference external" href="https://doi.org/10.1175/2007JPO3792.1">Fox-Kemper, Ferrari &amp; Hallberg (2008)</a>.
+A mixed-layer front spins down at rest, with no forcing.  An eddy-resolving
+500 m run is the reference for coarse runs at 8 and 16 km with the
+submesoscale eddy parameterization (Fox-Kemper et al. 2011) off and on.
+The tasks validate that parameterization in Omega and MPAS-Ocean.  The
+design is in the
+<a class="reference internal" href="../../../design_docs/mixed_layer_eddies.html"><span class="std std-doc">mixed-layer eddies design document</span></a>.</p>
+<p>There are no coarse runs at 2 or 4 km.  At 2 km, mixed-layer instability is
+resolved, and at 4 km it is permitted, so the runs restratify without the
+parameterization, which is meant for meshes too coarse to permit the eddies.</p>
+<p>The tasks are run on demand and are not part of any suite.  The resolved run
+is about the size of an EC30to60 mesh and runs for 15 days.</p>
+<p>In the resolved run, mixed-layer eddies emerge on both fronts by day 3,
+fill the frontal zones by day 7 and have stirred the two fronts together by
+day 15 (Omega):</p>
+<a class="reference internal image-reference" href="../../../_images/mixed_layer_eddies_resolved_surface_salinity.jpg"><img alt="../../../_images/mixed_layer_eddies_resolved_surface_salinity.jpg" class="align-center" src="../../../_images/mixed_layer_eddies_resolved_surface_salinity.jpg" style="width: 700px;" />
+</a>
+<section id="supported-models">
+<h2>supported models<a class="headerlink" href="#supported-models" title="Link to this heading"></a></h2>
+<p>These tasks support both MPAS-Ocean and Omega.</p>
+</section>
+<section id="mesh">
+<h2>mesh<a class="headerlink" href="#mesh" title="Link to this heading"></a></h2>
+<p>The mesh is a doubly periodic planar hex mesh, 300 km in x by 200 km in y,
+at 500 m for the resolved run and at 8 and 16 km for the coarse runs.
+Rounding to whole rows of cells makes the coarser domains slightly
+different in size, so all comparisons use quantities per unit length or
+area.</p>
+</section>
+<section id="vertical-grid">
+<h2>vertical grid<a class="headerlink" href="#vertical-grid" title="Link to this heading"></a></h2>
+<p>The flat sea floor is 152 m deep.  For Omega, the vertical coordinate is
+p-star with 64 uniform pseudo-height levels of about 2.4 m.  MPAS-Ocean runs
+z-star from the geometric thicknesses of the converged p-star state.</p>
+<div class="highlight-cfg notranslate"><div class="highlight"><pre><span></span><span class="c1"># Options related to the vertical grid</span>
+<span class="k">[vertical_grid]</span>
+
+<span class="c1"># the type of vertical grid</span>
+<span class="na">grid_type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">uniform</span>
+
+<span class="c1"># Number of vertical levels (a multiple of 16 for Omega performance)</span>
+<span class="na">vert_levels</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">64</span>
+
+<span class="c1"># Pseudo-depth of the bottom of the pseudo-height grid (m)</span>
+<span class="na">bottom_depth</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">152.0</span>
+
+<span class="c1"># The type of vertical coordinate (e.g. z-level, z-star, p-star)</span>
+<span class="na">coord_type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">p-star</span>
+
+<span class="c1"># Whether to use "partial" or "full", or "None" to not alter the topography</span>
+<span class="na">partial_cell_type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">None</span>
+
+<span class="c1"># The minimum fraction of a layer for partial cells</span>
+<span class="na">min_pc_fraction</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">0.1</span>
+</pre></div>
+</div>
+</section>
+<section id="initial-conditions">
+<h2>initial conditions<a class="headerlink" href="#initial-conditions" title="Link to this heading"></a></h2>
+<p>The density follows Shrestha &amp; Manucharyan’s eq. 5:</p>
+<div class="math notranslate nohighlight">
+\[
+\rho(y, z) = Z_S(z)\left[\Delta\rho_y Y_S(y) - \Delta\rho_z\right]
+  + \rho_{ITP}(z),
+\]</div>
+<div class="math notranslate nohighlight">
+\[
+Z_S(z) = \tfrac{1}{2}\left[1 + \tanh\left(\frac{z + H_m}{\Delta h}\right)
+  \right],
+\qquad
+Y_S(y) = \sin\left(\frac{2\pi (y - L_y/2)}{L_y}\right),
+\]</div>
+<p>with <span class="math notranslate nohighlight">\(H_m = 30\)</span> m, <span class="math notranslate nohighlight">\(\Delta h = 5\)</span> m, <span class="math notranslate nohighlight">\(\Delta\rho_y = 3\)</span> kg m⁻³ and
+<span class="math notranslate nohighlight">\(\Delta\rho_z = 1.5\)</span> kg m⁻³.  <span class="math notranslate nohighlight">\(L_y\)</span> is the periodic length of the mesh, so
+there are two opposing fronts; the one at <span class="math notranslate nohighlight">\(y = L_y/2\)</span> is analyzed.
+<span class="math notranslate nohighlight">\(\rho_{ITP}\)</span> comes from a salinity profile from Ice-Tethered Profiler 77,
+held at its 30 m value above 30 m.  The equation of state is linear in
+salinity alone, <span class="math notranslate nohighlight">\(\rho = \rho_0[1 + \beta(S - S_0)]\)</span> with
+<span class="math notranslate nohighlight">\(\rho_0 = 1027.5\)</span> kg m⁻³, <span class="math notranslate nohighlight">\(\beta = 10^{-3}\)</span> and <span class="math notranslate nohighlight">\(S_0 = 34\)</span>, so the front is
+a salinity front and temperature is a constant -1.4 °C.  Uniform salinity
+noise of ±0.01 from a fixed seed seeds the instability.  The velocity is
+zero and the surface is flat, so the front first undergoes a Rossby
+adjustment lasting about 2 days.  The Coriolis parameter is a constant
+<span class="math notranslate nohighlight">\(f = 1.4 \times 10^{-4}\)</span> s⁻¹.</p>
+<a class="reference internal image-reference" href="../../../_images/mixed_layer_eddies_initial_salinity.png"><img alt="../../../_images/mixed_layer_eddies_initial_salinity.png" class="align-center" src="../../../_images/mixed_layer_eddies_initial_salinity.png" style="width: 600px;" />
+</a>
+</section>
+<section id="forcing">
+<h2>forcing<a class="headerlink" href="#forcing" title="Link to this heading"></a></h2>
+<p>N/A</p>
+</section>
+<section id="time-step-and-run-duration">
+<h2>time step and run duration<a class="headerlink" href="#time-step-and-run-duration" title="Link to this heading"></a></h2>
+<p>The baroclinic time step is 120 s per km of resolution and the barotropic
+time step is 4 s per km.  Every run lasts 15 days.  The resolved run is
+split into three segments, each continuing from the restart of the one
+before: a spin-up over elapsed days 0–5 with daily restarts, an eddy-output
+segment over days 5–10, and an extended segment over days 10–15.
+The last two segments write hourly eddy output; all segments also write
+daily state output. In calendar-day numbering, the eddy segment starts
+at the start of day 6 and ends at the start of day 11.
+The overturning diagnostic selects elapsed days 5–7.
+The extended segment is optional in both resolved and comparison tasks.
+Run <code class="docutils literal notranslate"><span class="pre">polaris</span> <span class="pre">serial</span> <span class="pre">--steps</span> <span class="pre">extended_500m</span></code> from either task directory
+to execute it explicitly. Default analyses use only spinup and eddies
+and do not include extended output, even if it exists.</p>
+</section>
+<section id="config-options">
+<h2>config options<a class="headerlink" href="#config-options" title="Link to this heading"></a></h2>
+<div class="highlight-cfg notranslate"><div class="highlight"><pre><span></span><span class="c1"># config options for mixed-layer eddies tasks</span>
+<span class="k">[mixed_layer_eddies]</span>
+
+<span class="c1"># the size of the doubly periodic domain in km in the x and y directions</span>
+<span class="na">lx</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">300.0</span>
+<span class="na">ly</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">200.0</span>
+
+<span class="c1"># the geometric depth of the flat sea floor (m)</span>
+<span class="na">bottom_depth</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">152.0</span>
+
+<span class="c1"># the depth of the base of the mixed layer, H_m (m)</span>
+<span class="na">mixed_layer_depth</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">30.0</span>
+
+<span class="c1"># the width of the tanh taper at the base of the mixed layer, Delta h (m)</span>
+<span class="na">mixed_layer_taper_width</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">5.0</span>
+
+<span class="c1"># the amplitude of the sinusoidal density front, Delta rho_y (kg m-3)</span>
+<span class="na">front_density_difference</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">3.0</span>
+
+<span class="c1"># the density offset of the mixed layer, Delta rho_z (kg m-3)</span>
+<span class="na">mixed_layer_density_offset</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">1.5</span>
+
+<span class="c1"># the constant temperature (degC), which does not affect density</span>
+<span class="na">temperature</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">-1.4</span>
+
+<span class="c1"># the amplitude of the uniform salinity noise that seeds the instability</span>
+<span class="na">salinity_noise_amplitude</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">0.01</span>
+
+<span class="c1"># the seed for the salinity noise, so the initial state is reproducible</span>
+<span class="na">noise_seed</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">1</span>
+
+
+<span class="c1"># config options for forward runs of mixed-layer eddies tasks</span>
+<span class="k">[mixed_layer_eddies_forward]</span>
+
+<span class="c1"># Time integration scheme</span>
+<span class="na">time_integrator</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">split_explicit</span>
+
+<span class="c1"># time step per resolution (s/km), since dt is proportional to resolution</span>
+<span class="na">dt_per_km</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">120.0</span>
+
+<span class="c1"># barotropic time step per resolution (s/km)</span>
+<span class="na">btr_dt_per_km</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">4.0</span>
+
+<span class="c1"># Laplacian viscosity per resolution (m2 s-1 per km), scaling with dx</span>
+<span class="na">del2_viscosity_per_km</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">1.0</span>
+
+<span class="c1"># biharmonic viscosity per resolution cubed (m4 s-1 per km3), scaling with</span>
+<span class="c1"># dx^3</span>
+<span class="na">del4_viscosity_per_km3</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">4.4e6</span>
+
+<span class="c1"># the duration of each run (days)</span>
+<span class="na">run_duration</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">15.0</span>
+
+<span class="c1"># the duration of the resolved run's spin-up before the eddy diagnosis</span>
+<span class="c1"># window (days)</span>
+<span class="na">spinup_duration</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">5.0</span>
+
+<span class="c1"># the duration of the overturning window (days)</span>
+<span class="na">eddy_window_duration</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">2.0</span>
+
+<span class="c1"># the interval between snapshots for the eddy diagnostics (hours)</span>
+<span class="na">eddy_output_interval</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">1.0</span>
+
+
+<span class="c1"># the submesoscale eddy parameterization, when on, with E3SM's coupled</span>
+<span class="c1"># defaults (namelist_defaults_mpaso.xml), which are also Omega's defaults</span>
+<span class="k">[mixed_layer_eddies_mle]</span>
+
+<span class="c1"># the time scale that keeps the closure finite near the equator (s)</span>
+<span class="na">tau</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">172800.0</span>
+
+<span class="c1"># the efficiency coefficient</span>
+<span class="na">ce</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">0.08</span>
+
+<span class="c1"># the minimum frontal width (m)</span>
+<span class="na">lf_min</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">1000.0</span>
+
+<span class="c1"># the maximum grid length used in the rescaling (m)</span>
+<span class="na">ds_max</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">100000.0</span>
+</pre></div>
+</div>
+<p>Both models get the same parameterization settings.  Both coarse grid
+lengths are below <code class="docutils literal notranslate"><span class="pre">ds_max</span></code>, and <code class="docutils literal notranslate"><span class="pre">tau</span></code> has little effect at this latitude.
+The checks and diagnostics are configured in
+<code class="docutils literal notranslate"><span class="pre">[mixed_layer_eddies_analysis]</span></code>.
+Its <code class="docutils literal notranslate"><span class="pre">flux_average_start_day</span> <span class="pre">=</span> <span class="pre">6.0</span></code> and <code class="docutils literal notranslate"><span class="pre">flux_average_end_day</span> <span class="pre">=</span> <span class="pre">10.0</span></code>
+set the inclusive flux averaging window. The resolved <code class="docutils literal notranslate"><span class="pre">eddies</span></code> segment
+runs from day 5 through day 10, followed by <code class="docutils literal notranslate"><span class="pre">extended</span></code> from day 10 to 15.
+Overturning checks still select days 5–7.
+Both coarse MLE settings write frequent output throughout days 0–15.</p>
+<p>Vertical mixing is constant background diffusivity and viscosity of
+10⁻⁵ m² s⁻¹ plus convective and shear mixing; KPP is off.  Bottom drag is
+implicit and quadratic with a coefficient of 2 × 10⁻³.</p>
+</section>
+<section id="cores">
+<h2>cores<a class="headerlink" href="#cores" title="Link to this heading"></a></h2>
+<p>The number of cores is determined by <code class="docutils literal notranslate"><span class="pre">goal_cells_per_core</span></code> and
+<code class="docutils literal notranslate"><span class="pre">max_cells_per_core</span></code> in the <code class="docutils literal notranslate"><span class="pre">ocean</span></code> section of the config file.</p>
+</section>
+<section id="resolved">
+<span id="ocean-mixed-layer-eddies-resolved"></span><h2>resolved<a class="headerlink" href="#resolved" title="Link to this heading"></a></h2>
+<p>The <code class="docutils literal notranslate"><span class="pre">ocean/planar/mixed_layer_eddies/resolved</span></code> task runs the 500 m reference
+and diagnoses its eddy overturning in the frontal zone, the central quarter
+of the domain in y, over days 5–7.  The overturning is computed in salinity
+classes, as the residual minus the Eulerian-mean overturning, and is
+normalized by the scaling <span class="math notranslate nohighlight">\(C_e H^2 \overline{\partial_y b} / |f|\)</span> with
+<span class="math notranslate nohighlight">\(C_e = 0.08\)</span> and <span class="math notranslate nohighlight">\(H = H_m\)</span>.  The task fails if the normalized amplitude
+<span class="math notranslate nohighlight">\(|\Psi^+|\)</span> at mid-mixed-layer is outside <code class="docutils literal notranslate"><span class="pre">psi_plus_min</span></code> to <code class="docutils literal notranslate"><span class="pre">psi_plus_max</span></code>.</p>
+<p>The resolved analysis also writes <code class="docutils literal notranslate"><span class="pre">combined_buoyancy_flux.png</span></code>,
+<code class="docutils literal notranslate"><span class="pre">combined_buoyancy_flux.csv</span></code> and <code class="docutils literal notranslate"><span class="pre">combined_buoyancy_flux_average.csv</span></code>, using
+the sampling and scaling described under
+<a class="reference internal" href="#combined-buoyancy-flux">Combined buoyancy flux</a>. This figure contains
+only the resolved run’s time-averaged point and the 1:1 reference line.
+Because the parameterization is off, the parameterized flux is exactly
+zero, even if an eddy-velocity field is present in the output.</p>
+<p>In Omega, the normalized overturning follows the FFH08 structure function
+<span class="math notranslate nohighlight">\(\mu(z)\)</span> with <span class="math notranslate nohighlight">\(|\Psi^+| \approx 0.96\)</span>.  It reaches below 30 m on the
+dense side of the front, where convection deepens the mixed layer at the
+start:</p>
+<a class="reference internal image-reference" href="../../../_images/mixed_layer_eddies_eddy_overturning_profile.jpg"><img alt="../../../_images/mixed_layer_eddies_eddy_overturning_profile.jpg" class="align-center" src="../../../_images/mixed_layer_eddies_eddy_overturning_profile.jpg" style="width: 350px;" />
+</a>
+<a class="reference internal image-reference" href="../../../_images/mixed_layer_eddies_eddy_overturning_section.jpg"><img alt="../../../_images/mixed_layer_eddies_eddy_overturning_section.jpg" class="align-center" src="../../../_images/mixed_layer_eddies_eddy_overturning_section.jpg" style="width: 500px;" />
+</a>
+</section>
+<section id="coarse">
+<span id="ocean-mixed-layer-eddies-coarse"></span><h2>coarse<a class="headerlink" href="#coarse" title="Link to this heading"></a></h2>
+<p>The <code class="docutils literal notranslate"><span class="pre">ocean/planar/mixed_layer_eddies/coarse</span></code> task runs the 8 and 16 km
+meshes with the parameterization off and on.  It verifies the
+parameterization: in the last output (<code class="docutils literal notranslate"><span class="pre">verify_day</span></code>) of each run with it
+on, the stream function the model adds on each edge in the frontal zone
+must match the formula evaluated from the run’s own state, mixed-layer
+depth and buoyancy frequency. The normalized RMSE (RMSE divided by the
+formula’s RMS) must not exceed <code class="docutils literal notranslate"><span class="pre">verify_tolerance_8km</span></code> (0.06) at 8 km or
+<code class="docutils literal notranslate"><span class="pre">verify_tolerance_16km</span></code> (0.035) at 16 km. Only
+edges whose output mixed-layer depth is the one the eddy velocity was
+computed with are compared, and at least <code class="docutils literal notranslate"><span class="pre">verify_min_consistent_fraction</span></code>
+of them must be.</p>
+<p>In Omega, the output mixed-layer depth often differs from the one the eddy
+velocity used while the mixed layer restratifies, so the last output is
+verified.  MPAS-Ocean writes the index of its mixed layer’s base
+(<code class="docutils literal notranslate"><span class="pre">indMLD</span></code>), which the formula uses; for Omega, it is found from the
+mixed-layer depth.  The parameterized stream function matches its formula
+to within 5% in Omega and 1.3% in MPAS-Ocean (Omega):</p>
+<a class="reference internal image-reference" href="../../../_images/mixed_layer_eddies_verification.jpg"><img alt="../../../_images/mixed_layer_eddies_verification.jpg" class="align-center" src="../../../_images/mixed_layer_eddies_verification.jpg" style="width: 600px;" />
+</a>
+</section>
+<section id="comparison">
+<span id="ocean-mixed-layer-eddies-comparison"></span><h2>comparison<a class="headerlink" href="#comparison" title="Link to this heading"></a></h2>
+<p>The <code class="docutils literal notranslate"><span class="pre">ocean/planar/mixed_layer_eddies/comparison</span></code> task runs all five
+simulations, but not the standalone resolved analysis or coarse
+verification steps. It reports, in <code class="docutils literal notranslate"><span class="pre">restratification.csv</span></code>, the potential
+energy released from
+the end of the Rossby adjustment (<code class="docutils literal notranslate"><span class="pre">adjustment_days</span></code>) to elapsed day 10
+by each coarse run, relative to the resolved run.  It plots potential
+energy, the mixed-layer buoyancy frequency in the frontal zone and the
+surface salinity of every run at that same endpoint. Coarse simulations
+still run to day 15, but comparison diagnostics stop at the end of the
+resolved eddy segment (day 10 by default). PE ratios and time series are
+inspection diagnostics only, with no pass/fail check. They are not direct
+targets for tuning <span class="math notranslate nohighlight">\(C_e\)</span>: the implemented scheme has explicit resolution
+dependence, and coarse and resolved runs restratify on different schedules.</p>
+<p>In the earlier 15-day comparison shown below, with the parameterization
+on, the coarse runs restratify the mixed layer
+within a few days, faster than the resolved run, and then release little
+more potential energy.  The resolved run keeps releasing it through day 15,
+so the ratio over 15 days is 0.2–0.5.  Over days 2–7 it is about 0.9 in
+Omega.  With the parameterization off, the 8 km run develops its own
+instability after about day 8, and the 16 km run barely restratifies
+(Omega):</p>
+<a class="reference internal image-reference" href="../../../_images/mixed_layer_eddies_potential_energy.jpg"><img alt="../../../_images/mixed_layer_eddies_potential_energy.jpg" class="align-center" src="../../../_images/mixed_layer_eddies_potential_energy.jpg" style="width: 500px;" />
+</a>
+<a class="reference internal image-reference" href="../../../_images/mixed_layer_eddies_mixed_layer_n2.jpg"><img alt="../../../_images/mixed_layer_eddies_mixed_layer_n2.jpg" class="align-center" src="../../../_images/mixed_layer_eddies_mixed_layer_n2.jpg" style="width: 500px;" />
+</a>
+<p>At day 15, the parameterization has slumped the coarse fronts, while the
+resolved run’s eddies have stirred them (Omega):</p>
+<a class="reference internal image-reference" href="../../../_images/mixed_layer_eddies_final_surface_salinity.jpg"><img alt="../../../_images/mixed_layer_eddies_final_surface_salinity.jpg" class="align-center" src="../../../_images/mixed_layer_eddies_final_surface_salinity.jpg" style="width: 600px;" />
+</a>
+<section id="combined-buoyancy-flux">
+<span id="id1"></span><h3>Combined buoyancy flux<a class="headerlink" href="#combined-buoyancy-flux" title="Link to this heading"></a></h3>
+<p>The comparison also diagnoses the combined resolved and parameterized
+restratifying flux independently in all five simulations: resolved,
+8 km <code class="docutils literal notranslate"><span class="pre">on</span></code>/<code class="docutils literal notranslate"><span class="pre">off</span></code> and 16 km <code class="docutils literal notranslate"><span class="pre">on</span></code>/<code class="docutils literal notranslate"><span class="pre">off</span></code>. It writes
+<code class="docutils literal notranslate"><span class="pre">combined_buoyancy_flux.png</span></code>, snapshot values in
+<code class="docutils literal notranslate"><span class="pre">combined_buoyancy_flux.csv</span></code>, plotted averages in
+<code class="docutils literal notranslate"><span class="pre">combined_buoyancy_flux_average.csv</span></code>. Re-setup and rerun the affected forward
+steps to obtain the longer hourly output and required fields; existing
+files and completion markers are not refreshed automatically.</p>
+<p>For each hourly snapshot, it forms the along-front
+covariance <span class="math notranslate nohighlight">\(\langle w'b'\rangle_x\)</span> separately on each native mesh row,
+then area-averages over the single band <span class="math notranslate nohighlight">\(75 &lt; y &lt; 125\)</span> km. The
+mixed-layer depth <span class="math notranslate nohighlight">\(H\)</span> is the area-weighted band mean of the model’s
+density-threshold MLD (<code class="docutils literal notranslate"><span class="pre">DenMixLayerDepth</span></code> in Omega, <code class="docutils literal notranslate"><span class="pre">dThreshMLD</span></code> in
+MPAS-Ocean). Every forward run writes this field in daily output and,
+where enabled, hourly output, regardless of the MLE setting.
+Polaris does not diagnose MLD from the buoyancy profile.
+Fluxes are evaluated at <span class="math notranslate nohighlight">\(z=-H/2\)</span>, where the prescribed shape function is
+one, rather than at half the initial mixed-layer depth.</p>
+<p>The parameterized contribution is the vertical component of
+<span class="math notranslate nohighlight">\(\boldsymbol\Psi\times\nabla b\)</span>, reconstructed from the output eddy
+velocity and fixed-height buoyancy gradient. It is an equivalent
+adiabatic flux, not the numerical tracer flux. Resolved velocities exclude
+the parameterized transport. Omega’s vertical pseudo-velocity is converted
+with the model’s specific-volume scaling; ALE-total and eddy transport
+velocities are not used for the covariance.
+Omega writes <code class="docutils literal notranslate"><span class="pre">VerticalPseudoVelocity</span></code> in every daily and enabled
+hourly stream, regardless of the MLE setting.
+The parameterized contribution is included only for runs with the
+parameterization enabled. It is zero for the resolved run regardless of
+whether its output contains an eddy-velocity field; enabled runs must
+provide that field.</p>
+<p>Each simulation supplies one point, averaged over days 6–10:
+<span class="math notranslate nohighlight">\(X=|\langle C_e H^2\overline{b_y}^{\,z}/|f|\rangle_t|\)</span> and
+<span class="math notranslate nohighlight">\(Y=|\langle(\overline{w'b'}+\overline{F^*_{b,z}})/\overline{b_y}
+\rangle_t|\)</span>.
+Here the denominator is evaluated at <span class="math notranslate nohighlight">\(-H/2\)</span>, and the gradient in <span class="math notranslate nohighlight">\(X\)</span> is
+averaged over the mixed layer. The configured <span class="math notranslate nohighlight">\(C_e\)</span> is used for all runs,
+including MLE <code class="docutils literal notranslate"><span class="pre">off</span></code>. Signed instantaneous ratios and scales are averaged
+using trapezoidal integration before taking magnitudes; this is not the
+ratio of separately averaged flux and gradient. Model timestamps select
+the samples. The analysis reports the number of output times within the
+window without checking output intervals or requiring exact endpoints.
+At least two timestamps are needed; integration is normalized by the
+elapsed time between the first and last selected samples, recorded in
+the average table.
+Nominal hourly output supplies 97 snapshots over 96 intervals, about 12 samples
+per inertial period at this latitude. These are not independent
+realizations; compare hourly and 3-hourly subsampling to assess temporal
+convergence. The sample table contains only the averaging window.
+Signed flux components remain in the sample table
+(m² s⁻³), with <span class="math notranslate nohighlight">\(H\)</span> (m), gradients (s⁻²), signed scales and ratios
+(m² s⁻¹), and the legacy magnitude diagnostics. The average table records
+the window, sample count, signed means and plotted coordinates.</p>
+<p>The figure shows only these points and a 1:1 line, following Figure 1 of
+<a class="reference external" href="https://doi.org/10.1175/2007JPO3788.1">Fox-Kemper and Ferrari (2008), Part II</a>,
+but extending the ordinate to combined transport.
+The ordinate is total buoyancy flux normalized by the mean buoyancy
+gradient, with units m² s⁻¹.
+Resolved is black, 8 km blue and 16 km orange. Filled circles show the
+resolved run and MLE <code class="docutils literal notranslate"><span class="pre">on</span></code> combined flux; filled diamonds show MLE <code class="docutils literal notranslate"><span class="pre">off</span></code>.
+Empty diamonds show the resolved-only contribution within each MLE <code class="docutils literal notranslate"><span class="pre">on</span></code>
+run, using that run’s gradient and scaling. The average table includes
+this contribution as <code class="docutils literal notranslate"><span class="pre">resolved_y</span></code>.
+Both axes use logarithmic scales from the smallest <code class="docutils literal notranslate"><span class="pre">resolved_y</span></code> value to
+<span class="math notranslate nohighlight">\(10^0\)</span> m² s⁻¹.
+No line is fitted to the combined buoyancy-flux data, and this comparison
+has no fit-based pass/fail check.
+Undefined mixed-layer depths, weak gradients and insufficient
+samples raise errors rather than silently dropping points.</p>
+<a class="reference internal image-reference" href="../../../_images/mixed_layer_eddies_combined_buoyancy_flux.png"><img alt="../../../_images/mixed_layer_eddies_combined_buoyancy_flux.png" class="align-center" src="../../../_images/mixed_layer_eddies_combined_buoyancy_flux.png" style="width: 600px;" />
+</a>
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="merry_go_round.html" class="btn btn-neutral float-left" title="merry-go-round" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="nondivergent_2d.html" class="btn btn-neutral float-right" title="nondivergent 2-d" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2026, Energy Exascale Earth System Model Project.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+   
+
+  <!-- Meta tags for JS to use -->
+  <meta name="doc-version" content="main">
+  <meta name="doc-site-root" content="../../../">
+
+  <!-- Create version switcher container -->
+  <script>
+    const sidebar = document.querySelector('.wy-side-nav-search');
+    if (sidebar) {
+      const versionDiv = document.createElement('div');
+      versionDiv.id = 'version-switcher';
+      versionDiv.style.marginTop = '1em';
+      sidebar.appendChild(versionDiv);
+    }
+  </script>
+
+  <!-- Load version-switcher.js using the correct relative path -->
+  <script src="../../../../shared/version-switcher.js"></script>
+
+
+</body>
+</html>

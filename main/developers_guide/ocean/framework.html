@@ -21,7 +21,7 @@
     <script src="../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
-    <link rel="next" title="convert_mpaso_ic_to_omega.py" href="convert_mpaso_ic_to_omega.html" />
+    <link rel="next" title="Models" href="models/index.html" />
     <link rel="prev" title="single_column" href="tasks/single_column.html" />
     <link href="../../_static/style.css" rel="stylesheet" type="text/css">
 
@@ -85,6 +85,7 @@
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="#reference-resting-potential-energy-rpe">reference (resting) potential energy (RPE)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#overturning-across-lines">Overturning across lines</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#analysis-of-completed-simulations">Analysis of completed simulations</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#locating-the-simulation-s-files">Locating the simulation’s files</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#naming-the-models-global-statistics">Naming the models’ global statistics</a></li>
@@ -98,7 +99,6 @@
 </li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="convert_mpaso_ic_to_omega.html">convert_mpaso_ic_to_omega.py</a></li>
 <li class="toctree-l2"><a class="reference internal" href="models/index.html">Models</a></li>
 <li class="toctree-l2"><a class="reference internal" href="utils/index.html">Ocean utilities</a></li>
 </ul>
@@ -1109,6 +1109,29 @@ density, which is horizontally constant and increases with depth.</p>
 a function of time in a series of one or more output files.  The RPE is stored
 in <code class="docutils literal notranslate"><span class="pre">rpe.csv</span></code> and also returned as a numpy array for plotting and analysis.</p>
 </section>
+<section id="overturning-across-lines">
+<span id="dev-ocean-overturning"></span><h2>Overturning across lines<a class="headerlink" href="#overturning-across-lines" title="Link to this heading"></a></h2>
+<p>The module <code class="docutils literal notranslate"><span class="pre">polaris.ocean.overturning</span></code> computes overturning across a line of
+constant x or y on a planar MPAS mesh.  A line is the set of edges whose two
+cells lie on opposite sides of it, found by
+<a class="reference internal" href="generated/polaris.ocean.overturning.get_line_edges.html#polaris.ocean.overturning.get_line_edges" title="polaris.ocean.overturning.get_line_edges"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.ocean.overturning.get_line_edges()</span></code></a>.  Each edge has a sign,
++1 where positive normal velocity points toward increasing x or y, and a
+weight, its length projected onto the line, for along-line means.  Summing
+signed edge transports gives the exact discrete transport from the cells on
+one side of the line to those on the other, on any mesh: on a planar hex
+mesh a line of constant y is the zigzag between two rows of cells, and on
+other meshes it is a staircase within about a cell of the line.  Edges on a
+domain boundary or across a periodic seam are excluded.</p>
+<p><a class="reference internal" href="generated/polaris.ocean.overturning.compute_line_transport.html#polaris.ocean.overturning.compute_line_transport" title="polaris.ocean.overturning.compute_line_transport"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.ocean.overturning.compute_line_transport()</span></code></a> gives the
+transport through each edge and layer, using the mean thickness of the
+edge’s two cells, the default flux thickness in both models.
+<a class="reference internal" href="generated/polaris.ocean.overturning.compute_overturning.html#polaris.ocean.overturning.compute_overturning" title="polaris.ocean.overturning.compute_overturning"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.ocean.overturning.compute_overturning()</span></code></a> sums it along the
+line and from the surface down, giving the stream function at layer
+interfaces.  <a class="reference internal" href="generated/polaris.ocean.overturning.bin_line_transport.html#polaris.ocean.overturning.bin_line_transport" title="polaris.ocean.overturning.bin_line_transport"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.ocean.overturning.bin_line_transport()</span></code></a> sorts
+the transport and thickness on each edge into tracer classes, for
+overturning in density coordinates.  The mixed-layer eddies tasks
+(<a class="reference internal" href="tasks/mixed_layer_eddies.html#dev-ocean-mixed-layer-eddies"><span class="std std-ref">mixed_layer_eddies</span></a>) use these for their eddy overturning.</p>
+</section>
 <section id="analysis-of-completed-simulations">
 <span id="dev-ocean-analysis"></span><h2>Analysis of completed simulations<a class="headerlink" href="#analysis-of-completed-simulations" title="Link to this heading"></a></h2>
 <p>The package <code class="docutils literal notranslate"><span class="pre">polaris.tasks.ocean.analysis</span></code> contains the tasks of the
@@ -1408,7 +1431,7 @@ order the suite lists them — so <code class="docutils literal notranslate"><sp
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
         <a href="tasks/single_column.html" class="btn btn-neutral float-left" title="single_column" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="convert_mpaso_ic_to_omega.html" class="btn btn-neutral float-right" title="convert_mpaso_ic_to_omega.py" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="models/index.html" class="btn btn-neutral float-right" title="Models" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>

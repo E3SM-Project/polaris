@@ -1,0 +1,6 @@
+﻿polaris.tasks.ocean.mixed\_layer\_eddies.resolved.analysis.Analysis.run
+=======================================================================
+
+.. currentmodule:: polaris.tasks.ocean.mixed_layer_eddies.resolved.analysis
+
+.. automethod:: Analysis.run

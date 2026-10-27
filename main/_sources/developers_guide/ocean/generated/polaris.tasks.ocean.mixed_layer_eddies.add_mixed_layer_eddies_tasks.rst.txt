@@ -1,0 +1,6 @@
+﻿polaris.tasks.ocean.mixed\_layer\_eddies.add\_mixed\_layer\_eddies\_tasks
+=========================================================================
+
+.. currentmodule:: polaris.tasks.ocean.mixed_layer_eddies
+
+.. autofunction:: add_mixed_layer_eddies_tasks

@@ -1,0 +1,73 @@
+﻿polaris.tasks.ocean.mixed\_layer\_eddies.init.Init
+==================================================
+
+.. currentmodule:: polaris.tasks.ocean.mixed_layer_eddies.init
+
+.. autoclass:: Init
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~Init.__init__
+      ~Init.add_cf_check
+      ~Init.add_dependency
+      ~Init.add_forcing_input_file
+      ~Init.add_horiz_mesh_input_file
+      ~Init.add_init_input_file
+      ~Init.add_input_file
+      ~Init.add_output_file
+      ~Init.add_output_files_for_ocean_model_input
+      ~Init.add_produced_file
+      ~Init.add_property_check
+      ~Init.add_vert_coord_input_file
+      ~Init.check_cf
+      ~Init.check_properties
+      ~Init.constrain_resources
+      ~Init.get_forcing_filename
+      ~Init.get_horiz_mesh_filename
+      ~Init.get_init_filename
+      ~Init.get_vert_coord_filename
+      ~Init.init_tracers
+      ~Init.map_from_native_model_vars
+      ~Init.map_to_native_model_vars
+      ~Init.open_model_dataset
+      ~Init.open_vert_coord_dataset
+      ~Init.process_inputs_and_outputs
+      ~Init.run
+      ~Init.run_pstar_init
+      ~Init.runtime_setup
+      ~Init.set_resources
+      ~Init.set_shared_config
+      ~Init.setup
+      ~Init.validate_baselines
+      ~Init.work_path
+      ~Init.write_forcing_dataset
+      ~Init.write_horiz_mesh_dataset
+      ~Init.write_initial_state_dataset
+      ~Init.write_model_dataset
+      ~Init.write_vert_coord_dataset
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~Init.cores
+      ~Init.gpus
+      ~Init.may_span_nodes
+      ~Init.min_cores
+      ~Init.min_gpus
+      ~Init.component
+      ~Init.config
+      ~Init.input_data
+      ~Init.logger
+   
+   

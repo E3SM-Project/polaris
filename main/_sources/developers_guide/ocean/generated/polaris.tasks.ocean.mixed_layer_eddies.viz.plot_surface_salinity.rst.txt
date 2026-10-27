@@ -1,0 +1,6 @@
+﻿polaris.tasks.ocean.mixed\_layer\_eddies.viz.plot\_surface\_salinity
+====================================================================
+
+.. currentmodule:: polaris.tasks.ocean.mixed_layer_eddies.viz
+
+.. autofunction:: plot_surface_salinity

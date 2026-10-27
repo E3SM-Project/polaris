@@ -1,0 +1,6 @@
+﻿polaris.ocean.overturning.get\_line\_edges
+==========================================
+
+.. currentmodule:: polaris.ocean.overturning
+
+.. autofunction:: get_line_edges

@@ -1,0 +1,312 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>mixed_layer_eddies</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=a8da1a53"></script>
+      <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script>window.MathJax = {"options": {"processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+      <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-mml-chtml.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+    <link rel="next" title="nondivergent_2d" href="nondivergent_2d.html" />
+    <link rel="prev" title="merry-go-round" href="merry_go_round.html" />
+    <link href="../../../_static/style.css" rel="stylesheet" type="text/css">
+
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            Polaris
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">User's guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../users_guide/quick_start.html">Quick Start for Users</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../users_guide/tasks.html">Tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../users_guide/config_files.html">Config Files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../users_guide/suites.html">Suites</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../users_guide/mesh/index.html">Mesh component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../users_guide/e3sm/init/index.html">E3SM Initial Condition Component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../users_guide/ocean/index.html">Ocean component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../users_guide/seaice/index.html">Sea ice component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../users_guide/machines/index.html">Machines</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Developer's guide</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../quick_start.html">Quick Start for Developers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../command_line.html">Command-line interface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../organization/index.html">Organization of Tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../e3sm/init/index.html">E3SM initial condition (e3sm/init) component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../mesh/index.html">Mesh component</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../index.html">Ocean component</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="index.html">Tasks</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="baroclinic_channel.html">baroclinic_channel</a></li>
+<li class="toctree-l3"><a class="reference internal" href="barotropic_channel.html">barotropic_channel</a></li>
+<li class="toctree-l3"><a class="reference internal" href="barotropic_gyre.html">barotropic_gyre</a></li>
+<li class="toctree-l3"><a class="reference internal" href="correlated_tracers_2d.html">correlated_tracers_2d</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cosine_bell.html">cosine_bell</a></li>
+<li class="toctree-l3"><a class="reference internal" href="customizable_viz.html">customizable_viz</a></li>
+<li class="toctree-l3"><a class="reference internal" href="external_gravity_wave.html">external_gravity_wave</a></li>
+<li class="toctree-l3"><a class="reference internal" href="feature_masks.html">Feature Masks</a></li>
+<li class="toctree-l3"><a class="reference internal" href="geostrophic.html">geostrophic</a></li>
+<li class="toctree-l3"><a class="reference internal" href="horiz_press_grad.html">horiz_press_grad</a></li>
+<li class="toctree-l3"><a class="reference internal" href="divergent_2d.html">divergent_2d</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ice_shelf_2d.html">ice_shelf_2d</a></li>
+<li class="toctree-l3"><a class="reference internal" href="inertial_gravity_wave.html">inertial_gravity_wave</a></li>
+<li class="toctree-l3"><a class="reference internal" href="internal_wave.html">internal_wave</a></li>
+<li class="toctree-l3"><a class="reference internal" href="manufactured_solution.html">manufactured_solution</a></li>
+<li class="toctree-l3"><a class="reference internal" href="merry_go_round.html">merry-go-round</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">mixed_layer_eddies</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#framework">framework</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#resolved">resolved</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#coarse">coarse</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#comparison">comparison</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="nondivergent_2d.html">nondivergent_2d</a></li>
+<li class="toctree-l3"><a class="reference internal" href="overflow.html">overflow</a></li>
+<li class="toctree-l3"><a class="reference internal" href="realistic_global.html">realistic_global</a></li>
+<li class="toctree-l3"><a class="reference internal" href="rotation_2d.html">rotation_2d</a></li>
+<li class="toctree-l3"><a class="reference internal" href="seamount.html">seamount</a></li>
+<li class="toctree-l3"><a class="reference internal" href="single_column.html">single_column</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../framework.html">Ocean framework</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../models/index.html">Models</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../utils/index.html">Ocean utilities</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../seaice/index.html">Sea ice component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../framework/index.html">Framework</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../machines/index.html">Machines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../benchmarking.html">Benchmarking a branch against a baseline</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../omega_pr_testing.html">Testing an Omega pull request</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../troubleshooting.html">Troubleshooting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../docs.html">Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../building_docs.html">Building the Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../building_docs.html#previewing-the-documentation">Previewing the Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../conda_vs_spack.html">How Conda and Spack Work Together in Polaris</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../updating_conda.html">Updating Deployment Dependencies</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../updating_spack/index.html">Updating Shared Spack Environments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../api.html">API reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../design_docs/index.html">Design Documents</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorials/dev_add_category_of_tasks/index.html">Developer Tutorial: Adding a New Category of Tasks</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Glossary</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../glossary.html">Glossary</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">Polaris</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Ocean component</a></li>
+          <li class="breadcrumb-item"><a href="index.html">Tasks</a></li>
+      <li class="breadcrumb-item active">mixed_layer_eddies</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../../_sources/developers_guide/ocean/tasks/mixed_layer_eddies.md.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section class="tex2jax_ignore mathjax_ignore" id="mixed-layer-eddies">
+<span id="dev-ocean-mixed-layer-eddies"></span><h1>mixed_layer_eddies<a class="headerlink" href="#mixed-layer-eddies" title="Link to this heading"></a></h1>
+<p>The <code class="docutils literal notranslate"><span class="pre">mixed_layer_eddies</span></code> tasks validate the submesoscale eddy
+parameterization against an eddy-resolving run of a spinning-down
+mixed-layer front.  The design is in the
+<a class="reference internal" href="../../../design_docs/mixed_layer_eddies.html"><span class="std std-doc">mixed-layer eddies design document</span></a>.</p>
+<section id="framework">
+<h2>framework<a class="headerlink" href="#framework" title="Link to this heading"></a></h2>
+<p>The shared config options are described in <a class="reference internal" href="../../../users_guide/ocean/tasks/mixed_layer_eddies.html#ocean-mixed-layer-eddies"><span class="std std-ref">mixed layer eddies</span></a>
+in the User’s Guide.  All tasks share one config file and the steps below,
+which live in a directory for each resolution
+(<code class="docutils literal notranslate"><span class="pre">ocean/planar/mixed_layer_eddies/&lt;res&gt;/</span></code>).  Each task links to the shared
+steps it uses.</p>
+<section id="init">
+<h3>init<a class="headerlink" href="#init" title="Link to this heading"></a></h3>
+<p>The class <a class="reference internal" href="../generated/polaris.tasks.ocean.mixed_layer_eddies.init.Init.html#polaris.tasks.ocean.mixed_layer_eddies.init.Init" title="polaris.tasks.ocean.mixed_layer_eddies.init.Init"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.tasks.ocean.mixed_layer_eddies.init.Init</span></code></a>
+builds a doubly periodic planar hex mesh and initializes the p-star
+coordinate with
+<a class="reference internal" href="../generated/polaris.ocean.vertical.pstar_init.PStarInitStep.run_pstar_init.html#polaris.ocean.vertical.pstar_init.PStarInitStep.run_pstar_init" title="polaris.ocean.vertical.pstar_init.PStarInitStep.run_pstar_init"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.ocean.vertical.pstar_init.PStarInitStep.run_pstar_init()</span></code></a>.
+Its <code class="docutils literal notranslate"><span class="pre">init_tracers()</span></code> evaluates the salinity profile at the geometric depths
+the column’s own density implies, refining them a few times within each
+outer iteration.  The ITP77 profile is the packaged file <code class="docutils literal notranslate"><span class="pre">itp77.csv</span></code>.</p>
+</section>
+<section id="forward">
+<h3>forward<a class="headerlink" href="#forward" title="Link to this heading"></a></h3>
+<p>The class <a class="reference internal" href="../generated/polaris.tasks.ocean.mixed_layer_eddies.forward.Forward.html#polaris.tasks.ocean.mixed_layer_eddies.forward.Forward" title="polaris.tasks.ocean.mixed_layer_eddies.forward.Forward"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.tasks.ocean.mixed_layer_eddies.forward.Forward</span></code></a>
+runs one segment of a run with one setting of the parameterization.  The
+segment is <code class="docutils literal notranslate"><span class="pre">full</span></code> (the coarse runs), <code class="docutils literal notranslate"><span class="pre">spinup</span></code> (the resolved run to day 5),
+<code class="docutils literal notranslate"><span class="pre">eddies</span></code> (days 5–10) or <code class="docutils literal notranslate"><span class="pre">extended</span></code> (days 10–15). Both <code class="docutils literal notranslate"><span class="pre">eddies</span></code> and
+<code class="docutils literal notranslate"><span class="pre">extended</span></code> write hourly output. The spinup writes daily restarts. Each
+resolved segment after the first continues from the restart the one before
+writes at its end, in a shared <code class="docutils literal notranslate"><span class="pre">restarts</span></code> directory beside the steps.  The
+coarse <code class="docutils literal notranslate"><span class="pre">on</span></code> and <code class="docutils literal notranslate"><span class="pre">off</span></code> runs write hourly eddy output throughout their full
+duration. The end of the resolved <code class="docutils literal notranslate"><span class="pre">eddies</span></code> segment is the later of the
+overturning-window end and <code class="docutils literal notranslate"><span class="pre">flux_average_end_day</span></code>. The extended segment
+restarts there, so the flux averaging window stays in one file.
+Both resolved and comparison tasks register <code class="docutils literal notranslate"><span class="pre">extended</span></code> with
+<code class="docutils literal notranslate"><span class="pre">run_by_default=False</span></code>. Their analyses have no extended-output inputs.
+All daily and frequent streams include the model’s density-threshold
+mixed-layer depth, including runs with MLE off. The flux analysis uses
+its area-weighted frontal-band mean.
+Omega also writes <code class="docutils literal notranslate"><span class="pre">VerticalPseudoVelocity</span></code> in both streams, regardless
+of the MLE setting.
+The split exists because MPAS-Ocean streams cannot limit output to a time
+window, and Polaris builds a task’s steps before it knows the model.  The
+restart alarms are anchored at each segment’s start time. Spinup writes
+every day; the eddy segment writes at its end.
+The parameterization’s options are set only
+when it is on; when it is off, each model’s default (off) applies.</p>
+</section>
+<section id="diagnostics">
+<h3>diagnostics<a class="headerlink" href="#diagnostics" title="Link to this heading"></a></h3>
+<p>The module <code class="docutils literal notranslate"><span class="pre">polaris.tasks.ocean.mixed_layer_eddies.diagnostics</span></code> computes the
+eddy overturning, the parameterization’s formula, potential energy and
+mixed-layer stratification from output read with MPAS-Ocean names.
+Overturning is computed across lines of constant y between rows of cells
+with <a class="reference internal" href="../framework.html#dev-ocean-overturning"><span class="std std-ref">Overturning across lines</span></a>.  Transports use each model’s flux
+thickness: Omega’s pseudo-thickness and MPAS-Ocean’s layer thickness.</p>
+</section>
+</section>
+<section id="resolved">
+<h2>resolved<a class="headerlink" href="#resolved" title="Link to this heading"></a></h2>
+<p>The <a class="reference internal" href="../generated/polaris.tasks.ocean.mixed_layer_eddies.resolved.Resolved.html#polaris.tasks.ocean.mixed_layer_eddies.resolved.Resolved" title="polaris.tasks.ocean.mixed_layer_eddies.resolved.Resolved"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.tasks.ocean.mixed_layer_eddies.resolved.Resolved</span></code></a> task
+links the 500 m <code class="docutils literal notranslate"><span class="pre">init</span></code>, <code class="docutils literal notranslate"><span class="pre">spinup</span></code>, <code class="docutils literal notranslate"><span class="pre">eddies</span></code> and <code class="docutils literal notranslate"><span class="pre">extended</span></code> steps and adds
+<a class="reference internal" href="../generated/polaris.tasks.ocean.mixed_layer_eddies.resolved.analysis.Analysis.html#polaris.tasks.ocean.mixed_layer_eddies.resolved.analysis.Analysis" title="polaris.tasks.ocean.mixed_layer_eddies.resolved.analysis.Analysis"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.tasks.ocean.mixed_layer_eddies.resolved.analysis.Analysis</span></code></a>,
+which diagnoses and normalizes the eddy overturning and checks <span class="math notranslate nohighlight">\(|\Psi^+|\)</span>.
+It also writes the resolved-only buoyancy-flux scaling figure and tables
+without fitting a line or applying flux-fit thresholds. The overturning
+retains the days 5–7 window; the plotted flux point averages days 6–10.
+Both resolved and comparison analyses use
+<code class="docutils literal notranslate"><span class="pre">polaris.tasks.ocean.mixed_layer_eddies.flux.analyze_combined_flux</span></code>.
+The flux module’s <code class="docutils literal notranslate"><span class="pre">get_snapshot_days</span></code> reads absolute simulation days
+from model timestamps. The shared <code class="docutils literal notranslate"><span class="pre">get_time_since_start</span></code> helper still
+returns elapsed time relative to the file’s reference time.
+Each run explicitly declares whether the parameterization is enabled;
+disabled runs never include parameterized flux, even if the output
+contains eddy velocity.</p>
+</section>
+<section id="coarse">
+<h2>coarse<a class="headerlink" href="#coarse" title="Link to this heading"></a></h2>
+<p>The <a class="reference internal" href="../generated/polaris.tasks.ocean.mixed_layer_eddies.coarse.Coarse.html#polaris.tasks.ocean.mixed_layer_eddies.coarse.Coarse" title="polaris.tasks.ocean.mixed_layer_eddies.coarse.Coarse"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.tasks.ocean.mixed_layer_eddies.coarse.Coarse</span></code></a> task
+links the <code class="docutils literal notranslate"><span class="pre">init</span></code>, <code class="docutils literal notranslate"><span class="pre">forward_off</span></code> and <code class="docutils literal notranslate"><span class="pre">forward_on</span></code> steps at each coarse
+resolution and adds
+<a class="reference internal" href="../generated/polaris.tasks.ocean.mixed_layer_eddies.coarse.verify.Verify.html#polaris.tasks.ocean.mixed_layer_eddies.coarse.verify.Verify" title="polaris.tasks.ocean.mixed_layer_eddies.coarse.verify.Verify"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.tasks.ocean.mixed_layer_eddies.coarse.verify.Verify</span></code></a>,
+which checks the parameterized stream function against its formula.</p>
+</section>
+<section id="comparison">
+<h2>comparison<a class="headerlink" href="#comparison" title="Link to this heading"></a></h2>
+<p>The <a class="reference internal" href="../generated/polaris.tasks.ocean.mixed_layer_eddies.comparison.Comparison.html#polaris.tasks.ocean.mixed_layer_eddies.comparison.Comparison" title="polaris.tasks.ocean.mixed_layer_eddies.comparison.Comparison"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.tasks.ocean.mixed_layer_eddies.comparison.Comparison</span></code></a>
+task links every shared step and adds
+<a class="reference internal" href="../generated/polaris.tasks.ocean.mixed_layer_eddies.comparison.analysis.Analysis.html#polaris.tasks.ocean.mixed_layer_eddies.comparison.analysis.Analysis" title="polaris.tasks.ocean.mixed_layer_eddies.comparison.analysis.Analysis"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.tasks.ocean.mixed_layer_eddies.comparison.analysis.Analysis</span></code></a>,
+which reports potential-energy release after the Rossby adjustment
+relative to the resolved run and plots the runs side by side. All daily
+time series and surface snapshots end at the resolved eddy segment’s
+endpoint (day 10 by default), including the coarse diagnostics.
+Running the optional extended step does not change this analysis scope. The PE
+diagnostics remain report-only. The flux figure compares five
+time-averaged points with a 1:1 line and records their values in
+<code class="docutils literal notranslate"><span class="pre">combined_buoyancy_flux_average.csv</span></code>. Provisional fit checks remain
+separate for resolved and MLE <code class="docutils literal notranslate"><span class="pre">on</span></code> runs; see
+<a class="reference internal" href="../../../users_guide/ocean/tasks/mixed_layer_eddies.html#ocean-mixed-layer-eddies-comparison"><span class="std std-ref">comparison</span></a> for sampling, units and tolerances.</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="merry_go_round.html" class="btn btn-neutral float-left" title="merry-go-round" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="nondivergent_2d.html" class="btn btn-neutral float-right" title="nondivergent_2d" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2026, Energy Exascale Earth System Model Project.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+   
+
+  <!-- Meta tags for JS to use -->
+  <meta name="doc-version" content="main">
+  <meta name="doc-site-root" content="../../../">
+
+  <!-- Create version switcher container -->
+  <script>
+    const sidebar = document.querySelector('.wy-side-nav-search');
+    if (sidebar) {
+      const versionDiv = document.createElement('div');
+      versionDiv.id = 'version-switcher';
+      versionDiv.style.marginTop = '1em';
+      sidebar.appendChild(versionDiv);
+    }
+  </script>
+
+  <!-- Load version-switcher.js using the correct relative path -->
+  <script src="../../../../shared/version-switcher.js"></script>
+
+
+</body>
+</html>
