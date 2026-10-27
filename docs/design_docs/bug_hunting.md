@@ -168,9 +168,11 @@ For each failing test on each row, the harvest walks back through the
 nights to the last one that passed. It lists the merges into `develop`
 between that night and the first failure, which is how Omega#626 was traced
 to #512 by hand. A test that alternates between passing and failing with no
-merge in between is marked intermittent. The harvest also reports rows that
-stopped reporting, since CDash says nothing about a missing build, and rows
-whose count of compiler warnings rose.
+merge in between is marked intermittent. A failure that stopped before the
+row's latest build, and did not come and go, is counted but not recorded,
+since a hunt is about bugs that are still there. The harvest also reports
+rows that stopped reporting, since CDash says nothing about a missing build,
+and rows whose count of compiler warnings rose.
 
 Polaris' nightly suite runs the Omega commit pinned in Polaris, not
 `develop`. A regression on `develop` that only Polaris' suites catch
@@ -259,13 +261,16 @@ candidates.
 ### Algorithm Design: Each bug is reported once.
 
 A finding is one bug, and it holds one or more keys. The key of a failing
-test is the test name without its machine and compiler, the phase that
-failed and the first error message, stripped of numbers, paths and
-addresses. The phase is the build, the run, a comparison (restart,
-decomposition or threads), the baseline or the time limit. Rows and nights
-are occurrences of a finding, not part of its key. For a finding from
-reading code or from parking, the key is the file, the function and a short
-form of the claim.
+test is the test name without its machine and compiler, and the phase that
+failed: the build, the run, a comparison (restart, decomposition or
+threads), the baseline or the time limit. For a CIME test the key adds what
+failed at that phase, such as which two runs did not match. For a CTest or
+a Polaris task it adds nothing more, because the first error line of one
+failure differs from machine to machine: on CDash it is usually an MPI or
+launcher message around the abort. That line is kept as evidence instead.
+Rows and nights are occurrences of a finding, not part of its key. For a
+finding from reading code or from parking, the key is the file, the
+function and a short form of the claim.
 
 The harvest adds each failure to the finding that holds its key. A failure
 with a new key is matched, in order, against:
@@ -468,7 +473,9 @@ to start that session. A branch fixes one finding or one batch.
 - `AGENTS.md`: the hunt procedure, the ranking rubric and the parking rule,
   for agents;
 - `README.md`: the same workflow, for people running the commands;
-- `bug_hunt.py`, with the subcommands `harvest`, `park`, `match`, `digest`,
+- `bug_hunt.py`, with the subcommands `harvest`, `park`, `match`,
+  `update` (which records what the agent decides about a finding), `review`
+  (which lists the merges since the last review and records one), `digest`,
   `file`, `handoff` and `status`, and its modules, `bug_hunt_*.py`;
 - `campaigns.yaml`: the campaigns.
 
@@ -565,8 +572,10 @@ links: [E3SM-Project/Omega#626]
 last_passed: 2026-10-06
 first_failed: 2026-10-07
 merged_between: [E3SM-Project/Omega#512]
-occurrences:
-  - {night: 2026-10-27, row: chrysalis/intel, source: cdash}
+occurrences:      # one for each test on each row
+  - {test: PEM_Vmct.T62_oQU240.COMEGA-IAF, row: chrysalis/intel,
+     source: coupled, first_failed: 2026-10-07, last_failed: 2026-10-27,
+     last_passed: 2026-10-06, nights: 21}
 evidence: <excerpt, and where it came from>
 reproduce: <commands>
 history:
