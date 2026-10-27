@@ -132,20 +132,31 @@ class Step:
         launcher spreads its ranks; false for a step that runs in one
         process, which has no way to reach another node.
 
-        This is not the same question as whether a step uses MPI.  A single
-        process that hands its work to a distributed pool spans nodes
-        perfectly well, and one that does its work in its own threads
-        cannot; both are "not MPI".  Nothing in Polaris sets this true today
-        beyond the MPI default.
+        This is not the same question as whether a step uses MPI.  A step
+        that hands out pieces of its work spans nodes perfectly well, and
+        one that does its work in its own threads cannot; both are "not
+        MPI".  It defaults to true for both an MPI step and a step that
+        hands out work.
+
+    hands_out_work : bool
+        whether this step runs by handing out pieces of its work, which it
+        says by overriding ``run_pieces()`` in place of ``run()``
 
     placement : mache.parallel.ResourcePlacement or None
         the part of the allocation this step is confined to -- which nodes,
         which cores on each and how many GPUs -- or ``None`` to run on the
         whole allocation, as steps have always done.
 
-        Nothing assigns this yet.  Deciding which subset a step should get
-        needs a scheduler, and there is not one: the only caller is the
-        serial path, which assigns no placement.
+        ``polaris parallel`` assigns it from the step's reservation; the
+        serial path assigns none.
+
+    residents : polaris.run.residents.ResidentDirectory or None
+        how to reach the residents that fork the pieces of a step that hands
+        out work, assigned by whatever runs the step, or ``None``
+
+    reserved_memory : dict of int or None
+        the memory in MiB reserved for the step on each node of its
+        placement, by node, assigned by whatever runs the step, or ``None``
 
     input_data : list of dict
         a list of dict used to define input files typically to be
@@ -417,6 +428,8 @@ class Step:
         self.min_memory = min_memory
         self.memory_budget = None
         self.placement = None
+        self.residents = None
+        self.reserved_memory = None
 
         self.path = os.path.join(self.component.name, self.subdir)
 
@@ -532,17 +545,28 @@ class Step:
         bool : whether this step's cores and GPUs may come from several nodes
 
         Defaults to whether the step has more than one MPI task, since a
-        launcher spreading ranks is the one mechanism Polaris has today for
-        reaching another node.  A step that delegates to a distributed pool
-        will set this itself; nothing does in Phase A.
+        launcher spreading ranks reaches other nodes, or hands out work,
+        since its pieces are forked on whichever nodes its cores are on.
         """
         if self._may_span_nodes is not None:
             return self._may_span_nodes
+        if self.hands_out_work:
+            return True
         return self.ntasks is not None and self.ntasks > 1
 
     @may_span_nodes.setter
     def may_span_nodes(self, value):
         self._may_span_nodes = value
+
+    @property
+    def hands_out_work(self):
+        """
+        bool : whether this step runs by handing out pieces of its work
+
+        A step says so by overriding :py:meth:`run_pieces`, which is then
+        called in place of :py:meth:`run`.
+        """
+        return type(self).run_pieces is not Step.run_pieces
 
     @property
     def gpus(self):
@@ -719,6 +743,9 @@ class Step:
                 'Please switch to a compute node.'
             )
 
+        if self.hands_out_work:
+            self._check_handing_out_work(declared_gpus)
+
         self._constrain_cores(available_resources)
         # GPUs before memory, because running out of GPUs can cut the task
         # count again and the memory budget has to describe the cores the
@@ -730,6 +757,27 @@ class Step:
             available_resources, declared_ntasks, declared_gpus
         )
         self._constrain_memory(available_resources)
+
+    def _check_handing_out_work(self, declared_gpus):
+        """
+        Refuse what a step that hands out work cannot also do.
+
+        Its pieces are forked rather than launched, so a command, which is
+        launched, would be a second way of running the same step.  GPUs are
+        refused until handing out GPU work has been tested on the machines
+        that have them, since a child given no GPUs on PALS can see every
+        device on its node.
+        """
+        if self.args is not None:
+            raise ValueError(
+                f'Step {self.name} hands out work, so it cannot also have a '
+                f'command to launch.'
+            )
+        if declared_gpus > 0:
+            raise ValueError(
+                f'Step {self.name} hands out work and asks for '
+                f'{declared_gpus} GPUs, which is not supported yet.'
+            )
 
     def _constrain_cores(self, available_resources):
         """
@@ -915,6 +963,27 @@ class Step:
         the main work.
         """
         pass
+
+    def run_pieces(self, pieces):
+        """
+        Run the step by handing out pieces of its work, in place of
+        :py:meth:`run`.
+
+        A step that overrides this hands out work.  Its ``cores`` are where
+        the pieces run, one piece to a core at a time, and they may come from
+        several nodes.  Each piece runs in a child forked for it on the node
+        its core is on, so it starts with Polaris imported and none of this
+        step's own setup: what it needs has to travel with it, as the rules
+        in :ref:`dev-task-parallelism` describe.
+
+        Parameters
+        ----------
+        pieces : polaris.run.pieces.Pieces
+            What hands out the work, as ``pieces.map(function, items)``
+        """
+        raise NotImplementedError(
+            f'Step {self.path} must override run_pieces() to hand out work.'
+        )
 
     def work_path(self, *filenames):
         """

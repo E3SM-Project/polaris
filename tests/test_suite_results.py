@@ -100,6 +100,7 @@ def _set_up(tmp_path, monkeypatch, paths, name='omega_pr', is_task=False):
             component=component,
             config=SimpleNamespace(filepath='task.cfg'),
             steps={'init': None, 'forward': None},
+            steps_to_run=['init', 'forward'],
         )
     suite_work_dir = tasks[paths[0]].work_dir if is_task else work_dir
     suite = {'name': name, 'tasks': tasks, 'work_dir': suite_work_dir}

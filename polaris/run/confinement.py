@@ -147,6 +147,15 @@ def check_confinement(step, logger) -> None:
     if placement is None:
         return
 
+    if step.hands_out_work:
+        # its own process is not bound to its cores; each piece of its work
+        # is, by the resident that forks it
+        logger.info(
+            'placement: this step hands out its work, and each piece is '
+            'bound to its core by the resident that forks it'
+        )
+        return
+
     try:
         problems = list(_check_affinity(placement, logger))
         if step.ntasks > 1:
@@ -162,7 +171,7 @@ def check_confinement(step, logger) -> None:
         return
 
     if problems:
-        _record(step, problems, logger)
+        record_mismatch(step, problems, logger)
 
 
 def _check_affinity(placement, logger) -> List[str]:
@@ -521,7 +530,7 @@ def _promised(placement) -> Dict[str, Set[int]]:
     }
 
 
-def _record(step, problems: List[str], logger) -> None:
+def record_mismatch(step, problems: List[str], logger) -> None:
     """
     Say what did not match, in the step's log and in a file beside it.
 
