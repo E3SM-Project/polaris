@@ -359,7 +359,11 @@ issue was closed moves up one level.
 
 ### Algorithm Design: A hunt asks for only a few decisions.
 
-The digest is the only part of a hunt the developer has to read:
+The digest is the only part of a hunt the developer has to read. The agent
+ends its turn with it, so the developer can decide without scrolling back
+through the hunt. Each decision carries enough to act on without the
+ledger: where the bug is seen, the case for it, what was expected, and what
+each answer would do.
 
 ```
 ## Bug hunt 2026-11-03
@@ -369,17 +373,30 @@ to 2026-11-03 and triaged 3 parked findings.
 
 ### Decisions
 
-1. P2, omega, measured: <claim>. Fails on chrysalis/gnu since
-   2026-11-01; merged in between: Omega#<n>. (F-20261103-3fa2)
-   Proposed: file. Or: batch, log, dismiss, dig (one debug build,
-   about a node-hour).
-2. P3, polaris, inferred: <claim>. (F-20261030-07bd)
-   Proposed: batch, with logging and error messages.
+1. **<claim>.**
+   P2, omega, measured; S2, a failure in regular testing. (F-20261103-3fa2)
+   - Fails on chrysalis/gnu since 2026-11-01. Merged in between: Omega#<n>.
+   - Evidence: <why the agent believes the claim, in a few sentences>.
+   - Expected: <what should have happened>.
+   - Proposed: **file (an issue in E3SM-Project/Omega, `priority:
+     medium`)**. Or: batch, log, dismiss, dig (one debug build, about a
+     node-hour).
+2. **<claim>.**
+   P3, polaris, inferred; S3, another failure. (F-20261030-07bd)
+   - In `polaris/run/serial.py:212`.
+   - Evidence: <...>.
+   - Proposed: **batch (with logging and error messages)**. Or: file
+     (an issue in E3SM-Project/polaris, `priority: low`), log, dismiss, dig.
 
 ### For clean-up batches, one decision for all
 
-- polaris, documentation and naming: <claim>. (F-20261029-5c1e)
-- omega, compiler warnings: <claim>. (F-20261102-a07f)
+`batch` adds each to the "Clean-up: <theme>" issue of its owner's
+repository; name any to leave out.
+
+- polaris, documentation and naming: **<claim>.** (F-20261029-5c1e)
+  - Evidence: <...>.
+- omega, compiler warnings: **<claim>.** (F-20261102-a07f)
+  - Evidence: <...>.
 
 ### Changed since the last hunt
 
@@ -401,12 +418,13 @@ The developer answers each decision with one word:
 A digest asks for at most five decisions, unless the developer asks for a
 different number, and always includes every P1 finding. Decisions are
 ordered by priority, then by the number of rows affected, then by age. The
-P4 findings are listed together, one line each, and one answer covers all
-of them: `batch` sends them to their batches, and the developer can name
-any to leave out. A finding that is not shown keeps its place for a later
-digest. A tracked bug
-appears, in one line, only when something about it has changed. Commenting
-on its issue is a decision like any other.
+P4 findings are listed together, and one answer covers all of them:
+`batch` sends them to their batches, and the developer can name any to
+leave out. A finding that is not shown keeps its place for a later digest.
+A tracked bug appears, in one line, only when something about it has
+changed. Commenting on its issue is a decision like any other. Until every
+decision is answered, each of the agent's turns ends with the open ones
+again, never with a pointer to an earlier message.
 
 ### Algorithm Design: Minor bugs are batched.
 
@@ -610,9 +628,11 @@ labels: `priority: high`, `priority: medium` and `priority: low`.
 ### Implementation: A hunt asks for only a few decisions.
 
 `digest` writes the digest from the ledger, enforces the limit and saves it
-with the hunt record. The agent shows the digest in its reply, in full. The
-commands that act on a decision record it in the hunt record, so no later
-hunt asks it again.
+with the hunt record. Its evidence line is the first paragraph of the
+finding's evidence, so the agent opens the evidence with a short summary
+when it triages. The agent ends its turn with the digest, in full, followed
+only by its questions. The commands that act on a decision record it in the
+hunt record, so no later hunt asks it again.
 
 ### Implementation: Minor bugs are batched.
 
