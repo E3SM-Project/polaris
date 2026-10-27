@@ -431,7 +431,9 @@ changed. Commenting on its issue is a decision like any other. Until every
 decision is answered, or the developer leaves the rest for later, each of
 the agent's turns ends with the open ones again, never with a pointer to an
 earlier message. Decisions left for later stay open in the ledger, and the
-next digest raises them again.
+next digest raises them again. A finding the developer is handling outside
+a hunt is set to `fixing`: hunts leave it alone, and a harvest raises it
+again only if a new row fails.
 
 ### Algorithm Design: Minor bugs are batched.
 
@@ -668,7 +670,9 @@ bug_hunt.py park --claim <text> --where <file:line or test>
 
 `park` refuses a finding without a location or evidence. With `--fixing`,
 it records a blocker and where it is being fixed, with the status
-`fixing`. Without a ledger configured, it prints the finding, and the agent
+`fixing`. `update --status fixing --fixing <who or where>` does the same
+for a finding the developer is handling outside a hunt. Without a ledger
+configured, it prints the finding, and the agent
 puts it in its report. A short section of Polaris' `AGENTS.md`, "Bugs
 outside the task", states the rule, including when a bug blocks the task,
 and names `park`. An Omega pull request adds the same section to a new
