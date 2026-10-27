@@ -1,0 +1,74 @@
+# The campaigns a hunt can run: tests that do not run regularly.  Each says
+# what it runs, the rows it runs on by default, its rough cost and what it
+# can find.  "cost" is measured on a campaign's first run and kept here, so
+# that a developer can weigh it before allowing the jobs.  "setup" sketches
+# how utils/bug_hunt/AGENTS.md sets it up with the existing tools; no job is
+# submitted without the developer's permission.  Suites and tasks are set up
+# with -P, so their steps run at the same time with polaris parallel; a task
+# that fails that way is rerun serially before the failure is blamed on Omega.
+
+develop:
+  runs: omega_pr on Omega develop, against a baseline of Polaris' Omega
+    submodule
+  rows: [chrysalis/intel]
+  cost: not yet measured
+  finds: failures on develop before the submodule is updated
+  setup: polaris suite -c ocean -t omega_pr --model omega --build -P on a
+    worktree of develop, with -b a baseline of the submodule found with
+    polaris.baselines.find_baseline() or set up the same way
+
+rows:
+  runs: omega_nightly and the CTests on Omega PR template rows with no
+    nightly results
+  rows: [aurora/intelgpu, frontier/craygnu, pm-gpu/gnugpu]
+  cost: not yet measured
+  finds: failures on one machine or compiler
+  setup: polaris suite -c ocean -t omega_nightly --model omega --build -P,
+    and utils/omega/ctest/omega_ctest.py -p <the build>, on the machine
+
+debug:
+  runs: the CTests and omega_pr with a debug build, with omega_pr's two
+    cached_forward tasks in a job of their own
+  rows: [chrysalis/gnu]
+  cost: the CTests, 1 node for 5 minutes. In one job on 7 nodes, omega_pr
+    with -P finished 29 of its 34 tasks in 2 hours, while its two QU240
+    cached_forward runs took 95 minutes and over 2 hours (2026-10-27).
+    Without them, omega_pr is estimated at about 70 minutes on 7 nodes,
+    since merry_go_round's limiter forward takes 44 minutes on 1 core and
+    the 25 km manufactured_solution forwards need the whole allocation
+  finds: out-of-bounds access, floating-point exceptions, uninitialized
+    values
+  setup: one debug build, then three jobs. polaris setup -t <the tasks in
+    omega_pr.txt but its two cached_forward ones> --model omega --build
+    --debug -P -f <a config with [job] wall_time = 2:00:00 and
+    scheduler_target = debug>; in its own work directory, polaris setup -t
+    <the two cached_forward tasks> -p <the build> -P -f <a config with
+    [job] wall_time = 6:00:00>; and utils/omega/ctest/omega_ctest.py -p
+    <the build> --debug
+
+coupled:
+  runs: e3sm_omega_developer on rows the nightly skips, its debug tests
+    (commented out of the suite), and e3sm_omega_integration
+  rows: [chrysalis/gnu]
+  cost: not yet measured
+  finds: failures of Omega in E3SM
+  setup: cime/scripts/create_test from a worktree of Omega develop, built on
+    the login node; for the debug tests, the suite's tests with _D added
+
+hunt:
+  runs: the omega_hunt suite, with Omega develop
+  rows: [chrysalis/intel]
+  cost: serially, 5 nodes for 38 minutes (2026-10-27); not yet measured
+    with -P
+  finds: failures in features and configurations that omega_pr and
+    omega_nightly do not exercise
+  setup: polaris suite -c ocean -t omega_hunt --model omega --build -P on a
+    worktree of develop
+
+hunt_long:
+  runs: the omega_hunt_long suite, with Omega develop
+  rows: [chrysalis/intel]
+  cost: with -P, 7 nodes for 28 minutes (2026-10-27)
+  finds: drift, conservation errors, late NaNs and failures at scale
+  setup: polaris suite -c ocean -t omega_hunt_long --model omega --build -P
+    on a worktree of develop
