@@ -43,9 +43,10 @@ project owns a failure is the first step of triage. The first sources and
 campaigns are Omega's. Polaris' own, such as the MPAS-Ocean suites and the
 framework's unit tests, can be added later without changing the rest.
 
-Success means that a developer can make every decision a hunt asks for in a
-few minutes, that no bug is brought to them twice, and that agents doing
-other work fix only what blocks it and set the rest aside.
+Success means that hunts find bugs that no one had tracked, and that a
+developer can make every decision a hunt asks for in a few minutes. No bug
+is brought to them twice, and agents doing other work fix only what blocks
+it and set the rest aside.
 
 ## Requirements
 
@@ -649,8 +650,9 @@ the issue. Done when <test> passes on <rows>.
 
 ## Testing
 
-Unit tests use saved CDash responses and small fixture ledgers. Three
-trials check the hunter against cases whose answers are known:
+Unit tests use saved CDash responses and small fixture ledgers. Four trials
+check the hunter. The fourth is a real hunt, which must find bugs that no
+one has tracked yet:
 
 1. A harvest and triage of CDash from 2026-10-01 to 2026-10-27, into an
    empty ledger.
@@ -659,6 +661,9 @@ trials check the hunter against cases whose answers are known:
    instead of filing or fixing them, followed by a triage hunt.
 3. The `coupled` campaign's debug tests with GNU on Chrysalis, at a commit
    where Omega#644 is unfixed.
+4. A hunt of current Omega `develop`: a harvest, a review of the last
+   month's merges, and the `hunt` and `debug` campaigns on Chrysalis. It
+   must turn up bugs that no issue or pull request tracks.
 
 ### Testing and Validation: A developer starts each hunt.
 
@@ -678,13 +683,16 @@ In the third trial, the hunt finds the division by zero and matches it to
 Omega#644. Each campaign's cost is measured on its first run and recorded in
 `campaigns.yaml`. The first run of `omega_hunt` must fit in a few
 node-hours. A task in it that is known to fail, such as one of the #894
-tasks, matches its issue and is not raised as new.
+tasks, matches its issue and is not raised as new. The fourth trial runs
+the `hunt` and `debug` campaigns on current `develop`.
 
 ### Testing and Validation: Hunts can find bugs by reading code.
 
 A review of an Omega pull request as it was merged, chosen because a bug in
 it was found later, finds that bug. For example, a review of Omega#512
-should find what broke the `PEM` tests in Omega#626.
+should find what broke the `PEM` tests in Omega#626. In the fourth trial, a
+review of the last month's merges into `develop` reports its candidates,
+each with the code it rests on.
 
 ### Testing and Validation: Each bug is reported once.
 
