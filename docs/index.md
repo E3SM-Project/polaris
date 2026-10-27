@@ -82,6 +82,7 @@ developers_guide/framework/index
 developers_guide/machines/index
 developers_guide/benchmarking
 developers_guide/omega_pr_testing
+developers_guide/bug_hunting
 developers_guide/troubleshooting
 developers_guide/docs
 developers_guide/building_docs
