@@ -191,6 +191,11 @@ tools Polaris already has: `polaris suite --build` on a login node,
 submission in `utils/pr_testing`. Their results are harvested like any
 other run.
 
+Campaigns run the steps of their suites and tasks at the same time, with
+`polaris parallel`. A task that fails that way is rerun serially before the
+failure is blamed on Omega. If it then passes, the finding is Polaris'
+(see [Decisions](#decisions)).
+
 | Campaign | Runs | Can find |
 |---|---|---|
 | `develop` | `omega_pr` on Omega `develop`, against a baseline of Polaris' submodule | failures on `develop` before the submodule is updated |
@@ -540,8 +545,9 @@ develop:
   finds: failures on develop before the submodule is updated
 ```
 
-The agent sets up a campaign with the existing tools and submits its jobs
-only with permission. `develop` reuses a matching baseline through
+The agent sets up a campaign with the existing tools, passing `-P` to
+`polaris suite` and `polaris setup`, and submits its jobs only with
+permission. `develop` reuses a matching baseline through
 `polaris.baselines.find_baseline()`. `coupled` builds with `create_test` on
 the login node, from an Omega worktree at the target commit.
 
@@ -646,7 +652,7 @@ added by editing the issue's body, so the batch stays one list.
 with `--submit`. `utils/bug_hunt/AGENTS.md` lists these flags. It says that
 an agent passes one only when the developer has allowed it in that session,
 and that the same applies to any `sbatch`, `qsub` or `gh` command run by
-hand.
+hand. Answering `file` or `batch` in a digest allows posting that finding.
 
 ### Implementation: An agent can set a bug aside and return to its work.
 
@@ -840,3 +846,9 @@ The second trial hands at least one finding to a new session with
 - **A hunt does not propose adding tests to the PR or nightly suites.**
   Suite membership is a cost decision made elsewhere. A finding says which
   test caught it, and no more.
+- **Campaigns run in parallel, with a serial fallback.** A serial job holds
+  all its nodes while one small task runs: the first `omega_hunt` held 5
+  nodes for 38 minutes, and a debug `omega_pr` could not finish 34 tasks in
+  30 minutes. The parallel path is also Polaris code that a hunt should
+  exercise. The serial rerun keeps a Polaris failure from being blamed on
+  Omega.
