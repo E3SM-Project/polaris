@@ -1,0 +1,14 @@
+date: '2026-11-11'
+must_rule:
+- E3SM-Project/Omega#643
+- E3SM-Project/Omega#639
+related:
+- E3SM-Project/Omega#684
+- E3SM-Project/Omega#683
+- E3SM-Project/Omega#685
+- E3SM-Project/Omega#682
+- E3SM-Project/polaris#897
+timing:
+  E3SM-Project/Omega#643: merged before it passed
+  E3SM-Project/Omega#639: merged before the first failure
+max_noise: 3

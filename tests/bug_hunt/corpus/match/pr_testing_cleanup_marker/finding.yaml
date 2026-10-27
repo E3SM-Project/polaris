@@ -1,0 +1,17 @@
+schema_version: 1
+id: F-20261030-5efa
+name: deleting an Omega test tree breaks later coupled builds
+keys:
+- test: utils/pr_testing/pr_test_setup.py
+  phase: code
+  message: in the omega pr-testing utility, omega_pr_test.py cleanup --delete
+    removes a test tree but leaves its .all-submodules ma
+created: '2026-10-30'
+source: review
+owner: polaris
+claim: In the Omega PR-testing utility, omega_pr_test.py cleanup --delete
+  removes a test tree but leaves its .all-submodules marker, so when a later
+  setup makes the same tree again it skips initializing the rest of E3SM's
+  submodules, and the coupled tests fail to build for a reason the pull request
+  did not cause
+status: new

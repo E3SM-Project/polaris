@@ -1,0 +1,8 @@
+date: '2026-11-11'
+must_rule:
+- E3SM-Project/Omega#631
+related:
+- E3SM-Project/Omega#649
+- E3SM-Project/Omega#662
+- E3SM-Project/Omega#664
+max_noise: 0
