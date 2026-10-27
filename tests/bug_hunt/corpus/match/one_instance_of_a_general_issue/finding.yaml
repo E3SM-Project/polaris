@@ -1,0 +1,15 @@
+schema_version: 1
+id: F-20261030-8c39
+name: tangential velocity uses the wrong layers below the top layer
+keys:
+- test: components/omega/src/ocn/HorzOperators.h
+  phase: code
+  message: 'tangentialrecononedge ignores the lower layer bound, so kpp and vertmix
+    compute tangential velocity on the wrong layers '
+created: '2026-10-30'
+source: review
+owner: omega
+claim: TangentialReconOnEdge ignores the lower layer bound, so KPP and VertMix
+  compute tangential velocity on the wrong layers wherever MinLayerEdgeBot is
+  above 0
+status: new

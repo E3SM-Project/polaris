@@ -1,0 +1,23 @@
+date: '2026-11-11'
+first: '2026-11-08'
+last: '2026-11-11'
+lookback: 1
+kinds:
+- pattern: e3sm_omega_developer_develop_(?P<compiler>[\w-]+)
+  source: coupled
+  omega: develop
+  rows:
+  - chrysalis/gnu
+builds:
+- chrysalis:e3sm_omega_developer_develop_gnu
+occurrences:
+- test: SMS_D_Ld1.ne4pg2_oQU240.WCYCLXX1850NS-OMEGA
+  row: chrysalis/gnu
+  first_failed: '2026-11-08'
+  last_passed:
+  first_ran: '2026-11-08'
+- test: PEM_D_Ld3.ne4pg2_oQU240.WCYCLXX1850NS-OMEGA
+  row: chrysalis/gnu
+  first_failed: '2026-11-08'
+  last_passed:
+  first_ran: '2026-11-08'

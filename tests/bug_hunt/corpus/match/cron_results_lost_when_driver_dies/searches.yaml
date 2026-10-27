@@ -1,0 +1,728 @@
+saved: '2026-11-12'
+searches:
+- terms: common
+  repo: E3SM-Project/Omega
+  items:
+  - number: 653
+    title: 'Clean-up: compiler warnings'
+    state: open
+    closed_at:
+    html_url: https://github.com/E3SM-Project/Omega/issues/653
+  - number: 567
+    title: Running a check between TEOS and ocean_validate() bounds
+    state: open
+    closed_at:
+    html_url: https://github.com/E3SM-Project/Omega/issues/567
+  - number: 662
+    title: 'Clean-up: error handling'
+    state: open
+    closed_at:
+    html_url: https://github.com/E3SM-Project/Omega/issues/662
+  - number: 594
+    title: A shared file with commonly used functions (like isApprox)
+    state: open
+    closed_at:
+    html_url: https://github.com/E3SM-Project/Omega/issues/594
+  - number: 598
+    title: Add a header with mathematical functions and utilities
+    state: open
+    closed_at:
+    html_url: https://github.com/E3SM-Project/Omega/pull/598
+    pull_request:
+      merged_at:
+  - number: 613
+    title: Should analysis groups with the same period share one output file?
+    state: open
+    closed_at:
+    html_url: https://github.com/E3SM-Project/Omega/issues/613
+  - number: 696
+    title: EAMxx coupled debug tests crash at startup on Chrysalis gnu
+    state: open
+    closed_at:
+    html_url: https://github.com/E3SM-Project/Omega/issues/696
+  - number: 635
+    title: Fix the FiniteVolume sea-floor anchor over steep slopes
+    state: closed
+    closed_at: '2026-11-06T17:09:04Z'
+    html_url: https://github.com/E3SM-Project/Omega/pull/635
+    pull_request:
+      merged_at: '2026-11-06T17:09:04Z'
+  - number: 624
+    title: Remove `pyyaml` workarounds and document how to run coupled tests
+    state: closed
+    closed_at: '2026-10-30T15:52:20Z'
+    html_url: https://github.com/E3SM-Project/Omega/pull/624
+    pull_request:
+      merged_at: '2026-10-30T15:52:20Z'
+  - number: 601
+    title: Use C++20 in both standalone and coupled builds
+    state: closed
+    closed_at: '2026-10-13T20:55:05Z'
+    html_url: https://github.com/E3SM-Project/Omega/pull/601
+    pull_request:
+      merged_at: '2026-10-13T20:55:05Z'
+  - number: 671
+    title: Add a PE layout for Omega cases on pm-gpu
+    state: open
+    closed_at:
+    html_url: https://github.com/E3SM-Project/Omega/pull/671
+    pull_request:
+      merged_at:
+  - number: 439
+    title: Omega not building with intelgpu on pm-gpu
+    state: open
+    closed_at:
+    html_url: https://github.com/E3SM-Project/Omega/issues/439
+  - number: 512
+    title: add KPP mixing
+    state: closed
+    closed_at: '2026-10-06T15:20:19Z'
+    html_url: https://github.com/E3SM-Project/Omega/pull/512
+    pull_request:
+      merged_at: '2026-10-06T15:20:19Z'
+  - number: 636
+    title: Add a parabolic vertical reconstruction to the FiniteVolume pressure
+      gradient
+    state: open
+    closed_at:
+    html_url: https://github.com/E3SM-Project/Omega/pull/636
+    pull_request:
+      merged_at:
+  - number: 462
+    title: add a teos-10 version of frazil formation+melt
+    state: closed
+    closed_at: '2026-09-14T22:31:47Z'
+    html_url: https://github.com/E3SM-Project/Omega/pull/462
+    pull_request:
+      merged_at:
+  - number: 645
+    title: Avoid division by zero in linear interpolation
+    state: closed
+    closed_at: '2026-10-30T15:47:56Z'
+    html_url: https://github.com/E3SM-Project/Omega/pull/645
+    pull_request:
+      merged_at: '2026-10-30T15:47:56Z'
+  - number: 621
+    title: Minor refactoring of KPP
+    state: closed
+    closed_at: '2026-10-27T20:36:17Z'
+    html_url: https://github.com/E3SM-Project/Omega/pull/621
+    pull_request:
+      merged_at: '2026-10-27T20:36:17Z'
+  - number: 536
+    title: Adding the energy fixer
+    state: closed
+    closed_at: '2026-11-04T16:49:39Z'
+    html_url: https://github.com/E3SM-Project/Omega/pull/536
+    pull_request:
+      merged_at: '2026-11-04T16:49:39Z'
+  - number: 466
+    title: adds frazil (both the teos and basic options)
+    state: closed
+    closed_at: '2026-10-15T23:31:56Z'
+    html_url: https://github.com/E3SM-Project/Omega/pull/466
+    pull_request:
+      merged_at: '2026-10-15T23:31:56Z'
+  - number: 438
+    title: Add submesoscale eddy parametrization
+    state: closed
+    closed_at: '2026-10-20T02:18:28Z'
+    html_url: https://github.com/E3SM-Project/Omega/pull/438
+    pull_request:
+      merged_at: '2026-10-20T02:18:28Z'
+  - number: 378
+    title: modifies array size to NCellsSize
+    state: closed
+    closed_at: '2026-04-06T16:22:14Z'
+    html_url: https://github.com/E3SM-Project/Omega/pull/378
+    pull_request:
+      merged_at: '2026-04-06T16:22:14Z'
+  - number: 463
+    title: Reduce the number of PIO sync during IOStream write
+    state: closed
+    closed_at: '2026-08-18T21:25:39Z'
+    html_url: https://github.com/E3SM-Project/Omega/pull/463
+    pull_request:
+      merged_at:
+  - number: 374
+    title: Fix Perlmutter build with gnugpu
+    state: closed
+    closed_at: '2026-04-02T10:15:22Z'
+    html_url: https://github.com/E3SM-Project/Omega/pull/374
+    pull_request:
+      merged_at: '2026-04-02T10:15:22Z'
+  - number: 481
+    title: Add MOC stream function analysis capability
+    state: closed
+    closed_at: '2026-09-28T20:06:25Z'
+    html_url: https://github.com/E3SM-Project/Omega/pull/481
+    pull_request:
+      merged_at: '2026-09-28T20:06:25Z'
+  - number: 493
+    title: Add finite-volume pressure gradient (phase 1 -- 2nd order)
+    state: closed
+    closed_at: '2026-10-29T19:55:24Z'
+    html_url: https://github.com/E3SM-Project/Omega/pull/493
+    pull_request:
+      merged_at: '2026-10-29T19:55:24Z'
+  - number: 288
+    title: Add temporary global constants header file
+    state: closed
+    closed_at: '2025-12-02T20:09:24Z'
+    html_url: https://github.com/E3SM-Project/Omega/pull/288
+    pull_request:
+      merged_at: '2025-12-02T20:09:24Z'
+  - number: 352
+    title: Change shear mixing to LMD94 formulation and add ri smoothing
+    state: closed
+    closed_at: '2026-06-24T16:06:47Z'
+    html_url: https://github.com/E3SM-Project/Omega/pull/352
+    pull_request:
+      merged_at: '2026-06-24T16:06:47Z'
+  - number: 319
+    title: Adds a submesoscale eddy design document
+    state: closed
+    closed_at: '2026-02-02T19:52:24Z'
+    html_url: https://github.com/E3SM-Project/Omega/pull/319
+    pull_request:
+      merged_at: '2026-02-02T19:52:24Z'
+  - number: 299
+    title: Add wrappers for Kokkos hierarchical parallelism
+    state: closed
+    closed_at: '2025-10-29T19:14:51Z'
+    html_url: https://github.com/E3SM-Project/Omega/pull/299
+    pull_request:
+      merged_at: '2025-10-29T19:14:51Z'
+  - number: 392
+    title: Enable Omega time stepping with diagnostic computations
+    state: closed
+    closed_at: '2026-05-04T19:22:25Z'
+    html_url: https://github.com/E3SM-Project/Omega/pull/392
+    pull_request:
+      merged_at: '2026-05-04T19:22:25Z'
+  - number: 223
+    title: Omega V1 Governing Equations Design Document
+    state: closed
+    closed_at: '2025-08-13T15:26:48Z'
+    html_url: https://github.com/E3SM-Project/Omega/pull/223
+    pull_request:
+      merged_at: '2025-08-13T15:26:48Z'
+  - number: 191
+    title: Add EOS design document
+    state: closed
+    closed_at: '2025-04-22T14:44:19Z'
+    html_url: https://github.com/E3SM-Project/Omega/pull/191
+    pull_request:
+      merged_at: '2025-04-22T14:44:19Z'
+  - number: 219
+    title: 'Add wind forcing and bottom drag tendency terms '
+    state: closed
+    closed_at: '2025-06-12T16:58:06Z'
+    html_url: https://github.com/E3SM-Project/Omega/pull/219
+    pull_request:
+      merged_at: '2025-06-12T16:58:06Z'
+  - number: 192
+    title: add Omega nightly tests using CDash
+    state: closed
+    closed_at: '2025-01-23T16:22:15Z'
+    html_url: https://github.com/E3SM-Project/Omega/pull/192
+    pull_request:
+      merged_at: '2025-01-23T16:22:15Z'
+  - number: 86
+    title: Common test functionality and operators refactor
+    state: closed
+    closed_at: '2024-06-04T20:02:02Z'
+    html_url: https://github.com/E3SM-Project/Omega/pull/86
+    pull_request:
+      merged_at: '2024-06-04T20:02:02Z'
+  - number: 55
+    title: CMake failing for `nvidiagpu` on Perlmutter-GPU
+    state: closed
+    closed_at: '2024-07-10T21:02:24Z'
+    html_url: https://github.com/E3SM-Project/Omega/issues/55
+  - number: 145
+    title: Adds design document for an Omega error handler
+    state: closed
+    closed_at: '2024-10-24T12:27:48Z'
+    html_url: https://github.com/E3SM-Project/Omega/pull/145
+    pull_request:
+      merged_at: '2024-10-24T12:27:48Z'
+  - number: 170
+    title: Add manufactured solution tendency terms to Omega
+    state: closed
+    closed_at: '2024-12-13T03:13:25Z'
+    html_url: https://github.com/E3SM-Project/Omega/pull/170
+    pull_request:
+      merged_at: '2024-12-13T03:13:25Z'
+  - number: 117
+    title: Adds a new dimension class for Omega
+    state: closed
+    closed_at: '2024-08-13T16:07:46Z'
+    html_url: https://github.com/E3SM-Project/Omega/pull/117
+    pull_request:
+      merged_at: '2024-08-13T16:07:45Z'
+  - number: 133
+    title: Add Tracers infrastructure
+    state: closed
+    closed_at: '2024-10-04T21:32:35Z'
+    html_url: https://github.com/E3SM-Project/Omega/pull/133
+    pull_request:
+      merged_at: '2024-10-04T21:32:35Z'
+  - number: 67
+    title: 'DISCUSSION: CMakeBuild and DataTypes for Kokkos-based OMEGA'
+    state: closed
+    closed_at: '2024-04-12T20:13:49Z'
+    html_url: https://github.com/E3SM-Project/Omega/issues/67
+  - number: 74
+    title: 'Refactor: Migrate Omega from YAKL to Kokkos'
+    state: closed
+    closed_at: '2024-04-12T16:05:47Z'
+    html_url: https://github.com/E3SM-Project/Omega/pull/74
+    pull_request:
+      merged_at: '2024-04-12T16:05:47Z'
+  - number: 48
+    title: Add Mesh class
+    state: closed
+    closed_at: '2024-02-06T21:49:09Z'
+    html_url: https://github.com/E3SM-Project/Omega/pull/48
+    pull_request:
+      merged_at: '2024-02-06T21:49:09Z'
+  - number: 27
+    title: Adds the basic logging capabilities for Omega
+    state: closed
+    closed_at: '2023-08-24T19:00:15Z'
+    html_url: https://github.com/E3SM-Project/Omega/pull/27
+    pull_request:
+      merged_at: '2023-08-24T19:00:15Z'
+- terms: common
+  repo: E3SM-Project/polaris
+  items:
+  - number: 900
+    title: Keep the finite-volume anchor shift within one layer
+    state: open
+    closed_at:
+    html_url: https://github.com/E3SM-Project/polaris/pull/900
+    pull_request:
+      merged_at:
+  - number: 913
+    title: 'Clean-up: tests and CI'
+    state: open
+    closed_at:
+    html_url: https://github.com/E3SM-Project/polaris/issues/913
+  - number: 491
+    title: Convergence tests should fail when convergence rates get too high
+    state: open
+    closed_at:
+    html_url: https://github.com/E3SM-Project/polaris/issues/491
+  - number: 964
+    title: 'Clean-up: tasks and steps'
+    state: closed
+    closed_at: '2026-11-11T23:03:35Z'
+    html_url: https://github.com/E3SM-Project/polaris/issues/964
+  - number: 748
+    title: 'MPASO: vmix_stable and ideal_age fail conservation checks with evaporation
+      forcing'
+    state: open
+    closed_at:
+    html_url: https://github.com/E3SM-Project/polaris/issues/748
+  - number: 927
+    title: 'Clean-up: PR testing utilities'
+    state: closed
+    closed_at: '2026-11-11T23:13:33Z'
+    html_url: https://github.com/E3SM-Project/polaris/issues/927
+  - number: 749
+    title: Take vmix_stable and ideal_age out of mpaso_pr
+    state: closed
+    closed_at: '2026-09-09T15:12:19Z'
+    html_url: https://github.com/E3SM-Project/polaris/pull/749
+    pull_request:
+      merged_at:
+  - number: 670
+    title: Add p-star and TEOS-10 (or JM) versions of overflow
+    state: closed
+    closed_at: '2026-07-24T14:54:21Z'
+    html_url: https://github.com/E3SM-Project/polaris/pull/670
+    pull_request:
+      merged_at: '2026-07-24T14:54:21Z'
+  - number: 608
+    title: Converter needed from `VerticalPseudoVelocity` to `vertVelocityTop`
+    state: closed
+    closed_at: '2026-07-07T17:02:51Z'
+    html_url: https://github.com/E3SM-Project/polaris/issues/608
+  - number: 747
+    title: Fix the omega_pr and mpaso_pr failures on main
+    state: closed
+    closed_at: '2026-09-09T14:25:34Z'
+    html_url: https://github.com/E3SM-Project/polaris/pull/747
+    pull_request:
+      merged_at:
+  - number: 865
+    title: Add mixed_layer_eddies tasks for the submesoscale eddy
+      parameterization
+    state: closed
+    closed_at: '2026-10-27T01:07:55Z'
+    html_url: https://github.com/E3SM-Project/polaris/pull/865
+    pull_request:
+      merged_at: '2026-10-27T01:07:55Z'
+  - number: 612
+    title: Add realistic global ocean initialization workflow
+    state: closed
+    closed_at: '2026-10-15T17:39:59Z'
+    html_url: https://github.com/E3SM-Project/polaris/pull/612
+    pull_request:
+      merged_at: '2026-10-15T17:39:59Z'
+  - number: 599
+    title: Extract ocean model I/O into the ocean framework
+    state: closed
+    closed_at: '2026-06-11T12:43:35Z'
+    html_url: https://github.com/E3SM-Project/polaris/pull/599
+    pull_request:
+      merged_at:
+  - number: 482
+    title: adds cron scripts for nightly tests
+    state: closed
+    closed_at: '2026-04-23T16:45:59Z'
+    html_url: https://github.com/E3SM-Project/polaris/pull/482
+    pull_request:
+      merged_at: '2026-04-23T16:45:59Z'
+  - number: 435
+    title: Clean-up single column tests
+    state: closed
+    closed_at: '2026-08-04T00:55:26Z'
+    html_url: https://github.com/E3SM-Project/polaris/pull/435
+    pull_request:
+      merged_at: '2026-08-04T00:55:26Z'
+  - number: 501
+    title: Switch deployment to `mache.deploy`
+    state: closed
+    closed_at: '2026-03-21T08:27:32Z'
+    html_url: https://github.com/E3SM-Project/polaris/pull/501
+    pull_request:
+      merged_at: '2026-03-21T08:27:32Z'
+  - number: 300
+    title: Add a step for combining global and Antarctic topography
+    state: closed
+    closed_at: '2025-05-09T09:07:08Z'
+    html_url: https://github.com/E3SM-Project/polaris/pull/300
+    pull_request:
+      merged_at: '2025-05-09T09:07:08Z'
+  - number: 187
+    title: Aquaplanet external gravity wave
+    state: closed
+    closed_at: '2025-05-14T19:27:58Z'
+    html_url: https://github.com/E3SM-Project/polaris/pull/187
+    pull_request:
+      merged_at:
+  - number: 236
+    title: Add convergence tasks for space and time only
+    state: closed
+    closed_at: '2024-11-25T17:02:00Z'
+    html_url: https://github.com/E3SM-Project/polaris/pull/236
+    pull_request:
+      merged_at: '2024-11-25T17:02:00Z'
+  - number: 227
+    title: Set default model for mpas_to_yaml to mpas-ocean
+    state: closed
+    closed_at: '2024-09-25T20:27:05Z'
+    html_url: https://github.com/E3SM-Project/polaris/pull/227
+    pull_request:
+      merged_at: '2024-09-25T20:27:05Z'
+  - number: 108
+    title: Common global convergence meshes
+    state: closed
+    closed_at: '2023-08-20T14:45:50Z'
+    html_url: https://github.com/E3SM-Project/polaris/pull/108
+    pull_request:
+      merged_at:
+  - number: 129
+    title: Use common matplotlib style sheet in all ocean plots
+    state: closed
+    closed_at: '2023-10-05T19:06:47Z'
+    html_url: https://github.com/E3SM-Project/polaris/pull/129
+    pull_request:
+      merged_at: '2023-10-05T19:06:47Z'
+  - number: 119
+    title: Add shared ocean framework for spherical convergence tests
+    state: closed
+    closed_at: '2023-09-27T17:19:35Z'
+    html_url: https://github.com/E3SM-Project/polaris/pull/119
+    pull_request:
+      merged_at: '2023-09-27T17:19:35Z'
+  - number: 84
+    title: Pull out common setup between run procedures
+    state: closed
+    closed_at: '2023-06-10T02:05:15Z'
+    html_url: https://github.com/E3SM-Project/polaris/pull/84
+    pull_request:
+      merged_at: '2023-06-10T02:05:15Z'
+  - number: 111
+    title: Remove test groups
+    state: closed
+    closed_at: '2023-09-05T20:15:48Z'
+    html_url: https://github.com/E3SM-Project/polaris/pull/111
+    pull_request:
+      merged_at: '2023-09-05T20:15:48Z'
+  - number: 104
+    title: Port sphere transport test group for ocean components
+    state: closed
+    closed_at: '2023-10-17T19:22:04Z'
+    html_url: https://github.com/E3SM-Project/polaris/pull/104
+    pull_request:
+      merged_at: '2023-10-17T19:22:03Z'
+  - number: 106
+    title: Modularization and cleanup
+    state: closed
+    closed_at: '2023-08-07T17:03:58Z'
+    html_url: https://github.com/E3SM-Project/polaris/pull/106
+    pull_request:
+      merged_at: '2023-08-07T17:03:58Z'
+  - number: 85
+    title: Second error when a step fails
+    state: closed
+    closed_at: '2023-06-14T06:31:11Z'
+    html_url: https://github.com/E3SM-Project/polaris/issues/85
+  - number: 71
+    title: Add sea ice components along with single column test case
+    state: closed
+    closed_at: '2023-07-27T08:24:17Z'
+    html_url: https://github.com/E3SM-Project/polaris/pull/71
+    pull_request:
+      merged_at: '2023-07-27T08:24:17Z'
+  - number: 126
+    title: Shared ocean spherical convergence analysis step
+    state: closed
+    closed_at: '2023-10-05T09:55:18Z'
+    html_url: https://github.com/E3SM-Project/polaris/pull/126
+    pull_request:
+      merged_at: '2023-10-05T09:55:18Z'
+  - number: 97
+    title: Assume mesh variables only in mesh file
+    state: closed
+    closed_at: '2023-07-21T13:51:26Z'
+    html_url: https://github.com/E3SM-Project/polaris/pull/97
+    pull_request:
+      merged_at: '2023-07-21T13:51:26Z'
+  - number: 28
+    title: Change how dynamic model configuration is update
+    state: closed
+    closed_at: '2023-04-04T08:02:18Z'
+    html_url: https://github.com/E3SM-Project/polaris/pull/28
+    pull_request:
+      merged_at: '2023-04-04T08:02:18Z'
+  - number: 20
+    title: Add `ModelStep` class
+    state: closed
+    closed_at: '2023-02-21T03:56:53Z'
+    html_url: https://github.com/E3SM-Project/polaris/pull/20
+    pull_request:
+      merged_at: '2023-02-21T03:56:53Z'
+- terms: omega_nightly
+  repo: E3SM-Project/Omega
+  items:
+  - number: 653
+    title: 'Clean-up: compiler warnings'
+    state: open
+    closed_at:
+    html_url: https://github.com/E3SM-Project/Omega/issues/653
+  - number: 362
+    title: fix IO define mode errors and clean up formats
+    state: closed
+    closed_at: '2026-04-01T14:41:15Z'
+    html_url: https://github.com/E3SM-Project/Omega/pull/362
+    pull_request:
+      merged_at: '2026-04-01T14:41:15Z'
+  - number: 382
+    title: 'Adds reading of omega HorzMesh from mesh iostream '
+    state: closed
+    closed_at: '2026-05-29T06:50:03Z'
+    html_url: https://github.com/E3SM-Project/Omega/pull/382
+    pull_request:
+      merged_at: '2026-05-29T06:50:03Z'
+- terms: omega_nightly
+  repo: E3SM-Project/polaris
+  items:
+  - number: 913
+    title: 'Clean-up: tests and CI'
+    state: open
+    closed_at:
+    html_url: https://github.com/E3SM-Project/polaris/issues/913
+  - number: 863
+    title: Add analysis restart and sampling-interval tests for Omega
+    state: open
+    closed_at:
+    html_url: https://github.com/E3SM-Project/polaris/pull/863
+    pull_request:
+      merged_at:
+  - number: 770
+    title: Nightly Omega testing does no baseline comparison
+    state: open
+    closed_at:
+    html_url: https://github.com/E3SM-Project/polaris/issues/770
+  - number: 920
+    title: Run the omega_nightly suite task-parallel in the nightlies
+    state: closed
+    closed_at: '2026-11-01T17:25:01Z'
+    html_url: https://github.com/E3SM-Project/polaris/pull/920
+    pull_request:
+      merged_at: '2026-11-01T17:25:01Z'
+  - number: 919
+    title: Add coarse mixed-layer eddies task to Omega nightly suite
+    state: closed
+    closed_at: '2026-10-29T22:00:38Z'
+    html_url: https://github.com/E3SM-Project/polaris/pull/919
+    pull_request:
+      merged_at: '2026-10-29T22:00:38Z'
+  - number: 925
+    title: mixed_layer_eddies/coarse verification limits are tighter than its
+      row-to-row spread
+    state: closed
+    closed_at: '2026-11-03T21:56:00Z'
+    html_url: https://github.com/E3SM-Project/polaris/issues/925
+  - number: 914
+    title: The pm-gpu nightlies stopped reporting to CDash after 2026-09-28 and
+      2026-10-01
+    state: closed
+    closed_at: '2026-11-01T17:22:25Z'
+    html_url: https://github.com/E3SM-Project/polaris/issues/914
+  - number: 775
+    title: Add a short barotropic channel task to the Omega suites
+    state: closed
+    closed_at: '2026-09-11T16:11:57Z'
+    html_url: https://github.com/E3SM-Project/polaris/pull/775
+    pull_request:
+      merged_at: '2026-09-11T16:11:57Z'
+  - number: 759
+    title: A step's pickle carries its whole component, costing ~7 MB per step
+    state: closed
+    closed_at: '2026-09-10T11:51:48Z'
+    html_url: https://github.com/E3SM-Project/polaris/issues/759
+  - number: 731
+    title: Add realistic global restart test and fix Omega options
+    state: closed
+    closed_at: '2026-10-02T11:10:24Z'
+    html_url: https://github.com/E3SM-Project/polaris/pull/731
+    pull_request:
+      merged_at: '2026-10-02T11:10:24Z'
+  - number: 769
+    title: Reconstruct Omega's velocity with least squares everywhere
+    state: closed
+    closed_at: '2026-09-11T05:55:21Z'
+    html_url: https://github.com/E3SM-Project/polaris/pull/769
+    pull_request:
+      merged_at: '2026-09-11T05:55:21Z'
+  - number: 777
+    title: Clean up the nightly cron scripts
+    state: closed
+    closed_at: '2026-10-02T15:42:22Z'
+    html_url: https://github.com/E3SM-Project/polaris/pull/777
+    pull_request:
+      merged_at: '2026-10-02T15:42:22Z'
+  - number: 780
+    title: "barotropic_channel/short fails baseline comparison: temperature is not
+      in Omega's output.nc"
+    state: closed
+    closed_at: '2026-09-12T12:20:13Z'
+    html_url: https://github.com/E3SM-Project/polaris/issues/780
+  - number: 673
+    title: Insufficient job allocation time for `omega_pr` cronjob tests on
+      Chrysalis
+    state: closed
+    closed_at: '2026-08-06T22:16:14Z'
+    html_url: https://github.com/E3SM-Project/polaris/issues/673
+  - number: 761
+    title: Declare two step dependencies that were only implied by setup order
+    state: closed
+    closed_at: '2026-09-10T13:04:42Z'
+    html_url: https://github.com/E3SM-Project/polaris/pull/761
+    pull_request:
+      merged_at: '2026-09-10T13:04:42Z'
+  - number: 682
+    title: Optionally use suite cfg files to set job attributes
+    state: closed
+    closed_at: '2026-08-06T22:16:13Z'
+    html_url: https://github.com/E3SM-Project/polaris/pull/682
+    pull_request:
+      merged_at: '2026-08-06T22:16:12Z'
+  - number: 747
+    title: Fix the omega_pr and mpaso_pr failures on main
+    state: closed
+    closed_at: '2026-09-09T14:25:34Z'
+    html_url: https://github.com/E3SM-Project/polaris/pull/747
+    pull_request:
+      merged_at:
+  - number: 580
+    title: add seamount to omega_nightly suite
+    state: closed
+    closed_at: '2026-06-29T15:04:56Z'
+    html_url: https://github.com/E3SM-Project/polaris/pull/580
+    pull_request:
+      merged_at:
+  - number: 628
+    title: Port all `baroclinic_channel` tests for Omega
+    state: closed
+    closed_at: '2026-07-13T21:48:01Z'
+    html_url: https://github.com/E3SM-Project/polaris/pull/628
+    pull_request:
+      merged_at: '2026-07-13T21:48:01Z'
+  - number: 622
+    title: Support geostrophic tasks for Omega
+    state: closed
+    closed_at: '2026-07-20T14:24:18Z'
+    html_url: https://github.com/E3SM-Project/polaris/pull/622
+    pull_request:
+      merged_at: '2026-07-20T14:24:18Z'
+  - number: 742
+    title: Support the split-explicit time stepper in the `omega_pr` suite
+    state: closed
+    closed_at: '2026-09-28T20:33:00Z'
+    html_url: https://github.com/E3SM-Project/polaris/pull/742
+    pull_request:
+      merged_at: '2026-09-28T20:33:00Z'
+  - number: 790
+    title: Change omega_pr tests to 3rd order FCT
+    state: closed
+    closed_at: '2026-09-23T20:29:05Z'
+    html_url: https://github.com/E3SM-Project/polaris/pull/790
+    pull_request:
+      merged_at: '2026-09-23T20:29:05Z'
+  - number: 726
+    title: Scaffolding for Omega analysis
+    state: closed
+    closed_at: '2026-09-02T10:17:36Z'
+    html_url: https://github.com/E3SM-Project/polaris/pull/726
+    pull_request:
+      merged_at: '2026-09-02T10:17:36Z'
+  - number: 706
+    title: Design docs for Omega analysis
+    state: closed
+    closed_at: '2026-08-31T19:18:53Z'
+    html_url: https://github.com/E3SM-Project/polaris/pull/706
+    pull_request:
+      merged_at: '2026-08-31T19:18:53Z'
+  - number: 584
+    title: Merry-go-round convergence order `NaN`
+    state: closed
+    closed_at: '2026-06-06T16:08:47Z'
+    html_url: https://github.com/E3SM-Project/polaris/issues/584
+  - number: 544
+    title: Split horiz. mesh, init. vert. coord. and init. state into separate
+      files
+    state: closed
+    closed_at: '2026-05-30T21:22:51Z'
+    html_url: https://github.com/E3SM-Project/polaris/pull/544
+    pull_request:
+      merged_at: '2026-05-30T21:22:51Z'
+  - number: 465
+    title: Add Omega horizontal pressure gradient tests
+    state: closed
+    closed_at: '2026-04-21T21:48:03Z'
+    html_url: https://github.com/E3SM-Project/polaris/pull/465
+    pull_request:
+      merged_at: '2026-04-21T21:48:03Z'
+  - number: 482
+    title: adds cron scripts for nightly tests
+    state: closed
+    closed_at: '2026-04-23T16:45:59Z'
+    html_url: https://github.com/E3SM-Project/polaris/pull/482
+    pull_request:
+      merged_at: '2026-04-23T16:45:59Z'

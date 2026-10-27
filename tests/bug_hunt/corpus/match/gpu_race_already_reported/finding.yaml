@@ -1,0 +1,15 @@
+schema_version: 1
+id: F-20261030-3a36
+name: GPU race in provisional thickness below the top layer
+keys:
+- test: components/omega/src/ocn/auxiliaryVars/PseudoThicknessAuxVars.h
+  phase: code
+  message: 'provpseudothickness can race on gpus wherever the minimum layer index
+    is above 0: its scratch array is zeroed, accumulat'
+created: '2026-10-30'
+source: review
+owner: omega
+claim: 'ProvPseudoThickness can race on GPUs wherever the minimum layer index is
+  above 0: its scratch array is zeroed, accumulated and read over different layer
+  ranges with no team barrier'
+status: new

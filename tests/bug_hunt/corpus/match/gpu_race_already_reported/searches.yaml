@@ -1,0 +1,128 @@
+saved: '2026-11-11'
+searches:
+- terms: PseudoThicknessAuxVars
+  repo: E3SM-Project/Omega
+  items:
+  - number: 649
+    title: Consolidate provisional thickness and tracer calculations in tracer
+      advection
+    state: open
+    closed_at:
+    html_url: https://github.com/E3SM-Project/Omega/issues/649
+  - number: 662
+    title: 'Clean-up: error handling'
+    state: open
+    closed_at:
+    html_url: https://github.com/E3SM-Project/Omega/issues/662
+  - number: 631
+    title: Per-edge inner loops will race on GPUs once cells start below the
+      top layer
+    state: open
+    closed_at:
+    html_url: https://github.com/E3SM-Project/Omega/issues/631
+  - number: 664
+    title: ProvPseudoThickness can race on GPUs where the minimum layer index
+      is above 0
+    state: closed
+    closed_at: '2026-10-30T17:16:20Z'
+    html_url: https://github.com/E3SM-Project/Omega/issues/664
+  - number: 597
+    title: Avoid _Real literals where nvcc can't find the operator
+    state: closed
+    closed_at: '2026-10-08T19:06:04Z'
+    html_url: https://github.com/E3SM-Project/Omega/pull/597
+    pull_request:
+      merged_at: '2026-10-08T19:06:04Z'
+  - number: 501
+    title: '`ProvPseudoThickness` aux field is registered with the `NEdges` dimension
+      instead of `NCells`.'
+    state: closed
+    closed_at: '2026-08-12T22:43:42Z'
+    html_url: https://github.com/E3SM-Project/Omega/issues/501
+  - number: 473
+    title: Remove vertical chunking from aux vars and tendency terms
+    state: closed
+    closed_at: '2026-08-27T01:04:27Z'
+    html_url: https://github.com/E3SM-Project/Omega/pull/473
+    pull_request:
+      merged_at: '2026-08-27T01:04:27Z'
+  - number: 477
+    title: Fix a bug affecting monotonic vertical advection
+    state: closed
+    closed_at: '2026-08-04T22:11:39Z'
+    html_url: https://github.com/E3SM-Project/Omega/pull/477
+    pull_request:
+      merged_at: '2026-08-04T22:11:39Z'
+- terms: PseudoThicknessAuxVars
+  repo: E3SM-Project/polaris
+  items: []
+- terms: ProvPseudoThickness
+  repo: E3SM-Project/Omega
+  items:
+  - number: 649
+    title: Consolidate provisional thickness and tracer calculations in tracer
+      advection
+    state: open
+    closed_at:
+    html_url: https://github.com/E3SM-Project/Omega/issues/649
+  - number: 662
+    title: 'Clean-up: error handling'
+    state: open
+    closed_at:
+    html_url: https://github.com/E3SM-Project/Omega/issues/662
+  - number: 631
+    title: Per-edge inner loops will race on GPUs once cells start below the
+      top layer
+    state: open
+    closed_at:
+    html_url: https://github.com/E3SM-Project/Omega/issues/631
+  - number: 664
+    title: ProvPseudoThickness can race on GPUs where the minimum layer index
+      is above 0
+    state: closed
+    closed_at: '2026-10-30T17:16:20Z'
+    html_url: https://github.com/E3SM-Project/Omega/issues/664
+  - number: 628
+    title: Skip inactive edges in the horizontal FCT provisional thickness
+    state: closed
+    closed_at: '2026-10-26T12:53:11Z'
+    html_url: https://github.com/E3SM-Project/Omega/pull/628
+    pull_request:
+      merged_at:
+  - number: 502
+    title: Fix a bug in field registration of `ProvPseudoThickness`
+    state: closed
+    closed_at: '2026-08-12T22:43:41Z'
+    html_url: https://github.com/E3SM-Project/Omega/pull/502
+    pull_request:
+      merged_at: '2026-08-12T22:43:41Z'
+  - number: 477
+    title: Fix a bug affecting monotonic vertical advection
+    state: closed
+    closed_at: '2026-08-04T22:11:39Z'
+    html_url: https://github.com/E3SM-Project/Omega/pull/477
+    pull_request:
+      merged_at: '2026-08-04T22:11:39Z'
+  - number: 501
+    title: '`ProvPseudoThickness` aux field is registered with the `NEdges` dimension
+      instead of `NCells`.'
+    state: closed
+    closed_at: '2026-08-12T22:43:42Z'
+    html_url: https://github.com/E3SM-Project/Omega/issues/501
+  - number: 438
+    title: Add submesoscale eddy parametrization
+    state: closed
+    closed_at: '2026-10-20T02:18:28Z'
+    html_url: https://github.com/E3SM-Project/Omega/pull/438
+    pull_request:
+      merged_at: '2026-10-20T02:18:28Z'
+  - number: 632
+    title: Start vertical FCT from the tracer after horizontal advection
+    state: closed
+    closed_at: '2026-10-27T18:55:28Z'
+    html_url: https://github.com/E3SM-Project/Omega/pull/632
+    pull_request:
+      merged_at: '2026-10-27T18:55:28Z'
+- terms: ProvPseudoThickness
+  repo: E3SM-Project/polaris
+  items: []

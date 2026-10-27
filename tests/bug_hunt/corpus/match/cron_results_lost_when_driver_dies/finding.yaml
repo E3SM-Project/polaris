@@ -1,0 +1,16 @@
+schema_version: 1
+id: F-20261111-af3b
+name: cron nightlies lose a finished job's results if their driver dies
+keys:
+- test: cron-scripts/tasks/common.py
+  phase: code
+  message: the cron nightly driver waits on sbatch --wait and sends results to cdash
+    only after the job ends, so if the driver dies
+created: '2026-11-11'
+source: parked
+owner: polaris
+claim: The cron nightly sends omega_nightly results to CDash from its driver on the
+  login node after sbatch --wait returns, so if the driver dies while the job is
+  queued (as when Frontier login01 rebooted on 2026-11-10), the job runs but its
+  results never reach CDash
+status: new

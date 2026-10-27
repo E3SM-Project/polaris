@@ -1,0 +1,7 @@
+date: '2026-11-12'
+must_rule: []
+# about the nightlies' reports to CDash, so worth a ruling
+related:
+- E3SM-Project/polaris#913
+- E3SM-Project/polaris#770
+max_noise: 5

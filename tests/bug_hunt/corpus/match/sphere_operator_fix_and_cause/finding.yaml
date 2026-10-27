@@ -1,0 +1,29 @@
+schema_version: 1
+id: F-20261111-4042
+name: sphere operator test broke with the new Earth radius
+keys:
+- test: HORZOPERATORS_SPHERE_TEST
+  phase: run
+created: '2026-11-11'
+source: ctest
+owner: omega
+claim: HORZOPERATORS_SPHERE_TEST fails in its run phase
+ended: '2026-11-08'
+status: new
+occurrences:
+- test: HORZOPERATORS_SPHERE_TEST
+  row: chrysalis/gnu
+  source: ctest
+  first_failed: '2026-11-07'
+  last_failed: '2026-11-07'
+  last_passed: '2026-11-06'
+  nights: 0
+  intermittent: false
+- test: HORZOPERATORS_SPHERE_TEST
+  row: chrysalis/intel
+  source: ctest
+  first_failed: '2026-11-07'
+  last_failed: '2026-11-07'
+  last_passed: '2026-11-06'
+  nights: 0
+  intermittent: false

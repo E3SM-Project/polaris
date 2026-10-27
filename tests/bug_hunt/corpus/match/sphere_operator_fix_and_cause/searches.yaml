@@ -1,0 +1,458 @@
+saved: '2026-11-11'
+searches:
+- terms: HORZOPERATORS SPHERE
+  repo: E3SM-Project/Omega
+  items:
+  - number: 217
+    title: 'error: malloc(): invalid size (unsorted)'
+    state: open
+    closed_at:
+    html_url: https://github.com/E3SM-Project/Omega/issues/217
+  - number: 684
+    title: Stop CIME from importing the compile wrappers
+    state: closed
+    closed_at: '2026-11-06T22:26:52Z'
+    html_url: https://github.com/E3SM-Project/Omega/pull/684
+    pull_request:
+      merged_at: '2026-11-06T22:26:52Z'
+  - number: 683
+    title: Update CIME to copy all customize files to the case
+    state: closed
+    closed_at: '2026-11-06T22:24:53Z'
+    html_url: https://github.com/E3SM-Project/Omega/pull/683
+    pull_request:
+      merged_at: '2026-11-06T22:24:53Z'
+  - number: 643
+    title: 'PCD 0.2.0: Update TEOS-10 constants and sphere operator tests'
+    state: closed
+    closed_at: '2026-11-07T18:35:25Z'
+    html_url: https://github.com/E3SM-Project/Omega/pull/643
+    pull_request:
+      merged_at: '2026-11-07T18:35:25Z'
+  - number: 685
+    title: Fix frazil name folllowing E3SM-Project/E3SM#8957
+    state: closed
+    closed_at: '2026-11-06T19:33:51Z'
+    html_url: https://github.com/E3SM-Project/Omega/pull/685
+    pull_request:
+      merged_at: '2026-11-06T19:33:51Z'
+  - number: 565
+    title: CTests fail for current HEAD on chrysalis
+    state: closed
+    closed_at: '2026-09-21T16:34:59Z'
+    html_url: https://github.com/E3SM-Project/Omega/issues/565
+  - number: 682
+    title: Revert the memory-measuring compile wrapper from E3SM master
+    state: closed
+    closed_at: '2026-11-06T18:47:51Z'
+    html_url: https://github.com/E3SM-Project/Omega/pull/682
+    pull_request:
+      merged_at:
+  - number: 368
+    title: Omega on Aurora GPU requires newer Kokkos
+    state: closed
+    closed_at: '2026-10-22T14:07:49Z'
+    html_url: https://github.com/E3SM-Project/Omega/issues/368
+  - number: 677
+    title: Update METIS_ROOT and PARMETIS_ROOT for dev_polaris_1.3.0
+    state: closed
+    closed_at: '2026-11-09T14:48:50Z'
+    html_url: https://github.com/E3SM-Project/Omega/pull/677
+    pull_request:
+      merged_at: '2026-11-09T14:48:50Z'
+  - number: 639
+    title: Merge E3SM master into develop
+    state: closed
+    closed_at: '2026-11-06T14:08:01Z'
+    html_url: https://github.com/E3SM-Project/Omega/pull/639
+    pull_request:
+      merged_at: '2026-11-06T14:08:01Z'
+  - number: 512
+    title: add KPP mixing
+    state: closed
+    closed_at: '2026-10-06T15:20:19Z'
+    html_url: https://github.com/E3SM-Project/Omega/pull/512
+    pull_request:
+      merged_at: '2026-10-06T15:20:19Z'
+  - number: 480
+    title: Add horizontal mesh operator for reconstructing edge-normal vector
+      fields at cell centers
+    state: closed
+    closed_at: '2026-08-11T20:49:45Z'
+    html_url: https://github.com/E3SM-Project/Omega/pull/480
+    pull_request:
+      merged_at: '2026-08-11T20:49:44Z'
+  - number: 667
+    title: Refactor time stepping to compute auxiliary variables at the end of
+      time step
+    state: closed
+    closed_at: '2026-11-10T04:20:52Z'
+    html_url: https://github.com/E3SM-Project/Omega/pull/667
+    pull_request:
+      merged_at: '2026-11-10T04:20:52Z'
+  - number: 627
+    title: Frazil Coupling
+    state: closed
+    closed_at: '2026-11-10T05:33:49Z'
+    html_url: https://github.com/E3SM-Project/Omega/pull/627
+    pull_request:
+      merged_at: '2026-11-10T05:33:49Z'
+  - number: 383
+    title: Add state validation checks for NaNs and OOBounds
+    state: closed
+    closed_at: '2026-06-30T19:03:13Z'
+    html_url: https://github.com/E3SM-Project/Omega/pull/383
+    pull_request:
+      merged_at: '2026-06-30T19:03:13Z'
+  - number: 395
+    title: '`OnSphere` is currently not being read from the initial condition.'
+    state: closed
+    closed_at: '2026-05-29T06:50:05Z'
+    html_url: https://github.com/E3SM-Project/Omega/issues/395
+  - number: 403
+    title: Fix a bug in high-order tracer horizontal advection
+    state: closed
+    closed_at: '2026-06-07T08:16:45Z'
+    html_url: https://github.com/E3SM-Project/Omega/pull/403
+    pull_request:
+      merged_at: '2026-06-07T08:16:45Z'
+  - number: 352
+    title: Change shear mixing to LMD94 formulation and add ri smoothing
+    state: closed
+    closed_at: '2026-06-24T16:06:47Z'
+    html_url: https://github.com/E3SM-Project/Omega/pull/352
+    pull_request:
+      merged_at: '2026-06-24T16:06:47Z'
+  - number: 363
+    title: Fixes to support Aurora GPU
+    state: closed
+    closed_at: '2026-03-27T16:08:24Z'
+    html_url: https://github.com/E3SM-Project/Omega/pull/363
+    pull_request:
+      merged_at: '2026-03-27T16:08:24Z'
+  - number: 316
+    title: 'Standard non-monotonic higher order horizontal advection copied from
+      mpas-ocean to Omega. '
+    state: closed
+    closed_at: '2026-03-09T15:44:41Z'
+    html_url: https://github.com/E3SM-Project/Omega/pull/316
+    pull_request:
+      merged_at: '2026-03-09T15:44:41Z'
+  - number: 330
+    title: Adds new global reductions
+    state: closed
+    closed_at: '2026-02-11T17:07:26Z'
+    html_url: https://github.com/E3SM-Project/Omega/pull/330
+    pull_request:
+      merged_at: '2026-02-11T17:07:26Z'
+  - number: 415
+    title: Merge E3SM/master into Omega/develop
+    state: closed
+    closed_at: '2026-05-22T19:30:13Z'
+    html_url: https://github.com/E3SM-Project/Omega/pull/415
+    pull_request:
+      merged_at: '2026-05-22T19:30:13Z'
+  - number: 325
+    title: Change default IO type from NETCDF4C to PNETCDF
+    state: closed
+    closed_at: '2026-01-29T18:24:31Z'
+    html_url: https://github.com/E3SM-Project/Omega/pull/325
+    pull_request:
+      merged_at: '2026-01-29T18:24:31Z'
+  - number: 283
+    title: Base IO changes to eliminate excessive error messages and shift
+      parameters to run-time configuration
+    state: closed
+    closed_at: '2025-09-11T15:37:17Z'
+    html_url: https://github.com/E3SM-Project/Omega/pull/283
+    pull_request:
+      merged_at: '2025-09-11T15:37:17Z'
+  - number: 271
+    title: Add more infrastructure for timing
+    state: closed
+    closed_at: '2025-10-01T18:52:31Z'
+    html_url: https://github.com/E3SM-Project/Omega/pull/271
+    pull_request:
+      merged_at: '2025-10-01T18:52:31Z'
+  - number: 119
+    title: CTests are *very* slow on Perlmutter-CPU with Intel
+    state: closed
+    closed_at: '2024-12-09T18:45:12Z'
+    html_url: https://github.com/E3SM-Project/Omega/issues/119
+  - number: 97
+    title: Sync Omega develop with E3SM master
+    state: closed
+    closed_at: '2024-07-10T15:13:37Z'
+    html_url: https://github.com/E3SM-Project/Omega/pull/97
+    pull_request:
+      merged_at: '2024-07-10T15:13:37Z'
+  - number: 138
+    title: Add a critical error if TimeStepper is invalid
+    state: closed
+    closed_at: '2024-09-30T16:55:18Z'
+    html_url: https://github.com/E3SM-Project/Omega/pull/138
+    pull_request:
+      merged_at: '2024-09-30T16:55:18Z'
+  - number: 134
+    title: Remove unused config option `NVertLevels`
+    state: closed
+    closed_at: '2024-09-27T15:30:43Z'
+    html_url: https://github.com/E3SM-Project/Omega/pull/134
+    pull_request:
+      merged_at:
+  - number: 125
+    title: Fix warning when `RunDuration` and `StopTime` are inconsistent
+    state: closed
+    closed_at: '2024-09-16T17:57:01Z'
+    html_url: https://github.com/E3SM-Project/Omega/pull/125
+    pull_request:
+      merged_at: '2024-09-16T17:57:01Z'
+  - number: 118
+    title: Fix reductions ctest
+    state: closed
+    closed_at: '2024-08-06T14:54:55Z'
+    html_url: https://github.com/E3SM-Project/Omega/pull/118
+    pull_request:
+      merged_at: '2024-08-06T14:54:55Z'
+  - number: 89
+    title: Remove PASS_REGULAR_EXPRESSION in CTest properties
+    state: closed
+    closed_at: '2024-06-19T15:18:18Z'
+    html_url: https://github.com/E3SM-Project/Omega/pull/89
+    pull_request:
+      merged_at:
+  - number: 62
+    title: Add mesh operators
+    state: closed
+    closed_at: '2024-05-13T20:51:08Z'
+    html_url: https://github.com/E3SM-Project/Omega/pull/62
+    pull_request:
+      merged_at: '2024-05-13T20:51:08Z'
+- terms: HORZOPERATORS SPHERE
+  repo: E3SM-Project/polaris
+  items:
+  - number: 897
+    title: Update to 1.3.0-alpha.1
+    state: closed
+    closed_at: '2026-11-08T09:42:11Z'
+    html_url: https://github.com/E3SM-Project/polaris/pull/897
+    pull_request:
+      merged_at: '2026-11-08T09:42:11Z'
+  - number: 562
+    title: Add utility script to convert existing mpas-o ics to omega ics
+    state: closed
+    closed_at: '2026-08-06T18:20:29Z'
+    html_url: https://github.com/E3SM-Project/polaris/pull/562
+    pull_request:
+      merged_at: '2026-08-06T18:20:29Z'
+  - number: 385
+    title: 'Improve output from Omega CTest utility '
+    state: closed
+    closed_at: '2025-11-26T17:33:50Z'
+    html_url: https://github.com/E3SM-Project/polaris/pull/385
+    pull_request:
+      merged_at: '2025-11-26T17:33:50Z'
+- terms: HORZOPERATORS_SPHERE_TEST
+  repo: E3SM-Project/Omega
+  items:
+  - number: 217
+    title: 'error: malloc(): invalid size (unsorted)'
+    state: open
+    closed_at:
+    html_url: https://github.com/E3SM-Project/Omega/issues/217
+  - number: 684
+    title: Stop CIME from importing the compile wrappers
+    state: closed
+    closed_at: '2026-11-06T22:26:52Z'
+    html_url: https://github.com/E3SM-Project/Omega/pull/684
+    pull_request:
+      merged_at: '2026-11-06T22:26:52Z'
+  - number: 683
+    title: Update CIME to copy all customize files to the case
+    state: closed
+    closed_at: '2026-11-06T22:24:53Z'
+    html_url: https://github.com/E3SM-Project/Omega/pull/683
+    pull_request:
+      merged_at: '2026-11-06T22:24:53Z'
+  - number: 643
+    title: 'PCD 0.2.0: Update TEOS-10 constants and sphere operator tests'
+    state: closed
+    closed_at: '2026-11-07T18:35:25Z'
+    html_url: https://github.com/E3SM-Project/Omega/pull/643
+    pull_request:
+      merged_at: '2026-11-07T18:35:25Z'
+  - number: 685
+    title: Fix frazil name folllowing E3SM-Project/E3SM#8957
+    state: closed
+    closed_at: '2026-11-06T19:33:51Z'
+    html_url: https://github.com/E3SM-Project/Omega/pull/685
+    pull_request:
+      merged_at: '2026-11-06T19:33:51Z'
+  - number: 565
+    title: CTests fail for current HEAD on chrysalis
+    state: closed
+    closed_at: '2026-09-21T16:34:59Z'
+    html_url: https://github.com/E3SM-Project/Omega/issues/565
+  - number: 682
+    title: Revert the memory-measuring compile wrapper from E3SM master
+    state: closed
+    closed_at: '2026-11-06T18:47:51Z'
+    html_url: https://github.com/E3SM-Project/Omega/pull/682
+    pull_request:
+      merged_at:
+  - number: 368
+    title: Omega on Aurora GPU requires newer Kokkos
+    state: closed
+    closed_at: '2026-10-22T14:07:49Z'
+    html_url: https://github.com/E3SM-Project/Omega/issues/368
+  - number: 383
+    title: Add state validation checks for NaNs and OOBounds
+    state: closed
+    closed_at: '2026-06-30T19:03:13Z'
+    html_url: https://github.com/E3SM-Project/Omega/pull/383
+    pull_request:
+      merged_at: '2026-06-30T19:03:13Z'
+  - number: 639
+    title: Merge E3SM master into develop
+    state: closed
+    closed_at: '2026-11-06T14:08:01Z'
+    html_url: https://github.com/E3SM-Project/Omega/pull/639
+    pull_request:
+      merged_at: '2026-11-06T14:08:01Z'
+  - number: 512
+    title: add KPP mixing
+    state: closed
+    closed_at: '2026-10-06T15:20:19Z'
+    html_url: https://github.com/E3SM-Project/Omega/pull/512
+    pull_request:
+      merged_at: '2026-10-06T15:20:19Z'
+  - number: 480
+    title: Add horizontal mesh operator for reconstructing edge-normal vector
+      fields at cell centers
+    state: closed
+    closed_at: '2026-08-11T20:49:45Z'
+    html_url: https://github.com/E3SM-Project/Omega/pull/480
+    pull_request:
+      merged_at: '2026-08-11T20:49:44Z'
+  - number: 330
+    title: Adds new global reductions
+    state: closed
+    closed_at: '2026-02-11T17:07:26Z'
+    html_url: https://github.com/E3SM-Project/Omega/pull/330
+    pull_request:
+      merged_at: '2026-02-11T17:07:26Z'
+  - number: 363
+    title: Fixes to support Aurora GPU
+    state: closed
+    closed_at: '2026-03-27T16:08:24Z'
+    html_url: https://github.com/E3SM-Project/Omega/pull/363
+    pull_request:
+      merged_at: '2026-03-27T16:08:24Z'
+  - number: 316
+    title: 'Standard non-monotonic higher order horizontal advection copied from
+      mpas-ocean to Omega. '
+    state: closed
+    closed_at: '2026-03-09T15:44:41Z'
+    html_url: https://github.com/E3SM-Project/Omega/pull/316
+    pull_request:
+      merged_at: '2026-03-09T15:44:41Z'
+  - number: 352
+    title: Change shear mixing to LMD94 formulation and add ri smoothing
+    state: closed
+    closed_at: '2026-06-24T16:06:47Z'
+    html_url: https://github.com/E3SM-Project/Omega/pull/352
+    pull_request:
+      merged_at: '2026-06-24T16:06:47Z'
+  - number: 325
+    title: Change default IO type from NETCDF4C to PNETCDF
+    state: closed
+    closed_at: '2026-01-29T18:24:31Z'
+    html_url: https://github.com/E3SM-Project/Omega/pull/325
+    pull_request:
+      merged_at: '2026-01-29T18:24:31Z'
+  - number: 415
+    title: Merge E3SM/master into Omega/develop
+    state: closed
+    closed_at: '2026-05-22T19:30:13Z'
+    html_url: https://github.com/E3SM-Project/Omega/pull/415
+    pull_request:
+      merged_at: '2026-05-22T19:30:13Z'
+  - number: 283
+    title: Base IO changes to eliminate excessive error messages and shift
+      parameters to run-time configuration
+    state: closed
+    closed_at: '2025-09-11T15:37:17Z'
+    html_url: https://github.com/E3SM-Project/Omega/pull/283
+    pull_request:
+      merged_at: '2025-09-11T15:37:17Z'
+  - number: 271
+    title: Add more infrastructure for timing
+    state: closed
+    closed_at: '2025-10-01T18:52:31Z'
+    html_url: https://github.com/E3SM-Project/Omega/pull/271
+    pull_request:
+      merged_at: '2025-10-01T18:52:31Z'
+  - number: 119
+    title: CTests are *very* slow on Perlmutter-CPU with Intel
+    state: closed
+    closed_at: '2024-12-09T18:45:12Z'
+    html_url: https://github.com/E3SM-Project/Omega/issues/119
+  - number: 97
+    title: Sync Omega develop with E3SM master
+    state: closed
+    closed_at: '2024-07-10T15:13:37Z'
+    html_url: https://github.com/E3SM-Project/Omega/pull/97
+    pull_request:
+      merged_at: '2024-07-10T15:13:37Z'
+  - number: 138
+    title: Add a critical error if TimeStepper is invalid
+    state: closed
+    closed_at: '2024-09-30T16:55:18Z'
+    html_url: https://github.com/E3SM-Project/Omega/pull/138
+    pull_request:
+      merged_at: '2024-09-30T16:55:18Z'
+  - number: 125
+    title: Fix warning when `RunDuration` and `StopTime` are inconsistent
+    state: closed
+    closed_at: '2024-09-16T17:57:01Z'
+    html_url: https://github.com/E3SM-Project/Omega/pull/125
+    pull_request:
+      merged_at: '2024-09-16T17:57:01Z'
+  - number: 134
+    title: Remove unused config option `NVertLevels`
+    state: closed
+    closed_at: '2024-09-27T15:30:43Z'
+    html_url: https://github.com/E3SM-Project/Omega/pull/134
+    pull_request:
+      merged_at:
+  - number: 118
+    title: Fix reductions ctest
+    state: closed
+    closed_at: '2024-08-06T14:54:55Z'
+    html_url: https://github.com/E3SM-Project/Omega/pull/118
+    pull_request:
+      merged_at: '2024-08-06T14:54:55Z'
+  - number: 89
+    title: Remove PASS_REGULAR_EXPRESSION in CTest properties
+    state: closed
+    closed_at: '2024-06-19T15:18:18Z'
+    html_url: https://github.com/E3SM-Project/Omega/pull/89
+    pull_request:
+      merged_at:
+- terms: HORZOPERATORS_SPHERE_TEST
+  repo: E3SM-Project/polaris
+  items:
+  - number: 897
+    title: Update to 1.3.0-alpha.1
+    state: closed
+    closed_at: '2026-11-08T09:42:11Z'
+    html_url: https://github.com/E3SM-Project/polaris/pull/897
+    pull_request:
+      merged_at: '2026-11-08T09:42:11Z'
+  - number: 385
+    title: 'Improve output from Omega CTest utility '
+    state: closed
+    closed_at: '2025-11-26T17:33:50Z'
+    html_url: https://github.com/E3SM-Project/polaris/pull/385
+    pull_request:
+      merged_at: '2025-11-26T17:33:50Z'

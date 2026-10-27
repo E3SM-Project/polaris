@@ -1,0 +1,17 @@
+schema_version: 1
+id: F-20261030-f507
+name: dead coupled test jobs are reported as unfinished forever
+keys:
+- test: utils/omega/pr_testing/omega_pr_coupled.py
+  phase: code
+  message: in the omega pr-testing utility, coupled tests that the tester
+    submits by hand (setup without --submit) are never matche
+created: '2026-10-30'
+source: review
+owner: polaris
+claim: In the Omega PR-testing utility, coupled tests that the tester submits
+  by hand (setup without --submit) are never matched to their job IDs, so if
+  one dies before it starts running, for example at its wall time or on a
+  failed node, omega_pr_test.py report says it has not finished on every run
+  instead of reporting the failure
+status: new
