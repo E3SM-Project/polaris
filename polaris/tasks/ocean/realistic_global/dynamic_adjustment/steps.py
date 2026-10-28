@@ -166,6 +166,9 @@ def get_realistic_dynamic_adjustment_steps(
         config=config,
         config_filename=CONFIG_FILENAME,
         stages=stages,
+        min_res=min_res,
+        mesh_target=f'{init_step.path}/mesh.nc',
+        init_target=f'{init_step.path}/init.nc',
     )
     if include_viz:
         steps[viz_step.name] = viz_step
