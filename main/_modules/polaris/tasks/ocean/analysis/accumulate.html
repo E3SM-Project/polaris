@@ -519,6 +519,7 @@ window.runMermaid = runMermaid;</script>
 <span class="kn">import</span><span class="w"> </span><span class="nn">xarray</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">xr</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">polaris.tasks.ocean.analysis.analysis_step</span><span class="w"> </span><span class="kn">import</span> <span class="n">AnalysisStep</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.tasks.ocean.analysis.sim_files</span><span class="w"> </span><span class="kn">import</span> <span class="n">check_month_covered</span>
 
 <span class="c1"># What Polaris writes in a step's work directory when the step finishes.  A</span>
 <span class="c1"># cache in a directory without it was left by a run that was interrupted.</span>
@@ -779,6 +780,7 @@ window.runMermaid = runMermaid;</script>
         <span class="bp">self</span><span class="o">.</span><span class="n">_write_cache</span><span class="p">(</span><span class="n">rows</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">year</span><span class="p">,</span> <span class="n">month</span><span class="p">,</span> <span class="n">filename</span> <span class="ow">in</span> <span class="n">to_compute</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">'  </span><span class="si">{</span><span class="n">year</span><span class="si">:</span><span class="s1">04d</span><span class="si">}</span><span class="s1">-</span><span class="si">{</span><span class="n">month</span><span class="si">:</span><span class="s1">02d</span><span class="si">}</span><span class="s1">'</span><span class="p">)</span>
+            <span class="n">check_month_covered</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">work_path</span><span class="p">(</span><span class="n">filename</span><span class="p">),</span> <span class="n">year</span><span class="p">,</span> <span class="n">month</span><span class="p">)</span>
             <span class="n">ds_month</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">compute_month</span><span class="p">(</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">work_path</span><span class="p">(</span><span class="n">filename</span><span class="p">),</span> <span class="n">year</span><span class="p">,</span> <span class="n">month</span>
             <span class="p">)</span>

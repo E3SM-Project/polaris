@@ -1,6 +1,0 @@
-﻿polaris.tasks.ocean.analysis.climatology.find\_climatology\_file
-================================================================
-
-.. currentmodule:: polaris.tasks.ocean.analysis.climatology
-
-.. autofunction:: find_climatology_file

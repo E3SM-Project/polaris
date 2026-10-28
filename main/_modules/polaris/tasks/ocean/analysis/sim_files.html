@@ -484,9 +484,18 @@ window.runMermaid = runMermaid;</script>
 <span class="kn">from</span><span class="w"> </span><span class="nn">glob</span><span class="w"> </span><span class="kn">import</span> <span class="n">glob</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">NamedTuple</span><span class="p">,</span> <span class="n">Optional</span>
 
+<span class="kn">import</span><span class="w"> </span><span class="nn">cftime</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">xarray</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">xr</span>
+
 <span class="kn">from</span><span class="w"> </span><span class="nn">polaris.yaml</span><span class="w"> </span><span class="kn">import</span> <span class="n">PolarisYaml</span>
 
-<span class="c1"># the Omega analysis group that writes the monthly means the analysis reads</span>
+<span class="c1"># The names Omega gives the analysis groups this module looks for.  They are</span>
+<span class="c1"># spelled exactly as Omega spells them, since the lookup is a plain dictionary</span>
+<span class="c1"># index into the simulation's configuration and so is case-sensitive: a group</span>
+<span class="c1"># named anything else is simply not found, and the analysis reports a</span>
+<span class="c1"># simulation that wrote plenty of output as having written none.</span>
+<span class="n">GLOBAL_STATS_GROUP_NAME</span> <span class="o">=</span> <span class="s1">'GlobalStats'</span>
+<span class="n">MOC_GROUP_NAME</span> <span class="o">=</span> <span class="s1">'MOC'</span>
 <span class="n">MONTHLY_MEAN_GROUP</span> <span class="o">=</span> <span class="s1">'MonthlyAverages'</span>
 
 
@@ -708,6 +717,67 @@ window.runMermaid = runMermaid;</script>
             <span class="s1">'for those years.'</span>
         <span class="p">)</span>
     <span class="k">raise</span> <span class="ne">FileNotFoundError</span><span class="p">(</span><span class="s1">'</span><span class="se">\n</span><span class="s1">'</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">lines</span><span class="p">))</span></div>
+
+
+
+<div class="viewcode-block" id="check_month_covered">
+<a class="viewcode-back" href="../../../../../developers_guide/ocean/generated/polaris.tasks.ocean.analysis.sim_files.check_month_covered.html#polaris.tasks.ocean.analysis.sim_files.check_month_covered">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">check_month_covered</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">year</span><span class="p">,</span> <span class="n">month</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Check that a monthly mean covers the month the analysis takes it to</span>
+
+<span class="sd">    The month a file covers is worked out from its name, using Omega's</span>
+<span class="sd">    convention of naming a monthly mean for the start of the following</span>
+<span class="sd">    month (see :py:func:`expand_template`).  Nothing else would notice if</span>
+<span class="sd">    that convention changed, and every climatology and series would then be</span>
+<span class="sd">    off by a month, so each file's time bounds are checked against it.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    filename : str</span>
+<span class="sd">        The path to the monthly mean</span>
+
+<span class="sd">    year : int</span>
+<span class="sd">        The simulation year the file is taken to cover</span>
+
+<span class="sd">    month : int</span>
+<span class="sd">        The month the file is taken to cover</span>
+
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    ValueError</span>
+<span class="sd">        If the file has no time bounds or they are not that month</span>
+<span class="sd">    """</span>
+    <span class="k">with</span> <span class="n">xr</span><span class="o">.</span><span class="n">open_dataset</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">decode_times</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span> <span class="k">as</span> <span class="n">ds</span><span class="p">:</span>
+        <span class="n">bounds_name</span> <span class="o">=</span> <span class="n">ds</span><span class="p">[</span><span class="s1">'time'</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'bounds'</span><span class="p">)</span> <span class="k">if</span> <span class="s1">'time'</span> <span class="ow">in</span> <span class="n">ds</span> <span class="k">else</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="n">bounds_name</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">bounds_name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">ds</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s1">'The monthly mean </span><span class="si">{</span><span class="n">filename</span><span class="si">}</span><span class="s1"> has no time bounds, so the '</span>
+                <span class="sa">f</span><span class="s1">'month it covers cannot be checked against its name.'</span>
+            <span class="p">)</span>
+        <span class="n">time</span> <span class="o">=</span> <span class="n">ds</span><span class="p">[</span><span class="s1">'time'</span><span class="p">]</span>
+        <span class="n">units</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">'units'</span><span class="p">]</span>
+        <span class="n">calendar</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'calendar'</span><span class="p">,</span> <span class="s1">'standard'</span><span class="p">)</span>
+        <span class="n">bounds</span> <span class="o">=</span> <span class="n">ds</span><span class="p">[</span><span class="n">bounds_name</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
+        <span class="n">start</span><span class="p">,</span> <span class="n">end</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">bounds</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]),</span> <span class="nb">float</span><span class="p">(</span><span class="n">bounds</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span>
+
+    <span class="n">next_year</span><span class="p">,</span> <span class="n">next_month</span> <span class="o">=</span> <span class="n">_shift_month</span><span class="p">(</span><span class="n">year</span><span class="p">,</span> <span class="n">month</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="n">expected</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="n">cftime</span><span class="o">.</span><span class="n">date2num</span><span class="p">(</span>
+            <span class="n">cftime</span><span class="o">.</span><span class="n">datetime</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">m</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">calendar</span><span class="o">=</span><span class="n">calendar</span><span class="p">),</span> <span class="n">units</span><span class="p">,</span> <span class="n">calendar</span>
+        <span class="p">)</span>
+        <span class="k">for</span> <span class="n">y</span><span class="p">,</span> <span class="n">m</span> <span class="ow">in</span> <span class="p">[(</span><span class="n">year</span><span class="p">,</span> <span class="n">month</span><span class="p">),</span> <span class="p">(</span><span class="n">next_year</span><span class="p">,</span> <span class="n">next_month</span><span class="p">)]</span>
+    <span class="p">]</span>
+    <span class="k">if</span> <span class="p">[</span><span class="n">start</span><span class="p">,</span> <span class="n">end</span><span class="p">]</span> <span class="o">!=</span> <span class="n">expected</span><span class="p">:</span>
+        <span class="n">first</span><span class="p">,</span> <span class="n">last</span> <span class="o">=</span> <span class="n">cftime</span><span class="o">.</span><span class="n">num2date</span><span class="p">([</span><span class="n">start</span><span class="p">,</span> <span class="n">end</span><span class="p">],</span> <span class="n">units</span><span class="p">,</span> <span class="n">calendar</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s1">'The monthly mean </span><span class="si">{</span><span class="n">filename</span><span class="si">}</span><span class="s1"> is taken from its name to cover '</span>
+            <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">year</span><span class="si">:</span><span class="s1">04d</span><span class="si">}</span><span class="s1">-</span><span class="si">{</span><span class="n">month</span><span class="si">:</span><span class="s1">02d</span><span class="si">}</span><span class="s1">, but its time bounds run from </span><span class="si">{</span><span class="n">first</span><span class="si">}</span><span class="s1"> '</span>
+            <span class="sa">f</span><span class="s1">'to </span><span class="si">{</span><span class="n">last</span><span class="si">}</span><span class="s1">.  The analysis assumes Omega names a monthly mean '</span>
+            <span class="sa">f</span><span class="s1">'for the start of the following month (E3SM-Project/Omega#554); '</span>
+            <span class="sa">f</span><span class="s1">'if that has changed, the month offset in '</span>
+            <span class="sa">f</span><span class="s1">'polaris.tasks.ocean.analysis.sim_files has to change with it.'</span>
+        <span class="p">)</span></div>
 
 
 
@@ -1156,7 +1226,7 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">            The global statistics files, which are known to exist</span>
 <span class="sd">        """</span>
         <span class="n">stream</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_analysis_stream</span><span class="p">(</span>
-            <span class="n">group_name</span><span class="o">=</span><span class="s1">'GlobalStats'</span><span class="p">,</span>
+            <span class="n">group_name</span><span class="o">=</span><span class="n">GLOBAL_STATS_GROUP_NAME</span><span class="p">,</span>
             <span class="n">description</span><span class="o">=</span><span class="s1">'global statistics'</span><span class="p">,</span>
             <span class="n">required</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
         <span class="p">)</span>
@@ -1167,7 +1237,7 @@ window.runMermaid = runMermaid;</script>
             <span class="n">end_year</span><span class="o">=</span><span class="n">end_year</span><span class="p">,</span>
             <span class="n">description</span><span class="o">=</span><span class="s1">'global statistics'</span><span class="p">,</span>
             <span class="n">source</span><span class="o">=</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s1">'the GlobalStats analysis group in '</span>
+                <span class="sa">f</span><span class="s1">'the </span><span class="si">{</span><span class="n">GLOBAL_STATS_GROUP_NAME</span><span class="si">}</span><span class="s1"> analysis group in '</span>
                 <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">omega_config</span><span class="o">.</span><span class="n">filename</span><span class="si">}</span><span class="s1">'</span>
             <span class="p">),</span>
         <span class="p">)</span></div>
@@ -1189,7 +1259,7 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">            The stream, or ``None`` if the simulation wrote no global</span>
 <span class="sd">            statistics</span>
 <span class="sd">        """</span>
-        <span class="n">streams</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">omega_config</span><span class="o">.</span><span class="n">analysis_streams</span><span class="p">(</span><span class="s1">'GlobalStats'</span><span class="p">)</span>
+        <span class="n">streams</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">omega_config</span><span class="o">.</span><span class="n">analysis_streams</span><span class="p">(</span><span class="n">GLOBAL_STATS_GROUP_NAME</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">_preferred_analysis_stream</span><span class="p">(</span><span class="n">streams</span><span class="p">)</span></div>
 
 
@@ -1218,7 +1288,7 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">            simulation does not write MOC output</span>
 <span class="sd">        """</span>
         <span class="n">stream</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_analysis_stream</span><span class="p">(</span>
-            <span class="n">group_name</span><span class="o">=</span><span class="s1">'Moc'</span><span class="p">,</span>
+            <span class="n">group_name</span><span class="o">=</span><span class="n">MOC_GROUP_NAME</span><span class="p">,</span>
             <span class="n">description</span><span class="o">=</span><span class="s1">'meridional overturning circulation'</span><span class="p">,</span>
             <span class="n">required</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
         <span class="p">)</span>
@@ -1229,9 +1299,28 @@ window.runMermaid = runMermaid;</script>
             <span class="n">start_year</span><span class="o">=</span><span class="n">start_year</span><span class="p">,</span>
             <span class="n">end_year</span><span class="o">=</span><span class="n">end_year</span><span class="p">,</span>
             <span class="n">description</span><span class="o">=</span><span class="s1">'MOC'</span><span class="p">,</span>
-            <span class="n">source</span><span class="o">=</span><span class="sa">f</span><span class="s1">'the Moc analysis group in </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">omega_config</span><span class="o">.</span><span class="n">filename</span><span class="si">}</span><span class="s1">'</span><span class="p">,</span>
+            <span class="n">source</span><span class="o">=</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s1">'the </span><span class="si">{</span><span class="n">MOC_GROUP_NAME</span><span class="si">}</span><span class="s1"> analysis group in '</span>
+                <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">omega_config</span><span class="o">.</span><span class="n">filename</span><span class="si">}</span><span class="s1">'</span>
+            <span class="p">),</span>
         <span class="p">)</span></div>
 
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">moc_stream</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">        Get the output stream the MOC is read from</span>
+
+<span class="sd">        As with the global statistics, the names of the variables in the file</span>
+<span class="sd">        depend on whether the stream holds time means or snapshots, so a step</span>
+<span class="sd">        that reads them needs the stream and not just its file name.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        stream : AnalysisStream or None</span>
+<span class="sd">            The stream, or ``None`` if the simulation wrote no MOC output</span>
+<span class="sd">        """</span>
+        <span class="n">streams</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">omega_config</span><span class="o">.</span><span class="n">analysis_streams</span><span class="p">(</span><span class="n">MOC_GROUP_NAME</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">_preferred_analysis_stream</span><span class="p">(</span><span class="n">streams</span><span class="p">)</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_resolve_simulation_path</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">"""Get the directory that relative file names are resolved against"""</span>

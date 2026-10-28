@@ -296,19 +296,11 @@ The suite is being built up product by product.  What exists so far:
 | `climatology_maps` | map-view climatologies and maps of the change in ocean heat content, one step per field group | {ref}`available <ocean-analysis-climatology-maps>` |
 | `global_stats` | time series of the simulation's global statistics | {ref}`available <ocean-analysis-global-stats>` |
 | `heat_content_series` | time series of globally integrated ocean heat content | {ref}`available <ocean-analysis-heat-content-series>` |
-| `moc` | latitude-elevation plot of the meridional overturning circulation | not yet implemented |
+| `moc` | latitude-elevation plot of the meridional overturning circulation | {ref}`available <ocean-analysis-moc>` |
 | `publish` | the staging tree and the {ref}`gallery <ocean-analysis-gallery>` over it | implemented |
 
-A task that is not yet implemented resolves the simulation files it will read,
-links them into its work directory and reports them in its log, which is
-enough to check that a simulation is being located correctly.  No step
-describes its products in a manifest yet, so `publish` generates an empty
-gallery.
-
-The `moc` task additionally depends on a diagnostic that Omega computes in
-situ and does not yet provide.  A simulation without it is an ordinary case:
-the step reports that no MOC output was written and produces nothing, rather
-than failing the suite.
+In the case of a simulation without MOC output, the step reports that no MOC
+output was written and produces nothing, rather than failing the suite.
 
 (ocean-analysis-climatology-maps)=
 
@@ -346,7 +338,9 @@ group, which has to be enabled in the simulation with the fields the analysis
 reads in its `Fields` list.  Omega names each field of a monthly mean for the
 field and the period, `Temperature_TimeMean1Month`, and names each file for
 the month after the one it averages; the climatology strips the suffix and
-takes the file named `0001-02` as January of year 1.
+takes the file named `0001-02` as January of year 1.  Each file's time bounds
+are checked against the month it is taken to cover, and one that does not
+match stops the step with an error.
 
 Only the variables the analysis needs are averaged, so the cost scales with
 what is being plotted rather than with the size of the monthly means.  A
@@ -589,6 +583,98 @@ bound inside the column, `GeomZInterface` are read from each month, and only
 one month is held at a time, so the memory this step needs does not grow with
 the length of the record.  A first run over several decades at high
 resolution is the expensive one, and every run after it is nearly free.
+
+(ocean-analysis-moc)=
+
+### meridional overturning circulation
+
+The `moc` task plots the annual climatology of the global meridional
+overturning streamfunction against latitude and elevation over the climatology
+years.
+
+**Polaris does not compute the MOC.**  Getting the streamfunction right needs
+the full three-dimensional velocity at every time step, not a monthly mean of
+it, which is why Omega computes it in situ; Polaris computes the climatology
+of what Omega wrote and plots it.  The vertical axis is Omega's too: the streamfunction lives on
+layer interfaces, whose elevation moves, and Omega reports the mean elevation
+of each interface over the same period alongside the streamfunction.  Polaris
+does not reconstruct it, since an axis averaged over a different period would
+quietly disagree with the diagnostic it labels.  How Omega computes both is
+described in the
+[MOC section](https://docs.e3sm.org/Omega/Omega/userGuide/Analysis.html#moc)
+of Omega's User's Guide.
+
+Only the **global** streamfunction is plotted.  Omega's MOC group can compute
+the streamfunction for named regions, and regional overturning --- the
+Atlantic MOC in particular --- comes with the rest of the regional analysis
+later.
+
+The simulation has to have run with the `MOC` analysis group turned on:
+
+```yaml
+Omega:
+  Analysis:
+    MOC:
+      Enable: true
+      NumBins: 180
+      Regions: [Global]
+      ReductionPeriod: [1Month]
+      Filename: moc.$Y-$M.nc
+```
+
+Polaris reads the group from the simulation's Omega configuration, so nothing
+about it is restated in the Polaris config file.  The group has to write
+monthly means to one file per month, as above: the climatology is computed
+from them with `ncclimo`, the same way and with the same weighting by the
+length of each month as the climatology the
+{ref}`maps <ocean-analysis-climatology-maps>` are made from.  MOC output of any other kind is reported, with what
+the group would need to write instead, and nothing is plotted.
+
+Two files land in `ocean/analysis/moc/<range>/`:
+
+`global.png`
+: The streamfunction in Sv as filled contours with contour lines over them,
+  on a diverging color map centered on zero.  The color bar marks the value
+  of each contour line.  Elevation is on the vertical
+  axis, positive up, so the sea surface is at the top without the axis being
+  inverted.
+
+  Polaris preserves Omega's streamfunction sign convention.  Omega computes
+  the global streamfunction by accumulating upward-positive vertical volume
+  flux from south to north, taking zero at the southern boundary.  With
+  latitude increasing to the right and elevation increasing upward, positive
+  streamfunction corresponds to clockwise overturning and negative
+  streamfunction to counterclockwise overturning.  For an isolated positive
+  cell, the upper branch flows northward and the lower branch southward.
+
+`global.nc`
+: The streamfunction that was plotted, with the latitude of each bin center
+  and the elevation of each interface, and the year range, the reduction
+  period and the files it came from as attributes.
+
+Two options in `[ocean_analysis_moc]` govern the plot, alongside the color map
+options every plot has:
+
+`contour_interval`
+: The spacing of the contour lines, in Sv.
+
+`max_streamfunction`
+: The maximum absolute value of the color map, in Sv, which is symmetric about
+  zero.  The default is the largest value the streamfunction reaches.  Setting
+  it brings out a weak circulation that a strong one would otherwise flatten,
+  and costs nothing: the contour lines are drawn over the whole range whatever
+  the color map is clipped to.
+
+The range of years is `start_year` and `end_year` in
+`[ocean_analysis_climatology]` --- the same range the maps use, since both are
+averages over the climatology period rather than time series.
+
+**A simulation that wrote no MOC output, or wrote it before the axes were
+attached to the stream, is reported rather than failed.**  Omega attaches the
+latitude bin boundaries and the interface elevations to every MOC output
+stream, but that came later than the streamfunction itself, so a file with one
+and not the other will be met.  The step names the field that is missing and
+what would have written it, and produces nothing.
 
 ## troubleshooting
 

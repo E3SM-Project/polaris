@@ -1153,7 +1153,7 @@ defensively: a missing stream, a stream that names no file, and an analysis
 group that is turned off are told apart rather than raising from inside a
 lookup.  This is the one place Polaris depends on the <em>shape</em> of Omega’s
 configuration rather than on its output.</p>
-<p>Two details are worth knowing before adding a product:</p>
+<p>Three details are worth knowing before adding a product:</p>
 <ul class="simple">
 <li><p>File-name templates are expanded by
 <a class="reference internal" href="generated/polaris.tasks.ocean.analysis.sim_files.expand_template.html#polaris.tasks.ocean.analysis.sim_files.expand_template" title="polaris.tasks.ocean.analysis.sim_files.expand_template"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.tasks.ocean.analysis.sim_files.expand_template()</span></code></a>, which
@@ -1168,6 +1168,12 @@ time means and snapshots under different names, so
 <a class="reference internal" href="generated/polaris.tasks.ocean.analysis.sim_files.OmegaConfig.analysis_streams.html#polaris.tasks.ocean.analysis.sim_files.OmegaConfig.analysis_streams" title="polaris.tasks.ocean.analysis.sim_files.OmegaConfig.analysis_streams"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.tasks.ocean.analysis.sim_files.OmegaConfig.analysis_streams()</span></code></a>
 returns each stream with its period and whether it is a time reduction, and
 the caller must not assume either spelling.</p></li>
+<li><p>The month a monthly mean covers comes from its file name, which Omega gives
+for the month after (E3SM-Project/Omega#554).  Before a file is read,
+<a class="reference internal" href="generated/polaris.tasks.ocean.analysis.sim_files.check_month_covered.html#polaris.tasks.ocean.analysis.sim_files.check_month_covered" title="polaris.tasks.ocean.analysis.sim_files.check_month_covered"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.tasks.ocean.analysis.sim_files.check_month_covered()</span></code></a>
+checks its time bounds against that month and raises if they differ, so a
+change in Omega’s convention stops the analysis rather than shifting every
+product by a month.  <code class="docutils literal notranslate"><span class="pre">run_ncclimo()</span></code> and the accumulator both call it.</p></li>
 </ul>
 </section>
 <section id="naming-the-models-global-statistics">
@@ -1259,7 +1265,7 @@ pieces.</p>
 <code class="docutils literal notranslate"><span class="pre">ncclimo</span></code> names its output <code class="docutils literal notranslate"><span class="pre">&lt;caseid&gt;_&lt;season&gt;_&lt;start&gt;_&lt;end&gt;_climo.nc</span></code> and
 those names are not known until it has run.  The reading step then finds one
 season’s file with
-<a class="reference internal" href="generated/polaris.tasks.ocean.analysis.climatology.find_climatology_file.html#polaris.tasks.ocean.analysis.climatology.find_climatology_file" title="polaris.tasks.ocean.analysis.climatology.find_climatology_file"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.tasks.ocean.analysis.climatology.find_climatology_file()</span></code></a>,
+<a class="reference internal" href="generated/polaris.tasks.ocean.analysis.ncclimo.find_climatology_file.html#polaris.tasks.ocean.analysis.ncclimo.find_climatology_file" title="polaris.tasks.ocean.analysis.ncclimo.find_climatology_file"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.tasks.ocean.analysis.ncclimo.find_climatology_file()</span></code></a>,
 which globs on the season in the dependency’s work directory — and which
 also knows that <code class="docutils literal notranslate"><span class="pre">ncclimo</span></code> names the twelve monthly climatologies by month
 number rather than <code class="docutils literal notranslate"><span class="pre">JAN</span></code> through <code class="docutils literal notranslate"><span class="pre">DEC</span></code>.</p>

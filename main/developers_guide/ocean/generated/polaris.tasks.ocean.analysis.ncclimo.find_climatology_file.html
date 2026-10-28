@@ -6,7 +6,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>polaris.tasks.ocean.analysis.climatology.find_climatology_file</title>
+  <title>polaris.tasks.ocean.analysis.ncclimo.find_climatology_file</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
 
@@ -19,8 +19,8 @@
     <script src="../../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
-    <link rel="next" title="polaris.tasks.ocean.analysis.climatology_maps.ClimatologyMaps" href="polaris.tasks.ocean.analysis.climatology_maps.ClimatologyMaps.html" />
-    <link rel="prev" title="polaris.tasks.ocean.analysis.climatology.get_climatology_variables" href="polaris.tasks.ocean.analysis.climatology.get_climatology_variables.html" />
+    <link rel="next" title="polaris.tasks.ocean.analysis.publish.Publish" href="polaris.tasks.ocean.analysis.publish.Publish.html" />
+    <link rel="prev" title="polaris.tasks.ocean.analysis.ncclimo.run_ncclimo" href="polaris.tasks.ocean.analysis.ncclimo.run_ncclimo.html" />
     <link href="../../../_static/style.css" rel="stylesheet" type="text/css">
 
 </head>
@@ -128,9 +128,9 @@
       <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
           <li class="breadcrumb-item"><a href="../../api.html">API reference</a></li>
           <li class="breadcrumb-item"><a href="../api.html">ocean</a></li>
-      <li class="breadcrumb-item active">polaris.tasks.ocean.analysis.climatology.find_climatology_file</li>
+      <li class="breadcrumb-item active">polaris.tasks.ocean.analysis.ncclimo.find_climatology_file</li>
       <li class="wy-breadcrumbs-aside">
-            <a href="../../../_sources/developers_guide/ocean/generated/polaris.tasks.ocean.analysis.climatology.find_climatology_file.rst.txt" rel="nofollow"> View page source</a>
+            <a href="../../../_sources/developers_guide/ocean/generated/polaris.tasks.ocean.analysis.ncclimo.find_climatology_file.rst.txt" rel="nofollow"> View page source</a>
       </li>
   </ul>
   <hr/>
@@ -138,11 +138,11 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="polaris-tasks-ocean-analysis-climatology-find-climatology-file">
-<h1>polaris.tasks.ocean.analysis.climatology.find_climatology_file<a class="headerlink" href="#polaris-tasks-ocean-analysis-climatology-find-climatology-file" title="Link to this heading"></a></h1>
+  <section id="polaris-tasks-ocean-analysis-ncclimo-find-climatology-file">
+<h1>polaris.tasks.ocean.analysis.ncclimo.find_climatology_file<a class="headerlink" href="#polaris-tasks-ocean-analysis-ncclimo-find-climatology-file" title="Link to this heading"></a></h1>
 <dl class="py function">
-<dt class="sig sig-object py" id="polaris.tasks.ocean.analysis.climatology.find_climatology_file">
-<span class="sig-prename descclassname"><span class="pre">polaris.tasks.ocean.analysis.climatology.</span></span><span class="sig-name descname"><span class="pre">find_climatology_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">work_dir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">season</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/polaris/tasks/ocean/analysis/climatology.html#find_climatology_file"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#polaris.tasks.ocean.analysis.climatology.find_climatology_file" title="Link to this definition"></a></dt>
+<dt class="sig sig-object py" id="polaris.tasks.ocean.analysis.ncclimo.find_climatology_file">
+<span class="sig-prename descclassname"><span class="pre">polaris.tasks.ocean.analysis.ncclimo.</span></span><span class="sig-name descname"><span class="pre">find_climatology_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">work_dir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">season</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/polaris/tasks/ocean/analysis/ncclimo.html#find_climatology_file"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#polaris.tasks.ocean.analysis.ncclimo.find_climatology_file" title="Link to this definition"></a></dt>
 <dd><p>Find the <code class="docutils literal notranslate"><span class="pre">ncclimo</span></code> output file for one season</p>
 <p><code class="docutils literal notranslate"><span class="pre">ncclimo</span></code> names its output <code class="docutils literal notranslate"><span class="pre">&lt;caseid&gt;_&lt;season&gt;_&lt;start&gt;_&lt;end&gt;_climo.nc</span></code>.
 Steps that read a climatology glob on the season rather than
@@ -153,7 +153,7 @@ number rather than by <code class="docutils literal notranslate"><span class="pr
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>work_dir</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><em>str</em></a>) – The work directory of the climatology step</p></li>
+<li><p><strong>work_dir</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><em>str</em></a>) – The work directory of the step that computed the climatology</p></li>
 <li><p><strong>season</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><em>str</em></a>) – The season to find, e.g. <code class="docutils literal notranslate"><span class="pre">'ANN'</span></code> or <code class="docutils literal notranslate"><span class="pre">'JAN'</span></code></p></li>
 </ul>
 </dd>
@@ -175,8 +175,8 @@ number rather than by <code class="docutils literal notranslate"><span class="pr
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="polaris.tasks.ocean.analysis.climatology.get_climatology_variables.html" class="btn btn-neutral float-left" title="polaris.tasks.ocean.analysis.climatology.get_climatology_variables" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="polaris.tasks.ocean.analysis.climatology_maps.ClimatologyMaps.html" class="btn btn-neutral float-right" title="polaris.tasks.ocean.analysis.climatology_maps.ClimatologyMaps" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="polaris.tasks.ocean.analysis.ncclimo.run_ncclimo.html" class="btn btn-neutral float-left" title="polaris.tasks.ocean.analysis.ncclimo.run_ncclimo" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="polaris.tasks.ocean.analysis.publish.Publish.html" class="btn btn-neutral float-right" title="polaris.tasks.ocean.analysis.publish.Publish" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>

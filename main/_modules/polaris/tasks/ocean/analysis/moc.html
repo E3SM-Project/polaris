@@ -471,20 +471,80 @@ window.runMermaid = runMermaid;</script>
            <div itemprop="articleBody">
              
   <h1>Source code for polaris.tasks.ocean.analysis.moc</h1><div class="highlight"><pre>
-<span></span><span class="kn">from</span><span class="w"> </span><span class="nn">polaris.tasks.ocean.analysis.analysis_step</span><span class="w"> </span><span class="kn">import</span> <span class="n">AnalysisStep</span>
+<span></span><span class="sd">"""</span>
+<span class="sd">The global meridional overturning streamfunction.</span>
+
+<span class="sd">Polaris does not compute the MOC.  The streamfunction needs the full</span>
+<span class="sd">three-dimensional velocity at every time step to be right, which is why Omega</span>
+<span class="sd">computes it in situ, and it needs the elevation of the layer interfaces it</span>
+<span class="sd">lives on, which move.  Omega provides both as monthly means; this step</span>
+<span class="sd">computes their annual climatology over the requested years with ``ncclimo``,</span>
+<span class="sd">as the climatology maps are computed, and plots it.</span>
+
+<span class="sd">Only the global streamfunction is plotted.  Omega's MOC group can compute the</span>
+<span class="sd">streamfunction for named regions, and regional overturning -- the Atlantic MOC</span>
+<span class="sd">in particular -- comes with the rest of the regional analysis later.</span>
+<span class="sd">"""</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">xarray</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">xr</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mpas_tools.io</span><span class="w"> </span><span class="kn">import</span> <span class="n">write_netcdf</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.tasks.ocean.analysis.analysis_step</span><span class="w"> </span><span class="kn">import</span> <span class="n">AnalysisStep</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.tasks.ocean.analysis.ncclimo</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">find_climatology_file</span><span class="p">,</span>
+    <span class="n">run_ncclimo</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.tasks.ocean.analysis.sim_files</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">MOC_GROUP_NAME</span><span class="p">,</span>
+    <span class="n">year_range_key</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.viz</span><span class="w"> </span><span class="kn">import</span> <span class="n">plot_lat_elevation_field</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.viz.lat_elevation</span><span class="w"> </span><span class="kn">import</span> <span class="n">MAX_CONTOUR_LINES</span>
+
+<span class="c1"># The names Omega gives the fields this step reads.  A time reduction carries</span>
+<span class="c1"># a "_TimeMean&lt;period&gt;" suffix on the variable whose chain was given an IOName</span>
+<span class="c1"># and not on the coordinates, which are attached to the stream as they are, so</span>
+<span class="c1"># both spellings are looked for and the one that was found is reported.</span>
+<span class="n">STREAMFUNCTION_VARIABLE</span> <span class="o">=</span> <span class="s1">'MOC_streamfunction_Global'</span>
+<span class="n">LAT_BIN_BOUNDARY_VARIABLE</span> <span class="o">=</span> <span class="s1">'MOCLatBinBoundaries'</span>
+<span class="n">INTERFACE_ELEVATION_VARIABLE</span> <span class="o">=</span> <span class="s1">'GeomZInterface_HorzMean'</span>
+
+<span class="c1"># ``ncclimo`` computes a climatology from one file of monthly means per month,</span>
+<span class="c1"># so that is the one kind of MOC output this step can average</span>
+<span class="n">MONTHLY_PERIOD</span> <span class="o">=</span> <span class="s1">'1Month'</span>
+
+<span class="c1"># Named for the region alone; the publish step prefixes the product group, so</span>
+<span class="c1"># that these are published as moc_global_&lt;range&gt;</span>
+<span class="n">PLOT_FILENAME</span> <span class="o">=</span> <span class="s1">'global.png'</span>
+<span class="n">DATA_FILENAME</span> <span class="o">=</span> <span class="s1">'global.nc'</span>
+
+<span class="c1"># Omega multiplies the streamfunction by 1e-6 before writing it, so the values</span>
+<span class="c1"># are already in Sverdrups whatever the Units attribute of the field says.</span>
+<span class="c1"># Omega forms the global streamfunction by accumulating upward-positive</span>
+<span class="c1"># vertical volume flux from south to north, with zero at the southern</span>
+<span class="c1"># boundary. Polaris preserves that sign: positive values describe clockwise</span>
+<span class="c1"># overturning on a latitude-elevation plot with north to the right and</span>
+<span class="c1"># elevation increasing upward.</span>
+<span class="n">STREAMFUNCTION_UNITS</span> <span class="o">=</span> <span class="s1">'Sv'</span>
 
 
 <div class="viewcode-block" id="Moc">
 <a class="viewcode-back" href="../../../../../developers_guide/ocean/generated/polaris.tasks.ocean.analysis.moc.Moc.html#polaris.tasks.ocean.analysis.moc.Moc">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">Moc</span><span class="p">(</span><span class="n">AnalysisStep</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">"""</span>
-<span class="sd">    A step that time averages the meridional overturning circulation Omega</span>
-<span class="sd">    computes in situ and plots it against latitude and elevation</span>
+<span class="sd">    A step that computes the annual climatology of the meridional</span>
+<span class="sd">    overturning circulation Omega computes in situ and plots it against</span>
+<span class="sd">    latitude and elevation</span>
 
 <span class="sd">    Attributes</span>
 <span class="sd">    ----------</span>
 <span class="sd">    has_moc_output : bool</span>
 <span class="sd">        Whether the simulation wrote MOC output at all</span>
+
+<span class="sd">    stream_problem : str or None</span>
+<span class="sd">        Why the MOC output the simulation wrote cannot be averaged, or</span>
+<span class="sd">        ``None`` if it can</span>
 <span class="sd">    """</span>
 
 <div class="viewcode-block" id="Moc.__init__">
@@ -516,7 +576,8 @@ window.runMermaid = runMermaid;</script>
             <span class="n">ntasks</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
             <span class="n">cpus_per_task</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
         <span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">has_moc_output</span> <span class="o">=</span> <span class="kc">False</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">has_moc_output</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">stream_problem</span> <span class="o">=</span> <span class="kc">None</span></div>
 
 
 <div class="viewcode-block" id="Moc.setup">
@@ -530,27 +591,323 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">        the step goes on to produce nothing.</span>
 <span class="sd">        """</span>
         <span class="n">sim_files</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_sim_files</span><span class="p">()</span>
+        <span class="n">stream</span> <span class="o">=</span> <span class="n">sim_files</span><span class="o">.</span><span class="n">moc_stream</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">stream</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">stream_problem</span> <span class="o">=</span> <span class="n">_stream_problem</span><span class="p">(</span><span class="n">stream</span><span class="p">)</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">stream_problem</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">has_moc_output</span> <span class="o">=</span> <span class="kc">True</span>
+                <span class="k">return</span>
         <span class="n">moc_files</span> <span class="o">=</span> <span class="n">sim_files</span><span class="o">.</span><span class="n">moc_files</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">start_year</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">end_year</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">has_moc_output</span> <span class="o">=</span> <span class="n">moc_files</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
-        <span class="k">if</span> <span class="n">moc_files</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">add_sim_input_files</span><span class="p">(</span><span class="n">moc_files</span><span class="p">)</span></div>
+        <span class="k">if</span> <span class="n">moc_files</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_sim_input_files</span><span class="p">(</span><span class="n">moc_files</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="Moc.run">
 <a class="viewcode-back" href="../../../../../developers_guide/ocean/generated/polaris.tasks.ocean.analysis.moc.Moc.run.html#polaris.tasks.ocean.analysis.moc.Moc.run">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">"""</span>
-<span class="sd">        Report the MOC output; no plot is made yet</span>
+<span class="sd">        Compute the annual climatology of the streamfunction and its axes</span>
+<span class="sd">        over the requested years, and plot it</span>
 <span class="sd">        """</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">has_moc_output</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
-                <span class="s1">'The simulation wrote no MOC output, so there is nothing to '</span>
-                <span class="s1">'plot.'</span>
+                <span class="sa">f</span><span class="s1">'The simulation wrote no MOC output, so there is nothing '</span>
+                <span class="sa">f</span><span class="s1">'to plot.  Polaris does not compute the overturning '</span>
+                <span class="sa">f</span><span class="s1">'streamfunction: it needs the full three-dimensional '</span>
+                <span class="sa">f</span><span class="s1">'velocity at every time step, which is why Omega computes '</span>
+                <span class="sa">f</span><span class="s1">'it in situ.  Turn on the </span><span class="si">{</span><span class="n">MOC_GROUP_NAME</span><span class="si">}</span><span class="s1"> analysis group '</span>
+                <span class="sa">f</span><span class="s1">'in the simulation and run it again to get this plot.'</span>
             <span class="p">)</span>
             <span class="k">return</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">log_inputs</span><span class="p">()</span></div>
-</div>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">stream_problem</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">stream_problem</span><span class="p">)</span>
+            <span class="k">return</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">log_inputs</span><span class="p">()</span>
 
+        <span class="n">names</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_find_fields</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">names</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span>
+        <span class="n">run_ncclimo</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">variables</span><span class="o">=</span><span class="nb">list</span><span class="p">(</span><span class="n">names</span><span class="p">),</span> <span class="n">seasons</span><span class="o">=</span><span class="p">[</span><span class="s1">'ANN'</span><span class="p">])</span>
+        <span class="n">filename</span> <span class="o">=</span> <span class="n">find_climatology_file</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">work_path</span><span class="p">(),</span> <span class="s1">'ANN'</span><span class="p">)</span>
+        <span class="k">with</span> <span class="n">xr</span><span class="o">.</span><span class="n">open_dataset</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span> <span class="k">as</span> <span class="n">ds</span><span class="p">:</span>
+            <span class="n">streamfunction</span><span class="p">,</span> <span class="n">lat</span><span class="p">,</span> <span class="n">z</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_read_fields</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="o">*</span><span class="n">names</span><span class="p">)</span>
+
+        <span class="n">write_netcdf</span><span class="p">(</span>
+            <span class="n">ds</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_to_dataset</span><span class="p">(</span><span class="n">streamfunction</span><span class="p">,</span> <span class="n">lat</span><span class="p">,</span> <span class="n">z</span><span class="p">),</span>
+            <span class="n">fileName</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">work_path</span><span class="p">(</span><span class="n">DATA_FILENAME</span><span class="p">),</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">'wrote </span><span class="si">{</span><span class="n">DATA_FILENAME</span><span class="si">}</span><span class="s1">'</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_plot</span><span class="p">(</span><span class="n">streamfunction</span><span class="p">,</span> <span class="n">lat</span><span class="p">,</span> <span class="n">z</span><span class="p">)</span></div>
+
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_find_fields</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">        Get the names of the streamfunction and its two axes in the MOC</span>
+<span class="sd">        output, or ``None`` if the simulation did not write them all</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        names : tuple of str or None</span>
+<span class="sd">            The streamfunction, the latitude bin boundaries and the interface</span>
+<span class="sd">            elevations, as the files name them</span>
+<span class="sd">        """</span>
+        <span class="n">filename</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">work_path</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">input_filenames</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="k">with</span> <span class="n">xr</span><span class="o">.</span><span class="n">open_dataset</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">decode_times</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span> <span class="k">as</span> <span class="n">ds</span><span class="p">:</span>
+            <span class="n">streamfunction</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_find</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="n">STREAMFUNCTION_VARIABLE</span><span class="p">)</span>
+            <span class="n">boundaries</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_find</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="n">LAT_BIN_BOUNDARY_VARIABLE</span><span class="p">)</span>
+            <span class="n">elevation</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_find</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="n">INTERFACE_ELEVATION_VARIABLE</span><span class="p">)</span>
+            <span class="k">if</span> <span class="p">(</span>
+                <span class="n">streamfunction</span> <span class="ow">is</span> <span class="kc">None</span>
+                <span class="ow">or</span> <span class="n">boundaries</span> <span class="ow">is</span> <span class="kc">None</span>
+                <span class="ow">or</span> <span class="n">elevation</span> <span class="ow">is</span> <span class="kc">None</span>
+            <span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_report_missing</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="n">streamfunction</span><span class="p">,</span> <span class="n">boundaries</span><span class="p">,</span> <span class="n">elevation</span><span class="p">)</span>
+                <span class="k">return</span> <span class="kc">None</span>
+        <span class="k">return</span> <span class="n">streamfunction</span><span class="p">,</span> <span class="n">boundaries</span><span class="p">,</span> <span class="n">elevation</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_read_fields</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ds</span><span class="p">,</span> <span class="n">streamfunction</span><span class="p">,</span> <span class="n">boundaries</span><span class="p">,</span> <span class="n">elevation</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">        Get the climatology of the streamfunction and the axes it is plotted</span>
+<span class="sd">        against</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        streamfunction : xarray.DataArray</span>
+<span class="sd">            The streamfunction on (elevation, latitude)</span>
+
+<span class="sd">        lat : numpy.ndarray</span>
+<span class="sd">            The latitude of each bin center</span>
+
+<span class="sd">        z : numpy.ndarray</span>
+<span class="sd">            The elevation of each interface</span>
+<span class="sd">        """</span>
+        <span class="n">lat</span> <span class="o">=</span> <span class="n">_bin_centers</span><span class="p">(</span><span class="n">_one_time</span><span class="p">(</span><span class="n">ds</span><span class="p">[</span><span class="n">boundaries</span><span class="p">]))</span>
+        <span class="n">z</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">_one_time</span><span class="p">(</span><span class="n">ds</span><span class="p">[</span><span class="n">elevation</span><span class="p">])</span><span class="o">.</span><span class="n">values</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span><span class="o">.</span><span class="n">ravel</span><span class="p">()</span>
+        <span class="n">streamfunction</span> <span class="o">=</span> <span class="n">_orient</span><span class="p">(</span>
+            <span class="n">_one_time</span><span class="p">(</span><span class="n">ds</span><span class="p">[</span><span class="n">streamfunction</span><span class="p">])</span><span class="o">.</span><span class="n">load</span><span class="p">(),</span> <span class="n">n_lat</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">lat</span><span class="p">),</span> <span class="n">n_z</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">z</span><span class="p">)</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="n">streamfunction</span><span class="p">,</span> <span class="n">lat</span><span class="p">,</span> <span class="n">z</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_find</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ds</span><span class="p">,</span> <span class="n">base</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">        Find a variable under either the name a time reduction gives it or</span>
+<span class="sd">        the name it has on its own, reporting which one was there</span>
+<span class="sd">        """</span>
+        <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="p">[</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">base</span><span class="si">}</span><span class="s1">_TimeMean</span><span class="si">{</span><span class="n">MONTHLY_PERIOD</span><span class="si">}</span><span class="s1">'</span><span class="p">,</span> <span class="n">base</span><span class="p">]:</span>
+            <span class="k">if</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">ds</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">'  read </span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s1">'</span><span class="p">)</span>
+                <span class="k">return</span> <span class="n">name</span>
+        <span class="k">return</span> <span class="kc">None</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_report_missing</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ds</span><span class="p">,</span> <span class="n">streamfunction</span><span class="p">,</span> <span class="n">boundaries</span><span class="p">,</span> <span class="n">elevation</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">        Say what the MOC output is missing, and what would have written it</span>
+<span class="sd">        """</span>
+        <span class="n">source</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">input_filenames</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">streamfunction</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">source</span><span class="si">}</span><span class="s1"> has no </span><span class="si">{</span><span class="n">STREAMFUNCTION_VARIABLE</span><span class="si">}</span><span class="s1">, which is what '</span>
+                <span class="sa">f</span><span class="s1">'the </span><span class="si">{</span><span class="n">MOC_GROUP_NAME</span><span class="si">}</span><span class="s1"> analysis group writes for the Global '</span>
+                <span class="sa">f</span><span class="s1">'region.  It holds: </span><span class="si">{</span><span class="n">_variable_list</span><span class="p">(</span><span class="n">ds</span><span class="p">)</span><span class="si">}</span><span class="s1">.'</span>
+            <span class="p">)</span>
+            <span class="k">return</span>
+        <span class="n">missing</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">if</span> <span class="n">boundaries</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">missing</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">LAT_BIN_BOUNDARY_VARIABLE</span><span class="si">}</span><span class="s1">, the latitude axis'</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">elevation</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">missing</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">INTERFACE_ELEVATION_VARIABLE</span><span class="si">}</span><span class="s1">, the elevation axis'</span>
+            <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">source</span><span class="si">}</span><span class="s1"> has the streamfunction but not </span><span class="si">{</span><span class="s2">" or "</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">missing</span><span class="p">)</span><span class="si">}</span><span class="s1">.'</span>
+            <span class="sa">f</span><span class="s1">'  Omega attaches both to every </span><span class="si">{</span><span class="n">MOC_GROUP_NAME</span><span class="si">}</span><span class="s1"> output stream, '</span>
+            <span class="sa">f</span><span class="s1">'so a simulation that predates that writes the streamfunction '</span>
+            <span class="sa">f</span><span class="s1">'alone.  Polaris does not reconstruct them: the interfaces move, '</span>
+            <span class="sa">f</span><span class="s1">'and an axis averaged over a different period would quietly '</span>
+            <span class="sa">f</span><span class="s1">'disagree with the diagnostic it labels.'</span>
+        <span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_to_dataset</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">streamfunction</span><span class="p">,</span> <span class="n">lat</span><span class="p">,</span> <span class="n">z</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Assemble exactly what is plotted, so it can be checked again"""</span>
+        <span class="n">ds</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">()</span>
+        <span class="n">ds</span><span class="p">[</span><span class="s1">'mocStreamfunction'</span><span class="p">]</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">(</span>
+            <span class="n">streamfunction</span><span class="o">.</span><span class="n">values</span><span class="p">,</span>
+            <span class="n">dims</span><span class="o">=</span><span class="p">(</span><span class="s1">'nVertInterfaces'</span><span class="p">,</span> <span class="s1">'nLatBins'</span><span class="p">),</span>
+            <span class="n">attrs</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span>
+                <span class="n">units</span><span class="o">=</span><span class="n">STREAMFUNCTION_UNITS</span><span class="p">,</span>
+                <span class="n">long_name</span><span class="o">=</span><span class="p">(</span>
+                    <span class="s1">'global meridional overturning streamfunction, time '</span>
+                    <span class="s1">'averaged over the range'</span>
+                <span class="p">),</span>
+            <span class="p">),</span>
+        <span class="p">)</span>
+        <span class="n">ds</span><span class="p">[</span><span class="s1">'latBinCenter'</span><span class="p">]</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">(</span>
+            <span class="n">lat</span><span class="p">,</span>
+            <span class="n">dims</span><span class="o">=</span><span class="p">(</span><span class="s1">'nLatBins'</span><span class="p">,),</span>
+            <span class="n">attrs</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span>
+                <span class="n">units</span><span class="o">=</span><span class="s1">'degrees_north'</span><span class="p">,</span>
+                <span class="n">long_name</span><span class="o">=</span><span class="s1">'latitude of the center of each MOC bin'</span><span class="p">,</span>
+            <span class="p">),</span>
+        <span class="p">)</span>
+        <span class="n">ds</span><span class="p">[</span><span class="s1">'zInterface'</span><span class="p">]</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">(</span>
+            <span class="n">z</span><span class="p">,</span>
+            <span class="n">dims</span><span class="o">=</span><span class="p">(</span><span class="s1">'nVertInterfaces'</span><span class="p">,),</span>
+            <span class="n">attrs</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span>
+                <span class="n">units</span><span class="o">=</span><span class="s1">'m'</span><span class="p">,</span>
+                <span class="n">long_name</span><span class="o">=</span><span class="p">(</span>
+                    <span class="s1">'mean elevation of each layer interface, positive up, as '</span>
+                    <span class="s1">'the model reported it over the same period'</span>
+                <span class="p">),</span>
+            <span class="p">),</span>
+        <span class="p">)</span>
+        <span class="n">ds</span><span class="o">.</span><span class="n">attrs</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span>
+            <span class="n">simulation_name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
+                <span class="s1">'ocean_analysis'</span><span class="p">,</span> <span class="s1">'simulation_name'</span>
+            <span class="p">),</span>
+            <span class="n">region</span><span class="o">=</span><span class="s1">'Global'</span><span class="p">,</span>
+            <span class="n">start_year</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">start_year</span><span class="p">,</span>
+            <span class="n">end_year</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">end_year</span><span class="p">,</span>
+            <span class="n">year_range</span><span class="o">=</span><span class="n">year_range_key</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">start_year</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">end_year</span><span class="p">),</span>
+            <span class="n">reduction_period</span><span class="o">=</span><span class="n">MONTHLY_PERIOD</span><span class="p">,</span>
+            <span class="n">source_files</span><span class="o">=</span><span class="s1">', '</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">input_filenames</span><span class="p">),</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="n">ds</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_plot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">streamfunction</span><span class="p">,</span> <span class="n">lat</span><span class="p">,</span> <span class="n">z</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Plot the streamfunction and describe it in the manifest"""</span>
+        <span class="n">config</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span>
+        <span class="n">section</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s1">'ocean_analysis_moc'</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">section</span><span class="o">.</span><span class="n">has_option</span><span class="p">(</span><span class="s1">'max_streamfunction'</span><span class="p">):</span>
+            <span class="n">max_abs</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">'max_streamfunction'</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># centered on zero and scaled to the data, so that the two</span>
+            <span class="c1"># circulation cells are the two colors of the map</span>
+            <span class="n">max_abs</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">nanmax</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">streamfunction</span><span class="o">.</span><span class="n">values</span><span class="p">)))</span>
+        <span class="n">simulation_name</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'ocean_analysis'</span><span class="p">,</span> <span class="s1">'simulation_name'</span><span class="p">)</span>
+        <span class="n">key</span> <span class="o">=</span> <span class="n">year_range_key</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">start_year</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">end_year</span><span class="p">)</span>
+
+        <span class="n">interval</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">'contour_interval'</span><span class="p">)</span>
+        <span class="n">drawn</span> <span class="o">=</span> <span class="n">plot_lat_elevation_field</span><span class="p">(</span>
+            <span class="n">da</span><span class="o">=</span><span class="n">streamfunction</span><span class="p">,</span>
+            <span class="n">lat</span><span class="o">=</span><span class="n">lat</span><span class="p">,</span>
+            <span class="n">z</span><span class="o">=</span><span class="n">z</span><span class="p">,</span>
+            <span class="n">out_filename</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">work_path</span><span class="p">(</span><span class="n">PLOT_FILENAME</span><span class="p">),</span>
+            <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span>
+            <span class="n">colormap_section</span><span class="o">=</span><span class="s1">'ocean_analysis_moc'</span><span class="p">,</span>
+            <span class="n">contour_interval</span><span class="o">=</span><span class="n">interval</span><span class="p">,</span>
+            <span class="n">vmin</span><span class="o">=-</span><span class="n">max_abs</span><span class="p">,</span>
+            <span class="n">vmax</span><span class="o">=</span><span class="n">max_abs</span><span class="p">,</span>
+            <span class="n">title</span><span class="o">=</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">simulation_name</span><span class="si">}</span><span class="s1">: global overturning streamfunction, '</span>
+                <span class="sa">f</span><span class="s1">'years </span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s1">'</span>
+            <span class="p">),</span>
+            <span class="n">colorbar_label</span><span class="o">=</span><span class="n">STREAMFUNCTION_UNITS</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="k">if</span> <span class="n">drawn</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">drawn</span> <span class="o">!=</span> <span class="n">interval</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s1">'  the streamfunction reaches </span><span class="si">{</span><span class="n">max_abs</span><span class="si">:</span><span class="s1">.3g</span><span class="si">}</span><span class="s1"> '</span>
+                <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">STREAMFUNCTION_UNITS</span><span class="si">}</span><span class="s1">, so a contour every </span><span class="si">{</span><span class="n">interval</span><span class="si">:</span><span class="s1">g</span><span class="si">}</span><span class="s1"> '</span>
+                <span class="sa">f</span><span class="s1">'would have drawn more than </span><span class="si">{</span><span class="n">MAX_CONTOUR_LINES</span><span class="si">}</span><span class="s1"> lines; they '</span>
+                <span class="sa">f</span><span class="s1">'are drawn every </span><span class="si">{</span><span class="n">drawn</span><span class="si">:</span><span class="s1">g</span><span class="si">}</span><span class="s1"> instead'</span>
+            <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">'wrote </span><span class="si">{</span><span class="n">PLOT_FILENAME</span><span class="si">}</span><span class="s1">'</span><span class="p">)</span>
+
+        <span class="c1"># The outputs are registered here rather than in setup() because a</span>
+        <span class="c1"># simulation that wrote no MOC output, or wrote it without its axes,</span>
+        <span class="c1"># makes neither, and a step that had declared them at setup would</span>
+        <span class="c1"># fail on the missing files instead of reporting what it found.</span>
+        <span class="k">for</span> <span class="n">filename</span> <span class="ow">in</span> <span class="p">(</span><span class="n">PLOT_FILENAME</span><span class="p">,</span> <span class="n">DATA_FILENAME</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">add_produced_file</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
+        <span class="c1"># one gallery per region, so that regional overturning adds galleries</span>
+        <span class="c1"># to this group rather than a group of its own</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_product</span><span class="p">(</span>
+            <span class="n">plot</span><span class="o">=</span><span class="n">PLOT_FILENAME</span><span class="p">,</span>
+            <span class="n">data</span><span class="o">=</span><span class="n">DATA_FILENAME</span><span class="p">,</span>
+            <span class="n">group</span><span class="o">=</span><span class="s1">'moc'</span><span class="p">,</span>
+            <span class="n">gallery</span><span class="o">=</span><span class="s1">'global'</span><span class="p">,</span>
+            <span class="n">title</span><span class="o">=</span><span class="s1">'Global meridional overturning streamfunction'</span><span class="p">,</span>
+            <span class="n">region</span><span class="o">=</span><span class="s1">'Global'</span><span class="p">,</span>
+        <span class="p">)</span></div>
+
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_stream_problem</span><span class="p">(</span><span class="n">stream</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Say why the MOC output stream cannot be averaged, or ``None`` if it can</span>
+<span class="sd">    """</span>
+    <span class="k">if</span> <span class="p">(</span>
+        <span class="n">stream</span><span class="o">.</span><span class="n">is_reduction</span>
+        <span class="ow">and</span> <span class="n">stream</span><span class="o">.</span><span class="n">period</span> <span class="o">==</span> <span class="n">MONTHLY_PERIOD</span>
+        <span class="ow">and</span> <span class="s1">'$M'</span> <span class="ow">in</span> <span class="n">stream</span><span class="o">.</span><span class="n">filename</span>
+    <span class="p">):</span>
+        <span class="k">return</span> <span class="kc">None</span>
+    <span class="n">kind</span> <span class="o">=</span> <span class="s1">'time-mean'</span> <span class="k">if</span> <span class="n">stream</span><span class="o">.</span><span class="n">is_reduction</span> <span class="k">else</span> <span class="s1">'snapshot'</span>
+    <span class="k">return</span> <span class="p">(</span>
+        <span class="sa">f</span><span class="s1">'The </span><span class="si">{</span><span class="n">MOC_GROUP_NAME</span><span class="si">}</span><span class="s1"> analysis group writes </span><span class="si">{</span><span class="n">stream</span><span class="o">.</span><span class="n">filename</span><span class="si">}</span><span class="s1">, a '</span>
+        <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">stream</span><span class="o">.</span><span class="n">period</span><span class="si">}</span><span class="s1"> </span><span class="si">{</span><span class="n">kind</span><span class="si">}</span><span class="s1"> stream.  The MOC climatology is computed '</span>
+        <span class="sa">f</span><span class="s1">'with ncclimo from one file of monthly means per month, as the '</span>
+        <span class="sa">f</span><span class="s1">'climatology maps are, so the group needs ReductionPeriod: '</span>
+        <span class="sa">f</span><span class="s1">'[</span><span class="si">{</span><span class="n">MONTHLY_PERIOD</span><span class="si">}</span><span class="s1">] and a Filename with $Y and $M in it to make this '</span>
+        <span class="sa">f</span><span class="s1">'plot.'</span>
+    <span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_one_time</span><span class="p">(</span><span class="n">da</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Drop the time dimension of a climatology, which has one time</span>
+
+<span class="sd">    The latitude bin boundaries are written without one, and come through</span>
+<span class="sd">    ``ncclimo`` without one too.</span>
+<span class="sd">    """</span>
+    <span class="k">if</span> <span class="s1">'time'</span> <span class="ow">in</span> <span class="n">da</span><span class="o">.</span><span class="n">dims</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">da</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span><span class="n">time</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">da</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_bin_centers</span><span class="p">(</span><span class="n">boundaries</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Get the center of each latitude bin</span>
+
+<span class="sd">    Omega writes the boundaries, one more of them than there are bins, since</span>
+<span class="sd">    that is what a bin is defined by.  Contouring is defined at points, so it</span>
+<span class="sd">    wants the centers.</span>
+<span class="sd">    """</span>
+    <span class="n">boundaries</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">boundaries</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span><span class="o">.</span><span class="n">ravel</span><span class="p">()</span>
+    <span class="k">return</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="p">(</span><span class="n">boundaries</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">boundaries</span><span class="p">[</span><span class="mi">1</span><span class="p">:])</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_orient</span><span class="p">(</span><span class="n">da</span><span class="p">,</span> <span class="n">n_lat</span><span class="p">,</span> <span class="n">n_z</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Put the streamfunction on (elevation, latitude), whatever order Omega</span>
+<span class="sd">    wrote its dimensions in</span>
+
+<span class="sd">    The dimensions are matched by size rather than by name, since their names</span>
+<span class="sd">    come from the operator chain that produced them and would change with it.</span>
+<span class="sd">    """</span>
+    <span class="n">sizes</span> <span class="o">=</span> <span class="p">{</span><span class="n">dim</span><span class="p">:</span> <span class="n">da</span><span class="o">.</span><span class="n">sizes</span><span class="p">[</span><span class="n">dim</span><span class="p">]</span> <span class="k">for</span> <span class="n">dim</span> <span class="ow">in</span> <span class="n">da</span><span class="o">.</span><span class="n">dims</span><span class="p">}</span>
+    <span class="n">lat_dims</span> <span class="o">=</span> <span class="p">[</span><span class="n">dim</span> <span class="k">for</span> <span class="n">dim</span><span class="p">,</span> <span class="n">size</span> <span class="ow">in</span> <span class="n">sizes</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">size</span> <span class="o">==</span> <span class="n">n_lat</span><span class="p">]</span>
+    <span class="n">z_dims</span> <span class="o">=</span> <span class="p">[</span><span class="n">dim</span> <span class="k">for</span> <span class="n">dim</span><span class="p">,</span> <span class="n">size</span> <span class="ow">in</span> <span class="n">sizes</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">size</span> <span class="o">==</span> <span class="n">n_z</span><span class="p">]</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">da</span><span class="o">.</span><span class="n">dims</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">2</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">lat_dims</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">z_dims</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s1">'The streamfunction has dimensions </span><span class="si">{</span><span class="n">sizes</span><span class="si">}</span><span class="s1">, which do not '</span>
+            <span class="sa">f</span><span class="s1">'match </span><span class="si">{</span><span class="n">n_lat</span><span class="si">}</span><span class="s1"> latitude bins and </span><span class="si">{</span><span class="n">n_z</span><span class="si">}</span><span class="s1"> layer interfaces.  The '</span>
+            <span class="sa">f</span><span class="s1">'latitude bins come from </span><span class="si">{</span><span class="n">LAT_BIN_BOUNDARY_VARIABLE</span><span class="si">}</span><span class="s1"> and the '</span>
+            <span class="sa">f</span><span class="s1">'interfaces from </span><span class="si">{</span><span class="n">INTERFACE_ELEVATION_VARIABLE</span><span class="si">}</span><span class="s1">, so one of the '</span>
+            <span class="sa">f</span><span class="s1">'three does not belong to the others.'</span>
+        <span class="p">)</span>
+    <span class="k">if</span> <span class="n">n_lat</span> <span class="o">==</span> <span class="n">n_z</span><span class="p">:</span>
+        <span class="c1"># nothing in the sizes tells them apart, and Omega writes latitude</span>
+        <span class="c1"># first, so the array is transposed to put elevation down the rows</span>
+        <span class="k">return</span> <span class="n">da</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="o">*</span><span class="n">da</span><span class="o">.</span><span class="n">dims</span><span class="p">[::</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+    <span class="k">return</span> <span class="n">da</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="n">z_dims</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">lat_dims</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_variable_list</span><span class="p">(</span><span class="n">ds</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""The variables in a file, for an error message"""</span>
+    <span class="n">names</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">name</span><span class="p">)</span> <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">ds</span><span class="o">.</span><span class="n">data_vars</span><span class="p">)</span>
+    <span class="k">return</span> <span class="s1">', '</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">names</span><span class="p">)</span> <span class="k">if</span> <span class="n">names</span> <span class="k">else</span> <span class="s1">'nothing'</span>
 </pre></div>
 
            </div>

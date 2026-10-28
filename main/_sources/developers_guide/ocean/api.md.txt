@@ -67,7 +67,6 @@
    climatology.Climatology.setup
    climatology.Climatology.run
    climatology.get_climatology_variables
-   climatology.find_climatology_file
 
    climatology_maps.ClimatologyMaps
    climatology_maps.ClimatologyMaps.setup
@@ -96,6 +95,9 @@
    moc.Moc.setup
    moc.Moc.run
 
+   ncclimo.run_ncclimo
+   ncclimo.find_climatology_file
+
    publish.Publish
    publish.Publish.run
    publish.Publish.output_path
@@ -117,6 +119,7 @@
    sim_files.read_omega_config
    sim_files.expand_template
    sim_files.check_files_exist
+   sim_files.check_month_covered
    sim_files.year_range_key
 ```
 

@@ -472,22 +472,17 @@ window.runMermaid = runMermaid;</script>
              
   <h1>Source code for polaris.tasks.ocean.analysis.climatology</h1><div class="highlight"><pre>
 <span></span><span class="kn">import</span><span class="w"> </span><span class="nn">glob</span>
-<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">xarray</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">xr</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">mpas_tools.logging</span><span class="w"> </span><span class="kn">import</span> <span class="n">check_call</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">polaris.ocean.model.layer_mass</span><span class="w"> </span><span class="kn">import</span> <span class="n">MASS_THICKNESS_VARIABLES</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">polaris.tasks.ocean.analysis.analysis_step</span><span class="w"> </span><span class="kn">import</span> <span class="n">AnalysisStep</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.tasks.ocean.analysis.ncclimo</span><span class="w"> </span><span class="kn">import</span> <span class="n">NCCLIMO_PROCESSES</span><span class="p">,</span> <span class="n">run_ncclimo</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">polaris.tasks.ocean.analysis.sim_files</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">SimulationFiles</span><span class="p">,</span>
     <span class="n">time_mean_suffix</span><span class="p">,</span>
 <span class="p">)</span>
-
-<span class="c1"># ``ncclimo`` in background mode runs one process per month, so this is what</span>
-<span class="c1"># the step will start and therefore what it declares.  The pool is sized from</span>
-<span class="c1"># this number and never from the size of the machine.</span>
-<span class="n">NCCLIMO_PROCESSES</span> <span class="o">=</span> <span class="mi">12</span>
 
 <span class="c1"># The vertical geometry every map that slices at an elevation needs, and that</span>
 <span class="c1"># the partial layers at a heat content range boundary need.  Both models write</span>
@@ -515,23 +510,6 @@ window.runMermaid = runMermaid;</script>
 <span class="c1"># the other would hide the distinction that matters.  The analysis reads Omega</span>
 <span class="c1"># output only, so this is the Omega spelling.</span>
 <span class="n">MASS_THICKNESS_VARIABLE</span> <span class="o">=</span> <span class="n">MASS_THICKNESS_VARIABLES</span><span class="p">[</span><span class="s1">'omega'</span><span class="p">]</span>
-
-<span class="c1"># ``ncclimo`` names the twelve monthly climatologies by month number, so a</span>
-<span class="c1"># user who asks to plot JAN is asking for the file with 01 in its name</span>
-<span class="n">SEASON_KEYS</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="s1">'JAN'</span><span class="p">:</span> <span class="s1">'01'</span><span class="p">,</span>
-    <span class="s1">'FEB'</span><span class="p">:</span> <span class="s1">'02'</span><span class="p">,</span>
-    <span class="s1">'MAR'</span><span class="p">:</span> <span class="s1">'03'</span><span class="p">,</span>
-    <span class="s1">'APR'</span><span class="p">:</span> <span class="s1">'04'</span><span class="p">,</span>
-    <span class="s1">'MAY'</span><span class="p">:</span> <span class="s1">'05'</span><span class="p">,</span>
-    <span class="s1">'JUN'</span><span class="p">:</span> <span class="s1">'06'</span><span class="p">,</span>
-    <span class="s1">'JUL'</span><span class="p">:</span> <span class="s1">'07'</span><span class="p">,</span>
-    <span class="s1">'AUG'</span><span class="p">:</span> <span class="s1">'08'</span><span class="p">,</span>
-    <span class="s1">'SEP'</span><span class="p">:</span> <span class="s1">'09'</span><span class="p">,</span>
-    <span class="s1">'OCT'</span><span class="p">:</span> <span class="s1">'10'</span><span class="p">,</span>
-    <span class="s1">'NOV'</span><span class="p">:</span> <span class="s1">'11'</span><span class="p">,</span>
-    <span class="s1">'DEC'</span><span class="p">:</span> <span class="s1">'12'</span><span class="p">,</span>
-<span class="p">}</span>
 
 
 <div class="viewcode-block" id="get_climatology_variables">
@@ -573,61 +551,6 @@ window.runMermaid = runMermaid;</script>
         <span class="k">if</span> <span class="n">variable</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">variables</span><span class="p">:</span>
             <span class="n">variables</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">variable</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">variables</span></div>
-
-
-
-<div class="viewcode-block" id="find_climatology_file">
-<a class="viewcode-back" href="../../../../../developers_guide/ocean/generated/polaris.tasks.ocean.analysis.climatology.find_climatology_file.html#polaris.tasks.ocean.analysis.climatology.find_climatology_file">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">find_climatology_file</span><span class="p">(</span><span class="n">work_dir</span><span class="p">,</span> <span class="n">season</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">"""</span>
-<span class="sd">    Find the ``ncclimo`` output file for one season</span>
-
-<span class="sd">    ``ncclimo`` names its output ``&lt;caseid&gt;_&lt;season&gt;_&lt;start&gt;_&lt;end&gt;_climo.nc``.</span>
-<span class="sd">    Steps that read a climatology glob on the season rather than</span>
-<span class="sd">    reconstructing that pattern, which is robust to what ``ncclimo`` makes of</span>
-<span class="sd">    the case name and to its naming changing.  The one substitution that has</span>
-<span class="sd">    to be made is that the twelve monthly climatologies are named by month</span>
-<span class="sd">    number rather than by ``JAN`` through ``DEC``.</span>
-
-<span class="sd">    Parameters</span>
-<span class="sd">    ----------</span>
-<span class="sd">    work_dir : str</span>
-<span class="sd">        The work directory of the climatology step</span>
-
-<span class="sd">    season : str</span>
-<span class="sd">        The season to find, e.g. ``'ANN'`` or ``'JAN'``</span>
-
-<span class="sd">    Returns</span>
-<span class="sd">    -------</span>
-<span class="sd">    filename : str</span>
-<span class="sd">        The absolute path to the climatology file</span>
-
-<span class="sd">    Raises</span>
-<span class="sd">    ------</span>
-<span class="sd">    FileNotFoundError</span>
-<span class="sd">        If no file for that season is there</span>
-
-<span class="sd">    ValueError</span>
-<span class="sd">        If more than one file matches, which would make the choice arbitrary</span>
-<span class="sd">    """</span>
-    <span class="n">key</span> <span class="o">=</span> <span class="n">SEASON_KEYS</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">season</span><span class="o">.</span><span class="n">upper</span><span class="p">(),</span> <span class="n">season</span><span class="p">)</span>
-    <span class="n">pattern</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">work_dir</span><span class="p">,</span> <span class="sa">f</span><span class="s1">'*_</span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s1">_*_climo.nc'</span><span class="p">)</span>
-    <span class="n">matches</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">glob</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="n">pattern</span><span class="p">))</span>
-    <span class="k">if</span> <span class="ow">not</span> <span class="n">matches</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">FileNotFoundError</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s1">'No climatology for season </span><span class="si">{</span><span class="n">season</span><span class="si">}</span><span class="s1"> in </span><span class="si">{</span><span class="n">work_dir</span><span class="si">}</span><span class="s1">.  The '</span>
-            <span class="sa">f</span><span class="s1">'climatology step writes the twelve monthly climatologies and '</span>
-            <span class="sa">f</span><span class="s1">'one file per season in [ocean_analysis_climatology] seasons, '</span>
-            <span class="sa">f</span><span class="s1">'so check that option against plot_seasons.'</span>
-        <span class="p">)</span>
-    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">matches</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
-        <span class="n">names</span> <span class="o">=</span> <span class="s1">', '</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">match</span><span class="p">)</span> <span class="k">for</span> <span class="n">match</span> <span class="ow">in</span> <span class="n">matches</span><span class="p">)</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">matches</span><span class="p">)</span><span class="si">}</span><span class="s1"> climatology files for season </span><span class="si">{</span><span class="n">season</span><span class="si">}</span><span class="s1"> in '</span>
-            <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">work_dir</span><span class="si">}</span><span class="s1">: </span><span class="si">{</span><span class="n">names</span><span class="si">}</span><span class="s1">.  Only one is expected, so the choice '</span>
-            <span class="sa">f</span><span class="s1">'would be arbitrary.'</span>
-        <span class="p">)</span>
-    <span class="k">return</span> <span class="n">matches</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span></div>
 
 
 
@@ -706,12 +629,8 @@ window.runMermaid = runMermaid;</script>
         <span class="n">sim_files</span> <span class="o">=</span> <span class="n">SimulationFiles</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">,</span> <span class="n">log</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">)</span>
         <span class="n">suffix</span> <span class="o">=</span> <span class="n">time_mean_suffix</span><span class="p">(</span><span class="n">sim_files</span><span class="o">.</span><span class="n">monthly_mean_stream</span><span class="p">())</span>
         <span class="n">variables</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_native_variables</span><span class="p">(</span><span class="n">suffix</span><span class="p">)</span>
-        <span class="n">check_call</span><span class="p">(</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_ncclimo_args</span><span class="p">(</span>
-                <span class="p">[</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">variable</span><span class="si">}{</span><span class="n">suffix</span><span class="si">}</span><span class="s1">'</span> <span class="k">for</span> <span class="n">variable</span> <span class="ow">in</span> <span class="n">variables</span><span class="p">],</span> <span class="n">seasons</span>
-            <span class="p">),</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="p">,</span>
-            <span class="n">env</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_ncclimo_env</span><span class="p">(),</span>
+        <span class="n">run_ncclimo</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span> <span class="p">[</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">variable</span><span class="si">}{</span><span class="n">suffix</span><span class="si">}</span><span class="s1">'</span> <span class="k">for</span> <span class="n">variable</span> <span class="ow">in</span> <span class="n">variables</span><span class="p">],</span> <span class="n">seasons</span>
         <span class="p">)</span>
         <span class="k">if</span> <span class="n">suffix</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_strip_suffix</span><span class="p">(</span><span class="n">variables</span><span class="p">,</span> <span class="n">suffix</span><span class="p">)</span></div>
@@ -776,67 +695,7 @@ window.runMermaid = runMermaid;</script>
 <span class="w">        </span><span class="sd">"""Get the names of the variables in the monthly means"""</span>
         <span class="n">filename</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">work_path</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">input_filenames</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
         <span class="k">with</span> <span class="n">xr</span><span class="o">.</span><span class="n">open_dataset</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">decode_times</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span> <span class="k">as</span> <span class="n">ds</span><span class="p">:</span>
-            <span class="k">return</span> <span class="nb">set</span><span class="p">(</span><span class="n">ds</span><span class="o">.</span><span class="n">variables</span><span class="p">)</span>
-
-    <span class="k">def</span><span class="w"> </span><span class="nf">_ncclimo_args</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">variables</span><span class="p">,</span> <span class="n">seasons</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">"""Build the ``ncclimo`` command line"""</span>
-        <span class="c1"># ncclimo's background mode runs one process per month.  The count</span>
-        <span class="c1"># comes from what the step declared it would start, never from the</span>
-        <span class="c1"># size of the machine, so that a step running beside this one does</span>
-        <span class="c1"># not find the node oversubscribed.</span>
-        <span class="n">threads</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cpus_per_task</span>
-        <span class="n">parallel_mode</span> <span class="o">=</span> <span class="s1">'bck'</span> <span class="k">if</span> <span class="n">threads</span> <span class="o">&gt;</span> <span class="mi">1</span> <span class="k">else</span> <span class="s1">'nil'</span>
-        <span class="c1"># The seasonally discontinuous December convention -- every year in</span>
-        <span class="c1"># the range contributes its own December, so no data outside the</span>
-        <span class="c1"># range are needed -- used to be selected with "-a sdd".  NCO 5.3.7</span>
-        <span class="c1"># dropped that option and made the convention its behavior, so asking</span>
-        <span class="c1"># for it now only produces a deprecation warning.  The test of this</span>
-        <span class="c1"># invocation compares DJF against a day-weighted mean of the monthly</span>
-        <span class="c1"># climatologies, which is what would catch the convention changing</span>
-        <span class="c1"># back underneath us.</span>
-        <span class="k">return</span> <span class="p">[</span>
-            <span class="s1">'ncclimo'</span><span class="p">,</span>
-            <span class="s1">'--no_stdin'</span><span class="p">,</span>
-            <span class="s1">'-4'</span><span class="p">,</span>
-            <span class="s1">'--clm_md=mth'</span><span class="p">,</span>
-            <span class="c1"># ncclimo needs a case name to build its output file names from</span>
-            <span class="c1"># when, as here, the input files are given rather than generated</span>
-            <span class="s1">'-c'</span><span class="p">,</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'ocean_analysis'</span><span class="p">,</span> <span class="s1">'simulation_name'</span><span class="p">),</span>
-            <span class="s1">'-p'</span><span class="p">,</span>
-            <span class="n">parallel_mode</span><span class="p">,</span>
-            <span class="s1">'-j'</span><span class="p">,</span>
-            <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">threads</span><span class="si">}</span><span class="s1">'</span><span class="p">,</span>
-            <span class="s1">'-v'</span><span class="p">,</span>
-            <span class="s1">','</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">variables</span><span class="p">),</span>
-            <span class="sa">f</span><span class="s1">'--seasons=</span><span class="si">{</span><span class="s2">","</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">seasons</span><span class="p">)</span><span class="si">}</span><span class="s1">'</span><span class="p">,</span>
-            <span class="s1">'-s'</span><span class="p">,</span>
-            <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">start_year</span><span class="si">}</span><span class="s1">'</span><span class="p">,</span>
-            <span class="s1">'-e'</span><span class="p">,</span>
-            <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">end_year</span><span class="si">}</span><span class="s1">'</span><span class="p">,</span>
-            <span class="c1"># ncclimo resolves the input files it is given against its input</span>
-            <span class="c1"># directory, so the directory is named once and the files are</span>
-            <span class="c1"># named relative to it.  Both are the step's own work directory,</span>
-            <span class="c1"># which is where the monthly means are symlinked.</span>
-            <span class="s1">'-i'</span><span class="p">,</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">work_path</span><span class="p">(),</span>
-            <span class="s1">'-o'</span><span class="p">,</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">work_path</span><span class="p">(),</span>
-        <span class="p">]</span> <span class="o">+</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">input_filenames</span><span class="p">)</span>
-
-    <span class="k">def</span><span class="w"> </span><span class="nf">_ncclimo_env</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">"""</span>
-<span class="sd">        Get the environment to run ``ncclimo`` in, with its scratch space</span>
-<span class="sd">        pointed at the step's own work directory</span>
-
-<span class="sd">        Two climatologies can run at once, so leaving the scratch path to</span>
-<span class="sd">        ``TMPDIR`` would let them collide on it.</span>
-<span class="sd">        """</span>
-        <span class="n">scratch_dir</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">work_path</span><span class="p">(</span><span class="s1">'ncclimo_scratch'</span><span class="p">)</span>
-        <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">scratch_dir</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-        <span class="n">env</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">)</span>
-        <span class="n">env</span><span class="p">[</span><span class="s1">'TMPDIR'</span><span class="p">]</span> <span class="o">=</span> <span class="n">scratch_dir</span>
-        <span class="k">return</span> <span class="n">env</span></div>
+            <span class="k">return</span> <span class="nb">set</span><span class="p">(</span><span class="n">ds</span><span class="o">.</span><span class="n">variables</span><span class="p">)</span></div>
 
 
 

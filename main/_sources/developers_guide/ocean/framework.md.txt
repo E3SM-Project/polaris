@@ -1100,7 +1100,7 @@ group that is turned off are told apart rather than raising from inside a
 lookup.  This is the one place Polaris depends on the *shape* of Omega's
 configuration rather than on its output.
 
-Two details are worth knowing before adding a product:
+Three details are worth knowing before adding a product:
 
 - File-name templates are expanded by
   {py:func}`polaris.tasks.ocean.analysis.sim_files.expand_template`, which
@@ -1115,6 +1115,12 @@ Two details are worth knowing before adding a product:
   {py:meth}`polaris.tasks.ocean.analysis.sim_files.OmegaConfig.analysis_streams`
   returns each stream with its period and whether it is a time reduction, and
   the caller must not assume either spelling.
+- The month a monthly mean covers comes from its file name, which Omega gives
+  for the month after (E3SM-Project/Omega#554).  Before a file is read,
+  {py:func}`polaris.tasks.ocean.analysis.sim_files.check_month_covered`
+  checks its time bounds against that month and raises if they differ, so a
+  change in Omega's convention stops the analysis rather than shifting every
+  product by a month.  `run_ncclimo()` and the accumulator both call it.
 
 ### Naming the models' global statistics
 
@@ -1211,7 +1217,7 @@ The climatology is added as a **dependency** with
 `ncclimo` names its output `<caseid>_<season>_<start>_<end>_climo.nc` and
 those names are not known until it has run.  The reading step then finds one
 season's file with
-{py:func}`polaris.tasks.ocean.analysis.climatology.find_climatology_file`,
+{py:func}`polaris.tasks.ocean.analysis.ncclimo.find_climatology_file`,
 which globs on the season in the dependency's work directory --- and which
 also knows that `ncclimo` names the twelve monthly climatologies by month
 number rather than `JAN` through `DEC`.

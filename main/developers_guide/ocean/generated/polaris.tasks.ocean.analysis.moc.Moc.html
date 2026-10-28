@@ -143,11 +143,16 @@
 <dl class="py class">
 <dt class="sig sig-object py" id="polaris.tasks.ocean.analysis.moc.Moc">
 <span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">polaris.tasks.ocean.analysis.moc.</span></span><span class="sig-name descname"><span class="pre">Moc</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">component</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">subdir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start_year</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">end_year</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/polaris/tasks/ocean/analysis/moc.html#Moc"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#polaris.tasks.ocean.analysis.moc.Moc" title="Link to this definition"></a></dt>
-<dd><p>A step that time averages the meridional overturning circulation Omega
-computes in situ and plots it against latitude and elevation</p>
+<dd><p>A step that computes the annual climatology of the meridional
+overturning circulation Omega computes in situ and plots it against
+latitude and elevation</p>
 <dl class="field-list simple">
 <dt class="field-odd">Variables<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>has_moc_output</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#bool" title="(in Python v3.15)"><em>bool</em></a>) – Whether the simulation wrote MOC output at all</p>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>has_moc_output</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#bool" title="(in Python v3.15)"><em>bool</em></a>) – Whether the simulation wrote MOC output at all</p></li>
+<li><p><strong>stream_problem</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><em>str</em></a><em> or </em><em>None</em>) – Why the MOC output the simulation wrote cannot be averaged, or
+<code class="docutils literal notranslate"><span class="pre">None</span></code> if it can</p></li>
+</ul>
 </dd>
 </dl>
 <dl class="py method">
@@ -260,7 +265,7 @@ computes in situ and plots it against latitude and elevation</p>
 <td><p>Read a few named fields from a file of the simulation, translating their names but nothing else</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="polaris.tasks.ocean.analysis.moc.Moc.run.html#polaris.tasks.ocean.analysis.moc.Moc.run" title="polaris.tasks.ocean.analysis.moc.Moc.run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">run</span></code></a>()</p></td>
-<td><p>Report the MOC output; no plot is made yet</p></td>
+<td><p>Compute the annual climatology of the streamfunction and its axes over the requested years, and plot it</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">runtime_setup</span></code>()</p></td>
 <td><p>Write the empty manifest fragment before the step runs</p></td>

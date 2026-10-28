@@ -18,6 +18,7 @@
       ~SimulationFiles.global_stats_stream
       ~SimulationFiles.mesh_filename
       ~SimulationFiles.moc_files
+      ~SimulationFiles.moc_stream
       ~SimulationFiles.monthly_mean_files
       ~SimulationFiles.monthly_mean_stream
       ~SimulationFiles.vert_coord_filename
