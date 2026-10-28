@@ -586,13 +586,14 @@ resolution is the expensive one, and every run after it is nearly free.
 
 ### meridional overturning circulation
 
-The `moc` task plots the global meridional overturning streamfunction against
-latitude and elevation, averaged over the climatology years.
+The `moc` task plots the annual climatology of the global meridional
+overturning streamfunction against latitude and elevation over the climatology
+years.
 
 **Polaris does not compute the MOC.**  Getting the streamfunction right needs
 the full three-dimensional velocity at every time step, not a monthly mean of
-it, which is why Omega computes it in situ; Polaris averages what Omega wrote
-and plots it.  The vertical axis is Omega's too: the streamfunction lives on
+it, which is why Omega computes it in situ; Polaris computes the climatology
+of what Omega wrote and plots it.  The vertical axis is Omega's too: the streamfunction lives on
 layer interfaces, whose elevation moves, and Omega reports the mean elevation
 of each interface over the same period alongside the streamfunction.  Polaris
 does not reconstruct it, since an axis averaged over a different period would
@@ -620,14 +621,19 @@ Omega:
 ```
 
 Polaris reads the group from the simulation's Omega configuration, so nothing
-about it is restated in the Polaris config file.  Time means are read in
-preference to snapshots when the group wrote both.
+about it is restated in the Polaris config file.  The group has to write
+monthly means to one file per month, as above: the climatology is computed
+from them with `ncclimo`, the same way and with the same weighting by the
+length of each month as the climatology the
+{ref}`maps <ocean-analysis-climatology-maps>` are made from.  MOC output of any other kind is reported, with what
+the group would need to write instead, and nothing is plotted.
 
 Two files land in `ocean/analysis/moc/<range>/`:
 
 `global.png`
 : The streamfunction in Sv as filled contours with contour lines over them,
-  on a diverging color map centered on zero.  Elevation is on the vertical
+  on a diverging color map centered on zero.  The color bar marks the value
+  of each contour line.  Elevation is on the vertical
   axis, positive up, so the sea surface is at the top without the axis being
   inverted.
 

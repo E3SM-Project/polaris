@@ -267,7 +267,7 @@ class Viz(Step):
             da=streamfunction, lat=lat, z=z,
             out_filename='moc.png', config=self.config,
             colormap_section='ocean_analysis_moc',
-            contour_interval=2.0, max_abs=30.0,
+            contour_interval=2.0, vmin=-30.0, vmax=30.0,
             title='Global overturning streamfunction',
             colorbar_label='Sv')
 ```
@@ -279,14 +279,13 @@ defined at rather than cell boundaries, so a field on latitude *bins* is
 plotted against the centers of those bins.
 
 The `colormap_section` of the config file is the same as the one
-{py:func}`polaris.viz.plot_global_mpas_field()` uses. Two arguments layer on
+{py:func}`polaris.viz.plot_global_mpas_field()` uses. Three arguments layer on
 top of it:
 
-`max_abs`
-: The maximum absolute value of a color map centered on zero, replacing the
-  limits `norm_args` gives. This is how a diverging field such as a
-  streamfunction is plotted symmetrically about zero. A field with no natural
-  center leaves it out and sets its limits in `norm_args` as usual.
+`vmin`, `vmax`
+: The limits of the color map, each replacing the one `norm_args` gives. A
+  diverging field such as a streamfunction is plotted symmetrically about zero
+  with `vmin=-vmax`.
 
 `contour_interval`
 : The spacing of the contour lines drawn over the fill. The lines follow the
@@ -294,7 +293,8 @@ top of it:
   out a weak circulation still has lines through the saturated part of it,
   which is the only thing left there that says how strong the strong part is.
   Negative contours are dashed, which is what tells the two cells of a
-  circulation apart in black and white.
+  circulation apart in black and white. The lines are not labeled; the color
+  bar marks the value of each one that falls within the color map.
 
 The color bar's arrows are drawn only at the ends the data actually run past,
 since an arrow is a claim that there is something beyond it. Anything the
