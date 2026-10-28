@@ -114,8 +114,9 @@ follow from the envelope:
   that counts against the same 4 GiB.  `make -j 1` would fit, but it takes
   about 25 minutes a build.  So those configs set `build_in_job = true`, and each
   task builds in a one-node job in the `debug` QOS (`gpu_debug` on
-  pm-gpu), whose queue wait is typically a minute or two and seldom more
-  than seven.  The build takes a few minutes there.  `omega_cdash` adds no
+  pm-gpu).  Its queue wait is usually a few minutes, though it has been
+  most of an hour, against a median of more than an hour in `regular`.
+  The build takes a few minutes there, or about 12 on pm-gpu.  `omega_cdash` adds no
   job by this, since it runs the CTests in the job that builds;
   `polaris_cdash` adds one, since its suite has its own job.
 * A scrontab job is itself a Slurm job, so `launch_all.sh` unsets every
