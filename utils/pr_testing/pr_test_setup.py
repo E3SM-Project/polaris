@@ -88,6 +88,9 @@ EXECUTABLES = {'omega': os.path.join('src', 'omega.exe')}
 #: how long setup waits for another setup to prepare an Omega worktree
 TREE_LOCK_TIMEOUT = 3600
 
+#: what ``case.submit`` prints for the job that runs a CIME test
+_CASE_JOB_ID = re.compile(r'Submitted job case\.test with id (\S+)')
+
 _LOAD_SCRIPT_EXPORT = re.compile(
     r'^export (POLARIS_[A-Z]+)="([^"]*)"$', re.MULTILINE
 )
@@ -118,6 +121,10 @@ class Job:
 
     job_id : str, optional
         Its id once submitted
+
+    env_script : str, optional
+        For a CIME case, whose ``script`` is ``case.submit``, the CIME
+        environment script that is sourced in a clean login shell to run it
     """
 
     name: str
@@ -125,6 +132,7 @@ class Job:
     script: str
     depends_on_baseline: bool = False
     job_id: Optional[str] = None
+    env_script: Optional[str] = None
 
 
 @dataclass
@@ -177,6 +185,9 @@ class SetupState:
 
     no_baseline_reason : str, optional
         Why the PR suite ran without a baseline, if it did
+
+    coupled_cases : list of str
+        The case directories of the coupled CIME tests
     """
 
     fork: str
@@ -193,6 +204,7 @@ class SetupState:
     jobs: List[Dict] = field(default_factory=list)
     baseline_polaris_hash: Optional[str] = None
     no_baseline_reason: Optional[str] = None
+    coupled_cases: List[str] = field(default_factory=list)
 
 
 @dataclass
@@ -497,6 +509,29 @@ def prepare_tree(repo: str, sha: str, tree: str) -> None:
     git_tools.add_worktree(repo, sha, tree)
 
 
+def init_all_submodules(tree: str) -> None:
+    """
+    Initialize all of a worktree's submodules, recursively, once, even when
+    several setups need them at the same time.  CIME's coupled builds need
+    the whole E3SM tree, not just the submodules Omega's build does.
+
+    Parameters
+    ----------
+    tree : str
+        The worktree, made with ``prepare_tree()``
+    """
+    ready = f'{tree}.all-submodules'
+    if os.path.exists(ready):
+        return
+    with _tree_lock(tree):
+        if not os.path.exists(ready):
+            git_tools.git(
+                ['submodule', 'update', '--init', '--recursive'], tree
+            )
+            with open(ready, 'w') as f:
+                f.write(f'{git_tools.rev_parse(tree, "HEAD")}\n')
+
+
 def check_same_filesystem(repo: str, dest: str, fix: str) -> None:
     """
     Refuse to make a worktree with submodules on another filesystem than
@@ -692,21 +727,35 @@ def polaris_suite(
             f'with {load_script} sourced in a clean login shell\n',
             flush=True,
         )
-        env = {
-            name: os.environ[name]
-            for name in LOGIN_ENV_VARS
-            if name in os.environ
-        }
-        command = (
-            f'source {shlex.quote(load_script)} && '
-            f'cd {shlex.quote(polaris_dir)} && {shlex.join(args)}'
-        )
-        args = ['/bin/bash', '-l', '-c', command]
+        env = get_login_env()
+        args = get_clean_shell_command(load_script, polaris_dir, args)
     else:
         env = None
     # provenance reads the Polaris commit from the directory Polaris runs in,
     # and the job script loads the environment Polaris was set up with
     subprocess.run(args, cwd=polaris_dir, env=env, check=True)
+
+
+def get_login_env() -> Dict[str, str]:
+    """The variables a clean login shell keeps from this environment"""
+    return {
+        name: os.environ[name] for name in LOGIN_ENV_VARS if name in os.environ
+    }
+
+
+def get_clean_shell_command(
+    script: str, work_dir: str, args: List[str]
+) -> List[str]:
+    """
+    The command that runs a command in a login shell, with a script that
+    loads its environment sourced first.  Run it with ``get_login_env()``
+    as its environment, so that it starts clean.
+    """
+    command = (
+        f'source {shlex.quote(script)} && cd {shlex.quote(work_dir)} && '
+        f'{shlex.join(args)}'
+    )
+    return ['/bin/bash', '-l', '-c', command]
 
 
 def set_up_ctests(
@@ -805,13 +854,16 @@ def submit_jobs(
             if machine in SERIAL_SUBMISSION and previous_id is not None:
                 dependency = previous_id
             try:
-                job.job_id = submit_job(
-                    job.script,
-                    job.work_dir,
-                    system,
-                    dependency,
-                    extra_args=SUBMIT_ARGS.get(machine),
-                )
+                if job.env_script is None:
+                    job.job_id = submit_job(
+                        job.script,
+                        job.work_dir,
+                        system,
+                        dependency,
+                        extra_args=SUBMIT_ARGS.get(machine),
+                    )
+                else:
+                    job.job_id = submit_case(job, dependency)
             except SubmissionError as exc:
                 raise SubmissionError(
                     f'{exc}\nThe jobs submitted before it are recorded in '
@@ -826,6 +878,53 @@ def submit_jobs(
         previous_id = job.job_id
         if job.name == 'baseline suite':
             baseline_id = job.job_id
+
+
+def submit_case(job: Job, dependency: Optional[str] = None) -> str:
+    """
+    Submit a CIME case with ``case.submit``, in a clean login shell with
+    its CIME environment loaded
+
+    Parameters
+    ----------
+    job : pr_test_setup.Job
+        The case's job, with its ``env_script``
+
+    dependency : str, optional
+        A job to wait for, whether or not it succeeds
+
+    Returns
+    -------
+    job_id : str
+        The id of the case's test job
+    """
+    assert job.env_script is not None
+    args = get_case_submit_args(job, dependency)
+    command = get_clean_shell_command(job.env_script, job.work_dir, args)
+    result = subprocess.run(
+        command,
+        env=get_login_env(),
+        capture_output=True,
+        text=True,
+    )
+    output = result.stdout + result.stderr
+    match = _CASE_JOB_ID.search(output)
+    if result.returncode != 0 or match is None:
+        raise SubmissionError(
+            f'case.submit in {job.work_dir} did not submit a job:\n'
+            f'{output.strip()}'
+        )
+    return match.group(1)
+
+
+def get_case_submit_args(
+    job: Job, dependency: Optional[str] = None
+) -> List[str]:
+    """The ``case.submit`` command for a CIME case's job"""
+    args = [f'./{job.script}']
+    if dependency is not None:
+        args.extend(['--prereq', dependency, '--prereq-allow-failure'])
+    return args
 
 
 def format_state(state: SetupState, row_dir: str, machine: str) -> str:
@@ -848,6 +947,12 @@ def format_state(state: SetupState, row_dir: str, machine: str) -> str:
         f'PR build:   {state.pr_build_dir}',
         f'PR suite:   {state.pr_work_dir}',
         f'CTests:     {state.ctest_dir}',
+    ]
+    lines.extend(
+        f'{"Coupled:" if index == 0 else "":12}{case_dir}'
+        for index, case_dir in enumerate(state.coupled_cases)
+    )
+    lines += [
         f'Warnings:   baseline build log '
         f'{state.baseline_build_log or "not found"}',
         '',
@@ -878,10 +983,21 @@ def format_state(state: SetupState, row_dir: str, machine: str) -> str:
                 dependency = state.baseline_job or _baseline_placeholder(state)
             if machine in SERIAL_SUBMISSION and previous is not None:
                 dependency = _job_placeholder(previous)
-            args = get_submit_args(
-                job['script'], system, dependency, SUBMIT_ARGS.get(machine)
-            )
-            lines.append(f'  cd {job["work_dir"]} && {shlex.join(args)}')
+            if job.get('env_script') is None:
+                args = get_submit_args(
+                    job['script'], system, dependency, SUBMIT_ARGS.get(machine)
+                )
+                lines.append(f'  cd {job["work_dir"]} && {shlex.join(args)}')
+            else:
+                case_job = Job(**job)
+                args = get_case_submit_args(case_job, dependency)
+                command = get_clean_shell_command(
+                    job['env_script'], job['work_dir'], args
+                )
+                login = ' '.join(
+                    f'{name}="${name}"' for name in LOGIN_ENV_VARS
+                )
+                lines.append(f'  env -i {login} {shlex.join(command)}')
             previous = job['name']
         lines.append(
             f'Then record each job id in {JOB_ID_FILENAME} in the directory '
