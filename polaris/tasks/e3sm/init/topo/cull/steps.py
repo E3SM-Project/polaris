@@ -114,6 +114,10 @@ def _get_cull_topo_config(filepath, base_mesh_step, mesh_name):
             'antarctic_boundary_convention',
             convention,
         )
+        min_cell_width = base_mesh_step.config.get(
+            'spherical_mesh', 'min_cell_width'
+        )
+        config.set('spherical_mesh', 'min_cell_width', min_cell_width)
         return config
 
     return e3sm_init.get_or_create_shared_config(

@@ -5,6 +5,7 @@ from polaris.mesh.connectivity import (
     connected_to_seeds,
     count_active_edges,
     has_active_vertex,
+    label_regions,
     seed_mask_from_points,
     transport_link_mask,
 )
@@ -129,6 +130,21 @@ def test_no_seeds_gives_nothing_connected():
     seeds = np.zeros(N_COLS * N_ROWS, dtype=bool)
 
     assert not connected_to_seeds(ds_mesh, mask, seeds).any()
+
+
+def test_regions_are_labeled_separately():
+    ds_mesh = hex_mesh(N_COLS, N_ROWS)
+    mask = np.zeros(N_COLS * N_ROWS, dtype=bool)
+    block = [cell_index(N_COLS, col, row) for col in range(2) for row in [0]]
+    island = cell_index(N_COLS, 6, 6)
+    mask[block] = True
+    mask[island] = True
+
+    label = label_regions(ds_mesh, mask)
+
+    assert label[block[0]] == label[block[1]]
+    assert label[island] != label[block[0]]
+    assert (label[~mask] == -1).all()
 
 
 def test_seed_mask_picks_the_nearest_cell():

@@ -4,6 +4,7 @@ from polaris.mesh.connectivity import (
     connected_to_seeds,
     count_active_edges,
     has_active_vertex,
+    label_regions,
     transport_link_mask,
 )
 
@@ -270,6 +271,7 @@ def check_critical_passages(
     ocean_cull_mask,
     ds_transects,
     logger,
+    dead_end_mask=None,
     max_cells=10,
 ):
     """
@@ -281,6 +283,11 @@ def check_critical_passages(
     mesh cannot support: either it is too coarse to resolve the strait, or
     the transect wanders onto land.  Either way the transect is the thing
     to fix, so the error names it.
+
+    Dead ends of the candidate ocean are the exception.  They form
+    cul-de-sacs, so removing one cannot close a passage; a passage cell
+    among them leads nowhere on this mesh, for example into a bay that is a
+    single cell.
 
     Parameters
     ----------
@@ -295,6 +302,10 @@ def check_critical_passages(
     logger : logging.Logger
         The logger for summary output
 
+    dead_end_mask : xarray.DataArray or numpy.ndarray, optional
+        The dead ends of the candidate ocean (1 for dead ends, 0 elsewhere),
+        whose removal from a passage is not counted
+
     max_cells : int, optional
         The maximum number of offending cell indices to report per transect
 
@@ -306,12 +317,23 @@ def check_critical_passages(
     culled = np.asarray(ocean_cull_mask) > 0
     cell_masks = ds_transects.transectCellMasks.values > 0
     names = [_decode(name) for name in ds_transects.transectNames.values]
+    if dead_end_mask is None:
+        dead_ends = np.zeros(culled.shape, dtype=bool)
+    else:
+        dead_ends = np.asarray(dead_end_mask) > 0
 
     problems: list[str] = []
     for index, name in enumerate(names):
+        on_passage = culled & cell_masks[:, index]
+        n_dead_ends = int(np.count_nonzero(on_passage & dead_ends))
+        if n_dead_ends > 0:
+            logger.info(
+                f'  {name!r} leads nowhere on this mesh: its '
+                f'{n_dead_ends} dead-end cells were removed.'
+            )
         _add_problem(
             problems,
-            mask=culled & cell_masks[:, index],
+            mask=on_passage & ~dead_ends,
             message=f'cells culled from the ocean on {name!r}',
             max_cells=max_cells,
         )
@@ -328,6 +350,102 @@ def check_critical_passages(
 
     logger.info(
         f'Critical ocean passage check passed: {len(names)} transects intact.'
+    )
+
+
+def check_sea_ice_removed_regions(
+    ds_mesh,
+    preliminary_ocean_cull_mask,
+    ocean_cull_mask,
+    max_region_cells,
+    max_region_area,
+    logger,
+    max_regions=10,
+):
+    """
+    Check that removing the cells in which sea ice would be trapped did not
+    remove a whole sea from the ocean.
+
+    The sea-ice criteria are meant to trim small pockets.  A large connected
+    region removed by them is a sea cut off from the rest of the ocean,
+    almost always because a strait leading to it is too narrow on this mesh
+    for sea ice to pass, and a critical ocean passage along that strait is
+    the fix.  A region counts as large only if it exceeds both limits: a
+    fjord on a fine mesh can be many cells, and a pocket of a few cells on a
+    coarse mesh can be a large area.
+
+    Parameters
+    ----------
+    ds_mesh : xarray.Dataset
+        The base mesh, with ``cellsOnCell``, ``nEdgesOnCell``, ``areaCell``,
+        ``latCell`` and ``lonCell``
+
+    preliminary_ocean_cull_mask : xarray.DataArray or numpy.ndarray
+        The ocean cull mask before the sea-ice criteria were applied (1
+        where cells are culled, 0 where they are kept)
+
+    ocean_cull_mask : xarray.DataArray or numpy.ndarray
+        The final ocean cull mask
+
+    max_region_cells : int
+        The number of cells a removed region may have before it can count
+        as a sea
+
+    max_region_area : float
+        The area in km^2 a removed region may have before it can count as
+        a sea
+
+    logger : logging.Logger
+        The logger for summary output
+
+    max_regions : int, optional
+        The maximum number of offending regions to report
+
+    Raises
+    ------
+    ValueError
+        If any removed region exceeds both limits
+    """
+    removed = np.logical_and(
+        np.asarray(preliminary_ocean_cull_mask) == 0,
+        np.asarray(ocean_cull_mask) > 0,
+    )
+    label = label_regions(ds_mesh, removed)
+    area = ds_mesh.areaCell.values * 1e-6
+    lat = ds_mesh.latCell.values
+    lon = ds_mesh.lonCell.values
+
+    regions = []
+    for region in np.unique(label[removed]):
+        cells = np.nonzero(label == region)[0]
+        region_area = float(area[cells].sum())
+        if cells.size > max_region_cells and region_area > max_region_area:
+            center_lat, center_lon = _center(lat[cells], lon[cells])
+            regions.append((region_area, cells.size, center_lat, center_lon))
+
+    if regions:
+        regions.sort(reverse=True)
+        lines = [
+            f'  {count} cells ({region_area:.3g} km^2) around latitude '
+            f'{center_lat:.1f}, longitude {center_lon:.1f}'
+            for region_area, count, center_lat, center_lon in regions[
+                :max_regions
+            ]
+        ]
+        message = (
+            'Removing the cells in which sea ice would be trapped removed '
+            'whole seas from the ocean.  A strait leading to each is '
+            'probably too narrow on this mesh for sea ice to pass, and a '
+            'critical ocean passage along it in geometric_features would '
+            'keep it open:\n' + '\n'.join(lines)
+        )
+        logger.error(message)
+        raise ValueError(message)
+
+    logger.info(
+        f'Sea-ice removal check passed: {int(removed.sum())} cells removed, '
+        f'in no region of more than both {max_region_cells} cells and '
+        f'{max_region_area:g} km^2.'
     )
 
 
@@ -353,3 +471,17 @@ def _add_problem(problems, mask, message, max_cells):
     if count > max_cells:
         listed = f'{listed}, ...'
     problems.append(f'  {count} {message}: {listed}')
+
+
+def _center(lat, lon):
+    """
+    Find the latitude and longitude in degrees of the center of a set of
+    cells, given in radians, by averaging on the unit sphere.
+    """
+    x = np.mean(np.cos(lat) * np.cos(lon))
+    y = np.mean(np.cos(lat) * np.sin(lon))
+    z = np.mean(np.sin(lat))
+    return (
+        float(np.degrees(np.arctan2(z, np.hypot(x, y)))),
+        float(np.degrees(np.arctan2(y, x))),
+    )
