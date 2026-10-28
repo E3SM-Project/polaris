@@ -25,14 +25,12 @@ from polaris.tasks.ocean.analysis.analysis_step import (
     VERT_COORD_FILENAME,
     AnalysisStep,
 )
-from polaris.tasks.ocean.analysis.climatology import (
-    VECTOR_RECONSTRUCTIONS,
-    find_climatology_file,
-)
+from polaris.tasks.ocean.analysis.climatology import VECTOR_RECONSTRUCTIONS
 from polaris.tasks.ocean.analysis.config_sections import map_section
 from polaris.tasks.ocean.analysis.heat_content_config import (
     get_elevation_ranges,
 )
+from polaris.tasks.ocean.analysis.ncclimo import find_climatology_file
 from polaris.tasks.ocean.analysis.sim_files import (
     time_mean_suffix,
     year_range_key,

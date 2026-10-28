@@ -1211,7 +1211,7 @@ The climatology is added as a **dependency** with
 `ncclimo` names its output `<caseid>_<season>_<start>_<end>_climo.nc` and
 those names are not known until it has run.  The reading step then finds one
 season's file with
-{py:func}`polaris.tasks.ocean.analysis.climatology.find_climatology_file`,
+{py:func}`polaris.tasks.ocean.analysis.ncclimo.find_climatology_file`,
 which globs on the season in the dependency's work directory --- and which
 also knows that `ncclimo` names the twelve monthly climatologies by month
 number rather than `JAN` through `DEC`.

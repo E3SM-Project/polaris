@@ -67,7 +67,6 @@
    climatology.Climatology.setup
    climatology.Climatology.run
    climatology.get_climatology_variables
-   climatology.find_climatology_file
 
    climatology_maps.ClimatologyMaps
    climatology_maps.ClimatologyMaps.setup
@@ -95,6 +94,9 @@
    moc.Moc
    moc.Moc.setup
    moc.Moc.run
+
+   ncclimo.run_ncclimo
+   ncclimo.find_climatology_file
 
    publish.Publish
    publish.Publish.run
