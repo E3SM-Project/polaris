@@ -763,6 +763,9 @@
 
    viz.VizDynamicAdjustmentStep
    viz.VizDynamicAdjustmentStep.run
+   viz.TracerChange
+   viz.tracer_changes
+   viz.plot_tracer_changes
 ```
 
 ### seamount
