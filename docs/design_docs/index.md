@@ -9,6 +9,7 @@ global_ocean_forward
 global_ocean_init
 horiz_press_grad_reference
 land_locked_cells
+landice_component
 mixed_layer_eddies
 ocean_analysis
 ocean_analysis_initial

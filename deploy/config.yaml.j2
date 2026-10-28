@@ -112,6 +112,18 @@ spack:
   # mache spack env template for the selected machine/compiler/mpi.
   specs_template: "deploy/spack.yaml.j2"
 
+  # Optional overrides for the Spack, spack-packages and e3sm-spack-packages
+  # sources that mache pins (mache/spack/pins.yaml), each a tag, commit or
+  # branch per repository.  e3sm-spack-packages declares the build languages
+  # of trilinos-for-albany and albany, which Spack 1.x needs to give them
+  # compilers, and fixes trilinos-for-albany's nvcc_wrapper for CUDA, after
+  # v2026.06.2, which mache 5.3.0 pins.  Replace this with a tag once there
+  # is one.
+  pins:
+    repos:
+      e3sm:
+        commit: c26dfa452f799bae4d4a08f30709ed4b8d96b5ba
+
   # Optional spack build settings
   tmpdir: null
   mirror: null

@@ -12,7 +12,7 @@ source load_polaris_pm-cpu_gnu_mpich.sh
 Then, you can build the MPAS model with
 
 ```bash
-make [DEBUG=true] gnu-cray
+make [DEBUG=true] [ALBANY=true] gnu-cray
 ```
 
 ## pm-cpu, intel
@@ -28,4 +28,20 @@ To build MPAS components, use:
 
 ```bash
 make [DEBUG=true] intel-cray
+```
+
+## pm-gpu, gnugpu
+
+MALI is supported on Perlmutter's GPU nodes with a GPU build of Albany
+(see {ref}`dev-landice-albany`).  Deploy with `--machine pm-gpu` and
+`--with-albany`, then source a load script similar to:
+
+```bash
+source load_polaris_pm-gpu_gnugpu_mpich.sh
+```
+
+Then, you can build MALI with
+
+```bash
+make [DEBUG=true] ALBANY=true gnu-cray
 ```
