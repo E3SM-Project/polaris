@@ -6,13 +6,15 @@ The checkout of ``develop`` lives at ``<cron_root>/omega_develop`` and is
 brought up to date each night.  The build, the job that runs the CTests and
 the CDash submission all go through ``utils/omega/ctest/omega_ctest.py
 --dashboard``; this task only keeps the checkout current and picks the build
-name, ``unitest-develop-<compiler>``, that CDash's group rules expect.
+name, ``unitest-develop-<compiler>``, that CDash's group rules expect.  With
+``--build_in_job``, ``omega_ctest.py`` itself runs in a job, which builds
+Omega and runs the CTests on the same node.
 """
 
 import os
 import subprocess
 
-from common import omega_ctest_command, parse_task_args, run
+from common import omega_ctest_command, parse_task_args, run, run_omega_ctest
 
 OMEGA_REMOTE = 'https://github.com/E3SM-Project/Omega.git'
 OMEGA_BRANCH = 'develop'
@@ -38,7 +40,9 @@ def main():
         build_name=f'unitest-{OMEGA_BRANCH}-{args.compiler}',
         extra=['--submit', '--cdash_submit'],
     )
-    run(command, cwd=work_dir)
+    run_omega_ctest(
+        command, work_dir, args, job_name=f'omega_cdash_{args.compiler}'
+    )
 
 
 def update_checkout(omega):

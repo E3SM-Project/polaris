@@ -4,9 +4,10 @@ Nightly task: run the ``omega_nightly`` suite against the Omega submodule
 and submit the results to CDash.
 
 The build goes through ``omega_ctest.py --dashboard --build_only`` so CTest
-records it, the suite runs in the job ``polaris suite`` writes, and the
-task results are turned into ``Test.xml`` beside the recorded build before
-the dashboard script's submit stage sends both.  The build name,
+records it (in a job of its own with ``--build_in_job``), the suite runs in
+the job ``polaris suite`` writes, and the task results are turned into
+``Test.xml`` beside the recorded build before the dashboard script's submit
+stage sends both.  A build that fails is submitted on its own.  The build name,
 ``polaris_omega_nightly-<compiler>``, is what CDash's group rules file into
 ``Polaris_Omega_Nightly_Tests``.
 """
@@ -25,6 +26,7 @@ from common import (
     omega_ctest_command,
     parse_task_args,
     run,
+    run_omega_ctest,
     submit_and_wait,
 )
 
@@ -50,9 +52,13 @@ def main():
         args=args,
         branch=branch,
         build_name=build_name,
-        extra=['--build_only'],
+        # --cdash_submit with --build_only submits only a failed build; a
+        # good one goes to CDash below, with the suite's results
+        extra=['--build_only', '--cdash_submit'],
     )
-    run(command, cwd=work_dir)
+    run_omega_ctest(
+        command, work_dir, args, job_name=f'polaris_cdash_{args.compiler}'
+    )
     build_dir = os.path.join(
         work_dir, 'build_omega', f'build_{args.machine}_{args.compiler}'
     )

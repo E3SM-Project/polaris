@@ -56,11 +56,17 @@ cron-scripts/
    [`utils/omega/ctest/omega_ctest.py`](../utils/omega/ctest/README.md)
    with `--dashboard --submit --cdash_submit`, which builds Omega on the
    login node, submits the job that runs the CTests, and submits the
-   results to CDash from that job.
+   results to CDash from that job.  On a machine whose config sets
+   `build_in_job = true`, the task instead runs `omega_ctest.py` in a job,
+   which builds Omega and runs the CTests on the same compute node.
 5. `polaris_cdash.py` builds the Omega submodule the same way with
-   `--build_only`, sets up the `omega_nightly` suite against that build,
-   submits the job `polaris suite` wrote and waits for it, writes the task
-   results as `Test.xml` beside the recorded build, and submits both.
+   `--build_only` (in a job of its own with `build_in_job = true`), sets up
+   the `omega_nightly` suite against that build, submits the job
+   `polaris suite` wrote and waits for it, writes the task results as
+   `Test.xml` beside the recorded build, and submits both.
+
+If the build fails, both tasks submit the failed build to CDash, so the
+compiler errors show on the dashboard rather than only in the logs.
 
 Work directories are under `<cron root>/tasks/<task>/<compiler>/`.  The
 Omega checkout, the pixi cache (`<cron root>/pixi_cache`, kept off `/tmp`
@@ -101,10 +107,17 @@ whose times are UTC.  `machines/pm-cpu.cfg` and `machines/pm-gpu.cfg` say
 mail in place of `MAILTO`) and installs it with `scrontab`.  Two things
 follow from the envelope:
 
-* Omega's own `omega_build.sh` is `make -j 10` there and is killed at
-  4 GiB, so those configs set `build_jobs = 2`, which `omega_ctest.py`
-  honors with a `make -j 2` in place of `omega_build.sh`.  The build takes
-  about thirteen minutes instead of two.
+* Omega cannot be built in 4 GiB.  Omega's own `omega_build.sh` is
+  `make -j 10` there and is killed, and by October 2026 even `make -j 2`
+  reached the limit: two of Omega's sources, compiled side by side, took
+  about 1.85 GiB each, and the compiler's temporary files go to the `/tmp`
+  that counts against the same 4 GiB.  `make -j 1` would fit, but it takes
+  about 25 minutes a build.  So those configs set `build_in_job = true`, and each
+  task builds in a one-node job in the `debug` QOS (`gpu_debug` on
+  pm-gpu), whose queue wait is typically a minute or two and seldom more
+  than seven.  The build takes a few minutes there.  `omega_cdash` adds no
+  job by this, since it runs the CTests in the job that builds;
+  `polaris_cdash` adds one, since its suite has its own job.
 * A scrontab job is itself a Slurm job, so `launch_all.sh` unsets every
   `SLURM_*` variable before anything runs.  Otherwise `sbatch` inherits
   `SLURM_MEM_PER_CPU` and `srun` refuses a full node, and `omega_ctest.py`
@@ -123,8 +136,10 @@ scratch there ([#630](https://github.com/E3SM-Project/polaris/issues/630)).
    refuse ones it does not list for Omega on that machine.  Omega picks the
    architecture from the compiler, as it does for every other Polaris
    build, so the nightly tests what developers build.  Set
-   `scheduler = scrontab`, `account` and `build_jobs` if the machine runs
-   cron jobs the way Perlmutter does.
+   `scheduler = scrontab`, `account` and `build_in_job` if the machine runs
+   cron jobs the way Perlmutter does.  Otherwise leave the build on the
+   login node, which spares the queue wait; `build_jobs` caps its
+   `make -j` if a login node cannot afford Omega's own.
 3. Add `machines/<machine>.sh` with the module loads and paths cron needs.
 4. Run `install.sh` as above.
 

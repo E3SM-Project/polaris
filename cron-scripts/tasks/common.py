@@ -6,8 +6,10 @@ compiler has been sourced, so ``polaris`` and ``mache`` are importable and
 """
 
 import argparse
+import glob
 import importlib.util
 import os
+import shlex
 import subprocess
 import sys
 import time
@@ -15,6 +17,13 @@ import time
 import yaml
 
 from polaris.config import PolarisConfigParser
+from polaris.job import write_job_script
+
+# a job that builds Omega (and, for omega_cdash, runs its CTests) asks for the
+# debug target, whose queue wait is minutes where the regular one's is hours,
+# and so takes the debug wall-time limit of 30 minutes
+BUILD_JOB_TARGET = 'debug'
+BUILD_JOB_WALL_TIME = '0:30:00'
 
 
 def parse_task_args(description):
@@ -59,6 +68,12 @@ def parse_task_args(description):
         type=int,
         help="Cap the Omega build at make -j BUILD_JOBS (default: Omega's "
         'own omega_build.sh)',
+    )
+    parser.add_argument(
+        '--build_in_job',
+        action='store_true',
+        help='Build Omega in a job on a compute node rather than where the '
+        'task runs',
     )
     args = parser.parse_args()
     args.cron_root = os.path.abspath(args.cron_root)
@@ -163,6 +178,61 @@ def omega_ctest_command(polaris_root, args, branch, build_name, extra):
         command.extend(['--build_jobs', str(args.build_jobs)])
     command.extend(extra)
     return command
+
+
+def run_omega_ctest(command, work_dir, args, job_name):
+    """
+    Run an ``omega_ctest.py`` command from ``work_dir``: here, or with
+    ``--build_in_job`` in a one-node job, where ``omega_ctest.py`` sees that
+    it is on a compute node and runs any CTests in the same job.
+
+    Parameters
+    ----------
+    command : list of str
+        From :py:func:`omega_ctest_command`
+
+    work_dir : str
+        Where to run it, and where the job script and its output go
+
+    args : argparse.Namespace
+        From :py:func:`parse_task_args`
+
+    job_name : str
+        The name of the job, and of its script and output
+    """
+    if not args.build_in_job:
+        run(command, cwd=work_dir)
+        return
+
+    config = machine_config(args.machine)
+    config.set('job', 'job_name', job_name)
+    config.set('job', 'scheduler_target', BUILD_JOB_TARGET)
+    config.set('job', 'wall_time', BUILD_JOB_WALL_TIME)
+    if args.account is not None:
+        config.set('parallel', 'account', args.account)
+
+    job_script = os.path.join(work_dir, f'{job_name}.sh')
+    write_job_script(
+        config=config,
+        machine=args.machine,
+        work_dir=work_dir,
+        nodes=1,
+        script_filename=job_script,
+        run_command=shlex.join(command),
+    )
+
+    output_pattern = os.path.join(work_dir, f'{job_name}.o*')
+    for old_output in glob.glob(output_pattern):
+        os.remove(old_output)
+    try:
+        submit_and_wait(job_script, config)
+    finally:
+        # the build and CTest output is in the job's output, not the task log
+        for output in sorted(glob.glob(output_pattern)):
+            print(f'\n===== {output} =====')
+            with open(output, 'r', encoding='utf-8', errors='replace') as f:
+                sys.stdout.write(f.read())
+            sys.stdout.flush()
 
 
 def machine_config(machine):
