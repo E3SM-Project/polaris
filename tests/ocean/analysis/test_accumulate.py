@@ -27,6 +27,7 @@ from polaris.tasks.ocean.analysis.accumulate import (
     read_stamp,
 )
 from polaris.tasks.ocean.analysis.sim_files import SimFile, year_range_key
+from tests.ocean.analysis.test_sim_files import omega_month_time
 
 CACHE = 'counter_cache.nc'
 
@@ -340,8 +341,9 @@ def _link_inputs(step):
     Symlink the inputs the step declared, which ``polaris setup`` does after
     ``setup()`` returns
 
-    Only the inherited caches are on disk here; the monthly means are never
-    read, since the kernel is a stub.
+    Only the inherited caches are on disk to be linked.  The kernel is a
+    stub, so each monthly mean is only its time bounds, which the step
+    checks against the month before handing it to the kernel.
     """
     for entry in step.input_data:
         target = entry['target']
@@ -350,6 +352,10 @@ def _link_inputs(step):
         link = os.path.join(step.work_dir, entry['filename'])
         if not os.path.exists(link):
             os.symlink(target, link)
+    for year, month, filename in step.months:
+        path = step.work_path(filename)
+        if not os.path.exists(path):
+            omega_month_time(year, month).to_netcdf(path)
 
 
 def _run(product_dir, start_year, end_year, complete=True, **kwargs):

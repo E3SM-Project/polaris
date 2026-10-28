@@ -46,6 +46,7 @@ import re
 import xarray as xr
 
 from polaris.tasks.ocean.analysis.analysis_step import AnalysisStep
+from polaris.tasks.ocean.analysis.sim_files import check_month_covered
 
 # What Polaris writes in a step's work directory when the step finishes.  A
 # cache in a directory without it was left by a run that was interrupted.
@@ -287,6 +288,7 @@ class Accumulator(AnalysisStep):
         self._write_cache(rows)
         for year, month, filename in to_compute:
             self.logger.info(f'  {year:04d}-{month:02d}')
+            check_month_covered(self.work_path(filename), year, month)
             ds_month = self.compute_month(
                 self.work_path(filename), year, month
             )

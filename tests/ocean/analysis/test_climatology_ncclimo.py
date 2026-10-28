@@ -23,10 +23,8 @@ import xarray as xr
 
 from polaris.config import PolarisConfigParser
 from polaris.tasks.ocean import Ocean
-from polaris.tasks.ocean.analysis.climatology import (
-    Climatology,
-    find_climatology_file,
-)
+from polaris.tasks.ocean.analysis.climatology import Climatology
+from polaris.tasks.ocean.analysis.ncclimo import find_climatology_file
 from polaris.tasks.ocean.analysis.sim_files import SimulationFiles
 
 # the noleap calendar the simulation is run on
