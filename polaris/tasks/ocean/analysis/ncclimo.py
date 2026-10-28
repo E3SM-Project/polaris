@@ -12,6 +12,8 @@ import os
 
 from mpas_tools.logging import check_call
 
+from polaris.tasks.ocean.analysis.sim_files import check_month_covered
+
 # ``ncclimo`` in background mode runs one process per month, so this is what
 # a step that gives it more than one core will start and therefore what it
 # declares.  The pool is sized from this number and never from the size of
@@ -58,7 +60,19 @@ def run_ncclimo(step, variables, seasons):
     seasons : list of str
         The seasons to compute beside the twelve monthly climatologies, e.g.
         ``['ANN', 'DJF']``
+
+    Raises
+    ------
+    ValueError
+        If a file's time bounds are not the month ``ncclimo`` would take it
+        to cover
     """
+    for index, filename in enumerate(step.input_filenames):
+        check_month_covered(
+            step.work_path(filename),
+            year=step.start_year + index // 12,
+            month=index % 12 + 1,
+        )
     check_call(
         _ncclimo_args(step, variables, seasons),
         step.logger,
