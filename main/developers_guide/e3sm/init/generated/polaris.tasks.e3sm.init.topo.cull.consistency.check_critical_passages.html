@@ -19,7 +19,7 @@
     <script src="../../../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../../../genindex.html" />
     <link rel="search" title="Search" href="../../../../search.html" />
-    <link rel="next" title="polaris.tasks.e3sm.init.topo.cull.dc_edge_diagnostics.check_ocean_dc_edge" href="polaris.tasks.e3sm.init.topo.cull.dc_edge_diagnostics.check_ocean_dc_edge.html" />
+    <link rel="next" title="polaris.tasks.e3sm.init.topo.cull.consistency.check_sea_ice_removed_regions" href="polaris.tasks.e3sm.init.topo.cull.consistency.check_sea_ice_removed_regions.html" />
     <link rel="prev" title="polaris.tasks.e3sm.init.topo.cull.consistency.check_land_locked_criteria" href="polaris.tasks.e3sm.init.topo.cull.consistency.check_land_locked_criteria.html" />
     <link href="../../../../_static/style.css" rel="stylesheet" type="text/css">
 
@@ -133,7 +133,7 @@
 <h1>polaris.tasks.e3sm.init.topo.cull.consistency.check_critical_passages<a class="headerlink" href="#polaris-tasks-e3sm-init-topo-cull-consistency-check-critical-passages" title="Link to this heading"></a></h1>
 <dl class="py function">
 <dt class="sig sig-object py" id="polaris.tasks.e3sm.init.topo.cull.consistency.check_critical_passages">
-<span class="sig-prename descclassname"><span class="pre">polaris.tasks.e3sm.init.topo.cull.consistency.</span></span><span class="sig-name descname"><span class="pre">check_critical_passages</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ocean_cull_mask</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ds_transects</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">logger</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_cells</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/polaris/tasks/e3sm/init/topo/cull/consistency.html#check_critical_passages"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#polaris.tasks.e3sm.init.topo.cull.consistency.check_critical_passages" title="Link to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">polaris.tasks.e3sm.init.topo.cull.consistency.</span></span><span class="sig-name descname"><span class="pre">check_critical_passages</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ocean_cull_mask</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ds_transects</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">logger</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dead_end_mask</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_cells</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/polaris/tasks/e3sm/init/topo/cull/consistency.html#check_critical_passages"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#polaris.tasks.e3sm.init.topo.cull.consistency.check_critical_passages" title="Link to this definition"></a></dt>
 <dd><p>Check that no cell on a critical ocean passage was culled from the
 ocean.</p>
 <p>A critical passage exists to keep a strait open that the topography
@@ -141,6 +141,10 @@ alone would close, so a cell removed from one is a passage that the
 mesh cannot support: either it is too coarse to resolve the strait, or
 the transect wanders onto land.  Either way the transect is the thing
 to fix, so the error names it.</p>
+<p>Dead ends of the candidate ocean are the exception.  They form
+cul-de-sacs, so removing one cannot close a passage; a passage cell
+among them leads nowhere on this mesh, for example into a bay that is a
+single cell.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -149,6 +153,8 @@ culled, 0 where they are kept)</p></li>
 <li><p><strong>ds_transects</strong> (<a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.Dataset.html#xarray.Dataset" title="(in xarray v2026.9.0)"><em>xarray.Dataset</em></a>) – The widened critical ocean transects, with <code class="docutils literal notranslate"><span class="pre">transectCellMasks</span></code>
 and <code class="docutils literal notranslate"><span class="pre">transectNames</span></code></p></li>
 <li><p><strong>logger</strong> (<a class="reference external" href="https://docs.python.org/3/library/logging.html#logging.Logger" title="(in Python v3.15)"><em>logging.Logger</em></a>) – The logger for summary output</p></li>
+<li><p><strong>dead_end_mask</strong> (<a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="(in xarray v2026.9.0)"><em>xarray.DataArray</em></a><em> or </em><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.5)"><em>numpy.ndarray</em></a><em>, </em><em>optional</em>) – The dead ends of the candidate ocean (1 for dead ends, 0 elsewhere),
+whose removal from a passage is not counted</p></li>
 <li><p><strong>max_cells</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.15)"><em>int</em></a><em>, </em><em>optional</em>) – The maximum number of offending cell indices to report per transect</p></li>
 </ul>
 </dd>
@@ -165,7 +171,7 @@ and <code class="docutils literal notranslate"><span class="pre">transectNames</
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
         <a href="polaris.tasks.e3sm.init.topo.cull.consistency.check_land_locked_criteria.html" class="btn btn-neutral float-left" title="polaris.tasks.e3sm.init.topo.cull.consistency.check_land_locked_criteria" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="polaris.tasks.e3sm.init.topo.cull.dc_edge_diagnostics.check_ocean_dc_edge.html" class="btn btn-neutral float-right" title="polaris.tasks.e3sm.init.topo.cull.dc_edge_diagnostics.check_ocean_dc_edge" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="polaris.tasks.e3sm.init.topo.cull.consistency.check_sea_ice_removed_regions.html" class="btn btn-neutral float-right" title="polaris.tasks.e3sm.init.topo.cull.consistency.check_sea_ice_removed_regions" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>

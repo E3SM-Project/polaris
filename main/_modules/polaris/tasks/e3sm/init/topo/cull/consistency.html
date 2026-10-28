@@ -475,6 +475,7 @@ window.runMermaid = runMermaid;</script>
     <span class="n">connected_to_seeds</span><span class="p">,</span>
     <span class="n">count_active_edges</span><span class="p">,</span>
     <span class="n">has_active_vertex</span><span class="p">,</span>
+    <span class="n">label_regions</span><span class="p">,</span>
     <span class="n">transport_link_mask</span><span class="p">,</span>
 <span class="p">)</span>
 
@@ -749,6 +750,7 @@ window.runMermaid = runMermaid;</script>
     <span class="n">ocean_cull_mask</span><span class="p">,</span>
     <span class="n">ds_transects</span><span class="p">,</span>
     <span class="n">logger</span><span class="p">,</span>
+    <span class="n">dead_end_mask</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
     <span class="n">max_cells</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>
 <span class="p">):</span>
 <span class="w">    </span><span class="sd">"""</span>
@@ -760,6 +762,11 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">    mesh cannot support: either it is too coarse to resolve the strait, or</span>
 <span class="sd">    the transect wanders onto land.  Either way the transect is the thing</span>
 <span class="sd">    to fix, so the error names it.</span>
+
+<span class="sd">    Dead ends of the candidate ocean are the exception.  They form</span>
+<span class="sd">    cul-de-sacs, so removing one cannot close a passage; a passage cell</span>
+<span class="sd">    among them leads nowhere on this mesh, for example into a bay that is a</span>
+<span class="sd">    single cell.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
@@ -774,6 +781,10 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">    logger : logging.Logger</span>
 <span class="sd">        The logger for summary output</span>
 
+<span class="sd">    dead_end_mask : xarray.DataArray or numpy.ndarray, optional</span>
+<span class="sd">        The dead ends of the candidate ocean (1 for dead ends, 0 elsewhere),</span>
+<span class="sd">        whose removal from a passage is not counted</span>
+
 <span class="sd">    max_cells : int, optional</span>
 <span class="sd">        The maximum number of offending cell indices to report per transect</span>
 
@@ -785,12 +796,23 @@ window.runMermaid = runMermaid;</script>
     <span class="n">culled</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">ocean_cull_mask</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span>
     <span class="n">cell_masks</span> <span class="o">=</span> <span class="n">ds_transects</span><span class="o">.</span><span class="n">transectCellMasks</span><span class="o">.</span><span class="n">values</span> <span class="o">&gt;</span> <span class="mi">0</span>
     <span class="n">names</span> <span class="o">=</span> <span class="p">[</span><span class="n">_decode</span><span class="p">(</span><span class="n">name</span><span class="p">)</span> <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">ds_transects</span><span class="o">.</span><span class="n">transectNames</span><span class="o">.</span><span class="n">values</span><span class="p">]</span>
+    <span class="k">if</span> <span class="n">dead_end_mask</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">dead_ends</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">culled</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">bool</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">dead_ends</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">dead_end_mask</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span>
 
     <span class="n">problems</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="k">for</span> <span class="n">index</span><span class="p">,</span> <span class="n">name</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">names</span><span class="p">):</span>
+        <span class="n">on_passage</span> <span class="o">=</span> <span class="n">culled</span> <span class="o">&amp;</span> <span class="n">cell_masks</span><span class="p">[:,</span> <span class="n">index</span><span class="p">]</span>
+        <span class="n">n_dead_ends</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">count_nonzero</span><span class="p">(</span><span class="n">on_passage</span> <span class="o">&amp;</span> <span class="n">dead_ends</span><span class="p">))</span>
+        <span class="k">if</span> <span class="n">n_dead_ends</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s1">'  </span><span class="si">{</span><span class="n">name</span><span class="si">!r}</span><span class="s1"> leads nowhere on this mesh: its '</span>
+                <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">n_dead_ends</span><span class="si">}</span><span class="s1"> dead-end cells were removed.'</span>
+            <span class="p">)</span>
         <span class="n">_add_problem</span><span class="p">(</span>
             <span class="n">problems</span><span class="p">,</span>
-            <span class="n">mask</span><span class="o">=</span><span class="n">culled</span> <span class="o">&amp;</span> <span class="n">cell_masks</span><span class="p">[:,</span> <span class="n">index</span><span class="p">],</span>
+            <span class="n">mask</span><span class="o">=</span><span class="n">on_passage</span> <span class="o">&amp;</span> <span class="o">~</span><span class="n">dead_ends</span><span class="p">,</span>
             <span class="n">message</span><span class="o">=</span><span class="sa">f</span><span class="s1">'cells culled from the ocean on </span><span class="si">{</span><span class="n">name</span><span class="si">!r}</span><span class="s1">'</span><span class="p">,</span>
             <span class="n">max_cells</span><span class="o">=</span><span class="n">max_cells</span><span class="p">,</span>
         <span class="p">)</span>
@@ -807,6 +829,105 @@ window.runMermaid = runMermaid;</script>
 
     <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
         <span class="sa">f</span><span class="s1">'Critical ocean passage check passed: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">names</span><span class="p">)</span><span class="si">}</span><span class="s1"> transects intact.'</span>
+    <span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="check_sea_ice_removed_regions">
+<a class="viewcode-back" href="../../../../../../../developers_guide/e3sm/init/generated/polaris.tasks.e3sm.init.topo.cull.consistency.check_sea_ice_removed_regions.html#polaris.tasks.e3sm.init.topo.cull.consistency.check_sea_ice_removed_regions">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">check_sea_ice_removed_regions</span><span class="p">(</span>
+    <span class="n">ds_mesh</span><span class="p">,</span>
+    <span class="n">preliminary_ocean_cull_mask</span><span class="p">,</span>
+    <span class="n">ocean_cull_mask</span><span class="p">,</span>
+    <span class="n">max_region_cells</span><span class="p">,</span>
+    <span class="n">max_region_area</span><span class="p">,</span>
+    <span class="n">logger</span><span class="p">,</span>
+    <span class="n">max_regions</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Check that removing the cells in which sea ice would be trapped did not</span>
+<span class="sd">    remove a whole sea from the ocean.</span>
+
+<span class="sd">    The sea-ice criteria are meant to trim small pockets.  A large connected</span>
+<span class="sd">    region removed by them is a sea cut off from the rest of the ocean,</span>
+<span class="sd">    almost always because a strait leading to it is too narrow on this mesh</span>
+<span class="sd">    for sea ice to pass, and a critical ocean passage along that strait is</span>
+<span class="sd">    the fix.  A region counts as large only if it exceeds both limits: a</span>
+<span class="sd">    fjord on a fine mesh can be many cells, and a pocket of a few cells on a</span>
+<span class="sd">    coarse mesh can be a large area.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    ds_mesh : xarray.Dataset</span>
+<span class="sd">        The base mesh, with ``cellsOnCell``, ``nEdgesOnCell``, ``areaCell``,</span>
+<span class="sd">        ``latCell`` and ``lonCell``</span>
+
+<span class="sd">    preliminary_ocean_cull_mask : xarray.DataArray or numpy.ndarray</span>
+<span class="sd">        The ocean cull mask before the sea-ice criteria were applied (1</span>
+<span class="sd">        where cells are culled, 0 where they are kept)</span>
+
+<span class="sd">    ocean_cull_mask : xarray.DataArray or numpy.ndarray</span>
+<span class="sd">        The final ocean cull mask</span>
+
+<span class="sd">    max_region_cells : int</span>
+<span class="sd">        The number of cells a removed region may have before it can count</span>
+<span class="sd">        as a sea</span>
+
+<span class="sd">    max_region_area : float</span>
+<span class="sd">        The area in km^2 a removed region may have before it can count as</span>
+<span class="sd">        a sea</span>
+
+<span class="sd">    logger : logging.Logger</span>
+<span class="sd">        The logger for summary output</span>
+
+<span class="sd">    max_regions : int, optional</span>
+<span class="sd">        The maximum number of offending regions to report</span>
+
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    ValueError</span>
+<span class="sd">        If any removed region exceeds both limits</span>
+<span class="sd">    """</span>
+    <span class="n">removed</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">logical_and</span><span class="p">(</span>
+        <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">preliminary_ocean_cull_mask</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">,</span>
+        <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">ocean_cull_mask</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">label</span> <span class="o">=</span> <span class="n">label_regions</span><span class="p">(</span><span class="n">ds_mesh</span><span class="p">,</span> <span class="n">removed</span><span class="p">)</span>
+    <span class="n">area</span> <span class="o">=</span> <span class="n">ds_mesh</span><span class="o">.</span><span class="n">areaCell</span><span class="o">.</span><span class="n">values</span> <span class="o">*</span> <span class="mf">1e-6</span>
+    <span class="n">lat</span> <span class="o">=</span> <span class="n">ds_mesh</span><span class="o">.</span><span class="n">latCell</span><span class="o">.</span><span class="n">values</span>
+    <span class="n">lon</span> <span class="o">=</span> <span class="n">ds_mesh</span><span class="o">.</span><span class="n">lonCell</span><span class="o">.</span><span class="n">values</span>
+
+    <span class="n">regions</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">region</span> <span class="ow">in</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">label</span><span class="p">[</span><span class="n">removed</span><span class="p">]):</span>
+        <span class="n">cells</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nonzero</span><span class="p">(</span><span class="n">label</span> <span class="o">==</span> <span class="n">region</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">region_area</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">area</span><span class="p">[</span><span class="n">cells</span><span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">())</span>
+        <span class="k">if</span> <span class="n">cells</span><span class="o">.</span><span class="n">size</span> <span class="o">&gt;</span> <span class="n">max_region_cells</span> <span class="ow">and</span> <span class="n">region_area</span> <span class="o">&gt;</span> <span class="n">max_region_area</span><span class="p">:</span>
+            <span class="n">center_lat</span><span class="p">,</span> <span class="n">center_lon</span> <span class="o">=</span> <span class="n">_center</span><span class="p">(</span><span class="n">lat</span><span class="p">[</span><span class="n">cells</span><span class="p">],</span> <span class="n">lon</span><span class="p">[</span><span class="n">cells</span><span class="p">])</span>
+            <span class="n">regions</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">region_area</span><span class="p">,</span> <span class="n">cells</span><span class="o">.</span><span class="n">size</span><span class="p">,</span> <span class="n">center_lat</span><span class="p">,</span> <span class="n">center_lon</span><span class="p">))</span>
+
+    <span class="k">if</span> <span class="n">regions</span><span class="p">:</span>
+        <span class="n">regions</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">reverse</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">lines</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="sa">f</span><span class="s1">'  </span><span class="si">{</span><span class="n">count</span><span class="si">}</span><span class="s1"> cells (</span><span class="si">{</span><span class="n">region_area</span><span class="si">:</span><span class="s1">.3g</span><span class="si">}</span><span class="s1"> km^2) around latitude '</span>
+            <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">center_lat</span><span class="si">:</span><span class="s1">.1f</span><span class="si">}</span><span class="s1">, longitude </span><span class="si">{</span><span class="n">center_lon</span><span class="si">:</span><span class="s1">.1f</span><span class="si">}</span><span class="s1">'</span>
+            <span class="k">for</span> <span class="n">region_area</span><span class="p">,</span> <span class="n">count</span><span class="p">,</span> <span class="n">center_lat</span><span class="p">,</span> <span class="n">center_lon</span> <span class="ow">in</span> <span class="n">regions</span><span class="p">[</span>
+                <span class="p">:</span><span class="n">max_regions</span>
+            <span class="p">]</span>
+        <span class="p">]</span>
+        <span class="n">message</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="s1">'Removing the cells in which sea ice would be trapped removed '</span>
+            <span class="s1">'whole seas from the ocean.  A strait leading to each is '</span>
+            <span class="s1">'probably too narrow on this mesh for sea ice to pass, and a '</span>
+            <span class="s1">'critical ocean passage along it in geometric_features would '</span>
+            <span class="s1">'keep it open:</span><span class="se">\n</span><span class="s1">'</span> <span class="o">+</span> <span class="s1">'</span><span class="se">\n</span><span class="s1">'</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">lines</span><span class="p">)</span>
+        <span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="n">message</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">message</span><span class="p">)</span>
+
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+        <span class="sa">f</span><span class="s1">'Sea-ice removal check passed: </span><span class="si">{</span><span class="nb">int</span><span class="p">(</span><span class="n">removed</span><span class="o">.</span><span class="n">sum</span><span class="p">())</span><span class="si">}</span><span class="s1"> cells removed, '</span>
+        <span class="sa">f</span><span class="s1">'in no region of more than both </span><span class="si">{</span><span class="n">max_region_cells</span><span class="si">}</span><span class="s1"> cells and '</span>
+        <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">max_region_area</span><span class="si">:</span><span class="s1">g</span><span class="si">}</span><span class="s1"> km^2.'</span>
     <span class="p">)</span></div>
 
 
@@ -833,6 +954,20 @@ window.runMermaid = runMermaid;</script>
     <span class="k">if</span> <span class="n">count</span> <span class="o">&gt;</span> <span class="n">max_cells</span><span class="p">:</span>
         <span class="n">listed</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">listed</span><span class="si">}</span><span class="s1">, ...'</span>
     <span class="n">problems</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s1">'  </span><span class="si">{</span><span class="n">count</span><span class="si">}</span><span class="s1"> </span><span class="si">{</span><span class="n">message</span><span class="si">}</span><span class="s1">: </span><span class="si">{</span><span class="n">listed</span><span class="si">}</span><span class="s1">'</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_center</span><span class="p">(</span><span class="n">lat</span><span class="p">,</span> <span class="n">lon</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Find the latitude and longitude in degrees of the center of a set of</span>
+<span class="sd">    cells, given in radians, by averaging on the unit sphere.</span>
+<span class="sd">    """</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">lat</span><span class="p">)</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">lon</span><span class="p">))</span>
+    <span class="n">y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">lat</span><span class="p">)</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">lon</span><span class="p">))</span>
+    <span class="n">z</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">lat</span><span class="p">))</span>
+    <span class="k">return</span> <span class="p">(</span>
+        <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">degrees</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">arctan2</span><span class="p">(</span><span class="n">z</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">hypot</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">)))),</span>
+        <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">degrees</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">arctan2</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">x</span><span class="p">))),</span>
+    <span class="p">)</span>
 </pre></div>
 
            </div>

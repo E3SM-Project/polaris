@@ -516,6 +516,35 @@ window.runMermaid = runMermaid;</script>
 
 
 
+<div class="viewcode-block" id="find_dead_end_cells">
+<a class="viewcode-back" href="../../../../../../../developers_guide/e3sm/init/generated/polaris.tasks.e3sm.init.topo.cull.land_locked.find_dead_end_cells.html#polaris.tasks.e3sm.init.topo.cull.land_locked.find_dead_end_cells">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">find_dead_end_cells</span><span class="p">(</span><span class="n">ds_mesh</span><span class="p">,</span> <span class="n">ocean_mask</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Find the dead ends of a candidate ocean domain: the cells that the</span>
+<span class="sd">    C-grid criterion removes, either because they have fewer than two</span>
+<span class="sd">    active edges or because removing their neighbors leaves them so.</span>
+
+<span class="sd">    Dead ends form cul-de-sacs, so removing them never disconnects one part</span>
+<span class="sd">    of the ocean from another.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    ds_mesh : xarray.Dataset</span>
+<span class="sd">        An MPAS mesh with ``cellsOnCell`` and ``nEdgesOnCell``</span>
+
+<span class="sd">    ocean_mask : numpy.ndarray</span>
+<span class="sd">        A boolean mask on cells, True for the candidate ocean domain</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    dead_end_mask : numpy.ndarray</span>
+<span class="sd">        A boolean mask on cells, True for the dead ends of the domain</span>
+<span class="sd">    """</span>
+    <span class="n">ocean</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">ocean_mask</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">bool</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">logical_and</span><span class="p">(</span><span class="n">ocean</span><span class="p">,</span> <span class="o">~</span><span class="n">_enforce_ocean_criteria</span><span class="p">(</span><span class="n">ds_mesh</span><span class="p">,</span> <span class="n">ocean</span><span class="p">))</span></div>
+
+
+
 <div class="viewcode-block" id="remove_land_locked_cells">
 <a class="viewcode-back" href="../../../../../../../developers_guide/e3sm/init/generated/polaris.tasks.e3sm.init.topo.cull.land_locked.remove_land_locked_cells.html#polaris.tasks.e3sm.init.topo.cull.land_locked.remove_land_locked_cells">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">remove_land_locked_cells</span><span class="p">(</span>

@@ -652,9 +652,44 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">        A boolean array of shape ``(nCells,)`` that is True for cells in the</span>
 <span class="sd">        domain that are reachable from a seed</span>
 <span class="sd">    """</span>
+    <span class="n">mask</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">cell_mask</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">bool</span><span class="p">)</span>
+    <span class="n">seeds</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">logical_and</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">seed_mask</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">bool</span><span class="p">),</span> <span class="n">mask</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">seeds</span><span class="o">.</span><span class="n">any</span><span class="p">():</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">mask</span><span class="o">.</span><span class="n">size</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">bool</span><span class="p">)</span>
+
+    <span class="n">label</span> <span class="o">=</span> <span class="n">label_regions</span><span class="p">(</span><span class="n">ds_mesh</span><span class="p">,</span> <span class="n">mask</span><span class="p">,</span> <span class="n">link_mask</span><span class="o">=</span><span class="n">link_mask</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">logical_and</span><span class="p">(</span><span class="n">mask</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">label</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">label</span><span class="p">[</span><span class="n">seeds</span><span class="p">])))</span></div>
+
+
+
+<div class="viewcode-block" id="label_regions">
+<a class="viewcode-back" href="../../../developers_guide/generated/polaris.mesh.connectivity.label_regions.html#polaris.mesh.connectivity.label_regions">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">label_regions</span><span class="p">(</span><span class="n">ds_mesh</span><span class="p">,</span> <span class="n">cell_mask</span><span class="p">,</span> <span class="n">link_mask</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Label the connected regions of a domain.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    ds_mesh : xarray.Dataset</span>
+<span class="sd">        An MPAS mesh with ``cellsOnCell`` and ``nEdgesOnCell``</span>
+
+<span class="sd">    cell_mask : numpy.ndarray or xarray.DataArray</span>
+<span class="sd">        A boolean mask on cells that is True for cells in the domain</span>
+
+<span class="sd">    link_mask : numpy.ndarray, optional</span>
+<span class="sd">        A boolean array of shape ``(nCells, maxEdges)`` selecting the local</span>
+<span class="sd">        edges that connect cells.  The default connects every active edge,</span>
+<span class="sd">        as in :py:func:`connected_to_seeds`.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    label : numpy.ndarray</span>
+<span class="sd">        An integer array of shape ``(nCells,)`` giving each cell of the</span>
+<span class="sd">        domain the label of its region, and -1 to cells outside the domain.</span>
+<span class="sd">        Labels are not contiguous.</span>
+<span class="sd">    """</span>
     <span class="n">cells_on_cell</span> <span class="o">=</span> <span class="n">ds_mesh</span><span class="o">.</span><span class="n">cellsOnCell</span><span class="o">.</span><span class="n">values</span> <span class="o">-</span> <span class="mi">1</span>
     <span class="n">mask</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">cell_mask</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">bool</span><span class="p">)</span>
-    <span class="n">seeds</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">seed_mask</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">bool</span><span class="p">)</span>
     <span class="n">n_cells</span> <span class="o">=</span> <span class="n">cells_on_cell</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
 
     <span class="k">if</span> <span class="n">link_mask</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
@@ -669,12 +704,7 @@ window.runMermaid = runMermaid;</script>
         <span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="n">n_cells</span><span class="p">,</span> <span class="n">n_cells</span><span class="p">),</span>
     <span class="p">)</span>
     <span class="n">_</span><span class="p">,</span> <span class="n">label</span> <span class="o">=</span> <span class="n">connected_components</span><span class="p">(</span><span class="n">graph</span><span class="p">,</span> <span class="n">directed</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
-
-    <span class="n">seeds</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">logical_and</span><span class="p">(</span><span class="n">seeds</span><span class="p">,</span> <span class="n">mask</span><span class="p">)</span>
-    <span class="k">if</span> <span class="ow">not</span> <span class="n">seeds</span><span class="o">.</span><span class="n">any</span><span class="p">():</span>
-        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">n_cells</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">bool</span><span class="p">)</span>
-
-    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">logical_and</span><span class="p">(</span><span class="n">mask</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">label</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">label</span><span class="p">[</span><span class="n">seeds</span><span class="p">])))</span></div>
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">mask</span><span class="p">,</span> <span class="n">label</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span></div>
 
 
 

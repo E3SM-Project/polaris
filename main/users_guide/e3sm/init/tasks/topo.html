@@ -233,9 +233,17 @@ applies lower <code class="docutils literal notranslate"><span class="pre">ntask
 <li><p><code class="docutils literal notranslate"><span class="pre">cpus_per_task</span></code> and <code class="docutils literal notranslate"><span class="pre">min_cpus_per_task</span></code>: Thread-count settings for culling.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">include_critical_transects</span></code>: Whether critical land and ocean transects from
 <code class="docutils literal notranslate"><span class="pre">geometric_features</span></code> are enforced during masking.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">geography_check_max_cell_width</span></code>: The coarsest mesh resolution (in km,
+compared with <code class="docutils literal notranslate"><span class="pre">min_cell_width</span></code>) at which the mask step checks that no
+critical ocean passage loses cells and no whole sea is removed.  Both
+checks are skipped on coarser meshes.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">sea_ice_latitude_threshold</span></code>: Latitude poleward of which ocean transects are
 widened and sea ice is taken to form, so cells without a usable velocity
 vertex are removed from the sea-ice domain.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">max_sea_ice_region_cells</span></code> and <code class="docutils literal notranslate"><span class="pre">max_sea_ice_region_area</span></code>: The largest
+connected region, in cells and in km^2, that the sea-ice criteria may
+remove from the ocean.  A region exceeding both is a whole sea cut off by a
+strait too narrow for sea ice to pass, and the mask step fails.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">land_ice_max_latitude</span></code>: Southern latitude threshold used to classify
 critical land transects as land ice.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">land_ice_min_fraction</span></code>: Minimum land-ice fraction used in south-pole flood
@@ -269,9 +277,16 @@ ocean is a C-grid, so each of its cells needs at least two edges shared with
 another ocean cell, and sea ice is a B-grid, so each cell of
 <code class="docutils literal notranslate"><span class="pre">ocean_no_cavities</span></code> poleward of <code class="docutils literal notranslate"><span class="pre">sea_ice_latitude_threshold</span></code> also needs a
 vertex whose surrounding cells are all in that mesh, or ice drifting in
-could never leave.  The mask step fails if any of this does not hold, or if
+could never leave.  The mask step fails if any of this does not hold, if
 removing such cells would close a critical ocean passage, in which case it
-names the passage.</p>
+names the passage, or if the sea-ice criteria remove a whole sea, in which
+case it gives the sea’s location.  Removing a dead end of the ocean, a cell
+left with fewer than two ocean neighbors, cannot close a passage, so a
+passage that ends in one does not fail the step.  The passage and
+whole-sea checks are skipped on meshes coarser than
+<code class="docutils literal notranslate"><span class="pre">geography_check_max_cell_width</span></code> (60 km by default), where whether a narrow
+strait stays open depends on single cells that differ from one mesh to the
+next.</p>
 </section>
 </section>
 </section>

@@ -588,6 +588,10 @@ window.runMermaid = runMermaid;</script>
             <span class="s1">'antarctic_boundary_convention'</span><span class="p">,</span>
             <span class="n">convention</span><span class="p">,</span>
         <span class="p">)</span>
+        <span class="n">min_cell_width</span> <span class="o">=</span> <span class="n">base_mesh_step</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
+            <span class="s1">'spherical_mesh'</span><span class="p">,</span> <span class="s1">'min_cell_width'</span>
+        <span class="p">)</span>
+        <span class="n">config</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s1">'spherical_mesh'</span><span class="p">,</span> <span class="s1">'min_cell_width'</span><span class="p">,</span> <span class="n">min_cell_width</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">config</span>
 
     <span class="k">return</span> <span class="n">e3sm_init</span><span class="o">.</span><span class="n">get_or_create_shared_config</span><span class="p">(</span>
