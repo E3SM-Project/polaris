@@ -1319,6 +1319,15 @@ stages, which is a quick check that a mesh runs rather than an adjustment worth
 keeping.  The final stage, `simulation`, writes the relaxed restart, and its
 `output.nc` is compared against a baseline when one is provided.
 
+The ported schedules, and `default.yaml` (Compass' `qu240`), keep Compass'
+stage durations, time steps and damping unchanged; they have not been retuned
+for Polaris.  They were found by trial and error: where a stage crashed, its
+time step was shortened or its damping increased.  Omega runs the same
+schedules, which have worked for it as they are, without a separate tuning.
+`u-oi240-lr240` has no Compass counterpart; it uses the time steps of Compass'
+`qu240` schedule, which are also what `dt_per_km` and `btr_dt_per_km` give at
+240 km, with the three-stage damping ramp of `ec30to60`.
+
 The number and settings of the stages come from the schedule, so a user can
 retune them by editing the checked-in YAML or by pointing the `schedule` config
 option at an alternate file before setup.  Because the Polaris step graph is
