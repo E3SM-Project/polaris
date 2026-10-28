@@ -173,7 +173,7 @@ def phase_status(case_dir: str, phase: str) -> Optional[str]:
 
 
 def summarize_coupled_tests(
-    case_dirs: List[str], jobs: List[Job], system: str
+    case_dirs: List[str], jobs: List[Job], system: str, env_script: str
 ) -> Tuple[bool, str, str]:
     """
     Summarize the coupled tests from their ``TestStatus`` files
@@ -189,6 +189,9 @@ def summarize_coupled_tests(
     system : str
         The machine's job scheduler
 
+    env_script : str
+        The CIME environment script the tests ran with
+
     Returns
     -------
     passed : bool
@@ -198,7 +201,8 @@ def summarize_coupled_tests(
         The row's cell in the table
 
     details : str
-        Each test's ``TestStatus``, pasted unchanged
+        Where the cases are, the CIME environment and each test's
+        ``TestStatus``, pasted unchanged
     """
     job_ids = {job.work_dir: job.job_id for job in jobs}
     failed = []
@@ -235,7 +239,14 @@ def summarize_coupled_tests(
         cell = f'{len(failed)} of {total} failed: {", ".join(failed)}'
     else:
         cell = f'{total} of {total} passed'
-    details = '### Coupled CIME tests\n\n' + '\n\n'.join(sections)
+    summary = [
+        f'- Cases: `{os.path.dirname(case_dirs[0])}`',
+        f'- CIME environment: `{env_script}`',
+        f'- Result: {"All tests passed" if not failed else cell}',
+    ]
+    details = '\n\n'.join(
+        ['### Coupled CIME tests', '\n'.join(summary)] + sections
+    )
     return not failed, cell, details
 
 

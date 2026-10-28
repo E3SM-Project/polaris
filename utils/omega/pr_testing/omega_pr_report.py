@@ -7,9 +7,9 @@ wrote, pasted unchanged, with any new build warnings
 import os
 from typing import Any, Dict, List, Optional, Tuple
 
+import omega_pr_coupled as coupled
 import pr_test_git as git_tools
 import pr_test_report as report
-from omega_pr_coupled import summarize_coupled_tests
 from omega_pr_manifest import (
     MARKER_PREFIX,
     POLARIS_SUBMODULE,
@@ -228,10 +228,13 @@ def _row_result(config, manifest, row: Row, changed) -> RowResult:
     )
     ctest_passed, ctest_cell = report.summarize_ctests(state.pr_build_dir)
     if state.coupled_cases:
-        coupled_passed, coupled_cell, coupled_text = summarize_coupled_tests(
-            state.coupled_cases,
-            [Job(**job) for job in state.jobs],
-            get_system(row.machine),
+        coupled_passed, coupled_cell, coupled_text = (
+            coupled.summarize_coupled_tests(
+                state.coupled_cases,
+                [Job(**job) for job in state.jobs],
+                get_system(row.machine),
+                coupled.get_cime_env_script(row.machine),
+            )
         )
     else:
         # set up before the utility ran coupled tests

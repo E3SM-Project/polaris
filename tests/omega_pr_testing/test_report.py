@@ -8,7 +8,7 @@ import omega_pr_setup
 import pr_test_github
 import pr_test_report
 import pytest
-from omega_pr_fixtures import finish_coupled_tests, make_tester
+from omega_pr_fixtures import CIME_ENV, finish_coupled_tests, make_tester
 from omega_pr_manifest import MARKER_PREFIX, UPSTREAM
 
 SUITE_MD = """### Polaris `omega_pr` suite
@@ -170,7 +170,11 @@ def test_report_coupled_tests(finished):
 
     # each TestStatus is pasted as it is
     block = text.split('<summary>chrysalis, intel, openmpi</summary>')[1]
-    assert '### Coupled CIME tests' in block
+    coupled_dir = Path(state.coupled_cases[0]).parent
+    assert (
+        f'### Coupled CIME tests\n\n- Cases: `{coupled_dir}`\n'
+        f'- CIME environment: `{CIME_ENV}`\n- Result: All tests passed\n'
+    ) in block
     for case_dir in state.coupled_cases:
         status = Path(case_dir, 'TestStatus').read_text().strip()
         assert f'`{Path(case_dir).name}`\n\n```\n{status}\n```' in block
@@ -187,6 +191,7 @@ def test_report_coupled_failure(tester):
     )
 
     assert '| 1 of 2 failed: PEM_D (MODEL_BUILD) |' in text
+    assert '- Result: 1 of 2 failed: PEM_D (MODEL_BUILD)\n' in text
     marker = pr_test_report.parse_marker(text, MARKER_PREFIX)
     assert marker is not None and marker['rows'][0]['result'] == 'fail'
 
