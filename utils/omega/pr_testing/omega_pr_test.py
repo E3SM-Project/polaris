@@ -27,6 +27,7 @@ import omega_pr_lint  # noqa: E402
 import omega_pr_report  # noqa: E402
 import omega_pr_setup  # noqa: E402
 import omega_pr_status  # noqa: E402
+from omega_pr_coupled import COUPLED_TESTS  # noqa: E402
 from omega_pr_manifest import (  # noqa: E402
     MARKER_PREFIX,
     UPSTREAM,
@@ -128,6 +129,7 @@ def _setup(args):
         baseline_load_script=args.baseline_load_script,
         no_baseline=args.no_baseline,
         parallel=args.parallel,
+        coupled_tests=args.coupled_tests,
     )
     machine = state.row.split('/')[0]
     row_dir = os.path.dirname(state.pr_work_dir)
@@ -336,8 +338,8 @@ def _parse_args():
 
     setup = subparsers.add_parser(
         'setup',
-        help="Set up this machine's row: baseline, PR suite and CTests "
-        '(tester)',
+        help="Set up this machine's row: baseline, PR suite, CTests and "
+        'coupled CIME tests (tester)',
     )
     _add_branch_args(setup)
     setup.add_argument(
@@ -368,6 +370,13 @@ def _parse_args():
         'at the same time with `polaris parallel` rather than one after '
         'another with `polaris serial`.  A baseline that is reused runs as '
         'it was set up.',
+    )
+    setup.add_argument(
+        '--coupled-tests',
+        nargs='+',
+        metavar='TEST',
+        help='The coupled CIME tests to run, without the machine and '
+        f'compiler, instead of {" and ".join(COUPLED_TESTS)}',
     )
     setup.add_argument(
         '--submit',

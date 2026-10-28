@@ -1,8 +1,8 @@
 # Omega PR testing utility
 
 This utility runs the testing the Omega pull request template asks for: the
-CTests and the Polaris `omega_pr` suite on each supported machine and
-compiler, plus linting and the documentation build, reported as `Testing`
+CTests, the Polaris `omega_pr` suite and coupled CIME tests on each
+supported machine and compiler, plus linting and the documentation build, reported as `Testing`
 comments on the PR.  It can be driven by a developer or by AI agents, who
 follow [AGENTS.md](AGENTS.md).
 
@@ -30,14 +30,18 @@ its rows.  An agent on every machine also works, but is discouraged.
    builds and sets one up.  A baseline with its own Polaris commit is found
    or set up from a second checkout: by default the deployed checkout of
    `main` that the settings' `polaris_main` names, or the one whose load
-   script `--baseline-load-script` gives.  It then builds and sets up the PR suite, and
-   prepares the CTests.  It prints the three jobs, or submits them with
-   `--submit`.  With `--parallel`, the PR suite, and a baseline it sets up,
+   script `--baseline-load-script` gives.  It then builds and sets up the PR suite,
+   prepares the CTests, and builds the coupled CIME tests (by default
+   `ERS_D` and `PEM_D` of `T62_oQU240.COMEGA-IAF`, or those
+   `--coupled-tests` names) with `create_test --no-run`, in a clean shell
+   with the machine's `load_latest_cime_env.sh` sourced.  It prints the
+   jobs, or submits them with `--submit`.  The coupled tests run only on
+   the PR, since `ERS` and `PEM` tests compare a run with itself.  With `--parallel`, the PR suite, and a baseline it sets up,
    run their steps at the same time with `polaris parallel`.
 4. **`report`** (each machine) writes one comment for the machine's rows:
    a table with a line for each row, generated from the results, and for
-   each row a collapsed block with the files Polaris and CTest wrote,
-   pasted unchanged, and the compiler warnings the PR build has that the
+   each row a collapsed block with the files Polaris, CTest and CIME
+   (`TestStatus`) wrote, pasted unchanged, and the compiler warnings the PR build has that the
    baseline build does not.
 5. **`post`** posts a comment that `report` or `lint` wrote, once someone
    has read it.  Neither posts by itself.  A comment written on a machine
@@ -139,6 +143,7 @@ omega_pr_test.py cleanup
     report_<machine>.md           a machine's comment
     <machine>_<compiler>/
       build/  omega_pr/  ctest/   the PR build, suite and CTest job
+      coupled/                    the coupled CIME tests' cases
       setup.json
 ```
 

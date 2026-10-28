@@ -8,9 +8,18 @@ import omega_pr_init
 import omega_pr_setup
 import pr_test_setup
 import pytest
-from omega_pr_fixtures import commit, git, make_complete_baseline, make_tester
+from omega_pr_fixtures import (
+    CIME_ENV,
+    commit,
+    git,
+    make_complete_baseline,
+    make_tester,
+)
 
 from polaris.job import SubmissionError
+
+#: the coupled tests a row runs by default
+COUPLED = ['ERS_D.T62_oQU240.COMEGA-IAF', 'PEM_D.T62_oQU240.COMEGA-IAF']
 
 
 @pytest.fixture
@@ -79,7 +88,7 @@ def test_setup_new_baseline(tester):
         'baseline suite',
         'PR suite',
         'CTests',
-    ]
+    ] + COUPLED
     text = pr_test_setup.format_state(state, str(row_dir), 'chrysalis')
     assert 'Nothing was submitted' in text
     assert (
@@ -92,16 +101,85 @@ def test_setup_new_baseline(tester):
     assert saved['baseline_work_dir'] == str(baseline)
 
 
+def test_setup_coupled_tests(tester):
+    fixture, manifest, calls = tester
+
+    state = _setup(fixture, manifest)
+
+    row_dir = Path(fixture.config.work_base) / manifest.run_name
+    row_dir = row_dir / 'chrysalis_intel'
+    coupled_dir = row_dir / 'coupled'
+    test_tree = calls['suite'][1]['branch']
+    # every submodule, for CIME, in the PR's tree only
+    assert calls['submodules'] == [test_tree]
+    ((env_script, scripts_dir, args),) = calls['create_test']
+    assert env_script == CIME_ENV
+    assert scripts_dir == os.path.join(test_tree, 'cime', 'scripts')
+    assert args == ['./create_test'] + COUPLED + [
+        '--machine',
+        'chrysalis',
+        '--compiler',
+        'intel',
+        '--test-id',
+        manifest.run_name,
+        '--no-run',
+        '--test-root',
+        str(coupled_dir),
+        '--output-root',
+        str(coupled_dir),
+    ]
+    cases = [
+        str(coupled_dir / f'{test}.chrysalis_intel.{manifest.run_name}')
+        for test in COUPLED
+    ]
+    assert state.coupled_cases == cases
+    coupled_jobs = state.jobs[3:]
+    assert [job['work_dir'] for job in coupled_jobs] == cases
+    assert {job['env_script'] for job in coupled_jobs} == {CIME_ENV}
+
+    text = pr_test_setup.format_state(state, str(row_dir), 'chrysalis')
+    assert f'Coupled:    {cases[0]}\n            {cases[1]}\n' in text
+    assert (
+        'env -i HOME="$HOME" USER="$USER" LOGNAME="$LOGNAME" TERM="$TERM" '
+        f"/bin/bash -l -c 'source {CIME_ENV} && cd {cases[0]} && "
+        f"./case.submit'"
+    ) in text
+
+    # a second setup reuses the cases rather than creating them again
+    _setup(fixture, manifest)
+    assert len(calls['create_test']) == 1
+
+
+def test_setup_coupled_build_fails(tester):
+    fixture, manifest, _ = tester
+    tests = ['ERS_D.T62_oQU240.COMEGA-IAF', 'PEM_D.T62_oQU240.FAIL']
+
+    state = _setup(fixture, manifest, coupled_tests=tests)
+
+    # both are reported, but only the one that built is submitted
+    assert len(state.coupled_cases) == 2
+    assert [job['name'] for job in state.jobs[3:]] == tests[:1]
+
+
 def test_setup_submit(tester):
     fixture, manifest, calls = tester
 
     state = _setup(fixture, manifest, submit=True)
 
-    baseline_submit, pr_submit, ctest_submit = calls['submit']
+    baseline_submit, pr_submit, ctest_submit, *coupled = calls['submit']
     assert baseline_submit[2] is None
     assert pr_submit[2] == '1001'
     assert ctest_submit[2] is None
-    assert [job['job_id'] for job in state.jobs] == ['1001', '1002', '1003']
+    assert [(call[1], call[2]) for call in coupled] == [
+        ('case.submit', None)
+    ] * 2
+    assert [job['job_id'] for job in state.jobs] == [
+        '1001',
+        '1002',
+        '1003',
+        '1004',
+        '1005',
+    ]
     assert (Path(state.pr_work_dir) / 'job_id').read_text() == '1002\n'
 
 
@@ -127,8 +205,10 @@ def test_setup_without_baseline(tester):
     assert state.baseline_work_dir is None
     assert state.baseline_build_log is None
     assert state.no_baseline_reason == 'develop cannot run'
-    assert [job['name'] for job in state.jobs] == ['PR suite', 'CTests']
-    pr_submit, _ = calls['submit']
+    assert [job['name'] for job in state.jobs] == ['PR suite', 'CTests'] + (
+        COUPLED
+    )
+    pr_submit, *_ = calls['submit']
     assert pr_submit[2] is None
     row_dir = Path(state.pr_work_dir).parent
     text = pr_test_setup.format_state(state, str(row_dir), 'chrysalis')
@@ -174,7 +254,8 @@ def test_setup_waits_on_running_baseline(tester, monkeypatch):
 
     assert state.baseline_work_dir == str(baseline_dir)
     assert state.baseline_job == '1001'
-    assert calls['submit'][3][2] == '1001'
+    # the second PR suite, after the first setup's five jobs
+    assert calls['submit'][5][2] == '1001'
 
 
 def test_setup_frontier_avoids_debug_qos(tester, monkeypatch):
@@ -189,7 +270,11 @@ def test_setup_frontier_avoids_debug_qos(tester, monkeypatch):
     assert text.count('--qos=normal --time=01:00:00') == 3
 
     _setup(fixture, manifest, submit=True)
-    assert calls['extra_args'] == [['--qos=normal', '--time=01:00:00']] * 3
+    # CIME's cases are submitted with CIME's own settings
+    assert (
+        calls['extra_args']
+        == [['--qos=normal', '--time=01:00:00']] * 3 + [None] * 2
+    )
 
 
 def test_setup_aurora_chains_jobs(tester, monkeypatch):
@@ -209,10 +294,10 @@ def test_setup_aurora_chains_jobs(tester, monkeypatch):
     _setup(fixture, manifest, submit=True)
     # each job waits for the one before, so only one is ever queued
     dependencies = [call[2] for call in calls['submit']]
-    assert dependencies == [None, '1001', '1002']
+    assert dependencies == [None, '1001', '1002', '1003', '1004']
     assert (
         calls['extra_args']
-        == [['-q', 'capacity', '-l', 'walltime=01:00:00']] * 3
+        == [['-q', 'capacity', '-l', 'walltime=01:00:00']] * 3 + [None] * 2
     )
 
 
@@ -234,19 +319,32 @@ def test_setup_resumes_after_refused_job(tester, monkeypatch):
         _setup(fixture, manifest, submit=True)
     row_dir = Path(fixture.config.work_base) / manifest.run_name
     state = pr_test_setup.read_state(str(row_dir / 'aurora_intel'))
-    assert [job['job_id'] for job in state.jobs] == ['1001', '1002', None]
+    assert [job['job_id'] for job in state.jobs] == [
+        '1001',
+        '1002',
+        None,
+        None,
+        None,
+    ]
     text = pr_test_setup.format_state(state, str(row_dir), 'aurora')
-    assert 'Not yet submitted: CTests.' in text
+    assert f'Not yet submitted: CTests, {", ".join(COUPLED)}.' in text
 
     monkeypatch.setattr(pr_test_setup, 'submit_job', submit_job)
     suites = len(calls['suite'])
     state = _setup(fixture, manifest, submit=True)
 
-    # only the refused job, still waiting on the one before it
+    # only the refused job and those after it, still waiting on the one
+    # before it
     assert len(calls['suite']) == suites
-    assert 'ctest' in calls['submit'][-1][1]
-    assert calls['submit'][-1][2] == '1002'
-    assert [job['job_id'] for job in state.jobs] == ['1001', '1002', '1003']
+    assert 'ctest' in calls['submit'][-3][1]
+    assert calls['submit'][-3][2] == '1002'
+    assert [job['job_id'] for job in state.jobs] == [
+        '1001',
+        '1002',
+        '1003',
+        '1004',
+        '1005',
+    ]
 
     with pytest.raises(pr_test_setup.SetupError, match='already submitted'):
         _setup(fixture, manifest, submit=True)

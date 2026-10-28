@@ -362,6 +362,10 @@ it, alone.
   the logs.  Blame a merge only if you checked, for example in its
   Testing comment, and otherwise say the cause is not known.
 - **CTests fail.**  `ctests.log` is in the PR build directory.
+- **A coupled test fails.**  Its case directory, which the report names,
+  has a `TestStatus` with the failing phase.  A failed build's log is
+  `bld/e3sm.bldlog.*` under the case, or the component log it names, such
+  as `bld/ocn.bldlog.*`; a failed run's logs are in `run/`.
 - **The baseline cannot run on a row**, such as an older Kokkos on a
   new GPU.  Only if the requester asks, run `setup` with
   `--no-baseline "<why>"`, a lowercase clause the report prints after
