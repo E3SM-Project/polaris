@@ -457,7 +457,7 @@ designs; the prototype does not merge.
 
 ## Implementation: work packages
 
-Date last modified: 2026/10/18
+Date last modified: 2026/10/28
 
 Contributors: Xylar Asay-Davis, Claude
 
@@ -536,6 +536,10 @@ Polaris adds split-explicit variants of the thin-film tasks and Ocean0 to
 test it. The work lands on FAnSSIE, and an upstream pull request can
 follow when it is ready. E3SM's default `split_explicit_ab2` stays
 without wetting and drying ([D18](#decisions)).
+
+WP2 is on hold until Carolyn Begeman has reviewed
+E3SM-Ocean-Discussion#144, which brings it to FAnSSIE
+([D19](#decisions)). Until it merges, the other packages use RK4.
 
 ### WP3: Landice component
 
@@ -691,13 +695,15 @@ changes land on FAnSSIE. The design amends
 | Stage | Experiments            | Needs                                                |
 |-------|------------------------|------------------------------------------------------|
 | A     | 4 km Ocean0, prototype | WP0                                                  |
-| B     | Ocean0–2               | WP0, WP1, WP5, WP6, WP7, WP9, WP11; WP2 for Ocean1–2 |
-| C     | Ocean3–4               | stage B, WP2, WP8                                    |
+| B     | Ocean0–2               | WP0, WP1, WP5, WP6, WP7, WP9, WP11                   |
+| C     | Ocean3–4               | stage B, WP8                                         |
 | D     | IceOcean1r, 1ra        | stage C, WP3, WP4                                    |
 
-WP2, WP3, WP4 and WP11 can proceed alongside stages A–C: WP2 needs only
-WP0 and WP1, WP3 needs nothing, WP4 needs WP3 and WP5, and WP11 needs only
-WP1. WP10 follows WP2, and no stage needs it.
+No stage waits for WP2. Until it lands, each uses RK4 and accepts the
+cost: at 2 km on 36 tasks, 20 years take about 40 days and 100 years about
+half a year. WP3, WP4 and WP11 can proceed alongside stages A–C: WP3 needs
+nothing, WP4 needs WP3 and WP5, and WP11 needs only WP1. WP10 follows WP2,
+and no stage needs it.
 
 FAnSSIE starts from these pull requests, whose states are as of
 2026-10-16:
@@ -895,7 +901,7 @@ vertical-remap and debugging commits.
 
 ### D11: Ocean resolutions are 4 and 2 km
 
-Date last modified: 2026/10/19
+Date last modified: 2026/10/28
 
 Contributors: Xylar Asay-Davis, Claude
 
@@ -903,7 +909,9 @@ The ocean uses 2 km for the protocol runs, the COM resolution
 (Sect. 3.1.5), and 4 km for development and the quick coupling test.
 MALI's resolution is set in the MISMIP+ design ([D13](#decisions)). The
 long runs take what they take: with split-explicit wetting and drying, 100
-years at 2 km take about two weeks on two Chrysalis nodes.
+years at 2 km take about two weeks on two Chrysalis nodes, and about half
+a year on 36 tasks with RK4, which the runs use until WP2 lands
+([D19](#decisions)).
 
 Rejected: a wall-clock target for 100-year runs, first set at a week. It
 would need a time step about twice what the thin film allows. Also
@@ -1068,3 +1076,21 @@ modest saving, in a model that Omega will replace.
 
 Rejected: porting wetting and drying to `split_explicit_ab2`. This is
 revisited if realistic E3SM runs with wetting and drying need its savings.
+
+### D19: WP2 waits for Carolyn Begeman's review
+
+Date last modified: 2026/10/28
+
+Contributors: Xylar Asay-Davis, Claude
+
+Split-explicit wetting and drying (E3SM-Ocean-Discussion#144) merges into
+FAnSSIE only after Carolyn Begeman has reviewed it carefully, as she asked
+at the FAnSSIE ocean meeting of 2026-10-27. Until then, WP2 is on hold,
+and the other packages and stages proceed with RK4, accepting its cost.
+
+*Effect:* the split-explicit ISOMIP+ variants (polaris#861) stay a draft,
+and their `fanssie_pr` entries wait for #144. Runs switch to split-explicit
+once it merges.
+
+Rejected: merging #144 before her review, or holding the other packages
+until it merges.
