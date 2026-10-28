@@ -423,39 +423,100 @@ def estimate_cfl_from_stats(
     if first_index is None:
         return None
 
-    replacements = stage.model_replacements('omega', min_res)
-    dt_seconds = duration_to_seconds(replacements['dt'])
+    min_edge_length = min_edge_length_of_mesh(component, config, mesh_filename)
+    series = cfl_estimate_series(ds_stats, stage, min_res, min_edge_length)
+    if series is None:
+        return None
+    series = series[first_index:]
+    if not np.all(np.isfinite(series)):
+        raise ValueError(
+            f'Stage {stage.name!r} has non-finite normal-velocity '
+            'statistics; cannot estimate its CFL.'
+        )
+    return float(series.max())
+
+
+def min_edge_length_of_mesh(
+    component: Any, config: Any, mesh_filename: str
+) -> float:
+    """
+    The smallest distance between cell centers on a horizontal mesh, the
+    length scale of the conservative CFL estimate.
+
+    Parameters
+    ----------
+    component : polaris.tasks.ocean.Ocean
+        The ocean component, used to open the mesh.
+
+    config : polaris.config.PolarisConfigParser
+        The config, which says which model's names the mesh uses.
+
+    mesh_filename : str
+        The static horizontal mesh file.
+
+    Returns
+    -------
+    float
+        The minimum ``dcEdge`` in meters.
+    """
     with component.open_model_dataset(mesh_filename, config) as ds_mesh:
         min_edge_length = float(ds_mesh['dcEdge'].min())
-
     if not np.isfinite(min_edge_length) or min_edge_length <= 0.0:
         raise ValueError(
             f'The minimum mesh edge length must be finite and positive; '
             f'got {min_edge_length}.'
         )
+    return min_edge_length
+
+
+def cfl_estimate_series(
+    ds_stats: Any,
+    stage: ForwardStage,
+    min_res: float,
+    min_edge_length: float,
+) -> Optional[np.ndarray]:
+    """
+    The conservative horizontal CFL estimate at every statistics sample of
+    an Omega stage.
+
+    ``max(abs(normalVelocityMin), abs(normalVelocityMax)) * dt / min(dcEdge)``
+    sample by sample, with the stage's baroclinic timestep.  A non-finite
+    velocity gives a non-finite estimate rather than an error, so that a plot
+    can still show a stage that blew up.
+
+    Parameters
+    ----------
+    ds_stats : xarray.Dataset
+        Omega statistics renamed to MPAS-Ocean names.
+
+    stage : ForwardStage
+        The stage whose timestep is used.
+
+    min_res : float
+        The mesh minimum resolution in km, used to resolve per-kilometer
+        timestep settings.
+
+    min_edge_length : float
+        The smallest ``dcEdge`` of the mesh in meters.
+
+    Returns
+    -------
+    numpy.ndarray or None
+        The estimate at each sample, or ``None`` if the normal-velocity
+        extrema are absent.
+    """
+    if any(name not in ds_stats for name in _CFL_VELOCITY_STATS):
+        return None
+    replacements = stage.model_replacements('omega', min_res)
+    dt_seconds = duration_to_seconds(replacements['dt'])
     if not np.isfinite(dt_seconds) or dt_seconds <= 0.0:
         raise ValueError(
             f'The Omega timestep must be finite and positive; got '
             f'{dt_seconds}.'
         )
-
-    velocity_min = np.asarray(
-        ds_stats['normalVelocityMin'].isel(Time=slice(first_index, None))
-    )
-    velocity_max = np.asarray(
-        ds_stats['normalVelocityMax'].isel(Time=slice(first_index, None))
-    )
-    if not np.all(np.isfinite(velocity_min)) or not np.all(
-        np.isfinite(velocity_max)
-    ):
-        raise ValueError(
-            f'Stage {stage.name!r} has non-finite normal-velocity '
-            'statistics; cannot estimate its CFL.'
-        )
-
-    max_abs_velocity = float(
-        np.maximum(np.abs(velocity_min), np.abs(velocity_max)).max()
-    )
+    velocity_min = np.asarray(ds_stats['normalVelocityMin'], dtype=float)
+    velocity_max = np.asarray(ds_stats['normalVelocityMax'], dtype=float)
+    max_abs_velocity = np.maximum(np.abs(velocity_min), np.abs(velocity_max))
     return max_abs_velocity * dt_seconds / min_edge_length
 
 
