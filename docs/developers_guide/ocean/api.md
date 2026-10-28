@@ -119,6 +119,7 @@
    sim_files.read_omega_config
    sim_files.expand_template
    sim_files.check_files_exist
+   sim_files.check_month_covered
    sim_files.year_range_key
 ```
 

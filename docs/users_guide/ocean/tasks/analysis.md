@@ -338,7 +338,9 @@ group, which has to be enabled in the simulation with the fields the analysis
 reads in its `Fields` list.  Omega names each field of a monthly mean for the
 field and the period, `Temperature_TimeMean1Month`, and names each file for
 the month after the one it averages; the climatology strips the suffix and
-takes the file named `0001-02` as January of year 1.
+takes the file named `0001-02` as January of year 1.  Each file's time bounds
+are checked against the month it is taken to cover, and one that does not
+match stops the step with an error.
 
 Only the variables the analysis needs are averaged, so the cost scales with
 what is being plotted rather than with the size of the monthly means.  A
