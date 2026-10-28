@@ -486,7 +486,7 @@ Validation ended up split between a per-stage `StageCheck` step and a final
 2. Four thresholds per stage, applied by `StageCheck` immediately after that
    stage: the maximum `temperature` below `temperature_max`, the minimum above
    `temperature_min`, the maximum `salinity` below `salinity_max`, and the
-   maximum CFL number below `cfl_max`.
+   maximum reported CFL number below `cfl_max`.
    Each reports *when* the extreme occurred as well as how large it was, which
    is usually most of the diagnosis, and each is skipped with a log line when
    the configured model does not report the quantity.
@@ -514,10 +514,15 @@ fluxes, so both should be zero to within machine noise, and `u-oi30-lr10`
 reaches -4e-17 °C/day.
 
 Omega's `GlobalStats` covers temperature, salinity, layer thickness, normal
-velocity and kinetic energy but has no CFL number or volume-weighted sums, so
-those columns are blank for an Omega run and the CFL check is skipped. A blank means
-"this model does not report it", and the log says which source each metric came
-from.
+velocity and kinetic energy but has no CFL number or volume-weighted sums. The
+reported-CFL column is therefore blank and its threshold check is skipped for
+Omega. Polaris separately estimates a conservative horizontal CFL using the
+largest absolute normal-velocity extrema, the stage timestep and the smallest
+horizontal mesh edge. Because the velocity and edge-length extrema need not be
+at the same location, this estimate is an upper bound, not Omega's CFL, and is
+reported for inspection rather than checked against `cfl_max`. Minimum layer
+thickness remains a separate diagnostic; it is not used as a horizontal CFL
+length scale. The log says which source each metric came from.
 
 The two tracer thresholds are blow-up detectors, not plausibility bounds, and
 they are set above the WOA23 source artifacts rather than above the physics.

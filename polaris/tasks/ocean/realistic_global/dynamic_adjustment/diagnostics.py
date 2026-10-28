@@ -29,9 +29,13 @@ so the skipped values are still visible where they matter.
 
 MPAS-Ocean and Omega do not report the same statistics.  Omega's
 ``GlobalStats`` covers temperature, salinity, layer thickness, normal velocity
-and kinetic energy; it has no CFL number and no volume-weighted sums.
-A blank column therefore means "this model does not report it", not "something
-went wrong".
+and kinetic energy; it has no CFL number and no volume-weighted sums. For
+Omega, Polaris estimates a conservative horizontal CFL from the reported
+normal-velocity extrema, the stage's baroclinic time step and the smallest
+horizontal mesh edge. The estimate combines independently reduced extrema, so
+it is an upper bound rather than the model's CFL and is reported separately
+without applying the configured CFL threshold. The native CFL column remains
+blank for Omega because the model does not report it.
 """
 
 import os
@@ -180,6 +184,9 @@ MEAN_CHANGE_UNITS = {
     'mean_salinity_change_per_day': 'PSU/day',
 }
 
+CFL_ESTIMATE_COLUMN = 'cfl_estimate_max_in_stage'
+_CFL_VELOCITY_STATS = ('normalVelocityMin', 'normalVelocityMax')
+
 # What Omega calls each field whose statistics Omega reports, keyed by the
 # MPAS-Ocean name the metrics are written in.  Omega's statistics are of its
 # pseudo-thickness where MPAS-Ocean's are of layer thickness, and the
@@ -207,9 +214,11 @@ def column_names() -> List[str]:
     list of str
         The metric and mean-change column names.
     """
-    return [metric.name for metric in METRICS] + [
-        name for name, _ in MEAN_CHANGES
-    ]
+    return (
+        [metric.name for metric in METRICS]
+        + [CFL_ESTIMATE_COLUMN]
+        + [name for name, _ in MEAN_CHANGES]
+    )
 
 
 def column_units() -> Dict[str, str]:
@@ -222,6 +231,7 @@ def column_units() -> Dict[str, str]:
         A map from column name to units.
     """
     units = {metric.name: metric.units for metric in METRICS}
+    units[CFL_ESTIMATE_COLUMN] = '1'
     units.update(MEAN_CHANGE_UNITS)
     return units
 
@@ -234,6 +244,8 @@ def collect_stage_diagnostics(
     output_filename: str,
     logger: Any,
     exclude_days: float = 0.0,
+    min_res: Optional[float] = None,
+    mesh_filename: Optional[str] = None,
 ) -> Dict[str, Optional[float]]:
     """
     Summarize one stage as a row of scalars.
@@ -267,6 +279,14 @@ def collect_stage_diagnostics(
         window, as returned by
         :py:func:`~polaris.tasks.ocean.realistic_global.dynamic_adjustment.schedule.excluded_days_in_stage`.
         Only the tracer extremes honor it.
+
+    min_res : float, optional
+        The mesh minimum resolution in km, used to resolve a configured
+        per-kilometer timestep for the Omega CFL estimate.
+
+    mesh_filename : str, optional
+        The static horizontal mesh file, used to find the minimum edge length
+        for the Omega CFL estimate.
 
     Returns
     -------
@@ -316,12 +336,127 @@ def collect_stage_diagnostics(
             if row[name] is None:
                 missing.append(name)
 
+        cfl_estimate = None
+        if config.get('ocean', 'model') == 'omega':
+            if ds_stats is not None and all(
+                name in ds_stats for name in _CFL_VELOCITY_STATS
+            ):
+                if min_res is None or mesh_filename is None:
+                    raise ValueError(
+                        'The Omega CFL estimate requires the mesh minimum '
+                        'resolution and horizontal mesh filename.'
+                    )
+                cfl_estimate = estimate_cfl_from_stats(
+                    component=component,
+                    config=config,
+                    ds_stats=ds_stats,
+                    stage=stage,
+                    min_res=min_res,
+                    mesh_filename=mesh_filename,
+                )
+            if cfl_estimate is not None:
+                from_stats.append(CFL_ESTIMATE_COLUMN)
+            else:
+                missing.append(CFL_ESTIMATE_COLUMN)
+        row[CFL_ESTIMATE_COLUMN] = cfl_estimate
+
         _log_sources(logger, stage.name, from_stats, from_output, missing)
     finally:
         if ds_stats is not None:
             ds_stats.close()
 
     return row
+
+
+def estimate_cfl_from_stats(
+    component: Any,
+    config: Any,
+    ds_stats: Any,
+    stage: ForwardStage,
+    min_res: float,
+    mesh_filename: str,
+) -> Optional[float]:
+    """
+    Estimate a conservative horizontal CFL for an Omega stage.
+
+    The estimate combines Omega's global minimum and maximum normal velocities
+    with the globally smallest horizontal edge, whether or not those extrema
+    occur at the same location:
+
+    ``max(abs(normalVelocityMin), abs(normalVelocityMax)) * dt / min(dcEdge)``
+
+    This is an upper bound based on the total normal velocity, not a
+    model-reported baroclinic CFL. It uses the stage's baroclinic timestep for
+    split-explicit integration and the configured timestep otherwise.
+
+    Parameters
+    ----------
+    component : polaris.tasks.ocean.Ocean
+        The ocean component, used to open the mesh.
+
+    config : polaris.config.PolarisConfigParser
+        The config for the stage.
+
+    ds_stats : xarray.Dataset
+        Omega statistics renamed to MPAS-Ocean names.
+
+    stage : ForwardStage
+        The stage whose timestep is used.
+
+    min_res : float
+        The mesh minimum resolution in km, used to resolve per-kilometer
+        timestep settings.
+
+    mesh_filename : str
+        The static horizontal mesh file.
+
+    Returns
+    -------
+    float or None
+        The maximum estimate over the judged stage samples, or ``None`` if
+        normal-velocity extrema are absent or there are no judged samples.
+    """
+    if any(name not in ds_stats for name in _CFL_VELOCITY_STATS):
+        return None
+
+    first_index = first_judged_index(ds_stats)
+    if first_index is None:
+        return None
+
+    replacements = stage.model_replacements('omega', min_res)
+    dt_seconds = duration_to_seconds(replacements['dt'])
+    with component.open_model_dataset(mesh_filename, config) as ds_mesh:
+        min_edge_length = float(ds_mesh['dcEdge'].min())
+
+    if not np.isfinite(min_edge_length) or min_edge_length <= 0.0:
+        raise ValueError(
+            f'The minimum mesh edge length must be finite and positive; '
+            f'got {min_edge_length}.'
+        )
+    if not np.isfinite(dt_seconds) or dt_seconds <= 0.0:
+        raise ValueError(
+            f'The Omega timestep must be finite and positive; got '
+            f'{dt_seconds}.'
+        )
+
+    velocity_min = np.asarray(
+        ds_stats['normalVelocityMin'].isel(Time=slice(first_index, None))
+    )
+    velocity_max = np.asarray(
+        ds_stats['normalVelocityMax'].isel(Time=slice(first_index, None))
+    )
+    if not np.all(np.isfinite(velocity_min)) or not np.all(
+        np.isfinite(velocity_max)
+    ):
+        raise ValueError(
+            f'Stage {stage.name!r} has non-finite normal-velocity '
+            'statistics; cannot estimate its CFL.'
+        )
+
+    max_abs_velocity = float(
+        np.maximum(np.abs(velocity_min), np.abs(velocity_max)).max()
+    )
+    return max_abs_velocity * dt_seconds / min_edge_length
 
 
 def _reduce(
