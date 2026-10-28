@@ -313,7 +313,8 @@ class Moc(AnalysisStep):
             config=config,
             colormap_section='ocean_analysis_moc',
             contour_interval=interval,
-            max_abs=max_abs,
+            vmin=-max_abs,
+            vmax=max_abs,
             title=(
                 f'{simulation_name}: global overturning streamfunction, '
                 f'years {key}'

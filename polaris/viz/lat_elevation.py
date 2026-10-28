@@ -38,7 +38,8 @@ def plot_lat_elevation_field(
     config,
     colormap_section,
     contour_interval=None,
-    max_abs=None,
+    vmin=None,
+    vmax=None,
     title=None,
     colorbar_label='',
     x_label='Latitude ($^{\\circ}$N)',
@@ -80,11 +81,10 @@ def plot_lat_elevation_field(
         The spacing of the contour lines drawn over the fill, in the units of
         ``da``.  Without it no contour lines are drawn.
 
-    max_abs : float, optional
-        The maximum absolute value of a color map centered on zero, which
-        replaces the limits ``norm_args`` gives.  This is how a diverging
-        field is plotted symmetrically about zero; a field with no natural
-        center leaves it out and sets its limits in ``norm_args``.
+    vmin, vmax : float, optional
+        The limits of the color map, each of which replaces the one
+        ``norm_args`` gives.  A diverging field is plotted symmetrically about
+        zero with ``vmin=-vmax``.
 
     title : str, optional
         A title for the figure
@@ -117,9 +117,10 @@ def plot_lat_elevation_field(
     values = _oriented_values(da, lat=lat, z=z)
 
     colormap, norm, ticks = setup_colormap(config, colormap_section)
-    if max_abs is not None:
-        norm.vmin = -max_abs
-        norm.vmax = max_abs
+    if vmin is not None:
+        norm.vmin = vmin
+    if vmax is not None:
+        norm.vmax = vmax
     if norm.vmin is None or norm.vmax is None:
         norm.autoscale_None(np.ma.masked_invalid(values))
 
