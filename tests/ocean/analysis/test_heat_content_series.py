@@ -31,6 +31,7 @@ from polaris.tasks.ocean.analysis.heat_content_series import (
     series_variable,
 )
 from polaris.tasks.ocean.analysis.sim_files import year_range_key
+from tests.ocean.analysis.test_sim_files import omega_month_time
 
 N_CELLS = 4
 N_LEVELS = 3
@@ -172,6 +173,20 @@ def test_a_month_the_integral_cannot_be_taken_from_is_an_error(tmp_path):
         step.run()
 
 
+def test_a_month_that_is_not_the_one_its_name_says_is_an_error(tmp_path):
+    """The file found for January holds February, as it would if Omega
+    named a monthly mean for the month it covers."""
+    step = _make_step(tmp_path)
+    filename = os.path.join(
+        str(tmp_path / 'sim'), 'monthly_means_1MonthTimeStats.0001-02.nc'
+    )
+    with xr.open_dataset(filename, decode_times=False) as ds:
+        ds = ds.drop_vars(['time', 'time_bnds']).load()
+    xr.merge([ds, omega_month_time(1, 2)]).to_netcdf(filename)
+    with pytest.raises(ValueError, match='time bounds'):
+        step.run()
+
+
 @pytest.fixture
 def step(tmp_path):
     return _make_step(tmp_path)
@@ -275,7 +290,8 @@ def _write_simulation(
                 f'monthly_means_1MonthTimeStats.'
                 f'{named_year:04d}-{named_month:02d}.nc'
             )
-            xr.Dataset(data).to_netcdf(os.path.join(sim_path, filename))
+            ds = xr.merge([xr.Dataset(data), omega_month_time(year, month)])
+            ds.to_netcdf(os.path.join(sim_path, filename))
 
 
 def _make_step(

@@ -263,6 +263,23 @@ def test_the_annual_mean_weights_each_month_by_its_length(tmp_path):
         )
 
 
+def test_a_month_that_is_not_the_one_ncclimo_assigns_is_an_error(tmp_path):
+    """ncclimo takes the first file to be January.  If it holds February, as
+    it would if Omega named a monthly mean for the month it covers, the step
+    stops rather than average the wrong months."""
+    step = make_step(tmp_path)
+    add_months(step)
+    write_moc_file(
+        step.work_path(step.input_filenames[0]),
+        first_day=31.0,
+        last_day=59.0,
+        values=streamfunction(1.0),
+    )
+    step.runtime_setup()
+    with pytest.raises(ValueError, match='time bounds'):
+        step.run()
+
+
 def test_the_variable_a_reduction_writes_is_the_one_read(tmp_path, caplog):
     """A time reduction adds a _TimeMean<period> suffix to the
     streamfunction and leaves the coordinate fields alone."""

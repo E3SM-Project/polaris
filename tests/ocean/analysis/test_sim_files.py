@@ -1,16 +1,49 @@
 import os
 
+import cftime
 import pytest
+import xarray as xr
 
 from polaris.config import PolarisConfigParser
 from polaris.tasks.ocean.analysis.sim_files import (
     SimulationFiles,
     check_files_exist,
+    check_month_covered,
     expand_template,
     read_omega_config,
     time_mean_suffix,
     year_range_key,
 )
+
+# the time units and calendar Omega writes
+TIME_UNITS = 'seconds since 0001-01-01 00:00:00'
+CALENDAR = 'noleap'
+
+
+def omega_month_time(year, month):
+    """
+    The time and time bounds Omega writes in a monthly mean of a given month
+
+    Omega stamps a monthly mean with the end of the month and bounds it by
+    the start and end of the month.
+    """
+    next_year, next_month = (year + 1, 1) if month == 12 else (year, month + 1)
+    bounds = cftime.date2num(
+        [
+            cftime.datetime(year, month, 1, calendar=CALENDAR),
+            cftime.datetime(next_year, next_month, 1, calendar=CALENDAR),
+        ],
+        TIME_UNITS,
+        CALENDAR,
+    )
+    ds = xr.Dataset(
+        data_vars={'time_bnds': (('time', 'D2'), [bounds])},
+        coords={'time': ('time', [bounds[1]])},
+    )
+    ds.time.attrs = dict(
+        units=TIME_UNITS, calendar=CALENDAR, bounds='time_bnds'
+    )
+    return ds
 
 
 def test_year_range_key_is_zero_padded():
@@ -293,6 +326,32 @@ def test_analysis_streams_keep_a_timestamp_template(tmp_path):
     omega_config = read_omega_config(_write_omega_config(tmp_path))
     streams = omega_config.analysis_streams('Timeseries')
     assert streams[0].filename == 'analysis_1MonthTimeStats.$Y.$M'
+
+
+@pytest.mark.parametrize('year, month', [(1, 1), (3, 12)])
+def test_a_month_bounded_by_the_month_it_is_named_for_passes(
+    tmp_path, year, month
+):
+    filename = str(tmp_path / 'month.nc')
+    omega_month_time(year, month).to_netcdf(filename)
+    check_month_covered(filename, year, month)
+
+
+def test_a_month_that_is_not_the_one_it_is_named_for_is_an_error(tmp_path):
+    """What Omega naming a monthly mean for the month it covers, rather than
+    the month after, would look like: the file found for January holds
+    February."""
+    filename = str(tmp_path / 'month.nc')
+    omega_month_time(1, 2).to_netcdf(filename)
+    with pytest.raises(ValueError, match='0001-01.*Omega#554'):
+        check_month_covered(filename, 1, 1)
+
+
+def test_a_month_without_time_bounds_is_an_error(tmp_path):
+    filename = str(tmp_path / 'month.nc')
+    omega_month_time(1, 1).drop_vars('time_bnds').to_netcdf(filename)
+    with pytest.raises(ValueError, match='no time bounds'):
+        check_month_covered(filename, 1, 1)
 
 
 def _make_config(model='omega', **options):
