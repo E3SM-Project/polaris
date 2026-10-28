@@ -146,12 +146,13 @@ def plot_lat_elevation_field(
         filled.set_edgecolor('face')
 
         drawn_interval = None
+        contours = None
         if contour_interval is not None:
             lines, drawn_interval = _contour_levels(contour_interval, values)
             if len(lines) > 0:
                 # negative contours come out dashed, which is what tells the
                 # two circulation cells apart in black and white
-                axes.contour(
+                contours = axes.contour(
                     lat, z, values, levels=lines, colors='k', linewidths=0.5
                 )
 
@@ -160,7 +161,22 @@ def plot_lat_elevation_field(
             # shading, and a color bar ticked at its own levels would be
             # labelled with whatever values those happened to land on
             ticks = MaxNLocator(nbins=9, steps=[1, 2, 2.5, 5, 10])
-        figure.colorbar(filled, ax=axes, label=colorbar_label, ticks=ticks)
+        colorbar = figure.colorbar(
+            filled, ax=axes, label=colorbar_label, ticks=ticks
+        )
+        if contours is not None:
+            # the contour lines are not labeled, so the color bar marks the
+            # values they are drawn at.  Matplotlib would put a level beyond
+            # a clipped color map at its end, where it would mark a value no
+            # line is drawn at, so those are left off.
+            drawn = np.asarray(contours.levels)
+            inside = drawn[(drawn >= norm.vmin) & (drawn <= norm.vmax)]
+            if len(inside) > 0:
+                colorbar.add_lines(
+                    inside,
+                    colors=['k'] * len(inside),
+                    linewidths=[0.5] * len(inside),
+                )
 
         axes.set_xlim(float(lat.min()), float(lat.max()))
         axes.set_ylim(float(z.min()), float(z.max()))
