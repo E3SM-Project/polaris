@@ -2,12 +2,13 @@ import dataclasses
 import json
 from pathlib import Path
 
+import omega_pr_coupled
 import omega_pr_report
 import omega_pr_setup
 import pr_test_github
 import pr_test_report
 import pytest
-from omega_pr_fixtures import make_tester
+from omega_pr_fixtures import finish_coupled_tests, make_tester
 from omega_pr_manifest import MARKER_PREFIX, UPSTREAM
 
 SUITE_MD = """### Polaris `omega_pr` suite
@@ -56,7 +57,8 @@ def test_report(finished):
         f'(`{manifest.baseline_commit[:10]}`).'
     ) in text
     assert (
-        '| chrysalis, intel, openmpi | 50 of 50 passed | 3 of 3 passed | 0 |'
+        '| chrysalis, intel, openmpi | 50 of 50 passed | 3 of 3 passed | '
+        '2 of 2 passed | 0 |'
     ) in text
     # both files are pasted as they are, in the row's collapsed block
     block = text.split('<summary>chrysalis, intel, openmpi</summary>')[1]
@@ -114,7 +116,7 @@ def test_report_without_baseline(tester):
 
     assert (
         '| chrysalis, intel, openmpi | 50 of 50 passed | 3 of 3 passed, '
-        'without a baseline | not compared |'
+        'without a baseline | 2 of 2 passed | not compared |'
     ) in text
     assert (
         'Not compared: this row ran without a baseline, because develop '
@@ -153,10 +155,71 @@ def test_report_failures(finished):
 
     assert (
         '| chrysalis, intel, openmpi | 49 of 50 passed | 2 of 3 passed, 1 '
-        'with baseline differences | 0 |'
+        'with baseline differences | 2 of 2 passed | 0 |'
     ) in text
     marker = pr_test_report.parse_marker(text, MARKER_PREFIX)
     assert marker is not None and marker['rows'][0]['result'] == 'fail'
+
+
+def test_report_coupled_tests(finished):
+    fixture, manifest, state = finished
+
+    text, _ = omega_pr_report.run_report(
+        fixture.config, fixture.fork, manifest.branch
+    )
+
+    # each TestStatus is pasted as it is
+    block = text.split('<summary>chrysalis, intel, openmpi</summary>')[1]
+    assert '### Coupled CIME tests' in block
+    for case_dir in state.coupled_cases:
+        status = Path(case_dir, 'TestStatus').read_text().strip()
+        assert f'`{Path(case_dir).name}`\n\n```\n{status}\n```' in block
+
+
+def test_report_coupled_failure(tester):
+    fixture, manifest, _ = tester
+    tests = ['ERS_D.T62_oQU240.COMEGA-IAF', 'PEM_D.T62_oQU240.FAIL']
+    state = _setup(fixture, manifest, submit=True, coupled_tests=tests)
+    _finish(state)
+
+    text, _ = omega_pr_report.run_report(
+        fixture.config, fixture.fork, manifest.branch
+    )
+
+    assert '| 1 of 2 failed: PEM_D (MODEL_BUILD) |' in text
+    marker = pr_test_report.parse_marker(text, MARKER_PREFIX)
+    assert marker is not None and marker['rows'][0]['result'] == 'fail'
+
+
+def test_report_coupled_job_ended_early(tester):
+    fixture, manifest, _ = tester
+    state = _setup(fixture, manifest, submit=True)
+    _finish(state)
+    # the job ended, out of time, say, before the test finished
+    finish_coupled_tests(state, status='PEND')
+
+    text, _ = omega_pr_report.run_report(
+        fixture.config, fixture.fork, manifest.branch
+    )
+
+    assert '| 2 of 2 failed: ERS_D (RUN), PEM_D (RUN) |' in text
+
+
+def test_report_before_coupled_tests_finish(tester, monkeypatch):
+    fixture, manifest, _ = tester
+    state = _setup(fixture, manifest, submit=True)
+    _finish(state, coupled=False)
+    monkeypatch.setattr(
+        omega_pr_coupled, 'is_job_active', lambda job_id, system: True
+    )
+
+    with pytest.raises(
+        pr_test_report.ReportError,
+        match=r'ERS_D\.T62_oQU240\.COMEGA-IAF.* has not finished \(job 1004\)',
+    ):
+        omega_pr_report.run_report(
+            fixture.config, fixture.fork, manifest.branch
+        )
 
 
 def test_report_before_the_jobs_finish(finished):
@@ -185,7 +248,7 @@ def test_report_not_run(finished):
     assert text.startswith('## Testing on aurora\n')
     assert (
         '| aurora, intel, mpich | not run: Aurora is down for maintenance '
-        '|  |  |'
+        '|  |  |  |'
     ) in text
     assert '<details>' not in text
     marker = pr_test_report.parse_marker(text, MARKER_PREFIX)
@@ -269,8 +332,8 @@ def _mock_post(monkeypatch):
     return posted
 
 
-def _finish(state):
-    """What the PR suite and CTest jobs leave behind"""
+def _finish(state, coupled=True):
+    """What the PR suite, CTest and coupled jobs leave behind"""
     work_dir = Path(state.pr_work_dir)
     (work_dir / 'omega_pr_output_for_pr.md').write_text(SUITE_MD)
     tasks = [
@@ -298,6 +361,8 @@ def _finish(state):
     )
     build_dir = Path(state.pr_build_dir)
     (build_dir / 'ctest_output_for_pr.md').write_text(CTEST_MD)
+    if coupled:
+        finish_coupled_tests(state)
     (build_dir / 'ctests.log').write_text(
         '100% tests passed, 0 tests failed out of 50\n'
     )

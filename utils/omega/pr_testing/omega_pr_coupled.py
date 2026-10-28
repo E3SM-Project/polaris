@@ -128,15 +128,7 @@ def set_up_coupled_tests(
             f'clean login shell:\n  {shlex.join(args)}\n',
             flush=True,
         )
-        # create_test exits with an error when a build fails, which the
-        # case's TestStatus records for the report.  The shell starts clean
-        # since the Polaris environment's variables, such as METIS_ROOT,
-        # would change CIME's build.
-        subprocess.run(
-            setup_tools.get_clean_shell_command(env_script, scripts_dir, args),
-            env=setup_tools.get_login_env(),
-            check=False,
-        )
+        run_create_test(env_script, scripts_dir, args)
 
     jobs = []
     for test, case_dir in zip(tests, case_dirs, strict=True):
@@ -156,6 +148,20 @@ def set_up_coupled_tests(
                 flush=True,
             )
     return case_dirs, jobs
+
+
+def run_create_test(env_script: str, scripts_dir: str, args: List[str]):
+    """
+    Run ``create_test`` in a clean login shell with the CIME environment
+    loaded, since the Polaris environment's variables, such as
+    ``METIS_ROOT``, would change CIME's build.  It exits with an error when
+    a build fails, which the case's ``TestStatus`` records for the report.
+    """
+    subprocess.run(
+        setup_tools.get_clean_shell_command(env_script, scripts_dir, args),
+        env=setup_tools.get_login_env(),
+        check=False,
+    )
 
 
 def phase_status(case_dir: str, phase: str) -> Optional[str]:
@@ -205,17 +211,17 @@ def summarize_coupled_tests(
                 f'the coupled test {name} has no {_TEST_STATUS}; it was not '
                 f'set up'
             )
+        built = phase_status(case_dir, 'MODEL_BUILD') == 'PASS'
+        run = phase_status(case_dir, 'RUN')
         job_id = job_ids.get(case_dir)
-        if job_id is None and phase_status(case_dir, 'MODEL_BUILD') == 'PASS':
-            raise ReportError(
-                f'the coupled test {name} was built but not submitted'
-            )
-        if job_id is not None and is_job_active(job_id, system):
-            raise ReportError(
-                f'the coupled test {name} has not finished (job {job_id})'
-            )
+        if built and run in [None, 'PEND']:
+            if job_id is None or is_job_active(job_id, system):
+                raise ReportError(
+                    f'the coupled test {name} has not finished'
+                    f'{"" if job_id is None else f" (job {job_id})"}'
+                )
         phases = [phase for status, _, phase in lines if status != 'PASS']
-        if not phases and 'RUN' not in {phase for _, _, phase in lines}:
+        if built and run is None:
             # a job that ended before it started the test
             phases.append('RUN')
         if phases:
