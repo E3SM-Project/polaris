@@ -99,6 +99,7 @@ design_docs/index
 :caption: Tutorials
 :maxdepth: 1
 
+tutorials/dev_mali_pr_on_perlmutter
 tutorials/dev_add_category_of_tasks/index
 ```
 
