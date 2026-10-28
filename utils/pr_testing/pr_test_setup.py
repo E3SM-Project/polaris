@@ -525,6 +525,11 @@ def init_all_submodules(tree: str) -> None:
         return
     with _tree_lock(tree):
         if not os.path.exists(ready):
+            print(
+                f'\nInitializing all submodules of {tree}, recursively, '
+                f'for CIME (several minutes)\n',
+                flush=True,
+            )
             git_tools.git(
                 ['submodule', 'update', '--init', '--recursive'], tree
             )
