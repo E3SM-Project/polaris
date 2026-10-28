@@ -1469,6 +1469,13 @@ velocity and kinetic energy but has no CFL number or volume-weighted sums, so
 Omega run.  A blank means "this model does not report it", not that something
 went wrong; the log says which source each metric came from.
 
+In place of the CFL number, an Omega run fills `cfl_estimate_max_in_stage`
+with a conservative estimate: the larger magnitude of the minimum and maximum
+normal velocity, times the stage's baroclinic time step, divided by the
+smallest cell spacing on the mesh.  The fastest flow and the smallest cell
+need not be in the same place, so this is an upper bound rather than Omega's
+CFL number, and it is reported for inspection, not checked against `cfl_max`.
+
 There are four checks, all per stage, run in a `<stage>_check` step
 immediately after that stage, so a stage that is already out of bounds stops the
 sequence instead of costing the whole job:
@@ -1565,7 +1572,20 @@ climbs to a second or third row where its stage is too narrow to hold one —
 that was flat through a stage from one that spiked and recovered, and those
 call for different changes to the schedule; the figure can.  Reading it against
 the damping labels is usually the fastest way to tell a response to the ramp
-from a trend that would have happened anyway.
+from a trend that would have happened anyway.  For Omega, the CFL panel shows
+the conservative estimate described above, labelled as an upper bound.
+
+The `viz` step also writes `dynamic_adjustment_tracer_change.png`, which shows
+how far the adjustment moved the ocean from its initial condition: histograms
+of the change in temperature and in salinity, cell by cell and layer by layer,
+from the initial state to the last record of the final stage.  Each cell is
+weighted by its initial volume, so the histograms are probability densities
+over the ocean's volume, drawn on a logarithmic axis so the rare large changes
+show.  Each model is compared in its own convention (potential temperature and
+practical salinity for MPAS-Ocean, conservative temperature and absolute
+salinity for Omega).  The volume-weighted mean and RMS change, the change that
+99% of the volume stays within and the largest change are printed on the
+figure and in the step's log.
 
 The `viz` step belongs to the standalone task.  If the stages are later reused
 as shared steps by a longer spin-up workflow, a figure describing a completed

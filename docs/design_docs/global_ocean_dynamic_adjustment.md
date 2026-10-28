@@ -541,7 +541,10 @@ stage labelled with its damping. A summary row cannot distinguish a quantity
 that was flat through a stage from one that spiked and recovered, and those call
 for different changes to the schedule; the figure can. It belongs to the
 standalone task: a workflow that only wants the relaxed restart is not asking
-about a completed adjustment.
+about a completed adjustment. A second figure answers how far the adjustment
+moved the ocean from its initial condition, with volume-weighted histograms of
+the change in temperature and salinity from the initial state to the end of the
+last stage.
 
 The common concept remains "each stage completed and wrote its restart, and the
 final adjusted state looks reasonable" — with the second half now answered by a
