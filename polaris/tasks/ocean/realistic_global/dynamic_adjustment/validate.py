@@ -8,6 +8,8 @@ from polaris.tasks.ocean.realistic_global.dynamic_adjustment.checks import (
     check_temperature_min,
 )
 from polaris.tasks.ocean.realistic_global.dynamic_adjustment.diagnostics import (  # noqa: E501
+    _CFL_VELOCITY_STATS,
+    estimate_cfl_from_stats,
     extreme_and_day,
     open_stage_stats,
     stage_stats_path,
@@ -48,7 +50,13 @@ class StageCheck(Step):
     """
 
     def __init__(
-        self, component, subdir, stage, sequence_start='0001-01-01_00:00:00'
+        self,
+        component,
+        subdir,
+        stage,
+        sequence_start='0001-01-01_00:00:00',
+        min_res=None,
+        mesh_target=None,
     ):
         """
         Create the step.
@@ -70,12 +78,28 @@ class StageCheck(Step):
             stage knows how much of the window it is covered by.  The default
             matches ``ForwardStage.start_time``, which is where a
             single-stage sequence begins.
+
+        min_res : float, optional
+            The mesh minimum resolution in km, used for a per-kilometer Omega
+            timestep.
+
+        mesh_target : str, optional
+            The static horizontal mesh file used for the Omega CFL estimate,
+            relative to the base work directory.  It is linked into the step
+            as ``mesh.nc``.
         """
         super().__init__(
             component=component, name=f'{stage.name}_check', subdir=subdir
         )
         self.stage = stage
         self.sequence_start = sequence_start
+        self.min_res = min_res
+        self.mesh_filename = None
+        if mesh_target is not None:
+            self.add_input_file(
+                filename='mesh.nc', work_dir_target=mesh_target
+            )
+            self.mesh_filename = 'mesh.nc'
 
     def run(self):
         """
@@ -149,3 +173,30 @@ class StageCheck(Step):
                 stage_name,
                 logger,
             )
+            if model == 'omega':
+                if any(name not in ds for name in _CFL_VELOCITY_STATS):
+                    logger.info(
+                        f'Stage {stage_name!r}: normal-velocity extrema are '
+                        'not available; skipping the conservative CFL '
+                        'estimate.'
+                    )
+                elif self.min_res is None or self.mesh_filename is None:
+                    raise ValueError(
+                        'The Omega CFL estimate requires the mesh minimum '
+                        'resolution and horizontal mesh filename.'
+                    )
+                else:
+                    cfl_estimate = estimate_cfl_from_stats(
+                        component=self.component,
+                        config=config,
+                        ds_stats=ds,
+                        stage=self.stage,
+                        min_res=self.min_res,
+                        mesh_filename=self.mesh_filename,
+                    )
+                    if cfl_estimate is not None:
+                        logger.info(
+                            f'Stage {stage_name!r}: conservative '
+                            f'Polaris-only horizontal CFL estimate '
+                            f'{cfl_estimate:.4g} (not threshold-checked).'
+                        )

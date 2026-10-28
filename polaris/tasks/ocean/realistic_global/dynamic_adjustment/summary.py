@@ -54,7 +54,9 @@ class Summary(Step):
         The stage subdirectory names, in schedule order.
     """
 
-    def __init__(self, component, subdir, stages):
+    def __init__(
+        self, component, subdir, stages, min_res=None, mesh_target=None
+    ):
         """
         Create the step.
 
@@ -71,10 +73,26 @@ class Summary(Step):
             themselves are needed, rather than just their names, because a
             stage's run duration is what turns a change across the stage into
             a per-day rate.
+
+        min_res : float, optional
+            The mesh minimum resolution in km, used for a per-kilometer Omega
+            timestep.
+
+        mesh_target : str, optional
+            The static horizontal mesh file used for the Omega CFL estimate,
+            relative to the base work directory.  It is linked into the step
+            as ``mesh.nc``.
         """
         super().__init__(component=component, name='summary', subdir=subdir)
         self.stages = list(stages)
         self.stage_names = [stage.name for stage in self.stages]
+        self.min_res = min_res
+        self.mesh_filename = None
+        if mesh_target is not None:
+            self.add_input_file(
+                filename='mesh.nc', work_dir_target=mesh_target
+            )
+            self.mesh_filename = 'mesh.nc'
         for stage_name in self.stage_names:
             self.add_input_file(
                 filename=f'output_{stage_name}.nc',
@@ -117,6 +135,8 @@ class Summary(Step):
                 exclude_days=excluded_days_in_stage(
                     stage, sequence_start, exclusion
                 ),
+                min_res=self.min_res,
+                mesh_filename=self.mesh_filename,
             )
             for stage in self.stages
         ]

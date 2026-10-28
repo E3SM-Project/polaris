@@ -143,6 +143,8 @@ def get_realistic_dynamic_adjustment_steps(
             config_filename=CONFIG_FILENAME,
             stage=stage,
             sequence_start=stages[0].start_time,
+            min_res=min_res,
+            mesh_target=f'{init_step.path}/mesh.nc',
         )
         check_step.add_dependency(forward_step, forward_step.name)
         steps[check_step.name] = check_step
@@ -153,6 +155,8 @@ def get_realistic_dynamic_adjustment_steps(
         config=config,
         config_filename=CONFIG_FILENAME,
         stages=stages,
+        min_res=min_res,
+        mesh_target=f'{init_step.path}/mesh.nc',
     )
     steps[summary_step.name] = summary_step
 
