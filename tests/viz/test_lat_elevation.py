@@ -91,8 +91,17 @@ def _contour_sets(figure):
     ]
 
 
+def _color_bar_lines(filled):
+    """The values the color bar of some filled contours marks with lines"""
+    return sorted(
+        float(segment[0][1])
+        for collection in filled.colorbar.lines
+        for segment in collection.get_segments()
+    )
+
+
 def test_the_plot_is_written(tmp_path):
-    filename = _plot(tmp_path, contour_interval=5.0, max_abs=20.0)
+    filename = _plot(tmp_path, contour_interval=5.0, vmin=-20.0, vmax=20.0)
     assert os.path.getsize(filename) > 0
 
 
@@ -102,7 +111,7 @@ def test_the_sea_surface_is_at_the_top_without_inverting_the_axis(
     """Elevation is positive up, so the surface is at the top of an axis
     that increases upwards.  Inverting the axis instead would put the surface
     at the top while labelling it backwards."""
-    axes = _figure_of(monkeypatch, max_abs=20.0).axes[0]
+    axes = _figure_of(monkeypatch, vmin=-20.0, vmax=20.0).axes[0]
     bottom, top = axes.get_ylim()
     assert bottom < top
     assert bottom == pytest.approx(Z.min())
@@ -113,8 +122,10 @@ def test_either_orientation_of_the_field_draws_the_same_plot(tmp_path):
     """A field given as (latitude, elevation) is transposed rather than
     refused, since which way round it comes depends on what wrote it."""
     da = _field()
-    one = _plot(tmp_path, da=da, name='one.png', max_abs=20.0)
-    other = _plot(tmp_path, da=da.transpose(), name='other.png', max_abs=20.0)
+    one = _plot(tmp_path, da=da, name='one.png', vmin=-20.0, vmax=20.0)
+    other = _plot(
+        tmp_path, da=da.transpose(), name='other.png', vmin=-20.0, vmax=20.0
+    )
     with open(one, 'rb') as first, open(other, 'rb') as second:
         assert first.read() == second.read()
 
@@ -162,7 +173,9 @@ def test_contour_lines_reach_the_ends_of_the_data():
 def test_the_lines_that_are_drawn_are_the_ones_asked_for(monkeypatch):
     """The same, end to end: a color map clipped to 5 Sv over a field that
     runs to nearly 20 still carries lines through the saturated part."""
-    figure = _figure_of(monkeypatch, max_abs=5.0, contour_interval=10.0)
+    figure = _figure_of(
+        monkeypatch, vmin=-5.0, vmax=5.0, contour_interval=10.0
+    )
     filled, lines = _contour_sets(figure)
     assert filled.levels[0] == pytest.approx(-5.0)
     assert filled.levels[-1] == pytest.approx(5.0)
@@ -171,8 +184,44 @@ def test_the_lines_that_are_drawn_are_the_ones_asked_for(monkeypatch):
     assert max(abs(lines.levels)) > filled.levels[-1]
 
 
+def test_the_color_bar_marks_the_contour_levels(monkeypatch):
+    """The contour lines are not labeled, so the color bar is where a reader
+    finds the value of each one."""
+    figure = _figure_of(
+        monkeypatch, vmin=-20.0, vmax=20.0, contour_interval=5.0
+    )
+    filled, lines = _contour_sets(figure)
+    assert np.allclose(_color_bar_lines(filled), lines.levels)
+
+
+def test_levels_beyond_a_clipped_color_map_are_left_off_its_color_bar(
+    monkeypatch,
+):
+    figure = _figure_of(
+        monkeypatch, vmin=-5.0, vmax=5.0, contour_interval=10.0
+    )
+    filled, _ = _contour_sets(figure)
+    assert np.allclose(_color_bar_lines(filled), [0.0])
+
+
+def test_a_color_map_between_two_levels_has_no_lines_on_its_color_bar(
+    monkeypatch,
+):
+    figure = _figure_of(monkeypatch, vmin=2.0, vmax=8.0, contour_interval=10.0)
+    filled, _ = _contour_sets(figure)
+    assert _color_bar_lines(filled) == []
+
+
+def test_no_contour_lines_put_no_lines_on_the_color_bar(monkeypatch):
+    figure = _figure_of(monkeypatch, vmin=-20.0, vmax=20.0)
+    (filled,) = _contour_sets(figure)
+    assert _color_bar_lines(filled) == []
+
+
 def test_no_contour_interval_draws_no_contour_lines(monkeypatch):
-    assert len(_contour_sets(_figure_of(monkeypatch, max_abs=20.0))) == 1
+    assert (
+        len(_contour_sets(_figure_of(monkeypatch, vmin=-20.0, vmax=20.0))) == 1
+    )
 
 
 def test_a_wide_range_widens_the_interval_to_stay_readable():
@@ -214,7 +263,8 @@ def test_the_plot_reports_the_interval_it_drew(tmp_path):
         config=_config(),
         colormap_section='ocean_analysis_moc',
         contour_interval=2.0,
-        max_abs=100.0,
+        vmin=-100.0,
+        vmax=100.0,
     )
     assert drawn is not None and drawn > 2.0
 
@@ -227,7 +277,8 @@ def test_no_contour_interval_reports_no_interval(tmp_path):
         out_filename=str(tmp_path / 'plain.png'),
         config=_config(),
         colormap_section='ocean_analysis_moc',
-        max_abs=20.0,
+        vmin=-20.0,
+        vmax=20.0,
     )
     assert drawn is None
 
@@ -276,13 +327,25 @@ def test_a_narrow_latitude_range_still_gets_ticks():
     assert np.array_equal(_latitude_ticks(np.array([1.0, 20.0])), [1.0, 20.0])
 
 
-def test_max_abs_centers_the_color_map_on_zero(monkeypatch):
-    filled = _contour_sets(_figure_of(monkeypatch, max_abs=12.0))[0]
+def test_vmin_and_vmax_replace_the_config_limits(monkeypatch):
+    config = _config(norm_args="{'vmin': -4., 'vmax': 8.}")
+    filled = _contour_sets(
+        _figure_of(monkeypatch, config=config, vmin=-12.0, vmax=12.0)
+    )[0]
     assert filled.norm.vmin == pytest.approx(-12.0)
     assert filled.norm.vmax == pytest.approx(12.0)
 
 
-def test_without_max_abs_the_color_map_comes_from_the_config(monkeypatch):
+def test_vmin_alone_keeps_the_config_vmax(monkeypatch):
+    config = _config(norm_args="{'vmin': -4., 'vmax': 8.}")
+    filled = _contour_sets(_figure_of(monkeypatch, config=config, vmin=-12.0))[
+        0
+    ]
+    assert filled.norm.vmin == pytest.approx(-12.0)
+    assert filled.norm.vmax == pytest.approx(8.0)
+
+
+def test_without_limits_the_color_map_comes_from_the_config(monkeypatch):
     """A field with no natural center sets its own limits, the way every
     other plot in polaris.viz does."""
     config = _config(norm_args="{'vmin': -4., 'vmax': 8.}")
@@ -292,7 +355,7 @@ def test_without_max_abs_the_color_map_comes_from_the_config(monkeypatch):
 
 
 def test_an_unbounded_color_map_scales_to_the_data(monkeypatch):
-    """An empty norm_args and no max_abs is the ordinary autoscaling case,
+    """An empty norm_args and no limits is the ordinary autoscaling case,
     and it has to survive the values below the seafloor being NaN."""
     da = _field()
     values = da.values.copy()
