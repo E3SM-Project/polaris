@@ -23,7 +23,9 @@ from polaris.tasks.ocean.realistic_global.dynamic_adjustment.checks import (
     check_temperature_min,
 )
 from polaris.tasks.ocean.realistic_global.dynamic_adjustment.diagnostics import (  # noqa: E501
+    cfl_estimate_series,
     column_names,
+    estimate_cfl_from_stats,
     extreme_and_day,
     open_stage_stats,
     stage_stats_path,
@@ -53,9 +55,11 @@ from polaris.tasks.ocean.realistic_global.dynamic_adjustment.validate import (
 )
 from polaris.tasks.ocean.realistic_global.dynamic_adjustment.viz import (
     FIGURE_FILENAME,
+    TRACER_CHANGE_FILENAME,
     VizDynamicAdjustmentStep,
     _label_stages,
     _short_stage_name,
+    tracer_changes,
 )
 from polaris.tasks.ocean.realistic_global.forward import ForwardStage
 from polaris.tasks.ocean.realistic_global.forward.forward import Forward
@@ -349,8 +353,44 @@ def test_the_viz_step_waits_for_every_stage():
     steps, _, stages = get_realistic_dynamic_adjustment_steps(
         component=component, mesh_name='u-oi240-lr240', include_viz=True
     )
-    targets = {entry['target'] for entry in steps['viz'].input_data}
+    targets = {
+        entry['target']
+        for entry in steps['viz'].input_data
+        if entry['filename'].startswith('output_')
+    }
     assert targets == {f'../{stage.name}/output.nc' for stage in stages}
+
+
+def test_the_steps_that_read_the_mesh_link_it_from_the_init_step():
+    """
+    A step's ``path`` is relative to the base work directory, not to the
+    step, so the mesh and initial state are linked into each step that reads
+    them rather than opened at that path.
+    """
+    component = Ocean()
+    steps, _, stages = get_realistic_dynamic_adjustment_steps(
+        component=component, mesh_name='u-oi240-lr240', include_viz=True
+    )
+    init_path = steps['initial_state'].path
+    for name in ['summary', 'viz', f'{stages[0].name}_check']:
+        links = {
+            entry['filename']: entry['work_dir_target']
+            for entry in steps[name].input_data
+        }
+        assert links['mesh.nc'] == f'{init_path}/mesh.nc'
+        step = steps[name]
+        assert isinstance(
+            step, (Summary, StageCheck, VizDynamicAdjustmentStep)
+        )
+        assert step.mesh_filename == 'mesh.nc'
+    links = {
+        entry['filename']: entry['work_dir_target']
+        for entry in steps['viz'].input_data
+    }
+    assert links['init.nc'] == f'{init_path}/init.nc'
+    viz = steps['viz']
+    assert isinstance(viz, VizDynamicAdjustmentStep)
+    assert viz.init_filename == 'init.nc'
 
 
 def test_the_last_stage_names_the_restart_a_consumer_wants():
@@ -1341,6 +1381,51 @@ def test_open_stage_stats_renames_omegas_kinetic_energy():
     ]
 
 
+def test_the_cfl_estimate_takes_the_faster_extreme_at_each_sample():
+    stats = xr.Dataset(
+        {
+            'normalVelocityMin': ('Time', [-0.5, -2.0, -0.1]),
+            'normalVelocityMax': ('Time', [1.0, 1.5, 0.2]),
+        }
+    )
+    stage = ForwardStage(name='damped_1', dt='00:10:00', btr_dt='00:00:30')
+    series = cfl_estimate_series(
+        stats, stage, min_res=30.0, min_edge_length=6000.0
+    )
+    assert series is not None
+    np.testing.assert_allclose(series, np.array([0.1, 0.2, 0.02]))
+
+
+def test_the_cfl_estimate_is_missing_without_velocity_extremes():
+    stats = xr.Dataset({'temperatureMax': ('Time', [1.0, 2.0])})
+    stage = ForwardStage(name='damped_1', dt='00:10:00', btr_dt='00:00:30')
+    assert cfl_estimate_series(stats, stage, 30.0, 6000.0) is None
+
+
+def test_the_stage_cfl_estimate_skips_the_initial_sample():
+    """
+    The first sample is the state the stage was handed, so, like the other
+    extremes, the estimate leaves it out.
+    """
+    stats = xr.Dataset(
+        {
+            'normalVelocityMin': ('Time', [-9.0, -1.0, -0.5]),
+            'normalVelocityMax': ('Time', [9.0, 0.5, 2.0]),
+        }
+    )
+    mesh = xr.Dataset({'dcEdge': ('nEdges', [12000.0, 6000.0, 8000.0])})
+    stage = ForwardStage(name='damped_1', dt='00:10:00', btr_dt='00:00:30')
+    estimate = estimate_cfl_from_stats(
+        component=_StatsComponent(mesh),
+        config=_model_config('omega'),
+        ds_stats=stats,
+        stage=stage,
+        min_res=30.0,
+        mesh_filename='mesh.nc',
+    )
+    assert estimate == pytest.approx(2.0 * 600.0 / 6000.0)
+
+
 def test_open_stage_stats_drops_omegas_scalar_dimension():
     """
     Omega writes each statistic as (time, Scalar) with Scalar of length one,
@@ -1993,6 +2078,82 @@ def test_viz_writes_nothing_without_any_statistics(tmp_path, monkeypatch):
     monkeypatch.chdir(tmp_path / 'viz')
     step.run()
     assert not (tmp_path / 'viz' / FIGURE_FILENAME).exists()
+
+
+def _write_tracer_files(directory, final_stage):
+    """
+    Two cells of two layers each.  The second layer of the first cell is
+    inactive, with no thickness, a NaN to start and a fill value at the end,
+    and must count for nothing.
+    """
+    directory.mkdir(parents=True, exist_ok=True)
+    dims = ('Time', 'nCells', 'nVertLevels')
+    xr.Dataset({'areaCell': ('nCells', [1.0, 3.0])}).to_netcdf(
+        directory / 'mesh.nc'
+    )
+    xr.Dataset(
+        {
+            'layerThickness': (dims, [[[10.0, 0.0], [10.0, 10.0]]]),
+            'temperature': (dims, [[[10.0, np.nan], [20.0, 30.0]]]),
+            'salinity': (dims, [[[35.0, np.nan], [34.0, 33.0]]]),
+        }
+    ).to_netcdf(directory / 'init.nc')
+    # the first record is a mid-run state that should be ignored
+    xr.Dataset(
+        {
+            'temperature': (
+                dims,
+                [
+                    [[99.0, -1.0e34], [99.0, 99.0]],
+                    [[11.0, -1.0e34], [20.0, 33.0]],
+                ],
+            ),
+            'salinity': (
+                dims,
+                [
+                    [[99.0, -1.0e34], [99.0, 99.0]],
+                    [[35.0, -1.0e34], [34.5, 33.0]],
+                ],
+            ),
+        }
+    ).to_netcdf(directory / f'output_{final_stage}.nc')
+
+
+def test_tracer_changes_are_weighted_by_volume_over_active_layers(tmp_path):
+    _write_tracer_files(tmp_path, 'simulation')
+    component = Ocean()
+    component.model = 'mpas-ocean'
+    changes = tracer_changes(
+        component,
+        _model_config('mpas-ocean'),
+        init_filename=str(tmp_path / 'init.nc'),
+        final_filename=str(tmp_path / 'output_simulation.nc'),
+        mesh_filename=str(tmp_path / 'mesh.nc'),
+    )
+    # volumes 10, 30 and 30; the inactive layer is left out
+    temperature = changes['temperature']
+    assert temperature.mean == pytest.approx((1.0 * 10 + 3.0 * 30) / 70)
+    assert temperature.rms == pytest.approx(np.sqrt((10 + 9.0 * 30) / 70))
+    assert temperature.max_abs == pytest.approx(3.0)
+    # the 30 of 70 that changed by 3 lie above the 99th percentile's
+    # threshold, so 99% of the volume is within (just under) 3
+    assert temperature.p99 == pytest.approx(3.0, rel=1.0e-3)
+    widths = np.diff(temperature.edges)
+    assert np.sum(temperature.density * widths) == pytest.approx(1.0)
+    salinity = changes['salinity']
+    assert salinity.mean == pytest.approx(0.5 * 30 / 70)
+    assert salinity.max_abs == pytest.approx(0.5)
+
+
+def test_viz_plots_the_tracer_change(tmp_path, monkeypatch):
+    step = _viz_step(tmp_path, 'mpas-ocean', ['damped_1', 'simulation'])
+    _write_tracer_files(tmp_path / 'viz', 'simulation')
+    step.init_filename = 'init.nc'
+    step.mesh_filename = 'mesh.nc'
+    monkeypatch.chdir(tmp_path / 'viz')
+    step.run()
+    figure = tmp_path / 'viz' / TRACER_CHANGE_FILENAME
+    assert figure.exists() and figure.stat().st_size > 0
 
 
 def _viz_step(tmp_path, model, stage_names):
