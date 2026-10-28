@@ -474,18 +474,27 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">"""</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">xarray</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">xr</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mpas_tools.mesh.attrs</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_mesh_var_attrs</span>
 
-<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.cf</span><span class="w"> </span><span class="kn">import</span> <span class="n">add_var_attrs</span><span class="p">,</span> <span class="n">read_var_attrs</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.cf</span><span class="w"> </span><span class="kn">import</span> <span class="n">add_var_attrs</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.mesh.info</span><span class="w"> </span><span class="kn">import</span> <span class="n">is_spherical</span>
 
 
 <div class="viewcode-block" id="add_mesh_var_attrs">
 <a class="viewcode-back" href="../../../developers_guide/generated/polaris.mesh.attrs.add_mesh_var_attrs.html#polaris.mesh.attrs.add_mesh_var_attrs">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">add_mesh_var_attrs</span><span class="p">(</span><span class="n">ds</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">"""</span>
-<span class="sd">    Fill in the ``units`` and ``long_name`` attributes of the MPAS mesh</span>
-<span class="sd">    variables in a dataset, for those that do not already have them.  The</span>
-<span class="sd">    MPAS-Tools mesh creation, conversion and culling tools write none, so</span>
-<span class="sd">    this makes a mesh file self-describing before it is written.</span>
+<span class="sd">    Fill in the ``units``, ``long_name`` and ``standard_name`` attributes of</span>
+<span class="sd">    the MPAS mesh variables in a dataset, for those that do not already have</span>
+<span class="sd">    them, from the table in :py:mod:`mpas_tools.mesh.attrs`.</span>
+
+<span class="sd">    The MPAS-Tools mesh tools write these attributes themselves, but mesh</span>
+<span class="sd">    variables that Polaris adds to other datasets may not have them.</span>
+<span class="sd">    Latitude and longitude variables get a ``standard_name`` only if the</span>
+<span class="sd">    dataset's ``on_a_sphere`` attribute is ``YES``.  Unlike</span>
+<span class="sd">    :py:func:`mpas_tools.mesh.attrs.add_mesh_attrs()`, no attribute is</span>
+<span class="sd">    removed, so a dataset that does not carry ``on_a_sphere`` keeps the</span>
+<span class="sd">    standard names its mesh variables came with.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
@@ -497,7 +506,8 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">    ds : xarray.Dataset</span>
 <span class="sd">        A shallow copy of the dataset with the attributes added</span>
 <span class="sd">    """</span>
-    <span class="k">return</span> <span class="n">add_var_attrs</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="n">read_var_attrs</span><span class="p">(</span><span class="s1">'polaris.mesh'</span><span class="p">,</span> <span class="s1">'attrs.yaml'</span><span class="p">))</span></div>
+    <span class="n">on_a_sphere</span> <span class="o">=</span> <span class="n">is_spherical</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">add_var_attrs</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="n">get_mesh_var_attrs</span><span class="p">(</span><span class="n">on_a_sphere</span><span class="p">))</span></div>
 
 </pre></div>
 

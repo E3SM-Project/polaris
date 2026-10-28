@@ -481,7 +481,6 @@ window.runMermaid = runMermaid;</script>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">polaris</span><span class="w"> </span><span class="kn">import</span> <span class="n">Step</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">polaris.cf</span><span class="w"> </span><span class="kn">import</span> <span class="n">add_cf_conventions</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.mesh.attrs</span><span class="w"> </span><span class="kn">import</span> <span class="n">add_mesh_var_attrs</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">polaris.mesh.reconstruct</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">compute_reconstruction_weights</span><span class="p">,</span>
     <span class="n">get_reconstruction_validate_vars</span><span class="p">,</span>
@@ -671,7 +670,6 @@ window.runMermaid = runMermaid;</script>
         <span class="n">ds_culled_mesh</span> <span class="o">=</span> <span class="n">sort_mesh</span><span class="p">(</span><span class="n">ds_culled_mesh</span><span class="p">)</span>
 
         <span class="n">out_filename</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">'culled_</span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s1">_mesh.nc'</span>
-        <span class="n">ds_culled_mesh</span> <span class="o">=</span> <span class="n">add_cf_conventions</span><span class="p">(</span><span class="n">add_mesh_var_attrs</span><span class="p">(</span><span class="n">ds_culled_mesh</span><span class="p">))</span>
         <span class="n">write_netcdf</span><span class="p">(</span><span class="n">ds_culled_mesh</span><span class="p">,</span> <span class="n">out_filename</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">prefix</span> <span class="ow">in</span> <span class="n">SCRIP_PREFIXES</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_create_scrip_file</span><span class="p">(</span><span class="n">mesh_filename</span><span class="o">=</span><span class="n">out_filename</span><span class="p">,</span> <span class="n">prefix</span><span class="o">=</span><span class="n">prefix</span><span class="p">)</span>

@@ -90,8 +90,7 @@ Every file these write methods produce passes the CF checker, and the methods
 take care of the metadata themselves, so an init step does not normally need
 to.  They add `CF-1.8` to the `Conventions` attribute (keeping the `MPAS`
 entry the MPAS-Tools converter writes) and fill in `units` and `long_name`
-for any mesh variable (from
-[polaris/mesh/attrs.yaml](https://github.com/E3SM-Project/polaris/blob/main/polaris/mesh/attrs.yaml))
+for any mesh variable (from the table in `mpas_tools.mesh.attrs`)
 or vertical-coordinate, state or forcing variable (from
 [polaris/ocean/model/attrs.yaml](https://github.com/E3SM-Project/polaris/blob/main/polaris/ocean/model/attrs.yaml))
 that does not already have them.  The tables use MPAS-Ocean names, since the

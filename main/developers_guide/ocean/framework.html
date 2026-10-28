@@ -233,8 +233,7 @@ Omega format outside a Polaris task, see
 take care of the metadata themselves, so an init step does not normally need
 to.  They add <code class="docutils literal notranslate"><span class="pre">CF-1.8</span></code> to the <code class="docutils literal notranslate"><span class="pre">Conventions</span></code> attribute (keeping the <code class="docutils literal notranslate"><span class="pre">MPAS</span></code>
 entry the MPAS-Tools converter writes) and fill in <code class="docutils literal notranslate"><span class="pre">units</span></code> and <code class="docutils literal notranslate"><span class="pre">long_name</span></code>
-for any mesh variable (from
-<a class="reference external" href="https://github.com/E3SM-Project/polaris/blob/main/polaris/mesh/attrs.yaml">polaris/mesh/attrs.yaml</a>)
+for any mesh variable (from the table in <code class="docutils literal notranslate"><span class="pre">mpas_tools.mesh.attrs</span></code>)
 or vertical-coordinate, state or forcing variable (from
 <a class="reference external" href="https://github.com/E3SM-Project/polaris/blob/main/polaris/ocean/model/attrs.yaml">polaris/ocean/model/attrs.yaml</a>)
 that does not already have them.  The tables use MPAS-Ocean names, since the
