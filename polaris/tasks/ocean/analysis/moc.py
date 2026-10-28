@@ -4,8 +4,9 @@ The global meridional overturning streamfunction.
 Polaris does not compute the MOC.  The streamfunction needs the full
 three-dimensional velocity at every time step to be right, which is why Omega
 computes it in situ, and it needs the elevation of the layer interfaces it
-lives on, which move.  Omega provides both; this step averages the reductions
-Omega wrote over the requested years and plots them.
+lives on, which move.  Omega provides both as monthly means; this step
+computes their annual climatology over the requested years with ``ncclimo``,
+as the climatology maps are computed, and plots it.
 
 Only the global streamfunction is plotted.  Omega's MOC group can compute the
 streamfunction for named regions, and regional overturning -- the Atlantic MOC
@@ -17,6 +18,10 @@ import xarray as xr
 from mpas_tools.io import write_netcdf
 
 from polaris.tasks.ocean.analysis.analysis_step import AnalysisStep
+from polaris.tasks.ocean.analysis.ncclimo import (
+    find_climatology_file,
+    run_ncclimo,
+)
 from polaris.tasks.ocean.analysis.sim_files import (
     MOC_GROUP_NAME,
     year_range_key,
@@ -31,6 +36,10 @@ from polaris.viz.lat_elevation import MAX_CONTOUR_LINES
 STREAMFUNCTION_VARIABLE = 'MOC_streamfunction_Global'
 LAT_BIN_BOUNDARY_VARIABLE = 'MOCLatBinBoundaries'
 INTERFACE_ELEVATION_VARIABLE = 'GeomZInterface_HorzMean'
+
+# ``ncclimo`` computes a climatology from one file of monthly means per month,
+# so that is the one kind of MOC output this step can average
+MONTHLY_PERIOD = '1Month'
 
 # Named for the region alone; the publish step prefixes the product group, so
 # that these are published as moc_global_<range>
@@ -49,19 +58,18 @@ STREAMFUNCTION_UNITS = 'Sv'
 
 class Moc(AnalysisStep):
     """
-    A step that time averages the meridional overturning circulation Omega
-    computes in situ and plots it against latitude and elevation
+    A step that computes the annual climatology of the meridional
+    overturning circulation Omega computes in situ and plots it against
+    latitude and elevation
 
     Attributes
     ----------
     has_moc_output : bool
         Whether the simulation wrote MOC output at all
 
-    reduction_period : str or None
-        The period Omega reduced the streamfunction over, or ``None`` if it
-        wrote snapshots.  The variables are named differently in the two
-        cases, and the two are averaged differently, so which one it is has
-        to be known before the file is opened.
+    stream_problem : str or None
+        Why the MOC output the simulation wrote cannot be averaged, or
+        ``None`` if it can
     """
 
     def __init__(self, component, subdir, start_year, end_year):
@@ -92,7 +100,7 @@ class Moc(AnalysisStep):
             cpus_per_task=1,
         )
         self.has_moc_output = False
-        self.reduction_period = None
+        self.stream_problem = None
 
     def setup(self):
         """
@@ -103,18 +111,22 @@ class Moc(AnalysisStep):
         the step goes on to produce nothing.
         """
         sim_files = self.get_sim_files()
+        stream = sim_files.moc_stream()
+        if stream is not None:
+            self.stream_problem = _stream_problem(stream)
+            if self.stream_problem is not None:
+                self.has_moc_output = True
+                return
         moc_files = sim_files.moc_files(self.start_year, self.end_year)
         self.has_moc_output = moc_files is not None
         if moc_files is None:
             return
         self.add_sim_input_files(moc_files)
-        stream = sim_files.moc_stream()
-        assert stream is not None
-        self.reduction_period = stream.period if stream.is_reduction else None
 
     def run(self):
         """
-        Average the streamfunction over the requested years and plot it
+        Compute the annual climatology of the streamfunction and its axes
+        over the requested years, and plot it
         """
         if not self.has_moc_output:
             self.logger.info(
@@ -126,13 +138,18 @@ class Moc(AnalysisStep):
                 f'in the simulation and run it again to get this plot.'
             )
             return
+        if self.stream_problem is not None:
+            self.logger.info(self.stream_problem)
+            return
         self.log_inputs()
 
-        with self._open_moc() as ds:
-            fields = self._read_fields(ds)
-        if fields is None:
+        names = self._find_fields()
+        if names is None:
             return
-        streamfunction, lat, z = fields
+        run_ncclimo(self, variables=list(names), seasons=['ANN'])
+        filename = find_climatology_file(self.work_path(), 'ANN')
+        with xr.open_dataset(filename) as ds:
+            streamfunction, lat, z = self._read_fields(ds, *names)
 
         write_netcdf(
             ds=self._to_dataset(streamfunction, lat, z),
@@ -141,54 +158,52 @@ class Moc(AnalysisStep):
         self.logger.info(f'wrote {DATA_FILENAME}')
         self._plot(streamfunction, lat, z)
 
-    def _open_moc(self):
+    def _find_fields(self):
         """
-        Open the MOC output over the requested years as one series
-
-        The variables keep the names Omega gave them, since those are the
-        names this step looks for.
-        """
-        ds = xr.open_mfdataset(
-            [self.work_path(filename) for filename in self.input_filenames],
-            combine='nested',
-            concat_dim='time',
-            # the latitude bin boundaries are the same in every file and
-            # carry no time dimension, so they are taken from the first file
-            # rather than given one
-            data_vars='minimal',
-            coords='minimal',
-            compat='override',
-        )
-        if 'time' in ds.dims:
-            # the rest of Polaris spells the time dimension the MPAS-Ocean way
-            ds = ds.rename({'time': 'Time'})
-        return ds
-
-    def _read_fields(self, ds):
-        """
-        Get the time-averaged streamfunction and the axes it is plotted
-        against, or ``None`` if the simulation did not write them all
+        Get the names of the streamfunction and its two axes in the MOC
+        output, or ``None`` if the simulation did not write them all
 
         Returns
         -------
-        fields : tuple or None
-            The streamfunction as a :py:class:`xarray.DataArray`, the
-            latitude of each bin and the elevation of each interface
+        names : tuple of str or None
+            The streamfunction, the latitude bin boundaries and the interface
+            elevations, as the files name them
         """
-        streamfunction = self._find(ds, STREAMFUNCTION_VARIABLE)
-        boundaries = self._find(ds, LAT_BIN_BOUNDARY_VARIABLE)
-        elevation = self._find(ds, INTERFACE_ELEVATION_VARIABLE)
-        if streamfunction is None or boundaries is None or elevation is None:
-            self._report_missing(ds, streamfunction, boundaries, elevation)
-            return None
+        filename = self.work_path(self.input_filenames[0])
+        with xr.open_dataset(filename, decode_times=False) as ds:
+            streamfunction = self._find(ds, STREAMFUNCTION_VARIABLE)
+            boundaries = self._find(ds, LAT_BIN_BOUNDARY_VARIABLE)
+            elevation = self._find(ds, INTERFACE_ELEVATION_VARIABLE)
+            if (
+                streamfunction is None
+                or boundaries is None
+                or elevation is None
+            ):
+                self._report_missing(ds, streamfunction, boundaries, elevation)
+                return None
+        return streamfunction, boundaries, elevation
 
-        weights = self._weights(ds)
-        streamfunction = _weighted_time_mean(ds[streamfunction], weights)
-        elevation = _weighted_time_mean(ds[elevation], weights)
+    def _read_fields(self, ds, streamfunction, boundaries, elevation):
+        """
+        Get the climatology of the streamfunction and the axes it is plotted
+        against
 
-        lat = _bin_centers(_static(ds[boundaries]))
-        z = np.asarray(elevation.values, dtype=float).ravel()
-        streamfunction = _orient(streamfunction, n_lat=len(lat), n_z=len(z))
+        Returns
+        -------
+        streamfunction : xarray.DataArray
+            The streamfunction on (elevation, latitude)
+
+        lat : numpy.ndarray
+            The latitude of each bin center
+
+        z : numpy.ndarray
+            The elevation of each interface
+        """
+        lat = _bin_centers(_one_time(ds[boundaries]))
+        z = np.asarray(_one_time(ds[elevation]).values, dtype=float).ravel()
+        streamfunction = _orient(
+            _one_time(ds[streamfunction]).load(), n_lat=len(lat), n_z=len(z)
+        )
         return streamfunction, lat, z
 
     def _find(self, ds, base):
@@ -196,46 +211,17 @@ class Moc(AnalysisStep):
         Find a variable under either the name a time reduction gives it or
         the name it has on its own, reporting which one was there
         """
-        candidates = [base]
-        if self.reduction_period is not None:
-            candidates.insert(0, f'{base}_TimeMean{self.reduction_period}')
-        for name in candidates:
+        for name in [f'{base}_TimeMean{MONTHLY_PERIOD}', base]:
             if name in ds:
                 self.logger.info(f'  read {name}')
                 return name
         return None
 
-    def _weights(self, ds):
-        """
-        Get the weight of each time in the average
-
-        The streamfunction is linear in the velocity, so a mean of the
-        reductions weighted by the length of each period is the
-        streamfunction of the mean flow over the whole range.  Monthly
-        periods differ in length by up to a tenth, so this is not a
-        formality.
-
-        Snapshots cover no period, so they are averaged with equal weights
-        and the log says so.
-        """
-        if self.reduction_period is None:
-            self.logger.info(
-                '  the MOC output holds snapshots rather than time means, '
-                'so they are averaged with equal weights'
-            )
-            return xr.ones_like(ds.Time, dtype=float)
-        days = period_lengths(ds)
-        self.logger.info(
-            f'  averaging {len(days)} {self.reduction_period} reductions, '
-            f'weighted by periods of {days.min():g} to {days.max():g} days'
-        )
-        return xr.DataArray(days, dims=('Time',))
-
     def _report_missing(self, ds, streamfunction, boundaries, elevation):
         """
         Say what the MOC output is missing, and what would have written it
         """
-        source = ', '.join(self.input_filenames)
+        source = self.input_filenames[0]
         if streamfunction is None:
             self.logger.info(
                 f'{source} has no {STREAMFUNCTION_VARIABLE}, which is what '
@@ -300,11 +286,7 @@ class Moc(AnalysisStep):
             start_year=self.start_year,
             end_year=self.end_year,
             year_range=year_range_key(self.start_year, self.end_year),
-            reduction_period=(
-                'none; these are snapshots'
-                if self.reduction_period is None
-                else self.reduction_period
-            ),
+            reduction_period=MONTHLY_PERIOD,
             source_files=', '.join(self.input_filenames),
         )
         return ds
@@ -365,104 +347,36 @@ class Moc(AnalysisStep):
         )
 
 
-def period_lengths(ds):
+def _stream_problem(stream):
     """
-    Get the length in days of the period each time reduction covers
-
-    Omega stamps a reduction with a single time rather than with the bounds of
-    the period it covers, so the length of a period is the interval between
-    one stamp and the next, and the first period is given the length of the
-    second.  That is exact for periods of a fixed length and out by the
-    difference between two adjacent months for the first of a series of
-    monthly means -- at most three days in a record of hundreds, and confined
-    to one end of it.
-
-    Parameters
-    ----------
-    ds : xarray.Dataset
-        The MOC output, with a decoded ``Time`` coordinate
-
-    Returns
-    -------
-    days : numpy.ndarray
-        The length of each period, in days
+    Say why the MOC output stream cannot be averaged, or ``None`` if it can
     """
-    gaps = _days_between(ds.Time.values)
-    if gaps.size == 0:
-        # one reduction carries the whole average, so its weight cancels
-        return np.ones(ds.sizes.get('Time', 1))
-    if np.any(gaps <= 0.0):
-        # zero weights would make the weighted mean NaN rather than raise,
-        # and a plot of NaN is the one outcome worse than a failed step
-        raise ValueError(
-            f'The MOC output does not step forward in time: the reductions '
-            f'are {len(gaps) + 1} times with gaps of '
-            f'{np.min(gaps):g} to {np.max(gaps):g} days between them.  Each '
-            f'reduction has to cover a distinct period for the average to be '
-            f'weighted by the length of that period.  A gap of zero usually '
-            f'means the same file was read twice, or that a re-run wrote the '
-            f'same period again alongside the first.'
-        )
-    return np.concatenate([gaps[:1], gaps])
-
-
-def _days_between(times):
-    """
-    Get the number of days between consecutive times
-
-    Only the intervals are wanted, so this asks nothing of the time
-    coordinate beyond being ordered and subtractable -- no CF units, no
-    reference date, and the same answer for a file straight from the model as
-    for one that has been read and written again.
-    """
-    times = np.asarray(times)
-    if times.size < 2:
-        return np.zeros(0)
-    if np.issubdtype(times.dtype, np.datetime64):
-        return np.diff(times) / np.timedelta64(1, 'D')
-    # cftime dates, which subtract to a datetime.timedelta
-    return np.array(
-        [
-            (late - early).total_seconds() / 86400.0
-            for early, late in zip(times[:-1], times[1:], strict=True)
-        ]
+    if (
+        stream.is_reduction
+        and stream.period == MONTHLY_PERIOD
+        and '$M' in stream.filename
+    ):
+        return None
+    kind = 'time-mean' if stream.is_reduction else 'snapshot'
+    return (
+        f'The {MOC_GROUP_NAME} analysis group writes {stream.filename}, a '
+        f'{stream.period} {kind} stream.  The MOC climatology is computed '
+        f'with ncclimo from one file of monthly means per month, as the '
+        f'climatology maps are, so the group needs ReductionPeriod: '
+        f'[{MONTHLY_PERIOD}] and a Filename with $Y and $M in it to make this '
+        f'plot.'
     )
 
 
-def _weighted_time_mean(da, weights):
+def _one_time(da):
     """
-    Average a field over time, skipping what is below the seafloor
+    Drop the time dimension of a climatology, which has one time
 
-    ``weighted`` renormalizes by the weights of the values that are there, so
-    a column that is missing from some of the reductions is averaged over the
-    ones it appears in rather than coming out as a NaN.
+    The latitude bin boundaries are written without one, and come through
+    ``ncclimo`` without one too.
     """
-    if 'Time' not in da.dims:
-        return da
-    return da.weighted(weights).mean('Time')
-
-
-def _static(da):
-    """
-    Get the one value of a field that does not vary in time
-
-    Omega attaches the latitude bin boundaries to its MOC output streams like
-    any other field, so every reduction in every file carries a copy of them.
-    They come from the group's config options and are the same in all of
-    them, so the first is taken rather than averaged: averaging a coordinate
-    would be a way of hiding it if they ever stopped agreeing.
-    """
-    if 'Time' in da.dims:
-        first = da.isel(Time=0)
-        if not (da == first).all():
-            raise ValueError(
-                f'{da.name} changes over the range being averaged, but it is '
-                f'a coordinate of the streamfunction and has to be fixed for '
-                f'the average to mean anything.  This usually means two '
-                f'simulations, or two settings of the MOC group, have been '
-                f'mixed in one range of years.'
-            )
-        return first
+    if 'time' in da.dims:
+        return da.isel(time=0)
     return da
 
 
