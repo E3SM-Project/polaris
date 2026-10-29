@@ -495,7 +495,7 @@ whole. Task, step and file names are working names.
 | WP2 Split-explicit W&D    | E3SM          | wetting and drying with a thin film in split-explicit     | the PR adding split-explicit thin-film tasks      |
 | WP3 Landice component     | Polaris       | component, MALI build, Albany                             | `landice_component.md`                            |
 | WP4 MISMIP+               | Polaris       | MALI mesh for MISOMIP1, spin-up, experiments              | `mismip_plus.md`                                  |
-| WP5 Meshes and maps       | Polaris       | MALI and ocean meshes, SCRIP files, maps                  | `misomip_meshes.md`                               |
+| WP5 Meshes and maps       | Polaris       | projection, SCRIP files and maps in `e3sm/init`           | `misomip_meshes.md`                               |
 | WP6 E3SM inputs           | Polaris       | initial conditions, data files, partitions, cases         | `misomip_e3sm_inputs.md`                          |
 | WP7 Idealized cases       | E3SM          | no atmosphere, coupler areas, namelists, user grids       | WP6's first PR, the first to build E3SM cases     |
 | WP8 Moving grounding line | E3SM          | #119 and #141 in coupled runs; fractions; data mode       | the WP6 PR that adds Ocean3–4                     |
@@ -580,7 +580,7 @@ before Albany is back.
 
 Tasks `landice/mismip_plus/1km/...` port Compass's spin-up to Polaris.
 The 1 km MALI mesh for MISOMIP1 is a shared step in the `mesh` component,
-which WP5 extends. The tasks have:
+which WP5's steps build on. The tasks have:
 
 - the bed (Eqs. 1–4), Weertman friction, and the densities 918 and
   1028 kg m⁻³;
@@ -599,23 +599,27 @@ for IceOcean1r.
 
 ### WP5: Meshes and maps
 
-Shared steps in the `mesh` component build:
+The meshes come from the standalone tasks: the ocean's planar meshes at 4
+and 2 km from the ISOMIP+ tasks' shared steps, and MALI's 1 km mesh from
+WP4. WP5's design settles whether Ocean0–4 need a MALI mesh of their own
+covering the ISOMIP+ box, or use WP4's, which covers all of that box's
+ice.
 
-- MALI's planar mesh for Ocean0–4, at a resolution chosen for the ice,
-  covering the ISOMIP+ box;
-- the ocean's planar mesh at 4 and 2 km, which the standalone tasks also
-  use;
-- latitude, longitude and SCRIP files for these meshes and WP4's, from
-  the projection, in steps downstream of each mesh;
+Shared steps in `e3sm/init`, under `e3sm/init/<mesh_name>/` as the
+realistic component inputs (`component_inputs`) are, build from them:
+
+- latitude, longitude and SCRIP files for each mesh, from the projection;
 - conservative maps between the ocean and each MALI mesh in both
   directions, in the variants E3SM's coupler expects, and the runoff map.
 
-If the prototype finds that E3SM needs a spherical ocean, the ocean mesh
-is mapped onto the sphere with the same projection ([D2](#decisions)).
+These products exist only for E3SM, so they sit with the other files
+`e3sm/init` makes from meshes before a run. If the prototype finds that
+E3SM needs a spherical ocean, the ocean mesh is mapped onto the sphere
+with the same projection ([D2](#decisions)).
 
 ### WP6: E3SM inputs
 
-Tasks `e3sm/misomip/<resolution>/<experiment>` build:
+Tasks `e3sm/init/<mesh_name>/misomip/<experiment>` build:
 
 - MALI initial conditions: static and data-mode ones from the protocol
   input, remapped to MALI's cells and calved, and prognostic ones from
@@ -629,9 +633,13 @@ Tasks `e3sm/misomip/<resolution>/<experiment>` build:
   namelists, streams and XML changes ([D12](#decisions)).
 
 MALI's namelists set `config_always_compute_fem_grid = .false.`
-([D20](#decisions)). The files are staged in an inputdata-style tree, as the realistic
-component inputs are. A standalone forward run on the same inputs serves
-the comparison in WP9.
+([D20](#decisions)). The tasks reuse the realistic component inputs' code
+rather than copy it: E3SM short names for the grids are required options,
+`gpmetis` builds the partitions, and an assembly step stages the files in
+an inputdata-style tree. Unlike the realistic inputs, which are one set
+per mesh, the initial conditions and case configuration are per
+experiment. A standalone forward run on the same inputs serves the
+comparison in WP9.
 
 ### WP7: Idealized cases in E3SM
 
