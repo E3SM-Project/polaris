@@ -61,9 +61,12 @@ cron-scripts/
    which builds Omega and runs the CTests on the same compute node.
 5. `polaris_cdash.py` builds the Omega submodule the same way with
    `--build_only` (in a job of its own with `build_in_job = true`), sets up
-   the `omega_nightly` suite against that build, submits the job
-   `polaris suite` wrote and waits for it, writes the task results as
-   `Test.xml` beside the recorded build, and submits both.
+   the `omega_nightly` suite against that build with `--parallel`, submits
+   the job `polaris suite` wrote and waits for it, writes the task results
+   as `Test.xml` beside the recorded build, and submits both.  The job runs
+   the suite's steps at the same time with `polaris parallel`, so each step
+   has its own log and a task's output on CDash is its steps' logs, one
+   after another.
 
 If the build fails, both tasks submit the failed build to CDash, so the
 compiler errors show on the dashboard rather than only in the logs.
