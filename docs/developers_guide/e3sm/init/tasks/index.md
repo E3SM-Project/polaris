@@ -2,6 +2,13 @@
 
 # Tasks
 
+## Component Input Tasks
+
+The `component_inputs` tasks under
+`polaris.tasks.e3sm.init.component_inputs` stage the mesh,
+initial-condition and graph-partition files an E3SM run needs from a
+unified mesh.  See {ref}`dev-e3sm-init-component-inputs`.
+
 ## Topography Tasks
 
 Topography tasks under `polaris.tasks.e3sm.init.topo` provide the task-family
@@ -20,5 +27,6 @@ shared resolution constants and helper functions.
 topo/combine
 topo/remap
 topo/cull
+component_inputs
 ```
 
