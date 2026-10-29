@@ -477,7 +477,7 @@ designs; the prototype does not merge.
 
 ## Implementation: work packages
 
-Date last modified: 2026/10/28
+Date last modified: 2026/10/29
 
 Contributors: Xylar Asay-Davis, Claude
 
@@ -494,7 +494,7 @@ whole. Task, step and file names are working names.
 | WP1 Standalone ISOMIP+    | Polaris, E3SM | Ocean0–2 and thin-film tasks; the floating-mask fix       | `isomip_plus.md`, in #826                         |
 | WP2 Split-explicit W&D    | E3SM          | wetting and drying with a thin film in split-explicit     | the PR adding split-explicit thin-film tasks      |
 | WP3 Landice component     | Polaris       | component, MALI build, Albany                             | `landice_component.md`                            |
-| WP4 MISMIP+               | Polaris       | spin-up, Ice0, Ice1r, optional others                     | `mismip_plus.md`                                  |
+| WP4 MISMIP+               | Polaris       | MALI mesh for MISOMIP1, spin-up, experiments              | `mismip_plus.md`                                  |
 | WP5 Meshes and maps       | Polaris       | MALI and ocean meshes, SCRIP files, maps                  | `misomip_meshes.md`                               |
 | WP6 E3SM inputs           | Polaris       | initial conditions, data files, partitions, cases         | `misomip_e3sm_inputs.md`                          |
 | WP7 Idealized cases       | E3SM          | no atmosphere, coupler areas, namelists, user grids       | WP6's first PR, the first to build E3SM cases     |
@@ -578,30 +578,35 @@ before Albany is back.
 
 ### WP4: MISMIP+
 
-Tasks `landice/mismip_plus/<resolution>/...` port Compass's spin-up onto
-WP5's MALI meshes:
+Tasks `landice/mismip_plus/1km/...` port Compass's spin-up to Polaris.
+The 1 km MALI mesh for MISOMIP1 is a shared step in the `mesh` component,
+which WP5 extends. The tasks have:
 
-- the bed (Eqs. 1–4), a 100 m slab, Weertman friction, and the densities
-  918 and 1028 kg m⁻³;
-- a spin-up in restartable segments that stops when the grounding line and
-  ice volume converge;
+- the bed (Eqs. 1–4), Weertman friction, and the densities 918 and
+  1028 kg m⁻³;
+- a spin-up from Trevor Hillebrand's 1 km state, in restartable segments,
+  until the grounding line and ice volume converge;
 - the rate factor $A$ tuned so the grounding line crosses the centerline
   at $450 \pm 10$ km;
-- Ice0 and Ice1r, and optionally Ice1ra, Ice1rr, Ice2r, Ice2ra and Ice2rr;
+- Ice0, Ice1r, Ice1ra, Ice2r and Ice2ra, which run, and Ice1rr and Ice2rr,
+  which exist but do not;
 - the MISMIP+ output: grounding line, volume above flotation and grounded
-  area.
+  area, computed from any dataset with MALI's thickness, bed and mesh, so
+  WP9 can apply it to E3SM's output.
 
-The steady state is MALI's initial condition for IceOcean1r.
+The steady state, cached with `polaris cache`, is MALI's initial condition
+for IceOcean1r.
 
 ### WP5: Meshes and maps
 
 Shared steps in the `mesh` component build:
 
-- MALI's planar meshes, at a resolution chosen for the ice, covering the
-  ISOMIP+ box for Ocean0–4 and the MISMIP+ domain for MISOMIP1;
+- MALI's planar mesh for Ocean0–4, at a resolution chosen for the ice,
+  covering the ISOMIP+ box;
 - the ocean's planar mesh at 4 and 2 km, which the standalone tasks also
   use;
-- latitude and longitude for both from the projection, and SCRIP files;
+- latitude, longitude and SCRIP files for these meshes and WP4's, from
+  the projection, in steps downstream of each mesh;
 - conservative maps between the ocean and each MALI mesh in both
   directions, in the variants E3SM's coupler expects, and the runoff map.
 
@@ -722,7 +727,7 @@ changes land on FAnSSIE. The design amends
 No stage waits for WP2. Until it lands, each uses RK4 and accepts the
 cost: at 2 km on 36 tasks, 20 years take about 40 days and 100 years about
 half a year. WP3, WP4 and WP11 can proceed alongside stages A–C: WP3 needs
-nothing, WP4 needs WP3 and WP5, and WP11 needs only WP1. WP10 follows WP2,
+nothing, WP4 needs only WP3, and WP11 needs only WP1. WP10 follows WP2,
 and no stage needs it.
 
 FAnSSIE starts from these pull requests, whose states are as of
