@@ -628,7 +628,8 @@ Tasks `e3sm/misomip/<resolution>/<experiment>` build:
 - the case configuration: a grid file and a user-mods directory with
   namelists, streams and XML changes ([D12](#decisions)).
 
-The files are staged in an inputdata-style tree, as the realistic
+MALI's namelists set `config_always_compute_fem_grid = .false.`
+([D20](#decisions)). The files are staged in an inputdata-style tree, as the realistic
 component inputs are. A standalone forward run on the same inputs serves
 the comparison in WP9.
 
@@ -728,7 +729,8 @@ No stage waits for WP2. Until it lands, each uses RK4 and accepts the
 cost: at 2 km on 36 tasks, 20 years take about 40 days and 100 years about
 half a year. WP3, WP4 and WP11 can proceed alongside stages A–C: WP3 needs
 nothing, WP4 needs only WP3, and WP11 needs only WP1. WP10 follows WP2,
-and no stage needs it.
+and no stage needs it. No coupled production run starts before
+MALI-Dev/E3SM#211 reaches FAnSSIE ([D20](#decisions)).
 
 FAnSSIE starts from these pull requests, whose states are as of
 2026-10-16:
@@ -1119,3 +1121,30 @@ once it merges.
 
 Rejected: merging #144 before her review, or holding the other packages
 until it merges.
+
+### D20: Coupled production runs wait for MALI-Dev/E3SM#211
+
+Date last modified: 2026/10/29
+
+Contributors: Xylar Asay-Davis, Claude
+
+MALI rebuilds Albany's finite-element grid at every velocity solve, since
+`config_always_compute_fem_grid` defaults to `.true.`, and each rebuild
+leaks Albany's timers
+([sandialabs/Albany#1232](https://github.com/sandialabs/Albany/issues/1232)).
+Memory and wall time grow with the number of solves since MALI started.
+[MALI-Dev/E3SM#211](https://github.com/MALI-Dev/E3SM/pull/211) skips the
+rebuild in runs that set the option to `.false.`; without it, setting the
+option does not help in MISMIP+-type runs. No coupled production run
+starts before #211 is on FAnSSIE, and WP6 sets the option to `.false.`.
+#211 reaches FAnSSIE only through MALI-Dev's `develop`, the next time
+FAnSSIE merges it in.
+
+```{admonition} Rationale
+In the 1 km MISMIP+ spin-up, wall time per 50 years grew from 16 to
+35 minutes over about 1,200 steps, and some ranks reached 19 GB. A coupled
+job segment can hold as many velocity solves, and MALI shares nodes with
+the ocean.
+```
+
+Rejected: merging #211 into FAnSSIE on its own, before MALI-Dev merges it.
