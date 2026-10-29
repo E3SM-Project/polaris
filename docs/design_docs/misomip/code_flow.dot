@@ -1,0 +1,87 @@
+// How the upstream E3SM PRs, the E3SM-Ocean-Discussion PRs, the
+// fanssie-ocn-glc-coupling branch and the Polaris PRs fit together.
+//
+// Regenerate with Graphviz 14 (Chrysalis's /usr/bin/dot 2.40 lays it out
+// wider), with the text drawn as paths so it looks the same everywhere:
+//
+//     pixi exec -s graphviz dot -Tsvg:cairo code_flow.dot -o code_flow.svg
+//
+// Fill by state: merged #e3fcef, open #deebff, draft #e8e8e4, no PR yet
+// #ffffff. Dashed edges into the FAnSSIE branch mark PRs not merged into it
+// yet. The Polaris side is one HTML-table node, in merge order, because
+// Graphviz would not keep separate boxes in that order. Update the date in
+// the legend.
+digraph fanssie {
+  rankdir=LR;
+  bgcolor="#fcfcfb";
+  pad=0.3;
+  nodesep=0.18;
+  ranksep=0.7;
+  fontname="DejaVu Sans";
+  node [shape=box, style="rounded,filled", fontname="DejaVu Sans",
+        fontsize=11, color="#c3c2b7", fontcolor="#0b0b0b", penwidth=1,
+        margin="0.12,0.06"];
+  edge [color="#898781", arrowsize=0.7, fontname="DejaVu Sans",
+        fontsize=10, fontcolor="#52514e"];
+
+  subgraph cluster_upstream {
+    label="E3SM-Project/E3SM (upstream)";
+    labeljust=l; fontsize=12; color="#c3c2b7"; style="rounded";
+    e8047 [label=<<b>E3SM#8047</b>  new land-ice melt equations<br/><font color="#52514e">Carolyn · draft, approved by Xylar</font>>, fillcolor="#e8e8e4"];
+    e8661 [label=<<b>E3SM#8661</b>  two-way land-ice coupling, MOAB<br/><font color="#52514e">Rob Jacob · open, approved</font>>, fillcolor="#deebff"];
+    e8887 [label=<<b>E3SM#8887</b>  ocean–MALI melt coupling (MCT)<br/><font color="#52514e">Xylar · draft</font>>, fillcolor="#e8e8e4"];
+  }
+
+  subgraph cluster_malidev {
+    label="MALI-Dev/E3SM";
+    labeljust=l; fontsize=12; color="#c3c2b7"; style="rounded";
+    malidev [label=<<b>develop</b><br/><font color="#52514e">97 MALI commits ahead of E3SM</font>>, fillcolor="#ffffff"];
+  }
+
+  subgraph cluster_eod {
+    label="E3SM-Ocean-Discussion/E3SM";
+    labeljust=l; fontsize=12; color="#c3c2b7"; style="rounded";
+    d119 [label=<<b>#119</b>  thin film under grounded ice, RK4<br/><font color="#52514e">Carolyn · draft · already in FAnSSIE</font>>, fillcolor="#e8e8e4"];
+    d141 [label=<<b>#141, #142</b>  land-ice fluxes only under floating ice<br/><font color="#52514e">open · already in FAnSSIE</font>>, fillcolor="#deebff"];
+    d143 [label=<<b>#143, #145–#150</b>  forcing clock; fixes and options<br/>for E3SM's physics with a thin film<br/><font color="#52514e">merged into FAnSSIE</font>>, fillcolor="#e3fcef"];
+    d144 [label=<<b>#144</b>  split-explicit wetting and drying<br/>(Carolyn's series + fixes)<br/><font color="#52514e">open · waits for Carolyn's review</font>>, fillcolor="#deebff"];
+    d151 [label=<<b>#151</b>  merge MALI-Dev's develop<br/><font color="#52514e">merged into FAnSSIE</font>>, fillcolor="#e3fcef"];
+    fanssie [label=<<b>fanssie-ocn-glc-coupling</b><br/>shared FAnSSIE branch (since Oct 16)<br/><font color="#52514e">only gains commits · ledger in FANSSIE.md</font>>,
+             fillcolor="#fff0b3", penwidth=2, color="#c98500", fontsize=12];
+  }
+
+  polaris [shape=plaintext, style="", label=<
+    <table border="1" color="#c3c2b7" style="rounded" cellborder="1" cellspacing="6" cellpadding="4" bgcolor="#fcfcfb">
+      <tr><td border="0" colspan="2" align="left"><font point-size="12">E3SM-Project/polaris, in merge order</font></td></tr>
+      <tr><td port="p842" bgcolor="#deebff" colspan="2" style="rounded" cellpadding="6"><b>#842</b>  FAnSSIE submodule + fanssie_pr suite<br/><font color="#52514e">open</font></td></tr>
+      <tr><td border="0" colspan="2"><font color="#898781">↓ then</font></td></tr>
+      <tr><td port="p826" bgcolor="#deebff" colspan="2" style="rounded" cellpadding="6"><b>#826</b>  ISOMIP+ Ocean0–2<br/><font color="#52514e">open</font></td></tr>
+      <tr><td border="0" colspan="2"><font color="#898781">↓ then</font></td></tr>
+      <tr><td port="p844" bgcolor="#deebff" colspan="2" style="rounded" cellpadding="6"><b>#844</b>  thin-film tasks: inception, wetting, drying<br/><font color="#52514e">open</font></td></tr>
+      <tr><td border="0" colspan="2"><font color="#898781">↓ then</font></td></tr>
+      <tr><td port="p861" bgcolor="#e8e8e4" colspan="1" style="rounded" cellpadding="6"><b>#861</b>  split-explicit ISOMIP+ variants<br/><font color="#52514e">draft · waits for #144</font></td><td port="p862" bgcolor="#e8e8e4" colspan="1" style="rounded" cellpadding="6"><b>#862</b>  E3SM's physics in ISOMIP+<br/><font color="#52514e">draft</font></td></tr>
+      <tr><td border="0" colspan="2"><font color="#898781">also after #842:</font></td></tr>
+      <tr><td port="p871" bgcolor="#e8e8e4" colspan="1" style="rounded" cellpadding="6"><b>#871</b>  landice component:<br/>MALI + Albany<br/><font color="#52514e">draft · review: Carolyn,<br/>Matt, Trevor</font></td><td port="p858" bgcolor="#deebff" colspan="1" style="rounded" cellpadding="6"><b>#858</b>  MISOMIP in E3SM:<br/>the plan (12 work packages)<br/><font color="#52514e">open</font></td></tr>
+      <tr><td border="0" colspan="1"><font color="#898781">↓ then</font></td><td border="0" colspan="1"></td></tr>
+      <tr><td port="pwp4" bgcolor="#ffffff" colspan="1" style="rounded" cellpadding="6"><b>WP4</b>  MISMIP+ with MALI<br/><font color="#52514e">branch add-mismip-plus · no PR yet</font></td><td border="0" colspan="1"></td></tr>
+    </table>>];
+
+  e8047 -> fanssie;
+  e8661 -> fanssie;
+  e8887 -> fanssie [label="merged in as they are"];
+  d119 -> fanssie;
+  d141 -> fanssie;
+  d143 -> fanssie;
+  d144 -> fanssie [style=dashed];
+  malidev -> d151 [constraint=false];
+  d151 -> fanssie;
+
+  fanssie -> polaris:p842 [label="pinned as
+e3sm_submodules/FAnSSIE", penwidth=1.5];
+
+  legend [shape=plaintext, style="", label=<
+    <table border="0" cellborder="1" cellspacing="4" cellpadding="4" color="#c3c2b7">
+      <tr><td bgcolor="#e3fcef">merged</td><td bgcolor="#deebff">open</td><td bgcolor="#e8e8e4">draft</td><td bgcolor="#ffffff">no PR yet</td></tr>
+      <tr><td colspan="4" border="0"><font point-size="10" color="#52514e">dashed: not merged yet · as of 2026-10-29</font></td></tr>
+    </table>>];
+}
