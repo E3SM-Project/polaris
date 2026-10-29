@@ -68,7 +68,7 @@ digraph fanssie {
       <tr><td border="0" colspan="2"><font color="#898781">from main, the realistic-mesh stack:</font></td></tr>
       <tr><td port="p644" bgcolor="#deebff" colspan="2" style="rounded" cellpadding="6"><b>#644</b>  realistic global ocean: dynamic adjustment<br/><font color="#52514e">open, approved</font></td></tr>
       <tr><td border="0" colspan="2"><font color="#898781">↓ then</font></td></tr>
-      <tr><td port="pci" bgcolor="#ffffff" colspan="2" style="rounded" cellpadding="6"><b>component inputs</b>  E3SM inputs for realistic meshes<br/><font color="#52514e">branch add-e3sm-init-component-inputs · no PR yet</font></td></tr>
+      <tr><td port="p921" bgcolor="#e8e8e4" colspan="2" style="rounded" cellpadding="6"><b>#921</b>  component inputs in e3sm/init<br/><font color="#52514e">draft · waits for #644</font></td></tr>
       <tr><td border="0" colspan="2"><font color="#898781">↓ then, once it is under review (and after #826)</font></td></tr>
       <tr><td port="pwp56" bgcolor="#ffffff" colspan="2" style="rounded" cellpadding="6"><b>WP5, WP6</b>  MISOMIP's maps and E3SM inputs<br/><font color="#52514e">not started</font></td></tr>
     </table>>];
