@@ -27,7 +27,8 @@ def test_dome_tasks():
     component = Landice()
     add_landice_tasks(component)
 
-    assert sorted(component.tasks) == sorted(TASKS)
+    dome_tasks = [path for path in component.tasks if path.startswith('dome/')]
+    assert sorted(dome_tasks) == sorted(TASKS)
     # the mesh and initial condition are shared by all the tasks
     assert 'dome/2km/init' in component.steps
 

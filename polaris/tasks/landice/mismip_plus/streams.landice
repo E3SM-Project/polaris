@@ -1,0 +1,61 @@
+<streams>
+
+<immutable_stream name="input"
+                  type="input"
+                  filename_template="landice_grid.nc"
+                  input_interval="initial_only"/>
+
+<immutable_stream name="restart"
+                  type="input;output"
+                  filename_template="restart.$Y.nc"
+                  filename_interval="output_interval"
+                  reference_time="0000-01-01_00:00:00"
+                  clobber_mode="truncate"
+                  precision="double"
+                  input_interval="initial_only"
+                  output_interval="{{ restart_interval }}"/>
+
+<stream name="output"
+        type="output"
+        filename_template="output.nc"
+        filename_interval="none"
+        reference_time="0000-01-01_00:00:00"
+        clobber_mode="{{ output_clobber_mode }}"
+        output_interval="{{ output_interval }}">
+
+    <var name="xtime"/>
+    <var name="daysSinceStart"/>
+    <var name="thickness"/>
+    <var name="bedTopography"/>
+    <var name="upperSurface"/>
+    <var name="cellMask"/>
+    <var name="surfaceSpeed"/>
+    <var name="basalSpeed"/>
+    <var name="dHdt"/>
+    <var name="floatingBasalMassBal"/>
+    <var name="calvingThickness"/>
+
+</stream>
+
+<stream name="globalStatsOutput"
+        type="output"
+        filename_template="globalStats.nc"
+        filename_interval="none"
+        reference_time="0000-01-01_00:00:00"
+        clobber_mode="overwrite"
+        packages="globalStatsAMPKG"
+        output_interval="0000-00-00_01:00:00">
+
+    <var name="xtime"/>
+    <var name="daysSinceStart"/>
+    <var name="deltat"/>
+    <var name="allowableDtACFL"/>
+    <var name="allowableDtDCFL"/>
+    <var name="calvingCFLdt"/>
+    <var name="dtCalvingCFLratio"/>
+    <var name="albanyVelocityError"/>
+    <var_struct name="globalStatsAM"/>
+
+</stream>
+
+</streams>
