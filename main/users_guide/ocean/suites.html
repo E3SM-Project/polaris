@@ -63,6 +63,7 @@
 <li class="toctree-l2"><a class="reference internal" href="#omega-pr-suite">omega_pr suite</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#omega-analysis-suite">omega_analysis suite</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#framework-pr-suite">framework_pr suite</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#fanssie-pr-suite">fanssie_pr suite</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#convergence-suite">convergence suite</a></li>
 </ul>
 </li>
@@ -150,8 +151,6 @@ suite is designed for use with MPAS-Ocean but not fully supported by Omega.</p>
 ocean/planar/baroclinic_channel/10km/decomp
 ocean/planar/baroclinic_channel/10km/restart
 ocean/planar/barotropic_channel/default
-ocean/planar/ice_shelf_2d/5km/z-star/default/with_restart
-ocean/planar/ice_shelf_2d/5km/z-level/default/with_restart
 ocean/planar/inertial_gravity_wave/convergence_both
 ocean/planar/internal_wave/standard/default
 ocean/planar/internal_wave/vlr/default
@@ -181,8 +180,6 @@ development matures:</p>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>ocean/planar/baroclinic_channel/10km/threads
 ocean/planar/baroclinic_channel/10km/decomp
 ocean/planar/baroclinic_channel/10km/restart
-ocean/planar/ice_shelf_2d/5km/z-star/default/with_restart
-ocean/planar/ice_shelf_2d/5km/z-level/default/with_restart
 ocean/planar/inertial_gravity_wave/convergence_both
 # ocean/planar/manufactured_solution
 ocean/spherical/icos/cosine_bell/decomp
@@ -247,14 +244,12 @@ ocean/analysis/moc
 <span id="ocean-suite-framework-pr"></span><h2>framework_pr suite<a class="headerlink" href="#framework-pr-suite" title="Link to this heading"></a></h2>
 <p>The <code class="docutils literal notranslate"><span class="pre">framework_pr</span></code> suite is designed for testing pull-requests (PRs) that
 involve changes to the Polaris and/or Ocean framework.  It includes the tests
-in the <code class="docutils literal notranslate"><span class="pre">pr</span></code> suite plus additional tests focued on visualizaiton and remapping.
+in the <code class="docutils literal notranslate"><span class="pre">pr</span></code> suite plus additional tests focused on visualization.
 The tasks in this suite include:</p>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>## pr suite
 ocean/planar/baroclinic_channel/10km/threads
 ocean/planar/baroclinic_channel/10km/decomp
 ocean/planar/baroclinic_channel/10km/restart
-ocean/planar/ice_shelf_2d/5km/z-star/default/with_restart
-ocean/planar/ice_shelf_2d/5km/z-level/default/with_restart
 ocean/planar/inertial_gravity_wave/convergence_both
 ocean/planar/internal_wave/standard/default
 ocean/planar/internal_wave/vlr/default
@@ -266,10 +261,19 @@ ocean/spherical/icos/cosine_bell/restart
 
 ## viz
 ocean/planar/baroclinic_channel/10km/default
-ocean/planar/ice_shelf_2d/5km/z-star/default/with_viz
 ocean/spherical/icos/rotation_2d/with_viz
-
-## remapping
+</pre></div>
+</div>
+</section>
+<section id="fanssie-pr-suite">
+<span id="ocean-suite-fanssie-pr"></span><h2>fanssie_pr suite<a class="headerlink" href="#fanssie-pr-suite" title="Link to this heading"></a></h2>
+<p>The <code class="docutils literal notranslate"><span class="pre">fanssie_pr</span></code> suite holds the tasks that need MPAS-Ocean from the FAnSSIE
+branch rather than from E3SM-Project, including all the ice-shelf tasks.  It
+must be run with MPAS-Ocean built from the <code class="docutils literal notranslate"><span class="pre">e3sm_submodules/FAnSSIE</span></code>
+submodule (see <a class="reference internal" href="../../developers_guide/ocean/index.html#dev-ocean-fanssie"><span class="std std-ref">FAnSSIE</span></a>).  The tasks in the suite are:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>ocean/planar/ice_shelf_2d/5km/z-star/default/with_restart
+ocean/planar/ice_shelf_2d/5km/z-level/default/with_restart
+ocean/planar/ice_shelf_2d/5km/z-star/default/with_viz
 ocean/planar/isomip_plus/4km/z-star/ocean0
 </pre></div>
 </div>

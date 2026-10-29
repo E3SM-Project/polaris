@@ -687,9 +687,9 @@ window.runMermaid = runMermaid;</script>
             <span class="p">)</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">tidal_forcing</span><span class="p">:</span>
-            <span class="n">land_ice_flux_mode</span> <span class="o">=</span> <span class="s1">'pressure_only'</span>
+            <span class="n">land_ice_flux_mode</span> <span class="o">=</span> <span class="s1">'off'</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">land_ice_flux_mode</span> <span class="o">=</span> <span class="s1">'standalone'</span>
+            <span class="n">land_ice_flux_mode</span> <span class="o">=</span> <span class="s1">'active'</span>
 
         <span class="n">replacements</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span>
             <span class="n">do_restart</span><span class="o">=</span><span class="n">do_restart_str</span><span class="p">,</span>

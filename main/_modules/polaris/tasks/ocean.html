@@ -471,6 +471,7 @@ window.runMermaid = runMermaid;</script>
   <h1>Source code for polaris.tasks.ocean</h1><div class="highlight"><pre>
 <span></span><span class="kn">import</span><span class="w"> </span><span class="nn">importlib.resources</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">imp_res</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">warnings</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">Union</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
@@ -479,8 +480,11 @@ window.runMermaid = runMermaid;</script>
 <span class="kn">from</span><span class="w"> </span><span class="nn">ruamel.yaml</span><span class="w"> </span><span class="kn">import</span> <span class="n">YAML</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">polaris</span><span class="w"> </span><span class="kn">import</span> <span class="n">Component</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.build.mpas_ocean</span><span class="w"> </span><span class="kn">import</span> <span class="n">build_mpas_ocean</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.build.omega</span><span class="w"> </span><span class="kn">import</span> <span class="n">build_omega</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.build.mpas_ocean</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">build_mpas_ocean</span><span class="p">,</span>
+    <span class="n">get_mpas_ocean_source_dir</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.build.omega</span><span class="w"> </span><span class="kn">import</span> <span class="n">build_omega</span><span class="p">,</span> <span class="n">get_omega_source_dir</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">polaris.cf</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">add_cf_conventions</span><span class="p">,</span>
     <span class="n">add_var_attrs</span><span class="p">,</span>
@@ -593,10 +597,7 @@ window.runMermaid = runMermaid;</script>
         <span class="n">component_path</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'paths'</span><span class="p">,</span> <span class="s1">'component_path'</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">has_ocean_model_steps</span><span class="p">:</span>
             <span class="c1"># we need to try to detect the model and build it if needed</span>
-            <span class="k">if</span> <span class="n">model</span> <span class="o">==</span> <span class="s1">'omega'</span><span class="p">:</span>
-                <span class="n">detected</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_detect_omega_build</span><span class="p">(</span><span class="n">component_path</span><span class="p">)</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="n">detected</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_detect_mpas_ocean_build</span><span class="p">(</span><span class="n">component_path</span><span class="p">)</span>
+            <span class="n">detected</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_detect_build</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">component_path</span><span class="p">)</span>
 
             <span class="k">if</span> <span class="ow">not</span> <span class="n">detected</span><span class="p">:</span>
                 <span class="c1"># looks like we need to build the model</span>
@@ -680,8 +681,9 @@ window.runMermaid = runMermaid;</script>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">check_model_version</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">"""</span>
-<span class="sd">        Check that the PCD version in polaris matches the one in the branch of</span>
-<span class="sd">        the ocean model that will be run</span>
+<span class="sd">        Check that the PCD version in polaris matches the one in the branch</span>
+<span class="sd">        the ocean model is built from: the branch Polaris is building, or else</span>
+<span class="sd">        the one the build in the component path was made from</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -692,7 +694,25 @@ window.runMermaid = runMermaid;</script>
         <span class="k">if</span> <span class="n">model</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">'mpas-ocean'</span><span class="p">,</span> <span class="s1">'omega'</span><span class="p">]:</span>
             <span class="k">return</span>
 
-        <span class="n">branch</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'build'</span><span class="p">,</span> <span class="s1">'branch'</span><span class="p">)</span>
+        <span class="n">build_dir</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'paths'</span><span class="p">,</span> <span class="s1">'component_path'</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">getboolean</span><span class="p">(</span><span class="s1">'build'</span><span class="p">,</span> <span class="s1">'build'</span><span class="p">):</span>
+            <span class="n">branch</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'build'</span><span class="p">,</span> <span class="s1">'branch'</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_detect_build</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">build_dir</span><span class="p">):</span>
+            <span class="c1"># the model is neither built nor being built, so there is no</span>
+            <span class="c1"># branch to check</span>
+            <span class="k">return</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">branch</span> <span class="o">=</span> <span class="n">_get_built_branch</span><span class="p">(</span><span class="n">build_dir</span><span class="p">,</span> <span class="n">model</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">branch</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s1">'Could not check PCD version for model </span><span class="si">{</span><span class="n">model</span><span class="si">}</span><span class="s1"> because '</span>
+                    <span class="sa">f</span><span class="s1">'the branch it was built from could not be determined '</span>
+                    <span class="sa">f</span><span class="s1">'from the build at </span><span class="si">{</span><span class="n">build_dir</span><span class="si">}</span><span class="s1">. Skipping PCD version '</span>
+                    <span class="sa">f</span><span class="s1">'check.'</span><span class="p">,</span>
+                    <span class="n">stacklevel</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+                <span class="p">)</span>
+                <span class="k">return</span>
+
         <span class="n">check_pcd_version_matches_branch</span><span class="p">(</span><span class="n">branch</span><span class="o">=</span><span class="n">branch</span><span class="p">,</span> <span class="n">model</span><span class="o">=</span><span class="n">model</span><span class="p">)</span>
 
 <div class="viewcode-block" id="Ocean.map_to_native_model_vars">
@@ -1581,6 +1601,14 @@ window.runMermaid = runMermaid;</script>
                 <span class="sa">f</span><span class="s1">'searched </span><span class="si">{</span><span class="n">omega_path</span><span class="si">}</span><span class="s1"> and </span><span class="si">{</span><span class="n">mpas_ocean_path</span><span class="si">}</span><span class="s1">.'</span>
             <span class="p">)</span>
 
+    <span class="k">def</span><span class="w"> </span><span class="nf">_detect_build</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="n">path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">        Detect if a build of the given model is available</span>
+<span class="sd">        """</span>
+        <span class="k">if</span> <span class="n">model</span> <span class="o">==</span> <span class="s1">'omega'</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_detect_omega_build</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_detect_mpas_ocean_build</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+
     <span class="k">def</span><span class="w"> </span><span class="nf">_detect_omega_build</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Detect if Omega is available</span>
@@ -1622,6 +1650,22 @@ window.runMermaid = runMermaid;</script>
                 <span class="k">break</span>
         <span class="k">return</span> <span class="n">all_found</span></div>
 
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_get_built_branch</span><span class="p">(</span><span class="n">build_dir</span><span class="p">,</span> <span class="n">model</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    The branch an existing build of the model was made from, or None if it</span>
+<span class="sd">    can't be determined</span>
+<span class="sd">    """</span>
+    <span class="k">if</span> <span class="n">model</span> <span class="o">==</span> <span class="s1">'omega'</span><span class="p">:</span>
+        <span class="n">source_dir</span> <span class="o">=</span> <span class="n">get_omega_source_dir</span><span class="p">(</span><span class="n">build_dir</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">source_dir</span> <span class="o">=</span> <span class="n">get_mpas_ocean_source_dir</span><span class="p">(</span><span class="n">build_dir</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">source_dir</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">None</span>
+
+    <span class="c1"># the source directory is components/&lt;model&gt; within the branch</span>
+    <span class="k">return</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">source_dir</span><span class="p">)))</span>
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_convert_geometric_to_pseudo_vars</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="n">config</span><span class="p">):</span>

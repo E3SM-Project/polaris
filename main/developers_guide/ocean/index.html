@@ -65,10 +65,13 @@
 <li class="toctree-l1"><a class="reference internal" href="../e3sm/init/index.html">E3SM initial condition (e3sm/init) component</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../mesh/index.html">Mesh component</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Ocean component</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="tasks/index.html">Tasks</a></li>
-<li class="toctree-l2"><a class="reference internal" href="framework.html">Ocean framework</a></li>
-<li class="toctree-l2"><a class="reference internal" href="models/index.html">Models</a></li>
-<li class="toctree-l2"><a class="reference internal" href="utils/index.html">Ocean utilities</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#fanssie">FAnSSIE</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="tasks/index.html">Tasks</a></li>
+<li class="toctree-l3"><a class="reference internal" href="framework.html">Ocean framework</a></li>
+<li class="toctree-l3"><a class="reference internal" href="models/index.html">Models</a></li>
+<li class="toctree-l3"><a class="reference internal" href="utils/index.html">Ocean utilities</a></li>
+</ul>
+</li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../seaice/index.html">Sea ice component</a></li>
@@ -211,6 +214,33 @@ should run</p>
 <code class="docutils literal notranslate"><span class="pre">cd</span></code> into the component’s directory (e.g.
 <code class="docutils literal notranslate"><span class="pre">e3sm_submodules/E3SM-Project/components/mpas-ocean</span></code>) and build the code as
 appropriate for whichever of the <a class="reference internal" href="../../users_guide/machines/index.html#machines"><span class="std std-ref">Machines</span></a> you are using.</p>
+<section id="fanssie">
+<span id="dev-ocean-fanssie"></span><h2>FAnSSIE<a class="headerlink" href="#fanssie" title="Link to this heading"></a></h2>
+<p>The <code class="docutils literal notranslate"><span class="pre">e3sm_submodules/FAnSSIE</span></code> submodule points to the
+<a class="reference external" href="https://github.com/E3SM-Ocean-Discussion/E3SM/tree/fanssie-ocn-glc-coupling">fanssie-ocn-glc-coupling</a>
+branch of E3SM-Ocean-Discussion/E3SM, the shared development branch of
+FAnSSIE, the Framework for Antarctic System Science in E3SM, for
+ocean–ice-sheet coupling work.  Like Omega’s <code class="docutils literal notranslate"><span class="pre">develop</span></code>, it only gains commits:
+feature branches and E3SM <code class="docutils literal notranslate"><span class="pre">master</span></code> are merged in, and nothing is rewritten.
+<code class="docutils literal notranslate"><span class="pre">FANSSIE.md</span></code> at the root of the branch gives its rules and a ledger of each
+change and its upstream status.</p>
+<p>E3SM-Project remains the default MPAS-Ocean source.  Tasks that need FAnSSIE,
+including all the ice-shelf tasks, are not in the regular suites.  To run them,
+initialize the submodule and point the build to it:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>git<span class="w"> </span>submodule<span class="w"> </span>update<span class="w"> </span>--init<span class="w"> </span>e3sm_submodules/FAnSSIE
+polaris<span class="w"> </span>suite<span class="w"> </span>-c<span class="w"> </span>ocean<span class="w"> </span>-t<span class="w"> </span>fanssie_pr<span class="w"> </span>--model<span class="w"> </span>mpas-ocean<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--branch<span class="w"> </span>e3sm_submodules/FAnSSIE<span class="w"> </span>-w<span class="w"> </span>&lt;work_dir&gt;<span class="w"> </span>-p<span class="w"> </span>&lt;build_dir&gt;<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>-b<span class="w"> </span>&lt;baseline_dir&gt;
+</pre></div>
+</div>
+<p>The <code class="docutils literal notranslate"><span class="pre">fanssie_pr</span></code> suite (see <a class="reference internal" href="../../users_guide/ocean/suites.html#ocean-suite-fanssie-pr"><span class="std std-ref">fanssie_pr suite</span></a>) is the regression
+test for FAnSSIE:</p>
+<ul class="simple">
+<li><p>A task that needs FAnSSIE joins <code class="docutils literal notranslate"><span class="pre">fanssie_pr</span></code>.</p></li>
+<li><p>A change to the FAnSSIE branch, and each update of the submodule, is tested
+with <code class="docutils literal notranslate"><span class="pre">fanssie_pr</span></code> against a baseline built from the branch’s previous
+commit.</p></li>
+</ul>
 <div class="toctree-wrapper compound">
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="tasks/index.html">Tasks</a><ul>
@@ -250,6 +280,7 @@ appropriate for whichever of the <a class="reference internal" href="../../users
 </li>
 </ul>
 </div>
+</section>
 </section>
 
 

@@ -314,9 +314,13 @@ check for the
 <a class="reference external" href="https://github.com/E3SM-Project/PhysicalConstantsDictionary">Physical Constants Dictionary (PCD)</a>:</p>
 <ul class="simple">
 <li><p>Polaris reads its packaged PCD version from <code class="docutils literal notranslate"><span class="pre">polaris/constants/pcd.yaml</span></code>.</p></li>
-<li><p>The target branch is expected to provide <code class="docutils literal notranslate"><span class="pre">share/pcd.yaml</span></code>.</p></li>
+<li><p>The branch the model is built from is expected to provide <code class="docutils literal notranslate"><span class="pre">share/pcd.yaml</span></code>.
+That is the branch Polaris is building or, when it is not building, the
+branch the existing build was made from, read from its build script
+(MPAS-Ocean) or <code class="docutils literal notranslate"><span class="pre">CMakeCache.txt</span></code> (Omega).</p></li>
 <li><p>If the two versions differ, setup raises an error and stops.</p></li>
-<li><p>If <code class="docutils literal notranslate"><span class="pre">share/pcd.yaml</span></code> is missing, setup emits a warning and skips the check.</p></li>
+<li><p>If <code class="docutils literal notranslate"><span class="pre">share/pcd.yaml</span></code> is missing, or the existing build’s branch cannot be
+determined, setup emits a warning and skips the check.</p></li>
 </ul>
 <p>When developing against an E3SM or Omega branch with a newer PCD version,
 update Polaris’ <code class="docutils literal notranslate"><span class="pre">polaris/constants/pcd.yaml</span></code> to match. Avoid downgrading PCD in

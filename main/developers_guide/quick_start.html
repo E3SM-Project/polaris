@@ -165,9 +165,10 @@ switch to bash by calling <code class="docutils literal notranslate"><span class
 git<span class="w"> </span>submodule<span class="w"> </span>update<span class="w"> </span>--init<span class="w"> </span>--recursive
 </pre></div>
 </div>
-<p>There are 3 submodules with different versions of E3SM (<code class="docutils literal notranslate"><span class="pre">E3SM-Project</span></code> for
-MPAS-Ocean, <code class="docutils literal notranslate"><span class="pre">Omega</span></code> for Omega and <code class="docutils literal notranslate"><span class="pre">MALI-Dev</span></code> for MALI) in a <code class="docutils literal notranslate"><span class="pre">e3sm_submodules</span></code>
-directory of the polaris repository.</p>
+<p>There are 4 submodules with different versions of E3SM (<code class="docutils literal notranslate"><span class="pre">E3SM-Project</span></code> for
+MPAS-Ocean, <code class="docutils literal notranslate"><span class="pre">FAnSSIE</span></code> for MPAS-Ocean in ocean–ice-sheet coupling work, <code class="docutils literal notranslate"><span class="pre">Omega</span></code>
+for Omega and <code class="docutils literal notranslate"><span class="pre">MALI-Dev</span></code> for MALI) in a <code class="docutils literal notranslate"><span class="pre">e3sm_submodules</span></code> directory of the
+polaris repository.</p>
 </section>
 <section id="polaris-pixi-and-spack-environments-compilers-and-system-modules">
 <span id="dev-conda-env"></span><h2>Polaris pixi and spack environments, compilers and system modules<a class="headerlink" href="#polaris-pixi-and-spack-environments-compilers-and-system-modules" title="Link to this heading"></a></h2>
@@ -405,8 +406,9 @@ be safe.</p>
 </section>
 <section id="building-e3sm-components">
 <span id="dev-build-components"></span><h2>Building E3SM components<a class="headerlink" href="#building-e3sm-components" title="Link to this heading"></a></h2>
-<p>There are 3 E3SM repositories that are submodules within the polaris
-repository, but the MALI-Dev submodule is not yet used.</p>
+<p>There are 4 E3SM submodules within the polaris repository, but the MALI-Dev
+submodule is not yet used.  The FAnSSIE submodule is only for ocean–ice-sheet
+coupling work (see <a class="reference internal" href="ocean/index.html#dev-ocean-fanssie"><span class="std std-ref">FAnSSIE</span></a>).</p>
 <p>For MPAS-Ocean and Omega, the recommended workflow is to let Polaris build
 the component automatically during <code class="docutils literal notranslate"><span class="pre">polaris</span> <span class="pre">setup</span></code> or <code class="docutils literal notranslate"><span class="pre">polaris</span> <span class="pre">suite</span></code>.
 Polaris checks whether a complete build already exists at the
