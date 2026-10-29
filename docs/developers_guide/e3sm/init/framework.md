@@ -50,3 +50,33 @@ at least `LOW_RES_BASE_MESH_CELL_WIDTH`, currently `120.0` km.
 This separation keeps shared resolution logic in the component framework
 rather than in `polaris.tasks.e3sm.init`, which allows mesh and ocean
 workflows to reuse the same supported-resolution definitions.
+(dev-e3sm-init-framework-staging)=
+
+## Staging E3SM Input Files
+
+`polaris.e3sm.init` also holds what any workflow needs to stage files in an
+`inputdata`-style tree for E3SM.  The {ref}`dev-e3sm-init-component-inputs`
+tasks are the first to use it.  None of these modules imports from
+`polaris.tasks`.
+
+- `inputdata` — the general names and paths.  Paths are keyed by E3SM's grid
+  name for a component, such as `u02-oi30`, not by how a mesh was built.
+  `get_creation_date()` and `set_creation_date()` take the config section that
+  holds `creation_date`, and `get_nonempty_option()` reads an option, such as
+  a name only a person can assign, that is blank until set.
+- `partitions` — the core counts a graph is partitioned into
+  (`get_core_list()`, ported from Compass), which of them are still to build,
+  building them with `gpmetis` several at a time, and graphs of a subset of a
+  mesh's cells for partitioning regions separately.
+- `GraphPartitionStep` — partitions a graph into every core count.  It takes
+  the config section to read its bounds and its number of partitions at once
+  from, so a workflow with two meshes can give each its own.  By default it
+  partitions a single linked `graph.info`; a subclass that builds its own
+  graphs overrides `run()`.
+- `AssembleStep` — the base for a step that builds the staged tree.  Its
+  `run()` deletes `assembled_files/` and stages the workflow's README, and a
+  subclass then calls `stage()` and `stage_partitions()` from its own `run()`.
+  Staging waits until run time because the staged names depend on config
+  options a person may change after setup.  The step also links in
+  `sync_to_inputdata.sh`, which copies the tree into an inputdata directory
+  and is run by hand.

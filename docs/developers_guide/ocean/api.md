@@ -702,8 +702,8 @@
    stage.ForwardStage.model_replacements
    stage.ForwardStage.stats_period
    stage.ForwardStage.stats_filename
-   stage.ForwardStage.check_damping_supported
    stage.ForwardStage.bottom_drag_options
+   stage.ForwardStage.omega_damping_replacements
    stage.ForwardStage.restart_stream_replacements
    stage.ForwardStage.horiz_mixing_options
    stage.ForwardStage.omega_hmix_ratio
@@ -812,6 +812,43 @@
    viz.VizInitStep
    viz.VizInitStep.setup
    viz.VizInitStep.run
+```
+
+### realistic_global.dynamic_adjustment
+
+```{eval-rst}
+.. currentmodule:: polaris.tasks.ocean.realistic_global.dynamic_adjustment
+
+.. autosummary::
+   :toctree: generated/
+
+   tasks.add_realistic_global_dynamic_adjustment_tasks
+
+   task.RealisticGlobalDynamicAdjustment
+   task.RealisticGlobalDynamicAdjustment.configure
+
+   steps.get_realistic_dynamic_adjustment_steps
+   steps.adjustment_subdir
+
+   schedule.load_schedule_stages
+   schedule.excluded_days_in_stage
+
+   checks.check_temperature_max
+   checks.check_temperature_min
+   checks.check_salinity_max
+   checks.check_cfl_max
+
+   summary.Summary
+   summary.Summary.run
+
+   validate.StageCheck
+   validate.StageCheck.run
+
+   viz.VizDynamicAdjustmentStep
+   viz.VizDynamicAdjustmentStep.run
+   viz.TracerChange
+   viz.tracer_changes
+   viz.plot_tracer_changes
 ```
 
 ### seamount
