@@ -738,7 +738,10 @@ cost: at 2 km on 36 tasks, 20 years take about 40 days and 100 years about
 half a year. WP3, WP4 and WP11 can proceed alongside stages A–C: WP3 needs
 nothing, WP4 needs only WP3, and WP11 needs only WP1. WP10 follows WP2,
 and no stage needs it. No coupled production run starts before
-MALI-Dev/E3SM#211 reaches FAnSSIE ([D20](#decisions)).
+MALI-Dev/E3SM#211 reaches FAnSSIE ([D20](#decisions)). WP5 and WP6 start
+once the realistic component inputs are under review, which follows the
+dynamic adjustment ([#644](https://github.com/E3SM-Project/polaris/pull/644)),
+so stage B waits for both ([D21](#decisions)).
 
 FAnSSIE starts from these pull requests, whose states are as of
 2026-10-16:
@@ -1156,3 +1159,26 @@ the ocean.
 ```
 
 Rejected: merging #211 into FAnSSIE on its own, before MALI-Dev merges it.
+
+### D21: WP5 and WP6 build on the realistic component inputs
+
+Date last modified: 2026/10/29
+
+Contributors: Xylar Asay-Davis, Claude
+
+WP5 and WP6 start from `add-e3sm-init-component-inputs`, the last branch
+of the realistic-mesh stack, and stay drafts until it merges. The helpers
+they reuse, for graph partitions, file names and staging, first move from
+that branch's tasks to `polaris/e3sm/init/`. Neither package starts until
+that branch is a pull request under review, so that it is no longer a
+moving target. The branch follows #644.
+
+```{admonition} Rationale
+One copy of the naming, partitioning and staging code serves both the
+realistic meshes and MISOMIP. Moving the helpers is cheapest before that
+branch is reviewed.
+```
+
+Rejected: moving the helpers to a small pull request from main, so that
+WP5 and WP6 start from main; and waiting for the stack to merge before
+WP5 and WP6 start.
