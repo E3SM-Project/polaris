@@ -36,6 +36,7 @@ digraph fanssie {
     label="MALI-Dev/E3SM";
     labeljust=l; fontsize=12; color="#c3c2b7"; style="rounded";
     malidev [label=<<b>develop</b><br/><font color="#52514e">97 MALI commits ahead of E3SM</font>>, fillcolor="#ffffff"];
+    m211 [label=<<b>#211</b>  rebuild Albany's grid only when masks change<br/><font color="#52514e">draft · needed before coupled production runs</font>>, fillcolor="#e8e8e4"];
   }
 
   subgraph cluster_eod {
@@ -73,6 +74,7 @@ digraph fanssie {
   d141 -> fanssie;
   d143 -> fanssie;
   d144 -> fanssie [style=dashed];
+  m211 -> malidev [style=dashed];
   malidev -> d151 [constraint=false];
   d151 -> fanssie;
 
