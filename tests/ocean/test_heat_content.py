@@ -16,7 +16,7 @@ import xarray as xr
 from polaris.constants import get_constant
 from polaris.ocean.heat_content import heat_content
 
-CP = get_constant('seawater_specific_heat_capacity_reference')
+CP = get_constant('seawater_specific_heat_capacity_teos10')
 N_LEVELS = 4
 
 

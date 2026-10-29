@@ -27,10 +27,11 @@ import xarray as xr
 
 from polaris.constants import get_constant
 
-# The specific heat capacity of seawater.  Like the reference density, it is
-# not a free parameter: it comes from the Physical Constants Dictionary, so
-# that heat content is computed with the constant the rest of E3SM uses.
-CpSw = get_constant('seawater_specific_heat_capacity_reference')
+# The TEOS-10 specific heat capacity that relates potential enthalpy to
+# conservative temperature.  Like the reference density, it is not a free
+# parameter: it comes from the Physical Constants Dictionary, so that heat
+# content is computed with the constant Omega uses.
+CpSw = get_constant('seawater_specific_heat_capacity_teos10')
 
 
 def heat_content(temperature, weights):

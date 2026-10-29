@@ -470,9 +470,10 @@ seafloor is truncated there.  A column with no water in the range at all --
 one shallower than 2000 m, for the `-2000.0:bottom` band -- is masked rather
 than plotted as zero.
 
-The specific heat capacity is the one in Polaris's Physical Constants
-Dictionary, which is the one the rest of E3SM uses.  Like the reference
-density, it is not a config option.
+The specific heat capacity is the TEOS-10 one that Omega uses with
+conservative temperature, `seawater_specific_heat_capacity_teos10` in Polaris's
+Physical Constants Dictionary.  Like the reference density, it is not a config
+option.
 
 Output names follow the rest of the maps, with the range in place of the
 elevation, for example `heat_content_anomaly_ANN_top_to_bottom.png`.  The
