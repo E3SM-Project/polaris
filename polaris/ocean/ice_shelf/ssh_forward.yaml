@@ -9,8 +9,10 @@ mpas-ocean:
     config_dt: {{ dt }}
   split_explicit_ts:
     config_btr_dt: {{ btr_dt }}
+  land_ice:
+    config_use_land_ice_pressure: true
   land_ice_fluxes:
-    config_land_ice_flux_mode: pressure_only
+    config_land_ice_flux_mode: off
   debug:
     config_check_ssh_consistency: false
   streams:
