@@ -72,6 +72,26 @@ Success means:
   and conservation from E3SM's history files;
 - a 4 km Ocean0 serves as a quick test of changes on FAnSSIE.
 
+## Status
+
+Date last modified: 2026/10/29
+
+Contributors: Xylar Asay-Davis, Claude
+
+The figures show where each work package stands and how the pull requests
+that carry the work fit together. They are updated as the work
+progresses, from the sources next to them in `misomip/`.
+
+```{image} misomip/work_packages.svg
+:alt: Status of the twelve work packages and the first stage that needs each
+:width: 100%
+```
+
+```{image} misomip/code_flow.svg
+:alt: How the E3SM, E3SM-Ocean-Discussion, FAnSSIE and Polaris pull requests fit together
+:width: 100%
+```
+
 ## What we established
 
 These findings are from 2026-10-16. Items marked *(inferred)* come from
