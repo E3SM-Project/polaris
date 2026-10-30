@@ -1,0 +1,64 @@
+(e3sm-init-misomip-tasks)=
+
+# MISOMIP Tasks
+
+The `e3sm/init` `misomip` tasks make the inputs E3SM needs to run the
+ISOMIP+ experiments Ocean0–4 and the MISOMIP1 experiments IceOcean1r and
+IceOcean1ra
+([Asay-Davis et al. 2016](https://doi.org/10.5194/gmd-9-2471-2016)), with
+MPAS-Ocean coupled to MALI.
+
+## Tasks
+
+There is a task for each experiment on each pair of ocean and MALI meshes:
+
+- `e3sm/init/<mesh_name>/misomip/<experiment>`
+
+where `<mesh_name>` is `misomip-o4km-li1km` or `misomip-o2km-li1km` and
+`<experiment>` is one of `ocean0`, `ocean1`, `ocean2`, `ocean3`, `ocean4`,
+`iceocean1r` or `iceocean1ra`.
+
+The ocean meshes are the 4 and 2 km planar meshes of the
+{ref}`ocean-isomip-plus` tasks, and MALI's is the 1 km mesh of the
+{ref}`landice-mismip-plus` tasks.  The tasks run the steps that make
+these meshes, so the first task to run on a pair of meshes takes the
+longest.
+
+## Meshes and maps
+
+Each pair of meshes gets latitude and longitude from a transverse Mercator
+projection on a sphere of E3SM's radius, 6,371,220 m.  The projection
+puts the center of the ISOMIP+ box, $x = 560$ km and $y = 40$ km, at 75°S
+on the prime meridian.  As in the protocol, $x$ points north and $y$ west.
+
+The `ocean_mesh` and `landice_mesh` steps write the meshes with this
+latitude and longitude, and a SCRIP file for each.  The ocean mesh also
+gets the global attribute `sphere_radius`.  In MALI's SCRIP file, the
+cells on the domain's walls, $y = 0$ and $y = 80$ km, are trimmed to the
+walls, since MALI's mesh gives them half a cell's area.
+
+The `maps` steps make the conservative maps between the two meshes that
+E3SM's coupler reads, in each direction.
+
+## Config options
+
+E3SM's names for the grids are config options, which each pair of meshes
+sets:
+
+```cfg
+# E3SM's names for the grids of this pair of meshes
+[misomip_grids]
+
+# the ocean grid
+ocean_grid = misomip-o4km
+
+# MALI's grid
+landice_grid = misomip-li1km
+
+# the model grid that pairs them
+model_grid = misomip-o4km-li1km
+```
+
+Setup fails if any of them is blank.
+
+The maps are made with the tool in `[mapping] map_tool`.
