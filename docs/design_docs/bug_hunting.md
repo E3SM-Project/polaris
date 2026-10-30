@@ -640,7 +640,9 @@ prescribes.
 ### Implementation: Findings are ranked by priority.
 
 The rubric is in `utils/bug_hunt/AGENTS.md`. Polaris gets Omega's three
-labels: `priority: high`, `priority: medium` and `priority: low`.
+labels: `priority: high`, `priority: medium` and `priority: low`. `park`,
+`harvest` and `update` set the priority from the rubric. A different
+priority needs a note, which the digest shows with it.
 
 ### Implementation: A hunt asks for only a few decisions.
 
