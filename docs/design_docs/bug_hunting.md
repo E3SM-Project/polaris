@@ -425,7 +425,8 @@ The developer answers each decision with one word:
 
 A digest asks for at most five decisions, unless the developer asks for a
 different number, and always includes every P1 finding. Decisions are
-ordered by priority, then by the number of rows affected, then by age. The
+ordered by priority, then by the number of rows affected, then by age, then
+by confidence. The
 P4 findings are listed together, and one answer covers all of them:
 `batch` sends them to their batches, and the developer can name any to
 leave out. A finding that is not shown keeps its place for a later digest.
