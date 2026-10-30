@@ -9,6 +9,12 @@ The `component_inputs` tasks under
 initial-condition and graph-partition files an E3SM run needs from a
 unified mesh.  See {ref}`dev-e3sm-init-component-inputs`.
 
+## MISOMIP Tasks
+
+The `misomip` tasks under `polaris.tasks.e3sm.init.misomip` make E3SM's
+inputs for the ISOMIP+ and MISOMIP1 experiments on pairs of planar ocean
+and MALI meshes.  See {ref}`dev-e3sm-init-misomip`.
+
 ## Topography Tasks
 
 Topography tasks under `polaris.tasks.e3sm.init.topo` provide the task-family
@@ -28,5 +34,6 @@ topo/combine
 topo/remap
 topo/cull
 component_inputs
+misomip
 ```
 
