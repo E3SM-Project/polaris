@@ -33,16 +33,16 @@ and principles the packages share, and the order in which they land.
 
 The configuration serves two purposes:
 
-- **A test of geometry coupling.**
-  [E3SM#8887](https://github.com/E3SM-Project/E3SM/pull/8887) couples
-  ice-shelf melt between MPAS-Ocean and MALI and can import MALI's geometry
-  into the ocean. Import is off by default because no ocean initial
-  condition matches a MALI geometry. Here, the ocean's initial condition is
-  built from MALI's geometry through the coupler's own map, so import can
-  be on even when MALI is static. The two models' meshes are independent,
-  so partly grounded ocean cells appear at the grounding line, as they will
-  in realistic runs. A coarse version is cheap enough to serve as a quick
-  test of coupling changes.
+- **A test of geometry coupling.** E3SM's coupling of ice-shelf melt
+  between MPAS-Ocean and MALI
+  ([E3SM#8887](https://github.com/E3SM-Project/E3SM/pull/8887)) can also
+  import MALI's geometry into the ocean. Import is off by default because
+  no ocean initial condition matches a MALI geometry. Here, the ocean's
+  initial condition is built from MALI's geometry through the coupler's
+  own map, so import can be on even when MALI is static. The two models'
+  meshes are independent, so partly grounded ocean cells appear at the
+  grounding line, as they will in realistic runs. A coarse version is cheap
+  enough to serve as a quick test of coupling changes.
 - **A test of the thin film in coupled runs.** Every experiment keeps a
   thin film of water under grounded ice and uses wetting and drying,
   including Ocean0–2, whose geometry does not change.
@@ -74,7 +74,7 @@ Success means:
 
 ## Status
 
-Date last modified: 2026/10/29
+Date last modified: 2026/10/30
 
 Contributors: Xylar Asay-Davis, Claude
 
@@ -97,7 +97,7 @@ progresses, from the sources next to them in `misomip/`.
 These findings are from 2026-10-16. Items marked *(inferred)* come from
 reading code, not from runs.
 
-### Coupling in E3SM#8887
+### Ice-shelf melt coupling in E3SM
 
 - MPAS-Ocean sends MALI its net melt per unit floating area and its
   ice–ocean interface temperature. MALI sends its ice pressure, its
@@ -156,14 +156,14 @@ reading code, not from runs.
   ([E3SM#7301](https://github.com/E3SM-Project/E3SM/pull/7301)).
 - The same reset overwrites the floating fraction imported from MALI with
   0 or 1. The melt MPAS-Ocean sends MALI is normalized by MALI's own
-  remapped fraction, which #8887 keeps separately. The two differ in partly
-  floating cells.
-- Without the grounded-pressure cap of
-  [E3SM-Ocean-Discussion#119](https://github.com/E3SM-Ocean-Discussion/E3SM/pull/119),
-  imported pressure under grounded ice puts the draft below the bed.
-  Fluxes must also be zeroed where the ice is grounded
+  remapped fraction, which the melt coupling keeps separately. The two
+  differ in partly floating cells.
+- Without a cap on the land-ice pressure under grounded ice
+  ([E3SM-Ocean-Discussion#119](https://github.com/E3SM-Ocean-Discussion/E3SM/pull/119)),
+  imported pressure puts the draft below the bed. Fluxes must also be
+  zeroed where the ice is grounded
   ([E3SM-Ocean-Discussion#141](https://github.com/E3SM-Ocean-Discussion/E3SM/pull/141)).
-  #8887 has neither.
+  The melt coupling has neither.
 
 ### Wetting and drying
 
@@ -175,8 +175,8 @@ reading code, not from runs.
   `ocn-add-wetting-drying-se-and-fix-vlr`, bundled with other work. It is
   unreviewed research code, and no pull request exists. Its barotropic
   factor has no land-ice terms. It also replaces master's RK4 wetting
-  factor, dropping its ssh-gradient and subgrid branches, and #119 edits
-  the first of these. Merging it onto
+  factor, dropping its ssh-gradient and subgrid branches, and the
+  grounded-ice pressure cap edits the first of these. Merging it onto
   [xylar/E3SM:ocn/thin-film-wetting-drying](https://github.com/xylar/E3SM/tree/ocn/thin-film-wetting-drying)
   therefore takes a design decision, not only conflict resolution.
 - The RK4 thin-film runs of Polaris's `inception` task took, on Chrysalis
@@ -192,22 +192,19 @@ reading code, not from runs.
 
 ### Polaris and Compass
 
-- Polaris's standalone ISOMIP+ tasks run Ocean0–2 and three thin-film
-  tasks with MPAS-Ocean
-  ([#826](https://github.com/E3SM-Project/polaris/pull/826),
-  [#844](https://github.com/E3SM-Project/polaris/pull/844)). They need #119
-  and [E3SM#8047](https://github.com/E3SM-Project/E3SM/pull/8047), which
-  are not in Polaris's E3SM submodule.
+- Polaris's standalone ISOMIP+ tasks, not yet merged, run Ocean0–2 and
+  three thin-film tasks with MPAS-Ocean. They need the grounded-ice
+  pressure cap and E3SM's new land-ice melt equations
+  ([E3SM#8047](https://github.com/E3SM-Project/E3SM/pull/8047)), which are
+  not in Polaris's E3SM submodule.
 - Polaris builds MPAS-Ocean from one E3SM checkout per work directory,
   `e3sm_submodules/E3SM-Project` by default. `ice_shelf_2d` runs in
   `mpaso_pr`, `mpaso_nightly` and `framework_pr`.
 - The spherical ISOMIP+ meshes are JIGSAW meshes. Their projection is true
   at 75°S, but the domain lies at 65–72°S, so lengths are scaled by 1.008
   to 1.032.
-- Polaris has no landice component.
-  [#501](https://github.com/E3SM-Project/polaris/pull/501) removed Albany
-  from the deployment, and the `MALI-Dev` submodule, from 2024-10-31, is
-  unused.
+- Polaris has no landice component. Albany was removed from Polaris's
+  deployment, and the `MALI-Dev` submodule, from 2024-10-31, is unused.
 - Unmerged Polaris tasks stage SCRIP files, initial conditions and graph
   partitions for realistic E3SM meshes, but no coupler maps and nothing
   for MALI.
@@ -325,7 +322,7 @@ designs.
 
 ### Principle: independent meshes, one projection
 
-Date last modified: 2026/10/16
+Date last modified: 2026/10/30
 
 Contributors: Xylar Asay-Davis, Claude
 
@@ -341,13 +338,14 @@ uses only for its coupler areas.
 Across the domain's 80 km width, the projection's scale error is below
 $2\times10^{-5}$ and its area error below $4\times10^{-5}$, so planar model
 areas and the map's spherical areas differ by no more than that. Fluxes
-conserve exactly once both models take their coupler areas from the map
-(WP7). [D2](#decisions) and [D13](#decisions) record the alternatives.
+conserve exactly once E3SM takes the ocean's coupler areas from the map,
+as it already does MALI's. [D2](#decisions) and [D13](#decisions) record
+the alternatives.
 ```
 
 ### Principle: the ocean follows MALI
 
-Date last modified: 2026/10/16
+Date last modified: 2026/10/30
 
 Contributors: Xylar Asay-Davis, Claude
 
@@ -370,51 +368,54 @@ The constants are E3SM's and the protocol's ([D6](#decisions)):
 $\rho_i = 918$ kg m⁻³, $g = 9.80616$ m s⁻², and an ocean density of
 1028 kg m⁻³ in both MALI's flotation test and MPAS-Ocean's draft. The
 ocean's bed comes from the same source as MALI's, on the ocean's mesh, with
-no minimum water column imposed. The thin film and #119's pressure cap
-handle cells whose pressure exceeds flotation.
+no minimum water column imposed. The thin film and the grounded-ice
+pressure cap handle cells whose pressure exceeds flotation.
 
 ```{admonition} Rationale
 Separate remaps of the input for each model would disagree at grounding
-lines, which is where the realistic test of #8887 failed. Going through the
-coupler's map makes the first import a no-op for any MALI mesh, and it is
-how realistic initial conditions will need to be built.
+lines, which is where the realistic test of geometry import failed.
+Going through the coupler's map makes the first import a no-op for any
+MALI mesh, and it is how realistic initial conditions will need to be
+built.
 ```
 
 ### Principle: pressure is prescribed and SSH adjusts
 
-Date last modified: 2026/10/16
+Date last modified: 2026/10/30
 
 Contributors: Xylar Asay-Davis, Claude
 
-Polaris never changes the land-ice pressure, as in the standalone tasks
-(#826, D13). Before the E3SM run, SSH adjustment with standalone
+Polaris never changes the land-ice pressure, as in the standalone ISOMIP+
+tasks. Before the E3SM run, SSH adjustment with standalone
 MPAS-Ocean brings the SSH into balance with the pressure, so the import
 stays a no-op.
 
 ### Principle: a thin film and an outflow
 
-Date last modified: 2026/10/18
+Date last modified: 2026/10/30
 
 Contributors: Xylar Asay-Davis, Claude
 
-Every ocean cell under grounded ice holds a fresh film at MPAS-Ocean's
-pressure cap (#844, D17 and D18). The SSH is held at zero in the restoring
-region by MPAS-Ocean's tidal forcing, in its direct mode with zero
-amplitude (#844, D19). Meltwater and the water the ice displaces leave
+As in the standalone thin-film tasks, every ocean cell under grounded ice
+holds a fresh film at MPAS-Ocean's pressure cap, and the SSH is held at
+zero in the restoring region by MPAS-Ocean's tidal forcing, in its direct
+mode with zero amplitude. Meltwater and the water the ice displaces leave
 there with the local temperature and salinity. Every E3SM experiment
-takes the wetting-and-drying settings of the standalone thin-film tasks,
-including WP2's velocity ramp, since every experiment keeps a film.
+takes the wetting-and-drying settings of the thin-film tasks, including
+the velocity ramp of split-explicit wetting and drying, since every
+experiment keeps a film.
 
 ```{admonition} Rationale
 E3SM adds meltwater as a volume, and in Ocean3–4 and MISOMIP1 the ice load
 also changes. The protocol suggests evaporation to remove the meltwater
 but accepts other strategies (Sect. 3.1.8). The outflow handles both, and
-#844 found evaporation unstable at the rates a changing load needs.
+the thin-film tasks found evaporation unstable at the rates a changing
+load needs.
 ```
 
 ### Principle: E3SM's physics
 
-Date last modified: 2026/10/18
+Date last modified: 2026/10/30
 
 Contributors: Xylar Asay-Davis, Claude
 
@@ -424,8 +425,8 @@ domain or wetting and drying requires, or where E3SM's default predates a
 better option, as its explicit top drag does. The protocol supplies the
 geometry, the initial profiles and the restoring. Ocean0–2 also have
 variants with the COM physics (Table 4) for comparison with Yung et al.
-(2026). The standalone tasks keep the COM physics until WP11 moves them
-([D16](#decisions)).
+(2026). The standalone tasks keep the COM physics until they are moved
+to E3SM's physics ([D16](#decisions)).
 
 ### Principle: stub partners
 
@@ -441,7 +442,7 @@ the protocol (Sects. 3.1.2 and 4).
 
 ### Principle: one E3SM branch
 
-Date last modified: 2026/10/18
+Date last modified: 2026/10/30
 
 Contributors: Xylar Asay-Davis, Claude
 
@@ -459,21 +460,29 @@ every change to the branch.
 
 ```{admonition} Rationale
 E3SM and MALI-Dev will not merge these changes at the pace this work
-needs; E3SM#8047 has waited since February for master to take non-BFB
-changes. Without one branch, Polaris pull requests wait on, or stack onto,
-chains of unmerged E3SM pull requests, as #842, #826 and #844 do today.
+needs; E3SM's new land-ice melt equations have waited since February for
+master to take non-BFB changes. Without one branch, Polaris pull requests
+wait on, or stack onto, chains of unmerged E3SM pull requests.
 ```
 
-### Principle: a prototype first
+### Principle: a first E3SM run before the cases
 
-Date last modified: 2026/10/16
+Date last modified: 2026/10/30
 
 Contributors: Xylar Asay-Davis, Claude
 
-A throwaway 4 km Ocean0 case answers E3SM's questions before WP6 and WP7
-are designed in detail. It uses FAnSSIE, inputs from a prototype script, a
-static MALI and RK4. Its findings go into this document and the package
-designs; the prototype does not merge.
+The first E3SM run is 4 km Ocean0 on FAnSSIE, with a static MALI and RK4.
+It answers E3SM's questions before WP7 is designed and before WP6 writes
+case configurations. It reads WP5's meshes and maps and WP6's Ocean0
+initial conditions, so it tests the inputs that will merge. Its case is
+set up by hand. Its findings go into this document and the package
+designs.
+
+```{admonition} Rationale
+A separate prototype script, the first plan, would build the meshes, maps
+and initial conditions twice, and its findings would then have to be
+carried over to the code that merges.
+```
 
 ## Implementation: work packages
 
@@ -490,60 +499,69 @@ whole. Task, step and file names are working names.
 
 | Package                   | Code in       | Delivers                                                  | Design lives in                                   |
 |---------------------------|---------------|-----------------------------------------------------------|---------------------------------------------------|
-| WP0 FAnSSIE               | Polaris, E3SM | the shared development branch and Polaris submodule       | this document; #842 implements it                 |
-| WP1 Standalone ISOMIP+    | Polaris, E3SM | Ocean0–2 and thin-film tasks; the floating-mask fix       | `isomip_plus.md`, in #826                         |
-| WP2 Split-explicit W&D    | E3SM          | wetting and drying with a thin film in split-explicit     | the PR adding split-explicit thin-film tasks      |
+| WP0 FAnSSIE               | Polaris, E3SM | the shared development branch and Polaris submodule       | this document                                     |
+| WP1 Standalone ISOMIP+    | Polaris, E3SM | Ocean0–2 and thin-film tasks; the floating-mask fix       | `isomip_plus.md`                                  |
+| WP2 Split-explicit W&D    | E3SM          | wetting and drying with a thin film in split-explicit     | `split_explicit_wetting_drying.md`                |
 | WP3 Landice component     | Polaris       | component, MALI build, Albany                             | `landice_component.md`                            |
 | WP4 MISMIP+               | Polaris       | MALI mesh for MISOMIP1, spin-up, experiments              | `mismip_plus.md`                                  |
 | WP5 Meshes and maps       | Polaris       | projection, SCRIP files and maps in `e3sm/init`           | `misomip_e3sm_init.md`, shared with WP6           |
 | WP6 E3SM inputs           | Polaris       | initial conditions, data files, partitions, cases         | `misomip_e3sm_init.md`, shared with WP5           |
-| WP7 Idealized cases       | E3SM          | no atmosphere, coupler areas, namelists, user grids       | WP6's first PR, the first to build E3SM cases     |
-| WP8 Moving grounding line | E3SM          | #119 and #141 in coupled runs; fractions; data mode       | the WP6 PR that adds Ocean3–4                     |
+| WP7 Idealized cases       | E3SM          | no atmosphere, coupler areas, namelists, user grids       | its own document, in the first case-building PR   |
+| WP8 Moving grounding line | E3SM          | grounded-ice cap and fluxes; fractions; data mode         | the PR that adds Ocean3–4 to the E3SM inputs      |
 | WP9 Analysis              | Polaris       | diagnostics and comparisons                               | `misomip_analysis.md`                             |
 | WP10 Subgrid W&D          | E3SM, Polaris | subgrid wetting and drying in partly grounded cells       | the PR that first tests it                        |
 | WP11 E3SM's physics       | Polaris, E3SM | E3SM's physics in the ISOMIP+ tasks; COM variants         | `isomip_plus.md`, in the PR that switches physics |
 
 ### WP0: The FAnSSIE branch
 
-FAnSSIE starts from E3SM master with the work this plan already depends on:
-E3SM#8047 and its fixes,
-[E3SM#8661](https://github.com/E3SM-Project/E3SM/pull/8661), E3SM#8887,
-and E3SM-Ocean-Discussion#119, #141 and
-[#142](https://github.com/E3SM-Ocean-Discussion/E3SM/pull/142).
-`xylar/E3SM:ocn/thin-film-wetting-drying` and
-`ocn-glc/ice-shelf-melt-coupling` already hold most of them. Pull requests
-for this work then target FAnSSIE rather than E3SM-Ocean-Discussion's
-master, as Omega's target its `develop` branch.
+FAnSSIE starts from E3SM master with the work this plan already depends
+on:
 
-#842 adds the submodule, so that it can be reviewed and merged without
-waiting for E3SM, and #826 and #844 follow it. E3SM-Project stays the
+- E3SM's new land-ice melt equations
+  ([E3SM#8047](https://github.com/E3SM-Project/E3SM/pull/8047)) and their
+  fixes;
+- two-way land-ice coupling with MOAB
+  ([E3SM#8661](https://github.com/E3SM-Project/E3SM/pull/8661));
+- the ocean–MALI melt coupling with MCT
+  ([E3SM#8887](https://github.com/E3SM-Project/E3SM/pull/8887));
+- the thin film and pressure cap under grounded ice
+  ([E3SM-Ocean-Discussion#119](https://github.com/E3SM-Ocean-Discussion/E3SM/pull/119));
+- land-ice fluxes only under floating ice, and the floating-mask fix
+  ([E3SM-Ocean-Discussion#141](https://github.com/E3SM-Ocean-Discussion/E3SM/pull/141),
+  [#142](https://github.com/E3SM-Ocean-Discussion/E3SM/pull/142)).
+
+Pull requests for this work then target FAnSSIE rather than
+E3SM-Ocean-Discussion's master, as Omega's target its `develop` branch.
+
+Polaris pins FAnSSIE as a submodule, so that Polaris's work can be
+reviewed and merged without waiting for E3SM. E3SM-Project stays the
 default for every other Polaris build ([D15](#decisions)). No framework
 change is needed: a setup that needs FAnSSIE points to the submodule.
 
-#842 also adds a `fanssie_pr` suite. The ice-shelf tasks leave `mpaso_pr`,
-`mpaso_nightly` and `framework_pr` for it, since #842 switches them to
+A `fanssie_pr` suite comes with the submodule. The ice-shelf tasks leave
+`mpaso_pr`, `mpaso_nightly` and `framework_pr` for it, since they use
 options E3SM-Project lacks. Every task that needs FAnSSIE joins
 `fanssie_pr`, and every change to FAnSSIE is tested with it against a
 baseline from the branch's previous commit.
 
 ### WP1: Standalone ISOMIP+
 
-#842, #826 and #844 build MPAS-Ocean from FAnSSIE and merge in that order.
-Every later package reuses their initial condition, SSH adjustment, thin
-film and forcing.
+The standalone ISOMIP+ tasks, Ocean0–2 and the thin-film tasks, build
+MPAS-Ocean from FAnSSIE. Every later package reuses their initial
+condition, SSH adjustment, thin film and forcing.
 
-The floating mask over the open ocean is fixed first, in #142, so that the
-reset applies only where there is land ice. The standalone tasks are rerun
-with the fix before they merge. The same pull requests drop the JIGSAW
+The floating mask over the open ocean is fixed first, on FAnSSIE, so that
+the reset applies only where there is land ice. The standalone tasks are
+rerun with the fix before they merge. The same work drops the JIGSAW
 spherical meshes and most of the spherical tasks ([D2](#decisions)).
 
 ### WP2: Split-explicit wetting and drying
 
 WP2 starts from `abc3b5daee` merged onto FAnSSIE ([D10](#decisions)).
-RK4 keeps master's wetting factor, with #119's changes and its
+RK4 keeps master's wetting factor, with the grounded-ice changes and its
 ssh-gradient and subgrid branches. Carolyn Begeman's factors serve only
-the split-explicit scheme. They see grounded ice through #119's limit on
-the pressure, as RK4's factor does. In both schemes, water flows into a
+the split-explicit scheme. They see grounded ice through the cap on the
+land-ice pressure, as RK4's factor does. In both schemes, water flows into a
 cell under ice heavier than flotation only where it could lift the ice.
 WP2 must also:
 
@@ -557,9 +575,10 @@ test it. The work lands on FAnSSIE, and an upstream pull request can
 follow when it is ready. E3SM's default `split_explicit_ab2` stays
 without wetting and drying ([D18](#decisions)).
 
-WP2 is on hold until Carolyn Begeman has reviewed
-E3SM-Ocean-Discussion#144, which brings it to FAnSSIE
-([D19](#decisions)). Until it merges, the other packages use RK4.
+WP2 is on hold until Carolyn Begeman has reviewed the pull request that
+brings it to FAnSSIE
+([E3SM-Ocean-Discussion#144](https://github.com/E3SM-Ocean-Discussion/E3SM/pull/144),
+[D19](#decisions)). Until it merges, the other packages use RK4.
 
 ### WP3: Landice component
 
@@ -601,9 +620,8 @@ for IceOcean1r.
 
 The meshes come from the standalone tasks: the ocean's planar meshes at 4
 and 2 km from the ISOMIP+ tasks' shared steps, and MALI's 1 km mesh from
-WP4. WP5's design settles whether Ocean0–4 need a MALI mesh of their own
-covering the ISOMIP+ box, or use WP4's, which covers all of that box's
-ice.
+WP4. Every experiment uses that MALI mesh, which covers all of the ISOMIP+
+box's ice, so each ocean resolution has one set of SCRIP files and maps.
 
 Shared steps in `e3sm/init`, under `e3sm/init/<mesh_name>/` as the
 realistic component inputs (`component_inputs`) are, build from them:
@@ -613,7 +631,7 @@ realistic component inputs (`component_inputs`) are, build from them:
   directions, in the variants E3SM's coupler expects, and the runoff map.
 
 These products exist only for E3SM, so they sit with the other files
-`e3sm/init` makes from meshes before a run. If the prototype finds that
+`e3sm/init` makes from meshes before a run. If the first E3SM run finds that
 E3SM needs a spherical ocean, the ocean mesh is mapped onto the sphere
 with the same projection ([D2](#decisions)).
 
@@ -667,8 +685,8 @@ whether or not E3SM's code on master uses them.
 
 On FAnSSIE:
 
-- make #119's pressure cap safe for threaded runs;
-- use one ocean density in #119's cap, MPAS-Ocean's draft and MALI's
+- make the grounded-ice pressure cap safe for threaded runs;
+- use one ocean density in that cap, MPAS-Ocean's draft and MALI's
   flotation test;
 - reconcile the floating fraction that wetting and drying sets to 0 or 1
   with the fractional one imported from MALI, including the normalization
@@ -679,8 +697,8 @@ On FAnSSIE:
 - confirm that the floating mask follows the imported geometry, so newly
   floating cells melt and newly grounded ones stop.
 
-The notes on #8887 name wetting-and-drying runs as the next project after
-melt coupling. This package is that project.
+The notes on the melt-coupling pull request name wetting-and-drying runs
+as the next project after melt coupling. This package is that project.
 
 ### WP9: Analysis
 
@@ -728,37 +746,24 @@ changes land on FAnSSIE. The design amends
 
 | Stage | Experiments            | Needs                                                |
 |-------|------------------------|------------------------------------------------------|
-| A     | 4 km Ocean0, prototype | WP0                                                  |
-| B     | Ocean0–2               | WP0, WP1, WP5, WP6, WP7, WP9, WP11                   |
+| A     | 4 km Ocean0, first run | WP0, WP1, WP3, WP5, WP11; parts of WP4 and WP6       |
+| B     | Ocean0–2               | stage A, WP6, WP7, WP9                               |
 | C     | Ocean3–4               | stage B, WP8                                         |
-| D     | IceOcean1r, 1ra        | stage C, WP3, WP4                                    |
+| D     | IceOcean1r, 1ra        | stage C, all of WP4                                  |
 
-No stage waits for WP2. Until it lands, each uses RK4 and accepts the
-cost: at 2 km on 36 tasks, 20 years take about 40 days and 100 years about
-half a year. WP3, WP4 and WP11 can proceed alongside stages A–C: WP3 needs
-nothing, WP4 needs only WP3, and WP11 needs only WP1. WP10 follows WP2,
-and no stage needs it. WP5 and WP6 start from the realistic component
-inputs ([#921](https://github.com/E3SM-Project/polaris/pull/921)), even
-while it is a draft. #921 follows the dynamic adjustment
-([#644](https://github.com/E3SM-Project/polaris/pull/644)), so stage B
-waits for both ([D21](#decisions)).
-
-FAnSSIE starts from these pull requests, whose states are as of
-2026-10-16:
-
-| Pull request               | State                                           |
-|----------------------------|-------------------------------------------------|
-| E3SM#8047                  | draft; waits for master to take non-BFB changes |
-| E3SM#8661                  | approved, open                                  |
-| E3SM#8887                  | draft                                           |
-| E3SM-Ocean-Discussion#119  | draft                                           |
-| E3SM-Ocean-Discussion#141  | open                                            |
-| E3SM-Ocean-Discussion#142  | open                                            |
-| split-explicit W&D (WP2)   | no pull request                                 |
+No stage waits for WP2. Until it lands, each uses RK4 and accepts the cost:
+at 2 km on 36 tasks, 20 years take about 40 days and 100 years about half a
+year. Stage A needs only WP4's MALI mesh and WP6's Ocean0 initial
+conditions; WP4's steady state waits until stage D. WP3 needs nothing, WP4
+needs only WP3, and WP11 needs only WP1. WP10 follows WP2, and no stage
+needs it. WP5 and WP6 start from Polaris's realistic component inputs, even
+while that work is a draft, and it follows the realistic dynamic
+adjustment, so stage B waits for both to merge ([D21](#decisions)). The
+[figures](#status) show where each pull request stands.
 
 ## Testing and Validation
 
-Date last modified: 2026/10/18
+Date last modified: 2026/10/30
 
 Contributors: Xylar Asay-Davis, Claude
 
@@ -767,7 +772,7 @@ Each step builds on the one before it.
 1. **Polaris unit tests.** The ocean's land-ice fields equal the coupler's
    map and the import's normalization applied to MALI's initial export.
    Model and map areas agree to $4\times10^{-5}$.
-2. **The prototype.** The planar ocean runs in E3SM with its
+2. **The first E3SM run.** The planar ocean runs in E3SM with its
    `sphere_radius` set. In coupler history, every ocean input except glc's
    is zero. At the first coupling step, the imported fields equal the
    initial condition to round-off. With static MALI, runs with import on
@@ -800,8 +805,8 @@ branch's previous commit. The 4 km Ocean0 case also repeats steps 2 and 4.
 - The results are not submitted to MISOMIP, and no publication centers on
   them. The protocol's output files are not produced.
 - Matching realistic Antarctic initial conditions, "option B" in the notes
-  on #8887, is separate work. It can reuse the principle that the ocean
-  follows MALI.
+  on the melt-coupling pull request, is separate work. It can reuse the
+  principle that the ocean follows MALI.
 - The MOAB driver is out of scope until it supports ice-shelf coupling.
 - Moving changes from FAnSSIE upstream is not a requirement of this work.
   The ledger keeps them from being lost.
@@ -826,24 +831,24 @@ standalone runs uses the E3SM inputs.
 
 ### D2: The ocean runs on the planar mesh in E3SM
 
-Date last modified: 2026/10/16
+Date last modified: 2026/10/30
 
 Contributors: Xylar Asay-Davis, Claude
 
 MPAS-Ocean runs in E3SM on the standalone tasks' planar mesh, with
 `sphere_radius` set in its initial condition. No E3SM configuration has
-run a planar ocean before, so the prototype checks for assumptions of a
-sphere.
+run a planar ocean before, so the first E3SM run checks for assumptions of
+a sphere.
 
 Alternatives:
 
 - **The planar mesh mapped onto the sphere.** This is the fallback if the
-  prototype finds such an assumption. Its lengths would differ from the
+  first E3SM run finds such an assumption. Its lengths would differ from the
   planar mesh's by less than $2\times10^{-5}$, and the standalone tasks
   would need the mapped mesh too for comparisons.
 - **The existing spherical meshes.** Rejected: their projection scales
-  lengths by 1.008 to 1.032 across the domain. The open ISOMIP+ pull
-  requests drop them, along with most of the spherical tasks.
+  lengths by 1.008 to 1.032 across the domain. The standalone ISOMIP+
+  work drops them, along with most of the spherical tasks.
 
 ### D3: Every experiment has a thin film
 
@@ -869,11 +874,11 @@ ocean then ignores.
 
 ### D5: The MCT driver
 
-Date last modified: 2026/10/16
+Date last modified: 2026/10/30
 
 Contributors: Xylar Asay-Davis, Claude
 
-All runs use the MCT driver, the only one in which #8887 couples ice-shelf
+All runs use the MCT driver, the only one in which E3SM couples ice-shelf
 melt.
 
 ### D6: E3SM's constants
@@ -907,12 +912,13 @@ rejected because the geometry would move in yearly jumps.
 
 ### D8: An outflow, not evaporation
 
-Date last modified: 2026/10/16
+Date last modified: 2026/10/30
 
 Contributors: Xylar Asay-Davis, Claude
 
 Water leaves through the tidal forcing in the restoring region, not
-through the protocol's evaporation, as in #844 (D19). See
+through the protocol's evaporation, as in the standalone thin-film tasks.
+See
 [the thin-film principle](#algorithm-design-shared-principles).
 
 ### D9: IceOcean2 is out of scope
@@ -927,13 +933,13 @@ calve ice thinner than 100 m, and a new spin-up with Ice0 and Ice1 rerun
 
 ### D10: Split-explicit work starts from Carolyn Begeman's series
 
-Date last modified: 2026/10/16
+Date last modified: 2026/10/30
 
 Contributors: Xylar Asay-Davis, Claude
 
 WP2 starts from `abc3b5daee`, the most recent split-explicit series.
-`alt-wetting-drying-se` adds stale copies of #119 and of the thin-film
-viscosity work on top of it.
+`alt-wetting-drying-se` adds stale copies of the grounded-ice changes and
+of the thin-film viscosity work on top of it.
 `ocn-add-wetting-drying-se-and-fix-vlr` carries the same series with
 vertical-remap and debugging commits.
 
@@ -958,13 +964,13 @@ physically useful.
 
 ### D12: The E3SM configuration lives in Polaris
 
-Date last modified: 2026/10/16
+Date last modified: 2026/10/30
 
 Contributors: Xylar Asay-Davis, Claude
 
 For each experiment, Polaris writes a user-mods directory and a grid file
 from the same physics configuration as the standalone tasks. FAnSSIE
-carries only the general changes of WP7.
+carries only E3SM's general changes for idealized cases.
 
 Rejected: compset modifiers, namelist defaults and grid entries in E3SM.
 They would split the physics between two repositories, and idealized tests
@@ -972,7 +978,7 @@ are not a priority for E3SM integration.
 
 ```{admonition} Rationale
 One source for the physics keeps the E3SM and standalone runs identical,
-so the comparisons in WP9 test the coupling rather than the configuration.
+so comparing them tests the coupling rather than the configuration.
 ```
 
 ### D13: MALI and ocean meshes are independent
@@ -1047,7 +1053,7 @@ not the other would then be hard to tell apart as the two diverge.
 
 ### D16: E3SM's physics, not COM's
 
-Date last modified: 2026/10/18
+Date last modified: 2026/10/30
 
 Contributors: Xylar Asay-Davis, Claude
 
@@ -1065,8 +1071,8 @@ Laplacian viscosity, constant mixing and a tuned $\Gamma_T$. It stays as a
 variant of Ocean0–2, the only experiments with published results to
 compare against.
 
-*Effect:* #826 and #844 merge with the COM physics, and WP11 then moves the
-standalone tasks to E3SM's physics.
+*Effect:* the standalone ISOMIP+ tasks merge with the COM physics first,
+and then move to E3SM's physics.
 
 ### D17: `jm` at each layer's actual depth
 
@@ -1117,20 +1123,20 @@ revisited if realistic E3SM runs with wetting and drying need its savings.
 
 ### D19: WP2 waits for Carolyn Begeman's review
 
-Date last modified: 2026/10/28
+Date last modified: 2026/10/30
 
 Contributors: Xylar Asay-Davis, Claude
 
-Split-explicit wetting and drying (E3SM-Ocean-Discussion#144) merges into
-FAnSSIE only after Carolyn Begeman has reviewed it carefully, as she asked
-at the FAnSSIE ocean meeting of 2026-10-27. Until then, WP2 is on hold,
-and the other packages and stages proceed with RK4, accepting its cost.
+Split-explicit wetting and drying merges into FAnSSIE only after Carolyn
+Begeman has reviewed it carefully, as she asked at the FAnSSIE ocean
+meeting of 2026-10-27. Until then, WP2 is on hold, and the other packages
+and stages proceed with RK4, accepting its cost.
 
-*Effect:* the split-explicit ISOMIP+ variants (polaris#861) stay a draft,
-and their `fanssie_pr` entries wait for #144. Runs switch to split-explicit
-once it merges.
+*Effect:* Polaris's split-explicit ISOMIP+ variants stay a draft and join
+`fanssie_pr` only once split-explicit wetting and drying is on FAnSSIE.
+Runs switch to split-explicit then.
 
-Rejected: merging #144 before her review, or holding the other packages
+Rejected: merging it before her review, or holding the other packages
 until it merges.
 
 ### D20: Fixes for Albany's timer leak are good to have, not required
@@ -1148,27 +1154,30 @@ report grow with the number of solves since MALI started. Only forward
 MALI runs are affected; data-mode MALI never calls the velocity solver.
 Two fixes are on the way, and no coupled run waits for either:
 
-- [MALI-Dev/E3SM#211](https://github.com/MALI-Dev/E3SM/pull/211) skips
-  the rebuild in runs that set the option to `.false.`. It reaches
-  FAnSSIE only through MALI-Dev's `develop`, the next time FAnSSIE merges
-  it in.
-- Changes to Trilinos and Albany, planned on #1232, stop the leak even
-  when MALI rebuilds at every solve. They reach E3SM through the Spack
-  builds of Trilinos and Albany.
+- A MALI change
+  ([MALI-Dev/E3SM#211](https://github.com/MALI-Dev/E3SM/pull/211)) skips
+  the rebuild, unless the masks change, in runs that set the option to
+  `.false.`. It reaches FAnSSIE only through MALI-Dev's `develop`, the
+  next time FAnSSIE merges it in.
+- Changes to Trilinos and Albany, planned in the Albany issue, stop the
+  leak even when MALI rebuilds at every solve. They reach E3SM through the
+  Spack builds of Trilinos and Albany.
 
-WP6 sets the option to `.false.`, which helps once #211 is on FAnSSIE.
+WP6 sets the option to `.false.`, which helps once MALI's change is on
+FAnSSIE.
 
 ```{admonition} Rationale
 In the 1 km MISMIP+ spin-up, wall time per 50 years grew from 16 to
 35 minutes over about 1,200 steps, and some ranks reached 19 GB. After
 550 years in one job, MALI's finalize took 10.2 of the job's 14.7 hours.
-The growth starts over each time MALI restarts. Over 50 years, #211 cut
-the wall time from 20.0 to 11.8 minutes, and the Trilinos change to
-14.1 minutes.
+The growth starts over each time MALI restarts. Over 50 years, MALI's
+change cut the wall time from 20.0 to 11.8 minutes, and the Trilinos
+change to 14.1 minutes.
 ```
 
-Rejected: holding coupled production runs until #211 is on FAnSSIE; and
-merging #211 into FAnSSIE on its own, before MALI-Dev merges it.
+Rejected: holding coupled production runs until MALI's change is on
+FAnSSIE; and merging that change into FAnSSIE on its own, before MALI-Dev
+merges it.
 
 ### D21: WP5 and WP6 build on the realistic component inputs
 
@@ -1177,12 +1186,14 @@ Date last modified: 2026/10/30
 Contributors: Xylar Asay-Davis, Claude
 
 WP5 and WP6 share one branch, `add-misomip-e3sm-init`, and one design
-document. The branch starts from `add-e3sm-init-component-inputs` (#921),
-the last branch of the realistic-mesh stack, and stays a draft until it
-merges. The helpers WP5 and WP6 reuse, for graph partitions, inputdata
-paths and staging, are in `polaris/e3sm/init/` on that branch, not in its
-tasks. The branch starts from #921 even while it is a draft. #921 follows
-#644.
+document. The branch starts from `add-e3sm-init-component-inputs`, which
+adds Polaris's realistic component inputs and follows the realistic
+dynamic adjustment. It starts there even while that branch is a draft,
+and stays a draft until it merges. The helpers WP5 and WP6 reuse, for
+graph partitions, inputdata paths and staging, are in
+`polaris/e3sm/init/` on that branch, not in its tasks. Until the
+standalone ISOMIP+, landice and MISMIP+ work reaches main, the branch
+merges it in with temporary merge commits, which are rebased out later.
 
 ```{admonition} Rationale
 One copy of the naming, partitioning and staging code serves both the
@@ -1193,5 +1204,6 @@ through WP5's maps.
 ```
 
 Rejected: moving the helpers to a small pull request from main, so that
-WP5 and WP6 start from main; and waiting for #921 to be under review, or
-for the stack to merge, before WP5 and WP6 start.
+WP5 and WP6 start from main; and waiting for the component inputs to be
+under review, or
+for the realistic stack to merge, before WP5 and WP6 start.
