@@ -2,6 +2,7 @@ ocean/column/horiz_press_grad/salinity_gradient
 ocean/column/horiz_press_grad/surface_pressure_gradient
 ocean/column/horiz_press_grad/temperature_gradient
 ocean/column/horiz_press_grad/ztilde_gradient
+ocean/planar/mixed_layer_eddies/coarse
 ocean/planar/baroclinic_channel/10km/decomp
 ocean/planar/baroclinic_channel/10km/restart
 ocean/planar/baroclinic_channel/10km/threads

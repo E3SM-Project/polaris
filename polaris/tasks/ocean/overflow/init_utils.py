@@ -1,7 +1,8 @@
 """
 Shared helpers for the overflow init steps: building the mesh and
 computing the idealized bathymetry and initial-temperature profiles,
-used by both the z-star and p-star init steps.
+used by both the geometric-coordinate and p-star init steps, and the
+initial density, used by the geometric-coordinate init step.
 """
 
 import numpy as np
@@ -11,6 +12,11 @@ from mpas_tools.planar_hex import make_planar_hex_mesh
 
 from polaris.coriolis import add_coriolis_to_dataset
 from polaris.mesh.planar import compute_planar_hex_nx_ny
+from polaris.ocean.eos import compute_density
+from polaris.ocean.vertical.ztilde import (
+    get_iter_count_for_eos,
+    pressure_and_spec_vol_from_state_at_geom_height,
+)
 
 
 def build_overflow_mesh(step):
@@ -116,3 +122,43 @@ def compute_initial_temperature(config, x_cell):
         higher_temperature,
     )
     return temperature
+
+
+def compute_initial_density(config, ds, logger=None):
+    """
+    Compute the in-situ density of the initial state on a geometric
+    vertical coordinate (z-star or sigma), at the hydrostatic pressure of
+    the resting state with zero surface pressure.
+
+    Parameters
+    ----------
+    config : polaris.config.PolarisConfigParser
+        Configuration with the equation-of-state options.
+
+    ds : xarray.Dataset
+        The initial state, with ``layerThickness``, ``temperature`` and
+        ``salinity``.
+
+    logger : logging.Logger, optional
+        A logger for the equation-of-state iterations.
+
+    Returns
+    -------
+    xarray.DataArray
+        The in-situ density (kg m-3) at layer midpoints.
+    """
+    surf_pressure = xr.zeros_like(ds.layerThickness.isel(nVertLevels=0))
+    # the linear equation of state ignores the pressure, so this only
+    # matters for a nonlinear one
+    _, pressure, _ = pressure_and_spec_vol_from_state_at_geom_height(
+        config=config,
+        geom_layer_thickness=ds.layerThickness,
+        temperature=ds.temperature,
+        salinity=ds.salinity,
+        surf_pressure=surf_pressure,
+        iter_count=get_iter_count_for_eos(config),
+        logger=logger,
+    )
+    return compute_density(
+        config, ds.temperature, ds.salinity, pressure=pressure
+    )
