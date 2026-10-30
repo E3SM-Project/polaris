@@ -117,7 +117,6 @@ variables:
   # eos
   BruntVaisalaFreqTop: BruntVaisalaFreqSq
 
-<<<<<<< HEAD
   # submesoscale eddy parameterization
   normalMLEvelocity: EddyVelocity
   dThreshMLD: DenMixLayerDepth
@@ -132,7 +131,7 @@ variables:
   #       that MPAS-Ocean's Rms and Omega's SpatialStdDev are the same
   #       quantity, which they are not: one is a root-mean-square and the
   #       other a standard deviation.
-=======
+
   # frazil
   # NOTE: none of these Omega arrays are registered as Fields (no
   # Field::create/FieldGroup calls exist for them in Frazil.cpp), so
@@ -148,7 +147,6 @@ variables:
   # enthalpy accumulators used internally by the teos frazil formulation),
   # which have no MPAS-Ocean equivalent, and MPAS-Ocean's
   # frazilSurfacePressure has no Omega equivalent yet.
->>>>>>> f58cb4f0f (Add frazil variable mappings)
 
 config:
 - section:
