@@ -677,12 +677,9 @@ upstream when E3SM wants them:
   forcing built every step;
 - initial conditions, data-mode files and graph partitions named by case
   variables, so `buildnml` accepts grids it does not list;
-- a switch that keeps MALI's calving and face-melt runoff out of the
-  ocean;
-- no runoff map: the MCT driver reads the glc-to-ocean runoff map at
-  initialization whenever MALI is coupled to a prognostic ocean, and
-  ice-shelf coupling uses it too, so these changes skip those mappers or
-  supply a map.
+- a driver option that turns off glc-to-ocean runoff while keeping
+  ice-shelf coupling, so MALI's calving and face-melt runoff stay out of
+  the ocean and no runoff map is needed.
 
 Everything specific to the experiments comes from Polaris's user-mods
 directory ([D12](#decisions)): namelists, the streams for interior
