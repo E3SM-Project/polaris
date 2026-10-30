@@ -316,8 +316,8 @@ Contributors: Xylar Asay-Davis, Claude
 `e3sm_submodules/MALI-Dev` stays and becomes the landice default. It moves
 to MALI-Dev's `develop` at `5e80df1145`, the commit that the pull request
 merging `develop` into FAnSSIE brings in. Builds for ocean–ice-sheet
-coupling work point to FAnSSIE explicitly. Xylar chose this on 2026-10-22;
-the submodule's previous pin, from 2024, had no particular significance.
+coupling work point to FAnSSIE explicitly. The submodule's previous pin,
+from 2024, had no particular significance.
 
 ```{admonition} Rationale
 MALI is developed on MALI-Dev's `develop` and reaches E3SM's `master` in
@@ -342,7 +342,7 @@ Date last modified: 2026/10/22
 Contributors: Xylar Asay-Davis, Claude
 
 Polaris builds Albany in its own Spack library environments, when deployed
-with `--with-albany`, as Compass does. Xylar chose this on 2026-10-22.
+with `--with-albany`, as Compass does.
 
 Rejected:
 
@@ -422,7 +422,7 @@ for MISOMIP1. `fanssie_pr` then needs an environment deployed with
 (`deploy/albany_supported.txt`). Without such an environment, its setup fails
 because of D4. The four tasks are timed before they join, to confirm that the
 suite still fits in its 1 h wall time; it took 25–26 minutes before the
-split-explicit ISOMIP+ tasks were added. Xylar agreed to this on 2026-10-22.
+split-explicit ISOMIP+ tasks were added.
 
 Rejected:
 
@@ -439,8 +439,7 @@ Contributors: Xylar Asay-Davis, Claude
 
 Polaris's MPAS-Ocean and MALI build scripts start with `make clean` when the
 shared framework in the E3SM checkout was last built for another component
-or with another configuration, such as another compiler. Xylar asked for the
-compiler check on 2026-10-22.
+or with another configuration, such as another compiler.
 
 ```{admonition} Rationale
 The framework's driver is compiled differently for each component, and
