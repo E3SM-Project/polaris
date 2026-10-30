@@ -732,7 +732,11 @@ seaice/api
    :toctree: generated/
 
    MappingFileStep
+   MappingFileStep.src_from_scrip
+   MappingFileStep.dst_from_scrip
    MappingFileStep.runtime_setup
+   ScripFileDescriptor
+   ScripFileDescriptor.to_scrip
 ```
 
 ### resolution

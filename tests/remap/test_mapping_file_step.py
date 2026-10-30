@@ -1,5 +1,7 @@
+import pytest
+
 from polaris.config import PolarisConfigParser
-from polaris.remap import MappingFileStep
+from polaris.remap import MappingFileStep, ScripFileDescriptor
 
 
 class _FakeComponent:
@@ -74,3 +76,50 @@ def test_runtime_setup_sets_the_mapping_command(tmp_path, monkeypatch):
     # absolute, since other steps use the remapper from their own directories
     assert step.remapper.map_filename == str(tmp_path / 'map.nc')
     assert step.remapper.src_grid_info['filename'] == str(tmp_path / 'mesh.nc')
+
+
+def test_runtime_setup_reads_grids_from_scrip_files(tmp_path, monkeypatch):
+    step = _make_step(ntasks=4, min_tasks=1, method='conserve')
+    config = PolarisConfigParser()
+    config.set('mapping', 'map_tool', 'moab')
+    step.config = config
+    step.work_dir = str(tmp_path)
+    step.src_from_scrip(filename='src_scrip.nc', mesh_name='src')
+    step.dst_from_scrip(
+        filename='dst_scrip.nc', mesh_name='dst', regional=False
+    )
+
+    def prepare_map(logger=None):
+        step.remapper.map_filename = 'map.nc'
+        return ['mbtempest', '--file', 'map.nc']
+
+    monkeypatch.setattr(step.remapper, 'prepare_map', prepare_map)
+    monkeypatch.chdir(tmp_path)
+
+    step.runtime_setup()
+
+    src = step.remapper.src_descriptor
+    dst = step.remapper.dst_descriptor
+    assert src.filename == str(tmp_path / 'src_scrip.nc')
+    assert dst.filename == str(tmp_path / 'dst_scrip.nc')
+    assert src.mesh_name == 'src'
+    assert src.regional is True
+    assert dst.regional is False
+
+
+def test_scrip_file_descriptor_copies_the_file(tmp_path):
+    filename = tmp_path / 'scrip.nc'
+    filename.write_bytes(b'scrip')
+    descriptor = ScripFileDescriptor(
+        filename=str(filename), mesh_name='mesh', regional=True
+    )
+
+    descriptor.to_scrip(str(tmp_path / 'copy.nc'))
+    assert (tmp_path / 'copy.nc').read_bytes() == b'scrip'
+
+    # copying a file onto itself leaves it alone
+    descriptor.to_scrip(str(filename))
+    assert filename.read_bytes() == b'scrip'
+
+    with pytest.raises(ValueError):
+        descriptor.to_scrip(str(tmp_path / 'expanded.nc'), expand_factor=2.0)
