@@ -61,6 +61,7 @@ def main():
     tasks = _list(config.get('cron', 'tasks'))
     account = config.get('cron', 'account', fallback=None)
     build_jobs = config.get('cron', 'build_jobs', fallback=None)
+    build_in_job = config.getboolean('cron', 'build_in_job', fallback=False)
     compilers = _list(config.get('cron', 'compilers'))
 
     log = Log(os.path.join(log_dir, 'nightly.log'))
@@ -108,6 +109,8 @@ def main():
                 command = f'{command} --site {args.site}'
             if build_jobs is not None:
                 command = f'{command} --build_jobs {build_jobs}'
+            if build_in_job:
+                command = f'{command} --build_in_job'
             task_log = os.path.join(log_dir, f'{task}_{compiler}.log')
             if not run_logged(
                 ['bash', '-l', '-c', command],
