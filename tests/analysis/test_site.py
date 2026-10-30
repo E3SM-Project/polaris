@@ -47,10 +47,12 @@ def _make_step(
     return os.path.join(step_path, FRAGMENT_FILENAME)
 
 
-def _publish_and_generate(tmp_path, fragments, simulation_name='QU240'):
+def _publish_and_generate(
+    tmp_path, fragments, simulation_name='QU240', copy_data=False
+):
     """Publish the fragments and generate the site over what was published"""
     output_path = str(tmp_path / 'output')
-    published, missing = publish(fragments, output_path)
+    published, missing = publish(fragments, output_path, copy_data=copy_data)
     assert missing == []
     filenames = generate_site(
         published,
@@ -132,7 +134,7 @@ def test_a_thumbnail_links_to_the_plot_and_the_data_beside_it(tmp_path):
     work_dir = str(tmp_path / 'work')
     fragment = _make_step(work_dir, 'maps/0021-0040', seasons=['ANN'])
 
-    _, filenames = _publish_and_generate(tmp_path, [fragment])
+    _, filenames = _publish_and_generate(tmp_path, [fragment], copy_data=True)
     gallery = _read(filenames[1])
 
     assert '../plots/climatology_maps_temperature_ANN_0021-0040.png' in _hrefs(
@@ -141,6 +143,16 @@ def test_a_thumbnail_links_to_the_plot_and_the_data_beside_it(tmp_path):
     assert '../plots/climatology_maps_temperature_ANN_0021-0040.nc' in _hrefs(
         gallery
     )
+
+
+def test_a_data_file_that_was_not_copied_has_no_data_link(tmp_path):
+    work_dir = str(tmp_path / 'work')
+    fragment = _make_step(work_dir, 'maps/0021-0040', seasons=['ANN'])
+
+    _, filenames = _publish_and_generate(tmp_path, [fragment])
+    gallery = _read(filenames[1])
+
+    assert 'netCDF' not in gallery
 
 
 def test_a_product_with_no_data_file_has_no_data_link(tmp_path):

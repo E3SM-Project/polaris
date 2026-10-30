@@ -15,7 +15,7 @@ class Publish(Step):
     gallery over it
 
     This is the only step that knows how results are presented.  It reads
-    each step's manifest fragment, symlinks the products into the staging
+    each step's manifest fragment, copies the products into the staging
     tree, renders a thumbnail for each plot, writes the merged manifest, and
     generates the site.  Working from the fragments rather than from the
     directory structure is what lets the work be re-chunked later without
@@ -91,6 +91,7 @@ class Publish(Step):
             thumbnail_quality=config.getint(
                 'ocean_analysis', 'thumbnail_quality'
             ),
+            copy_data=config.getboolean('ocean_analysis', 'copy_netcdf'),
         )
 
         generate_site(
