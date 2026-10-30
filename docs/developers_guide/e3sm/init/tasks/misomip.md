@@ -33,6 +33,10 @@ The steps of the `e3sm/init` component are:
   the maps in `MAPS` from the two SCRIP files, through
   {py:meth}`polaris.remap.MappingFileStep.src_from_scrip()` and
   {py:meth}`polaris.remap.MappingFileStep.dst_from_scrip()`.
+- Two {py:class}`polaris.e3sm.init.graph_partition.GraphPartitionStep`
+  steps partition the ocean's graph, from `ocean_mesh`, and MALI's, from
+  the MISMIP+ mesh step, with options from `[misomip_ocean_partitions]`
+  and `[misomip_landice_partitions]`.
 
 ## Projection and SCRIP files
 
