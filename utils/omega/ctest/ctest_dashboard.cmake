@@ -14,7 +14,9 @@
 #   CTEST_NIGHTLY_START_TIME  the CDash project's nightly start time
 #   CTEST_BUILD_COMMAND       the build command (build stage only)
 #   CTEST_SUBMIT_URL          the CDash submit URL
-#   SUBMIT                    ON to submit at the end of the test stage
+#   SUBMIT                    ON to submit at the end of the test stage, or
+#                             at the end of the build stage if the build
+#                             failed, since then there is no test stage
 
 cmake_minimum_required(VERSION 3.20)
 
@@ -41,6 +43,12 @@ if(STAGE STREQUAL "build")
   ctest_start(${CTEST_MODEL})
   ctest_build(RETURN_VALUE _build_result NUMBER_ERRORS _build_errors)
   if(NOT _build_result EQUAL 0 OR _build_errors GREATER 0)
+    if(SUBMIT)
+      ctest_submit(RETURN_VALUE _submit_result)
+      if(NOT _submit_result EQUAL 0)
+        message(WARNING "CDash submission of the failed build failed")
+      endif()
+    endif()
     message(FATAL_ERROR "Omega build failed: ${_build_errors} error(s)")
   endif()
 

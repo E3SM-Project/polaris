@@ -1,3 +1,13 @@
+# The four icos advection tasks come first.  Each one's 60 km forward
+# step takes 13 of the 16 nodes on Chrysalis, so those steps run one after
+# another and set the suite's wall time under `polaris parallel`.  It
+# starts ready steps in the order they are listed here, so listing these
+# tasks first gives their steps the first claim on nodes as they free up,
+# and the cheaper tasks fill in around them.
+ocean/spherical/icos/correlated_tracers_2d
+ocean/spherical/icos/divergent_2d
+ocean/spherical/icos/nondivergent_2d
+ocean/spherical/icos/rotation_2d
 ocean/column/horiz_press_grad/salinity_gradient
 ocean/column/horiz_press_grad/surface_pressure_gradient
 ocean/column/horiz_press_grad/temperature_gradient
@@ -17,12 +27,8 @@ ocean/planar/merry_go_round/convergence_both_order4
 ocean/planar/overflow/linear/zstar/smoke_test_horiz_adv_order_2
 ocean/planar/overflow/linear/zstar/smoke_test_horiz_adv_order_3
 ocean/planar/overflow/linear/zstar/smoke_test_horiz_adv_order_4
-ocean/spherical/icos/correlated_tracers_2d
 ocean/spherical/icos/cosine_bell/decomp
 ocean/spherical/icos/cosine_bell/restart
 ocean/spherical/icos/geostrophic/convergence_both
-ocean/spherical/icos/divergent_2d
-ocean/spherical/icos/nondivergent_2d
-ocean/spherical/icos/rotation_2d
 ocean/spherical/qu/rotation_2d
 ocean/spherical/realistic_global/e3sm-qu240/restart
