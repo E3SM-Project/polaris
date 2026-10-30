@@ -1,3 +1,4 @@
+import netCDF4
 import numpy as np
 import pytest
 import xarray as xr
@@ -13,6 +14,13 @@ from polaris.tasks.e3sm.init.misomip.land_ice_fields import (
     compute_mali_export,
     import_geometry,
     read_map,
+)
+from polaris.tasks.e3sm.init.misomip.landice_data import (
+    write_data_mode_file,
+)
+from polaris.tasks.e3sm.init.misomip.landice_init import (
+    get_landice_thickness,
+    remap_input_thickness,
 )
 from polaris.tasks.e3sm.init.misomip.records import (
     SECONDS_PER_DAY,
@@ -167,3 +175,79 @@ def test_land_ice_fields_with_time_records(tmp_path):
     np.testing.assert_allclose(
         fields['landIceFloatingFraction'], [[0.5, 0.0, 0.0], [1.0, 0.0, 0.0]]
     )
+
+
+def _synthetic_input(thickness_records):
+    """
+    ISOMIP+-like input geometry on a grid of 1 by 2 cells, with columns
+    centered at x = 320.5 and 321.5 km
+    """
+    thickness = np.asarray(thickness_records, dtype=float)
+    ds = xr.Dataset()
+    ds['x'] = ('x', np.array([320.5e3, 321.5e3]))
+    ds['y'] = ('y', np.array([0.5e3]))
+    ds['upperSurface'] = (('t', 'y', 'x'), 0.1 * thickness[:, np.newaxis, :])
+    ds['lowerSurface'] = (
+        ('t', 'y', 'x'),
+        -0.9 * thickness[:, np.newaxis, :],
+    )
+    return ds
+
+
+def _synthetic_input_map(tmp_path):
+    """
+    A map from the 2 input cells to 3 MALI cells: the first covered by the
+    first input cell, the second half covered by the second, the third not
+    at all
+    """
+    ds = xr.Dataset()
+    ds['S'] = ('n_s', np.array([1.0, 0.5]))
+    ds['row'] = ('n_s', np.array([1, 2], dtype=np.int32))
+    ds['col'] = ('n_s', np.array([1, 2], dtype=np.int32))
+    ds['area_a'] = ('n_a', np.ones(2))
+    ds['area_b'] = ('n_b', np.ones(3))
+    filename = str(tmp_path / 'input_map.nc')
+    ds.to_netcdf(filename)
+    return filename
+
+
+def test_remap_input_thickness(tmp_path):
+    ds_input = _synthetic_input([[300.0, 600.0], [200.0, 400.0]])
+    remapped = remap_input_thickness(ds_input, _synthetic_input_map(tmp_path))
+    # the mean over the part of each cell the input covers
+    np.testing.assert_allclose(
+        remapped, [[300.0, 600.0, 0.0], [200.0, 400.0, 0.0]]
+    )
+
+
+def test_landice_thickness_from_input(tmp_path):
+    ds_input = _synthetic_input([[300.0, 50.0]])
+    map_filename = _synthetic_input_map(tmp_path)
+    # the third cell is upstream of the input, so it keeps the steady state
+    x_cell = np.array([330.0e3, 340.0e3, 310.0e3])
+    bed = np.array([-900.0, -900.0, -900.0])
+    steady_thickness = np.array([1000.0, 1000.0, 1500.0])
+    thickness = get_landice_thickness(
+        ds_input=ds_input,
+        map_filename=map_filename,
+        steady_thickness=steady_thickness,
+        bed_topography=bed,
+        x_cell=x_cell,
+    )
+    # floating ice thinner than 100 m is calved
+    np.testing.assert_allclose(thickness, [[300.0, 0.0, 1500.0]])
+
+
+def test_write_data_mode_file(tmp_path):
+    filename = str(tmp_path / 'datamode.nc')
+    xtimes = ['0001-01-01_00:00:00', '0001-02-01_00:00:00']
+    write_data_mode_file(
+        filename=filename,
+        xtimes=xtimes,
+        get_thickness=lambda index: np.full(4, 10.0 * (index + 1)),
+    )
+    with netCDF4.Dataset(filename) as ds:
+        thickness = ds.variables['thickness'][:]
+        xtime = netCDF4.chartostring(ds.variables['xtime'][:])
+    np.testing.assert_allclose(thickness, [[10.0] * 4, [20.0] * 4])
+    assert [value.strip() for value in xtime] == xtimes
