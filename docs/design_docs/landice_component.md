@@ -11,10 +11,9 @@ Contributors:
 
 Polaris gains a `landice` component that builds and runs MALI, the
 MPAS-Albany Land Ice model. MALI's first-order velocity solver comes from
-the Albany library, which Polaris environments can include again. This is
-WP3 of the MISOMIP design
-([#858](https://github.com/E3SM-Project/polaris/pull/858)). WP4 spins up
-MISMIP+ with it, and WP6 makes MALI initial conditions.
+the Albany library, which Polaris environments can include again.
+Polaris's MISMIP+ tasks and its inputs for E3SM's MISOMIP runs build on
+it.
 
 The component follows the ocean's pattern: a build module and template, a
 `mali` model, a model step, a config file for the model and tasks under
@@ -115,7 +114,7 @@ initializes no submodules: `SeaLevelModel`, and `FastIsostasy` and
 `--model mali` selects the model, and `--landice_branch` and `--landice_path`
 work as they do for other components. The default branch is
 `e3sm_submodules/MALI-Dev` (D1). Coupling work points to FAnSSIE explicitly,
-as MPAS-Ocean builds do (D15 of the MISOMIP design).
+as MPAS-Ocean builds do.
 
 ```cfg
 [build]
@@ -194,7 +193,7 @@ existing build, and requests a build when there is none. Its
 
 Input files go under `landice/` in `database_root`, on Chrysalis
 `/lcrc/group/e3sm/public_html/polaris/landice`. The first tasks need none,
-so the area is created by the first task that does, likely in WP4.
+so the area is created by the first task that does, likely MISMIP+.
 
 The `mali_pr` suite holds the decomposition and restart tasks for both
 solvers.
@@ -208,9 +207,9 @@ Contributors: Xylar Asay-Davis, Claude
 `polaris/landice/mesh.py` converts a culled planar MPAS mesh into a MALI
 mesh with a given number of layers, with mpas_tools'
 `create_landice_grid_from_generic_mpas_grid`, and writes its graph file
-(D6). The module imports nothing from `polaris.tasks.landice`, so WP5's mesh
-steps and WP6's initial-condition steps call it from their own components.
-WP6 adds what it needs for remapping fields to MALI cells, such as
+(D6). The module imports nothing from `polaris.tasks.landice`, so steps in
+other components, such as those that build E3SM's inputs for MISOMIP, can
+call it. Work that remaps fields to MALI cells adds what it needs, such as
 mpas_tools' `interpolate_to_mpasli_grid`.
 
 ### Implementation: The first tasks show that MALI runs
@@ -240,10 +239,9 @@ Date last modified: 2026/10/22
 
 Contributors: Xylar Asay-Davis, Claude
 
-Once #842 merges and this branch is rebased onto it, the `mali_pr` tasks
-join `fanssie_pr` (D7). Suites may mix components, so the suite is set up
-with `--landice_branch e3sm_submodules/FAnSSIE` alongside its ocean options.
-It then needs an environment deployed with `--with-albany`.
+The `mali_pr` tasks join `fanssie_pr` (D7). Suites may mix components, so the
+suite is set up with `--landice_branch e3sm_submodules/FAnSSIE` alongside its
+ocean options. It then needs an environment deployed with `--with-albany`.
 
 ## Testing
 
@@ -304,8 +302,8 @@ Date last modified: 2026/10/22
 
 Contributors: Xylar Asay-Davis, Claude
 
-After the rebase onto #842, `fanssie_pr` passes with the landice tasks, and
-its ocean tasks are bit for bit with the FAnSSIE baseline.
+`fanssie_pr` passes with the landice tasks, and its ocean tasks are bit
+for bit with the FAnSSIE baseline.
 
 ## Decisions
 
@@ -333,8 +331,9 @@ Rejected:
 - removing the submodule and building MALI from `e3sm_submodules/E3SM-Project`
   by default. E3SM's MALI lags MALI-Dev's: `develop` holds 97 MALI commits
   beyond `master` of 2026-05-26;
-- FAnSSIE as the default, for the reasons D15 of the MISOMIP design gives
-  for MPAS-Ocean.
+- FAnSSIE as the default. FAnSSIE is specialized for coupled
+  ocean–ice-sheet work, and every landice suite would then test it rather
+  than MALI-Dev's `develop`.
 
 ### D2: Albany comes from Polaris's deployment
 
@@ -394,7 +393,7 @@ Rejected:
 
 - `dome`'s variable-resolution mesh, which needs a database file and tests
   nothing more about the component;
-- MISMIP+, which is WP4;
+- MISMIP+, a larger port that gets its own tasks;
 - Compass's whole `full_integration` suite, which can be ported task by
   task as MALI developers need it.
 
@@ -405,11 +404,11 @@ Date last modified: 2026/10/22
 Contributors: Xylar Asay-Davis, Claude
 
 The conversion is in `polaris/landice/mesh.py`, a module that needs no
-MALI build, since the `dome` tasks need it now and WP4, WP5 and WP6 need it
-from other components.
+MALI build, since the `dome` tasks need it now, and MISMIP+ and the E3SM
+inputs for MISOMIP need it from other components.
 
-Rejected: WP5's mesh steps, which would leave `dome` and WP4 importing from
-the `mesh` component's tasks.
+Rejected: a shared mesh step for MISOMIP, which would leave `dome` and
+MISMIP+ importing from the `mesh` component's tasks.
 
 ### D7: The MALI tasks join `fanssie_pr`
 
@@ -417,14 +416,13 @@ Date last modified: 2026/10/22
 
 Contributors: Xylar Asay-Davis, Claude
 
-The four `mali_pr` tasks join `fanssie_pr` once #842 merges, since FAnSSIE
-carries MALI changes for MISOMIP1. `fanssie_pr` then needs an environment
-deployed with `--with-albany`, so it runs only where Albany is supported
-(`deploy/albany_supported.txt`). Without such an environment, its setup
-fails because of D4. The four tasks are timed before they join, to confirm
-that the suite still fits in its 1 h wall time; it took 25–26 minutes before
-the split-explicit ISOMIP+ tasks were added. Xylar agreed to this on
-2026-10-22.
+The four `mali_pr` tasks join `fanssie_pr`, since FAnSSIE carries MALI changes
+for MISOMIP1. `fanssie_pr` then needs an environment deployed with
+`--with-albany`, so it runs only where Albany is supported
+(`deploy/albany_supported.txt`). Without such an environment, its setup fails
+because of D4. The four tasks are timed before they join, to confirm that the
+suite still fits in its 1 h wall time; it took 25–26 minutes before the
+split-explicit ISOMIP+ tasks were added. Xylar agreed to this on 2026-10-22.
 
 Rejected:
 
