@@ -24,6 +24,20 @@
    BaseMeshTask
 ```
 
+### Planar Mesh Steps
+
+```{eval-rst}
+.. currentmodule:: polaris.tasks.mesh.planar.mismip_plus
+
+.. autosummary::
+   :toctree: generated/
+
+   get_mismip_plus_mesh_steps
+
+   MismipPlusMesh
+   MismipPlusMesh.run
+```
+
 ### Feature-Mask Tasks
 
 ```{eval-rst}
