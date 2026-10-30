@@ -5,7 +5,10 @@ import numpy as np
 import xarray as xr
 
 from polaris.component import Component
-from polaris.tasks.e3sm.init.misomip import get_misomip_experiment_steps
+from polaris.tasks.e3sm.init.misomip import (
+    MisomipTask,
+    get_misomip_experiment_steps,
+)
 from polaris.tasks.e3sm.init.misomip.land_ice_fields import (
     apply_map,
     compute_land_ice_fields,
@@ -155,3 +158,35 @@ def test_land_ice_on_ocean_from_data_mode(tmp_path):
     )
     for name, field in expected.items():
         np.testing.assert_allclose(ds[name].values, field)
+
+
+def test_forward_steps():
+    mesh_name = 'misomip-o4km-li1km'
+    steps, _ = get_misomip_experiment_steps(mesh_name, 'ocean3')
+    forward = steps['ocean/forward']
+    assert forward.data_mode
+    assert forward.thin_film
+    assert forward.get_forcing_interval(at_setup=True) == '0000-01-00_00:00:00'
+    assert forward.path == (f'ocean/planar/misomip/{mesh_name}/ocean3/forward')
+
+    steps, _ = get_misomip_experiment_steps(mesh_name, 'ocean0')
+    assert not steps['ocean/forward'].data_mode
+    assert steps['ocean/forward'].get_forcing_interval(at_setup=False) == (
+        'none'
+    )
+
+    # the coupled experiments have no standalone counterpart
+    for experiment in ['iceocean1r', 'iceocean1ra']:
+        steps, _ = get_misomip_experiment_steps(mesh_name, experiment)
+        assert 'ocean/forward' not in steps
+
+
+def test_forward_is_not_run_by_default():
+    task = MisomipTask(
+        component=Component(name='e3sm/init'),
+        mesh_name='misomip-o4km-li1km',
+        experiment='ocean0',
+    )
+    assert 'forward' in task.steps
+    assert 'forward' not in task.steps_to_run
+    assert 'ocean_init' in task.steps_to_run
