@@ -393,6 +393,8 @@
 
    init.Init
    init.Init.setup
+   init.Init.get_mesh_target
+   init.Init.read_topography
    init.Init.run
 
    mesh.CullMesh
