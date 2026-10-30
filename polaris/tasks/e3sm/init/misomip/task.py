@@ -4,7 +4,7 @@ from polaris import Task
 from polaris.tasks.e3sm.init.misomip.names import get_grid_names
 from polaris.tasks.e3sm.init.misomip.steps import (
     CONFIG_FILENAME,
-    get_misomip_mesh_steps,
+    get_misomip_experiment_steps,
 )
 
 
@@ -45,10 +45,14 @@ class MisomipTask(Task):
         self.mesh_name = mesh_name
         self.experiment = experiment
 
-        steps, config = get_misomip_mesh_steps(mesh_name)
+        steps, config = get_misomip_experiment_steps(mesh_name, experiment)
         self.set_shared_config(config, link=CONFIG_FILENAME)
         for symlink, step in steps.items():
-            self.add_step(step, symlink=symlink)
+            if step.subdir.startswith(f'{self.subdir}/'):
+                # the experiment's own steps are in the task's directory
+                self.add_step(step)
+            else:
+                self.add_step(step, symlink=symlink)
 
     def configure(self):
         """

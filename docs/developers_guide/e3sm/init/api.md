@@ -302,6 +302,7 @@
 
    add_misomip_tasks
    get_misomip_mesh_steps
+   get_misomip_experiment_steps
 
    MisomipTask
    MisomipTask.configure
@@ -317,6 +318,19 @@
    calving.get_floating_mask
    calving.get_grounded_mask
    calving.calve
+
+   landice_init.InputMapStep
+   landice_init.InputMapStep.runtime_setup
+   landice_init.LandiceInitStep
+   landice_init.LandiceInitStep.run
+   landice_init.get_landice_thickness
+   landice_init.remap_input_thickness
+   landice_init.set_lat_lon
+   landice_init.set_xtime
+
+   landice_data.LandiceDataStep
+   landice_data.LandiceDataStep.run
+   landice_data.write_data_mode_file
 
    land_ice_fields.compute_mali_export
    land_ice_fields.read_map
