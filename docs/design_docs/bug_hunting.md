@@ -277,8 +277,10 @@ a Polaris task it adds nothing more, because the first error line of one
 failure differs from machine to machine: on CDash it is usually an MPI or
 launcher message around the abort. That line is kept as evidence instead.
 Rows and nights are occurrences of a finding, not part of its key. For a
-finding from reading code or from parking, the key is the file, the
-function and a short form of the claim.
+row that stopped reporting, the key is the row itself: its source, machine
+and compiler, since the row is what is broken and rows stop for different
+reasons. For a finding from reading code or from parking, the key is the
+file, the function and a short form of the claim.
 
 The harvest adds each failure to the finding that holds its key. A failure
 with a new key is matched, in order, against:
