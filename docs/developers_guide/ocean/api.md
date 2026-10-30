@@ -1099,6 +1099,7 @@
 
    IceShelfTask
    IceShelfTask.setup_ssh_adjustment_steps
+   get_ssh_adjustment_steps
 
    SshAdjustment
    SshAdjustment.run
