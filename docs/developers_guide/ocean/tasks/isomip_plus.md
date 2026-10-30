@@ -9,9 +9,13 @@ ISOMIP+ domain on planar meshes (see {ref}`ocean-isomip-plus`).
 
 ## framework
 
-{py:func}`polaris.tasks.ocean.isomip_plus.add_isomip_plus_tasks()` creates
-the shared mesh and topography steps for each resolution, with
+{py:func}`polaris.tasks.ocean.isomip_plus.get_isomip_plus_mesh_steps()`
+gets or creates the shared mesh and topography steps for a resolution, with
 a shared config file `isomip_plus_topo.cfg` in the resolution's directory.
+Every caller gets the same step instances, so tasks in other components can
+add the steps too.
+{py:func}`polaris.tasks.ocean.isomip_plus.add_isomip_plus_tasks()` calls it
+for each resolution.
 Each task then gets its own config file, `isomip_plus.cfg`, in its work
 directory, shared with the steps the task adds itself. The task config
 includes `teos10.cfg` from `polaris.ocean.eos`, which MPAS-Ocean runs as its

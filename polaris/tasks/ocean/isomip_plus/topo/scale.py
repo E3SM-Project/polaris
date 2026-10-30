@@ -18,7 +18,7 @@ class TopoScale(Step):
         The scaling experiment
     """
 
-    def __init__(self, component, subdir, config, topo_remap, experiment):
+    def __init__(self, component, subdir, topo_remap, experiment):
         """
         Create the step
 
@@ -29,9 +29,6 @@ class TopoScale(Step):
 
         subdir : str
             The subdirectory in the test case's work directory for the step
-
-        config : polaris.config.PolarisConfigParser
-            A shared config parser
 
         topo_remap : polaris.tasks.ocean.isomip_plus.topo_map.TopoRemap
             The step that produced the remapped topography to be scaled
@@ -44,8 +41,6 @@ class TopoScale(Step):
 
         super().__init__(component=component, name='topo_scale', subdir=subdir)
         self.experiment = experiment
-
-        self.set_shared_config(config, link='isomip_plus_topo.cfg')
 
         topo_filename = os.path.join(topo_remap.path, 'topography_remapped.nc')
         self.add_input_file(
