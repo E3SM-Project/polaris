@@ -495,8 +495,8 @@ whole. Task, step and file names are working names.
 | WP2 Split-explicit W&D    | E3SM          | wetting and drying with a thin film in split-explicit     | the PR adding split-explicit thin-film tasks      |
 | WP3 Landice component     | Polaris       | component, MALI build, Albany                             | `landice_component.md`                            |
 | WP4 MISMIP+               | Polaris       | MALI mesh for MISOMIP1, spin-up, experiments              | `mismip_plus.md`                                  |
-| WP5 Meshes and maps       | Polaris       | projection, SCRIP files and maps in `e3sm/init`           | `misomip_meshes.md`                               |
-| WP6 E3SM inputs           | Polaris       | initial conditions, data files, partitions, cases         | `misomip_e3sm_inputs.md`                          |
+| WP5 Meshes and maps       | Polaris       | projection, SCRIP files and maps in `e3sm/init`           | `misomip_e3sm_init.md`, shared with WP6           |
+| WP6 E3SM inputs           | Polaris       | initial conditions, data files, partitions, cases         | `misomip_e3sm_init.md`, shared with WP5           |
 | WP7 Idealized cases       | E3SM          | no atmosphere, coupler areas, namelists, user grids       | WP6's first PR, the first to build E3SM cases     |
 | WP8 Moving grounding line | E3SM          | #119 and #141 in coupled runs; fractions; data mode       | the WP6 PR that adds Ocean3–4                     |
 | WP9 Analysis              | Polaris       | diagnostics and comparisons                               | `misomip_analysis.md`                             |
@@ -1176,16 +1176,20 @@ Date last modified: 2026/10/30
 
 Contributors: Xylar Asay-Davis, Claude
 
-WP5 and WP6 start from `add-e3sm-init-component-inputs` (#921), the
-last branch of the realistic-mesh stack, and stay drafts until it merges.
-The helpers they reuse, for graph partitions, inputdata paths and
-staging, are in `polaris/e3sm/init/` on that branch, not in its tasks.
-They start from #921 even while it is a draft. #921 follows #644.
+WP5 and WP6 share one branch, `add-misomip-e3sm-init`, and one design
+document. The branch starts from `add-e3sm-init-component-inputs` (#921),
+the last branch of the realistic-mesh stack, and stays a draft until it
+merges. The helpers WP5 and WP6 reuse, for graph partitions, inputdata
+paths and staging, are in `polaris/e3sm/init/` on that branch, not in its
+tasks. The branch starts from #921 even while it is a draft. #921 follows
+#644.
 
 ```{admonition} Rationale
 One copy of the naming, partitioning and staging code serves both the
 realistic meshes and MISOMIP. Moving the helpers is cheapest before that
-branch is reviewed.
+branch is reviewed. WP5 and WP6 are intertwined: both live under
+`e3sm/init/<mesh_name>/`, and WP6's ocean initial conditions follow MALI
+through WP5's maps.
 ```
 
 Rejected: moving the helpers to a small pull request from main, so that
