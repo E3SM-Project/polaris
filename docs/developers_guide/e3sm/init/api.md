@@ -344,6 +344,20 @@
    land_ice_on_ocean.LandIceOnOceanStep.run
 
    names.get_grid_names
+   names.ocean_initial_condition_path
+   names.ocean_forcing_path
+   names.ocean_scrip_path
+   names.landice_initial_condition_path
+   names.landice_data_mode_path
+   names.landice_scrip_path
+   names.landice_partition_path
+   names.map_path
+
+   ocean_initial_condition.OceanInitialConditionStep
+   ocean_initial_condition.OceanInitialConditionStep.run
+
+   assemble.MisomipAssembleStep
+   assemble.MisomipAssembleStep.run
 
    projection.get_projection_string
    projection.get_lat_lon

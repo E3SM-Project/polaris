@@ -1,7 +1,11 @@
 import os
 
 from polaris import Task
-from polaris.tasks.e3sm.init.misomip.names import get_grid_names
+from polaris.e3sm.init.inputdata import set_creation_date
+from polaris.tasks.e3sm.init.misomip.names import (
+    INPUTS_SECTION,
+    get_grid_names,
+)
 from polaris.tasks.e3sm.init.misomip.steps import (
     CONFIG_FILENAME,
     NOT_RUN_BY_DEFAULT,
@@ -61,7 +65,10 @@ class MisomipTask(Task):
 
     def configure(self):
         """
-        Check that the grids have E3SM names, so setup fails without them
+        Check that the grids have E3SM names, so setup fails without them,
+        and fill in the creation date so it lands in the work directory's
+        config, so a re-run keeps the staged files' names
         """
         super().configure()
         get_grid_names(self.config)
+        set_creation_date(self.config, INPUTS_SECTION)
