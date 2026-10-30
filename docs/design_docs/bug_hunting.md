@@ -614,8 +614,11 @@ An ID is the date a finding was first recorded and a hash of its first key.
 `park` and `harvest` add to an existing finding with the same key rather
 than make a new one. `match` checks the ledger by key and prints candidate
 issues and pull requests from a GitHub search, and the agent decides. Each
-command commits to the ledger and pushes. If a push fails, the commit waits
-for the next one.
+command pulls before it reads the ledger, and commits and pushes after; a
+rejected push pulls and tries again. Two clones writing the same day's hunt
+record are merged. Any other conflict is undone with a warning, and the
+commit waits in the clone for the next command, so a clone is never left
+mid-rebase.
 
 ### Implementation: Each finding names the project that owns it.
 
