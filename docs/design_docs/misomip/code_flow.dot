@@ -36,7 +36,7 @@ digraph fanssie {
     label="MALI-Dev/E3SM";
     labeljust=l; fontsize=12; color="#c3c2b7"; style="rounded";
     malidev [label=<<b>develop</b><br/><font color="#52514e">97 MALI commits ahead of E3SM</font>>, fillcolor="#ffffff"];
-    m211 [label=<<b>#211</b>  rebuild Albany's grid only when masks change<br/><font color="#52514e">open · needed before coupled production runs</font>>, fillcolor="#deebff"];
+    m211 [label=<<b>#211</b>  rebuild Albany's grid only when masks change<br/><font color="#52514e">open · good to have for forward MALI runs</font>>, fillcolor="#deebff"];
   }
 
   subgraph cluster_eod {
@@ -69,7 +69,7 @@ digraph fanssie {
       <tr><td port="p644" bgcolor="#deebff" colspan="2" style="rounded" cellpadding="6"><b>#644</b>  realistic global ocean: dynamic adjustment<br/><font color="#52514e">open, approved</font></td></tr>
       <tr><td border="0" colspan="2"><font color="#898781">↓ then</font></td></tr>
       <tr><td port="p921" bgcolor="#e8e8e4" colspan="2" style="rounded" cellpadding="6"><b>#921</b>  component inputs in e3sm/init<br/><font color="#52514e">draft · waits for #644</font></td></tr>
-      <tr><td border="0" colspan="2"><font color="#898781">↓ then, once it is under review (and after #826)</font></td></tr>
+      <tr><td border="0" colspan="2"><font color="#898781">↓ then, even while it is a draft (and after #826)</font></td></tr>
       <tr><td port="pwp56" bgcolor="#ffffff" colspan="2" style="rounded" cellpadding="6"><b>WP5, WP6</b>  MISOMIP's maps and E3SM inputs<br/><font color="#52514e">not started</font></td></tr>
     </table>>];
 

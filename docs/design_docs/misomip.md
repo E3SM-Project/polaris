@@ -477,7 +477,7 @@ designs; the prototype does not merge.
 
 ## Implementation: work packages
 
-Date last modified: 2026/10/29
+Date last modified: 2026/10/30
 
 Contributors: Xylar Asay-Davis, Claude
 
@@ -737,11 +737,9 @@ No stage waits for WP2. Until it lands, each uses RK4 and accepts the
 cost: at 2 km on 36 tasks, 20 years take about 40 days and 100 years about
 half a year. WP3, WP4 and WP11 can proceed alongside stages A–C: WP3 needs
 nothing, WP4 needs only WP3, and WP11 needs only WP1. WP10 follows WP2,
-and no stage needs it. No coupled production run starts before
-MALI-Dev/E3SM#211 reaches FAnSSIE ([D20](#decisions)). WP5 and WP6 start
-once the realistic component inputs
-([#921](https://github.com/E3SM-Project/polaris/pull/921)) are under
-review, which follows the dynamic adjustment
+and no stage needs it. WP5 and WP6 start from the realistic component
+inputs ([#921](https://github.com/E3SM-Project/polaris/pull/921)), even
+while it is a draft. #921 follows the dynamic adjustment
 ([#644](https://github.com/E3SM-Project/polaris/pull/644)), so stage B
 waits for both ([D21](#decisions)).
 
@@ -1135,9 +1133,9 @@ once it merges.
 Rejected: merging #144 before her review, or holding the other packages
 until it merges.
 
-### D20: Coupled production runs wait for MALI-Dev/E3SM#211
+### D20: Fixes for Albany's timer leak are good to have, not required
 
-Date last modified: 2026/10/29
+Date last modified: 2026/10/30
 
 Contributors: Xylar Asay-Davis, Claude
 
@@ -1145,26 +1143,36 @@ MALI rebuilds Albany's finite-element grid at every velocity solve, since
 `config_always_compute_fem_grid` defaults to `.true.`, and each rebuild
 leaks Albany's timers
 ([sandialabs/Albany#1232](https://github.com/sandialabs/Albany/issues/1232)).
-Memory and wall time grow with the number of solves since MALI started.
-[MALI-Dev/E3SM#211](https://github.com/MALI-Dev/E3SM/pull/211) skips the
-rebuild in runs that set the option to `.false.`; without it, setting the
-option does not help in MISMIP+-type runs. No coupled production run
-starts before #211 is on FAnSSIE, and WP6 sets the option to `.false.`.
-#211 reaches FAnSSIE only through MALI-Dev's `develop`, the next time
-FAnSSIE merges it in.
+Memory, wall time and the time MALI's finalize spends writing the timer
+report grow with the number of solves since MALI started. Only forward
+MALI runs are affected; data-mode MALI never calls the velocity solver.
+Two fixes are on the way, and no coupled run waits for either:
+
+- [MALI-Dev/E3SM#211](https://github.com/MALI-Dev/E3SM/pull/211) skips
+  the rebuild in runs that set the option to `.false.`. It reaches
+  FAnSSIE only through MALI-Dev's `develop`, the next time FAnSSIE merges
+  it in.
+- Changes to Trilinos and Albany, planned on #1232, stop the leak even
+  when MALI rebuilds at every solve. They reach E3SM through the Spack
+  builds of Trilinos and Albany.
+
+WP6 sets the option to `.false.`, which helps once #211 is on FAnSSIE.
 
 ```{admonition} Rationale
 In the 1 km MISMIP+ spin-up, wall time per 50 years grew from 16 to
-35 minutes over about 1,200 steps, and some ranks reached 19 GB. A coupled
-job segment can hold as many velocity solves, and MALI shares nodes with
-the ocean.
+35 minutes over about 1,200 steps, and some ranks reached 19 GB. After
+550 years in one job, MALI's finalize took 10.2 of the job's 14.7 hours.
+The growth starts over each time MALI restarts. Over 50 years, #211 cut
+the wall time from 20.0 to 11.8 minutes, and the Trilinos change to
+14.1 minutes.
 ```
 
-Rejected: merging #211 into FAnSSIE on its own, before MALI-Dev merges it.
+Rejected: holding coupled production runs until #211 is on FAnSSIE; and
+merging #211 into FAnSSIE on its own, before MALI-Dev merges it.
 
 ### D21: WP5 and WP6 build on the realistic component inputs
 
-Date last modified: 2026/10/29
+Date last modified: 2026/10/30
 
 Contributors: Xylar Asay-Davis, Claude
 
@@ -1172,8 +1180,7 @@ WP5 and WP6 start from `add-e3sm-init-component-inputs` (#921), the
 last branch of the realistic-mesh stack, and stay drafts until it merges.
 The helpers they reuse, for graph partitions, inputdata paths and
 staging, are in `polaris/e3sm/init/` on that branch, not in its tasks.
-Neither package starts until #921 is under review, so that it is no
-longer a moving target. #921 follows #644.
+They start from #921 even while it is a draft. #921 follows #644.
 
 ```{admonition} Rationale
 One copy of the naming, partitioning and staging code serves both the
@@ -1182,5 +1189,5 @@ branch is reviewed.
 ```
 
 Rejected: moving the helpers to a small pull request from main, so that
-WP5 and WP6 start from main; and waiting for the stack to merge before
-WP5 and WP6 start.
+WP5 and WP6 start from main; and waiting for #921 to be under review, or
+for the stack to merge, before WP5 and WP6 start.
