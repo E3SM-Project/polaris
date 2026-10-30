@@ -630,7 +630,10 @@ realistic component inputs (`component_inputs`) are, build from them:
 
 - latitude, longitude and SCRIP files for each mesh, from the projection;
 - conservative maps between the ocean and each MALI mesh in both
-  directions, in the variants E3SM's coupler expects, and the runoff map.
+  directions, in the variants E3SM's coupler expects.
+
+Polaris makes no runoff map, since MALI's runoff stays out of the ocean
+(WP7).
 
 These products exist only for E3SM, so they sit with the other files
 `e3sm/init` makes from meshes before a run. If the first E3SM run finds that
@@ -675,7 +678,11 @@ upstream when E3SM wants them:
 - initial conditions, data-mode files and graph partitions named by case
   variables, so `buildnml` accepts grids it does not list;
 - a switch that keeps MALI's calving and face-melt runoff out of the
-  ocean.
+  ocean;
+- no runoff map: the MCT driver reads the glc-to-ocean runoff map at
+  initialization whenever MALI is coupled to a prognostic ocean, and
+  ice-shelf coupling uses it too, so these changes skip those mappers or
+  supply a map.
 
 Everything specific to the experiments comes from Polaris's user-mods
 directory ([D12](#decisions)): namelists, the streams for interior
