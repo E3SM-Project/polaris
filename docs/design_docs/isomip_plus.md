@@ -29,12 +29,13 @@ This work delivers the first stage:
 
 - Ocean0, Ocean1 and Ocean2 run end to end with MPAS-Ocean, on planar
   meshes;
-- the `inception`, `wetting` and `drying` tasks produce an initial
-  condition and forcing, including time-varying land-ice forcing and a
-  thin film under grounded ice;
-- [Planned Extensions](#planned-extensions) states what running the
-  wetting and drying tasks, long runs, standard output, Ocean3–4 and
-  MISOMIP1 will require.
+- the `inception`, `wetting` and `drying` tasks run with a thin film
+  under grounded ice and an ice load that changes over hours, so the
+  grounding line moves within a short run;
+- every task uses E3SM's MPAS-Ocean physics, and Ocean0–2 also have
+  variants with the COM physics of the protocol;
+- [Planned Extensions](#planned-extensions) states what long runs,
+  standard output, Ocean3–4 and MISOMIP1 will require.
 
 In every task, the land-ice pressure is the weight of the ice, and the
 sea-surface height adjusts to it, as it will when MALI supplies the
@@ -46,16 +47,27 @@ on the land-ice pressure in grounded cells
 Both are in FAnSSIE, the E3SM development branch for ocean–ice-sheet
 coupling that Polaris has as the `e3sm_submodules/FAnSSIE` submodule.
 
+The ocean uses MPAS-Ocean's physics as E3SM configures it for ice-shelf
+cavities ([D20](#decisions)). Its equation of state is `jm`, evaluated
+at each layer's actual depth through an MPAS-Ocean option that this work
+adds to FAnSSIE ([D22](#decisions)). The `com` variants of Ocean0–2 keep
+the COM physics, for comparison with
+[Yung et al. (2026)](https://doi.org/10.5194/tc-20-2053-2026)
+([D21](#decisions)).
+
 Omega does not yet support ice-shelf cavities, so it is out of scope.
 
-| Task        | Geometry         | Grounded cells    | Steps in this work           |
-|-------------|------------------|-------------------|------------------------------|
-| `ocean0`    | Ocean1           | culled            | init, SSH adj., forward, viz |
-| `ocean1`    | Ocean1           | culled            | init, SSH adj., forward, viz |
-| `ocean2`    | Ocean2           | culled            | init, SSH adj., forward, viz |
-| `inception` | Ocean1 × 0, 1, 1 | thin film         | init                         |
-| `wetting`   | Ocean1 × 1, 0, 0 | thin film         | init                         |
-| `drying`    | Ocean1 × 1, 2, 2 | thin film         | init                         |
+| Task        | Geometry               | Grounded cells | Steps in this work           |
+|-------------|------------------------|----------------|------------------------------|
+| `ocean0`    | Ocean1                 | culled         | init, SSH adj., forward, viz |
+| `ocean1`    | Ocean1                 | culled         | init, SSH adj., forward, viz |
+| `ocean2`    | Ocean2                 | culled         | init, SSH adj., forward, viz |
+| `inception` | Ocean1 × 0, 1, 1       | thin film      | init, SSH adj., forward, viz |
+| `wetting`   | Ocean1 × 1, 0.95, 0.9  | thin film      | init, SSH adj., forward, viz |
+| `drying`    | Ocean1 × 1, 1.05, 1.1  | thin film      | init, SSH adj., forward, viz |
+
+`com/ocean0`, `com/ocean1` and `com/ocean2` have the same geometry and
+steps as `ocean0`–`ocean2`.
 
 The existing `ocean3` and `ocean4` tasks, which only remap their
 geometry, are removed ([D8](#decisions)). All other tasks keep the
@@ -76,12 +88,16 @@ not for code. The new steps are built from pieces Compass did not have:
 
 Success means:
 
-- Ocean0–2 run end to end, and the wetting and drying tasks produce
-  initial conditions and forcing, on planar meshes;
+- Ocean0–2 and the wetting and drying tasks run end to end, on planar
+  meshes;
+- in a short run of the wetting and drying tasks, cells along the
+  grounding line dry or wet without the model failing;
 - short runs of Ocean0–2 in Compass and Polaris, with the same
   MPAS-Ocean build, are compared;
 - every difference between them is attributed to a cause listed under
-  [Decisions](#decisions).
+  [Decisions](#decisions);
+- the `com` variants reproduce the tasks' COM runs from before this
+  change bit for bit, and every task runs with E3SM's physics.
 
 ## Requirements
 
@@ -95,15 +111,15 @@ Each experiment is available on planar meshes at 4, 2 and 1 km
 resolution. A task produces an initial condition, brings the ice-shelf
 pressure into balance with the ocean, and runs the model.
 
-### Requirement: The wetting and drying tasks have an initial condition
+### Requirement: The wetting and drying tasks can be run
 
-Date last modified: 2026/09/28
+Date last modified: 2026/10/07
 
 Contributors: Xylar Asay-Davis, Claude
 
-The `inception`, `wetting` and `drying` tasks produce an initial
-condition and forcing, including time-varying land-ice forcing, from
-which follow-up work can run them.
+The `inception`, `wetting` and `drying` tasks run MPAS-Ocean with an
+ice load that changes in time. Within a short run, the grounding line
+moves far enough that cells dry or wet.
 
 ### Requirement: Geometry follows the ISOMIP+ protocol
 
@@ -158,10 +174,11 @@ Date last modified: 2026/09/28
 
 Contributors: Xylar Asay-Davis, Claude
 
-The Ocean0–2 forward runs write the ocean state and the land-ice
-fluxes, and both can be compared with a baseline. Plots show the
-initial geometry, vertical grid, temperature and salinity, and the melt
-at the end of the forward run.
+The forward runs write the ocean state and the land-ice fluxes, and
+both can be compared with a baseline. Plots show the initial geometry,
+vertical grid, temperature and salinity, and the melt at the end of the
+forward run. In the wetting and drying tasks, plots also show where
+the water column is at its minimum thickness as the run proceeds.
 
 ### Requirement: Differences from Compass are documented
 
@@ -172,6 +189,26 @@ Contributors: Xylar Asay-Davis, Claude
 Where Polaris and Compass make different choices, this design records
 the choice and its expected effect. The comparison in
 [Testing](#testing) attributes each observed difference to one of them.
+
+### Requirement: The physics is E3SM's
+
+Date last modified: 2026/10/18
+
+Contributors: Xylar Asay-Davis, Claude
+
+Every task uses E3SM's MPAS-Ocean physics and coefficients, overridden
+only where the idealized domain or wetting and drying requires. Ocean0–2
+can also be run with the COM physics of the protocol.
+
+### Requirement: The equation of state holds under ice shelves
+
+Date last modified: 2026/10/18
+
+Contributors: Xylar Asay-Davis, Claude
+
+A nonlinear equation of state evaluates density at the pressure of each
+layer's depth, including under the ice. MPAS-Ocean runs that don't ask
+for this are unchanged.
 
 ## Algorithm Design
 
@@ -189,20 +226,10 @@ Each task runs the existing shared mesh and topography steps, then:
 3. `forward` runs the model with melt fluxes and restoring;
 4. `viz` plots the initial condition and the forward output.
 
-The physics follows the COM configuration (Table 4 of the protocol) as
-Compass sets it up for MPAS-Ocean:
+The physics is E3SM's, or COM's in the `com` variants
+([D20](#decisions), [D21](#decisions)). Both use:
 
-- linear EOS with $\rho_{ref} = 1027.51$ kg m⁻³, $T_{ref} = -1$ °C,
-  $S_{ref} = 34.2$ PSU, $\alpha = 0.03836$ kg m⁻³ °C⁻¹ and
-  $\beta = 0.8059$ kg m⁻³ PSU⁻¹;
-- three-equation melt with Jenkins heat and salt transfer coefficients
-  0.0194 and 0.0194/35, $u_{tidal} = 0.01$ m s⁻¹, and a 10 m boundary
-  layer;
-- implicit top and bottom drag with coefficient $2.5\times10^{-3}$
-  ([D12](#decisions));
-- vertical viscosity and diffusivity $10^{-3}$ and $5\times10^{-5}$
-  m² s⁻¹, convective values 0.1 m² s⁻¹, no shear mixing;
-- horizontal Laplacian viscosity and diffusivity 6.0 and 1.0 m² s⁻¹;
+- three-equation melt with a 10 m boundary layer;
 - wetting and drying, with a minimum layer thickness of $10^{-3}$ m and
   thickness fluxes upwinded only in columns thinner than 5 to 10 m
   ([D11](#decisions));
@@ -214,21 +241,51 @@ Compass sets it up for MPAS-Ocean:
 The cavity freezing point uses the MPAS-Ocean default coefficients, as
 in Compass ([D6](#decisions)).
 
-### Algorithm Design: The wetting and drying tasks have an initial condition
+### Algorithm Design: The wetting and drying tasks can be run
 
-Date last modified: 2026/09/28
+Date last modified: 2026/10/07
 
 Contributors: Xylar Asay-Davis, Claude
 
 The existing `TopoScale` step produces the geometry records: the Ocean1
-geometry with pressure and draft scaled by the factors in the
-[Summary](#summary), at yearly intervals. The fractions are not scaled,
+geometry with its pressure scaled by the factors in the
+[Summary](#summary) ([D14](#decisions)). The fractions are not scaled,
 so the melting area stays fixed, as in Compass.
+
+The records are hours or days apart, so that a short run moves the
+grounding line ([D16](#decisions)):
+
+| Task                | Record spacing | Forward run | Output interval |
+|---------------------|----------------|-------------|-----------------|
+| `wetting`, `drying` | 6 hours        | 12 hours    | 1 hour          |
+| `inception`         | 4 days         | 4 days      | 6 hours         |
+
+In each task, the load changes at a constant rate over the forward run.
+The records extend one record past the end of the run, since MPAS-Ocean
+reads the next record ahead.
 
 `init` builds the initial condition from the first record. It writes
 every record, on the task's cells, as land-ice forcing: pressure,
-draft, land-ice fraction and floating fraction, each with its date.
-MPAS-Ocean interpolates these fields linearly between records.
+land-ice fraction and floating fraction, each with its date
+([D15](#decisions)). MPAS-Ocean interpolates these fields linearly
+between records.
+
+In the forward run, the SSH is held at zero in the restoring region
+([D19](#decisions)). The water that the ice displaces as its load grows
+leaves the domain there, and water flows back in as the load shrinks.
+The water leaves or enters with the local temperature and salinity.
+
+The tasks then follow the Ocean0–2 sequence: SSH adjustment, a forward
+run with melt and restoring, and plots. The SSH-adjustment runs use the
+first record's pressure, which is also the forcing's first record, so
+the forcing needs no change after adjustment ([D13](#decisions)). The
+forward run reads the land-ice forcing.
+
+```{admonition} Rationale
+The displaced water must leave the cavity through the calving front.
+In the 4 km mesh, the mean flow there is about 0.45 m s⁻¹ in `wetting`
+and `drying` and 0.56 m s⁻¹ in `inception`.
+```
 
 ### Algorithm Design: Geometry follows the ISOMIP+ protocol
 
@@ -264,10 +321,12 @@ Among the task's cells:
   land-ice fractions are zero elsewhere;
 - the SSH-adjustment mask, which selects the cells whose SSH change is
   logged, is 1 where the land-ice fraction exceeds 0.01;
-- the bottom depth is deepened where needed so the water column is at
-  least $1.1\times10^{-2}$ m thick, or $10^{-3}$ m in thin-film tasks.
+- in Ocean0–2, the bottom depth is deepened where needed so the water
+  column is at least $1.1\times10^{-2}$ m thick;
+- in thin-film tasks, the SSH is raised where needed so the water
+  column is at least $10^{-3}$ m per active layer ([D17](#decisions)).
 
-These thresholds are Compass's.
+The first three thresholds are Compass's.
 
 ### Algorithm Design: Grounded cells are culled where they are never used
 
@@ -281,9 +340,11 @@ Contributors: Xylar Asay-Davis, Claude
   never used, so all of them are culled.
 - **Scaled geometry (`inception`, `wetting`, `drying`):** every cell of
   the shared mesh is kept. Cells where the draft at the land-ice
-  pressure reaches the bed are grounded and hold a thin film whose
-  temperature is the freezing point at the land-ice pressure and the
-  local salinity.
+  pressure reaches the bed are grounded. They hold a thin film of fresh
+  water at its freezing point under the land-ice pressure
+  ([D18](#decisions)). The film is $10^{-3}$ m thick per active layer,
+  the column at which MPAS-Ocean caps the land-ice pressure
+  ([D17](#decisions)).
 
 ```{admonition} Rationale
 MPAS-Ocean cannot activate a column during a run, so a cell that holds
@@ -296,7 +357,7 @@ input can sit up to 2.5 m above the bed, so every cell is kept.
 
 ### Algorithm Design: Initial conditions and forcing follow the ISOMIP+ protocol
 
-Date last modified: 2026/09/28
+Date last modified: 2026/10/07
 
 Contributors: Xylar Asay-Davis, Claude
 
@@ -325,7 +386,9 @@ $x_{r0} = 790$ km and $x_{r1} = 800$ km, using the ISOMIP+ $x$ coordinate.
 
 Evaporation at 200 m yr⁻¹ over the restoring region offsets the
 meltwater input. It removes salt and heat at the surface restoring
-values $S_0$ and $T_0$, following Eqs. (34)–(36) of the protocol.
+values $S_0$ and $T_0$, following Eqs. (34)–(36) of the protocol. In
+the wetting and drying tasks, the water displaced by the changing ice
+load leaves through the restoring region ([D19](#decisions)).
 
 The Coriolis parameter is constant, $f = -1.409\times10^{-4}$ s⁻¹.
 
@@ -348,8 +411,14 @@ Date last modified: 2026/10/16
 
 Contributors: Xylar Asay-Davis, Claude
 
-The forward run lasts one hour by default, as in Compass's
+The Ocean0–2 forward run lasts one hour by default, as in Compass's
 `performance` step. Output is written at the end of the run.
+
+The wetting and drying forward runs write output every hour (every 6
+hours in `inception`). For each output time, plots show the water-column
+thickness on a log scale, with columns less than twice the thin film
+marked. Time series show the area of those columns under the ice and the
+mean SSH in the open ocean.
 
 Horizontal plots use the ISOMIP+ $x$ and $y$ coordinates. Transects are
 at $y = 40$ km.
@@ -365,11 +434,83 @@ comparison. The comparison isolates model configuration from geometry
 by running the Polaris forward step on Compass's initial condition
 ([Testing](#testing)).
 
+### Algorithm Design: The physics is E3SM's
+
+Date last modified: 2026/10/18
+
+Contributors: Xylar Asay-Davis, Claude
+
+The E3SM column is what MPAS-Ocean gets in a coupled E3SM run on a mesh
+with ice-shelf cavities. Where E3SM sets a value per mesh, it is the
+value that its ice-shelf meshes use ([D23](#decisions)). $\Delta x$ is
+the resolution in km.
+
+| Setting                        | COM (`com` variants)        | E3SM                                                     |
+|--------------------------------|-----------------------------|----------------------------------------------------------|
+| Equation of state              | linear                      | `jm` at each layer's depth ([D22](#decisions))           |
+| Pressure gradient              | `pressure_and_zmid`         | `Jacobian_from_TS`, limited to each column ([D25](#decisions)) |
+| Horizontal viscosity           | del2, 6.0 m² s⁻¹            | del2, $38.5\,\Delta x$ m² s⁻¹; del4, $6.83\times10^{6}\,\Delta x^3$ m⁴ s⁻¹ |
+| Horizontal tracer diffusion    | del2, 1.0 m² s⁻¹            | none                                                     |
+| Vertical mixing                | constant                    | KPP                                                      |
+| Background viscosity           | $10^{-3}$ m² s⁻¹            | $10^{-4}$ m² s⁻¹                                         |
+| Background diffusivity         | $5\times10^{-5}$ m² s⁻¹     | 0                                                        |
+| Shear mixing                   | none                        | KPP's interior scheme                                    |
+| Convective mixing              | 0.1 m² s⁻¹                  | 1.0 m² s⁻¹                                               |
+| Boundary-layer depth smoothing | off                         | on                                                       |
+| Submesoscale eddies            | off                         | Fox-Kemper, $C_e = 0.08$ ([D24](#decisions))             |
+| Top drag                       | implicit, $2.5\times10^{-3}$ | implicit, $4.48\times10^{-3}$ ([D26](#decisions))        |
+| Bottom drag                    | $2.5\times10^{-3}$          | $10^{-3}$                                                |
+| Heat, salt transfer coeff.     | 0.0194, 0.0194/35           | $2.95\times10^{-3}$, $8.42\times10^{-5}$                 |
+| Tidal velocity $u_{tidal}$     | 0.01 m s⁻¹                  | 0.05 m s⁻¹                                               |
+| Frazil                         | off                         | on, including under floating ice                         |
+
+The COM linear EOS has $\rho_{ref} = 1027.51$ kg m⁻³,
+$T_{ref} = -1$ °C, $S_{ref} = 34.2$ PSU,
+$\alpha = 0.03836$ kg m⁻³ °C⁻¹ and $\beta = 0.8059$ kg m⁻³ PSU⁻¹. With
+E3SM's physics, frazil uses E3SM's latent heat of fusion and heat
+capacity, $3.337\times10^5$ J kg⁻¹ and 3996 J kg⁻¹ °C⁻¹, and adds no
+surface pressure.
+
+These overrides stay with E3SM's physics ([D20](#decisions)):
+
+- upwind thickness flux in columns thinner than 5 to 10 m and RK4, for
+  wetting and drying ([D11](#decisions));
+- the water-column limit on `Jacobian_from_TS`, for the thin film
+  ([D25](#decisions));
+- implicit rather than explicit top drag ([D26](#decisions));
+- the land-ice pressure from the ice thickness, the thin film, the
+  pressure cap and the outflow (D13, D17–D19);
+- GM and Redi off. E3SM turns them on but ramps them to zero below
+  20 km, so this is equivalent.
+
+The cavity freezing point (D6), the land-ice draft mode and the
+boundary-layer thicknesses are E3SM's already. Options for forcing that
+ISOMIP+ lacks, such as wind stress and shortwave, stay at Polaris's
+defaults.
+
+### Algorithm Design: The equation of state holds under ice shelves
+
+Date last modified: 2026/10/18
+
+Contributors: Xylar Asay-Davis, Claude
+
+A new MPAS-Ocean option makes `jm` evaluate each layer at the pressure
+of its actual depth, $-z_{mid}$, rather than at a reference pressure
+computed once from `refBottomDepth` ([D22](#decisions)). The depth is
+converted to pressure with `jm`'s existing formula. Density displaced
+to another layer uses that layer's depth, limited to the column's
+active layers. Potential density, referenced to the top layer's
+reference pressure, is unchanged. The option is off by default.
+
+In a time step, MPAS-Ocean diagnoses `zMid` before density, so the
+pressure is current. Any caller that computes density before `zMid` is
+updated uses its last value.
+
 ## Implementation
 
 ### Implementation: Ocean0, Ocean1 and Ocean2 can be run with MPAS-Ocean
 
-Date last modified: 2026/10/16
+Date last modified: 2026/10/18
 
 Contributors: Xylar Asay-Davis, Claude
 
@@ -390,9 +531,9 @@ ocean/planar/isomip_plus/2km/
     │   ├── forward/
     │   └── viz/
     ├── ocean1/  ocean2/              (same steps as ocean0)
-    └── inception/  wetting/  drying/
-        ├── isomip_plus.cfg
-        └── init/
+    ├── inception/  wetting/  drying/ (same steps as ocean0)
+    └── com/
+        └── ocean0/  ocean1/  ocean2/ (same steps as ocean0)
 ```
 
 `add_isomip_plus_tasks()` creates planar tasks only, and the
@@ -410,11 +551,12 @@ SSH-adjustment, `forward` and `viz` steps only to `ocean0`–`ocean2`.
 `add_ice_shelf_2d_tasks()` does, from:
 
 - the existing `isomip_plus_topo.cfg`;
-- `polaris.ocean.eos` `linear.cfg`;
+- `polaris.ocean.eos` `teos10.cfg`, which MPAS-Ocean runs as `jm`;
 - `polaris.ocean.ice_shelf` `ssh_adjustment.cfg` and `freeze.cfg`;
-- a rewritten `isomip_plus.cfg` with the vertical grid, Coriolis, EOS
-  values, profiles, restoring, thresholds, SSH-adjustment time steps
-  and forward options.
+- a rewritten `isomip_plus.cfg` with the vertical grid, Coriolis,
+  profiles, restoring, thresholds, SSH-adjustment time steps and
+  forward options;
+- in `com` variants, `com.cfg`, which sets the linear EOS.
 
 New steps in `polaris/tasks/ocean/isomip_plus/`:
 
@@ -424,27 +566,43 @@ New steps in `polaris/tasks/ocean/isomip_plus/`:
 - `forward.py`: `Forward(OceanModelStep)`;
 - `viz.py`: `Viz(OceanIOStep)`.
 
-Model config lives in two YAML files. `physics.yaml` is shared by the
+Model config lives in YAML files. `physics.yaml` is shared by the
 SSH-adjustment and forward runs; `SshForward` passes it to the
-framework as its package YAML. `forward.yaml` adds the run duration,
-restoring, melt and streams. The EOS options come from the `[ocean]`
-section through `update_eos=True`, not from YAML.
+framework as its package YAML. In `com` variants, `com.yaml` follows
+it. `forward.yaml` adds the run duration, restoring, melt and streams.
+The EOS type and coefficients come from the `[ocean]` section through
+`update_eos=True`, not from YAML.
 
 Both model steps estimate their cell count from the resolution and an
 ocean area of 30,000 km², the figure Compass uses.
 
-### Implementation: The wetting and drying tasks have an initial condition
+### Implementation: The wetting and drying tasks can be run
 
-Date last modified: 2026/09/28
+Date last modified: 2026/10/07
 
 Contributors: Xylar Asay-Davis, Claude
 
+`[isomip_plus_scaling]` holds each task's factors and record dates.
 For tasks with a `Time` dimension in their topography, `Init` writes
 `land_ice_forcing.nc` with `xtime`, `landIcePressureForcing`,
-`landIceDraftForcing`, `landIceFractionForcing` and
-`landIceFloatingFractionForcing`. The earlier draft's
-`_write_time_varying_forcing()` is the starting point. The existing
-`TopoScale` output already carries the records and their dates.
+`landIceFractionForcing` and `landIceFloatingFractionForcing`.
+
+`IsomipPlusTest` adds the SSH-adjustment, `forward` and `viz` steps to
+every task. In thin-film tasks, `Forward`:
+
+- turns on `config_use_time_varying_land_ice_forcing` and links
+  `land_ice_forcing.nc`;
+- sets the forcing interval to the spacing of the records;
+- takes its run duration and output interval from
+  `[isomip_plus_forward]`, which each thin-film task's config sets as
+  in the table above.
+
+`Init` writes `tidalInputMask` to `forcing.nc`, 1 in the restoring
+region. `thin_film.yaml` turns on MPAS-Ocean's tidal forcing in its
+`direct` mode with zero amplitude and reads the mask in its own stream.
+After each RK4 step, the `direct` mode sets the layer thicknesses in
+masked cells to match the tidal SSH and leaves the tracer
+concentrations unchanged.
 
 ### Implementation: Geometry follows the ISOMIP+ protocol
 
@@ -467,7 +625,7 @@ default coefficients. `ice_shelf_2d` drops its private copy of
 
 ### Implementation: Grounded cells are culled where they are never used
 
-Date last modified: 2026/09/28
+Date last modified: 2026/10/07
 
 Contributors: Xylar Asay-Davis, Claude
 
@@ -481,10 +639,16 @@ Contributors: Xylar Asay-Davis, Claude
 3. writes the task's mesh, with Coriolis added by
    `add_coriolis_to_dataset()`, and its graph file;
 4. computes masks, fractions, SSH, pressure and bottom depth from the
-   first record, and the thin-film mask where the task has a thin film.
+   first record, and the thin-film mask where the task has a thin film;
+5. in thin-film tasks, calls `init_vertical_coord()` to find each
+   cell's active layers, raises the SSH where needed to give
+   $10^{-3}$ m per active layer, and stretches the layers with
+   `update_layer_thickness()`.
 
-The thin-film minimum column thickness and the seawater density used
-to compute the draft from the pressure are options in `[isomip_plus]`.
+The thin-film minimum layer thickness, which must match
+`config_drying_min_cell_height` in `physics.yaml`, and the seawater
+density used to compute the draft from the pressure are options in
+`[isomip_plus]`.
 The draft comes from a new shared helper,
 `compute_land_ice_draft_from_pressure()`.
 
@@ -503,7 +667,8 @@ Contributors: Xylar Asay-Davis, Claude
    `OceanIOStep` writers, registered with
    `add_output_files_for_ocean_model_input()`;
 8. writes `forcing.nc` with the restoring values and rates,
-   `evaporationFlux`, `seaIceSalinityFlux` and `seaIceHeatFlux`.
+   `evaporationFlux`, `seaIceSalinityFlux` and `seaIceHeatFlux`, and in
+   thin-film tasks `tidalInputMask`.
 
 The WARM and COLD profiles are config options in `[isomip_plus]`. Each
 task selects them by name in code, not by overriding the options.
@@ -547,7 +712,10 @@ settings and sets the top drag coefficient.
 condition. For the forward output it adds melt rate, thermal driving,
 friction velocity, and top and bottom temperature and salinity. It uses `plot_horiz_field()`
 and the `mpas_tools` transect functions, with the ISOMIP+ coordinates
-substituted for `xCell`, `yCell`, `xVertex` and `yVertex`.
+substituted for `xCell`, `yCell`, `xVertex` and `yVertex`. In thin-film
+tasks, it adds the water-column thickness at each output time and the
+time series of the area under the ice where the column is at its
+minimum.
 
 New documentation:
 
@@ -557,8 +725,9 @@ New documentation:
 
 `fanssie_pr`, the suite for tasks that need FAnSSIE, lists
 `ocean/planar/isomip_plus/4km/z-star/ocean0`, which used to cover
-remapping in `framework_pr`. That entry now runs the full task. No other
-suite changes.
+remapping in `framework_pr`. That entry now runs the full task, and the
+4 km `inception`, `wetting` and `drying` tasks join it. No other suite
+changes.
 
 ### Implementation: Differences from Compass are documented
 
@@ -567,6 +736,78 @@ Date last modified: 2026/09/28
 Contributors: Xylar Asay-Davis, Claude
 
 No code. The comparison scripts are not committed.
+
+### Implementation: The physics is E3SM's
+
+Date last modified: 2026/10/18
+
+Contributors: Xylar Asay-Davis, Claude
+
+`IsomipPlusTest` takes a `variant` argument, `None` or `'com'`, which
+adds a level to the task path and a config file. The split-explicit
+work adds `'split_explicit'` in the same way.
+`add_isomip_plus_tasks()` adds `com` variants of `ocean0`–`ocean2`.
+
+`physics.yaml` holds E3SM's physics, including the new `jm` option, and
+`com.yaml` restores COM's. `physics.yaml` keeps the thickness flux,
+upwinded in thin columns, the wetting-and-drying options and the RK4
+time integrator as they are. The split-explicit work moves the time integrator to config.
+
+The shared `ssh_forward.yaml` gains `config_time_integrator`, set from
+`[ssh_adjustment]`. Until now that option only chose the time step, so
+`ice_shelf_2d` adjusted SSH with MPAS-Ocean's default,
+`split_explicit_ab2`. The framework default becomes `split_explicit_ab2`,
+so `ice_shelf_2d` is unchanged.
+
+`[isomip_plus]` gains:
+
+- `physics`, `e3sm` or `com`, which decides whether the model steps add
+  `com.yaml`;
+- the del2 and del4 viscosities at 1 km, which `SshForward` and
+  `Forward` scale with the resolution and its cube.
+
+`com.cfg` sets `physics = com` and holds the COM linear EOS, which moves
+there from `isomip_plus.cfg`.
+
+`Init` writes the initial state with `tracer_convention='mpas-ocean'`.
+The protocol's profiles are potential temperature and practical
+salinity, which a TEOS-10 `eos_type` would otherwise convert.
+
+The FAnSSIE submodule moves to the commit that merges the `jm` option.
+`fanssie_pr` keeps its ISOMIP+ tasks, whose baselines change. The `com`
+variants are in no suite. The user's guide gains the physics table and
+the `com` variants, and the developer's guide the `variant` argument.
+
+### Implementation: The equation of state holds under ice shelves
+
+Date last modified: 2026/10/18
+
+Contributors: Xylar Asay-Davis, Claude
+
+The MPAS-Ocean change is on `xylar/E3SM:ocn/jm-eos-at-actual-depth`,
+which starts at FAnSSIE `23b25eb360`. A pull request merges it into
+`fanssie-ocn-glc-coupling`, which adds a row to the ledger in
+`FANSSIE.md`.
+
+- A new namelist record, `eos_jm`, holds
+  `config_eos_jm_pressure_from_zMid`, a logical that is false by
+  default. It goes in the Registry and in E3SM's namelist definition,
+  defaults and `build-namelist`.
+- `ocn_equation_of_state_density` passes `zMid`, `minLevelCell` and
+  `maxLevelCell` to `jm`, as it does to `wright`. With the option on,
+  `jm` computes a pressure for each cell and layer from `-zMid`;
+  otherwise it uses `ocnEqStatePRef` as before. OpenACC directives
+  cover the new arrays.
+- `ocn_diagnostic_solve` and the KPP input fields compute density after
+  `zMid`. The other callers, in init mode and the Eliassen–Palm
+  analysis member, are checked as part of the work.
+
+A second branch, `xylar/E3SM:ocn/fix-submesoscale-wetting-drying`,
+starts at FAnSSIE `23b25eb360` and goes to FAnSSIE through its own pull
+request ([D24](#decisions)). With wetting and drying,
+`ocn_MLE_add_to_transport_vel` scales the submesoscale velocity by
+`1 - wettingVelocityFactor`, and `ocn_eddy_compute_mixed_layer_depth`
+measures the MLD from the SSH rather than from `landIceDraftForSsh`.
 
 ## Testing
 
@@ -580,15 +821,24 @@ Set up and run the 9 Ocean0–2 tasks (3 experiments, 3 resolutions) with
 MPAS-Ocean. Record wall-clock times in the pull
 request's Testing comment.
 
-### Testing and Validation: The wetting and drying tasks have an initial condition
+### Testing and Validation: The wetting and drying tasks can be run
 
-Date last modified: 2026/09/28
+Date last modified: 2026/10/07
 
 Contributors: Xylar Asay-Davis, Claude
 
-Set up and run the 18 `inception`, `wetting` and `drying` tasks. Check
-that `land_ice_forcing.nc` has 3 records and that its first record
-matches `init.nc`.
+Set up and run the 9 `inception`, `wetting` and `drying` tasks with
+MPAS-Ocean from FAnSSIE. Check that:
+
+- the first record of `land_ice_forcing.nc` matches `init.nc`;
+- SSH adjustment settles;
+- water columns stay near the thin film or thicker during the forward
+  run (wetting and drying keeps each layer from thinning below the
+  minimum, but a truncated bottom layer starts below it);
+- the area of columns less than twice the thin film grows in `drying` and
+  `inception` and shrinks in `wetting` over the run;
+- the mean SSH in the open ocean stays within a few meters of its
+  initial value.
 
 ### Testing and Validation: Geometry follows the ISOMIP+ protocol
 
@@ -602,15 +852,15 @@ and a calving front at $x \approx 640$ km.
 
 ### Testing and Validation: Grounded cells are culled where they are never used
 
-Date last modified: 2026/09/28
+Date last modified: 2026/10/07
 
 Contributors: Xylar Asay-Davis, Claude
 
 For static geometry, recompute the keep mask from the remapped
 topography and check that the init mesh contains exactly those cells.
 For scaled geometry, check that all cells are kept and that
-thin-film cells have the minimum column thickness and the
-freezing-point temperature.
+thin-film cells have $10^{-3}$ m per active layer, zero salinity and
+the freezing-point temperature.
 
 ### Testing and Validation: Initial conditions and forcing follow the ISOMIP+ protocol
 
@@ -634,12 +884,12 @@ the iterations, as it does in Compass.
 
 ### Testing and Validation: Output supports regression testing and inspection
 
-Date last modified: 2026/09/28
+Date last modified: 2026/10/07
 
 Contributors: Xylar Asay-Davis, Claude
 
-Run the 4 km planar Ocean0–2 tasks twice against a baseline and confirm
-they pass. Inspect the plots.
+Run the 4 km planar tasks twice against a baseline and confirm they
+pass. Inspect the plots.
 
 ### Testing and Validation: Differences from Compass are documented
 
@@ -670,6 +920,39 @@ of `ocean0`; its standard Ocean0–2 do not use it
 
 Each difference in stage 3 is attributed to one of D1–D4, D11 or D13.
 
+### Testing and Validation: The physics is E3SM's
+
+Date last modified: 2026/10/18
+
+Contributors: Xylar Asay-Davis, Claude
+
+- The `com` variants are bit for bit with the tasks' COM runs from
+  before this change, on FAnSSIE `23b25eb360`.
+- Every task runs with E3SM's physics at 4, 2 and 1 km. SSH adjustment
+  settles in 1 km `ocean2`, and the thin film stays stable with KPP and
+  del4.
+- Melt, thermal driving and friction velocity after one hour and one
+  month of `ocean0`–`ocean2` are compared with the `com` variants.
+
+### Testing and Validation: The equation of state holds under ice shelves
+
+Date last modified: 2026/10/18
+
+Contributors: Xylar Asay-Davis, Claude
+
+- With the option off, `fanssie_pr` with MPAS-Ocean from FAnSSIE plus
+  this change is bit for bit with a baseline from FAnSSIE `23b25eb360`,
+  for every task whose physics this work does not change, including
+  `ice_shelf_2d`.
+- With the option on, in one step of 4 km `ocean0`, density in the open
+  ocean is close to that of `jm` at reference pressure. Under the ice,
+  the difference grows with the depth of the ice base.
+- Optionally, the overflow task with sigma coordinates and a nonlinear
+  equation of state, which blows up in MPAS-Ocean with `jm` at reference
+  pressure, runs.
+- The thin-film tasks run with the submesoscale parameterization on, and
+  the MLD is positive in every column.
+
 ## Planned Extensions
 
 Date last modified: 2026/10/07
@@ -679,25 +962,32 @@ Contributors: Xylar Asay-Davis, Claude
 This section is not part of this work. It records what each extension
 will need, so that the steps above can serve it.
 
-**Running the wetting and drying tasks.**
+**Longer wetting and drying runs.** Variants whose records are months
+or years apart, with subtler grounding-line motion, as in Compass. They
+depend on split-explicit wetting and drying to be affordable.
 
-- SSH adjustment, `forward` and `viz` steps for these tasks, reusing
-  the Ocean0–2 steps.
-- MPAS-Ocean's time-varying land-ice forcing
-  (`config_use_time_varying_land_ice_forcing`) reading
-  `land_ice_forcing.nc`.
+**Melt in thin columns.** The temperature that drives melt is the
+average over the top 10 m of the column, but the melt fluxes are spread
+with a 10 m attenuation scale, and what is left goes into the bottom
+layer. In columns thinner than 10 m, the two differ. Treating the
+boundary layer as one of constant thickness for both, as Losch (2008)
+does, would make them consistent. MPAS-Ocean also has no melt under
+grounded ice, since its floating mask is zero there. Melt in the thin
+film, treated like a subglacial hydrological system, would need a melt
+that cannot cool the film below its freezing point.
 
 **Split-explicit wetting and drying.** RK4 at 6 s per km takes 20
-times as many steps as the split-explicit scheme at 120 s per km. Work
-on split-explicit wetting and drying (Carolyn Begeman's
-`alt-wetting-drying-se` branch) is not yet in E3SM. If it is needed,
-it can be merged into FAnSSIE.
+times as many steps as the split-explicit scheme at 120 s per km.
+Carolyn Begeman's split-explicit wetting and drying is not yet in E3SM,
+and it is open which of her branches is current. When it is ready, it
+will be merged into FAnSSIE.
 
 **Long runs.** Ocean0 runs for 1 year and Ocean1–2 for 20. They need:
 
 - forward runs in segments with restarts;
-- the evaporation flux updated between segments from the mean SSH in
-  the restoring region, as Compass's `simulation` step does;
+- evaporation that also offsets the meltwater, for example updated
+  between segments from the mean SSH in the restoring region, as
+  Compass's `simulation` step does;
 - monthly-mean output.
 
 At 2 km, 20 years is about 53 million RK4 steps at 12 s, so long runs
@@ -834,12 +1124,14 @@ Omega until it supports ice-shelf cavities.
 
 ### D7: The forward run is short
 
-Date last modified: 2026/09/28
+Date last modified: 2026/10/07
 
 Contributors: Xylar Asay-Davis, Claude
 
-The default forward run is one hour, and `run_duration` can be raised
-by config. Long runs and standard output are
+The default Ocean0–2 forward run is one hour. The `wetting` and
+`drying` runs last 12 hours and the `inception` run 4 days
+([D16](#decisions)). `run_duration` can be
+raised by config. Long runs and standard output are
 [Planned Extensions](#planned-extensions).
 
 ### D8: Wetting and drying tasks stay; Ocean3–4 and spherical tasks are removed
@@ -849,8 +1141,7 @@ Date last modified: 2026/10/16
 Contributors: Xylar Asay-Davis, Claude
 
 The `inception`, `wetting` and `drying` tasks and the `TopoScale` step
-stay, and the three tasks gain an `init` step. Running them is
-follow-up work.
+stay. The three tasks gain the same steps as Ocean0–2.
 
 The `ocean3` and `ocean4` tasks and their topography steps are
 removed. Ocean3–4 will be E3SM runs driven by MALI in data mode, which
@@ -915,7 +1206,7 @@ thin-layer treatment.
 
 ### D12: The top drag coefficient follows COM
 
-Date last modified: 2026/09/28
+Date last modified: 2026/10/18
 
 Contributors: Xylar Asay-Davis, Claude
 
@@ -923,6 +1214,9 @@ Compass turned on implicit top drag but left its coefficient at the
 MPAS-Ocean default of $10^{-3}$. The Polaris tasks set it to the COM
 value of $2.5\times10^{-3}$, and Compass's ISOMIP+ namelist is updated
 to match.
+
+Superseded by [D20](#decisions) and [D23](#decisions). Only the `com`
+variants keep the COM top drag.
 
 ### D13: Pressure is prescribed; SSH is adjusted
 
@@ -967,3 +1261,326 @@ the pressure cannot be adjusted.
   ends at 0.1 m.
 - Compass adjusts the pressure, so the two differ in how the pressure
   and SSH are balanced, not only in the initial pressure.
+
+### D14: The wetting and drying loads follow Compass#896
+
+Date last modified: 2026/10/07
+
+Contributors: Xylar Asay-Davis, Claude
+
+`drying` thickens the Ocean1 ice by 5 % and then 10 %, and `wetting`
+thins it by the same amounts, as in
+[MPAS-Dev/compass#896](https://github.com/MPAS-Dev/compass/pull/896).
+The first version of this design doubled or removed the ice.
+`inception` still grows the ice from nothing.
+
+```{admonition} Rationale
+These are the loads Carolyn Begeman settled on for Compass's thin-film
+runs with RK4. Each step moves the domain-wide SSH by about 10 m rather
+than about 210 m.
+```
+
+### D15: The land-ice forcing has no draft
+
+Date last modified: 2026/10/07
+
+Contributors: Xylar Asay-Davis, Claude
+
+The land-ice forcing holds the pressure and fractions, not the draft.
+MPAS-Ocean's default draft mode computes the draft from the pressure
+([E3SM#7301](https://github.com/E3SM-Project/E3SM/pull/7301)), so a
+draft in the forcing would go unused.
+
+### D16: Forcing records are hours or days apart
+
+Date last modified: 2026/10/07
+
+Contributors: Xylar Asay-Davis, Claude
+
+In `wetting` and `drying`, the records are 6 hours apart and the forward
+run lasts 12 hours. `inception` grows its ice over 4 days, and its run
+lasts 4 days. Compass's records were a year apart.
+
+```{admonition} Rationale
+A short run that moves the grounding line suits regression testing.
+Starting with aggressive grounding-line motion shows what wetting and
+drying can handle; subtler, longer variants can follow
+([Planned Extensions](#planned-extensions)).
+```
+
+`inception` adds the whole Ocean1 load, about 20 times more than a
+`wetting` or `drying` step, so its ramp is longer. At 4 days, the flow
+through the calving front is close to that in `wetting` and `drying`.
+
+### D17: The thin film starts at MPAS-Ocean's pressure cap
+
+Date last modified: 2026/10/07
+
+Contributors: Xylar Asay-Davis, Claude
+
+The thin film is $10^{-3}$ m thick per active layer, so its thickness
+depends on the bed depth. The layers share it in proportion to their
+resting thickness, as in the rest of the z-star column. With
+[E3SM-Ocean-Discussion#119](https://github.com/E3SM-Ocean-Discussion/E3SM/pull/119),
+MPAS-Ocean caps the land-ice pressure in grounded cells at the
+floatation pressure of that column. The film therefore starts in
+balance with the pressure the model applies.
+
+Compass, and the first version of this design, used a 1 mm film across
+all active layers. In the 4 km `drying` task, grounded cells have 6–33
+active layers, so its layers started as thin as $5\times10^{-8}$ m.
+
+*Effect:* the film is 6–33 mm thick in the 4 km `drying` task.
+
+### D18: The thin film is fresh
+
+Date last modified: 2026/10/07
+
+Contributors: Xylar Asay-Davis, Claude
+
+The thin film starts with zero salinity, at the freezing point for
+that salinity and the land-ice pressure, as in MPAS-Ocean's init mode
+with
+[E3SM-Ocean-Discussion#138](https://github.com/E3SM-Ocean-Discussion/E3SM/pull/138).
+The first version of this design used the initial profile's salinity.
+
+### D19: SSH is held at zero in the restoring region
+
+Date last modified: 2026/10/08
+
+Contributors: Xylar Asay-Davis, Claude
+
+In the wetting and drying tasks, MPAS-Ocean's tidal forcing, in its
+`direct` mode with zero amplitude, holds the SSH at zero in the
+restoring region. The water that the ice displaces leaves the domain
+there, or flows back in, with the local temperature and salinity.
+Ocean0–2 do not use it, since their load does not change.
+
+```{admonition} Rationale
+The domain is closed. Without an outflow, the displaced water raises
+sea level everywhere: by about 10 m per 5 % step of the Ocean1 load,
+and by about 210 m for the whole load. The rise lifts the ice, which
+works against the change in load. In `inception`, nearly all the ice
+would float. An open ocean would carry the water away. A time-varying
+tidal forcing could later replace the zero amplitude.
+```
+
+The first version of this design removed the displaced water with
+evaporation in the restoring region, at a constant rate over the run.
+The protocol's evaporation removes salt at the surface restoring
+salinity rather than the local one. At about 2,000 m per day, that
+made the surface salinity unstable, and it reached 50–65 PSU in
+`inception`. A constant rate also does not follow the displacement,
+which slows as the ice grounds. In `inception`, the open-ocean SSH
+rose to about +48 m mid-run.
+
+*Effect:* all the displaced water leaves the cavity, so the flow
+through the calving front is about three times what it would be in a
+closed basin.
+
+### D20: E3SM's physics
+
+Date last modified: 2026/10/18
+
+Contributors: Xylar Asay-Davis, Claude
+
+The tasks use MPAS-Ocean's physics and coefficients as E3SM sets them
+for ice-shelf cavities, overridden only where the idealized domain or
+wetting and drying requires, and for the top drag
+([D26](#decisions)). The ISOMIP+ tasks rehearse coupled runs of
+MPAS-Ocean and MALI in E3SM, so they exercise the physics those runs
+will use. RK4 stays until split-explicit wetting and drying
+is available.
+
+Rejected: the COM physics (Table 4) in every task, as in the first
+version of this design.
+
+*Effect:* melt and circulation change in every task, and the baselines
+of the ISOMIP+ tasks in `fanssie_pr` change. The COLD profile lies up to
+0.006 °C below MPAS-Ocean's open-ocean freezing point in the top 100 m,
+so frazil forms there at the start of `ocean1` and throughout the
+restoring region of `ocean2`.
+
+### D21: COM variants of Ocean0–2 only
+
+Date last modified: 2026/10/18
+
+Contributors: Xylar Asay-Davis, Claude
+
+`com/ocean0`–`com/ocean2` keep the COM physics of the first version of
+this design: the linear EOS, `pressure_and_zmid`, del2 viscosity and
+diffusion, constant mixing, the COM top drag (D12) and the tuned
+transfer coefficients. Ocean0–2 are the only experiments with
+published results to compare against
+([Yung et al. 2026](https://doi.org/10.5194/tc-20-2053-2026)). The
+thin-film tasks have no COM variants.
+
+### D22: `jm` at each layer's actual depth
+
+Date last modified: 2026/10/18
+
+Contributors: Xylar Asay-Davis, Claude
+
+The tasks use the `jm` equation of state, evaluated at the pressure of
+each layer's actual depth rather than its reference depth. The change
+is an MPAS-Ocean option on FAnSSIE, off by default, so other runs are
+unchanged.
+
+```{admonition} Rationale
+`jm` evaluates each layer at a pressure computed once from
+`refBottomDepth`. With z-star, layers under the ice sit far deeper than
+their reference depths, so under a deep ice base the top layers are
+evaluated near surface pressure. Under floating ice, the actual depth
+gives the right pressure, since the ice weighs as much as the water it
+displaces.
+```
+
+Rejected:
+
+- the linear EOS until Omega supports ice-shelf cavities, which has no
+  thermobaricity or cabbeling;
+- `wright`, which uses each layer's actual depth but has never worked
+  correctly;
+- `jm` at reference depths, as on E3SM master.
+
+### D23: Coefficients from E3SM's ice-shelf meshes
+
+Date last modified: 2026/10/18
+
+Contributors: Xylar Asay-Davis, Claude
+
+Where E3SM sets a coefficient per mesh, the tasks use the value of its
+meshes with ice-shelf cavities:
+
+- 13 of E3SM's 15 such meshes, including every v2 and v3 mesh, share
+  the top drag coefficient $4.48\times10^{-3}$ and the heat and salt
+  transfer coefficients $2.95\times10^{-3}$ and $8.42\times10^{-5}$.
+- The viscosities follow `FRISwISC01to60E3r1`, `FRISwISC02to60E3r1` and
+  `FRISwISC04to60E3r1`, E3SM's cavity meshes with 1, 2 and 4 km cells.
+  They scale del2 with $\Delta x$ and del4 with $\Delta x^3$, from
+  38.5 m² s⁻¹ and $6.83\times10^6$ m⁴ s⁻¹ at 1 km. Those meshes are not
+  well tested, so these are starting values.
+
+Rejected:
+
+- E3SM's generic defaults: top drag $2.5\times10^{-3}$ and transfer
+  coefficients 0.011 and $3.1\times10^{-4}$. They serve meshes without
+  cavities, where they have no effect.
+- del4 alone, without the del2 that E3SM's cavity meshes at these
+  resolutions also use.
+
+*Effect:* for the same flow, the heat transfer velocity
+$\Gamma_T u_*$ is a fifth to a third of the COM value, depending on how
+much the larger tidal velocity adds to $u_*$. Melt is expected to drop
+unless thermal driving or the flow grows to compensate.
+
+### D24: The submesoscale parameterization respects wetting and drying
+
+Date last modified: 2026/10/18
+
+Contributors: Xylar Asay-Davis, Claude
+
+With wetting and drying, MPAS-Ocean limits the submesoscale eddy velocity
+by the wetting-and-drying factor, as it limits the normal velocity,
+measures the mixed layer depth from the top of the column and uses the
+shallower of the two cells' mixed layer depths on edges. RK4 also keeps
+the wetting-and-drying limit when it rebuilds the transport velocity for
+the eddies. Runs without wetting and drying are unchanged.
+
+```{admonition} Rationale
+With E3SM's physics, the thin-film tasks failed within two time steps.
+The submesoscale transport drained film layers that wetting and drying
+held at their minimum thickness, and under grounded ice, the mixed layer
+depth measured from the draft implied by the pressure was negative.
+E3SM's MISOMIP runs will have both the parameterization and a thin film.
+```
+
+Rejected: turning the parameterization off in the ISOMIP+ tasks, which
+would leave the coupled runs without a fix.
+
+### D25: `Jacobian_from_TS` is limited to each cell's water column
+
+Date last modified: 2026/10/18
+
+Contributors: Xylar Asay-Davis, Claude
+
+The tasks use `Jacobian_from_TS` with a new MPAS-Ocean option on FAnSSIE,
+off by default, that blends each layer's pressure gradient toward the
+`pressure_and_zmid` form where the common level lies outside either
+cell's water column, as where a thin film borders a deep column.
+
+```{admonition} Rationale
+Next to the thin film, the common level lies in the ice, so
+`Jacobian_from_TS` extrapolates the film's fresh water to depths where its
+neighbor holds salty water. In the second SSH-adjustment run at 2 km, the
+flow across the grounding line reached 12 m/s, against 1 m/s with
+`pressure_and_zmid` or the limit. Elsewhere the limit leaves
+`Jacobian_from_TS` unchanged. In Ocean0–2 at all three resolutions and
+over 30 days of `ocean0` at 4 km, the three choices give nearly the same
+flow and melt. Realistic cavities keep `Jacobian_from_TS` in their
+interiors, and their thin films will need the same limit.
+```
+
+Rejected:
+
+- `pressure_and_zmid` everywhere, which behaves the same in these tasks
+  but would give up `Jacobian_from_TS` in realistic cavity interiors;
+- `Jacobian_from_TS` without the limit, which fails in the thin-film tasks.
+
+### D26: Top drag is implicit
+
+Date last modified: 2026/10/18
+
+Contributors: Xylar Asay-Davis, Claude
+
+The tasks apply E3SM's top drag coefficient, $4.48\times10^{-3}$,
+implicitly in the vertical mixing, as the COM variants apply theirs. With
+implicit top drag, MPAS-Ocean left the drag out of KPP's friction velocity
+under the ice; a fix on FAnSSIE puts it back, so that KPP sees the same
+forcing as with explicit drag.
+
+```{admonition} Rationale
+E3SM's explicit top drag predates MPAS-Ocean's implicit option. In the
+thin film, the explicit drag is stiff: a 1 mm layer moving at 0.1 m/s
+loses its momentum to the drag in about 2 s, a third of the 6 s time
+step at 1 km.
+```
+
+Rejected: explicit top drag, as on E3SM's meshes today.
+
+### D27: Negative salinity does not break the bulk forcing
+
+Date last modified: 2026/10/18
+
+Contributors: Xylar Asay-Davis, Claude
+
+MPAS-Ocean's limit on sea-ice salt extraction now applies only to an
+extraction and treats negative salinity as no salt available. The fix is
+on FAnSSIE and leaves runs with non-negative surface salinity unchanged.
+
+```{admonition} Rationale
+RK4 substeps can take the salinity of the fresh thin film below zero.
+With no sea-ice salt flux, the limit then divided by zero and the
+salinity went NaN; the 1 km `wetting` task failed 34 minutes into its
+forward run. E3SM's MISOMIP runs use the same bulk forcing.
+```
+
+### D28: Nearly fresh water melts by the heat balance
+
+Date last modified: 2026/10/19
+
+Contributors: Xylar Asay-Davis, Claude
+
+Where MPAS-Ocean's three-equation melt parameterization limits the
+interface salinity, as under a fresh film, the melt rate comes from the
+heat balance rather than the salt balance. The fix is on FAnSSIE and
+leaves runs where the interface salinity stays above the limit
+unchanged.
+
+```{admonition} Rationale
+In fresh water, the interface salinity's root is zero, and its limit of
+0.001 made the salt balance refreeze the water about 400 times faster
+than the heat balance allows. In the 1 km `wetting` task, a fresh film
+cell that went afloat froze away in six hours, and the task failed when
+a layer's thickness went negative.
+```

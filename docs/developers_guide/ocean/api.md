@@ -400,11 +400,15 @@
    mesh.PlanarMesh.run
    mesh.xy.add_isomip_plus_xy
 
+   physics.get_physics_replacements
+   physics.add_com_physics_yaml
+
    projection.get_projection_string
    projection.get_projections
 
    ssh_forward.SshForward
    ssh_forward.SshForward.compute_cell_count
+   ssh_forward.SshForward.dynamic_model_config
 
    topo.TopoMap
    topo.TopoMap.run
@@ -416,6 +420,8 @@
 
    viz.Viz
    viz.Viz.run
+
+   xtime.get_record_times
 ```
 
 ### inertial_gravity_wave

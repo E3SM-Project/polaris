@@ -20,6 +20,10 @@ class IsomipPlusTest(IceShelfTask):
     vertical_coordinate : str
             The type of vertical coordinate (``z-star``, ``z-level``, etc.)
 
+    variant : str or None
+        The variant of the default task, which adds a level to the task
+        path, or None for the default task
+
     tidal_forcing: bool
         Whether the case has tidal forcing
 
@@ -37,6 +41,7 @@ class IsomipPlusTest(IceShelfTask):
         vertical_coordinate,
         shared_steps,
         config,
+        variant=None,
         tidal_forcing=False,
     ):
         """
@@ -68,6 +73,10 @@ class IsomipPlusTest(IceShelfTask):
             A config parser shared by the task and its steps, whose file is
             in the task's work directory
 
+        variant : str, optional
+            The variant of the default task, which adds a level to the task
+            path
+
         tidal_forcing: bool, optional
             Whether the run includes a single-period tidal forcing
         """  # noqa: E501
@@ -78,9 +87,13 @@ class IsomipPlusTest(IceShelfTask):
         self.resolution = resolution
         self.experiment = experiment
         self.vertical_coordinate = vertical_coordinate
+        self.variant = variant
         self.thin_film = experiment in ['inception', 'wetting', 'drying']
         self.tidal_forcing = tidal_forcing
-        subdir = f'{resdir}/{vertical_coordinate}/{name}'
+        if variant is None:
+            subdir = f'{resdir}/{vertical_coordinate}/{name}'
+        else:
+            subdir = f'{resdir}/{vertical_coordinate}/{variant}/{name}'
         super().__init__(
             component=component,
             min_resolution=resolution,
@@ -105,10 +118,6 @@ class IsomipPlusTest(IceShelfTask):
         init.set_shared_config(config, link='isomip_plus.cfg')
         self.add_step(init)
 
-        if self.thin_film:
-            # running the tasks with a thin film is not yet supported
-            return
-
         ssh_adjust = self.setup_ssh_adjustment_steps(
             mesh_filename=f'{init.path}/mesh.nc',
             graph_target=f'{init.path}/culled_graph.info',
@@ -126,12 +135,17 @@ class IsomipPlusTest(IceShelfTask):
             resolution=resolution,
             init=init,
             ssh_adjust=ssh_adjust,
+            thin_film=self.thin_film,
         )
         forward.set_shared_config(config, link='isomip_plus.cfg')
         self.add_step(forward)
 
         viz = Viz(
-            component=component, indir=subdir, init=init, forward=forward
+            component=component,
+            indir=subdir,
+            init=init,
+            forward=forward,
+            thin_film=self.thin_film,
         )
         viz.set_shared_config(config, link='isomip_plus.cfg')
         self.add_step(viz)

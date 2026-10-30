@@ -14,7 +14,7 @@ from polaris.ocean.ice_shelf import (
     compute_land_ice_draft_from_pressure,
 )
 from polaris.ocean.model import OceanIOStep
-from polaris.ocean.vertical import init_vertical_coord
+from polaris.ocean.vertical import init_vertical_coord, update_layer_thickness
 from polaris.tasks.ocean.isomip_plus.mesh.xy import add_isomip_plus_xy
 
 # the profiles used for the initial condition and for restoring in each
@@ -120,16 +120,25 @@ class Init(OceanIOStep):
 
         ds = self._compute_geometry(ds_mesh, ds_topo_init)
         init_vertical_coord(config, ds)
+        if self.thin_film:
+            self._thicken_thin_film(ds)
         self._compute_state(ds)
 
         self.write_vert_coord_dataset(
             ds, self.get_vert_coord_filename(), config
         )
-        self.write_initial_state_dataset(ds, self.get_init_filename(), config)
+        # the protocol's profiles are potential temperature and practical
+        # salinity, MPAS-Ocean's own convention, whatever the EOS
+        self.write_initial_state_dataset(
+            ds,
+            self.get_init_filename(),
+            config,
+            tracer_convention='mpas-ocean',
+        )
 
         self._write_forcing(ds)
         if self.thin_film:
-            self._write_land_ice_forcing(ds, ds_topo)
+            self._write_land_ice_forcing(ds_topo)
 
     def _cull_mesh(self):
         """
@@ -212,9 +221,6 @@ class Init(OceanIOStep):
         # float, limited by the bed
         draft = self._draft_from_pressure(ds_topo.landIcePressure)
         if self.thin_film:
-            min_column_thickness = section.getfloat(
-                'min_column_thickness_thin_film'
-            )
             # grounded ice is heavier than the water it would displace, so
             # the draft computed from its pressure is below the bed
             thin_film_mask = draft <= -bottom_depth
@@ -223,19 +229,27 @@ class Init(OceanIOStep):
                 f'{int(thin_film_mask.sum())} cells have a thin film under '
                 f'grounded ice'
             )
+            # a film one layer thick for now; _thicken_thin_film() gives it
+            # the minimum thickness in each active layer once the layers are
+            # known
+            layer_thickness = section.getfloat('thin_film_layer_thickness')
+            ssh = np.maximum(draft, -bottom_depth + layer_thickness)
+            ds['bottomDepth'] = bottom_depth
         else:
             min_column_thickness = section.getfloat('min_column_thickness')
-        ssh = np.maximum(draft, -bottom_depth)
-        ds['landIceDraft'] = ssh
+            ssh = np.maximum(draft, -bottom_depth)
 
-        # deepen the bottom where needed to keep a minimum column thickness
-        min_depth = -ssh + min_column_thickness
-        too_thin = bottom_depth < min_depth
-        ds['bottomDepth'] = xr.where(too_thin, min_depth, bottom_depth)
-        logger.info(
-            f'Adjusted bottomDepth for {int(too_thin.sum())} cells to '
-            f'achieve a minimum column thickness of {min_column_thickness} m'
-        )
+            # deepen the bottom where needed to keep a minimum column
+            # thickness
+            min_depth = -ssh + min_column_thickness
+            too_thin = bottom_depth < min_depth
+            ds['bottomDepth'] = xr.where(too_thin, min_depth, bottom_depth)
+            logger.info(
+                f'Adjusted bottomDepth for {int(too_thin.sum())} cells to '
+                f'achieve a minimum column thickness of '
+                f'{min_column_thickness} m'
+            )
+        ds['landIceDraft'] = ssh
 
         # init_vertical_coord() adds the Time dimension to ssh
         ds['ssh'] = ssh
@@ -252,6 +266,27 @@ class Init(OceanIOStep):
             ds[var] = ds[var].expand_dims(dim='Time', axis=0)
 
         return ds
+
+    def _thicken_thin_film(self, ds):
+        """
+        Raise the SSH where needed so every active layer has the thin-film
+        layer thickness, the column at which MPAS-Ocean caps the land-ice
+        pressure in grounded cells
+        """
+        layer_thickness = self.config.getfloat(
+            'isomip_plus', 'thin_film_layer_thickness'
+        )
+        level_count = ds.maxLevelCell - ds.minLevelCell + 1
+        min_ssh = -ds.bottomDepth + layer_thickness * level_count
+        ssh = ds.ssh.isel(Time=0)
+        raised = ssh < min_ssh
+        ds['ssh'] = xr.where(raised, min_ssh, ssh)
+        update_layer_thickness(self.config, ds)
+        ds['landIceDraft'] = ds.ssh
+        self.logger.info(
+            f'Raised the SSH in {int(raised.sum())} cells to give '
+            f'{layer_thickness} m in each active layer'
+        )
 
     def _mask_land_ice_fractions(self, ds_topo):
         """
@@ -288,17 +323,19 @@ class Init(OceanIOStep):
         temperature, salinity = self._get_profiles(ds, profile)
 
         if self.thin_film:
-            # thin-film cells are at the freezing point
+            # thin-film cells hold fresh water at the freezing point
+            thin_film_mask = ds.thinFilmMask == 1
+            salinity = xr.where(thin_film_mask, 0.0, salinity)
             freezing_temp = compute_freezing_temperature(
                 config=self.config,
                 salinity=salinity,
                 pressure=ds.landIcePressure,
             )
-            thin_film_mask = ds.thinFilmMask == 1
             temperature = xr.where(thin_film_mask, freezing_temp, temperature)
             temperature = temperature.transpose(
                 'Time', 'nCells', 'nVertLevels'
             )
+            salinity = salinity.transpose('Time', 'nCells', 'nVertLevels')
 
         ds['temperature'] = temperature
         ds['salinity'] = salinity
@@ -365,9 +402,14 @@ class Init(OceanIOStep):
         # "evaporation" in the restoring region offsets the melt water,
         # removing salt and heat at the surface restoring values
         mask = np.logical_and(x_cell >= restore_xmin, x_cell <= restore_xmax)
-        mask = mask.expand_dims(dim='Time', axis=0)
+        if self.thin_film:
+            # MPAS-Ocean's tidal forcing holds SSH at zero in the restoring
+            # region, so the water that the changing ice load displaces can
+            # leave the domain (or return)
+            ds_forcing['tidalInputMask'] = mask.astype(float)
         # convert m/yr to m/s, negative for evaporation
         evap_rate = -restore_evap_rate / (s_per_day * 365.0)
+        mask = mask.expand_dims(dim='Time', axis=0)
         top_temp = config.getfloat('isomip_plus', f'{profile}_top_temp')
         top_sal = config.getfloat('isomip_plus', f'{profile}_top_sal')
         ds_forcing['evaporationFlux'] = mask * ref_density * evap_rate
@@ -380,7 +422,7 @@ class Init(OceanIOStep):
 
         write_netcdf(ds_forcing, 'forcing.nc')
 
-    def _write_land_ice_forcing(self, ds, ds_topo):
+    def _write_land_ice_forcing(self, ds_topo):
         """
         Write the time-varying land-ice forcing from all records of the
         topography
@@ -388,22 +430,14 @@ class Init(OceanIOStep):
         land_ice_fraction, floating_fraction, _ = (
             self._mask_land_ice_fractions(ds_topo)
         )
-        pressure = ds_topo.landIcePressure
-        draft = np.maximum(
-            self._draft_from_pressure(pressure), -ds.bottomDepth
-        )
-
+        # MPAS-Ocean computes the draft from the pressure, so the draft is
+        # not part of the forcing
         ds_out = xr.Dataset()
         ds_out['xtime'] = ds_topo.xtime
-        ds_out['landIcePressureForcing'] = pressure
+        ds_out['landIcePressureForcing'] = ds_topo.landIcePressure
         ds_out.landIcePressureForcing.attrs['units'] = 'Pa'
         ds_out.landIcePressureForcing.attrs['long_name'] = (
             'Pressure from the weight of land ice at the ice-ocean interface'
-        )
-        ds_out['landIceDraftForcing'] = draft
-        ds_out.landIceDraftForcing.attrs['units'] = 'm'
-        ds_out.landIceDraftForcing.attrs['long_name'] = (
-            'The approximate elevation of the land ice-ocean interface'
         )
         ds_out['landIceFractionForcing'] = land_ice_fraction
         ds_out.landIceFractionForcing.attrs['long_name'] = (
