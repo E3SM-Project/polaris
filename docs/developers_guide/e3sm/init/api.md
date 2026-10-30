@@ -291,3 +291,35 @@
    models.check_ocean_model
    models.check_seaice_model
 ```
+
+### misomip
+
+```{eval-rst}
+.. currentmodule:: polaris.tasks.e3sm.init.misomip
+
+.. autosummary::
+   :toctree: generated/
+
+   add_misomip_tasks
+   get_misomip_mesh_steps
+
+   MisomipTask
+   MisomipTask.configure
+
+   mesh.OceanMeshStep
+   mesh.OceanMeshStep.run
+   mesh.LandiceMeshStep
+   mesh.LandiceMeshStep.run
+
+   maps.MapStep
+   maps.MapStep.runtime_setup
+
+   names.get_grid_names
+
+   projection.get_projection_string
+   projection.get_lat_lon
+   projection.add_lat_lon
+
+   scrip.write_scrip
+   scrip.clip_polygon_to_y_band
+```
