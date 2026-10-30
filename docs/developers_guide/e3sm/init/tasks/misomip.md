@@ -74,6 +74,13 @@ experiment's profiles.  The SSH-adjustment steps come from
 {py:func}`polaris.ocean.ice_shelf.get_ssh_adjustment_steps()`, with the
 ISOMIP+ `SshForward`.  `iceocean1ra` (in `CONTINUES_FROM`) gets only the
 `init` step, on `iceocean1r`'s land-ice fields.
+{py:class}`polaris.tasks.ocean.misomip.MisomipForward` subclasses the ISOMIP+
+{py:class}`polaris.tasks.ocean.isomip_plus.forward.Forward` with its
+thin-film options, overriding
+{py:meth}`polaris.tasks.ocean.isomip_plus.forward.Forward.get_forcing_interval()`
+to give the monthly interval of the data-mode records.  With fixed
+geometry, it turns the time-varying land-ice forcing off.  The task adds it
+with `run_by_default=False` (see `NOT_RUN_BY_DEFAULT`).
 
 The experiment's own steps are in the task's directory, so the task adds
 them without symlinks.

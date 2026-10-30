@@ -105,6 +105,16 @@ The profiles of the initial condition and restoring are:
 `iceocean1ra` continues from `iceocean1r` in E3SM, so it gets only the
 restoring, made on `iceocean1r`'s initial geometry.
 
+For `ocean0`–`ocean4`, the `forward` step runs MPAS-Ocean alone from the
+initial condition E3SM reads, with the same physics, wetting and drying,
+outflow and land-ice geometry, for comparison with E3SM.  It is not run by
+default; run it with `polaris serial` in its directory.  Its length is
+`[isomip_plus_forward] run_duration`, one month (744 hours) by default.  For
+`ocean3` and `ocean4`, it reads the land-ice fields of every data-mode
+record, one a month, and MPAS-Ocean interpolates between them, while MALI's
+data mode steps from record to record.  `iceocean1r` and `iceocean1ra` have
+no standalone counterpart.
+
 ## Graph partitions
 
 The `ocean_partitions` and `landice_partitions` steps partition each
