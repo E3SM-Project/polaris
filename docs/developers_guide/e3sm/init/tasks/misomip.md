@@ -58,6 +58,23 @@ and these steps, also of the `e3sm/init` component:
   and writes the monthly records one at a time with
   {py:func}`polaris.tasks.e3sm.init.misomip.landice_data.write_data_mode_file()`.
 
+{py:class}`polaris.tasks.e3sm.init.misomip.land_ice_on_ocean.LandIceOnOceanStep`
+computes the land-ice fields on the ocean's mesh from MALI's initial
+condition, or from every record of its data-mode file, with
+{py:func}`polaris.tasks.e3sm.init.misomip.land_ice_fields.compute_land_ice_fields()`.
+The ocean's steps come from
+{py:func}`polaris.tasks.ocean.misomip.get_misomip_ocean_steps()`.  They are
+shared steps of the ocean component, since Polaris assigns a model per
+component, and `polaris.tasks.ocean.misomip` imports nothing from
+`e3sm/init`: the steps it builds on are passed in.
+{py:class}`polaris.tasks.ocean.misomip.MisomipInit` subclasses the ISOMIP+
+{py:class}`polaris.tasks.ocean.isomip_plus.init.Init`, overriding the mesh it
+starts from and the topography it reads, with E3SM's gravity and the
+experiment's profiles.  The SSH-adjustment steps come from
+{py:func}`polaris.ocean.ice_shelf.get_ssh_adjustment_steps()`, with the
+ISOMIP+ `SshForward`.  `iceocean1ra` (in `CONTINUES_FROM`) gets only the
+`init` step, on `iceocean1r`'s land-ice fields.
+
 The experiment's own steps are in the task's directory, so the task adds
 them without symlinks.
 

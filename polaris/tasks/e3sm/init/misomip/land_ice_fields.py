@@ -171,3 +171,30 @@ def import_geometry(mapped):
         'landIceFloatingFraction': floating_fraction,
         'landIceGroundedFraction': land_ice_fraction - floating_fraction,
     }
+
+
+def compute_land_ice_fields(matrix, thickness, bed_topography):
+    """
+    Compute the ocean's land-ice fields from MALI's thickness, as E3SM's
+    coupler delivers them
+
+    Parameters
+    ----------
+    matrix : scipy.sparse.csr_matrix
+        The glc-to-ocean map, from :py:func:`read_map`
+
+    thickness : numpy.ndarray
+        The ice thickness in m on MALI's cells.  A leading time dimension is
+        allowed.
+
+    bed_topography : numpy.ndarray
+        The bed elevation in m on MALI's cells
+
+    Returns
+    -------
+    fields : dict of str to numpy.ndarray
+        The fields from :py:func:`import_geometry` on the ocean's cells
+    """
+    export = compute_mali_export(thickness, bed_topography)
+    mapped = {name: apply_map(matrix, field) for name, field in export.items()}
+    return import_geometry(mapped)

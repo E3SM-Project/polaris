@@ -427,6 +427,21 @@
    xtime.get_record_times
 ```
 
+### misomip
+
+```{eval-rst}
+.. currentmodule:: polaris.tasks.ocean.misomip
+
+.. autosummary::
+   :toctree: generated/
+
+   get_misomip_ocean_steps
+
+   MisomipInit
+   MisomipInit.get_mesh_target
+   MisomipInit.read_topography
+```
+
 ### inertial_gravity_wave
 
 ```{eval-rst}
