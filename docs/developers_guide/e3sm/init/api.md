@@ -314,11 +314,18 @@
    maps.MapStep
    maps.MapStep.runtime_setup
 
+   calving.get_floating_mask
+   calving.get_grounded_mask
+   calving.calve
+
    names.get_grid_names
 
    projection.get_projection_string
    projection.get_lat_lon
    projection.add_lat_lon
+
+   records.get_monthly_record_times
+   records.get_interpolation_weights
 
    scrip.write_scrip
    scrip.clip_polygon_to_y_band

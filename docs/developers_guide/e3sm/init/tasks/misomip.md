@@ -48,6 +48,22 @@ SCRIP file from the planar mesh, with corners from the projection.  Its
 that cross `y_min` or `y_max` are trimmed with
 {py:func}`polaris.tasks.e3sm.init.misomip.scrip.clip_polygon_to_y_band()`.
 
+## MALI's geometry
+
+{py:func}`polaris.tasks.e3sm.init.misomip.calving.get_floating_mask()` and
+{py:func}`polaris.tasks.e3sm.init.misomip.calving.get_grounded_mask()`
+apply MALI's flotation test, in which ice exactly at flotation floats.
+{py:func}`polaris.tasks.e3sm.init.misomip.calving.calve()` removes floating
+ice thinner than 100 m and all ice beyond $x = 640$ km.  The densities are
+the MISMIP+ tasks', 918 and 1028 kg m$^{-3}$.
+
+{py:func}`polaris.tasks.e3sm.init.misomip.records.get_monthly_record_times()`
+gives the `xtime` and the time in seconds of each record of MALI's data-mode
+files: the start of each month in E3SM's no-leap calendar, and the start of
+the year after the last.
+{py:func}`polaris.tasks.e3sm.init.misomip.records.get_interpolation_weights()`
+gives the weights for interpolating the protocol's yearly records to them.
+
 ## Grid names
 
 {py:func}`polaris.tasks.e3sm.init.misomip.names.get_grid_names()` reads
