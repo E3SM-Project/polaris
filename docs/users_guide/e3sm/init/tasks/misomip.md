@@ -40,6 +40,32 @@ walls, since MALI's mesh gives them half a cell's area.
 The `maps` steps make the conservative maps between the two meshes that
 E3SM's coupler reads, in each direction.
 
+## MALI's initial conditions and data-mode files
+
+Every MALI initial condition starts from the cached MISMIP+ steady state
+({ref}`landice-mismip-plus`), with the projection's latitude and longitude
+and its time set to the start of the run.  The `landice_init` step of
+Ocean0–4 replaces the thickness where the ISOMIP+ input geometry covers
+MALI's mesh, $x \ge 320$ km, with the input's, remapped conservatively by
+the `maps/input_to_landice_aave` step:
+
+| Experiment | Input geometry       |
+|------------|----------------------|
+| `ocean0`   | Ocean1               |
+| `ocean1`   | Ocean1               |
+| `ocean2`   | Ocean2               |
+| `ocean3`   | Ocean3, first record |
+| `ocean4`   | Ocean4, first record |
+
+Floating ice thinner than 100 m is then calved, as is any ice beyond
+$x = 640$ km.  For `iceocean1r`, the initial condition is the steady state.
+`iceocean1ra` continues from `iceocean1r` and has no initial condition.
+
+The `landice_data` step of `ocean3` and `ocean4` writes MALI's data-mode
+file: 1,201 records of thickness, at the start of each month of years 1 to
+101 in E3SM's no-leap calendar.  Each record is interpolated linearly in
+time between the protocol's yearly records and then calved.
+
 ## Graph partitions
 
 The `ocean_partitions` and `landice_partitions` steps partition each

@@ -4,10 +4,22 @@ from polaris.config import PolarisConfigParser
 from polaris.e3sm.init.graph_partition import GraphPartitionStep
 from polaris.step import Step
 from polaris.tasks.e3sm.init import e3sm_init
+from polaris.tasks.e3sm.init.misomip.landice_data import (
+    DATA_MODE_EXPERIMENTS,
+    LandiceDataStep,
+)
+from polaris.tasks.e3sm.init.misomip.landice_init import (
+    INPUT_GEOMETRY,
+    InputMapStep,
+    LandiceInitStep,
+)
 from polaris.tasks.e3sm.init.misomip.maps import MAPS, MapStep
 from polaris.tasks.e3sm.init.misomip.mesh import (
     LandiceMeshStep,
     OceanMeshStep,
+)
+from polaris.tasks.landice.mismip_plus.steps import (
+    get_mismip_plus_steady_state_steps,
 )
 from polaris.tasks.mesh.planar.mismip_plus import get_mismip_plus_mesh_steps
 from polaris.tasks.ocean.isomip_plus import get_isomip_plus_mesh_steps
@@ -71,13 +83,7 @@ def get_misomip_mesh_steps(mesh_name):
     steps['mismip_plus/mesh'] = mismip_plus_steps['mesh']
 
     def get_step(step_cls, subdir, **kwargs):
-        return e3sm_init.get_or_create_shared_step(
-            step_cls=step_cls,
-            subdir=os.path.join(mesh_name, subdir),
-            config=config,
-            config_filename=CONFIG_FILENAME,
-            **kwargs,
-        )
+        return _get_step(mesh_name, config, step_cls, subdir, **kwargs)
 
     mesh_steps = {
         'ocean': get_step(
@@ -118,6 +124,90 @@ def get_misomip_mesh_steps(mesh_name):
         )
 
     return steps, config
+
+
+def get_misomip_experiment_steps(mesh_name, experiment):
+    """
+    Get the shared steps that make E3SM's inputs for one experiment on a
+    pair of MISOMIP meshes
+
+    Parameters
+    ----------
+    mesh_name : str
+        The name of the pair of meshes, one of :py:data:`MESH_PAIRS`
+
+    experiment : str
+        The experiment
+
+    Returns
+    -------
+    steps : dict of str to polaris.Step
+        The steps of the pair of meshes from
+        :py:func:`get_misomip_mesh_steps`, the MISMIP+ steps that make the
+        steady state, and the experiment's steps, keyed by their suggested
+        symlink names
+
+    config : polaris.config.PolarisConfigParser
+        The shared config options for the steps of the pair
+    """
+    steps, config = get_misomip_mesh_steps(mesh_name)
+    landice_resolution = MESH_PAIRS[mesh_name]['landice']
+
+    if experiment not in INPUT_GEOMETRY:
+        # MALI continues from another experiment's E3SM restart
+        return steps, config
+
+    steady_state_steps, _ = get_mismip_plus_steady_state_steps(
+        landice_resolution
+    )
+    for name in ['init', 'spin_up_run', 'spin_up']:
+        steps[f'mismip_plus/{name}'] = steady_state_steps[name]
+    spin_up = steady_state_steps['spin_up']
+
+    input_map = _get_step(
+        mesh_name,
+        config,
+        InputMapStep,
+        os.path.join('maps', 'input_to_landice_aave'),
+        landice_mesh_step=steps['landice_mesh'],
+    )
+    if INPUT_GEOMETRY[experiment] is not None:
+        steps['maps/input_to_landice_aave'] = input_map
+
+    expdir = os.path.join('misomip', experiment)
+    steps['landice_init'] = _get_step(
+        mesh_name,
+        config,
+        LandiceInitStep,
+        os.path.join(expdir, 'landice_init'),
+        experiment=experiment,
+        spin_up_step=spin_up,
+        input_map_step=input_map,
+    )
+    if experiment in DATA_MODE_EXPERIMENTS:
+        steps['landice_data'] = _get_step(
+            mesh_name,
+            config,
+            LandiceDataStep,
+            os.path.join(expdir, 'landice_data'),
+            experiment=experiment,
+            spin_up_step=spin_up,
+            input_map_step=input_map,
+        )
+    return steps, config
+
+
+def _get_step(mesh_name, config, step_cls, subdir, **kwargs):
+    """
+    Get or create a shared step of a pair of meshes
+    """
+    return e3sm_init.get_or_create_shared_step(
+        step_cls=step_cls,
+        subdir=os.path.join(mesh_name, subdir),
+        config=config,
+        config_filename=CONFIG_FILENAME,
+        **kwargs,
+    )
 
 
 def _get_config(mesh_name):

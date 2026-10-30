@@ -2,6 +2,9 @@ from polaris.tasks.e3sm.init.misomip.steps import (
     MESH_PAIRS as MESH_PAIRS,
 )
 from polaris.tasks.e3sm.init.misomip.steps import (
+    get_misomip_experiment_steps as get_misomip_experiment_steps,
+)
+from polaris.tasks.e3sm.init.misomip.steps import (
     get_misomip_mesh_steps as get_misomip_mesh_steps,
 )
 from polaris.tasks.e3sm.init.misomip.task import MisomipTask as MisomipTask

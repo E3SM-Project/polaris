@@ -38,6 +38,29 @@ The steps of the `e3sm/init` component are:
   the MISMIP+ mesh step, with options from `[misomip_ocean_partitions]`
   and `[misomip_landice_partitions]`.
 
+{py:func}`polaris.tasks.e3sm.init.misomip.get_misomip_experiment_steps()`
+adds the steps of one experiment to those of its pair of meshes: the
+MISMIP+ steps that make the steady state, from
+{py:func}`polaris.tasks.landice.mismip_plus.steps.get_mismip_plus_steady_state_steps()`,
+and these steps, also of the `e3sm/init` component:
+
+- {py:class}`polaris.tasks.e3sm.init.misomip.landice_init.InputMapStep`
+  makes the conservative map from the ISOMIP+ input grid, described by the
+  projection, to MALI's mesh, from its SCRIP file;
+- {py:class}`polaris.tasks.e3sm.init.misomip.landice_init.LandiceInitStep`
+  copies the steady state and replaces its thickness with
+  {py:func}`polaris.tasks.e3sm.init.misomip.landice_init.get_landice_thickness()`,
+  sets the latitude and longitude, and sets the time to the start of the
+  run;
+- {py:class}`polaris.tasks.e3sm.init.misomip.landice_data.LandiceDataStep`
+  remaps the 101 yearly records of Ocean3 or Ocean4 with
+  {py:func}`polaris.tasks.e3sm.init.misomip.landice_init.remap_input_thickness()`,
+  and writes the monthly records one at a time with
+  {py:func}`polaris.tasks.e3sm.init.misomip.landice_data.write_data_mode_file()`.
+
+The experiment's own steps are in the task's directory, so the task adds
+them without symlinks.
+
 ## Projection and SCRIP files
 
 {py:func}`polaris.tasks.e3sm.init.misomip.projection.get_lat_lon()`
