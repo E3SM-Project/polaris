@@ -36,7 +36,7 @@ digraph fanssie {
     label="MALI-Dev/E3SM";
     labeljust=l; fontsize=12; color="#c3c2b7"; style="rounded";
     malidev [label=<<b>develop</b><br/><font color="#52514e">97 MALI commits ahead of E3SM</font>>, fillcolor="#ffffff"];
-    m211 [label=<<b>#211</b>  rebuild Albany's grid only when masks change<br/><font color="#52514e">draft · needed before coupled production runs</font>>, fillcolor="#e8e8e4"];
+    m211 [label=<<b>#211</b>  rebuild Albany's grid only when masks change<br/><font color="#52514e">open · needed before coupled production runs</font>>, fillcolor="#deebff"];
   }
 
   subgraph cluster_eod {
@@ -90,6 +90,6 @@ e3sm_submodules/FAnSSIE", penwidth=1.5];
   legend [shape=plaintext, style="", label=<
     <table border="0" cellborder="1" cellspacing="4" cellpadding="4" color="#c3c2b7">
       <tr><td bgcolor="#e3fcef">merged</td><td bgcolor="#deebff">open</td><td bgcolor="#e8e8e4">draft</td><td bgcolor="#ffffff">no PR yet</td></tr>
-      <tr><td colspan="4" border="0"><font point-size="10" color="#52514e">dashed: not merged yet · as of 2026-10-29</font></td></tr>
+      <tr><td colspan="4" border="0"><font point-size="10" color="#52514e">dashed: not merged yet · as of 2026-10-30</font></td></tr>
     </table>>];
 }
