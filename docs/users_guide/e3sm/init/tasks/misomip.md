@@ -88,7 +88,11 @@ The ocean steps are shared steps of the ocean component, in
   follows from the land-ice pressure with E3SM's gravity.  Every cell is
   kept, with a thin film under grounded ice;
 - `<experiment>/ssh_adjustment/` adjusts the SSH to the land-ice pressure,
-  as the ISOMIP+ tasks do.  Its output is the initial condition E3SM reads.
+  as the ISOMIP+ tasks do.
+
+The task's `ocean_initial_condition` step then writes the initial condition
+E3SM reads: the mesh and the state the SSH adjustment finished with, in one
+file.
 
 The profiles of the initial condition and restoring are:
 
@@ -106,7 +110,7 @@ The profiles of the initial condition and restoring are:
 restoring, made on `iceocean1r`'s initial geometry.
 
 For `ocean0`–`ocean4`, the `forward` step runs MPAS-Ocean alone from the
-initial condition E3SM reads, with the same physics, wetting and drying,
+adjusted initial condition, with the same physics, wetting and drying,
 outflow and land-ice geometry, for comparison with E3SM.  It is not run by
 default; run it with `polaris serial` in its directory.  Its length is
 `[isomip_plus_forward] run_duration`, one month (744 hours) by default.  For
@@ -122,6 +126,41 @@ model's graph with `gpmetis` into a range of core counts, which the config
 options below set.  The partition files are named as E3SM names them:
 `mpas-o.graph.info.part.<n>` for MPAS-Ocean and
 `mpasli.graph.info.part.<n>` for MALI.
+
+## Staged files
+
+The task's `assemble` step links the experiment's files into
+`assembled_files/` in its work directory, laid out as in E3SM's inputdata.
+With the default grid names and creation date `<date>`, the files of
+`ocean3` on the 4 km ocean mesh are:
+
+```none
+assembled_files/
+    README
+    inputdata/
+        ocn/mpas-o/misomip-o4km/
+            mpaso.misomip-o4km.ocean3.<date>.nc
+            mpaso.misomip-o4km.ocean3_forcing.<date>.nc
+            misomip-o4km.scrip.<date>.nc
+            partitions/mpas-o.graph.info.<date>.part.<n>
+        glc/mpasli/misomip-li1km/
+            misomip-li1km.ocean3.<date>.nc
+            misomip-li1km.ocean3_datamode.<date>.nc
+            misomip-li1km.scrip.<date>.nc
+            mpasli.graph.info.<date>.part.<n>
+        cpl/gridmaps/misomip-o4km/
+            map_misomip-o4km_to_misomip-li1km_aave.<date>.nc
+        cpl/gridmaps/misomip-li1km/
+            map_misomip-li1km_to_misomip-o4km_aave.<date>.nc
+```
+
+The `_forcing` file holds the ocean's interior restoring.  Only `ocean3`
+and `ocean4` have a data-mode file, and `iceocean1ra` has no initial
+conditions.  The tree has no runoff map and no case configuration.
+
+The step does not copy the files to inputdata.  Its work directory has
+`sync_to_inputdata.sh` for doing that by hand, once the files have been
+checked.
 
 ## Config options
 
@@ -164,3 +203,15 @@ min_cells_per_core = 40
 
 The section `[misomip_landice_partitions]` sets the same options for MALI,
 30000 and 100 by default.
+
+The staged files are stamped with a creation date:
+
+```cfg
+# options for the staged files
+[misomip_inputs]
+
+# The creation date the staged files are stamped with, as YYYYMMDD.  Filled in
+# with today's date at setup if left blank, so that re-running a step does not
+# rename every staged file.
+creation_date =
+```

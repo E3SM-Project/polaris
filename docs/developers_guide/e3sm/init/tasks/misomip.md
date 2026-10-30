@@ -82,8 +82,36 @@ to give the monthly interval of the data-mode records.  With fixed
 geometry, it turns the time-varying land-ice forcing off.  The task adds it
 with `run_by_default=False` (see `NOT_RUN_BY_DEFAULT`).
 
+{py:class}`polaris.tasks.e3sm.init.misomip.ocean_initial_condition.OceanInitialConditionStep`
+merges the ocean's mesh, from `init`, with the state the final SSH
+adjustment wrote, since E3SM's MPAS-Ocean reads both from its initial
+condition.
+{py:class}`polaris.tasks.e3sm.init.misomip.assemble.MisomipAssembleStep`
+subclasses {py:class}`polaris.e3sm.init.assemble.AssembleStep` to stage the
+experiment's files.
+
 The experiment's own steps are in the task's directory, so the task adds
 them without symlinks.
+
+## Staging
+
+{py:class}`polaris.tasks.e3sm.init.misomip.assemble.MisomipAssembleStep`
+takes the steps whose outputs it stages, keyed as in its `PRODUCT_FILES`
+and `PARTITION_PRODUCTS`, with each map's step keyed `maps/<map name>`.
+An experiment passes only the products it has.  The partitions are found
+at run time, so the step depends on the partition steps explicitly.
+
+The paths come from
+{py:func}`polaris.e3sm.init.inputdata.landice_dir()`,
+{py:func}`polaris.e3sm.init.inputdata.gridmaps_dir()` and
+{py:func}`polaris.e3sm.init.inputdata.ocean_partition_path()`, which any
+workflow would stage the same way, and from MISOMIP's own path functions in
+`polaris.tasks.e3sm.init.misomip.names`, such as
+{py:func}`polaris.tasks.e3sm.init.misomip.names.ocean_initial_condition_path()`
+and {py:func}`polaris.tasks.e3sm.init.misomip.names.map_path()`.  The
+creation date is `[misomip_inputs] creation_date`, which
+{py:meth}`polaris.tasks.e3sm.init.misomip.MisomipTask.configure()` fills in
+with {py:func}`polaris.e3sm.init.inputdata.set_creation_date()`.
 
 ## Projection and SCRIP files
 

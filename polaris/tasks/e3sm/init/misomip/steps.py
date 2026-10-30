@@ -4,6 +4,7 @@ from polaris.config import PolarisConfigParser
 from polaris.e3sm.init.graph_partition import GraphPartitionStep
 from polaris.step import Step
 from polaris.tasks.e3sm.init import e3sm_init
+from polaris.tasks.e3sm.init.misomip.assemble import MisomipAssembleStep
 from polaris.tasks.e3sm.init.misomip.land_ice_on_ocean import (
     LandIceOnOceanStep,
 )
@@ -20,6 +21,9 @@ from polaris.tasks.e3sm.init.misomip.maps import MAPS, MapStep
 from polaris.tasks.e3sm.init.misomip.mesh import (
     LandiceMeshStep,
     OceanMeshStep,
+)
+from polaris.tasks.e3sm.init.misomip.ocean_initial_condition import (
+    OceanInitialConditionStep,
 )
 from polaris.tasks.landice.mismip_plus.steps import (
     get_mismip_plus_steady_state_steps,
@@ -158,7 +162,9 @@ def get_misomip_experiment_steps(mesh_name, experiment):
         steady state, the experiment's MALI steps, the step that computes
         the land-ice fields on the ocean's mesh, and the ocean steps from
         :py:func:`polaris.tasks.ocean.misomip.get_misomip_ocean_steps`,
-        keyed by their suggested symlink names
+        the step that makes E3SM's ocean initial condition and the step
+        that stages the experiment's files, keyed by their suggested symlink
+        names
 
     config : polaris.config.PolarisConfigParser
         The shared config options for the steps of the pair
@@ -189,7 +195,7 @@ def get_misomip_experiment_steps(mesh_name, experiment):
     )
     steps[f'{prefix}land_ice_on_ocean'] = land_ice_on_ocean
 
-    ocean_steps, _, _ = get_misomip_ocean_steps(
+    ocean_steps, _, final_ocean_step = get_misomip_ocean_steps(
         mesh_name=mesh_name,
         resolution=MESH_PAIRS[mesh_name]['ocean'],
         experiment=experiment,
@@ -201,6 +207,40 @@ def get_misomip_experiment_steps(mesh_name, experiment):
     )
     for name, step in ocean_steps.items():
         steps.setdefault(name, step)
+
+    expdir = os.path.join('misomip', experiment)
+    product_steps = {
+        'ocean_mesh': steps['ocean_mesh'],
+        'landice_mesh': steps['landice_mesh'],
+        'ocean_partitions': steps['ocean_partitions'],
+        'landice_partitions': steps['landice_partitions'],
+        'ocean_forcing': ocean_steps['ocean/init'],
+    }
+    for map_name in MAPS:
+        product_steps[f'maps/{map_name}'] = steps[f'maps/{map_name}']
+    if not continues:
+        ocean_initial_condition = _get_step(
+            mesh_name,
+            config,
+            OceanInitialConditionStep,
+            os.path.join(expdir, 'ocean_initial_condition'),
+            init_step=ocean_steps['ocean/init'],
+            ssh_adjust_step=final_ocean_step,
+        )
+        steps['ocean_initial_condition'] = ocean_initial_condition
+        product_steps['ocean_initial_condition'] = ocean_initial_condition
+        product_steps['landice_init'] = landice_steps['landice_init']
+        if 'landice_data' in landice_steps:
+            product_steps['landice_data'] = landice_steps['landice_data']
+
+    steps['assemble'] = _get_step(
+        mesh_name,
+        config,
+        MisomipAssembleStep,
+        os.path.join(expdir, 'assemble'),
+        experiment=experiment,
+        product_steps=product_steps,
+    )
     return steps, config
 
 
