@@ -7,7 +7,7 @@ import os
 import re
 import shlex
 import subprocess
-from typing import List, Optional, Tuple
+from typing import Dict, List, Optional, Tuple
 
 import pr_test_setup as setup_tools
 from pr_test_report import ReportError
@@ -24,6 +24,15 @@ COUPLED_TESTS = [
     'ERS_D.T62_oQU240.COMEGA-IAF',
     'PEM_D.T62_oQU240.COMEGA-IAF',
 ]
+
+#: ``create_test`` options added on a machine, which set the queue and wall
+#: time of each case's test job.  Aurora's debug queue allows an hour, but
+#: the debug builds run about five minutes per model day on intelgpu
+#: (Omega#635), so ``ERS_D``'s 16 model days need more.  Its coupled tests go
+#: to the capacity queue with two hours instead, like its suites.
+CREATE_TEST_ARGS: Dict[str, List[str]] = {
+    'aurora': ['--queue', 'capacity', '--walltime', '02:00:00'],
+}
 
 #: the script in a machine's E3SM-Unified directory that loads the Python
 #: environment CIME commands need (with ``pyyaml`` for Omega's buildnml)
@@ -119,6 +128,7 @@ def set_up_coupled_tests(
         os.makedirs(coupled_dir, exist_ok=True)
         args = ['./create_test'] + new_tests
         args.extend(['--machine', row.machine, '--compiler', row.compiler])
+        args.extend(CREATE_TEST_ARGS.get(row.machine, []))
         args.extend(['--test-id', test_id, '--no-run'])
         args.extend(['--test-root', coupled_dir])
         args.extend(['--output-root', coupled_dir])

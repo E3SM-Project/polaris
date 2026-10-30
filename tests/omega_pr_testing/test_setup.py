@@ -4,6 +4,7 @@ import subprocess
 from functools import partial
 from pathlib import Path
 
+import omega_pr_coupled
 import omega_pr_init
 import omega_pr_setup
 import pr_test_setup
@@ -15,6 +16,7 @@ from omega_pr_fixtures import (
     make_complete_baseline,
     make_tester,
 )
+from pr_test_rows import Row
 
 from polaris.job import SubmissionError
 
@@ -148,6 +150,37 @@ def test_setup_coupled_tests(tester):
     # a second setup reuses the cases rather than creating them again
     _setup(fixture, manifest)
     assert len(calls['create_test']) == 1
+
+
+def test_setup_coupled_tests_aurora_queue(tester, tmp_path):
+    _, _, calls = tester
+    row = Row('aurora', 'intelgpu', 'mpich', 'aurora, intelgpu, mpich')
+    coupled_dir = tmp_path / 'coupled'
+
+    omega_pr_coupled.set_up_coupled_tests(
+        row, str(tmp_path / 'tree'), str(coupled_dir), 'pr1-abc', COUPLED
+    )
+
+    # Aurora's coupled tests outlast its debug queue, so they ask for the
+    # capacity queue and two hours
+    ((_, _, args),) = calls['create_test']
+    assert args[args.index('--machine') :] == [
+        '--machine',
+        'aurora',
+        '--compiler',
+        'intelgpu',
+        '--queue',
+        'capacity',
+        '--walltime',
+        '02:00:00',
+        '--test-id',
+        'pr1-abc',
+        '--no-run',
+        '--test-root',
+        str(coupled_dir),
+        '--output-root',
+        str(coupled_dir),
+    ]
 
 
 def test_setup_coupled_build_fails(tester):
