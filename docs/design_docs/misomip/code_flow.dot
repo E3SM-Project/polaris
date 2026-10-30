@@ -54,7 +54,7 @@ digraph fanssie {
   polaris [shape=plaintext, style="", label=<
     <table border="1" color="#c3c2b7" style="rounded" cellborder="1" cellspacing="6" cellpadding="4" bgcolor="#fcfcfb">
       <tr><td border="0" colspan="2" align="left"><font point-size="12">E3SM-Project/polaris, in merge order</font></td></tr>
-      <tr><td port="p842" bgcolor="#deebff" colspan="2" style="rounded" cellpadding="6"><b>#842</b>  FAnSSIE submodule + fanssie_pr suite<br/><font color="#52514e">open</font></td></tr>
+      <tr><td port="p842" bgcolor="#e3fcef" colspan="2" style="rounded" cellpadding="6"><b>#842</b>  FAnSSIE submodule + fanssie_pr suite<br/><font color="#52514e">merged</font></td></tr>
       <tr><td border="0" colspan="2"><font color="#898781">↓ then</font></td></tr>
       <tr><td port="p826" bgcolor="#deebff" colspan="2" style="rounded" cellpadding="6"><b>#826</b>  ISOMIP+ Ocean0–2<br/><font color="#52514e">open</font></td></tr>
       <tr><td border="0" colspan="2"><font color="#898781">↓ then</font></td></tr>

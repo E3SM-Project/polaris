@@ -28,6 +28,7 @@ STAGE = '#2a78d6'
 
 # status: (label, fill, edge)
 STATUS = {
+    'merged': ('merged', '#e3fcef', '#57d9a3'),
     'review': ('PR open, tested', '#deebff', '#4c9aff'),
     'draft': ('draft PR, tested', '#e8e8e4', '#898781'),
     'hold': ('on hold', '#fff4d6', '#c98500'),
@@ -37,7 +38,7 @@ STATUS = {
 
 ROWS = [
     ('WP0', 'FAnSSIE branch + Polaris submodule',
-     'branch live since Oct 16; polaris #842', 'review', 0, ''),
+     'branch live since Oct 16; polaris #842', 'merged', 0, ''),
     ('WP1', 'Standalone ISOMIP+ Ocean0–2 and thin-film tasks',
      'polaris #826, #844', 'review', 1, ''),
     ('WP2', 'Split-explicit wetting and drying with a thin film',
