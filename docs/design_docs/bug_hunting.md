@@ -172,7 +172,10 @@ merge in between is marked intermittent. A failure that stopped before the
 row's latest build, and did not come and go, is counted but not recorded,
 since a hunt is about bugs that are still there. The harvest also reports
 rows that stopped reporting, since CDash says nothing about a missing build,
-and rows whose count of compiler warnings rose.
+and rows whose count of compiler warnings rose. A row the developer puts on
+hold, with a reason and a date, is not reported as stopped, since a row out
+of compute hours is not a bug. The digest notes it in one line, and the
+harvest takes it off hold, and says so, when it reports again.
 
 Polaris' nightly suite runs the Omega commit pinned in Polaris, not
 `develop`. A regression on `develop` that only Polaris' suites catch
@@ -577,6 +580,7 @@ organization once it has proven useful. Its layout is:
 findings/F-20261027-3fa2.yaml    one file per finding
 hunts/2026-10-27.yaml            what the hunt covered, and its decisions
 hunts/2026-10-27.md              its digest
+on_hold.yaml                     rows on hold, each with a reason and a date
 ```
 
 A finding is a YAML file:
