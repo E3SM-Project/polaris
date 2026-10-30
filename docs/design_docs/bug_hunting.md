@@ -259,12 +259,17 @@ failure, so a hunt reports it only when it changes.
 ### Algorithm Design: Hunts can find bugs by reading code.
 
 A review reads the pull requests merged into Omega `develop` and Polaris
-`main` since the last review, or a part of the code the developer names. It looks only for code
-that gives wrong answers or fails: missing halo exchanges, races on GPUs,
-out-of-bounds or uninitialized values, inconsistent units or constants. It
-ignores style. Each candidate must come with a concrete way it fails, and
-is `inferred` unless a test shows it. A review records at most ten
-candidates.
+`main` since the last review, or a part of the code the developer names. It
+looks only for code that gives wrong answers or fails: missing halo
+exchanges, races on GPUs, out-of-bounds or uninitialized values,
+inconsistent units or constants. It ignores style. Each candidate must come
+with a concrete way it fails, and is `inferred` unless a test shows it. A
+review records at most ten candidates.
+
+A review starts from the bugs already known: the ledger's findings and the
+open issues in both repositories, many of which were filed outside any
+hunt. Before it records a candidate, it searches the open issues for the
+files, functions and variables the candidate touches.
 
 ### Algorithm Design: Each bug is reported once.
 
@@ -282,19 +287,25 @@ and compiler, since the row is what is broken and rows stop for different
 reasons. For a finding from reading code or from parking, the key is the
 file, the function and a short form of the claim.
 
-The harvest adds each failure to the finding that holds its key. A failure
-with a new key is matched, in order, against:
+The harvest adds each failure to the finding that holds its key. Every
+finding with a new key, whatever its source, is matched before it is
+triaged, and again before it is filed or batched, against:
 
 1. the findings in the ledger, where the agent judges whether it shares a
    cause with one, such as several tests that began failing after the same
    merge;
 2. open issues and pull requests in Omega and Polaris, searched by test
-   name, file, function and error text, with the agent judging whether one
-   matches;
+   name, file, function, the identifiers in the claim and error text, with
+   the agent judging whether one matches;
 3. issues closed in the last 90 days, where a match means the bug is back.
 
 A failure that matches is recorded with the existing finding, along with
 links to its issue and to any pull request that would close it. A finding
+that is one instance of an open general issue, such as one of many loops
+that ignore the minimum layer index, matches that issue and is not filed on
+its own; commenting there is a decision like any other. A search held back
+by GitHub's rate limit waits for the limit to reset. A search that still
+fails stops the command, and never counts as finding nothing. A finding
 is raised again only when it changes: a new row or test, a new message, a
 failure after its issue was closed, or a failure after its fix was merged.
 If a new row turns out to fail for another reason, the agent moves it to a
@@ -379,7 +390,8 @@ The digest is the only part of a hunt the developer has to read. The agent
 ends its turn with it, so the developer can decide without scrolling back
 through the hunt. Each decision carries enough to act on without the
 ledger: where the bug is seen, the case for it, what was expected, and what
-each answer would do.
+each answer would do. A finding proposed for `file` also lists the open
+issues it was checked against and why each is a different bug.
 
 ```
 ## Bug hunt 2026-11-03
@@ -394,6 +406,8 @@ to 2026-11-03 and triaged 3 parked findings.
    - Fails on chrysalis/gnu since 2026-11-01. Merged in between: Omega#<n>.
    - Evidence: <why the agent believes the claim, in a few sentences>.
    - Expected: <what should have happened>.
+   - Not the same as: E3SM-Project/Omega#<n>, <why it is a different
+     bug>.
    - Proposed: **file (an issue in E3SM-Project/Omega, `priority:
      medium`)**. Or: batch, log, dismiss, dig (one debug build, about a
      node-hour).
@@ -629,7 +643,13 @@ history:
 An ID is the date a finding was first recorded and a hash of its first key.
 `park` and `harvest` add to an existing finding with the same key rather
 than make a new one. `match` checks the ledger by key and prints candidate
-issues and pull requests from a GitHub search, and the agent decides. Each
+issues and pull requests from a GitHub search, and the agent decides. A
+search takes the test name or file and each identifier in the claim, with
+ten results apiece. `file` searches again when it posts. It refuses while
+any candidate other than the finding's own links is open, or was closed in
+the last 90 days, unless the agent names each one it read and ruled out;
+the finding's history records them. Without `--post`, `file` prints the
+candidates above the draft. Each
 command pulls before it reads the ledger, and commits and pushes after; a
 rejected push pulls and tries again. Two clones writing the same day's hunt
 record are merged. Any other conflict is undone with a warning, and the
@@ -765,7 +785,13 @@ line numbers, addresses and rank numbers do not change it. In the first
 trial, every coupled failure matches Omega#564, #626 or #637, and the
 digest asks nothing about them. The trial also needs a split: the `PEM`
 tests failed on pm-gpu before they failed on CPUs, for a different tracked
-reason. A second harvest of the same nights adds no findings.
+reason. A second harvest of the same nights adds no findings. Unit tests
+check that `file --post` refuses a finding with a candidate it has not
+ruled out, and that a search still at the rate limit after its wait fails.
+Replayed, the two
+review findings the hunter filed twice in its first week, a GPU race
+already reported and one instance of a general issue about the minimum
+layer index, each match the issue they duplicate.
 
 ### Testing and Validation: Each finding names the project that owns it.
 
