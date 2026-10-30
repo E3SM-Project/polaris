@@ -27,9 +27,9 @@ ocean:
     config_cvmix_background_viscosity: 1.0e-4
   bottom_drag:
     config_explicit_bottom_drag_coeff: 1.0e-3
-  # explicit bottom drag must also be enabled for Omega via this debug
-  # flag (mapped to BottomDragTendencyEnable); false is already the
-  # MPAS-Ocean default
+  # bottom drag (implicit by default) must also be enabled for Omega via
+  # this debug flag (mapped to BottomDragTendency Enable); false is already
+  # the MPAS-Ocean default
   debug:
     config_disable_vel_explicit_bottom_drag: false
   advection:
