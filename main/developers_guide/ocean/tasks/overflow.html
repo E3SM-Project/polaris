@@ -179,16 +179,27 @@ coordinate used for the initial condition:</p>
 <td><p><code class="docutils literal notranslate"><span class="pre">PStarInit</span></code></p></td>
 <td><p>p-star</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">planar/overflow/nonlinear/pstar</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">planar/overflow/linear/sigma</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">linear.cfg</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">Init</span></code></p></td>
+<td><p>sigma</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">planar/overflow/nonlinear/pstar</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">teos10.cfg</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">PStarInit</span></code></p></td>
 <td><p>p-star</p></td>
 </tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">planar/overflow/nonlinear/sigma</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">teos10.cfg</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">Init</span></code></p></td>
+<td><p>sigma</p></td>
+</tr>
 </tbody>
 </table>
 <p>Each tree has its own shared config parser (combining the shared EOS
-config file, <code class="docutils literal notranslate"><span class="pre">overflow.cfg</span></code> and — for the p-star trees —
-<code class="docutils literal notranslate"><span class="pre">overflow_pstar.cfg</span></code>) and its own shared <code class="docutils literal notranslate"><span class="pre">init</span></code> step.</p>
+config file, <code class="docutils literal notranslate"><span class="pre">overflow.cfg</span></code> and — for the p-star and sigma trees —
+<code class="docutils literal notranslate"><span class="pre">overflow_pstar.cfg</span></code> or <code class="docutils literal notranslate"><span class="pre">overflow_sigma.cfg</span></code>) and its own shared <code class="docutils literal notranslate"><span class="pre">init</span></code>
+step.</p>
 <section id="framework">
 <h2>framework<a class="headerlink" href="#framework" title="Link to this heading"></a></h2>
 <p>The shared config options for <code class="docutils literal notranslate"><span class="pre">overflow</span></code> tests  are described in
@@ -201,24 +212,33 @@ defining <code class="docutils literal notranslate"><span class="pre">mesh</span
 <section id="init-utils">
 <h3>init_utils<a class="headerlink" href="#init-utils" title="Link to this heading"></a></h3>
 <p>The module <code class="docutils literal notranslate"><span class="pre">polaris.tasks.ocean.overflow.init_utils</span></code> contains helpers
-shared by the two init steps:
+for the init steps:
 <a class="reference internal" href="../generated/polaris.tasks.ocean.overflow.init_utils.build_overflow_mesh.html#polaris.tasks.ocean.overflow.init_utils.build_overflow_mesh" title="polaris.tasks.ocean.overflow.init_utils.build_overflow_mesh"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.tasks.ocean.overflow.init_utils.build_overflow_mesh()</span></code></a>
 builds and culls the planar hex mesh, adds the Coriolis parameter and
 writes the mesh files;
 <a class="reference internal" href="../generated/polaris.tasks.ocean.overflow.init_utils.compute_bottom_depth.html#polaris.tasks.ocean.overflow.init_utils.compute_bottom_depth" title="polaris.tasks.ocean.overflow.init_utils.compute_bottom_depth"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.tasks.ocean.overflow.init_utils.compute_bottom_depth()</span></code></a>
-computes the tanh shelf bathymetry; and
+computes the tanh shelf bathymetry;
 <a class="reference internal" href="../generated/polaris.tasks.ocean.overflow.init_utils.compute_initial_temperature.html#polaris.tasks.ocean.overflow.init_utils.compute_initial_temperature" title="polaris.tasks.ocean.overflow.init_utils.compute_initial_temperature"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.tasks.ocean.overflow.init_utils.compute_initial_temperature()</span></code></a>
-computes the cold-block temperature profile.</p>
+computes the cold-block temperature profile; and
+<a class="reference internal" href="../generated/polaris.tasks.ocean.overflow.init_utils.compute_initial_density.html#polaris.tasks.ocean.overflow.init_utils.compute_initial_density" title="polaris.tasks.ocean.overflow.init_utils.compute_initial_density"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.tasks.ocean.overflow.init_utils.compute_initial_density()</span></code></a>
+computes the density of the resting initial state on a geometric
+coordinate, at its hydrostatic pressure so that it is also valid for a
+nonlinear EOS.</p>
 </section>
 <section id="init">
 <h3>init<a class="headerlink" href="#init" title="Link to this heading"></a></h3>
 <p>The class <a class="reference internal" href="../generated/polaris.tasks.ocean.overflow.init.Init.html#polaris.tasks.ocean.overflow.init.Init" title="polaris.tasks.ocean.overflow.init.Init"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.tasks.ocean.overflow.init.Init</span></code></a>
-defines a step for setting up the z-star initial state for each test case.</p>
+defines a step for setting up the initial state on a geometric vertical
+coordinate, z-star or sigma, for each test case.</p>
 <p>First, a mesh appropriate for the resolution is generated using
 <a class="reference external" href="https://mpas-dev.github.io/MPAS-Tools/master/generated/mpas_tools.planar_hex.make_planar_hex_mesh.html#mpas_tools.planar_hex.make_planar_hex_mesh" title="(in mpas_tools master)"><code class="xref py py-func docutils literal notranslate"><span class="pre">mpas_tools.planar_hex.make_planar_hex_mesh()</span></code></a>.  Then, the mesh is
 culled to remove periodicity in the x and y directions.  The bottom topography
-is defined along with a vertical grid with 60 layers by default.  Next, the
-ocean state is generated with cold water on the continental shelf.</p>
+is defined along with a vertical grid with 60 z-star or 64 sigma layers by
+default.  Next, the ocean state is generated with cold water on the
+continental shelf.  As for the p-star init step, the framework converts the
+coordinate to pseudo-thickness for Omega and, in the <code class="docutils literal notranslate"><span class="pre">nonlinear/sigma</span></code>
+tree, the tracers to potential temperature and practical salinity for
+MPAS-Ocean.</p>
 </section>
 <section id="pstar-init">
 <h3>pstar_init<a class="headerlink" href="#pstar-init" title="Link to this heading"></a></h3>

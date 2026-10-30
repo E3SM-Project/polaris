@@ -474,7 +474,8 @@ window.runMermaid = runMermaid;</script>
 <span></span><span class="sd">"""</span>
 <span class="sd">Shared helpers for the overflow init steps: building the mesh and</span>
 <span class="sd">computing the idealized bathymetry and initial-temperature profiles,</span>
-<span class="sd">used by both the z-star and p-star init steps.</span>
+<span class="sd">used by both the geometric-coordinate and p-star init steps, and the</span>
+<span class="sd">initial density, used by the geometric-coordinate init step.</span>
 <span class="sd">"""</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
@@ -484,6 +485,11 @@ window.runMermaid = runMermaid;</script>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">polaris.coriolis</span><span class="w"> </span><span class="kn">import</span> <span class="n">add_coriolis_to_dataset</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">polaris.mesh.planar</span><span class="w"> </span><span class="kn">import</span> <span class="n">compute_planar_hex_nx_ny</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.ocean.eos</span><span class="w"> </span><span class="kn">import</span> <span class="n">compute_density</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.ocean.vertical.ztilde</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">get_iter_count_for_eos</span><span class="p">,</span>
+    <span class="n">pressure_and_spec_vol_from_state_at_geom_height</span><span class="p">,</span>
+<span class="p">)</span>
 
 
 <div class="viewcode-block" id="build_overflow_mesh">
@@ -597,6 +603,49 @@ window.runMermaid = runMermaid;</script>
         <span class="n">higher_temperature</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="k">return</span> <span class="n">temperature</span></div>
+
+
+
+<div class="viewcode-block" id="compute_initial_density">
+<a class="viewcode-back" href="../../../../../developers_guide/ocean/generated/polaris.tasks.ocean.overflow.init_utils.compute_initial_density.html#polaris.tasks.ocean.overflow.init_utils.compute_initial_density">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">compute_initial_density</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">ds</span><span class="p">,</span> <span class="n">logger</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Compute the in-situ density of the initial state on a geometric</span>
+<span class="sd">    vertical coordinate (z-star or sigma), at the hydrostatic pressure of</span>
+<span class="sd">    the resting state with zero surface pressure.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    config : polaris.config.PolarisConfigParser</span>
+<span class="sd">        Configuration with the equation-of-state options.</span>
+
+<span class="sd">    ds : xarray.Dataset</span>
+<span class="sd">        The initial state, with ``layerThickness``, ``temperature`` and</span>
+<span class="sd">        ``salinity``.</span>
+
+<span class="sd">    logger : logging.Logger, optional</span>
+<span class="sd">        A logger for the equation-of-state iterations.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    xarray.DataArray</span>
+<span class="sd">        The in-situ density (kg m-3) at layer midpoints.</span>
+<span class="sd">    """</span>
+    <span class="n">surf_pressure</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">ds</span><span class="o">.</span><span class="n">layerThickness</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span><span class="n">nVertLevels</span><span class="o">=</span><span class="mi">0</span><span class="p">))</span>
+    <span class="c1"># the linear equation of state ignores the pressure, so this only</span>
+    <span class="c1"># matters for a nonlinear one</span>
+    <span class="n">_</span><span class="p">,</span> <span class="n">pressure</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">pressure_and_spec_vol_from_state_at_geom_height</span><span class="p">(</span>
+        <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span>
+        <span class="n">geom_layer_thickness</span><span class="o">=</span><span class="n">ds</span><span class="o">.</span><span class="n">layerThickness</span><span class="p">,</span>
+        <span class="n">temperature</span><span class="o">=</span><span class="n">ds</span><span class="o">.</span><span class="n">temperature</span><span class="p">,</span>
+        <span class="n">salinity</span><span class="o">=</span><span class="n">ds</span><span class="o">.</span><span class="n">salinity</span><span class="p">,</span>
+        <span class="n">surf_pressure</span><span class="o">=</span><span class="n">surf_pressure</span><span class="p">,</span>
+        <span class="n">iter_count</span><span class="o">=</span><span class="n">get_iter_count_for_eos</span><span class="p">(</span><span class="n">config</span><span class="p">),</span>
+        <span class="n">logger</span><span class="o">=</span><span class="n">logger</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">compute_density</span><span class="p">(</span>
+        <span class="n">config</span><span class="p">,</span> <span class="n">ds</span><span class="o">.</span><span class="n">temperature</span><span class="p">,</span> <span class="n">ds</span><span class="o">.</span><span class="n">salinity</span><span class="p">,</span> <span class="n">pressure</span><span class="o">=</span><span class="n">pressure</span>
+    <span class="p">)</span></div>
 
 </pre></div>
 

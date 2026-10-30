@@ -176,19 +176,35 @@ continental slope and includes the following test cases:</p>
 <li><p><code class="docutils literal notranslate"><span class="pre">rpe</span></code> — long run (40 days) exploring Resting Potential Energy (RPE) evolution for a set of Laplacian viscosities.</p></li>
 </ol>
 <p>Each of these tasks (plus the <code class="docutils literal notranslate"><span class="pre">_del4</span></code> variants of orders 3 and 4) is
-available in three variants that combine the equation of state (EOS) with
+available in five variants that combine the equation of state (EOS) with
 the vertical coordinate used for the initial condition:</p>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">ocean/planar/overflow/linear/zstar</span></code> — linear EOS with a z-star
 initial condition (the original configuration).</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">ocean/planar/overflow/linear/pstar</span></code> — linear EOS with a p-star
 initial condition, to isolate the effect of the vertical coordinate.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">ocean/planar/overflow/linear/sigma</span></code> — linear EOS with a sigma
+(terrain-following) initial condition, the counterpart of
+<code class="docutils literal notranslate"><span class="pre">linear/zstar</span></code> on tilted layers.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">ocean/planar/overflow/nonlinear/pstar</span></code> — nonlinear EOS with a p-star
 initial condition, mirroring the configuration of the realistic global
 tasks in a small, fast-running idealized setting.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">ocean/planar/overflow/nonlinear/sigma</span></code> — nonlinear EOS with a sigma
+initial condition, the counterpart of <code class="docutils literal notranslate"><span class="pre">nonlinear/pstar</span></code> on tilted
+layers.</p></li>
 </ul>
+<p>The sigma trees are meant for testing the models on tilted layers, in
+particular the horizontal pressure gradient, once the dense water flows
+down the slope.  The smoke tests stop long before that happens, so a longer
+run (set by <code class="docutils literal notranslate"><span class="pre">overflow_smoke_test:run_duration</span></code>) is needed for that purpose.</p>
 <p>The nonlinear EOS is TEOS-10 for Omega and Jackett-McDougall (<code class="docutils literal notranslate"><span class="pre">jm</span></code>), the
 closest available nonlinear EOS, for MPAS-Ocean.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">nonlinear/sigma</span></code> tree is meant for Omega.  MPAS-Ocean’s <code class="docutils literal notranslate"><span class="pre">jm</span></code> EOS
+evaluates the density of each level at a fixed reference pressure computed
+from <code class="docutils literal notranslate"><span class="pre">refBottomDepth</span></code>, not at the pressure where the layer actually is.  On
+sigma layers over the 500 m shelf, that is the pressure of a level four
+times deeper, so MPAS-Ocean runs in this tree develop a large, spurious
+flow (several m/s within a few hours) and their results are not physical.</p>
 <section id="supported-models">
 <h2>supported models<a class="headerlink" href="#supported-models" title="Link to this heading"></a></h2>
 <p>These tasks support MPAS-Ocean and Omega.</p>
@@ -207,7 +223,7 @@ vertical coordinate systems in the presence of bottom topography.</p>
 <section id="mesh">
 <h2>mesh<a class="headerlink" href="#mesh" title="Link to this heading"></a></h2>
 <p>The mesh is planar and the resolution is specified by config option
-<code class="docutils literal notranslate"><span class="pre">overflow:resolution</span></code>, which defaults to 1 km.</p>
+<code class="docutils literal notranslate"><span class="pre">overflow:resolution</span></code>, which defaults to 2 km.</p>
 <p>The horizontal dimensions of the domain are set by config options
 <code class="docutils literal notranslate"><span class="pre">overflow:lx</span></code> and <code class="docutils literal notranslate"><span class="pre">overflow:ly</span></code>, defaulting to 200 km by 40 km.</p>
 <p>The domain is periodic on the zonal boundaries and solid on the meridional
@@ -249,9 +265,8 @@ coordinate.  Pseudo-depth is not geometric depth, so the pseudo-height grid
 must reach deeper than the pressure at the deepest geometric bathymetry or
 the domain would be artificially truncated.  The grid is 2400 m deep with
 72 uniform levels (a ~19% buffer over the worst case while preserving the
-~33.3 m layer spacing of the z-star grid and making the number of levels
-a multiple of 16, preferred for Omega performance), and the geometric
-bottom depth remains 2000 m:</p>
+~33.3 m layer spacing of the z-star grid), and the geometric bottom depth
+remains 2000 m:</p>
 <div class="highlight-cfg notranslate"><div class="highlight"><pre><span></span><span class="c1"># Options related to the vertical grid</span>
 <span class="k">[vertical_grid]</span>
 
@@ -273,19 +288,35 @@ bottom depth remains 2000 m:</p>
 <span class="na">max_bottom_depth</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">2000.0</span>
 </pre></div>
 </div>
+<p>The two <code class="docutils literal notranslate"><span class="pre">sigma</span></code> trees override the vertical grid to use the sigma
+(terrain-following) coordinate.  Every column is divided into the same
+number of layers whatever its depth, so with 64 uniform levels (a multiple
+of 16, preferred for Omega performance) the layers are ~31 m thick over the
+deep ocean and ~7.8 m on the shelf.  Like z-star, sigma is a geometric
+coordinate, which Polaris converts to pseudo-thickness for Omega:</p>
+<div class="highlight-cfg notranslate"><div class="highlight"><pre><span></span><span class="c1"># Options related to the vertical grid</span>
+<span class="k">[vertical_grid]</span>
+
+<span class="c1"># The type of vertical coordinate (e.g. z-level, z-star)</span>
+<span class="na">coord_type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">sigma</span>
+
+<span class="c1"># Number of vertical levels</span>
+<span class="na">vert_levels</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">64</span>
+</pre></div>
+</div>
 </section>
 <section id="initial-conditions">
 <h2>initial conditions<a class="headerlink" href="#initial-conditions" title="Link to this heading"></a></h2>
 <p>Salinity is constant throughout the domain (at 35 PSU).  The
 initial temperature is bimodal with low temperature throughout the continental
-shelf region set by the config option <code class="docutils literal notranslate"><span class="pre">overflow:low_temperature</span></code> (default value of 10
+shelf region set by the config option <code class="docutils literal notranslate"><span class="pre">overflow:lower_temperature</span></code> (default value of 10
 <span class="math notranslate nohighlight">\(^{\circ}\)</span>C) and high temperature over the slope and deep ocean set by the config
-option <code class="docutils literal notranslate"><span class="pre">overflow:high_temperature</span></code> (default value of 20 <span class="math notranslate nohighlight">\(^{\circ}\)</span>C). The transition between
+option <code class="docutils literal notranslate"><span class="pre">overflow:higher_temperature</span></code> (default value of 20 <span class="math notranslate nohighlight">\(^{\circ}\)</span>C). The transition between
 the two zones is set by the config option <code class="docutils literal notranslate"><span class="pre">overflow:x_dense</span></code> (default value of 20 km).
 This perturbation initiates slumping of the cold, denser water mass and flow
 down the slope as a bottom boundary current.</p>
 <p>The initial state is at rest. The coriolis parameter is set to 0.</p>
-<p>In the <code class="docutils literal notranslate"><span class="pre">nonlinear</span></code> tree, the temperature and salinity profiles are
+<p>In the <code class="docutils literal notranslate"><span class="pre">nonlinear</span></code> trees, the temperature and salinity profiles are
 interpreted as conservative temperature (CT) and absolute salinity (SA).
 Omega receives CT and SA directly.  For MPAS-Ocean, CT is converted to
 potential temperature and SA to practical salinity using the
@@ -380,9 +411,9 @@ enabled in both models once Omega supports it.</p>
 <span class="na">default_horiz_fct_enable_omega</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">true</span>
 </pre></div>
 </div>
-<p>The two <code class="docutils literal notranslate"><span class="pre">linear</span></code> trees use the shared linear EOS from
+<p>The three <code class="docutils literal notranslate"><span class="pre">linear</span></code> trees use the shared linear EOS from
 <code class="docutils literal notranslate"><span class="pre">polaris.ocean.eos</span></code> <code class="docutils literal notranslate"><span class="pre">linear.cfg</span></code> (see the <code class="docutils literal notranslate"><span class="pre">[ocean]</span></code> config section), which
-is convenient for computing RPE.  The <code class="docutils literal notranslate"><span class="pre">nonlinear</span></code> tree instead uses the
+is convenient for computing RPE.  The two <code class="docutils literal notranslate"><span class="pre">nonlinear</span></code> trees instead use the
 shared <code class="docutils literal notranslate"><span class="pre">teos10.cfg</span></code>, which sets <code class="docutils literal notranslate"><span class="pre">eos_type</span> <span class="pre">=</span> <span class="pre">teos-10</span></code> (mapped to
 Jackett-McDougall for MPAS-Ocean).</p>
 </section>
@@ -492,7 +523,7 @@ Energy (RPE) for each forward run.</p>
 <span class="na">max_temp</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">${overflow:higher_temperature}</span>
 </pre></div>
 </div>
-<p>Note that in the <code class="docutils literal notranslate"><span class="pre">nonlinear</span></code> tree, the RPE analysis sorts the in-situ
+<p>Note that in the <code class="docutils literal notranslate"><span class="pre">nonlinear</span></code> trees, the RPE analysis sorts the in-situ
 density from a nonlinear EOS, so the result is only an approximate RPE
 measure (with a nonlinear EOS, the potential energy of the sorted state
 depends on the pressure at which density is evaluated).</p>
