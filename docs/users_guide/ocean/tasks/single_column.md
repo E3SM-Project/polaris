@@ -321,7 +321,9 @@ See {ref}`ocean-single-column`.
 ### description
 
 The `ekman` test compares the modeled Ekman boundary layer with a wind-forced
-[analytic solution](https://doi.org/10.1126/science.238.4833.1534)
+[analytic solution](https://doi.org/10.1126/science.238.4833.1534).
+The analysis figure shows both velocity profiles and their model-minus-
+analytic differences.
 
 The modeled and analytic solutions for MPAS-Ocean with the default settings
 are:
@@ -348,9 +350,15 @@ bottom_depth = 100.
 
 The rest of the vertical grid features follow {ref}`ocean-single-column`.
 
+The default 200 levels give 0.5 m layers. To use 1 m layers, set
+`vert_levels = 100` in the `[vertical_grid]` section of a user config file
+and pass it to `polaris setup` with `-f`.
+
 ### initial conditions
 
 The temperature and salinity are constant and the flow is at rest.
+Bottom drag is disabled in both MPAS-Ocean and Omega, giving a stress-free
+bottom boundary.
 
 (ocean-single-column-wind)=
 
@@ -369,20 +377,30 @@ wind_stress_zonal = 0.1
 
 ### time step and run duration
 
-The time step is given in {ref}`ocean-single-column`. The run duration is 5
-days.
+The time step is given in {ref}`ocean-single-column`. The steady `ekman`
+task runs for 20 days with output every 30 minutes. Analysis averages each
+velocity component over the final three inertial periods. It interpolates
+to the exact window boundaries and uses time-weighted integration.
+The average is compared with the original steady, semi-infinite Ekman
+spiral. Steady errors are diagnostic only. The window ends at the configured
+run duration, which must be long enough to contain the averaging window.
+
+The task checks mass conservation, but does not check salt or energy
+conservation.
 
 ### config options
 
 
 [single_column_ekman]
 
-The only config option specific to this test case is a constant vertical
-viscosity:
+The viscosity and steady averaging window are configured with:
 
 ```cfg
 # Constant vertical eddy diffusivity
 vertical_viscosity = 1.e-3
+
+# Inertial periods per averaging window
+averaging_periods = 3
 ```
 
 All other config options derive from {ref}`ocean-single-column` and
