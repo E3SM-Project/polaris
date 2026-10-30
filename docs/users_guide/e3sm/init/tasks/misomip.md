@@ -66,6 +66,45 @@ file: 1,201 records of thickness, at the start of each month of years 1 to
 101 in E3SM's no-leap calendar.  Each record is interpolated linearly in
 time between the protocol's yearly records and then calved.
 
+## MPAS-Ocean's initial conditions
+
+In E3SM, MPAS-Ocean takes its land-ice pressure and fractions from MALI
+through the coupler.  Its initial condition holds what the coupler delivers
+from MALI's initial geometry, so the first import changes nothing.  The
+`land_ice_on_ocean` step computes these fields as E3SM does: MALI's
+ice-shelf exports with E3SM's gravity, the conservative map from MALI to
+the ocean, and MPAS-Ocean's normalization by the part of each cell below
+sea level in MALI.  For `ocean3` and `ocean4`, it does so for every record
+of MALI's data-mode file.
+
+The ocean steps are shared steps of the ocean component, in
+`ocean/planar/misomip/<mesh_name>/`:
+
+- `topo/map` and `topo/remap` remap the protocol's bed to the ocean's mesh
+  without smoothing, so the ocean's grounding line stays at MALI's;
+- `<experiment>/init` builds the initial condition and forcing as the
+  {ref}`ocean-isomip-plus` tasks with a thin film do, from these land-ice
+  fields and with the projection's latitude and longitude.  The draft
+  follows from the land-ice pressure with E3SM's gravity.  Every cell is
+  kept, with a thin film under grounded ice;
+- `<experiment>/ssh_adjustment/` adjusts the SSH to the land-ice pressure,
+  as the ISOMIP+ tasks do.  Its output is the initial condition E3SM reads.
+
+The profiles of the initial condition and restoring are:
+
+| Experiment    | Initial profiles   | Restoring |
+|---------------|--------------------|-----------|
+| `ocean0`      | WARM               | WARM      |
+| `ocean1`      | COLD               | WARM      |
+| `ocean2`      | WARM               | COLD      |
+| `ocean3`      | WARM               | WARM      |
+| `ocean4`      | COLD               | COLD      |
+| `iceocean1r`  | COLD               | WARM      |
+| `iceocean1ra` | from `iceocean1r`  | COLD      |
+
+`iceocean1ra` continues from `iceocean1r` in E3SM, so it gets only the
+restoring, made on `iceocean1r`'s initial geometry.
+
 ## Graph partitions
 
 The `ocean_partitions` and `landice_partitions` steps partition each

@@ -336,6 +336,10 @@
    land_ice_fields.read_map
    land_ice_fields.apply_map
    land_ice_fields.import_geometry
+   land_ice_fields.compute_land_ice_fields
+
+   land_ice_on_ocean.LandIceOnOceanStep
+   land_ice_on_ocean.LandIceOnOceanStep.run
 
    names.get_grid_names
 

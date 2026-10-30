@@ -4,6 +4,9 @@ from polaris.config import PolarisConfigParser
 from polaris.e3sm.init.graph_partition import GraphPartitionStep
 from polaris.step import Step
 from polaris.tasks.e3sm.init import e3sm_init
+from polaris.tasks.e3sm.init.misomip.land_ice_on_ocean import (
+    LandIceOnOceanStep,
+)
 from polaris.tasks.e3sm.init.misomip.landice_data import (
     DATA_MODE_EXPERIMENTS,
     LandiceDataStep,
@@ -23,12 +26,16 @@ from polaris.tasks.landice.mismip_plus.steps import (
 )
 from polaris.tasks.mesh.planar.mismip_plus import get_mismip_plus_mesh_steps
 from polaris.tasks.ocean.isomip_plus import get_isomip_plus_mesh_steps
+from polaris.tasks.ocean.misomip import get_misomip_ocean_steps
 
 #: The pairs of ocean and MALI meshes, with each one's resolution in km
 MESH_PAIRS = {
     'misomip-o4km-li1km': {'ocean': 4.0, 'landice': 1.0},
     'misomip-o2km-li1km': {'ocean': 2.0, 'landice': 1.0},
 }
+
+#: The experiments that continue from another experiment's E3SM restart
+CONTINUES_FROM = {'iceocean1ra': 'iceocean1r'}
 
 #: The stem of each model's partition files, as E3SM names them
 PARTITION_BASENAMES = {
@@ -144,24 +151,64 @@ def get_misomip_experiment_steps(mesh_name, experiment):
     steps : dict of str to polaris.Step
         The steps of the pair of meshes from
         :py:func:`get_misomip_mesh_steps`, the MISMIP+ steps that make the
-        steady state, and the experiment's steps, keyed by their suggested
-        symlink names
+        steady state, the experiment's MALI steps, the step that computes
+        the land-ice fields on the ocean's mesh, and the ocean steps from
+        :py:func:`polaris.tasks.ocean.misomip.get_misomip_ocean_steps`,
+        keyed by their suggested symlink names
 
     config : polaris.config.PolarisConfigParser
         The shared config options for the steps of the pair
     """
     steps, config = get_misomip_mesh_steps(mesh_name)
-    landice_resolution = MESH_PAIRS[mesh_name]['landice']
 
-    if experiment not in INPUT_GEOMETRY:
-        # MALI continues from another experiment's E3SM restart
-        return steps, config
+    # IceOcean1ra continues from IceOcean1r's E3SM restart, so it needs only
+    # the ocean's restoring, which IceOcean1r's geometry serves
+    continues = experiment not in INPUT_GEOMETRY
+    source = CONTINUES_FROM.get(experiment, experiment)
+    prefix = f'{source}/' if continues else ''
 
+    landice_steps = _get_landice_steps(mesh_name, config, steps, source)
+    for name, step in landice_steps.items():
+        if name.startswith('mismip_plus/') or name.startswith('maps/'):
+            steps[name] = step
+        else:
+            steps[f'{prefix}{name}'] = step
+
+    land_ice_on_ocean = _get_step(
+        mesh_name,
+        config,
+        LandIceOnOceanStep,
+        os.path.join('misomip', source, 'land_ice_on_ocean'),
+        landice_init_step=landice_steps['landice_init'],
+        map_step=steps['maps/landice_to_ocean_aave'],
+        landice_data_step=landice_steps.get('landice_data'),
+    )
+    steps[f'{prefix}land_ice_on_ocean'] = land_ice_on_ocean
+
+    ocean_steps, _, _ = get_misomip_ocean_steps(
+        mesh_name=mesh_name,
+        resolution=MESH_PAIRS[mesh_name]['ocean'],
+        experiment=experiment,
+        ocean_mesh_step=steps['ocean_mesh'],
+        land_ice_fields_step=land_ice_on_ocean,
+        ssh_adjustment=not continues,
+    )
+    for name, step in ocean_steps.items():
+        steps.setdefault(name, step)
+    return steps, config
+
+
+def _get_landice_steps(mesh_name, config, steps, experiment):
+    """
+    Get the steps that make MALI's initial condition and data-mode file for
+    an experiment, and the MISMIP+ steps they need
+    """
+    landice_steps = dict()
     steady_state_steps, _ = get_mismip_plus_steady_state_steps(
-        landice_resolution
+        MESH_PAIRS[mesh_name]['landice']
     )
     for name in ['init', 'spin_up_run', 'spin_up']:
-        steps[f'mismip_plus/{name}'] = steady_state_steps[name]
+        landice_steps[f'mismip_plus/{name}'] = steady_state_steps[name]
     spin_up = steady_state_steps['spin_up']
 
     input_map = _get_step(
@@ -172,10 +219,10 @@ def get_misomip_experiment_steps(mesh_name, experiment):
         landice_mesh_step=steps['landice_mesh'],
     )
     if INPUT_GEOMETRY[experiment] is not None:
-        steps['maps/input_to_landice_aave'] = input_map
+        landice_steps['maps/input_to_landice_aave'] = input_map
 
     expdir = os.path.join('misomip', experiment)
-    steps['landice_init'] = _get_step(
+    landice_steps['landice_init'] = _get_step(
         mesh_name,
         config,
         LandiceInitStep,
@@ -185,7 +232,7 @@ def get_misomip_experiment_steps(mesh_name, experiment):
         input_map_step=input_map,
     )
     if experiment in DATA_MODE_EXPERIMENTS:
-        steps['landice_data'] = _get_step(
+        landice_steps['landice_data'] = _get_step(
             mesh_name,
             config,
             LandiceDataStep,
@@ -194,7 +241,7 @@ def get_misomip_experiment_steps(mesh_name, experiment):
             spin_up_step=spin_up,
             input_map_step=input_map,
         )
-    return steps, config
+    return landice_steps
 
 
 def _get_step(mesh_name, config, step_cls, subdir, **kwargs):
