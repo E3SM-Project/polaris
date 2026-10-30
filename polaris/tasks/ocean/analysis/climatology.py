@@ -1,19 +1,15 @@
 import glob
-import os
 
 import xarray as xr
 from mpas_tools.logging import check_call
 
+from polaris.ocean.model.layer_mass import MASS_THICKNESS_VARIABLES
 from polaris.tasks.ocean.analysis.analysis_step import AnalysisStep
+from polaris.tasks.ocean.analysis.ncclimo import NCCLIMO_PROCESSES, run_ncclimo
 from polaris.tasks.ocean.analysis.sim_files import (
     SimulationFiles,
     time_mean_suffix,
 )
-
-# ``ncclimo`` in background mode runs one process per month, so this is what
-# the step will start and therefore what it declares.  The pool is sized from
-# this number and never from the size of the machine.
-NCCLIMO_PROCESSES = 12
 
 # The vertical geometry every map that slices at an elevation needs, and that
 # the partial layers at a heat content range boundary need.  Both models write
@@ -40,24 +36,7 @@ VECTOR_RECONSTRUCTIONS = {
 # per unit area they imply and disagree on the geometry, so renaming one to
 # the other would hide the distinction that matters.  The analysis reads Omega
 # output only, so this is the Omega spelling.
-MASS_THICKNESS_VARIABLE = 'PseudoThickness'
-
-# ``ncclimo`` names the twelve monthly climatologies by month number, so a
-# user who asks to plot JAN is asking for the file with 01 in its name
-SEASON_KEYS = {
-    'JAN': '01',
-    'FEB': '02',
-    'MAR': '03',
-    'APR': '04',
-    'MAY': '05',
-    'JUN': '06',
-    'JUL': '07',
-    'AUG': '08',
-    'SEP': '09',
-    'OCT': '10',
-    'NOV': '11',
-    'DEC': '12',
-}
+MASS_THICKNESS_VARIABLE = MASS_THICKNESS_VARIABLES['omega']
 
 
 def get_climatology_variables(config):
@@ -97,58 +76,6 @@ def get_climatology_variables(config):
         if variable not in variables:
             variables.append(variable)
     return variables
-
-
-def find_climatology_file(work_dir, season):
-    """
-    Find the ``ncclimo`` output file for one season
-
-    ``ncclimo`` names its output ``<caseid>_<season>_<start>_<end>_climo.nc``.
-    Steps that read a climatology glob on the season rather than
-    reconstructing that pattern, which is robust to what ``ncclimo`` makes of
-    the case name and to its naming changing.  The one substitution that has
-    to be made is that the twelve monthly climatologies are named by month
-    number rather than by ``JAN`` through ``DEC``.
-
-    Parameters
-    ----------
-    work_dir : str
-        The work directory of the climatology step
-
-    season : str
-        The season to find, e.g. ``'ANN'`` or ``'JAN'``
-
-    Returns
-    -------
-    filename : str
-        The absolute path to the climatology file
-
-    Raises
-    ------
-    FileNotFoundError
-        If no file for that season is there
-
-    ValueError
-        If more than one file matches, which would make the choice arbitrary
-    """
-    key = SEASON_KEYS.get(season.upper(), season)
-    pattern = os.path.join(work_dir, f'*_{key}_*_climo.nc')
-    matches = sorted(glob.glob(pattern))
-    if not matches:
-        raise FileNotFoundError(
-            f'No climatology for season {season} in {work_dir}.  The '
-            f'climatology step writes the twelve monthly climatologies and '
-            f'one file per season in [ocean_analysis_climatology] seasons, '
-            f'so check that option against plot_seasons.'
-        )
-    if len(matches) > 1:
-        names = ', '.join(os.path.basename(match) for match in matches)
-        raise ValueError(
-            f'{len(matches)} climatology files for season {season} in '
-            f'{work_dir}: {names}.  Only one is expected, so the choice '
-            f'would be arbitrary.'
-        )
-    return matches[0]
 
 
 class Climatology(AnalysisStep):
@@ -216,12 +143,8 @@ class Climatology(AnalysisStep):
         sim_files = SimulationFiles(self.config, log=self.logger.info)
         suffix = time_mean_suffix(sim_files.monthly_mean_stream())
         variables = self._native_variables(suffix)
-        check_call(
-            self._ncclimo_args(
-                [f'{variable}{suffix}' for variable in variables], seasons
-            ),
-            self.logger,
-            env=self._ncclimo_env(),
+        run_ncclimo(
+            self, [f'{variable}{suffix}' for variable in variables], seasons
         )
         if suffix:
             self._strip_suffix(variables, suffix)
@@ -286,66 +209,6 @@ class Climatology(AnalysisStep):
         filename = self.work_path(self.input_filenames[0])
         with xr.open_dataset(filename, decode_times=False) as ds:
             return set(ds.variables)
-
-    def _ncclimo_args(self, variables, seasons):
-        """Build the ``ncclimo`` command line"""
-        # ncclimo's background mode runs one process per month.  The count
-        # comes from what the step declared it would start, never from the
-        # size of the machine, so that a step running beside this one does
-        # not find the node oversubscribed.
-        threads = self.cpus_per_task
-        parallel_mode = 'bck' if threads > 1 else 'nil'
-        # The seasonally discontinuous December convention -- every year in
-        # the range contributes its own December, so no data outside the
-        # range are needed -- used to be selected with "-a sdd".  NCO 5.3.7
-        # dropped that option and made the convention its behavior, so asking
-        # for it now only produces a deprecation warning.  The test of this
-        # invocation compares DJF against a day-weighted mean of the monthly
-        # climatologies, which is what would catch the convention changing
-        # back underneath us.
-        return [
-            'ncclimo',
-            '--no_stdin',
-            '-4',
-            '--clm_md=mth',
-            # ncclimo needs a case name to build its output file names from
-            # when, as here, the input files are given rather than generated
-            '-c',
-            self.config.get('ocean_analysis', 'simulation_name'),
-            '-p',
-            parallel_mode,
-            '-j',
-            f'{threads}',
-            '-v',
-            ','.join(variables),
-            f'--seasons={",".join(seasons)}',
-            '-s',
-            f'{self.start_year}',
-            '-e',
-            f'{self.end_year}',
-            # ncclimo resolves the input files it is given against its input
-            # directory, so the directory is named once and the files are
-            # named relative to it.  Both are the step's own work directory,
-            # which is where the monthly means are symlinked.
-            '-i',
-            self.work_path(),
-            '-o',
-            self.work_path(),
-        ] + list(self.input_filenames)
-
-    def _ncclimo_env(self):
-        """
-        Get the environment to run ``ncclimo`` in, with its scratch space
-        pointed at the step's own work directory
-
-        Two climatologies can run at once, so leaving the scratch path to
-        ``TMPDIR`` would let them collide on it.
-        """
-        scratch_dir = self.work_path('ncclimo_scratch')
-        os.makedirs(scratch_dir, exist_ok=True)
-        env = dict(os.environ)
-        env['TMPDIR'] = scratch_dir
-        return env
 
 
 def _drop_unneeded_for_reconstruction(pairs, written, suffix):

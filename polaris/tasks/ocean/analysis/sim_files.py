@@ -11,9 +11,18 @@ import re
 from glob import glob
 from typing import List, NamedTuple, Optional
 
+import cftime
+import xarray as xr
+
 from polaris.yaml import PolarisYaml
 
-# the Omega analysis group that writes the monthly means the analysis reads
+# The names Omega gives the analysis groups this module looks for.  They are
+# spelled exactly as Omega spells them, since the lookup is a plain dictionary
+# index into the simulation's configuration and so is case-sensitive: a group
+# named anything else is simply not found, and the analysis reports a
+# simulation that wrote plenty of output as having written none.
+GLOBAL_STATS_GROUP_NAME = 'GlobalStats'
+MOC_GROUP_NAME = 'MOC'
 MONTHLY_MEAN_GROUP = 'MonthlyAverages'
 
 
@@ -224,6 +233,64 @@ def check_files_exist(
             'for those years.'
         )
     raise FileNotFoundError('\n'.join(lines))
+
+
+def check_month_covered(filename, year, month):
+    """
+    Check that a monthly mean covers the month the analysis takes it to
+
+    The month a file covers is worked out from its name, using Omega's
+    convention of naming a monthly mean for the start of the following
+    month (see :py:func:`expand_template`).  Nothing else would notice if
+    that convention changed, and every climatology and series would then be
+    off by a month, so each file's time bounds are checked against it.
+
+    Parameters
+    ----------
+    filename : str
+        The path to the monthly mean
+
+    year : int
+        The simulation year the file is taken to cover
+
+    month : int
+        The month the file is taken to cover
+
+    Raises
+    ------
+    ValueError
+        If the file has no time bounds or they are not that month
+    """
+    with xr.open_dataset(filename, decode_times=False) as ds:
+        bounds_name = ds['time'].attrs.get('bounds') if 'time' in ds else None
+        if bounds_name is None or bounds_name not in ds:
+            raise ValueError(
+                f'The monthly mean {filename} has no time bounds, so the '
+                f'month it covers cannot be checked against its name.'
+            )
+        time = ds['time']
+        units = time.attrs['units']
+        calendar = time.attrs.get('calendar', 'standard')
+        bounds = ds[bounds_name].values
+        start, end = float(bounds[0, 0]), float(bounds[-1, 1])
+
+    next_year, next_month = _shift_month(year, month, 1)
+    expected = [
+        cftime.date2num(
+            cftime.datetime(y, m, 1, calendar=calendar), units, calendar
+        )
+        for y, m in [(year, month), (next_year, next_month)]
+    ]
+    if [start, end] != expected:
+        first, last = cftime.num2date([start, end], units, calendar)
+        raise ValueError(
+            f'The monthly mean {filename} is taken from its name to cover '
+            f'{year:04d}-{month:02d}, but its time bounds run from {first} '
+            f'to {last}.  The analysis assumes Omega names a monthly mean '
+            f'for the start of the following month (E3SM-Project/Omega#554); '
+            f'if that has changed, the month offset in '
+            f'polaris.tasks.ocean.analysis.sim_files has to change with it.'
+        )
 
 
 def _years_available(template, simulation_path):
@@ -631,7 +698,7 @@ class SimulationFiles:
             The global statistics files, which are known to exist
         """
         stream = self._analysis_stream(
-            group_name='GlobalStats',
+            group_name=GLOBAL_STATS_GROUP_NAME,
             description='global statistics',
             required=True,
         )
@@ -642,7 +709,7 @@ class SimulationFiles:
             end_year=end_year,
             description='global statistics',
             source=(
-                f'the GlobalStats analysis group in '
+                f'the {GLOBAL_STATS_GROUP_NAME} analysis group in '
                 f'{self.omega_config.filename}'
             ),
         )
@@ -661,7 +728,7 @@ class SimulationFiles:
             The stream, or ``None`` if the simulation wrote no global
             statistics
         """
-        streams = self.omega_config.analysis_streams('GlobalStats')
+        streams = self.omega_config.analysis_streams(GLOBAL_STATS_GROUP_NAME)
         return _preferred_analysis_stream(streams)
 
     def moc_files(self, start_year, end_year):
@@ -687,7 +754,7 @@ class SimulationFiles:
             simulation does not write MOC output
         """
         stream = self._analysis_stream(
-            group_name='Moc',
+            group_name=MOC_GROUP_NAME,
             description='meridional overturning circulation',
             required=False,
         )
@@ -698,8 +765,27 @@ class SimulationFiles:
             start_year=start_year,
             end_year=end_year,
             description='MOC',
-            source=f'the Moc analysis group in {self.omega_config.filename}',
+            source=(
+                f'the {MOC_GROUP_NAME} analysis group in '
+                f'{self.omega_config.filename}'
+            ),
         )
+
+    def moc_stream(self):
+        """
+        Get the output stream the MOC is read from
+
+        As with the global statistics, the names of the variables in the file
+        depend on whether the stream holds time means or snapshots, so a step
+        that reads them needs the stream and not just its file name.
+
+        Returns
+        -------
+        stream : AnalysisStream or None
+            The stream, or ``None`` if the simulation wrote no MOC output
+        """
+        streams = self.omega_config.analysis_streams(MOC_GROUP_NAME)
+        return _preferred_analysis_stream(streams)
 
     def _resolve_simulation_path(self):
         """Get the directory that relative file names are resolved against"""

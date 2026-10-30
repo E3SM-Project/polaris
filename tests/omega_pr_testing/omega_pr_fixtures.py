@@ -6,11 +6,18 @@ import subprocess
 from dataclasses import dataclass
 from pathlib import Path
 
+import omega_pr_coupled
 import omega_pr_init
 import pr_test_git
 import pr_test_github
 import pr_test_setup
 from pr_test_config import PrTestConfig
+
+#: the CIME environment script the fixtures use
+CIME_ENV = '/cime/load_latest_cime_env.sh'
+
+#: coupled tests whose builds the fake create_test fails
+FAILED_BUILDS = ['PEM_D.T62_oQU240.FAIL']
 
 
 def git(path, *args):
@@ -146,7 +153,13 @@ def make_tester(tmp_path, monkeypatch):
     monkeypatch.setenv('POLARIS_MPI', 'openmpi')
     monkeypatch.setenv('POLARIS_BRANCH', fixture.polaris_dir)
 
-    calls: dict[str, list] = {'suite': [], 'submit': [], 'extra_args': []}
+    calls: dict[str, list] = {
+        'suite': [],
+        'submit': [],
+        'extra_args': [],
+        'submodules': [],
+        'create_test': [],
+    }
     monkeypatch.setattr(
         pr_test_setup, 'polaris_suite', _fake_polaris_suite(calls, fixture)
     )
@@ -161,9 +174,28 @@ def make_tester(tmp_path, monkeypatch):
         return str(1000 + len(calls['submit']))
 
     monkeypatch.setattr(pr_test_setup, 'submit_job', submit_job)
+
+    def submit_case(job, dependency=None):
+        calls['submit'].append((job.work_dir, job.script, dependency))
+        calls['extra_args'].append(None)
+        return str(1000 + len(calls['submit']))
+
+    monkeypatch.setattr(pr_test_setup, 'submit_case', submit_case)
     monkeypatch.setattr(
-        pr_test_setup, 'is_job_active', lambda job_id, system: False
+        pr_test_setup,
+        'init_all_submodules',
+        lambda tree: calls['submodules'].append(tree),
     )
+    monkeypatch.setattr(
+        omega_pr_coupled, 'get_cime_env_script', lambda machine: CIME_ENV
+    )
+    monkeypatch.setattr(
+        omega_pr_coupled, 'run_create_test', _fake_create_test(calls)
+    )
+    for module in [pr_test_setup, omega_pr_coupled]:
+        monkeypatch.setattr(
+            module, 'is_job_active', lambda job_id, system: False
+        )
     return fixture, manifest, calls
 
 
@@ -198,6 +230,39 @@ def _fake_polaris_suite(calls, fixture):
         _make_run(Path(work_dir), Path(build_dir), omega_hash, polaris_hash)
 
     return polaris_suite
+
+
+def _fake_create_test(calls):
+    def run_create_test(env_script, scripts_dir, args):
+        calls['create_test'].append((env_script, scripts_dir, args))
+        options = dict(zip(args[1:], args[2:], strict=False))
+        tests = args[1 : args.index('--machine')]
+        suffix = (
+            f'{options["--machine"]}_{options["--compiler"]}.'
+            f'{options["--test-id"]}'
+        )
+        for test in tests:
+            case_dir = Path(options['--test-root']) / f'{test}.{suffix}'
+            case_dir.mkdir(parents=True)
+            status = 'FAIL' if test in FAILED_BUILDS else 'PASS'
+            (case_dir / 'TestStatus').write_text(
+                f'PASS {test}.{suffix} CREATE_NEWCASE\n'
+                f'PASS {test}.{suffix} SHAREDLIB_BUILD\n'
+                f'{status} {test}.{suffix} MODEL_BUILD time=60\n'
+            )
+
+    return run_create_test
+
+
+def finish_coupled_tests(state, status='PASS'):
+    """What the coupled tests' jobs add to their TestStatus files"""
+    for case_dir in state.coupled_cases:
+        path = Path(case_dir) / 'TestStatus'
+        name = Path(case_dir).name
+        path.write_text(
+            f'{path.read_text()}PASS {name} SUBMIT\n'
+            f'{status} {name} RUN time=30\n'
+        )
 
 
 def _fake_ctests(polaris_dir, row, build_dir, ctest_dir):

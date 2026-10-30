@@ -6,10 +6,11 @@ jobs
 
 import os
 from dataclasses import asdict
-from typing import Optional
+from typing import List, Optional
 
 import pr_test_git as git_tools
 import pr_test_setup as setup_tools
+from omega_pr_coupled import COUPLED_TESTS, set_up_coupled_tests
 from omega_pr_manifest import POLARIS_SUBMODULE, Manifest, fetch_manifest
 from pr_test_config import PrTestConfig
 from pr_test_git import OMEGA_SUBMODULE, POLARIS_DIR
@@ -39,10 +40,12 @@ def run_setup(
     baseline_load_script: Optional[str] = None,
     no_baseline: Optional[str] = None,
     parallel: bool = False,
+    coupled_tests: Optional[List[str]] = None,
     polaris_dir: str = POLARIS_DIR,
 ) -> SetupState:
     """
-    Set up the baseline, PR suite and CTests for this machine's row
+    Set up the baseline, PR suite, CTests and coupled CIME tests for this
+    machine's row
 
     Parameters
     ----------
@@ -73,6 +76,10 @@ def run_setup(
     parallel : bool, optional
         Whether the PR suite, and a baseline that is set up here, run their
         steps at the same time with ``polaris parallel``
+
+    coupled_tests : list of str, optional
+        The coupled CIME tests to run, without the machine and compiler,
+        instead of ``COUPLED_TESTS``
 
     polaris_dir : str, optional
         The Polaris checkout the loaded environment runs
@@ -173,6 +180,16 @@ def run_setup(
         setup_tools.set_up_ctests(polaris_dir, row, pr_build_dir, ctest_dir)
     )
 
+    setup_tools.init_all_submodules(test_tree)
+    coupled_cases, coupled_jobs = set_up_coupled_tests(
+        row,
+        test_tree,
+        os.path.join(run_dir, 'coupled'),
+        manifest.run_name,
+        COUPLED_TESTS if coupled_tests is None else coupled_tests,
+    )
+    jobs.extend(coupled_jobs)
+
     state = SetupState(
         fork=fork,
         branch=branch,
@@ -186,6 +203,7 @@ def run_setup(
         pr_work_dir=pr_work_dir,
         ctest_dir=ctest_dir,
         no_baseline_reason=no_baseline,
+        coupled_cases=coupled_cases,
     )
     if baseline_polaris is not None and baseline_polaris.hash != polaris_hash:
         state.baseline_polaris_hash = baseline_polaris.hash

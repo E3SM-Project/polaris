@@ -90,8 +90,7 @@ Every file these write methods produce passes the CF checker, and the methods
 take care of the metadata themselves, so an init step does not normally need
 to.  They add `CF-1.8` to the `Conventions` attribute (keeping the `MPAS`
 entry the MPAS-Tools converter writes) and fill in `units` and `long_name`
-for any mesh variable (from
-[polaris/mesh/attrs.yaml](https://github.com/E3SM-Project/polaris/blob/main/polaris/mesh/attrs.yaml))
+for any mesh variable (from the table in `mpas_tools.mesh.attrs`)
 or vertical-coordinate, state or forcing variable (from
 [polaris/ocean/model/attrs.yaml](https://github.com/E3SM-Project/polaris/blob/main/polaris/ocean/model/attrs.yaml))
 that does not already have them.  The tables use MPAS-Ocean names, since the
@@ -1048,6 +1047,32 @@ The {py:func}`polaris.ocean.rpe.compute_rpe()` is used to compute the RPE as
 a function of time in a series of one or more output files.  The RPE is stored
 in `rpe.csv` and also returned as a numpy array for plotting and analysis.
 
+(dev-ocean-overturning)=
+
+## Overturning across lines
+
+The module `polaris.ocean.overturning` computes overturning across a line of
+constant x or y on a planar MPAS mesh.  A line is the set of edges whose two
+cells lie on opposite sides of it, found by
+{py:func}`polaris.ocean.overturning.get_line_edges()`.  Each edge has a sign,
++1 where positive normal velocity points toward increasing x or y, and a
+weight, its length projected onto the line, for along-line means.  Summing
+signed edge transports gives the exact discrete transport from the cells on
+one side of the line to those on the other, on any mesh: on a planar hex
+mesh a line of constant y is the zigzag between two rows of cells, and on
+other meshes it is a staircase within about a cell of the line.  Edges on a
+domain boundary or across a periodic seam are excluded.
+
+{py:func}`polaris.ocean.overturning.compute_line_transport()` gives the
+transport through each edge and layer, using the mean thickness of the
+edge's two cells, the default flux thickness in both models.
+{py:func}`polaris.ocean.overturning.compute_overturning()` sums it along the
+line and from the surface down, giving the stream function at layer
+interfaces.  {py:func}`polaris.ocean.overturning.bin_line_transport()` sorts
+the transport and thickness on each edge into tracer classes, for
+overturning in density coordinates.  The mixed-layer eddies tasks
+({ref}`dev-ocean-mixed-layer-eddies`) use these for their eddy overturning.
+
 (dev-ocean-analysis)=
 
 ## Analysis of completed simulations
@@ -1075,7 +1100,7 @@ group that is turned off are told apart rather than raising from inside a
 lookup.  This is the one place Polaris depends on the *shape* of Omega's
 configuration rather than on its output.
 
-Two details are worth knowing before adding a product:
+Three details are worth knowing before adding a product:
 
 - File-name templates are expanded by
   {py:func}`polaris.tasks.ocean.analysis.sim_files.expand_template`, which
@@ -1090,6 +1115,12 @@ Two details are worth knowing before adding a product:
   {py:meth}`polaris.tasks.ocean.analysis.sim_files.OmegaConfig.analysis_streams`
   returns each stream with its period and whether it is a time reduction, and
   the caller must not assume either spelling.
+- The month a monthly mean covers comes from its file name, which Omega gives
+  for the month after (E3SM-Project/Omega#554).  Before a file is read,
+  {py:func}`polaris.tasks.ocean.analysis.sim_files.check_month_covered`
+  checks its time bounds against that month and raises if they differ, so a
+  change in Omega's convention stops the analysis rather than shifting every
+  product by a month.  `run_ncclimo()` and the accumulator both call it.
 
 ### Naming the models' global statistics
 
@@ -1186,7 +1217,7 @@ The climatology is added as a **dependency** with
 `ncclimo` names its output `<caseid>_<season>_<start>_<end>_climo.nc` and
 those names are not known until it has run.  The reading step then finds one
 season's file with
-{py:func}`polaris.tasks.ocean.analysis.climatology.find_climatology_file`,
+{py:func}`polaris.tasks.ocean.analysis.ncclimo.find_climatology_file`,
 which globs on the season in the dependency's work directory --- and which
 also knows that `ncclimo` names the twelve monthly climatologies by month
 number rather than `JAN` through `DEC`.

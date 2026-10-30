@@ -41,19 +41,32 @@
    PublishTask
    PublishTask.rebuild_steps
 
+   accumulate.Accumulator
+   accumulate.Accumulator.setup
+   accumulate.Accumulator.run
+   accumulate.Accumulator.setup_inputs
+   accumulate.Accumulator.product_stamp
+   accumulate.Accumulator.compute_month
+   accumulate.Accumulator.finalize
+   accumulate.Accumulator.provenance_stamp
+   accumulate.read_stamp
+   accumulate.stamp_attrs
+   accumulate.stamp_difference
+
    analysis_step.AnalysisStep
    analysis_step.AnalysisStep.runtime_setup
    analysis_step.AnalysisStep.add_product
    analysis_step.AnalysisStep.get_sim_files
    analysis_step.AnalysisStep.add_sim_input_file
    analysis_step.AnalysisStep.add_sim_input_files
+   analysis_step.AnalysisStep.read_fields
+   analysis_step.AnalysisStep.valid_level_range
    analysis_step.AnalysisStep.log_inputs
 
    climatology.Climatology
    climatology.Climatology.setup
    climatology.Climatology.run
    climatology.get_climatology_variables
-   climatology.find_climatology_file
 
    climatology_maps.ClimatologyMaps
    climatology_maps.ClimatologyMaps.setup
@@ -67,13 +80,23 @@
    global_stats.GlobalStatsTimeSeries.setup
    global_stats.GlobalStatsTimeSeries.run
 
+   heat_content_config.get_elevation_ranges
+
    heat_content_series.HeatContentSeries
    heat_content_series.HeatContentSeries.setup
+   heat_content_series.HeatContentSeries.setup_inputs
+   heat_content_series.HeatContentSeries.product_stamp
    heat_content_series.HeatContentSeries.run
+   heat_content_series.HeatContentSeries.compute_month
+   heat_content_series.HeatContentSeries.finalize
+   heat_content_series.series_variable
 
    moc.Moc
    moc.Moc.setup
    moc.Moc.run
+
+   ncclimo.run_ncclimo
+   ncclimo.find_climatology_file
 
    publish.Publish
    publish.Publish.run
@@ -96,6 +119,7 @@
    sim_files.read_omega_config
    sim_files.expand_template
    sim_files.check_files_exist
+   sim_files.check_month_covered
    sim_files.year_range_key
 ```
 
@@ -466,6 +490,65 @@
    viz.Viz
    viz.Viz.setup
    viz.Viz.run
+```
+
+### mixed_layer_eddies
+
+```{eval-rst}
+.. currentmodule:: polaris.tasks.ocean.mixed_layer_eddies
+
+.. autosummary::
+   :toctree: generated/
+
+   add_mixed_layer_eddies_tasks
+
+   init.Init
+   init.Init.setup
+   init.Init.run
+   init.Init.init_tracers
+   init.read_itp77_salinity
+   init.compute_background_salinity
+   init.compute_density_anomaly
+
+   forward.Forward
+   forward.Forward.setup
+   forward.Forward.compute_cell_count
+   forward.Forward.dynamic_model_config
+
+   diagnostics.get_frontal_lines
+   diagnostics.get_frontal_cell_mask
+   diagnostics.get_flux_thickness
+   diagnostics.get_density
+   diagnostics.get_geom_thickness
+   diagnostics.get_z_mid
+   diagnostics.compute_mu
+   diagnostics.compute_buoyancy_gradient
+   diagnostics.compute_line_overturning
+   diagnostics.compute_line_interface_depths
+   diagnostics.compute_eddy_overturning
+   diagnostics.fit_mu_amplitude
+   flux.analyze_combined_flux
+   flux.get_snapshot_days
+   flux.compute_combined_flux
+   diagnostics.compute_fk11_stream_function
+   diagnostics.compute_model_stream_function
+   diagnostics.get_consistent_edges
+   diagnostics.compute_potential_energy
+   diagnostics.compute_mixed_layer_n2
+
+   viz.plot_surface_salinity
+
+   resolved.Resolved
+   resolved.analysis.Analysis
+   resolved.analysis.Analysis.run
+
+   coarse.Coarse
+   coarse.verify.Verify
+   coarse.verify.Verify.run
+
+   comparison.Comparison
+   comparison.analysis.Analysis
+   comparison.analysis.Analysis.run
 ```
 
 ### overflow
@@ -1009,6 +1092,7 @@
 
    OceanModelFilesMixin
 
+   get_layer_mass
    get_time_since_start
    get_simulation_years
    days_per_year
@@ -1036,6 +1120,18 @@
 ```
 
 
+### Heat content
+
+```{eval-rst}
+.. currentmodule:: polaris.ocean
+
+.. autosummary::
+   :toctree: generated/
+
+   heat_content.heat_content
+
+```
+
 ### Initial state
 
 ```{eval-rst}
@@ -1061,6 +1157,21 @@
 
    rpe.compute_rpe
 
+```
+
+### Overturning
+
+```{eval-rst}
+.. currentmodule:: polaris.ocean.overturning
+
+.. autosummary::
+   :toctree: generated/
+
+   get_line_edges
+   interp_cell_to_line_edges
+   compute_line_transport
+   compute_overturning
+   bin_line_transport
 ```
 
 ### Surface pressure
@@ -1100,6 +1211,9 @@
    vertical.elevation.apply_vertical_reduction
    vertical.elevation.get_valid_level_range
    vertical.elevation.elevation_label
+   vertical.elevation.range_bound_label
+   vertical.elevation.is_whole_column
+   vertical.elevation.elevation_range_weights
    vertical.grid_1d.generate_1d_grid
    vertical.grid_1d.write_1d_grid
    vertical.partial_cells.alter_bottom_depth

@@ -956,7 +956,7 @@ each expect the same next number, and only the first to merge is right.
 
 ### Implementation: items deferred from Phase 1
 
-Date last modified: 2026/08/29
+Date last modified: 2026/10/26
 
 Contributors: Xylar Asay-Davis, Claude
 
@@ -964,14 +964,6 @@ Things that Phase 1 knowingly does the simpler way because of its September 15
 deadline, recorded here so that they are picked up rather than forgotten.  Each
 is explained in context in {ref}`design-ocean-analysis-initial`.
 
-- **Use the TEOS-10 heat capacity for ocean heat content.**  Omega carries
-  conservative temperature, for which $\rho_0 c_p^0 \Theta$ with
-  $c_p^0 = 3991.86795711963$ J kg⁻¹ K⁻¹ is the *definition* of heat content
-  rather than an approximation.  That constant is not in the Physical Constants
-  Dictionary, and adding it is not achievable by September 15, so Phase 1 uses
-  the PCD's `seawater_specific_heat_capacity_reference` (3996 J kg⁻¹ K⁻¹)
-  instead --- a 0.1% systematic offset.  The follow-up is to add $c_p^0$ to the
-  PCD and switch to it.
 - **Replace the offline mixed-layer depth fallback**, if it is what ships, with
   Omega's in-situ density-threshold diagnostic.  A mixed-layer depth derived
   from monthly-mean profiles cannot represent deep winter mixing events and

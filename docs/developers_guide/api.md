@@ -486,6 +486,7 @@ seaice/api
    connectivity.has_active_vertex
    connectivity.transport_link_mask
    connectivity.connected_to_seeds
+   connectivity.label_regions
    connectivity.seed_mask_from_points
 
    vector.get_coordinate_matrix
@@ -781,6 +782,7 @@ seaice/api
    plot_horiz_field
    plot_global_lat_lon_field
    plot_global_mpas_field
+   plot_lat_elevation_field
 ```
 
 ### yaml
