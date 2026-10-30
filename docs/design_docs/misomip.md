@@ -609,6 +609,8 @@ which WP5's steps build on. The tasks have:
   at $450 \pm 10$ km;
 - Ice0, Ice1r, Ice1ra, Ice2r and Ice2ra, which run, and Ice1rr and Ice2rr,
   which exist but do not;
+- in every experiment but not the spin-up, calving of floating ice thinner
+  than 10 m and removal of icebergs;
 - the MISMIP+ output: grounding line, volume above flotation and grounded
   area, computed from any dataset with MALI's thickness, bed and mesh, so
   WP9 can apply it to E3SM's output.
