@@ -64,6 +64,22 @@ the year after the last.
 {py:func}`polaris.tasks.e3sm.init.misomip.records.get_interpolation_weights()`
 gives the weights for interpolating the protocol's yearly records to them.
 
+## The ocean's land-ice fields
+
+`polaris.tasks.e3sm.init.misomip.land_ice_fields` reproduces what
+E3SM's coupler delivers to MPAS-Ocean from MALI, as in FAnSSIE:
+
+- {py:func}`polaris.tasks.e3sm.init.misomip.land_ice_fields.compute_mali_export()`
+  computes MALI's ice-shelf exports: the below-sea-level mask $m$, the
+  pressure $m \rho_i g H$ with E3SM's gravity, and $m$ times MALI's
+  floating and grounded masks;
+- {py:func}`polaris.tasks.e3sm.init.misomip.land_ice_fields.read_map()` and
+  {py:func}`polaris.tasks.e3sm.init.misomip.land_ice_fields.apply_map()`
+  apply a map without normalizing, as the coupler does;
+- {py:func}`polaris.tasks.e3sm.init.misomip.land_ice_fields.import_geometry()`
+  divides by the mapped mask, as MPAS-Ocean's import does, and caps the
+  fractions at 1.
+
 ## Grid names
 
 {py:func}`polaris.tasks.e3sm.init.misomip.names.get_grid_names()` reads

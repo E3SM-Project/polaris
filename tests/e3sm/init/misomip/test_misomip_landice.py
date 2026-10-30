@@ -1,10 +1,18 @@
 import numpy as np
 import pytest
+import xarray as xr
 
 from polaris.tasks.e3sm.init.misomip.calving import (
     calve,
     get_floating_mask,
     get_grounded_mask,
+)
+from polaris.tasks.e3sm.init.misomip.land_ice_fields import (
+    GRAVITY,
+    apply_map,
+    compute_mali_export,
+    import_geometry,
+    read_map,
 )
 from polaris.tasks.e3sm.init.misomip.records import (
     SECONDS_PER_DAY,
@@ -82,3 +90,80 @@ def test_interpolation_weights():
 def test_interpolation_weights_outside_the_records():
     with pytest.raises(ValueError):
         get_interpolation_weights(np.array([2.0]), np.array([0.0, 1.0]))
+
+
+def _synthetic_map(tmp_path):
+    """
+    A map from 4 MALI cells to 3 ocean cells: the first ocean cell is
+    covered by halves of MALI cells 0 and 1, the second by quarters of
+    MALI cells 2 and 3, and the third by no MALI cell
+    """
+    ds = xr.Dataset()
+    ds['S'] = ('n_s', np.array([0.5, 0.5, 0.25, 0.25]))
+    ds['row'] = ('n_s', np.array([1, 1, 2, 2], dtype=np.int32))
+    ds['col'] = ('n_s', np.array([1, 2, 3, 4], dtype=np.int32))
+    ds['area_a'] = ('n_a', np.ones(4))
+    ds['area_b'] = ('n_b', np.ones(3))
+    filename = str(tmp_path / 'map.nc')
+    ds.to_netcdf(filename)
+    return filename
+
+
+def test_mali_export():
+    bed = np.array([-900.0, -900.0, -900.0, 100.0])
+    thickness = np.array([0.0, 500.0, 1100.0, 50.0])
+    export = compute_mali_export(thickness, bed)
+    rho_g = 918.0 * GRAVITY
+    np.testing.assert_array_equal(
+        export['below_sea_level_mask'], [1.0, 1.0, 1.0, 0.0]
+    )
+    np.testing.assert_allclose(
+        export['lithop'], [0.0, 500.0 * rho_g, 1100.0 * rho_g, 0.0]
+    )
+    np.testing.assert_array_equal(
+        export['icemask_floating'], [0.0, 1.0, 0.0, 0.0]
+    )
+    # grounded ice above sea level is not exported
+    np.testing.assert_array_equal(
+        export['icemask_grounded'], [0.0, 0.0, 1.0, 0.0]
+    )
+    assert GRAVITY == 9.80616
+
+
+def test_land_ice_fields_through_a_map(tmp_path):
+    bed = np.array([-900.0, -900.0, -900.0, 100.0])
+    thickness = np.array([0.0, 500.0, 1100.0, 50.0])
+    matrix = read_map(_synthetic_map(tmp_path))
+    assert matrix.shape == (3, 4)
+
+    export = compute_mali_export(thickness, bed)
+    mapped = {name: apply_map(matrix, export[name]) for name in export}
+    fields = import_geometry(mapped)
+
+    rho_g = 918.0 * GRAVITY
+    np.testing.assert_allclose(
+        fields['landIcePressure'], [250.0 * rho_g, 1100.0 * rho_g, 0.0]
+    )
+    np.testing.assert_allclose(
+        fields['landIceFloatingFraction'], [0.5, 0.0, 0.0]
+    )
+    # normalized by the part of the cell below sea level in MALI
+    np.testing.assert_allclose(fields['landIceFraction'], [0.5, 1.0, 0.0])
+    np.testing.assert_allclose(
+        fields['landIceGroundedFraction'], [0.0, 1.0, 0.0]
+    )
+
+
+def test_land_ice_fields_with_time_records(tmp_path):
+    bed = np.array([-900.0, -900.0, -900.0, 100.0])
+    thickness = np.array(
+        [[0.0, 500.0, 1100.0, 50.0], [500.0, 500.0, 1100.0, 50.0]]
+    )
+    matrix = read_map(_synthetic_map(tmp_path))
+    export = compute_mali_export(thickness, bed)
+    mapped = {name: apply_map(matrix, export[name]) for name in export}
+    fields = import_geometry(mapped)
+    assert fields['landIcePressure'].shape == (2, 3)
+    np.testing.assert_allclose(
+        fields['landIceFloatingFraction'], [[0.5, 0.0, 0.0], [1.0, 0.0, 0.0]]
+    )

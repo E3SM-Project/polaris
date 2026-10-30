@@ -318,6 +318,11 @@
    calving.get_grounded_mask
    calving.calve
 
+   land_ice_fields.compute_mali_export
+   land_ice_fields.read_map
+   land_ice_fields.apply_map
+   land_ice_fields.import_geometry
+
    names.get_grid_names
 
    projection.get_projection_string
