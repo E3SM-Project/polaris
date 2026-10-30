@@ -64,7 +64,7 @@ digraph fanssie {
       <tr><td border="0" colspan="2"><font color="#898781">also after #842:</font></td></tr>
       <tr><td port="p871" bgcolor="#e8e8e4" colspan="1" style="rounded" cellpadding="6"><b>#871</b>  landice component:<br/>MALI + Albany<br/><font color="#52514e">draft · review: Carolyn,<br/>Matt, Trevor</font></td><td port="p858" bgcolor="#deebff" colspan="1" style="rounded" cellpadding="6"><b>#858</b>  MISOMIP in E3SM:<br/>the plan (12 work packages)<br/><font color="#52514e">open</font></td></tr>
       <tr><td border="0" colspan="1"><font color="#898781">↓ then</font></td><td border="0" colspan="1"></td></tr>
-      <tr><td port="pwp4" bgcolor="#ffffff" colspan="1" style="rounded" cellpadding="6"><b>WP4</b>  MISMIP+ with MALI<br/><font color="#52514e">branch add-mismip-plus · no PR yet</font></td><td border="0" colspan="1"></td></tr>
+      <tr><td port="p922" bgcolor="#e8e8e4" colspan="1" style="rounded" cellpadding="6"><b>#922</b>  MISMIP+ with MALI<br/><font color="#52514e">draft</font></td><td border="0" colspan="1"></td></tr>
       <tr><td border="0" colspan="2"><font color="#898781">from main, the realistic-mesh stack:</font></td></tr>
       <tr><td port="p644" bgcolor="#deebff" colspan="2" style="rounded" cellpadding="6"><b>#644</b>  realistic global ocean: dynamic adjustment<br/><font color="#52514e">open, approved</font></td></tr>
       <tr><td border="0" colspan="2"><font color="#898781">↓ then</font></td></tr>
