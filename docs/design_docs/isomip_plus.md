@@ -99,9 +99,8 @@ Success means:
   MPAS-Ocean build, are compared;
 - every difference between them is attributed to a cause listed under
   [Decisions](#decisions);
-- the `com` variants reproduce the COM runs of
-  [#826](https://github.com/E3SM-Project/polaris/pull/826) bit for bit,
-  and every task runs with E3SM's physics.
+- the `com` variants reproduce the tasks' COM runs from before this
+  change bit for bit, and every task runs with E3SM's physics.
 
 ## Requirements
 
@@ -930,9 +929,8 @@ Date last modified: 2026/10/18
 
 Contributors: Xylar Asay-Davis, Claude
 
-- The `com` variants are bit for bit with the COM runs of
-  [#826](https://github.com/E3SM-Project/polaris/pull/826) on FAnSSIE
-  `23b25eb360`.
+- The `com` variants are bit for bit with the tasks' COM runs from
+  before this change, on FAnSSIE `23b25eb360`.
 - Every task runs with E3SM's physics at 4, 2 and 1 km. SSH adjustment
   settles in 1 km `ocean2`, and the thin film stays stable with KPP and
   del4.
@@ -952,9 +950,9 @@ Contributors: Xylar Asay-Davis, Claude
 - With the option on, in one step of 4 km `ocean0`, density in the open
   ocean is close to that of `jm` at reference pressure. Under the ice,
   the difference grows with the depth of the ice base.
-- Optionally, the nonlinear sigma overflow task of
-  [#825](https://github.com/E3SM-Project/polaris/pull/825), which blows
-  up in MPAS-Ocean with `jm` at reference pressure, runs.
+- Optionally, the overflow task with sigma coordinates and a nonlinear
+  equation of state, which blows up in MPAS-Ocean with `jm` at reference
+  pressure, runs.
 - The thin-film tasks run with the submesoscale parameterization on, and
   the MLD is positive in every column.
 
@@ -1392,10 +1390,9 @@ Contributors: Xylar Asay-Davis, Claude
 The tasks use MPAS-Ocean's physics and coefficients as E3SM sets them
 for ice-shelf cavities, overridden only where the idealized domain or
 wetting and drying requires, and for the top drag
-([D26](#decisions)). This is D16 of the
-[MISOMIP design](https://github.com/E3SM-Project/polaris/pull/858): the
-ISOMIP+ tasks rehearse the coupled runs, so they exercise the physics
-those runs will use. RK4 stays until split-explicit wetting and drying
+([D26](#decisions)). The ISOMIP+ tasks rehearse coupled runs of
+MPAS-Ocean and MALI in E3SM, so they exercise the physics those runs
+will use. RK4 stays until split-explicit wetting and drying
 is available.
 
 Rejected: the COM physics (Table 4) in every task, as in the first
@@ -1430,7 +1427,7 @@ Contributors: Xylar Asay-Davis, Claude
 The tasks use the `jm` equation of state, evaluated at the pressure of
 each layer's actual depth rather than its reference depth. The change
 is an MPAS-Ocean option on FAnSSIE, off by default, so other runs are
-unchanged. This is D17 of the MISOMIP design.
+unchanged.
 
 ```{admonition} Rationale
 `jm` evaluates each layer at a pressure computed once from
