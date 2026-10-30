@@ -65,8 +65,8 @@ def test_forcing_interval_from_records(tmp_path):
     )
     ds.to_netcdf(tmp_path / 'land_ice_forcing.nc')
     step: Any = SimpleNamespace(work_dir=str(tmp_path))
-    assert Forward._get_forcing_interval(step, at_setup=True) == 'none'
-    interval = Forward._get_forcing_interval(step, at_setup=False)
+    assert Forward.get_forcing_interval(step, at_setup=True) == 'none'
+    interval = Forward.get_forcing_interval(step, at_setup=False)
     assert interval == '0000_06:00:00.000'
 
 
@@ -85,7 +85,7 @@ def test_forcing_interval_must_be_even(tmp_path):
     ds.to_netcdf(tmp_path / 'land_ice_forcing.nc')
     step: Any = SimpleNamespace(work_dir=str(tmp_path))
     with pytest.raises(ValueError, match='evenly spaced'):
-        Forward._get_forcing_interval(step, at_setup=False)
+        Forward.get_forcing_interval(step, at_setup=False)
 
 
 @pytest.mark.parametrize('thin_film', [True, False])

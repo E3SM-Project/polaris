@@ -390,6 +390,7 @@
    forward.Forward
    forward.Forward.compute_cell_count
    forward.Forward.dynamic_model_config
+   forward.Forward.get_forcing_interval
 
    init.Init
    init.Init.setup

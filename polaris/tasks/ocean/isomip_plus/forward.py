@@ -187,15 +187,27 @@ class Forward(OceanModelStep):
                 'polaris.tasks.ocean.isomip_plus',
                 'thin_film.yaml',
                 template_replacements=dict(
-                    forcing_interval=self._get_forcing_interval(at_setup)
+                    forcing_interval=self.get_forcing_interval(at_setup)
                 ),
             )
 
-    def _get_forcing_interval(self, at_setup):
+    def get_forcing_interval(self, at_setup):
         """
         Get the spacing of the land-ice forcing records, which MPAS-Ocean
         needs to find them.  The forcing file is only available at runtime,
-        so a placeholder is used at setup.
+        so a placeholder is used at setup.  A subclass can override this for
+        records that are not evenly spaced in seconds, such as monthly ones.
+
+        Parameters
+        ----------
+        at_setup : bool
+            Whether this method is being run during setup of the step, as
+            opposed to at runtime
+
+        Returns
+        -------
+        interval : str
+            The interval between records, as MPAS-Ocean's namelist expects
         """
         if at_setup:
             return 'none'
