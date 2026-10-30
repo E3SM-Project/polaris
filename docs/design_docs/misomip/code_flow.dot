@@ -70,7 +70,7 @@ digraph fanssie {
       <tr><td border="0" colspan="2"><font color="#898781">↓ then</font></td></tr>
       <tr><td port="p921" bgcolor="#e8e8e4" colspan="2" style="rounded" cellpadding="6"><b>#921</b>  component inputs in e3sm/init<br/><font color="#52514e">draft · waits for #644</font></td></tr>
       <tr><td border="0" colspan="2"><font color="#898781">↓ then, even while it is a draft (and after #826)</font></td></tr>
-      <tr><td port="pwp56" bgcolor="#ffffff" colspan="2" style="rounded" cellpadding="6"><b>WP5, WP6</b>  MISOMIP's maps and E3SM inputs<br/><font color="#52514e">not started</font></td></tr>
+      <tr><td port="pwp56" bgcolor="#ffffff" colspan="2" style="rounded" cellpadding="6"><b>WP5, WP6</b>  MISOMIP's maps and E3SM inputs<br/><font color="#52514e">branch add-misomip-e3sm-init · not started</font></td></tr>
     </table>>];
 
   e8047 -> fanssie;
