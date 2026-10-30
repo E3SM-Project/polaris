@@ -795,7 +795,11 @@ sets up `ssh_forward` and `ssh_adjustment` steps from the classes
 The `ssh_adjustment` section of the config file sets the parameters for these
 steps, as described in {ref}`ocean-ssh-adjustment`. It returns the last
 `ssh_adjustment` step, which is typically used as the
-initial state for subsequent forward steps.
+initial state for subsequent forward steps.  It gets the steps from
+{py:func}`polaris.ocean.ice_shelf.get_ssh_adjustment_steps()`, which creates
+them as shared steps of a given ocean component.  Tasks in another
+component, such as `e3sm/init`, can call it directly and add the steps
+themselves.
 
 The module also provides helpers for computing the land-ice pressure from ice
 thickness ({py:func}`polaris.ocean.ice_shelf.compute_land_ice_pressure_from_thickness()`)
