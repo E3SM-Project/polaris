@@ -578,7 +578,7 @@ def main():
         '--model',
         dest='model',
         help="The model to run (one of 'mpas-ocean', 'omega', "
-        "or 'mpas-seaice')",
+        "'mpas-seaice' or 'mali')",
     )
     parser.add_argument(
         '--build',

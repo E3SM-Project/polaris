@@ -1,0 +1,4 @@
+landice/dome/2km/sia/decomp
+landice/dome/2km/sia/restart
+landice/dome/2km/fo/decomp
+landice/dome/2km/fo/restart
