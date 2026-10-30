@@ -589,7 +589,9 @@ Polaris's own deployment, `./deploy.py --with-albany`. MALI-Dev's
 `develop` stays the landice default, which FAnSSIE also merges in, and
 builds for this work point to FAnSSIE explicitly, as for the ocean
 ([D15](#decisions)). The first tasks are Compass's `dome`, with both
-velocity solvers, and they join `fanssie_pr`.
+velocity solvers, and they join `fanssie_pr`. Setup builds MALI only when
+a MALI step will run, not when every MALI step's outputs are cached: a
+build takes minutes and writes its products into the MALI-Dev submodule.
 
 Static and data-mode initial conditions need only MALI's mesh conversion,
 which lives in the landice framework, not a MALI build, so WP6 can start
