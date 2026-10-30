@@ -889,12 +889,12 @@ melt.
 
 ### D6: E3SM's constants
 
-Date last modified: 2026/10/16
+Date last modified: 2026/10/30
 
 Contributors: Xylar Asay-Davis, Claude
 
 The inputs use E3SM's gravity, 9.80616 m s⁻², and its sphere radius,
-6,371,229 m, not the values in Polaris's constants. MALI's ice density is
+6,371,220 m, not the values in Polaris's constants. MALI's ice density is
 set to the protocol's 918 kg m⁻³, replacing E3SM's 910. MPAS-Ocean uses
 MALI's ocean density, 1028 kg m⁻³, wherever it converts pressure to
 draft.
