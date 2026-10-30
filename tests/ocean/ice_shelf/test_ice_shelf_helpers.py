@@ -58,6 +58,26 @@ def test_pressure_from_thickness():
     assert_allclose(pressure.values, [918.0 * gravity * 500.0, 0.0, 0.0])
 
 
+def test_pressure_and_draft_with_other_gravity():
+    """E3SM's gravity can replace the standard one"""
+    gravity = 9.80616
+    thickness = xr.DataArray(np.array([500.0]))
+    pressure = compute_land_ice_pressure_from_thickness(
+        thickness, 1, land_ice_density=918.0, gravity=gravity
+    )
+    assert_allclose(pressure.values, [918.0 * gravity * 500.0])
+
+    draft = compute_land_ice_draft_from_pressure(
+        pressure, 1, ref_density=1028.0, gravity=gravity
+    )
+    assert_allclose(draft.values, [-918.0 / 1028.0 * 500.0])
+
+    pressure_again = compute_land_ice_pressure_from_draft(
+        draft, 1, ref_density=1028.0, gravity=gravity
+    )
+    assert_allclose(pressure_again.values, pressure.values)
+
+
 def test_floating_ice_pressure_is_consistent():
     """Floating ice in hydrostatic balance gives the same pressure from its
     thickness and from its draft"""
