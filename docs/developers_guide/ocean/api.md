@@ -381,6 +381,7 @@
    :toctree: generated/
 
    add_isomip_plus_tasks
+   get_isomip_plus_mesh_steps
 
    IsomipPlusTest
 

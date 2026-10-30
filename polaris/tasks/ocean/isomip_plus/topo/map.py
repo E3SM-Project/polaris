@@ -21,7 +21,6 @@ class TopoMap(MappingFileStep):
         component,
         name,
         subdir,
-        config,
         mesh_name,
         mesh_step,
         mesh_filename,
@@ -41,9 +40,6 @@ class TopoMap(MappingFileStep):
 
         subdir : str
             The subdirectory for the step
-
-        config : polaris.config.PolarisConfigParser
-            A shared config parser
 
         mesh_name : str
             The name of the mesh
@@ -72,7 +68,6 @@ class TopoMap(MappingFileStep):
             )
         self.mesh_name = mesh_name
         self.smooth = smooth
-        self.set_shared_config(config, link='isomip_plus_topo.cfg')
 
         # since all geometry is on the same mesh, we'll use Ocean1 here
         geom_filename = 'Ocean1_input_geom_v1.01.nc'

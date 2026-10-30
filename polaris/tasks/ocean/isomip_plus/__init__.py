@@ -18,6 +18,9 @@ from polaris.tasks.ocean.isomip_plus.mesh import (
 from polaris.tasks.ocean.isomip_plus.mesh import (
     PlanarMesh as PlanarMesh,
 )
+from polaris.tasks.ocean.isomip_plus.steps import (
+    get_isomip_plus_mesh_steps as get_isomip_plus_mesh_steps,
+)
 from polaris.tasks.ocean.isomip_plus.topo import (
     TopoMap as TopoMap,
 )
@@ -51,17 +54,8 @@ def add_isomip_plus_tasks(component):
         mesh_name = resolution_to_string(resolution)
         resdir = f'planar/isomip_plus/{mesh_name}'
 
-        filepath = os.path.join(component.name, resdir, 'isomip_plus_topo.cfg')
-        topo_config = PolarisConfigParser(filepath=filepath)
-
-        topo_config.add_from_package('polaris.remap', 'mapping.cfg')
-
-        topo_config.add_from_package(
-            'polaris.tasks.ocean.isomip_plus', 'isomip_plus_topo.cfg'
-        )
-
-        shared_steps = _get_shared_steps(
-            resolution, mesh_name, resdir, component, topo_config
+        shared_steps, _ = get_isomip_plus_mesh_steps(
+            resolution, component=component
         )
 
         for vertical_coordinate in ['z-star']:
@@ -123,108 +117,3 @@ def _get_task_config(
         )
     config.set('vertical_grid', 'coord_type', vertical_coordinate)
     return config
-
-
-def _get_shared_steps(resolution, mesh_name, resdir, component, config):
-    """Get the shared steps for adding to tasks"""
-
-    subdir = f'{resdir}/base_mesh'
-    base_mesh = PlanarMesh(
-        component=component,
-        resolution=resolution,
-        subdir=subdir,
-        config=config,
-    )
-
-    subdir = f'{resdir}/topo/map_base'
-    # we remap the topography onto the base mesh without smoothing the
-    # smoothing doesn't expand the domain.  We can use conservative
-    # interpolation because we have already culled planar meshes to remove
-    # periodicity
-    topo_map_base = TopoMap(
-        component=component,
-        name='topo_map_base',
-        subdir=subdir,
-        config=config,
-        mesh_name=mesh_name,
-        mesh_step=base_mesh,
-        mesh_filename='base_mesh.nc',
-        method='conserve',
-        smooth=False,
-    )
-
-    subdir = f'{resdir}/topo/remap_base'
-    topo_remap_base = TopoRemap(
-        component=component,
-        name='topo_remap_base',
-        subdir=subdir,
-        config=config,
-        topo_map=topo_map_base,
-        experiment='ocean1',
-    )
-
-    subdir = f'{resdir}/topo/cull_mesh'
-    cull_mesh = CullMesh(
-        component=component,
-        subdir=subdir,
-        config=config,
-        base_mesh=base_mesh,
-        topo_remap=topo_remap_base,
-    )
-
-    subdir = f'{resdir}/topo/map_culled'
-    # we remap the topography onto the culled mesh with smoothing, which
-    # requires the conserve method
-    topo_map_culled = TopoMap(
-        component=component,
-        name='topo_map_culled',
-        subdir=subdir,
-        config=config,
-        mesh_name=mesh_name,
-        mesh_step=cull_mesh,
-        mesh_filename='culled_mesh.nc',
-        method='conserve',
-        smooth=True,
-    )
-
-    topo_remap_culled: Dict[str, TopoRemap] = dict()
-    shared_steps: Dict[str, Dict[str, Step]] = dict()
-    for experiment in ['ocean1', 'ocean2']:
-        name = 'topo_remap_culled'
-        subdir = f'{resdir}/topo/remap_culled/{experiment}'
-        topo_remap_culled[experiment] = TopoRemap(
-            component=component,
-            name=name,
-            subdir=subdir,
-            config=config,
-            topo_map=topo_map_culled,
-            experiment=experiment,
-        )
-
-        shared_steps[experiment] = {
-            'base_mesh': base_mesh,
-            'topo/map_base': topo_map_base,
-            'topo/remap_base': topo_remap_base,
-            'topo/cull_mesh': cull_mesh,
-            'topo/map_culled': topo_map_culled,
-            'topo/remap_culled': topo_remap_culled[experiment],
-            'topo_final': topo_remap_culled[experiment],
-        }
-
-    # ocean0 and ocean1 use the same topography
-    shared_steps['ocean0'] = shared_steps['ocean1']
-
-    for experiment in ['inception', 'wetting', 'drying']:
-        shared_steps[experiment] = dict(shared_steps['ocean1'])
-        subdir = f'{resdir}/topo/scale/{experiment}'
-        topo_scale = TopoScale(
-            component=component,
-            subdir=subdir,
-            config=config,
-            topo_remap=topo_remap_culled['ocean1'],
-            experiment=experiment,
-        )
-        shared_steps[experiment]['topo/scale'] = topo_scale
-        shared_steps[experiment]['topo_final'] = topo_scale
-
-    return shared_steps
