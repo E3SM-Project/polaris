@@ -441,6 +441,10 @@
    MisomipInit
    MisomipInit.get_mesh_target
    MisomipInit.read_topography
+
+   MisomipForward
+   MisomipForward.get_forcing_interval
+   MisomipForward.dynamic_model_config
 ```
 
 ### inertial_gravity_wave

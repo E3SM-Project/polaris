@@ -34,6 +34,10 @@ MESH_PAIRS = {
     'misomip-o2km-li1km': {'ocean': 2.0, 'landice': 1.0},
 }
 
+#: The steps that the tasks include but don't run by default: the
+#: standalone ocean run, for comparison with E3SM
+NOT_RUN_BY_DEFAULT = ['ocean/forward']
+
 #: The experiments that continue from another experiment's E3SM restart
 CONTINUES_FROM = {'iceocean1ra': 'iceocean1r'}
 
@@ -192,6 +196,8 @@ def get_misomip_experiment_steps(mesh_name, experiment):
         ocean_mesh_step=steps['ocean_mesh'],
         land_ice_fields_step=land_ice_on_ocean,
         ssh_adjustment=not continues,
+        forward=INPUT_GEOMETRY.get(experiment) is not None,
+        data_mode=experiment in DATA_MODE_EXPERIMENTS,
     )
     for name, step in ocean_steps.items():
         steps.setdefault(name, step)

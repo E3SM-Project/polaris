@@ -6,6 +6,7 @@ from polaris.tasks.ocean import ocean
 from polaris.tasks.ocean.isomip_plus import get_isomip_plus_mesh_steps
 from polaris.tasks.ocean.isomip_plus.ssh_forward import SshForward
 from polaris.tasks.ocean.isomip_plus.topo import TopoMap, TopoRemap
+from polaris.tasks.ocean.misomip.forward import MisomipForward
 from polaris.tasks.ocean.misomip.init import MisomipInit
 
 #: The name of the config file shared by an experiment's ocean steps
@@ -22,6 +23,8 @@ def get_misomip_ocean_steps(
     ocean_mesh_step,
     land_ice_fields_step,
     ssh_adjustment=True,
+    forward=False,
+    data_mode=False,
 ):
     """
     Get the shared steps of the ocean component that make the ocean's
@@ -47,6 +50,13 @@ def get_misomip_ocean_steps(
     ssh_adjustment : bool, optional
         Whether the experiment needs an initial condition, made by adjusting
         the SSH to the land-ice pressure, rather than only its forcing
+
+    forward : bool, optional
+        Whether to add a standalone forward run from the initial condition
+
+    data_mode : bool, optional
+        Whether the land-ice geometry varies in time, as MALI's data mode
+        replays it
 
     Returns
     -------
@@ -132,6 +142,18 @@ def get_misomip_ocean_steps(
     )
     for name, step in ssh_steps.items():
         steps[f'ocean/{name}'] = step
+
+    if forward:
+        steps['ocean/forward'] = component.get_or_create_shared_step(
+            step_cls=MisomipForward,
+            subdir=os.path.join(expdir, 'forward'),
+            config=config,
+            config_filename=CONFIG_FILENAME,
+            resolution=resolution,
+            init=init,
+            ssh_adjust=final_step,
+            data_mode=data_mode,
+        )
     return steps, config, final_step
 
 

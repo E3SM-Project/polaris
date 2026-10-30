@@ -4,6 +4,7 @@ from polaris import Task
 from polaris.tasks.e3sm.init.misomip.names import get_grid_names
 from polaris.tasks.e3sm.init.misomip.steps import (
     CONFIG_FILENAME,
+    NOT_RUN_BY_DEFAULT,
     get_misomip_experiment_steps,
 )
 
@@ -52,7 +53,11 @@ class MisomipTask(Task):
                 # the experiment's own steps are in the task's directory
                 self.add_step(step)
             else:
-                self.add_step(step, symlink=symlink)
+                self.add_step(
+                    step,
+                    symlink=symlink,
+                    run_by_default=symlink not in NOT_RUN_BY_DEFAULT,
+                )
 
     def configure(self):
         """
