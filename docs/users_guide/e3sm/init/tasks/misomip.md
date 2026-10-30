@@ -40,6 +40,14 @@ walls, since MALI's mesh gives them half a cell's area.
 The `maps` steps make the conservative maps between the two meshes that
 E3SM's coupler reads, in each direction.
 
+## Graph partitions
+
+The `ocean_partitions` and `landice_partitions` steps partition each
+model's graph with `gpmetis` into a range of core counts, which the config
+options below set.  The partition files are named as E3SM names them:
+`mpas-o.graph.info.part.<n>` for MPAS-Ocean and
+`mpasli.graph.info.part.<n>` for MALI.
+
 ## Config options
 
 E3SM's names for the grids are config options, which each pair of meshes
@@ -62,3 +70,22 @@ model_grid = misomip-o4km-li1km
 Setup fails if any of them is blank.
 
 The maps are made with the tool in `[mapping] map_tool`.
+
+The partitions are made for core counts between bounds on the number of
+cells per core:
+
+```cfg
+# options for the graph partitions of the ocean's mesh
+[misomip_ocean_partitions]
+
+# The approximate maximum number of cells per core, which sets the fewest
+# cores a partition is made for
+max_cells_per_core = 2000
+
+# The approximate minimum number of cells per core, which sets the most cores
+# a partition is made for
+min_cells_per_core = 40
+```
+
+The section `[misomip_landice_partitions]` sets the same options for MALI,
+30000 and 100 by default.
