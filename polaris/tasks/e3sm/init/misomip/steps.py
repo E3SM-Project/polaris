@@ -1,6 +1,7 @@
 import os
 
 from polaris.config import PolarisConfigParser
+from polaris.e3sm.init.graph_partition import GraphPartitionStep
 from polaris.step import Step
 from polaris.tasks.e3sm.init import e3sm_init
 from polaris.tasks.e3sm.init.misomip.maps import MAPS, MapStep
@@ -17,6 +18,12 @@ MESH_PAIRS = {
     'misomip-o2km-li1km': {'ocean': 2.0, 'landice': 1.0},
 }
 
+#: The stem of each model's partition files, as E3SM names them
+PARTITION_BASENAMES = {
+    'ocean': 'mpas-o.graph.info',
+    'landice': 'mpasli.graph.info',
+}
+
 #: The name of the config file shared by the steps of a pair of meshes
 CONFIG_FILENAME = 'misomip.cfg'
 
@@ -26,7 +33,7 @@ CONFIG_PACKAGE = 'polaris.tasks.e3sm.init.misomip'
 def get_misomip_mesh_steps(mesh_name):
     """
     Get the shared steps that give a pair of MISOMIP meshes latitude and
-    longitude, SCRIP files and the maps between them
+    longitude, SCRIP files, the maps between them and graph partitions
 
     Parameters
     ----------
@@ -93,6 +100,21 @@ def get_misomip_mesh_steps(mesh_name):
             os.path.join('maps', map_name),
             map_name=map_name,
             mesh_steps=mesh_steps,
+        )
+
+    graphs = {
+        'ocean': os.path.join(mesh_steps['ocean'].path, 'graph.info'),
+        'landice': os.path.join(steps['mismip_plus/mesh'].path, 'graph.info'),
+    }
+    for grid, basename in PARTITION_BASENAMES.items():
+        name = f'{grid}_partitions'
+        steps[name] = get_step(
+            GraphPartitionStep,
+            name,
+            name=name,
+            basename=basename,
+            section=f'misomip_{name}',
+            graph_target=graphs[grid],
         )
 
     return steps, config

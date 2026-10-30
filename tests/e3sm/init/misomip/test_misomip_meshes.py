@@ -6,6 +6,7 @@ from mpas_tools.mesh.conversion import cull
 from mpas_tools.planar_hex import make_planar_hex_mesh
 
 from polaris.config import PolarisConfigParser
+from polaris.e3sm.init.partitions import get_core_list
 from polaris.tasks.e3sm.init.misomip import MESH_PAIRS, get_misomip_mesh_steps
 from polaris.tasks.e3sm.init.misomip.names import get_grid_names
 from polaris.tasks.e3sm.init.misomip.projection import (
@@ -199,6 +200,25 @@ def test_mesh_steps_are_shared():
     assert steps['mismip_plus/mesh'].path == 'mesh/planar/mismip_plus/1km/mesh'
     for map_name in ['landice_to_ocean_aave', 'ocean_to_landice_aave']:
         assert f'maps/{map_name}' in steps
+    assert steps['ocean_partitions'].basename == 'mpas-o.graph.info'
+    assert steps['landice_partitions'].basename == 'mpasli.graph.info'
+    assert steps['landice_partitions'].section == 'misomip_landice_partitions'
+
+
+def test_partitions_include_the_planned_task_counts():
+    _, config = get_misomip_mesh_steps('misomip-o4km-li1km')
+    section = config['misomip_ocean_partitions']
+    bounds = dict(
+        max_cells_per_core=section.getint('max_cells_per_core'),
+        min_cells_per_core=section.getint('min_cells_per_core'),
+    )
+    # the 4 km ocean mesh has 2759 cells, and the 2 km one about 4 times as
+    # many
+    cores_4km = get_core_list(ncells=2759, **bounds)
+    cores_2km = get_core_list(ncells=4 * 2759, **bounds)
+    assert 8 in cores_4km
+    assert 36 in cores_2km
+    assert 256 in cores_2km
 
 
 def test_unknown_mesh_pair():
