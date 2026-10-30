@@ -258,8 +258,8 @@ failure, so a hunt reports it only when it changes.
 
 ### Algorithm Design: Hunts can find bugs by reading code.
 
-A review reads the pull requests merged into Omega `develop` since the last
-review, or a part of the code the developer names. It looks only for code
+A review reads the pull requests merged into Omega `develop` and Polaris
+`main` since the last review, or a part of the code the developer names. It looks only for code
 that gives wrong answers or fails: missing halo exchanges, races on GPUs,
 out-of-bounds or uninitialized values, inconsistent units or constants. It
 ignores style. Each candidate must come with a concrete way it fails, and
@@ -568,8 +568,9 @@ reaches Polaris.
 
 ### Implementation: Hunts can find bugs by reading code.
 
-The agent reviews with its own tools. `status` lists the pull requests
-merged since the last review, and the hunt record keeps the range reviewed.
+The agent reviews with its own tools. `review` lists the pull requests
+merged into each repository since the last review, and the hunt record
+keeps each repository's range separately.
 
 ### Implementation: Each bug is reported once.
 
