@@ -47,7 +47,7 @@ ROWS = [
     ('WP3', 'Landice component: MALI + Albany in Polaris',
      'polaris #871; E3SM-O-D #151 merged', 'draft', 0, ''),
     ('WP4', 'MISMIP+ spin-up with MALI',
-     'polaris #922; 1 km spin-up converged; experiments running',
+     'polaris #922; 1 km spin-up converged; Ice0–Ice2ra run',
      'draft', 0, ''),
     ('WP5', 'Mesh projection, SCRIP files and coupler maps',
      'add-misomip-e3sm-init (with WP6): design done', 'started', 0,
