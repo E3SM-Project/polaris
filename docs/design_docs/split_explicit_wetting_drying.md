@@ -9,8 +9,6 @@ Contributors:
 
 ## Summary
 
-This design is WP2 of the
-[MISOMIP design](https://github.com/E3SM-Project/polaris/pull/858).
 MPAS-Ocean's split-explicit scheme gains wetting and drying with a thin
 film under grounded ice. Polaris adds split-explicit variants of the
 ISOMIP+ `ocean0`, `inception`, `wetting` and `drying` tasks and of the
@@ -97,8 +95,9 @@ Date last modified: 2026/10/18
 Contributors: Xylar Asay-Davis, Claude
 
 RK4 keeps master's wetting factor, `ocn_wetting_drying_wettingVelocity`,
-with E3SM-Ocean-Discussion/E3SM#119's changes and its ssh-gradient and
-subgrid branches. The series' outflux factor,
+with the grounded-ice changes
+([E3SM-Ocean-Discussion#119](https://github.com/E3SM-Ocean-Discussion/E3SM/pull/119))
+and its ssh-gradient and subgrid branches. The series' outflux factor,
 `ocn_wetting_drying_outflux_barotropic_factor`, serves only the
 split-explicit scheme. Its column-wide factor, which only its RK4 path
 used, and a barotropic factor that nothing called are removed. A
@@ -107,10 +106,11 @@ or ssh-gradient wetting and drying stops at initialization. Both schemes
 add the rule below that keeps water out from under grounded ice.
 
 ```{admonition} Rationale
-The series replaces master's RK4 factor and drops the branches that #119
-and subgrid wetting and drying use. Keeping master's factor leaves RK4
-runs without a thin film bit-for-bit and keeps subgrid wetting and
-drying, which supports one layer and RK4 only, available for WP10.
+The series replaces master's RK4 factor and drops the branches that the
+grounded-ice changes and subgrid wetting and drying use. Keeping master's
+factor leaves RK4 runs without a thin film bit-for-bit and keeps subgrid
+wetting and drying, which supports one layer and RK4 only, available to
+extend to partly grounded cells.
 ```
 
 ### Algorithm Design: grounded ice in the split-explicit factors
@@ -119,12 +119,12 @@ Date last modified: 2026/10/18
 
 Contributors: Xylar Asay-Davis, Claude
 
-The split-explicit factors see grounded ice through #119's limit on the
-land-ice pressure, as RK4's factor does. #119's `sshLandIceAdjustment` is
-the sea-surface-height equivalent of the pressure the limit removes. The
-factors reduce the predicted water column by it and, when comparing
-neighbors' sea surface heights, raise the cell's by it. This is the
-land-ice treatment in Carolyn Begeman's design.
+The split-explicit factors see grounded ice through the limit on the
+land-ice pressure in grounded cells, as RK4's factor does. The limit's
+`sshLandIceAdjustment` is the sea-surface-height equivalent of the
+pressure the limit removes. The factors reduce the predicted water column
+by it and, when comparing neighbors' sea surface heights, raise the cell's
+by it. This is the land-ice treatment in Carolyn Begeman's design.
 
 ```{admonition} Rationale
 Without it, a cell under grounded ice looks like any thin column. Its
@@ -145,7 +145,7 @@ Contributors: Xylar Asay-Davis, Claude
 In both schemes, water flows into a cell under ice heavier than
 flotation only where the neighbor's head exceeds the cell's head plus
 the excess, that is, where it could lift the ice. A cell's head is its
-sea surface height plus the land-ice pressure after #119's limit, in
+sea surface height plus the land-ice pressure after that limit, in
 meters of seawater. The excess is minus `sshLandIceAdjustment`.
 
 ```{admonition} Rationale
@@ -282,7 +282,7 @@ These are fixed or removed:
 - the fallback for neighbors beyond `nCellsAll`, marked "check with
   Steven";
 - the halo exchange of `effectiveDensityInLandIce`, a field that
-  E3SM#8047 removed;
+  E3SM's new land-ice options removed;
 - commented-out and per-step debugging output;
 - loops widened from one halo layer to all cells in the diagnostics and
   ALE thickness, unless the factors need them;
@@ -390,7 +390,7 @@ Contributors: Xylar Asay-Davis, Claude
 
 The ISOMIP+ tasks gain split-explicit variants of `ocean0`, `inception`,
 `wetting` and `drying`, such as
-`ocean/planar/isomip_plus/4km/z-star/split_explicit/ocean0`. WP11's
+`ocean/planar/isomip_plus/4km/z-star/split_explicit/ocean0`. The
 physics variants use the same level, as in `.../z-star/com/ocean0`. Each
 variant adds its own config file. `split_explicit.cfg` sets
 `time_integrator`, `split_dt_per_km` and `btr_dt_per_km` for the forward
@@ -410,7 +410,7 @@ this work.
 
 The drying slope tasks, barotropic and the baroclinic case of O'Dea et al.
 (2021), come to Polaris in their own pull request based on `main`,
-starting from Carolyn Begeman's port in #192. They need only RK4 wetting
+starting from Carolyn Begeman's earlier port. They need only RK4 wetting
 and drying, which E3SM-Project has. This work adds their split-explicit
 variants.
 
