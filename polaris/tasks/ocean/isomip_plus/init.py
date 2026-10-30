@@ -42,10 +42,27 @@ class Init(OceanIOStep):
     thin_film : bool
         Whether a thin film is present under grounded ice, as it is for
         experiments with time-varying geometry
+
+    gravity : float or None
+        The gravitational acceleration for the draft, or ``None`` for the
+        standard one
+
+    profiles : dict of str to str
+        The profile, ``warm`` or ``cold``, of the initial condition
+        (``init``) and of the restoring (``restoring``)
     """
 
     def __init__(
-        self, component, indir, culled_mesh, topo, experiment, thin_film
+        self,
+        component,
+        indir,
+        culled_mesh,
+        topo,
+        experiment,
+        thin_film,
+        profiles=None,
+        name='init',
+        subdir=None,
     ):
         """
         Create the step
@@ -71,16 +88,33 @@ class Init(OceanIOStep):
         thin_film : bool
             Whether a thin film is present under grounded ice, as it is for
             experiments with time-varying geometry
+
+        profiles : dict of str to str, optional
+            The profiles of the initial condition and the restoring, by
+            default the experiment's in ``PROFILES``
+
+        name : str, optional
+            The name of the step
+
+        subdir : str, optional
+            The subdirectory for the step, in place of ``indir`` and
+            ``name``
         """
-        super().__init__(component=component, name='init', indir=indir)
-        if experiment not in PROFILES:
-            raise ValueError(f'Unexpected experiment {experiment}')
+        super().__init__(
+            component=component, name=name, indir=indir, subdir=subdir
+        )
+        if profiles is None:
+            if experiment not in PROFILES:
+                raise ValueError(f'Unexpected experiment {experiment}')
+            profiles = PROFILES[experiment]
         self.experiment = experiment
+        self.profiles = profiles
         self.thin_film = thin_film
+        self.gravity = None
 
         self.add_input_file(
             filename='culled_mesh.nc',
-            work_dir_target=f'{culled_mesh.path}/culled_mesh.nc',
+            work_dir_target=self.get_mesh_target(culled_mesh),
         )
         self.add_input_file(
             filename='topography.nc',
@@ -98,6 +132,35 @@ class Init(OceanIOStep):
         self.add_output_files_for_ocean_model_input(
             graph_filename='culled_graph.info'
         )
+
+    def get_mesh_target(self, mesh_step):
+        """
+        Get the mesh the initial condition starts from
+
+        Parameters
+        ----------
+        mesh_step : polaris.Step
+            The step that made the mesh
+
+        Returns
+        -------
+        target : str
+            The path of the mesh, relative to the base work directory
+        """
+        return f'{mesh_step.path}/culled_mesh.nc'
+
+    def read_topography(self):
+        """
+        Read the bed and the land-ice fields on the mesh the initial
+        condition starts from
+
+        Returns
+        -------
+        ds_topo : xarray.Dataset
+            The topography, with a ``Time`` dimension if the land-ice fields
+            vary in time
+        """
+        return open_dataset('topography.nc')
 
     def run(self):
         """
@@ -147,7 +210,7 @@ class Init(OceanIOStep):
         """
         logger = self.logger
         ds_base = open_dataset('culled_mesh.nc')
-        ds_topo = open_dataset('topography.nc')
+        ds_topo = self.read_topography()
 
         if self.thin_film:
             logger.info(
@@ -313,13 +376,14 @@ class Init(OceanIOStep):
             land_ice_pressure=land_ice_pressure,
             modify_mask=land_ice_pressure > 0.0,
             ref_density=ocean_density,
+            gravity=self.gravity,
         )
 
     def _compute_state(self, ds):
         """
         Compute the initial temperature, salinity and velocity
         """
-        profile = PROFILES[self.experiment]['init']
+        profile = self.profiles['init']
         temperature, salinity = self._get_profiles(ds, profile)
 
         if self.thin_film:
@@ -381,7 +445,7 @@ class Init(OceanIOStep):
         )
         s_per_day = get_constant('day_to_s')
 
-        profile = PROFILES[self.experiment]['restoring']
+        profile = self.profiles['restoring']
         temperature, salinity = self._get_profiles(ds, profile)
 
         ds_forcing = xr.Dataset()

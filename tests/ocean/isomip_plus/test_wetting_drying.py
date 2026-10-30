@@ -10,7 +10,7 @@ from numpy.testing import assert_allclose
 from polaris.config import PolarisConfigParser
 from polaris.ocean.vertical import init_vertical_coord
 from polaris.tasks.ocean.isomip_plus.forward import Forward
-from polaris.tasks.ocean.isomip_plus.init import Init
+from polaris.tasks.ocean.isomip_plus.init import PROFILES, Init
 from polaris.tasks.ocean.isomip_plus.xtime import get_record_times
 
 
@@ -26,7 +26,9 @@ def _get_config():
 def _get_init_step(config) -> Any:
     """A stand-in for the init step with the attributes its methods use"""
     step: Any = SimpleNamespace(
-        config=config, logger=logging.getLogger('test_wetting_drying')
+        config=config,
+        logger=logging.getLogger('test_wetting_drying'),
+        gravity=None,
     )
     step._draft_from_pressure = lambda pressure: Init._draft_from_pressure(
         step, pressure
@@ -93,6 +95,7 @@ def test_tidal_input_mask(tmp_path, monkeypatch, thin_film):
     config = _get_config()
     step = _get_init_step(config)
     step.experiment = 'drying'
+    step.profiles = PROFILES['drying']
     step.thin_film = thin_film
     step._get_profiles = lambda ds, profile: Init._get_profiles(
         step, ds, profile

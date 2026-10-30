@@ -89,6 +89,16 @@ restoring and evaporation fields. With a thin film, `forcing.nc` also has
 `land_ice_forcing.nc` with the pressure and fractions of every record of the
 scaled topography.
 
+A subclass can start from another mesh and other land-ice fields by
+overriding
+{py:meth}`polaris.tasks.ocean.isomip_plus.init.Init.get_mesh_target()`,
+which gives the mesh linked as `culled_mesh.nc`, and
+{py:meth}`polaris.tasks.ocean.isomip_plus.init.Init.read_topography()`,
+which reads the bed and land-ice fields.  Its `gravity` attribute, `None`
+for the standard gravity, sets the gravity used for the draft, and its
+`profiles` argument sets the profiles of an experiment that `PROFILES`
+doesn't list.
+
 (dev-ocean-isomip-plus-ssh-adjustment)=
 
 ## ssh adjustment
