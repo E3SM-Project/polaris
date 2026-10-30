@@ -143,6 +143,40 @@ def seaice_dir(grid: str) -> str:
     return f'inputdata/ice/mpas-seaice/{grid}'
 
 
+def landice_dir(grid: str) -> str:
+    """
+    The MALI directory for a grid.
+
+    Parameters
+    ----------
+    grid : str
+        E3SM's name for MALI's grid.
+
+    Returns
+    -------
+    str
+        The path, relative to :py:data:`ASSEMBLED_FILES`.
+    """
+    return f'inputdata/glc/mpasli/{grid}'
+
+
+def gridmaps_dir(grid: str) -> str:
+    """
+    The directory of the coupler's maps from a grid.
+
+    Parameters
+    ----------
+    grid : str
+        E3SM's name for the maps' source grid.
+
+    Returns
+    -------
+    str
+        The path, relative to :py:data:`ASSEMBLED_FILES`.
+    """
+    return f'inputdata/cpl/gridmaps/{grid}'
+
+
 def ocean_initial_condition_path(grid: str, creation_date: str) -> str:
     """
     Where the MPAS-Ocean initial condition for a grid is staged.

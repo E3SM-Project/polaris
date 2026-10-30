@@ -67,6 +67,8 @@
    inputdata.set_creation_date
    inputdata.ocean_dir
    inputdata.seaice_dir
+   inputdata.landice_dir
+   inputdata.gridmaps_dir
    inputdata.ocean_initial_condition_path
    inputdata.ocean_graph_path
    inputdata.ocean_partition_path
