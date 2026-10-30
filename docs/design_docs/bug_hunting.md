@@ -365,7 +365,13 @@ offered in the digest with its cost.
 A speculative finding stays in the ledger, whatever its severity, until a
 test or a closer reading confirms it. The agent proposes a priority, and the
 developer can change it in the digest. A bug that comes back after its
-issue was closed moves up one level.
+issue was closed moves up one level. An Omega bug that matters only for a
+feature or option outside E3SM v4 moves down one level, but no lower than
+P3. The features in v4.0 are those in the Ocean section of the E3SM v4
+roadmap. An option is in v4 only if v4 turns it on, which Omega's defaults
+do not show. When v4's setting is not written down, the agent proposes one
+and says so in the digest, and the code owner decides; a code owner who
+relabels the issue has decided.
 
 ### Algorithm Design: A hunt asks for only a few decisions.
 
@@ -585,6 +591,8 @@ findings/F-20261027-3fa2.yaml    one file per finding
 hunts/2026-10-27.yaml            what the hunt covered, and its decisions
 hunts/2026-10-27.md              its digest
 on_hold.yaml                     rows on hold, each with a reason and a date
+outside_v4.yaml                  features and options outside E3SM v4, each
+                                 with its source and a date
 ```
 
 A finding is a YAML file:
@@ -646,7 +654,9 @@ prescribes.
 The rubric is in `utils/bug_hunt/AGENTS.md`. Polaris gets Omega's three
 labels: `priority: high`, `priority: medium` and `priority: low`. `park`,
 `harvest` and `update` set the priority from the rubric. A different
-priority needs a note, which the digest shows with it.
+priority needs a note, which the digest shows with it. A finding outside
+v4 names the entry in `outside_v4.yaml` it depends on, and the rubric
+lowers its priority with it.
 
 ### Implementation: A hunt asks for only a few decisions.
 
@@ -770,7 +780,8 @@ reproduce it, and that the issue it writes has each part.
 ### Testing and Validation: Findings are ranked by priority.
 
 Unit tests rank fixture findings that cover each row of the priority table,
-and a bug that came back after its issue was closed.
+a bug that came back after its issue was closed, and one outside E3SM
+v4.
 
 ### Testing and Validation: A hunt asks for only a few decisions.
 
