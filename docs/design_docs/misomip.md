@@ -372,9 +372,9 @@ uses only for its coupler areas.
 Across the domain's 80 km width, the projection's scale error is below
 $2\times10^{-5}$ and its area error below $4\times10^{-5}$, so planar model
 areas and the map's spherical areas differ by no more than that. Fluxes
-conserve exactly once E3SM takes the ocean's coupler areas from the map,
-as it already does MALI's. [D2](#decisions) and [D13](#decisions) record
-the alternatives.
+conserve exactly because E3SM takes the ocean's coupler areas from the
+map, as it does MALI's, and corrects for areas under the ice shelves.
+[D2](#decisions) and [D13](#decisions) record the alternatives.
 ```
 
 ### Principle: the ocean follows MALI
@@ -716,8 +716,8 @@ specific to ISOMIP+, so they can go upstream when E3SM wants them:
 - a prognostic ocean without an atmosphere: relax the driver check and
   skip the atmosphere–ocean fluxes ([D4](#decisions));
 - the ocean's coupler areas from the glc-to-ocean map when there is no
-  atmosphere, as glc's already are; until then, conservation is off by up
-  to $4\times10^{-5}$;
+  atmosphere, as glc's already are, with area corrections under the ice
+  shelves too, so the exchanged fluxes conserve exactly;
 - the `wetting_drying` and `tidal_forcing` namelist groups, with the tidal
   forcing built every step;
 - initial conditions, data-mode files and graph partitions named by case
