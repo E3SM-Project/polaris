@@ -771,7 +771,9 @@ compute:
   for MISMIP+.
 
 Compass's `misomip` and streamfunction steps can be ported where they
-help. The protocol's file format is not a goal.
+help. The protocol's file format is not a goal. WP9 also runs stage B's
+E3SM cases, Ocean0–2 at 4 and 2 km, from WP6's case configurations, since
+its analysis needs their output.
 
 ### WP10: Subgrid wetting and drying
 
