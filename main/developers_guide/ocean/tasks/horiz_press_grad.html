@@ -156,12 +156,19 @@
 <p>The <a class="reference internal" href="../generated/polaris.tasks.ocean.horiz_press_grad.task.HorizPressGradTask.html#polaris.tasks.ocean.horiz_press_grad.task.HorizPressGradTask" title="polaris.tasks.ocean.horiz_press_grad.task.HorizPressGradTask"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.tasks.ocean.horiz_press_grad.task.HorizPressGradTask</span></code></a>
 provides two-column Omega tests for pressure-gradient-acceleration (<code class="docutils literal notranslate"><span class="pre">HPGA</span></code>)
 accuracy and convergence across horizontal and vertical resolutions.</p>
-<p>The task family includes four variants:</p>
+<p>The task family includes four such variants:</p>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">salinity_gradient</span></code></p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">temperature_gradient</span></code></p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">ztilde_gradient</span></code></p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">surface_pressure_gradient</span></code></p></li>
+</ul>
+<p><a class="reference internal" href="../generated/polaris.tasks.ocean.horiz_press_grad.resting_state_task.HorizPressGradRestingStateTask.html#polaris.tasks.ocean.horiz_press_grad.resting_state_task.HorizPressGradRestingStateTask" title="polaris.tasks.ocean.horiz_press_grad.resting_state_task.HorizPressGradRestingStateTask"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.tasks.ocean.horiz_press_grad.resting_state_task.HorizPressGradRestingStateTask</span></code></a>
+provides two further variants that are exact resting states, in which the true
+HPGA is identically zero and no reference solution is used:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">hydrostatic_consistency</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">bathymetry_step</span></code></p></li>
 </ul>
 <section id="framework">
 <h2>framework<a class="headerlink" href="#framework" title="Link to this heading"></a></h2>
@@ -174,6 +181,108 @@ the code.</p>
 <p>The task dynamically rebuilds <code class="docutils literal notranslate"><span class="pre">init</span></code> and <code class="docutils literal notranslate"><span class="pre">forward</span></code> steps in <code class="docutils literal notranslate"><span class="pre">configure()</span></code> so
 user-supplied <code class="docutils literal notranslate"><span class="pre">horiz_resolutions</span></code> and <code class="docutils literal notranslate"><span class="pre">vert_resolutions</span></code> in config files are
 reflected in the work directory setup.</p>
+<section id="metrics">
+<h3>metrics<a class="headerlink" href="#metrics" title="Link to this heading"></a></h3>
+<p><code class="xref py py-mod docutils literal notranslate"><span class="pre">polaris.tasks.ocean.horiz_press_grad.metrics</span></code> is a dependency-light
+leaf module (numpy and xarray only) holding the pieces both analysis steps
+need: <code class="docutils literal notranslate"><span class="pre">get_internal_edge()</span></code>, <code class="docutils literal notranslate"><span class="pre">rms()</span></code>, <code class="docutils literal notranslate"><span class="pre">power_law_fit()</span></code>,
+<code class="docutils literal notranslate"><span class="pre">write_metric_dataset()</span></code>, <code class="docutils literal notranslate"><span class="pre">format_value_list()</span></code> and
+<code class="docutils literal notranslate"><span class="pre">format_value_error_pairs()</span></code>.  It exists so the two step modules can share them
+without importing private names from one another.</p>
+</section>
+<section id="the-finite-volume-pressure-gradient">
+<h3>the finite-volume pressure gradient<a class="headerlink" href="#the-finite-volume-pressure-gradient" title="Link to this heading"></a></h3>
+<p>Four leaf modules implement the <code class="docutils literal notranslate"><span class="pre">FiniteVolume</span></code> scheme of the
+<code class="docutils literal notranslate"><span class="pre">PGradHighOrder.md</span></code> design, as the Python counterpart of Omega’s
+<code class="docutils literal notranslate"><span class="pre">PressureGradFiniteVolume</span></code>.  They are written from that design rather than from
+the C++, so that the Omega-vs-Polaris comparison in <code class="docutils literal notranslate"><span class="pre">analysis</span></code> compares two
+independent implementations.</p>
+<p><code class="xref py py-mod docutils literal notranslate"><span class="pre">polaris.tasks.ocean.horiz_press_grad.edge</span></code> holds the two-column edge
+operator, <code class="docutils literal notranslate"><span class="pre">edge_delta()</span></code> and <code class="docutils literal notranslate"><span class="pre">edge_mean()</span></code>.  It has no dependencies inside the
+package so the modules below can share it without importing one another.</p>
+<p><code class="xref py py-mod docutils literal notranslate"><span class="pre">polaris.tasks.ocean.horiz_press_grad.eos_expansion</span></code> gives the four
+Taylor coefficients of the equation of state from one <code class="docutils literal notranslate"><span class="pre">gsw</span></code> evaluation per cell
+per layer, averages them and the reference state to the edge, and evaluates the
+resulting shared profile.  Note that <code class="docutils literal notranslate"><span class="pre">gsw.specvol_first_derivatives()</span></code> takes
+pressure in dbar but returns the pressure derivative per Pa; the tests assert
+this rather than trusting it.</p>
+<p><code class="xref py py-mod docutils literal notranslate"><span class="pre">polaris.tasks.ocean.horiz_press_grad.reconstruction</span></code> builds the
+mean-preserving linear reconstruction of temperature and salinity in pressure.
+The slope is a centred difference of the layer means against <em>mid-layer
+pressure</em>, which is what makes it exact on a non-uniform grid.</p>
+<p><code class="xref py py-mod docutils literal notranslate"><span class="pre">polaris.tasks.ocean.horiz_press_grad.finite_volume</span></code> assembles the
+scheme.  The essential piece is <code class="docutils literal notranslate"><span class="pre">delta_specvol_at_pressure()</span></code>, which
+differences the integrand at <strong>matched pressure</strong> rather than at matched layer
+index: for each quadrature point, <code class="docutils literal notranslate"><span class="pre">layer_containing_pressure()</span></code> finds the layer
+of <em>each column</em> that contains that pressure.  Under tilt those are not the
+same layer – at 50 m/km and 64 m layers the two columns’ layer <code class="docutils literal notranslate"><span class="pre">k</span></code> do not
+overlap in pressure at all – and getting this wrong silently turns the scheme
+into a different one.  <code class="docutils literal notranslate"><span class="pre">column_scan()</span></code> then accumulates the fixed-pressure
+height difference along the column from <code class="docutils literal notranslate"><span class="pre">anchor_difference()</span></code>, and
+<code class="docutils literal notranslate"><span class="pre">finite_volume_hpga()</span></code> forms the layer mean and the tendency.</p>
+<p><strong>The scan anchors at the sea floor</strong>, per design §3.7.4, at the deepest
+interface valid in both columns.  This is not a conditioning preference:
+<code class="docutils literal notranslate"><span class="pre">VertCoord</span></code> builds geometric height upward from a prescribed bathymetry by
+accumulating over each column’s <em>own</em> layers, so two columns partitioned
+differently by a tilt derive sea-surface heights that differ at
+<span class="math notranslate nohighlight">\(O(\tilde h^2)\)</span>, and a surface anchor would feed that straight into the answer.
+Note that §3.5.1 of the design still describes a surface anchor; §3.7.4 is
+later, gives the argument, and is what Omega implements.</p>
+<p>One consequence is worth knowing before reading the tests: on these states the
+sea-floor anchor is <strong>not</strong> zero, even on <code class="docutils literal notranslate"><span class="pre">hydrostatic_consistency_linear</span></code>.</p>
+<p>The cause is the midpoint rule both codes use to turn pressure into geometric
+height, <code class="docutils literal notranslate"><span class="pre">geom_thickness</span> <span class="pre">=</span> <span class="pre">spec_vol</span> <span class="pre">*</span> <span class="pre">h_tilde</span> <span class="pre">*</span> <span class="pre">RhoSw</span></code>.  At 256 m layers it
+truncates each column’s 3500 m integral by <span class="math notranslate nohighlight">\(1.096\times10^{-3}\)</span> m.  <code class="docutils literal notranslate"><span class="pre">Init</span></code>
+holds <code class="docutils literal notranslate"><span class="pre">bottomDepth</span></code> at the prescribed bathymetry and solves for
+<code class="docutils literal notranslate"><span class="pre">BottomPressure</span></code>, which is the right assignment of known and unknown, and each
+column converges exactly – to the bottom pressure that makes <em>its own</em>
+midpoint sum 3500 m.  Under tilt the two columns’ interfaces fall in different
+places, so their truncation errors differ, by <span class="math notranslate nohighlight">\(7.138\times10^{-8}\)</span> m; that
+difference is the anchor, to four significant figures.  At a common pressure
+the two columns’ heights genuinely differ by that much, and the scheme is right
+to report it.</p>
+<p>Three things follow that are worth stating because each closes off a plausible
+fix:</p>
+<ul class="simple">
+<li><p><strong>more iterations do not help.</strong>  The iteration is at its exact fixed point;
+over 6 to 40 iterations the inter-column pressure difference is unchanged to
+seven digits;</p></li>
+<li><p><strong>anchoring <code class="docutils literal notranslate"><span class="pre">pstar_init</span></code> at the sea floor would be a no-op.</strong>  It already
+builds the column sea-floor-anchored and shifts it afterwards, and that shift
+is exactly zero wherever the iteration converges – which is everywhere in
+this task, since these variants set <code class="docutils literal notranslate"><span class="pre">partial_cell_type</span> <span class="pre">=</span> <span class="pre">None</span></code>;</p></li>
+<li><p><strong>Polaris must not integrate more accurately.</strong>  The increment is
+byte-identical to <code class="docutils literal notranslate"><span class="pre">VertCoord::computeGeomZHeight</span></code> on purpose; that is what
+closes the round trip and gives <code class="docutils literal notranslate"><span class="pre">omega_vs_polaris</span></code> its meaning.  A better
+quadrature here would break it by ~1 mm to remove <span class="math notranslate nohighlight">\(7\times10^{-8}\)</span> m.</p></li>
+</ul>
+<p>What the tests assert on the exact set is therefore that the scan stays <em>flat</em>
+– every increment zero to round-off – and that the assembled tendency is the
+anchor and nothing else, which holds to a part in <span class="math notranslate nohighlight">\(10^7\)</span> across the sweep.  The
+residual is <span class="math notranslate nohighlight">\(1.75\times10^{-10}\)</span> m s<span class="math notranslate nohighlight">\(^{-2}\)</span>, against <span class="math notranslate nohighlight">\(9.1\times10^{-8}\)</span> for
+<code class="docutils literal notranslate"><span class="pre">Centered</span></code> on the same state, so it is a ceiling on how exact the test can be
+rather than a limit on the scheme.  The <code class="docutils literal notranslate"><span class="pre">anchor_at_surface</span></code> guard switches ends
+so the gap can be measured rather than assumed.</p>
+<p>The module also retains <code class="docutils literal notranslate"><span class="pre">centered_shift()</span></code> and <code class="docutils literal notranslate"><span class="pre">centered_shift_accumulated()</span></code>.
+These are no longer on the computational path; they are kept as diagnostics,
+because <code class="docutils literal notranslate"><span class="pre">hpga_from_shift(centered_shift(ds),</span> <span class="pre">dx)</span></code> reproduces the centered
+scheme’s <code class="docutils literal notranslate"><span class="pre">HPGA</span></code> exactly and is the cheapest available regression test of it.</p>
+<p><code class="docutils literal notranslate"><span class="pre">finite_volume_hpga()</span></code> accepts a <code class="docutils literal notranslate"><span class="pre">guards</span></code> argument holding verification-only
+switches, each deliberately breaking one rule of the design.  They exist to
+confirm the test suite can detect a broken implementation; they are not
+supported settings.</p>
+<p>The Gauss-Legendre rule these integrals use comes from the <code class="docutils literal notranslate"><span class="pre">quadrature_points</span></code>
+config option, which is the <em>same</em> option that fills in Omega’s
+<code class="docutils literal notranslate"><span class="pre">PressureGrad:QuadraturePoints</span></code>.  That is deliberate and is not a convenience.
+<code class="docutils literal notranslate"><span class="pre">omega_vs_polaris_rms_threshold</span></code> is the only check in this task family that
+tests Omega’s arithmetic against an independent implementation, and it is a
+check on the implementations only if both integrate with the same rule; two
+sides quadrating differently are two algorithms, and their disagreement would
+not be distinguishable from a bug in either.  Exactness itself does not depend
+on the rule – on the exact set the integrand is zero at every point, so any
+rule integrates it to zero – which is exactly why a mismatch here would show
+up only off the exact set, where it is hardest to attribute.</p>
+</section>
 <section id="reference">
 <h3>reference<a class="headerlink" href="#reference" title="Link to this heading"></a></h3>
 <p>The class
@@ -207,7 +316,7 @@ quadrature with <code class="docutils literal notranslate"><span class="pre">ref
 This is what <code class="docutils literal notranslate"><span class="pre">Analysis</span></code> calls to form the reference target per layer.</p></li>
 </ul>
 <p>The private class <code class="docutils literal notranslate"><span class="pre">_ClampedInterp</span></code> wraps
-<code class="xref py py-func docutils literal notranslate"><span class="pre">get_pchip_interpolator()</span></code>
+<a class="reference internal" href="../generated/polaris.tasks.ocean.horiz_press_grad.column.get_pchip_interpolator.html#polaris.tasks.ocean.horiz_press_grad.column.get_pchip_interpolator" title="polaris.tasks.ocean.horiz_press_grad.column.get_pchip_interpolator"><code class="xref py py-func docutils literal notranslate"><span class="pre">get_pchip_interpolator()</span></code></a>
 with constant extrapolation at the node bounds.</p>
 <p>The quadrature primitives (<code class="docutils literal notranslate"><span class="pre">_fixed_quadrature</span></code>, <code class="docutils literal notranslate"><span class="pre">_gauss_composite</span></code>) support
 midpoint, trapezoid, Simpson, <code class="docutils literal notranslate"><span class="pre">gauss2</span></code>, and <code class="docutils literal notranslate"><span class="pre">gauss4</span></code> methods and are shared
@@ -250,46 +359,228 @@ holds the p-star coordinate variables written for Omega.</p>
 <section id="forward">
 <h3>forward<a class="headerlink" href="#forward" title="Link to this heading"></a></h3>
 <p>The class <a class="reference internal" href="../generated/polaris.tasks.ocean.horiz_press_grad.forward.Forward.html#polaris.tasks.ocean.horiz_press_grad.forward.Forward" title="polaris.tasks.ocean.horiz_press_grad.forward.Forward"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.tasks.ocean.horiz_press_grad.forward.Forward</span></code></a>
-defines one model step per horizontal resolution.</p>
+defines one model step per horizontal resolution <strong>and per pressure-gradient
+scheme</strong>, named <code class="docutils literal notranslate"><span class="pre">forward_&lt;res&gt;_&lt;scheme&gt;</span></code>.</p>
 <p>It runs Omega from the corresponding <code class="docutils literal notranslate"><span class="pre">init</span></code> output and writes <code class="docutils literal notranslate"><span class="pre">output.nc</span></code>
-(with <code class="docutils literal notranslate"><span class="pre">NormalVelocityTend</span></code> validation), using options from <code class="docutils literal notranslate"><span class="pre">forward.yaml</span></code>.</p>
+(with <code class="docutils literal notranslate"><span class="pre">NormalVelocityTend</span></code> validation), using options from <code class="docutils literal notranslate"><span class="pre">forward.yaml</span></code>.
+<code class="docutils literal notranslate"><span class="pre">forward.yaml</span></code> is a Jinja2 template whose <code class="docutils literal notranslate"><span class="pre">PressureGrad</span></code> block is filled in per
+step from the <code class="docutils literal notranslate"><span class="pre">scheme</span></code> argument and the <code class="docutils literal notranslate"><span class="pre">quadrature_points</span></code> config option.</p>
+<p>The schemes are listed by the <code class="docutils literal notranslate"><span class="pre">pressure_grad_types</span></code> config option and named in
+the module-level <code class="docutils literal notranslate"><span class="pre">SCHEMES</span></code> dict, which maps the config spelling to Omega’s
+<code class="docutils literal notranslate"><span class="pre">PressureGradType</span></code>.  <code class="docutils literal notranslate"><span class="pre">SCHEME_HPGA</span></code> maps each to the field in <code class="docutils literal notranslate"><span class="pre">init.nc</span></code> that is
+its Polaris counterpart, which is what the analysis steps compare Omega
+against.</p>
+<p>Two things about this axis are worth stating, because both were decided
+against plausible alternatives:</p>
+<ul class="simple">
+<li><p><strong>Both schemes share one <code class="docutils literal notranslate"><span class="pre">Init</span></code> step.</strong>  <code class="docutils literal notranslate"><span class="pre">Init</span></code> is scheme-independent – it
+writes <code class="docutils literal notranslate"><span class="pre">HPGA</span></code> and <code class="docutils literal notranslate"><span class="pre">HPGAFiniteVolume</span></code> from the same state – so duplicating it
+per scheme would cost run time and, worse, would leave the comparison open to
+the objection that the two schemes ran on different initial conditions.  The
+cost is that the scheme label is in every forward step’s directory, so
+baselines recorded before the axis existed do not carry over.</p></li>
+<li><p><strong>There is no “centered limit” of the finite-volume scheme.</strong>  The two are
+separate implementations and no setting reduces one to the other, so this is
+a choice between schemes rather than a parameter of one.  Omega treats an
+unrecognized <code class="docutils literal notranslate"><span class="pre">PressureGradType</span></code> as fatal rather than falling back to
+<code class="docutils literal notranslate"><span class="pre">Centered</span></code>, so a typo aborts the run instead of producing centered answers
+that read as a pass.</p></li>
+</ul>
 </section>
 <section id="analysis">
 <h3>analysis<a class="headerlink" href="#analysis" title="Link to this heading"></a></h3>
 <p>The class <a class="reference internal" href="../generated/polaris.tasks.ocean.horiz_press_grad.analysis.Analysis.html#polaris.tasks.ocean.horiz_press_grad.analysis.Analysis" title="polaris.tasks.ocean.horiz_press_grad.analysis.Analysis"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.tasks.ocean.horiz_press_grad.analysis.Analysis</span></code></a>
 compares each <code class="docutils literal notranslate"><span class="pre">forward</span></code> result with:</p>
 <ul class="simple">
-<li><p>the analytic reference solution (built from <code class="docutils literal notranslate"><span class="pre">ReferenceColumn</span></code>), and</p></li>
-<li><p>the Python-computed HPGA from <code class="docutils literal notranslate"><span class="pre">init.nc</span></code>.</p></li>
+<li><p>the analytic reference solution (built from <code class="docutils literal notranslate"><span class="pre">ReferenceColumn</span></code>), which is a
+property of the state and so is shared by both schemes, and</p></li>
+<li><p>the Python-computed HPGA from <code class="docutils literal notranslate"><span class="pre">init.nc</span></code> <strong>for the matching scheme</strong>:
+<code class="docutils literal notranslate"><span class="pre">HPGA</span></code> for <code class="docutils literal notranslate"><span class="pre">centered</span></code>, <code class="docutils literal notranslate"><span class="pre">HPGAFiniteVolume</span></code> for <code class="docutils literal notranslate"><span class="pre">finite_volume</span></code>.  Comparing
+Omega’s finite-volume output against the centered <code class="docutils literal notranslate"><span class="pre">HPGA</span></code> would measure the
+difference between two schemes and report it as an implementation
+disagreement.</p></li>
 </ul>
 <p>The step writes:</p>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">omega_vs_reference.nc</span></code> and <code class="docutils literal notranslate"><span class="pre">omega_vs_reference.png</span></code></p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">omega_vs_python.nc</span></code> and <code class="docutils literal notranslate"><span class="pre">omega_vs_python.png</span></code></p></li>
 </ul>
-<p>and enforces regression criteria from <code class="docutils literal notranslate"><span class="pre">[horiz_press_grad]</span></code>, including:</p>
+<p>Both files carry one series per scheme, as variables suffixed with the scheme
+name, and both plots draw the schemes on one panel – the comparison between
+them at the same resolution is the measurement, so separating them would hide
+it.</p>
+<p>The step enforces regression criteria from <code class="docutils literal notranslate"><span class="pre">[horiz_press_grad]</span></code>:</p>
 <ul class="simple">
-<li><p>allowed convergence-slope range for Omega-vs-reference,</p></li>
-<li><p>high-resolution RMS threshold for Omega-vs-reference, and</p></li>
-<li><p>RMS threshold for Omega-vs-Python consistency.</p></li>
+<li><p>allowed convergence-slope range for Omega-vs-reference, <strong>per scheme</strong>
+(<code class="docutils literal notranslate"><span class="pre">omega_vs_reference_convergence_rate_{min,max}_{scheme}</span></code>);</p></li>
+<li><p>high-resolution RMS threshold for Omega-vs-reference, per scheme;</p></li>
+<li><p>RMS threshold for Omega-vs-Python consistency, per scheme; and</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">omega_vs_reference_accuracy_ratio_min</span></code>, the ratio of the centered to the
+finite-volume RMS error at the <strong>coarsest</strong> resolution.</p></li>
 </ul>
+<p>Three things about the last two are worth knowing, because each was set from
+measurement against a plausible alternative:</p>
+<ul class="simple">
+<li><p><strong>Bands are per scheme because the schemes genuinely differ in order on one
+variant.</strong>  Measured offline over 4, 2, 1 and 0.5 km, centered against finite
+volume: 1.68/1.68 (<code class="docutils literal notranslate"><span class="pre">temperature_gradient</span></code>), 1.77/1.77 (<code class="docutils literal notranslate"><span class="pre">salinity_gradient</span></code>),
+<strong>0.93/1.98</strong> (<code class="docutils literal notranslate"><span class="pre">ztilde_gradient</span></code>), 2.00/1.99 (<code class="docutils literal notranslate"><span class="pre">surface_pressure_gradient</span></code>).
+Only <code class="docutils literal notranslate"><span class="pre">ztilde_gradient</span></code> needs its own pair, and it is the one that shows what
+the scheme is for: the centered scheme is first order there and the
+finite-volume scheme restores second.</p></li>
+<li><p><strong>The accuracy gate is a ratio, not a comparison of orders.</strong>  Gating on the
+new scheme’s slope beating the old one would fail on three variants out of
+four, where the two converge at the same rate and nothing is wrong.</p></li>
+<li><p><strong>Its default is 0.98, which asserts only “not worse”.</strong>  On
+<code class="docutils literal notranslate"><span class="pre">temperature_gradient</span></code> and <code class="docutils literal notranslate"><span class="pre">salinity_gradient</span></code> the two schemes agree to five
+digits – the layers are level there, so matched-pressure and matched-index
+coincide, and the error is the two-column representation of the tracer
+gradient, which both schemes share.  Demanding an improvement would fail on a
+configuration with nothing to improve.  <code class="docutils literal notranslate"><span class="pre">ztilde_gradient</span></code> raises it to 1.5
+(measured 1.80 at the coarse end) and <code class="docutils literal notranslate"><span class="pre">surface_pressure_gradient</span></code> to 1.8
+(measured 2.19).</p></li>
+</ul>
+<p><code class="docutils literal notranslate"><span class="pre">ztilde_gradient</span></code> is also where the design’s own guidance needs qualifying: the
+advantage there <strong>widens</strong> under refinement, 1.80x at 4 km against 14.8x at
+0.5 km, because the orders differ.  Elsewhere it is the constant factor the
+design describes.</p>
 <p>Implementation-wise, <code class="docutils literal notranslate"><span class="pre">Analysis.run()</span></code> iterates over configured horizontal
-resolutions.  For each resolution it:</p>
+resolutions and, within each, over schemes.  For each resolution it:</p>
 <ol class="arabic simple">
 <li><p>reads <code class="docutils literal notranslate"><span class="pre">init_r*.nc</span></code>, <code class="docutils literal notranslate"><span class="pre">culled_mesh_r*.nc</span></code>, <code class="docutils literal notranslate"><span class="pre">vert_coord_r*.nc</span></code>, and
-<code class="docutils literal notranslate"><span class="pre">output_r*.nc</span></code>;</p></li>
+<code class="docutils literal notranslate"><span class="pre">output_r*_&lt;scheme&gt;.nc</span></code>;</p></li>
 <li><p>identifies the single internal edge via <code class="docutils literal notranslate"><span class="pre">_get_internal_edge()</span></code> and derives
 the forward pseudo-heights via <code class="docutils literal notranslate"><span class="pre">_get_forward_z_tilde_edge_mid()</span></code>;</p></li>
 <li><p>constructs a <code class="docutils literal notranslate"><span class="pre">ReferenceColumn</span></code> with the mesh-derived <code class="docutils literal notranslate"><span class="pre">x_sign</span></code> and calls
-<code class="docutils literal notranslate"><span class="pre">ref.layer_mean_hpga()</span></code> on the edge interface pseudo-heights from
-<code class="docutils literal notranslate"><span class="pre">init.nc</span></code>, dropping the deepest valid layer (which abuts bathymetry);</p></li>
+<code class="docutils literal notranslate"><span class="pre">ref.layer_mean_hpga()</span></code> on the edge interface pseudo-heights from <code class="docutils literal notranslate"><span class="pre">init.nc</span></code>,
+over interfaces <code class="docutils literal notranslate"><span class="pre">0</span> <span class="pre">..</span> <span class="pre">max_level_index</span> <span class="pre">+</span> <span class="pre">1</span></code> so that every layer valid in both
+columns is included, down to and including the bottom partial cell.  An
+earlier version dropped that layer because the then-current five-column
+finite-difference reference could not form its stencil there; the analytic
+single-column reference is valid to the seafloor, so it is now kept;</p></li>
 <li><p>checks that Python and Omega pseudo-heights agree with
 <code class="docutils literal notranslate"><span class="pre">_check_vertical_match()</span></code>, then computes the Omega-vs-Python RMS difference
 from <code class="docutils literal notranslate"><span class="pre">init.nc</span></code> HPGA.</p></li>
 </ol>
 <p>The forward solution always comes from <code class="docutils literal notranslate"><span class="pre">output.nc</span></code> via <code class="docutils literal notranslate"><span class="pre">NormalVelocityTend</span></code>.
-Helper routines <code class="docutils literal notranslate"><span class="pre">_rms_error()</span></code> and <code class="docutils literal notranslate"><span class="pre">_power_law_fit()</span></code> produce the convergence
-datasets and plots.</p>
+<code class="docutils literal notranslate"><span class="pre">rms()</span></code> and <code class="docutils literal notranslate"><span class="pre">power_law_fit()</span></code> from <code class="docutils literal notranslate"><span class="pre">metrics</span></code> produce the convergence datasets
+and plots.</p>
+</section>
+</section>
+<section id="the-resting-state-variants">
+<h2>the resting-state variants<a class="headerlink" href="#the-resting-state-variants" title="Link to this heading"></a></h2>
+<p><a class="reference internal" href="../generated/polaris.tasks.ocean.horiz_press_grad.resting_state_task.HorizPressGradRestingStateTask.html#polaris.tasks.ocean.horiz_press_grad.resting_state_task.HorizPressGradRestingStateTask" title="polaris.tasks.ocean.horiz_press_grad.resting_state_task.HorizPressGradRestingStateTask"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.tasks.ocean.horiz_press_grad.resting_state_task.HorizPressGradRestingStateTask</span></code></a>
+is a sibling of <code class="docutils literal notranslate"><span class="pre">HorizPressGradTask</span></code> rather than a mode of it.  The existing
+task pairs each entry of <code class="docutils literal notranslate"><span class="pre">horiz_resolutions</span></code> with one entry of
+<code class="docutils literal notranslate"><span class="pre">vert_resolutions</span></code> and keys its step dictionaries by horizontal resolution
+alone, so it cannot express the repeated horizontal resolutions the tilt sweep
+needs.  The resting-state task keys its steps by the
+<code class="docutils literal notranslate"><span class="pre">(horiz_res,</span> <span class="pre">vert_res,</span> <span class="pre">tilt)</span></code> triple instead, and builds the outer product of
+the resolution pairs with <code class="docutils literal notranslate"><span class="pre">tilt_values</span></code>.</p>
+<p><code class="docutils literal notranslate"><span class="pre">Init</span></code> and <code class="docutils literal notranslate"><span class="pre">Forward</span></code> are reused unchanged apart from two optional arguments:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">subdir_suffix</span></code> replaces the horizontal resolution in the step name, so
+repeated horizontal resolutions do not collide.  It is built by
+<code class="docutils literal notranslate"><span class="pre">sweep_suffix(horiz_res,</span> <span class="pre">vert_res,</span> <span class="pre">tilt)</span></code>, giving names like
+<code class="docutils literal notranslate"><span class="pre">init_4km_256m_tilt0p5</span></code>.  When it is not given, the horizontal resolution is
+used, giving <code class="docutils literal notranslate"><span class="pre">init_&lt;res&gt;</span></code> and <code class="docutils literal notranslate"><span class="pre">forward_&lt;res&gt;_&lt;scheme&gt;</span></code>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">tilt_option</span></code> and <code class="docutils literal notranslate"><span class="pre">tilt</span></code> (on <code class="docutils literal notranslate"><span class="pre">Init</span></code> only) name a <code class="docutils literal notranslate"><span class="pre">[horiz_press_grad]</span></code> config
+option that <code class="docutils literal notranslate"><span class="pre">Init.run()</span></code> sets in its own config before building the columns,
+in the same way it already sets <code class="docutils literal notranslate"><span class="pre">vertical_grid:vert_levels</span></code>.</p></li>
+</ul>
+<p><code class="docutils literal notranslate"><span class="pre">Init.run()</span></code> also calls <code class="docutils literal notranslate"><span class="pre">_check_reference_grid_head_room()</span></code> after
+<code class="docutils literal notranslate"><span class="pre">run_pstar_init()</span></code>.  The p-star iteration converges to a pseudo-bottom depth
+somewhat greater than the geometric water-column thickness, because in-situ
+density exceeds <code class="docutils literal notranslate"><span class="pre">RhoSw</span></code> at depth.  If a tilt makes a column’s <code class="docutils literal notranslate"><span class="pre">z_tilde_bot</span></code>
+shallower than that, the reference grid cannot span the water column, the
+iteration diverges, and the resulting HPGA is of order 1 m s<span class="math notranslate nohighlight">\(^{-2}\)</span> rather than
+the order 1e-5 m s<span class="math notranslate nohighlight">\(^{-2}\)</span> being measured.  The guard raises with the head room
+available in each column.</p>
+<section id="resting-analysis">
+<h3>resting_analysis<a class="headerlink" href="#resting-analysis" title="Link to this heading"></a></h3>
+<p><a class="reference internal" href="../generated/polaris.tasks.ocean.horiz_press_grad.resting_analysis.RestingAnalysis.html#polaris.tasks.ocean.horiz_press_grad.resting_analysis.RestingAnalysis" title="polaris.tasks.ocean.horiz_press_grad.resting_analysis.RestingAnalysis"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.tasks.ocean.horiz_press_grad.resting_analysis.RestingAnalysis</span></code></a>
+replaces <code class="docutils literal notranslate"><span class="pre">Analysis</span></code> for these variants.  Per sweep point it:</p>
+<ol class="arabic simple">
+<li><p>locates the internal edge with <code class="docutils literal notranslate"><span class="pre">get_internal_edge()</span></code>;</p></li>
+<li><p>forms the valid layer range <code class="docutils literal notranslate"><span class="pre">0</span> <span class="pre">..</span> <span class="pre">min(maxLevelCell)</span> <span class="pre">-</span> <span class="pre">1</span></code>, <strong>inclusive</strong> of
+the deepest layer valid in both columns — the bottom partial cell, which
+carries the entire <code class="docutils literal notranslate"><span class="pre">bathymetry_step</span></code> signal.  <code class="docutils literal notranslate"><span class="pre">Analysis</span></code> includes it too;</p></li>
+<li><p>takes the RMS of Omega’s <code class="docutils literal notranslate"><span class="pre">NormalVelocityTend</span></code> at that edge over those
+layers, for each scheme.  The truth is zero, so this is the error, not a
+difference from a reference;</p></li>
+<li><p>does the same for the matching Polaris-side field from <code class="docutils literal notranslate"><span class="pre">init.nc</span></code> –
+<code class="docutils literal notranslate"><span class="pre">HPGA</span></code> or <code class="docutils literal notranslate"><span class="pre">HPGAFiniteVolume</span></code> per <code class="docutils literal notranslate"><span class="pre">SCHEME_HPGA</span></code> – and RMS-differences the
+two.</p></li>
+</ol>
+<p>It then groups the sweep by resolution pair, fits the tilt exponent within each
+group and scheme over the points at or below <code class="docutils literal notranslate"><span class="pre">tilt_fit_max</span></code> when <code class="docutils literal notranslate"><span class="pre">tilt_fit</span></code> is
+set, writes <code class="docutils literal notranslate"><span class="pre">resting_state.nc</span></code> and <code class="docutils literal notranslate"><span class="pre">resting_state.png</span></code>, and applies four
+checks:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">_check_bathymetry()</span></code> — <code class="docutils literal notranslate"><span class="pre">bottomDepth</span></code> must match the <code class="docutils literal notranslate"><span class="pre">bottomDepthRequested</span></code>
+written by <code class="docutils literal notranslate"><span class="pre">Init</span></code> to within <code class="docutils literal notranslate"><span class="pre">resting_state_max_bathy_error</span></code>.  The p-star
+column is anchored at the prescribed sea surface, so <code class="docutils literal notranslate"><span class="pre">ssh</span></code> is exact by
+construction and cannot reveal a problem; partial-cell snapping instead moves
+the sea floor, which leaves the state at rest but means the swept tilt is no
+longer the geometry under test;</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">_check_omega_vs_polaris()</span></code> — the retained <code class="docutils literal notranslate"><span class="pre">omega_vs_polaris_rms_threshold</span></code>
+consistency check, applied per scheme and independent of the resting-state
+property;</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">_check_sensitivity()</span></code> — the largest RMS anywhere in the sweep must reach
+<code class="docutils literal notranslate"><span class="pre">resting_state_sensitivity_min_rms</span></code>, or the sweep is not exercising the
+failure mode and must be redesigned.  This is applied to <strong><code class="docutils literal notranslate"><span class="pre">centered</span></code> only</strong>:
+it asks whether the sweep is severe enough to exercise the failure the
+higher-order scheme exists to fix, so demanding it of <code class="docutils literal notranslate"><span class="pre">finite_volume</span></code> would
+be requiring the new scheme to fail;</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">_check_max_rms()</span></code> — the consistency gate, applied per scheme and skipped
+while <code class="docutils literal notranslate"><span class="pre">resting_state_max_rms</span></code> is <code class="docutils literal notranslate"><span class="pre">none</span></code>;</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">_check_improvement()</span></code> — the centered RMS divided by the finite-volume RMS
+must reach <code class="docutils literal notranslate"><span class="pre">resting_state_improvement_min</span></code> at <strong>every</strong> sweep point.  The
+true HPGA is zero here, so both are pure error and the ratio is a clean
+statement of what the higher-order scheme buys, with no reference solution
+and none of its discretization involved.  The ratio is logged whether or not
+a threshold is set.</p></li>
+</ul>
+<p>The improvement gate is set <strong>per variant</strong> because the advantage spans four
+orders of magnitude, and a shared value would be vacuous at one end and
+unreachable at the other.  Measured offline, the smallest ratio anywhere in
+each sweep:</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>variant</p></th>
+<th class="head"><p>worst ratio</p></th>
+<th class="head"><p>at</p></th>
+<th class="head"><p>gate</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">hydrostatic_consistency</span></code></p></td>
+<td><p>2.58x</p></td>
+<td><p>4 km, 128 m, tilt 50</p></td>
+<td><p>1.5</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">hydrostatic_consistency_linear</span></code></p></td>
+<td><p>7.71x</p></td>
+<td><p>4 km, 64 m, tilt 50</p></td>
+<td><p>4.0</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">bathymetry_step</span></code></p></td>
+<td><p>1170x</p></td>
+<td><p>4 km, 256 m, grad 200</p></td>
+<td><p>500</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">bathymetry_step_linear</span></code></p></td>
+<td><p>58828x</p></td>
+<td><p>4 km, 256 m, grad 200</p></td>
+<td><p>20000</p></td>
+</tr>
+</tbody>
+</table>
+<p>The ordering is the result, not an accident of the sweeps: the advantage is
+smallest where the profile is curved and only the coordinate tilts, and largest
+where the profile is resolved and the sea floor steps.  Those numbers are
+pinned by <code class="docutils literal notranslate"><span class="pre">test_improvement_gate_is_below_what_the_kernel_delivers</span></code>, so the
+gates and the measurements cannot drift apart silently.</p>
 </section>
 </section>
 </section>

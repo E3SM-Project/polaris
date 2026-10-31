@@ -474,6 +474,25 @@ window.runMermaid = runMermaid;</script>
 <span></span><span class="kn">from</span><span class="w"> </span><span class="nn">polaris.ocean.model</span><span class="w"> </span><span class="kn">import</span> <span class="n">OceanModelStep</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">polaris.resolution</span><span class="w"> </span><span class="kn">import</span> <span class="n">resolution_to_string</span>
 
+<span class="c1"># The pressure-gradient schemes a variant can be run with, mapping the config</span>
+<span class="c1"># spelling to Omega's PressureGradType.  There is no "centered limit" of the</span>
+<span class="c1"># finite-volume scheme: the two are separate implementations and no setting</span>
+<span class="c1"># reduces one to the other, so this is a choice between them rather than a</span>
+<span class="c1"># parameter of one.</span>
+<span class="n">SCHEMES</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s1">'centered'</span><span class="p">:</span> <span class="s1">'Centered'</span><span class="p">,</span>
+    <span class="s1">'finite_volume'</span><span class="p">:</span> <span class="s1">'FiniteVolume'</span><span class="p">,</span>
+<span class="p">}</span>
+
+<span class="c1"># Which field in init.nc is the Polaris counterpart of each scheme's output.</span>
+<span class="c1"># omega_vs_polaris compares Omega against the matching one; comparing against</span>
+<span class="c1"># the wrong one would measure the difference between two schemes and call it</span>
+<span class="c1"># an implementation disagreement.</span>
+<span class="n">SCHEME_HPGA</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s1">'centered'</span><span class="p">:</span> <span class="s1">'HPGA'</span><span class="p">,</span>
+    <span class="s1">'finite_volume'</span><span class="p">:</span> <span class="s1">'HPGAFiniteVolume'</span><span class="p">,</span>
+<span class="p">}</span>
+
 
 <div class="viewcode-block" id="Forward">
 <a class="viewcode-back" href="../../../../../developers_guide/ocean/generated/polaris.tasks.ocean.horiz_press_grad.forward.Forward.html#polaris.tasks.ocean.horiz_press_grad.forward.Forward">[docs]</a>
@@ -482,11 +501,21 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">    This step performs a forward run for a single time step, writing out</span>
 <span class="sd">    the normal-velocity tendency (which is just the pressure gradient</span>
 <span class="sd">    acceleration) along with other diagnostics.</span>
+
+<span class="sd">    Attributes</span>
+<span class="sd">    ----------</span>
+<span class="sd">    horiz_res : float</span>
+<span class="sd">        The horizontal resolution in km</span>
+
+<span class="sd">    scheme : str</span>
+<span class="sd">        The pressure-gradient scheme, a key of :py:data:`SCHEMES`</span>
 <span class="sd">    """</span>
 
 <div class="viewcode-block" id="Forward.__init__">
 <a class="viewcode-back" href="../../../../../developers_guide/ocean/generated/polaris.tasks.ocean.horiz_press_grad.forward.Forward.html#polaris.tasks.ocean.horiz_press_grad.forward.Forward.__init__">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">component</span><span class="p">,</span> <span class="n">horiz_res</span><span class="p">,</span> <span class="n">init</span><span class="p">,</span> <span class="n">indir</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">component</span><span class="p">,</span> <span class="n">horiz_res</span><span class="p">,</span> <span class="n">init</span><span class="p">,</span> <span class="n">indir</span><span class="p">,</span> <span class="n">scheme</span><span class="p">,</span> <span class="n">subdir_suffix</span><span class="o">=</span><span class="kc">None</span>
+    <span class="p">):</span>
 <span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Create the step</span>
 
@@ -504,12 +533,28 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">        indir : str</span>
 <span class="sd">            The subdirectory that the task belongs to, that this step will</span>
 <span class="sd">            go into a subdirectory of</span>
+
+<span class="sd">        scheme : str</span>
+<span class="sd">            The pressure-gradient scheme to run, a key of :py:data:`SCHEMES`</span>
+
+<span class="sd">        subdir_suffix : str, optional</span>
+<span class="sd">            A suffix used in place of the horizontal resolution in the step</span>
+<span class="sd">            name, for sweeps that repeat a horizontal resolution</span>
 <span class="sd">        """</span>
+        <span class="k">if</span> <span class="n">scheme</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">SCHEMES</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s1">'Unknown pressure-gradient scheme </span><span class="si">{</span><span class="n">scheme</span><span class="si">!r}</span><span class="s1">; expected one '</span>
+                <span class="sa">f</span><span class="s1">'of </span><span class="si">{</span><span class="nb">sorted</span><span class="p">(</span><span class="n">SCHEMES</span><span class="p">)</span><span class="si">}</span><span class="s1">.'</span>
+            <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">horiz_res</span> <span class="o">=</span> <span class="n">horiz_res</span>
-        <span class="n">name</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">'forward_</span><span class="si">{</span><span class="n">resolution_to_string</span><span class="p">(</span><span class="n">horiz_res</span><span class="p">)</span><span class="si">}</span><span class="s1">'</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">scheme</span> <span class="o">=</span> <span class="n">scheme</span>
+        <span class="k">if</span> <span class="n">subdir_suffix</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">suffix</span> <span class="o">=</span> <span class="n">resolution_to_string</span><span class="p">(</span><span class="n">horiz_res</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">suffix</span> <span class="o">=</span> <span class="n">subdir_suffix</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
             <span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span>
-            <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span>
+            <span class="n">name</span><span class="o">=</span><span class="sa">f</span><span class="s1">'forward_</span><span class="si">{</span><span class="n">suffix</span><span class="si">}</span><span class="s1">_</span><span class="si">{</span><span class="n">scheme</span><span class="si">}</span><span class="s1">'</span><span class="p">,</span>
             <span class="n">indir</span><span class="o">=</span><span class="n">indir</span><span class="p">,</span>
             <span class="n">ntasks</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
             <span class="n">min_tasks</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
@@ -536,9 +581,16 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">        """</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">setup</span><span class="p">()</span>
 
+        <span class="n">quadrature_points</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">getint</span><span class="p">(</span>
+            <span class="s1">'horiz_press_grad'</span><span class="p">,</span> <span class="s1">'quadrature_points'</span>
+        <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">add_yaml_file</span><span class="p">(</span>
             <span class="s1">'polaris.tasks.ocean.horiz_press_grad'</span><span class="p">,</span>
             <span class="s1">'forward.yaml'</span><span class="p">,</span>
+            <span class="n">template_replacements</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span>
+                <span class="n">pressure_grad_type</span><span class="o">=</span><span class="n">SCHEMES</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">scheme</span><span class="p">],</span>
+                <span class="n">quadrature_points</span><span class="o">=</span><span class="n">quadrature_points</span><span class="p">,</span>
+            <span class="p">),</span>
         <span class="p">)</span></div>
 </div>
 

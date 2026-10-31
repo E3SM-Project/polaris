@@ -20,7 +20,7 @@
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
     <link rel="next" title="polaris.tasks.ocean.horiz_press_grad.forward.Forward.setup" href="polaris.tasks.ocean.horiz_press_grad.forward.Forward.setup.html" />
-    <link rel="prev" title="polaris.tasks.ocean.horiz_press_grad.init.Init.run" href="polaris.tasks.ocean.horiz_press_grad.init.Init.run.html" />
+    <link rel="prev" title="polaris.tasks.ocean.horiz_press_grad.init.Init.build_column_state" href="polaris.tasks.ocean.horiz_press_grad.init.Init.build_column_state.html" />
     <link href="../../../_static/style.css" rel="stylesheet" type="text/css">
 
 </head>
@@ -142,13 +142,21 @@
 <h1>polaris.tasks.ocean.horiz_press_grad.forward.Forward<a class="headerlink" href="#polaris-tasks-ocean-horiz-press-grad-forward-forward" title="Link to this heading"></a></h1>
 <dl class="py class">
 <dt class="sig sig-object py" id="polaris.tasks.ocean.horiz_press_grad.forward.Forward">
-<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">polaris.tasks.ocean.horiz_press_grad.forward.</span></span><span class="sig-name descname"><span class="pre">Forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">component</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">horiz_res</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">init</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">indir</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/polaris/tasks/ocean/horiz_press_grad/forward.html#Forward"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#polaris.tasks.ocean.horiz_press_grad.forward.Forward" title="Link to this definition"></a></dt>
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">polaris.tasks.ocean.horiz_press_grad.forward.</span></span><span class="sig-name descname"><span class="pre">Forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">component</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">horiz_res</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">init</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">indir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scheme</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">subdir_suffix</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/polaris/tasks/ocean/horiz_press_grad/forward.html#Forward"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#polaris.tasks.ocean.horiz_press_grad.forward.Forward" title="Link to this definition"></a></dt>
 <dd><p>This step performs a forward run for a single time step, writing out
 the normal-velocity tendency (which is just the pressure gradient
 acceleration) along with other diagnostics.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Variables<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>horiz_res</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#float" title="(in Python v3.15)"><em>float</em></a>) – The horizontal resolution in km</p></li>
+<li><p><strong>scheme</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><em>str</em></a>) – The pressure-gradient scheme, a key of <code class="xref py py-data docutils literal notranslate"><span class="pre">SCHEMES</span></code></p></li>
+</ul>
+</dd>
+</dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="polaris.tasks.ocean.horiz_press_grad.forward.Forward.__init__">
-<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">component</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">horiz_res</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">init</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">indir</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/polaris/tasks/ocean/horiz_press_grad/forward.html#Forward.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#polaris.tasks.ocean.horiz_press_grad.forward.Forward.__init__" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">component</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">horiz_res</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">init</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">indir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scheme</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">subdir_suffix</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/polaris/tasks/ocean/horiz_press_grad/forward.html#Forward.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#polaris.tasks.ocean.horiz_press_grad.forward.Forward.__init__" title="Link to this definition"></a></dt>
 <dd><p>Create the step</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -158,6 +166,9 @@ acceleration) along with other diagnostics.</p>
 <li><p><strong>init</strong> (<a class="reference internal" href="polaris.tasks.ocean.horiz_press_grad.init.Init.html#polaris.tasks.ocean.horiz_press_grad.init.Init" title="polaris.tasks.ocean.horiz_press_grad.init.Init"><em>polaris.tasks.ocean.horiz_press_grad.init.Init</em></a>) – The init step for this resolution</p></li>
 <li><p><strong>indir</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><em>str</em></a>) – The subdirectory that the task belongs to, that this step will
 go into a subdirectory of</p></li>
+<li><p><strong>scheme</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><em>str</em></a>) – The pressure-gradient scheme to run, a key of <code class="xref py py-data docutils literal notranslate"><span class="pre">SCHEMES</span></code></p></li>
+<li><p><strong>subdir_suffix</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><em>str</em></a><em>, </em><em>optional</em>) – A suffix used in place of the horizontal resolution in the step
+name, for sweeps that repeat a horizontal resolution</p></li>
 </ul>
 </dd>
 </dl>
@@ -166,7 +177,7 @@ go into a subdirectory of</p></li>
 <p class="rubric">Methods</p>
 <table class="autosummary longtable docutils align-default">
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#polaris.tasks.ocean.horiz_press_grad.forward.Forward.__init__" title="polaris.tasks.ocean.horiz_press_grad.forward.Forward.__init__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code></a>(component, horiz_res, init, indir)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#polaris.tasks.ocean.horiz_press_grad.forward.Forward.__init__" title="polaris.tasks.ocean.horiz_press_grad.forward.Forward.__init__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code></a>(component, horiz_res, init, indir, ...)</p></td>
 <td><p>Create the step</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_cf_check</span></code>([filename])</p></td>
@@ -331,7 +342,7 @@ go into a subdirectory of</p></li>
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="polaris.tasks.ocean.horiz_press_grad.init.Init.run.html" class="btn btn-neutral float-left" title="polaris.tasks.ocean.horiz_press_grad.init.Init.run" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="polaris.tasks.ocean.horiz_press_grad.init.Init.build_column_state.html" class="btn btn-neutral float-left" title="polaris.tasks.ocean.horiz_press_grad.init.Init.build_column_state" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
         <a href="polaris.tasks.ocean.horiz_press_grad.forward.Forward.setup.html" class="btn btn-neutral float-right" title="polaris.tasks.ocean.horiz_press_grad.forward.Forward.setup" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 

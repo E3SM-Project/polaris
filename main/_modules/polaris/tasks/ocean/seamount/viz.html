@@ -479,6 +479,7 @@ window.runMermaid = runMermaid;</script>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">polaris.mpas</span><span class="w"> </span><span class="kn">import</span> <span class="n">cell_mask_to_edge_mask</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">polaris.ocean.model</span><span class="w"> </span><span class="kn">import</span> <span class="n">OceanIOStep</span><span class="p">,</span> <span class="n">get_time_since_start</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.tasks.ocean.seamount.forward</span><span class="w"> </span><span class="kn">import</span> <span class="n">forward_step_name</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">polaris.viz</span><span class="w"> </span><span class="kn">import</span> <span class="n">plot_horiz_field</span>
 
 
@@ -486,12 +487,18 @@ window.runMermaid = runMermaid;</script>
 <a class="viewcode-back" href="../../../../../developers_guide/ocean/generated/polaris.tasks.ocean.seamount.viz.Viz.html#polaris.tasks.ocean.seamount.viz.Viz">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">Viz</span><span class="p">(</span><span class="n">OceanIOStep</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">"""</span>
-<span class="sd">    A step for plotting the results of the default seamount forward step</span>
+<span class="sd">    A step for plotting the results of one seamount forward step</span>
+
+<span class="sd">    Attributes</span>
+<span class="sd">    ----------</span>
+<span class="sd">    scheme : str</span>
+<span class="sd">        The pressure-gradient scheme the forward step was run with, used to</span>
+<span class="sd">        label the plots</span>
 <span class="sd">    """</span>
 
 <div class="viewcode-block" id="Viz.__init__">
 <a class="viewcode-back" href="../../../../../developers_guide/ocean/generated/polaris.tasks.ocean.seamount.viz.Viz.html#polaris.tasks.ocean.seamount.viz.Viz.__init__">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">component</span><span class="p">,</span> <span class="n">indir</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">component</span><span class="p">,</span> <span class="n">indir</span><span class="p">,</span> <span class="n">scheme</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Create the step</span>
 
@@ -502,15 +509,24 @@ window.runMermaid = runMermaid;</script>
 
 <span class="sd">        indir : str</span>
 <span class="sd">            the directory the step is in, to which ``name`` will be appended</span>
+
+<span class="sd">        scheme : str</span>
+<span class="sd">            the pressure-gradient scheme whose forward step to plot, a key of</span>
+<span class="sd">            :py:data:`polaris.tasks.ocean.seamount.forward.SCHEMES`.  Both the</span>
+<span class="sd">            name of this step and the forward step it reads follow from it.</span>
 <span class="sd">        """</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">'viz'</span><span class="p">,</span> <span class="n">indir</span><span class="o">=</span><span class="n">indir</span><span class="p">)</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
+            <span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="sa">f</span><span class="s1">'viz_</span><span class="si">{</span><span class="n">scheme</span><span class="si">}</span><span class="s1">'</span><span class="p">,</span> <span class="n">indir</span><span class="o">=</span><span class="n">indir</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">scheme</span> <span class="o">=</span> <span class="n">scheme</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">add_input_file</span><span class="p">(</span>
             <span class="n">filename</span><span class="o">=</span><span class="s1">'mesh.nc'</span><span class="p">,</span> <span class="n">target</span><span class="o">=</span><span class="s1">'../../init/culled_mesh.nc'</span>
         <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">add_input_file</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="s1">'init.nc'</span><span class="p">,</span> <span class="n">target</span><span class="o">=</span><span class="s1">'../../init/init.nc'</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">add_vert_coord_input_file</span><span class="p">(</span><span class="n">target</span><span class="o">=</span><span class="s1">'../../init/vert_coord.nc'</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">add_input_file</span><span class="p">(</span>
-            <span class="n">filename</span><span class="o">=</span><span class="s1">'output.nc'</span><span class="p">,</span> <span class="n">target</span><span class="o">=</span><span class="s1">'../forward/output.nc'</span>
+            <span class="n">filename</span><span class="o">=</span><span class="s1">'output.nc'</span><span class="p">,</span>
+            <span class="n">target</span><span class="o">=</span><span class="sa">f</span><span class="s1">'../</span><span class="si">{</span><span class="n">forward_step_name</span><span class="p">(</span><span class="n">scheme</span><span class="p">)</span><span class="si">}</span><span class="s1">/output.nc'</span><span class="p">,</span>
         <span class="p">)</span></div>
 
 
@@ -564,10 +580,12 @@ window.runMermaid = runMermaid;</script>
         <span class="n">mpas_field_valid</span> <span class="o">=</span> <span class="n">ds</span><span class="p">[</span><span class="n">field_name</span><span class="p">]</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span><span class="n">nCells</span><span class="o">=</span><span class="n">cellMask</span> <span class="o">==</span> <span class="mi">1</span><span class="p">)</span>
         <span class="n">vmin</span> <span class="o">=</span> <span class="n">mpas_field_valid</span><span class="o">.</span><span class="n">min</span><span class="p">()</span><span class="o">.</span><span class="n">values</span>
         <span class="n">vmax</span> <span class="o">=</span> <span class="n">mpas_field_valid</span><span class="o">.</span><span class="n">max</span><span class="p">()</span><span class="o">.</span><span class="n">values</span>
+        <span class="n">scheme</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">scheme</span>
         <span class="n">plot_transect</span><span class="p">(</span>
             <span class="n">ds_transect</span><span class="o">=</span><span class="n">ds_transect</span><span class="p">,</span>
             <span class="n">mpas_field</span><span class="o">=</span><span class="n">mpas_field</span><span class="p">,</span>
-            <span class="n">title</span><span class="o">=</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">field_name</span><span class="si">}</span><span class="s1"> at y=</span><span class="si">{</span><span class="mf">1e-3</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">y_mid</span><span class="si">:</span><span class="s1">.1f</span><span class="si">}</span><span class="s1"> km, final time'</span><span class="p">,</span>
+            <span class="n">title</span><span class="o">=</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">field_name</span><span class="si">}</span><span class="s1"> at y=</span><span class="si">{</span><span class="mf">1e-3</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">y_mid</span><span class="si">:</span><span class="s1">.1f</span><span class="si">}</span><span class="s1"> km, final time, '</span>
+            <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">scheme</span><span class="si">}</span><span class="s1"> scheme'</span><span class="p">,</span>
             <span class="n">out_filename</span><span class="o">=</span><span class="sa">f</span><span class="s1">'final_</span><span class="si">{</span><span class="n">field_name</span><span class="si">}</span><span class="s1">_section.png'</span><span class="p">,</span>
             <span class="n">vmin</span><span class="o">=</span><span class="n">vmin</span><span class="p">,</span>
             <span class="n">vmax</span><span class="o">=</span><span class="n">vmax</span> <span class="o">/</span> <span class="mf">10.0</span><span class="p">,</span>
@@ -585,7 +603,7 @@ window.runMermaid = runMermaid;</script>
             <span class="n">ds_mesh</span><span class="p">,</span>
             <span class="n">ds</span><span class="p">[</span><span class="n">field_name</span><span class="p">],</span>
             <span class="sa">f</span><span class="s1">'final_</span><span class="si">{</span><span class="n">field_name</span><span class="si">}</span><span class="s1">.png'</span><span class="p">,</span>
-            <span class="n">title</span><span class="o">=</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">field_name</span><span class="si">}</span><span class="s1"> in layer 2, final time'</span><span class="p">,</span>
+            <span class="n">title</span><span class="o">=</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">field_name</span><span class="si">}</span><span class="s1"> in layer 2, final time, </span><span class="si">{</span><span class="n">scheme</span><span class="si">}</span><span class="s1"> scheme'</span><span class="p">,</span>
             <span class="n">t_index</span><span class="o">=</span><span class="n">t_index</span><span class="p">,</span>
             <span class="n">z_index</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
             <span class="n">vmin</span><span class="o">=-</span><span class="n">max_velocity</span><span class="p">,</span>
@@ -599,7 +617,9 @@ window.runMermaid = runMermaid;</script>
         <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">[</span><span class="mi">12</span><span class="p">,</span> <span class="mi">6</span><span class="p">],</span> <span class="n">dpi</span><span class="o">=</span><span class="mi">100</span><span class="p">)</span>
         <span class="n">umax</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">amax</span><span class="p">(</span><span class="n">ds</span><span class="o">.</span><span class="n">normalVelocity</span><span class="p">[:,</span> <span class="p">:,</span> <span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
         <span class="n">t_days</span> <span class="o">=</span> <span class="n">get_time_since_start</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="n">units</span><span class="o">=</span><span class="s1">'days'</span><span class="p">)</span>
-        <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">t_days</span><span class="p">,</span> <span class="n">umax</span><span class="p">,</span> <span class="s1">'k-o'</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">'max(normalVelocity)'</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span>
+            <span class="n">t_days</span><span class="p">,</span> <span class="n">umax</span><span class="p">,</span> <span class="s1">'k-o'</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="sa">f</span><span class="s1">'max(normalVelocity), </span><span class="si">{</span><span class="n">scheme</span><span class="si">}</span><span class="s1"> scheme'</span>
+        <span class="p">)</span>
         <span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s1">'Time (days)'</span><span class="p">)</span>
         <span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s1">'Maximum Velocity (m/s)'</span><span class="p">)</span>
         <span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>

@@ -491,6 +491,9 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">    horiz_adv_order : int or None</span>
 <span class="sd">        The horizontal advection order for the test case</span>
 
+<span class="sd">    pressure_grad_type : str or None</span>
+<span class="sd">        Omega's ``PressureGradType``, or ``None`` for Omega's default</span>
+
 <span class="sd">    nu : float or None</span>
 <span class="sd">       The Laplacian viscosity to use for this forward step</span>
 <span class="sd">    """</span>
@@ -513,6 +516,7 @@ window.runMermaid = runMermaid;</script>
         <span class="n">nu</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
         <span class="n">nu4</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
         <span class="n">use_mom_del4</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">pressure_grad_type</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
     <span class="p">):</span>
 <span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Create a new test case</span>
@@ -558,6 +562,11 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">        nu4 : float, optional</span>
 <span class="sd">            the biharmonic (del4) viscosity (if different from the default for</span>
 <span class="sd">            the test group)</span>
+
+<span class="sd">        pressure_grad_type : str, optional</span>
+<span class="sd">            Omega's horizontal pressure-gradient scheme (``Centered`` or</span>
+<span class="sd">            ``FiniteVolume``), if different from Omega's default.  It has no</span>
+<span class="sd">            effect on MPAS-Ocean.</span>
 <span class="sd">        """</span>
         <span class="k">if</span> <span class="n">min_tasks</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">min_tasks</span> <span class="o">=</span> <span class="n">ntasks</span>
@@ -578,6 +587,7 @@ window.runMermaid = runMermaid;</script>
         <span class="bp">self</span><span class="o">.</span><span class="n">nu</span> <span class="o">=</span> <span class="n">nu</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">nu4</span> <span class="o">=</span> <span class="n">nu4</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">use_mom_del4</span> <span class="o">=</span> <span class="n">use_mom_del4</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pressure_grad_type</span> <span class="o">=</span> <span class="n">pressure_grad_type</span>
 
         <span class="c1"># make sure output is double precision</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">add_yaml_file</span><span class="p">(</span><span class="s1">'polaris.ocean.config'</span><span class="p">,</span> <span class="s1">'output.yaml'</span><span class="p">)</span>
@@ -674,6 +684,11 @@ window.runMermaid = runMermaid;</script>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">horiz_adv_order</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">add_model_config_options</span><span class="p">(</span>
                 <span class="n">options</span><span class="o">=</span><span class="p">{</span><span class="s1">'HorzTracerFluxLimiterEnable'</span><span class="p">:</span> <span class="kc">False</span><span class="p">},</span>
+                <span class="n">config_model</span><span class="o">=</span><span class="s1">'Omega'</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">pressure_grad_type</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">add_model_config_options</span><span class="p">(</span>
+                <span class="n">options</span><span class="o">=</span><span class="p">{</span><span class="s1">'PressureGradType'</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">pressure_grad_type</span><span class="p">},</span>
                 <span class="n">config_model</span><span class="o">=</span><span class="s1">'Omega'</span><span class="p">,</span>
             <span class="p">)</span></div>
 

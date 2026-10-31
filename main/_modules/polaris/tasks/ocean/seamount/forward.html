@@ -474,6 +474,42 @@ window.runMermaid = runMermaid;</script>
 <span></span><span class="kn">from</span><span class="w"> </span><span class="nn">polaris.mesh.planar</span><span class="w"> </span><span class="kn">import</span> <span class="n">compute_planar_hex_nx_ny</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">polaris.ocean.model</span><span class="w"> </span><span class="kn">import</span> <span class="n">OceanModelStep</span><span class="p">,</span> <span class="n">get_time_interval_string</span>
 
+<span class="c1"># The horizontal pressure-gradient schemes a forward step can be run with,</span>
+<span class="c1"># mapping the Polaris spelling to Omega's PressureGradType.  There is no</span>
+<span class="c1"># "centered limit" of the finite-volume scheme: the two are separate</span>
+<span class="c1"># implementations and no setting reduces one to the other, so this is a choice</span>
+<span class="c1"># between them rather than a parameter of one.  Only the centered scheme</span>
+<span class="c1"># exists in MPAS-Ocean, which is why a finite-volume step is added to the</span>
+<span class="c1"># default task only when the model is Omega.</span>
+<span class="n">SCHEMES</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s1">'centered'</span><span class="p">:</span> <span class="s1">'Centered'</span><span class="p">,</span>
+    <span class="s1">'finite_volume'</span><span class="p">:</span> <span class="s1">'FiniteVolume'</span><span class="p">,</span>
+<span class="p">}</span>
+
+
+<div class="viewcode-block" id="forward_step_name">
+<a class="viewcode-back" href="../../../../../developers_guide/ocean/generated/polaris.tasks.ocean.seamount.forward.forward_step_name.html#polaris.tasks.ocean.seamount.forward.forward_step_name">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">forward_step_name</span><span class="p">(</span><span class="n">scheme</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    The name of the forward step that runs a given pressure-gradient scheme.</span>
+
+<span class="sd">    Every forward step is named for its scheme, including in tasks that run</span>
+<span class="sd">    only one, so that an output directory says which scheme produced it</span>
+<span class="sd">    without anyone having to open the model config.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    scheme : str</span>
+<span class="sd">        The pressure-gradient scheme, a key of :py:data:`SCHEMES`</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    str</span>
+<span class="sd">        The step name</span>
+<span class="sd">    """</span>
+    <span class="k">return</span> <span class="sa">f</span><span class="s1">'forward_</span><span class="si">{</span><span class="n">scheme</span><span class="si">}</span><span class="s1">'</span></div>
+
+
 
 <div class="viewcode-block" id="Forward">
 <a class="viewcode-back" href="../../../../../developers_guide/ocean/generated/polaris.tasks.ocean.seamount.forward.Forward.html#polaris.tasks.ocean.seamount.forward.Forward">[docs]</a>
@@ -489,6 +525,9 @@ window.runMermaid = runMermaid;</script>
 
 <span class="sd">    yaml_filename : str</span>
 <span class="sd">       The name of the yaml file for this forward step</span>
+
+<span class="sd">    scheme : str</span>
+<span class="sd">       The horizontal pressure-gradient scheme, a key of :py:data:`SCHEMES`</span>
 <span class="sd">    """</span>
 
 <div class="viewcode-block" id="Forward.__init__">
@@ -500,6 +539,7 @@ window.runMermaid = runMermaid;</script>
         <span class="n">yaml_filename</span><span class="o">=</span><span class="s1">'forward.yaml'</span><span class="p">,</span>
         <span class="n">name</span><span class="o">=</span><span class="s1">'forward'</span><span class="p">,</span>
         <span class="n">task_name</span><span class="o">=</span><span class="s1">'default'</span><span class="p">,</span>
+        <span class="n">scheme</span><span class="o">=</span><span class="s1">'centered'</span><span class="p">,</span>
         <span class="n">subdir</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
         <span class="n">indir</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
         <span class="n">ntasks</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
@@ -526,6 +566,11 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">        init : polaris.ocean.tasks.internal_wave.init.Init</span>
 <span class="sd">            the initial state step</span>
 
+<span class="sd">        scheme : str, optional</span>
+<span class="sd">           The horizontal pressure-gradient scheme to run, a key of</span>
+<span class="sd">           :py:data:`SCHEMES`.  Only ``'centered'`` is available in</span>
+<span class="sd">           MPAS-Ocean.</span>
+
 <span class="sd">        subdir : str, optional</span>
 <span class="sd">            the subdirectory for the step.  The default is ``name``</span>
 
@@ -541,6 +586,11 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">        openmp_threads : int, optional</span>
 <span class="sd">            the number of OpenMP threads the step will use</span>
 <span class="sd">        """</span>
+        <span class="k">if</span> <span class="n">scheme</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">SCHEMES</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s1">'Unknown pressure-gradient scheme </span><span class="si">{</span><span class="n">scheme</span><span class="si">!r}</span><span class="s1">; expected one '</span>
+                <span class="sa">f</span><span class="s1">'of </span><span class="si">{</span><span class="nb">sorted</span><span class="p">(</span><span class="n">SCHEMES</span><span class="p">)</span><span class="si">}</span><span class="s1">.'</span>
+            <span class="p">)</span>
         <span class="k">if</span> <span class="n">min_tasks</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">min_tasks</span> <span class="o">=</span> <span class="n">ntasks</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
@@ -556,6 +606,7 @@ window.runMermaid = runMermaid;</script>
         <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">task_name</span> <span class="o">=</span> <span class="n">task_name</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">yaml_filename</span> <span class="o">=</span> <span class="n">yaml_filename</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">scheme</span> <span class="o">=</span> <span class="n">scheme</span>
 
         <span class="c1"># make sure output is double precision</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">add_yaml_file</span><span class="p">(</span><span class="s1">'polaris.ocean.config'</span><span class="p">,</span> <span class="s1">'output.yaml'</span><span class="p">)</span>
@@ -587,6 +638,12 @@ window.runMermaid = runMermaid;</script>
         <span class="n">section</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s1">'seamount'</span><span class="p">]</span>
         <span class="n">model</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'ocean'</span><span class="p">,</span> <span class="s1">'model'</span><span class="p">)</span>
         <span class="n">resolution</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">'resolution'</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">model</span> <span class="o">!=</span> <span class="s1">'omega'</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">scheme</span> <span class="o">!=</span> <span class="s1">'centered'</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s1">'The </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">scheme</span><span class="si">}</span><span class="s1"> pressure-gradient scheme is only '</span>
+                <span class="sa">f</span><span class="s1">'available in Omega, but the model is </span><span class="si">{</span><span class="n">model</span><span class="si">}</span><span class="s1">.'</span>
+            <span class="p">)</span>
 
         <span class="c1"># Both models take the same time step with the same integrator</span>
         <span class="n">dt_per_km</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">'dt_per_km'</span><span class="p">)</span>
@@ -622,6 +679,7 @@ window.runMermaid = runMermaid;</script>
             <span class="n">output_freq_units</span><span class="o">=</span><span class="s1">'seconds'</span><span class="p">,</span>
             <span class="n">horiz_adv_order</span><span class="o">=</span><span class="n">section</span><span class="o">.</span><span class="n">getint</span><span class="p">(</span><span class="s1">'horiz_adv_order'</span><span class="p">),</span>
             <span class="n">bottom_drag_coeff</span><span class="o">=</span><span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">'bottom_drag_coeff'</span><span class="p">),</span>
+            <span class="n">pressure_grad_type</span><span class="o">=</span><span class="n">SCHEMES</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">scheme</span><span class="p">],</span>
         <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">add_yaml_file</span><span class="p">(</span>
             <span class="s1">'polaris.tasks.ocean.seamount'</span><span class="p">,</span>

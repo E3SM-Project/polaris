@@ -1,0 +1,6 @@
+﻿polaris.tasks.ocean.horiz\_press\_grad.column.get\_pchip\_layer\_mean
+=====================================================================
+
+.. currentmodule:: polaris.tasks.ocean.horiz_press_grad.column
+
+.. autofunction:: get_pchip_layer_mean

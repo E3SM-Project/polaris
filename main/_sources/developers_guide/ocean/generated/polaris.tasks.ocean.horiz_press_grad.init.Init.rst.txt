@@ -25,6 +25,7 @@
       ~Init.add_produced_file
       ~Init.add_property_check
       ~Init.add_vert_coord_input_file
+      ~Init.build_column_state
       ~Init.check_cf
       ~Init.check_properties
       ~Init.constrain_resources

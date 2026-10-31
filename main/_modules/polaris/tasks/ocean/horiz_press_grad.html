@@ -470,7 +470,10 @@ window.runMermaid = runMermaid;</script>
            <div itemprop="articleBody">
              
   <h1>Source code for polaris.tasks.ocean.horiz_press_grad</h1><div class="highlight"><pre>
-<span></span><span class="kn">from</span><span class="w"> </span><span class="nn">polaris.tasks.ocean.horiz_press_grad.task</span><span class="w"> </span><span class="kn">import</span> <span class="n">HorizPressGradTask</span>
+<span></span><span class="kn">from</span><span class="w"> </span><span class="nn">polaris.tasks.ocean.horiz_press_grad.resting_state_task</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">HorizPressGradRestingStateTask</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.tasks.ocean.horiz_press_grad.task</span><span class="w"> </span><span class="kn">import</span> <span class="n">HorizPressGradTask</span>
 
 
 <div class="viewcode-block" id="add_horiz_press_grad_tasks">
@@ -485,13 +488,31 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">    component : polaris.tasks.ocean.Ocean</span>
 <span class="sd">        the ocean component that the tasks will be added to</span>
 <span class="sd">    """</span>
+    <span class="c1"># variants with a horizontal gradient in a prescribed field, compared</span>
+    <span class="c1"># against the quasi-analytic reference solution</span>
     <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="p">[</span>
         <span class="s1">'salinity_gradient'</span><span class="p">,</span>
         <span class="s1">'surface_pressure_gradient'</span><span class="p">,</span>
         <span class="s1">'temperature_gradient'</span><span class="p">,</span>
         <span class="s1">'ztilde_gradient'</span><span class="p">,</span>
     <span class="p">]:</span>
-        <span class="n">component</span><span class="o">.</span><span class="n">add_task</span><span class="p">(</span><span class="n">HorizPressGradTask</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">))</span></div>
+        <span class="n">component</span><span class="o">.</span><span class="n">add_task</span><span class="p">(</span><span class="n">HorizPressGradTask</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">))</span>
+
+    <span class="c1"># exact resting states, in which the true HPGA is identically zero, so the</span>
+    <span class="c1"># model's HPGA is the error and no reference solution is needed.  The two</span>
+    <span class="c1"># _linear variants are additionally inside the finite-volume scheme's exact</span>
+    <span class="c1"># set, so their residual is the scheme's own rather than the profile's;</span>
+    <span class="c1"># bathymetry_step_linear is the only one that is both exact and in the</span>
+    <span class="c1"># geometry that matters globally.</span>
+    <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="p">[</span>
+        <span class="s1">'bathymetry_step'</span><span class="p">,</span>
+        <span class="s1">'bathymetry_step_linear'</span><span class="p">,</span>
+        <span class="s1">'hydrostatic_consistency'</span><span class="p">,</span>
+        <span class="s1">'hydrostatic_consistency_linear'</span><span class="p">,</span>
+    <span class="p">]:</span>
+        <span class="n">component</span><span class="o">.</span><span class="n">add_task</span><span class="p">(</span>
+            <span class="n">HorizPressGradRestingStateTask</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
+        <span class="p">)</span></div>
 
 </pre></div>
 

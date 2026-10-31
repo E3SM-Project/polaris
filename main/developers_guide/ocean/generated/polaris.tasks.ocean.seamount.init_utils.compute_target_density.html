@@ -146,6 +146,10 @@
 <dd><p>Compute the target Beckmann and Haidvogel stratification, either the
 linear profile of their eqn 15 or the exponential profile of their
 eqn 16.</p>
+<p>These are the two stratifications that are prescribed as a density.  The
+<code class="docutils literal notranslate"><span class="pre">linear_pressure</span></code> stratification prescribes temperature directly and so
+has no target density to compute; see
+<a class="reference internal" href="polaris.tasks.ocean.seamount.init_utils.compute_tracers_linear_in_pressure.html#polaris.tasks.ocean.seamount.init_utils.compute_tracers_linear_in_pressure" title="polaris.tasks.ocean.seamount.init_utils.compute_tracers_linear_in_pressure"><code class="xref py py-func docutils literal notranslate"><span class="pre">compute_tracers_linear_in_pressure()</span></code></a>.</p>
 <p>The profile is a potential density referenced to the surface.  Under the
 linear equation of state, which has no pressure dependence, that is the
 same thing as the density; under a nonlinear equation of state it is

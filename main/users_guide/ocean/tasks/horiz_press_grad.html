@@ -74,6 +74,8 @@
 <li class="toctree-l4"><a class="reference internal" href="#vertical-grid">vertical grid</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#reference-solution">reference solution</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#python-hpga-in-the-init-step">python HPGA in the <code class="docutils literal notranslate"><span class="pre">init</span></code> step</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#the-finite-volume-hpga">the finite-volume HPGA</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#the-resting-state-variants">the resting-state variants</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#config-options">config options</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#time-step-and-run-duration">time step and run duration</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#analysis">analysis</a></li>
@@ -187,8 +189,16 @@ output with both the reference and the Python-initialized HPGA.</p></li>
 <span class="n">ocean</span><span class="o">/</span><span class="n">column</span><span class="o">/</span><span class="n">horiz_press_grad</span><span class="o">/</span><span class="n">temperature_gradient</span>
 <span class="n">ocean</span><span class="o">/</span><span class="n">column</span><span class="o">/</span><span class="n">horiz_press_grad</span><span class="o">/</span><span class="n">ztilde_gradient</span>
 <span class="n">ocean</span><span class="o">/</span><span class="n">column</span><span class="o">/</span><span class="n">horiz_press_grad</span><span class="o">/</span><span class="n">surface_pressure_gradient</span>
+<span class="n">ocean</span><span class="o">/</span><span class="n">column</span><span class="o">/</span><span class="n">horiz_press_grad</span><span class="o">/</span><span class="n">hydrostatic_consistency</span>
+<span class="n">ocean</span><span class="o">/</span><span class="n">column</span><span class="o">/</span><span class="n">horiz_press_grad</span><span class="o">/</span><span class="n">hydrostatic_consistency_linear</span>
+<span class="n">ocean</span><span class="o">/</span><span class="n">column</span><span class="o">/</span><span class="n">horiz_press_grad</span><span class="o">/</span><span class="n">bathymetry_step</span>
+<span class="n">ocean</span><span class="o">/</span><span class="n">column</span><span class="o">/</span><span class="n">horiz_press_grad</span><span class="o">/</span><span class="n">bathymetry_step_linear</span>
 </pre></div>
 </div>
+<p>The first four impose a horizontal gradient and measure convergence toward the
+analytic reference.  The last four are <strong>resting states</strong> whose true HPGA is
+identically zero, so the model’s HPGA is entirely error and no reference
+solution is involved; see <a class="reference internal" href="#ocean-horiz-press-grad-resting"><span class="std std-ref">the resting-state variants</span></a>.</p>
 <a class="reference internal image-reference" href="../../../_images/horiz_press_grad_salin_grad.png"><img alt="../../../_images/horiz_press_grad_salin_grad.png" class="align-center" src="../../../_images/horiz_press_grad_salin_grad.png" style="width: 600px;" />
 </a>
 <p>The point of these tasks is not only to verify that Omega can reproduce the
@@ -324,9 +334,10 @@ default).</p>
 <p>For comparison with a layer-averaged Omega tendency, the <code class="docutils literal notranslate"><span class="pre">analysis</span></code> step
 averages <span class="math notranslate nohighlight">\(a(\tilde z)\)</span> over the model’s actual pseudo-height layer bounds using
 4-point Gauss–Legendre quadrature with <code class="docutils literal notranslate"><span class="pre">reference_quadrature_subdivisions</span></code>
-sub-panels per layer.  The deepest valid layer (which abuts the bathymetry) is
-excluded from the RMS error calculation, because partial bottom cells make that
-layer’s geometric extent differ from the smooth reference geometry.</p>
+sub-panels per layer.  Every layer valid in both columns is included, down to
+and including the deepest, which abuts the bathymetry.  That layer is the bottom
+partial cell, and it is where pressure-gradient error is largest; excluding it
+would hide exactly what the test should be measuring.</p>
 </section>
 <section id="python-hpga-in-the-init-step">
 <h2>python HPGA in the <code class="docutils literal notranslate"><span class="pre">init</span></code> step<a class="headerlink" href="#python-hpga-in-the-init-step" title="Link to this heading"></a></h2>
@@ -367,6 +378,234 @@ p_{\mathrm{edge}} = \frac{p_L + p_R}{2},
 <p>This Python HPGA is not the main reference solution.  Instead, it checks
 whether Omega’s one-step tendency matches the expected two-column discrete
 calculation from the initialized state.</p>
+</section>
+<section id="the-finite-volume-hpga">
+<span id="ocean-horiz-press-grad-finite-volume"></span><h2>the finite-volume HPGA<a class="headerlink" href="#the-finite-volume-hpga" title="Link to this heading"></a></h2>
+<p>The <code class="docutils literal notranslate"><span class="pre">init</span></code> step also writes a second field, <code class="docutils literal notranslate"><span class="pre">HPGAFiniteVolume</span></code>, alongside
+<code class="docutils literal notranslate"><span class="pre">HPGA</span></code>.  <code class="docutils literal notranslate"><span class="pre">HPGA</span></code> is unchanged in name, meaning and values – it remains the
+centered scheme, and the recorded baselines for all seven variants are
+unaffected by the new field.</p>
+<p><code class="docutils literal notranslate"><span class="pre">HPGAFiniteVolume</span></code> is the Python counterpart of Omega’s higher-order
+<code class="docutils literal notranslate"><span class="pre">PressureGradFiniteVolume</span></code> scheme.  Where the centered scheme compares the two
+columns at a fixed <em>layer index</em>, this one compares them at a fixed <em>pressure</em>:
+it differences the specific volume of the two columns at matched pressure and
+integrates that difference along the column from the sea floor.  Because the
+difference is identically zero whenever the two columns describe the same
+water, the scheme contributes nothing of its own for a resting ocean however
+the coordinate is tilted, and what it returns is whatever the state’s own
+boundary values imply – see below.</p>
+<p>What that buys, measured on <code class="docutils literal notranslate"><span class="pre">hydrostatic_consistency_linear</span></code> – the one variant
+whose temperature and salinity are exactly linear in pressure, and so the only
+one where the scheme’s exact set is in play:</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>coordinate tilt</p></th>
+<th class="head"><p><code class="docutils literal notranslate"><span class="pre">HPGA</span></code> (centered)</p></th>
+<th class="head"><p><code class="docutils literal notranslate"><span class="pre">HPGAFiniteVolume</span></code></p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>0.05 m/km</p></td>
+<td><p>9.1e-08 m s⁻²</p></td>
+<td><p>1.8e-10 m s⁻²</p></td>
+</tr>
+<tr class="row-odd"><td><p>1 m/km</p></td>
+<td><p>1.8e-06 m s⁻²</p></td>
+<td><p>3.5e-09 m s⁻²</p></td>
+</tr>
+<tr class="row-even"><td><p>50 m/km</p></td>
+<td><p>6.9e-05 m s⁻²</p></td>
+<td><p>2.0e-07 m s⁻²</p></td>
+</tr>
+</tbody>
+</table>
+<p>at 256 m layers: a factor of 340 to 520, and 21 to 1050 across the full sweep.</p>
+<p><strong>Why this is not machine precision, though the profile is inside the exact
+set.</strong> The scheme’s column scan is anchored at the sea floor, and the anchor is
+the one quantity in it that comes from the model’s own geometry rather than
+from the scheme’s arithmetic.</p>
+<p>Both Polaris and Omega turn pressure into geometric height with a midpoint
+rule, summing <code class="docutils literal notranslate"><span class="pre">rho0</span> <span class="pre">*</span> <span class="pre">SpecVol</span> <span class="pre">*</span> <span class="pre">PseudoThickness</span></code> over layers.  At 256 m layers
+that truncates a 3500 m column by about 1.1 mm.  The initial condition holds
+the sea floor at the prescribed bathymetry and solves for the bottom pressure
+that reproduces it, and each column converges exactly – to the pressure that
+makes <em>its own</em> midpoint sum come out at 3500 m.  A tilted coordinate puts the
+two columns’ layer interfaces in different places, so their truncation errors
+differ slightly, by 7.1e-8 m.  At a common pressure the two columns’ heights
+therefore genuinely differ by that much, and the scheme reports it.</p>
+<p>The residual is <em>entirely</em> the anchor: every increment of the scan is zero to
+round-off, so the tendency is constant down the column and equals the anchor’s
+own contribution to a part in 10⁷.  The property the scheme exists for is
+intact; what these numbers measure at the bottom of the column is the initial
+condition, not the discretization.</p>
+<p>Away from that exact set the gain is real but far smaller, because the scheme
+is then second-order accurate rather than exact.  On the curved
+<code class="docutils literal notranslate"><span class="pre">hydrostatic_consistency</span></code> profile it is about six times better than centered at
+256 m layers and about twice as good at 64 m, both converging.  On
+<code class="docutils literal notranslate"><span class="pre">bathymetry_step</span></code>, the variant that most resembles the bottom-layer error seen
+in realistic global runs, it is roughly 400 times better.</p>
+<p>Nothing selects between the two fields yet: both are written, and which one the
+analysis steps compare against Omega is decided once the corresponding Omega
+option exists.</p>
+</section>
+<section id="the-resting-state-variants">
+<span id="ocean-horiz-press-grad-resting"></span><h2>the resting-state variants<a class="headerlink" href="#the-resting-state-variants" title="Link to this heading"></a></h2>
+<p>The four resting-state variants ask a different question from the other
+four.  Rather than measuring convergence toward a
+reference, they place the ocean in a state whose true HPGA is <strong>identically
+zero</strong>, so that whatever the model returns is error.</p>
+<p>The construction is simple.  With every <code class="docutils literal notranslate"><span class="pre">*_grad</span></code> option zero, conservative
+temperature and absolute salinity are the same functions of pseudo-height in
+both columns.  Pseudo-height is a rescaled pressure, so specific volume becomes
+a function of pressure alone,</p>
+<div class="math notranslate nohighlight">
+\[
+\alpha = \alpha\bigl(\Theta(p), S_A(p), p\bigr) \equiv \alpha(p),
+\]</div>
+<p>isobars are level surfaces, and the true HPGA vanishes everywhere in the fluid
+— for <em>any</em> sea-floor shape and <em>any</em> tilt of the coordinate surfaces.  This is
+the property the Omega higher-order pressure-gradient design calls <strong>discrete
+hydrostatic consistency</strong>, and these variants measure how well the discrete
+scheme reproduces it.</p>
+<p>Each variant sweeps a tilt at fixed resolution and reports the RMS HPGA as a
+function of that tilt, together with the exponent <span class="math notranslate nohighlight">\(q\)</span> in
+<span class="math notranslate nohighlight">\(\lVert\text{HPGA}\rVert \sim (\text{tilt})^{q}\)</span>:</p>
+<ul class="simple">
+<li><p><span class="math notranslate nohighlight">\(q \approx 1\)</span> — specific volume is effectively piecewise constant in
+pressure, which is what the current centered scheme does;</p></li>
+<li><p><span class="math notranslate nohighlight">\(q \approx 2\)</span> — consistent with a residual set by a per-cell Taylor expansion
+of the equation of state;</p></li>
+<li><p>round-off, independent of tilt — the scheme is exactly hydrostatically
+consistent.</p></li>
+</ul>
+<section id="what-actually-tilts-the-coordinate">
+<h3>what actually tilts the coordinate<a class="headerlink" href="#what-actually-tilts-the-coordinate" title="Link to this heading"></a></h3>
+<p>The two variants tilt different things, and they turn out to probe different
+mechanisms.</p>
+<p><code class="docutils literal notranslate"><span class="pre">hydrostatic_consistency</span></code> sweeps <code class="docutils literal notranslate"><span class="pre">z_tilde_bot_grad</span></code>, which stretches one
+column’s p-star reference grid relative to the other’s, so the cross-edge
+offset of interface <span class="math notranslate nohighlight">\(k\)</span> grows linearly with depth.  <strong>This is the only
+mechanism in the two-column task that tilts interior coordinate surfaces.</strong></p>
+<p><code class="docutils literal notranslate"><span class="pre">bathymetry_step</span></code> sweeps <code class="docutils literal notranslate"><span class="pre">geom_z_bot_grad</span></code> instead, and it does <em>not</em> tilt
+them.  With a single reference grid shared by both columns, moving the sea
+floor changes only where that grid is clipped: every interior interface sits at
+an identical pseudo-height, and hence an identical pressure, in both columns.
+The entire signal is therefore concentrated in the deepest layer valid in both
+columns — the bottom partial cell.  That makes the variant a test of the bottom
+cell rather than of layer tilt, and it is the two-column analogue of the
+bottom-layer error seen in realistic global Omega runs.</p>
+<p>Because that layer carries the whole signal, the resting-state analysis
+<strong>keeps</strong> it, unlike the reference-based <code class="docutils literal notranslate"><span class="pre">analysis</span></code> step, which drops it.  For
+the same reason <code class="docutils literal notranslate"><span class="pre">bathymetry_step</span></code> sets <code class="docutils literal notranslate"><span class="pre">tilt_fit</span> <span class="pre">=</span> <span class="pre">False</span></code>: its error changes in
+steps as the two columns’ <code class="docutils literal notranslate"><span class="pre">maxLevelCell</span></code> values change, so it is a staircase in
+the sea-floor gradient rather than a power law and a fitted exponent would be
+meaningless.</p>
+</section>
+<section id="the-two-linear-variants">
+<h3>the two <code class="docutils literal notranslate"><span class="pre">_linear</span></code> variants<a class="headerlink" href="#the-two-linear-variants" title="Link to this heading"></a></h3>
+<p>Every resting state has a true HPGA of zero, but that is not the same as being
+a state the finite-volume scheme reproduces <em>exactly</em>.  The scheme’s exact set
+is set by what its vertical reconstruction can represent, which in Omega’s
+Phase 1 is profiles <strong>linear in pressure</strong>.  The two <code class="docutils literal notranslate"><span class="pre">_linear</span></code> variants replace
+the five-node curved temperature and salinity profiles with two-node ones, so
+they are exactly linear in pseudo-height and hence in pressure.  Everything
+else is unchanged.</p>
+<p>That separation is what makes them worth running:</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p></p></th>
+<th class="head"><p>profile</p></th>
+<th class="head"><p>what tilts</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">hydrostatic_consistency</span></code></p></td>
+<td><p>curved</p></td>
+<td><p>the coordinate</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">hydrostatic_consistency_linear</span></code></p></td>
+<td><p>exact</p></td>
+<td><p>the coordinate</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">bathymetry_step</span></code></p></td>
+<td><p>curved</p></td>
+<td><p>the sea floor</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">bathymetry_step_linear</span></code></p></td>
+<td><p>exact</p></td>
+<td><p>the sea floor</p></td>
+</tr>
+</tbody>
+</table>
+<p>On the curved variants the residual mixes the scheme’s truncation off the exact
+set with whatever the geometry contributes, and neither can be read alone.  On
+the <code class="docutils literal notranslate"><span class="pre">_linear</span></code> variants the profile contributes nothing, so what is left is the
+geometry’s doing.</p>
+<p><strong><code class="docutils literal notranslate"><span class="pre">bathymetry_step_linear</span></code> is the one to watch.</strong>  It is the only configuration
+in the family that is both inside the exact set and in the geometry that
+matters for the global bottom-layer error — interior coordinate tilt turns out
+to contribute essentially nothing globally, so <code class="docutils literal notranslate"><span class="pre">hydrostatic_consistency</span></code> and
+its <code class="docutils literal notranslate"><span class="pre">_linear</span></code> twin exercise a mechanism that is real but not the one driving
+the problem.  Like <code class="docutils literal notranslate"><span class="pre">bathymetry_step</span></code> it sets <code class="docutils literal notranslate"><span class="pre">tilt_fit</span> <span class="pre">=</span> <span class="pre">False</span></code>, and for the
+same reason.</p>
+<p>It is also where the scheme’s advantage is largest: measured offline at 4 km
+and 256 m layers, <code class="docutils literal notranslate"><span class="pre">HPGAFiniteVolume</span></code> is 4.3e-10 m s⁻² against the centered
+9.1e-5 m s⁻² at a 200 m/km sea-floor gradient — a factor of 2e5, against the
+20–1000× the coordinate-tilt variants show.</p>
+</section>
+<section id="severity-and-why-the-column-is-deep">
+<h3>severity, and why the column is deep<a class="headerlink" href="#severity-and-why-the-column-is-deep" title="Link to this heading"></a></h3>
+<p>The other four variants use a 500 m column resolved at 0.5–4 m.  That is one to
+three orders of magnitude finer than the ~250 m layers in the deep ocean of a
+realistic global run, and the centered scheme passes <code class="docutils literal notranslate"><span class="pre">ztilde_gradient</span></code> there
+with an RMS HPGA of ~7e-12 m s<span class="math notranslate nohighlight">\(^{-2}\)</span> — six orders of magnitude below the error
+the resting-state variants exist to measure.  Both new variants therefore use a
+3500 m column resolved at 64–256 m.</p>
+<p>The analysis enforces a <strong>sensitivity gate</strong>: the largest RMS HPGA anywhere in
+the sweep must reach <code class="docutils literal notranslate"><span class="pre">resting_state_sensitivity_min_rms</span></code> (1e-6 m s<span class="math notranslate nohighlight">\(^{-2}\)</span> by
+default, the order of the global bottom-layer error).  A sweep that falls short
+is not exercising the failure mode at all, and the step fails rather than
+reporting a misleading pass.</p>
+<p>At a fixed tilt gradient the RMS HPGA is independent of horizontal resolution,
+because the cross-edge offset and the cell spacing scale together.  The
+horizontal sweep is therefore short; the vertical resolution is what matters.</p>
+</section>
+<section id="the-bathymetry-guard">
+<h3>the bathymetry guard<a class="headerlink" href="#the-bathymetry-guard" title="Link to this heading"></a></h3>
+<p>Both variants set <code class="docutils literal notranslate"><span class="pre">partial_cell_type</span> <span class="pre">=</span> <span class="pre">None</span></code>, and the analysis checks that the
+sea floor really is where the configuration asked for it, to within
+<code class="docutils literal notranslate"><span class="pre">resting_state_max_bathy_error</span></code>.</p>
+<p>The reason is that partial-cell snapping moves the sea floor to the nearest
+<em>representable</em> depth, since <code class="docutils literal notranslate"><span class="pre">min_pc_fraction</span></code> forbids bottom cells thinner
+than a set fraction of a layer.  The p-star column is anchored at the
+prescribed sea surface, so this does <strong>not</strong> break the resting state — the sea
+surface stays exactly level and the state is still exactly at rest.  What it
+breaks is the meaning of the sweep: the tilt actually tested is no longer the
+tilt configured.</p>
+<p>That matters most for <code class="docutils literal notranslate"><span class="pre">bathymetry_step</span></code>, where the swept parameter <em>is</em> the sea
+floor.  At some gradients snapping moves both columns to the same representable
+depth, so a nominal 400 m step becomes no step at all and the measured RMS HPGA
+drops to round-off — which would read as a spectacular pass rather than a
+configuration that stopped testing anything.</p>
+<p><code class="docutils literal notranslate"><span class="pre">partial_cell_type</span> <span class="pre">=</span> <span class="pre">None</span></code> does <strong>not</strong> mean “no partial cells”, despite how it
+reads.  The p-star reference grid is clipped at each column’s pseudo-bottom
+depth unconditionally, so a partial bottom cell is produced either way.  The
+option controls only whether the sea floor is <em>moved</em> before that clipping:
+<code class="docutils literal notranslate"><span class="pre">None</span></code> leaves it alone, <code class="docutils literal notranslate"><span class="pre">partial</span></code> moves it so the bottom cell is at least
+<code class="docutils literal notranslate"><span class="pre">min_pc_fraction</span></code> of a full layer, and <code class="docutils literal notranslate"><span class="pre">full</span></code> moves it to a reference boundary
+— <code class="docutils literal notranslate"><span class="pre">full</span></code> is the setting that actually removes partial cells.</p>
+<p>The cost of <code class="docutils literal notranslate"><span class="pre">None</span></code> is that there is no minimum-thickness floor, so a sweep can
+include bottom cells thinner than a realistic run would use (as thin as 0.002
+of a layer in the shipped <code class="docutils literal notranslate"><span class="pre">bathymetry_step</span></code> sweep).  The state is exactly at
+rest however thin the cell, so the measurement stays valid; but it is why the
+error tracks the <em>contrast</em> in bottom-cell fraction between the two columns
+rather than the nominal gradient, and hence why that variant is a staircase.</p>
+<p>(Before the p-star column was anchored at the prescribed sea surface, this same
+snapping surfaced as a spurious <em>sea-surface</em> tilt of many metres, which was a
+real barotropic pressure gradient masquerading as discretization error.  That
+is fixed in the framework; the guard here is about the geometry under test, not
+about the resting state.)</p>
+</section>
 </section>
 <section id="config-options">
 <span id="ocean-horiz-press-grad-config"></span><h2>config options<a class="headerlink" href="#config-options" title="Link to this heading"></a></h2>
@@ -430,6 +669,35 @@ resolutions are still shown in the plots).</p>
 <code class="docutils literal notranslate"><span class="pre">surface_pressure_grad</span></code> (with the sea-surface height following the default
 surface-pressure depression), representing an overlying ice shelf</p></li>
 </ul>
+<p>The two resting-state variants use their own set of options, which the four
+gradient variants leave at inert defaults:</p>
+<div class="highlight-cfg notranslate"><div class="highlight"><pre><span></span><span class="c1"># the horiz_press_grad option swept by the resting-state variants</span>
+<span class="na">tilt_option</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">z_tilde_bot_grad</span>
+
+<span class="c1"># values of tilt_option in m/km, swept at every resolution pair</span>
+<span class="na">tilt_values</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">[0.05, 0.1, 0.5, 1.0, 5.0, 10.0, 50.0]</span>
+
+<span class="c1"># whether to fit the exponent q in |HPGA| ~ tilt**q, and the largest tilt</span>
+<span class="c1"># included in that fit</span>
+<span class="na">tilt_fit</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">True</span>
+<span class="na">tilt_fit_max</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">10.0</span>
+
+<span class="c1"># the largest RMS HPGA anywhere in the sweep must reach at least this value</span>
+<span class="na">resting_state_sensitivity_min_rms</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">1.0e-6</span>
+
+<span class="c1"># maximum RMS HPGA allowed anywhere in the sweep, or "none" to leave it</span>
+<span class="c1"># unenforced</span>
+<span class="na">resting_state_max_rms</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">none</span>
+
+<span class="c1"># maximum allowed |bottomDepth - requested|, so the swept tilt describes the</span>
+<span class="c1"># geometry actually tested</span>
+<span class="na">resting_state_max_bathy_error</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">1.0e-6</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">resting_state_max_rms</span></code> is deliberately unset.  The centered scheme is expected
+to fail any meaningful value, and the threshold for a hydrostatically
+consistent scheme should be set from what is measured rather than guessed in
+advance.</p>
 </section>
 <section id="time-step-and-run-duration">
 <h2>time step and run duration<a class="headerlink" href="#time-step-and-run-duration" title="Link to this heading"></a></h2>
@@ -448,10 +716,16 @@ power-law fit and convergence slope, and</p></li>
 <code class="docutils literal notranslate"><span class="pre">omega_vs_reference.nc</span></code> and <code class="docutils literal notranslate"><span class="pre">omega_vs_python.nc</span></code>.</p>
 <p>For the Omega-versus-reference comparison, the analytic reference
 <span class="math notranslate nohighlight">\(a(\tilde z)\)</span> is layer-averaged over the model’s actual pseudo-height layer
-bounds (from <code class="docutils literal notranslate"><span class="pre">init.nc</span></code>) using 4-point Gauss–Legendre quadrature.  The deepest
-valid layer is excluded from the RMS error calculation because that layer abuts
-the bathymetry, where partial bottom cells make the model layer’s geometric
-extent differ from the smooth reference geometry.</p>
+bounds (from <code class="docutils literal notranslate"><span class="pre">init.nc</span></code>) using 4-point Gauss–Legendre quadrature.  All layers
+valid in both columns are included, down to and including the deepest.</p>
+<p>Earlier versions excluded that bottom layer.  That was a limitation of the
+<em>previous</em> reference solution, which took a fourth-order finite difference
+across five columns and could not form its stencil where a neighbouring column’s
+collocation point fell below its own bathymetry.  The reference is now a single
+analytic column evaluated at the edge, valid all the way to the seafloor, so the
+exclusion no longer has a basis and has been removed.  The Omega-versus-Python
+comparison always included the layer, so the two comparisons now agree about
+which layers count.</p>
 <p>For the Omega-versus-Python comparison, the analysis uses the HPGA written by
 the <code class="docutils literal notranslate"><span class="pre">init</span></code> step in <code class="docutils literal notranslate"><span class="pre">init.nc</span></code>, so this second metric should be read as an
 implementation-consistency check rather than as an accuracy measure against the

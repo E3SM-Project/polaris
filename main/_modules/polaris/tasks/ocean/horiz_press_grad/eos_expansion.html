@@ -1,0 +1,880 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>polaris.tasks.ocean.horiz_press_grad.eos_expansion</title>
+      <link rel="stylesheet" type="text/css" href="../../../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../../../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../../../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../../../_static/documentation_options.js?v=a8da1a53"></script>
+      <script src="../../../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script type="module">import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11.12.1/dist/mermaid.esm.min.mjs";
+
+
+
+
+
+const initStyles = () => {
+    const defaultStyle = document.createElement('style');
+    defaultStyle.textContent = "pre.mermaid {\n    /* Same as .mermaid-container > pre */\n    display: block;\n    width: 100%;\n}\n\npre.mermaid > svg {\n    /* Same as .mermaid-container > pre > svg */\n    height: 500px;\n    width: 100%;\n    max-width: 100% !important;\n}";
+    document.head.appendChild(defaultStyle);
+
+    const fullscreenStyle = document.createElement('style');
+    fullscreenStyle.textContent = ".mermaid-container {\n    position: relative;\n    display: flex;\n    flex-direction: row;\n    width: 100%;\n}\n\n.mermaid-container > pre {\n    display: block;\n    width: 100%;\n}\n\n.mermaid-container > pre > svg {\n    height: 500px;\n    width: 100%;\n    max-width: 100% !important;\n}\n\n.mermaid-fullscreen-btn {\n    position: absolute;\n    width: 28px;\n    height: 28px;\n    background: rgba(255, 255, 255, 0.95);\n    border: 1px solid rgba(0, 0, 0, 0.3);\n    border-radius: 4px;\n    cursor: pointer;\n    display: flex;\n    align-items: center;\n    justify-content: center;\n    transition: all 0.2s;\n    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);\n    font-size: 14px;\n    line-height: 1;\n    padding: 0;\n    color: #333;\n}\n\n.mermaid-fullscreen-btn:hover {\n    opacity: 100% !important;\n    background: rgba(255, 255, 255, 1);\n    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.3);\n    transform: scale(1.1);\n}\n\n.mermaid-fullscreen-btn.dark-theme {\n    background: rgba(50, 50, 50, 0.95);\n    border: 1px solid rgba(255, 255, 255, 0.3);\n    color: #e0e0e0;\n}\n\n.mermaid-fullscreen-btn.dark-theme:hover {\n    background: rgba(60, 60, 60, 1);\n    box-shadow: 0 3px 10px rgba(255, 255, 255, 0.2);\n}\n\n.mermaid-fullscreen-modal {\n    display: none;\n    position: fixed !important;\n    top: 0 !important;\n    left: 0 !important;\n    width: 95vw;\n    height: 100vh;\n    background: rgba(255, 255, 255, 0.98);\n    z-index: 9999;\n    padding: 20px;\n    overflow: auto;\n}\n\n.mermaid-fullscreen-modal.dark-theme {\n    background: rgba(0, 0, 0, 0.98);\n}\n\n.mermaid-fullscreen-modal.active {\n    display: flex;\n    align-items: center;\n    justify-content: center;\n}\n\n.mermaid-container-fullscreen {\n    position: relative;\n    width: 95vw;\n    height: 90vh;\n    max-width: 95vw;\n    max-height: 90vh;\n    background: white;\n    border-radius: 8px;\n    padding: 20px;\n    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);\n    overflow: auto;\n    display: flex;\n    align-items: center;\n    justify-content: center;\n}\n\n.mermaid-container-fullscreen.dark-theme {\n    background: #1a1a1a;\n    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.8);\n}\n\n.mermaid-container-fullscreen pre.mermaid {\n    width: 100%;\n    height: 100%;\n    display: flex;\n    align-items: center;\n    justify-content: center;\n}\n\n.mermaid-container-fullscreen .mermaid svg {\n    height: 100% !important;\n    width: 100% !important;\n    cursor: grab;\n}\n\n.mermaid-fullscreen-close {\n    position: fixed !important;\n    top: 20px !important;\n    right: 20px !important;\n    width: 40px;\n    height: 40px;\n    background: rgba(255, 255, 255, 0.95);\n    border: 1px solid rgba(0, 0, 0, 0.2);\n    border-radius: 50%;\n    cursor: pointer;\n    z-index: 10000;\n    display: flex;\n    align-items: center;\n    justify-content: center;\n    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);\n    transition: all 0.2s;\n    font-size: 24px;\n    line-height: 1;\n    color: #333;\n}\n\n.mermaid-fullscreen-close:hover {\n    background: white;\n    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);\n    transform: scale(1.1);\n}\n\n.mermaid-fullscreen-close.dark-theme {\n    background: rgba(50, 50, 50, 0.95);\n    border: 1px solid rgba(255, 255, 255, 0.2);\n    color: #e0e0e0;\n}\n\n.mermaid-fullscreen-close.dark-theme:hover {\n    background: rgba(60, 60, 60, 1);\n    box-shadow: 0 6px 16px rgba(255, 255, 255, 0.2);\n}\n\n.mermaid-fullscreen-modal .mermaid-fullscreen-btn {\n    display: none !important;\n}";
+    document.head.appendChild(fullscreenStyle);
+}
+
+// Detect if page has dark background
+const isDarkTheme = () => {
+    // We use a set of heuristics:
+    // 1. Check for common dark mode classes or attributes
+    // 2. Check computed background color brightness
+    if (document.documentElement.classList.contains('dark') ||
+        document.documentElement.getAttribute('data-theme') === 'dark' ||
+        document.body.classList.contains('dark') ||
+        document.body.getAttribute('data-theme') === 'dark') {
+        // console.log("Dark theme detected via class/attribute");
+        return true;
+    }
+    if (document.documentElement.classList.contains('light') ||
+        document.documentElement.getAttribute('data-theme') === 'light' ||
+        document.body.classList.contains('light') ||
+        document.body.getAttribute('data-theme') === 'light') {
+        // console.log("Light theme detected via class/attribute");
+        return false;
+    }
+    if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        // console.log("Dark theme detected via prefers-color-scheme");
+        return true;
+    }
+    const bgColor = window.getComputedStyle(document.body).backgroundColor;
+    const match = bgColor.match(/rgb\((\d+),\s*(\d+),\s*(\d+)/);
+    if (match) {
+        const r = parseInt(match[1]);
+        const g = parseInt(match[2]);
+        const b = parseInt(match[3]);
+        const brightness = (r * 299 + g * 587 + b * 114) / 1000;
+        // console.log("Background color brightness:", brightness);
+        return brightness < 128;
+    }
+    // console.log("No dark or light theme detected, defaulting to light theme");
+    return false;
+};
+
+let darkTheme = isDarkTheme();
+let modal = null;
+let modalContent = null;
+let previousScrollOffset = [window.scrollX, window.scrollY];
+let _lazyObserver = null;
+let _renderQueue = Promise.resolve();
+let closeModal = () => {};
+
+document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && modal?.classList.contains('active')) {
+        closeModal();
+    }
+});
+
+// Apply d3 zoom to each SVG. Idempotent: an SVG already wrapped is skipped,
+// so this is safe to call both for the initial batch and for diagrams that
+// render lazily once they become visible.
+const addZoomToSvgs = (svgs) => {
+    svgs.each(function() {
+        if (this.getAttribute('data-zoom-applied') === 'true') return;
+        var svg = d3.select(this);
+        svg.html("<g class='wrapper'>" + svg.html() + "</g>");
+        var inner = svg.select("g");
+        var zoom = d3.zoom().on("zoom", function(event) {
+            inner.attr("transform", event.transform);
+        });
+        svg.call(zoom);
+        this.setAttribute('data-zoom-applied', 'true');
+    });
+};
+
+const runMermaid = async (rerun) => {
+    console.log("Running mermaid diagrams, rerun =", rerun);
+    // clear all existing mermaid charts
+    let all_mermaids = document.querySelectorAll(".mermaid");
+
+    if (rerun) {
+        // Disconnect any previous lazy rendering observer
+        if (_lazyObserver) {
+            _lazyObserver.disconnect();
+            _lazyObserver = null;
+        }
+
+        all_mermaids.forEach((el) => {
+            el.removeAttribute('data-mermaid-deferred');
+            el.removeAttribute('data-mermaid-render-failed');
+            if(!el.hasAttribute("data-original-code")) {
+                // store original code
+                // console.log(`Storing original code for first run: `, el.innerHTML);
+                el.setAttribute('data-original-code', el.innerHTML);
+            }
+            if(el.getAttribute("data-processed") === "true") {
+                // remove and restore original
+                el.removeAttribute("data-processed");
+                // console.log(`Restoring original code for re-run: `, el.getAttribute('data-original-code'));
+                el.innerHTML = el.getAttribute('data-original-code');
+            } else {
+                // store original code
+                // console.log(`Storing original code for re-run: `, el.innerHTML);
+                el.setAttribute('data-original-code', el.innerHTML);
+            }
+        });
+
+        // Separate visible and hidden elements. Mermaid's layout engine measures
+        // text dimensions via the DOM, which fails for elements hidden by a parent
+        // (e.g., Reveal.js non-active slides, sphinx-design unopened tabs),
+        // producing broken SVGs. Render visible elements now, defer hidden ones.
+        const visible = [];
+        const hidden = [];
+        all_mermaids.forEach((el) => {
+            // offsetParent is null for display:none ancestors.
+            // getClientRects().length > 0 catches position:fixed elements
+            // (which also have null offsetParent but are still visible).
+            if (el.offsetParent !== null || el.getClientRects().length > 0) {
+                visible.push(el);
+            } else {
+                hidden.push(el);
+                el.setAttribute('data-mermaid-deferred', 'true');
+            }
+        });
+
+        if (visible.length > 0) {
+            try {
+                await mermaid.run({ nodes: visible });
+            } catch (e) {
+                console.error("Mermaid rendering failed:", e);
+            }
+        }
+
+        // Lazily render hidden elements when they become visible.
+        // Uses a promise chain (_renderQueue) to serialize rendering,
+        // since IntersectionObserver may report multiple entries at once
+        // and mermaid.run() is not safe to call concurrently.
+        if (hidden.length > 0) {
+            if (typeof IntersectionObserver === 'undefined') {
+                console.warn("IntersectionObserver not available; hidden mermaid diagrams will not render.");
+            } else {
+                _renderQueue = Promise.resolve();
+                _lazyObserver = new IntersectionObserver((entries) => {
+                    for (const entry of entries) {
+                        if (entry.isIntersecting && entry.target.getAttribute("data-processed") !== "true") {
+                            _lazyObserver.unobserve(entry.target);
+                            const el = entry.target;
+                            _renderQueue = _renderQueue.then(async () => {
+                                try {
+                                    await mermaid.run({ nodes: [el] });
+                                    el.removeAttribute('data-mermaid-deferred');
+                                    // Apply zoom to the now-rendered diagram, matching
+                                    // the decoration visible diagrams receive.
+                                    if (false) {
+                                        addZoomToSvgs(d3.selectAll("").select(function() {
+                                            return this.querySelector("svg");
+                                        }));
+                                    }
+                                } catch (e) {
+                                    console.error("Mermaid deferred rendering failed:", e);
+                                    el.removeAttribute('data-mermaid-deferred');
+                                    el.setAttribute('data-mermaid-render-failed', 'true');
+                                }
+                            });
+                        }
+                    }
+                });
+                hidden.forEach((el) => _lazyObserver.observe(el));
+            }
+        }
+    }
+
+    all_mermaids = document.querySelectorAll(".mermaid");
+    // Exclude deferred (hidden) and render-failed elements from completion checks
+    const mermaids_active = document.querySelectorAll(".mermaid:not([data-mermaid-deferred]):not([data-mermaid-render-failed])");
+    const mermaids_processed = document.querySelectorAll(".mermaid:not([data-mermaid-deferred]):not([data-mermaid-render-failed])[data-processed='true']");
+
+    if (false) {
+        const mermaids_to_add_zoom = 0 === -1 ? mermaids_active.length : 0;
+        if(mermaids_to_add_zoom > 0) {
+            var svgs = d3.selectAll("").select(function() {
+                return this.querySelector("svg");
+            });
+            // Wait until every active (visible) diagram has rendered. Deferred
+            // diagrams are excluded, so a fixed d3_node_count that counts a
+            // hidden diagram no longer loops forever waiting for its SVG.
+            if(mermaids_active.length !== mermaids_processed.length) {
+                setTimeout(() => runMermaid(false), 200);
+                return;
+            }
+            addZoomToSvgs(svgs);
+        }
+    } else if(mermaids_active.length !== mermaids_processed.length) {
+        // Wait for mermaid to process all diagrams
+        setTimeout(() => runMermaid(false), 200);
+        return;
+    }
+
+    // Stop here if not adding fullscreen capability
+    if (!true) return;
+
+    if (modal !== null ) {
+        // Destroy existing modal
+        modal.remove();
+        modal = null;
+        modalContent = null;
+    }
+
+    modal = document.createElement('div');
+    modal.className = 'mermaid-fullscreen-modal' + (darkTheme ? ' dark-theme' : '');
+    modal.setAttribute('role', 'dialog');
+    modal.setAttribute('aria-modal', 'true');
+    modal.setAttribute('aria-label', 'Fullscreen diagram viewer');
+    modal.innerHTML = `
+        <button class="mermaid-fullscreen-close${darkTheme ? ' dark-theme' : ''}" aria-label="Close fullscreen">✕</button>
+        <div class="mermaid-container-fullscreen${darkTheme ? ' dark-theme' : ''}"></div>
+    `;
+    document.body.appendChild(modal);
+
+    modalContent = modal.querySelector('.mermaid-container-fullscreen');
+    const closeBtn = modal.querySelector('.mermaid-fullscreen-close');
+
+    closeModal = () => {
+        modal.classList.remove('active');
+        modalContent.innerHTML = '';
+        document.body.style.overflow = ''
+        window.scrollTo({left: previousScrollOffset[0], top: previousScrollOffset[1], behavior: 'instant'});
+    };
+
+    closeBtn.addEventListener('click', closeModal);
+    modal.addEventListener('click', (e) => {
+        if (e.target === modal) closeModal();
+    });
+    document.querySelectorAll('.mermaid').forEach((mermaidDiv) => {
+        if (mermaidDiv.parentNode.classList.contains('mermaid-container') ||
+            mermaidDiv.closest('.mermaid-fullscreen-modal')) {
+            // Already processed, adjust button class if needed
+            const existingBtn = mermaidDiv.parentNode.querySelector('.mermaid-fullscreen-btn');
+            if (existingBtn) {
+                existingBtn.className = 'mermaid-fullscreen-btn' + (darkTheme ? ' dark-theme' : '');
+            }
+            return;
+        }
+
+        const container = document.createElement('div');
+        container.className = 'mermaid-container';
+        mermaidDiv.parentNode.insertBefore(container, mermaidDiv);
+        container.appendChild(mermaidDiv);
+
+        const fullscreenBtn = document.createElement('button');
+        fullscreenBtn.className = 'mermaid-fullscreen-btn' + (darkTheme ? ' dark-theme' : '');
+        fullscreenBtn.setAttribute('aria-label', 'View diagram in fullscreen');
+        fullscreenBtn.textContent = "\u26f6";
+        fullscreenBtn.style.opacity = "50%";
+
+        // Calculate dynamic position based on diagram's margin and padding
+        const diagramStyle = window.getComputedStyle(mermaidDiv);
+        const marginTop = parseFloat(diagramStyle.marginTop) || 0;
+        const marginRight = parseFloat(diagramStyle.marginRight) || 0;
+        const paddingTop = parseFloat(diagramStyle.paddingTop) || 0;
+        const paddingRight = parseFloat(diagramStyle.paddingRight) || 0;
+        fullscreenBtn.style.top = `${marginTop + paddingTop + 4}px`;
+        fullscreenBtn.style.right = `${marginRight + paddingRight + 4}px`;
+
+        fullscreenBtn.addEventListener('click', () => {
+            previousScrollOffset = [window.scrollX, window.scrollY];
+            const clone = mermaidDiv.cloneNode(true);
+            modalContent.innerHTML = '';
+            modalContent.appendChild(clone);
+
+            const svg = clone.querySelector('svg');
+            if (svg) {
+                svg.removeAttribute('width');
+                svg.removeAttribute('height');
+                svg.style.width = '100%';
+                svg.style.height = 'auto';
+                svg.style.maxWidth = '100%';
+                svg.style.display = 'block';
+
+                if (false) {
+                    setTimeout(() => {
+                        const g = svg.querySelector('g');
+                        if (g) {
+                            var svgD3 = d3.select(svg);
+                            svgD3.html("<g class='wrapper'>" + svgD3.html() + "</g>");
+                            var inner = svgD3.select("g");
+                            var zoom = d3.zoom().on("zoom", function(event) {
+                                inner.attr("transform", event.transform);
+                            });
+                            svgD3.call(zoom);
+                        }
+                    }, 100);
+                }
+            }
+
+            modal.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        });
+        container.appendChild(fullscreenBtn);
+    });
+};
+
+
+
+const load = async () => {
+    initStyles();
+
+
+    await runMermaid(true);
+
+    const reRunIfThemeChanges = async () => {
+        const newDarkTheme = isDarkTheme();
+        if (newDarkTheme !== darkTheme) {
+            darkTheme = newDarkTheme;
+            console.log("Theme change detected, re-running mermaid with", darkTheme ? "dark" : "default", "theme");
+            await mermaid.initialize(
+                {...{"startOnLoad": false},
+                ...{ darkMode: darkTheme, theme: darkTheme ? "dark" : "default" },
+                }
+            );
+            await runMermaid(true);
+        }
+    };
+
+    // Update theme classes when theme changes
+    const themeObserver = new MutationObserver(reRunIfThemeChanges);
+    themeObserver.observe(document.documentElement, {
+        attributes: true,
+        attributeFilter: ['class', 'style', 'data-theme']
+    });
+    themeObserver.observe(document.body, {
+        attributes: true,
+        attributeFilter: ['class', 'style', 'data-theme']
+    });
+};
+
+
+
+
+
+console.log("Initializing mermaid with", darkTheme ? "dark" : "default", "theme");
+mermaid.initialize(
+    {...{"startOnLoad": false},
+    ...{ darkMode: darkTheme, theme: darkTheme ? "dark" : "default" },
+    }
+);
+
+window.addEventListener("load", load);
+window.runMermaid = runMermaid;</script>
+    <script src="../../../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../../search.html" />
+    <link href="../../../../../_static/style.css" rel="stylesheet" type="text/css">
+
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../../../index.html" class="icon icon-home">
+            Polaris
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">User's guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../users_guide/quick_start.html">Quick Start for Users</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../users_guide/tasks.html">Tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../users_guide/config_files.html">Config Files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../users_guide/suites.html">Suites</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../users_guide/mesh/index.html">Mesh component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../users_guide/e3sm/init/index.html">E3SM Initial Condition Component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../users_guide/ocean/index.html">Ocean component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../users_guide/seaice/index.html">Sea ice component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../users_guide/machines/index.html">Machines</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Developer's guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../developers_guide/quick_start.html">Quick Start for Developers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../developers_guide/overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../developers_guide/command_line.html">Command-line interface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../developers_guide/organization/index.html">Organization of Tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../developers_guide/e3sm/init/index.html">E3SM initial condition (e3sm/init) component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../developers_guide/mesh/index.html">Mesh component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../developers_guide/ocean/index.html">Ocean component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../developers_guide/seaice/index.html">Sea ice component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../developers_guide/framework/index.html">Framework</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../developers_guide/machines/index.html">Machines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../developers_guide/benchmarking.html">Benchmarking a branch against a baseline</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../developers_guide/omega_pr_testing.html">Testing an Omega pull request</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../developers_guide/troubleshooting.html">Troubleshooting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../developers_guide/docs.html">Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../developers_guide/building_docs.html">Building the Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../developers_guide/building_docs.html#previewing-the-documentation">Previewing the Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../developers_guide/conda_vs_spack.html">How Conda and Spack Work Together in Polaris</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../developers_guide/updating_conda.html">Updating Deployment Dependencies</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../developers_guide/updating_spack/index.html">Updating Shared Spack Environments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../developers_guide/api.html">API reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../design_docs/index.html">Design Documents</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../tutorials/dev_add_category_of_tasks/index.html">Developer Tutorial: Adding a New Category of Tasks</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Glossary</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../glossary.html">Glossary</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../../index.html">Polaris</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../../../index.html">Module code</a></li>
+          <li class="breadcrumb-item"><a href="../../ocean.html">polaris.tasks.ocean</a></li>
+          <li class="breadcrumb-item"><a href="../horiz_press_grad.html">polaris.tasks.ocean.horiz_press_grad</a></li>
+      <li class="breadcrumb-item active">polaris.tasks.ocean.horiz_press_grad.eos_expansion</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for polaris.tasks.ocean.horiz_press_grad.eos_expansion</h1><div class="highlight"><pre>
+<span></span><span class="sd">"""</span>
+<span class="sd">Reference-state expansion of the equation of state, shared across the edge.</span>
+
+<span class="sd">This is §3.3 of ``PGradHighOrder.md``.  The finite-volume pressure gradient</span>
+<span class="sd">never integrates TEOS-10; it expands specific volume to first order about a</span>
+<span class="sd">reference state, ``[alpha-taylor]``,</span>
+
+<span class="sd">.. math::</span>
+
+<span class="sd">    \\hat\\alpha(\\Theta, S, p) = \\alpha_0</span>
+<span class="sd">    + \\alpha_\\Theta (\\Theta - \\Theta_{\\rm ref})</span>
+<span class="sd">    + \\alpha_S (S - S_{\\rm ref})</span>
+<span class="sd">    + \\alpha_p (p - p_{\\rm ref}),</span>
+
+<span class="sd">so that :math:`\\hat\\alpha` is a low-order polynomial in pressure once</span>
+<span class="sd">:math:`\\Theta` and :math:`S` are reconstructed as polynomials in pressure, and</span>
+<span class="sd">every integral the scheme needs is available in closed form.</span>
+
+<span class="sd">**The expansion point is shared across the edge** (§3.3.1, ``[edge-ref]``).</span>
+<span class="sd">The four coefficients are computed once per cell per layer at that cell's own</span>
+<span class="sd">state and are then averaged to the edge, together with the reference state</span>
+<span class="sd">itself, and *both* columns are evaluated with the single resulting set.  If</span>
+<span class="sd">instead each column expanded about its own state, the two would be using two</span>
+<span class="sd">different approximations to the same equation of state; their specific-volume</span>
+<span class="sd">profiles would disagree even for a resting ocean the reconstruction reproduces</span>
+<span class="sd">perfectly, and the scheme would generate spurious flow from nothing but its own</span>
+<span class="sd">equation of state.  Under the reduced target of §3.2 this is the *only*</span>
+<span class="sd">remaining way for exactness to fail on a resolved profile, so it is</span>
+<span class="sd">load-bearing rather than a refinement.</span>
+
+<span class="sd">Note on cost: Requirement 2.2 bounds the number of TEOS-10 *calls*, and the</span>
+<span class="sd">design's claim is that one evaluation yields all four coefficients because the</span>
+<span class="sd">derivatives are analytic derivatives of the same polynomial at the same</span>
+<span class="sd">normalized state.  The Python here necessarily makes two calls, because</span>
+<span class="sd">``gsw.specvol_first_derivatives`` returns the derivatives without the value.</span>
+<span class="sd">That is a limitation of the Python bindings and says nothing about Omega's call</span>
+<span class="sd">count; do not read this module as evidence about cost.</span>
+<span class="sd">"""</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">gsw</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">xarray</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">xr</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.tasks.ocean.horiz_press_grad.edge</span><span class="w"> </span><span class="kn">import</span> <span class="n">edge_mean</span>
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s1">'specvol_coefficients'</span><span class="p">,</span>
+    <span class="s1">'edge_expansion'</span><span class="p">,</span>
+    <span class="s1">'edge_specvol'</span><span class="p">,</span>
+    <span class="s1">'edge_specvol_layer_mean'</span><span class="p">,</span>
+<span class="p">]</span>
+
+<span class="c1"># gsw takes pressure in dbar and returns the pressure derivative of specific</span>
+<span class="c1"># volume per Pa -- the convention of neither argument.  Asserted in</span>
+<span class="c1"># tests/ocean/horiz_press_grad/test_eos_expansion.py rather than trusted.</span>
+<span class="n">_PA_TO_DBAR</span> <span class="o">=</span> <span class="mf">1.0e-4</span>
+
+
+<div class="viewcode-block" id="specvol_coefficients">
+<a class="viewcode-back" href="../../../../../developers_guide/ocean/generated/polaris.tasks.ocean.horiz_press_grad.eos_expansion.specvol_coefficients.html#polaris.tasks.ocean.horiz_press_grad.eos_expansion.specvol_coefficients">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">specvol_coefficients</span><span class="p">(</span>
+    <span class="n">temperature</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">,</span>
+    <span class="n">salinity</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">,</span>
+    <span class="n">pressure</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    The four coefficients of ``[alpha-derivs]``, evaluated at each cell's own</span>
+<span class="sd">    layer-mean state.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    temperature : xarray.DataArray</span>
+<span class="sd">        Conservative temperature in degC.  Invalid layers may be ``NaN`` and</span>
+<span class="sd">        stay ``NaN``.</span>
+
+<span class="sd">    salinity : xarray.DataArray</span>
+<span class="sd">        Absolute salinity in g kg-1, on the same points.</span>
+
+<span class="sd">    pressure : xarray.DataArray</span>
+<span class="sd">        Sea gauge pressure in **Pa**, on the same points.  This module follows</span>
+<span class="sd">        the rest of Polaris in using Pa, and converts to dbar at the ``gsw``</span>
+<span class="sd">        call.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    coefficients : xarray.Dataset</span>
+<span class="sd">        ``alpha_0`` (m3 kg-1), ``alpha_theta`` (m3 kg-1 degC-1), ``alpha_s``</span>
+<span class="sd">        (m3 kg-1 / (g kg-1)) and ``alpha_p`` (m3 kg-1 Pa-1), on the dims of the</span>
+<span class="sd">        inputs.</span>
+<span class="sd">    """</span>
+    <span class="n">conservative_temperature</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">temperature</span><span class="o">.</span><span class="n">values</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
+    <span class="n">absolute_salinity</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">salinity</span><span class="o">.</span><span class="n">values</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
+    <span class="n">pressure_pa</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">pressure</span><span class="o">.</span><span class="n">values</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span>
+        <span class="n">conservative_temperature</span><span class="o">.</span><span class="n">shape</span>
+        <span class="o">==</span> <span class="n">absolute_salinity</span><span class="o">.</span><span class="n">shape</span>
+        <span class="o">==</span> <span class="n">pressure_pa</span><span class="o">.</span><span class="n">shape</span>
+    <span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="s1">'temperature, salinity and pressure must have the same shape; got '</span>
+            <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">conservative_temperature</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s1">, </span><span class="si">{</span><span class="n">absolute_salinity</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s1"> and '</span>
+            <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">pressure_pa</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s1">.'</span>
+        <span class="p">)</span>
+
+    <span class="n">valid</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">conservative_temperature</span><span class="p">)</span>
+        <span class="o">&amp;</span> <span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">absolute_salinity</span><span class="p">)</span>
+        <span class="o">&amp;</span> <span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">pressure_pa</span><span class="p">)</span>
+    <span class="p">)</span>
+
+    <span class="n">coefficients</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="n">name</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">full</span><span class="p">(</span><span class="n">conservative_temperature</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">'alpha_0'</span><span class="p">,</span> <span class="s1">'alpha_theta'</span><span class="p">,</span> <span class="s1">'alpha_s'</span><span class="p">,</span> <span class="s1">'alpha_p'</span><span class="p">]</span>
+    <span class="p">}</span>
+
+    <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">valid</span><span class="p">):</span>
+        <span class="n">pressure_dbar</span> <span class="o">=</span> <span class="n">pressure_pa</span><span class="p">[</span><span class="n">valid</span><span class="p">]</span> <span class="o">*</span> <span class="n">_PA_TO_DBAR</span>
+        <span class="n">coefficients</span><span class="p">[</span><span class="s1">'alpha_0'</span><span class="p">][</span><span class="n">valid</span><span class="p">]</span> <span class="o">=</span> <span class="n">gsw</span><span class="o">.</span><span class="n">specvol</span><span class="p">(</span>
+            <span class="n">absolute_salinity</span><span class="p">[</span><span class="n">valid</span><span class="p">],</span>
+            <span class="n">conservative_temperature</span><span class="p">[</span><span class="n">valid</span><span class="p">],</span>
+            <span class="n">pressure_dbar</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">alpha_s</span><span class="p">,</span> <span class="n">alpha_theta</span><span class="p">,</span> <span class="n">alpha_p</span> <span class="o">=</span> <span class="n">gsw</span><span class="o">.</span><span class="n">specvol_first_derivatives</span><span class="p">(</span>
+            <span class="n">absolute_salinity</span><span class="p">[</span><span class="n">valid</span><span class="p">],</span>
+            <span class="n">conservative_temperature</span><span class="p">[</span><span class="n">valid</span><span class="p">],</span>
+            <span class="n">pressure_dbar</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">coefficients</span><span class="p">[</span><span class="s1">'alpha_theta'</span><span class="p">][</span><span class="n">valid</span><span class="p">]</span> <span class="o">=</span> <span class="n">alpha_theta</span>
+        <span class="n">coefficients</span><span class="p">[</span><span class="s1">'alpha_s'</span><span class="p">][</span><span class="n">valid</span><span class="p">]</span> <span class="o">=</span> <span class="n">alpha_s</span>
+        <span class="n">coefficients</span><span class="p">[</span><span class="s1">'alpha_p'</span><span class="p">][</span><span class="n">valid</span><span class="p">]</span> <span class="o">=</span> <span class="n">alpha_p</span>
+
+    <span class="n">units</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s1">'alpha_0'</span><span class="p">:</span> <span class="s1">'m3 kg-1'</span><span class="p">,</span>
+        <span class="s1">'alpha_theta'</span><span class="p">:</span> <span class="s1">'m3 kg-1 degC-1'</span><span class="p">,</span>
+        <span class="s1">'alpha_s'</span><span class="p">:</span> <span class="s1">'m3 kg-1 kg g-1'</span><span class="p">,</span>
+        <span class="s1">'alpha_p'</span><span class="p">:</span> <span class="s1">'m3 kg-1 Pa-1'</span><span class="p">,</span>
+    <span class="p">}</span>
+    <span class="n">long_names</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s1">'alpha_0'</span><span class="p">:</span> <span class="s1">'specific volume at the reference state'</span><span class="p">,</span>
+        <span class="s1">'alpha_theta'</span><span class="p">:</span> <span class="s1">'derivative of specific volume with respect to '</span>
+        <span class="s1">'conservative temperature'</span><span class="p">,</span>
+        <span class="s1">'alpha_s'</span><span class="p">:</span> <span class="s1">'derivative of specific volume with respect to absolute '</span>
+        <span class="s1">'salinity'</span><span class="p">,</span>
+        <span class="s1">'alpha_p'</span><span class="p">:</span> <span class="s1">'derivative of specific volume with respect to pressure'</span><span class="p">,</span>
+    <span class="p">}</span>
+
+    <span class="k">return</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">(</span>
+        <span class="p">{</span>
+            <span class="n">name</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">(</span>
+                <span class="n">data</span><span class="o">=</span><span class="n">values</span><span class="p">,</span>
+                <span class="n">dims</span><span class="o">=</span><span class="n">temperature</span><span class="o">.</span><span class="n">dims</span><span class="p">,</span>
+                <span class="n">attrs</span><span class="o">=</span><span class="p">{</span>
+                    <span class="s1">'long_name'</span><span class="p">:</span> <span class="n">long_names</span><span class="p">[</span><span class="n">name</span><span class="p">],</span>
+                    <span class="s1">'units'</span><span class="p">:</span> <span class="n">units</span><span class="p">[</span><span class="n">name</span><span class="p">],</span>
+                <span class="p">},</span>
+            <span class="p">)</span>
+            <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">values</span> <span class="ow">in</span> <span class="n">coefficients</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+        <span class="p">}</span>
+    <span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="edge_expansion">
+<a class="viewcode-back" href="../../../../../developers_guide/ocean/generated/polaris.tasks.ocean.horiz_press_grad.eos_expansion.edge_expansion.html#polaris.tasks.ocean.horiz_press_grad.eos_expansion.edge_expansion">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">edge_expansion</span><span class="p">(</span>
+    <span class="n">temperature</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">,</span>
+    <span class="n">salinity</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">,</span>
+    <span class="n">pressure</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    The edge-shared expansion of ``[edge-ref]``: the four coefficients and the</span>
+<span class="sd">    reference state, each averaged over the two cells of the edge.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    temperature : xarray.DataArray</span>
+<span class="sd">        Layer-mean conservative temperature in degC, with an ``nCells``</span>
+<span class="sd">        dimension of size 2.</span>
+
+<span class="sd">    salinity : xarray.DataArray</span>
+<span class="sd">        Layer-mean absolute salinity in g kg-1, on the same points.</span>
+
+<span class="sd">    pressure : xarray.DataArray</span>
+<span class="sd">        Layer-mean sea gauge pressure in Pa (``PressureMid``), on the same</span>
+<span class="sd">        points.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    expansion : xarray.Dataset</span>
+<span class="sd">        ``alpha_0``, ``alpha_theta``, ``alpha_s``, ``alpha_p`` and the</span>
+<span class="sd">        reference</span>
+<span class="sd">        state ``theta_ref``, ``s_ref``, ``p_ref``, with ``nCells`` contracted</span>
+<span class="sd">        away by the edge average.</span>
+
+<span class="sd">        Note that ``alpha_0`` is the *average of the two cells' specific</span>
+<span class="sd">        volumes*, each evaluated at its own state -- not specific volume</span>
+<span class="sd">        evaluated at the averaged state.  The difference is second order in the</span>
+<span class="sd">        cross-edge contrast, and is exactly what source 4 of the remainder</span>
+<span class="sd">        accounts for.</span>
+<span class="sd">    """</span>
+    <span class="n">coefficients</span> <span class="o">=</span> <span class="n">specvol_coefficients</span><span class="p">(</span>
+        <span class="n">temperature</span><span class="o">=</span><span class="n">temperature</span><span class="p">,</span> <span class="n">salinity</span><span class="o">=</span><span class="n">salinity</span><span class="p">,</span> <span class="n">pressure</span><span class="o">=</span><span class="n">pressure</span>
+    <span class="p">)</span>
+
+    <span class="n">expansion</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">(</span>
+        <span class="p">{</span>
+            <span class="n">name</span><span class="p">:</span> <span class="n">edge_mean</span><span class="p">(</span><span class="n">coefficients</span><span class="p">[</span><span class="n">name</span><span class="p">])</span><span class="o">.</span><span class="n">assign_attrs</span><span class="p">(</span>
+                <span class="n">coefficients</span><span class="p">[</span><span class="n">name</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span>
+            <span class="p">)</span>
+            <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">coefficients</span><span class="o">.</span><span class="n">data_vars</span>
+        <span class="p">}</span>
+    <span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">field</span><span class="p">,</span> <span class="n">long_name</span><span class="p">,</span> <span class="n">units</span> <span class="ow">in</span> <span class="p">[</span>
+        <span class="p">(</span><span class="s1">'theta_ref'</span><span class="p">,</span> <span class="n">temperature</span><span class="p">,</span> <span class="s1">'conservative temperature'</span><span class="p">,</span> <span class="s1">'degC'</span><span class="p">),</span>
+        <span class="p">(</span><span class="s1">'s_ref'</span><span class="p">,</span> <span class="n">salinity</span><span class="p">,</span> <span class="s1">'absolute salinity'</span><span class="p">,</span> <span class="s1">'g kg-1'</span><span class="p">),</span>
+        <span class="p">(</span><span class="s1">'p_ref'</span><span class="p">,</span> <span class="n">pressure</span><span class="p">,</span> <span class="s1">'sea gauge pressure'</span><span class="p">,</span> <span class="s1">'Pa'</span><span class="p">),</span>
+    <span class="p">]:</span>
+        <span class="n">expansion</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">edge_mean</span><span class="p">(</span><span class="n">field</span><span class="p">)</span><span class="o">.</span><span class="n">assign_attrs</span><span class="p">(</span>
+            <span class="p">{</span>
+                <span class="s1">'long_name'</span><span class="p">:</span> <span class="sa">f</span><span class="s1">'edge-shared expansion point, </span><span class="si">{</span><span class="n">long_name</span><span class="si">}</span><span class="s1">'</span><span class="p">,</span>
+                <span class="s1">'units'</span><span class="p">:</span> <span class="n">units</span><span class="p">,</span>
+            <span class="p">}</span>
+        <span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">expansion</span></div>
+
+
+
+<div class="viewcode-block" id="edge_specvol">
+<a class="viewcode-back" href="../../../../../developers_guide/ocean/generated/polaris.tasks.ocean.horiz_press_grad.eos_expansion.edge_specvol.html#polaris.tasks.ocean.horiz_press_grad.eos_expansion.edge_specvol">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">edge_specvol</span><span class="p">(</span>
+    <span class="n">expansion</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">,</span>
+    <span class="n">temperature</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span> <span class="o">|</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="n">salinity</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span> <span class="o">|</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="n">pressure</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span> <span class="o">|</span> <span class="nb">float</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Evaluate the edge-shared profile ``[alpha-taylor]`` at a given state.</span>
+
+<span class="sd">    The arguments may carry an ``nCells`` dimension while ``expansion`` does</span>
+<span class="sd">    not, in which case both columns are evaluated with the one shared set of</span>
+<span class="sd">    coefficients -- which is the whole point of ``[edge-ref]``.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    expansion : xarray.Dataset</span>
+<span class="sd">        The edge-shared expansion from :py:func:`edge_expansion`.</span>
+
+<span class="sd">    temperature : xarray.DataArray or float</span>
+<span class="sd">        Conservative temperature in degC at which to evaluate.</span>
+
+<span class="sd">    salinity : xarray.DataArray or float</span>
+<span class="sd">        Absolute salinity in g kg-1 at which to evaluate.</span>
+
+<span class="sd">    pressure : xarray.DataArray or float</span>
+<span class="sd">        Sea gauge pressure in Pa at which to evaluate.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    specvol : xarray.DataArray</span>
+<span class="sd">        :math:`\\hat\\alpha^{(e)}` in m3 kg-1, with the dimensions of the state</span>
+<span class="sd">        arguments in their original order.</span>
+<span class="sd">    """</span>
+    <span class="n">specvol</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">expansion</span><span class="o">.</span><span class="n">alpha_0</span>
+        <span class="o">+</span> <span class="n">expansion</span><span class="o">.</span><span class="n">alpha_theta</span> <span class="o">*</span> <span class="p">(</span><span class="n">temperature</span> <span class="o">-</span> <span class="n">expansion</span><span class="o">.</span><span class="n">theta_ref</span><span class="p">)</span>
+        <span class="o">+</span> <span class="n">expansion</span><span class="o">.</span><span class="n">alpha_s</span> <span class="o">*</span> <span class="p">(</span><span class="n">salinity</span> <span class="o">-</span> <span class="n">expansion</span><span class="o">.</span><span class="n">s_ref</span><span class="p">)</span>
+        <span class="o">+</span> <span class="n">expansion</span><span class="o">.</span><span class="n">alpha_p</span> <span class="o">*</span> <span class="p">(</span><span class="n">pressure</span> <span class="o">-</span> <span class="n">expansion</span><span class="o">.</span><span class="n">p_ref</span><span class="p">)</span>
+    <span class="p">)</span>
+
+    <span class="c1"># ``expansion`` has no nCells dimension, so xarray broadcasts it to the end</span>
+    <span class="c1"># and the result comes back with the state's dimensions permuted.  Restore</span>
+    <span class="c1"># the caller's order: a field written to init.nc or masked by index with</span>
+    <span class="c1"># silently transposed dimensions is a hard bug to see.</span>
+    <span class="n">template</span> <span class="o">=</span> <span class="n">_template</span><span class="p">(</span><span class="n">temperature</span><span class="p">,</span> <span class="n">salinity</span><span class="p">,</span> <span class="n">pressure</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">template</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">specvol</span> <span class="o">=</span> <span class="n">specvol</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="o">*</span><span class="n">template</span><span class="o">.</span><span class="n">dims</span><span class="p">,</span> <span class="o">...</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">specvol</span><span class="o">.</span><span class="n">assign_attrs</span><span class="p">(</span>
+        <span class="p">{</span>
+            <span class="s1">'long_name'</span><span class="p">:</span> <span class="s1">'edge-shared specific volume'</span><span class="p">,</span>
+            <span class="s1">'units'</span><span class="p">:</span> <span class="s1">'m3 kg-1'</span><span class="p">,</span>
+        <span class="p">}</span>
+    <span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="edge_specvol_layer_mean">
+<a class="viewcode-back" href="../../../../../developers_guide/ocean/generated/polaris.tasks.ocean.horiz_press_grad.eos_expansion.edge_specvol_layer_mean.html#polaris.tasks.ocean.horiz_press_grad.eos_expansion.edge_specvol_layer_mean">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">edge_specvol_layer_mean</span><span class="p">(</span>
+    <span class="n">expansion</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">,</span>
+    <span class="n">temperature</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">,</span>
+    <span class="n">salinity</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">,</span>
+    <span class="n">pressure</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    The layer mean of the edge-shared profile, ``[alpha-edge-layer-mean]``.</span>
+
+<span class="sd">    This is :py:func:`edge_specvol` evaluated at the *layer-mean* state, and it</span>
+<span class="sd">    is the same arithmetic for a reason worth stating rather than leaving to be</span>
+<span class="sd">    rediscovered: ``[alpha-taylor]`` is linear in :math:`\\Theta`, :math:`S`</span>
+<span class="sd">    and :math:`p` jointly, so the layer mean of :math:`\\hat\\alpha^{(e)}` is</span>
+<span class="sd">    :math:`\\hat\\alpha^{(e)}` evaluated at the layer means of its arguments.</span>
+<span class="sd">    The reconstruction of §3.4 is mean-preserving, so the layer means of</span>
+<span class="sd">    :math:`\\Theta(p)` and :math:`S(p)` are the prognostic layer means; and</span>
+<span class="sd">    ``PressureMid`` is the exact arithmetic midpoint of the two interface</span>
+<span class="sd">    pressures, so the layer mean of :math:`p` is ``PressureMid``.  The shape of</span>
+<span class="sd">    the reconstruction inside the layer therefore cannot affect this quantity.</span>
+
+<span class="sd">    It is source 4 of the remainder that needs it: the mismatch against</span>
+<span class="sd">    ``VertCoord``'s own increment, ``[eos-remainder]``, is the second-order</span>
+<span class="sd">    Taylor remainder of the equation of state across the edge.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    expansion : xarray.Dataset</span>
+<span class="sd">        The edge-shared expansion from :py:func:`edge_expansion`.</span>
+
+<span class="sd">    temperature : xarray.DataArray</span>
+<span class="sd">        Layer-mean conservative temperature in degC.</span>
+
+<span class="sd">    salinity : xarray.DataArray</span>
+<span class="sd">        Layer-mean absolute salinity in g kg-1.</span>
+
+<span class="sd">    pressure : xarray.DataArray</span>
+<span class="sd">        Layer-mean sea gauge pressure in Pa (``PressureMid``).</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    specvol : xarray.DataArray</span>
+<span class="sd">        The layer mean of :math:`\\hat\\alpha^{(e)}` in m3 kg-1.</span>
+<span class="sd">    """</span>
+    <span class="k">return</span> <span class="n">edge_specvol</span><span class="p">(</span>
+        <span class="n">expansion</span><span class="o">=</span><span class="n">expansion</span><span class="p">,</span>
+        <span class="n">temperature</span><span class="o">=</span><span class="n">temperature</span><span class="p">,</span>
+        <span class="n">salinity</span><span class="o">=</span><span class="n">salinity</span><span class="p">,</span>
+        <span class="n">pressure</span><span class="o">=</span><span class="n">pressure</span><span class="p">,</span>
+    <span class="p">)</span><span class="o">.</span><span class="n">assign_attrs</span><span class="p">(</span>
+        <span class="p">{</span>
+            <span class="s1">'long_name'</span><span class="p">:</span> <span class="s1">'layer mean of the edge-shared specific volume'</span><span class="p">,</span>
+            <span class="s1">'units'</span><span class="p">:</span> <span class="s1">'m3 kg-1'</span><span class="p">,</span>
+        <span class="p">}</span>
+    <span class="p">)</span></div>
+
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_template</span><span class="p">(</span><span class="o">*</span><span class="n">values</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span> <span class="o">|</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    The first argument that is a ``DataArray``, whose dimension order</span>
+<span class="sd">    :py:func:`edge_specvol` restores, or ``None`` if all are scalars.</span>
+<span class="sd">    """</span>
+    <span class="k">for</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">values</span><span class="p">:</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">value</span>
+    <span class="k">return</span> <span class="kc">None</span>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2026, Energy Exascale Earth System Model Project.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+   
+
+  <!-- Meta tags for JS to use -->
+  <meta name="doc-version" content="main">
+  <meta name="doc-site-root" content="../../../../../">
+
+  <!-- Create version switcher container -->
+  <script>
+    const sidebar = document.querySelector('.wy-side-nav-search');
+    if (sidebar) {
+      const versionDiv = document.createElement('div');
+      versionDiv.id = 'version-switcher';
+      versionDiv.style.marginTop = '1em';
+      sidebar.appendChild(versionDiv);
+    }
+  </script>
+
+  <!-- Load version-switcher.js using the correct relative path -->
+  <script src="../../../../../../shared/version-switcher.js"></script>
+
+
+</body>
+</html>

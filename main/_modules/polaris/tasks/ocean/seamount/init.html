@@ -575,12 +575,20 @@ window.runMermaid = runMermaid;</script>
 
         <span class="n">init_vertical_coord</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">ds</span><span class="p">)</span>
 
-        <span class="c1"># Set the Beckmann and Haidvogel 1993 eqn 15-16 stratification,</span>
-        <span class="c1"># carried entirely by temperature since salinity is constant.  The</span>
-        <span class="c1"># tracers keep the Time dimension that zMid carries, matching</span>
-        <span class="c1"># layerThickness and the other state variables; TEOS-10 requires</span>
-        <span class="c1"># its inputs to be aligned, and the linear EOS did not.</span>
-        <span class="n">temperature</span><span class="p">,</span> <span class="n">salinity</span> <span class="o">=</span> <span class="n">compute_tracers</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">ds</span><span class="o">.</span><span class="n">zMid</span><span class="p">)</span>
+        <span class="c1"># Set the configured stratification -- Beckmann and Haidvogel 1993</span>
+        <span class="c1"># eqn 15-16, or a profile linear in pressure -- carried entirely by</span>
+        <span class="c1"># temperature since salinity is constant.  The tracers keep the Time</span>
+        <span class="c1"># dimension that zMid carries, matching layerThickness and the other</span>
+        <span class="c1"># state variables; TEOS-10 requires its inputs to be aligned, and the</span>
+        <span class="c1"># linear EOS did not.  layerThickness is what the linear-in-pressure</span>
+        <span class="c1"># profile integrates the hydrostatic balance over; ssh is zero here,</span>
+        <span class="c1"># so the surface pressure it starts from is zero as well.</span>
+        <span class="n">temperature</span><span class="p">,</span> <span class="n">salinity</span> <span class="o">=</span> <span class="n">compute_tracers</span><span class="p">(</span>
+            <span class="n">config</span><span class="p">,</span>
+            <span class="n">ds</span><span class="o">.</span><span class="n">zMid</span><span class="p">,</span>
+            <span class="n">layer_thickness</span><span class="o">=</span><span class="n">ds</span><span class="o">.</span><span class="n">layerThickness</span><span class="p">,</span>
+            <span class="n">logger</span><span class="o">=</span><span class="n">logger</span><span class="p">,</span>
+        <span class="p">)</span>
 
         <span class="n">ds</span><span class="p">[</span><span class="s1">'temperature'</span><span class="p">]</span> <span class="o">=</span> <span class="n">temperature</span>
         <span class="n">ds</span><span class="p">[</span><span class="s1">'salinity'</span><span class="p">]</span> <span class="o">=</span> <span class="n">salinity</span>

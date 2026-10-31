@@ -1,0 +1,1016 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Discrete Hydrostatic Consistency in horiz_press_grad</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=a8da1a53"></script>
+      <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script>window.MathJax = {"options": {"processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+      <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-mml-chtml.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Reworked HPG Reference Solution" href="horiz_press_grad_reference.html" />
+    <link rel="prev" title="Realistic Ocean Initial Conditions" href="global_ocean_init.html" />
+    <link href="../_static/style.css" rel="stylesheet" type="text/css">
+
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            Polaris
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">User's guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../users_guide/quick_start.html">Quick Start for Users</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../users_guide/tasks.html">Tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../users_guide/config_files.html">Config Files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../users_guide/suites.html">Suites</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../users_guide/mesh/index.html">Mesh component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../users_guide/e3sm/init/index.html">E3SM Initial Condition Component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../users_guide/ocean/index.html">Ocean component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../users_guide/seaice/index.html">Sea ice component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../users_guide/machines/index.html">Machines</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Developer's guide</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/quick_start.html">Quick Start for Developers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/command_line.html">Command-line interface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/organization/index.html">Organization of Tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/e3sm/init/index.html">E3SM initial condition (e3sm/init) component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/mesh/index.html">Mesh component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/ocean/index.html">Ocean component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/seaice/index.html">Sea ice component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/framework/index.html">Framework</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/machines/index.html">Machines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/benchmarking.html">Benchmarking a branch against a baseline</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/omega_pr_testing.html">Testing an Omega pull request</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/troubleshooting.html">Troubleshooting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/docs.html">Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/building_docs.html">Building the Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/building_docs.html#previewing-the-documentation">Previewing the Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/conda_vs_spack.html">How Conda and Spack Work Together in Polaris</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/updating_conda.html">Updating Deployment Dependencies</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/updating_spack/index.html">Updating Shared Spack Environments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/api.html">API reference</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">Design Documents</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="global_ocean_forward.html">Global Ocean Forward Runs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="global_ocean_init.html">Realistic Ocean Initial Conditions</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Discrete Hydrostatic Consistency in <code class="docutils literal notranslate"><span class="pre">horiz_press_grad</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#summary">Summary</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#two-stages-and-a-note-on-the-word-phase">Two stages, and a note on the word “phase”</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#what-the-rollout-stage-adds">What the rollout stage adds</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#requirements">Requirements</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#requirement-the-test-configuration-is-an-exact-resting-state">Requirement: The test configuration is an exact resting state</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#requirement-the-geometry-under-test-is-verified-not-assumed">Requirement: The geometry under test is verified, not assumed</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#requirement-the-test-reaches-the-severity-at-which-the-centered-scheme-fails">Requirement: The test reaches the severity at which the centered scheme fails</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#requirement-the-measurement-discriminates-between-mechanisms-not-just-pass-and-fail">Requirement: The measurement discriminates between mechanisms, not just pass and fail</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#requirement-the-deepest-layer-valid-in-both-columns-is-measured-not-discarded">Requirement: The deepest layer valid in both columns is measured, not discarded</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#requirement-the-existing-variants-and-their-pass-criteria-are-untouched">Requirement: The existing variants and their pass criteria are untouched</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#requirement-the-cross-implementation-check-compares-the-same-algorithm">Requirement: The cross-implementation check compares the same algorithm</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#algorithm-design">Algorithm Design</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#algorithm-design-why-these-configurations-are-exact-resting-states">Algorithm Design: Why these configurations are exact resting states</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#algorithm-design-what-actually-tilts-the-coordinate-in-a-p-star-column">Algorithm Design: What actually tilts the coordinate in a p-star column</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#algorithm-design-the-tilt-scan-and-the-exponent">Algorithm Design: The tilt scan and the exponent</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#algorithm-design-sizing-the-sweep-so-that-it-is-severe-enough">Algorithm Design: Sizing the sweep so that it is severe enough</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#algorithm-design-the-bathymetry-guard">Algorithm Design: The bathymetry guard</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#implementation">Implementation</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#implementation-shared-metric-helpers">Implementation: shared metric helpers</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#implementation-including-the-bottom-layer-in-the-reference-based-analysis">Implementation: including the bottom layer in the reference-based analysis</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#implementation-the-reference-free-analysis-step">Implementation: the reference-free analysis step</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#implementation-the-tilt-axis-and-the-resting-state-task">Implementation: the tilt axis and the resting-state task</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#implementation-configuration">Implementation: configuration</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#implementation-the-scheme-axis">Implementation: the scheme axis</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#testing">Testing</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#testing-and-validation-the-sensitivity-gate-is-the-prerequisite">Testing and Validation: the sensitivity gate is the prerequisite</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#testing-and-validation-the-tilt-exponent">Testing and Validation: the tilt exponent</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#testing-and-validation-resting-state-and-consistency-checks">Testing and Validation: resting-state and consistency checks</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#testing-and-validation-the-rollout-stage">Testing and Validation: the rollout stage</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="horiz_press_grad_reference.html">Reworked HPG Reference Solution</a></li>
+<li class="toctree-l2"><a class="reference internal" href="land_locked_cells.html">Land-Locked Cells in the Ocean and Sea-Ice Domains</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mixed_layer_eddies.html">Mixed-Layer Eddies Task</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ocean_analysis.html">Ocean Analysis in Polaris</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ocean_analysis_initial.html">Initial Omega Analysis Capabilities</a></li>
+<li class="toctree-l2"><a class="reference internal" href="omega_pr_testing.html">Omega Pull Request Testing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="overflow_nonlinear_eos.html">EOS and Vertical-Coordinate Variants of the Overflow Tasks</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pstar_init.html">P-Star Coordinate and Tracer Initialization</a></li>
+<li class="toctree-l2"><a class="reference internal" href="shared_steps.html">Shared steps</a></li>
+<li class="toctree-l2"><a class="reference internal" href="suite_results_file.html">Machine-Readable Suite Results</a></li>
+<li class="toctree-l2"><a class="reference internal" href="task_parallel_analysis_steps.html">Task-Parallel-Safe Analysis Steps in Polaris</a></li>
+<li class="toctree-l2"><a class="reference internal" href="task_parallelism.html">Task Parallelism in Polaris</a></li>
+<li class="toctree-l2"><a class="reference internal" href="task_parallelism_phase_a.html">Task Parallelism Phase A: Placement</a></li>
+<li class="toctree-l2"><a class="reference internal" href="task_parallelism_phase_b.html">Task Parallelism Phase B: Concurrency</a></li>
+<li class="toctree-l2"><a class="reference internal" href="task_parallelism_phase_c.html">Task Parallelism Phase C: Python Worker Pool</a></li>
+<li class="toctree-l2"><a class="reference internal" href="task_parallelism_phase_d.html">Task Parallelism Phase D: Coexistence and Elasticity</a></li>
+<li class="toctree-l2"><a class="reference internal" href="unified_base_mesh.html">Unified Mesh: Global Base Mesh Workflow</a></li>
+<li class="toctree-l2"><a class="reference internal" href="unified_mesh_prepare_coastline.html">Unified Mesh: Coastline Preparation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="unified_mesh_prepare_river_network.html">Unified Mesh: River Network Preparation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="unified_mesh_build_sizing_field.html">Unified Mesh: Sizing-Field Construction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="unified_mesh_create_base_mesh.html">Unified Mesh: Base-Mesh Creation and Downstream Integration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="unified_mesh_cull_leak.html">Unified Mesh: Fixing Resolution Leakage into the Ocean/Sea-Ice Domain</a></li>
+<li class="toctree-l2"><a class="reference internal" href="unified_mesh_dc_edge_noise.html">Unified Mesh: Raising the dcEdge Floor in the Ocean/Sea-Ice Domain</a></li>
+<li class="toctree-l2"><a class="reference internal" href="vector_reconstruction.html">Vector Reconstruction at MPAS Cell Centers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="template.html">Template</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials/dev_add_category_of_tasks/index.html">Developer Tutorial: Adding a New Category of Tasks</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Glossary</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../glossary.html">Glossary</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Polaris</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="index.html">Design Documents</a></li>
+      <li class="breadcrumb-item active">Discrete Hydrostatic Consistency in <code class="docutils literal notranslate"><span class="pre">horiz_press_grad</span></code></li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/design_docs/horiz_press_grad_hydrostatic_consistency.md.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section class="tex2jax_ignore mathjax_ignore" id="discrete-hydrostatic-consistency-in-horiz-press-grad">
+<h1>Discrete Hydrostatic Consistency in <code class="docutils literal notranslate"><span class="pre">horiz_press_grad</span></code><a class="headerlink" href="#discrete-hydrostatic-consistency-in-horiz-press-grad" title="Link to this heading"></a></h1>
+<p>Creation date: 2026/07/28</p>
+<p>Contributors: Xylar Asay-Davis, Claude</p>
+<section id="summary">
+<h2>Summary<a class="headerlink" href="#summary" title="Link to this heading"></a></h2>
+<p>The Omega design document for the higher-order horizontal pressure gradient
+(<code class="docutils literal notranslate"><span class="pre">components/omega/doc/design/PGradHighOrder.md</span></code>, §2.3 and §3.7) requires
+<strong>discrete hydrostatic consistency</strong>: for horizontally uniform conservative
+temperature and absolute salinity, with coordinate surfaces tilted arbitrarily
+between adjacent columns, the scheme must return exactly zero horizontal
+pressure-gradient acceleration (HPGA), to machine precision, with no background
+reference state. Its §5.2 makes that a gating test and names the Polaris
+two-column task as one of the places it should be exercised.</p>
+<p>This design adds two variants to the <code class="docutils literal notranslate"><span class="pre">ocean/horiz_press_grad</span></code> task family that
+measure that property, together with the reference-free analysis they need. The
+new capability is:</p>
+<ul class="simple">
+<li><p>Two <strong>exact resting states</strong> in which the true HPGA is identically zero, so
+the model’s HPGA <em>is</em> the error and no reference solution is required:
+<code class="docutils literal notranslate"><span class="pre">hydrostatic_consistency</span></code> (tilted coordinate, flat sea floor) and
+<code class="docutils literal notranslate"><span class="pre">bathymetry_step</span></code> (flat coordinate, stepped sea floor).</p></li>
+<li><p>A <strong>tilt scan</strong>: at fixed resolution, the tilt is swept over roughly three
+decades and the exponent <span class="math notranslate nohighlight">\(q\)</span> in <span class="math notranslate nohighlight">\(\lVert\text{HPGA}\rVert \sim
+(\text{tilt})^{q}\)</span> is measured. The exponent, not a single pass/fail, is the
+discriminating output.</p></li>
+<li><p>A <strong>reference-free analysis step</strong>, <code class="docutils literal notranslate"><span class="pre">RestingAnalysis</span></code>, which compares against
+zero rather than against <code class="docutils literal notranslate"><span class="pre">ReferenceColumn</span></code>, retains the Omega-vs-Polaris
+consistency check, and guards the resting-state premise itself.</p></li>
+</ul>
+<p>The primary challenge is not the numerics but the <strong>severity of the
+configuration</strong>. The existing <code class="docutils literal notranslate"><span class="pre">ztilde_gradient</span></code> variant is already structurally
+a resting state with a tilted coordinate, and the centered scheme passes it with
+an RMS HPGA of <span class="math notranslate nohighlight">\(\sim 7\times10^{-12}\)</span> m s<span class="math notranslate nohighlight">\(^{-2}\)</span> — six orders of magnitude below
+the <span class="math notranslate nohighlight">\(\sim 3\times10^{-6}\)</span> m s<span class="math notranslate nohighlight">\(^{-2}\)</span> bottom-layer error seen in realistic global
+Omega runs. A new variant that inherits that configuration would pass trivially
+and measure nothing. The design is <strong>successful</strong> if the centered scheme is
+driven to an RMS HPGA of at least <span class="math notranslate nohighlight">\(10^{-6}\)</span> m s<span class="math notranslate nohighlight">\(^{-2}\)</span> somewhere in the sweep
+(the <em>sensitivity gate</em>), if the measured tilt exponent is stable and
+interpretable, and if the resulting diagnostic is ready to be pointed at the
+<code class="docutils literal notranslate"><span class="pre">FiniteVolume</span></code> scheme when it exists.</p>
+<section id="two-stages-and-a-note-on-the-word-phase">
+<h3>Two stages, and a note on the word “phase”<a class="headerlink" href="#two-stages-and-a-note-on-the-word-phase" title="Link to this heading"></a></h3>
+<p>This design was written and first implemented before Omega’s <code class="docutils literal notranslate"><span class="pre">FiniteVolume</span></code>
+scheme existed, and extended once it did. The two Polaris stages are named
+rather than numbered, because <code class="docutils literal notranslate"><span class="pre">PGradHighOrder.md</span></code> uses <strong>Phase 1</strong> and <strong>Phase
+2</strong> for the scheme’s <em>order</em> — Phase 1 being <code class="docutils literal notranslate"><span class="pre">HorzOrder:</span> <span class="pre">2</span></code> with a linear
+vertical reconstruction, Phase 2 order 4 with PPM — and two independent pairs of
+ordinals in one document is a reliable source of confusion.</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>stage</p></th>
+<th class="head"><p>what it delivered</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><strong>the calibration stage</strong></p></td>
+<td><p>the two resting-state variants, the reference-free analysis, and the <code class="docutils literal notranslate"><span class="pre">Centered</span></code> baseline measured in Omega: tilt exponent <span class="math notranslate nohighlight">\(q = 1.000\)</span>, sensitivity gate passing by 21–23×</p></td>
+</tr>
+<tr class="row-odd"><td><p><strong>the rollout stage</strong></p></td>
+<td><p>scheme selection and the §5.1 gates set from a <code class="docutils literal notranslate"><span class="pre">Centered</span></code>-versus-<code class="docutils literal notranslate"><span class="pre">FiniteVolume</span></code> comparison</p></td>
+</tr>
+</tbody>
+</table>
+<p>Everything here concerns Omega Phase 1. “Phase” below always means the Omega
+sense.</p>
+<p>The calibration stage’s output is what makes the rollout readable: with the
+centered exponent measured at 1.000 to five digits, a <code class="docutils literal notranslate"><span class="pre">FiniteVolume</span></code>
+measurement is read against a known-good value rather than against an
+expectation.</p>
+</section>
+<section id="what-the-rollout-stage-adds">
+<h3>What the rollout stage adds<a class="headerlink" href="#what-the-rollout-stage-adds" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><strong>A scheme axis.</strong> Each variant runs both <code class="docutils literal notranslate"><span class="pre">Centered</span></code> and <code class="docutils literal notranslate"><span class="pre">FiniteVolume</span></code> over
+one shared initial condition, so the two are compared at an identical state.</p></li>
+<li><p><strong>A second Python kernel to compare against.</strong> <code class="docutils literal notranslate"><span class="pre">init.py</span></code> writes
+<code class="docutils literal notranslate"><span class="pre">HPGAFiniteVolume</span></code> alongside <code class="docutils literal notranslate"><span class="pre">HPGA</span></code>, and each analysis step compares Omega
+against whichever matches the scheme that produced its output.</p></li>
+</ul>
+<p>The two variants deliberately isolate two different mechanisms, which the
+sizing work below showed are <strong>not</strong> the same mechanism:</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p></p></th>
+<th class="head"><p><code class="docutils literal notranslate"><span class="pre">hydrostatic_consistency</span></code></p></th>
+<th class="head"><p><code class="docutils literal notranslate"><span class="pre">bathymetry_step</span></code></p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>what tilts</p></td>
+<td><p>the p-star reference grid, via <code class="docutils literal notranslate"><span class="pre">z_tilde_bot_grad</span></code></p></td>
+<td><p>nothing; only the sea floor moves</p></td>
+</tr>
+<tr class="row-odd"><td><p>where the error lives</p></td>
+<td><p>every layer, growing with depth</p></td>
+<td><p>the deepest layer valid in both columns, only</p></td>
+</tr>
+<tr class="row-even"><td><p>behaviour vs. the swept parameter</p></td>
+<td><p>a clean power law</p></td>
+<td><p>a staircase, set by where <code class="docutils literal notranslate"><span class="pre">maxLevelCell</span></code> changes</p></td>
+</tr>
+<tr class="row-odd"><td><p>what it represents</p></td>
+<td><p>thin, steeply sloped layers in a general ALE coordinate</p></td>
+<td><p>the bottom partial cell at a bathymetry step</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+</section>
+<section id="requirements">
+<h2>Requirements<a class="headerlink" href="#requirements" title="Link to this heading"></a></h2>
+<section id="requirement-the-test-configuration-is-an-exact-resting-state">
+<h3>Requirement: The test configuration is an exact resting state<a class="headerlink" href="#requirement-the-test-configuration-is-an-exact-resting-state" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/07/28</p>
+<p>Contributors: Xylar Asay-Davis, Claude</p>
+<p>Each new variant shall be a configuration whose true, continuous HPGA is
+identically zero at every point in the water column, so that the model’s
+computed HPGA is entirely error and no reference solution is needed. The
+resting-state property shall be a consequence of the configuration
+(horizontally uniform conservative temperature and absolute salinity specified
+as functions of pseudo-height, with no surface-pressure gradient), not an
+approximation.</p>
+</section>
+<section id="requirement-the-geometry-under-test-is-verified-not-assumed">
+<h3>Requirement: The geometry under test is verified, not assumed<a class="headerlink" href="#requirement-the-geometry-under-test-is-verified-not-assumed" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/07/28</p>
+<p>Contributors: Xylar Asay-Davis, Claude</p>
+<p>The analysis shall confirm at run time that the geometry actually built is the
+geometry the configuration asked for, and shall fail loudly if it is not. A
+sweep whose swept parameter has been silently altered by the vertical-grid
+construction reports an error level for a configuration that was never tested,
+in either direction — too large or too small.</p>
+</section>
+<section id="requirement-the-test-reaches-the-severity-at-which-the-centered-scheme-fails">
+<h3>Requirement: The test reaches the severity at which the centered scheme fails<a class="headerlink" href="#requirement-the-test-reaches-the-severity-at-which-the-centered-scheme-fails" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/07/28</p>
+<p>Contributors: Xylar Asay-Davis, Claude</p>
+<p>At its most severe configuration, the sweep shall drive the existing centered
+scheme to an RMS HPGA of at least <span class="math notranslate nohighlight">\(10^{-6}\)</span> m s<span class="math notranslate nohighlight">\(^{-2}\)</span> — the order of the
+bottom-layer HPGA error observed in realistic global Omega runs with a uniform
+temperature and salinity state. A sweep that does not reach this level is not
+exercising the failure mode the higher-order scheme is meant to fix, and any
+conclusion drawn from it about the new scheme would be unsupported.</p>
+</section>
+<section id="requirement-the-measurement-discriminates-between-mechanisms-not-just-pass-and-fail">
+<h3>Requirement: The measurement discriminates between mechanisms, not just pass and fail<a class="headerlink" href="#requirement-the-measurement-discriminates-between-mechanisms-not-just-pass-and-fail" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/07/28</p>
+<p>Contributors: Xylar Asay-Davis, Claude</p>
+<p>The analysis shall report the exponent <span class="math notranslate nohighlight">\(q\)</span> in <span class="math notranslate nohighlight">\(\lVert\text{HPGA}\rVert \sim
+(\text{tilt})^{q}\)</span>, restricted to the portion of the sweep where the result is
+well above the round-off floor, in addition to absolute error levels. A single
+pass/fail number cannot distinguish “the scheme represents specific volume as
+piecewise constant in pressure” from “the scheme has a higher-order residual”
+from “the scheme is exact”, and those are the outcomes the test exists to
+separate.</p>
+</section>
+<section id="requirement-the-deepest-layer-valid-in-both-columns-is-measured-not-discarded">
+<h3>Requirement: The deepest layer valid in both columns is measured, not discarded<a class="headerlink" href="#requirement-the-deepest-layer-valid-in-both-columns-is-measured-not-discarded" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/07/28</p>
+<p>Contributors: Xylar Asay-Davis, Claude</p>
+<p>The error metric shall include the deepest layer that is valid in both columns
+bounding the edge. That layer is the bottom partial cell, and it is where the
+pressure-gradient error concentrates; excluding it removes the signal these
+tests exist to measure.</p>
+<p>This applies to the <strong>reference-based <code class="docutils literal notranslate"><span class="pre">Analysis</span></code> step as well as</strong> to the new
+resting-state analysis. <code class="docutils literal notranslate"><span class="pre">Analysis</span></code> currently drops that layer, which is a
+leftover from the previous five-column finite-difference reference whose
+stencil could not be formed where a neighbouring column’s collocation point
+fell below its own bathymetry. The reference is now a single analytic column at
+the edge, documented as valid to the seafloor, so the exclusion no longer has a
+basis. Fixing it is in scope here because it is the same decision, and because
+leaving the two analysis steps disagreeing about which layers count would be
+incoherent.</p>
+</section>
+<section id="requirement-the-existing-variants-and-their-pass-criteria-are-untouched">
+<h3>Requirement: The existing variants and their pass criteria are untouched<a class="headerlink" href="#requirement-the-existing-variants-and-their-pass-criteria-are-untouched" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/08/02</p>
+<p>Contributors: Xylar Asay-Davis, Claude</p>
+<p>The four existing variants (<code class="docutils literal notranslate"><span class="pre">salinity_gradient</span></code>, <code class="docutils literal notranslate"><span class="pre">surface_pressure_gradient</span></code>,
+<code class="docutils literal notranslate"><span class="pre">temperature_gradient</span></code>, <code class="docutils literal notranslate"><span class="pre">ztilde_gradient</span></code>), the <code class="docutils literal notranslate"><span class="pre">ReferenceColumn</span></code> evaluator, and
+the convergence-rate and reference thresholds in <code class="docutils literal notranslate"><span class="pre">horiz_press_grad.cfg</span></code> shall
+behave exactly as they do today. The new capability shall not change their step
+names, work directories, or results.</p>
+<p><strong>Amended for the rollout stage.</strong> This requirement held for the calibration
+stage and is deliberately relaxed by the rollout, in two respects:</p>
+<ul class="simple">
+<li><p>the scheme axis puts a scheme label in every forward step’s directory, so the
+step names <em>do</em> change and the recorded centered baselines have to be
+regenerated. This is the cost of running both schemes over one shared <code class="docutils literal notranslate"><span class="pre">Init</span></code>
+rather than duplicating the initial condition per scheme;</p></li>
+<li><p>the convergence bands become per-variant and per-scheme. A single band cannot
+serve four variants whose measured centered rates are 1.6, 1.8, 2.0 and 1.1.</p></li>
+</ul>
+<p>What the rollout does <strong>not</strong> change is the four variants’ <em>results</em> under
+<code class="docutils literal notranslate"><span class="pre">Centered</span></code>, or the meaning of <code class="docutils literal notranslate"><span class="pre">HPGA</span></code>. Any change there is a regression.</p>
+</section>
+<section id="requirement-the-cross-implementation-check-compares-the-same-algorithm">
+<h3>Requirement: The cross-implementation check compares the same algorithm<a class="headerlink" href="#requirement-the-cross-implementation-check-compares-the-same-algorithm" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/08/02</p>
+<p>Contributors: Xylar Asay-Davis, Claude</p>
+<p><code class="docutils literal notranslate"><span class="pre">omega_vs_polaris_rms_threshold</span></code> is the only check in the family that compares
+Omega’s arithmetic against an independent implementation of the same scheme, and
+it is worth exactly as much as the claim that the two sides <em>are</em> the same
+algorithm. Where the Python kernel makes a discretization choice that Omega
+makes differently — the quadrature rule and its order, which end of the column
+the scan is anchored at, how the reconstruction is closed at the ends of a
+column, how the edge-shared expansion point is formed — the check stops
+measuring implementation disagreement and starts measuring the gap between two
+different algorithms, which is not distinguishable from a bug in either.</p>
+<p>Every such choice shall therefore be reconciled against <code class="docutils literal notranslate"><span class="pre">PGradHighOrder.md</span></code>
+before the check is run in anger, and each resolution recorded with its
+provenance. Two constraints on how:</p>
+<ol class="arabic simple">
+<li><p><strong>The design is the source, not the C++.</strong> The Python kernel was written from
+<code class="docutils literal notranslate"><span class="pre">PGradHighOrder.md</span></code> precisely so that this comparison has content. Reading
+the Omega implementation to settle a question of <em>intent</em> the design leaves
+open is legitimate; transcribing it is not, because a Python kernel derived
+from the C++ would compare an implementation against itself.</p></li>
+<li><p><strong>Reconcile up front rather than by bisection.</strong> The check produces one
+scalar per resolution. It can report that the two sides disagree; it cannot
+report which of several choices disagrees, and several of them first bite in
+the same configurations.</p></li>
+</ol>
+<p>Where a reconciliation finds that the <em>Python</em> follows the design and Omega does
+not, it stops being a Polaris change and is handed back rather than papered over
+by adjusting the Python to match.</p>
+</section>
+</section>
+<section id="algorithm-design">
+<h2>Algorithm Design<a class="headerlink" href="#algorithm-design" title="Link to this heading"></a></h2>
+<section id="algorithm-design-why-these-configurations-are-exact-resting-states">
+<h3>Algorithm Design: Why these configurations are exact resting states<a class="headerlink" href="#algorithm-design-why-these-configurations-are-exact-resting-states" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/07/28</p>
+<p>Contributors: Xylar Asay-Davis, Claude</p>
+<p>Omega’s vertical coordinate is pseudo-height <span class="math notranslate nohighlight">\(\tilde z = -p/(\rho_0 g)\)</span>, so
+pressure is an exactly linear function of <span class="math notranslate nohighlight">\(\tilde z\)</span> and a surface of constant
+<span class="math notranslate nohighlight">\(\tilde z\)</span> is a surface of constant <span class="math notranslate nohighlight">\(p\)</span>. <code class="docutils literal notranslate"><span class="pre">Init</span></code> interpolates conservative
+temperature <span class="math notranslate nohighlight">\(\Theta\)</span> and absolute salinity <span class="math notranslate nohighlight">\(S_A\)</span> against <span class="math notranslate nohighlight">\(\tilde z\)</span> from
+piecewise profiles whose node values and node pseudo-heights are set by
+<code class="docutils literal notranslate"><span class="pre">*_mid</span></code> and <code class="docutils literal notranslate"><span class="pre">*_grad</span></code> configuration options. Setting every <code class="docutils literal notranslate"><span class="pre">*_grad</span></code> to zero makes
+<span class="math notranslate nohighlight">\(\Theta\)</span> and <span class="math notranslate nohighlight">\(S_A\)</span> <strong>the same functions of <span class="math notranslate nohighlight">\(\tilde z\)</span>, and therefore of <span class="math notranslate nohighlight">\(p\)</span>, in
+both columns</strong>. Specific volume is then a function of pressure alone,</p>
+<div class="math notranslate nohighlight">
+\[
+\alpha = \alpha\bigl(\Theta(p), S_A(p), p\bigr) \equiv \alpha(p),
+\]</div>
+<p>isobars are level surfaces, and the true HPGA is identically zero everywhere in
+the fluid — for <strong>any</strong> sea-floor shape and <strong>any</strong> tilt of the coordinate
+surfaces. This is what makes both variants valid resting states, and it is the
+discrete analogue of the property §3.7 of the Omega design asserts.</p>
+<p>Two configuration choices are therefore forced:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">temperature_grad</span></code>, <code class="docutils literal notranslate"><span class="pre">salinity_grad</span></code> and <code class="docutils literal notranslate"><span class="pre">z_tilde_grad</span></code> are all zero (inherited
+from the base <code class="docutils literal notranslate"><span class="pre">horiz_press_grad.cfg</span></code>), and <code class="docutils literal notranslate"><span class="pre">surface_pressure_grad</span></code> is zero, so
+the sea surface is flat.</p></li>
+<li><p>The deepest profile node lies below the deepest reference-grid interface in
+<em>either</em> column, so the PCHIP interpolant is never asked to extrapolate when
+the tilt makes one column’s reference grid deeper than the other’s.</p></li>
+</ul>
+</section>
+<section id="algorithm-design-what-actually-tilts-the-coordinate-in-a-p-star-column">
+<h3>Algorithm Design: What actually tilts the coordinate in a p-star column<a class="headerlink" href="#algorithm-design-what-actually-tilts-the-coordinate-in-a-p-star-column" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/07/28</p>
+<p>Contributors: Xylar Asay-Davis, Claude</p>
+<p>This is the design’s central finding, and it determined the shape of both
+variants.</p>
+<p><code class="docutils literal notranslate"><span class="pre">init_pstar_vertical_coord</span></code> builds each column by clipping a reference 1-D grid
+at that column’s <code class="docutils literal notranslate"><span class="pre">BottomPressure</span></code>. In <code class="docutils literal notranslate"><span class="pre">Init</span></code>, the reference grid for column <span class="math notranslate nohighlight">\(i\)</span>
+is uniform over <span class="math notranslate nohighlight">\([0, -\tilde z^{\text{bot}}_i]\)</span> with a level count fixed by the
+mid-column value, so <code class="docutils literal notranslate"><span class="pre">z_tilde_bot_grad</span></code> <strong>stretches</strong> one column’s reference
+grid relative to the other’s. The cross-edge offset of interface <span class="math notranslate nohighlight">\(k\)</span> then grows
+linearly with depth,</p>
+<div class="math notranslate nohighlight">
+\[
+\Delta \tilde z_k \;=\; \frac{k}{N}\,
+   \bigl(\tilde z^{\text{bot}}_1 - \tilde z^{\text{bot}}_0\bigr),
+\]</div>
+<p>which is the tilted-coordinate configuration §3.7 describes. <strong>This is the only
+mechanism in the two-column task that tilts interior coordinate surfaces.</strong></p>
+<p>A sea-floor step does <em>not</em> tilt them. With <code class="docutils literal notranslate"><span class="pre">z_tilde_bot_grad</span> <span class="pre">=</span> <span class="pre">0</span></code> both columns
+share one reference grid, and moving the sea floor changes only where that grid
+is clipped. Every interior interface sits at an identical pseudo-height — and
+hence an identical pressure — in both columns, so the cross-edge pressure
+difference is exactly zero above the bottom. Offline replication of the Polaris
+<code class="docutils literal notranslate"><span class="pre">Init</span></code> arithmetic confirms this: with a sea-floor gradient of 10–200 m km<span class="math notranslate nohighlight">\(^{-1}\)</span>
+and a flat coordinate, the RMS HPGA over the interior layers is
+<span class="math notranslate nohighlight">\(\sim 10^{-15}\)</span> m s<span class="math notranslate nohighlight">\(^{-2}\)</span> (round-off), while the deepest layer valid in both
+columns carries <span class="math notranslate nohighlight">\(2\times10^{-6}\)</span> to <span class="math notranslate nohighlight">\(8\times10^{-5}\)</span> m s<span class="math notranslate nohighlight">\(^{-2}\)</span>.</p>
+<p>Two consequences follow:</p>
+<ol class="arabic simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">bathymetry_step</span></code> is a test of the <strong>bottom partial cell</strong>, not of interior
+layer tilt, and its whole signal is in the one layer the reference-based
+analysis discards. Hence the requirement to include that layer.</p></li>
+<li><p>Its error is <strong>not</strong> a power law in the sea-floor gradient. The signal is set
+by how the two columns’ <code class="docutils literal notranslate"><span class="pre">maxLevelCell</span></code> and clipped bottom thicknesses relate,
+which changes in steps. Fitting an exponent to it would be meaningless, so
+the fit is configurable and is disabled for that variant.</p></li>
+</ol>
+</section>
+<section id="algorithm-design-the-tilt-scan-and-the-exponent">
+<h3>Algorithm Design: The tilt scan and the exponent<a class="headerlink" href="#algorithm-design-the-tilt-scan-and-the-exponent" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/07/28</p>
+<p>Contributors: Xylar Asay-Davis, Claude</p>
+<p>Because the exact answer is zero there is nothing to converge <em>to</em>, so the
+discriminating measurement is not a convergence rate against a reference but a
+scan of the tilt at fixed resolution. For <code class="docutils literal notranslate"><span class="pre">hydrostatic_consistency</span></code> the swept
+parameter is <code class="docutils literal notranslate"><span class="pre">z_tilde_bot_grad</span></code>; the analysis fits</p>
+<div class="math notranslate nohighlight">
+\[
+\log_{10} \lVert \text{HPGA} \rVert_{\text{RMS}}
+   \;=\; q \, \log_{10} (\text{tilt}) + \text{const}
+\]</div>
+<p>over the points below <code class="docutils literal notranslate"><span class="pre">tilt_fit_max</span></code>, and reports <span class="math notranslate nohighlight">\(q\)</span>. The readings are:</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>measured <span class="math notranslate nohighlight">\(q\)</span></p></th>
+<th class="head"><p>reading</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><span class="math notranslate nohighlight">\(q \approx 1\)</span></p></td>
+<td><p><span class="math notranslate nohighlight">\(\alpha\)</span> is effectively piecewise constant in pressure — no better than the centered scheme</p></td>
+</tr>
+<tr class="row-odd"><td><p><span class="math notranslate nohighlight">\(q \approx 2\)</span></p></td>
+<td><p>consistent with a residual set by the per-cell Taylor expansion point of <code class="docutils literal notranslate"><span class="pre">PGradHighOrder.md</span></code> §3.3</p></td>
+</tr>
+<tr class="row-even"><td><p>round-off, independent of tilt</p></td>
+<td><p>consistent with §3.7 holding as written</p></td>
+</tr>
+</tbody>
+</table>
+<p>An exponent that is neither, or one that drifts across the sweep, is a real
+possible outcome and would say the mechanism is not one of the three above.</p>
+<p>Restricting the fit to <code class="docutils literal notranslate"><span class="pre">tilt_fit_max</span></code> matters for two reasons: at small tilt the
+error approaches the round-off floor and flattens the fit, and at large tilt the
+two columns’ <code class="docutils literal notranslate"><span class="pre">maxLevelCell</span></code> values begin to differ, which adds a staircase
+component. This mirrors the existing
+<code class="docutils literal notranslate"><span class="pre">omega_vs_reference_convergence_fit_max_resolution</span></code> option.</p>
+<p>The scan is meaningful <strong>immediately</strong>, against the existing <code class="docutils literal notranslate"><span class="pre">Centered</span></code> scheme
+and before any new Omega code exists. Offline replication of the Polaris
+arithmetic gives <span class="math notranslate nohighlight">\(q = 1.00\)</span> for the centered scheme, which is the expected
+reading for a scheme that holds <span class="math notranslate nohighlight">\(\alpha\)</span> constant within a layer, and which
+calibrates the diagnostic.</p>
+</section>
+<section id="algorithm-design-sizing-the-sweep-so-that-it-is-severe-enough">
+<h3>Algorithm Design: Sizing the sweep so that it is severe enough<a class="headerlink" href="#algorithm-design-sizing-the-sweep-so-that-it-is-severe-enough" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/07/28</p>
+<p>Contributors: Xylar Asay-Davis, Claude</p>
+<p>The existing variants use a 500 m water column resolved at 0.5–4 m, which is
+between one and three orders of magnitude finer than the ~250 m layers in the
+deep ocean of a realistic global run. Offline replication of the Polaris <code class="docutils literal notranslate"><span class="pre">Init</span></code>
+arithmetic (which reproduces the recorded <span class="math notranslate nohighlight">\(7\times10^{-12}\)</span> m s<span class="math notranslate nohighlight">\(^{-2}\)</span> for the
+existing <code class="docutils literal notranslate"><span class="pre">ztilde_gradient</span></code> to within 4%) gives, at a fixed coordinate tilt of
+5 m km<span class="math notranslate nohighlight">\(^{-1}\)</span>:</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>layer thickness</p></th>
+<th class="head"><p>RMS HPGA (centered)</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>256 m</p></td>
+<td><p><span class="math notranslate nohighlight">\(1.6\times10^{-6}\)</span></p></td>
+</tr>
+<tr class="row-odd"><td><p>128 m</p></td>
+<td><p><span class="math notranslate nohighlight">\(5.0\times10^{-7}\)</span></p></td>
+</tr>
+<tr class="row-even"><td><p>64 m</p></td>
+<td><p><span class="math notranslate nohighlight">\(9.6\times10^{-8}\)</span></p></td>
+</tr>
+<tr class="row-odd"><td><p>16 m</p></td>
+<td><p><span class="math notranslate nohighlight">\(6.4\times10^{-9}\)</span></p></td>
+</tr>
+</tbody>
+</table>
+<p>i.e. roughly second order in layer thickness, and only the coarsest rows are
+near the target severity. The new variants therefore use a <strong>deep, coarsely
+resolved column</strong>: a sea floor at <span class="math notranslate nohighlight">\(-3500\)</span> m, a reference pseudo-bottom at
+<span class="math notranslate nohighlight">\(-4096\)</span> m, and 16, 32 or 64 levels (256, 128 or 64 m). The level counts are
+multiples of 16, which Omega prefers.</p>
+<p>The gap between the sea floor and the reference pseudo-bottom is deliberate.
+The p-star iteration converges to a pseudo-bottom depth slightly greater than
+the geometric water-column thickness (because in-situ density exceeds <span class="math notranslate nohighlight">\(\rho_0\)</span>
+at depth), and the reference grid must extend below it in <em>both</em> columns. The
+576 m of head room here permits tilts up to a few hundred m km<span class="math notranslate nohighlight">\(^{-1}\)</span>; without
+it the shallower column’s reference grid runs out, the p-star iteration
+diverges, and the reported HPGA jumps to <span class="math notranslate nohighlight">\(O(1)\)</span> m s<span class="math notranslate nohighlight">\(^{-2}\)</span> — a failure mode the
+<code class="docutils literal notranslate"><span class="pre">Init</span></code> guard below is designed to catch.</p>
+<p>A further measured result shapes the sweep: at a fixed tilt <em>gradient</em>, the RMS
+HPGA is <strong>independent of horizontal resolution</strong> to five digits (1.5570e-06 at
+8, 4, 2 and 1 km). The offset and the cell spacing scale together, so the
+difference quotient is unchanged. The horizontal sweep is therefore reduced to
+two resolutions — enough to confirm the same independence holds in Omega, which
+has not been checked — rather than the seven the existing variants use.</p>
+</section>
+<section id="algorithm-design-the-bathymetry-guard">
+<h3>Algorithm Design: The bathymetry guard<a class="headerlink" href="#algorithm-design-the-bathymetry-guard" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/07/28</p>
+<p>Contributors: Xylar Asay-Davis, Claude</p>
+<p>The swept tilt has to be the geometry actually under test. The analysis
+therefore checks</p>
+<div class="math notranslate nohighlight">
+\[
+\max_i \lvert \texttt{bottomDepth}_i - \texttt{bottomDepthRequested}_i \rvert
+   \;&lt;\; \texttt{resting\_state\_max\_bathy\_error}
+\]</div>
+<p>at every point in the sweep and fails otherwise, with <code class="docutils literal notranslate"><span class="pre">Init</span></code> writing the
+requested bathymetry alongside the achieved one.</p>
+<p>The thing this guards against is partial-cell snapping. <code class="docutils literal notranslate"><span class="pre">min_pc_fraction</span></code>
+forbids bottom cells thinner than a set fraction of a layer, so the achievable
+pseudo-bottom depths are quantized and a requested bathymetry can fall in a gap
+between them; <code class="docutils literal notranslate"><span class="pre">_snap_partial_cells</span></code> then moves the sea floor to the nearest
+representable depth.</p>
+<p>That does <strong>not</strong> break the resting state. Since <code class="docutils literal notranslate"><span class="pre">run_pstar_init</span></code> anchors the
+geometric column at the prescribed sea surface, <code class="docutils literal notranslate"><span class="pre">ssh</span></code> is exact by construction,
+the sea surface stays level, and the state remains exactly at rest. What breaks
+is the <em>meaning of the sweep</em>. This matters most for <code class="docutils literal notranslate"><span class="pre">bathymetry_step</span></code>, where
+the swept parameter is the sea floor itself: offline replication shows that at
+a nominal gradient of 100 m km<span class="math notranslate nohighlight">\(^{-1}\)</span> over 4 km, snapping moves both columns to
+the same representable depth, so a nominal 400 m step becomes no step, and the
+measured RMS HPGA falls to <span class="math notranslate nohighlight">\(4\times10^{-16}\)</span> m s<span class="math notranslate nohighlight">\(^{-2}\)</span> — which would read as a
+spectacular pass rather than a test that had stopped testing anything.</p>
+<p>A guard on <code class="docutils literal notranslate"><span class="pre">ssh</span></code> would be useless here, and was: an earlier version of this
+design checked <span class="math notranslate nohighlight">\(\lvert \eta_1 - \eta_0 \rvert\)</span>, which is identically zero once
+the column is surface-anchored and therefore can never fire.</p>
+<p>Both new variants set <code class="docutils literal notranslate"><span class="pre">partial_cell_type</span> <span class="pre">=</span> <span class="pre">None</span></code>, which leaves the requested
+bathymetry untouched. This does <strong>not</strong> cost partial-cell coverage: in a p-star
+column the reference grid is clipped at the pseudo-bottom depth regardless, so
+the deepest layer is a partial cell either way. The option controls only
+whether the topography is snapped. The guard remains in place so that anyone
+who later enables snapping finds out immediately.</p>
+<blockquote>
+<div><p><strong>Historical note.</strong> Before <code class="docutils literal notranslate"><span class="pre">run_pstar_init</span></code> anchored the column at the
+prescribed sea surface, the same snapping surfaced as a spurious <em>sea-surface</em>
+tilt — up to 12 m between adjacent columns in this configuration, producing an
+apparent “error” of <span class="math notranslate nohighlight">\(3\times10^{-2}\)</span> m s<span class="math notranslate nohighlight">\(^{-2}\)</span> that was entirely real
+barotropic physics. That is fixed in the framework (see the p-star
+partial-cell work), and this branch is rebased onto that fix.</p>
+</div></blockquote>
+</section>
+</section>
+<section id="implementation">
+<h2>Implementation<a class="headerlink" href="#implementation" title="Link to this heading"></a></h2>
+<section id="implementation-shared-metric-helpers">
+<h3>Implementation: shared metric helpers<a class="headerlink" href="#implementation-shared-metric-helpers" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/07/28</p>
+<p>Contributors: Xylar Asay-Davis, Claude</p>
+<p><code class="docutils literal notranslate"><span class="pre">analysis.py</span></code> holds several private helpers that the new analysis needs
+verbatim: locating the internal edge, RMS over finite values, the log-log power
+law fit, and the netCDF writer. Rather than importing private names across
+step modules, move them to a new dependency-light leaf module
+<code class="docutils literal notranslate"><span class="pre">polaris/tasks/ocean/horiz_press_grad/metrics.py</span></code> with public names
+(<code class="docutils literal notranslate"><span class="pre">get_internal_edge</span></code>, <code class="docutils literal notranslate"><span class="pre">rms</span></code>, <code class="docutils literal notranslate"><span class="pre">power_law_fit</span></code>, <code class="docutils literal notranslate"><span class="pre">write_metric_dataset</span></code>,
+<code class="docutils literal notranslate"><span class="pre">format_value_list</span></code>, <code class="docutils literal notranslate"><span class="pre">format_value_error_pairs</span></code>) and have <code class="docutils literal notranslate"><span class="pre">analysis.py</span></code> import
+them. This commit is a pure refactor with no behaviour change.</p>
+</section>
+<section id="implementation-including-the-bottom-layer-in-the-reference-based-analysis">
+<h3>Implementation: including the bottom layer in the reference-based analysis<a class="headerlink" href="#implementation-including-the-bottom-layer-in-the-reference-based-analysis" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/07/28</p>
+<p>Contributors: Xylar Asay-Davis, Claude</p>
+<p>In <code class="docutils literal notranslate"><span class="pre">analysis.py</span></code>, take one more interface and one more layer:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># was: [: max_level_index + 1]  and  hpga_forward[:max_level_index]</span>
+<span class="n">z_tilde_inter_for_ref</span> <span class="o">=</span> <span class="n">z_tilde_inter_edge</span><span class="p">[:</span> <span class="n">max_level_index</span> <span class="o">+</span> <span class="mi">2</span><span class="p">]</span>
+<span class="n">hpga_ref_diff</span> <span class="o">=</span> <span class="n">hpga_forward</span><span class="p">[:</span> <span class="n">max_level_index</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">ref_layer_mean</span>
+</pre></div>
+</div>
+<p>This is safe with respect to interface masking: <code class="docutils literal notranslate"><span class="pre">ZTildeInterface</span></code> is valid for
+indices <code class="docutils literal notranslate"><span class="pre">0</span> <span class="pre">..</span> <span class="pre">maxLevelCell</span></code> in each column and <code class="docutils literal notranslate"><span class="pre">max_level_index</span></code> is
+<code class="docutils literal notranslate"><span class="pre">min(maxLevelCell)</span> <span class="pre">-</span> <span class="pre">1</span></code>, so interfaces <code class="docutils literal notranslate"><span class="pre">0</span> <span class="pre">..</span> <span class="pre">max_level_index</span> <span class="pre">+</span> <span class="pre">1</span></code> are finite in
+both columns by construction. The <code class="docutils literal notranslate"><span class="pre">omega_vs_python</span></code> comparison in the same
+function already used <code class="docutils literal notranslate"><span class="pre">[:</span> <span class="pre">max_level_index</span> <span class="pre">+</span> <span class="pre">1]</span></code>, so after this change the two
+comparisons agree about which layers count.</p>
+<p><strong>Measured effect.</strong> Running the real <code class="docutils literal notranslate"><span class="pre">Init</span></code> arithmetic and the real
+<code class="docutils literal notranslate"><span class="pre">ReferenceColumn</span></code> against a synthetic two-cell mesh (only mesh generation
+bypassed), with the Polaris HPGA standing in for Omega’s tendency:</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>variant</p></th>
+<th class="head"><p>fitted slope</p></th>
+<th class="head"><p>RMS at 0.5 km</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">salinity_gradient</span></code></p></td>
+<td><p>1.787 → 1.799</p></td>
+<td><p>2.600e-07 → 2.601e-07</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">surface_pressure_gradient</span></code></p></td>
+<td><p>2.014 → 2.012</p></td>
+<td><p>1.137e-11 → 1.136e-11</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">temperature_gradient</span></code></p></td>
+<td><p>1.625 → 1.625</p></td>
+<td><p>2.770e-07 → 2.770e-07</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">ztilde_gradient</span></code></p></td>
+<td><p>2.003 → 1.119</p></td>
+<td><p>6.779e-12 → 4.954e-11</p></td>
+</tr>
+</tbody>
+</table>
+<p>The first three are unaffected. <code class="docutils literal notranslate"><span class="pre">ztilde_gradient</span></code> is the only variant with a
+tilted coordinate, so its two columns clip the bottom layer at different
+thicknesses; that cell carries <code class="docutils literal notranslate"><span class="pre">-1.55e-09</span></code> m s<span class="math notranslate nohighlight">\(^{-2}\)</span> at 0.5 km against an
+interior RMS of <code class="docutils literal notranslate"><span class="pre">6.8e-12</span></code>, converges at roughly first order, and pulls the
+fitted slope down. That is a real first-order error in the bottom partial cell
+which the exclusion was hiding — the same behaviour <code class="docutils literal notranslate"><span class="pre">hydrostatic_consistency</span></code>
+measures directly, and what the higher-order scheme exists to fix.</p>
+<p><code class="docutils literal notranslate"><span class="pre">ztilde_gradient.cfg</span></code> therefore takes its own convergence band, provisionally
+<code class="docutils literal notranslate"><span class="pre">[0.9,</span> <span class="pre">1.4]</span></code>, marked in the file as requiring re-tuning from the first real
+Omega run. The shared <code class="docutils literal notranslate"><span class="pre">omega_vs_reference_high_res_rms_threshold</span></code> of 1e-6 needs
+no change.</p>
+</section>
+<section id="implementation-the-reference-free-analysis-step">
+<h3>Implementation: the reference-free analysis step<a class="headerlink" href="#implementation-the-reference-free-analysis-step" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/07/28</p>
+<p>Contributors: Xylar Asay-Davis, Claude</p>
+<p>Add <code class="docutils literal notranslate"><span class="pre">polaris/tasks/ocean/horiz_press_grad/resting_analysis.py</span></code> defining
+<code class="docutils literal notranslate"><span class="pre">RestingAnalysis</span></code>, a sibling of <code class="docutils literal notranslate"><span class="pre">Analysis</span></code> rather than a mode of it, so the
+existing step is untouched. Per sweep point it:</p>
+<ol class="arabic simple">
+<li><p>locates the internal edge with <code class="docutils literal notranslate"><span class="pre">get_internal_edge</span></code>;</p></li>
+<li><p>takes <code class="docutils literal notranslate"><span class="pre">maxLevelCell</span></code> for the two bounding cells and forms the valid range
+<code class="docutils literal notranslate"><span class="pre">0</span> <span class="pre">..</span> <span class="pre">min(maxLevelCell)</span> <span class="pre">-</span> <span class="pre">1</span></code> <strong>inclusive of the deepest common layer</strong>;</p></li>
+<li><p>reads Omega’s <code class="docutils literal notranslate"><span class="pre">NormalVelocityTend</span></code> at that edge and takes its RMS over the
+valid layers — the truth is zero, so this is the error;</p></li>
+<li><p>does the same for the Polaris-side <code class="docutils literal notranslate"><span class="pre">HPGA</span></code> from <code class="docutils literal notranslate"><span class="pre">init.nc</span></code>;</p></li>
+<li><p>RMS-differences the two and applies <code class="docutils literal notranslate"><span class="pre">omega_vs_polaris_rms_threshold</span></code>, which
+is retained: it confirms Omega implements the discretization Polaris thinks
+it does, independently of the resting-state property;</p></li>
+<li><p>applies the bathymetry guard, comparing <code class="docutils literal notranslate"><span class="pre">bottomDepth</span></code> from
+<code class="docutils literal notranslate"><span class="pre">vert_coord.nc</span></code> against <code class="docutils literal notranslate"><span class="pre">bottomDepthRequested</span></code> from <code class="docutils literal notranslate"><span class="pre">init.nc</span></code>.</p></li>
+</ol>
+<p>It then groups the sweep by resolution pair, fits <code class="docutils literal notranslate"><span class="pre">power_law_fit</span></code> over the
+points with tilt <span class="math notranslate nohighlight">\(\le\)</span> <code class="docutils literal notranslate"><span class="pre">tilt_fit_max</span></code> when <code class="docutils literal notranslate"><span class="pre">tilt_fit</span></code> is true, writes
+<code class="docutils literal notranslate"><span class="pre">resting_state.nc</span></code> and <code class="docutils literal notranslate"><span class="pre">resting_state.png</span></code> (log-log, one series per resolution
+pair), logs the exponents, and applies the gates:</p>
+<ul class="simple">
+<li><p><strong>sensitivity gate</strong> — the largest RMS over the whole sweep must be at least
+<code class="docutils literal notranslate"><span class="pre">resting_state_sensitivity_min_rms</span></code>; this is a hard prerequisite, and failing
+it means the sweep must be redesigned before anything is concluded from it;</p></li>
+<li><p><strong>consistency gate</strong> — RMS below <code class="docutils literal notranslate"><span class="pre">resting_state_max_rms</span></code>, deliberately
+disabled (<code class="docutils literal notranslate"><span class="pre">none</span></code>) until the rollout stage measures a value to set it from;</p></li>
+<li><p><strong>Omega-vs-Polaris</strong> and <strong>resting-state</strong> checks as above.</p></li>
+</ul>
+</section>
+<section id="implementation-the-tilt-axis-and-the-resting-state-task">
+<h3>Implementation: the tilt axis and the resting-state task<a class="headerlink" href="#implementation-the-tilt-axis-and-the-resting-state-task" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/07/28</p>
+<p>Contributors: Xylar Asay-Davis, Claude</p>
+<p><code class="docutils literal notranslate"><span class="pre">Init</span></code> and <code class="docutils literal notranslate"><span class="pre">Forward</span></code> gain an optional <code class="docutils literal notranslate"><span class="pre">subdir_suffix</span></code>, and <code class="docutils literal notranslate"><span class="pre">Init</span></code> gains optional
+<code class="docutils literal notranslate"><span class="pre">tilt_option</span></code> / <code class="docutils literal notranslate"><span class="pre">tilt</span></code>. When a tilt is given, <code class="docutils literal notranslate"><span class="pre">Init.run</span></code> sets that option in its
+own config before building the columns, exactly as it already sets
+<code class="docutils literal notranslate"><span class="pre">vertical_grid:vert_levels</span></code>. <code class="docutils literal notranslate"><span class="pre">Init.run</span></code> also gains a guard that raises when a
+column’s reference pseudo-bottom does not extend below its converged
+pseudo-bottom depth — the divergence mode described above — with an error
+naming the offending column and the head room available.</p>
+<p>Task wiring goes in a new module <code class="docutils literal notranslate"><span class="pre">resting_state_task.py</span></code> defining
+<code class="docutils literal notranslate"><span class="pre">HorizPressGradRestingStateTask</span></code>, rather than branching <code class="docutils literal notranslate"><span class="pre">HorizPressGradTask</span></code>.
+The existing task pairs <code class="docutils literal notranslate"><span class="pre">horiz_resolutions[i]</span></code> with <code class="docutils literal notranslate"><span class="pre">vert_resolutions[i]</span></code> and
+keys its step dictionaries by horizontal resolution alone, so it cannot express
+the repeated horizontal resolutions the new sweep needs; the new task keys by
+the <code class="docutils literal notranslate"><span class="pre">(horiz_res,</span> <span class="pre">vert_res,</span> <span class="pre">tilt)</span></code> triple. <code class="docutils literal notranslate"><span class="pre">Init</span></code> and <code class="docutils literal notranslate"><span class="pre">Forward</span></code> are reused
+unchanged apart from the optional arguments above.</p>
+<p>This is a deliberate departure from the working plan, which leaned toward adding
+the tilt axis inside <code class="docutils literal notranslate"><span class="pre">HorizPressGradTask._setup_steps</span></code>. Doing so would have
+required renaming the existing variants’ steps to disambiguate the vertical
+resolution, changing their work directories for no benefit to them.</p>
+</section>
+<section id="implementation-configuration">
+<h3>Implementation: configuration<a class="headerlink" href="#implementation-configuration" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/07/28</p>
+<p>Contributors: Xylar Asay-Davis, Claude</p>
+<p><code class="docutils literal notranslate"><span class="pre">horiz_press_grad.cfg</span></code> gains the resting-state options with inert defaults, so
+the four existing variants are unaffected. Which task class a variant uses is
+decided by name in <code class="docutils literal notranslate"><span class="pre">__init__.py</span></code>, so no separate “this is a resting state” flag
+is needed. The new variant <code class="docutils literal notranslate"><span class="pre">.cfg</span></code> files set the deep column, the coarse
+vertical resolutions, and the sweep:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># hydrostatic_consistency.cfg (abridged)</span>
+<span class="n">geom_z_bot_mid</span> <span class="o">=</span> <span class="o">-</span><span class="mf">3500.0</span>
+<span class="n">z_tilde_bot_mid</span> <span class="o">=</span> <span class="o">-</span><span class="mf">4096.0</span>
+<span class="n">horiz_resolutions</span> <span class="o">=</span> <span class="p">[</span><span class="mf">4.0</span><span class="p">,</span> <span class="mf">4.0</span><span class="p">,</span> <span class="mf">4.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">]</span>
+<span class="n">vert_resolutions</span> <span class="o">=</span> <span class="p">[</span><span class="mf">256.0</span><span class="p">,</span> <span class="mf">128.0</span><span class="p">,</span> <span class="mf">64.0</span><span class="p">,</span> <span class="mf">256.0</span><span class="p">]</span>
+<span class="n">tilt_option</span> <span class="o">=</span> <span class="n">z_tilde_bot_grad</span>
+<span class="n">tilt_values</span> <span class="o">=</span> <span class="p">[</span><span class="mf">0.05</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="mf">5.0</span><span class="p">,</span> <span class="mf">10.0</span><span class="p">,</span> <span class="mf">50.0</span><span class="p">]</span>
+<span class="n">tilt_fit</span> <span class="o">=</span> <span class="kc">True</span>
+<span class="n">tilt_fit_max</span> <span class="o">=</span> <span class="mf">10.0</span>
+</pre></div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># bathymetry_step.cfg (abridged)</span>
+<span class="n">geom_z_bot_mid</span> <span class="o">=</span> <span class="o">-</span><span class="mf">3500.0</span>
+<span class="n">z_tilde_bot_mid</span> <span class="o">=</span> <span class="o">-</span><span class="mf">4096.0</span>
+<span class="n">horiz_resolutions</span> <span class="o">=</span> <span class="p">[</span><span class="mf">4.0</span><span class="p">,</span> <span class="mf">4.0</span><span class="p">]</span>
+<span class="n">vert_resolutions</span> <span class="o">=</span> <span class="p">[</span><span class="mf">256.0</span><span class="p">,</span> <span class="mf">128.0</span><span class="p">]</span>
+<span class="n">tilt_option</span> <span class="o">=</span> <span class="n">geom_z_bot_grad</span>
+<span class="n">tilt_values</span> <span class="o">=</span> <span class="p">[</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">5.0</span><span class="p">,</span> <span class="mf">10.0</span><span class="p">,</span> <span class="mf">25.0</span><span class="p">,</span> <span class="mf">50.0</span><span class="p">,</span> <span class="mf">100.0</span><span class="p">,</span> <span class="mf">200.0</span><span class="p">]</span>
+<span class="n">tilt_fit</span> <span class="o">=</span> <span class="kc">False</span>
+</pre></div>
+</div>
+<p>Both set <code class="docutils literal notranslate"><span class="pre">partial_cell_type</span> <span class="pre">=</span> <span class="pre">None</span></code> in <code class="docutils literal notranslate"><span class="pre">[vertical_grid]</span></code>, for the reason given
+under the bathymetry guard above.</p>
+<p><code class="docutils literal notranslate"><span class="pre">forward.yaml</span></code> was unchanged for the calibration stage: every variant ran the
+existing <code class="docutils literal notranslate"><span class="pre">Centered</span></code> scheme. The rollout gives it a <code class="docutils literal notranslate"><span class="pre">PressureGrad</span></code> block, filled
+in per step — see below.</p>
+</section>
+<section id="implementation-the-scheme-axis">
+<h3>Implementation: the scheme axis<a class="headerlink" href="#implementation-the-scheme-axis" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/08/02</p>
+<p>Contributors: Xylar Asay-Davis, Claude</p>
+<p><code class="docutils literal notranslate"><span class="pre">Forward</span></code> gains a <code class="docutils literal notranslate"><span class="pre">scheme</span></code> argument, and <code class="docutils literal notranslate"><span class="pre">forward.yaml</span></code> a <code class="docutils literal notranslate"><span class="pre">PressureGrad</span></code> block
+filled in through <code class="docutils literal notranslate"><span class="pre">add_yaml_file</span></code>’s <code class="docutils literal notranslate"><span class="pre">template_replacements</span></code>:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">PressureGrad</span><span class="p">:</span>
+<span class="w">   </span><span class="nt">PressureGradType</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">{{</span><span class="w"> </span><span class="nv">pressure_grad_type</span><span class="w"> </span><span class="p p-Indicator">}}</span>
+<span class="w">   </span><span class="nt">QuadraturePoints</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">{{</span><span class="w"> </span><span class="nv">quadrature_points</span><span class="w"> </span><span class="p p-Indicator">}}</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">HorzOrder</span></code> and <code class="docutils literal notranslate"><span class="pre">VerticalReconstruction</span></code> are left at their Omega defaults of 2
+and <code class="docutils literal notranslate"><span class="pre">linear</span></code>, which are the only Phase 1 values; the Phase 2 values exist as
+keys but are rejected with an error, so a configuration written for Phase 2
+cannot quietly run as Phase 1. An unrecognized <code class="docutils literal notranslate"><span class="pre">PressureGradType</span></code> is likewise
+fatal rather than falling back to <code class="docutils literal notranslate"><span class="pre">Centered</span></code>, so a typo aborts the run instead
+of producing centered answers that read as a pass.</p>
+<p>Both task classes key their step dictionaries by <code class="docutils literal notranslate"><span class="pre">(resolution,</span> <span class="pre">scheme)</span></code> — or
+<code class="docutils literal notranslate"><span class="pre">(horiz_res,</span> <span class="pre">vert_res,</span> <span class="pre">tilt,</span> <span class="pre">scheme)</span></code> for the resting-state sweep — and build
+one <code class="docutils literal notranslate"><span class="pre">Forward</span></code> per scheme over <strong>one shared <code class="docutils literal notranslate"><span class="pre">Init</span></code></strong>. <code class="docutils literal notranslate"><span class="pre">Init</span></code> is
+scheme-independent: it writes both <code class="docutils literal notranslate"><span class="pre">HPGA</span></code> and <code class="docutils literal notranslate"><span class="pre">HPGAFiniteVolume</span></code> from the same
+state, so duplicating it per scheme would cost run time and, worse, would leave
+the two schemes’ comparison open to the objection that they were run on
+different initial conditions.</p>
+<p>This is the departure from the calibration stage’s structure noted under the
+amended requirement above: it changes the existing variants’ step directories.
+The alternative — a task per <code class="docutils literal notranslate"><span class="pre">(variant,</span> <span class="pre">scheme)</span></code> pair — preserves them, but runs
+<code class="docutils literal notranslate"><span class="pre">Init</span></code> twice per state and leaves no analysis step that sees both schemes, which
+is the comparison the rollout exists to make.</p>
+<p><code class="docutils literal notranslate"><span class="pre">quadrature_points</span></code> is a single config option that drives both this template and
+the Python kernel’s Gauss order. It is deliberately not two options: the two
+sides using different quadrature would make them different algorithms, which is
+what the cross-implementation requirement above forbids. Sweeping it for
+accuracy remains available and moves both sides together.</p>
+</section>
+</section>
+<section id="testing">
+<h2>Testing<a class="headerlink" href="#testing" title="Link to this heading"></a></h2>
+<section id="testing-and-validation-the-sensitivity-gate-is-the-prerequisite">
+<h3>Testing and Validation: the sensitivity gate is the prerequisite<a class="headerlink" href="#testing-and-validation-the-sensitivity-gate-is-the-prerequisite" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/07/28</p>
+<p>Contributors: Xylar Asay-Davis, Claude</p>
+<p>Run both variants with <code class="docutils literal notranslate"><span class="pre">Centered</span></code> and confirm the sensitivity gate passes.
+Offline replication of the Polaris arithmetic predicts the centered RMS HPGA
+listed below; the first job of the real run is to confirm Omega agrees, via the
+retained <code class="docutils literal notranslate"><span class="pre">omega_vs_polaris_rms_threshold</span></code> check.</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>variant</p></th>
+<th class="head"><p>configuration</p></th>
+<th class="head"><p>predicted centered RMS</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">hydrostatic_consistency</span></code></p></td>
+<td><p>4 km, 256 m, tilt 50 m km<span class="math notranslate nohighlight">\(^{-1}\)</span></p></td>
+<td><p><span class="math notranslate nohighlight">\(2.1\times10^{-5}\)</span></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">hydrostatic_consistency</span></code></p></td>
+<td><p>4 km, 64 m, tilt 50 m km<span class="math notranslate nohighlight">\(^{-1}\)</span></p></td>
+<td><p><span class="math notranslate nohighlight">\(9.8\times10^{-7}\)</span></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">bathymetry_step</span></code></p></td>
+<td><p>4 km, 256 m, 100 m km<span class="math notranslate nohighlight">\(^{-1}\)</span></p></td>
+<td><p><span class="math notranslate nohighlight">\(2.3\times10^{-5}\)</span></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">bathymetry_step</span></code></p></td>
+<td><p>4 km, 128 m, 25 m km<span class="math notranslate nohighlight">\(^{-1}\)</span></p></td>
+<td><p><span class="math notranslate nohighlight">\(3.8\times10^{-6}\)</span></p></td>
+</tr>
+</tbody>
+</table>
+<p>If the gate fails, the sweep is not exercising the failure mode and must be
+redesigned before the variants are used to judge any scheme. This is the single
+most consequential check in the calibration stage.</p>
+</section>
+<section id="testing-and-validation-the-tilt-exponent">
+<h3>Testing and Validation: the tilt exponent<a class="headerlink" href="#testing-and-validation-the-tilt-exponent" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/07/28</p>
+<p>Contributors: Xylar Asay-Davis, Claude</p>
+<p>Confirm that <code class="docutils literal notranslate"><span class="pre">hydrostatic_consistency</span></code> returns <span class="math notranslate nohighlight">\(q \approx 1\)</span> for <code class="docutils literal notranslate"><span class="pre">Centered</span></code> at
+every resolution pair, and that the value is stable when <code class="docutils literal notranslate"><span class="pre">tilt_fit_max</span></code> is
+varied. Offline replication gives <span class="math notranslate nohighlight">\(q = 0.95\)</span>–<span class="math notranslate nohighlight">\(1.00\)</span>, the droop below 1 coming
+from the largest tilts where <code class="docutils literal notranslate"><span class="pre">maxLevelCell</span></code> starts to differ between columns —
+which is what <code class="docutils literal notranslate"><span class="pre">tilt_fit_max</span></code> is there to exclude. A centered exponent far from 1
+should be understood before the scan is used on the new scheme.</p>
+<p>Confirm that <code class="docutils literal notranslate"><span class="pre">bathymetry_step</span></code> produces the expected staircase and that its
+interior layers sit at round-off, isolating the signal to the bottom cell.</p>
+</section>
+<section id="testing-and-validation-resting-state-and-consistency-checks">
+<h3>Testing and Validation: resting-state and consistency checks<a class="headerlink" href="#testing-and-validation-resting-state-and-consistency-checks" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/07/28</p>
+<p>Contributors: Xylar Asay-Davis, Claude</p>
+<ul class="simple">
+<li><p><strong>Bathymetry guard.</strong> Confirm it passes for both variants as configured, and
+confirm it <em>fires</em> for a deliberately broken configuration — set
+<code class="docutils literal notranslate"><span class="pre">partial_cell_type</span> <span class="pre">=</span> <span class="pre">partial</span></code> on <code class="docutils literal notranslate"><span class="pre">bathymetry_step</span></code> with a sea-floor gradient
+of 32 m km<span class="math notranslate nohighlight">\(^{-1}\)</span>, which offline replication shows moves the sea floor
+12.33 m from the request.</p></li>
+<li><p><strong>Zero-tilt sanity.</strong> With the swept parameter set to zero the RMS HPGA must
+be exactly zero (offline replication gives 0.0, not merely round-off), since
+the two columns become identical.</p></li>
+<li><p><strong>Omega-vs-Polaris.</strong> The retained check at <code class="docutils literal notranslate"><span class="pre">omega_vs_polaris_rms_threshold</span></code>
+must pass at every sweep point. Its present value of <span class="math notranslate nohighlight">\(10^{-10}\)</span> was tuned for
+errors of order <span class="math notranslate nohighlight">\(10^{-7}\)</span>; it may need re-tuning for a signal of order
+<span class="math notranslate nohighlight">\(10^{-5}\)</span> and should be set from the observed differences.</p></li>
+<li><p><strong>Regression.</strong> Run the four existing variants and confirm their step names
+and work directories are unchanged. Their <em>results</em> change, because the
+bottom layer is now included: three are unaffected in practice, while
+<code class="docutils literal notranslate"><span class="pre">ztilde_gradient</span></code>’s convergence slope drops from ~2.0 to ~1.1 and its
+provisional band must be re-tuned from the observed value.</p></li>
+</ul>
+</section>
+<section id="testing-and-validation-the-rollout-stage">
+<h3>Testing and Validation: the rollout stage<a class="headerlink" href="#testing-and-validation-the-rollout-stage" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/08/02</p>
+<p>Contributors: Xylar Asay-Davis, Claude</p>
+<p>Two corrections to how this section read before Omega’s <code class="docutils literal notranslate"><span class="pre">FiniteVolume</span></code> landed,
+both from <code class="docutils literal notranslate"><span class="pre">omega_finite_volume_handoff.md</span></code>. The keys are <code class="docutils literal notranslate"><span class="pre">HorzOrder:</span> <span class="pre">2</span></code> and
+<code class="docutils literal notranslate"><span class="pre">VerticalReconstruction:</span> <span class="pre">linear</span></code>, <strong>not</strong> <code class="docutils literal notranslate"><span class="pre">ReconstructionOrder</span></code> and <code class="docutils literal notranslate"><span class="pre">constant</span></code> —
+<code class="docutils literal notranslate"><span class="pre">constant</span></code> truncates the equation-of-state expansion to <span class="math notranslate nohighlight">\(\alpha_0\)</span> and would run
+the centered scheme under a new name. And there is <strong>no “reduced configuration”
+or centered limit</strong> of the new scheme: the two are separate implementations and
+no setting reduces one to the other. Phase 1 offers exactly two configurations,
+<code class="docutils literal notranslate"><span class="pre">Centered</span></code> and <code class="docutils literal notranslate"><span class="pre">FiniteVolume</span></code> with its defaults.</p>
+<p>The Python counterpart also already exists — it was written during the
+calibration stage, from the design rather than from the C++ — so what this stage
+tests is not whether it can be built but whether it and Omega agree.</p>
+<p><strong>Reconciliation, before anything is run.</strong> Work through every discretization
+choice named in the cross-implementation requirement above, record its
+resolution and provenance, and give each confirmed mismatch its own fix and its
+own test. Two are already confirmed: the Python kernel defaults to a 4-point
+Gauss rule where Omega defaults to 2, and it anchors its column scan at the sea
+surface where Omega anchors at the sea floor. Neither shows up on the exact set,
+where the integrand is zero at every quadrature point; both bite off it, which
+is where the §5.1 gates live.</p>
+<p><strong>Gates, set from measurement and not before.</strong> Three points, of which the
+first two would otherwise have been got wrong:</p>
+<ul class="simple">
+<li><p>bands are <strong>per variant</strong>, not per scheme alone. The measured <code class="docutils literal notranslate"><span class="pre">Centered</span></code> rates
+are 1.6, 1.8, 2.0 and 1.1 across the four gradient variants, so a single
+“≈ 2 for centered” band fails three of them;</p></li>
+<li><p>the accuracy gate is a <strong>ratio at the coarse end</strong>, set from the measured
+advantage — 6.5× at 256 m layers, 2.4× at 64 m, ~400× on stepped bathymetry;</p></li>
+<li><p><strong>do not gate on relative convergence order.</strong> The two schemes converge at
+similar rates on smooth profiles; the advantage is a constant factor that
+<em>narrows</em> under refinement, so a gate requiring the new scheme’s slope to beat
+the centered one would fail where nothing is wrong.</p></li>
+</ul>
+<p><code class="docutils literal notranslate"><span class="pre">resting_state_max_rms</span></code> is set from the measured <code class="docutils literal notranslate"><span class="pre">FiniteVolume</span></code> level at a
+stated tilt, as an explicit multiple. The <strong>improvement gate</strong> — <code class="docutils literal notranslate"><span class="pre">FiniteVolume</span></code>
+RMS below <code class="docutils literal notranslate"><span class="pre">Centered</span></code> RMS at every sweep point — needs no prior measurement and
+ships with the analysis change.</p>
+<p><strong>Report absolutes.</strong> <span class="math notranslate nohighlight">\(\max\lvert\mathcal{S}\rvert\)</span> behaved unexpectedly under
+vertical refinement on the linear variant during the calibration stage, so
+absolute residuals and tendencies in m s<span class="math notranslate nohighlight">\(^{-2}\)</span> are reported alongside any
+ratio, not in place of them.</p>
+<p><strong>The variant to expect surprises from is <code class="docutils literal notranslate"><span class="pre">bathymetry_step</span></code>.</strong> Every Omega-side
+measurement of the new scheme so far used equal layer counts in both columns, so
+this is where the rule for evaluating a column’s reconstruction below its own
+floor is first genuinely exercised.</p>
+<p>Finally, the result — whichever way it falls — is written back into
+<code class="docutils literal notranslate"><span class="pre">PGradHighOrder.md</span></code> as a measured property with its configuration and tilt range
+attached. That is an Omega-side commit in a separate repository and is not
+folded into the Polaris work.</p>
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="global_ocean_init.html" class="btn btn-neutral float-left" title="Realistic Ocean Initial Conditions" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="horiz_press_grad_reference.html" class="btn btn-neutral float-right" title="Reworked HPG Reference Solution" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2026, Energy Exascale Earth System Model Project.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+   
+
+  <!-- Meta tags for JS to use -->
+  <meta name="doc-version" content="main">
+  <meta name="doc-site-root" content="../">
+
+  <!-- Create version switcher container -->
+  <script>
+    const sidebar = document.querySelector('.wy-side-nav-search');
+    if (sidebar) {
+      const versionDiv = document.createElement('div');
+      versionDiv.id = 'version-switcher';
+      versionDiv.style.marginTop = '1em';
+      sidebar.appendChild(versionDiv);
+    }
+  </script>
+
+  <!-- Load version-switcher.js using the correct relative path -->
+  <script src="../../shared/version-switcher.js"></script>
+
+
+</body>
+</html>

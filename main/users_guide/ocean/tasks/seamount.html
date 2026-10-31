@@ -173,17 +173,51 @@ reference pseudo-grid.</p>
 salinity, <code class="docutils literal notranslate"><span class="pre">eos_linear_Tref</span></code> and <code class="docutils literal notranslate"><span class="pre">eos_linear_Sref</span></code> must both be zero; the
 Beckmann and Haidvogel reference state is folded into <code class="docutils literal notranslate"><span class="pre">eos_linear_rhoref</span></code>
 instead.</p>
-<p>Omega has no split time stepper, so it is limited by the barotropic gravity
-wave.  Rather than let the two models use different integrators, MPAS-Ocean
-gives up its split-explicit scheme and both run RK4 at the same <code class="docutils literal notranslate"><span class="pre">dt_per_km</span></code>
-until Omega gains a split time stepper.  <code class="docutils literal notranslate"><span class="pre">btr_dt_per_km</span></code> therefore has no
-effect unless <code class="docutils literal notranslate"><span class="pre">time_integrator</span></code> is set back to a split-explicit scheme.</p>
+<p>Both models use a split-explicit time stepper (<code class="docutils literal notranslate"><span class="pre">SplitExplicitRK2</span></code> in Omega)
+with the same baroclinic and barotropic steps, <code class="docutils literal notranslate"><span class="pre">dt_per_km</span></code> and
+<code class="docutils literal notranslate"><span class="pre">btr_dt_per_km</span></code>, so the two runs stay comparable.</p>
 </section>
 <section id="variants">
 <span id="ocean-seamount-variants"></span><h2>variants<a class="headerlink" href="#variants" title="Link to this heading"></a></h2>
-<p>Each task exists in four trees, combining the equation of state with the
-vertical coordinate used for the initial condition:
-<code class="docutils literal notranslate"><span class="pre">planar/seamount/{linear,nonlinear}/{sigma,zstar}</span></code>.</p>
+<p>Each task exists in eight trees, combining the equation of state, the
+stratification and the vertical coordinate used for the initial condition:
+<code class="docutils literal notranslate"><span class="pre">planar/seamount/{eos}/{stratification}/{coord}</span></code>, or in full
+<code class="docutils literal notranslate"><span class="pre">planar/seamount/{linear,nonlinear}/{exponential,linear_pressure}/{sigma,zstar}</span></code>.</p>
+<p>The stratification chooses whether a finite-volume pressure gradient is exact
+on the profile:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">exponential</span></code> — the realistic profile, Beckmann and Haidvogel eqn 16, with
+the stratification concentrated in the upper 500 m over a nearly
+unstratified abyss.  It is in no pressure-gradient scheme’s exact set, so
+both schemes carry a truncation error and the comparison is on a profile
+the ocean actually has.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">linear_pressure</span></code> — temperature linear in pressure, salinity constant.  A
+finite-volume pressure gradient is exact here, so its spurious velocity
+should collapse while the centered scheme’s does not, and anything that
+survives the finite-volume run is not pressure-gradient truncation error.
+See <a class="reference internal" href="#ocean-seamount-linear-in-pressure"><span class="std std-ref">a stratification linear in pressure</span></a>.</p></li>
+</ul>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p><strong>Compare the two schemes in the <code class="docutils literal notranslate"><span class="pre">nonlinear</span></code> trees, not the <code class="docutils literal notranslate"><span class="pre">linear</span></code> ones.</strong>
+Under the linear equation of state, specific volume depends only on
+temperature and salinity, so a temperature linear in pressure makes specific
+volume linear in pressure as well – and the same function of pressure in
+every column, which leaves the ocean horizontally homogeneous in pressure
+coordinates.  That nulls the <em>centered</em> scheme too, and the configuration
+stops being a test of anything.  Measured on this case, specific volume
+departs from a straight line in pressure by 4.6e-4 of its range under the
+linear equation of state against 8.6e-3 under TEOS-10, whose compressibility
+keeps the dependence nonlinear no matter what the tracers do.</p>
+<p>This is the same trap one level down from the one in
+<a class="reference internal" href="#ocean-seamount-linear-in-pressure"><span class="std std-ref">a stratification linear in pressure</span></a>: a null configuration is null only
+for the scheme it was built for, and here an equation of state quietly
+extends it to both.  The <code class="docutils literal notranslate"><span class="pre">linear</span></code> / <code class="docutils literal notranslate"><span class="pre">linear_pressure</span></code> trees remain useful as
+regression tests; they are not a scheme comparison.</p>
+</div>
+<p>The two span the same density range under the linear equation of state,
+3.0 kg m^{-3}, so a spurious velocity measured on one is comparable to the
+other.</p>
 <p>The coordinate chooses how much the layers tilt:</p>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">sigma</span></code> — the terrain-following coordinate, and the main target.  Every
@@ -205,10 +239,13 @@ MPAS-Ocean, the closest nonlinear equation of state it has.  The thermal
 expansion coefficient then varies along a tilted layer, which the linear
 trees cannot represent.</p></li>
 </ul>
-<p>The two equations of state are given the same buoyancy stratification, as
-described under <a class="reference internal" href="#ocean-seamount-init"><span class="std std-ref">initial conditions</span></a>, so a difference in spurious
-velocity between the <code class="docutils literal notranslate"><span class="pre">linear</span></code> and <code class="docutils literal notranslate"><span class="pre">nonlinear</span></code> trees is attributable to the
-equation of state and not to a different <code class="docutils literal notranslate"><span class="pre">N^2</span></code>.</p>
+<p>Under the <code class="docutils literal notranslate"><span class="pre">exponential</span></code> stratification the two equations of state are given
+the same buoyancy stratification, as described under
+<a class="reference internal" href="#ocean-seamount-init"><span class="std std-ref">initial conditions</span></a>, so a difference in spurious velocity between the
+<code class="docutils literal notranslate"><span class="pre">linear</span></code> and <code class="docutils literal notranslate"><span class="pre">nonlinear</span></code> trees is attributable to the equation of state and
+not to a different <code class="docutils literal notranslate"><span class="pre">N^2</span></code>.  Under <code class="docutils literal notranslate"><span class="pre">linear_pressure</span></code> the tracer is prescribed
+directly rather than inverted from a density, so the two trees span the same
+temperature range instead and their densities differ.</p>
 <p>One caveat on cross-model comparison: TEOS-10 and Jackett-McDougall are
 genuinely different functions, not two implementations of one, so the two
 models are only expected to agree qualitatively in the <code class="docutils literal notranslate"><span class="pre">nonlinear</span></code> trees.
@@ -221,13 +258,88 @@ compared directly.</p>
 <h3>description<a class="headerlink" href="#description" title="Link to this heading"></a></h3>
 <p>The test case begins with a zero velocity field and is unforced, so the exact solution is to remain motionless.
 The seamount rises from a flat sea floor in the center of the domain.
-In a pure z-level vertical coordinate without partial bottom cells (<code class="docutils literal notranslate"><span class="pre">partial_cell_type</span> <span class="pre">=</span> <span class="pre">full</span></code>), the pressure gradient will remain zero and induce no flow to machine precision. When any layer tilting is added, including from partial bottom cells, some flow is introduced by the pressure gradient error. This is fundamentally because the pressure must be extrapolated vertically at cell centers to the mid-depth of the edge. The default setting is the sigma coordinate. These are the images produced in the <code class="docutils literal notranslate"><span class="pre">viz</span></code> folder, which runs by default in this task because the 6 day forward run is too long to want to repeat just to get the plots.</p>
+In a pure z-level vertical coordinate without partial bottom cells (<code class="docutils literal notranslate"><span class="pre">partial_cell_type</span> <span class="pre">=</span> <span class="pre">full</span></code>), the pressure gradient will remain zero and induce no flow to machine precision. When any layer tilting is added, including from partial bottom cells, some flow is introduced by the pressure gradient error. This is fundamentally because the pressure must be extrapolated vertically at cell centers to the mid-depth of the edge. The default setting is the sigma coordinate. These are the images produced in the <code class="docutils literal notranslate"><span class="pre">viz_centered</span></code> folder, which runs by default in this task because the 6 day forward run is too long to want to repeat just to get the plots.</p>
 <a class="reference internal image-reference" href="../../../_images/seamount_velocity_max_t.png"><img alt="../../../_images/seamount_velocity_max_t.png" class="align-center" src="../../../_images/seamount_velocity_max_t.png" style="width: 700px;" />
 </a>
 <a class="reference internal image-reference" href="../../../_images/seamount_final_kineticEnergyCell_section.png"><img alt="../../../_images/seamount_final_kineticEnergyCell_section.png" class="align-center" src="../../../_images/seamount_final_kineticEnergyCell_section.png" style="width: 700px;" />
 </a>
 <a class="reference internal image-reference" href="../../../_images/seamount_final_normalVelocity.png"><img alt="../../../_images/seamount_final_normalVelocity.png" class="align-center" src="../../../_images/seamount_final_normalVelocity.png" style="width: 400px;" />
 </a>
+<section id="pressure-gradient-schemes">
+<span id="ocean-seamount-schemes"></span><h4>pressure-gradient schemes<a class="headerlink" href="#pressure-gradient-schemes" title="Link to this heading"></a></h4>
+<p>Under Omega the task performs a second forward run, <code class="docutils literal notranslate"><span class="pre">forward_finite_volume</span></code>,
+with <code class="docutils literal notranslate"><span class="pre">PressureGradType:</span> <span class="pre">FiniteVolume</span></code> instead of the centered scheme
+<code class="docutils literal notranslate"><span class="pre">forward_centered</span></code> uses.  Both start from the same <code class="docutils literal notranslate"><span class="pre">init</span></code> step, so the two
+schemes are compared at an identical state rather than at two states that
+also differ in their initial condition.</p>
+<p>The step is added only when <code class="docutils literal notranslate"><span class="pre">model</span> <span class="pre">=</span> <span class="pre">omega</span></code>.  MPAS-Ocean has only the
+centered scheme, so under MPAS-Ocean the task is <code class="docutils literal notranslate"><span class="pre">init</span></code>, <code class="docutils literal notranslate"><span class="pre">forward_centered</span></code>,
+<code class="docutils literal notranslate"><span class="pre">viz_centered</span></code> and <code class="docutils literal notranslate"><span class="pre">analysis</span></code>.</p>
+<p>Every forward step is named for its scheme, including in the <code class="docutils literal notranslate"><span class="pre">short</span></code> task
+which runs only the centered one, so an output directory says which scheme
+produced it without anyone having to open the model config.  The scheme is
+also written into the Omega config explicitly rather than left to Omega’s
+default, for the same reason.</p>
+<p>Each forward step gets its own <code class="docutils literal notranslate"><span class="pre">viz</span></code> step — <code class="docutils literal notranslate"><span class="pre">viz_centered</span></code> and
+<code class="docutils literal notranslate"><span class="pre">viz_finite_volume</span></code> — and an <code class="docutils literal notranslate"><span class="pre">analysis</span></code> step compares whichever schemes were
+run.</p>
+</section>
+<section id="spurious-circulation-metrics">
+<span id="ocean-seamount-metrics"></span><h4>spurious-circulation metrics<a class="headerlink" href="#spurious-circulation-metrics" title="Link to this heading"></a></h4>
+<p>The exact solution is a resting ocean, so every velocity in this task is
+error.  The <code class="docutils literal notranslate"><span class="pre">analysis</span></code> step writes <code class="docutils literal notranslate"><span class="pre">metrics.csv</span></code> and <code class="docutils literal notranslate"><span class="pre">spurious_velocity_t.png</span></code>
+with, for each scheme and output time:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">max_speed</span></code>, the maximum <code class="docutils literal notranslate"><span class="pre">|normalVelocity|</span></code> over the whole domain;</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">max_speed_level</span></code>, the level index at which that maximum sits.  The
+centered scheme’s error accumulates downward, so a maximum that is not at
+the bottom is worth noticing rather than averaging away;</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">max_speed_bottom</span></code>, the same maximum restricted to the deepest valid level
+of each edge.  An edge has water only where both its cells do, so on the
+seamount flanks this follows the bathymetry rather than a fixed level;</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">mean_kinetic_energy</span></code>, volume-weighted over the domain;</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">implied_acceleration</span></code> and <code class="docutils literal notranslate"><span class="pre">acceleration_ratio</span></code>;</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">unstable_pairs</span></code> and <code class="docutils literal notranslate"><span class="pre">max_density_inversion</span></code>, described below.</p></li>
+</ul>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p><strong><code class="docutils literal notranslate"><span class="pre">unstable_pairs</span></code> greater than zero invalidates every other metric from that
+time on.</strong>  All vertical mixing including convection is off in this task, so
+nothing restores a column that overturns.  Once one does, the run is no longer
+measuring a spurious circulation against a resting exact solution; it is
+measuring an unbounded convective response with the response removed, and the
+velocity grows without any physical bound.  The <code class="docutils literal notranslate"><span class="pre">analysis</span></code> step logs the day
+this first happens and plots the count against time, and the last panel of
+<code class="docutils literal notranslate"><span class="pre">spurious_velocity_t.png</span></code> is where to look before reading any of the others.</p>
+<p>This has been observed: on the 6 day <code class="docutils literal notranslate"><span class="pre">linear/exponential/sigma</span></code> run the
+finite-volume integration first overturned at day 4 on the seamount flank and
+reached 232 unstable layer pairs and a 0.15 kg m^{-3} inversion by day 6,
+while max |u| grew exponentially with an e-folding time of 1.2 days.  The
+centered integration on the same configuration stayed stable throughout.</p>
+</div>
+<p>An absolute spurious velocity says little on its own.  What gives it meaning
+is how it compares to a pressure gradient a realistic configuration actually
+carries in the layer where the problem shows up, which is what
+<code class="docutils literal notranslate"><span class="pre">reference_bottom_pressure_grad</span></code> is for.  The conversion from velocity to
+acceleration is <code class="docutils literal notranslate"><span class="pre">|f|</span> <span class="pre">*</span> <span class="pre">max|u|</span></code> — the acceleration a flow of that speed would
+be in balance with.  That is a balanced-state estimate: it is meaningful once
+the flow has adjusted and overstates the acceleration while it is still
+spinning up, so read the ratio with the time series in front of you rather
+than as a single number.</p>
+<p>No thresholds are applied.  They are meant to be set from what these metrics
+measure rather than in advance; a threshold guessed before the first
+measurement is a guard that either cannot fail or fails for the wrong reason.</p>
+<p><code class="docutils literal notranslate"><span class="pre">interface_tilt_&lt;scheme&gt;.png</span></code> shows how each layer interface’s tilt evolves.
+Sigma interfaces follow the bathymetry, so the surface starts level and the
+deepest interfaces start at the full bathymetric slope — but the free surface
+moves the layers and <code class="docutils literal notranslate"><span class="pre">vertCoordMovementWeights</span></code> is uniform, so every
+interface takes a share of the surface-pressure change and the top interface
+can acquire a tilt it did not start with.  The upper panel plots the change
+since the first output time rather than the tilt itself, which is dominated
+by the bathymetry and barely moves on its own scale; the lower panel plots
+the surface tilt against the maximum over all levels, which is where a
+barotropic adjustment would show up.</p>
+</section>
 </section>
 <section id="mesh">
 <h3>mesh<a class="headerlink" href="#mesh" title="Link to this heading"></a></h3>
@@ -316,13 +428,73 @@ MPAS-Ocean the <code class="docutils literal notranslate"><span class="pre">nonl
 practical salinity at a nominal lon/lat location (config options
 <code class="docutils literal notranslate"><span class="pre">ocean:nominal_lon</span></code> and <code class="docutils literal notranslate"><span class="pre">ocean:nominal_lat</span></code>, both defaulting to 0 degrees)
 since the planar mesh has no geographic location.</p>
+<section id="a-stratification-linear-in-pressure">
+<span id="ocean-seamount-linear-in-pressure"></span><h4>a stratification linear in pressure<a class="headerlink" href="#a-stratification-linear-in-pressure" title="Link to this heading"></a></h4>
+<p><code class="docutils literal notranslate"><span class="pre">seamount_stratification_type</span> <span class="pre">=</span> <span class="pre">linear_pressure</span></code> replaces the Beckmann and
+Haidvogel profile with one prescribed on temperature rather than on density:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">T</span> <span class="o">=</span> <span class="n">seamount_temperature_coef_linear_pressure</span>
+    <span class="o">-</span> <span class="n">seamount_temperature_gradient_linear_pressure</span>
+      <span class="o">*</span> <span class="n">p</span> <span class="o">/</span> <span class="n">seamount_pressure_ref_linear_pressure</span>
+</pre></div>
+</div>
+<p>with salinity constant as before.  A finite-volume pressure gradient
+reconstructs the tracers as polynomials in pressure and is exact when the
+continuous profile is linear in pressure, so its error vanishes on this
+configuration and a spurious velocity that survives has some other source.
+Running it alongside the centered scheme, and alongside the realistic
+exponential profile, is what makes that a measurement rather than an
+assumption.</p>
+<p>Two things are needed for the exactness to hold, and both are checked by
+<code class="docutils literal notranslate"><span class="pre">tests/ocean/seamount/test_linear_in_pressure.py</span></code>:</p>
+<ul class="simple">
+<li><p><strong>The layer values are exact layer means, not point samples.</strong> Both models
+carry a layer-mean tracer, and the mean is over the mass of the layer,
+which is the same as over its pressure range. For a profile linear in
+pressure that mean is the value at the layer’s mid-pressure, so no
+quadrature is needed — but a sample at the geometric mid-depth would leave
+an <code class="docutils literal notranslate"><span class="pre">O(h^2)</span></code> error that the exactness argument does not allow for.</p></li>
+<li><p><strong>The profile is a fixed point, not a formula.</strong> Temperature is a function
+of pressure, pressure follows from the geometric layer thicknesses through
+the specific volume, and the specific volume follows from the temperature.
+The initial condition iterates all three to round-off, so the profile is
+linear in the pressure the model itself carries.</p></li>
+</ul>
+<p>Neither Beckmann and Haidvogel profile has this property, and the <code class="docutils literal notranslate"><span class="pre">linear</span></code>
+one is close enough to be mistaken for it. A density linear in geometric
+depth makes pressure quadratic in depth, since specific volume varies down
+the column, so temperature departs from a straight line in pressure by
+8.5e-6 of its range under the linear equation of state and 6.9e-4 under
+TEOS-10 — small, but ten orders of magnitude above the round-off that an
+exactness argument needs. The <code class="docutils literal notranslate"><span class="pre">linear_pressure</span></code> profile reaches 7e-15 on the
+same measure.</p>
+<p>The temperature range defaults to 15 degC over 5000 dbar, which under the
+linear equation of state spans 3.0 kg m^{-3} — the same density range as the
+exponential Beckmann and Haidvogel profile, so the two runs have the same
+total buoyancy range and a spurious velocity measured on one is comparable to
+the other. The stratification is spread uniformly rather than concentrated in
+the upper 500 m, so the deep layers are more strongly stratified than in the
+exponential profile, not less.</p>
+<p>Because the tracer is prescribed directly rather than inverted from a
+density, the <code class="docutils literal notranslate"><span class="pre">linear</span></code> and <code class="docutils literal notranslate"><span class="pre">nonlinear</span></code> trees span the same <em>temperature</em> range
+here, not the same density range — the reverse of the Beckmann and Haidvogel
+profiles.</p>
+</section>
 </section>
 <section id="forcing">
 <h3>forcing<a class="headerlink" href="#forcing" title="Link to this heading"></a></h3>
 <p>N/A</p>
 </section>
-<section id="vertical-mixing-and-bottom-drag">
-<h3>vertical mixing and bottom drag<a class="headerlink" href="#vertical-mixing-and-bottom-drag" title="Link to this heading"></a></h3>
+<section id="horizontal-and-vertical-mixing-and-bottom-drag">
+<h3>horizontal and vertical mixing, and bottom drag<a class="headerlink" href="#horizontal-and-vertical-mixing-and-bottom-drag" title="Link to this heading"></a></h3>
+<p>Momentum mixing is Laplacian viscosity at 200 m^2 s^-1 plus hyperviscosity at
+3.2e9 m^4 s^-1.  Tracer diffusion, both Laplacian and biharmonic, is switched
+off explicitly rather than left to a model default.  Leaving it unset had
+Omega running with <code class="docutils literal notranslate"><span class="pre">EddyDiff2</span> <span class="pre">=</span> <span class="pre">10</span></code> m^2 s^-1 while MPAS-Ocean ran with none
+– an unintended difference in a case whose point is partly to compare the two
+models.  It acts along the coordinate surfaces, and on a sigma coordinate over
+a seamount those are tilted, so at a slope of 0.1 it is an effective
+diapycnal diffusivity of order 0.1 m^2 s^-1 in a case whose exact solution is
+a resting ocean.</p>
 <p>All vertical mixing is off in both models. The exact solution is a resting
 ocean, so the only thing that would trigger convection is a spurious pressure
 gradient — the quantity being measured — and convection is a known source of
@@ -392,8 +564,8 @@ exists to measure.</p>
 <span class="c1"># Bottom depth at bottom of seamount</span>
 <span class="na">max_bottom_depth</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">${vertical_grid:bottom_depth}</span>
 
-<span class="c1"># Logical flag that controls how the vertical profile of tracers.  See Beckmann and Haidvogel 1993 eqn 15-16 (unitless)</span>
-<span class="c1"># possible_values="linear, exponential"</span>
+<span class="c1"># The vertical profile of the tracers</span>
+<span class="c1"># possible_values="linear, exponential, linear_pressure"</span>
 <span class="na">seamount_stratification_type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">exponential</span>
 
 <span class="c1"># Density coefficient for linear vertical stratification (kg m^{-3})</span>
@@ -414,6 +586,15 @@ exists to measure.</p>
 <span class="c1"># Density reference depth for exponential vertical stratification (m)</span>
 <span class="na">seamount_density_depth_exp</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">500.0</span>
 
+<span class="c1"># Temperature at zero pressure for the linear_pressure stratification (degC)</span>
+<span class="na">seamount_temperature_coef_linear_pressure</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">20.0</span>
+
+<span class="c1"># Temperature change over seamount_pressure_ref_linear_pressure (degC)</span>
+<span class="na">seamount_temperature_gradient_linear_pressure</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">15.0</span>
+
+<span class="c1"># The pressure the temperature gradient is spanned over (dbar)</span>
+<span class="na">seamount_pressure_ref_linear_pressure</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">5000.0</span>
+
 <span class="c1"># Height of sea mount, H_0 (m)</span>
 <span class="na">seamount_height</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">4500.0</span>
 
@@ -424,6 +605,10 @@ exists to measure.</p>
 <span class="c1"># (PSU) for the linear trees and as absolute salinity (g kg^-1) for the</span>
 <span class="c1"># nonlinear ones</span>
 <span class="na">constant_salinity</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">35.0</span>
+
+<span class="c1"># A physical bottom-layer horizontal pressure-gradient acceleration (m s^-2)</span>
+<span class="c1"># for the analysis step to report the spurious circulation as a fraction of</span>
+<span class="na">reference_bottom_pressure_grad</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">2.1e-6</span>
 </pre></div>
 </div>
 <p>The <code class="docutils literal notranslate"><span class="pre">nonlinear</span></code> trees add no config options of their own; they take their
@@ -441,7 +626,7 @@ location for the salinity conversion from the shared <code class="docutils liter
 </pre></div>
 </div>
 <p>The <code class="docutils literal notranslate"><span class="pre">linear</span></code> trees configure their equation of state in <code class="docutils literal notranslate"><span class="pre">ocean</span></code>, through
-<code class="docutils literal notranslate"><span class="pre">seamount_linear.cfg</span></code>. <code class="docutils literal notranslate"><span class="pre">eos_linear_Tref</span></code> must be zero, because Omega’s
+<code class="docutils literal notranslate"><span class="pre">seamount_linear_eos.cfg</span></code>. <code class="docutils literal notranslate"><span class="pre">eos_linear_Tref</span></code> must be zero, because Omega’s
 linear equation of state has no reference temperature; the Beckmann and
 Haidvogel reference state (1028 kg m^{-3} at T = 5 C, S = 35 PSU) is folded
 into <code class="docutils literal notranslate"><span class="pre">eos_linear_rhoref</span></code> instead, as
@@ -481,13 +666,22 @@ exists for regression testing: an hour is far too short for the spurious
 circulation to develop, so it says nothing about the pressure gradient error,
 but it is long enough to catch a change in the answer cheaply.  It is
 otherwise identical to the <code class="docutils literal notranslate"><span class="pre">default</span></code> task — same mesh, vertical grid, initial
-condition, time step and physics — and it exists in all four trees.</p>
-<p>The <code class="docutils literal notranslate"><span class="pre">viz</span></code> step is present but does not run by default here, since re-running
-the task to get the plots costs almost nothing.</p>
-<p>Two of the four are in the <code class="docutils literal notranslate"><span class="pre">mpaso_pr</span></code> and <code class="docutils literal notranslate"><span class="pre">omega_pr</span></code> suites:
-<code class="docutils literal notranslate"><span class="pre">planar/seamount/linear/zstar/short</span></code> and
-<code class="docutils literal notranslate"><span class="pre">planar/seamount/nonlinear/sigma/short</span></code>.  That pair covers both equations of
-state and both vertical coordinates in two runs rather than four.</p>
+condition, time step and physics — except that it runs the centered scheme
+only, and it exists in all eight trees.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">viz_centered</span></code> step is present but does not run by default here, since
+re-running the task to get the plots costs almost nothing.  There is no
+<code class="docutils literal notranslate"><span class="pre">analysis</span></code> step: an hour of a resting ocean is not a measurement.</p>
+<p>Three of the eight are in the <code class="docutils literal notranslate"><span class="pre">mpaso_pr</span></code> and <code class="docutils literal notranslate"><span class="pre">omega_pr</span></code> suites:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">planar/seamount/linear/exponential/zstar/short</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">planar/seamount/nonlinear/exponential/sigma/short</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">planar/seamount/nonlinear/linear_pressure/sigma/short</span></code></p></li>
+</ul>
+<p>The first two cover both equations of state and both vertical coordinates in
+two runs rather than four.  The third covers the linear-in-pressure initial
+condition, whose fixed-point iteration is the only part of the initial
+condition that has to converge rather than evaluate; TEOS-10 is what makes it
+have to, since the specific volume depends on pressure.</p>
 </section>
 <section id="id2">
 <h3>time step and run duration<a class="headerlink" href="#id2" title="Link to this heading"></a></h3>
@@ -503,7 +697,7 @@ task.  Only the duration and output interval differ:</p>
 </pre></div>
 </div>
 <p>The output interval is half the run duration so that the time series the
-<code class="docutils literal notranslate"><span class="pre">viz</span></code> step plots has more than a single point in it.</p>
+<code class="docutils literal notranslate"><span class="pre">viz_centered</span></code> step plots has more than a single point in it.</p>
 </section>
 <section id="id3">
 <h3>config options<a class="headerlink" href="#id3" title="Link to this heading"></a></h3>

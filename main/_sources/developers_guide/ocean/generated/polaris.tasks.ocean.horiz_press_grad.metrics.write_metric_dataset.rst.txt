@@ -1,0 +1,6 @@
+﻿polaris.tasks.ocean.horiz\_press\_grad.metrics.write\_metric\_dataset
+=====================================================================
+
+.. currentmodule:: polaris.tasks.ocean.horiz_press_grad.metrics
+
+.. autofunction:: write_metric_dataset

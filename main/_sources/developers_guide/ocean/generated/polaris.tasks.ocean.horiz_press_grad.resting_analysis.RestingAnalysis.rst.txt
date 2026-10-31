@@ -1,0 +1,71 @@
+﻿polaris.tasks.ocean.horiz\_press\_grad.resting\_analysis.RestingAnalysis
+========================================================================
+
+.. currentmodule:: polaris.tasks.ocean.horiz_press_grad.resting_analysis
+
+.. autoclass:: RestingAnalysis
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~RestingAnalysis.__init__
+      ~RestingAnalysis.add_cf_check
+      ~RestingAnalysis.add_dependency
+      ~RestingAnalysis.add_forcing_input_file
+      ~RestingAnalysis.add_horiz_mesh_input_file
+      ~RestingAnalysis.add_init_input_file
+      ~RestingAnalysis.add_input_file
+      ~RestingAnalysis.add_output_file
+      ~RestingAnalysis.add_output_files_for_ocean_model_input
+      ~RestingAnalysis.add_produced_file
+      ~RestingAnalysis.add_property_check
+      ~RestingAnalysis.add_vert_coord_input_file
+      ~RestingAnalysis.check_cf
+      ~RestingAnalysis.check_properties
+      ~RestingAnalysis.constrain_resources
+      ~RestingAnalysis.get_forcing_filename
+      ~RestingAnalysis.get_horiz_mesh_filename
+      ~RestingAnalysis.get_init_filename
+      ~RestingAnalysis.get_vert_coord_filename
+      ~RestingAnalysis.map_from_native_model_vars
+      ~RestingAnalysis.map_to_native_model_vars
+      ~RestingAnalysis.open_model_dataset
+      ~RestingAnalysis.open_vert_coord_dataset
+      ~RestingAnalysis.process_inputs_and_outputs
+      ~RestingAnalysis.run
+      ~RestingAnalysis.runtime_setup
+      ~RestingAnalysis.set_resources
+      ~RestingAnalysis.set_shared_config
+      ~RestingAnalysis.setup
+      ~RestingAnalysis.validate_baselines
+      ~RestingAnalysis.work_path
+      ~RestingAnalysis.write_forcing_dataset
+      ~RestingAnalysis.write_horiz_mesh_dataset
+      ~RestingAnalysis.write_initial_state_dataset
+      ~RestingAnalysis.write_model_dataset
+      ~RestingAnalysis.write_vert_coord_dataset
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~RestingAnalysis.cores
+      ~RestingAnalysis.gpus
+      ~RestingAnalysis.may_span_nodes
+      ~RestingAnalysis.min_cores
+      ~RestingAnalysis.min_gpus
+      ~RestingAnalysis.component
+      ~RestingAnalysis.config
+      ~RestingAnalysis.input_data
+      ~RestingAnalysis.logger
+   
+   

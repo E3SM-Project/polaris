@@ -549,7 +549,12 @@ window.runMermaid = runMermaid;</script>
         <span class="n">section</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s1">'horiz_press_grad'</span><span class="p">]</span>
         <span class="n">horiz_resolutions</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getexpression</span><span class="p">(</span><span class="s1">'horiz_resolutions'</span><span class="p">)</span>
         <span class="n">vert_resolutions</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getexpression</span><span class="p">(</span><span class="s1">'vert_resolutions'</span><span class="p">)</span>
+        <span class="n">schemes</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getexpression</span><span class="p">(</span><span class="s1">'pressure_grad_types'</span><span class="p">)</span>
 
+        <span class="k">assert</span> <span class="n">schemes</span><span class="p">,</span> <span class="p">(</span>
+            <span class="s1">'The "pressure_grad_types" configuration option must be set in '</span>
+            <span class="s1">'the "horiz_press_grad" section.'</span>
+        <span class="p">)</span>
         <span class="k">assert</span> <span class="n">horiz_resolutions</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> <span class="p">(</span>
             <span class="s1">'The "horiz_resolutions" configuration option must be set in the '</span>
             <span class="s1">'"horiz_press_grad" section.'</span>
@@ -582,15 +587,21 @@ window.runMermaid = runMermaid;</script>
             <span class="bp">self</span><span class="o">.</span><span class="n">add_step</span><span class="p">(</span><span class="n">init_step</span><span class="p">)</span>
             <span class="n">init_steps</span><span class="p">[</span><span class="n">horiz_res</span><span class="p">]</span> <span class="o">=</span> <span class="n">init_step</span>
 
+        <span class="c1"># one forward step per scheme over the shared init step: Init is</span>
+        <span class="c1"># scheme-independent, writing both schemes' Polaris-side HPGA from the</span>
+        <span class="c1"># same state, so running it once is both cheaper and what lets the</span>
+        <span class="c1"># analysis compare the schemes at an identical initial condition</span>
         <span class="k">for</span> <span class="n">horiz_res</span> <span class="ow">in</span> <span class="n">horiz_resolutions</span><span class="p">:</span>
-            <span class="n">forward_step</span> <span class="o">=</span> <span class="n">Forward</span><span class="p">(</span>
-                <span class="n">component</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">component</span><span class="p">,</span>
-                <span class="n">horiz_res</span><span class="o">=</span><span class="n">horiz_res</span><span class="p">,</span>
-                <span class="n">init</span><span class="o">=</span><span class="n">init_steps</span><span class="p">[</span><span class="n">horiz_res</span><span class="p">],</span>
-                <span class="n">indir</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">subdir</span><span class="p">,</span>
-            <span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">add_step</span><span class="p">(</span><span class="n">forward_step</span><span class="p">)</span>
-            <span class="n">forward_steps</span><span class="p">[</span><span class="n">horiz_res</span><span class="p">]</span> <span class="o">=</span> <span class="n">forward_step</span>
+            <span class="k">for</span> <span class="n">scheme</span> <span class="ow">in</span> <span class="n">schemes</span><span class="p">:</span>
+                <span class="n">forward_step</span> <span class="o">=</span> <span class="n">Forward</span><span class="p">(</span>
+                    <span class="n">component</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">component</span><span class="p">,</span>
+                    <span class="n">horiz_res</span><span class="o">=</span><span class="n">horiz_res</span><span class="p">,</span>
+                    <span class="n">init</span><span class="o">=</span><span class="n">init_steps</span><span class="p">[</span><span class="n">horiz_res</span><span class="p">],</span>
+                    <span class="n">indir</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">subdir</span><span class="p">,</span>
+                    <span class="n">scheme</span><span class="o">=</span><span class="n">scheme</span><span class="p">,</span>
+                <span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">add_step</span><span class="p">(</span><span class="n">forward_step</span><span class="p">)</span>
+                <span class="n">forward_steps</span><span class="p">[</span><span class="n">horiz_res</span><span class="p">,</span> <span class="n">scheme</span><span class="p">]</span> <span class="o">=</span> <span class="n">forward_step</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">add_step</span><span class="p">(</span>
             <span class="n">Analysis</span><span class="p">(</span>
@@ -600,6 +611,7 @@ window.runMermaid = runMermaid;</script>
                     <span class="s1">'init'</span><span class="p">:</span> <span class="n">init_steps</span><span class="p">,</span>
                     <span class="s1">'forward'</span><span class="p">:</span> <span class="n">forward_steps</span><span class="p">,</span>
                 <span class="p">},</span>
+                <span class="n">schemes</span><span class="o">=</span><span class="n">schemes</span><span class="p">,</span>
             <span class="p">)</span>
         <span class="p">)</span></div>
 

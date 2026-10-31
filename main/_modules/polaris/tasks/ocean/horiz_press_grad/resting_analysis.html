@@ -1,0 +1,1154 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>polaris.tasks.ocean.horiz_press_grad.resting_analysis</title>
+      <link rel="stylesheet" type="text/css" href="../../../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../../../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../../../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../../../_static/documentation_options.js?v=a8da1a53"></script>
+      <script src="../../../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script type="module">import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11.12.1/dist/mermaid.esm.min.mjs";
+
+
+
+
+
+const initStyles = () => {
+    const defaultStyle = document.createElement('style');
+    defaultStyle.textContent = "pre.mermaid {\n    /* Same as .mermaid-container > pre */\n    display: block;\n    width: 100%;\n}\n\npre.mermaid > svg {\n    /* Same as .mermaid-container > pre > svg */\n    height: 500px;\n    width: 100%;\n    max-width: 100% !important;\n}";
+    document.head.appendChild(defaultStyle);
+
+    const fullscreenStyle = document.createElement('style');
+    fullscreenStyle.textContent = ".mermaid-container {\n    position: relative;\n    display: flex;\n    flex-direction: row;\n    width: 100%;\n}\n\n.mermaid-container > pre {\n    display: block;\n    width: 100%;\n}\n\n.mermaid-container > pre > svg {\n    height: 500px;\n    width: 100%;\n    max-width: 100% !important;\n}\n\n.mermaid-fullscreen-btn {\n    position: absolute;\n    width: 28px;\n    height: 28px;\n    background: rgba(255, 255, 255, 0.95);\n    border: 1px solid rgba(0, 0, 0, 0.3);\n    border-radius: 4px;\n    cursor: pointer;\n    display: flex;\n    align-items: center;\n    justify-content: center;\n    transition: all 0.2s;\n    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);\n    font-size: 14px;\n    line-height: 1;\n    padding: 0;\n    color: #333;\n}\n\n.mermaid-fullscreen-btn:hover {\n    opacity: 100% !important;\n    background: rgba(255, 255, 255, 1);\n    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.3);\n    transform: scale(1.1);\n}\n\n.mermaid-fullscreen-btn.dark-theme {\n    background: rgba(50, 50, 50, 0.95);\n    border: 1px solid rgba(255, 255, 255, 0.3);\n    color: #e0e0e0;\n}\n\n.mermaid-fullscreen-btn.dark-theme:hover {\n    background: rgba(60, 60, 60, 1);\n    box-shadow: 0 3px 10px rgba(255, 255, 255, 0.2);\n}\n\n.mermaid-fullscreen-modal {\n    display: none;\n    position: fixed !important;\n    top: 0 !important;\n    left: 0 !important;\n    width: 95vw;\n    height: 100vh;\n    background: rgba(255, 255, 255, 0.98);\n    z-index: 9999;\n    padding: 20px;\n    overflow: auto;\n}\n\n.mermaid-fullscreen-modal.dark-theme {\n    background: rgba(0, 0, 0, 0.98);\n}\n\n.mermaid-fullscreen-modal.active {\n    display: flex;\n    align-items: center;\n    justify-content: center;\n}\n\n.mermaid-container-fullscreen {\n    position: relative;\n    width: 95vw;\n    height: 90vh;\n    max-width: 95vw;\n    max-height: 90vh;\n    background: white;\n    border-radius: 8px;\n    padding: 20px;\n    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);\n    overflow: auto;\n    display: flex;\n    align-items: center;\n    justify-content: center;\n}\n\n.mermaid-container-fullscreen.dark-theme {\n    background: #1a1a1a;\n    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.8);\n}\n\n.mermaid-container-fullscreen pre.mermaid {\n    width: 100%;\n    height: 100%;\n    display: flex;\n    align-items: center;\n    justify-content: center;\n}\n\n.mermaid-container-fullscreen .mermaid svg {\n    height: 100% !important;\n    width: 100% !important;\n    cursor: grab;\n}\n\n.mermaid-fullscreen-close {\n    position: fixed !important;\n    top: 20px !important;\n    right: 20px !important;\n    width: 40px;\n    height: 40px;\n    background: rgba(255, 255, 255, 0.95);\n    border: 1px solid rgba(0, 0, 0, 0.2);\n    border-radius: 50%;\n    cursor: pointer;\n    z-index: 10000;\n    display: flex;\n    align-items: center;\n    justify-content: center;\n    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);\n    transition: all 0.2s;\n    font-size: 24px;\n    line-height: 1;\n    color: #333;\n}\n\n.mermaid-fullscreen-close:hover {\n    background: white;\n    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);\n    transform: scale(1.1);\n}\n\n.mermaid-fullscreen-close.dark-theme {\n    background: rgba(50, 50, 50, 0.95);\n    border: 1px solid rgba(255, 255, 255, 0.2);\n    color: #e0e0e0;\n}\n\n.mermaid-fullscreen-close.dark-theme:hover {\n    background: rgba(60, 60, 60, 1);\n    box-shadow: 0 6px 16px rgba(255, 255, 255, 0.2);\n}\n\n.mermaid-fullscreen-modal .mermaid-fullscreen-btn {\n    display: none !important;\n}";
+    document.head.appendChild(fullscreenStyle);
+}
+
+// Detect if page has dark background
+const isDarkTheme = () => {
+    // We use a set of heuristics:
+    // 1. Check for common dark mode classes or attributes
+    // 2. Check computed background color brightness
+    if (document.documentElement.classList.contains('dark') ||
+        document.documentElement.getAttribute('data-theme') === 'dark' ||
+        document.body.classList.contains('dark') ||
+        document.body.getAttribute('data-theme') === 'dark') {
+        // console.log("Dark theme detected via class/attribute");
+        return true;
+    }
+    if (document.documentElement.classList.contains('light') ||
+        document.documentElement.getAttribute('data-theme') === 'light' ||
+        document.body.classList.contains('light') ||
+        document.body.getAttribute('data-theme') === 'light') {
+        // console.log("Light theme detected via class/attribute");
+        return false;
+    }
+    if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        // console.log("Dark theme detected via prefers-color-scheme");
+        return true;
+    }
+    const bgColor = window.getComputedStyle(document.body).backgroundColor;
+    const match = bgColor.match(/rgb\((\d+),\s*(\d+),\s*(\d+)/);
+    if (match) {
+        const r = parseInt(match[1]);
+        const g = parseInt(match[2]);
+        const b = parseInt(match[3]);
+        const brightness = (r * 299 + g * 587 + b * 114) / 1000;
+        // console.log("Background color brightness:", brightness);
+        return brightness < 128;
+    }
+    // console.log("No dark or light theme detected, defaulting to light theme");
+    return false;
+};
+
+let darkTheme = isDarkTheme();
+let modal = null;
+let modalContent = null;
+let previousScrollOffset = [window.scrollX, window.scrollY];
+let _lazyObserver = null;
+let _renderQueue = Promise.resolve();
+let closeModal = () => {};
+
+document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && modal?.classList.contains('active')) {
+        closeModal();
+    }
+});
+
+// Apply d3 zoom to each SVG. Idempotent: an SVG already wrapped is skipped,
+// so this is safe to call both for the initial batch and for diagrams that
+// render lazily once they become visible.
+const addZoomToSvgs = (svgs) => {
+    svgs.each(function() {
+        if (this.getAttribute('data-zoom-applied') === 'true') return;
+        var svg = d3.select(this);
+        svg.html("<g class='wrapper'>" + svg.html() + "</g>");
+        var inner = svg.select("g");
+        var zoom = d3.zoom().on("zoom", function(event) {
+            inner.attr("transform", event.transform);
+        });
+        svg.call(zoom);
+        this.setAttribute('data-zoom-applied', 'true');
+    });
+};
+
+const runMermaid = async (rerun) => {
+    console.log("Running mermaid diagrams, rerun =", rerun);
+    // clear all existing mermaid charts
+    let all_mermaids = document.querySelectorAll(".mermaid");
+
+    if (rerun) {
+        // Disconnect any previous lazy rendering observer
+        if (_lazyObserver) {
+            _lazyObserver.disconnect();
+            _lazyObserver = null;
+        }
+
+        all_mermaids.forEach((el) => {
+            el.removeAttribute('data-mermaid-deferred');
+            el.removeAttribute('data-mermaid-render-failed');
+            if(!el.hasAttribute("data-original-code")) {
+                // store original code
+                // console.log(`Storing original code for first run: `, el.innerHTML);
+                el.setAttribute('data-original-code', el.innerHTML);
+            }
+            if(el.getAttribute("data-processed") === "true") {
+                // remove and restore original
+                el.removeAttribute("data-processed");
+                // console.log(`Restoring original code for re-run: `, el.getAttribute('data-original-code'));
+                el.innerHTML = el.getAttribute('data-original-code');
+            } else {
+                // store original code
+                // console.log(`Storing original code for re-run: `, el.innerHTML);
+                el.setAttribute('data-original-code', el.innerHTML);
+            }
+        });
+
+        // Separate visible and hidden elements. Mermaid's layout engine measures
+        // text dimensions via the DOM, which fails for elements hidden by a parent
+        // (e.g., Reveal.js non-active slides, sphinx-design unopened tabs),
+        // producing broken SVGs. Render visible elements now, defer hidden ones.
+        const visible = [];
+        const hidden = [];
+        all_mermaids.forEach((el) => {
+            // offsetParent is null for display:none ancestors.
+            // getClientRects().length > 0 catches position:fixed elements
+            // (which also have null offsetParent but are still visible).
+            if (el.offsetParent !== null || el.getClientRects().length > 0) {
+                visible.push(el);
+            } else {
+                hidden.push(el);
+                el.setAttribute('data-mermaid-deferred', 'true');
+            }
+        });
+
+        if (visible.length > 0) {
+            try {
+                await mermaid.run({ nodes: visible });
+            } catch (e) {
+                console.error("Mermaid rendering failed:", e);
+            }
+        }
+
+        // Lazily render hidden elements when they become visible.
+        // Uses a promise chain (_renderQueue) to serialize rendering,
+        // since IntersectionObserver may report multiple entries at once
+        // and mermaid.run() is not safe to call concurrently.
+        if (hidden.length > 0) {
+            if (typeof IntersectionObserver === 'undefined') {
+                console.warn("IntersectionObserver not available; hidden mermaid diagrams will not render.");
+            } else {
+                _renderQueue = Promise.resolve();
+                _lazyObserver = new IntersectionObserver((entries) => {
+                    for (const entry of entries) {
+                        if (entry.isIntersecting && entry.target.getAttribute("data-processed") !== "true") {
+                            _lazyObserver.unobserve(entry.target);
+                            const el = entry.target;
+                            _renderQueue = _renderQueue.then(async () => {
+                                try {
+                                    await mermaid.run({ nodes: [el] });
+                                    el.removeAttribute('data-mermaid-deferred');
+                                    // Apply zoom to the now-rendered diagram, matching
+                                    // the decoration visible diagrams receive.
+                                    if (false) {
+                                        addZoomToSvgs(d3.selectAll("").select(function() {
+                                            return this.querySelector("svg");
+                                        }));
+                                    }
+                                } catch (e) {
+                                    console.error("Mermaid deferred rendering failed:", e);
+                                    el.removeAttribute('data-mermaid-deferred');
+                                    el.setAttribute('data-mermaid-render-failed', 'true');
+                                }
+                            });
+                        }
+                    }
+                });
+                hidden.forEach((el) => _lazyObserver.observe(el));
+            }
+        }
+    }
+
+    all_mermaids = document.querySelectorAll(".mermaid");
+    // Exclude deferred (hidden) and render-failed elements from completion checks
+    const mermaids_active = document.querySelectorAll(".mermaid:not([data-mermaid-deferred]):not([data-mermaid-render-failed])");
+    const mermaids_processed = document.querySelectorAll(".mermaid:not([data-mermaid-deferred]):not([data-mermaid-render-failed])[data-processed='true']");
+
+    if (false) {
+        const mermaids_to_add_zoom = 0 === -1 ? mermaids_active.length : 0;
+        if(mermaids_to_add_zoom > 0) {
+            var svgs = d3.selectAll("").select(function() {
+                return this.querySelector("svg");
+            });
+            // Wait until every active (visible) diagram has rendered. Deferred
+            // diagrams are excluded, so a fixed d3_node_count that counts a
+            // hidden diagram no longer loops forever waiting for its SVG.
+            if(mermaids_active.length !== mermaids_processed.length) {
+                setTimeout(() => runMermaid(false), 200);
+                return;
+            }
+            addZoomToSvgs(svgs);
+        }
+    } else if(mermaids_active.length !== mermaids_processed.length) {
+        // Wait for mermaid to process all diagrams
+        setTimeout(() => runMermaid(false), 200);
+        return;
+    }
+
+    // Stop here if not adding fullscreen capability
+    if (!true) return;
+
+    if (modal !== null ) {
+        // Destroy existing modal
+        modal.remove();
+        modal = null;
+        modalContent = null;
+    }
+
+    modal = document.createElement('div');
+    modal.className = 'mermaid-fullscreen-modal' + (darkTheme ? ' dark-theme' : '');
+    modal.setAttribute('role', 'dialog');
+    modal.setAttribute('aria-modal', 'true');
+    modal.setAttribute('aria-label', 'Fullscreen diagram viewer');
+    modal.innerHTML = `
+        <button class="mermaid-fullscreen-close${darkTheme ? ' dark-theme' : ''}" aria-label="Close fullscreen">✕</button>
+        <div class="mermaid-container-fullscreen${darkTheme ? ' dark-theme' : ''}"></div>
+    `;
+    document.body.appendChild(modal);
+
+    modalContent = modal.querySelector('.mermaid-container-fullscreen');
+    const closeBtn = modal.querySelector('.mermaid-fullscreen-close');
+
+    closeModal = () => {
+        modal.classList.remove('active');
+        modalContent.innerHTML = '';
+        document.body.style.overflow = ''
+        window.scrollTo({left: previousScrollOffset[0], top: previousScrollOffset[1], behavior: 'instant'});
+    };
+
+    closeBtn.addEventListener('click', closeModal);
+    modal.addEventListener('click', (e) => {
+        if (e.target === modal) closeModal();
+    });
+    document.querySelectorAll('.mermaid').forEach((mermaidDiv) => {
+        if (mermaidDiv.parentNode.classList.contains('mermaid-container') ||
+            mermaidDiv.closest('.mermaid-fullscreen-modal')) {
+            // Already processed, adjust button class if needed
+            const existingBtn = mermaidDiv.parentNode.querySelector('.mermaid-fullscreen-btn');
+            if (existingBtn) {
+                existingBtn.className = 'mermaid-fullscreen-btn' + (darkTheme ? ' dark-theme' : '');
+            }
+            return;
+        }
+
+        const container = document.createElement('div');
+        container.className = 'mermaid-container';
+        mermaidDiv.parentNode.insertBefore(container, mermaidDiv);
+        container.appendChild(mermaidDiv);
+
+        const fullscreenBtn = document.createElement('button');
+        fullscreenBtn.className = 'mermaid-fullscreen-btn' + (darkTheme ? ' dark-theme' : '');
+        fullscreenBtn.setAttribute('aria-label', 'View diagram in fullscreen');
+        fullscreenBtn.textContent = "\u26f6";
+        fullscreenBtn.style.opacity = "50%";
+
+        // Calculate dynamic position based on diagram's margin and padding
+        const diagramStyle = window.getComputedStyle(mermaidDiv);
+        const marginTop = parseFloat(diagramStyle.marginTop) || 0;
+        const marginRight = parseFloat(diagramStyle.marginRight) || 0;
+        const paddingTop = parseFloat(diagramStyle.paddingTop) || 0;
+        const paddingRight = parseFloat(diagramStyle.paddingRight) || 0;
+        fullscreenBtn.style.top = `${marginTop + paddingTop + 4}px`;
+        fullscreenBtn.style.right = `${marginRight + paddingRight + 4}px`;
+
+        fullscreenBtn.addEventListener('click', () => {
+            previousScrollOffset = [window.scrollX, window.scrollY];
+            const clone = mermaidDiv.cloneNode(true);
+            modalContent.innerHTML = '';
+            modalContent.appendChild(clone);
+
+            const svg = clone.querySelector('svg');
+            if (svg) {
+                svg.removeAttribute('width');
+                svg.removeAttribute('height');
+                svg.style.width = '100%';
+                svg.style.height = 'auto';
+                svg.style.maxWidth = '100%';
+                svg.style.display = 'block';
+
+                if (false) {
+                    setTimeout(() => {
+                        const g = svg.querySelector('g');
+                        if (g) {
+                            var svgD3 = d3.select(svg);
+                            svgD3.html("<g class='wrapper'>" + svgD3.html() + "</g>");
+                            var inner = svgD3.select("g");
+                            var zoom = d3.zoom().on("zoom", function(event) {
+                                inner.attr("transform", event.transform);
+                            });
+                            svgD3.call(zoom);
+                        }
+                    }, 100);
+                }
+            }
+
+            modal.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        });
+        container.appendChild(fullscreenBtn);
+    });
+};
+
+
+
+const load = async () => {
+    initStyles();
+
+
+    await runMermaid(true);
+
+    const reRunIfThemeChanges = async () => {
+        const newDarkTheme = isDarkTheme();
+        if (newDarkTheme !== darkTheme) {
+            darkTheme = newDarkTheme;
+            console.log("Theme change detected, re-running mermaid with", darkTheme ? "dark" : "default", "theme");
+            await mermaid.initialize(
+                {...{"startOnLoad": false},
+                ...{ darkMode: darkTheme, theme: darkTheme ? "dark" : "default" },
+                }
+            );
+            await runMermaid(true);
+        }
+    };
+
+    // Update theme classes when theme changes
+    const themeObserver = new MutationObserver(reRunIfThemeChanges);
+    themeObserver.observe(document.documentElement, {
+        attributes: true,
+        attributeFilter: ['class', 'style', 'data-theme']
+    });
+    themeObserver.observe(document.body, {
+        attributes: true,
+        attributeFilter: ['class', 'style', 'data-theme']
+    });
+};
+
+
+
+
+
+console.log("Initializing mermaid with", darkTheme ? "dark" : "default", "theme");
+mermaid.initialize(
+    {...{"startOnLoad": false},
+    ...{ darkMode: darkTheme, theme: darkTheme ? "dark" : "default" },
+    }
+);
+
+window.addEventListener("load", load);
+window.runMermaid = runMermaid;</script>
+    <script src="../../../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../../search.html" />
+    <link href="../../../../../_static/style.css" rel="stylesheet" type="text/css">
+
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../../../index.html" class="icon icon-home">
+            Polaris
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">User's guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../users_guide/quick_start.html">Quick Start for Users</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../users_guide/tasks.html">Tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../users_guide/config_files.html">Config Files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../users_guide/suites.html">Suites</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../users_guide/mesh/index.html">Mesh component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../users_guide/e3sm/init/index.html">E3SM Initial Condition Component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../users_guide/ocean/index.html">Ocean component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../users_guide/seaice/index.html">Sea ice component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../users_guide/machines/index.html">Machines</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Developer's guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../developers_guide/quick_start.html">Quick Start for Developers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../developers_guide/overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../developers_guide/command_line.html">Command-line interface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../developers_guide/organization/index.html">Organization of Tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../developers_guide/e3sm/init/index.html">E3SM initial condition (e3sm/init) component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../developers_guide/mesh/index.html">Mesh component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../developers_guide/ocean/index.html">Ocean component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../developers_guide/seaice/index.html">Sea ice component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../developers_guide/framework/index.html">Framework</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../developers_guide/machines/index.html">Machines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../developers_guide/benchmarking.html">Benchmarking a branch against a baseline</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../developers_guide/omega_pr_testing.html">Testing an Omega pull request</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../developers_guide/troubleshooting.html">Troubleshooting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../developers_guide/docs.html">Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../developers_guide/building_docs.html">Building the Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../developers_guide/building_docs.html#previewing-the-documentation">Previewing the Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../developers_guide/conda_vs_spack.html">How Conda and Spack Work Together in Polaris</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../developers_guide/updating_conda.html">Updating Deployment Dependencies</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../developers_guide/updating_spack/index.html">Updating Shared Spack Environments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../developers_guide/api.html">API reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../design_docs/index.html">Design Documents</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../tutorials/dev_add_category_of_tasks/index.html">Developer Tutorial: Adding a New Category of Tasks</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Glossary</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../glossary.html">Glossary</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../../index.html">Polaris</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../../../index.html">Module code</a></li>
+          <li class="breadcrumb-item"><a href="../../ocean.html">polaris.tasks.ocean</a></li>
+          <li class="breadcrumb-item"><a href="../horiz_press_grad.html">polaris.tasks.ocean.horiz_press_grad</a></li>
+      <li class="breadcrumb-item active">polaris.tasks.ocean.horiz_press_grad.resting_analysis</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for polaris.tasks.ocean.horiz_press_grad.resting_analysis</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">xarray</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">xr</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.ocean.model</span><span class="w"> </span><span class="kn">import</span> <span class="n">OceanIOStep</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.tasks.ocean.horiz_press_grad.forward</span><span class="w"> </span><span class="kn">import</span> <span class="n">SCHEME_HPGA</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.tasks.ocean.horiz_press_grad.metrics</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">format_value_error_pairs</span><span class="p">,</span>
+    <span class="n">format_value_list</span><span class="p">,</span>
+    <span class="n">get_internal_edge</span><span class="p">,</span>
+    <span class="n">power_law_fit</span><span class="p">,</span>
+    <span class="n">rms</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.viz</span><span class="w"> </span><span class="kn">import</span> <span class="n">mplstyle_context</span>
+
+
+<div class="viewcode-block" id="RestingAnalysis">
+<a class="viewcode-back" href="../../../../../developers_guide/ocean/generated/polaris.tasks.ocean.horiz_press_grad.resting_analysis.RestingAnalysis.html#polaris.tasks.ocean.horiz_press_grad.resting_analysis.RestingAnalysis">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">RestingAnalysis</span><span class="p">(</span><span class="n">OceanIOStep</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    A step for analyzing the two-column HPGA in an exact resting state, where</span>
+<span class="sd">    the true HPGA is identically zero and no reference solution is needed.</span>
+
+<span class="sd">    Unlike :py:class:`~polaris.tasks.ocean.horiz_press_grad.analysis.Analysis`,</span>
+<span class="sd">    which measures convergence toward a quasi-analytic reference, this step</span>
+<span class="sd">    measures the absolute HPGA (which is entirely error) as a function of a</span>
+<span class="sd">    swept coordinate or bathymetric tilt, and fits the exponent ``q`` in</span>
+<span class="sd">    ``|HPGA| ~ tilt**q``.</span>
+
+<span class="sd">    It also includes the deepest layer valid in both columns bounding the</span>
+<span class="sd">    edge, which ``Analysis`` deliberately drops.  That layer is the bottom</span>
+<span class="sd">    partial cell, and in a p-star column with a stepped sea floor it carries</span>
+<span class="sd">    the entire signal.</span>
+
+<span class="sd">    Attributes</span>
+<span class="sd">    ----------</span>
+<span class="sd">    dependencies_dict : dict</span>
+<span class="sd">        A dictionary of dependent steps:</span>
+
+<span class="sd">        init : dict</span>
+<span class="sd">            Mapping from ``(horiz_res, vert_res, tilt)`` to ``Init`` step</span>
+
+<span class="sd">        forward : dict</span>
+<span class="sd">            Mapping from ``((horiz_res, vert_res, tilt), scheme)`` to</span>
+<span class="sd">            ``Forward`` step</span>
+
+<span class="sd">    sweep_keys : list of tuple</span>
+<span class="sd">        The ``(horiz_res, vert_res, tilt)`` triples in the sweep, in the order</span>
+<span class="sd">        they are analyzed.</span>
+
+<span class="sd">    schemes : list of str</span>
+<span class="sd">        The pressure-gradient schemes being compared</span>
+<span class="sd">    """</span>
+
+<div class="viewcode-block" id="RestingAnalysis.__init__">
+<a class="viewcode-back" href="../../../../../developers_guide/ocean/generated/polaris.tasks.ocean.horiz_press_grad.resting_analysis.RestingAnalysis.html#polaris.tasks.ocean.horiz_press_grad.resting_analysis.RestingAnalysis.__init__">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">component</span><span class="p">,</span> <span class="n">indir</span><span class="p">,</span> <span class="n">dependencies</span><span class="p">,</span> <span class="n">sweep_keys</span><span class="p">,</span> <span class="n">schemes</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">        Create the analysis step</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        component : polaris.Component</span>
+<span class="sd">            The component the step belongs to</span>
+
+<span class="sd">        indir : str</span>
+<span class="sd">            The subdirectory that the task belongs to, that this step will</span>
+<span class="sd">            go into a subdirectory of</span>
+
+<span class="sd">        dependencies : dict</span>
+<span class="sd">            A dictionary of dependent steps</span>
+
+<span class="sd">        sweep_keys : list of tuple</span>
+<span class="sd">            The ``(horiz_res, vert_res, tilt)`` triples in the sweep</span>
+
+<span class="sd">        schemes : list of str</span>
+<span class="sd">            The pressure-gradient schemes being compared</span>
+<span class="sd">        """</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">'analysis'</span><span class="p">,</span> <span class="n">indir</span><span class="o">=</span><span class="n">indir</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">dependencies_dict</span> <span class="o">=</span> <span class="n">dependencies</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sweep_keys</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">sweep_keys</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">schemes</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">schemes</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_output_file</span><span class="p">(</span><span class="s1">'resting_state.png'</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_output_file</span><span class="p">(</span><span class="s1">'resting_state.nc'</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="RestingAnalysis.setup">
+<a class="viewcode-back" href="../../../../../developers_guide/ocean/generated/polaris.tasks.ocean.horiz_press_grad.resting_analysis.RestingAnalysis.setup.html#polaris.tasks.ocean.horiz_press_grad.resting_analysis.RestingAnalysis.setup">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">setup</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">        Add inputs from init and forward steps</span>
+<span class="sd">        """</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">setup</span><span class="p">()</span>
+
+        <span class="n">init_steps</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dependencies_dict</span><span class="p">[</span><span class="s1">'init'</span><span class="p">]</span>
+        <span class="n">forward_steps</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dependencies_dict</span><span class="p">[</span><span class="s1">'forward'</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">sweep_keys</span><span class="p">:</span>
+            <span class="n">init</span> <span class="o">=</span> <span class="n">init_steps</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
+            <span class="n">suffix</span> <span class="o">=</span> <span class="n">sweep_suffix</span><span class="p">(</span><span class="o">*</span><span class="n">key</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">add_input_file</span><span class="p">(</span>
+                <span class="n">filename</span><span class="o">=</span><span class="sa">f</span><span class="s1">'init_</span><span class="si">{</span><span class="n">suffix</span><span class="si">}</span><span class="s1">.nc'</span><span class="p">,</span>
+                <span class="n">work_dir_target</span><span class="o">=</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">init</span><span class="o">.</span><span class="n">path</span><span class="si">}</span><span class="s1">/init.nc'</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">add_input_file</span><span class="p">(</span>
+                <span class="n">filename</span><span class="o">=</span><span class="sa">f</span><span class="s1">'culled_mesh_</span><span class="si">{</span><span class="n">suffix</span><span class="si">}</span><span class="s1">.nc'</span><span class="p">,</span>
+                <span class="n">work_dir_target</span><span class="o">=</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">init</span><span class="o">.</span><span class="n">path</span><span class="si">}</span><span class="s1">/culled_mesh.nc'</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">add_vert_coord_input_file</span><span class="p">(</span>
+                <span class="n">filename</span><span class="o">=</span><span class="sa">f</span><span class="s1">'vert_coord_</span><span class="si">{</span><span class="n">suffix</span><span class="si">}</span><span class="s1">.nc'</span><span class="p">,</span>
+                <span class="n">work_dir_target</span><span class="o">=</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">init</span><span class="o">.</span><span class="n">path</span><span class="si">}</span><span class="s1">/vert_coord.nc'</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="k">for</span> <span class="n">scheme</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">schemes</span><span class="p">:</span>
+                <span class="n">forward</span> <span class="o">=</span> <span class="n">forward_steps</span><span class="p">[</span><span class="n">key</span><span class="p">,</span> <span class="n">scheme</span><span class="p">]</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">add_input_file</span><span class="p">(</span>
+                    <span class="n">filename</span><span class="o">=</span><span class="sa">f</span><span class="s1">'output_</span><span class="si">{</span><span class="n">suffix</span><span class="si">}</span><span class="s1">_</span><span class="si">{</span><span class="n">scheme</span><span class="si">}</span><span class="s1">.nc'</span><span class="p">,</span>
+                    <span class="n">work_dir_target</span><span class="o">=</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">forward</span><span class="o">.</span><span class="n">path</span><span class="si">}</span><span class="s1">/output.nc'</span><span class="p">,</span>
+                <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="RestingAnalysis.run">
+<a class="viewcode-back" href="../../../../../developers_guide/ocean/generated/polaris.tasks.ocean.horiz_press_grad.resting_analysis.RestingAnalysis.run.html#polaris.tasks.ocean.horiz_press_grad.resting_analysis.RestingAnalysis.run">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">        Run this step of the test case</span>
+<span class="sd">        """</span>
+        <span class="n">logger</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">logger</span>
+        <span class="n">config</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span>
+
+        <span class="n">section</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s1">'horiz_press_grad'</span><span class="p">]</span>
+        <span class="n">tilt_option</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'tilt_option'</span><span class="p">)</span>
+        <span class="n">tilt_fit</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getboolean</span><span class="p">(</span><span class="s1">'tilt_fit'</span><span class="p">)</span>
+        <span class="n">tilt_fit_max</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">'tilt_fit_max'</span><span class="p">)</span>
+        <span class="n">sensitivity_min_rms</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span>
+            <span class="s1">'resting_state_sensitivity_min_rms'</span>
+        <span class="p">)</span>
+        <span class="n">max_bathy_error</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">'resting_state_max_bathy_error'</span><span class="p">)</span>
+        <span class="n">omega_vs_polaris_rms_threshold</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span>
+            <span class="s1">'omega_vs_polaris_rms_threshold'</span>
+        <span class="p">)</span>
+        <span class="n">max_rms_text</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'resting_state_max_rms'</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+        <span class="n">max_rms</span> <span class="o">=</span> <span class="kc">None</span> <span class="k">if</span> <span class="n">max_rms_text</span> <span class="o">==</span> <span class="s1">'none'</span> <span class="k">else</span> <span class="nb">float</span><span class="p">(</span><span class="n">max_rms_text</span><span class="p">)</span>
+        <span class="n">improvement_text</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">section</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'resting_state_improvement_min'</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+        <span class="p">)</span>
+        <span class="n">improvement_min</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="kc">None</span> <span class="k">if</span> <span class="n">improvement_text</span> <span class="o">==</span> <span class="s1">'none'</span> <span class="k">else</span> <span class="nb">float</span><span class="p">(</span><span class="n">improvement_text</span><span class="p">)</span>
+        <span class="p">)</span>
+
+        <span class="n">omega_rms</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="n">scheme</span><span class="p">:</span> <span class="p">[]</span> <span class="k">for</span> <span class="n">scheme</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">schemes</span>
+        <span class="p">}</span>
+        <span class="n">polaris_rms</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="n">scheme</span><span class="p">:</span> <span class="p">[]</span> <span class="k">for</span> <span class="n">scheme</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">schemes</span>
+        <span class="p">}</span>
+        <span class="n">diff_rms</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="n">scheme</span><span class="p">:</span> <span class="p">[]</span> <span class="k">for</span> <span class="n">scheme</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">schemes</span>
+        <span class="p">}</span>
+        <span class="n">bathy_error</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">n_layers</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">sweep_keys</span><span class="p">:</span>
+            <span class="n">suffix</span> <span class="o">=</span> <span class="n">sweep_suffix</span><span class="p">(</span><span class="o">*</span><span class="n">key</span><span class="p">)</span>
+            <span class="n">ds_init</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">open_model_dataset</span><span class="p">(</span><span class="sa">f</span><span class="s1">'init_</span><span class="si">{</span><span class="n">suffix</span><span class="si">}</span><span class="s1">.nc'</span><span class="p">,</span> <span class="n">config</span><span class="p">)</span>
+            <span class="n">ds_mesh</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">open_model_dataset</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s1">'culled_mesh_</span><span class="si">{</span><span class="n">suffix</span><span class="si">}</span><span class="s1">.nc'</span><span class="p">,</span> <span class="n">config</span>
+            <span class="p">)</span>
+            <span class="n">ds_vc</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">open_vert_coord_dataset</span><span class="p">(</span>
+                <span class="n">ds_init</span><span class="p">,</span> <span class="n">vert_coord_filename</span><span class="o">=</span><span class="sa">f</span><span class="s1">'vert_coord_</span><span class="si">{</span><span class="n">suffix</span><span class="si">}</span><span class="s1">.nc'</span>
+            <span class="p">)</span>
+
+            <span class="n">edge_index</span><span class="p">,</span> <span class="p">(</span><span class="n">cell0</span><span class="p">,</span> <span class="n">cell1</span><span class="p">)</span> <span class="o">=</span> <span class="n">get_internal_edge</span><span class="p">(</span><span class="n">ds_mesh</span><span class="p">)</span>
+
+            <span class="c1"># maxLevelCell is 1-based; the deepest layer valid in BOTH columns</span>
+            <span class="c1"># has 0-based index min(maxLevelCell) - 1.  It is kept: it is the</span>
+            <span class="c1"># bottom partial cell, where the resting-state error concentrates.</span>
+            <span class="n">max_level_cells</span> <span class="o">=</span> <span class="n">ds_vc</span><span class="o">.</span><span class="n">maxLevelCell</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span>
+                <span class="n">nCells</span><span class="o">=</span><span class="p">[</span><span class="n">cell0</span><span class="p">,</span> <span class="n">cell1</span><span class="p">]</span>
+            <span class="p">)</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+            <span class="n">n_valid</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">max_level_cells</span><span class="p">))</span>
+            <span class="k">if</span> <span class="n">n_valid</span> <span class="o">&lt;</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s1">'Invalid maxLevelCell values </span><span class="si">{</span><span class="n">max_level_cells</span><span class="si">}</span><span class="s1"> for '</span>
+                    <span class="sa">f</span><span class="s1">'sweep point </span><span class="si">{</span><span class="n">suffix</span><span class="si">}</span><span class="s1">.'</span>
+                <span class="p">)</span>
+            <span class="n">n_layers</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">n_valid</span><span class="p">)</span>
+
+            <span class="k">for</span> <span class="n">scheme</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">schemes</span><span class="p">:</span>
+                <span class="n">ds_out</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">open_model_dataset</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s1">'output_</span><span class="si">{</span><span class="n">suffix</span><span class="si">}</span><span class="s1">_</span><span class="si">{</span><span class="n">scheme</span><span class="si">}</span><span class="s1">.nc'</span><span class="p">,</span> <span class="n">config</span><span class="p">,</span> <span class="n">decode_times</span><span class="o">=</span><span class="kc">False</span>
+                <span class="p">)</span>
+
+                <span class="n">hpga_omega</span> <span class="o">=</span> <span class="n">ds_out</span><span class="o">.</span><span class="n">NormalVelocityTend</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span>
+                    <span class="n">Time</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">nEdges</span><span class="o">=</span><span class="n">edge_index</span>
+                <span class="p">)</span><span class="o">.</span><span class="n">values</span><span class="p">[:</span><span class="n">n_valid</span><span class="p">]</span>
+                <span class="c1"># each scheme against its own Polaris counterpart; see</span>
+                <span class="c1"># Analysis for why the pairing matters</span>
+                <span class="n">hpga_polaris</span> <span class="o">=</span> <span class="p">(</span>
+                    <span class="n">ds_init</span><span class="p">[</span><span class="n">SCHEME_HPGA</span><span class="p">[</span><span class="n">scheme</span><span class="p">]]</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span><span class="n">Time</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">values</span><span class="p">[:</span><span class="n">n_valid</span><span class="p">]</span>
+                <span class="p">)</span>
+
+                <span class="c1"># the true HPGA is identically zero, so the model's HPGA is</span>
+                <span class="c1"># the error and no reference solution is involved</span>
+                <span class="n">omega_rms</span><span class="p">[</span><span class="n">scheme</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">rms</span><span class="p">(</span><span class="n">hpga_omega</span><span class="p">))</span>
+                <span class="n">polaris_rms</span><span class="p">[</span><span class="n">scheme</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">rms</span><span class="p">(</span><span class="n">hpga_polaris</span><span class="p">))</span>
+                <span class="n">diff_rms</span><span class="p">[</span><span class="n">scheme</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">rms</span><span class="p">(</span><span class="n">hpga_omega</span> <span class="o">-</span> <span class="n">hpga_polaris</span><span class="p">))</span>
+
+            <span class="c1"># The p-star column is anchored at the prescribed sea surface,</span>
+            <span class="c1"># so ssh is exact by construction and cannot reveal a problem.</span>
+            <span class="c1"># Partial-cell snapping instead moves the sea floor, which</span>
+            <span class="c1"># silently changes the geometry being swept -- see</span>
+            <span class="c1"># _check_bathymetry.</span>
+            <span class="n">bathy_error</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                <span class="nb">float</span><span class="p">(</span>
+                    <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span>
+                        <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span>
+                            <span class="n">ds_vc</span><span class="o">.</span><span class="n">bottomDepth</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">ravel</span><span class="p">()</span>
+                            <span class="o">-</span> <span class="n">ds_init</span><span class="o">.</span><span class="n">bottomDepthRequested</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">ravel</span><span class="p">()</span>
+                        <span class="p">)</span>
+                    <span class="p">)</span>
+                <span class="p">)</span>
+            <span class="p">)</span>
+
+        <span class="n">tilts</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">key</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">sweep_keys</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
+        <span class="n">omega</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="n">scheme</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">values</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">scheme</span><span class="p">,</span> <span class="n">values</span> <span class="ow">in</span> <span class="n">omega_rms</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+        <span class="p">}</span>
+        <span class="n">polaris</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="n">scheme</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">values</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">scheme</span><span class="p">,</span> <span class="n">values</span> <span class="ow">in</span> <span class="n">polaris_rms</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+        <span class="p">}</span>
+        <span class="n">difference</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="n">scheme</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">values</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">scheme</span><span class="p">,</span> <span class="n">values</span> <span class="ow">in</span> <span class="n">diff_rms</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+        <span class="p">}</span>
+        <span class="n">bathy_errors</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">bathy_error</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
+
+        <span class="n">groups</span> <span class="o">=</span> <span class="n">_group_by_resolution</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sweep_keys</span><span class="p">)</span>
+        <span class="n">exponents</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="n">scheme</span><span class="p">:</span> <span class="n">_fit_exponents</span><span class="p">(</span>
+                <span class="n">groups</span><span class="o">=</span><span class="n">groups</span><span class="p">,</span>
+                <span class="n">tilts</span><span class="o">=</span><span class="n">tilts</span><span class="p">,</span>
+                <span class="n">values</span><span class="o">=</span><span class="n">omega</span><span class="p">[</span><span class="n">scheme</span><span class="p">],</span>
+                <span class="n">tilt_fit</span><span class="o">=</span><span class="n">tilt_fit</span><span class="p">,</span>
+                <span class="n">tilt_fit_max</span><span class="o">=</span><span class="n">tilt_fit_max</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="k">for</span> <span class="n">scheme</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">schemes</span>
+        <span class="p">}</span>
+
+        <span class="n">_write_resting_dataset</span><span class="p">(</span>
+            <span class="n">filename</span><span class="o">=</span><span class="s1">'resting_state.nc'</span><span class="p">,</span>
+            <span class="n">sweep_keys</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">sweep_keys</span><span class="p">,</span>
+            <span class="n">omega_rms</span><span class="o">=</span><span class="n">omega</span><span class="p">,</span>
+            <span class="n">polaris_rms</span><span class="o">=</span><span class="n">polaris</span><span class="p">,</span>
+            <span class="n">diff_rms</span><span class="o">=</span><span class="n">difference</span><span class="p">,</span>
+            <span class="n">bathy_error</span><span class="o">=</span><span class="n">bathy_errors</span><span class="p">,</span>
+            <span class="n">n_layers</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">n_layers</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">),</span>
+            <span class="n">exponents</span><span class="o">=</span><span class="n">exponents</span><span class="p">,</span>
+            <span class="n">tilt_option</span><span class="o">=</span><span class="n">tilt_option</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">_plot_resting</span><span class="p">(</span>
+            <span class="n">output</span><span class="o">=</span><span class="s1">'resting_state.png'</span><span class="p">,</span>
+            <span class="n">groups</span><span class="o">=</span><span class="n">groups</span><span class="p">,</span>
+            <span class="n">tilts</span><span class="o">=</span><span class="n">tilts</span><span class="p">,</span>
+            <span class="n">values</span><span class="o">=</span><span class="n">omega</span><span class="p">,</span>
+            <span class="n">exponents</span><span class="o">=</span><span class="n">exponents</span><span class="p">,</span>
+            <span class="n">tilt_option</span><span class="o">=</span><span class="n">tilt_option</span><span class="p">,</span>
+            <span class="n">sensitivity_min_rms</span><span class="o">=</span><span class="n">sensitivity_min_rms</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">'Resting-state sweep over </span><span class="si">{</span><span class="n">tilt_option</span><span class="si">}</span><span class="s1"> (m/km):'</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">scheme</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">schemes</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">label</span><span class="p">,</span> <span class="n">indices</span> <span class="ow">in</span> <span class="n">groups</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s1">'  </span><span class="si">{</span><span class="n">scheme</span><span class="si">}</span><span class="s1">, </span><span class="si">{</span><span class="n">label</span><span class="si">}</span><span class="s1">: '</span>
+                    <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">format_value_error_pairs</span><span class="p">(</span><span class="n">tilts</span><span class="p">[</span><span class="n">indices</span><span class="p">],</span><span class="w"> </span><span class="n">omega</span><span class="p">[</span><span class="n">scheme</span><span class="p">][</span><span class="n">indices</span><span class="p">],</span><span class="w"> </span><span class="n">units</span><span class="o">=</span><span class="s2">"m/km"</span><span class="p">)</span><span class="si">}</span><span class="s1">'</span>  <span class="c1"># noqa: E501</span>
+                <span class="p">)</span>
+                <span class="k">if</span> <span class="n">label</span> <span class="ow">in</span> <span class="n">exponents</span><span class="p">[</span><span class="n">scheme</span><span class="p">]:</span>
+                    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+                        <span class="sa">f</span><span class="s1">'  </span><span class="si">{</span><span class="n">scheme</span><span class="si">}</span><span class="s1">, </span><span class="si">{</span><span class="n">label</span><span class="si">}</span><span class="s1">: fitted tilt exponent q = '</span>
+                        <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">exponents</span><span class="p">[</span><span class="n">scheme</span><span class="p">][</span><span class="n">label</span><span class="p">]</span><span class="si">:</span><span class="s1">.3f</span><span class="si">}</span><span class="s1"> over tilts '</span>
+                        <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">format_value_list</span><span class="p">(</span><span class="n">tilts</span><span class="p">[</span><span class="n">indices</span><span class="p">][</span><span class="n">tilts</span><span class="p">[</span><span class="n">indices</span><span class="p">]</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="n">tilt_fit_max</span><span class="p">])</span><span class="si">}</span><span class="s1">'</span>  <span class="c1"># noqa: E501</span>
+                    <span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_check_bathymetry</span><span class="p">(</span><span class="n">bathy_errors</span><span class="p">,</span> <span class="n">max_bathy_error</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">scheme</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">schemes</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_check_omega_vs_polaris</span><span class="p">(</span>
+                <span class="n">difference</span><span class="p">[</span><span class="n">scheme</span><span class="p">],</span> <span class="n">omega_vs_polaris_rms_threshold</span><span class="p">,</span> <span class="n">scheme</span>
+            <span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_check_max_rms</span><span class="p">(</span><span class="n">omega</span><span class="p">[</span><span class="n">scheme</span><span class="p">],</span> <span class="n">max_rms</span><span class="p">,</span> <span class="n">scheme</span><span class="p">)</span>
+
+        <span class="c1"># the sensitivity gate is a statement about the CENTERED scheme: it</span>
+        <span class="c1"># asks whether the sweep is severe enough to exercise the failure the</span>
+        <span class="c1"># higher-order scheme is meant to fix.  Applying it to finite_volume</span>
+        <span class="c1"># would demand that the new scheme fail, which is backwards.</span>
+        <span class="k">if</span> <span class="s1">'centered'</span> <span class="ow">in</span> <span class="n">omega</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_check_sensitivity</span><span class="p">(</span><span class="n">omega</span><span class="p">[</span><span class="s1">'centered'</span><span class="p">],</span> <span class="n">sensitivity_min_rms</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="s1">'centered'</span> <span class="ow">in</span> <span class="n">omega</span> <span class="ow">and</span> <span class="s1">'finite_volume'</span> <span class="ow">in</span> <span class="n">omega</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_check_improvement</span><span class="p">(</span>
+                <span class="n">centered</span><span class="o">=</span><span class="n">omega</span><span class="p">[</span><span class="s1">'centered'</span><span class="p">],</span>
+                <span class="n">finite_volume</span><span class="o">=</span><span class="n">omega</span><span class="p">[</span><span class="s1">'finite_volume'</span><span class="p">],</span>
+                <span class="n">improvement_min</span><span class="o">=</span><span class="n">improvement_min</span><span class="p">,</span>
+                <span class="n">logger</span><span class="o">=</span><span class="n">logger</span><span class="p">,</span>
+            <span class="p">)</span></div>
+
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_check_bathymetry</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">bathy_error</span><span class="p">,</span> <span class="n">max_bathy_error</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">        Fail if the sea floor is not where the configuration asked for it.</span>
+
+<span class="sd">        The resting-state property survives a moved sea floor -- the state is</span>
+<span class="sd">        still exactly at rest -- but the swept parameter stops meaning what it</span>
+<span class="sd">        says, because the geometry actually tested is no longer the configured</span>
+<span class="sd">        one.  Partial-cell snapping moves the sea floor to the nearest</span>
+<span class="sd">        representable depth, and at some gradients that collapses the step</span>
+<span class="sd">        between the two columns to nothing, so the test would report a</span>
+<span class="sd">        near-zero error for a configuration nominally carrying a large step.</span>
+<span class="sd">        """</span>
+        <span class="n">failing</span> <span class="o">=</span> <span class="n">bathy_error</span> <span class="o">&gt;</span> <span class="n">max_bathy_error</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">failing</span><span class="p">):</span>
+            <span class="k">return</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="s1">'The sea floor is not at the requested depth, so the swept tilt '</span>
+            <span class="s1">'is not the geometry actually being tested. This means the '</span>
+            <span class="s1">'vertical-grid construction moved the bathymetry -- normally '</span>
+            <span class="s1">'partial-cell snapping to the nearest representable depth. Set '</span>
+            <span class="s1">'"partial_cell_type = None" for resting-state variants. Max '</span>
+            <span class="sa">f</span><span class="s1">'|bottomDepth - requested| = </span><span class="si">{</span><span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">bathy_error</span><span class="p">))</span><span class="si">:</span><span class="s1">.3e</span><span class="si">}</span><span class="s1"> m '</span>
+            <span class="sa">f</span><span class="s1">'exceeds resting_state_max_bathy_error=</span><span class="si">{</span><span class="n">max_bathy_error</span><span class="si">:</span><span class="s1">.3e</span><span class="si">}</span><span class="s1"> m '</span>
+            <span class="sa">f</span><span class="s1">'at: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_failing_text</span><span class="p">(</span><span class="n">failing</span><span class="p">,</span><span class="w"> </span><span class="n">bathy_error</span><span class="p">)</span><span class="si">}</span><span class="s1">'</span>
+        <span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_check_omega_vs_polaris</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">diff_rms</span><span class="p">,</span> <span class="n">threshold</span><span class="p">,</span> <span class="n">scheme</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">        Fail if Omega and Polaris disagree about the same discrete scheme.</span>
+<span class="sd">        """</span>
+        <span class="n">failing</span> <span class="o">=</span> <span class="n">diff_rms</span> <span class="o">&gt;</span> <span class="n">threshold</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">failing</span><span class="p">):</span>
+            <span class="k">return</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">scheme</span><span class="si">}</span><span class="s1">: Omega-vs-Polaris RMS difference exceeds '</span>
+            <span class="sa">f</span><span class="s1">'omega_vs_polaris_rms_threshold=</span><span class="si">{</span><span class="n">threshold</span><span class="si">:</span><span class="s1">.3e</span><span class="si">}</span><span class="s1"> at: '</span>
+            <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_failing_text</span><span class="p">(</span><span class="n">failing</span><span class="p">,</span><span class="w"> </span><span class="n">diff_rms</span><span class="p">)</span><span class="si">}</span><span class="s1">'</span>
+        <span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_check_sensitivity</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">omega_rms</span><span class="p">,</span> <span class="n">sensitivity_min_rms</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">        Fail if the sweep never drives the scheme hard enough to be</span>
+<span class="sd">        informative about the failure mode it is meant to probe.</span>
+<span class="sd">        """</span>
+        <span class="n">largest</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">omega_rms</span><span class="p">))</span>
+        <span class="k">if</span> <span class="n">largest</span> <span class="o">&gt;=</span> <span class="n">sensitivity_min_rms</span><span class="p">:</span>
+            <span class="k">return</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="s1">'The resting-state sweep is not severe enough to exercise the '</span>
+            <span class="s1">'pressure-gradient error it exists to measure: the largest RMS '</span>
+            <span class="sa">f</span><span class="s1">'HPGA anywhere in the sweep is </span><span class="si">{</span><span class="n">largest</span><span class="si">:</span><span class="s1">.3e</span><span class="si">}</span><span class="s1"> m s-2, below '</span>
+            <span class="sa">f</span><span class="s1">'resting_state_sensitivity_min_rms=</span><span class="si">{</span><span class="n">sensitivity_min_rms</span><span class="si">:</span><span class="s1">.3e</span><span class="si">}</span><span class="s1"> '</span>
+            <span class="s1">'m s-2. The sweep must be made more severe (coarser layers or '</span>
+            <span class="s1">'larger tilt) before any conclusion is drawn from it.'</span>
+        <span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_check_max_rms</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">omega_rms</span><span class="p">,</span> <span class="n">max_rms</span><span class="p">,</span> <span class="n">scheme</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">        Fail if the scheme exceeds the consistency threshold, when one is set.</span>
+<span class="sd">        """</span>
+        <span class="k">if</span> <span class="n">max_rms</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span>
+        <span class="n">failing</span> <span class="o">=</span> <span class="n">omega_rms</span> <span class="o">&gt;</span> <span class="n">max_rms</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">failing</span><span class="p">):</span>
+            <span class="k">return</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">scheme</span><span class="si">}</span><span class="s1">: RMS HPGA in the resting state exceeds '</span>
+            <span class="sa">f</span><span class="s1">'resting_state_max_rms=</span><span class="si">{</span><span class="n">max_rms</span><span class="si">:</span><span class="s1">.3e</span><span class="si">}</span><span class="s1"> m s-2 at: '</span>
+            <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_failing_text</span><span class="p">(</span><span class="n">failing</span><span class="p">,</span><span class="w"> </span><span class="n">omega_rms</span><span class="p">)</span><span class="si">}</span><span class="s1">'</span>
+        <span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_check_improvement</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">centered</span><span class="p">,</span> <span class="n">finite_volume</span><span class="p">,</span> <span class="n">improvement_min</span><span class="p">,</span> <span class="n">logger</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">        Fail if the finite-volume scheme is not enough better than centered.</span>
+
+<span class="sd">        The true HPGA is identically zero here, so both are pure error and</span>
+<span class="sd">        their ratio is a clean statement of what the higher-order scheme buys</span>
+<span class="sd">        -- no reference solution and none of its discretization enters.</span>
+
+<span class="sd">        The ratio is reported whether or not a threshold is set, because it is</span>
+<span class="sd">        the headline number for these variants and is worth having in the log</span>
+<span class="sd">        even before anyone decides what to require of it.</span>
+<span class="sd">        """</span>
+        <span class="k">with</span> <span class="n">np</span><span class="o">.</span><span class="n">errstate</span><span class="p">(</span><span class="n">divide</span><span class="o">=</span><span class="s1">'ignore'</span><span class="p">,</span> <span class="n">invalid</span><span class="o">=</span><span class="s1">'ignore'</span><span class="p">):</span>
+            <span class="n">ratio</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span>
+                <span class="n">finite_volume</span> <span class="o">&gt;</span> <span class="mf">0.0</span><span class="p">,</span> <span class="n">centered</span> <span class="o">/</span> <span class="n">finite_volume</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">inf</span>
+            <span class="p">)</span>
+
+        <span class="n">finite</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">ratio</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">finite</span><span class="p">):</span>
+            <span class="n">worst_index</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">argmin</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">finite</span><span class="p">,</span> <span class="n">ratio</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">inf</span><span class="p">)))</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+                <span class="s1">'centered / finite_volume RMS HPGA: smallest is '</span>
+                <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">ratio</span><span class="p">[</span><span class="n">worst_index</span><span class="p">]</span><span class="si">:</span><span class="s1">.2f</span><span class="si">}</span><span class="s1">x at '</span>
+                <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">sweep_suffix</span><span class="p">(</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">sweep_keys</span><span class="p">[</span><span class="n">worst_index</span><span class="p">])</span><span class="si">}</span><span class="s1">'</span>
+            <span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">improvement_min</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span>
+
+        <span class="n">failing</span> <span class="o">=</span> <span class="n">ratio</span> <span class="o">&lt;</span> <span class="n">improvement_min</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">failing</span><span class="p">):</span>
+            <span class="k">return</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="s1">'The finite-volume scheme is not enough better than the centered '</span>
+            <span class="sa">f</span><span class="s1">'one: resting_state_improvement_min=</span><span class="si">{</span><span class="n">improvement_min</span><span class="si">:</span><span class="s1">.3e</span><span class="si">}</span><span class="s1"> is not '</span>
+            <span class="sa">f</span><span class="s1">'met at: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_failing_text</span><span class="p">(</span><span class="n">failing</span><span class="p">,</span><span class="w"> </span><span class="n">ratio</span><span class="p">)</span><span class="si">}</span><span class="s1">'</span>
+        <span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_failing_text</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">failing</span><span class="p">,</span> <span class="n">values</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">        Format the sweep points where a check failed.</span>
+<span class="sd">        """</span>
+        <span class="k">return</span> <span class="s1">', '</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">sweep_suffix</span><span class="p">(</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">sweep_keys</span><span class="p">[</span><span class="n">index</span><span class="p">])</span><span class="si">}</span><span class="s1">: </span><span class="si">{</span><span class="n">values</span><span class="p">[</span><span class="n">index</span><span class="p">]</span><span class="si">:</span><span class="s1">.3e</span><span class="si">}</span><span class="s1">'</span>
+            <span class="k">for</span> <span class="n">index</span> <span class="ow">in</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">failing</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="sweep_suffix">
+<a class="viewcode-back" href="../../../../../developers_guide/ocean/generated/polaris.tasks.ocean.horiz_press_grad.resting_analysis.sweep_suffix.html#polaris.tasks.ocean.horiz_press_grad.resting_analysis.sweep_suffix">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">sweep_suffix</span><span class="p">(</span><span class="n">horiz_res</span><span class="p">,</span> <span class="n">vert_res</span><span class="p">,</span> <span class="n">tilt</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Build a filename- and directory-safe suffix for one sweep point.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    horiz_res : float</span>
+<span class="sd">        The horizontal resolution in km</span>
+
+<span class="sd">    vert_res : float</span>
+<span class="sd">        The vertical resolution in m</span>
+
+<span class="sd">    tilt : float</span>
+<span class="sd">        The swept tilt in m/km</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    str</span>
+<span class="sd">        A suffix such as ``4km_256m_tilt0p5``</span>
+<span class="sd">    """</span>
+    <span class="k">return</span> <span class="p">(</span>
+        <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">_number_to_string</span><span class="p">(</span><span class="n">horiz_res</span><span class="p">)</span><span class="si">}</span><span class="s1">km_'</span>
+        <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">_number_to_string</span><span class="p">(</span><span class="n">vert_res</span><span class="p">)</span><span class="si">}</span><span class="s1">m_'</span>
+        <span class="sa">f</span><span class="s1">'tilt</span><span class="si">{</span><span class="n">_number_to_string</span><span class="p">(</span><span class="n">tilt</span><span class="p">)</span><span class="si">}</span><span class="s1">'</span>
+    <span class="p">)</span></div>
+
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_number_to_string</span><span class="p">(</span><span class="n">value</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Format a number compactly, with ``p`` standing in for the decimal point.</span>
+<span class="sd">    """</span>
+    <span class="k">return</span> <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="nb">float</span><span class="p">(</span><span class="n">value</span><span class="p">)</span><span class="si">:</span><span class="s1">g</span><span class="si">}</span><span class="s1">'</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">'.'</span><span class="p">,</span> <span class="s1">'p'</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">'-'</span><span class="p">,</span> <span class="s1">'m'</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_group_by_resolution</span><span class="p">(</span><span class="n">sweep_keys</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Group sweep indices by their ``(horiz_res, vert_res)`` pair, preserving</span>
+<span class="sd">    the order in which the pairs first appear.</span>
+<span class="sd">    """</span>
+    <span class="n">groups</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">index</span><span class="p">,</span> <span class="p">(</span><span class="n">horiz_res</span><span class="p">,</span> <span class="n">vert_res</span><span class="p">,</span> <span class="n">_</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">sweep_keys</span><span class="p">):</span>
+        <span class="n">label</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">horiz_res</span><span class="si">:</span><span class="s1">g</span><span class="si">}</span><span class="s1"> km, </span><span class="si">{</span><span class="n">vert_res</span><span class="si">:</span><span class="s1">g</span><span class="si">}</span><span class="s1"> m'</span>
+        <span class="n">groups</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="n">label</span><span class="p">,</span> <span class="p">[])</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">index</span><span class="p">)</span>
+    <span class="k">return</span> <span class="p">{</span><span class="n">label</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">indices</span><span class="p">)</span> <span class="k">for</span> <span class="n">label</span><span class="p">,</span> <span class="n">indices</span> <span class="ow">in</span> <span class="n">groups</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_fit_exponents</span><span class="p">(</span><span class="n">groups</span><span class="p">,</span> <span class="n">tilts</span><span class="p">,</span> <span class="n">values</span><span class="p">,</span> <span class="n">tilt_fit</span><span class="p">,</span> <span class="n">tilt_fit_max</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Fit the tilt exponent within each resolution group, skipping groups with</span>
+<span class="sd">    too few usable points rather than raising.</span>
+<span class="sd">    """</span>
+    <span class="n">exponents</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">tilt_fit</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">exponents</span>
+    <span class="k">for</span> <span class="n">label</span><span class="p">,</span> <span class="n">indices</span> <span class="ow">in</span> <span class="n">groups</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="n">group_tilts</span> <span class="o">=</span> <span class="n">tilts</span><span class="p">[</span><span class="n">indices</span><span class="p">]</span>
+        <span class="n">group_values</span> <span class="o">=</span> <span class="n">values</span><span class="p">[</span><span class="n">indices</span><span class="p">]</span>
+        <span class="n">fit_mask</span> <span class="o">=</span> <span class="n">group_tilts</span> <span class="o">&lt;=</span> <span class="n">tilt_fit_max</span>
+        <span class="n">usable</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">logical_and</span><span class="o">.</span><span class="n">reduce</span><span class="p">(</span>
+            <span class="p">(</span><span class="n">fit_mask</span><span class="p">,</span> <span class="n">group_tilts</span> <span class="o">&gt;</span> <span class="mf">0.0</span><span class="p">,</span> <span class="n">group_values</span> <span class="o">&gt;</span> <span class="mf">0.0</span><span class="p">)</span>
+        <span class="p">)</span>
+        <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">count_nonzero</span><span class="p">(</span><span class="n">usable</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="k">continue</span>
+        <span class="n">_</span><span class="p">,</span> <span class="n">slope</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">power_law_fit</span><span class="p">(</span>
+            <span class="n">x</span><span class="o">=</span><span class="n">group_tilts</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="n">group_values</span><span class="p">,</span> <span class="n">fit_mask</span><span class="o">=</span><span class="n">fit_mask</span>
+        <span class="p">)</span>
+        <span class="n">exponents</span><span class="p">[</span><span class="n">label</span><span class="p">]</span> <span class="o">=</span> <span class="n">slope</span>
+    <span class="k">return</span> <span class="n">exponents</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_write_resting_dataset</span><span class="p">(</span>
+    <span class="n">filename</span><span class="p">,</span>
+    <span class="n">sweep_keys</span><span class="p">,</span>
+    <span class="n">omega_rms</span><span class="p">,</span>
+    <span class="n">polaris_rms</span><span class="p">,</span>
+    <span class="n">diff_rms</span><span class="p">,</span>
+    <span class="n">bathy_error</span><span class="p">,</span>
+    <span class="n">n_layers</span><span class="p">,</span>
+    <span class="n">exponents</span><span class="p">,</span>
+    <span class="n">tilt_option</span><span class="p">,</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Write the resting-state sweep results to netCDF.</span>
+<span class="sd">    """</span>
+    <span class="n">ds</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">()</span>
+    <span class="n">ds</span><span class="p">[</span><span class="s1">'horiz_resolution'</span><span class="p">]</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">(</span>
+        <span class="n">data</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">key</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">sweep_keys</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">),</span>
+        <span class="n">dims</span><span class="o">=</span><span class="p">[</span><span class="s1">'nSweep'</span><span class="p">],</span>
+        <span class="n">attrs</span><span class="o">=</span><span class="p">{</span><span class="s1">'long_name'</span><span class="p">:</span> <span class="s1">'horizontal resolution'</span><span class="p">,</span> <span class="s1">'units'</span><span class="p">:</span> <span class="s1">'km'</span><span class="p">},</span>
+    <span class="p">)</span>
+    <span class="n">ds</span><span class="p">[</span><span class="s1">'vert_resolution'</span><span class="p">]</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">(</span>
+        <span class="n">data</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">key</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">sweep_keys</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">),</span>
+        <span class="n">dims</span><span class="o">=</span><span class="p">[</span><span class="s1">'nSweep'</span><span class="p">],</span>
+        <span class="n">attrs</span><span class="o">=</span><span class="p">{</span><span class="s1">'long_name'</span><span class="p">:</span> <span class="s1">'vertical resolution'</span><span class="p">,</span> <span class="s1">'units'</span><span class="p">:</span> <span class="s1">'m'</span><span class="p">},</span>
+    <span class="p">)</span>
+    <span class="n">ds</span><span class="p">[</span><span class="s1">'tilt'</span><span class="p">]</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">(</span>
+        <span class="n">data</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">key</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">sweep_keys</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">),</span>
+        <span class="n">dims</span><span class="o">=</span><span class="p">[</span><span class="s1">'nSweep'</span><span class="p">],</span>
+        <span class="n">attrs</span><span class="o">=</span><span class="p">{</span><span class="s1">'long_name'</span><span class="p">:</span> <span class="sa">f</span><span class="s1">'swept </span><span class="si">{</span><span class="n">tilt_option</span><span class="si">}</span><span class="s1">'</span><span class="p">,</span> <span class="s1">'units'</span><span class="p">:</span> <span class="s1">'m km-1'</span><span class="p">},</span>
+    <span class="p">)</span>
+    <span class="k">for</span> <span class="n">scheme</span> <span class="ow">in</span> <span class="n">omega_rms</span><span class="p">:</span>
+        <span class="n">ds</span><span class="p">[</span><span class="sa">f</span><span class="s1">'rms_hpga_omega_</span><span class="si">{</span><span class="n">scheme</span><span class="si">}</span><span class="s1">'</span><span class="p">]</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">(</span>
+            <span class="n">data</span><span class="o">=</span><span class="n">omega_rms</span><span class="p">[</span><span class="n">scheme</span><span class="p">],</span>
+            <span class="n">dims</span><span class="o">=</span><span class="p">[</span><span class="s1">'nSweep'</span><span class="p">],</span>
+            <span class="n">attrs</span><span class="o">=</span><span class="p">{</span>
+                <span class="s1">'long_name'</span><span class="p">:</span> <span class="s1">'RMS HPGA from Omega (the error; truth is zero), '</span>
+                <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">scheme</span><span class="si">}</span><span class="s1"> scheme'</span><span class="p">,</span>
+                <span class="s1">'units'</span><span class="p">:</span> <span class="s1">'m s-2'</span><span class="p">,</span>
+            <span class="p">},</span>
+        <span class="p">)</span>
+        <span class="n">ds</span><span class="p">[</span><span class="sa">f</span><span class="s1">'rms_hpga_polaris_</span><span class="si">{</span><span class="n">scheme</span><span class="si">}</span><span class="s1">'</span><span class="p">]</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">(</span>
+            <span class="n">data</span><span class="o">=</span><span class="n">polaris_rms</span><span class="p">[</span><span class="n">scheme</span><span class="p">],</span>
+            <span class="n">dims</span><span class="o">=</span><span class="p">[</span><span class="s1">'nSweep'</span><span class="p">],</span>
+            <span class="n">attrs</span><span class="o">=</span><span class="p">{</span>
+                <span class="s1">'long_name'</span><span class="p">:</span> <span class="s1">'RMS HPGA from the Polaris initial condition, '</span>
+                <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">scheme</span><span class="si">}</span><span class="s1"> scheme'</span><span class="p">,</span>
+                <span class="s1">'units'</span><span class="p">:</span> <span class="s1">'m s-2'</span><span class="p">,</span>
+            <span class="p">},</span>
+        <span class="p">)</span>
+        <span class="n">ds</span><span class="p">[</span><span class="sa">f</span><span class="s1">'rms_omega_vs_polaris_</span><span class="si">{</span><span class="n">scheme</span><span class="si">}</span><span class="s1">'</span><span class="p">]</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">(</span>
+            <span class="n">data</span><span class="o">=</span><span class="n">diff_rms</span><span class="p">[</span><span class="n">scheme</span><span class="p">],</span>
+            <span class="n">dims</span><span class="o">=</span><span class="p">[</span><span class="s1">'nSweep'</span><span class="p">],</span>
+            <span class="n">attrs</span><span class="o">=</span><span class="p">{</span>
+                <span class="s1">'long_name'</span><span class="p">:</span> <span class="s1">'RMS difference between Omega and Polaris HPGA, '</span>
+                <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">scheme</span><span class="si">}</span><span class="s1"> scheme'</span><span class="p">,</span>
+                <span class="s1">'units'</span><span class="p">:</span> <span class="s1">'m s-2'</span><span class="p">,</span>
+            <span class="p">},</span>
+        <span class="p">)</span>
+    <span class="n">ds</span><span class="p">[</span><span class="s1">'bathymetry_error'</span><span class="p">]</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">(</span>
+        <span class="n">data</span><span class="o">=</span><span class="n">bathy_error</span><span class="p">,</span>
+        <span class="n">dims</span><span class="o">=</span><span class="p">[</span><span class="s1">'nSweep'</span><span class="p">],</span>
+        <span class="n">attrs</span><span class="o">=</span><span class="p">{</span>
+            <span class="s1">'long_name'</span><span class="p">:</span> <span class="s1">'max |bottomDepth - requested| over the two columns'</span><span class="p">,</span>
+            <span class="s1">'units'</span><span class="p">:</span> <span class="s1">'m'</span><span class="p">,</span>
+        <span class="p">},</span>
+    <span class="p">)</span>
+    <span class="n">ds</span><span class="p">[</span><span class="s1">'n_layers'</span><span class="p">]</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">(</span>
+        <span class="n">data</span><span class="o">=</span><span class="n">n_layers</span><span class="p">,</span>
+        <span class="n">dims</span><span class="o">=</span><span class="p">[</span><span class="s1">'nSweep'</span><span class="p">],</span>
+        <span class="n">attrs</span><span class="o">=</span><span class="p">{</span>
+            <span class="s1">'long_name'</span><span class="p">:</span> <span class="s1">'number of layers valid in both columns'</span><span class="p">,</span>
+            <span class="s1">'units'</span><span class="p">:</span> <span class="s1">'1'</span><span class="p">,</span>
+        <span class="p">},</span>
+    <span class="p">)</span>
+    <span class="n">ds</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">'tilt_option'</span><span class="p">]</span> <span class="o">=</span> <span class="n">tilt_option</span>
+    <span class="k">for</span> <span class="n">scheme</span><span class="p">,</span> <span class="n">per_group</span> <span class="ow">in</span> <span class="n">exponents</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="k">for</span> <span class="n">label</span><span class="p">,</span> <span class="n">slope</span> <span class="ow">in</span> <span class="n">per_group</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">ds</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="sa">f</span><span class="s1">'tilt_exponent (</span><span class="si">{</span><span class="n">scheme</span><span class="si">}</span><span class="s1">, </span><span class="si">{</span><span class="n">label</span><span class="si">}</span><span class="s1">)'</span><span class="p">]</span> <span class="o">=</span> <span class="n">slope</span>
+    <span class="n">ds</span><span class="o">.</span><span class="n">to_netcdf</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_plot_resting</span><span class="p">(</span>
+    <span class="n">output</span><span class="p">,</span>
+    <span class="n">groups</span><span class="p">,</span>
+    <span class="n">tilts</span><span class="p">,</span>
+    <span class="n">values</span><span class="p">,</span>
+    <span class="n">exponents</span><span class="p">,</span>
+    <span class="n">tilt_option</span><span class="p">,</span>
+    <span class="n">sensitivity_min_rms</span><span class="p">,</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Plot RMS HPGA against the swept tilt, one series per resolution pair and</span>
+<span class="sd">    scheme.  The schemes share a panel deliberately: the comparison between</span>
+<span class="sd">    them at the same sweep point is the measurement, so putting them on</span>
+<span class="sd">    separate axes would hide it.</span>
+<span class="sd">    """</span>
+    <span class="k">with</span> <span class="n">mplstyle_context</span><span class="p">():</span>
+        <span class="n">fig</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">()</span>
+        <span class="n">ax</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">add_subplot</span><span class="p">(</span><span class="mi">111</span><span class="p">)</span>
+
+        <span class="n">markers</span> <span class="o">=</span> <span class="p">[</span><span class="s1">'o-'</span><span class="p">,</span> <span class="s1">'s--'</span><span class="p">,</span> <span class="s1">'^:'</span><span class="p">,</span> <span class="s1">'v-.'</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">scheme_index</span><span class="p">,</span> <span class="n">scheme</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">values</span><span class="p">):</span>
+            <span class="n">marker</span> <span class="o">=</span> <span class="n">markers</span><span class="p">[</span><span class="n">scheme_index</span> <span class="o">%</span> <span class="nb">len</span><span class="p">(</span><span class="n">markers</span><span class="p">)]</span>
+            <span class="k">for</span> <span class="n">group_index</span><span class="p">,</span> <span class="p">(</span><span class="n">label</span><span class="p">,</span> <span class="n">indices</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">groups</span><span class="o">.</span><span class="n">items</span><span class="p">()):</span>
+                <span class="n">legend</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">scheme</span><span class="si">}</span><span class="s1">, </span><span class="si">{</span><span class="n">label</span><span class="si">}</span><span class="s1">'</span>
+                <span class="k">if</span> <span class="n">label</span> <span class="ow">in</span> <span class="n">exponents</span><span class="p">[</span><span class="n">scheme</span><span class="p">]:</span>
+                    <span class="n">legend</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">legend</span><span class="si">}</span><span class="s1"> (q=</span><span class="si">{</span><span class="n">exponents</span><span class="p">[</span><span class="n">scheme</span><span class="p">][</span><span class="n">label</span><span class="p">]</span><span class="si">:</span><span class="s1">.2f</span><span class="si">}</span><span class="s1">)'</span>
+                <span class="n">ax</span><span class="o">.</span><span class="n">loglog</span><span class="p">(</span>
+                    <span class="n">tilts</span><span class="p">[</span><span class="n">indices</span><span class="p">],</span>
+                    <span class="n">values</span><span class="p">[</span><span class="n">scheme</span><span class="p">][</span><span class="n">indices</span><span class="p">],</span>
+                    <span class="n">marker</span><span class="p">,</span>
+                    <span class="n">color</span><span class="o">=</span><span class="sa">f</span><span class="s1">'C</span><span class="si">{</span><span class="n">group_index</span><span class="si">}</span><span class="s1">'</span><span class="p">,</span>
+                    <span class="n">label</span><span class="o">=</span><span class="n">legend</span><span class="p">,</span>
+                <span class="p">)</span>
+
+        <span class="n">ax</span><span class="o">.</span><span class="n">axhline</span><span class="p">(</span>
+            <span class="n">sensitivity_min_rms</span><span class="p">,</span>
+            <span class="n">color</span><span class="o">=</span><span class="s1">'k'</span><span class="p">,</span>
+            <span class="n">linestyle</span><span class="o">=</span><span class="s1">'--'</span><span class="p">,</span>
+            <span class="n">label</span><span class="o">=</span><span class="sa">f</span><span class="s1">'sensitivity gate (</span><span class="si">{</span><span class="n">sensitivity_min_rms</span><span class="si">:</span><span class="s1">g</span><span class="si">}</span><span class="s1">)'</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">tilt_option</span><span class="si">}</span><span class="s1"> (m km-1)'</span><span class="p">)</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">'RMS HPGA in a resting state (m s-2)'</span><span class="p">)</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s1">'Resting-State HPGA vs Tilt (true HPGA is zero)'</span><span class="p">)</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="s1">'best'</span><span class="p">)</span>
+        <span class="n">fig</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="n">output</span><span class="p">,</span> <span class="n">bbox_inches</span><span class="o">=</span><span class="s1">'tight'</span><span class="p">,</span> <span class="n">pad_inches</span><span class="o">=</span><span class="mf">0.1</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2026, Energy Exascale Earth System Model Project.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+   
+
+  <!-- Meta tags for JS to use -->
+  <meta name="doc-version" content="main">
+  <meta name="doc-site-root" content="../../../../../">
+
+  <!-- Create version switcher container -->
+  <script>
+    const sidebar = document.querySelector('.wy-side-nav-search');
+    if (sidebar) {
+      const versionDiv = document.createElement('div');
+      versionDiv.id = 'version-switcher';
+      versionDiv.style.marginTop = '1em';
+      sidebar.appendChild(versionDiv);
+    }
+  </script>
+
+  <!-- Load version-switcher.js using the correct relative path -->
+  <script src="../../../../../../shared/version-switcher.js"></script>
+
+
+</body>
+</html>

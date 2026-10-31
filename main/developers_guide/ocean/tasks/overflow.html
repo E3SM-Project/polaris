@@ -154,7 +154,8 @@
 <p>The overflow task group is comprised of seven <code class="docutils literal notranslate"><span class="pre">smoke_test</span></code> tasks for quick
 testing (one for each horizontal advection order, 2, 3, and 4, each with
 and without del4 viscosity enabled, plus an additional order-3 task with
-FCT disabled) and one <code class="docutils literal notranslate"><span class="pre">rpe</span></code> test which shows how the resting potential
+FCT disabled), an eighth <code class="docutils literal notranslate"><span class="pre">smoke_test</span></code> in the <code class="docutils literal notranslate"><span class="pre">nonlinear/pstar</span></code> tree with
+Omega’s centered pressure gradient, and one <code class="docutils literal notranslate"><span class="pre">rpe</span></code> test which shows how the resting potential
 energy changes across forward runs with different del2 viscosities.</p>
 <p>The tasks are created in three trees by
 <a class="reference internal" href="../generated/polaris.tasks.ocean.overflow.add_overflow_tasks.html#polaris.tasks.ocean.overflow.add_overflow_tasks" title="polaris.tasks.ocean.overflow.add_overflow_tasks"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.tasks.ocean.overflow.add_overflow_tasks()</span></code></a>, which loops
@@ -302,6 +303,12 @@ del4 viscosity enabled, producing tasks named
 4 and disabled for order 2; a seventh instance,
 <code class="docutils literal notranslate"><span class="pre">smoke_test_horiz_adv_order_3_nofct</span></code>, reruns order 3 with FCT disabled for
 comparison.</p>
+<p>Only in the <code class="docutils literal notranslate"><span class="pre">nonlinear/pstar</span></code> tree, an eighth instance,
+<code class="docutils literal notranslate"><span class="pre">smoke_test_horiz_adv_order_4_del4_centered_pgf</span></code>, is created with
+<code class="docutils literal notranslate"><span class="pre">centered_pgf=True</span></code>. The forward step then sets Omega’s <code class="docutils literal notranslate"><span class="pre">PressureGradType</span></code>
+to <code class="docutils literal notranslate"><span class="pre">Centered</span></code>, overriding Omega’s default finite-volume scheme, so the
+centered scheme keeps coverage in the <code class="docutils literal notranslate"><span class="pre">omega_pr</span></code> suite next to its
+finite-volume twin, <code class="docutils literal notranslate"><span class="pre">smoke_test_horiz_adv_order_4_del4</span></code>.</p>
 </section>
 <section id="rpe">
 <h2>rpe<a class="headerlink" href="#rpe" title="Link to this heading"></a></h2>

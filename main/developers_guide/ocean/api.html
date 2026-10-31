@@ -16,6 +16,8 @@
       <script src="../../_static/documentation_options.js?v=a8da1a53"></script>
       <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
       <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script>window.MathJax = {"options": {"processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+      <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-mml-chtml.js"></script>
     <script src="../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
@@ -736,26 +738,128 @@
 <tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.horiz_press_grad.task.HorizPressGradTask.configure.html#polaris.tasks.ocean.horiz_press_grad.task.HorizPressGradTask.configure" title="polaris.tasks.ocean.horiz_press_grad.task.HorizPressGradTask.configure"><code class="xref py py-obj docutils literal notranslate"><span class="pre">task.HorizPressGradTask.configure</span></code></a>()</p></td>
 <td><p>Set config options for the test case</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.horiz_press_grad.reference.ReferenceColumn.html#polaris.tasks.ocean.horiz_press_grad.reference.ReferenceColumn" title="polaris.tasks.ocean.horiz_press_grad.reference.ReferenceColumn"><code class="xref py py-obj docutils literal notranslate"><span class="pre">reference.ReferenceColumn</span></code></a>(config[, x_sign])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.horiz_press_grad.resting_state_task.HorizPressGradRestingStateTask.html#polaris.tasks.ocean.horiz_press_grad.resting_state_task.HorizPressGradRestingStateTask" title="polaris.tasks.ocean.horiz_press_grad.resting_state_task.HorizPressGradRestingStateTask"><code class="xref py py-obj docutils literal notranslate"><span class="pre">resting_state_task.HorizPressGradRestingStateTask</span></code></a>(...)</p></td>
+<td><p>A two-column test of discrete hydrostatic consistency: conservative temperature and absolute salinity are horizontally uniform functions of pseudo-height, so specific volume is a function of pressure alone, isobars are level, and the true horizontal pressure-gradient acceleration (HPGA) is identically zero however the coordinate surfaces or the sea floor are tilted between the columns.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.horiz_press_grad.resting_state_task.HorizPressGradRestingStateTask.configure.html#polaris.tasks.ocean.horiz_press_grad.resting_state_task.HorizPressGradRestingStateTask.configure" title="polaris.tasks.ocean.horiz_press_grad.resting_state_task.HorizPressGradRestingStateTask.configure"><code class="xref py py-obj docutils literal notranslate"><span class="pre">resting_state_task.HorizPressGradRestingStateTask.configure</span></code></a>()</p></td>
+<td><p>Set config options for the test case</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.horiz_press_grad.column.get_array_from_mid_grad.html#polaris.tasks.ocean.horiz_press_grad.column.get_array_from_mid_grad" title="polaris.tasks.ocean.horiz_press_grad.column.get_array_from_mid_grad"><code class="xref py py-obj docutils literal notranslate"><span class="pre">column.get_array_from_mid_grad</span></code></a>(config, name, x)</p></td>
+<td><p>Get an array at a given set of horizontal points based on values defined at the midpoint (x=0) and their constant gradient with respect to x.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.horiz_press_grad.column.get_pchip_interpolator.html#polaris.tasks.ocean.horiz_press_grad.column.get_pchip_interpolator" title="polaris.tasks.ocean.horiz_press_grad.column.get_pchip_interpolator"><code class="xref py py-obj docutils literal notranslate"><span class="pre">column.get_pchip_interpolator</span></code></a>(z_tilde_nodes, ...)</p></td>
+<td><p>Create a monotone PCHIP interpolator for values defined at z-tilde nodes.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.horiz_press_grad.column.get_pchip_layer_mean.html#polaris.tasks.ocean.horiz_press_grad.column.get_pchip_layer_mean" title="polaris.tasks.ocean.horiz_press_grad.column.get_pchip_layer_mean"><code class="xref py py-obj docutils literal notranslate"><span class="pre">column.get_pchip_layer_mean</span></code></a>(z_tilde_nodes, ...)</p></td>
+<td><p>Create a function giving the exact layer mean of a monotone PCHIP profile over a layer's pseudo-height range.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.horiz_press_grad.edge.edge_delta.html#polaris.tasks.ocean.horiz_press_grad.edge.edge_delta" title="polaris.tasks.ocean.horiz_press_grad.edge.edge_delta"><code class="xref py py-obj docutils literal notranslate"><span class="pre">edge.edge_delta</span></code></a>(field)</p></td>
+<td><p>The two-column edge difference <code class="docutils literal notranslate"><span class="pre">Delta_e</span> <span class="pre">f</span> <span class="pre">=</span> <span class="pre">f_1</span> <span class="pre">-</span> <span class="pre">f_0</span></code>, the numerator of the TRiSK gradient operator for the single internal edge.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.horiz_press_grad.edge.edge_mean.html#polaris.tasks.ocean.horiz_press_grad.edge.edge_mean" title="polaris.tasks.ocean.horiz_press_grad.edge.edge_mean"><code class="xref py py-obj docutils literal notranslate"><span class="pre">edge.edge_mean</span></code></a>(field)</p></td>
+<td><p>The two-column edge average <code class="docutils literal notranslate"><span class="pre">0.5</span> <span class="pre">*</span> <span class="pre">(f_0</span> <span class="pre">+</span> <span class="pre">f_1)</span></code>.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.horiz_press_grad.eos_expansion.specvol_coefficients.html#polaris.tasks.ocean.horiz_press_grad.eos_expansion.specvol_coefficients" title="polaris.tasks.ocean.horiz_press_grad.eos_expansion.specvol_coefficients"><code class="xref py py-obj docutils literal notranslate"><span class="pre">eos_expansion.specvol_coefficients</span></code></a>(...)</p></td>
+<td><p>The four coefficients of <code class="docutils literal notranslate"><span class="pre">[alpha-derivs]</span></code>, evaluated at each cell's own layer-mean state.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.horiz_press_grad.eos_expansion.edge_expansion.html#polaris.tasks.ocean.horiz_press_grad.eos_expansion.edge_expansion" title="polaris.tasks.ocean.horiz_press_grad.eos_expansion.edge_expansion"><code class="xref py py-obj docutils literal notranslate"><span class="pre">eos_expansion.edge_expansion</span></code></a>(temperature, ...)</p></td>
+<td><p>The edge-shared expansion of <code class="docutils literal notranslate"><span class="pre">[edge-ref]</span></code>: the four coefficients and the reference state, each averaged over the two cells of the edge.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.horiz_press_grad.eos_expansion.edge_specvol.html#polaris.tasks.ocean.horiz_press_grad.eos_expansion.edge_specvol" title="polaris.tasks.ocean.horiz_press_grad.eos_expansion.edge_specvol"><code class="xref py py-obj docutils literal notranslate"><span class="pre">eos_expansion.edge_specvol</span></code></a>(expansion, ...)</p></td>
+<td><p>Evaluate the edge-shared profile <code class="docutils literal notranslate"><span class="pre">[alpha-taylor]</span></code> at a given state.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.horiz_press_grad.eos_expansion.edge_specvol_layer_mean.html#polaris.tasks.ocean.horiz_press_grad.eos_expansion.edge_specvol_layer_mean" title="polaris.tasks.ocean.horiz_press_grad.eos_expansion.edge_specvol_layer_mean"><code class="xref py py-obj docutils literal notranslate"><span class="pre">eos_expansion.edge_specvol_layer_mean</span></code></a>(...)</p></td>
+<td><p>The layer mean of the edge-shared profile, <code class="docutils literal notranslate"><span class="pre">[alpha-edge-layer-mean]</span></code>.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.horiz_press_grad.finite_volume.centered_shift.html#polaris.tasks.ocean.horiz_press_grad.finite_volume.centered_shift" title="polaris.tasks.ocean.horiz_press_grad.finite_volume.centered_shift"><code class="xref py py-obj docutils literal notranslate"><span class="pre">finite_volume.centered_shift</span></code></a>(ds)</p></td>
+<td><p>The first-order fixed-pressure shift <code class="docutils literal notranslate"><span class="pre">S_{e,k}</span></code> of the design's <code class="docutils literal notranslate"><span class="pre">[centered-shift]</span></code>,</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.horiz_press_grad.finite_volume.centered_shift_accumulated.html#polaris.tasks.ocean.horiz_press_grad.finite_volume.centered_shift_accumulated" title="polaris.tasks.ocean.horiz_press_grad.finite_volume.centered_shift_accumulated"><code class="xref py py-obj docutils literal notranslate"><span class="pre">finite_volume.centered_shift_accumulated</span></code></a>(ds)</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">S_{e,k}</span></code> accumulated down the column through <code class="docutils literal notranslate"><span class="pre">[gamma-increments]</span></code>.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.horiz_press_grad.finite_volume.shift_increments.html#polaris.tasks.ocean.horiz_press_grad.finite_volume.shift_increments" title="polaris.tasks.ocean.horiz_press_grad.finite_volume.shift_increments"><code class="xref py py-obj docutils literal notranslate"><span class="pre">finite_volume.shift_increments</span></code></a>(ds)</p></td>
+<td><p>The two increments of <code class="docutils literal notranslate"><span class="pre">[gamma-increments]</span></code>, for the D7 measurement.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.horiz_press_grad.finite_volume.hpga_from_shift.html#polaris.tasks.ocean.horiz_press_grad.finite_volume.hpga_from_shift" title="polaris.tasks.ocean.horiz_press_grad.finite_volume.hpga_from_shift"><code class="xref py py-obj docutils literal notranslate"><span class="pre">finite_volume.hpga_from_shift</span></code></a>(shift, dx)</p></td>
+<td><p>Convert a fixed-pressure height shift into an edge-normal acceleration, <code class="docutils literal notranslate"><span class="pre">-(g</span> <span class="pre">/</span> <span class="pre">d_e)</span> <span class="pre">*</span> <span class="pre">shift</span></code>.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.horiz_press_grad.finite_volume.hydrostatic_scale.html#polaris.tasks.ocean.horiz_press_grad.finite_volume.hydrostatic_scale" title="polaris.tasks.ocean.horiz_press_grad.finite_volume.hydrostatic_scale"><code class="xref py py-obj docutils literal notranslate"><span class="pre">finite_volume.hydrostatic_scale</span></code></a>(ds)</p></td>
+<td><p>An upper bound on the magnitude of the two hydrostatic terms that cancel in <code class="xref py py-func docutils literal notranslate"><span class="pre">centered_shift()</span></code>.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.horiz_press_grad.finite_volume.matched_pressure_pieces.html#polaris.tasks.ocean.horiz_press_grad.finite_volume.matched_pressure_pieces" title="polaris.tasks.ocean.horiz_press_grad.finite_volume.matched_pressure_pieces"><code class="xref py py-obj docutils literal notranslate"><span class="pre">finite_volume.matched_pressure_pieces</span></code></a>(ds[, ...])</p></td>
+<td><p>Everything the matched-pressure integrand needs, computed once per state.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.horiz_press_grad.finite_volume.layer_containing_pressure.html#polaris.tasks.ocean.horiz_press_grad.finite_volume.layer_containing_pressure" title="polaris.tasks.ocean.horiz_press_grad.finite_volume.layer_containing_pressure"><code class="xref py py-obj docutils literal notranslate"><span class="pre">finite_volume.layer_containing_pressure</span></code></a>(...)</p></td>
+<td><p>The index of <em>column</em> <code class="docutils literal notranslate"><span class="pre">icell</span></code>'s own layer containing each pressure.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.horiz_press_grad.finite_volume.delta_specvol_at_pressure.html#polaris.tasks.ocean.horiz_press_grad.finite_volume.delta_specvol_at_pressure" title="polaris.tasks.ocean.horiz_press_grad.finite_volume.delta_specvol_at_pressure"><code class="xref py py-obj docutils literal notranslate"><span class="pre">finite_volume.delta_specvol_at_pressure</span></code></a>(...)</p></td>
+<td><p>The design's <code class="docutils literal notranslate"><span class="pre">[dalpha]</span></code>: the fixed-pressure contrast in specific volume.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.horiz_press_grad.finite_volume.anchor_difference.html#polaris.tasks.ocean.horiz_press_grad.finite_volume.anchor_difference" title="polaris.tasks.ocean.horiz_press_grad.finite_volume.anchor_difference"><code class="xref py py-obj docutils literal notranslate"><span class="pre">finite_volume.anchor_difference</span></code></a>(pieces[, ...])</p></td>
+<td><p>The design's <code class="docutils literal notranslate"><span class="pre">[anchor]</span></code>: the fixed-pressure height difference at the interface the scan starts from.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.horiz_press_grad.finite_volume.column_scan.html#polaris.tasks.ocean.horiz_press_grad.finite_volume.column_scan" title="polaris.tasks.ocean.horiz_press_grad.finite_volume.column_scan"><code class="xref py py-obj docutils literal notranslate"><span class="pre">finite_volume.column_scan</span></code></a>(pieces[, order, ...])</p></td>
+<td><p>The design's <code class="docutils literal notranslate"><span class="pre">[d-recurrence]</span></code>: <span class="math notranslate nohighlight">\(D_k = \Delta_e z(\bar q_k)\)</span> accumulated along the edge's column from <code class="xref py py-func docutils literal notranslate"><span class="pre">anchor_difference()</span></code>, which sits at the <strong>sea floor</strong>.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.horiz_press_grad.finite_volume.scan_increments.html#polaris.tasks.ocean.horiz_press_grad.finite_volume.scan_increments" title="polaris.tasks.ocean.horiz_press_grad.finite_volume.scan_increments"><code class="xref py py-obj docutils literal notranslate"><span class="pre">finite_volume.scan_increments</span></code></a>(pieces[, ...])</p></td>
+<td><p>The per-layer increments of <code class="xref py py-func docutils literal notranslate"><span class="pre">column_scan()</span></code>, for the smallness assertion of §3.7.5.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.horiz_press_grad.finite_volume.layer_mean_difference.html#polaris.tasks.ocean.horiz_press_grad.finite_volume.layer_mean_difference" title="polaris.tasks.ocean.horiz_press_grad.finite_volume.layer_mean_difference"><code class="xref py py-obj docutils literal notranslate"><span class="pre">finite_volume.layer_mean_difference</span></code></a>(pieces)</p></td>
+<td><p>The layer mean of <span class="math notranslate nohighlight">\(\Delta_e z(p)\)</span> over each edge layer.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.horiz_press_grad.finite_volume.finite_volume_hpga.html#polaris.tasks.ocean.horiz_press_grad.finite_volume.finite_volume_hpga" title="polaris.tasks.ocean.horiz_press_grad.finite_volume.finite_volume_hpga"><code class="xref py py-obj docutils literal notranslate"><span class="pre">finite_volume.finite_volume_hpga</span></code></a>(ds, dx[, ...])</p></td>
+<td><p>The assembled <code class="docutils literal notranslate"><span class="pre">FiniteVolume</span></code> horizontal pressure-gradient acceleration, design <code class="docutils literal notranslate"><span class="pre">[ho-exact]</span></code>.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.horiz_press_grad.reconstruction.linear_slope.html#polaris.tasks.ocean.horiz_press_grad.reconstruction.linear_slope" title="polaris.tasks.ocean.horiz_press_grad.reconstruction.linear_slope"><code class="xref py py-obj docutils literal notranslate"><span class="pre">reconstruction.linear_slope</span></code></a>(values, pressure_mid)</p></td>
+<td><p>The slope of the mean-preserving linear reconstruction, per layer.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.horiz_press_grad.reconstruction.layer_deviation.html#polaris.tasks.ocean.horiz_press_grad.reconstruction.layer_deviation" title="polaris.tasks.ocean.horiz_press_grad.reconstruction.layer_deviation"><code class="xref py py-obj docutils literal notranslate"><span class="pre">reconstruction.layer_deviation</span></code></a>(slope, ...)</p></td>
+<td><p>The deviation from the layer mean, <code class="docutils literal notranslate"><span class="pre">slope</span> <span class="pre">*</span> <span class="pre">(p</span> <span class="pre">-</span> <span class="pre">p^mid)</span></code>.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.horiz_press_grad.reconstruction.reconstruct.html#polaris.tasks.ocean.horiz_press_grad.reconstruction.reconstruct" title="polaris.tasks.ocean.horiz_press_grad.reconstruction.reconstruct"><code class="xref py py-obj docutils literal notranslate"><span class="pre">reconstruction.reconstruct</span></code></a>(values, slope, ...)</p></td>
+<td><p>Evaluate the reconstruction <code class="docutils literal notranslate"><span class="pre">[vert-recon]</span></code> at a pressure.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.horiz_press_grad.metrics.get_internal_edge.html#polaris.tasks.ocean.horiz_press_grad.metrics.get_internal_edge" title="polaris.tasks.ocean.horiz_press_grad.metrics.get_internal_edge"><code class="xref py py-obj docutils literal notranslate"><span class="pre">metrics.get_internal_edge</span></code></a>(ds_mesh)</p></td>
+<td><p>Determine the edge that connects the two valid cells in the two-column mesh.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.horiz_press_grad.metrics.rms.html#polaris.tasks.ocean.horiz_press_grad.metrics.rms" title="polaris.tasks.ocean.horiz_press_grad.metrics.rms"><code class="xref py py-obj docutils literal notranslate"><span class="pre">metrics.rms</span></code></a>(values)</p></td>
+<td><p>Compute the root mean square over finite values.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.horiz_press_grad.metrics.power_law_fit.html#polaris.tasks.ocean.horiz_press_grad.metrics.power_law_fit" title="polaris.tasks.ocean.horiz_press_grad.metrics.power_law_fit"><code class="xref py py-obj docutils literal notranslate"><span class="pre">metrics.power_law_fit</span></code></a>(x, y[, fit_mask])</p></td>
+<td><p>Fit <code class="docutils literal notranslate"><span class="pre">y</span> <span class="pre">=</span> <span class="pre">10**b</span> <span class="pre">*</span> <span class="pre">x**m</span></code> in log10 space.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.horiz_press_grad.metrics.write_metric_dataset.html#polaris.tasks.ocean.horiz_press_grad.metrics.write_metric_dataset" title="polaris.tasks.ocean.horiz_press_grad.metrics.write_metric_dataset"><code class="xref py py-obj docutils literal notranslate"><span class="pre">metrics.write_metric_dataset</span></code></a>(filename, ...)</p></td>
+<td><p>Write the data used in a convergence plot to netCDF, one series per pressure-gradient scheme.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.horiz_press_grad.metrics.format_value_list.html#polaris.tasks.ocean.horiz_press_grad.metrics.format_value_list" title="polaris.tasks.ocean.horiz_press_grad.metrics.format_value_list"><code class="xref py py-obj docutils literal notranslate"><span class="pre">metrics.format_value_list</span></code></a>(values)</p></td>
+<td><p>Format an array as a compact list of floats.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.horiz_press_grad.metrics.format_value_error_pairs.html#polaris.tasks.ocean.horiz_press_grad.metrics.format_value_error_pairs" title="polaris.tasks.ocean.horiz_press_grad.metrics.format_value_error_pairs"><code class="xref py py-obj docutils literal notranslate"><span class="pre">metrics.format_value_error_pairs</span></code></a>(values, errors)</p></td>
+<td><p>Format value/error pairs as readable key-value text.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.horiz_press_grad.reference.ReferenceColumn.html#polaris.tasks.ocean.horiz_press_grad.reference.ReferenceColumn" title="polaris.tasks.ocean.horiz_press_grad.reference.ReferenceColumn"><code class="xref py py-obj docutils literal notranslate"><span class="pre">reference.ReferenceColumn</span></code></a>(config[, x_sign])</p></td>
 <td><p>Continuous, coordinate-invariant HPGA reference a(z̃) at the edge x=0.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.horiz_press_grad.reference.ReferenceColumn.specvol.html#polaris.tasks.ocean.horiz_press_grad.reference.ReferenceColumn.specvol" title="polaris.tasks.ocean.horiz_press_grad.reference.ReferenceColumn.specvol"><code class="xref py py-obj docutils literal notranslate"><span class="pre">reference.ReferenceColumn.specvol</span></code></a>(z_tilde)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.horiz_press_grad.reference.ReferenceColumn.specvol.html#polaris.tasks.ocean.horiz_press_grad.reference.ReferenceColumn.specvol" title="polaris.tasks.ocean.horiz_press_grad.reference.ReferenceColumn.specvol"><code class="xref py py-obj docutils literal notranslate"><span class="pre">reference.ReferenceColumn.specvol</span></code></a>(z_tilde)</p></td>
 <td><p>Specific volume at x=0 (m³ kg⁻¹).</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.horiz_press_grad.reference.ReferenceColumn.dalpha_dx.html#polaris.tasks.ocean.horiz_press_grad.reference.ReferenceColumn.dalpha_dx" title="polaris.tasks.ocean.horiz_press_grad.reference.ReferenceColumn.dalpha_dx"><code class="xref py py-obj docutils literal notranslate"><span class="pre">reference.ReferenceColumn.dalpha_dx</span></code></a>(z_tilde)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.horiz_press_grad.reference.ReferenceColumn.dalpha_dx.html#polaris.tasks.ocean.horiz_press_grad.reference.ReferenceColumn.dalpha_dx" title="polaris.tasks.ocean.horiz_press_grad.reference.ReferenceColumn.dalpha_dx"><code class="xref py py-obj docutils literal notranslate"><span class="pre">reference.ReferenceColumn.dalpha_dx</span></code></a>(z_tilde)</p></td>
 <td><p>d(α)/d(edge-normal) at fixed z̃ (m² kg⁻¹ m⁻¹).</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.horiz_press_grad.reference.ReferenceColumn.hpga.html#polaris.tasks.ocean.horiz_press_grad.reference.ReferenceColumn.hpga" title="polaris.tasks.ocean.horiz_press_grad.reference.ReferenceColumn.hpga"><code class="xref py py-obj docutils literal notranslate"><span class="pre">reference.ReferenceColumn.hpga</span></code></a>(z_tilde)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.horiz_press_grad.reference.ReferenceColumn.hpga.html#polaris.tasks.ocean.horiz_press_grad.reference.ReferenceColumn.hpga" title="polaris.tasks.ocean.horiz_press_grad.reference.ReferenceColumn.hpga"><code class="xref py py-obj docutils literal notranslate"><span class="pre">reference.ReferenceColumn.hpga</span></code></a>(z_tilde)</p></td>
 <td><p>Reference HPGA in the edge-normal direction (m s⁻²).</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.horiz_press_grad.reference.ReferenceColumn.layer_mean_hpga.html#polaris.tasks.ocean.horiz_press_grad.reference.ReferenceColumn.layer_mean_hpga" title="polaris.tasks.ocean.horiz_press_grad.reference.ReferenceColumn.layer_mean_hpga"><code class="xref py py-obj docutils literal notranslate"><span class="pre">reference.ReferenceColumn.layer_mean_hpga</span></code></a>(...)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.horiz_press_grad.reference.ReferenceColumn.layer_mean_hpga.html#polaris.tasks.ocean.horiz_press_grad.reference.ReferenceColumn.layer_mean_hpga" title="polaris.tasks.ocean.horiz_press_grad.reference.ReferenceColumn.layer_mean_hpga"><code class="xref py py-obj docutils literal notranslate"><span class="pre">reference.ReferenceColumn.layer_mean_hpga</span></code></a>(...)</p></td>
 <td><p>Layer-averaged HPGA in the edge-normal direction (m s⁻²).</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.horiz_press_grad.init.Init.html#polaris.tasks.ocean.horiz_press_grad.init.Init" title="polaris.tasks.ocean.horiz_press_grad.init.Init"><code class="xref py py-obj docutils literal notranslate"><span class="pre">init.Init</span></code></a>(component, horiz_res, vert_res, indir)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.horiz_press_grad.init.Init.html#polaris.tasks.ocean.horiz_press_grad.init.Init" title="polaris.tasks.ocean.horiz_press_grad.init.Init"><code class="xref py py-obj docutils literal notranslate"><span class="pre">init.Init</span></code></a>(component, horiz_res, vert_res, indir)</p></td>
 <td><p>A step for creating a mesh and initial condition for two column test cases</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.horiz_press_grad.init.Init.run.html#polaris.tasks.ocean.horiz_press_grad.init.Init.run" title="polaris.tasks.ocean.horiz_press_grad.init.Init.run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">init.Init.run</span></code></a>()</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.horiz_press_grad.init.Init.run.html#polaris.tasks.ocean.horiz_press_grad.init.Init.run" title="polaris.tasks.ocean.horiz_press_grad.init.Init.run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">init.Init.run</span></code></a>()</p></td>
 <td><p>Run this step of the test case</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.horiz_press_grad.init.Init.build_column_state.html#polaris.tasks.ocean.horiz_press_grad.init.Init.build_column_state" title="polaris.tasks.ocean.horiz_press_grad.init.Init.build_column_state"><code class="xref py py-obj docutils literal notranslate"><span class="pre">init.Init.build_column_state</span></code></a>(ds_mesh)</p></td>
+<td><p>Build the two-column state on <code class="docutils literal notranslate"><span class="pre">ds_mesh</span></code>: the p-star vertical coordinate, the tracers, specific volume, pressure, geometric height, and the diagnostic Montgomery potential and HPGA.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.horiz_press_grad.forward.Forward.html#polaris.tasks.ocean.horiz_press_grad.forward.Forward" title="polaris.tasks.ocean.horiz_press_grad.forward.Forward"><code class="xref py py-obj docutils literal notranslate"><span class="pre">forward.Forward</span></code></a>(component, horiz_res, init, ...)</p></td>
 <td><p>This step performs a forward run for a single time step, writing out the normal-velocity tendency (which is just the pressure gradient acceleration) along with other diagnostics.</p></td>
@@ -763,7 +867,7 @@
 <tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.horiz_press_grad.forward.Forward.setup.html#polaris.tasks.ocean.horiz_press_grad.forward.Forward.setup" title="polaris.tasks.ocean.horiz_press_grad.forward.Forward.setup"><code class="xref py py-obj docutils literal notranslate"><span class="pre">forward.Forward.setup</span></code></a>()</p></td>
 <td><p>Fill in config options in the forward.yaml file based on config options</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.horiz_press_grad.analysis.Analysis.html#polaris.tasks.ocean.horiz_press_grad.analysis.Analysis" title="polaris.tasks.ocean.horiz_press_grad.analysis.Analysis"><code class="xref py py-obj docutils literal notranslate"><span class="pre">analysis.Analysis</span></code></a>(component, indir, dependencies)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.horiz_press_grad.analysis.Analysis.html#polaris.tasks.ocean.horiz_press_grad.analysis.Analysis" title="polaris.tasks.ocean.horiz_press_grad.analysis.Analysis"><code class="xref py py-obj docutils literal notranslate"><span class="pre">analysis.Analysis</span></code></a>(component, indir, ...)</p></td>
 <td><p>A step for analyzing two-column HPGA errors versus a reference solution and versus the Python-computed initial-state solution.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.horiz_press_grad.analysis.Analysis.setup.html#polaris.tasks.ocean.horiz_press_grad.analysis.Analysis.setup" title="polaris.tasks.ocean.horiz_press_grad.analysis.Analysis.setup"><code class="xref py py-obj docutils literal notranslate"><span class="pre">analysis.Analysis.setup</span></code></a>()</p></td>
@@ -771,6 +875,18 @@
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.horiz_press_grad.analysis.Analysis.run.html#polaris.tasks.ocean.horiz_press_grad.analysis.Analysis.run" title="polaris.tasks.ocean.horiz_press_grad.analysis.Analysis.run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">analysis.Analysis.run</span></code></a>()</p></td>
 <td><p>Run this step of the test case</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.horiz_press_grad.resting_analysis.RestingAnalysis.html#polaris.tasks.ocean.horiz_press_grad.resting_analysis.RestingAnalysis" title="polaris.tasks.ocean.horiz_press_grad.resting_analysis.RestingAnalysis"><code class="xref py py-obj docutils literal notranslate"><span class="pre">resting_analysis.RestingAnalysis</span></code></a>(component, ...)</p></td>
+<td><p>A step for analyzing the two-column HPGA in an exact resting state, where the true HPGA is identically zero and no reference solution is needed.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.horiz_press_grad.resting_analysis.RestingAnalysis.setup.html#polaris.tasks.ocean.horiz_press_grad.resting_analysis.RestingAnalysis.setup" title="polaris.tasks.ocean.horiz_press_grad.resting_analysis.RestingAnalysis.setup"><code class="xref py py-obj docutils literal notranslate"><span class="pre">resting_analysis.RestingAnalysis.setup</span></code></a>()</p></td>
+<td><p>Add inputs from init and forward steps</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.horiz_press_grad.resting_analysis.RestingAnalysis.run.html#polaris.tasks.ocean.horiz_press_grad.resting_analysis.RestingAnalysis.run" title="polaris.tasks.ocean.horiz_press_grad.resting_analysis.RestingAnalysis.run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">resting_analysis.RestingAnalysis.run</span></code></a>()</p></td>
+<td><p>Run this step of the test case</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.horiz_press_grad.resting_analysis.sweep_suffix.html#polaris.tasks.ocean.horiz_press_grad.resting_analysis.sweep_suffix" title="polaris.tasks.ocean.horiz_press_grad.resting_analysis.sweep_suffix"><code class="xref py py-obj docutils literal notranslate"><span class="pre">resting_analysis.sweep_suffix</span></code></a>(horiz_res, ...)</p></td>
+<td><p>Build a filename- and directory-safe suffix for one sweep point.</p></td>
 </tr>
 </tbody>
 </table>
@@ -1616,17 +1732,29 @@
 <tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.seamount.add_seamount_tasks.html#polaris.tasks.ocean.seamount.add_seamount_tasks" title="polaris.tasks.ocean.seamount.add_seamount_tasks"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_seamount_tasks</span></code></a>(component)</p></td>
 <td><p>Add tasks following the seamount test case</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.seamount.default.Default.html#polaris.tasks.ocean.seamount.default.Default" title="polaris.tasks.ocean.seamount.default.Default"><code class="xref py py-obj docutils literal notranslate"><span class="pre">default.Default</span></code></a>(component, indir, init)</p></td>
-<td><p>The default seamount test case creates the mesh and initial condition, then performs a 6 day forward run and plots the results.</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.seamount.analysis.Analysis.html#polaris.tasks.ocean.seamount.analysis.Analysis" title="polaris.tasks.ocean.seamount.analysis.Analysis"><code class="xref py py-obj docutils literal notranslate"><span class="pre">analysis.Analysis</span></code></a>(component, indir, schemes)</p></td>
+<td><p>A step for measuring the spurious circulation in each seamount forward run and comparing the pressure-gradient schemes against each other.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.seamount.forward.Forward.html#polaris.tasks.ocean.seamount.forward.Forward" title="polaris.tasks.ocean.seamount.forward.Forward"><code class="xref py py-obj docutils literal notranslate"><span class="pre">forward.Forward</span></code></a>(component, init[, ...])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.seamount.analysis.Analysis.run.html#polaris.tasks.ocean.seamount.analysis.Analysis.run" title="polaris.tasks.ocean.seamount.analysis.Analysis.run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">analysis.Analysis.run</span></code></a>()</p></td>
+<td><p>Run this step of the task</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.seamount.default.Default.html#polaris.tasks.ocean.seamount.default.Default" title="polaris.tasks.ocean.seamount.default.Default"><code class="xref py py-obj docutils literal notranslate"><span class="pre">default.Default</span></code></a>(component, indir, init)</p></td>
+<td><p>The default seamount test case creates the mesh and initial condition, then performs a 6 day forward run, plots the results and measures the spurious circulation.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.seamount.default.Default.configure.html#polaris.tasks.ocean.seamount.default.Default.configure" title="polaris.tasks.ocean.seamount.default.Default.configure"><code class="xref py py-obj docutils literal notranslate"><span class="pre">default.Default.configure</span></code></a>()</p></td>
+<td><p>Add the steps for the schemes only Omega has, and the analysis step that compares whichever schemes were run.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.seamount.forward.Forward.html#polaris.tasks.ocean.seamount.forward.Forward" title="polaris.tasks.ocean.seamount.forward.Forward"><code class="xref py py-obj docutils literal notranslate"><span class="pre">forward.Forward</span></code></a>(component, init[, ...])</p></td>
 <td><p>A step for performing forward MPAS-Ocean runs as part of seamount test cases.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.seamount.forward.Forward.dynamic_model_config.html#polaris.tasks.ocean.seamount.forward.Forward.dynamic_model_config" title="polaris.tasks.ocean.seamount.forward.Forward.dynamic_model_config"><code class="xref py py-obj docutils literal notranslate"><span class="pre">forward.Forward.dynamic_model_config</span></code></a>(at_setup)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.seamount.forward.Forward.dynamic_model_config.html#polaris.tasks.ocean.seamount.forward.Forward.dynamic_model_config" title="polaris.tasks.ocean.seamount.forward.Forward.dynamic_model_config"><code class="xref py py-obj docutils literal notranslate"><span class="pre">forward.Forward.dynamic_model_config</span></code></a>(at_setup)</p></td>
 <td><p>Add model config options, namelist, streams and yaml files using config options or template replacements that need to be set both during step setup and at runtime</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.seamount.forward.Forward.compute_cell_count.html#polaris.tasks.ocean.seamount.forward.Forward.compute_cell_count" title="polaris.tasks.ocean.seamount.forward.Forward.compute_cell_count"><code class="xref py py-obj docutils literal notranslate"><span class="pre">forward.Forward.compute_cell_count</span></code></a>()</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.seamount.forward.Forward.compute_cell_count.html#polaris.tasks.ocean.seamount.forward.Forward.compute_cell_count" title="polaris.tasks.ocean.seamount.forward.Forward.compute_cell_count"><code class="xref py py-obj docutils literal notranslate"><span class="pre">forward.Forward.compute_cell_count</span></code></a>()</p></td>
 <td><p>Compute the approximate number of cells in the mesh, used to constrain resources</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.seamount.forward.forward_step_name.html#polaris.tasks.ocean.seamount.forward.forward_step_name" title="polaris.tasks.ocean.seamount.forward.forward_step_name"><code class="xref py py-obj docutils literal notranslate"><span class="pre">forward.forward_step_name</span></code></a>(scheme)</p></td>
+<td><p>The name of the forward step that runs a given pressure-gradient scheme.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.seamount.init.Init.html#polaris.tasks.ocean.seamount.init.Init" title="polaris.tasks.ocean.seamount.init.Init"><code class="xref py py-obj docutils literal notranslate"><span class="pre">init.Init</span></code></a>(component[, name, indir])</p></td>
 <td><p>A step for creating a mesh and initial condition for seamount test cases.</p></td>
@@ -1640,16 +1768,19 @@
 <tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.seamount.init_utils.compute_target_density.html#polaris.tasks.ocean.seamount.init_utils.compute_target_density" title="polaris.tasks.ocean.seamount.init_utils.compute_target_density"><code class="xref py py-obj docutils literal notranslate"><span class="pre">init_utils.compute_target_density</span></code></a>(config, z_mid)</p></td>
 <td><p>Compute the target Beckmann and Haidvogel stratification, either the linear profile of their eqn 15 or the exponential profile of their eqn 16.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.seamount.init_utils.compute_tracers.html#polaris.tasks.ocean.seamount.init_utils.compute_tracers" title="polaris.tasks.ocean.seamount.init_utils.compute_tracers"><code class="xref py py-obj docutils literal notranslate"><span class="pre">init_utils.compute_tracers</span></code></a>(config, z_mid)</p></td>
-<td><p>Compute the temperature and salinity that reproduce the Beckmann and Haidvogel stratification under the configured equation of state.</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.seamount.init_utils.compute_tracers.html#polaris.tasks.ocean.seamount.init_utils.compute_tracers" title="polaris.tasks.ocean.seamount.init_utils.compute_tracers"><code class="xref py py-obj docutils literal notranslate"><span class="pre">init_utils.compute_tracers</span></code></a>(config, z_mid[, ...])</p></td>
+<td><p>Compute the temperature and salinity for the configured stratification under the configured equation of state.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.seamount.short.Short.html#polaris.tasks.ocean.seamount.short.Short" title="polaris.tasks.ocean.seamount.short.Short"><code class="xref py py-obj docutils literal notranslate"><span class="pre">short.Short</span></code></a>(component, indir, init)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.seamount.init_utils.compute_tracers_linear_in_pressure.html#polaris.tasks.ocean.seamount.init_utils.compute_tracers_linear_in_pressure" title="polaris.tasks.ocean.seamount.init_utils.compute_tracers_linear_in_pressure"><code class="xref py py-obj docutils literal notranslate"><span class="pre">init_utils.compute_tracers_linear_in_pressure</span></code></a>(...)</p></td>
+<td><p>Compute exact layer means of a temperature profile that is linear in pressure, with constant salinity.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.seamount.short.Short.html#polaris.tasks.ocean.seamount.short.Short" title="polaris.tasks.ocean.seamount.short.Short"><code class="xref py py-obj docutils literal notranslate"><span class="pre">short.Short</span></code></a>(component, indir, init)</p></td>
 <td><p>The short seamount test case creates the mesh and initial condition, then performs a 1 hour forward run.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.seamount.viz.Viz.html#polaris.tasks.ocean.seamount.viz.Viz" title="polaris.tasks.ocean.seamount.viz.Viz"><code class="xref py py-obj docutils literal notranslate"><span class="pre">viz.Viz</span></code></a>(component, indir)</p></td>
-<td><p>A step for plotting the results of the default seamount forward step</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.seamount.viz.Viz.html#polaris.tasks.ocean.seamount.viz.Viz" title="polaris.tasks.ocean.seamount.viz.Viz"><code class="xref py py-obj docutils literal notranslate"><span class="pre">viz.Viz</span></code></a>(component, indir, scheme)</p></td>
+<td><p>A step for plotting the results of one seamount forward step</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.seamount.viz.Viz.run.html#polaris.tasks.ocean.seamount.viz.Viz.run" title="polaris.tasks.ocean.seamount.viz.Viz.run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">viz.Viz.run</span></code></a>()</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.seamount.viz.Viz.run.html#polaris.tasks.ocean.seamount.viz.Viz.run" title="polaris.tasks.ocean.seamount.viz.Viz.run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">viz.Viz.run</span></code></a>()</p></td>
 <td><p>Run this step of the task</p></td>
 </tr>
 </tbody>

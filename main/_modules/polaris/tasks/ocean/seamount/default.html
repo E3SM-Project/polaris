@@ -472,8 +472,19 @@ window.runMermaid = runMermaid;</script>
              
   <h1>Source code for polaris.tasks.ocean.seamount.default</h1><div class="highlight"><pre>
 <span></span><span class="kn">from</span><span class="w"> </span><span class="nn">polaris</span><span class="w"> </span><span class="kn">import</span> <span class="n">Task</span> <span class="k">as</span> <span class="n">Task</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.tasks.ocean.seamount.analysis</span><span class="w"> </span><span class="kn">import</span> <span class="n">Analysis</span> <span class="k">as</span> <span class="n">Analysis</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">polaris.tasks.ocean.seamount.forward</span><span class="w"> </span><span class="kn">import</span> <span class="n">Forward</span> <span class="k">as</span> <span class="n">Forward</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.tasks.ocean.seamount.forward</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">forward_step_name</span> <span class="k">as</span> <span class="n">forward_step_name</span><span class="p">,</span>
+<span class="p">)</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">polaris.tasks.ocean.seamount.viz</span><span class="w"> </span><span class="kn">import</span> <span class="n">Viz</span> <span class="k">as</span> <span class="n">Viz</span>
+
+<span class="c1"># The scheme both models share and every task runs</span>
+<span class="n">DEFAULT_SCHEME</span> <span class="o">=</span> <span class="s1">'centered'</span>
+
+<span class="c1"># The schemes only Omega has.  MPAS-Ocean runs the centered one alone, and</span>
+<span class="c1"># the task must stay runnable there rather than gaining a step it cannot run.</span>
+<span class="n">OMEGA_ONLY_SCHEMES</span> <span class="o">=</span> <span class="p">[</span><span class="s1">'finite_volume'</span><span class="p">]</span>
 
 
 <div class="viewcode-block" id="Default">
@@ -481,7 +492,17 @@ window.runMermaid = runMermaid;</script>
 <span class="k">class</span><span class="w"> </span><span class="nc">Default</span><span class="p">(</span><span class="n">Task</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    The default seamount test case creates the mesh and initial condition,</span>
-<span class="sd">    then performs a 6 day forward run and plots the results.</span>
+<span class="sd">    then performs a 6 day forward run, plots the results and measures the</span>
+<span class="sd">    spurious circulation.</span>
+
+<span class="sd">    Under Omega it performs a second forward run with the finite-volume</span>
+<span class="sd">    horizontal pressure gradient, over the same initial condition, so that</span>
+<span class="sd">    the two schemes are compared at an identical state.</span>
+
+<span class="sd">    Attributes</span>
+<span class="sd">    ----------</span>
+<span class="sd">    init : polaris.tasks.ocean.seamount.init.Init</span>
+<span class="sd">        The shared step for creating the initial state</span>
 <span class="sd">    """</span>
 
 <div class="viewcode-block" id="Default.__init__">
@@ -504,20 +525,69 @@ window.runMermaid = runMermaid;</script>
         <span class="n">task_name</span> <span class="o">=</span> <span class="s1">'default'</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">task_name</span><span class="p">,</span> <span class="n">indir</span><span class="o">=</span><span class="n">indir</span><span class="p">)</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">add_step</span><span class="p">(</span><span class="n">init</span><span class="p">,</span> <span class="n">symlink</span><span class="o">=</span><span class="s1">'init'</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">init</span> <span class="o">=</span> <span class="n">init</span>
 
-        <span class="n">forward_step</span> <span class="o">=</span> <span class="n">Forward</span><span class="p">(</span>
-            <span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span>
-            <span class="n">init</span><span class="o">=</span><span class="n">init</span><span class="p">,</span>
-            <span class="n">task_name</span><span class="o">=</span><span class="n">task_name</span><span class="p">,</span>
-            <span class="n">name</span><span class="o">=</span><span class="s1">'forward'</span><span class="p">,</span>
-            <span class="n">indir</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">subdir</span><span class="p">,</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_step</span><span class="p">(</span><span class="n">init</span><span class="p">,</span> <span class="n">symlink</span><span class="o">=</span><span class="s1">'init'</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_add_scheme_steps</span><span class="p">(</span><span class="n">DEFAULT_SCHEME</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Default.configure">
+<a class="viewcode-back" href="../../../../../developers_guide/ocean/generated/polaris.tasks.ocean.seamount.default.Default.configure.html#polaris.tasks.ocean.seamount.default.Default.configure">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">configure</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">        Add the steps for the schemes only Omega has, and the analysis step</span>
+<span class="sd">        that compares whichever schemes were run.</span>
+
+<span class="sd">        These are added here rather than in ``__init__()`` because</span>
+<span class="sd">        ``configure()`` is the first point at which the user's and machine's</span>
+<span class="sd">        config options have been merged in and ``ocean:model`` is known.</span>
+<span class="sd">        Adding an Omega-only scheme unconditionally would break the task</span>
+<span class="sd">        outright for MPAS-Ocean.</span>
+<span class="sd">        """</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">configure</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="s1">'analysis'</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">steps</span><span class="p">:</span>
+            <span class="c1"># already configured</span>
+            <span class="k">return</span>
+
+        <span class="n">schemes</span> <span class="o">=</span> <span class="p">[</span><span class="n">DEFAULT_SCHEME</span><span class="p">]</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'ocean'</span><span class="p">,</span> <span class="s1">'model'</span><span class="p">)</span> <span class="o">==</span> <span class="s1">'omega'</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">scheme</span> <span class="ow">in</span> <span class="n">OMEGA_ONLY_SCHEMES</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_add_scheme_steps</span><span class="p">(</span><span class="n">scheme</span><span class="p">)</span>
+                <span class="n">schemes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">scheme</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_step</span><span class="p">(</span>
+            <span class="n">Analysis</span><span class="p">(</span>
+                <span class="n">component</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">component</span><span class="p">,</span>
+                <span class="n">indir</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">subdir</span><span class="p">,</span>
+                <span class="n">schemes</span><span class="o">=</span><span class="n">schemes</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="p">)</span></div>
+
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_add_scheme_steps</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">scheme</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">        Add the forward and viz steps for one pressure-gradient scheme.</span>
+<span class="sd">        """</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_step</span><span class="p">(</span>
+            <span class="n">Forward</span><span class="p">(</span>
+                <span class="n">component</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">component</span><span class="p">,</span>
+                <span class="n">init</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">init</span><span class="p">,</span>
+                <span class="n">task_name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+                <span class="n">name</span><span class="o">=</span><span class="n">forward_step_name</span><span class="p">(</span><span class="n">scheme</span><span class="p">),</span>
+                <span class="n">scheme</span><span class="o">=</span><span class="n">scheme</span><span class="p">,</span>
+                <span class="n">indir</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">subdir</span><span class="p">,</span>
+            <span class="p">)</span>
         <span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">add_step</span><span class="p">(</span><span class="n">forward_step</span><span class="p">)</span>
         <span class="c1"># the forward run is 6 days long, so it is worth always producing the</span>
         <span class="c1"># plots rather than making the user re-run the task to get them</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">add_step</span><span class="p">(</span><span class="n">Viz</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span> <span class="n">indir</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">subdir</span><span class="p">))</span></div>
-</div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_step</span><span class="p">(</span>
+            <span class="n">Viz</span><span class="p">(</span>
+                <span class="n">component</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">component</span><span class="p">,</span>
+                <span class="n">indir</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">subdir</span><span class="p">,</span>
+                <span class="n">scheme</span><span class="o">=</span><span class="n">scheme</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="p">)</span></div>
 
 </pre></div>
 

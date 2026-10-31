@@ -1,0 +1,1554 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>polaris.tasks.ocean.horiz_press_grad.finite_volume</title>
+      <link rel="stylesheet" type="text/css" href="../../../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../../../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../../../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../../../_static/documentation_options.js?v=a8da1a53"></script>
+      <script src="../../../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script type="module">import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11.12.1/dist/mermaid.esm.min.mjs";
+
+
+
+
+
+const initStyles = () => {
+    const defaultStyle = document.createElement('style');
+    defaultStyle.textContent = "pre.mermaid {\n    /* Same as .mermaid-container > pre */\n    display: block;\n    width: 100%;\n}\n\npre.mermaid > svg {\n    /* Same as .mermaid-container > pre > svg */\n    height: 500px;\n    width: 100%;\n    max-width: 100% !important;\n}";
+    document.head.appendChild(defaultStyle);
+
+    const fullscreenStyle = document.createElement('style');
+    fullscreenStyle.textContent = ".mermaid-container {\n    position: relative;\n    display: flex;\n    flex-direction: row;\n    width: 100%;\n}\n\n.mermaid-container > pre {\n    display: block;\n    width: 100%;\n}\n\n.mermaid-container > pre > svg {\n    height: 500px;\n    width: 100%;\n    max-width: 100% !important;\n}\n\n.mermaid-fullscreen-btn {\n    position: absolute;\n    width: 28px;\n    height: 28px;\n    background: rgba(255, 255, 255, 0.95);\n    border: 1px solid rgba(0, 0, 0, 0.3);\n    border-radius: 4px;\n    cursor: pointer;\n    display: flex;\n    align-items: center;\n    justify-content: center;\n    transition: all 0.2s;\n    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);\n    font-size: 14px;\n    line-height: 1;\n    padding: 0;\n    color: #333;\n}\n\n.mermaid-fullscreen-btn:hover {\n    opacity: 100% !important;\n    background: rgba(255, 255, 255, 1);\n    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.3);\n    transform: scale(1.1);\n}\n\n.mermaid-fullscreen-btn.dark-theme {\n    background: rgba(50, 50, 50, 0.95);\n    border: 1px solid rgba(255, 255, 255, 0.3);\n    color: #e0e0e0;\n}\n\n.mermaid-fullscreen-btn.dark-theme:hover {\n    background: rgba(60, 60, 60, 1);\n    box-shadow: 0 3px 10px rgba(255, 255, 255, 0.2);\n}\n\n.mermaid-fullscreen-modal {\n    display: none;\n    position: fixed !important;\n    top: 0 !important;\n    left: 0 !important;\n    width: 95vw;\n    height: 100vh;\n    background: rgba(255, 255, 255, 0.98);\n    z-index: 9999;\n    padding: 20px;\n    overflow: auto;\n}\n\n.mermaid-fullscreen-modal.dark-theme {\n    background: rgba(0, 0, 0, 0.98);\n}\n\n.mermaid-fullscreen-modal.active {\n    display: flex;\n    align-items: center;\n    justify-content: center;\n}\n\n.mermaid-container-fullscreen {\n    position: relative;\n    width: 95vw;\n    height: 90vh;\n    max-width: 95vw;\n    max-height: 90vh;\n    background: white;\n    border-radius: 8px;\n    padding: 20px;\n    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);\n    overflow: auto;\n    display: flex;\n    align-items: center;\n    justify-content: center;\n}\n\n.mermaid-container-fullscreen.dark-theme {\n    background: #1a1a1a;\n    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.8);\n}\n\n.mermaid-container-fullscreen pre.mermaid {\n    width: 100%;\n    height: 100%;\n    display: flex;\n    align-items: center;\n    justify-content: center;\n}\n\n.mermaid-container-fullscreen .mermaid svg {\n    height: 100% !important;\n    width: 100% !important;\n    cursor: grab;\n}\n\n.mermaid-fullscreen-close {\n    position: fixed !important;\n    top: 20px !important;\n    right: 20px !important;\n    width: 40px;\n    height: 40px;\n    background: rgba(255, 255, 255, 0.95);\n    border: 1px solid rgba(0, 0, 0, 0.2);\n    border-radius: 50%;\n    cursor: pointer;\n    z-index: 10000;\n    display: flex;\n    align-items: center;\n    justify-content: center;\n    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);\n    transition: all 0.2s;\n    font-size: 24px;\n    line-height: 1;\n    color: #333;\n}\n\n.mermaid-fullscreen-close:hover {\n    background: white;\n    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);\n    transform: scale(1.1);\n}\n\n.mermaid-fullscreen-close.dark-theme {\n    background: rgba(50, 50, 50, 0.95);\n    border: 1px solid rgba(255, 255, 255, 0.2);\n    color: #e0e0e0;\n}\n\n.mermaid-fullscreen-close.dark-theme:hover {\n    background: rgba(60, 60, 60, 1);\n    box-shadow: 0 6px 16px rgba(255, 255, 255, 0.2);\n}\n\n.mermaid-fullscreen-modal .mermaid-fullscreen-btn {\n    display: none !important;\n}";
+    document.head.appendChild(fullscreenStyle);
+}
+
+// Detect if page has dark background
+const isDarkTheme = () => {
+    // We use a set of heuristics:
+    // 1. Check for common dark mode classes or attributes
+    // 2. Check computed background color brightness
+    if (document.documentElement.classList.contains('dark') ||
+        document.documentElement.getAttribute('data-theme') === 'dark' ||
+        document.body.classList.contains('dark') ||
+        document.body.getAttribute('data-theme') === 'dark') {
+        // console.log("Dark theme detected via class/attribute");
+        return true;
+    }
+    if (document.documentElement.classList.contains('light') ||
+        document.documentElement.getAttribute('data-theme') === 'light' ||
+        document.body.classList.contains('light') ||
+        document.body.getAttribute('data-theme') === 'light') {
+        // console.log("Light theme detected via class/attribute");
+        return false;
+    }
+    if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        // console.log("Dark theme detected via prefers-color-scheme");
+        return true;
+    }
+    const bgColor = window.getComputedStyle(document.body).backgroundColor;
+    const match = bgColor.match(/rgb\((\d+),\s*(\d+),\s*(\d+)/);
+    if (match) {
+        const r = parseInt(match[1]);
+        const g = parseInt(match[2]);
+        const b = parseInt(match[3]);
+        const brightness = (r * 299 + g * 587 + b * 114) / 1000;
+        // console.log("Background color brightness:", brightness);
+        return brightness < 128;
+    }
+    // console.log("No dark or light theme detected, defaulting to light theme");
+    return false;
+};
+
+let darkTheme = isDarkTheme();
+let modal = null;
+let modalContent = null;
+let previousScrollOffset = [window.scrollX, window.scrollY];
+let _lazyObserver = null;
+let _renderQueue = Promise.resolve();
+let closeModal = () => {};
+
+document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && modal?.classList.contains('active')) {
+        closeModal();
+    }
+});
+
+// Apply d3 zoom to each SVG. Idempotent: an SVG already wrapped is skipped,
+// so this is safe to call both for the initial batch and for diagrams that
+// render lazily once they become visible.
+const addZoomToSvgs = (svgs) => {
+    svgs.each(function() {
+        if (this.getAttribute('data-zoom-applied') === 'true') return;
+        var svg = d3.select(this);
+        svg.html("<g class='wrapper'>" + svg.html() + "</g>");
+        var inner = svg.select("g");
+        var zoom = d3.zoom().on("zoom", function(event) {
+            inner.attr("transform", event.transform);
+        });
+        svg.call(zoom);
+        this.setAttribute('data-zoom-applied', 'true');
+    });
+};
+
+const runMermaid = async (rerun) => {
+    console.log("Running mermaid diagrams, rerun =", rerun);
+    // clear all existing mermaid charts
+    let all_mermaids = document.querySelectorAll(".mermaid");
+
+    if (rerun) {
+        // Disconnect any previous lazy rendering observer
+        if (_lazyObserver) {
+            _lazyObserver.disconnect();
+            _lazyObserver = null;
+        }
+
+        all_mermaids.forEach((el) => {
+            el.removeAttribute('data-mermaid-deferred');
+            el.removeAttribute('data-mermaid-render-failed');
+            if(!el.hasAttribute("data-original-code")) {
+                // store original code
+                // console.log(`Storing original code for first run: `, el.innerHTML);
+                el.setAttribute('data-original-code', el.innerHTML);
+            }
+            if(el.getAttribute("data-processed") === "true") {
+                // remove and restore original
+                el.removeAttribute("data-processed");
+                // console.log(`Restoring original code for re-run: `, el.getAttribute('data-original-code'));
+                el.innerHTML = el.getAttribute('data-original-code');
+            } else {
+                // store original code
+                // console.log(`Storing original code for re-run: `, el.innerHTML);
+                el.setAttribute('data-original-code', el.innerHTML);
+            }
+        });
+
+        // Separate visible and hidden elements. Mermaid's layout engine measures
+        // text dimensions via the DOM, which fails for elements hidden by a parent
+        // (e.g., Reveal.js non-active slides, sphinx-design unopened tabs),
+        // producing broken SVGs. Render visible elements now, defer hidden ones.
+        const visible = [];
+        const hidden = [];
+        all_mermaids.forEach((el) => {
+            // offsetParent is null for display:none ancestors.
+            // getClientRects().length > 0 catches position:fixed elements
+            // (which also have null offsetParent but are still visible).
+            if (el.offsetParent !== null || el.getClientRects().length > 0) {
+                visible.push(el);
+            } else {
+                hidden.push(el);
+                el.setAttribute('data-mermaid-deferred', 'true');
+            }
+        });
+
+        if (visible.length > 0) {
+            try {
+                await mermaid.run({ nodes: visible });
+            } catch (e) {
+                console.error("Mermaid rendering failed:", e);
+            }
+        }
+
+        // Lazily render hidden elements when they become visible.
+        // Uses a promise chain (_renderQueue) to serialize rendering,
+        // since IntersectionObserver may report multiple entries at once
+        // and mermaid.run() is not safe to call concurrently.
+        if (hidden.length > 0) {
+            if (typeof IntersectionObserver === 'undefined') {
+                console.warn("IntersectionObserver not available; hidden mermaid diagrams will not render.");
+            } else {
+                _renderQueue = Promise.resolve();
+                _lazyObserver = new IntersectionObserver((entries) => {
+                    for (const entry of entries) {
+                        if (entry.isIntersecting && entry.target.getAttribute("data-processed") !== "true") {
+                            _lazyObserver.unobserve(entry.target);
+                            const el = entry.target;
+                            _renderQueue = _renderQueue.then(async () => {
+                                try {
+                                    await mermaid.run({ nodes: [el] });
+                                    el.removeAttribute('data-mermaid-deferred');
+                                    // Apply zoom to the now-rendered diagram, matching
+                                    // the decoration visible diagrams receive.
+                                    if (false) {
+                                        addZoomToSvgs(d3.selectAll("").select(function() {
+                                            return this.querySelector("svg");
+                                        }));
+                                    }
+                                } catch (e) {
+                                    console.error("Mermaid deferred rendering failed:", e);
+                                    el.removeAttribute('data-mermaid-deferred');
+                                    el.setAttribute('data-mermaid-render-failed', 'true');
+                                }
+                            });
+                        }
+                    }
+                });
+                hidden.forEach((el) => _lazyObserver.observe(el));
+            }
+        }
+    }
+
+    all_mermaids = document.querySelectorAll(".mermaid");
+    // Exclude deferred (hidden) and render-failed elements from completion checks
+    const mermaids_active = document.querySelectorAll(".mermaid:not([data-mermaid-deferred]):not([data-mermaid-render-failed])");
+    const mermaids_processed = document.querySelectorAll(".mermaid:not([data-mermaid-deferred]):not([data-mermaid-render-failed])[data-processed='true']");
+
+    if (false) {
+        const mermaids_to_add_zoom = 0 === -1 ? mermaids_active.length : 0;
+        if(mermaids_to_add_zoom > 0) {
+            var svgs = d3.selectAll("").select(function() {
+                return this.querySelector("svg");
+            });
+            // Wait until every active (visible) diagram has rendered. Deferred
+            // diagrams are excluded, so a fixed d3_node_count that counts a
+            // hidden diagram no longer loops forever waiting for its SVG.
+            if(mermaids_active.length !== mermaids_processed.length) {
+                setTimeout(() => runMermaid(false), 200);
+                return;
+            }
+            addZoomToSvgs(svgs);
+        }
+    } else if(mermaids_active.length !== mermaids_processed.length) {
+        // Wait for mermaid to process all diagrams
+        setTimeout(() => runMermaid(false), 200);
+        return;
+    }
+
+    // Stop here if not adding fullscreen capability
+    if (!true) return;
+
+    if (modal !== null ) {
+        // Destroy existing modal
+        modal.remove();
+        modal = null;
+        modalContent = null;
+    }
+
+    modal = document.createElement('div');
+    modal.className = 'mermaid-fullscreen-modal' + (darkTheme ? ' dark-theme' : '');
+    modal.setAttribute('role', 'dialog');
+    modal.setAttribute('aria-modal', 'true');
+    modal.setAttribute('aria-label', 'Fullscreen diagram viewer');
+    modal.innerHTML = `
+        <button class="mermaid-fullscreen-close${darkTheme ? ' dark-theme' : ''}" aria-label="Close fullscreen">✕</button>
+        <div class="mermaid-container-fullscreen${darkTheme ? ' dark-theme' : ''}"></div>
+    `;
+    document.body.appendChild(modal);
+
+    modalContent = modal.querySelector('.mermaid-container-fullscreen');
+    const closeBtn = modal.querySelector('.mermaid-fullscreen-close');
+
+    closeModal = () => {
+        modal.classList.remove('active');
+        modalContent.innerHTML = '';
+        document.body.style.overflow = ''
+        window.scrollTo({left: previousScrollOffset[0], top: previousScrollOffset[1], behavior: 'instant'});
+    };
+
+    closeBtn.addEventListener('click', closeModal);
+    modal.addEventListener('click', (e) => {
+        if (e.target === modal) closeModal();
+    });
+    document.querySelectorAll('.mermaid').forEach((mermaidDiv) => {
+        if (mermaidDiv.parentNode.classList.contains('mermaid-container') ||
+            mermaidDiv.closest('.mermaid-fullscreen-modal')) {
+            // Already processed, adjust button class if needed
+            const existingBtn = mermaidDiv.parentNode.querySelector('.mermaid-fullscreen-btn');
+            if (existingBtn) {
+                existingBtn.className = 'mermaid-fullscreen-btn' + (darkTheme ? ' dark-theme' : '');
+            }
+            return;
+        }
+
+        const container = document.createElement('div');
+        container.className = 'mermaid-container';
+        mermaidDiv.parentNode.insertBefore(container, mermaidDiv);
+        container.appendChild(mermaidDiv);
+
+        const fullscreenBtn = document.createElement('button');
+        fullscreenBtn.className = 'mermaid-fullscreen-btn' + (darkTheme ? ' dark-theme' : '');
+        fullscreenBtn.setAttribute('aria-label', 'View diagram in fullscreen');
+        fullscreenBtn.textContent = "\u26f6";
+        fullscreenBtn.style.opacity = "50%";
+
+        // Calculate dynamic position based on diagram's margin and padding
+        const diagramStyle = window.getComputedStyle(mermaidDiv);
+        const marginTop = parseFloat(diagramStyle.marginTop) || 0;
+        const marginRight = parseFloat(diagramStyle.marginRight) || 0;
+        const paddingTop = parseFloat(diagramStyle.paddingTop) || 0;
+        const paddingRight = parseFloat(diagramStyle.paddingRight) || 0;
+        fullscreenBtn.style.top = `${marginTop + paddingTop + 4}px`;
+        fullscreenBtn.style.right = `${marginRight + paddingRight + 4}px`;
+
+        fullscreenBtn.addEventListener('click', () => {
+            previousScrollOffset = [window.scrollX, window.scrollY];
+            const clone = mermaidDiv.cloneNode(true);
+            modalContent.innerHTML = '';
+            modalContent.appendChild(clone);
+
+            const svg = clone.querySelector('svg');
+            if (svg) {
+                svg.removeAttribute('width');
+                svg.removeAttribute('height');
+                svg.style.width = '100%';
+                svg.style.height = 'auto';
+                svg.style.maxWidth = '100%';
+                svg.style.display = 'block';
+
+                if (false) {
+                    setTimeout(() => {
+                        const g = svg.querySelector('g');
+                        if (g) {
+                            var svgD3 = d3.select(svg);
+                            svgD3.html("<g class='wrapper'>" + svgD3.html() + "</g>");
+                            var inner = svgD3.select("g");
+                            var zoom = d3.zoom().on("zoom", function(event) {
+                                inner.attr("transform", event.transform);
+                            });
+                            svgD3.call(zoom);
+                        }
+                    }, 100);
+                }
+            }
+
+            modal.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        });
+        container.appendChild(fullscreenBtn);
+    });
+};
+
+
+
+const load = async () => {
+    initStyles();
+
+
+    await runMermaid(true);
+
+    const reRunIfThemeChanges = async () => {
+        const newDarkTheme = isDarkTheme();
+        if (newDarkTheme !== darkTheme) {
+            darkTheme = newDarkTheme;
+            console.log("Theme change detected, re-running mermaid with", darkTheme ? "dark" : "default", "theme");
+            await mermaid.initialize(
+                {...{"startOnLoad": false},
+                ...{ darkMode: darkTheme, theme: darkTheme ? "dark" : "default" },
+                }
+            );
+            await runMermaid(true);
+        }
+    };
+
+    // Update theme classes when theme changes
+    const themeObserver = new MutationObserver(reRunIfThemeChanges);
+    themeObserver.observe(document.documentElement, {
+        attributes: true,
+        attributeFilter: ['class', 'style', 'data-theme']
+    });
+    themeObserver.observe(document.body, {
+        attributes: true,
+        attributeFilter: ['class', 'style', 'data-theme']
+    });
+};
+
+
+
+
+
+console.log("Initializing mermaid with", darkTheme ? "dark" : "default", "theme");
+mermaid.initialize(
+    {...{"startOnLoad": false},
+    ...{ darkMode: darkTheme, theme: darkTheme ? "dark" : "default" },
+    }
+);
+
+window.addEventListener("load", load);
+window.runMermaid = runMermaid;</script>
+    <script src="../../../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../../search.html" />
+    <link href="../../../../../_static/style.css" rel="stylesheet" type="text/css">
+
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../../../index.html" class="icon icon-home">
+            Polaris
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">User's guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../users_guide/quick_start.html">Quick Start for Users</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../users_guide/tasks.html">Tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../users_guide/config_files.html">Config Files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../users_guide/suites.html">Suites</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../users_guide/mesh/index.html">Mesh component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../users_guide/e3sm/init/index.html">E3SM Initial Condition Component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../users_guide/ocean/index.html">Ocean component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../users_guide/seaice/index.html">Sea ice component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../users_guide/machines/index.html">Machines</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Developer's guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../developers_guide/quick_start.html">Quick Start for Developers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../developers_guide/overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../developers_guide/command_line.html">Command-line interface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../developers_guide/organization/index.html">Organization of Tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../developers_guide/e3sm/init/index.html">E3SM initial condition (e3sm/init) component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../developers_guide/mesh/index.html">Mesh component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../developers_guide/ocean/index.html">Ocean component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../developers_guide/seaice/index.html">Sea ice component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../developers_guide/framework/index.html">Framework</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../developers_guide/machines/index.html">Machines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../developers_guide/benchmarking.html">Benchmarking a branch against a baseline</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../developers_guide/omega_pr_testing.html">Testing an Omega pull request</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../developers_guide/troubleshooting.html">Troubleshooting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../developers_guide/docs.html">Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../developers_guide/building_docs.html">Building the Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../developers_guide/building_docs.html#previewing-the-documentation">Previewing the Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../developers_guide/conda_vs_spack.html">How Conda and Spack Work Together in Polaris</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../developers_guide/updating_conda.html">Updating Deployment Dependencies</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../developers_guide/updating_spack/index.html">Updating Shared Spack Environments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../developers_guide/api.html">API reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../design_docs/index.html">Design Documents</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../tutorials/dev_add_category_of_tasks/index.html">Developer Tutorial: Adding a New Category of Tasks</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Glossary</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../glossary.html">Glossary</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../../index.html">Polaris</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../../../index.html">Module code</a></li>
+          <li class="breadcrumb-item"><a href="../../ocean.html">polaris.tasks.ocean</a></li>
+          <li class="breadcrumb-item"><a href="../horiz_press_grad.html">polaris.tasks.ocean.horiz_press_grad</a></li>
+      <li class="breadcrumb-item active">polaris.tasks.ocean.horiz_press_grad.finite_volume</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for polaris.tasks.ocean.horiz_press_grad.finite_volume</h1><div class="highlight"><pre>
+<span></span><span class="sd">"""</span>
+<span class="sd">The ``FiniteVolume`` horizontal pressure gradient for the two-column</span>
+<span class="sd">``horiz_press_grad`` configurations.</span>
+
+<span class="sd">This is the Python counterpart of Omega's ``PressureGradFiniteVolume``.  It is</span>
+<span class="sd">written from the ``PGradHighOrder.md`` design document rather than from the</span>
+<span class="sd">C++, so that the Omega-vs-Polaris comparison in the analysis steps compares two</span>
+<span class="sd">independent implementations of the same mathematics.</span>
+
+<span class="sd">The scheme evaluates the exact edge-normal acceleration -- the layer mean of</span>
+<span class="sd">the geopotential difference taken at *fixed pressure* -- as the centered scheme</span>
+<span class="sd">plus a remainder::</span>
+
+<span class="sd">    T^p_{e,k} = -(g / d_e) * (S_{e,k} + R_{e,k})</span>
+
+<span class="sd">The tidal-potential and self-attraction-and-loading terms of the design's</span>
+<span class="sd">``[ho-discrete]`` are identically zero in these configurations and are omitted.</span>
+
+<span class="sd">``S_{e,k}`` (:py:func:`centered_shift`) is the first-order conversion of a</span>
+<span class="sd">height difference taken at fixed layer index into one taken at fixed pressure,</span>
+<span class="sd">trapezoid-averaged over the layer's two interfaces.  It is exactly what the</span>
+<span class="sd">centered scheme computes, so ``R_{e,k}`` is the whole difference between the</span>
+<span class="sd">two schemes.  Only ``S`` is implemented so far.</span>
+
+<span class="sd">Every horizontal difference here is the two-column edge operator of</span>
+<span class="sd">:py:mod:`~polaris.tasks.ocean.horiz_press_grad.edge`.  The identity in</span>
+<span class="sd">:py:func:`centered_shift` holds against</span>
+<span class="sd">:py:meth:`polaris.tasks.ocean.horiz_press_grad.init.Init._compute_montgomery_and_hpga`</span>
+<span class="sd">itself, not against an idealized centered form.</span>
+<span class="sd">"""</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">xarray</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">xr</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.ocean.vertical.ztilde</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">Gravity</span><span class="p">,</span>
+    <span class="n">RhoSw</span><span class="p">,</span>
+    <span class="n">pressure_from_z_tilde</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.tasks.ocean.horiz_press_grad</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">eos_expansion</span><span class="p">,</span>
+    <span class="n">reconstruction</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.tasks.ocean.horiz_press_grad.edge</span><span class="w"> </span><span class="kn">import</span> <span class="n">edge_delta</span><span class="p">,</span> <span class="n">edge_mean</span>
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s1">'centered_shift'</span><span class="p">,</span>
+    <span class="s1">'centered_shift_accumulated'</span><span class="p">,</span>
+    <span class="s1">'shift_increments'</span><span class="p">,</span>
+    <span class="s1">'hpga_from_shift'</span><span class="p">,</span>
+    <span class="s1">'hydrostatic_scale'</span><span class="p">,</span>
+    <span class="s1">'matched_pressure_pieces'</span><span class="p">,</span>
+    <span class="s1">'anchor_difference'</span><span class="p">,</span>
+    <span class="s1">'anchor_index'</span><span class="p">,</span>
+    <span class="s1">'column_scan'</span><span class="p">,</span>
+    <span class="s1">'scan_increments'</span><span class="p">,</span>
+    <span class="s1">'layer_mean_difference'</span><span class="p">,</span>
+    <span class="s1">'finite_volume_hpga'</span><span class="p">,</span>
+    <span class="s1">'layer_containing_pressure'</span><span class="p">,</span>
+    <span class="s1">'delta_specvol_at_pressure'</span><span class="p">,</span>
+<span class="p">]</span>
+
+
+<div class="viewcode-block" id="centered_shift">
+<a class="viewcode-back" href="../../../../../developers_guide/ocean/generated/polaris.tasks.ocean.horiz_press_grad.finite_volume.centered_shift.html#polaris.tasks.ocean.horiz_press_grad.finite_volume.centered_shift">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">centered_shift</span><span class="p">(</span><span class="n">ds</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    The first-order fixed-pressure shift ``S_{e,k}`` of the design's</span>
+<span class="sd">    ``[centered-shift]``,</span>
+
+<span class="sd">    .. math::</span>
+
+<span class="sd">        S_{e,k} = \\tfrac{1}{2}\\left(\\Delta_e Z_{k}</span>
+<span class="sd">        + \\Delta_e Z_{k+1}\\right)</span>
+<span class="sd">        + \\frac{\\bar\\alpha_{e,k}}{2g}\\left(\\Delta_e q_{k}</span>
+<span class="sd">        + \\Delta_e q_{k+1}\\right),</span>
+
+<span class="sd">    where :math:`Z` is the geometric height at layer interfaces, :math:`q` the</span>
+<span class="sd">    gauge pressure at layer interfaces, and :math:`\\bar\\alpha_{e,k}` the edge</span>
+<span class="sd">    average of the layer-mean specific volume.</span>
+
+<span class="sd">    The centered scheme's entire Montgomery-potential apparatus is this</span>
+<span class="sd">    conversion and nothing else, so</span>
+<span class="sd">    ``hpga_from_shift(centered_shift(ds), dx)`` reproduces the ``HPGA`` field</span>
+<span class="sd">    written by :py:class:`~polaris.tasks.ocean.horiz_press_grad.init.Init` to</span>
+<span class="sd">    round-off, at any coordinate tilt.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    ds : xarray.Dataset</span>
+<span class="sd">        The two-column state, which must contain ``GeomZInterface``,</span>
+<span class="sd">        ``ZTildeInterface`` and ``SpecVol``.  Invalid layers are ``NaN`` and</span>
+<span class="sd">        propagate as ``NaN``.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    shift : xarray.DataArray</span>
+<span class="sd">        ``S_{e,k}`` at layer midpoints, in m, with the ``nCells`` dimension</span>
+<span class="sd">        contracted away by the edge operator.</span>
+
+<span class="sd">    """</span>
+    <span class="c1"># PressureInterface is not carried in the dataset; pseudo-height is, and</span>
+    <span class="c1"># p = -rho0 * g * z_tilde is an exact identity rather than a conversion.</span>
+    <span class="n">q</span> <span class="o">=</span> <span class="n">pressure_from_z_tilde</span><span class="p">(</span><span class="n">ds</span><span class="o">.</span><span class="n">ZTildeInterface</span><span class="p">)</span>
+
+    <span class="n">delta_z</span> <span class="o">=</span> <span class="n">edge_delta</span><span class="p">(</span><span class="n">ds</span><span class="o">.</span><span class="n">GeomZInterface</span><span class="p">)</span>
+    <span class="n">delta_q</span> <span class="o">=</span> <span class="n">edge_delta</span><span class="p">(</span><span class="n">q</span><span class="p">)</span>
+    <span class="n">alpha_bar</span> <span class="o">=</span> <span class="n">edge_mean</span><span class="p">(</span><span class="n">ds</span><span class="o">.</span><span class="n">SpecVol</span><span class="p">)</span>
+
+    <span class="n">geometric</span> <span class="o">=</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="p">(</span><span class="n">_layer_top</span><span class="p">(</span><span class="n">delta_z</span><span class="p">)</span> <span class="o">+</span> <span class="n">_layer_bot</span><span class="p">(</span><span class="n">delta_z</span><span class="p">))</span>
+    <span class="n">pressure</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">alpha_bar</span>
+        <span class="o">/</span> <span class="p">(</span><span class="mf">2.0</span> <span class="o">*</span> <span class="n">Gravity</span><span class="p">)</span>
+        <span class="o">*</span> <span class="p">(</span><span class="n">_layer_top</span><span class="p">(</span><span class="n">delta_q</span><span class="p">)</span> <span class="o">+</span> <span class="n">_layer_bot</span><span class="p">(</span><span class="n">delta_q</span><span class="p">))</span>
+    <span class="p">)</span>
+
+    <span class="n">shift</span> <span class="o">=</span> <span class="n">geometric</span> <span class="o">+</span> <span class="n">pressure</span>
+    <span class="k">return</span> <span class="n">shift</span><span class="o">.</span><span class="n">assign_attrs</span><span class="p">(</span>
+        <span class="p">{</span>
+            <span class="s1">'long_name'</span><span class="p">:</span> <span class="s1">'first-order fixed-pressure height shift at layer '</span>
+            <span class="s1">'midpoints'</span><span class="p">,</span>
+            <span class="s1">'units'</span><span class="p">:</span> <span class="s1">'m'</span><span class="p">,</span>
+        <span class="p">}</span>
+    <span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="hpga_from_shift">
+<a class="viewcode-back" href="../../../../../developers_guide/ocean/generated/polaris.tasks.ocean.horiz_press_grad.finite_volume.hpga_from_shift.html#polaris.tasks.ocean.horiz_press_grad.finite_volume.hpga_from_shift">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">hpga_from_shift</span><span class="p">(</span><span class="n">shift</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">,</span> <span class="n">dx</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Convert a fixed-pressure height shift into an edge-normal acceleration,</span>
+<span class="sd">    ``-(g / d_e) * shift``.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    shift : xarray.DataArray</span>
+<span class="sd">        A fixed-pressure height shift in m, such as</span>
+<span class="sd">        :py:func:`centered_shift` returns.</span>
+
+<span class="sd">    dx : float</span>
+<span class="sd">        The distance ``d_e`` between the two columns in m.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    hpga : xarray.DataArray</span>
+<span class="sd">        The edge-normal pressure-gradient acceleration in m s-2.</span>
+
+<span class="sd">    """</span>
+    <span class="k">if</span> <span class="n">dx</span> <span class="o">==</span> <span class="mf">0.0</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">'dx must be non-zero for finite differences.'</span><span class="p">)</span>
+
+    <span class="n">hpga</span> <span class="o">=</span> <span class="o">-</span><span class="p">(</span><span class="n">Gravity</span> <span class="o">/</span> <span class="n">dx</span><span class="p">)</span> <span class="o">*</span> <span class="n">shift</span>
+    <span class="k">return</span> <span class="n">hpga</span><span class="o">.</span><span class="n">assign_attrs</span><span class="p">(</span>
+        <span class="p">{</span>
+            <span class="s1">'long_name'</span><span class="p">:</span> <span class="s1">'along-layer pressure gradient acceleration at layer '</span>
+            <span class="s1">'midpoints'</span><span class="p">,</span>
+            <span class="s1">'units'</span><span class="p">:</span> <span class="s1">'m s-2'</span><span class="p">,</span>
+        <span class="p">}</span>
+    <span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="hydrostatic_scale">
+<a class="viewcode-back" href="../../../../../developers_guide/ocean/generated/polaris.tasks.ocean.horiz_press_grad.finite_volume.hydrostatic_scale.html#polaris.tasks.ocean.horiz_press_grad.finite_volume.hydrostatic_scale">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">hydrostatic_scale</span><span class="p">(</span><span class="n">ds</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    An upper bound on the magnitude of the two hydrostatic terms that cancel</span>
+<span class="sd">    in :py:func:`centered_shift`.</span>
+
+<span class="sd">    At 3500 m those terms are each of order 3500 m and they cancel to</span>
+<span class="sd">    millimetres or less, so an absolute tolerance says nothing about whether a</span>
+<span class="sd">    cancellation is at machine precision.  Every round-off assertion against</span>
+<span class="sd">    this scheme should be written as a multiple of this scale instead</span>
+<span class="sd">    (``PGradHighOrder.md`` §3.7.5).</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    ds : xarray.Dataset</span>
+<span class="sd">        The two-column state, as for :py:func:`centered_shift`.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    scale : float</span>
+<span class="sd">        The bound, in m.  Multiply by ``Gravity / dx`` to scale a tolerance on</span>
+<span class="sd">        an acceleration.</span>
+
+<span class="sd">    """</span>
+    <span class="n">q</span> <span class="o">=</span> <span class="n">pressure_from_z_tilde</span><span class="p">(</span><span class="n">ds</span><span class="o">.</span><span class="n">ZTildeInterface</span><span class="p">)</span>
+    <span class="n">z_magnitude</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">ds</span><span class="o">.</span><span class="n">GeomZInterface</span><span class="p">)</span><span class="o">.</span><span class="n">max</span><span class="p">())</span>
+    <span class="n">pressure_magnitude</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">ds</span><span class="o">.</span><span class="n">SpecVol</span><span class="o">.</span><span class="n">max</span><span class="p">()</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">q</span><span class="p">)</span><span class="o">.</span><span class="n">max</span><span class="p">()</span> <span class="o">/</span> <span class="n">Gravity</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">z_magnitude</span> <span class="o">+</span> <span class="n">pressure_magnitude</span></div>
+
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_layer_top</span><span class="p">(</span><span class="n">field</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    The value at each layer's top interface, as a layer-indexed field.</span>
+
+<span class="sd">    """</span>
+    <span class="k">return</span> <span class="n">field</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span><span class="n">nVertLevelsP1</span><span class="o">=</span><span class="nb">slice</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">))</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span>
+        <span class="p">{</span><span class="s1">'nVertLevelsP1'</span><span class="p">:</span> <span class="s1">'nVertLevels'</span><span class="p">}</span>
+    <span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_layer_bot</span><span class="p">(</span><span class="n">field</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    The value at each layer's bottom interface, as a layer-indexed field.</span>
+
+<span class="sd">    """</span>
+    <span class="k">return</span> <span class="n">field</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span><span class="n">nVertLevelsP1</span><span class="o">=</span><span class="nb">slice</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="kc">None</span><span class="p">))</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span>
+        <span class="p">{</span><span class="s1">'nVertLevelsP1'</span><span class="p">:</span> <span class="s1">'nVertLevels'</span><span class="p">}</span>
+    <span class="p">)</span>
+
+
+<div class="viewcode-block" id="centered_shift_accumulated">
+<a class="viewcode-back" href="../../../../../developers_guide/ocean/generated/polaris.tasks.ocean.horiz_press_grad.finite_volume.centered_shift_accumulated.html#polaris.tasks.ocean.horiz_press_grad.finite_volume.centered_shift_accumulated">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">centered_shift_accumulated</span><span class="p">(</span>
+    <span class="n">ds</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">,</span> <span class="n">anchor</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">'surface'</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    ``S_{e,k}`` accumulated down the column through ``[gamma-increments]``.</span>
+
+<span class="sd">    Mathematically identical to :py:func:`centered_shift`, but it never forms</span>
+<span class="sd">    the two large terms that cancel there.  With</span>
+<span class="sd">    ``Gamma_{e,k} = Delta_e Z_k + (alphabar_{e,k}/g) Delta_e q_k`` and</span>
+<span class="sd">    ``Gamma^+_{e,k}`` the same at interface ``k+1``, so that</span>
+<span class="sd">    ``S_{e,k} = (Gamma + Gamma^+)/2``, the design's ``[gamma-increments]``</span>
+<span class="sd">    gives</span>
+
+<span class="sd">        Gamma^+_{e,k} - Gamma_{e,k}</span>
+<span class="sd">            = -rho0 * htildebar_{e,k} * Delta_e alpha_k</span>
+<span class="sd">        Gamma_{e,k+1} - Gamma^+_{e,k}</span>
+<span class="sd">            = (Delta_e q_{k+1}/g) * (alphabar_{e,k+1} - alphabar_{e,k})</span>
+
+<span class="sd">    Both increments are a small factor times a bounded one -- the *horizontal*</span>
+<span class="sd">    contrast in specific volume within a layer, and the *vertical* contrast</span>
+<span class="sd">    between adjacent layers -- so the walk introduces no cancellation of large</span>
+<span class="sd">    numbers anywhere.  The starting value is the inverse-barometer residual at</span>
+<span class="sd">    the sea surface, itself small for a state at rest.</span>
+
+<span class="sd">    Per §3.7.5 this is why a single-precision build might pass at all: the</span>
+<span class="sd">    round-off exposure of the centered scheme lives entirely in the two ~3500 m</span>
+<span class="sd">    terms of ``[centered-shift]``, and this form never builds them.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    ds : xarray.Dataset</span>
+<span class="sd">        The two-column state, as for :py:func:`centered_shift`.</span>
+
+<span class="sd">    anchor : {'surface', 'bathymetry'}</span>
+<span class="sd">        Which end of the column to accumulate from.  §3.7.4 leaves this open as</span>
+<span class="sd">        a round-off question rather than a consistency one; the two agree to</span>
+<span class="sd">        round-off in double precision, which</span>
+<span class="sd">        ``tests/ocean/horiz_press_grad/test_finite_volume.py`` measures.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    shift : xarray.DataArray</span>
+<span class="sd">        ``S_{e,k}`` at layer midpoints, in m.</span>
+
+<span class="sd">    """</span>
+    <span class="k">if</span> <span class="n">anchor</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="s1">'surface'</span><span class="p">,</span> <span class="s1">'bathymetry'</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">"anchor must be 'surface' or 'bathymetry'; got </span><span class="si">{</span><span class="n">anchor</span><span class="si">!r}</span><span class="s2">."</span>
+        <span class="p">)</span>
+
+    <span class="n">pieces</span> <span class="o">=</span> <span class="n">_shift_pieces</span><span class="p">(</span><span class="n">ds</span><span class="p">)</span>
+    <span class="n">within</span> <span class="o">=</span> <span class="n">pieces</span><span class="p">[</span><span class="s1">'within_layer'</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
+    <span class="n">between</span> <span class="o">=</span> <span class="n">pieces</span><span class="p">[</span><span class="s1">'between_layers'</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
+    <span class="n">gamma_top</span> <span class="o">=</span> <span class="n">pieces</span><span class="p">[</span><span class="s1">'gamma_surface'</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
+    <span class="n">gamma_bottom</span> <span class="o">=</span> <span class="n">pieces</span><span class="p">[</span><span class="s1">'gamma_bathymetry'</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
+    <span class="n">valid</span> <span class="o">=</span> <span class="n">pieces</span><span class="p">[</span><span class="s1">'valid'</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
+
+    <span class="n">shift</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">full</span><span class="p">(</span><span class="n">within</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">index</span> <span class="ow">in</span> <span class="n">np</span><span class="o">.</span><span class="n">ndindex</span><span class="p">(</span><span class="n">within</span><span class="o">.</span><span class="n">shape</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]):</span>
+        <span class="n">levels</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">valid</span><span class="p">[</span><span class="n">index</span><span class="p">])[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">levels</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">continue</span>
+        <span class="n">column_within</span> <span class="o">=</span> <span class="n">within</span><span class="p">[</span><span class="n">index</span><span class="p">][</span><span class="n">levels</span><span class="p">]</span>
+        <span class="c1"># between_layers[k] is the step from layer k to layer k+1</span>
+        <span class="n">column_between</span> <span class="o">=</span> <span class="n">between</span><span class="p">[</span><span class="n">index</span><span class="p">][</span><span class="n">levels</span><span class="p">]</span>
+
+        <span class="k">if</span> <span class="n">anchor</span> <span class="o">==</span> <span class="s1">'surface'</span><span class="p">:</span>
+            <span class="n">gamma</span> <span class="o">=</span> <span class="n">gamma_top</span><span class="p">[</span><span class="n">index</span><span class="p">]</span>
+            <span class="k">for</span> <span class="n">position</span><span class="p">,</span> <span class="n">level</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">levels</span><span class="p">):</span>
+                <span class="n">gamma_plus</span> <span class="o">=</span> <span class="n">gamma</span> <span class="o">+</span> <span class="n">column_within</span><span class="p">[</span><span class="n">position</span><span class="p">]</span>
+                <span class="n">shift</span><span class="p">[</span><span class="n">index</span> <span class="o">+</span> <span class="p">(</span><span class="n">level</span><span class="p">,)]</span> <span class="o">=</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="p">(</span><span class="n">gamma</span> <span class="o">+</span> <span class="n">gamma_plus</span><span class="p">)</span>
+                <span class="n">gamma</span> <span class="o">=</span> <span class="n">gamma_plus</span> <span class="o">+</span> <span class="n">column_between</span><span class="p">[</span><span class="n">position</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">gamma_plus</span> <span class="o">=</span> <span class="n">gamma_bottom</span><span class="p">[</span><span class="n">index</span><span class="p">]</span>
+            <span class="k">for</span> <span class="n">position</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">levels</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">):</span>
+                <span class="n">level</span> <span class="o">=</span> <span class="n">levels</span><span class="p">[</span><span class="n">position</span><span class="p">]</span>
+                <span class="n">gamma</span> <span class="o">=</span> <span class="n">gamma_plus</span> <span class="o">-</span> <span class="n">column_within</span><span class="p">[</span><span class="n">position</span><span class="p">]</span>
+                <span class="n">shift</span><span class="p">[</span><span class="n">index</span> <span class="o">+</span> <span class="p">(</span><span class="n">level</span><span class="p">,)]</span> <span class="o">=</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="p">(</span><span class="n">gamma</span> <span class="o">+</span> <span class="n">gamma_plus</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">position</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="n">gamma_plus</span> <span class="o">=</span> <span class="n">gamma</span> <span class="o">-</span> <span class="n">column_between</span><span class="p">[</span><span class="n">position</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span>
+
+    <span class="k">return</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">(</span>
+        <span class="n">data</span><span class="o">=</span><span class="n">shift</span><span class="p">,</span>
+        <span class="n">dims</span><span class="o">=</span><span class="n">pieces</span><span class="p">[</span><span class="s1">'within_layer'</span><span class="p">]</span><span class="o">.</span><span class="n">dims</span><span class="p">,</span>
+        <span class="n">attrs</span><span class="o">=</span><span class="p">{</span>
+            <span class="s1">'long_name'</span><span class="p">:</span> <span class="s1">'first-order fixed-pressure height shift at layer '</span>
+            <span class="s1">'midpoints, accumulated'</span><span class="p">,</span>
+            <span class="s1">'units'</span><span class="p">:</span> <span class="s1">'m'</span><span class="p">,</span>
+        <span class="p">},</span>
+    <span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="shift_increments">
+<a class="viewcode-back" href="../../../../../developers_guide/ocean/generated/polaris.tasks.ocean.horiz_press_grad.finite_volume.shift_increments.html#polaris.tasks.ocean.horiz_press_grad.finite_volume.shift_increments">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">shift_increments</span><span class="p">(</span><span class="n">ds</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    The two increments of ``[gamma-increments]``, for the D7 measurement.</span>
+
+<span class="sd">    Deliverable D7 of the plan asks how much precision the accumulation saves,</span>
+<span class="sd">    and the quantitative form of "no large-number cancellation occurs" is the</span>
+<span class="sd">    ratio of the largest increment to the largest of ``Delta_e Z`` -- the</span>
+<span class="sd">    quantity ``[centered-shift]`` differences directly.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    ds : xarray.Dataset</span>
+<span class="sd">        The two-column state, as for :py:func:`centered_shift`.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    increments : xarray.Dataset</span>
+<span class="sd">        ``within_layer`` (``Gamma^+_k - Gamma_k``), ``between_layers``</span>
+<span class="sd">        (``Gamma_{k+1} - Gamma^+_k``), and ``delta_z_interface``</span>
+<span class="sd">        (``Delta_e Z`` at interfaces) to scale them against.  All in m.</span>
+
+<span class="sd">    """</span>
+    <span class="n">pieces</span> <span class="o">=</span> <span class="n">_shift_pieces</span><span class="p">(</span><span class="n">ds</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">(</span>
+        <span class="p">{</span>
+            <span class="s1">'within_layer'</span><span class="p">:</span> <span class="n">pieces</span><span class="p">[</span><span class="s1">'within_layer'</span><span class="p">],</span>
+            <span class="s1">'between_layers'</span><span class="p">:</span> <span class="n">pieces</span><span class="p">[</span><span class="s1">'between_layers'</span><span class="p">],</span>
+            <span class="s1">'delta_z_interface'</span><span class="p">:</span> <span class="n">pieces</span><span class="p">[</span><span class="s1">'delta_z_interface'</span><span class="p">],</span>
+        <span class="p">}</span>
+    <span class="p">)</span></div>
+
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_shift_pieces</span><span class="p">(</span><span class="n">ds</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""The increments and anchors of ``[gamma-increments]``, and the mask of</span>
+<span class="sd">    layers valid in both columns.</span>
+
+<span class="sd">    """</span>
+    <span class="n">q</span> <span class="o">=</span> <span class="n">pressure_from_z_tilde</span><span class="p">(</span><span class="n">ds</span><span class="o">.</span><span class="n">ZTildeInterface</span><span class="p">)</span>
+    <span class="n">delta_q</span> <span class="o">=</span> <span class="n">edge_delta</span><span class="p">(</span><span class="n">q</span><span class="p">)</span>
+    <span class="n">delta_z</span> <span class="o">=</span> <span class="n">edge_delta</span><span class="p">(</span><span class="n">ds</span><span class="o">.</span><span class="n">GeomZInterface</span><span class="p">)</span>
+    <span class="n">alpha_bar</span> <span class="o">=</span> <span class="n">edge_mean</span><span class="p">(</span><span class="n">ds</span><span class="o">.</span><span class="n">SpecVol</span><span class="p">)</span>
+    <span class="n">delta_alpha</span> <span class="o">=</span> <span class="n">edge_delta</span><span class="p">(</span><span class="n">ds</span><span class="o">.</span><span class="n">SpecVol</span><span class="p">)</span>
+    <span class="n">thickness_bar</span> <span class="o">=</span> <span class="n">edge_mean</span><span class="p">(</span><span class="n">ds</span><span class="o">.</span><span class="n">PseudoThickness</span><span class="p">)</span>
+
+    <span class="n">within</span> <span class="o">=</span> <span class="o">-</span><span class="n">RhoSw</span> <span class="o">*</span> <span class="n">thickness_bar</span> <span class="o">*</span> <span class="n">delta_alpha</span>
+
+    <span class="c1"># the step from layer k to layer k+1, stored at k; the deepest layer has no</span>
+    <span class="c1"># neighbour below and its entry is never read</span>
+    <span class="n">alpha_below</span> <span class="o">=</span> <span class="n">alpha_bar</span><span class="o">.</span><span class="n">shift</span><span class="p">(</span><span class="n">nVertLevels</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">between</span> <span class="o">=</span> <span class="n">_layer_bot</span><span class="p">(</span><span class="n">delta_q</span><span class="p">)</span> <span class="o">/</span> <span class="n">Gravity</span> <span class="o">*</span> <span class="p">(</span><span class="n">alpha_below</span> <span class="o">-</span> <span class="n">alpha_bar</span><span class="p">)</span>
+    <span class="n">between</span> <span class="o">=</span> <span class="n">between</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="mf">0.0</span><span class="p">)</span>
+
+    <span class="n">valid</span> <span class="o">=</span> <span class="n">within</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">within</span><span class="o">.</span><span class="n">values</span><span class="p">))</span>
+
+    <span class="n">gamma_surface</span> <span class="o">=</span> <span class="n">_first_valid</span><span class="p">(</span>
+        <span class="n">_layer_top</span><span class="p">(</span><span class="n">delta_z</span><span class="p">)</span> <span class="o">+</span> <span class="n">alpha_bar</span> <span class="o">/</span> <span class="n">Gravity</span> <span class="o">*</span> <span class="n">_layer_top</span><span class="p">(</span><span class="n">delta_q</span><span class="p">),</span> <span class="n">valid</span>
+    <span class="p">)</span>
+    <span class="n">gamma_bathymetry</span> <span class="o">=</span> <span class="n">_last_valid</span><span class="p">(</span>
+        <span class="n">_layer_bot</span><span class="p">(</span><span class="n">delta_z</span><span class="p">)</span> <span class="o">+</span> <span class="n">alpha_bar</span> <span class="o">/</span> <span class="n">Gravity</span> <span class="o">*</span> <span class="n">_layer_bot</span><span class="p">(</span><span class="n">delta_q</span><span class="p">),</span> <span class="n">valid</span>
+    <span class="p">)</span>
+
+    <span class="k">return</span> <span class="p">{</span>
+        <span class="s1">'within_layer'</span><span class="p">:</span> <span class="n">within</span><span class="o">.</span><span class="n">assign_attrs</span><span class="p">({</span><span class="s1">'units'</span><span class="p">:</span> <span class="s1">'m'</span><span class="p">}),</span>
+        <span class="s1">'between_layers'</span><span class="p">:</span> <span class="n">between</span><span class="o">.</span><span class="n">assign_attrs</span><span class="p">({</span><span class="s1">'units'</span><span class="p">:</span> <span class="s1">'m'</span><span class="p">}),</span>
+        <span class="s1">'delta_z_interface'</span><span class="p">:</span> <span class="n">delta_z</span><span class="o">.</span><span class="n">assign_attrs</span><span class="p">({</span><span class="s1">'units'</span><span class="p">:</span> <span class="s1">'m'</span><span class="p">}),</span>
+        <span class="s1">'gamma_surface'</span><span class="p">:</span> <span class="n">gamma_surface</span><span class="p">,</span>
+        <span class="s1">'gamma_bathymetry'</span><span class="p">:</span> <span class="n">gamma_bathymetry</span><span class="p">,</span>
+        <span class="s1">'valid'</span><span class="p">:</span> <span class="n">valid</span><span class="p">,</span>
+    <span class="p">}</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_first_valid</span><span class="p">(</span><span class="n">field</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">,</span> <span class="n">valid</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""The value in the shallowest layer valid in both columns."""</span>
+    <span class="k">return</span> <span class="n">_at_valid_end</span><span class="p">(</span><span class="n">field</span><span class="p">,</span> <span class="n">valid</span><span class="p">,</span> <span class="n">first</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_last_valid</span><span class="p">(</span><span class="n">field</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">,</span> <span class="n">valid</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""The value in the deepest layer valid in both columns."""</span>
+    <span class="k">return</span> <span class="n">_at_valid_end</span><span class="p">(</span><span class="n">field</span><span class="p">,</span> <span class="n">valid</span><span class="p">,</span> <span class="n">first</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_at_valid_end</span><span class="p">(</span>
+    <span class="n">field</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">,</span> <span class="n">valid</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">,</span> <span class="n">first</span><span class="p">:</span> <span class="nb">bool</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">:</span>
+    <span class="n">values</span> <span class="o">=</span> <span class="n">field</span><span class="o">.</span><span class="n">values</span>
+    <span class="n">mask</span> <span class="o">=</span> <span class="n">valid</span><span class="o">.</span><span class="n">values</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">full</span><span class="p">(</span><span class="n">values</span><span class="o">.</span><span class="n">shape</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">index</span> <span class="ow">in</span> <span class="n">np</span><span class="o">.</span><span class="n">ndindex</span><span class="p">(</span><span class="n">values</span><span class="o">.</span><span class="n">shape</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]):</span>
+        <span class="n">levels</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">mask</span><span class="p">[</span><span class="n">index</span><span class="p">])[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">levels</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">continue</span>
+        <span class="n">result</span><span class="p">[</span><span class="n">index</span><span class="p">]</span> <span class="o">=</span> <span class="n">values</span><span class="p">[</span><span class="n">index</span><span class="p">][</span><span class="n">levels</span><span class="p">[</span><span class="mi">0</span> <span class="k">if</span> <span class="n">first</span> <span class="k">else</span> <span class="o">-</span><span class="mi">1</span><span class="p">]]</span>
+    <span class="k">return</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">result</span><span class="p">,</span> <span class="n">dims</span><span class="o">=</span><span class="n">field</span><span class="o">.</span><span class="n">dims</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+
+
+<div class="viewcode-block" id="matched_pressure_pieces">
+<a class="viewcode-back" href="../../../../../developers_guide/ocean/generated/polaris.tasks.ocean.horiz_press_grad.finite_volume.matched_pressure_pieces.html#polaris.tasks.ocean.horiz_press_grad.finite_volume.matched_pressure_pieces">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">matched_pressure_pieces</span><span class="p">(</span>
+    <span class="n">ds</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">,</span> <span class="n">guards</span><span class="p">:</span> <span class="nb">set</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Everything the matched-pressure integrand needs, computed once per state.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    ds : xarray.Dataset</span>
+<span class="sd">        The two-column state, which must contain ``temperature``, ``salinity``,</span>
+<span class="sd">        ``pressure``, ``ZTildeInterface`` and ``maxLevelCell``.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    pieces : dict</span>
+<span class="sd">        ``expansion`` (the edge-shared coefficients per edge layer),</span>
+<span class="sd">        ``theta``/``salinity`` and their reconstruction ``slope``s and</span>
+<span class="sd">        ``pressure_mid``, each column's ``interface`` pressures and its</span>
+<span class="sd">        ``deepest`` valid layer, and the edge-layer interface pressures</span>
+<span class="sd">        ``edge_interface``.</span>
+
+<span class="sd">    """</span>
+    <span class="n">interface</span> <span class="o">=</span> <span class="n">pressure_from_z_tilde</span><span class="p">(</span><span class="n">ds</span><span class="o">.</span><span class="n">ZTildeInterface</span><span class="p">)</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span><span class="n">Time</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">values</span>
+    <span class="n">deepest</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">maxLevelCell</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span>
+
+    <span class="n">guards</span> <span class="o">=</span> <span class="n">guards</span> <span class="ow">or</span> <span class="nb">set</span><span class="p">()</span>
+    <span class="n">expansion</span> <span class="o">=</span> <span class="n">eos_expansion</span><span class="o">.</span><span class="n">edge_expansion</span><span class="p">(</span>
+        <span class="n">ds</span><span class="o">.</span><span class="n">temperature</span><span class="p">,</span> <span class="n">ds</span><span class="o">.</span><span class="n">salinity</span><span class="p">,</span> <span class="n">ds</span><span class="o">.</span><span class="n">pressure</span>
+    <span class="p">)</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span><span class="n">Time</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    <span class="c1"># The cell-local coefficients are always built, even though only the</span>
+    <span class="c1"># ``cell_local_expansion`` guard reads them: making them conditional on the</span>
+    <span class="c1"># guard means a guard passed to an evaluation function but not to this one</span>
+    <span class="c1"># fails with an AttributeError instead of doing what it says.  One extra</span>
+    <span class="c1"># equation-of-state evaluation per state is not worth that trap.</span>
+    <span class="n">coefficients</span> <span class="o">=</span> <span class="n">eos_expansion</span><span class="o">.</span><span class="n">specvol_coefficients</span><span class="p">(</span>
+        <span class="n">ds</span><span class="o">.</span><span class="n">temperature</span><span class="p">,</span> <span class="n">ds</span><span class="o">.</span><span class="n">salinity</span><span class="p">,</span> <span class="n">ds</span><span class="o">.</span><span class="n">pressure</span>
+    <span class="p">)</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span><span class="n">Time</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">cell_local</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">(</span>
+        <span class="p">{</span>
+            <span class="n">name</span><span class="p">:</span> <span class="n">coefficients</span><span class="p">[</span><span class="n">name</span><span class="p">]</span>
+            <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">'alpha_0'</span><span class="p">,</span> <span class="s1">'alpha_theta'</span><span class="p">,</span> <span class="s1">'alpha_s'</span><span class="p">,</span> <span class="s1">'alpha_p'</span><span class="p">]</span>
+        <span class="p">}</span>
+    <span class="p">)</span>
+    <span class="n">cell_local</span><span class="p">[</span><span class="s1">'theta_ref'</span><span class="p">]</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">temperature</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span><span class="n">Time</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">cell_local</span><span class="p">[</span><span class="s1">'s_ref'</span><span class="p">]</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">salinity</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span><span class="n">Time</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">cell_local</span><span class="p">[</span><span class="s1">'p_ref'</span><span class="p">]</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">pressure</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span><span class="n">Time</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="p">{</span>
+        <span class="s1">'guards'</span><span class="p">:</span> <span class="n">guards</span><span class="p">,</span>
+        <span class="s1">'cell_local'</span><span class="p">:</span> <span class="n">cell_local</span><span class="p">,</span>
+        <span class="s1">'expansion'</span><span class="p">:</span> <span class="n">expansion</span><span class="p">,</span>
+        <span class="s1">'theta'</span><span class="p">:</span> <span class="n">ds</span><span class="o">.</span><span class="n">temperature</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span><span class="n">Time</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">values</span><span class="p">,</span>
+        <span class="s1">'salinity'</span><span class="p">:</span> <span class="n">ds</span><span class="o">.</span><span class="n">salinity</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span><span class="n">Time</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">values</span><span class="p">,</span>
+        <span class="s1">'slope_theta'</span><span class="p">:</span> <span class="n">reconstruction</span><span class="o">.</span><span class="n">linear_slope</span><span class="p">(</span><span class="n">ds</span><span class="o">.</span><span class="n">temperature</span><span class="p">,</span> <span class="n">ds</span><span class="o">.</span><span class="n">pressure</span><span class="p">)</span>
+        <span class="o">.</span><span class="n">isel</span><span class="p">(</span><span class="n">Time</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="o">.</span><span class="n">values</span><span class="p">,</span>
+        <span class="s1">'slope_salinity'</span><span class="p">:</span> <span class="n">reconstruction</span><span class="o">.</span><span class="n">linear_slope</span><span class="p">(</span><span class="n">ds</span><span class="o">.</span><span class="n">salinity</span><span class="p">,</span> <span class="n">ds</span><span class="o">.</span><span class="n">pressure</span><span class="p">)</span>
+        <span class="o">.</span><span class="n">isel</span><span class="p">(</span><span class="n">Time</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="o">.</span><span class="n">values</span><span class="p">,</span>
+        <span class="s1">'pressure_mid'</span><span class="p">:</span> <span class="n">ds</span><span class="o">.</span><span class="n">pressure</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span><span class="n">Time</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">values</span><span class="p">,</span>
+        <span class="s1">'interface'</span><span class="p">:</span> <span class="n">interface</span><span class="p">,</span>
+        <span class="s1">'deepest'</span><span class="p">:</span> <span class="n">deepest</span><span class="p">,</span>
+        <span class="s1">'edge_interface'</span><span class="p">:</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="p">(</span><span class="n">interface</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="p">:]</span> <span class="o">+</span> <span class="n">interface</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="p">:]),</span>
+        <span class="c1"># every interface, not just the sea surface: the scan anchors at the</span>
+        <span class="c1"># sea floor, whose index depends on maxLevelCell</span>
+        <span class="s1">'interface_height'</span><span class="p">:</span> <span class="n">ds</span><span class="o">.</span><span class="n">GeomZInterface</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span><span class="n">Time</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">values</span><span class="p">,</span>
+    <span class="p">}</span></div>
+
+
+
+<div class="viewcode-block" id="layer_containing_pressure">
+<a class="viewcode-back" href="../../../../../developers_guide/ocean/generated/polaris.tasks.ocean.horiz_press_grad.finite_volume.layer_containing_pressure.html#polaris.tasks.ocean.horiz_press_grad.finite_volume.layer_containing_pressure">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">layer_containing_pressure</span><span class="p">(</span>
+    <span class="n">pieces</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">icell</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">pressure</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    The index of *column* ``icell``'s own layer containing each pressure.</span>
+
+<span class="sd">    This is the lookup the whole scheme turns on, and writing it as a lookup</span>
+<span class="sd">    rather than assuming "edge layer ``k`` means column layer ``k``" is the</span>
+<span class="sd">    difference between comparing at matched pressure and comparing at matched</span>
+<span class="sd">    index.  Under tilt the two columns' layer ``k`` span different pressure</span>
+<span class="sd">    ranges -- at 50 m/km and 64 m layers they are offset by nearly three layer</span>
+<span class="sd">    thicknesses and do not overlap at all -- so assuming the index is not a</span>
+<span class="sd">    small approximation, it is a different scheme, and it is the defect that</span>
+<span class="sd">    the previous formulation failed on.</span>
+
+<span class="sd">    Pressures above the column's surface or below its floor are clamped to the</span>
+<span class="sd">    outermost valid layer, which extrapolates that layer's reconstruction.</span>
+<span class="sd">    Exactness does not depend on this (design §3.5, consequence 3): an</span>
+<span class="sd">    extrapolated reconstruction still reproduces a profile it resolves, so the</span>
+<span class="sd">    difference is still zero on the exact set.  What it costs off the exact set</span>
+<span class="sd">    is deliverable D8'.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    pieces : dict</span>
+<span class="sd">        From :py:func:`matched_pressure_pieces`.</span>
+
+<span class="sd">    icell : int</span>
+<span class="sd">        Which column.</span>
+
+<span class="sd">    pressure : numpy.ndarray</span>
+<span class="sd">        Sea gauge pressures in Pa.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    index : numpy.ndarray</span>
+<span class="sd">        Zero-based layer indices, in ``[0, maxLevelCell - 1]``.</span>
+
+<span class="sd">    """</span>
+    <span class="n">deepest</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">pieces</span><span class="p">[</span><span class="s1">'deepest'</span><span class="p">][</span><span class="n">icell</span><span class="p">])</span>
+    <span class="n">interface</span> <span class="o">=</span> <span class="n">pieces</span><span class="p">[</span><span class="s1">'interface'</span><span class="p">][</span><span class="n">icell</span><span class="p">,</span> <span class="p">:</span> <span class="n">deepest</span> <span class="o">+</span> <span class="mi">2</span><span class="p">]</span>
+    <span class="n">index</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">searchsorted</span><span class="p">(</span><span class="n">interface</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">pressure</span><span class="p">),</span> <span class="n">side</span><span class="o">=</span><span class="s1">'right'</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span>
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">clip</span><span class="p">(</span><span class="n">index</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">deepest</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="delta_specvol_at_pressure">
+<a class="viewcode-back" href="../../../../../developers_guide/ocean/generated/polaris.tasks.ocean.horiz_press_grad.finite_volume.delta_specvol_at_pressure.html#polaris.tasks.ocean.horiz_press_grad.finite_volume.delta_specvol_at_pressure">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">delta_specvol_at_pressure</span><span class="p">(</span>
+    <span class="n">pieces</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span>
+    <span class="n">edge_layer</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">pressure</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">guards</span><span class="p">:</span> <span class="nb">set</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    The design's ``[dalpha]``: the fixed-pressure contrast in specific volume.</span>
+
+<span class="sd">    .. math::</span>
+
+<span class="sd">        \\Delta_e\\hat\\alpha(p) =</span>
+<span class="sd">        \\bar\\alpha_\\Theta^{e,k}\\,\\Delta_e\\Theta(p)</span>
+<span class="sd">        + \\bar\\alpha_S^{e,k}\\,\\Delta_e S(p)</span>
+
+<span class="sd">    Both columns use the edge-shared coefficients of **edge layer**</span>
+<span class="sd">    ``edge_layer``, and each supplies its own :math:`\\Theta(p)`, :math:`S(p)`</span>
+<span class="sd">    from whichever of *its own* layers contains ``p``.  The</span>
+<span class="sd">    :math:`\\bar\\alpha_0` and :math:`\\bar\\alpha_p(p-\\bar p^e)` terms are</span>
+<span class="sd">    the same numbers in both columns and cancel, so they are not formed at all.</span>
+
+<span class="sd">    This is the central property of the scheme: the result is a coefficient</span>
+<span class="sd">    times a horizontal contrast at matched pressure, so it is **identically</span>
+<span class="sd">    zero pointwise** whenever the two columns' reconstructions describe the</span>
+<span class="sd">    same water -- independently of the coefficients, of the quadrature, and of</span>
+<span class="sd">    whether the interfaces line up.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    pieces : dict</span>
+<span class="sd">        From :py:func:`matched_pressure_pieces`.</span>
+
+<span class="sd">    edge_layer : int</span>
+<span class="sd">        The edge layer whose shared coefficient set to use.</span>
+
+<span class="sd">    pressure : numpy.ndarray</span>
+<span class="sd">        Sea gauge pressures in Pa, all within edge layer ``edge_layer``.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    delta_specvol : numpy.ndarray</span>
+<span class="sd">        :math:`\\Delta_e\\hat\\alpha(p)` in m3 kg-1.</span>
+
+<span class="sd">    """</span>
+    <span class="n">pressure</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">atleast_1d</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">pressure</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">))</span>
+    <span class="k">if</span> <span class="n">guards</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">guards</span> <span class="o">=</span> <span class="n">pieces</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'guards'</span><span class="p">,</span> <span class="nb">set</span><span class="p">())</span>
+
+    <span class="n">level</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">icell</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">2</span><span class="p">):</span>
+        <span class="k">if</span> <span class="s1">'state_by_index'</span> <span class="ow">in</span> <span class="n">guards</span><span class="p">:</span>
+            <span class="c1"># guard: assume edge layer k means column layer k</span>
+            <span class="n">level</span><span class="p">[</span><span class="n">icell</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">full</span><span class="p">(</span>
+                <span class="nb">len</span><span class="p">(</span><span class="n">pressure</span><span class="p">),</span>
+                <span class="nb">min</span><span class="p">(</span><span class="n">edge_layer</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="n">pieces</span><span class="p">[</span><span class="s1">'deepest'</span><span class="p">][</span><span class="n">icell</span><span class="p">])),</span>
+            <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">level</span><span class="p">[</span><span class="n">icell</span><span class="p">]</span> <span class="o">=</span> <span class="n">layer_containing_pressure</span><span class="p">(</span><span class="n">pieces</span><span class="p">,</span> <span class="n">icell</span><span class="p">,</span> <span class="n">pressure</span><span class="p">)</span>
+
+    <span class="n">state</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">'theta'</span><span class="p">,</span> <span class="s1">'salinity'</span><span class="p">]:</span>
+        <span class="n">values</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">((</span><span class="mi">2</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">pressure</span><span class="p">)))</span>
+        <span class="k">for</span> <span class="n">icell</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">2</span><span class="p">):</span>
+            <span class="n">index</span> <span class="o">=</span> <span class="n">level</span><span class="p">[</span><span class="n">icell</span><span class="p">]</span>
+            <span class="n">values</span><span class="p">[</span><span class="n">icell</span><span class="p">]</span> <span class="o">=</span> <span class="n">pieces</span><span class="p">[</span><span class="n">name</span><span class="p">][</span><span class="n">icell</span><span class="p">,</span> <span class="n">index</span><span class="p">]</span> <span class="o">+</span> <span class="n">pieces</span><span class="p">[</span>
+                <span class="sa">f</span><span class="s1">'slope_</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s1">'</span>
+            <span class="p">][</span><span class="n">icell</span><span class="p">,</span> <span class="n">index</span><span class="p">]</span> <span class="o">*</span> <span class="p">(</span><span class="n">pressure</span> <span class="o">-</span> <span class="n">pieces</span><span class="p">[</span><span class="s1">'pressure_mid'</span><span class="p">][</span><span class="n">icell</span><span class="p">,</span> <span class="n">index</span><span class="p">])</span>
+        <span class="n">state</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">values</span>
+
+    <span class="n">total</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">pressure</span><span class="p">))</span>
+    <span class="k">for</span> <span class="n">icell</span><span class="p">,</span> <span class="n">sign</span> <span class="ow">in</span> <span class="p">[(</span><span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="mf">1.0</span><span class="p">),</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">)]:</span>
+        <span class="n">coefficients</span> <span class="o">=</span> <span class="n">_coefficients_for</span><span class="p">(</span>
+            <span class="n">pieces</span><span class="p">,</span> <span class="n">edge_layer</span><span class="p">,</span> <span class="n">icell</span><span class="p">,</span> <span class="n">level</span><span class="p">[</span><span class="n">icell</span><span class="p">],</span> <span class="n">guards</span>
+        <span class="p">)</span>
+        <span class="n">total</span> <span class="o">=</span> <span class="n">total</span> <span class="o">+</span> <span class="n">sign</span> <span class="o">*</span> <span class="p">(</span>
+            <span class="n">coefficients</span><span class="p">[</span><span class="s1">'alpha_theta'</span><span class="p">]</span> <span class="o">*</span> <span class="n">state</span><span class="p">[</span><span class="s1">'theta'</span><span class="p">][</span><span class="n">icell</span><span class="p">]</span>
+            <span class="o">+</span> <span class="n">coefficients</span><span class="p">[</span><span class="s1">'alpha_s'</span><span class="p">]</span> <span class="o">*</span> <span class="n">state</span><span class="p">[</span><span class="s1">'salinity'</span><span class="p">][</span><span class="n">icell</span><span class="p">]</span>
+        <span class="p">)</span>
+    <span class="k">return</span> <span class="n">total</span></div>
+
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">anchor_index</span><span class="p">(</span><span class="n">pieces</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">guards</span><span class="p">:</span> <span class="nb">set</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    The interface the column scan is anchored at.</span>
+
+<span class="sd">    The **sea floor** -- the deepest interface valid in both columns -- unless</span>
+<span class="sd">    the ``anchor_at_surface`` guard selects the sea surface.  See</span>
+<span class="sd">    :py:func:`anchor_difference` for why the two ends are not equivalent.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    pieces : dict</span>
+<span class="sd">        From :py:func:`matched_pressure_pieces`.</span>
+
+<span class="sd">    guards : set of str, optional</span>
+<span class="sd">        Verification-only switches; see :py:func:`finite_volume_hpga`.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    index : int</span>
+<span class="sd">        The interface index, in ``[0, min(maxLevelCell)]``.</span>
+
+<span class="sd">    """</span>
+    <span class="n">guards</span> <span class="o">=</span> <span class="n">guards</span> <span class="k">if</span> <span class="n">guards</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">pieces</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'guards'</span><span class="p">,</span> <span class="nb">set</span><span class="p">())</span>
+    <span class="k">if</span> <span class="s1">'anchor_at_surface'</span> <span class="ow">in</span> <span class="n">guards</span><span class="p">:</span>
+        <span class="k">return</span> <span class="mi">0</span>
+    <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="nb">min</span><span class="p">(</span><span class="n">pieces</span><span class="p">[</span><span class="s1">'deepest'</span><span class="p">]))</span> <span class="o">+</span> <span class="mi">1</span>
+
+
+<div class="viewcode-block" id="anchor_difference">
+<a class="viewcode-back" href="../../../../../developers_guide/ocean/generated/polaris.tasks.ocean.horiz_press_grad.finite_volume.anchor_difference.html#polaris.tasks.ocean.horiz_press_grad.finite_volume.anchor_difference">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">anchor_difference</span><span class="p">(</span>
+    <span class="n">pieces</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">order</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">2</span><span class="p">,</span> <span class="n">guards</span><span class="p">:</span> <span class="nb">set</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    The design's ``[anchor]``: the fixed-pressure height difference at the</span>
+<span class="sd">    interface the scan starts from.</span>
+
+<span class="sd">    .. math::</span>
+
+<span class="sd">        D_{K+1} = \\Delta_e Z_{K+1} - \\frac{1}{g}\\,\\Delta_e</span>
+<span class="sd">        \\int_{p_{i,K+1}}^{\\bar q_{K+1}} \\hat\\alpha^{(e)}_i(p)\\,dp</span>
+
+<span class="sd">    The two columns' interfaces sit at different pressures, so this is their</span>
+<span class="sd">    geometric height difference corrected to the common pressure</span>
+<span class="sd">    :math:`\\bar q_{K+1}`.  The two short integrals are over *different*</span>
+<span class="sd">    pressure ranges and so cannot be combined into a matched-pressure</span>
+<span class="sd">    difference the way the interior can; each is taken inside that column's own</span>
+<span class="sd">    outermost layer.</span>
+
+<span class="sd">    **The anchor is at the sea floor** (design §3.7.4), :math:`K` being the</span>
+<span class="sd">    deepest layer valid in both columns.  Which end it sits at is not a free</span>
+<span class="sd">    choice and not merely a conditioning preference:</span>
+
+<span class="sd">    * `VertCoord` builds geometric height *upward* from a prescribed</span>
+<span class="sd">      bathymetry, accumulating :math:`\\rho_0\\alpha_{i,k}\\tilde h_{i,k}` over</span>
+<span class="sd">      each column's **own** layers.  On a profile the reconstruction does not</span>
+<span class="sd">      resolve, two columns with different layer partitions give sums differing</span>
+<span class="sd">      at :math:`O(\\tilde h^2)`, so their *derived* sea-surface heights differ</span>
+<span class="sd">      by that much even when the two columns hold the same water.  Anchored at</span>
+<span class="sd">      the surface that discrepancy enters :math:`D_1` directly and exactness is</span>
+<span class="sd">      lost; anchored at the sea floor over a flat floor :math:`\\Delta_e Z` is</span>
+<span class="sd">      exact input and vanishes identically.</span>
+<span class="sd">    * The two ends therefore agree only for profiles inside the exact set,</span>
+<span class="sd">      where both columns' sums agree term by term.  The ``anchor_at_surface``</span>
+<span class="sd">      guard exists to measure the gap rather than assume it.</span>
+
+<span class="sd">    Where the two columns have different ``maxLevelCell`` this needs no special</span>
+<span class="sd">    case: the anchor sits at the deepest interface index valid in *both*, which</span>
+<span class="sd">    is the shallower column's own floor and an interior interface of the</span>
+<span class="sd">    deeper one, and each column is shifted to the common pressure from</span>
+<span class="sd">    whichever interface pressure it has there.</span>
+
+<span class="sd">    The anchor is **computed, not assumed**.  It is whatever the model's</span>
+<span class="sd">    geometric heights and interface pressures imply, evaluated at a common</span>
+<span class="sd">    pressure, and it is the deepest instance of the same fixed-pressure</span>
+<span class="sd">    comparison the recurrence makes at every other interface.  A state only</span>
+<span class="sd">    approximately at rest carries a real gradient, and the scheme reports it.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    pieces : dict</span>
+<span class="sd">        From :py:func:`matched_pressure_pieces`.</span>
+
+<span class="sd">    order : int</span>
+<span class="sd">        Number of Gauss-Legendre points, matching Omega's ``QuadraturePoints``.</span>
+<span class="sd">        The integrand is linear in pressure within a layer, so 2 integrates it</span>
+<span class="sd">        exactly.</span>
+
+<span class="sd">    guards : set of str, optional</span>
+<span class="sd">        Verification-only switches; see :py:func:`finite_volume_hpga`.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    anchor : float</span>
+<span class="sd">        :math:`D` at :py:func:`anchor_index`, in m.</span>
+
+<span class="sd">    """</span>
+    <span class="n">guards</span> <span class="o">=</span> <span class="n">guards</span> <span class="k">if</span> <span class="n">guards</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">pieces</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'guards'</span><span class="p">,</span> <span class="nb">set</span><span class="p">())</span>
+    <span class="n">interface</span> <span class="o">=</span> <span class="n">anchor_index</span><span class="p">(</span><span class="n">pieces</span><span class="p">,</span> <span class="n">guards</span><span class="o">=</span><span class="n">guards</span><span class="p">)</span>
+    <span class="n">height</span> <span class="o">=</span> <span class="n">pieces</span><span class="p">[</span><span class="s1">'interface_height'</span><span class="p">][:,</span> <span class="n">interface</span><span class="p">]</span>
+    <span class="n">delta_z</span> <span class="o">=</span> <span class="n">height</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">height</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="k">if</span> <span class="s1">'anchor_delta_z_only'</span> <span class="ow">in</span> <span class="n">guards</span><span class="p">:</span>
+        <span class="c1"># guard: the geometric height difference without correcting to a</span>
+        <span class="c1"># common pressure</span>
+        <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="n">delta_z</span><span class="p">)</span>
+
+    <span class="n">nodes</span><span class="p">,</span> <span class="n">weights</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">polynomial</span><span class="o">.</span><span class="n">legendre</span><span class="o">.</span><span class="n">leggauss</span><span class="p">(</span><span class="n">order</span><span class="p">)</span>
+    <span class="n">common</span> <span class="o">=</span> <span class="n">pieces</span><span class="p">[</span><span class="s1">'edge_interface'</span><span class="p">][</span><span class="n">interface</span><span class="p">]</span>
+    <span class="c1"># the edge layer adjacent to the anchor interface supplies the shared</span>
+    <span class="c1"># coefficients, as it does for every other interface in the scan</span>
+    <span class="n">edge_layer</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">interface</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+
+    <span class="n">correction</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">icell</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">2</span><span class="p">):</span>
+        <span class="n">own</span> <span class="o">=</span> <span class="n">pieces</span><span class="p">[</span><span class="s1">'interface'</span><span class="p">][</span><span class="n">icell</span><span class="p">,</span> <span class="n">interface</span><span class="p">]</span>
+        <span class="n">middle</span> <span class="o">=</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="p">(</span><span class="n">own</span> <span class="o">+</span> <span class="n">common</span><span class="p">)</span>
+        <span class="n">half</span> <span class="o">=</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="p">(</span><span class="n">common</span> <span class="o">-</span> <span class="n">own</span><span class="p">)</span>
+        <span class="n">probe</span> <span class="o">=</span> <span class="n">middle</span> <span class="o">+</span> <span class="n">half</span> <span class="o">*</span> <span class="n">nodes</span>
+        <span class="n">level</span> <span class="o">=</span> <span class="n">layer_containing_pressure</span><span class="p">(</span><span class="n">pieces</span><span class="p">,</span> <span class="n">icell</span><span class="p">,</span> <span class="n">probe</span><span class="p">)</span>
+        <span class="n">theta</span> <span class="o">=</span> <span class="n">pieces</span><span class="p">[</span><span class="s1">'theta'</span><span class="p">][</span><span class="n">icell</span><span class="p">,</span> <span class="n">level</span><span class="p">]</span> <span class="o">+</span> <span class="n">pieces</span><span class="p">[</span><span class="s1">'slope_theta'</span><span class="p">][</span>
+            <span class="n">icell</span><span class="p">,</span> <span class="n">level</span>
+        <span class="p">]</span> <span class="o">*</span> <span class="p">(</span><span class="n">probe</span> <span class="o">-</span> <span class="n">pieces</span><span class="p">[</span><span class="s1">'pressure_mid'</span><span class="p">][</span><span class="n">icell</span><span class="p">,</span> <span class="n">level</span><span class="p">])</span>
+        <span class="n">salinity</span> <span class="o">=</span> <span class="n">pieces</span><span class="p">[</span><span class="s1">'salinity'</span><span class="p">][</span><span class="n">icell</span><span class="p">,</span> <span class="n">level</span><span class="p">]</span> <span class="o">+</span> <span class="n">pieces</span><span class="p">[</span><span class="s1">'slope_salinity'</span><span class="p">][</span>
+            <span class="n">icell</span><span class="p">,</span> <span class="n">level</span>
+        <span class="p">]</span> <span class="o">*</span> <span class="p">(</span><span class="n">probe</span> <span class="o">-</span> <span class="n">pieces</span><span class="p">[</span><span class="s1">'pressure_mid'</span><span class="p">][</span><span class="n">icell</span><span class="p">,</span> <span class="n">level</span><span class="p">])</span>
+        <span class="n">expansion</span> <span class="o">=</span> <span class="n">pieces</span><span class="p">[</span><span class="s1">'expansion'</span><span class="p">]</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span><span class="n">nVertLevels</span><span class="o">=</span><span class="n">edge_layer</span><span class="p">)</span>
+        <span class="n">specvol</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="nb">float</span><span class="p">(</span><span class="n">expansion</span><span class="o">.</span><span class="n">alpha_0</span><span class="p">)</span>
+            <span class="o">+</span> <span class="nb">float</span><span class="p">(</span><span class="n">expansion</span><span class="o">.</span><span class="n">alpha_theta</span><span class="p">)</span>
+            <span class="o">*</span> <span class="p">(</span><span class="n">theta</span> <span class="o">-</span> <span class="nb">float</span><span class="p">(</span><span class="n">expansion</span><span class="o">.</span><span class="n">theta_ref</span><span class="p">))</span>
+            <span class="o">+</span> <span class="nb">float</span><span class="p">(</span><span class="n">expansion</span><span class="o">.</span><span class="n">alpha_s</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="n">salinity</span> <span class="o">-</span> <span class="nb">float</span><span class="p">(</span><span class="n">expansion</span><span class="o">.</span><span class="n">s_ref</span><span class="p">))</span>
+            <span class="o">+</span> <span class="nb">float</span><span class="p">(</span><span class="n">expansion</span><span class="o">.</span><span class="n">alpha_p</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="n">probe</span> <span class="o">-</span> <span class="nb">float</span><span class="p">(</span><span class="n">expansion</span><span class="o">.</span><span class="n">p_ref</span><span class="p">))</span>
+        <span class="p">)</span>
+        <span class="n">correction</span><span class="p">[</span><span class="n">icell</span><span class="p">]</span> <span class="o">=</span> <span class="n">half</span> <span class="o">*</span> <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">weights</span> <span class="o">*</span> <span class="n">specvol</span><span class="p">))</span>
+
+    <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="n">delta_z</span> <span class="o">-</span> <span class="p">(</span><span class="n">correction</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">correction</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">/</span> <span class="n">Gravity</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="column_scan">
+<a class="viewcode-back" href="../../../../../developers_guide/ocean/generated/polaris.tasks.ocean.horiz_press_grad.finite_volume.column_scan.html#polaris.tasks.ocean.horiz_press_grad.finite_volume.column_scan">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">column_scan</span><span class="p">(</span>
+    <span class="n">pieces</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">order</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">2</span><span class="p">,</span> <span class="n">guards</span><span class="p">:</span> <span class="nb">set</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    The design's ``[d-recurrence]``: :math:`D_k = \\Delta_e z(\\bar q_k)`</span>
+<span class="sd">    accumulated along the edge's column from :py:func:`anchor_difference`,</span>
+<span class="sd">    which sits at the **sea floor**.</span>
+
+<span class="sd">    .. math::</span>
+
+<span class="sd">        D_{k+1} = D_k - \\frac{1}{g}</span>
+<span class="sd">        \\int_{\\bar q_k}^{\\bar q_{k+1}} \\Delta_e\\hat\\alpha(p)\\,dp</span>
+
+<span class="sd">    Anchored at the floor the recurrence is run in the direction</span>
+<span class="sd">    :math:`D_k = D_{k+1} + \\frac{1}{g}\\int`, upward; the integrals are the</span>
+<span class="sd">    same ones either way.</span>
+
+<span class="sd">    Every quantity here is small.  :math:`D_k` is a fixed-pressure height</span>
+<span class="sd">    difference -- order :math:`10^{-1}` m for a realistic baroclinic column and</span>
+<span class="sd">    zero for a resting one -- against the :math:`10^{2}` m height differences</span>
+<span class="sd">    at fixed layer index that a scheme comparing at fixed index has to form and</span>
+<span class="sd">    cancel.  The increments are smaller still, being integrals of a horizontal</span>
+<span class="sd">    contrast.  There is no cancellation of large quantities anywhere.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    pieces : dict</span>
+<span class="sd">        From :py:func:`matched_pressure_pieces`.</span>
+
+<span class="sd">    order : int</span>
+<span class="sd">        Number of Gauss-Legendre points for the layer integrals, matching</span>
+<span class="sd">        Omega's ``QuadraturePoints``.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    difference : numpy.ndarray</span>
+<span class="sd">        :math:`D_k` at every edge interface valid in both columns, in m, with</span>
+<span class="sd">        ``difference[anchor_index(pieces)]`` the anchor.</span>
+
+
+<span class="sd">    """</span>
+    <span class="n">nodes</span><span class="p">,</span> <span class="n">weights</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">polynomial</span><span class="o">.</span><span class="n">legendre</span><span class="o">.</span><span class="n">leggauss</span><span class="p">(</span><span class="n">order</span><span class="p">)</span>
+    <span class="n">edges</span> <span class="o">=</span> <span class="n">pieces</span><span class="p">[</span><span class="s1">'edge_interface'</span><span class="p">]</span>
+    <span class="n">deepest</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="nb">min</span><span class="p">(</span><span class="n">pieces</span><span class="p">[</span><span class="s1">'deepest'</span><span class="p">]))</span>
+    <span class="n">anchor</span> <span class="o">=</span> <span class="n">anchor_index</span><span class="p">(</span><span class="n">pieces</span><span class="p">,</span> <span class="n">guards</span><span class="o">=</span><span class="n">guards</span><span class="p">)</span>
+
+    <span class="n">increment</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span><span class="n">deepest</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">edge_layer</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">deepest</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
+        <span class="n">top</span><span class="p">,</span> <span class="n">bot</span> <span class="o">=</span> <span class="n">edges</span><span class="p">[</span><span class="n">edge_layer</span><span class="p">],</span> <span class="n">edges</span><span class="p">[</span><span class="n">edge_layer</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span>
+        <span class="n">middle</span><span class="p">,</span> <span class="n">half</span> <span class="o">=</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="p">(</span><span class="n">top</span> <span class="o">+</span> <span class="n">bot</span><span class="p">),</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="p">(</span><span class="n">bot</span> <span class="o">-</span> <span class="n">top</span><span class="p">)</span>
+        <span class="n">contrast</span> <span class="o">=</span> <span class="n">delta_specvol_at_pressure</span><span class="p">(</span>
+            <span class="n">pieces</span><span class="p">,</span> <span class="n">edge_layer</span><span class="p">,</span> <span class="n">middle</span> <span class="o">+</span> <span class="n">half</span> <span class="o">*</span> <span class="n">nodes</span><span class="p">,</span> <span class="n">guards</span><span class="o">=</span><span class="n">guards</span>
+        <span class="p">)</span>
+        <span class="n">increment</span><span class="p">[</span><span class="n">edge_layer</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">half</span> <span class="o">*</span> <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">weights</span> <span class="o">*</span> <span class="n">contrast</span><span class="p">))</span> <span class="o">/</span> <span class="n">Gravity</span>
+        <span class="p">)</span>
+
+    <span class="n">difference</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span><span class="n">deepest</span> <span class="o">+</span> <span class="mi">2</span><span class="p">)</span>
+    <span class="n">difference</span><span class="p">[</span><span class="n">anchor</span><span class="p">]</span> <span class="o">=</span> <span class="n">anchor_difference</span><span class="p">(</span><span class="n">pieces</span><span class="p">,</span> <span class="n">order</span><span class="o">=</span><span class="n">order</span><span class="p">,</span> <span class="n">guards</span><span class="o">=</span><span class="n">guards</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">anchor</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">):</span>
+        <span class="n">difference</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">difference</span><span class="p">[</span><span class="n">k</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">increment</span><span class="p">[</span><span class="n">k</span><span class="p">]</span>
+    <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">anchor</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">deepest</span> <span class="o">+</span> <span class="mi">2</span><span class="p">):</span>
+        <span class="n">difference</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">difference</span><span class="p">[</span><span class="n">k</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">increment</span><span class="p">[</span><span class="n">k</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span>
+
+    <span class="k">return</span> <span class="n">difference</span></div>
+
+
+
+<div class="viewcode-block" id="scan_increments">
+<a class="viewcode-back" href="../../../../../developers_guide/ocean/generated/polaris.tasks.ocean.horiz_press_grad.finite_volume.scan_increments.html#polaris.tasks.ocean.horiz_press_grad.finite_volume.scan_increments">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">scan_increments</span><span class="p">(</span>
+    <span class="n">pieces</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">order</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">2</span><span class="p">,</span> <span class="n">guards</span><span class="p">:</span> <span class="nb">set</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    The per-layer increments of :py:func:`column_scan`, for the smallness</span>
+<span class="sd">    assertion of §3.7.5.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    pieces : dict</span>
+<span class="sd">        From :py:func:`matched_pressure_pieces`.</span>
+
+<span class="sd">    order : int</span>
+<span class="sd">        Number of Gauss-Legendre points, matching Omega's</span>
+<span class="sd">        ``QuadraturePoints``.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    increments : numpy.ndarray</span>
+<span class="sd">        ``D_{k+1} - D_k`` for each edge layer, in m.</span>
+
+
+<span class="sd">    """</span>
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">column_scan</span><span class="p">(</span><span class="n">pieces</span><span class="p">,</span> <span class="n">order</span><span class="o">=</span><span class="n">order</span><span class="p">,</span> <span class="n">guards</span><span class="o">=</span><span class="n">guards</span><span class="p">))</span></div>
+
+
+
+<div class="viewcode-block" id="layer_mean_difference">
+<a class="viewcode-back" href="../../../../../developers_guide/ocean/generated/polaris.tasks.ocean.horiz_press_grad.finite_volume.layer_mean_difference.html#polaris.tasks.ocean.horiz_press_grad.finite_volume.layer_mean_difference">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">layer_mean_difference</span><span class="p">(</span>
+    <span class="n">pieces</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">order</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">2</span><span class="p">,</span> <span class="n">guards</span><span class="p">:</span> <span class="nb">set</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    The layer mean of :math:`\\Delta_e z(p)` over each edge layer.</span>
+
+<span class="sd">    Within an edge layer ``[qbar_k, qbar_{k+1}]``,</span>
+<span class="sd">    :math:`\\Delta_e z(p) = D_{k+1} + \\frac{1}{g}\\int_{p}^{\\bar q_{k+1}}</span>
+<span class="sd">    \\Delta_e\\hat\\alpha`, so averaging over the layer and integrating the</span>
+<span class="sd">    double integral by parts gives</span>
+
+<span class="sd">    .. math::</span>
+
+<span class="sd">        \\langle\\Delta_e z\\rangle_k = D_{k+1}</span>
+<span class="sd">        + \\frac{1}{g\\,\\Delta p_{e,k}}</span>
+<span class="sd">        \\int_{\\bar q_k}^{\\bar q_{k+1}}</span>
+<span class="sd">        (p - \\bar q_k)\\,\\Delta_e\\hat\\alpha(p)\\,dp</span>
+
+<span class="sd">    which is the "second moment of the same integrand over the same interval"</span>
+<span class="sd">    of design §3.5.1, on the same quadrature points as the scan.</span>
+
+<span class="sd">    The moment is taken about the layer's **top** interface and paired with</span>
+<span class="sd">    :math:`D_{k+1}` at its **bottom** one, the end nearer the sea-floor anchor</span>
+<span class="sd">    (design §4.1.3).  The mirror form -- :math:`D_k` with a moment about</span>
+<span class="sd">    the bottom -- is the same number in exact arithmetic and a different one at</span>
+<span class="sd">    finite quadrature, so it is not an interchangeable way to write this.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    pieces : dict</span>
+<span class="sd">        From :py:func:`matched_pressure_pieces`.</span>
+
+<span class="sd">    order : int</span>
+<span class="sd">        Number of Gauss-Legendre points, matching Omega's</span>
+<span class="sd">        ``QuadraturePoints``.</span>
+
+<span class="sd">    guards : set of str, optional</span>
+<span class="sd">        Verification-only switches; see :py:func:`finite_volume_hpga`.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    mean : numpy.ndarray</span>
+<span class="sd">        :math:`\\langle\\Delta_e z\\rangle_k` in m, one per edge layer.</span>
+
+<span class="sd">    """</span>
+    <span class="n">nodes</span><span class="p">,</span> <span class="n">weights</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">polynomial</span><span class="o">.</span><span class="n">legendre</span><span class="o">.</span><span class="n">leggauss</span><span class="p">(</span><span class="n">order</span><span class="p">)</span>
+    <span class="n">edges</span> <span class="o">=</span> <span class="n">pieces</span><span class="p">[</span><span class="s1">'edge_interface'</span><span class="p">]</span>
+    <span class="n">difference</span> <span class="o">=</span> <span class="n">column_scan</span><span class="p">(</span><span class="n">pieces</span><span class="p">,</span> <span class="n">order</span><span class="o">=</span><span class="n">order</span><span class="p">,</span> <span class="n">guards</span><span class="o">=</span><span class="n">guards</span><span class="p">)</span>
+    <span class="n">deepest</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="nb">min</span><span class="p">(</span><span class="n">pieces</span><span class="p">[</span><span class="s1">'deepest'</span><span class="p">]))</span>
+
+    <span class="n">mean</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span><span class="n">deepest</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">edge_layer</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">deepest</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
+        <span class="n">top</span><span class="p">,</span> <span class="n">bot</span> <span class="o">=</span> <span class="n">edges</span><span class="p">[</span><span class="n">edge_layer</span><span class="p">],</span> <span class="n">edges</span><span class="p">[</span><span class="n">edge_layer</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span>
+        <span class="n">middle</span><span class="p">,</span> <span class="n">half</span> <span class="o">=</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="p">(</span><span class="n">top</span> <span class="o">+</span> <span class="n">bot</span><span class="p">),</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="p">(</span><span class="n">bot</span> <span class="o">-</span> <span class="n">top</span><span class="p">)</span>
+        <span class="n">probe</span> <span class="o">=</span> <span class="n">middle</span> <span class="o">+</span> <span class="n">half</span> <span class="o">*</span> <span class="n">nodes</span>
+        <span class="n">contrast</span> <span class="o">=</span> <span class="n">delta_specvol_at_pressure</span><span class="p">(</span>
+            <span class="n">pieces</span><span class="p">,</span> <span class="n">edge_layer</span><span class="p">,</span> <span class="n">probe</span><span class="p">,</span> <span class="n">guards</span><span class="o">=</span><span class="n">guards</span>
+        <span class="p">)</span>
+        <span class="n">moment</span> <span class="o">=</span> <span class="n">half</span> <span class="o">*</span> <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">weights</span> <span class="o">*</span> <span class="p">(</span><span class="n">probe</span> <span class="o">-</span> <span class="n">top</span><span class="p">)</span> <span class="o">*</span> <span class="n">contrast</span><span class="p">))</span>
+        <span class="n">mean</span><span class="p">[</span><span class="n">edge_layer</span><span class="p">]</span> <span class="o">=</span> <span class="n">difference</span><span class="p">[</span><span class="n">edge_layer</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">moment</span> <span class="o">/</span> <span class="p">(</span>
+            <span class="n">Gravity</span> <span class="o">*</span> <span class="p">(</span><span class="n">bot</span> <span class="o">-</span> <span class="n">top</span><span class="p">)</span>
+        <span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">mean</span></div>
+
+
+
+<div class="viewcode-block" id="finite_volume_hpga">
+<a class="viewcode-back" href="../../../../../developers_guide/ocean/generated/polaris.tasks.ocean.horiz_press_grad.finite_volume.finite_volume_hpga.html#polaris.tasks.ocean.horiz_press_grad.finite_volume.finite_volume_hpga">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">finite_volume_hpga</span><span class="p">(</span>
+    <span class="n">ds</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">,</span>
+    <span class="n">dx</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="n">order</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">2</span><span class="p">,</span>
+    <span class="n">guards</span><span class="p">:</span> <span class="nb">set</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    The assembled ``FiniteVolume`` horizontal pressure-gradient acceleration,</span>
+<span class="sd">    design ``[ho-exact]``.</span>
+
+<span class="sd">    .. math::</span>
+
+<span class="sd">        T^p_{e,k} = -\\frac{g}{d_e}\\,\\langle\\Delta_e z\\rangle_k</span>
+
+<span class="sd">    The tidal-potential and self-attraction-and-loading terms are identically</span>
+<span class="sd">    zero in these configurations and are omitted.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    ds : xarray.Dataset</span>
+<span class="sd">        The two-column state.</span>
+
+<span class="sd">    dx : float</span>
+<span class="sd">        The distance ``d_e`` between the two columns in m.</span>
+
+<span class="sd">    order : int</span>
+<span class="sd">        Number of Gauss-Legendre points, matching Omega's ``QuadraturePoints``.</span>
+<span class="sd">        Exactness does not depend on it (design §3.5, consequence 2), so it is</span>
+<span class="sd">        an ordinary accuracy knob -- but it is **not** a free one: Omega and</span>
+<span class="sd">        Polaris must integrate with the same rule, or</span>
+<span class="sd">        ``omega_vs_polaris_rms_threshold`` compares two different algorithms</span>
+<span class="sd">        rather than two implementations of one.  Both are driven by the</span>
+<span class="sd">        ``quadrature_points`` config option.</span>
+
+<span class="sd">    guards : set of str, optional</span>
+<span class="sd">        Verification-only switches, each deliberately breaking one rule:</span>
+
+<span class="sd">        ``'cell_local_expansion'``</span>
+<span class="sd">            expand about each cell's own state instead of the edge-shared one.</span>
+<span class="sd">        ``'state_by_index'``</span>
+<span class="sd">            evaluate each column at its own layer ``k`` instead of the layer</span>
+<span class="sd">            containing the pressure.</span>
+<span class="sd">        ``'anchor_delta_z_only'``</span>
+<span class="sd">            take the anchor as ``Delta_e Z`` alone, dropping the correction</span>
+<span class="sd">            to a common pressure.</span>
+<span class="sd">        ``'anchor_at_surface'``</span>
+<span class="sd">            anchor the column scan at the sea surface instead of the sea</span>
+<span class="sd">            floor.  Not a mistake in the arithmetic but a different choice of</span>
+<span class="sd">            end, which the design settles in favour of the floor; see</span>
+<span class="sd">            :py:func:`anchor_difference`.  It exists so the gap between the two</span>
+<span class="sd">            can be measured rather than assumed.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    hpga : xarray.DataArray</span>
+<span class="sd">        The edge-normal acceleration in m s-2, at layer midpoints, ``NaN``</span>
+<span class="sd">        where a layer is not valid in both columns.</span>
+
+<span class="sd">    """</span>
+    <span class="k">if</span> <span class="n">dx</span> <span class="o">==</span> <span class="mf">0.0</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">'dx must be non-zero for finite differences.'</span><span class="p">)</span>
+
+    <span class="n">pieces</span> <span class="o">=</span> <span class="n">matched_pressure_pieces</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="n">guards</span><span class="o">=</span><span class="n">guards</span><span class="p">)</span>
+    <span class="n">mean</span> <span class="o">=</span> <span class="n">layer_mean_difference</span><span class="p">(</span><span class="n">pieces</span><span class="p">,</span> <span class="n">order</span><span class="o">=</span><span class="n">order</span><span class="p">,</span> <span class="n">guards</span><span class="o">=</span><span class="n">guards</span><span class="p">)</span>
+
+    <span class="n">values</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">full</span><span class="p">(</span><span class="n">ds</span><span class="o">.</span><span class="n">sizes</span><span class="p">[</span><span class="s1">'nVertLevels'</span><span class="p">],</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">)</span>
+    <span class="n">values</span><span class="p">[:</span> <span class="nb">len</span><span class="p">(</span><span class="n">mean</span><span class="p">)]</span> <span class="o">=</span> <span class="o">-</span><span class="p">(</span><span class="n">Gravity</span> <span class="o">/</span> <span class="n">dx</span><span class="p">)</span> <span class="o">*</span> <span class="n">mean</span>
+
+    <span class="n">hpga</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">(</span>
+        <span class="n">data</span><span class="o">=</span><span class="n">values</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">,</span> <span class="p">:],</span>
+        <span class="n">dims</span><span class="o">=</span><span class="p">[</span><span class="s1">'Time'</span><span class="p">,</span> <span class="s1">'nVertLevels'</span><span class="p">],</span>
+        <span class="n">attrs</span><span class="o">=</span><span class="p">{</span>
+            <span class="s1">'long_name'</span><span class="p">:</span> <span class="s1">'along-layer pressure gradient acceleration at layer '</span>
+            <span class="s1">'midpoints, finite-volume scheme'</span><span class="p">,</span>
+            <span class="s1">'units'</span><span class="p">:</span> <span class="s1">'m s-2'</span><span class="p">,</span>
+        <span class="p">},</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">hpga</span></div>
+
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_coefficients_for</span><span class="p">(</span>
+    <span class="n">pieces</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span>
+    <span class="n">edge_layer</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">icell</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">level</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">guards</span><span class="p">:</span> <span class="nb">set</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    The equation-of-state coefficients a column uses at a set of pressures.</span>
+
+<span class="sd">    Correctly, both columns use the edge-shared set of the *edge* layer.  The</span>
+<span class="sd">    ``cell_local_expansion`` guard breaks the *sharing*, and that does break</span>
+<span class="sd">    exactness: design §3.5 consequence 1 says the shared coefficients may take</span>
+<span class="sd">    any value, not that the two columns may use different ones.  ``[dalpha]``</span>
+<span class="sd">    only collapses to a coefficient times a contrast when one coefficient set</span>
+<span class="sd">    multiplies both columns.</span>
+
+<span class="sd">    """</span>
+    <span class="k">if</span> <span class="s1">'cell_local_expansion'</span> <span class="ow">in</span> <span class="n">guards</span><span class="p">:</span>
+        <span class="n">source</span> <span class="o">=</span> <span class="n">pieces</span><span class="p">[</span><span class="s1">'cell_local'</span><span class="p">]</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span><span class="n">nCells</span><span class="o">=</span><span class="n">icell</span><span class="p">)</span>
+        <span class="k">return</span> <span class="p">{</span>
+            <span class="s1">'alpha_theta'</span><span class="p">:</span> <span class="n">source</span><span class="o">.</span><span class="n">alpha_theta</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="n">level</span><span class="p">],</span>
+            <span class="s1">'alpha_s'</span><span class="p">:</span> <span class="n">source</span><span class="o">.</span><span class="n">alpha_s</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="n">level</span><span class="p">],</span>
+        <span class="p">}</span>
+    <span class="n">source</span> <span class="o">=</span> <span class="n">pieces</span><span class="p">[</span><span class="s1">'expansion'</span><span class="p">]</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span><span class="n">nVertLevels</span><span class="o">=</span><span class="n">edge_layer</span><span class="p">)</span>
+    <span class="k">return</span> <span class="p">{</span>
+        <span class="s1">'alpha_theta'</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span><span class="n">source</span><span class="o">.</span><span class="n">alpha_theta</span><span class="p">),</span>
+        <span class="s1">'alpha_s'</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span><span class="n">source</span><span class="o">.</span><span class="n">alpha_s</span><span class="p">),</span>
+    <span class="p">}</span>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2026, Energy Exascale Earth System Model Project.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+   
+
+  <!-- Meta tags for JS to use -->
+  <meta name="doc-version" content="main">
+  <meta name="doc-site-root" content="../../../../../">
+
+  <!-- Create version switcher container -->
+  <script>
+    const sidebar = document.querySelector('.wy-side-nav-search');
+    if (sidebar) {
+      const versionDiv = document.createElement('div');
+      versionDiv.id = 'version-switcher';
+      versionDiv.style.marginTop = '1em';
+      sidebar.appendChild(versionDiv);
+    }
+  </script>
+
+  <!-- Load version-switcher.js using the correct relative path -->
+  <script src="../../../../../../shared/version-switcher.js"></script>
+
+
+</body>
+</html>

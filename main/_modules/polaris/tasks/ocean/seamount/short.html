@@ -472,7 +472,11 @@ window.runMermaid = runMermaid;</script>
              
   <h1>Source code for polaris.tasks.ocean.seamount.short</h1><div class="highlight"><pre>
 <span></span><span class="kn">from</span><span class="w"> </span><span class="nn">polaris</span><span class="w"> </span><span class="kn">import</span> <span class="n">Task</span> <span class="k">as</span> <span class="n">Task</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.tasks.ocean.seamount.default</span><span class="w"> </span><span class="kn">import</span> <span class="n">DEFAULT_SCHEME</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">polaris.tasks.ocean.seamount.forward</span><span class="w"> </span><span class="kn">import</span> <span class="n">Forward</span> <span class="k">as</span> <span class="n">Forward</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.tasks.ocean.seamount.forward</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">forward_step_name</span> <span class="k">as</span> <span class="n">forward_step_name</span><span class="p">,</span>
+<span class="p">)</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">polaris.tasks.ocean.seamount.viz</span><span class="w"> </span><span class="kn">import</span> <span class="n">Viz</span> <span class="k">as</span> <span class="n">Viz</span>
 
 
@@ -512,14 +516,20 @@ window.runMermaid = runMermaid;</script>
             <span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span>
             <span class="n">init</span><span class="o">=</span><span class="n">init</span><span class="p">,</span>
             <span class="n">task_name</span><span class="o">=</span><span class="n">task_name</span><span class="p">,</span>
-            <span class="n">name</span><span class="o">=</span><span class="s1">'forward'</span><span class="p">,</span>
+            <span class="n">name</span><span class="o">=</span><span class="n">forward_step_name</span><span class="p">(</span><span class="n">DEFAULT_SCHEME</span><span class="p">),</span>
+            <span class="n">scheme</span><span class="o">=</span><span class="n">DEFAULT_SCHEME</span><span class="p">,</span>
             <span class="n">indir</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">subdir</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">add_step</span><span class="p">(</span><span class="n">forward_step</span><span class="p">)</span>
         <span class="c1"># unlike the default task, the forward run here is cheap to repeat, so</span>
         <span class="c1"># the plots are opt-in as they are elsewhere in Polaris</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">add_step</span><span class="p">(</span>
-            <span class="n">Viz</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span> <span class="n">indir</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">subdir</span><span class="p">),</span> <span class="n">run_by_default</span><span class="o">=</span><span class="kc">False</span>
+            <span class="n">Viz</span><span class="p">(</span>
+                <span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span>
+                <span class="n">indir</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">subdir</span><span class="p">,</span>
+                <span class="n">scheme</span><span class="o">=</span><span class="n">DEFAULT_SCHEME</span><span class="p">,</span>
+            <span class="p">),</span>
+            <span class="n">run_by_default</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
         <span class="p">)</span></div>
 </div>
 

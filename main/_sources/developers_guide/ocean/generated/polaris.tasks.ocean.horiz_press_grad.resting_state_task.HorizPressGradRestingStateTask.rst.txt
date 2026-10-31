@@ -1,0 +1,26 @@
+﻿polaris.tasks.ocean.horiz\_press\_grad.resting\_state\_task.HorizPressGradRestingStateTask
+==========================================================================================
+
+.. currentmodule:: polaris.tasks.ocean.horiz_press_grad.resting_state_task
+
+.. autoclass:: HorizPressGradRestingStateTask
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~HorizPressGradRestingStateTask.__init__
+      ~HorizPressGradRestingStateTask.add_step
+      ~HorizPressGradRestingStateTask.configure
+      ~HorizPressGradRestingStateTask.remove_step
+      ~HorizPressGradRestingStateTask.set_shared_config
+   
+   
+
+   
+   
+   

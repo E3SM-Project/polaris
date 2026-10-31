@@ -19,8 +19,8 @@
     <script src="../../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
-    <link rel="next" title="polaris.tasks.ocean.seamount.forward.Forward" href="polaris.tasks.ocean.seamount.forward.Forward.html" />
-    <link rel="prev" title="polaris.tasks.ocean.seamount.add_seamount_tasks" href="polaris.tasks.ocean.seamount.add_seamount_tasks.html" />
+    <link rel="next" title="polaris.tasks.ocean.seamount.default.Default.configure" href="polaris.tasks.ocean.seamount.default.Default.configure.html" />
+    <link rel="prev" title="polaris.tasks.ocean.seamount.analysis.Analysis.run" href="polaris.tasks.ocean.seamount.analysis.Analysis.run.html" />
     <link href="../../../_static/style.css" rel="stylesheet" type="text/css">
 
 </head>
@@ -144,7 +144,16 @@
 <dt class="sig sig-object py" id="polaris.tasks.ocean.seamount.default.Default">
 <span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">polaris.tasks.ocean.seamount.default.</span></span><span class="sig-name descname"><span class="pre">Default</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">component</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">indir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">init</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/polaris/tasks/ocean/seamount/default.html#Default"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#polaris.tasks.ocean.seamount.default.Default" title="Link to this definition"></a></dt>
 <dd><p>The default seamount test case creates the mesh and initial condition,
-then performs a 6 day forward run and plots the results.</p>
+then performs a 6 day forward run, plots the results and measures the
+spurious circulation.</p>
+<p>Under Omega it performs a second forward run with the finite-volume
+horizontal pressure gradient, over the same initial condition, so that
+the two schemes are compared at an identical state.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Variables<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>init</strong> (<a class="reference internal" href="polaris.tasks.ocean.seamount.init.Init.html#polaris.tasks.ocean.seamount.init.Init" title="polaris.tasks.ocean.seamount.init.Init"><em>polaris.tasks.ocean.seamount.init.Init</em></a>) – The shared step for creating the initial state</p>
+</dd>
+</dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="polaris.tasks.ocean.seamount.default.Default.__init__">
 <span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">component</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">indir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">init</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/polaris/tasks/ocean/seamount/default.html#Default.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#polaris.tasks.ocean.seamount.default.Default.__init__" title="Link to this definition"></a></dt>
@@ -169,8 +178,8 @@ then performs a 6 day forward run and plots the results.</p>
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_step</span></code>([step, subdir, symlink, run_by_default])</p></td>
 <td><p>Add a step to the task and component (if not already present)</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">configure</span></code>()</p></td>
-<td><p>Modify the configuration options for this task.</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="polaris.tasks.ocean.seamount.default.Default.configure.html#polaris.tasks.ocean.seamount.default.Default.configure" title="polaris.tasks.ocean.seamount.default.Default.configure"><code class="xref py py-obj docutils literal notranslate"><span class="pre">configure</span></code></a>()</p></td>
+<td><p>Add the steps for the schemes only Omega has, and the analysis step that compares whichever schemes were run.</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">remove_step</span></code>(step)</p></td>
 <td><p>Remove the given step from this task and the component</p></td>
@@ -188,8 +197,8 @@ then performs a 6 day forward run and plots the results.</p>
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="polaris.tasks.ocean.seamount.add_seamount_tasks.html" class="btn btn-neutral float-left" title="polaris.tasks.ocean.seamount.add_seamount_tasks" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="polaris.tasks.ocean.seamount.forward.Forward.html" class="btn btn-neutral float-right" title="polaris.tasks.ocean.seamount.forward.Forward" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="polaris.tasks.ocean.seamount.analysis.Analysis.run.html" class="btn btn-neutral float-left" title="polaris.tasks.ocean.seamount.analysis.Analysis.run" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="polaris.tasks.ocean.seamount.default.Default.configure.html" class="btn btn-neutral float-right" title="polaris.tasks.ocean.seamount.default.Default.configure" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>
