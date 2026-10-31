@@ -370,30 +370,33 @@ ocean tasks at 4 and 2 km, up to 256 at 2 km, and MALI's counts
 
 ### Algorithm Design: Each experiment has a case configuration
 
-Date last modified: 2026/10/30
+Date last modified: 2026/10/31
 
 Contributors: Xylar Asay-Davis, Claude
 
 Each experiment's case configuration holds:
 
-- **a grid file**, defining a model grid for the pair of meshes, the two
-  grids' domains and the maps above. The other components' grids are
-  null. Experiments of a pair hold the same file;
 - **a user-mods directory** with:
-  - `user_nl_mpaso`: the options of the standalone runs, from the same
-    YAML files: the ISOMIP+ tasks' E3SM physics, wetting and drying, and
-    outflow;
-  - MPAS-Ocean streams for interior restoring and the tidal mask;
+  - a grid file, `config_grids.xml`, which CIME uses in place of E3SM's.
+    It holds E3SM's grid defaults, a model grid for the pair of meshes,
+    the two grids' domains and the maps above, but no runoff maps. The
+    other components' grids are null. Experiments of a pair hold the same
+    file;
+  - `user_nl_mpaso`: the options of the standalone runs: the ISOMIP+
+    tasks' E3SM physics, wetting and drying, and outflow. Every option
+    whose E3SM default differs from the standalone value is written;
   - `user_nl_mali`: the MISMIP+ tasks' MALI options, read from their
     files, with `config_always_compute_fem_grid = .false.`;
   - MALI's Albany input for IceOcean1r and IceOcean1ra, the MISMIP+
     tasks' file;
   - a MALI history stream with thickness, `bedTopography` and the mesh
     variables the MISMIP+ diagnostics need;
-  - `shell_commands` with the XML changes: the compset by long name,
-    MALI's mode (static, data or prognostic), the run length, and the
-    case variables that name the initial conditions, data-mode file and
-    partitions.
+  - `shell_commands` with the XML changes: the case variables that name
+    the initial conditions, the ocean's interior restoring and tidal mask,
+    the data-mode file and partitions, MALI's runoff to the ocean turned
+    off, and the run length in jobs;
+- **a README** with the compset by long name, which sets MALI's mode
+  (static, data or prognostic).
 
 ```{admonition} Rationale
 By default, MALI rebuilds Albany's finite-element grid at every velocity
@@ -404,13 +407,14 @@ slows.
 If the MISMIP+ tasks add thin-ice calving and iceberg removal to Ice1r,
 IceOcean1r takes them too, since its options are read from theirs.
 
-*(first E3SM run)* Which options E3SM's namelists accept, the case
-variables, the compsets, how streams are supplied, the coupling interval
-and the layouts. The E3SM changes add what E3SM lacks.
+The case variables, the runoff option and the compsets are those of the
+E3SM changes for idealized ice-shelf cases. E3SM's default coupling
+intervals divide evenly into the ocean's time steps. *(E3SM runs)* The
+layouts.
 
 ### Algorithm Design: The inputs are staged as on inputdata
 
-Date last modified: 2026/10/30
+Date last modified: 2026/10/31
 
 Contributors: Xylar Asay-Davis, Claude
 
@@ -431,7 +435,7 @@ assembled_files/
         cpl/gridmaps/<ocn grid>/map_<ocn grid>_to_<glc grid>_<method>.<date>.nc
         cpl/gridmaps/<glc grid>/map_<glc grid>_to_<ocn grid>_<method>.<date>.nc
     case_config/<experiment>/
-        <grid file>
+        README
         user_mods/
 ```
 
@@ -563,14 +567,23 @@ unchanged, with config sections `[misomip_ocean_partitions]` and
 
 ### Implementation: Each experiment has a case configuration
 
-Date last modified: 2026/10/30
+Date last modified: 2026/10/31
 
 Contributors: Xylar Asay-Davis, Claude
 
-A `case_config` step per experiment writes the grid file and user-mods
-directory. `user_nl_mpaso` comes from the YAML the standalone forward step
-renders, less the options that only a standalone run has: time step, run
-length, output and the initial-condition streams.
+A `case_config` step per experiment writes the user-mods directory and
+README. `user_nl_mpaso` comes from the namelist the standalone forward step
+renders: the options whose values differ from MPAS-Ocean's defaults, less
+those E3SM sets itself (run times, I/O, partitions and analysis members),
+plus a list of options whose E3SM defaults differ, with the standalone
+values. A case can read the staged files from a directory other than
+inputdata, for a run before they are copied there.
+
+```{admonition} Rationale
+The namelist includes everything the standalone step sets, from YAML files
+and from config options, such as the equation of state, so the list of
+YAML files is not repeated.
+```
 
 ### Implementation: The inputs are staged as on inputdata
 
@@ -679,13 +692,13 @@ The planned counts are among the partitions.
 
 ### Testing and Validation: Each experiment has a case configuration
 
-Date last modified: 2026/10/30
+Date last modified: 2026/10/31
 
 Contributors: Xylar Asay-Davis, Claude
 
-Unit tests: the user-mods options match the standalone YAML. The first
-E3SM run, and then the E3SM runs of each experiment, test the cases
-themselves.
+Unit tests: the user-mods options match the standalone namelist, and the
+list of options whose E3SM defaults differ matches E3SM's defaults. The
+E3SM runs of each experiment test the cases themselves.
 
 ### Testing and Validation: The inputs are staged as on inputdata
 
