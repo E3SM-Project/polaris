@@ -748,9 +748,10 @@ On FAnSSIE:
 - make the grounded-ice pressure cap safe for threaded runs;
 - use one ocean density in that cap, MPAS-Ocean's draft and MALI's
   flotation test;
-- run MALI's data mode with a changing thickness, and check that its masks
-  and pressure agree at each export, since MALI reads a new record after
-  its time step but before it exports *(inferred)*;
+- make MALI's masks and pressure agree at each export in data mode: when
+  a new thickness record takes effect, MALI's export carries the new
+  pressure and ice fraction but the previous record's floating fraction
+  for one glc coupling interval, as the 4 km Ocean3 runs in E3SM showed;
 - confirm that the floating mask follows the imported geometry, so newly
   floating cells melt and newly grounded ones stop.
 
