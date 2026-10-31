@@ -723,10 +723,9 @@ specific to ISOMIP+, so they can go upstream when E3SM wants them:
 - initial conditions, data-mode files and graph partitions named by case
   variables, for MPAS-Ocean and MALI, so `buildnml` accepts grids it does
   not list;
-- a driver option that turns off glc-to-ocean runoff while keeping
-  ice-shelf coupling, so MALI's calving and face-melt runoff stay out of
-  the ocean and no runoff map is needed; today, ice-shelf coupling
-  requires MALI's ocean coupling flag, which also turns on runoff;
+- a driver option, the case variable `GLC_RUNOFF_TO_OCN`, that turns off
+  glc-to-ocean runoff while keeping ice-shelf coupling, so MALI's calving
+  and face-melt runoff stay out of the ocean and no runoff map is needed;
 - wetting and drying that decides only where ice floats: grounded cells
   get a floating fraction of 0, and floating cells keep the fraction from
   their input (the initial condition, land-ice forcing or MALI) rather
