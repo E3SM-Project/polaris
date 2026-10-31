@@ -69,6 +69,8 @@ ocean:
         config_submesoscale_Ce: 0.08
         config_submesoscale_Lfmin: 1000.0
         config_submesoscale_ds_max: 100000.0
+    frazil_ice:
+        config_use_frazil_ice_formation: {{ use_frazil_ice_formation }}
 
 mpas-ocean:
     time_management:
