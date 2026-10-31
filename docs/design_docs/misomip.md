@@ -222,29 +222,25 @@ MALI on the shallow-ice solver, RK4, the MCT driver, and the inputs from
 `e3sm/init`.
 
 - A planar ocean runs in E3SM with `sphere_radius` set. Its mesh needs no
-  mapping onto the sphere. MPAS-Ocean reads the Coriolis parameter from
-  the initial condition.
-- It runs with five small changes to FAnSSIE: the driver without an
-  atmosphere, the wetting-and-drying and tidal-forcing namelist groups,
-  inputs named by case variables for MPAS-Ocean and MALI, and MALI's
-  namelist without the removed lapse rate.
-- Every ocean input from the coupler other than glc's is zero. At the
-  first coupling step, the imported land-ice pressure, land-ice fraction
-  and floating fraction equal the initial condition bit for bit.
-- Runs with import on and off agree through the first coupling interval,
-  then differ in the 146 partly floating cells and spread from there: by
-  day 5, SSH by up to 1.8 cm. Wetting and drying resets the floating
-  fraction to 0 or 1, and each import restores MALI's fractional value
-  before the land-ice fluxes are computed. This is WP8's floating-fraction
-  item, and it already matters with static geometry.
-- The coupler reads the glc-to-ocean runoff maps whenever ice-shelf
-  coupling is on, so the run uses the conservative glc-to-ocean map for
-  them.
-- The ocean's coupler area factor is exactly 1, and glc's is 1 to
-  $1 + 4\times10^{-5}$.
-- After 5 days, E3SM's melt is within 4 % of standalone Polaris's (50.3
-  and 52.4 Gt yr⁻¹). The standalone tasks keep the protocol's evaporation
-  in the restoring region, while E3SM's coupler sets those fluxes to zero.
+mapping onto the sphere. MPAS-Ocean reads the Coriolis parameter from the
+initial condition. - It runs with five small changes to FAnSSIE: the driver
+without an atmosphere, the wetting-and-drying and tidal-forcing namelist
+groups, inputs named by case variables for MPAS-Ocean and MALI, and MALI's
+namelist without the removed lapse rate. - Every ocean input from the
+coupler other than glc's is zero. At the first coupling step, the imported
+land-ice pressure, land-ice fraction and floating fraction equal the
+initial condition bit for bit. - Runs with import on and off agree through
+the first coupling interval, then differ in the 146 partly floating cells
+and spread from there: by day 5, SSH by up to 1.8 cm. Wetting and drying
+resets the floating fraction to 0 or 1, and each import restores MALI's
+fractional value before the land-ice fluxes are computed. Reconciling the
+two is part of WP7. - The coupler reads the glc-to-ocean runoff maps
+whenever ice-shelf coupling is on, so the run uses the conservative
+glc-to-ocean map for them. - The ocean's coupler area factor is exactly 1,
+and glc's is 1 to $1 + 4\times10^{-5}$. - After 5 days, E3SM's melt is
+within 4 % of standalone Polaris's (50.3 and 52.4 Gt yr⁻¹). The standalone
+tasks kept the protocol's evaporation in the restoring region, while E3SM's
+coupler sets those fluxes to zero ([D8](#decisions)).
 
 ## Requirements
 
@@ -583,7 +579,9 @@ baseline from the branch's previous commit.
 
 The standalone ISOMIP+ tasks, Ocean0–2 and the thin-film tasks, build
 MPAS-Ocean from FAnSSIE. Every later package reuses their initial
-condition, SSH adjustment, thin film and forcing.
+condition, SSH adjustment, thin film and forcing. The thin-film tasks drop
+the protocol's evaporation, since their outflow removes the meltwater too
+([D8](#decisions)).
 
 The floating mask over the open ocean is fixed first, on FAnSSIE, so that
 the reset applies only where there is land ice. The standalone tasks are
@@ -722,6 +720,10 @@ specific to ISOMIP+, so they can go upstream when E3SM wants them:
   ice-shelf coupling, so MALI's calving and face-melt runoff stay out of
   the ocean and no runoff map is needed; today, ice-shelf coupling
   requires MALI's ocean coupling flag, which also turns on runoff;
+- the floating fraction that wetting and drying sets to 0 or 1, reconciled
+  with the fractional one imported from MALI, including the normalization
+  of the melt sent back; without it, runs with import on and off diverge
+  even with static geometry;
 - MALI's E3SM namelist without the surface-air-temperature lapse rate,
   which MALI-Dev removed from MALI's Registry but not from its namelist
   defaults, so every E3SM case with MALI fails at initialization.
@@ -739,9 +741,6 @@ On FAnSSIE:
 - make the grounded-ice pressure cap safe for threaded runs;
 - use one ocean density in that cap, MPAS-Ocean's draft and MALI's
   flotation test;
-- reconcile the floating fraction that wetting and drying sets to 0 or 1
-  with the fractional one imported from MALI, including the normalization
-  of the melt sent back;
 - run MALI's data mode with a changing thickness, and check that its masks
   and pressure agree at each export, since MALI reads a new record after
   its time step but before it exports *(inferred)*;
@@ -964,14 +963,21 @@ rejected because the geometry would move in yearly jumps.
 
 ### D8: An outflow, not evaporation
 
-Date last modified: 2026/10/30
+Date last modified: 2026/10/31
 
 Contributors: Xylar Asay-Davis, Claude
 
 Water leaves through the tidal forcing in the restoring region, not
-through the protocol's evaporation, as in the standalone thin-film tasks.
-See
+through the protocol's evaporation, in E3SM and in the standalone
+thin-film tasks. The outflow holds the SSH there and removes both the
+meltwater and the water a changing ice load displaces. See
 [the thin-film principle](#algorithm-design-shared-principles).
+
+```{admonition} Rationale
+E3SM's coupler sets the evaporation fluxes to zero without an atmosphere.
+With the evaporation dropped from the standalone tasks as well, E3SM and
+standalone runs on the same inputs differ only by the coupling.
+```
 
 ### D9: IceOcean2 is out of scope
 
