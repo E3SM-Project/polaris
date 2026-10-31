@@ -60,9 +60,11 @@ Below, `omega_pr_test.py` means `./utils/omega/pr_testing/omega_pr_test.py`.
 
 ## Before you start
 
-1. Work in a Polaris checkout on the requester's computer, with its load
-   script sourced (`load_polaris_*.sh`; if there is none, run
-   `./deploy.py`).
+1. Work in a Polaris checkout of `main` on the requester's computer,
+   fast-forwarded to E3SM-Project/polaris `main` (`git fetch` and
+   `git merge --ff-only`), with its load script sourced
+   (`load_polaris_*.sh`; if there is none, or the update changed the
+   Polaris version, run `./deploy.py`).
 2. The requester's settings are in `~/.config/polaris_pr_test.cfg` (see
    `utils/pr_testing/example.cfg`).  For now, if there is a
    `~/.config/omega_pr_test.cfg` instead, from before the settings were
@@ -176,10 +178,14 @@ they finish.
 
 1. Work in a Polaris checkout on the machine.  Without Polaris branches in
    the manifest, use the checkout from the `[machines]` line, which should
-   be Polaris `main`.  With them, fetch the branches from the requester's
-   Polaris fork, except a baseline of `main`, which comes from
-   E3SM-Project/polaris.  Test them in checkouts of your own, never in an
-   existing checkout of those branches, where someone may be developing.
+   be Polaris `main`.  Fast-forward it to E3SM-Project/polaris `main`,
+   then update its Omega submodule to match
+   (`git submodule update --init e3sm_submodules/Omega`); `setup` does
+   not check the submodule's checkout.  With Polaris branches in the
+   manifest, fetch them from the requester's Polaris fork, except a
+   baseline of `main`, which comes from E3SM-Project/polaris.  Test them
+   in checkouts of your own, never in an existing checkout of those
+   branches, where someone may be developing.
    Make each as a worktree beside the `[machines]` checkout, on a
    throw-away branch at the manifest's commit: `omega-pr-test/<number>`
    for the PR's branch, and `omega-pr-test/<number>-baseline` for the
@@ -188,9 +194,10 @@ they finish.
    have it from into its throw-away branch.  Never commit to the
    requester's branches, and never push a throw-away branch.
 2. Each of the machine's rows needs a load script for its compiler in each
-   checkout.  If one is missing, run `./deploy.py --compiler <compiler>
-   ...` in that checkout, with the compilers of all the machine's rows.  On
-   Perlmutter, deploy once for pm-cpu and again with `--machine pm-gpu`.
+   checkout.  If one is missing, or the update changed the Polaris
+   version, run `./deploy.py --compiler <compiler> ...` in that checkout,
+   with the compilers of all the machine's rows.  On Perlmutter, deploy
+   once for pm-cpu and again with `--machine pm-gpu`.
    Skip any row that already has a current result.
 3. The machine's `~/.config/polaris_pr_test.cfg` holds the tester's
    settings (testers can leave out those marked for the initiator).  Check
