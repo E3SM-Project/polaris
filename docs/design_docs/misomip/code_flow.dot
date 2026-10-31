@@ -72,7 +72,7 @@ digraph fanssie {
       <tr><td border="0" colspan="2"><font color="#898781">↓ then, even while it is a draft (and after #862, #922)</font></td></tr>
       <tr><td port="pwp56" bgcolor="#e8e8e4" colspan="2" style="rounded" cellpadding="6"><b>#931</b>  MISOMIP's maps and E3SM inputs<br/><font color="#52514e">draft · may change with the first E3SM run</font></td></tr>
       <tr><td border="0" colspan="2"><font color="#898781">↓ then</font></td></tr>
-      <tr><td port="pwp7" bgcolor="#ffffff" colspan="2" style="rounded" cellpadding="6"><b>WP7</b>  first E3SM run, then the E3SM cases<br/><font color="#52514e">not started · its E3SM changes land on FAnSSIE</font></td></tr>
+      <tr><td port="pwp7" bgcolor="#ffffff" colspan="2" style="rounded" cellpadding="6"><b>WP7</b>  first E3SM run, then the E3SM cases<br/><font color="#52514e">4 km Ocean0 runs · five E3SM branches, no PRs yet</font></td></tr>
     </table>>];
 
   e8047 -> fanssie;

@@ -215,6 +215,37 @@ reading code, not from runs.
 - Compass's ocean `misomip` step computes the COM standard output from
   monthly means. No landice code in Compass relates to MISOMIP1.
 
+### What the first E3SM run showed
+
+These findings are from 2026-10-31: 4 km Ocean0 for 5 days, with a static
+MALI on the shallow-ice solver, RK4, the MCT driver, and the inputs from
+`e3sm/init`.
+
+- A planar ocean runs in E3SM with `sphere_radius` set. Its mesh needs no
+  mapping onto the sphere. MPAS-Ocean reads the Coriolis parameter from
+  the initial condition.
+- It runs with five small changes to FAnSSIE: the driver without an
+  atmosphere, the wetting-and-drying and tidal-forcing namelist groups,
+  inputs named by case variables for MPAS-Ocean and MALI, and MALI's
+  namelist without the removed lapse rate.
+- Every ocean input from the coupler other than glc's is zero. At the
+  first coupling step, the imported land-ice pressure, land-ice fraction
+  and floating fraction equal the initial condition bit for bit.
+- Runs with import on and off agree through the first coupling interval,
+  then differ in the 146 partly floating cells and spread from there: by
+  day 5, SSH by up to 1.8 cm. Wetting and drying resets the floating
+  fraction to 0 or 1, and each import restores MALI's fractional value
+  before the land-ice fluxes are computed. This is WP8's floating-fraction
+  item, and it already matters with static geometry.
+- The coupler reads the glc-to-ocean runoff maps whenever ice-shelf
+  coupling is on, so the run uses the conservative glc-to-ocean map for
+  them.
+- The ocean's coupler area factor is exactly 1, and glc's is 1 to
+  $1 + 4\times10^{-5}$.
+- After 5 days, E3SM's melt is within 4 % of standalone Polaris's (50.3
+  and 52.4 Gt yr⁻¹). The standalone tasks keep the protocol's evaporation
+  in the restoring region, while E3SM's coupler sets those fluxes to zero.
+
 ## Requirements
 
 ### Requirement: The experiments run in E3SM
@@ -472,14 +503,15 @@ Date last modified: 2026/10/31
 Contributors: Xylar Asay-Davis, Claude
 
 The first E3SM run is 4 km Ocean0 on FAnSSIE, with a static MALI and RK4,
-and it is WP7's first step. FAnSSIE cannot run it yet: its driver stops
-when a prognostic ocean has no atmosphere, and MPAS-Ocean's namelist
-builder has no wetting-and-drying or tidal-forcing groups. WP7 makes the
+and it is WP7's first step. FAnSSIE could not run it: its driver stopped
+when a prognostic ocean had no atmosphere, and MPAS-Ocean's namelist
+builder had no wetting-and-drying or tidal-forcing groups. WP7 makes the
 smallest changes that let a hand-built case run, and its design follows
 from what that run shows, before WP6 writes case configurations. The run
 reads WP5's meshes and maps and WP6's Ocean0 initial conditions, so it
 tests the inputs that will merge. Its findings go into this document and
-the package designs.
+the package designs ([What the first E3SM run
+showed](#what-the-first-e3sm-run-showed)).
 
 ```{admonition} Rationale
 A separate prototype script, the first plan, would build the meshes, maps
@@ -679,14 +711,20 @@ specific to ISOMIP+, so they can go upstream when E3SM wants them:
 - a prognostic ocean without an atmosphere: relax the driver check and
   skip the atmosphere–ocean fluxes ([D4](#decisions));
 - the ocean's coupler areas from the glc-to-ocean map when there is no
-  atmosphere, as glc's already are;
+  atmosphere, as glc's already are; until then, conservation is off by up
+  to $4\times10^{-5}$;
 - the `wetting_drying` and `tidal_forcing` namelist groups, with the tidal
   forcing built every step;
 - initial conditions, data-mode files and graph partitions named by case
-  variables, so `buildnml` accepts grids it does not list;
+  variables, for MPAS-Ocean and MALI, so `buildnml` accepts grids it does
+  not list;
 - a driver option that turns off glc-to-ocean runoff while keeping
   ice-shelf coupling, so MALI's calving and face-melt runoff stay out of
-  the ocean and no runoff map is needed.
+  the ocean and no runoff map is needed; today, ice-shelf coupling
+  requires MALI's ocean coupling flag, which also turns on runoff;
+- MALI's E3SM namelist without the surface-air-temperature lapse rate,
+  which MALI-Dev removed from MALI's Registry but not from its namelist
+  defaults, so every E3SM case with MALI fails at initialization.
 
 Everything specific to the experiments comes from Polaris's user-mods
 directory ([D12](#decisions)): namelists, the streams for interior
