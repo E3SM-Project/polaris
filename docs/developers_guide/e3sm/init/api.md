@@ -351,10 +351,21 @@
    names.landice_data_mode_path
    names.landice_scrip_path
    names.landice_partition_path
+   names.landice_partition_prefix
    names.map_path
+   names.case_config_dir
 
    ocean_initial_condition.OceanInitialConditionStep
    ocean_initial_condition.OceanInitialConditionStep.run
+
+   case_config.CaseConfigStep
+   case_config.CaseConfigStep.run
+   case_config.get_mali_mode
+   case_config.get_grid_file
+   case_config.get_shell_commands
+   case_config.get_user_nl_mpaso
+   case_config.get_user_nl_mali
+   case_config.get_readme
 
    assemble.MisomipAssembleStep
    assemble.MisomipAssembleStep.run
