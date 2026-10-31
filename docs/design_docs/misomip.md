@@ -231,21 +231,23 @@ MALI on the shallow-ice solver, RK4, the MCT driver, and the inputs from
 - Every ocean input from the coupler other than glc's is zero. At the
   first coupling step, the imported land-ice pressure, land-ice fraction
   and floating fraction equal the initial condition bit for bit.
-- Runs with import on and off agree through the first coupling interval,
-  then differ in the 146 partly floating cells and spread from there: by
-  day 5, SSH by up to 1.8 cm. Wetting and drying resets the floating
-  fraction to 0 or 1, and each import restores MALI's fractional value
-  before the land-ice fluxes are computed. WP7 keeps the input's fraction
-  in floating cells.
+- Runs with import on and off first differed after the first coupling
+  interval, in the 146 partly floating cells: by day 5, SSH by up to
+  1.8 cm. Wetting and drying reset the floating fraction to 0 or 1, and
+  each import restored MALI's fractional value before the land-ice fluxes
+  were computed. With floating cells keeping the input's fraction, the two
+  runs are bit for bit over 5 days, and melt in partly floating cells
+  drops by about a quarter, since they melt only over their floating
+  fraction.
 - The coupler reads the glc-to-ocean runoff maps whenever ice-shelf
   coupling is on, so the run uses the conservative glc-to-ocean map for
   them.
 - The ocean's coupler area factor is exactly 1, and glc's is 1 to
   $1 + 4\times10^{-5}$.
-- After 5 days, E3SM's melt is within 4 % of standalone Polaris's (50.3
-  and 52.4 Gt yr⁻¹). The standalone tasks kept the evaporation inherited
-  from Compass in the restoring region, while E3SM's coupler sets those
-  fluxes to zero ([D8](#decisions)).
+- After 5 days, before the floating-fraction change, E3SM's melt was within
+  4 % of standalone Polaris's (50.3 and 52.4 Gt yr⁻¹). The standalone tasks
+  kept the evaporation inherited from Compass in the restoring region,
+  while E3SM's coupler sets those fluxes to zero ([D8](#decisions)).
 
 ## Requirements
 
