@@ -9,6 +9,7 @@ global_ocean_forward
 global_ocean_init
 horiz_press_grad_hydrostatic_consistency
 horiz_press_grad_reference
+isomip_plus
 land_locked_cells
 mixed_layer_eddies
 ocean_analysis
