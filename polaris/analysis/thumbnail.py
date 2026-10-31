@@ -87,7 +87,7 @@ def make_thumbnail(
     Parameters
     ----------
     plot_filename : str
-        The plot to render, normally the published symlink
+        The plot to render, normally the published copy
 
     thumbnail_filename : str
         Where to write the thumbnail
@@ -151,7 +151,8 @@ def _is_up_to_date(plot_filename, thumbnail_filename):
     """Whether the thumbnail is at least as new as the plot it came from"""
     if not os.path.exists(thumbnail_filename):
         return False
-    # getmtime() follows the symlink, so this is the plot's own time
+    # a published plot keeps the modification time of the one it was copied
+    # from, so this is the plot's own time
     return os.path.getmtime(thumbnail_filename) >= os.path.getmtime(
         plot_filename
     )

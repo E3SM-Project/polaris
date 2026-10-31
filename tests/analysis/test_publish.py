@@ -87,6 +87,11 @@ def _fragments(*step_paths):
     ]
 
 
+def _read(filename):
+    with open(filename, 'rb') as data:
+        return data.read()
+
+
 def _merged(output_path):
     with open(os.path.join(output_path, MERGED_FILENAME)) as data:
         return json.load(data)['products']
@@ -110,7 +115,9 @@ def test_a_fragment_that_was_never_written_is_reported(tmp_path):
     assert missing == [os.path.join(silent, FRAGMENT_FILENAME)]
 
 
-def test_products_are_published_by_symlink(tmp_path):
+def test_plots_are_published_by_copy(tmp_path):
+    """A copy, not a link, so a web server that cannot read the work
+    directory can still serve the plot."""
     work_dir = str(tmp_path / 'work')
     output_path = str(tmp_path / 'output')
     step_path = _make_step(
@@ -123,11 +130,44 @@ def test_products_are_published_by_symlink(tmp_path):
     assert len(published) == len(SEASONS)
 
     name = 'climatology_maps_temperature_ANN_-100m_0021-0040.png'
-    link = os.path.join(output_path, PLOTS_DIRNAME, name)
-    # a link, not a copy: the step remains the one owner of the file
-    assert os.path.islink(link)
-    assert os.path.realpath(link) == os.path.realpath(
+    copy = os.path.join(output_path, PLOTS_DIRNAME, name)
+    assert not os.path.islink(copy)
+    assert _read(copy) == _read(
         os.path.join(step_path, 'temperature_ANN_-100m.png')
+    )
+
+
+def test_data_files_are_not_published_by_default(tmp_path):
+    work_dir = str(tmp_path / 'work')
+    output_path = str(tmp_path / 'output')
+    step_path = _make_step(
+        work_dir, 'maps', 'climatology_maps/0021-0040/temperature'
+    )
+
+    published, missing = publish(_fragments(step_path), output_path)
+
+    assert missing == []
+    names = os.listdir(os.path.join(output_path, PLOTS_DIRNAME))
+    assert not [name for name in names if name.endswith('.nc')]
+    # so the gallery has nothing to link to
+    assert all(entry['data'] is None for entry in published)
+
+
+def test_data_files_are_copied_if_asked(tmp_path):
+    work_dir = str(tmp_path / 'work')
+    output_path = str(tmp_path / 'output')
+    step_path = _make_step(
+        work_dir, 'maps', 'climatology_maps/0021-0040/temperature'
+    )
+
+    published, _ = publish(_fragments(step_path), output_path, copy_data=True)
+
+    name = 'climatology_maps_temperature_ANN_-100m_0021-0040.nc'
+    assert published[0]['data'] == os.path.join(PLOTS_DIRNAME, name)
+    copy = os.path.join(output_path, PLOTS_DIRNAME, name)
+    assert not os.path.islink(copy)
+    assert _read(copy) == _read(
+        os.path.join(step_path, 'temperature_ANN_-100m.nc')
     )
 
 
@@ -138,7 +178,7 @@ def test_the_published_name_carries_the_facets(tmp_path):
         work_dir, 'maps', 'climatology_maps/0021-0040/temperature'
     )
 
-    publish(_fragments(step_path), output_path)
+    publish(_fragments(step_path), output_path, copy_data=True)
     names = sorted(os.listdir(os.path.join(output_path, PLOTS_DIRNAME)))
 
     assert 'climatology_maps_temperature_ANN_-100m_0021-0040.png' in names
@@ -190,8 +230,8 @@ def test_a_fragment_reached_through_a_symlink_finds_its_products(tmp_path):
 
     assert missing == []
     assert len(published) == len(SEASONS)
-    link_path = os.path.join(output_path, published[0]['plot'])
-    assert os.path.realpath(link_path) == os.path.realpath(
+    copy = os.path.join(output_path, published[0]['plot'])
+    assert _read(copy) == _read(
         os.path.join(step_path, 'temperature_ANN_-100m.png')
     )
 
@@ -247,8 +287,9 @@ def test_a_missing_file_is_reported_not_silently_omitted(tmp_path):
     assert 'DJF' not in [entry['season'] for entry in published]
 
 
-def test_publishing_twice_replaces_the_links(tmp_path):
-    """Re-publishing an analysis must not fail on the links it left."""
+def test_publishing_twice_replaces_the_copies(tmp_path):
+    """Re-publishing an analysis must not fail on the copies it left, and
+    must pick up a plot that was made again."""
     work_dir = str(tmp_path / 'work')
     output_path = str(tmp_path / 'output')
     step_path = _make_step(
@@ -256,10 +297,60 @@ def test_publishing_twice_replaces_the_links(tmp_path):
     )
 
     publish(_fragments(step_path), output_path)
+    source = os.path.join(step_path, 'temperature_ANN_-100m.png')
+    write_plot(source, size=(80, 45))
+    # a plot made again within the same second still has a new time
+    mtime = os.stat(source).st_mtime_ns + 10**9
+    os.utime(source, ns=(mtime, mtime))
     published, missing = publish(_fragments(step_path), output_path)
 
     assert missing == []
     assert len(published) == len(SEASONS)
+    copy = os.path.join(output_path, published[0]['plot'])
+    assert _read(copy) == _read(source)
+
+
+def test_an_unchanged_plot_is_not_copied_again(tmp_path):
+    work_dir = str(tmp_path / 'work')
+    output_path = str(tmp_path / 'output')
+    step_path = _make_step(
+        work_dir, 'maps', 'climatology_maps/0021-0040/temperature'
+    )
+
+    published, _ = publish(_fragments(step_path), output_path)
+    copy = os.path.join(output_path, published[0]['plot'])
+    inode = os.stat(copy).st_ino
+    publish(_fragments(step_path), output_path)
+
+    assert os.stat(copy).st_ino == inode
+
+
+def test_links_from_an_earlier_version_are_replaced(tmp_path):
+    """Earlier versions published by symlink, and copying through one of
+    those would write onto the step's own file."""
+    work_dir = str(tmp_path / 'work')
+    output_path = str(tmp_path / 'output')
+    step_path = _make_step(
+        work_dir,
+        'maps',
+        'climatology_maps/0021-0040/temperature',
+        seasons=['ANN'],
+    )
+    plots_path = os.path.join(output_path, PLOTS_DIRNAME)
+    os.makedirs(plots_path)
+    stem = 'climatology_maps_temperature_ANN_-100m_0021-0040'
+    for suffix in ['.png', '.nc']:
+        os.symlink(
+            os.path.join(step_path, f'temperature_ANN_-100m{suffix}'),
+            os.path.join(plots_path, f'{stem}{suffix}'),
+        )
+
+    publish(_fragments(step_path), output_path)
+
+    assert not os.path.islink(os.path.join(plots_path, f'{stem}.png'))
+    # a data file that is no longer published is not left behind
+    assert sorted(os.listdir(plots_path)) == [f'{stem}.png']
+    assert os.path.exists(os.path.join(step_path, 'temperature_ANN_-100m.nc'))
 
 
 def test_a_product_with_no_data_file_publishes_its_plot(tmp_path):

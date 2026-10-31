@@ -1324,7 +1324,7 @@ all three live in the component-neutral `polaris.analysis` package beside
   {py:meth}`polaris.tasks.ocean.analysis.analysis_step.AnalysisStep.add_product()`
   once per product;
 - the **collector**, {py:func}`polaris.analysis.publish.publish`, which merges
-  the fragments, symlinks each product into the staging tree and renders its
+  the fragments, copies each product into the staging tree and renders its
   thumbnail;
 - the **site generator**,
   {py:func}`polaris.analysis.site.generate_site`, which renders the gallery

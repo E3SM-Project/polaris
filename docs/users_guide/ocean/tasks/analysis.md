@@ -82,9 +82,14 @@ most simulations need none of them:
   Set one if it has moved.
 
 `output_path`
-: Where plots and their netCDF files are published for browsing.  Defaults to
+: Where plots are published for browsing.  Defaults to
   `<work_dir>/analysis_output`.  Point it somewhere web-servable to share the
   results.
+
+`copy_netcdf`
+: Whether to publish the netCDF file behind each plot alongside it.  Defaults
+  to `False`, since on a large mesh these files can be most of the size of the
+  analysis.
 
 The remaining sections --- `[ocean_analysis_climatology]`,
 `[ocean_analysis_ohc]`, `[ocean_analysis_time_series]` and
@@ -154,7 +159,7 @@ easy to archive, to serve and to search:
 │   └── climatology_maps_temperature_0021-0040.html
 ├── plots/
 │   ├── climatology_maps_temperature_ANN_-100m_0021-0040.png
-│   └── climatology_maps_temperature_ANN_-100m_0021-0040.nc
+│   └── climatology_maps_temperature_ANN_-100m_0021-0040.nc  (if copy_netcdf)
 └── thumbnails/
     └── climatology_maps_temperature_ANN_-100m_0021-0040.jpg
 ```
@@ -163,10 +168,11 @@ easy to archive, to serve and to search:
 directory.  Point it somewhere a web server can reach if the results are to be
 shared.
 
-The plots and their netCDF files are **symlinks** into the step that made
-them, so each file has one owner and the staging tree is a view rather than a
-second copy.  Copying the tree to another machine therefore needs
-`cp -rL`, or `rsync -L`, to follow them.
+The plots, and the netCDF files if `copy_netcdf` is set, are **copies** of
+the files in the step that made them, so a web server can serve the staging
+tree without being able to read the work directory.  Running `publish` again
+copies only what has changed.  The netCDF files stay in the work directory
+either way.
 
 (ocean-analysis-gallery)=
 
@@ -181,10 +187,10 @@ JavaScript, and the pages look the same either way.
 The landing page shows each **gallery group** --- a product for one range of
 years, such as "Climatology maps, years 0021-0040" --- with one thumbnail per
 gallery within it.  A gallery page shows every plot in that gallery, in the
-order the step made them, and clicking a thumbnail opens the full image with
-its netCDF file linked beside it.  Every page carries the simulation name, the
-ranges and the Polaris provenance, so a page found later can be traced back to
-what produced it.
+order the step made them, and clicking a thumbnail opens the full image, with
+its netCDF file linked beside it if `copy_netcdf` is set.  Every page carries
+the simulation name, the ranges and the Polaris provenance, so a page found
+later can be traced back to what produced it.
 
 Four config options control what a page costs to load, which matters on a
 portal that throttles:
