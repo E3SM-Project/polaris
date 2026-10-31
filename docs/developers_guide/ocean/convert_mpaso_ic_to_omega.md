@@ -38,9 +38,12 @@ The converter performs the following operations:
 6. It zeros any numeric fields whose names contain `velocity`.
 7. It optionally adds idealized surface stress forcing or surface stress, 
    net heat flux and surface freshwater forcing from a 20 year average of ERA5.
-8. It renames dimensions and variables using
+8. It optionally interpolates satellite-derived red and blue band shortwave
+   extinction coefficients onto the mesh and adds them to both the MPAS zero-velocity
+   companion file and the converted Omega file.
+9. It renames dimensions and variables using
    `polaris/ocean/model/mpaso_to_omega.yaml`.
-9. It writes the converted Omega file with
+10. It writes the converted Omega file with
    {py:func}`mpas_tools.io.write_netcdf`.
 
 If `--visualization` is supplied, the script also writes diagnostic figures for
@@ -115,6 +118,47 @@ python utils/omega/convert_mpaso_ic_to_omega.py \
 
 The forcing file generation uses conservative remapping by default; if you wish to use another method add `--remap-method bilinear` to the command.
 
+### Shortwave Extinction Coefficients
+
+To include red-band and blue-band shortwave extinction coefficients
+(`ExtinctionCoeffRed` and `ExtinctionCoeffBlue`) in the converted MPAS companion
+file and Omega initial condition, add `--include-shortwave-extinction`:
+
+```bash
+python utils/omega/convert_mpaso_ic_to_omega.py \
+    --input-file /path/to/ocean.nc \
+    --output-file /path/to/ocean.omega.nc \
+    --eos-type teos10 \
+    --include-shortwave-extinction
+```
+
+On supported machines, the shortwave extinction data file
+(`shortwave_extinction_0.083x0.083_20261002.nc`) and its corresponding source
+SCRIP file (`shortwave_extinction_scrip_20261002.nc`) are automatically
+downloaded from the Polaris repository under `ocean/realistic_global/forcing`.
+On non-supported machines or to use custom inputs, supply local files:
+
+```bash
+python utils/omega/convert_mpaso_ic_to_omega.py \
+    --input-file /path/to/ocean.nc \
+    --output-file /path/to/ocean.omega.nc \
+    --eos-type teos10 \
+    --include-shortwave-extinction \
+    --shortwave-file /path/to/shortwave_extinction.nc \
+    --shortwave-scrip-file /path/to/shortwave_extinction_scrip.nc
+```
+
+If you only need a standalone companion file containing `latCell`, `lonCell`,
+`ExtinctionCoeffRed`, and `ExtinctionCoeffBlue` for an MPAS mesh rather than
+converting an entire initial condition, use the companion utility
+`utils/omega/interp_shortwave_extinction_to_mpas.py`:
+
+```bash
+python utils/omega/interp_shortwave_extinction_to_mpas.py \
+    --mesh /path/to/mpas_mesh.nc \
+    --output-file /path/to/shortwave_extinction_on_mesh.nc
+```
+
 The script appends an EOS suffix automatically unless it is already present:
 
 - `teos10` produces `*.teos10eos.nc`
@@ -137,9 +181,11 @@ used for this integration.
 The converter can produce up to four artifacts:
 
 - An MPAS-style file with zeroed velocity fields, written next to the input
-  file with the suffix `.mpas.nc`
+  file with the suffix `.mpas.nc` (optionally including `ExtinctionCoeffRed`
+  and `ExtinctionCoeffBlue` when `--include-shortwave-extinction` is given)
 - An Omega-formatted initial condition written next to the requested output
-  path with an EOS-specific suffix
+  path with an EOS-specific suffix (optionally including `ExtinctionCoeffRed`
+  and `ExtinctionCoeffBlue` mapped to dimension `NCells`)
 - A temperature comparison figure named
   `<output_stem>_temperature_absolute_difference.png` when
   `--visualization` is enabled
