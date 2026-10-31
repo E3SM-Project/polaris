@@ -83,7 +83,9 @@ def _run_assemble(tmp_path, experiment, creation_date=CREATION_DATE):
     return staged, root
 
 
-def _expected(experiment, initial_conditions=True, data_mode=False):
+def _expected(
+    experiment, initial_conditions=True, data_mode=False, case_config=False
+):
     ocn = f'inputdata/ocn/mpas-o/{OCEAN_GRID}'
     glc = f'inputdata/glc/mpasli/{LANDICE_GRID}'
     maps = 'inputdata/cpl/gridmaps'
@@ -109,23 +111,30 @@ def _expected(experiment, initial_conditions=True, data_mode=False):
         }
     if data_mode:
         expected.add(f'{glc}/{LANDICE_GRID}.{experiment}_datamode.{date}.nc')
+    if case_config:
+        expected |= {
+            f'case_config/{experiment}/user_mods',
+            f'case_config/{experiment}/README',
+        }
     return expected
 
 
 @pytest.mark.parametrize(
-    'experiment, initial_conditions, data_mode',
+    'experiment, initial_conditions, data_mode, case_config',
     [
-        ('ocean0', True, False),
-        ('ocean3', True, True),
-        ('iceocean1r', True, False),
-        ('iceocean1ra', False, False),
+        ('ocean0', True, False, True),
+        ('ocean3', True, True, True),
+        ('iceocean1r', True, False, False),
+        ('iceocean1ra', False, False, False),
     ],
 )
 def test_every_product_lands_at_its_e3sm_path(
-    tmp_path, experiment, initial_conditions, data_mode
+    tmp_path, experiment, initial_conditions, data_mode, case_config
 ):
     staged, _ = _run_assemble(tmp_path, experiment)
-    assert staged == _expected(experiment, initial_conditions, data_mode)
+    assert staged == _expected(
+        experiment, initial_conditions, data_mode, case_config
+    )
 
 
 def test_the_staged_files_point_at_the_products(tmp_path):

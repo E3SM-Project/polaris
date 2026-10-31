@@ -86,6 +86,9 @@ with `run_by_default=False` (see `NOT_RUN_BY_DEFAULT`).
 merges the ocean's mesh, from `init`, with the state the final SSH
 adjustment wrote, since E3SM's MPAS-Ocean reads both from its initial
 condition.
+{py:class}`polaris.tasks.e3sm.init.misomip.case_config.CaseConfigStep`
+writes the E3SM case configuration of an experiment with a standalone
+ocean run.
 {py:class}`polaris.tasks.e3sm.init.misomip.assemble.MisomipAssembleStep`
 subclasses {py:class}`polaris.e3sm.init.assemble.AssembleStep` to stage the
 experiment's files.
@@ -108,10 +111,42 @@ The paths come from
 workflow would stage the same way, and from MISOMIP's own path functions in
 `polaris.tasks.e3sm.init.misomip.names`, such as
 {py:func}`polaris.tasks.e3sm.init.misomip.names.ocean_initial_condition_path()`
-and {py:func}`polaris.tasks.e3sm.init.misomip.names.map_path()`.  The
+and {py:func}`polaris.tasks.e3sm.init.misomip.names.map_path()`.  The case
+configuration's step is keyed `case_config`, and its user-mods directory
+and README are staged under
+{py:func}`polaris.tasks.e3sm.init.misomip.names.case_config_dir()`.  The
 creation date is `[misomip_inputs] creation_date`, which
 {py:meth}`polaris.tasks.e3sm.init.misomip.MisomipTask.configure()` fills in
 with {py:func}`polaris.e3sm.init.inputdata.set_creation_date()`.
+
+## Case configuration
+
+{py:class}`polaris.tasks.e3sm.init.misomip.case_config.CaseConfigStep`
+reads the namelist the standalone `ocean/forward` step wrote at setup, and
+MPAS-Ocean's default namelist, found from the experiment's ocean config
+file.
+{py:func}`polaris.tasks.e3sm.init.misomip.case_config.get_user_nl_mpaso()`
+writes the options whose values differ from the defaults, except in the
+groups E3SM sets itself (`STANDALONE_GROUPS` and analysis members).  It
+also writes every option in `E3SM_DEFAULT_OPTIONS`, with the standalone
+value: those whose E3SM default differs from MPAS-Ocean's, or which E3SM
+gives a default only for the grids it lists.  A unit test compares that
+list with the defaults of the E3SM submodule's MPAS-Ocean, so it fails
+when E3SM's defaults change.  Values E3SM's namelist builder sets from case
+variables, such as the tidal velocity of the melt parameterization, are
+added by hand.
+
+{py:func}`polaris.tasks.e3sm.init.misomip.case_config.get_grid_file()`
+renders `config_grids.template`, with each mesh's cell count from its SCRIP
+file.
+{py:func}`polaris.tasks.e3sm.init.misomip.case_config.get_shell_commands()`
+names the staged files relative to `$DIN_LOC_ROOT`, or to
+`[misomip_case_config] inputdata_root`, and splits the experiment's
+length, in `RUN_MONTHS`, into jobs.  The README gives the compset from
+`COMPSETS`.
+
+Only experiments with a standalone ocean run have a case configuration,
+since the namelist comes from that run.
 
 ## Projection and SCRIP files
 

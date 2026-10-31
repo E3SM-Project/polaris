@@ -207,9 +207,28 @@ def landice_partition_path(grid, creation_date, ncores):
     path : str
         The path, relative to the assembled tree
     """
-    return (
-        f'{landice_dir(grid)}/mpasli.graph.info.{creation_date}.part.{ncores}'
-    )
+    return f'{landice_partition_prefix(grid, creation_date)}{ncores}'
+
+
+def landice_partition_prefix(grid, creation_date):
+    """
+    The path of MALI's graph partitions up to the core count, as E3SM's
+    case variable names them
+
+    Parameters
+    ----------
+    grid : str
+        E3SM's name for MALI's grid
+
+    creation_date : str
+        The creation date, as ``YYYYMMDD``
+
+    Returns
+    -------
+    prefix : str
+        The prefix, relative to the assembled tree
+    """
+    return f'{landice_dir(grid)}/mpasli.graph.info.{creation_date}.part.'
 
 
 def map_path(src_grid, dst_grid, method, creation_date):
@@ -239,3 +258,20 @@ def map_path(src_grid, dst_grid, method, creation_date):
         f'{gridmaps_dir(src_grid)}/map_{src_grid}_to_{dst_grid}_{method}.'
         f'{creation_date}.nc'
     )
+
+
+def case_config_dir(experiment):
+    """
+    Where an experiment's E3SM case configuration is staged
+
+    Parameters
+    ----------
+    experiment : str
+        The experiment
+
+    Returns
+    -------
+    path : str
+        The path, relative to the assembled tree
+    """
+    return f'case_config/{experiment}'

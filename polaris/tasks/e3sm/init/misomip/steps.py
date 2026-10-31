@@ -5,6 +5,7 @@ from polaris.e3sm.init.graph_partition import GraphPartitionStep
 from polaris.step import Step
 from polaris.tasks.e3sm.init import e3sm_init
 from polaris.tasks.e3sm.init.misomip.assemble import MisomipAssembleStep
+from polaris.tasks.e3sm.init.misomip.case_config import CaseConfigStep
 from polaris.tasks.e3sm.init.misomip.land_ice_on_ocean import (
     LandIceOnOceanStep,
 )
@@ -162,9 +163,10 @@ def get_misomip_experiment_steps(mesh_name, experiment):
         steady state, the experiment's MALI steps, the step that computes
         the land-ice fields on the ocean's mesh, and the ocean steps from
         :py:func:`polaris.tasks.ocean.misomip.get_misomip_ocean_steps`,
-        the step that makes E3SM's ocean initial condition and the step
-        that stages the experiment's files, keyed by their suggested symlink
-        names
+        the step that makes E3SM's ocean initial condition, the step that
+        writes the E3SM case configuration of an experiment with a
+        standalone ocean run, and the step that stages the experiment's
+        files, keyed by their suggested symlink names
 
     config : polaris.config.PolarisConfigParser
         The shared config options for the steps of the pair
@@ -195,7 +197,7 @@ def get_misomip_experiment_steps(mesh_name, experiment):
     )
     steps[f'{prefix}land_ice_on_ocean'] = land_ice_on_ocean
 
-    ocean_steps, _, final_ocean_step = get_misomip_ocean_steps(
+    ocean_steps, ocean_config, final_ocean_step = get_misomip_ocean_steps(
         mesh_name=mesh_name,
         resolution=MESH_PAIRS[mesh_name]['ocean'],
         experiment=experiment,
@@ -232,6 +234,23 @@ def get_misomip_experiment_steps(mesh_name, experiment):
         product_steps['landice_init'] = landice_steps['landice_init']
         if 'landice_data' in landice_steps:
             product_steps['landice_data'] = landice_steps['landice_data']
+
+    if 'ocean/forward' in ocean_steps:
+        case_config = _get_step(
+            mesh_name,
+            config,
+            CaseConfigStep,
+            os.path.join(expdir, 'case_config'),
+            experiment=experiment,
+            mesh_steps={
+                'ocean': steps['ocean_mesh'],
+                'landice': steps['landice_mesh'],
+            },
+            forward_step=ocean_steps['ocean/forward'],
+            ocean_config_filepath=ocean_config.filepath,
+        )
+        steps['case_config'] = case_config
+        product_steps['case_config'] = case_config
 
     steps['assemble'] = _get_step(
         mesh_name,

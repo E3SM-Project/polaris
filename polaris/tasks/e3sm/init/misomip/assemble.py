@@ -4,6 +4,7 @@ from functools import partial
 from polaris.e3sm.init import inputdata
 from polaris.e3sm.init.assemble import AssembleStep
 from polaris.tasks.e3sm.init.misomip import names
+from polaris.tasks.e3sm.init.misomip.case_config import CASE_CONFIG_FILES
 from polaris.tasks.e3sm.init.misomip.maps import MAPS
 
 #: The file each product step writes that is staged, keyed as
@@ -18,6 +19,10 @@ PRODUCT_FILES = {
     'landice_init': 'landice_init.nc',
     'landice_data': 'landice_datamode.nc',
 }
+
+#: The step that writes the case configuration, whose files are in
+#: :py:data:`~polaris.tasks.e3sm.init.misomip.case_config.CASE_CONFIG_FILES`
+CASE_CONFIG = 'case_config'
 
 #: The steps whose partitions are staged, and the stem of their files
 PARTITION_PRODUCTS = {
@@ -39,7 +44,8 @@ class MisomipAssembleStep(AssembleStep):
     product_steps : dict of str to polaris.Step
         The steps whose outputs are staged, keyed as in
         :py:data:`PRODUCT_FILES` and :py:data:`PARTITION_PRODUCTS`, with
-        each map's step keyed ``maps/<map name>``
+        each map's step keyed ``maps/<map name>`` and the case
+        configuration's :py:data:`CASE_CONFIG`
     """
 
     def __init__(self, component, subdir, experiment, product_steps):
@@ -76,11 +82,15 @@ class MisomipAssembleStep(AssembleStep):
                 # known until the mesh exists, so found at run time
                 self.add_dependency(step, name=key)
                 continue
-            filename = _get_product_file(key)
-            self.add_input_file(
-                filename=_get_staged_source(key),
-                work_dir_target=os.path.join(step.path, filename),
-            )
+            if key == CASE_CONFIG:
+                filenames = CASE_CONFIG_FILES
+            else:
+                filenames = [_get_product_file(key)]
+            for filename in filenames:
+                self.add_input_file(
+                    filename=_get_staged_source(key, filename),
+                    work_dir_target=os.path.join(step.path, filename),
+                )
 
     def run(self):
         """
@@ -130,6 +140,13 @@ class MisomipAssembleStep(AssembleStep):
                     basename=PARTITION_PRODUCTS[key],
                     path_func=partition_paths[key],
                 )
+            elif key == CASE_CONFIG:
+                case_dir = names.case_config_dir(experiment)
+                for filename in CASE_CONFIG_FILES:
+                    self.stage(
+                        _get_staged_source(key, filename),
+                        f'{case_dir}/{filename}',
+                    )
             else:
                 self.stage(_get_staged_source(key), paths[key])
 
@@ -143,8 +160,10 @@ def _get_product_file(key):
     return PRODUCT_FILES[key]
 
 
-def _get_staged_source(key):
+def _get_staged_source(key, filename=None):
     """
     The name of a product in the assembly step's work directory
     """
-    return f'{key.replace("/", "__")}__{_get_product_file(key)}'
+    if filename is None:
+        filename = _get_product_file(key)
+    return f'{key.replace("/", "__")}__{filename}'
