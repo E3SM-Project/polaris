@@ -467,16 +467,19 @@ wait on, or stack onto, chains of unmerged E3SM pull requests.
 
 ### Principle: a first E3SM run before the cases
 
-Date last modified: 2026/10/30
+Date last modified: 2026/10/31
 
 Contributors: Xylar Asay-Davis, Claude
 
-The first E3SM run is 4 km Ocean0 on FAnSSIE, with a static MALI and RK4.
-It answers E3SM's questions before WP7 is designed and before WP6 writes
-case configurations. It reads WP5's meshes and maps and WP6's Ocean0
-initial conditions, so it tests the inputs that will merge. Its case is
-set up by hand. Its findings go into this document and the package
-designs.
+The first E3SM run is 4 km Ocean0 on FAnSSIE, with a static MALI and RK4,
+and it is WP7's first step. FAnSSIE cannot run it yet: its driver stops
+when a prognostic ocean has no atmosphere, and MPAS-Ocean's namelist
+builder has no wetting-and-drying or tidal-forcing groups. WP7 makes the
+smallest changes that let a hand-built case run, and its design follows
+from what that run shows, before WP6 writes case configurations. The run
+reads WP5's meshes and maps and WP6's Ocean0 initial conditions, so it
+tests the inputs that will merge. Its findings go into this document and
+the package designs.
 
 ```{admonition} Rationale
 A separate prototype script, the first plan, would build the meshes, maps
@@ -668,8 +671,10 @@ comparison in WP9.
 
 ### WP7: Idealized cases in E3SM
 
-These changes land on FAnSSIE. None is specific to ISOMIP+, so they can go
-upstream when E3SM wants them:
+WP7 starts with the first E3SM run
+([principle](#algorithm-design-shared-principles)), which cannot run
+without some of the changes below. These changes land on FAnSSIE. None is
+specific to ISOMIP+, so they can go upstream when E3SM wants them:
 
 - a prognostic ocean without an atmosphere: relax the driver check and
   skip the atmosphere–ocean fluxes ([D4](#decisions));
@@ -754,20 +759,21 @@ changes land on FAnSSIE. The design amends
 
 | Stage | Experiments            | Needs                                                |
 |-------|------------------------|------------------------------------------------------|
-| A     | 4 km Ocean0, first run | WP0, WP1, WP3, WP5, WP11; parts of WP4 and WP6       |
+| A     | 4 km Ocean0, first run | WP0, WP1, WP3, WP5, WP11; parts of WP4, WP6, WP7     |
 | B     | Ocean0–2               | stage A, WP6, WP7, WP9                               |
 | C     | Ocean3–4               | stage B, WP8                                         |
 | D     | IceOcean1r, 1ra        | stage C, all of WP4                                  |
 
 No stage waits for WP2. Until it lands, each uses RK4 and accepts the cost:
 at 2 km on 36 tasks, 20 years take about 40 days and 100 years about half a
-year. Stage A needs only WP4's MALI mesh and WP6's Ocean0 initial
-conditions; WP4's steady state waits until stage D. WP3 needs nothing, WP4
-needs only WP3, and WP11 needs only WP1. WP10 follows WP2, and no stage
-needs it. WP5 and WP6 start from Polaris's realistic component inputs, even
-while that work is a draft, and it follows the realistic dynamic
-adjustment, so stage B waits for both to merge ([D21](#decisions)). The
-[figures](#status) show where each pull request stands.
+year. Stage A needs only WP4's MALI mesh, WP6's Ocean0 initial conditions
+and the E3SM changes from WP7 that let a hand-built case run; WP4's steady
+state waits until stage D. WP3 needs nothing, WP4 needs only WP3, and WP11
+needs only WP1. WP10 follows WP2, and no stage needs it. WP5 and WP6 start
+from Polaris's realistic component inputs, even while that work is a draft,
+and it follows the realistic dynamic adjustment, so stage B waits for both
+to merge ([D21](#decisions)). The [figures](#status) show where each pull
+request stands.
 
 ## Testing and Validation
 

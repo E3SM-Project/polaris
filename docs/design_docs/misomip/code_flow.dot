@@ -70,7 +70,9 @@ digraph fanssie {
       <tr><td border="0" colspan="2"><font color="#898781">↓ then</font></td></tr>
       <tr><td port="p921" bgcolor="#e8e8e4" colspan="2" style="rounded" cellpadding="6"><b>#921</b>  component inputs in e3sm/init<br/><font color="#52514e">draft · waits for #644</font></td></tr>
       <tr><td border="0" colspan="2"><font color="#898781">↓ then, even while it is a draft (and after #862, #922)</font></td></tr>
-      <tr><td port="pwp56" bgcolor="#ffffff" colspan="2" style="rounded" cellpadding="6"><b>WP5, WP6</b>  MISOMIP's maps and E3SM inputs<br/><font color="#52514e">branch add-misomip-e3sm-init · design done, code started</font></td></tr>
+      <tr><td port="pwp56" bgcolor="#e8e8e4" colspan="2" style="rounded" cellpadding="6"><b>#931</b>  MISOMIP's maps and E3SM inputs<br/><font color="#52514e">draft · may change with the first E3SM run</font></td></tr>
+      <tr><td border="0" colspan="2"><font color="#898781">↓ then</font></td></tr>
+      <tr><td port="pwp7" bgcolor="#ffffff" colspan="2" style="rounded" cellpadding="6"><b>WP7</b>  first E3SM run, then the E3SM cases<br/><font color="#52514e">not started · its E3SM changes land on FAnSSIE</font></td></tr>
     </table>>];
 
   e8047 -> fanssie;
@@ -90,6 +92,6 @@ e3sm_submodules/FAnSSIE", penwidth=1.5];
   legend [shape=plaintext, style="", label=<
     <table border="0" cellborder="1" cellspacing="4" cellpadding="4" color="#c3c2b7">
       <tr><td bgcolor="#e3fcef">merged</td><td bgcolor="#deebff">open</td><td bgcolor="#e8e8e4">draft</td><td bgcolor="#ffffff">no PR yet</td></tr>
-      <tr><td colspan="4" border="0"><font point-size="10" color="#52514e">dashed: not merged yet · as of 2026-10-30</font></td></tr>
+      <tr><td colspan="4" border="0"><font point-size="10" color="#52514e">dashed: not merged yet · as of 2026-10-31</font></td></tr>
     </table>>];
 }

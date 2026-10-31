@@ -17,7 +17,7 @@ import sys
 import matplotlib.pyplot as plt
 from matplotlib.patches import Circle, FancyBboxPatch
 
-STATUS_DATE = '2026-10-30'
+STATUS_DATE = '2026-10-31'
 
 SURFACE = '#fcfcfb'
 INK = '#0b0b0b'
@@ -50,13 +50,13 @@ ROWS = [
      'polaris #922; 1 km spin-up converged; Ice0–Ice2ra run',
      'draft', 0, ''),
     ('WP5', 'Mesh projection, SCRIP files and coupler maps',
-     'add-misomip-e3sm-init (with WP6): design done', 'started', 0,
+     'polaris #931 (with WP6)', 'draft', 0,
      ''),
     ('WP6', 'E3SM inputs: initial conditions, partitions, cases',
-     'add-misomip-e3sm-init (with WP5): design done', 'started', 0,
+     'polaris #931 (with WP5)', 'draft', 0,
      ''),
-    ('WP7', 'Idealized E3SM cases (no atmosphere, namelists)', '', 'none',
-     1, ''),
+    ('WP7', 'Idealized E3SM cases (no atmosphere, namelists)',
+     'starts with the first E3SM run', 'none', 0, ''),
     ('WP8', 'Moving grounding line in coupled runs', '', 'none', 2, ''),
     ('WP9', 'Analysis of the E3SM runs', '', 'none', 1, ''),
     ('WP10', 'Subgrid wetting and drying (optional)', '', 'none', None,
