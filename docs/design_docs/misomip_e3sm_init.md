@@ -394,9 +394,16 @@ Each experiment's case configuration holds:
   - `shell_commands` with the XML changes: the case variables that name
     the initial conditions, the ocean's interior restoring and tidal mask,
     the data-mode file and partitions, MALI's runoff to the ocean turned
-    off, and the run length in jobs;
+    off, the coupling intervals, and the run length in jobs;
 - **a README** with the compset by long name, which sets MALI's mode
-  (static, data or prognostic).
+  (static, data or prognostic);
+- **`create_case.sh`**, which creates a case with the MCT driver, the
+  compset, the model grid and the user-mods directory, sets its layout,
+  and sets it up and builds it ([D8](#decisions)).
+  It takes the E3SM checkout, the case directory, and optionally the
+  machine, project, compiler and task counts. It stops if the checkout
+  lacks the E3SM changes for idealized ice-shelf cases, or if no
+  partition is staged for a task count. The person submits the case.
 
 ```{admonition} Rationale
 By default, MALI rebuilds Albany's finite-element grid at every velocity
@@ -408,9 +415,16 @@ If the MISMIP+ tasks add thin-ice calving and iceberg removal to Ice1r,
 IceOcean1r takes them too, since its options are read from theirs.
 
 The case variables, the runoff option and the compsets are those of the
-E3SM changes for idealized ice-shelf cases. E3SM's default coupling
-intervals divide evenly into the ocean's time steps. *(E3SM runs)* The
-layouts.
+E3SM changes for idealized ice-shelf cases.
+
+The coupling intervals are config options, set to E3SM's defaults: the
+ocean every 30 minutes and MALI daily. The step stops if the ocean's
+interval is not a whole number of its time steps, or MALI's not a whole
+number of the ocean's.
+
+By default, the ocean and MALI each run on the most tasks both meshes are
+partitioned for, MALI on the ocean's tasks in turn. The other components
+run on the ocean's tasks. *(E3SM runs)* The layouts for long runs.
 
 ### Algorithm Design: The inputs are staged as on inputdata
 
@@ -577,7 +591,9 @@ renders: the options whose values differ from MPAS-Ocean's defaults, less
 those E3SM sets itself (run times, I/O, partitions and analysis members),
 plus a list of options whose E3SM defaults differ, with the standalone
 values. A case can read the staged files from a directory other than
-inputdata, for a run before they are copied there.
+inputdata, for a run before they are copied there. `create_case.sh` is
+rendered from a template, with the task counts `get_core_list()` gives for
+each mesh's partition bounds.
 
 ```{admonition} Rationale
 The namelist includes everything the standalone step sets, from YAML files
@@ -696,9 +712,11 @@ Date last modified: 2026/10/31
 
 Contributors: Xylar Asay-Davis, Claude
 
-Unit tests: the user-mods options match the standalone namelist, and the
-list of options whose E3SM defaults differ matches E3SM's defaults. The
-E3SM runs of each experiment test the cases themselves.
+Unit tests: the user-mods options match the standalone namelist, the
+list of options whose E3SM defaults differ matches E3SM's defaults, the
+coupling intervals divide evenly, and `create_case.sh` passes `bash -n`.
+The E3SM runs of each experiment, from cases `create_case.sh` creates,
+test the cases themselves.
 
 ### Testing and Validation: The inputs are staged as on inputdata
 
@@ -869,3 +887,24 @@ Rejected: `oMISOMIP4km` with `mpas.misomip1km`, which share a stem but keep
 the two components' older patterns; and `isomip-plus-o4km` with
 `mismip-plus-li1km`, which name each mesh's protocol but make the model
 grid's name long.
+
+### D8: A script creates each case
+
+Date last modified: 2026/10/31
+
+Contributors: Xylar Asay-Davis, Claude
+
+Polaris writes `create_case.sh` beside each user-mods directory and does
+not run CIME itself.
+
+```{admonition} Rationale
+Creating a case needs the E3SM checkout, machine, project and CIME's
+environment, which belong to the person running E3SM. A script still
+closes the gap to a built case, with a layout that matches the staged
+partitions.
+```
+
+Rejected: a Polaris step that creates and builds the case, which ties the
+tasks to an E3SM checkout and CIME's environment; and the bare
+`create_newcase` command alone, which leaves the layout and partitions
+for the person to match.
