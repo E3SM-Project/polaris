@@ -10,6 +10,7 @@ from polaris.tasks.e3sm.init.misomip import get_misomip_experiment_steps
 from polaris.tasks.e3sm.init.misomip.case_config import (
     DIN_LOC_ROOT,
     E3SM_DEFAULT_OPTIONS,
+    E3SM_OWNED_OPTIONS,
     get_grid_file,
     get_shell_commands,
     get_user_nl_mpaso,
@@ -80,6 +81,7 @@ def _namelists():
             'config_use_cvmix_kpp': '.true.',
         },
         'AM_globalStats': {'config_AM_globalStats_enable': '.true.'},
+        'forcing': {'config_use_bulk_wind_stress': '.true.'},
     }
     for option in E3SM_DEFAULT_OPTIONS:
         if not any(option in group for group in standalone.values()):
@@ -113,6 +115,7 @@ def test_user_nl_mpaso_has_the_standalone_options():
     # left to E3SM
     assert 'config_run_duration' not in options
     assert 'config_AM_globalStats_enable' not in options
+    assert 'config_use_bulk_wind_stress' not in options
     assert options['config_glc_ice_shelf_coupling_import_geometry'] == (
         '.true.'
     )
@@ -173,7 +176,9 @@ def test_e3sm_default_options_are_those_that_differ():
         default = registry.get(option.lower())
         if default is not None and not _same(value, default):
             expected.add(option)
-    managed = {option.lower() for option in E3SM_MANAGED}
+    managed = {
+        option.lower() for option in E3SM_MANAGED | set(E3SM_OWNED_OPTIONS)
+    }
     expected = {
         option.lower()
         for option in expected

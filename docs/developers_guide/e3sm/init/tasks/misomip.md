@@ -132,7 +132,9 @@ also writes every option in `E3SM_DEFAULT_OPTIONS`, with the standalone
 value: those whose E3SM default differs from MPAS-Ocean's, or which E3SM
 gives a default only for the grids it lists.  A unit test compares that
 list with the defaults of the E3SM submodule's MPAS-Ocean, so it fails
-when E3SM's defaults change.  Values E3SM's namelist builder sets from case
+when E3SM's defaults change.  The options in `E3SM_OWNED_OPTIONS`, the bulk
+wind stress, keep E3SM's values: E3SM's ocean takes the coupler's wind
+stress through its bulk forcing, and its time step fails without it.  Values E3SM's namelist builder sets from case
 variables, such as the tidal velocity of the melt parameterization, are
 added by hand.
 

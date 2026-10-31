@@ -59,7 +59,6 @@ E3SM_DEFAULT_OPTIONS = [
     'config_mom_del4',
     'config_AM_mocStreamfunction_enable',
     # E3SM's defaults differ
-    'config_bulk_wind_stress_interp_isotropic',
     'config_cvmix_background_diffusion',
     'config_cvmix_background_diffusion_passive',
     'config_cvmix_shear_mixing_scheme',
@@ -92,7 +91,6 @@ E3SM_DEFAULT_OPTIONS = [
     'config_topographic_wave_drag_coeff',
     'config_use_activeTracers_surface_bulk_forcing',
     'config_use_bulk_thickness_flux',
-    'config_use_bulk_wind_stress',
     'config_use_cvmix_convection',
     'config_use_cvmix_kpp',
     'config_use_cvmix_shear',
@@ -104,6 +102,14 @@ E3SM_DEFAULT_OPTIONS = [
     'config_land_ice_flux_tidal_Jourdain_alpha',
     'config_land_ice_flux_tidal_Jourdain_A0',
     'config_land_ice_flux_tidal_Jourdain_U0',
+]
+
+#: MPAS-Ocean options that keep E3SM's values, though they differ from the
+#: standalone run's: E3SM's ocean takes the coupler's wind stress through its
+#: bulk forcing, so turning it off breaks the time step
+E3SM_OWNED_OPTIONS = [
+    'config_use_bulk_wind_stress',
+    'config_bulk_wind_stress_interp_isotropic',
 ]
 
 #: MPAS-Ocean options an E3SM case sets that a standalone run has no use for
@@ -457,8 +463,11 @@ def get_user_nl_mpaso(standalone, defaults):
             selected = {
                 option: value
                 for option, value in options.items()
-                if option in E3SM_DEFAULT_OPTIONS
-                or not _same(value, default_values.get(option))
+                if option not in E3SM_OWNED_OPTIONS
+                and (
+                    option in E3SM_DEFAULT_OPTIONS
+                    or not _same(value, default_values.get(option))
+                )
             }
         if not selected:
             continue
