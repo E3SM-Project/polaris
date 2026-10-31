@@ -58,6 +58,18 @@ These instructions apply to the whole repository unless a deeper
 - Prefer starting from the existing template instead of creating task
   documentation pages from scratch.
 
+## Commit messages
+
+- Write for a developer reading `git log` or `git blame` years from now,
+  who has not seen the pull request, its discussion or any plan behind it.
+- Say what the change does in the code's own terms: "Let the MCT driver
+  run a prognostic ocean without an atmosphere", not "WP7: relax driver
+  check".
+- Do not use pull request or issue numbers, work-package numbers, stage
+  letters or design-decision numbers as names for things. A reference may
+  appear beside a description, for example a `Fixes #123` line, but the
+  message must make sense without following it.
+
 ## GitHub pull requests and issues
 
 - Do not hard-wrap. Write each paragraph and each bullet as a single
