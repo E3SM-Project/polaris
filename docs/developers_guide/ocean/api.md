@@ -372,6 +372,43 @@
    viz.Viz.run
 ```
 
+### frazil
+
+```{eval-rst}
+.. currentmodule:: polaris.tasks.ocean.single_column.frazil
+
+.. autosummary::
+   :toctree: generated/
+
+   Frazil
+   Frazil.configure
+```
+
+```{eval-rst}
+.. currentmodule:: polaris.tasks.ocean.single_column
+
+.. autosummary::
+   :toctree: generated/
+
+   frazil.init.FrazilInit
+   frazil.init.FrazilInit._compute_temperature_salinity
+
+   frazil.one_layer.FrazilOneLayer
+   frazil.one_layer.FrazilOneLayer.configure
+
+   frazil.one_layer.viz.OneLayerViz
+   frazil.one_layer.viz.OneLayerViz.run
+
+   frazil.melting_short.FrazilMeltingShort
+   frazil.melting_short.FrazilMeltingShort.configure
+
+   frazil.melting_short.viz.MeltingShortViz
+   frazil.melting_short.viz.MeltingShortViz.run
+
+   forward.Forward
+   forward.Forward.dynamic_model_config
+```
+
 ### inertial_gravity_wave
 
 ```{eval-rst}
@@ -872,9 +909,10 @@
    init.Init
    init.Init.run
 
+   conservation_summary.ConservationSummary
+   conservation_summary.ConservationSummary.run
+
    thermo.Thermo
-   thermo.conservation_summary.ConservationSummary
-   thermo.conservation_summary.ConservationSummary.run
    thermo.analysis.Analysis
    thermo.analysis.Analysis.run
 

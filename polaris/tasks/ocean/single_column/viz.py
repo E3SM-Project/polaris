@@ -8,6 +8,10 @@ from polaris.ocean.vertical.diagnostics import (
     location_for_field,
     vertical_coord_from_location,
 )
+from polaris.tasks.ocean.single_column.mpas_ocean_frazil_viz import (
+    mpas_ocean_frazil_data,
+    plot_mpas_ocean_frazil,
+)
 from polaris.viz import mplstyle_context
 
 # TODO import rho_0 from constants
@@ -29,6 +33,7 @@ class Viz(OceanIOStep):
         variables=None,
         output_file='output.nc',
         plot_diff=False,
+        mpas_ocean_frazil=False,
     ):
         """
         Create the step
@@ -57,8 +62,12 @@ class Viz(OceanIOStep):
         plot_diff : bool, optional
             Whether to plot difference profiles between the comparison datasets
             (supported when exactly two comparisons are provided)
+
+        mpas_ocean_frazil : bool, optional
+            Whether to plot MPAS-Ocean frazil tendency profiles
         """
         super().__init__(component=component, name=name, indir=indir)
+        self.mpas_ocean_frazil = mpas_ocean_frazil
         self.comparisons = (
             dict(comparisons) if comparisons else {'forward': '../forward'}
         )
@@ -92,13 +101,76 @@ class Viz(OceanIOStep):
                 target=f'{comparison_path}/{output_file}',
             )
 
+    def _get_comparison_data(self, t_target):
+        comparison_data = []
+        for comparison_name, comparison_path in self.comparisons.items():
+            source = os.path.join(comparison_path, 'output.nc')
+            target = f'{comparison_name}.nc'
+            if not os.path.exists(source):
+                self.logger.warning(
+                    'Missing comparison output for %s: %s',
+                    comparison_name,
+                    source,
+                )
+                continue
+            try:
+                if os.path.lexists(target):
+                    os.remove(target)
+                os.symlink(source, target)
+            except OSError as exc:
+                self.logger.warning(
+                    'Could not link comparison output for %s to %s: %s',
+                    comparison_name,
+                    target,
+                    exc,
+                )
+                continue
+            try:
+                if os.path.exists('coeffs.nc'):
+                    ds_comp = self.open_model_dataset(
+                        target,
+                        decode_times=True,
+                        mesh_filename='mesh.nc',
+                        reconstruct_variables=['normalVelocity'],
+                        reconstruct_method='RBF',
+                        coeffs_filename='coeffs.nc',
+                        config=self.config,
+                    )
+                else:
+                    ds_comp = self.open_model_dataset(
+                        target,
+                        decode_times=True,
+                        config=self.config,
+                    )
+            except FileNotFoundError:
+                self.logger.warning(
+                    'Skipping unavailable comparison input %s for %s',
+                    target,
+                    comparison_name,
+                )
+                continue
+            t_arr = get_time_since_start(ds_comp, units='days')
+            t_index = np.argmin(np.abs(t_arr - t_target))
+            comparison_data.append(
+                (
+                    comparison_name,
+                    ds_comp.isel(Time=t_index),
+                    float(t_arr[t_index]),
+                )
+            )
+        return comparison_data
+
     def run(self):
         """
         Run this step of the test case
         """
         with mplstyle_context():
             section = self.config['single_column']
-            if section.has_option('run_duration'):
+            if section.has_option('run_duration_steps'):
+                run_duration_steps = section.getint('run_duration_steps')
+                time_step = section.getfloat('time_step')
+                t_target = run_duration_steps * time_step / 86400.0
+            elif section.has_option('run_duration'):
                 t_target = section.getfloat('run_duration')
             else:
                 self.logger.info(
@@ -107,32 +179,12 @@ class Viz(OceanIOStep):
                 )
                 t_target = 10.0
 
-            ds_list = []
-            time_ds = []
-            # Remove missing comparison so it won't be used later
-            comparisons = dict()
-            for comparison_name in self.comparisons.keys():
-                if os.path.exists(f'{comparison_name}.nc'):
-                    comparisons[comparison_name] = self.comparisons[
-                        comparison_name
-                    ]
-                else:
-                    continue
-                ds_comp = self.open_model_dataset(
-                    f'{comparison_name}.nc',
-                    decode_times=True,
-                    mesh_filename='mesh.nc',
-                    reconstruct_variables=['normalVelocity'],
-                    config=self.config,
-                )
-                t_arr = get_time_since_start(ds_comp, units='days')
-                t_index = np.argmin(np.abs(t_arr - t_target))
-                time_ds.append(float(t_arr[t_index]))
-                ds_list.append(ds_comp.isel(Time=t_index))
+            comparison_data = self._get_comparison_data(t_target)
             ds_init = self.open_model_dataset('init.nc', config=self.config)
             ds_init = ds_init.isel(Time=0)
 
-            if self.config.get('ocean', 'model') == 'omega':
+            model = self.config.get('ocean', 'model')
+            if model == 'omega':
                 ds_vert = self.open_model_dataset(
                     self.get_vert_coord_filename()
                 )
@@ -151,9 +203,9 @@ class Viz(OceanIOStep):
                 fig = plt.figure(figsize=(3, 5))
                 colors = ['k', 'b', 'r', 'darkgreen']
                 for comparison_name, ds_comp, t_days, color in zip(
-                    self.comparisons.keys(),
-                    ds_list,
-                    time_ds,
+                    [name for name, _, _ in comparison_data],
+                    [ds for _, ds, _ in comparison_data],
+                    [t for _, _, t in comparison_data],
                     colors,
                     strict=False,
                 ):
@@ -268,7 +320,12 @@ class Viz(OceanIOStep):
                     f'{field_name}.png',
                 )
 
-            if self.plot_diff and len(ds_list) == 2:
+            if self.plot_diff and len(comparison_data) == 2:
+                comparisons = {
+                    name: self.comparisons[name]
+                    for name, _, _ in comparison_data
+                }
+                ds_list = [ds for _, ds, _ in comparison_data]
                 _plot_diff_profiles(
                     self.variables,
                     comparisons,
@@ -277,6 +334,31 @@ class Viz(OceanIOStep):
                     ymin,
                     ymax,
                 )
+
+            if model == 'mpas-ocean' and self.mpas_ocean_frazil:
+                self._plot_mpas_ocean_frazil()
+
+    def _plot_mpas_ocean_frazil(self):
+        """Plot MPAS-Ocean frazil profiles and accumulated quantities."""
+        ds_mesh = self.open_model_dataset('mesh.nc', config=self.config)
+        series = []
+        for comparison_name in self.comparisons:
+            filename = f'{comparison_name}.nc'
+            if not os.path.exists(filename):
+                continue
+            ds = self.open_model_dataset(
+                filename, config=self.config, decode_times=True
+            )
+            series.append(
+                {
+                    'name': comparison_name,
+                    'frazil_data': mpas_ocean_frazil_data(ds, ds_mesh),
+                }
+            )
+            ds.close()
+        ds_mesh.close()
+        styles = {item['name']: {'linestyle': '-'} for item in series}
+        plot_mpas_ocean_frazil(series, styles)
 
 
 def _plot_diff_profiles(

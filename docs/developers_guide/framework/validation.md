@@ -245,7 +245,12 @@ class Forward(OceanModelStep):
 ## Conservation checks
 
 Mass, salt, tracer and energy conservation checks are available for ocean
-model output.  A check fails if the relative error in the budget exceeds the
+model output. Energy changes are integrated from local changes in
+thickness and temperature using extended precision, rather than subtracting
+rounded global heat contents. This retains small nonzero residuals in the
+logged errors and `property_check_results.json`.
+
+A check fails if the relative error in the budget exceeds the
 tolerance given in `polaris/ocean/ocean.cfg`:
 
 ```cfg
