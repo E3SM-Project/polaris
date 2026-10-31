@@ -152,11 +152,47 @@ assembled_files/
             map_misomip-o4km_to_misomip-li1km_aave.<date>.nc
         cpl/gridmaps/misomip-li1km/
             map_misomip-li1km_to_misomip-o4km_aave.<date>.nc
+    case_config/ocean3/
+        README
+        user_mods/
+            config_grids.xml
+            shell_commands
+            user_nl_mpaso
+            user_nl_mali
 ```
 
-The `_forcing` file holds the ocean's interior restoring.  Only `ocean3`
-and `ocean4` have a data-mode file, and `iceocean1ra` has no initial
-conditions.  The tree has no runoff map and no case configuration.
+The `_forcing` file holds the ocean's interior restoring and the mask of
+its outflow.  Only `ocean3` and `ocean4` have a data-mode file, and
+`iceocean1ra` has no initial conditions.  The tree has no runoff map: the
+cases turn off MALI's runoff to the ocean.
+
+## Case configuration
+
+The `case_config` step of `ocean0` to `ocean4` writes the configuration of
+an E3SM case, which the `assemble` step stages in `case_config/`.  The
+README gives the compset: MALI is static for `ocean0` to `ocean2` and
+replays its geometry in data mode for `ocean3` and `ocean4`.  A case is
+created from the `user_mods/` directory:
+
+```bash
+./create_newcase --case <case> --driver mct \
+    --compset 2000_SATM_SLND_SICE_MPASO%PISMF_SROF_MALI%SIASTATIC_SWAV \
+    --res misomip-o4km-li1km \
+    --user-mods-dirs <assembled_files>/case_config/ocean0/user_mods
+```
+
+The directory holds:
+
+- `config_grids.xml`, the grid file, which CIME uses in place of E3SM's;
+- `shell_commands`, which names the staged files with case variables,
+  turns off MALI's runoff to the ocean and sets the run length;
+- `user_nl_mpaso`, with the options of the standalone ocean run, and every
+  option whose E3SM default differs from that run's value;
+- `user_nl_mali`, with the densities the ocean's land-ice pressure used.
+
+The case needs an E3SM that has these case variables and grids it does not
+list.  `iceocean1r` and `iceocean1ra`, with a prognostic MALI, have no case
+configuration yet.
 
 The step does not copy the files to inputdata.  Its work directory has
 `sync_to_inputdata.sh` for doing that by hand, once the files have been
@@ -215,3 +251,25 @@ The staged files are stamped with a creation date:
 # rename every staged file.
 creation_date =
 ```
+
+Setting up a task again in the same work directory fills in a new date, so
+set it to keep the earlier names.
+
+The case configuration has options of its own:
+
+```cfg
+# options for the E3SM case configurations
+[misomip_case_config]
+
+# Where an E3SM case finds the staged files: blank for E3SM's inputdata
+# directory, DIN_LOC_ROOT, once they are there, or a directory with the same
+# layout, such as a short link to an assembly's inputdata directory, for a
+# case run before then
+inputdata_root =
+
+# The months each job of a case runs, a divisor of every experiment's length
+months_per_job = 1
+```
+
+MCT reads map paths of up to 256 characters, so a directory given in
+`inputdata_root` needs a short path.
