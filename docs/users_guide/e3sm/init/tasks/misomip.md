@@ -154,6 +154,7 @@ assembled_files/
             map_misomip-li1km_to_misomip-o4km_aave.<date>.nc
     case_config/ocean3/
         README
+        create_case.sh
         user_mods/
             config_grids.xml
             shell_commands
@@ -171,8 +172,26 @@ cases turn off MALI's runoff to the ocean.
 The `case_config` step of `ocean0` to `ocean4` writes the configuration of
 an E3SM case, which the `assemble` step stages in `case_config/`.  The
 README gives the compset: MALI is static for `ocean0` to `ocean2` and
-replays its geometry in data mode for `ocean3` and `ocean4`.  A case is
-created from the `user_mods/` directory:
+replays its geometry in data mode for `ocean3` and `ocean4`.
+
+`create_case.sh` creates, sets up and builds a case from the `user_mods/`
+directory beside it.  It needs an E3SM checkout with the changes for
+idealized ice-shelf cases, at commit `eb0b74201c` of the
+`fanssie-ocn-glc-coupling` branch of E3SM-Ocean-Discussion/E3SM or later:
+
+```bash
+<assembled_files>/case_config/ocean0/create_case.sh \
+    -e <E3SM checkout> -c <case directory> -m chrysalis -p e3sm
+```
+
+The machine and project default to CIME's, and the compiler, `-C`, to
+`gnu`.  By default, the ocean and MALI each run on the most tasks both
+meshes are partitioned for, 64 for `misomip-o4km-li1km`, with MALI on the
+ocean's tasks in turn.  `-o` and `-g` choose other counts for the ocean
+and MALI, which must be among the staged partitions.  The script does not
+submit the case; run `./case.submit` in the case directory.
+
+To create a case by hand instead, use the MCT driver:
 
 ```bash
 ./create_newcase --case <case> --driver mct \
@@ -181,11 +200,15 @@ created from the `user_mods/` directory:
     --user-mods-dirs <assembled_files>/case_config/ocean0/user_mods
 ```
 
+and set `NTASKS_OCN` and `NTASKS_GLC` to counts the meshes are partitioned
+for before `./case.setup`.
+
 The directory holds:
 
 - `config_grids.xml`, the grid file, which CIME uses in place of E3SM's;
 - `shell_commands`, which names the staged files with case variables,
-  turns off MALI's runoff to the ocean and sets the run length;
+  turns off MALI's runoff to the ocean, and sets the coupling intervals
+  and the run length;
 - `user_nl_mpaso`, with the options of the standalone ocean run, and every
   option whose E3SM default differs from that run's value, except the bulk
   wind stress, through which E3SM's ocean takes the coupler's;
@@ -270,7 +293,17 @@ inputdata_root =
 
 # The months each job of a case runs, a divisor of every experiment's length
 months_per_job = 1
+
+# The times a day the ocean couples, a divisor of 86400 s whose interval is a
+# whole number of ocean time steps
+ocean_couplings_per_day = 48
+
+# The times a day MALI couples, a divisor of ocean_couplings_per_day
+landice_couplings_per_day = 1
 ```
+
+The coupling intervals are E3SM's defaults: the ocean couples every 30
+minutes, and MALI once a day.
 
 MCT reads map paths of up to 256 characters, so a directory given in
 `inputdata_root` needs a short path.

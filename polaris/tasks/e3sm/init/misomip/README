@@ -15,8 +15,8 @@ inputdata tree:
 
 `case_config/<experiment>/` is not part of inputdata.  It holds the E3SM
 case configuration: a `user_mods/` directory to create a case with, which
-includes the grid file, and a README with the compset.  Ocean0 to Ocean4
-have one.
+includes the grid file, a README with the compset, and `create_case.sh`,
+which creates, sets up and builds a case.  Ocean0 to Ocean4 have one.
 
 IceOcean1ra continues from IceOcean1r's E3SM restart, so its tree has no
 initial conditions.

@@ -7,7 +7,9 @@ from mpas_tools.io import open_dataset
 import polaris.namelist
 from polaris.config import PolarisConfigParser
 from polaris.e3sm.init import inputdata
+from polaris.e3sm.init.partitions import get_core_list
 from polaris.landice.mismip_plus.geometry import ICE_DENSITY, OCEAN_DENSITY
+from polaris.mpas.time import duration_to_seconds
 from polaris.step import Step
 from polaris.tasks.e3sm.init.misomip import names
 from polaris.tasks.e3sm.init.misomip.landice_data import (
@@ -28,6 +30,10 @@ RUN_MONTHS = {
     'ocean3': 1200,
     'ocean4': 1200,
 }
+
+#: The earliest commit of FAnSSIE, E3SM's development branch for coupling the
+#: ocean and ice sheets, that has every change the cases need
+E3SM_COMMIT = 'eb0b74201c'
 
 #: The compset of each mode of MALI, by long name
 COMPSETS = {
@@ -131,16 +137,25 @@ MALI_OPTIONS = {
 #: directory
 USER_MODS = 'user_mods'
 
-#: What the step writes that is staged: the user-mods directory and the
-#: README beside it
-CASE_CONFIG_FILES = [USER_MODS, 'README']
+#: The script that creates, sets up and builds a case
+CREATE_CASE = 'create_case.sh'
+
+#: What the step writes that is staged: the user-mods directory, and the
+#: README and script beside it
+CASE_CONFIG_FILES = [USER_MODS, 'README', CREATE_CASE]
+
+#: The config section of each mesh's graph partitions
+PARTITION_SECTIONS = {
+    'ocean': 'misomip_ocean_partitions',
+    'landice': 'misomip_landice_partitions',
+}
 
 
 class CaseConfigStep(Step):
     """
     A step for writing the E3SM case configuration of one MISOMIP
-    experiment: a user-mods directory, with the grid file, and a README with
-    the compset
+    experiment: a user-mods directory, with the grid file, a README with
+    the compset and a script that creates a case
 
     Attributes
     ----------
@@ -218,10 +233,11 @@ class CaseConfigStep(Step):
         ]:
             self.add_output_file(filename=os.path.join(USER_MODS, filename))
         self.add_output_file(filename='README')
+        self.add_output_file(filename=CREATE_CASE)
 
     def run(self):
         """
-        Write the user-mods directory and the README
+        Write the user-mods directory, the README and the script
         """
         config = self.config
         experiment = self.experiment
@@ -234,30 +250,66 @@ class CaseConfigStep(Step):
         if root is None:
             root = DIN_LOC_ROOT
         months_per_job = section.getint('months_per_job')
+        couplings_per_day = {
+            grid: section.getint(f'{grid}_couplings_per_day')
+            for grid in ['ocean', 'landice']
+        }
+        cell_counts = _get_cell_counts()
 
-        os.makedirs(USER_MODS, exist_ok=True)
-        _write(
-            os.path.join(USER_MODS, 'config_grids.xml'),
-            get_grid_file(grids, date, root, _get_cell_counts()),
-        )
-        filename = os.path.join(USER_MODS, 'shell_commands')
-        _write(
-            filename,
-            get_shell_commands(experiment, grids, date, root, months_per_job),
-        )
-        os.chmod(filename, 0o755)
         ocean_config = PolarisConfigParser()
         ocean_config.add_from_file('ocean.cfg')
         defaults = polaris.namelist.ingest(
             ocean_config.get('namelists', 'forward')
         )
         standalone = polaris.namelist.ingest('namelist.ocean')
+        dt = duration_to_seconds(
+            standalone['time_integration']['config_dt'].strip('\'"')
+        )
+
+        os.makedirs(USER_MODS, exist_ok=True)
+        _write(
+            os.path.join(USER_MODS, 'config_grids.xml'),
+            get_grid_file(grids, date, root, cell_counts),
+        )
+        _write(
+            os.path.join(USER_MODS, 'shell_commands'),
+            get_shell_commands(
+                experiment,
+                grids,
+                date,
+                root,
+                months_per_job,
+                couplings_per_day,
+                dt,
+            ),
+            executable=True,
+        )
         _write(
             os.path.join(USER_MODS, 'user_nl_mpaso'),
             get_user_nl_mpaso(standalone, defaults),
         )
         _write(os.path.join(USER_MODS, 'user_nl_mali'), get_user_nl_mali())
         _write('README', get_readme(experiment, grids))
+        task_counts = {
+            grid: [
+                int(count)
+                for count in get_core_list(
+                    ncells=cell_counts[grid],
+                    max_cells_per_core=config.getint(
+                        PARTITION_SECTIONS[grid], 'max_cells_per_core'
+                    ),
+                    min_cells_per_core=config.getint(
+                        PARTITION_SECTIONS[grid], 'min_cells_per_core'
+                    ),
+                )
+            ]
+            for grid in PARTITION_SECTIONS
+        }
+        _write(
+            CREATE_CASE,
+            get_create_case_script(experiment, grids, task_counts),
+            executable=True,
+        )
 
 
 def get_mali_mode(experiment):
@@ -326,12 +378,18 @@ def get_grid_file(grids, creation_date, inputdata_root, cell_counts):
 
 
 def get_shell_commands(
-    experiment, grids, creation_date, inputdata_root, months_per_job
+    experiment,
+    grids,
+    creation_date,
+    inputdata_root,
+    months_per_job,
+    couplings_per_day,
+    ocean_dt,
 ):
     """
     Get the text of ``shell_commands``, which sets the case variables that
     name the staged files, turns off MALI's runoff to the ocean and sets the
-    run length
+    coupling intervals and the run length
 
     Parameters
     ----------
@@ -350,6 +408,13 @@ def get_shell_commands(
 
     months_per_job : int
         The months each job of the case runs
+
+    couplings_per_day : dict of str to int
+        The times a day the ``ocean`` and ``landice`` models couple
+
+    ocean_dt : float
+        The ocean's time step in seconds, which must divide its coupling
+        interval
 
     Returns
     -------
@@ -390,6 +455,19 @@ def get_shell_commands(
         )
     resubmit = months // months_per_job - 1
 
+    ocean_ncpl = couplings_per_day['ocean']
+    landice_ncpl = couplings_per_day['landice']
+    if 86400 % ocean_ncpl != 0 or (86400 / ocean_ncpl) % ocean_dt != 0:
+        raise ValueError(
+            f'The ocean cannot couple {ocean_ncpl} times a day with a time '
+            f'step of {ocean_dt} s.'
+        )
+    if ocean_ncpl % landice_ncpl != 0:
+        raise ValueError(
+            f'MALI cannot couple {landice_ncpl} times a day when the ocean '
+            f'couples {ocean_ncpl} times.'
+        )
+
     lines = [
         '#!/bin/bash',
         '',
@@ -404,6 +482,10 @@ def get_shell_commands(
             '',
             "# MALI's calving adds no water to the ocean",
             './xmlchange GLC_RUNOFF_TO_OCN=FALSE',
+            '',
+            '# Couplings a day.  The stub atmosphere sets the base interval.',
+            f'./xmlchange NCPL_BASE_PERIOD=day,ATM_NCPL={ocean_ncpl},'
+            f'OCN_NCPL={ocean_ncpl},GLC_NCPL={landice_ncpl}',
             '',
             f'# {months} months in all, {months_per_job} per job',
             f'./xmlchange STOP_OPTION=nmonths,STOP_N={months_per_job}',
@@ -523,20 +605,85 @@ def get_readme(experiment, grids):
         f'{grids["model"]}, with MALI',
         f'in {mode} mode.',
         '',
-        'Create a case from it with the MCT driver:',
+        f'`{CREATE_CASE}` creates, sets up and builds a case, with a layout',
+        "whose tasks match the meshes' partitions.  It needs an E3SM",
+        f"checkout at FAnSSIE's {E3SM_COMMIT} or later:",
+        '',
+        f'  ./{CREATE_CASE} -e <E3SM checkout> -c <case directory> \\',
+        '      [-m <machine>] [-p <project>] [-C <compiler>] \\',
+        '      [-o <ocean tasks>] [-g <MALI tasks>]',
+        '',
+        'Submit the case yourself.  To create a case by hand instead, use',
+        'the MCT driver:',
         '',
         '  ./create_newcase --case <case> --driver mct \\',
         f'      --compset {compset} \\',
         f'      --res {grids["model"]} \\',
         '      --user-mods-dirs <this directory>/user_mods',
         '',
+        'and set NTASKS_OCN and NTASKS_GLC to counts the meshes are',
+        'partitioned for.',
+        '',
         '`user_mods/` holds the grid file, `config_grids.xml`, which CIME',
         "uses in place of E3SM's, the standalone ocean run's options in",
         "`user_nl_mpaso`, MALI's in `user_nl_mali`, and `shell_commands`,",
-        'which names the staged files and sets the run length.',
+        'which names the staged files and sets the coupling intervals and',
+        'the run length.',
         '',
     ]
     return '\n'.join(lines)
+
+
+def get_create_case_script(experiment, grids, task_counts):
+    """
+    Get the text of the script that creates, sets up and builds a case.
+    By default, the ocean and MALI each run on the most tasks both meshes
+    are partitioned for.
+
+    Parameters
+    ----------
+    experiment : str
+        The experiment
+
+    grids : dict of str to str
+        E3SM's names of the ``ocean``, ``landice`` and ``model`` grids
+
+    task_counts : dict of str to list of int
+        The task counts the ``ocean`` and ``landice`` meshes are partitioned
+        for
+
+    Returns
+    -------
+    text : str
+        The script
+    """
+    shared = set(task_counts['ocean']) & set(task_counts['landice'])
+    if not shared:
+        raise ValueError(
+            'The ocean and MALI meshes are partitioned for no task count in '
+            'common.'
+        )
+    tasks = max(shared)
+    mode = get_mali_mode(experiment)
+    template = Template(
+        imp_res.files(__package__)
+        .joinpath('create_case.template')
+        .read_text(),
+        keep_trailing_newline=True,
+    )
+    return template.render(
+        experiment=experiment,
+        model_grid=grids['model'],
+        mode=mode,
+        compset=COMPSETS[mode],
+        e3sm_commit=E3SM_COMMIT,
+        ocean_tasks=tasks,
+        landice_tasks=tasks,
+        ocean_counts=' '.join(str(count) for count in task_counts['ocean']),
+        landice_counts=' '.join(
+            str(count) for count in task_counts['landice']
+        ),
+    )
 
 
 def _get_cell_counts():
@@ -590,9 +737,11 @@ def _normalize(value):
         return value
 
 
-def _write(filename, text):
+def _write(filename, text, executable=False):
     """
     Write a text file
     """
     with open(filename, 'w') as handle:
         handle.write(text)
+    if executable:
+        os.chmod(filename, 0o755)

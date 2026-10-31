@@ -366,6 +366,7 @@
    case_config.get_user_nl_mpaso
    case_config.get_user_nl_mali
    case_config.get_readme
+   case_config.get_create_case_script
 
    assemble.MisomipAssembleStep
    assemble.MisomipAssembleStep.run

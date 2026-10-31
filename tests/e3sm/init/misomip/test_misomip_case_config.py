@@ -1,5 +1,6 @@
 import os
 import re
+import subprocess
 import xml.etree.ElementTree as ET
 from glob import glob
 
@@ -9,8 +10,10 @@ from polaris.tasks.e3sm.init import e3sm_init
 from polaris.tasks.e3sm.init.misomip import get_misomip_experiment_steps
 from polaris.tasks.e3sm.init.misomip.case_config import (
     DIN_LOC_ROOT,
+    E3SM_COMMIT,
     E3SM_DEFAULT_OPTIONS,
     E3SM_OWNED_OPTIONS,
+    get_create_case_script,
     get_grid_file,
     get_shell_commands,
     get_user_nl_mpaso,
@@ -26,6 +29,8 @@ GRIDS = {
     'model': 'misomip-o4km-li1km',
 }
 DATE = '20250101'
+COUPLINGS = {'ocean': 48, 'landice': 1}
+DT = 24.0
 
 MPAS_OCEAN = os.path.join(
     os.path.dirname(__file__),
@@ -193,7 +198,9 @@ def test_e3sm_default_options_are_those_that_differ():
 
 
 def test_shell_commands_name_the_staged_files():
-    text = get_shell_commands('ocean3', GRIDS, DATE, DIN_LOC_ROOT, 12)
+    text = get_shell_commands(
+        'ocean3', GRIDS, DATE, DIN_LOC_ROOT, 12, COUPLINGS, DT
+    )
     ocn = '$DIN_LOC_ROOT/ocn/mpas-o/misomip-o4km'
     glc = '$DIN_LOC_ROOT/glc/mpasli/misomip-li1km'
     lines = text.splitlines()
@@ -212,6 +219,7 @@ def test_shell_commands_name_the_staged_files():
         f"./xmlchange 'MALI_DATAMODE_FILE={glc}/"
         f"misomip-li1km.ocean3_datamode.{DATE}.nc'",
         './xmlchange GLC_RUNOFF_TO_OCN=FALSE',
+        './xmlchange NCPL_BASE_PERIOD=day,ATM_NCPL=48,OCN_NCPL=48,GLC_NCPL=1',
         './xmlchange STOP_OPTION=nmonths,STOP_N=12',
         './xmlchange RESUBMIT=99',
     ]:
@@ -219,7 +227,9 @@ def test_shell_commands_name_the_staged_files():
 
 
 def test_shell_commands_static_mali_has_no_data_mode_file():
-    text = get_shell_commands('ocean0', GRIDS, DATE, '/short/inputdata', 1)
+    text = get_shell_commands(
+        'ocean0', GRIDS, DATE, '/short/inputdata', 1, COUPLINGS, DT
+    )
     assert 'MALI_DATAMODE_FILE' not in text
     assert (
         f"./xmlchange 'MPASO_IC_FILE=/short/inputdata/ocn/mpas-o/"
@@ -230,7 +240,54 @@ def test_shell_commands_static_mali_has_no_data_mode_file():
 
 def test_shell_commands_need_whole_jobs():
     with pytest.raises(ValueError, match='multiple'):
-        get_shell_commands('ocean0', GRIDS, DATE, DIN_LOC_ROOT, 5)
+        get_shell_commands(
+            'ocean0', GRIDS, DATE, DIN_LOC_ROOT, 5, COUPLINGS, DT
+        )
+
+
+@pytest.mark.parametrize(
+    'couplings, dt, match',
+    [
+        ({'ocean': 48, 'landice': 1}, 28.0, 'ocean cannot couple'),
+        ({'ocean': 7, 'landice': 1}, 24.0, 'ocean cannot couple'),
+        ({'ocean': 48, 'landice': 5}, 24.0, 'MALI cannot couple'),
+    ],
+)
+def test_shell_commands_need_whole_coupling_intervals(couplings, dt, match):
+    with pytest.raises(ValueError, match=match):
+        get_shell_commands(
+            'ocean0', GRIDS, DATE, DIN_LOC_ROOT, 1, couplings, dt
+        )
+
+
+def test_create_case_script():
+    counts = {'ocean': [2, 4, 8, 64, 66], 'landice': [3, 4, 8, 64, 600]}
+    text = get_create_case_script('ocean3', GRIDS, counts)
+    lines = text.splitlines()
+    assert lines[0] == '#!/bin/bash'
+    # the most tasks both meshes are partitioned for
+    assert 'ocean_tasks=64' in lines
+    assert 'landice_tasks=64' in lines
+    assert 'ocean_counts="2 4 8 64 66"' in lines
+    assert 'landice_counts="3 4 8 64 600"' in lines
+    assert (
+        '      --compset '
+        '2000_SATM_SLND_SICE_MPASO%PISMF_SROF_MALI%SIADATA_SWAV'
+    ) in lines
+    assert '      --res misomip-o4km-li1km' in lines
+    assert f'merge-base --is-ancestor {E3SM_COMMIT} HEAD' in text
+    # submitting is left to the person
+    assert not any(line.strip().startswith('./case.submit') for line in lines)
+    result = subprocess.run(
+        ['bash', '-n'], input=text, text=True, capture_output=True
+    )
+    assert result.returncode == 0, result.stderr
+
+
+def test_create_case_script_needs_a_shared_task_count():
+    counts = {'ocean': [2, 4], 'landice': [3, 9]}
+    with pytest.raises(ValueError, match='no task count in common'):
+        get_create_case_script('ocean0', GRIDS, counts)
 
 
 def test_grid_file():

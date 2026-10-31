@@ -1,0 +1,97 @@
+#!/bin/bash
+# Create, set up and build an E3SM case for MISOMIP {{ experiment }} on
+# {{ model_grid }}, with MALI in {{ mode }} mode.  Submit it yourself, with
+# ./case.submit in the case directory.
+
+set -e
+
+usage="usage: $0 -e <E3SM checkout> -c <case directory>
+           [-m <machine>] [-p <project>] [-C <compiler>]
+           [-o <ocean tasks>] [-g <MALI tasks>]"
+
+# An E3SM checkout at FAnSSIE's {{ e3sm_commit }} or later
+e3sm=
+# The case directory, whose name is the case's
+case_dir=
+# Blank for CIME's defaults
+machine=
+project=
+compiler=gnu
+# The tasks of the ocean and of MALI, each a count its mesh is partitioned
+# for
+ocean_tasks={{ ocean_tasks }}
+landice_tasks={{ landice_tasks }}
+ocean_counts="{{ ocean_counts }}"
+landice_counts="{{ landice_counts }}"
+
+while getopts "e:c:m:p:C:o:g:h" option; do
+    case $option in
+        e) e3sm=$OPTARG ;;
+        c) case_dir=$OPTARG ;;
+        m) machine=$OPTARG ;;
+        p) project=$OPTARG ;;
+        C) compiler=$OPTARG ;;
+        o) ocean_tasks=$OPTARG ;;
+        g) landice_tasks=$OPTARG ;;
+        h) echo "$usage"; exit 0 ;;
+        *) echo "$usage" >&2; exit 1 ;;
+    esac
+done
+
+if [ -z "$e3sm" ] || [ -z "$case_dir" ]; then
+    echo "$usage" >&2
+    exit 1
+fi
+
+if ! git -C "$e3sm" merge-base --is-ancestor {{ e3sm_commit }} HEAD \
+        2> /dev/null; then
+    echo "$e3sm is not at FAnSSIE's {{ e3sm_commit }} or later." >&2
+    exit 1
+fi
+
+check_tasks () {
+    case " $3 " in
+        *" $2 "*) ;;
+        *) echo "$1 has no partition for $2 tasks.  Choose one of: $3" >&2
+           exit 1 ;;
+    esac
+}
+check_tasks "The ocean's mesh" "$ocean_tasks" "$ocean_counts"
+check_tasks "MALI's mesh" "$landice_tasks" "$landice_counts"
+
+user_mods="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/user_mods"
+
+args=(--case "$case_dir" --driver mct
+      --compset {{ compset }}
+      --res {{ model_grid }}
+      --user-mods-dirs "$user_mods"
+      --compiler "$compiler")
+if [ -n "$machine" ]; then
+    args+=(--machine "$machine")
+fi
+if [ -n "$project" ]; then
+    args+=(--project "$project")
+fi
+"$e3sm/cime/scripts/create_newcase" "${args[@]}"
+
+cd "$case_dir"
+
+# Every component on the ocean's tasks, except MALI, which runs on the same
+# tasks in turn
+./xmlchange "NTASKS=$ocean_tasks,NTHRDS=1,ROOTPE=0"
+./xmlchange "NTASKS_GLC=$landice_tasks"
+
+for check in "MPASO_DECOMP_FILE_PREFIX $ocean_tasks" \
+        "MALI_DECOMP_FILE_PREFIX $landice_tasks"; do
+    read -r variable tasks <<< "$check"
+    partition="$(./xmlquery --value "$variable")$tasks"
+    if [ ! -f "$partition" ]; then
+        echo "The partition $partition is missing." >&2
+        exit 1
+    fi
+done
+
+./case.setup
+./case.build
+
+echo "Submit the case with: cd $case_dir && ./case.submit"
