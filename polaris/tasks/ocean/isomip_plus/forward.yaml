@@ -1,0 +1,89 @@
+mpas-ocean:
+  io:
+    config_write_output_on_startup: false
+  time_management:
+    config_do_restart: false
+    config_stop_time: none
+    config_run_duration: {{ run_duration }}
+  time_integration:
+    config_dt: {{ dt }}
+  land_ice:
+    config_use_land_ice_pressure: true
+  land_ice_fluxes:
+    config_land_ice_flux_mode: active
+  tracer_forcing_activeTracers:
+    config_use_activeTracers_interior_restoring: true
+  tidal_forcing:
+    # hold SSH at zero in the restoring region, so the meltwater can leave the
+    # domain with the local temperature and salinity
+    config_use_tidal_forcing: true
+    config_tidal_forcing_type: direct
+    config_tidal_forcing_model: monochromatic
+    config_tidal_forcing_monochromatic_amp: 0.0
+    config_tidal_forcing_monochromatic_period: 1.0
+    config_tidal_forcing_monochromatic_baseline: 0.0
+  AM_globalStats:
+    config_AM_globalStats_enable: true
+    config_AM_globalStats_compute_on_startup: true
+    config_AM_globalStats_write_on_startup: true
+  streams:
+    forcing_data:
+      type: input
+      filename_template: forcing_data.nc
+      input_interval: initial_only
+      contents:
+      - tracersInteriorRestoringFields
+      - tidalInputMask
+    output:
+      type: output
+      filename_template: output.nc
+      output_interval: {{ output_interval }}
+      clobber_mode: truncate
+      contents:
+      - mesh
+      - tracers
+      - xtime
+      - daysSinceStartOfSim
+      - normalVelocity
+      - layerThickness
+      - zMid
+      - minLevelCell
+      - maxLevelCell
+      - ssh
+      - density
+      - velocityX
+      - velocityY
+      - kineticEnergyCell
+      - vertVelocityTop
+      - surfacePressure
+      - landIcePressure
+      - wettingVelocityFactor
+    land_ice_fluxes:
+      type: output
+      precision: double
+      filename_template: land_ice_fluxes.nc
+      output_interval: {{ output_interval }}
+      clobber_mode: truncate
+      contents:
+      - xtime
+      - daysSinceStartOfSim
+      - ssh
+      - landIcePressure
+      - landIceDraft
+      - landIceFraction
+      - landIceMask
+      - landIceFloatingFraction
+      - landIceFloatingMask
+      - landIceFrictionVelocity
+      - topDrag
+      - topDragMagnitude
+      - landIceFreshwaterFlux
+      - landIceHeatFlux
+      - heatFluxToLandIce
+      - landIceInterfaceTracers
+      - landIceBoundaryLayerTracers
+      - landIceTracerTransferVelocities
+      - accumulatedLandIceMass
+      - accumulatedLandIceHeat
+    globalStatsOutput:
+      output_interval: 0001_00:00:00
