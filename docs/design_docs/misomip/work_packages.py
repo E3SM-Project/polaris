@@ -56,7 +56,7 @@ ROWS = [
      'polaris #931 (with WP5)', 'draft', 0,
      ''),
     ('WP7', 'Idealized E3SM cases (no atmosphere, namelists)',
-     '4 km Ocean0 runs in E3SM on five local FAnSSIE branches', 'started',
+     '4 km Ocean0 runs in E3SM; E3SM-O-D #156, #157 open', 'started',
      0, ''),
     ('WP8', 'Moving grounding line in coupled runs', '', 'none', 2, ''),
     ('WP9', 'Analysis of the E3SM runs', '', 'none', 1, ''),

@@ -235,8 +235,8 @@ MALI on the shallow-ice solver, RK4, the MCT driver, and the inputs from
   then differ in the 146 partly floating cells and spread from there: by
   day 5, SSH by up to 1.8 cm. Wetting and drying resets the floating
   fraction to 0 or 1, and each import restores MALI's fractional value
-  before the land-ice fluxes are computed. Reconciling the two is part of
-  WP7.
+  before the land-ice fluxes are computed. WP7 keeps the input's fraction
+  in floating cells.
 - The coupler reads the glc-to-ocean runoff maps whenever ice-shelf
   coupling is on, so the run uses the conservative glc-to-ocean map for
   them.
@@ -725,10 +725,11 @@ specific to ISOMIP+, so they can go upstream when E3SM wants them:
   ice-shelf coupling, so MALI's calving and face-melt runoff stay out of
   the ocean and no runoff map is needed; today, ice-shelf coupling
   requires MALI's ocean coupling flag, which also turns on runoff;
-- the floating fraction that wetting and drying sets to 0 or 1, reconciled
-  with the fractional one imported from MALI, including the normalization
-  of the melt sent back; without it, runs with import on and off diverge
-  even with static geometry;
+- wetting and drying that decides only where ice floats: grounded cells
+  get a floating fraction of 0, and floating cells keep the fraction from
+  their input (the initial condition, land-ice forcing or MALI) rather
+  than 1, in standalone runs as in E3SM, with no option; without it, runs
+  with import on and off diverge even with static geometry;
 - MALI's E3SM namelist without the surface-air-temperature lapse rate,
   which MALI-Dev removed from MALI's Registry but not from its namelist
   defaults, so every E3SM case with MALI fails at initialization.
