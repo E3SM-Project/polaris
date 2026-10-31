@@ -853,11 +853,21 @@ def submit_jobs(
     system = get_system(machine)
     baseline_id = state.baseline_job
     previous_id = None
+    submitted = set()
     for job in jobs:
         if job.job_id is None:
             dependency = baseline_id if job.depends_on_baseline else None
             if machine in SERIAL_SUBMISSION and previous_id is not None:
                 dependency = previous_id
+            if (
+                dependency is not None
+                and dependency not in submitted
+                and not is_job_active(dependency, system)
+            ):
+                # an earlier setup submitted it and it has finished, so
+                # there is nothing to wait for, and the scheduler may
+                # refuse a dependency on a job it no longer knows
+                dependency = None
             try:
                 if job.env_script is None:
                     job.job_id = submit_job(
@@ -876,9 +886,10 @@ def submit_jobs(
                     f'scheduler allows it, run setup --submit again to '
                     f'submit the rest.'
                 ) from exc
+            submitted.add(job.job_id)
             with open(os.path.join(job.work_dir, JOB_ID_FILENAME), 'w') as f:
                 f.write(f'{job.job_id}\n')
-            state.jobs = [asdict(submitted) for submitted in jobs]
+            state.jobs = [asdict(recorded) for recorded in jobs]
             write_state(row_dir, state)
         previous_id = job.job_id
         if job.name == 'baseline suite':

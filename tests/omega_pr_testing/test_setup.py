@@ -363,6 +363,9 @@ def test_setup_resumes_after_refused_job(tester, monkeypatch):
     assert f'Not yet submitted: CTests, {", ".join(COUPLED)}.' in text
 
     monkeypatch.setattr(pr_test_setup, 'submit_job', submit_job)
+    monkeypatch.setattr(
+        pr_test_setup, 'is_job_active', lambda job_id, system: True
+    )
     suites = len(calls['suite'])
     state = _setup(fixture, manifest, submit=True)
 
@@ -381,6 +384,47 @@ def test_setup_resumes_after_refused_job(tester, monkeypatch):
 
     with pytest.raises(pr_test_setup.SetupError, match='already submitted'):
         _setup(fixture, manifest, submit=True)
+
+
+def test_setup_resumes_after_suites_ran(tester, monkeypatch):
+    fixture, manifest, calls = tester
+    monkeypatch.setenv('POLARIS_MACHINE', 'aurora')
+    monkeypatch.setenv('POLARIS_COMPILER', 'intel')
+    monkeypatch.setenv('POLARIS_MPI', 'mpich')
+    monkeypatch.setattr(pr_test_setup, 'get_system', lambda machine: 'pbs')
+    submit_job = pr_test_setup.submit_job
+
+    def refuse_ctests(script, work_dir, system, dependency=None, **kwargs):
+        if 'ctest' in script:
+            raise SubmissionError('qsub: would exceed per-user limit')
+        return submit_job(script, work_dir, system, dependency, **kwargs)
+
+    monkeypatch.setattr(pr_test_setup, 'submit_job', refuse_ctests)
+    with pytest.raises(SubmissionError, match='run setup --submit again'):
+        _setup(fixture, manifest, submit=True)
+    row_dir = Path(fixture.config.work_base) / manifest.run_name
+    state = pr_test_setup.read_state(str(row_dir / 'aurora_intel'))
+
+    # both suites have run and left the queue
+    Path(state.pr_work_dir, 'omega_pr_results.json').write_text('{}')
+    monkeypatch.setattr(pr_test_setup, 'submit_job', submit_job)
+    monkeypatch.setattr(
+        pr_test_setup, 'is_job_active', lambda job_id, system: False
+    )
+    state = _setup(fixture, manifest, submit=True)
+
+    # the CTests no longer wait on the finished PR suite, and the coupled
+    # tests still wait on the CTests
+    assert 'ctest' in calls['submit'][-3][1]
+    assert calls['submit'][-3][2] is None
+    assert calls['submit'][-2][2] == '1003'
+    assert [job['job_id'] for job in state.jobs] == [
+        '1001',
+        '1002',
+        '1003',
+        '1004',
+        '1005',
+    ]
 
 
 def test_setup_pin_mismatch(tester):
