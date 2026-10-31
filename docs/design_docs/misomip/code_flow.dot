@@ -36,7 +36,7 @@ digraph fanssie {
     label="MALI-Dev/E3SM";
     labeljust=l; fontsize=12; color="#c3c2b7"; style="rounded";
     malidev [label=<<b>develop</b><br/><font color="#52514e">97 MALI commits ahead of E3SM</font>>, fillcolor="#ffffff"];
-    m213 [label=<<b>#213, #214</b>  MALI's E3SM namelist without the lapse rate;<br/>MALI's inputs named by case variables<br/><font color="#52514e">open · also into FAnSSIE</font>>, fillcolor="#deebff"];
+    m213 [label=<<b>#213, #214</b>  MALI's E3SM namelist without the lapse rate;<br/>MALI's inputs named by case variables<br/><font color="#52514e">open · already in FAnSSIE</font>>, fillcolor="#deebff"];
     m211 [label=<<b>#211</b>  rebuild Albany's grid only when masks change<br/><font color="#52514e">open · good to have for forward MALI runs</font>>, fillcolor="#deebff"];
   }
 
@@ -48,8 +48,8 @@ digraph fanssie {
     d143 [label=<<b>#143, #145–#150</b>  forcing clock; fixes and options<br/>for E3SM's physics with a thin film<br/><font color="#52514e">merged into FAnSSIE</font>>, fillcolor="#e3fcef"];
     d144 [label=<<b>#144</b>  split-explicit wetting and drying<br/>(Carolyn's series + fixes)<br/><font color="#52514e">open · waits for Carolyn's review</font>>, fillcolor="#deebff"];
     d151 [label=<<b>#151</b>  merge MALI-Dev's develop<br/><font color="#52514e">merged into FAnSSIE</font>>, fillcolor="#e3fcef"];
-    d158 [label=<<b>#158–#161</b>  ocean without an atmosphere; wetting and drying<br/>and tidal forcing in E3SM; kept floating fraction;<br/>MPAS-Ocean inputs named by case variables<br/><font color="#52514e">open</font>>, fillcolor="#deebff"];
-    d156 [label=<<b>#156, #157</b>  MALI's E3SM namelist without the lapse rate;<br/>MALI's inputs named by case variables<br/><font color="#52514e">open</font>>, fillcolor="#deebff"];
+    d158 [label=<<b>#158–#161</b>  ocean without an atmosphere; wetting and drying<br/>and tidal forcing in E3SM; kept floating fraction;<br/>MPAS-Ocean inputs named by case variables<br/><font color="#52514e">merged into FAnSSIE</font>>, fillcolor="#e3fcef"];
+    d156 [label=<<b>#156, #157</b>  MALI's E3SM namelist without the lapse rate;<br/>MALI's inputs named by case variables<br/><font color="#52514e">merged into FAnSSIE</font>>, fillcolor="#e3fcef"];
     fanssie [label=<<b>fanssie-ocn-glc-coupling</b><br/>shared FAnSSIE branch (since Oct 16)<br/><font color="#52514e">only gains commits · ledger in FANSSIE.md</font>>,
              fillcolor="#fff0b3", penwidth=2, color="#c98500", fontsize=12];
   }
@@ -75,7 +75,7 @@ digraph fanssie {
       <tr><td border="0" colspan="2"><font color="#898781">↓ then, even while it is a draft (and after #862, #922)</font></td></tr>
       <tr><td port="pwp56" bgcolor="#e8e8e4" colspan="2" style="rounded" cellpadding="6"><b>#931</b>  MISOMIP's maps and E3SM inputs<br/><font color="#52514e">draft · may change with the first E3SM run</font></td></tr>
       <tr><td border="0" colspan="2"><font color="#898781">↓ then</font></td></tr>
-      <tr><td port="pwp7" bgcolor="#ffffff" colspan="2" style="rounded" cellpadding="6"><b>WP7</b>  first E3SM run, then the E3SM cases<br/><font color="#52514e">4 km Ocean0 runs · six E3SM PRs open · runoff switch, areas to come</font></td></tr>
+      <tr><td port="pwp7" bgcolor="#ffffff" colspan="2" style="rounded" cellpadding="6"><b>WP7</b>  first E3SM run, then the E3SM cases<br/><font color="#52514e">4 km Ocean0 runs · six E3SM changes merged · runoff switch, areas to come</font></td></tr>
     </table>>];
 
   e8047 -> fanssie;
@@ -87,8 +87,8 @@ digraph fanssie {
   d144 -> fanssie [style=dashed];
   m211 -> malidev [style=dashed];
   m213 -> malidev [style=dashed];
-  d156 -> fanssie [style=dashed];
-  d158 -> fanssie [style=dashed];
+  d156 -> fanssie;
+  d158 -> fanssie;
   malidev -> d151 [constraint=false];
   d151 -> fanssie;
 
