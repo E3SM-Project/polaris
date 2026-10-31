@@ -143,9 +143,16 @@ renders `config_grids.template`, with each mesh's cell count from its SCRIP
 file.
 {py:func}`polaris.tasks.e3sm.init.misomip.case_config.get_shell_commands()`
 names the staged files relative to `$DIN_LOC_ROOT`, or to
-`[misomip_case_config] inputdata_root`, and splits the experiment's
-length, in `RUN_MONTHS`, into jobs.  The README gives the compset from
-`COMPSETS`.
+`[misomip_case_config] inputdata_root`, sets the coupling intervals, which
+it checks against the standalone run's time step, and splits the
+experiment's length, in `RUN_MONTHS`, into jobs.  The README gives the
+compset from `COMPSETS`.
+{py:func}`polaris.tasks.e3sm.init.misomip.case_config.get_create_case_script()`
+renders `create_case.template`, with the task counts that
+{py:func}`polaris.e3sm.init.partitions.get_core_list()` gives for each
+mesh's `[misomip_*_partitions]` bounds.  The script checks that the E3SM
+checkout has `E3SM_COMMIT`, and that a partition is staged for each task
+count, before `./case.setup`.
 
 Only experiments with a standalone ocean run have a case configuration,
 since the namelist comes from that run.
