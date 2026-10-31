@@ -103,10 +103,9 @@ baseline if one is provided when calling {ref}`dev-polaris-setup`.
 
 ## ekman
 
-The {py:class}`polaris.tasks.ocean.single_column.cvmix.CVMix`
-test performs a 5-day run on 1 cores.  Then, validation of `temperature`,
-`salinity`, `layerThickness` and `normalVelocity` are performed against a
-baseline if one is provided when calling {ref}`dev-polaris-setup`.
+The {py:class}`polaris.tasks.ocean.single_column.ekman.Ekman` task averages
+the final three inertial periods before evaluating the original steady spiral; see
+{ref}`ocean-single-column-ekman`.
 
 ## ideal age
 

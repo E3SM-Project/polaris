@@ -9,7 +9,7 @@ from polaris.tasks.ocean.single_column.viz import Viz
 class Ekman(Task):
     """
     The Ekman single-column test case creates the mesh and initial condition,
-    then performs a short forward run spinning up an ekman layer on 1 core.
+    then spins up an Ekman layer for steady analysis on 1 core.
     """
 
     def __init__(self, component, config, init, indir):
@@ -19,6 +19,7 @@ class Ekman(Task):
         ----------
         component : polaris.tasks.ocean.Ocean
             The ocean component that this task belongs to
+
         """
         name = 'ekman'
         subdir = os.path.join(indir, name)
@@ -49,14 +50,17 @@ class Ekman(Task):
             min_tasks=1,
             openmp_threads=1,
             validate_vars=validate_vars,
-            task_name=name,
+            check_properties=['mass conservation'],
+            task_name='ekman',
             constant_diff=True,
         )
         self.add_step(forward_step)
 
         self.add_step(
             Analysis(
-                component=component, indir=self.subdir, forward=forward_step
+                component=component,
+                indir=self.subdir,
+                forward=forward_step,
             )
         )
 
