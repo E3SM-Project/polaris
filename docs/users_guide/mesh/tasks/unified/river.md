@@ -25,7 +25,8 @@ Supported `mesh_name` values are:
 
 - `u-oi240-lr240`
 - `u-oi30-lr10`
-- `u-oi6to18-lr6to10`
+- `u-oi6to18-lr12p5`
+- `u-oi6to18-lr25`
 - `u-oi-so12to30-lr10`
 
 The task work directory contains symlinks to:
