@@ -110,14 +110,16 @@ def run_setup(
 
     run_dir = get_row_dir(config, manifest, row)
     pr_work_dir = os.path.join(run_dir, SUITE)
+    # resume first: a refused job may still need submitting after the
+    # suites that were submitted before it have run
+    previous = setup_tools.read_submitted_state(run_dir)
+    if previous is not None:
+        return setup_tools.resume(previous, row.machine, run_dir, submit)
     if os.path.exists(os.path.join(pr_work_dir, f'{SUITE}_results.json')):
         raise SetupError(
             f'The PR suite in {pr_work_dir} has already run.  Remove '
             f'{run_dir} to test this row again.'
         )
-    previous = setup_tools.read_submitted_state(run_dir)
-    if previous is not None:
-        return setup_tools.resume(previous, row.machine, run_dir, submit)
 
     omega_dir = os.path.join(config.work_base, 'omega')
     test_tree = os.path.join(omega_dir, manifest.test_commit[:12])
