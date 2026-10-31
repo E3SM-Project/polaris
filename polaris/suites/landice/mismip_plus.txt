@@ -1,0 +1,5 @@
+landice/mismip_plus/1km/ice0
+landice/mismip_plus/1km/ice1r
+landice/mismip_plus/1km/ice1ra
+landice/mismip_plus/1km/ice2r
+landice/mismip_plus/1km/ice2ra

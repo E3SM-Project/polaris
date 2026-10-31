@@ -25,7 +25,7 @@ class CullMesh(Step):
         The topography remapping step containing input files to this step
     """
 
-    def __init__(self, component, subdir, config, base_mesh, topo_remap):
+    def __init__(self, component, subdir, base_mesh, topo_remap):
         """
         Create a new step
 
@@ -37,9 +37,6 @@ class CullMesh(Step):
         subdir : str
             the subdirectory for the step
 
-        config : polaris.config.PolarisConfigParser
-            A shared config parser
-
         base_mesh : polaris.Step
             The base mesh step containing input files to this step
 
@@ -49,7 +46,6 @@ class CullMesh(Step):
         super().__init__(component=component, name='cull_mesh', subdir=subdir)
         self.base_mesh = base_mesh
         self.topo_remap = topo_remap
-        self.set_shared_config(config, link='isomip_plus_topo.cfg')
 
         base_path = base_mesh.path
         target = os.path.join(base_path, 'base_mesh.nc')

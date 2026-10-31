@@ -418,6 +418,81 @@
    viz.Viz.run
 ```
 
+### isomip_plus
+
+```{eval-rst}
+.. currentmodule:: polaris.tasks.ocean.isomip_plus
+
+.. autosummary::
+   :toctree: generated/
+
+   add_isomip_plus_tasks
+   get_isomip_plus_mesh_steps
+
+   IsomipPlusTest
+
+   cell_count.estimate_cell_count
+
+   forward.Forward
+   forward.Forward.compute_cell_count
+   forward.Forward.dynamic_model_config
+   forward.Forward.get_forcing_interval
+
+   init.Init
+   init.Init.setup
+   init.Init.get_mesh_target
+   init.Init.read_topography
+   init.Init.run
+
+   mesh.CullMesh
+   mesh.CullMesh.run
+   mesh.PlanarMesh
+   mesh.PlanarMesh.run
+   mesh.xy.add_isomip_plus_xy
+
+   physics.get_physics_replacements
+   physics.add_com_physics_yaml
+
+   projection.get_projection_string
+   projection.get_projections
+
+   ssh_forward.SshForward
+   ssh_forward.SshForward.compute_cell_count
+   ssh_forward.SshForward.dynamic_model_config
+
+   topo.TopoMap
+   topo.TopoMap.run
+   topo.TopoRemap
+   topo.TopoRemap.run
+   topo.TopoScale
+   topo.TopoScale.run
+   topo.calving.calve_thin_ice
+
+   viz.Viz
+   viz.Viz.run
+
+   xtime.get_record_times
+```
+
+### misomip
+
+```{eval-rst}
+.. currentmodule:: polaris.tasks.ocean.misomip
+
+.. autosummary::
+   :toctree: generated/
+
+   get_misomip_ocean_steps
+
+   MisomipInit
+   MisomipInit.get_mesh_target
+   MisomipInit.read_topography
+
+   MisomipForward
+   MisomipForward.get_forcing_interval
+   MisomipForward.dynamic_model_config
+```
+
 ### inertial_gravity_wave
 
 ```{eval-rst}
@@ -749,8 +824,8 @@
    stage.ForwardStage.model_replacements
    stage.ForwardStage.stats_period
    stage.ForwardStage.stats_filename
-   stage.ForwardStage.check_damping_supported
    stage.ForwardStage.bottom_drag_options
+   stage.ForwardStage.omega_damping_replacements
    stage.ForwardStage.restart_stream_replacements
    stage.ForwardStage.horiz_mixing_options
    stage.ForwardStage.omega_hmix_ratio
@@ -859,6 +934,43 @@
    viz.VizInitStep
    viz.VizInitStep.setup
    viz.VizInitStep.run
+```
+
+### realistic_global.dynamic_adjustment
+
+```{eval-rst}
+.. currentmodule:: polaris.tasks.ocean.realistic_global.dynamic_adjustment
+
+.. autosummary::
+   :toctree: generated/
+
+   tasks.add_realistic_global_dynamic_adjustment_tasks
+
+   task.RealisticGlobalDynamicAdjustment
+   task.RealisticGlobalDynamicAdjustment.configure
+
+   steps.get_realistic_dynamic_adjustment_steps
+   steps.adjustment_subdir
+
+   schedule.load_schedule_stages
+   schedule.excluded_days_in_stage
+
+   checks.check_temperature_max
+   checks.check_temperature_min
+   checks.check_salinity_max
+   checks.check_cfl_max
+
+   summary.Summary
+   summary.Summary.run
+
+   validate.StageCheck
+   validate.StageCheck.run
+
+   viz.VizDynamicAdjustmentStep
+   viz.VizDynamicAdjustmentStep.run
+   viz.TracerChange
+   viz.tracer_changes
+   viz.plot_tracer_changes
 ```
 
 ### seamount
@@ -1059,6 +1171,7 @@
 
    IceShelfTask
    IceShelfTask.setup_ssh_adjustment_steps
+   get_ssh_adjustment_steps
 
    SshAdjustment
    SshAdjustment.run
@@ -1066,6 +1179,11 @@
    SshForward
    SshForward.compute_cell_count
    SshForward.dynamic_model_config
+
+   compute_freezing_temperature
+   compute_land_ice_draft_from_pressure
+   compute_land_ice_pressure_from_draft
+   compute_land_ice_pressure_from_thickness
 ```
 
 ### Ocean Model

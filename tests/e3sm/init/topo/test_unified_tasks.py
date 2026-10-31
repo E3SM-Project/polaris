@@ -17,7 +17,7 @@ from polaris.tasks.mesh.base.steps import get_base_mesh_steps
 
 COARSE_MESH_NAME = 'u-oi240-lr240'
 FINE_MESH_NAME = 'u-oi30-lr10'
-FINEST_MESH_NAME = 'u-oi6to18-lr6to10'
+FINEST_MESH_NAME = 'u-oi6to18-lr12p5'
 
 
 def test_get_remap_topo_steps_includes_upstream_base_mesh_steps():

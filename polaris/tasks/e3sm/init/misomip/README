@@ -1,0 +1,28 @@
+This directory holds E3SM input files for one MISOMIP experiment, staged by
+Polaris' `e3sm/init` `misomip` tasks.
+
+The layout under `inputdata/` mirrors where each file belongs in E3SM's
+inputdata tree:
+
+  * `ocn/mpas-o/<ocean grid>/`: the experiment's MPAS-Ocean initial
+    condition and interior restoring, the ocean grid's SCRIP file and its
+    graph partitions under `partitions/`
+  * `glc/mpasli/<MALI grid>/`: the experiment's MALI initial condition,
+    MALI's data-mode file for Ocean3 and Ocean4, MALI's grid's SCRIP file
+    and its graph partitions
+  * `cpl/gridmaps/<grid>/`: the conservative maps the coupler reads between
+    the ocean and MALI
+
+`case_config/<experiment>/` is not part of inputdata.  It holds the E3SM
+case configuration: a `user_mods/` directory to create a case with, which
+includes the grid file, and a README with the compset.  Ocean0 to Ocean4
+have one.
+
+IceOcean1ra continues from IceOcean1r's E3SM restart, so its tree has no
+initial conditions.
+
+The tree does NOT include a runoff map: the cases turn off MALI's runoff to
+the ocean.
+
+Copying these files to inputdata is a separate, manual step, with
+`sync_to_inputdata.sh` in the step's work directory.

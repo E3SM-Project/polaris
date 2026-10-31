@@ -1,0 +1,10 @@
+# Omega's Rayleigh damping, added by the forward step for a damped stage only.
+# The value comes from the ForwardStage; see
+# ForwardStage.omega_damping_replacements.
+Omega:
+    # a linear drag on the velocity in every layer, inside the implicit
+    # vertical-mixing solve, as MPAS-Ocean's constant_and_rayleigh bottom
+    # drag type applies it
+    RayleighDamping:
+        Enable: true
+        DampingCoeff: {{ damping_coeff }}

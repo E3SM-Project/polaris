@@ -3,6 +3,7 @@ import os
 from pyremap import Remapper
 
 from polaris import Step
+from polaris.remap.scrip_descriptor import ScripFileDescriptor
 
 
 class MappingFileStep(Step):
@@ -82,6 +83,44 @@ class MappingFileStep(Step):
         # step has to say from the start that it launches one
         self.args = []
 
+    def src_from_scrip(self, filename, mesh_name, regional=True):
+        """
+        Read the source grid from a SCRIP file
+
+        Parameters
+        ----------
+        filename : str
+            The path of the SCRIP file, relative to the step's work directory
+
+        mesh_name : str
+            The name of the mesh, used to give mapping files unique names
+
+        regional : bool, optional
+            Whether the mesh is regional rather than global
+        """
+        self.remapper.src_descriptor = ScripFileDescriptor(
+            filename=filename, mesh_name=mesh_name, regional=regional
+        )
+
+    def dst_from_scrip(self, filename, mesh_name, regional=True):
+        """
+        Read the destination grid from a SCRIP file
+
+        Parameters
+        ----------
+        filename : str
+            The path of the SCRIP file, relative to the step's work directory
+
+        mesh_name : str
+            The name of the mesh, used to give mapping files unique names
+
+        regional : bool, optional
+            Whether the mesh is regional rather than global
+        """
+        self.remapper.dst_descriptor = ScripFileDescriptor(
+            filename=filename, mesh_name=mesh_name, regional=regional
+        )
+
     def runtime_setup(self):
         """
         Write the files the mapping tool reads and set the command that
@@ -95,10 +134,10 @@ class MappingFileStep(Step):
         src = remapper.src_grid_info
         dst = remapper.dst_grid_info
 
-        if 'type' not in src:
+        if 'type' not in src and remapper.src_descriptor is None:
             raise ValueError('None of the "src_from_*()" methods were called')
 
-        if 'type' not in dst:
+        if 'type' not in dst and remapper.dst_descriptor is None:
             raise ValueError('None of the "dst_from_*()" methods were called')
 
         # to absolute paths for when the remapper is used in another step
@@ -106,6 +145,11 @@ class MappingFileStep(Step):
             if 'filename' in info:
                 info['filename'] = os.path.abspath(
                     os.path.join(self.work_dir, info['filename'])
+                )
+        for descriptor in [remapper.src_descriptor, remapper.dst_descriptor]:
+            if isinstance(descriptor, ScripFileDescriptor):
+                descriptor.filename = os.path.abspath(
+                    os.path.join(self.work_dir, descriptor.filename)
                 )
 
         self.args = [remapper.prepare_map(logger=self.logger)]

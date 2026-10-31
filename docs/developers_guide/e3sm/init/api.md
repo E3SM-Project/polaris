@@ -40,6 +40,50 @@
    uses_low_res_cubed_sphere
 ```
 
+### staging E3SM input files
+
+```{eval-rst}
+.. currentmodule:: polaris.e3sm.init
+
+.. autosummary::
+   :toctree: generated/
+
+   assemble.AssembleStep
+   assemble.AssembleStep.run
+   assemble.AssembleStep.stage
+   assemble.AssembleStep.stage_partitions
+   assemble.AssembleStep.step_dir
+   assemble.SYNC_SCRIPT
+
+   graph_partition.GraphPartitionStep
+   graph_partition.GraphPartitionStep.setup
+   graph_partition.GraphPartitionStep.constrain_resources
+   graph_partition.GraphPartitionStep.run
+   graph_partition.GraphPartitionStep.get_core_counts
+
+   inputdata.ASSEMBLED_FILES
+   inputdata.get_nonempty_option
+   inputdata.get_creation_date
+   inputdata.set_creation_date
+   inputdata.ocean_dir
+   inputdata.seaice_dir
+   inputdata.landice_dir
+   inputdata.gridmaps_dir
+   inputdata.ocean_initial_condition_path
+   inputdata.ocean_graph_path
+   inputdata.ocean_partition_path
+   inputdata.seaice_initial_condition_path
+   inputdata.seaice_partition_path
+
+   partitions.get_core_list
+   partitions.partitions_to_build
+   partitions.read_graph_cell_count
+   partitions.build_partitions
+   partitions.RegionGraph
+   partitions.get_region_graph
+   partitions.write_graph
+```
+
 ### topo
 
 #### combine
@@ -146,3 +190,193 @@
    land_locked.remove_ocean_land_locked_cells
 ```
 
+
+### component_inputs
+
+```{eval-rst}
+.. currentmodule:: polaris.tasks.e3sm.init.component_inputs
+
+.. autosummary::
+   :toctree: generated/
+
+   BaseMeshStep
+   BaseMeshStep.output_filename
+   BaseMeshStep.setup
+   BaseMeshStep.run
+
+   ScripStep
+   ScripStep.scrip_filename
+   ScripStep.setup
+   ScripStep.run
+
+   ComponentInputsAssembleStep
+   ComponentInputsAssembleStep.run
+
+   ComponentInputsTask
+   ComponentInputsTask.configure
+
+   get_component_inputs_steps
+   add_component_inputs_tasks
+```
+
+#### ocean products
+
+```{eval-rst}
+.. currentmodule:: polaris.tasks.e3sm.init.component_inputs
+
+.. autosummary::
+   :toctree: generated/
+
+   ocean_mesh.OceanMeshStep
+   ocean_mesh.OceanMeshStep.setup
+   ocean_mesh.OceanMeshStep.run
+   ocean_mesh.VERT_COORD_VARS
+
+   ocean_initial_condition.OceanInitialConditionStep
+   ocean_initial_condition.OceanInitialConditionStep.setup
+   ocean_initial_condition.OceanInitialConditionStep.run
+
+   ocean_graph_partition.OceanGraphPartitionStep
+   ocean_graph_partition.OceanGraphPartitionStep.setup
+   ocean_graph_partition.OceanGraphPartitionStep.run
+
+   moc_masks.MocMasksStep
+   moc_masks.MocMasksStep.setup
+   moc_masks.MocMasksStep.run
+   moc_masks.MESH_FILENAME
+```
+
+#### sea-ice products
+
+```{eval-rst}
+.. currentmodule:: polaris.tasks.e3sm.init.component_inputs
+
+.. autosummary::
+   :toctree: generated/
+
+   seaice_mesh.SeaiceMeshStep
+   seaice_mesh.SeaiceMeshStep.setup
+   seaice_mesh.SeaiceMeshStep.run
+
+   seaice_initial_condition.SeaiceInitialConditionStep
+   seaice_initial_condition.SeaiceInitialConditionStep.setup
+   seaice_initial_condition.SeaiceInitialConditionStep.run
+
+   seaice_partition_map.SeaicePartitionMapStep
+   seaice_partition_map.SeaicePartitionMapStep.setup
+   seaice_partition_map.SeaicePartitionMapStep.runtime_setup
+
+   seaice_graph_partition.SeaiceGraphPartitionStep
+   seaice_graph_partition.SeaiceGraphPartitionStep.setup
+   seaice_graph_partition.SeaiceGraphPartitionStep.run
+```
+
+#### leaf modules
+
+```{eval-rst}
+.. currentmodule:: polaris.tasks.e3sm.init.component_inputs
+
+.. autosummary::
+   :toctree: generated/
+
+   names.get_mesh_short_name
+   names.ocean_grid_name
+   names.base_mesh_path
+   names.scrip_path
+   names.ocean_scrip_path
+   names.culled_mesh_path
+   names.ocean_moc_masks_path
+
+   maps.map_base_to_culled
+   maps.base_to_culled_maps
+
+   models.check_ocean_model
+   models.check_seaice_model
+```
+
+### misomip
+
+```{eval-rst}
+.. currentmodule:: polaris.tasks.e3sm.init.misomip
+
+.. autosummary::
+   :toctree: generated/
+
+   add_misomip_tasks
+   get_misomip_mesh_steps
+   get_misomip_experiment_steps
+
+   MisomipTask
+   MisomipTask.configure
+
+   mesh.OceanMeshStep
+   mesh.OceanMeshStep.run
+   mesh.LandiceMeshStep
+   mesh.LandiceMeshStep.run
+
+   maps.MapStep
+   maps.MapStep.runtime_setup
+
+   calving.get_floating_mask
+   calving.get_grounded_mask
+   calving.calve
+
+   landice_init.InputMapStep
+   landice_init.InputMapStep.runtime_setup
+   landice_init.LandiceInitStep
+   landice_init.LandiceInitStep.run
+   landice_init.get_landice_thickness
+   landice_init.remap_input_thickness
+   landice_init.set_lat_lon
+   landice_init.set_xtime
+
+   landice_data.LandiceDataStep
+   landice_data.LandiceDataStep.run
+   landice_data.write_data_mode_file
+
+   land_ice_fields.compute_mali_export
+   land_ice_fields.read_map
+   land_ice_fields.apply_map
+   land_ice_fields.import_geometry
+   land_ice_fields.compute_land_ice_fields
+
+   land_ice_on_ocean.LandIceOnOceanStep
+   land_ice_on_ocean.LandIceOnOceanStep.run
+
+   names.get_grid_names
+   names.ocean_initial_condition_path
+   names.ocean_forcing_path
+   names.ocean_scrip_path
+   names.landice_initial_condition_path
+   names.landice_data_mode_path
+   names.landice_scrip_path
+   names.landice_partition_path
+   names.landice_partition_prefix
+   names.map_path
+   names.case_config_dir
+
+   ocean_initial_condition.OceanInitialConditionStep
+   ocean_initial_condition.OceanInitialConditionStep.run
+
+   case_config.CaseConfigStep
+   case_config.CaseConfigStep.run
+   case_config.get_mali_mode
+   case_config.get_grid_file
+   case_config.get_shell_commands
+   case_config.get_user_nl_mpaso
+   case_config.get_user_nl_mali
+   case_config.get_readme
+
+   assemble.MisomipAssembleStep
+   assemble.MisomipAssembleStep.run
+
+   projection.get_projection_string
+   projection.get_lat_lon
+   projection.add_lat_lon
+
+   records.get_monthly_record_times
+   records.get_interpolation_weights
+
+   scrip.write_scrip
+   scrip.clip_polygon_to_y_band
+```

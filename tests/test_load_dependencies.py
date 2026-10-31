@@ -12,6 +12,7 @@ import gc
 import os
 import pickle
 from collections import Counter
+from types import ModuleType
 
 from polaris import Component, Step, Task
 from polaris.run import complete_step_run, load_dependencies
@@ -58,7 +59,13 @@ def _run_chain(steps):
 
 
 def _count_steps(root):
-    """Count the Step objects reachable from ``root`` for each path."""
+    """
+    Count the Step objects reachable from ``root`` for each path.
+
+    Classes and modules are not followed: they lead to module globals, such
+    as the shared steps of each component, which are not part of a pickle
+    and depend on which tests ran before.
+    """
     seen = set()
     stack = [root]
     counts: Counter[str] = Counter()
@@ -69,7 +76,7 @@ def _count_steps(root):
         seen.add(id(obj))
         if isinstance(obj, Step):
             counts[obj.path] += 1
-        if isinstance(obj, (str, bytes, int, float)):
+        if isinstance(obj, (str, bytes, int, float, type, ModuleType)):
             continue
         stack.extend(gc.get_referents(obj))
     return counts
