@@ -579,8 +579,8 @@ baseline from the branch's previous commit.
 
 The standalone ISOMIP+ tasks, Ocean0–2 and the thin-film tasks, build
 MPAS-Ocean from FAnSSIE. Every later package reuses their initial
-condition, SSH adjustment, thin film and forcing. The thin-film tasks drop
-the protocol's evaporation, since their outflow removes the meltwater too
+condition, SSH adjustment, thin film and forcing. All of them, with or
+without a film, drop the protocol's evaporation for the same outflow
 ([D8](#decisions)).
 
 The floating mask over the open ocean is fixed first, on FAnSSIE, so that
@@ -968,15 +968,16 @@ Date last modified: 2026/10/31
 Contributors: Xylar Asay-Davis, Claude
 
 Water leaves through the tidal forcing in the restoring region, not
-through the protocol's evaporation, in E3SM and in the standalone
-thin-film tasks. The outflow holds the SSH there and removes both the
-meltwater and the water a changing ice load displaces. See
+through the protocol's evaporation, in E3SM and in every standalone
+ISOMIP+ task, with or without a thin film. The outflow holds the SSH there
+and removes both the meltwater and the water a changing ice load
+displaces. See
 [the thin-film principle](#algorithm-design-shared-principles).
 
 ```{admonition} Rationale
 E3SM's coupler sets the evaporation fluxes to zero without an atmosphere.
-With the evaporation dropped from the standalone tasks as well, E3SM and
-standalone runs on the same inputs differ only by the coupling.
+With one approach in every task, E3SM and standalone runs on the same
+inputs differ only by the coupling.
 ```
 
 ### D9: IceOcean2 is out of scope
