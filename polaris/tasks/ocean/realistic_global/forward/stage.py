@@ -426,6 +426,9 @@ class ForwardStage:
             time_integrator=time_integrator,
             start_time=self.start_time,
             do_restart='true' if self.do_restart else 'false',
+            use_frazil_ice_formation=(
+                'true' if self.use_frazil_ice_formation else 'false'
+            ),
             # a real bool, not the 'true'/'false' strings above: this one is
             # tested by a jinja {% if %} rather than substituted into the
             # text, and jinja counts the string 'false' as true
@@ -807,7 +810,7 @@ class ForwardStage:
         Physics options that only MPAS-Ocean has.
 
         The Leith closure, the horizontal-mixing scaling, Gent-McWilliams,
-        Redi, the pressure-gradient formulation and frazil ice have no Omega
+        Redi and the pressure-gradient formulation have no Omega
         counterpart in ``mpaso_to_omega``, and GM and Redi are not expected to
         gain one, so these are applied with ``config_model='mpas-ocean'``.
         An option moves
@@ -830,7 +833,6 @@ class ForwardStage:
             'config_use_Leith_del2': self.use_Leith_del2,
             'config_use_GM': self.use_GM,
             'config_use_Redi': self.use_Redi,
-            'config_use_frazil_ice_formation': self.use_frazil_ice_formation,
         }
         if self.pressure_gradient_type is not None:
             options['config_pressure_gradient_type'] = (

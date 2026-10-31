@@ -699,7 +699,9 @@ del2/del4 options for momentum and tracers and the biharmonic divergence factor,
 `vert_mixing_options` the neutral KPP switch, `submesoscale_options` the neutral
 submesoscale switch, and `mpaso_physics_options` the MPAS-Ocean-only options —
 the Leith closure, horizontal-mixing scaling, Gent-McWilliams, Redi, the
-pressure-gradient formulation and frazil ice. `Forward.dynamic_model_config`
+pressure-gradient formulation. Frazil ice is shared through the neutral
+`forward.yaml` section using `use_frazil_ice_formation`.
+`Forward.dynamic_model_config`
 adds the first three with `config_model='ocean'`, so
 `OceanModelStep.map_yaml_options` translates them for Omega, and the fourth
 with `config_model='mpas-ocean'`. KPP and the submesoscale parameterization
