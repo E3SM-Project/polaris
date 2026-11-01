@@ -6,6 +6,10 @@ from polaris.tasks.e3sm.analysis.misomip.conservation import (
 )
 from polaris.tasks.e3sm.analysis.misomip.diagnostics import RunDiagnostics
 from polaris.tasks.e3sm.analysis.misomip.plots import RunPlots
+from polaris.tasks.e3sm.analysis.misomip.protocol import (
+    ProtocolFields,
+    ProtocolMapStep,
+)
 from polaris.tasks.e3sm.analysis.misomip.publish import MisomipPublish
 from polaris.tasks.e3sm.analysis.misomip.published import (
     PublishedComparison,
@@ -102,6 +106,20 @@ class MisomipAnalysisTask(Task):
                     label=label,
                 )
             )
+        if self.config.getboolean('misomip_analysis', 'write_protocol_fields'):
+            for kind, run in runs.items():
+                map_step = self._add_shared_step(
+                    ProtocolMapStep,
+                    f'{self.subdir}/{kind}/protocol_map',
+                    diagnostics=diagnostics[kind],
+                )
+                self._add_shared_step(
+                    ProtocolFields,
+                    f'{self.subdir}/{kind}/protocol_fields_{run.key}',
+                    diagnostics=diagnostics[kind],
+                    map_step=map_step,
+                    kind=kind,
+                )
         if len(diagnostics) == 2:
             key = f'{runs["e3sm"].key}_{runs["standalone"].key}'
             products.append(
