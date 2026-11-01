@@ -60,7 +60,7 @@ ROWS = [
      'E3SM-O-D #156–#163 merged; design polaris #937', 'draft',
      0, ''),
     ('WP8', 'Moving grounding line in coupled runs',
-     'E3SM-O-D #164–#167 merged; MALI PR next', 'started', 2, ''),
+     'E3SM-O-D #164–#167 merged, #168 open; 6-month Ocean3–4 runs', 'review', 2, ''),
     ('WP9', 'Analysis of the E3SM runs',
      'polaris #939, #940; first 4 km Ocean0 E3SM run submitted',
      'drafting', 1, ''),
