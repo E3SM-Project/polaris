@@ -27,5 +27,24 @@
 
    BudgetTable
    read_budget_tables
+   read_initial_start
    budget_time_series
+```
+
+### runs
+
+```{eval-rst}
+.. currentmodule:: polaris.e3sm.analysis.runs
+
+.. autosummary::
+   :toctree: generated/
+
+   E3smRun
+   E3smRun.find_stream_files
+   E3smRun.namelist_option
+   StandaloneRun
+   StandaloneRun.find_stream_files
+   StandaloneRun.namelist_option
+   select_months
+   month_range_key
 ```

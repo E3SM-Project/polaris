@@ -25,6 +25,19 @@ in the short-term archive (`<DOUT_S_ROOT>/ocn/hist` or `glc/hist`) and then
 in the run directory, and a file in both is taken from the archive. Logs are
 found the same way, in `<DOUT_S_ROOT>/logs` and the run directory.
 
+## The runs being compared
+
+{py:class}`polaris.e3sm.analysis.runs.E3smRun` is one model's output in an
+E3SM case, and {py:class}`polaris.e3sm.analysis.runs.StandaloneRun` is a
+standalone MPAS-Ocean run in the work directory of a Polaris forward step.
+Both give the run's initial condition, which holds the mesh, the files of a
+stream, and an option from the namelist the model read, so an analysis step
+reads either through the same calls.
+{py:func}`polaris.e3sm.analysis.runs.select_months` selects the monthly
+means in a range of years and makes a missing month an error, and
+{py:func}`polaris.e3sm.analysis.runs.month_range_key` names the months
+found, for step directories.
+
 ## Coupler budgets
 
 With `BUDGETS=TRUE`, the coupler writes net budgets of area, heat, water and
