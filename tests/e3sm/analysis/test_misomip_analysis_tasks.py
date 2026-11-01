@@ -158,3 +158,14 @@ def test_runs_over_the_same_months_get_distinct_steps(tmp_path):
         'standalone_diagnostics',
         'standalone_plots',
     ]
+
+
+def test_tasks_sharing_the_config_have_distinct_names():
+    """Each task's steps to run are kept in a config section named for the
+    task, so two tasks of one experiment on different meshes must not
+    share a name."""
+    component = Component(name='e3sm/analysis')
+    add_misomip_analysis_tasks(component)
+
+    names = [task.name for task in component.tasks.values()]
+    assert len(set(names)) == len(names)
