@@ -420,9 +420,8 @@ The four `mali_pr` tasks join `fanssie_pr`, since FAnSSIE carries MALI changes
 for MISOMIP1. `fanssie_pr` then needs an environment deployed with
 `--with-albany`, so it runs only where Albany is supported
 (`deploy/albany_supported.txt`). Without such an environment, its setup fails
-because of D4. The four tasks are timed before they join, to confirm that the
-suite still fits in its 1 h wall time; it took 25–26 minutes before the
-split-explicit ISOMIP+ tasks were added.
+because of D4. On Chrysalis, the four tasks add 39 s to the suite's 2 min 5 s,
+well within its 30-minute wall time.
 
 Rejected:
 
