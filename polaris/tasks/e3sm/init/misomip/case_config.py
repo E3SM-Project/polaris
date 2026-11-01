@@ -388,8 +388,8 @@ def get_shell_commands(
 ):
     """
     Get the text of ``shell_commands``, which sets the case variables that
-    name the staged files, turns off MALI's runoff to the ocean and sets the
-    coupling intervals and the run length
+    name the staged files, turns off MALI's runoff to the ocean, turns on
+    the coupler's budgets and sets the coupling intervals and the run length
 
     Parameters
     ----------
@@ -482,6 +482,10 @@ def get_shell_commands(
             '',
             "# MALI's calving adds no water to the ocean",
             './xmlchange GLC_RUNOFF_TO_OCN=FALSE',
+            '',
+            "# The coupler's monthly and annual budgets, which include the",
+            '# ice-shelf exchange',
+            './xmlchange BUDGETS=TRUE',
             '',
             '# Couplings a day.  The stub atmosphere sets the base interval.',
             f'./xmlchange NCPL_BASE_PERIOD=day,ATM_NCPL={ocean_ncpl},'
@@ -627,8 +631,8 @@ def get_readme(experiment, grids):
         '`user_mods/` holds the grid file, `config_grids.xml`, which CIME',
         "uses in place of E3SM's, the standalone ocean run's options in",
         "`user_nl_mpaso`, MALI's in `user_nl_mali`, and `shell_commands`,",
-        'which names the staged files and sets the coupling intervals and',
-        'the run length.',
+        "which names the staged files, turns on the coupler's budgets and",
+        'sets the coupling intervals and the run length.',
         '',
     ]
     return '\n'.join(lines)
