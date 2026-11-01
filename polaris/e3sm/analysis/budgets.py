@@ -20,7 +20,7 @@ from mpas_tools.cime.constants import constants
 #: The header of a net budget table
 _HEADER = re.compile(
     r'\(seq_diag_print_mct\)\s+NET (?P<budget>\w+) BUDGET '
-    r'\((?P<units>[^)]*)\): period = (?P<period>\w+): date =\s*'
+    r'\((?P<units>[^)]*)\): period =\s*(?P<period>\w+): date =\s*'
     r'(?P<date>\d+)\s+(?P<seconds>\d+)'
 )
 
