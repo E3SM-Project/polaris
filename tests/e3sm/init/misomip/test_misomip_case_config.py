@@ -76,6 +76,7 @@ def _namelists():
             'config_use_cvmix_kpp': '.false.',
         },
         'AM_globalStats': {'config_AM_globalStats_enable': '.false.'},
+        'AM_mixedLayerDepths': {'config_AM_mixedLayerDepths_enable': '.true.'},
     }
     standalone = {
         'time_management': {'config_run_duration': "'0031_00:00:00'"},
@@ -88,7 +89,13 @@ def _namelists():
             'config_cvmix_background_viscosity': '0.0001',
             'config_use_cvmix_kpp': '.true.',
         },
-        'AM_globalStats': {'config_AM_globalStats_enable': '.true.'},
+        'AM_globalStats': {
+            'config_AM_globalStats_enable': '.true.',
+            'config_AM_globalStats_compute_interval': "'output_interval'",
+        },
+        'AM_mixedLayerDepths': {
+            'config_AM_mixedLayerDepths_enable': '.false.',
+        },
         'forcing': {'config_use_bulk_wind_stress': '.true.'},
     }
     for option in E3SM_DEFAULT_OPTIONS:
@@ -120,9 +127,13 @@ def test_user_nl_mpaso_has_the_standalone_options():
         assert option in options
     # MPAS-Ocean's default, written another way
     assert 'config_cvmix_background_viscosity' not in options
+    # analysis members on and off as in the standalone run, whatever the
+    # defaults, with their output left to E3SM
+    assert options['config_AM_globalStats_enable'] == '.true.'
+    assert options['config_AM_mixedLayerDepths_enable'] == '.false.'
+    assert 'config_AM_globalStats_compute_interval' not in options
     # left to E3SM
     assert 'config_run_duration' not in options
-    assert 'config_AM_globalStats_enable' not in options
     assert 'config_use_bulk_wind_stress' not in options
     assert options['config_glc_ice_shelf_coupling_import_geometry'] == (
         '.true.'
@@ -187,6 +198,7 @@ def test_e3sm_default_options_are_those_that_differ():
     managed = {
         option.lower() for option in E3SM_MANAGED | set(E3SM_OWNED_OPTIONS)
     }
+    # analysis members' switches are written from their groups
     expected = {
         option.lower()
         for option in expected
@@ -194,7 +206,6 @@ def test_e3sm_default_options_are_those_that_differ():
         and not option.lower().startswith('config_am_')
         and option.lower() not in managed
     }
-    expected.add('config_am_mocstreamfunction_enable')
 
     written = {option.lower() for option in E3SM_DEFAULT_OPTIONS}
     assert expected - written == set()

@@ -225,7 +225,9 @@ The directory holds:
   and annual budgets, and sets the coupling intervals and the run length;
 - `user_nl_mpaso`, with the options of the standalone ocean run, and every
   option whose E3SM default differs from that run's value, except the bulk
-  wind stress, through which E3SM's ocean takes the coupler's;
+  wind stress, through which E3SM's ocean takes the coupler's.  The case
+  has the standalone run's analysis members, `globalStats` and
+  `timeSeriesStatsMonthly`, in place of E3SM's;
 - `user_nl_mali`, with the densities the ocean's land-ice pressure used.
 
 The case needs an E3SM that has these case variables and grids it does not

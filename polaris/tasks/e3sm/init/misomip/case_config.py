@@ -42,9 +42,10 @@ COMPSETS = {
 }
 
 #: MPAS-Ocean namelist groups whose options a standalone run sets but an
-#: E3SM case leaves to E3SM: the run's times, I/O, partitions, the
-#: standalone land-ice forcing, which the coupler replaces, and analysis
-#: members, whose output E3SM configures
+#: E3SM case leaves to E3SM: the run's times, I/O, partitions and the
+#: standalone land-ice forcing, which the coupler replaces.  Of each
+#: analysis member's group, only whether it is on is written, since E3SM
+#: configures the members' output.
 STANDALONE_GROUPS = [
     'time_management',
     'io',
@@ -63,7 +64,6 @@ E3SM_DEFAULT_OPTIONS = [
     'config_dt',
     'config_hmix_scaleWithMesh',
     'config_mom_del4',
-    'config_AM_mocStreamfunction_enable',
     # E3SM's defaults differ
     'config_cvmix_background_diffusion',
     'config_cvmix_background_diffusion_passive',
@@ -535,8 +535,8 @@ def get_shell_commands(
 def get_user_nl_mpaso(standalone, defaults):
     """
     Get the text of ``user_nl_mpaso``: the options the standalone run sets,
-    less those E3SM sets itself, and those E3SM would otherwise give a
-    different value
+    less those E3SM sets itself, those E3SM would otherwise give a
+    different value, and whether each analysis member is on
 
     Parameters
     ----------
@@ -569,8 +569,14 @@ def get_user_nl_mpaso(standalone, defaults):
     lines = [
         "! The standalone MPAS-Ocean run's options, written by Polaris",
     ]
+    analysis_members = dict()
     for group, options in standalone.items():
-        if group in STANDALONE_GROUPS or group.startswith('AM_'):
+        if group.startswith('AM_'):
+            switch = f'config_{group}_enable'
+            if switch in options:
+                analysis_members[switch] = options[switch]
+            continue
+        if group in STANDALONE_GROUPS:
             selected = {
                 option: value
                 for option, value in options.items()
@@ -590,6 +596,13 @@ def get_user_nl_mpaso(standalone, defaults):
             continue
         lines.extend(['', f'! {group}'])
         for option, value in selected.items():
+            lines.append(f'{option} = {value}')
+
+    if analysis_members:
+        lines.extend(
+            ['', '! analysis members, on or off as in the standalone run']
+        )
+        for option, value in analysis_members.items():
             lines.append(f'{option} = {value}')
 
     lines.extend(['', '! E3SM only'])
