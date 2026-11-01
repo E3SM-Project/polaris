@@ -207,8 +207,8 @@ The directory holds:
 
 - `config_grids.xml`, the grid file, which CIME uses in place of E3SM's;
 - `shell_commands`, which names the staged files with case variables,
-  turns off MALI's runoff to the ocean, and sets the coupling intervals
-  and the run length;
+  turns off MALI's runoff to the ocean, turns on the coupler's monthly
+  and annual budgets, and sets the coupling intervals and the run length;
 - `user_nl_mpaso`, with the options of the standalone ocean run, and every
   option whose E3SM default differs from that run's value, except the bulk
   wind stress, through which E3SM's ocean takes the coupler's;

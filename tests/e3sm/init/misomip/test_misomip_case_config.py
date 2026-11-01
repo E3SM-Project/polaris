@@ -219,6 +219,7 @@ def test_shell_commands_name_the_staged_files():
         f"./xmlchange 'MALI_DATAMODE_FILE={glc}/"
         f"misomip-li1km.ocean3_datamode.{DATE}.nc'",
         './xmlchange GLC_RUNOFF_TO_OCN=FALSE',
+        './xmlchange BUDGETS=TRUE',
         './xmlchange NCPL_BASE_PERIOD=day,ATM_NCPL=48,OCN_NCPL=48,GLC_NCPL=1',
         './xmlchange STOP_OPTION=nmonths,STOP_N=12',
         './xmlchange RESUBMIT=99',
