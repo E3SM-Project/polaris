@@ -85,16 +85,19 @@ class LandIceOnOceanStep(Step):
         """
         Run this step
         """
+        min_fraction = self.config.getfloat(
+            'misomip_land_ice_on_ocean', 'min_land_ice_fraction'
+        )
         matrix = read_map('map.nc')
         with xr.open_dataset('landice_init.nc') as ds_init:
             bed = ds_init.bedTopography.isel(Time=0).values
             thickness = ds_init.thickness.isel(Time=0).values
 
         if self.data_mode:
-            fields, xtimes = _fields_from_data_mode(matrix, bed)
+            fields, xtimes = _fields_from_data_mode(matrix, bed, min_fraction)
         else:
             fields = compute_land_ice_fields(
-                matrix, thickness[np.newaxis, :], bed
+                matrix, thickness[np.newaxis, :], bed, min_fraction
             )
             xtimes = [STATIC_XTIME]
 
@@ -113,7 +116,7 @@ class LandIceOnOceanStep(Step):
         write_netcdf(ds, 'land_ice_fields.nc', char_dim_name='StrLen')
 
 
-def _fields_from_data_mode(matrix, bed):
+def _fields_from_data_mode(matrix, bed, min_fraction):
     """
     Compute the land-ice fields for every record of MALI's data-mode file,
     a chunk of records at a time
@@ -128,7 +131,9 @@ def _fields_from_data_mode(matrix, bed):
         for start in range(0, record_count, RECORD_CHUNK):
             stop = min(start + RECORD_CHUNK, record_count)
             thickness = np.asarray(ds.variables['thickness'][start:stop, :])
-            chunk = compute_land_ice_fields(matrix, thickness, bed)
+            chunk = compute_land_ice_fields(
+                matrix, thickness, bed, min_fraction
+            )
             for name, field in chunk.items():
                 fields.setdefault(name, []).append(field)
     combined = {

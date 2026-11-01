@@ -74,7 +74,10 @@ from MALI's initial geometry, so the first import changes nothing.  The
 `land_ice_on_ocean` step computes these fields as E3SM does: MALI's
 ice-shelf exports with E3SM's gravity, the conservative map from MALI to
 the ocean, and MPAS-Ocean's normalization by the part of each cell below
-sea level in MALI.  For `ocean3` and `ocean4`, it does so for every record
+sea level in MALI.  A cell with a land-ice fraction at or below
+`[misomip_land_ice_on_ocean] min_land_ice_fraction`, $10^{-3}$, is open
+ocean, with no land-ice pressure, fractions or mask, as MPAS-Ocean's
+import leaves it.  For `ocean3` and `ocean4`, it does so for every record
 of MALI's data-mode file.
 
 The ocean steps are shared steps of the ocean component, in
