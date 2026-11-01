@@ -142,9 +142,13 @@ def _run_product_step(base_work_dir, step, seasons):
     step.runtime_setup()
     for season in seasons:
         plot = f'{step.name}_{season}.png'
+        data = f'{step.name}_{season}.nc'
         write_plot(os.path.join(step.work_dir, plot))
+        with open(os.path.join(step.work_dir, data), 'w') as out:
+            out.write(data)
         step.add_product(
             plot=plot,
+            data=data,
             group='climatology_maps',
             gallery=step.name,
             title=f'{step.name}, {season}',
@@ -228,6 +232,23 @@ def test_the_step_reads_the_thumbnail_options_from_the_config(tmp_path):
         # the stand-in plot is larger than the box, so this is the box at
         # the scale asked for rather than the default
         assert max(image.size) == 40
+
+
+@pytest.mark.parametrize('copy_netcdf', [False, True])
+def test_the_step_reads_copy_netcdf_from_the_config(tmp_path, copy_netcdf):
+    component = _make_component()
+    output_path = str(tmp_path / 'output')
+    step = _ready_to_run(
+        component, tmp_path, {'analysis/moc/0001-0010': ['ANN']}
+    )
+    step.config.set(
+        'ocean_analysis', 'copy_netcdf', str(copy_netcdf), user=True
+    )
+
+    step.run()
+
+    names = os.listdir(os.path.join(output_path, PLOTS_DIRNAME))
+    assert ('climatology_maps_moc_ANN_0001-0010.nc' in names) == copy_netcdf
 
 
 def test_a_suite_that_made_nothing_publishes_an_empty_gallery(tmp_path):

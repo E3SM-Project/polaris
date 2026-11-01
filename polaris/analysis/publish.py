@@ -1,5 +1,6 @@
 import json
 import os
+import shutil
 
 from polaris.analysis.manifest import range_key, read_fragment
 from polaris.analysis.thumbnail import (
@@ -56,14 +57,20 @@ def publish(
     thumbnail_scale=DEFAULT_SCALE,
     thumbnail_format=DEFAULT_FORMAT,
     thumbnail_quality=DEFAULT_QUALITY,
+    copy_data=False,
 ):
     """
     Publish every product the fragments describe into the staging tree
 
-    Products are published by symlink from the step that owns them, so that
-    each file has exactly one owner, Polaris's output checking continues to
-    work, and the staging tree is a view rather than a second source of
-    truth.
+    Products are published by copying them from the step that owns them, not
+    by symlink, so that the staging tree can be served from a web portal
+    that cannot read the work directory.  A web server only follows a link
+    if it can read every directory on the way to its target, and a work
+    directory on scratch space normally does not allow that.  The plots are
+    always copied, since they are small.  The data files are only copied if
+    ``copy_data`` is set, since for a large mesh they can be most of the
+    size of the analysis; a product whose data file is not copied is
+    published without one.
 
     Parameters
     ----------
@@ -97,6 +104,10 @@ def publish(
 
     thumbnail_quality : int, optional
         The compression quality of thumbnails, from 1 to 100
+
+    copy_data : bool, optional
+        Whether to copy each product's data file into the staging tree beside
+        its plot
 
     Returns
     -------
@@ -140,6 +151,7 @@ def publish(
                 plots_path=plots_path,
                 step_name=manifest.step_name,
                 missing=missing,
+                copy_data=copy_data,
             )
             if entry is not None:
                 published.append(entry)
@@ -190,8 +202,10 @@ def write_merged_manifest(published, output_path):
     return filename
 
 
-def _publish_product(product, step_path, plots_path, step_name, missing):
-    """Symlink one product's files, or record it as missing"""
+def _publish_product(
+    product, step_path, plots_path, step_name, missing, copy_data
+):
+    """Copy one product's files, or record it as missing"""
     sources = {'plot': product.plot}
     if product.data is not None:
         sources['data'] = product.data
@@ -207,16 +221,50 @@ def _publish_product(product, step_path, plots_path, step_name, missing):
     entry = product.to_dict()
     entry['step'] = step_name
     for key, (source, basename) in targets.items():
-        _symlink(source, os.path.join(plots_path, basename))
+        destination = os.path.join(plots_path, basename)
+        if key == 'data' and not copy_data:
+            # a data file published by an earlier run would otherwise stay
+            # in the tree with nothing linking to it
+            _remove(destination)
+            entry[key] = None
+            continue
+        _copy(source, destination)
         entry[key] = os.path.join(PLOTS_DIRNAME, basename)
     return entry
 
 
-def _symlink(source, link_path):
-    """Point link_path at source, replacing a link left by an earlier run"""
-    if os.path.islink(link_path) or os.path.exists(link_path):
-        os.remove(link_path)
-    os.symlink(source, link_path)
+def _copy(source, destination):
+    """
+    Copy source to destination unless an earlier run already did, replacing
+    a symlink left by an earlier version of Polaris
+    """
+    if _is_current_copy(source, destination):
+        return
+    _remove(destination)
+    shutil.copyfile(source, destination)
+    # the copy keeps the source's modification time, so that an unchanged
+    # file is not copied again and its thumbnail is not rendered again; the
+    # permissions are left to the umask, as for any new file
+    mtime = os.stat(source).st_mtime_ns
+    os.utime(destination, ns=(mtime, mtime))
+
+
+def _is_current_copy(source, destination):
+    """Whether destination is a copy of source as it is now"""
+    if os.path.islink(destination) or not os.path.isfile(destination):
+        return False
+    source_stat = os.stat(source)
+    destination_stat = os.stat(destination)
+    return (
+        source_stat.st_size == destination_stat.st_size
+        and source_stat.st_mtime_ns == destination_stat.st_mtime_ns
+    )
+
+
+def _remove(path):
+    """Remove a file or symlink if there is one"""
+    if os.path.islink(path) or os.path.exists(path):
+        os.remove(path)
 
 
 def _add_thumbnails(
