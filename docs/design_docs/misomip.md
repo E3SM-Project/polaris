@@ -766,6 +766,11 @@ On FAnSSIE:
   cells that lose their ice are treated as open ocean; cells whose ice
   fraction is at most 10⁻³, slivers at the calving front, are open ocean
   too, in the import and in the inputs;
+- compute melt in every cell where glc's floating fraction is above 10⁻³,
+  in proportion to that fraction, including cells that wetting and
+  drying holds as a thin film, so floating ice next to the grounding line
+  is not left without melt; the film's physics may limit that melt, but
+  it is not zeroed, and the pressure and its cap do not change;
 - form no frazil and compute no melt under ice where glc's floating
   fraction is at most 10⁻³, the threshold below which the coupler sends glc
   no fluxes, so the ocean's budget no longer books frazil that glc never
