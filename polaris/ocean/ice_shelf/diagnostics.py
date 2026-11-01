@@ -95,7 +95,8 @@ def compute_melt_diagnostics(
     ds : xarray.Dataset
         A dataset with ``landIceFreshwaterFlux``,
         ``landIceFrictionVelocity`` and the boundary-layer and interface
-        temperature and salinity
+        temperature and salinity, and optionally
+        ``frazilIceFreshwaterFlux``
 
     floating_fraction : xarray.DataArray
         ``landIceFloatingFraction``
@@ -113,8 +114,11 @@ def compute_melt_diagnostics(
     ds_diag : xarray.Dataset
         ``totalMeltFlux`` (kg s-1), ``floatingArea`` (m2),
         ``meanMeltRate`` (m s-1), ``meanThermalDriving`` (degC),
-        ``meanHalineDriving`` (PSU), ``meanFrictionVelocity`` (m s-1) and,
-        with a draft, ``meanMeltRateDeep`` (m s-1)
+        ``meanHalineDriving`` (PSU), ``meanFrictionVelocity`` (m s-1),
+        with a draft, ``meanMeltRateDeep`` (m s-1) and, with
+        ``frazilIceFreshwaterFlux``, ``totalFrazilFlux`` (kg s-1), the
+        freshwater flux from frazil formed under the ice shelf, negative
+        where frazil forms.  The melt flux leaves frazil out.
     """
     floating_area = floating_fraction * area_cell
     melt_rate = compute_melt_rate(ds.landIceFreshwaterFlux)
@@ -138,6 +142,11 @@ def compute_melt_diagnostics(
         ds_diag['meanMeltRateDeep'] = _area_sum(
             melt_rate.where(deep, 0.0), area_cell
         ) / _area_sum(floating_fraction.where(deep, 0.0), area_cell)
+    if 'frazilIceFreshwaterFlux' in ds:
+        under_ice = floating_fraction > 0.0
+        ds_diag['totalFrazilFlux'] = _area_sum(
+            ds.frazilIceFreshwaterFlux.where(under_ice, 0.0), area_cell
+        )
 
     attrs = dict(
         totalMeltFlux=('total melt flux', 'kg s-1'),
@@ -149,6 +158,10 @@ def compute_melt_diagnostics(
         meanMeltRateDeep=(
             f'mean melt rate where the draft is below {deep_draft:g} m',
             'm s-1',
+        ),
+        totalFrazilFlux=(
+            'total freshwater flux from frazil under the ice shelf',
+            'kg s-1',
         ),
     )
     for var in ds_diag.data_vars.values():

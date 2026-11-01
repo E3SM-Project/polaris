@@ -814,8 +814,10 @@ Omega uses TEOS-10 for its freezing temperature, which is not yet supported.
 
 For analysis, {py:func}`polaris.ocean.ice_shelf.compute_melt_diagnostics()`
 gives the total melt flux and the means of the melt rate, thermal and
-haline driving and friction velocity over the floating ice base, and the
-mean melt rate below a given draft.
+haline driving and friction velocity over the floating ice base, the
+mean melt rate below a given draft and, where the output has frazil, the
+total freshwater flux from frazil formed under the ice shelf, apart from
+the melt flux.
 {py:func}`polaris.ocean.ice_shelf.compute_melt_rate_by_draft()` gives the
 mean melt rate in bins of draft, and
 {py:func}`polaris.ocean.ice_shelf.compute_thin_film_diagnostics()` the area
