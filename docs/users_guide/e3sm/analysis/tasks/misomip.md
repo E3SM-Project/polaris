@@ -91,6 +91,24 @@ and their sum, as totals.  `exchange_residuals.csv` lists the sum relative
 to the ocean's column for each budget.  The coupler prints global means to
 8 decimals, which limits how small a residual it can show.
 
+## Published results
+
+For Ocean0–2, a `published` step compares the runs with the COM results of
+[Yung et al. (2026)](https://doi.org/10.5194/tc-20-2053-2026).  A shared
+step, `e3sm/analysis/misomip/yung2026/<experiment>`, downloads each model's
+submission for the experiment from the Open Science Framework into the
+ocean database, at setup, and reduces it.  Each model's files are licensed
+CC-BY 4.0 and the step's `README` gives the paper's citation and each
+model's registration.  For COCO's and NEMO-CNRS's Ocean0, which have
+several runs, the file is the one tuned to the protocol's target melt rate.
+
+The step plots the runs' time series over the ensemble's range, with
+MPAS-Ocean's 2019 entry marked, the melt rate by draft, the streamfunctions'
+strengths against the mean melt rate, and the runs' time-mean melt rate
+beside the ensemble's mean.  The runs use E3SM's physics, not the protocol's
+COM physics, and are labeled as such: the comparison places them among the
+COM models rather than validating them.
+
 ## Publishing
 
 Each task's `publish` step copies its plots into a gallery under

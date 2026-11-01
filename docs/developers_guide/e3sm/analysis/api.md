@@ -36,6 +36,11 @@
    comparison.RunComparison.run
    conservation.CouplerConservation
    conservation.CouplerConservation.run
+   published.PublishedComparison
+   published.PublishedComparison.run
+   yung2026.Yung2026
+   yung2026.Yung2026.run
+   yung2026.get_yung2026_step
    publish.MisomipPublish
    publish.MisomipPublish.setup
    publish.MisomipPublish.output_path
