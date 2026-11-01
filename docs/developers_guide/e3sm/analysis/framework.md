@@ -24,3 +24,31 @@ through {py:func}`polaris.streams.find_stream_files`. Files are looked for
 in the short-term archive (`<DOUT_S_ROOT>/ocn/hist` or `glc/hist`) and then
 in the run directory, and a file in both is taken from the archive. Logs are
 found the same way, in `<DOUT_S_ROOT>/logs` and the run directory.
+
+## Coupler budgets
+
+With `BUDGETS=TRUE`, the coupler writes net budgets of area, heat, water and
+salt to its log for each period: `inst`, `daily`, `monthly`, `annual` and
+`all_time`, at the levels the driver's namelist sets.
+{py:func}`polaris.e3sm.analysis.budgets.read_budget_tables` reads every
+table from a list of logs, compressed or not, and
+{py:func}`polaris.e3sm.analysis.budgets.budget_time_series` gathers one
+budget and period into a time series:
+
+```python
+from polaris.e3sm.analysis.budgets import (
+    budget_time_series,
+    read_budget_tables,
+)
+
+tables = read_budget_tables(case.find_logs('cpl'))
+ds = budget_time_series(tables, budget='WATER', period='monthly')
+exchanged = ds.budget.sel(row='wpolar', component=['ocn', 'glc', '*SUM*'])
+```
+
+The coupler prints global means over the sphere, scaled for printing, with
+8 decimals. They are converted back to totals with E3SM's radius: kg s⁻¹
+for water and salt, and W for heat. Values are read by position, as the
+Fortran format writes them, since a value that fills its field touches the
+one before it. A field the coupler could not fit, printed as asterisks, is
+NaN. A date in more than one table, as when a run restarts, takes the last.
