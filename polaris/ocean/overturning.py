@@ -314,3 +314,111 @@ def bin_line_transport(
     ds_binned.coords['binLower'] = ('nBins', bins[:-1])
     ds_binned.coords['binUpper'] = ('nBins', bins[1:])
     return ds_binned
+
+
+def compute_line_interfaces(
+    line: xr.Dataset,
+    ssh: xr.DataArray,
+    layer_thickness: xr.DataArray,
+    vert_dim: str = 'nVertLevels',
+) -> tuple[xr.DataArray, xr.DataArray]:
+    """
+    Compute the elevations of the top and bottom of each layer on the edges
+    of a line
+
+    The layers stack down from the sea-surface height, which is the ice
+    draft under an ice shelf.  Each edge takes the mean of its two cells, as
+    the thickness in :py:func:`compute_line_transport` does.  Layers outside
+    a cell's valid range must have zero thickness.
+
+    Parameters
+    ----------
+    line : xarray.Dataset
+        A line from :py:func:`get_line_edges`
+
+    ssh : xarray.DataArray
+        The sea-surface height (m) with dimension ``nCells``
+
+    layer_thickness : xarray.DataArray
+        The layer thickness (m) with dimensions ``nCells`` and ``vert_dim``
+
+    vert_dim : str, optional
+        The vertical dimension, indexed from the top
+
+    Returns
+    -------
+    z_top, z_bottom : xarray.DataArray
+        The elevation (m) of the top and bottom of each layer, with
+        ``nCells`` replaced by ``nLineEdges``
+    """
+    z_bottom = ssh - layer_thickness.cumsum(dim=vert_dim)
+    z_top = z_bottom + layer_thickness
+    return (
+        interp_cell_to_line_edges(line, z_top),
+        interp_cell_to_line_edges(line, z_bottom),
+    )
+
+
+def compute_overturning_in_z(
+    transport: xr.DataArray,
+    z_top: xr.DataArray,
+    z_bottom: xr.DataArray,
+    dz: float,
+    vert_dim: str = 'nVertLevels',
+) -> xr.DataArray:
+    """
+    Compute the overturning stream function at fixed elevations
+
+    Each layer's transport is spread over bins of height ``dz`` by the
+    fraction of the layer each bin overlaps, summed along the line, and
+    accumulated from the top.  The bins span the layers, so all of the
+    transport is counted.
+
+    Parameters
+    ----------
+    transport : xarray.DataArray
+        Transport from :py:func:`compute_line_transport`, with dimensions
+        ``nLineEdges`` and ``vert_dim``
+
+    z_top, z_bottom : xarray.DataArray
+        The elevations (m) of the top and bottom of each layer, from
+        :py:func:`compute_line_interfaces`
+
+    dz : float
+        The height (m) of the bins
+
+    vert_dim : str, optional
+        The vertical dimension, indexed from the top
+
+    Returns
+    -------
+    overturning : xarray.DataArray
+        The overturning stream function (m3 s-1) on the dimension
+        ``nZInterfaces``, with the coordinate ``zInterface`` (m), descending
+        from the top
+    """
+    thickness = (z_top - z_bottom).where(z_top > z_bottom)
+    top = dz * np.ceil(float(z_top.max()) / dz)
+    bottom = dz * np.floor(float(z_bottom.min()) / dz)
+    count = int(round((top - bottom) / dz))
+    edges = top - dz * np.arange(count + 1)
+
+    binned = []
+    for bin_top, bin_bottom in zip(edges[:-1], edges[1:], strict=True):
+        overlap = np.minimum(z_top, bin_top) - np.maximum(z_bottom, bin_bottom)
+        fraction = (overlap.clip(min=0.0) / thickness).fillna(0.0)
+        binned.append((transport * fraction).sum(dim=[vert_dim, 'nLineEdges']))
+    cumulative = xr.concat(binned, dim='nZInterfaces').cumsum(
+        dim='nZInterfaces'
+    )
+    surface = xr.zeros_like(cumulative.isel(nZInterfaces=[0]))
+    overturning = xr.concat([surface, cumulative], dim='nZInterfaces')
+    dims = [
+        dim for dim in transport.dims if dim not in (vert_dim, 'nLineEdges')
+    ] + ['nZInterfaces']
+    overturning = overturning.transpose(*dims)
+    overturning.coords['zInterface'] = ('nZInterfaces', edges)
+    overturning.attrs = dict(
+        long_name='overturning stream function', units='m3 s-1'
+    )
+    return overturning

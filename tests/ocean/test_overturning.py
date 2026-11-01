@@ -6,8 +6,10 @@ from mpas_tools.planar_hex import make_planar_hex_mesh
 from polaris.mesh.vector import compute_edge_normal_vec
 from polaris.ocean.overturning import (
     bin_line_transport,
+    compute_line_interfaces,
     compute_line_transport,
     compute_overturning,
+    compute_overturning_in_z,
     get_line_edges,
     interp_cell_to_line_edges,
 )
@@ -231,3 +233,42 @@ def test_bins_must_increase(periodic_mesh):
 def test_unknown_coordinate_is_an_error(periodic_mesh):
     with pytest.raises(ValueError, match='Unexpected line coordinate'):
         get_line_edges(periodic_mesh, 'z', 0.0)  # type: ignore[arg-type]
+
+
+def test_overturning_in_z_spreads_layers_by_overlap():
+    """Two edges of two layers each, in 5 m bins.  The first edge's layers
+    span 0 to -7 and -7 to -20 m, the second's -1 to -6 m and a layer of
+    zero thickness.  Each bin gets the part of each layer it overlaps, and
+    the stream function at the bottom is the total transport."""
+    transport = xr.DataArray(
+        [[7.0, 13.0], [5.0, 0.0]], dims=('nLineEdges', 'nVertLevels')
+    )
+    z_top = xr.DataArray(
+        [[0.0, -7.0], [-1.0, -6.0]], dims=('nLineEdges', 'nVertLevels')
+    )
+    z_bottom = xr.DataArray(
+        [[-7.0, -20.0], [-6.0, -6.0]], dims=('nLineEdges', 'nVertLevels')
+    )
+
+    overturning = compute_overturning_in_z(transport, z_top, z_bottom, dz=5.0)
+
+    np.testing.assert_allclose(
+        overturning.zInterface, [0.0, -5.0, -10.0, -15.0, -20.0]
+    )
+    np.testing.assert_allclose(overturning, [0.0, 9.0, 15.0, 20.0, 25.0])
+
+
+def test_line_interfaces_stack_down_from_the_ssh(channel_mesh):
+    """Layers stack down from the sea surface, which is the draft under ice,
+    and edges take the mean of their two cells."""
+    line = get_line_edges(channel_mesh, 'x', float(channel_mesh.xCell.mean()))
+    n_cells = channel_mesh.sizes['nCells']
+    ssh = xr.DataArray(-100.0 * np.ones(n_cells), dims='nCells')
+    thickness = xr.DataArray(
+        np.tile([10.0, 20.0], (n_cells, 1)), dims=('nCells', 'nVertLevels')
+    )
+
+    z_top, z_bottom = compute_line_interfaces(line, ssh, thickness)
+
+    np.testing.assert_allclose(z_top.isel(nLineEdges=0), [-100.0, -110.0])
+    np.testing.assert_allclose(z_bottom.isel(nLineEdges=0), [-110.0, -130.0])
