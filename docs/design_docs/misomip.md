@@ -753,8 +753,12 @@ On FAnSSIE:
   a new thickness record takes effect, MALI's export carries the new
   pressure and ice fraction but the previous record's floating fraction
   for one glc coupling interval, as the 4 km Ocean3 runs in E3SM showed;
-- confirm that the floating mask follows the imported geometry, so newly
-  floating cells melt and newly grounded ones stop;
+- stop MALI restoring its initial calving front outside prognostic mode,
+  as it already stops calving and iceberg removal there, so that ice
+  advancing in a data-mode record is not removed, as in Ocean4;
+- make the ocean's land-ice mask follow the imported ice fraction, in E3SM
+  and in standalone time-varying forcing, so newly floating cells melt and
+  cells that lose their ice are treated as open ocean;
 - write the land-ice geometry the ocean imports to E3SM's monthly ocean
   output, which Ocean3–4 need for their mean melt rate and checks.
 
