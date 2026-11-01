@@ -130,8 +130,9 @@ run** is given by its forward step's work directory, read the same way.
 Both write monthly means ([D3](#decisions)) and daily global statistics,
 which only the first-month comparison uses.
 
-Steps are keyed by the range of years analyzed, so analyzing more of a
-run adds steps rather than replacing them, as in the ocean analysis. Maps
+Each run contributes its monthly means in a configured range of years,
+and its steps are keyed by the months it has, so analyzing more of a run
+adds steps rather than replacing them, as in the ocean analysis. Maps
 and sections average the period's last 6 months for Ocean0, as the
 protocol's tuning does (Sect. 3.2.1), and its last 12 otherwise.
 
@@ -275,17 +276,20 @@ The tasks are in a new `e3sm/analysis` component ([D1](#decisions)):
 
 ```none
 e3sm/analysis/<mesh_name>/misomip/<experiment>     one experiment
-    e3sm/diagnostics_<years>, e3sm/plots_<years>   shared steps
-    standalone/diagnostics_<years>, standalone/plots_<years>
-    comparison_<years>
-    conservation_<years>
-    published_<years>
-    protocol_fields_<years>                        only if enabled
+    e3sm/diagnostics_<months>, e3sm/plots_<months> shared steps
+    standalone/diagnostics_<months>, standalone/plots_<months>
+    comparison_<months>
+    e3sm/conservation_<months>
+    published_<months>
+    protocol_fields_<months>                       only if enabled
     publish
 e3sm/analysis/<mesh_name>/misomip/experiments      all experiments
 e3sm/analysis/misomip/resolutions/<experiment>     4 and 2 km
-e3sm/analysis/misomip/yung2026                     shared download
+e3sm/analysis/misomip/yung2026/<experiment>        shared download
 ```
+
+`<months>` names the months a run has, such as `0001-01_0020-12`, joined
+for steps that read two runs.
 
 Each run is a config option, and steps are added only for configured runs:
 
@@ -301,8 +305,8 @@ user's config is read.
 `polaris/e3sm/analysis/case.py` reads a case's XML without CIME, expanding
 references to other case variables, and finds a stream's files.
 `polaris/streams.py`, which reads streams files from packages, is extended
-to read a run's streams file from a path and to expand a stream's filename
-template over a range of dates.
+to read a run's streams file from a path and to find the files a stream's
+filename template matches, with the date in each name.
 
 ### Implementation: The runs are diagnosed
 
@@ -358,7 +362,9 @@ Contributors: Xylar Asay-Davis, Claude
 The `yung2026` step downloads each model's public files from the Open
 Science Framework, by the identifiers in the paper's Table 3, into the
 ocean database. A README beside them gives the paper's citation, each
-registration's identifier and its license. For IceOcean, the `published`
+registration's identifier and its license. Where a model gives several
+Ocean0 runs, the step takes the one tuned to the protocol's target. For
+IceOcean, the `published`
 step reaches the MISMIP+ tasks' download of Cornford et al. (2020) and
 their Ice1r and Ice1ra output through public accessors.
 
