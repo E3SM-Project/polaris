@@ -6,6 +6,24 @@ from polaris import (
 from polaris import (
     Task as Task,
 )
+from polaris.ocean.ice_shelf.diagnostics import (
+    compute_haline_driving as compute_haline_driving,
+)
+from polaris.ocean.ice_shelf.diagnostics import (
+    compute_melt_diagnostics as compute_melt_diagnostics,
+)
+from polaris.ocean.ice_shelf.diagnostics import (
+    compute_melt_rate as compute_melt_rate,
+)
+from polaris.ocean.ice_shelf.diagnostics import (
+    compute_melt_rate_by_draft as compute_melt_rate_by_draft,
+)
+from polaris.ocean.ice_shelf.diagnostics import (
+    compute_thermal_driving as compute_thermal_driving,
+)
+from polaris.ocean.ice_shelf.diagnostics import (
+    compute_thin_film_diagnostics as compute_thin_film_diagnostics,
+)
 from polaris.ocean.ice_shelf.freeze import (
     compute_freezing_temperature as compute_freezing_temperature,
 )

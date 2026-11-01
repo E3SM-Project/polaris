@@ -812,6 +812,20 @@ uses the formulation of the ocean model.  For MPAS-Ocean, the coefficients are
 in the `ice_shelf_freeze` config section and match the MPAS-Ocean defaults.
 Omega uses TEOS-10 for its freezing temperature, which is not yet supported.
 
+For analysis, {py:func}`polaris.ocean.ice_shelf.compute_melt_diagnostics()`
+gives the total melt flux and the means of the melt rate, thermal and
+haline driving and friction velocity over the floating ice base, and the
+mean melt rate below a given draft.
+{py:func}`polaris.ocean.ice_shelf.compute_melt_rate_by_draft()` gives the
+mean melt rate in bins of draft, and
+{py:func}`polaris.ocean.ice_shelf.compute_thin_film_diagnostics()` the area
+of dry columns under grounded ice and the open ocean's mean sea-surface
+height.  Means over the ice base are weighted by each cell's floating area,
+since a partly floating cell melts only over its floating fraction.  The
+functions take MPAS-Ocean's names with or without a `Time` dimension;
+monthly means are renamed first with
+{py:func}`polaris.mpas.rename_time_series_stats()`.
+
 (dev-ocean-framework-vertical)=
 
 ## Vertical coordinate
