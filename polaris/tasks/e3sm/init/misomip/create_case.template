@@ -7,15 +7,17 @@ set -e
 
 usage="usage: $0 -e <E3SM checkout> -c <case directory>
            [-m <machine>] [-p <project>] [-C <compiler>]
-           [-o <ocean tasks>] [-g <MALI tasks>]"
+           [-r <output root>] [-o <ocean tasks>] [-g <MALI tasks>]"
 
 # An E3SM checkout at FAnSSIE's {{ e3sm_commit }} or later
 e3sm=
 # The case directory, whose name is the case's
 case_dir=
-# Blank for CIME's defaults
+# Blank for CIME's defaults.  The output root holds the case's build and
+# run directories.
 machine=
 project=
+output_root=
 compiler=gnu
 # The tasks of the ocean and of MALI, each a count its mesh is partitioned
 # for
@@ -24,13 +26,14 @@ landice_tasks={{ landice_tasks }}
 ocean_counts="{{ ocean_counts }}"
 landice_counts="{{ landice_counts }}"
 
-while getopts "e:c:m:p:C:o:g:h" option; do
+while getopts "e:c:m:p:C:r:o:g:h" option; do
     case $option in
         e) e3sm=$OPTARG ;;
         c) case_dir=$OPTARG ;;
         m) machine=$OPTARG ;;
         p) project=$OPTARG ;;
         C) compiler=$OPTARG ;;
+        r) output_root=$OPTARG ;;
         o) ocean_tasks=$OPTARG ;;
         g) landice_tasks=$OPTARG ;;
         h) echo "$usage"; exit 0 ;;
@@ -71,6 +74,9 @@ if [ -n "$machine" ]; then
 fi
 if [ -n "$project" ]; then
     args+=(--project "$project")
+fi
+if [ -n "$output_root" ]; then
+    args+=(--output-root "$output_root")
 fi
 "$e3sm/cime/scripts/create_newcase" "${args[@]}"
 
