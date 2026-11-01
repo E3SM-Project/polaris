@@ -53,7 +53,12 @@ class MisomipAnalysisTask(Task):
             The experiment
         """
         subdir = f'{mesh_name}/misomip/{experiment}'
-        super().__init__(component=component, name=experiment, subdir=subdir)
+        # the tasks share a config, in which each has a section named for it
+        super().__init__(
+            component=component,
+            name=f'misomip_{experiment}_{mesh_name}',
+            subdir=subdir,
+        )
         self.mesh_name = mesh_name
         self.experiment = experiment
         self.set_shared_config(config, link='misomip_analysis.cfg')
