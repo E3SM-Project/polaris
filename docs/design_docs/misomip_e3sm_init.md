@@ -139,13 +139,23 @@ use.
 
 ### Requirement: Each experiment has a case configuration
 
-Date last modified: 2026/10/30
+Date last modified: 2026/11/01
 
 Contributors: Xylar Asay-Davis, Claude
 
 A grid file and a user-mods directory configure an E3SM case for each
 experiment. Its physics and options come from the same configuration as
 the standalone MPAS-Ocean and MALI runs.
+
+### Requirement: A case's layout suits the machine
+
+Date last modified: 2026/11/01
+
+Contributors: Xylar Asay-Davis, Claude
+
+A case runs close to a goal number of cells per task, on whole nodes with
+no idle cores, and never with more cells per task than a maximum or fewer
+than a minimum. A machine too small for the maximum is an error.
 
 ### Requirement: The inputs are staged as on inputdata
 
@@ -358,19 +368,18 @@ they match.
 
 ### Algorithm Design: Both models can be decomposed at the planned task counts
 
-Date last modified: 2026/10/30
+Date last modified: 2026/11/01
 
 Contributors: Xylar Asay-Davis, Claude
 
 Each model's graph is partitioned with `gpmetis` into the core counts that
 `get_core_list()` gives between bounds on cells per core. The bounds are
-config options, set so the counts include the planned layouts: 8 and 36
-ocean tasks at 4 and 2 km, up to 256 at 2 km, and MALI's counts
-*(first E3SM run)*.
+config options, and also each case's limits on cells per task
+([D9](#decisions)).
 
 ### Algorithm Design: Each experiment has a case configuration
 
-Date last modified: 2026/10/31
+Date last modified: 2026/11/01
 
 Contributors: Xylar Asay-Davis, Claude
 
@@ -402,9 +411,11 @@ Each experiment's case configuration holds:
   compset, the model grid and the user-mods directory, sets its layout,
   and sets it up and builds it ([D8](#decisions)).
   It takes the E3SM checkout, the case directory, and optionally the
-  machine, project, compiler and task counts. It stops if the checkout
-  lacks the E3SM changes for idealized ice-shelf cases, or if no
-  partition is staged for a task count. The person submits the case.
+  project, output root, compiler and task counts. The machine is the one
+  Polaris was set up on, and the compiler defaults to Polaris's. It
+  stops if the checkout lacks the E3SM changes for idealized ice-shelf
+  cases, if the case's machine is not Polaris's, or if no partition is
+  staged for a task count. The person submits the case.
 
 ```{admonition} Rationale
 By default, MALI rebuilds Albany's finite-element grid at every velocity
@@ -423,12 +434,39 @@ ocean every 30 minutes and MALI daily. The step stops if the ocean's
 interval is not a whole number of its time steps, or MALI's not a whole
 number of the ocean's.
 
-By default, the ocean and MALI each run on the most tasks both meshes are
-partitioned for, MALI on the ocean's tasks in turn. The other components
-run on the ocean's tasks. Each task has 1 thread, and every core of a
-node runs a task. The case's layout comes from a PE file beside the
-script, in place of MPAS-Ocean's, so the machine's own MPI tasks per node
-apply. *(E3SM runs)* The layouts for long runs.
+Every component runs on the same tasks, MALI on them in turn, with 1
+thread a task. The task count comes from a goal number of cells per task
+and bounds on it for each model, and from the machine Polaris runs on
+([D9](#decisions)):
+
+1. **Target, minimum and maximum.** The ocean's cells over its goal give
+   the target tasks, rounded, and at least 1. Its cells over its maximum
+   cells per task, rounded up, give the minimum tasks, and over its
+   minimum cells per task, rounded down, the maximum tasks. When MALI is
+   prognostic, its cells and its own three values give a second set, and
+   the more restrictive applies: the smaller target, the larger minimum
+   and the smaller maximum. In MALI's static and data modes, only the
+   ocean's set applies.
+2. **Tasks per node** are the machine's cores per node, or its MPI tasks
+   per node if fewer.
+3. **On a batch system**, nodes are the target over tasks per node,
+   rounded, and at least 1, then raised until the tasks reach the
+   minimum. The tasks fill the nodes, up to the maximum.
+4. **On a single node**, the tasks are the target, or the node's tasks if
+   fewer.
+5. **The partitions** then set the count: the most tasks at or below it
+   that both meshes are partitioned for.
+6. **Fewer than the minimum** is an error.
+
+The step's log and the README give the goals and bounds, the target,
+minimum and maximum, tasks per node, nodes and tasks. `create_case.sh`
+uses them by default. `-o` and `-g` choose other counts for the ocean and
+MALI, which must lie between the minimum and maximum and be partitioned. A
+case on a machine other than the one the layout was chosen for is an
+error, whose message names both machines and says to set up the task on
+the case's machine. The case's layout comes from a PE file beside the
+script, in place of MPAS-Ocean's, with the tasks per node.
+*(prognostic E3SM runs)* MALI's goal, and whether its bounds hold.
 
 ### Algorithm Design: The inputs are staged as on inputdata
 
@@ -608,6 +646,22 @@ assembly. `create_case.sh` and `pes.xml` are
 rendered from templates, with the task counts `get_core_list()` gives for
 each mesh's partition bounds.
 
+Each model's goal and bounds are in its partitions' section of
+`misomip.cfg`, `[misomip_ocean_partitions]` and
+`[misomip_landice_partitions]`: a new `goal_cells_per_core`, and the
+existing `max_cells_per_core` and `min_cells_per_core`. With 1 thread a
+task, a core is a task. One setting serves every pair of meshes. The
+ocean's goal is 200 cells per task, with bounds of 40 and 2000, from a
+scaling series of 4 km Ocean0 cases on Chrysalis, and 2 km cases on 1, 2
+and 4 nodes check them. MALI's come from prognostic cases. The machine's
+cores and MPI tasks per node, and whether it is a batch system, come from
+the component's parallel system, which mache builds from `[parallel]`.
+The machine's name and the compiler are `[build] machine` and
+`[build] compiler`, which `polaris setup` sets. A function of these, with
+no machine's values in the code, chooses the tasks. Without a machine
+name, as on a laptop, the script leaves the machine to CIME and skips the
+check.
+
 ```{admonition} Rationale
 The namelist includes everything the standalone step sets, from YAML files
 and from config options, such as the equation of state, so the list of
@@ -721,13 +775,19 @@ The planned counts are among the partitions.
 
 ### Testing and Validation: Each experiment has a case configuration
 
-Date last modified: 2026/10/31
+Date last modified: 2026/11/01
 
 Contributors: Xylar Asay-Davis, Claude
 
 Unit tests: the user-mods options match the standalone namelist, the
 list of options whose E3SM defaults differ matches E3SM's defaults, the
 coupling intervals divide evenly, and `create_case.sh` passes `bash -n`.
+The task count follows the rule for a batch system and a single node,
+including a count the partitions do not cover and a machine below the
+minimum, and MALI's goal and bounds apply only when MALI is prognostic.
+A 5-day Ocean0 case at 4 km on Chrysalis runs on 1 node and is bit for
+bit with the same case before the change.
+
 The E3SM runs of each experiment, from cases `create_case.sh` creates,
 test the cases themselves.
 
@@ -865,13 +925,14 @@ component.
 
 ### D6: Partition counts come from bounds
 
-Date last modified: 2026/10/30
+Date last modified: 2026/11/01
 
 Contributors: Xylar Asay-Davis, Claude
 
 The partition steps are `GraphPartitionStep`, unchanged, with bounds on
-cells per core that cover the planned counts. The meshes are small, so the
-extra partitions cost little.
+cells per core. The same bounds limit each case's cells per task
+([D9](#decisions)), so the partitions cover every count a case may use.
+The meshes are small, so the extra partitions cost little.
 
 Rejected: a list of task counts, which would need a subclass.
 
@@ -921,3 +982,43 @@ Rejected: a Polaris step that creates and builds the case, which ties the
 tasks to an E3SM checkout and CIME's environment; and the bare
 `create_newcase` command alone, which leaves the layout and partitions
 for the person to match.
+
+### D9: The layout comes from cells per task and the machine
+
+Date last modified: 2026/11/01
+
+Contributors: Xylar Asay-Davis, Claude
+
+The task count is chosen as Polaris chooses an ocean step's: from a goal
+number of cells per task and bounds on it, and the machine's facts from
+mache. The bounds are the partitions' ([D6](#decisions)). Each model has
+its own goal and bounds. MALI's apply only when it is prognostic, and
+then the more restrictive of the two models' counts applies. On a batch
+system, the tasks fill whole nodes, up to the maximum. The count is the
+most partitioned tasks at or below the rule's. The layout is for the
+machine Polaris ran on.
+
+```{admonition} Rationale
+MPAS-Ocean's default layouts assume 2 threads a task on some machines, so
+a case of 1-thread tasks left half of each node idle. In the 4 km series,
+from 2 to 128 tasks, doubling the tasks sped a case by 1.5 to 1.7 times
+above about 170 cells per task, and by about 1.25 times below it, down to
+21 cells per task. Memory was 1.3 GB a task at 1379 cells. A whole node is
+charged whether or not its cores are used, so filling it costs nothing
+while each added task still speeds the run. The minimum cells per task
+keeps the tasks above where added tasks would stop doing so. Cells per
+task carry over between resolutions, so the 2 km cases need no values of
+their own. The ocean takes nearly all of a case's time when MALI is static
+or replays its geometry. A prognostic MALI, with Albany, may limit the
+tasks through its memory or its scaling. `get_core_list()` includes 1 to
+20 whole nodes of each E3SM node size, so the partitions usually hold the
+rule's count. Otherwise, or if the mesh is too small for a whole node,
+some cores are idle, and the log says so.
+```
+
+Rejected: the most tasks both meshes are partitioned for, which ignores
+the machine; the machine's tasks per node as a literal, which holds for
+one machine; task counts for each pair of meshes, which need values for
+each resolution; the target alone on a node it does not fill, which
+leaves cores idle that would speed the run; and bounds for the case
+apart from the partitions', which repeat them.
