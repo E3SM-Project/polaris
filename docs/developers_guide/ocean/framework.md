@@ -1102,6 +1102,16 @@ the transport and thickness on each edge into tracer classes, for
 overturning in density coordinates.  The mixed-layer eddies tasks
 ({ref}`dev-ocean-mixed-layer-eddies`) use these for their eddy overturning.
 
+For overturning at fixed elevations, as in an ice-shelf cavity where layers
+follow the draft,
+{py:func}`polaris.ocean.overturning.compute_line_interfaces()` gives the top
+and bottom of each layer on the line's edges, stacked down from the
+sea-surface height, and
+{py:func}`polaris.ocean.overturning.compute_overturning_in_z()` spreads each
+layer's transport over bins of a given height by the fraction of the layer
+each overlaps, then accumulates it from the top.  The bins span all of the
+layers, so the stream function at the bottom is the line's total transport.
+
 (dev-ocean-analysis)=
 
 ## Analysis of completed simulations
