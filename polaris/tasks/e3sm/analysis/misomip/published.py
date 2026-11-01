@@ -5,10 +5,10 @@ from mpas_tools.io import write_netcdf
 
 from polaris.analysis.product_step import ProductStep
 from polaris.tasks.e3sm.analysis.misomip.diagnostics import (
-    INIT_FILENAME,
     SECONDS_PER_YEAR,
     TIME_MEAN_FILENAME,
     TIME_SERIES_FILENAME,
+    add_geometry_inputs,
     isomip_mesh,
     read_initial_condition,
 )
@@ -120,11 +120,7 @@ class PublishedComparison(ProductStep):
                     work_dir_target=f'{step.path}/{filename}',
                 )
             self.add_dependency(step, name=f'{kind}_diagnostics')
-        first = diagnostics[self.kinds[0]]
-        self.add_input_file(
-            filename=INIT_FILENAME,
-            work_dir_target=f'{first.path}/{INIT_FILENAME}',
-        )
+        add_geometry_inputs(self, diagnostics[self.kinds[0]])
 
     def run(self):
         """
@@ -319,7 +315,7 @@ class PublishedComparison(ProductStep):
         """Map each run's time-mean melt rate beside the ensemble mean"""
         plot = 'published_melt_rate_maps.png'
         data = 'published_melt_rate_maps.nc'
-        ds_init = read_initial_condition(INIT_FILENAME)
+        ds_init = read_initial_condition()
         ds_mesh = isomip_mesh(ds_init)
         ensemble = SECONDS_PER_YEAR * ds_pub.meltRate.mean(dim='nModels')
         fields = {
