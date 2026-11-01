@@ -50,6 +50,11 @@ class E3smRun:
         variable = {'mpaso': 'MPASO_IC_FILE', 'mali': 'MALI_IC_FILE'}
         return self.case.get_value(variable[self.model])
 
+    @property
+    def mesh_file(self):
+        """The file with the model's mesh, its initial condition"""
+        return self.initial_condition
+
     def find_stream_files(self, stream_name):
         """
         Find the files of one of the model's streams
@@ -115,8 +120,20 @@ class StandaloneRun:
 
     @property
     def initial_condition(self):
-        """The run's initial condition, which holds its mesh"""
+        """The run's initial condition"""
         return os.path.realpath(os.path.join(self.work_dir, 'init.nc'))
+
+    @property
+    def mesh_file(self):
+        """
+        The file with the run's mesh: ``mesh.nc`` beside the initial
+        condition if there is one, since an initial condition from an SSH
+        adjustment holds only the state, or the initial condition otherwise
+        """
+        mesh = os.path.join(self.work_dir, 'mesh.nc')
+        if os.path.exists(mesh):
+            return os.path.realpath(mesh)
+        return self.initial_condition
 
     def find_stream_files(self, stream_name):
         """
