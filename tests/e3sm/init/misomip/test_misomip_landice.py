@@ -162,6 +162,31 @@ def test_land_ice_fields_through_a_map(tmp_path):
     )
 
 
+def test_land_ice_slivers_are_open_ocean():
+    # two cells, all below sea level in MALI, with slivers of 5e-4 and 1e-3
+    # of floating ice, and a third with half
+    mapped = {
+        'below_sea_level_mask': np.array([1.0, 1.0, 1.0]),
+        'lithop': np.array([1.0e3, 2.0e3, 1.0e6]),
+        'icemask_floating': np.array([5.0e-4, 1.0e-3, 0.5]),
+        'icemask_grounded': np.zeros(3),
+    }
+    fields = import_geometry(mapped, min_land_ice_fraction=1.0e-3)
+    np.testing.assert_array_equal(fields['landIcePressure'], [0.0, 0.0, 1.0e6])
+    np.testing.assert_array_equal(fields['landIceFraction'], [0.0, 0.0, 0.5])
+    np.testing.assert_array_equal(
+        fields['landIceFloatingFraction'], [0.0, 0.0, 0.5]
+    )
+    np.testing.assert_array_equal(
+        fields['landIceGroundedFraction'], [0.0, 0.0, 0.0]
+    )
+    # without a minimum, the slivers keep their ice
+    fields = import_geometry(mapped)
+    np.testing.assert_array_equal(
+        fields['landIceFraction'], [5.0e-4, 1.0e-3, 0.5]
+    )
+
+
 def test_land_ice_fields_with_time_records(tmp_path):
     bed = np.array([-900.0, -900.0, -900.0, 100.0])
     thickness = np.array(

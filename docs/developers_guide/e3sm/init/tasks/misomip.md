@@ -223,8 +223,9 @@ E3SM's coupler delivers to MPAS-Ocean from MALI, as in FAnSSIE:
   {py:func}`polaris.tasks.e3sm.init.misomip.land_ice_fields.apply_map()`
   apply a map without normalizing, as the coupler does;
 - {py:func}`polaris.tasks.e3sm.init.misomip.land_ice_fields.import_geometry()`
-  divides by the mapped mask, as MPAS-Ocean's import does, and caps the
-  fractions at 1.
+  divides by the mapped mask, as MPAS-Ocean's import does, caps the
+  fractions at 1, and leaves cells with a land-ice fraction at or below a
+  minimum open ocean.
 
 ## Grid names
 
