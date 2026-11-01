@@ -135,7 +135,7 @@ def apply_map(matrix, field):
     return np.asarray(matrix @ field.T).T
 
 
-def import_geometry(mapped):
+def import_geometry(mapped, min_land_ice_fraction=0.0):
     """
     Normalize the mapped fields as MPAS-Ocean does when it imports land-ice
     geometry
@@ -145,12 +145,17 @@ def import_geometry(mapped):
     mapped : dict of str to numpy.ndarray
         MALI's exports on the ocean's cells, from :py:func:`apply_map`
 
+    min_land_ice_fraction : float, optional
+        The land-ice fraction at or below which a cell is open ocean, with
+        no land-ice pressure or fractions
+
     Returns
     -------
     fields : dict of str to numpy.ndarray
         ``landIcePressure``, ``landIceFraction``, ``landIceFloatingFraction``
         and ``landIceGroundedFraction``, the difference of the two fractions.
-        All are zero where no part of a cell is below sea level in MALI.
+        All are zero where no part of a cell is below sea level in MALI, and
+        where the land-ice fraction is at or below the minimum.
     """
     below = mapped['below_sea_level_mask']
     has_ocean = below > 0.0
@@ -165,6 +170,10 @@ def import_geometry(mapped):
         np.minimum((floating + mapped['icemask_grounded']) / denominator, 1.0),
         0.0,
     )
+    open_ocean = land_ice_fraction <= min_land_ice_fraction
+    pressure = np.where(open_ocean, 0.0, pressure)
+    floating_fraction = np.where(open_ocean, 0.0, floating_fraction)
+    land_ice_fraction = np.where(open_ocean, 0.0, land_ice_fraction)
     return {
         'landIcePressure': pressure,
         'landIceFraction': land_ice_fraction,
@@ -173,7 +182,9 @@ def import_geometry(mapped):
     }
 
 
-def compute_land_ice_fields(matrix, thickness, bed_topography):
+def compute_land_ice_fields(
+    matrix, thickness, bed_topography, min_land_ice_fraction=0.0
+):
     """
     Compute the ocean's land-ice fields from MALI's thickness, as E3SM's
     coupler delivers them
@@ -190,6 +201,9 @@ def compute_land_ice_fields(matrix, thickness, bed_topography):
     bed_topography : numpy.ndarray
         The bed elevation in m on MALI's cells
 
+    min_land_ice_fraction : float, optional
+        The land-ice fraction at or below which a cell is open ocean
+
     Returns
     -------
     fields : dict of str to numpy.ndarray
@@ -197,4 +211,4 @@ def compute_land_ice_fields(matrix, thickness, bed_topography):
     """
     export = compute_mali_export(thickness, bed_topography)
     mapped = {name: apply_map(matrix, field) for name, field in export.items()}
-    return import_geometry(mapped)
+    return import_geometry(mapped, min_land_ice_fraction)
