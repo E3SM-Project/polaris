@@ -204,7 +204,10 @@ and reports each column and their sum. The values are global means printed
 to 8 decimals. For a melt of 50 Gt yr⁻¹ in this domain, the water budget
 should print near $3\times10^{-3}$ in its units of $10^{-6}$ kg m⁻² s⁻¹,
 about 6 significant figures. The first case with budgets confirms what the
-check can resolve.
+check can resolve. At an initial start, the driver skips the ocean's first
+coupling interval, but the coupler still books the ocean's initial export
+for it in the ocean's column, and glc never receives it. The budgets that contain the start are
+marked and reported apart from the closure.
 
 **Each model's own output** ([D6](#decisions)). In IceOcean1r and
 IceOcean1ra, the ocean's melt, $\sum F A$ from its monthly means, is
