@@ -1319,6 +1319,8 @@
    compute_line_transport
    compute_overturning
    bin_line_transport
+   compute_line_interfaces
+   compute_overturning_in_z
 ```
 
 ### Surface pressure
