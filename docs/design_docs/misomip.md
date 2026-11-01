@@ -767,7 +767,9 @@ On FAnSSIE:
   no fluxes, so the ocean's budget no longer books frazil that glc never
   receives;
 - book in glc's heat budget the enthalpy of the melted ice at the interface
-  temperature, which the ocean's budget books and glc's leaves out;
+  temperature, which the ocean's budget books and glc's leaves out, with
+  MPAS-Ocean taking the ice's heat capacity from E3SM's shared constants,
+  as MALI does;
 - write the land-ice geometry the ocean imports to E3SM's monthly ocean
   output, which Ocean3–4 need for their mean melt rate and checks.
 
@@ -869,7 +871,9 @@ Each step builds on the one before it.
    its first day, the MCT driver skips the ocean's first coupling
    interval, as it does in every E3SM run, yet the ocean's budget books the
    initial export there, so the ocean's column exceeds glc's. Restarts are
-   exact.
+   exact. A known gap remains in heat where frazil forms under the ice:
+   MPAS-Ocean neglects the frazil's sensible heat, about 1% of its latent
+   heat, which glc's budget counts with the rest of the ice it gains.
 5. **Published results.** E3SM's Ocean0–2 are plotted against the
    ensemble of Yung et al. (2026). They use E3SM's physics, not the
    protocol's common configuration, so the comparison is qualitative.
