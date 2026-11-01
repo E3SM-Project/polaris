@@ -32,6 +32,7 @@ STATUS = {
     'review': ('PR open, tested', '#deebff', '#4c9aff'),
     'draft': ('draft PR, tested', '#e8e8e4', '#898781'),
     'hold': ('on hold', '#fff4d6', '#c98500'),
+    'drafting': ('draft PR, in progress', '#e8e8e4', '#4c9aff'),
     'started': ('in progress, no PR', '#ffffff', '#4c9aff'),
     'none': ('not started', '#ffffff', '#c3c2b7'),
 }
@@ -61,7 +62,8 @@ ROWS = [
     ('WP8', 'Moving grounding line in coupled runs',
      'MALI data-mode mask fix in testing; design in review', 'started', 2, ''),
     ('WP9', 'Analysis of the E3SM runs',
-     'polaris #939: design in review', 'started', 1, ''),
+     'polaris #939, #940; first 4 km Ocean0 E3SM run submitted',
+     'drafting', 1, ''),
     ('WP10', 'Subgrid wetting and drying (optional)', '', 'none', None,
      'no stage needs it'),
     ('WP11', "E3SM's physics in ISOMIP+ (+ COM variants)",

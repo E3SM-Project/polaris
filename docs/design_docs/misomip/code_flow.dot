@@ -75,7 +75,9 @@ digraph fanssie {
       <tr><td border="0" colspan="2"><font color="#898781">↓ then, even while it is a draft (and after #862, #922)</font></td></tr>
       <tr><td port="pwp56" bgcolor="#e8e8e4" colspan="2" style="rounded" cellpadding="6"><b>#931</b>  MISOMIP's maps and E3SM inputs<br/><font color="#52514e">draft · tested with E3SM cases</font></td></tr>
       <tr><td border="0" colspan="2"><font color="#898781">↓ then</font></td></tr>
-      <tr><td port="pwp7" bgcolor="#e8e8e4" colspan="1" style="rounded" cellpadding="6"><b>#937</b>  design of the E3SM changes<br/>for idealized ice-shelf cases<br/><font color="#52514e">draft · its E3SM changes are<br/>merged into FAnSSIE</font></td><td port="pwp9" bgcolor="#e8e8e4" colspan="1" style="rounded" cellpadding="6"><b>#939</b>  analysis of the MISOMIP runs<br/><font color="#52514e">draft · design in review</font></td></tr>
+      <tr><td port="pwp7" bgcolor="#e8e8e4" colspan="1" style="rounded" cellpadding="6"><b>#937</b>  design of the E3SM changes<br/>for idealized ice-shelf cases<br/><font color="#52514e">draft · its E3SM changes are<br/>merged into FAnSSIE</font></td><td port="pwp9" bgcolor="#e8e8e4" colspan="1" style="rounded" cellpadding="6"><b>#939</b>  analysis of the MISOMIP runs<br/><font color="#52514e">draft · after #940</font></td></tr>
+      <tr><td border="0" colspan="2"><font color="#898781">from main, after #929 (copying analysis products):</font></td></tr>
+      <tr><td port="p940" bgcolor="#e8e8e4" colspan="2" style="rounded" cellpadding="6"><b>#940</b>  analysis publishing usable from any component<br/><font color="#52514e">draft</font></td></tr>
     </table>>];
 
   e8047 -> fanssie;
