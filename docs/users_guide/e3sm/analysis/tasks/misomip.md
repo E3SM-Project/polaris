@@ -85,7 +85,8 @@ field, averaged over the months both have.  It writes the RMS and largest
 difference of each field to `map_differences.csv`.
 
 With `BUDGETS=TRUE` in the E3SM case, a `conservation` step reads the
-coupler's monthly and annual budgets from its log and plots the ocean's and
+coupler's daily (with `budget_daily = 1` in `user_nl_cpl`), monthly and
+annual budgets from its log and plots the ocean's and
 glc's columns of the ice-shelf water (`wpolar`) and heat (`hpolar`) rows
 and their sum, as totals.  `exchange_residuals.csv` lists the sum relative
 to the ocean's column for each budget.  The coupler prints global means to

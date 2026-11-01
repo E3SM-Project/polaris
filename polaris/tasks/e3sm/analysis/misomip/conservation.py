@@ -32,8 +32,10 @@ EXCHANGES = [
     ),
 ]
 
-#: The periods checked
-PERIODS = ['monthly', 'annual']
+#: The periods checked, where the case prints them: daily budgets need
+#: budget_daily in user_nl_cpl, but show when within a month a residual
+#: arises
+PERIODS = ['daily', 'monthly', 'annual']
 
 
 class CouplerConservation(ProductStep):
