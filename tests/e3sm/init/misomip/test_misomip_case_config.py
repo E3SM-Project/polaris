@@ -18,9 +18,11 @@ from polaris.tasks.e3sm.init.misomip.case_config import (
     get_grid_file,
     get_inputdata_root,
     get_pes_file,
+    get_readme,
     get_shell_commands,
     get_user_nl_mpaso,
 )
+from polaris.tasks.e3sm.init.misomip.layout import Layout, TaskBounds
 from polaris.tasks.landice import landice
 from polaris.tasks.mesh import mesh as mesh_component
 from polaris.tasks.ocean import ocean
@@ -275,16 +277,34 @@ def test_shell_commands_need_whole_coupling_intervals(couplings, dt, match):
         )
 
 
+COUNTS = {'ocean': [2, 4, 8, 48, 64, 66], 'landice': [3, 4, 8, 48, 64, 600]}
+
+LAYOUT = Layout(
+    bounds=TaskBounds(target=28, min_tasks=2, max_tasks=68),
+    tasks_per_node=64,
+    batch=True,
+    nodes=1,
+    tasks=64,
+)
+
+
 def test_create_case_script():
-    counts = {'ocean': [2, 4, 8, 64, 66], 'landice': [3, 4, 8, 64, 600]}
-    text = get_create_case_script('ocean3', GRIDS, counts)
+    text = get_create_case_script(
+        'ocean3', GRIDS, COUNTS, LAYOUT, 'chrysalis', 'gnu'
+    )
     lines = text.splitlines()
     assert lines[0] == '#!/bin/bash'
-    # the most tasks both meshes are partitioned for
+    # the layout's tasks, the fewest and most, and the partitions
     assert 'ocean_tasks=64' in lines
     assert 'landice_tasks=64' in lines
-    assert 'ocean_counts="2 4 8 64 66"' in lines
-    assert 'landice_counts="3 4 8 64 600"' in lines
+    assert 'min_tasks=2' in lines
+    assert 'max_tasks=68' in lines
+    assert 'ocean_counts="2 4 8 48 64 66"' in lines
+    assert 'landice_counts="3 4 8 48 64 600"' in lines
+    # Polaris's machine and compiler
+    assert 'machine=chrysalis' in lines
+    assert 'compiler=gnu' in lines
+    assert 'while getopts "e:c:p:C:r:o:g:h" option; do' in lines
     assert (
         '      --compset '
         '2000_SATM_SLND_SICE_MPASO%PISMF_SROF_MALI%SIADATA_SWAV'
@@ -301,9 +321,49 @@ def test_create_case_script():
     assert result.returncode == 0, result.stderr
 
 
+def test_create_case_script_without_a_machine():
+    text = get_create_case_script('ocean0', GRIDS, COUNTS, LAYOUT, '', 'gnu')
+    assert 'machine=' in text.splitlines()
+
+
+@pytest.mark.parametrize(
+    'option, tasks, message',
+    [
+        ('-o', 1, '1 tasks for the ocean lie outside the 2 to 68'),
+        ('-o', 72, '72 tasks for the ocean lie outside the 2 to 68'),
+        ('-g', 66, "No partition of MALI's mesh is for 66 tasks"),
+    ],
+)
+def test_create_case_script_checks_the_tasks(tmp_path, option, tasks, message):
+    """
+    The script stops on a task count outside the bounds or with no
+    partition, before it looks at the E3SM checkout
+    """
+    script = tmp_path / 'create_case.sh'
+    script.write_text(
+        get_create_case_script('ocean0', GRIDS, COUNTS, LAYOUT, '', 'gnu')
+    )
+    result = subprocess.run(
+        [
+            'bash',
+            str(script),
+            '-e',
+            str(tmp_path / 'e3sm'),
+            '-c',
+            str(tmp_path / 'case'),
+            option,
+            str(tasks),
+        ],
+        text=True,
+        capture_output=True,
+    )
+    assert result.returncode != 0
+    assert message in result.stderr
+    assert not (tmp_path / 'case').exists()
+
+
 def test_pes_file():
-    counts = {'ocean': [2, 4, 8, 64, 66], 'landice': [3, 4, 8, 64, 600]}
-    root = ET.fromstring(get_pes_file(counts))
+    root = ET.fromstring(get_pes_file(LAYOUT))
     # only the catch-all entry, which no machine-specific one overrides
     assert [grid.attrib['name'] for grid in root.iter('grid')] == ['any']
     assert [mach.attrib['name'] for mach in root.iter('mach')] == ['any']
@@ -314,15 +374,18 @@ def test_pes_file():
         assert pes.findtext(f'ntasks/ntasks_{component}') == '64'
         assert pes.findtext(f'nthrds/nthrds_{component}') == '1'
         assert pes.findtext(f'rootpe/rootpe_{component}') == '0'
-    # the machine's own tasks per node apply
-    assert pes.find('MAX_MPITASKS_PER_NODE') is None
+    # Polaris's tasks per node, so CIME's nodes match Polaris's
+    assert pes.findtext('MAX_MPITASKS_PER_NODE') == '64'
     assert pes.find('MAX_TASKS_PER_NODE') is None
 
 
-def test_create_case_script_needs_a_shared_task_count():
-    counts = {'ocean': [2, 4], 'landice': [3, 9]}
-    with pytest.raises(ValueError, match='no task count in common'):
-        get_create_case_script('ocean0', GRIDS, counts)
+def test_readme_gives_the_layout():
+    lines = ['the ocean: a goal of 100 cells per task', 'layout: 64 tasks']
+    text = get_readme('ocean0', GRIDS, lines)
+    for line in lines:
+        assert f'  {line}' in text.splitlines()
+    assert '[-m <machine>]' not in text
+    assert '--pesfile <this directory>/pes.xml' in text
 
 
 @pytest.mark.parametrize(

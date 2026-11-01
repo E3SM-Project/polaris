@@ -15,6 +15,11 @@ from polaris.tasks.e3sm.init.misomip import names
 from polaris.tasks.e3sm.init.misomip.landice_data import (
     DATA_MODE_EXPERIMENTS,
 )
+from polaris.tasks.e3sm.init.misomip.layout import (
+    get_layout,
+    get_layout_lines,
+    get_task_bounds,
+)
 
 #: The section of config options for the case configuration
 CASE_CONFIG_SECTION = 'misomip_case_config'
@@ -150,11 +155,15 @@ CASE_CONFIG_FILES = [USER_MODS, 'README', CREATE_CASE, PES]
 #: The components of an MCT case, each with a task count in the layout
 COMPONENTS = ['atm', 'lnd', 'rof', 'ice', 'ocn', 'glc', 'wav', 'cpl']
 
-#: The config section of each mesh's graph partitions
+#: The config section of each mesh's graph partitions, which also has the
+#: goal cells per task of a case
 PARTITION_SECTIONS = {
     'ocean': 'misomip_ocean_partitions',
     'landice': 'misomip_landice_partitions',
 }
+
+#: The name of each model in a description of the layout
+MODEL_NAMES = {'ocean': 'the ocean', 'landice': 'MALI'}
 
 
 class CaseConfigStep(Step):
@@ -292,7 +301,6 @@ class CaseConfigStep(Step):
             get_user_nl_mpaso(standalone, defaults),
         )
         _write(os.path.join(USER_MODS, 'user_nl_mali'), get_user_nl_mali())
-        _write('README', get_readme(experiment, grids))
         task_counts = {
             grid: [
                 int(count)
@@ -308,12 +316,85 @@ class CaseConfigStep(Step):
             ]
             for grid in PARTITION_SECTIONS
         }
+        layout, cells_per_task = self._get_layout(cell_counts, task_counts)
+        machine = get_machine(config)
+        layout_lines = get_layout_lines(layout, cells_per_task, machine)
+        for line in layout_lines:
+            self.logger.info(line)
+        _write('README', get_readme(experiment, grids, layout_lines))
         _write(
             CREATE_CASE,
-            get_create_case_script(experiment, grids, task_counts),
+            get_create_case_script(
+                experiment,
+                grids,
+                task_counts,
+                layout,
+                machine,
+                config.get('build', 'compiler'),
+            ),
             executable=True,
         )
-        _write(PES, get_pes_file(task_counts))
+        _write(PES, get_pes_file(layout))
+
+    def _get_layout(self, cell_counts, task_counts):
+        """
+        Get the case's layout from each model's cells per task and the
+        machine's parallel system.  MALI's cells per task limit the tasks
+        only when it is prognostic.
+        """
+        config = self.config
+        grids = ['ocean']
+        if get_mali_mode(self.experiment) == 'prognostic':
+            grids.append('landice')
+        cells_per_task = dict()
+        model_bounds = list()
+        for grid in grids:
+            section = config[PARTITION_SECTIONS[grid]]
+            goal = section.getfloat('goal_cells_per_core')
+            low = section.getfloat('min_cells_per_core')
+            high = section.getfloat('max_cells_per_core')
+            cells_per_task[MODEL_NAMES[grid]] = (goal, low, high)
+            model_bounds.append(
+                get_task_bounds(cell_counts[grid], goal, low, high)
+            )
+
+        # a batch system's node, not the cores of wherever the step runs,
+        # such as a login node
+        batch = config.get('parallel', 'system') != 'single_node'
+        if batch:
+            tasks_per_node = config.getint('parallel', 'cores_per_node')
+        else:
+            parallel_system = self.component.parallel_system
+            assert parallel_system is not None
+            tasks_per_node = parallel_system.cores_per_node
+        if config.has_option('parallel', 'max_mpi_tasks_per_node'):
+            tasks_per_node = min(
+                tasks_per_node,
+                config.getint('parallel', 'max_mpi_tasks_per_node'),
+            )
+        partitions = sorted(
+            set(task_counts['ocean']) & set(task_counts['landice'])
+        )
+        layout = get_layout(model_bounds, tasks_per_node, batch, partitions)
+        return layout, cells_per_task
+
+
+def get_machine(config):
+    """
+    Get the machine Polaris was set up on, from ``[build] machine``
+
+    Parameters
+    ----------
+    config : polaris.config.PolarisConfigParser
+        The step's config options
+
+    Returns
+    -------
+    machine : str
+        The machine, or an empty string if Polaris has no name for it
+    """
+    machine = config.get('build', 'machine')
+    return '' if machine == 'default' else machine
 
 
 def get_mali_mode(experiment):
@@ -628,10 +709,10 @@ def get_user_nl_mali():
     return '\n'.join(lines)
 
 
-def get_readme(experiment, grids):
+def get_readme(experiment, grids, layout_lines):
     """
     Get the text of the README beside the user-mods directory, with the
-    compset a case is created with
+    compset a case is created with and the layout
 
     Parameters
     ----------
@@ -640,6 +721,9 @@ def get_readme(experiment, grids):
 
     grids : dict of str to str
         E3SM's names of the ``ocean``, ``landice`` and ``model`` grids
+
+    layout_lines : list of str
+        The description of the layout
 
     Returns
     -------
@@ -653,13 +737,13 @@ def get_readme(experiment, grids):
         f'{grids["model"]}, with MALI',
         f'in {mode} mode.',
         '',
-        f'`{CREATE_CASE}` creates, sets up and builds a case, with a layout',
-        "whose tasks match the meshes' partitions.  It needs an E3SM",
-        f"checkout at FAnSSIE's {E3SM_COMMIT} or later:",
+        f'`{CREATE_CASE}` creates, sets up and builds a case, with the',
+        "layout below.  It needs an E3SM checkout at FAnSSIE's",
+        f'{E3SM_COMMIT} or later, on the machine the layout is for:',
         '',
         f'  ./{CREATE_CASE} -e <E3SM checkout> -c <case directory> \\',
-        '      [-m <machine>] [-p <project>] [-C <compiler>] \\',
-        '      [-r <output root>] [-o <ocean tasks>] [-g <MALI tasks>]',
+        '      [-p <project>] [-C <compiler>] [-r <output root>] \\',
+        '      [-o <ocean tasks>] [-g <MALI tasks>]',
         '',
         'Submit the case yourself.  To create a case by hand instead, use',
         'the MCT driver:',
@@ -670,25 +754,33 @@ def get_readme(experiment, grids):
         '      --user-mods-dirs <this directory>/user_mods \\',
         '      --pesfile <this directory>/pes.xml',
         '',
-        'and set NTASKS_OCN and NTASKS_GLC to counts the meshes are',
-        'partitioned for.  `pes.xml` gives every task 1 thread, so the',
-        "machine's own MPI tasks per node apply.",
+        "`pes.xml` has the layout's tasks, with 1 thread a task, and its",
+        'tasks per node.',
         '',
-        '`user_mods/` holds the grid file, `config_grids.xml`, which CIME',
-        "uses in place of E3SM's, the standalone ocean run's options in",
-        "`user_nl_mpaso`, MALI's in `user_nl_mali`, and `shell_commands`,",
-        "which names the staged files, turns on the coupler's budgets and",
-        'sets the coupling intervals and the run length.',
+        'The layout:',
         '',
     ]
+    lines.extend(f'  {line}' for line in layout_lines)
+    lines.extend(
+        [
+            '',
+            '`user_mods/` holds the grid file, `config_grids.xml`, which CIME',
+            "uses in place of E3SM's, the standalone ocean run's options in",
+            "`user_nl_mpaso`, MALI's in `user_nl_mali`, and `shell_commands`,",
+            "which names the staged files, turns on the coupler's budgets and",
+            'sets the coupling intervals and the run length.',
+            '',
+        ]
+    )
     return '\n'.join(lines)
 
 
-def get_create_case_script(experiment, grids, task_counts):
+def get_create_case_script(
+    experiment, grids, task_counts, layout, machine, compiler
+):
     """
     Get the text of the script that creates, sets up and builds a case.
-    By default, the ocean and MALI each run on the most tasks both meshes
-    are partitioned for.
+    By default, every component runs on the layout's tasks.
 
     Parameters
     ----------
@@ -702,12 +794,21 @@ def get_create_case_script(experiment, grids, task_counts):
         The task counts the ``ocean`` and ``landice`` meshes are partitioned
         for
 
+    layout : polaris.tasks.e3sm.init.misomip.layout.Layout
+        The case's layout
+
+    machine : str
+        The machine the layout is for, or an empty string if Polaris has no
+        name for it
+
+    compiler : str
+        The compiler Polaris was set up with, the case's by default
+
     Returns
     -------
     text : str
         The script
     """
-    tasks = _get_default_tasks(task_counts)
     mode = get_mali_mode(experiment)
     template = Template(
         imp_res.files(__package__)
@@ -721,8 +822,11 @@ def get_create_case_script(experiment, grids, task_counts):
         mode=mode,
         compset=COMPSETS[mode],
         e3sm_commit=E3SM_COMMIT,
-        ocean_tasks=tasks,
-        landice_tasks=tasks,
+        machine=machine,
+        compiler=compiler,
+        tasks=layout.tasks,
+        min_tasks=layout.bounds.min_tasks,
+        max_tasks=layout.bounds.max_tasks,
         ocean_counts=' '.join(str(count) for count in task_counts['ocean']),
         landice_counts=' '.join(
             str(count) for count in task_counts['landice']
@@ -730,46 +834,32 @@ def get_create_case_script(experiment, grids, task_counts):
     )
 
 
-def get_pes_file(task_counts):
+def get_pes_file(layout):
     """
     Get the text of the case's layout, a PE file that ``create_newcase``
-    uses in place of the ocean's.  Every task has 1 thread, so the machine's
-    own tasks per node apply.  By default, the ocean and MALI each run on
-    the most tasks both meshes are partitioned for, and the other
-    components on the ocean's tasks.
+    uses in place of the ocean's.  Every component runs on the layout's
+    tasks, with 1 thread a task, and a node holds the layout's tasks per
+    node.
 
     Parameters
     ----------
-    task_counts : dict of str to list of int
-        The task counts the ``ocean`` and ``landice`` meshes are partitioned
-        for
+    layout : polaris.tasks.e3sm.init.misomip.layout.Layout
+        The case's layout
 
     Returns
     -------
     text : str
         The PE file
     """
-    tasks = _get_default_tasks(task_counts)
     template = Template(
         imp_res.files(__package__).joinpath('pes.template').read_text(),
         keep_trailing_newline=True,
     )
     return template.render(
-        components=COMPONENTS, ocean_tasks=tasks, landice_tasks=tasks
+        components=COMPONENTS,
+        tasks=layout.tasks,
+        tasks_per_node=layout.tasks_per_node,
     )
-
-
-def _get_default_tasks(task_counts):
-    """
-    The most tasks both meshes are partitioned for
-    """
-    shared = set(task_counts['ocean']) & set(task_counts['landice'])
-    if not shared:
-        raise ValueError(
-            'The ocean and MALI meshes are partitioned for no task count in '
-            'common.'
-        )
-    return max(shared)
 
 
 def _get_cell_counts():

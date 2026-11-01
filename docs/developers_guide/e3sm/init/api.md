@@ -369,6 +369,13 @@
    case_config.get_readme
    case_config.get_create_case_script
    case_config.get_pes_file
+   case_config.get_machine
+
+   layout.TaskBounds
+   layout.Layout
+   layout.get_task_bounds
+   layout.get_layout
+   layout.get_layout_lines
 
    assemble.MisomipAssembleStep
    assemble.MisomipAssembleStep.run

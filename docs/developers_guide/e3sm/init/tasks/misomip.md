@@ -151,16 +151,31 @@ replaces `{experiment}` with the experiment's name, sets the coupling intervals,
 it checks against the standalone run's time step, and splits the
 experiment's length, in `RUN_MONTHS`, into jobs.  The README gives the
 compset from `COMPSETS`.
+The step chooses the case's layout in `_get_layout()`.
+{py:func}`polaris.tasks.e3sm.init.misomip.layout.get_task_bounds()` turns
+a mesh's cells and its `[misomip_*_partitions]` goal and bounds into a
+target, fewest and most tasks: the ocean's, and MALI's as well when it is
+prognostic.  {py:func}`polaris.tasks.e3sm.init.misomip.layout.get_layout()`
+applies the most restrictive and the machine's tasks per node: the
+smaller of `[parallel] cores_per_node` and `max_mpi_tasks_per_node` on a
+batch system, whatever node the step runs on, and the cores the
+component's parallel system finds on a single node, from
+`[parallel] system`.  It then takes the most tasks at or below that which
+both meshes are partitioned for.  The code holds no machine's values.
+{py:func}`polaris.tasks.e3sm.init.misomip.layout.get_layout_lines()`
+describes the choice for the step's log and the README.
 {py:func}`polaris.tasks.e3sm.init.misomip.case_config.get_create_case_script()`
-renders `create_case.template`, with the task counts that
+renders `create_case.template`, with the layout, the task counts that
 {py:func}`polaris.e3sm.init.partitions.get_core_list()` gives for each
-mesh's `[misomip_*_partitions]` bounds.  The script checks that the E3SM
-checkout has `E3SM_COMMIT`, and that a partition is staged for each task
-count, before `./case.setup`.
+mesh, and `[build] machine` and `compiler`, from
+{py:func}`polaris.tasks.e3sm.init.misomip.case_config.get_machine()`.
+The script checks the task counts, that the E3SM checkout has
+`E3SM_COMMIT`, and that CIME's `query_config` names the same machine,
+before it creates the case.
 {py:func}`polaris.tasks.e3sm.init.misomip.case_config.get_pes_file()`
 renders `pes.template`, the layout the script gives `create_newcase` in
-place of MPAS-Ocean's, with 1 thread a task, so that the machine's own MPI
-tasks per node apply.
+place of MPAS-Ocean's, with 1 thread a task and `MAX_MPITASKS_PER_NODE`
+the layout's tasks per node, so CIME's nodes match Polaris's.
 
 Only experiments with a standalone ocean run have a case configuration,
 since the namelist comes from that run.

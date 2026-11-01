@@ -6,31 +6,34 @@
 set -e
 
 usage="usage: $0 -e <E3SM checkout> -c <case directory>
-           [-m <machine>] [-p <project>] [-C <compiler>]
-           [-r <output root>] [-o <ocean tasks>] [-g <MALI tasks>]"
+           [-p <project>] [-C <compiler>] [-r <output root>]
+           [-o <ocean tasks>] [-g <MALI tasks>]"
 
 # An E3SM checkout at FAnSSIE's {{ e3sm_commit }} or later
 e3sm=
 # The case directory, whose name is the case's
 case_dir=
+# The machine the layout is for, blank if Polaris has no name for it
+machine={{ machine }}
 # Blank for CIME's defaults.  The output root holds the case's build and
 # run directories.
-machine=
 project=
 output_root=
-compiler=gnu
-# The tasks of the ocean and of MALI, each a count its mesh is partitioned
-# for
-ocean_tasks={{ ocean_tasks }}
-landice_tasks={{ landice_tasks }}
+# The compiler Polaris was set up with
+compiler={{ compiler }}
+# The tasks of the ocean and of MALI, each between the fewest and most the
+# meshes allow and a count its mesh is partitioned for
+ocean_tasks={{ tasks }}
+landice_tasks={{ tasks }}
+min_tasks={{ min_tasks }}
+max_tasks={{ max_tasks }}
 ocean_counts="{{ ocean_counts }}"
 landice_counts="{{ landice_counts }}"
 
-while getopts "e:c:m:p:C:r:o:g:h" option; do
+while getopts "e:c:p:C:r:o:g:h" option; do
     case $option in
         e) e3sm=$OPTARG ;;
         c) case_dir=$OPTARG ;;
-        m) machine=$OPTARG ;;
         p) project=$OPTARG ;;
         C) compiler=$OPTARG ;;
         r) output_root=$OPTARG ;;
@@ -46,26 +49,45 @@ if [ -z "$e3sm" ] || [ -z "$case_dir" ]; then
     exit 1
 fi
 
+check_tasks () {
+    if [ "$2" -lt "$min_tasks" ] || [ "$2" -gt "$max_tasks" ]; then
+        echo "$2 tasks for $1 lie outside the $min_tasks to $max_tasks" \
+            "the meshes allow." >&2
+        exit 1
+    fi
+    case " $3 " in
+        *" $2 "*) ;;
+        *) echo "No partition of $1's mesh is for $2 tasks.  Choose one" \
+               "of: $3" >&2
+           exit 1 ;;
+    esac
+}
+check_tasks "the ocean" "$ocean_tasks" "$ocean_counts"
+check_tasks "MALI" "$landice_tasks" "$landice_counts"
+
 if ! git -C "$e3sm" merge-base --is-ancestor {{ e3sm_commit }} HEAD \
         2> /dev/null; then
     echo "$e3sm is not at FAnSSIE's {{ e3sm_commit }} or later." >&2
     exit 1
 fi
 
-check_tasks () {
-    case " $3 " in
-        *" $2 "*) ;;
-        *) echo "$1 has no partition for $2 tasks.  Choose one of: $3" >&2
-           exit 1 ;;
-    esac
-}
-check_tasks "The ocean's mesh" "$ocean_tasks" "$ocean_counts"
-check_tasks "MALI's mesh" "$landice_tasks" "$landice_counts"
+if [ -n "$machine" ]; then
+    current=$("$e3sm/cime/scripts/query_config" --machines current \
+        2> /dev/null | awk '/\(current\)/ {print $1; exit}')
+    if [ -z "$current" ]; then
+        echo "CIME's query_config did not name this machine." >&2
+        exit 1
+    fi
+    if [ "$current" != "$machine" ]; then
+        echo "This layout was chosen on $machine, not $current.  Set up" \
+            "the task on $current." >&2
+        exit 1
+    fi
+fi
 
 here="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
-# The layout in pes.xml has 1 thread a task, so the machine's own tasks per
-# node apply
+# The layout in pes.xml has 1 thread a task and the layout's tasks per node
 args=(--case "$case_dir" --driver mct
       --compset {{ compset }}
       --res {{ model_grid }}
