@@ -61,7 +61,7 @@ ROWS = [
     ('WP8', 'Moving grounding line in coupled runs',
      'MALI data-mode mask fix in testing; design in review', 'started', 2, ''),
     ('WP9', 'Analysis of the E3SM runs',
-     'design under way; stacked on polaris #931', 'started', 1, ''),
+     'polaris #939: design in review', 'started', 1, ''),
     ('WP10', 'Subgrid wetting and drying (optional)', '', 'none', None,
      'no stage needs it'),
     ('WP11', "E3SM's physics in ISOMIP+ (+ COM variants)",
