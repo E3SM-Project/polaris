@@ -29,5 +29,12 @@ comparison reads only the diagnostics steps' files.
 {py:class}`polaris.tasks.e3sm.analysis.misomip.publish.MisomipPublish`
 publishes a task's products under its mesh and experiment.
 
+With `write_protocol_fields = True`, each run also gets a
+{py:class}`polaris.tasks.e3sm.analysis.misomip.protocol.ProtocolMapStep`,
+which writes SCRIP files of the run's mesh and the protocol's grid in
+`runtime_setup()` and makes a conservative map between them, and a
+{py:class}`polaris.tasks.e3sm.analysis.misomip.protocol.ProtocolFields`
+step, which writes the protocol's file from the run's monthly means.
+
 Lines of constant $x$ and the sections use the protocol's coordinates,
 `xIsomipCell` and `yIsomipCell`, which the inputs' ocean mesh keeps.
