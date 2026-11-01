@@ -78,9 +78,11 @@ Add `--deploy-spack` to build these environments rather than load existing
 ones.  `deploy/albany_supported.txt` lists the machines, compilers
 and MPI libraries that support Albany, and `deploy/pins.cfg` pins Albany and
 Trilinos to commits on Albany's `master` and Trilinos's `develop` branches,
-as Spack versions like `git.<commit>=develop`.  A machine can override the Albany and Trilinos variants with
-`albany_variants` and `trilinos_variants` in the `[deploy]` section of its
-config file, as pm-gpu does to build them for its GPUs.
+as Spack versions like `git.<commit>=develop`.  A machine can override the
+Albany and Trilinos variants with `albany_variants` and `trilinos_variants`
+in the `[deploy]` section of its config file, or for one compiler with
+`<compiler>_albany_variants` and `<compiler>_trilinos_variants`, as pm-gpu
+does to build them for its GPUs with `gnugpu`.
 
 When the Spack library environment has Albany, the load script sets
 `POLARIS_ALBANY_LINK_LIBS` to the libraries MALI links to.  Only MALI builds

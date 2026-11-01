@@ -37,8 +37,8 @@ library:
   - "parmetis@{{ spack.parmetis }}+int64~shared+pic"
   - "e3sm-scorpio@{{ spack.scorpio }}+mpi~timing~internal-timing~tools+malloc"
 {%- if spack.albany_enabled | default(false) %}
-  - "trilinos-for-albany@{{ spack.trilinos }}{{ spack.trilinos_variants }}"
-  - "albany@{{ spack.albany }}{{ spack.albany_variants }}"
+  - "trilinos-for-albany@{{ spack.trilinos }}{{ spack['trilinos_variants_' ~ compiler] }}"
+  - "albany@{{ spack.albany }}{{ spack['albany_variants_' ~ compiler] }}"
 {%- endif %}
 
 software:
