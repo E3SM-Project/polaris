@@ -129,7 +129,10 @@ file.
 writes the options whose values differ from the defaults, except in the
 groups E3SM sets itself (`STANDALONE_GROUPS`).  Of each analysis member's
 group, it writes only whether the member is on, so the case has the
-standalone run's members, and E3SM configures their output.  It also
+standalone run's members, and E3SM configures their output.  It writes
+`MIN_FRACTION_OPTION` from `[misomip_land_ice_on_ocean]
+min_land_ice_fraction`, so MPAS-Ocean's import leaves the same cells open
+ocean as the initial conditions.  It also
 writes every option in `E3SM_DEFAULT_OPTIONS`, with the standalone
 value: those whose E3SM default differs from MPAS-Ocean's, or which E3SM
 gives a default only for the grids it lists.  A unit test compares that

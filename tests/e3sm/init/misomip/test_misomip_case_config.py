@@ -117,7 +117,7 @@ def _options(text):
 
 def test_user_nl_mpaso_has_the_standalone_options():
     standalone, defaults = _namelists()
-    options = _options(get_user_nl_mpaso(standalone, defaults))
+    options = _options(get_user_nl_mpaso(standalone, defaults, 1e-3))
     # set by the standalone run
     assert options['config_time_integrator'] == "'RK4'"
     assert options['config_use_cvmix_kpp'] == '.true.'
@@ -140,13 +140,17 @@ def test_user_nl_mpaso_has_the_standalone_options():
     assert options['config_glc_ice_shelf_coupling_import_geometry'] == (
         '.true.'
     )
+    # the import's open-ocean threshold, as the initial conditions have it
+    assert options['config_glc_ice_shelf_coupling_min_floating_fraction'] == (
+        '0.001'
+    )
 
 
 def test_user_nl_mpaso_needs_every_e3sm_default_option():
     standalone, defaults = _namelists()
     standalone['other'].pop('config_include_KE_vertex')
     with pytest.raises(ValueError, match='config_include_KE_vertex'):
-        get_user_nl_mpaso(standalone, defaults)
+        get_user_nl_mpaso(standalone, defaults, 1e-3)
 
 
 def _registry_defaults():

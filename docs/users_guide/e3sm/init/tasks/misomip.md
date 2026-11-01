@@ -250,7 +250,11 @@ The directory holds:
   option whose E3SM default differs from that run's value, except the bulk
   wind stress, through which E3SM's ocean takes the coupler's.  The case
   has the standalone run's analysis members, `globalStats` and
-  `timeSeriesStatsMonthly`, in place of E3SM's;
+  `timeSeriesStatsMonthly`, in place of E3SM's.  MPAS-Ocean imports
+  MALI's geometry, and leaves cells at or below
+  `[misomip_land_ice_on_ocean] min_land_ice_fraction` open ocean, through
+  `config_glc_ice_shelf_coupling_min_floating_fraction`, as the initial
+  conditions do;
 - `user_nl_mali`, with the densities the ocean's land-ice pressure used.
 
 The case needs an E3SM that has these case variables and grids it does not
