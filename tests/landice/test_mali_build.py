@@ -63,6 +63,16 @@ def test_build_script_links_to_the_spack_view(tmp_path, monkeypatch, albany):
     assert '${polaris_view_rpath}' in _make_command(text)
 
 
+def test_build_script_links_to_netcdf_and_pnetcdf(tmp_path, monkeypatch):
+    script = _make_script(tmp_path, monkeypatch, albany=True)
+    text = script.read_text(encoding='utf-8')
+
+    # some modules do not put their libraries on the library path, so MALI
+    # gets an rpath to the netCDF and PnetCDF it links
+    assert '"${NETCDF:-}" "${NETCDFF:-}" "${PNETCDF:-}"' in text
+    assert '-Wl,-rpath,${polaris_prefix}/lib' in text
+
+
 def test_build_script_initializes_the_mali_dev_submodule(
     tmp_path, monkeypatch
 ):
