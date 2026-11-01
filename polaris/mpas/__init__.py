@@ -9,3 +9,6 @@ from polaris.mpas.time import (
 )
 from polaris.mpas.time import time_index_from_xtime as time_index_from_xtime
 from polaris.mpas.time import time_since_start as time_since_start
+from polaris.mpas.time_series_stats import (
+    rename_time_series_stats as rename_time_series_stats,
+)

@@ -680,6 +680,7 @@ seaice/api
    area_for_field
    cell_mask_to_edge_mask
    time_index_from_xtime
+   rename_time_series_stats
 ```
 
 ### parallel
