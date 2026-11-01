@@ -49,6 +49,7 @@ digraph fanssie {
     d144 [label=<<b>#144</b>  split-explicit wetting and drying<br/>(Carolyn's series + fixes)<br/><font color="#52514e">open · waits for Carolyn's review</font>>, fillcolor="#deebff"];
     d151 [label=<<b>#151</b>  merge MALI-Dev's develop<br/><font color="#52514e">merged into FAnSSIE</font>>, fillcolor="#e3fcef"];
     d158 [label=<<b>#158–#163</b>  ocean without an atmosphere; wetting and drying<br/>and tidal forcing in E3SM; kept floating fraction;<br/>MPAS-Ocean inputs named by case variables;<br/>an option that keeps glc runoff out of the ocean;<br/>conserved fluxes under ice shelves<br/><font color="#52514e">merged into FAnSSIE</font>>, fillcolor="#e3fcef"];
+    d164 [label=<<b>#164–#166</b>  grounded-ice pressure cap in one threaded loop;<br/>one ocean density from pressure to depth;<br/>land-ice mask follows the ice fraction<br/><font color="#52514e">open (#165 draft)</font>>, fillcolor="#deebff"];
     d156 [label=<<b>#156, #157</b>  MALI's E3SM namelist without the lapse rate;<br/>MALI's inputs named by case variables<br/><font color="#52514e">merged into FAnSSIE</font>>, fillcolor="#e3fcef"];
     fanssie [label=<<b>fanssie-ocn-glc-coupling</b><br/>shared FAnSSIE branch (since Oct 16)<br/><font color="#52514e">only gains commits · ledger in FANSSIE.md</font>>,
              fillcolor="#fff0b3", penwidth=2, color="#c98500", fontsize=12];
@@ -91,6 +92,7 @@ digraph fanssie {
   m213 -> malidev [style=dashed];
   d156 -> fanssie;
   d158 -> fanssie;
+  d164 -> fanssie [style=dashed];
   malidev -> d151 [constraint=false];
   d151 -> fanssie;
 
