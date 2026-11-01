@@ -36,7 +36,7 @@ digraph fanssie {
     label="MALI-Dev/E3SM";
     labeljust=l; fontsize=12; color="#c3c2b7"; style="rounded";
     malidev [label=<<b>develop</b><br/><font color="#52514e">97 MALI commits ahead of E3SM</font>>, fillcolor="#ffffff"];
-    m213 [label=<<b>#213, #214</b>  MALI's E3SM namelist without the lapse rate;<br/>MALI's inputs named by case variables<br/><font color="#52514e">open · already in FAnSSIE</font>>, fillcolor="#deebff"];
+    m213 [label=<<b>#213, #214, #216</b>  MALI's E3SM namelist without the lapse rate;<br/>MALI's inputs named by case variables;<br/>MALI's data-mode export follows its thickness file<br/><font color="#52514e">open · already in FAnSSIE</font>>, fillcolor="#deebff"];
     m211 [label=<<b>#211</b>  rebuild Albany's grid only when masks change<br/><font color="#52514e">open · good to have for forward MALI runs</font>>, fillcolor="#deebff"];
   }
 
