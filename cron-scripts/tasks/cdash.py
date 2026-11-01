@@ -3,14 +3,15 @@ Turn a Polaris suite run into a CDash ``Test.xml`` alongside an Omega build
 that CTest recorded, so the two can be submitted together.
 
 CTest writes ``Testing/TAG`` and ``Testing/<tag>/Build.xml`` when Omega is
-built through ``omega_ctest.py --dashboard``.  Polaris writes one log per
-task under ``case_outputs/`` with a ``POLARIS TASK: PASS`` or ``FAIL`` line
-(and ``POLARIS BASELINE:`` when a baseline was compared).  This module reads
-the logs and writes ``Test.xml`` into the same tag directory, copying the
-``<Site>`` attributes from ``Build.xml`` so CDash files both under one build.
+built through ``omega_ctest.py --dashboard``.  Polaris writes each task's
+result to ``<suite>_results.json`` and its output under ``case_outputs/``:
+one log per task from ``polaris serial``, one per step from
+``polaris parallel``.  This module reads both and writes ``Test.xml`` into
+the same tag directory, copying the ``<Site>`` attributes from ``Build.xml``
+so CDash files both under one build.
 """
 
-import glob
+import json
 import os
 import re
 import time
@@ -63,31 +64,56 @@ def site_attributes(tag_dir):
     return dict(site.attrib)
 
 
-def task_results(log_dir):
+def task_results(suite_dir, suite, step_paths):
     """
-    Read the result of each Polaris task from its log.
+    Read the result of each Polaris task in a suite run, with its output.
 
     Parameters
     ----------
-    log_dir : str
-        The ``case_outputs`` directory of a suite run
+    suite_dir : str
+        The work directory of the suite
+
+    suite : str
+        The name of the suite
+
+    step_paths : dict of dict
+        The path of each step relative to ``suite_dir``, keyed by its task's
+        path and then its name, for finding the logs of tasks whose steps ran
+        with ``polaris parallel``
 
     Returns
     -------
     results : list of dict
-        For each task, in name order: ``name``, ``passed`` and ``output``
+        For each task, in the order the suite lists them: ``name``,
+        ``passed`` and ``output``.  The list is empty if the suite wrote no
+        results file.
     """
+    results_file = os.path.join(suite_dir, f'{suite}_results.json')
+    if not os.path.exists(results_file):
+        return []
+    with open(results_file, 'r', encoding='utf-8') as f:
+        tasks = json.load(f)['tasks']
+
     results = []
-    for log_file in sorted(glob.glob(os.path.join(log_dir, '*.log'))):
-        name = os.path.splitext(os.path.basename(log_file))[0]
-        with open(log_file, 'r', encoding='utf-8', errors='replace') as f:
-            output = _ANSI_ESCAPE.sub('', f.read())
-
-        passed = 'POLARIS TASK: PASS' in output
-        if 'POLARIS BASELINE:' in output:
-            passed = passed and 'POLARIS BASELINE: PASS' in output
-
-        results.append({'name': name, 'passed': passed, 'output': output})
+    for task in tasks:
+        path = task['path']
+        if task['log'] is not None:
+            logs = [task['log']]
+        else:
+            paths = step_paths.get(path, {})
+            logs = [
+                _step_log(paths.get(name, f'{path}/{name}'))
+                for name in task['steps_to_run'] or []
+            ]
+        results.append(
+            {
+                # the name the task's log had before the suite ran its steps
+                # in parallel, so CDash keeps each test's history
+                'name': path.replace('/', '_'),
+                'passed': task['status'] == 'pass',
+                'output': _read_logs(suite_dir, logs),
+            }
+        )
     return results
 
 
@@ -132,9 +158,7 @@ def write_test_xml(results, tag_dir, attributes, start_time, end_time):
         ET.SubElement(test, 'Name').text = result['name']
         ET.SubElement(test, 'Path').text = '.'
         ET.SubElement(test, 'FullName').text = f'./{result["name"]}'
-        ET.SubElement(
-            test, 'FullCommandLine'
-        ).text = f'polaris serial {result["name"]}'
+        ET.SubElement(test, 'FullCommandLine').text = 'polaris parallel'
         measurements = ET.SubElement(test, 'Results')
         completion = ET.SubElement(
             measurements,
@@ -154,6 +178,29 @@ def write_test_xml(results, tag_dir, attributes, start_time, end_time):
         test_xml, encoding='UTF-8', xml_declaration=True
     )
     return test_xml
+
+
+def _step_log(step_path):
+    """Where ``polaris parallel`` writes a step's log."""
+    return os.path.join('case_outputs', f'{step_path.replace("/", "_")}.log')
+
+
+def _read_logs(suite_dir, logs):
+    """Read a task's logs, each headed by its name if there are several."""
+    outputs = []
+    for log in logs:
+        log_path = os.path.join(suite_dir, log)
+        if not os.path.exists(log_path):
+            outputs.append(f'{log} was not written; the step did not run.')
+            continue
+        with open(log_path, 'r', encoding='utf-8', errors='replace') as f:
+            output = _ANSI_ESCAPE.sub('', f.read())
+        if len(logs) > 1:
+            output = f'==> {log} <==\n{output}'
+        outputs.append(output)
+    if not outputs:
+        return 'The task wrote no logs.'
+    return '\n'.join(outputs)
 
 
 def _cdash_time(seconds):

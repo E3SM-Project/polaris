@@ -4,8 +4,9 @@ Nightly task: run the ``omega_nightly`` suite against the Omega submodule
 and submit the results to CDash.
 
 The build goes through ``omega_ctest.py --dashboard --build_only`` so CTest
-records it (in a job of its own with ``--build_in_job``), the suite runs in
-the job ``polaris suite`` writes, and the task results are turned into
+records it (in a job of its own with ``--build_in_job``), the suite's steps
+run at the same time with ``polaris parallel`` in the job ``polaris suite``
+writes, and the task results are turned into
 ``Test.xml`` beside the recorded build before the dashboard script's submit
 stage sends both.  A build that fails is submitted on its own.  The build name,
 ``polaris_omega_nightly-<compiler>``, is what CDash's group rules file into
@@ -14,6 +15,7 @@ stage sends both.  A build that fails is submitted on its own.  The build name,
 
 import glob
 import os
+import pickle
 import shutil
 import subprocess
 import sys
@@ -80,6 +82,7 @@ def main():
             suite_dir,
             '-p',
             build_dir,
+            '--parallel',
         ]
     )
 
@@ -93,7 +96,7 @@ def main():
         print(f'The suite job failed: {error}')
     end_time = time.time()
 
-    results = task_results(os.path.join(suite_dir, 'case_outputs'))
+    results = task_results(suite_dir, SUITE, _step_paths(suite_dir))
     tag = tag_dir(build_dir)
     test_xml = write_test_xml(
         results=results,
@@ -124,7 +127,7 @@ def main():
     )
 
     if len(results) == 0:
-        print(f'No task logs found in {suite_dir}/case_outputs')
+        print(f'No task results found in {suite_dir}/{SUITE}_results.json')
         sys.exit(1)
     if failed:
         print('Failed tasks:')
@@ -134,6 +137,25 @@ def main():
         for job_output in job_outputs:
             print(f'Job output: {job_output}')
         sys.exit(1)
+
+
+def _step_paths(suite_dir):
+    """
+    The path of each step of each task, keyed by the task's path and then
+    the step's name.
+
+    ``polaris parallel`` names each step's log for the step's path, and a
+    shared step's path is not under its task's, so this comes from the suite
+    that ``polaris suite`` pickled.
+    """
+    with open(os.path.join(suite_dir, f'{SUITE}.pickle'), 'rb') as f:
+        suite = pickle.load(f)
+    step_paths = {}
+    for task in suite['tasks'].values():
+        step_paths[task.path] = {
+            name: step.path for name, step in task.steps.items()
+        }
+    return step_paths
 
 
 if __name__ == '__main__':
