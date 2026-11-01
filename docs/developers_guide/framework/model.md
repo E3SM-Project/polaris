@@ -482,6 +482,12 @@ files, including support for Jinja2 templating.
   streams.
 - `set_default_io_type(tree, io_type='pnetcdf,cdf5')`: Sets the `io_type`
   attribute for output streams if not already set.
+- `read_file(filename)` and `get_stream(tree, name)`: Read the streams file a
+  run used, such as the `streams.ocean` in an E3SM run directory, and get one
+  of its streams.
+- `find_stream_files(filename_template, directories)`: Finds the files a
+  stream's `filename_template` matches, with the date each was named for, so
+  analysis can find a run's output from its own streams.
 
 **Example Usage:**
 ```python
@@ -527,6 +533,9 @@ and classes:
 * {py:func}`polaris.streams.write`
 * {py:func}`polaris.streams.update_defaults`
 * {py:func}`polaris.streams.update_tree`
+* {py:func}`polaris.streams.read_file`
+* {py:func}`polaris.streams.get_stream`
+* {py:func}`polaris.streams.find_stream_files`
 * {py:func}`polaris.streams.set_default_io_type`
 * {py:class}`polaris.yaml.PolarisYaml`
 * {py:meth}`polaris.yaml.PolarisYaml.read`
