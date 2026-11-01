@@ -39,6 +39,7 @@ TIME_MEAN_FILENAME = 'time_mean.nc'
 MONTHLY_MAPS_FILENAME = 'monthly_maps.nc'
 DAILY_FILENAME = 'daily.nc'
 INIT_FILENAME = 'init.nc'
+MESH_FILENAME = 'mesh.nc'
 LANDICE_FILENAME = 'landice.nc'
 LANDICE_INIT_FILENAME = 'landice_init.nc'
 
@@ -121,6 +122,7 @@ class RunDiagnostics(Step):
         self.add_input_file(
             filename=INIT_FILENAME, target=run.initial_condition
         )
+        self.add_input_file(filename=MESH_FILENAME, target=run.mesh_file)
         self.monthly_filenames = []
         for stream_file in configured_run.monthly:
             filename = os.path.join(
@@ -195,7 +197,7 @@ class RunDiagnostics(Step):
         """
         config = self.config
         section = config['misomip_analysis']
-        ds_init = read_initial_condition(INIT_FILENAME)
+        ds_init = read_initial_condition()
         ds = rename_time_series_stats(
             xr.open_mfdataset(
                 self.monthly_filenames,
@@ -310,25 +312,50 @@ class RunDiagnostics(Step):
         return ds_daily.isel(Time=unique)
 
 
-def read_initial_condition(filename):
+def read_initial_condition(prefix=''):
     """
-    Read a run's initial condition, which holds its mesh and initial
-    geometry, without a ``Time`` dimension
+    Read a run's initial condition and mesh, which hold its geometry and
+    mesh, without a ``Time`` dimension
 
     Parameters
     ----------
-    filename : str
-        The initial condition
+    prefix : str, optional
+        A prefix on the local names ``init.nc`` and ``mesh.nc``
 
     Returns
     -------
     ds_init : xarray.Dataset
-        The initial condition
+        The initial condition with the mesh's variables it lacks
     """
-    ds_init = xr.open_dataset(filename, decode_times=False)
-    if 'Time' in ds_init.dims:
-        ds_init = ds_init.isel(Time=0)
+    ds_init = _open_without_time(f'{prefix}{INIT_FILENAME}')
+    ds_mesh = _open_without_time(f'{prefix}{MESH_FILENAME}')
+    for name, variable in ds_mesh.data_vars.items():
+        if name not in ds_init:
+            ds_init[name] = variable
     return ds_init
+
+
+def add_geometry_inputs(step, diagnostics, prefix=''):
+    """
+    Link the initial condition and mesh of a diagnostics step's run into
+    another step
+
+    Parameters
+    ----------
+    step : polaris.Step
+        The step reading them with :py:func:`read_initial_condition`
+
+    diagnostics : RunDiagnostics
+        The diagnostics step of the run
+
+    prefix : str, optional
+        A prefix on the local names
+    """
+    for filename in [INIT_FILENAME, MESH_FILENAME]:
+        step.add_input_file(
+            filename=f'{prefix}{filename}',
+            work_dir_target=f'{diagnostics.path}/{filename}',
+        )
 
 
 def isomip_mesh(ds_init):
@@ -356,6 +383,14 @@ def isomip_mesh(ds_init):
     ds_mesh.attrs['on_a_sphere'] = 'NO'
     ds_mesh.attrs['is_periodic'] = 'NO'
     return ds_mesh
+
+
+def _open_without_time(filename):
+    """Open a file, dropping a Time dimension of length one"""
+    ds = xr.open_dataset(filename, decode_times=False)
+    if 'Time' in ds.dims:
+        ds = ds.isel(Time=0)
+    return ds
 
 
 def _fortran_float(value):

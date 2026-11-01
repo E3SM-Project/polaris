@@ -5,10 +5,10 @@ from mpas_tools.io import write_netcdf
 from polaris.analysis.product_step import ProductStep
 from polaris.tasks.e3sm.analysis.misomip.diagnostics import (
     DAILY_FILENAME,
-    INIT_FILENAME,
     MONTHLY_MAPS_FILENAME,
     SECONDS_PER_YEAR,
     TIME_SERIES_FILENAME,
+    add_geometry_inputs,
     isomip_mesh,
     read_initial_condition,
 )
@@ -96,10 +96,7 @@ class RunComparison(ProductStep):
                     work_dir_target=f'{step.path}/{filename}',
                 )
             self.add_dependency(step, name=f'{kind}_diagnostics')
-        self.add_input_file(
-            filename=INIT_FILENAME,
-            work_dir_target=f'{diagnostics["e3sm"].path}/{INIT_FILENAME}',
-        )
+        add_geometry_inputs(self, diagnostics['e3sm'])
 
     def run(self):
         """
@@ -205,7 +202,7 @@ class RunComparison(ProductStep):
             means[kind] = maps[kind].isel(Time=indices).mean(dim='Time')
         months = f'{len(common)} month{"s" if len(common) > 1 else ""}'
 
-        ds_init = read_initial_condition(INIT_FILENAME)
+        ds_init = read_initial_condition()
         ds_mesh = isomip_mesh(ds_init)
         area = ds_init.areaCell
         floating = ds_init.landIceFloatingFraction > 0.0

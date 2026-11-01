@@ -6,11 +6,11 @@ from mpas_tools.ocean.viz.transect import compute_transect, plot_transect
 
 from polaris.analysis.product_step import ProductStep
 from polaris.tasks.e3sm.analysis.misomip.diagnostics import (
-    INIT_FILENAME,
     LANDICE_FILENAME,
     SECONDS_PER_YEAR,
     TIME_MEAN_FILENAME,
     TIME_SERIES_FILENAME,
+    add_geometry_inputs,
     isomip_mesh,
     read_initial_condition,
 )
@@ -259,11 +259,8 @@ class RunPlots(ProductStep):
         )
         self.kind = kind
         self.label = label
-        for filename in [
-            TIME_SERIES_FILENAME,
-            TIME_MEAN_FILENAME,
-            INIT_FILENAME,
-        ]:
+        add_geometry_inputs(self, diagnostics)
+        for filename in [TIME_SERIES_FILENAME, TIME_MEAN_FILENAME]:
             self.add_input_file(
                 filename=filename,
                 work_dir_target=f'{diagnostics.path}/{filename}',
@@ -282,7 +279,7 @@ class RunPlots(ProductStep):
         """
         ds_series = xr.open_dataset(TIME_SERIES_FILENAME)
         ds_mean = xr.open_dataset(TIME_MEAN_FILENAME)
-        ds_init = read_initial_condition(INIT_FILENAME)
+        ds_init = read_initial_condition()
         ds_mesh = isomip_mesh(ds_init)
         months = (
             f'{ds_mean.attrs["first_month"]} to {ds_mean.attrs["last_month"]}'
