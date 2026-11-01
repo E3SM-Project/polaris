@@ -7,10 +7,18 @@ from polaris.tasks.e3sm.analysis.misomip.conservation import (
 from polaris.tasks.e3sm.analysis.misomip.diagnostics import RunDiagnostics
 from polaris.tasks.e3sm.analysis.misomip.plots import RunPlots
 from polaris.tasks.e3sm.analysis.misomip.publish import MisomipPublish
+from polaris.tasks.e3sm.analysis.misomip.published import (
+    PublishedComparison,
+)
 from polaris.tasks.e3sm.analysis.misomip.runs import (
     get_configured_runs,
+    get_mean_months,
     runs_section,
 )
+from polaris.tasks.e3sm.analysis.misomip.yung2026 import (
+    EXPERIMENTS as PUBLISHED_EXPERIMENTS,
+)
+from polaris.tasks.e3sm.analysis.misomip.yung2026 import get_yung2026_step
 
 #: Labels of the runs in plot titles
 RUN_LABELS = {'e3sm': 'E3SM', 'standalone': 'standalone'}
@@ -103,6 +111,23 @@ class MisomipAnalysisTask(Task):
                 self._add_shared_step(
                     RunComparison,
                     f'{self.subdir}/comparison_{key}',
+                    diagnostics=diagnostics,
+                )
+            )
+        if diagnostics and self.experiment in PUBLISHED_EXPERIMENTS:
+            yung2026 = get_yung2026_step(
+                self.component,
+                self.config,
+                self.experiment,
+                get_mean_months(self.config, self.experiment),
+            )
+            self.add_step(yung2026)
+            key = '_'.join(run.key for run in runs.values())
+            products.append(
+                self._add_shared_step(
+                    PublishedComparison,
+                    f'{self.subdir}/published_{key}',
+                    yung2026=yung2026,
                     diagnostics=diagnostics,
                 )
             )
