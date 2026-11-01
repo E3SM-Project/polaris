@@ -589,16 +589,19 @@ unchanged, with config sections `[misomip_ocean_partitions]` and
 
 ### Implementation: Each experiment has a case configuration
 
-Date last modified: 2026/10/31
+Date last modified: 2026/11/01
 
 Contributors: Xylar Asay-Davis, Claude
 
 A `case_config` step per experiment writes the user-mods directory and
 README. `user_nl_mpaso` comes from the namelist the standalone forward step
 renders: the options whose values differ from MPAS-Ocean's defaults, less
-those E3SM sets itself (run times, I/O, partitions and analysis members),
-plus a list of options whose E3SM defaults differ, with the standalone
-values. A case can read the staged files from a directory other than
+those E3SM sets itself (run times, I/O, partitions and the analysis
+members' output), plus a list of options whose E3SM defaults differ, with
+the standalone values. The analysis members are on or off as in the
+standalone run, which has only `globalStats` and `timeSeriesStatsMonthly`
+on. E3SM's others cost a fixed time at every step, and MISOMIP reads
+none of them. A case can read the staged files from a directory other than
 inputdata, for a run before they are copied there. The directory's config
 option may name the experiment, since each experiment has its own
 assembly. `create_case.sh` and `pes.xml` are
