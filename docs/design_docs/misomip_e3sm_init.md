@@ -592,7 +592,9 @@ renders: the options whose values differ from MPAS-Ocean's defaults, less
 those E3SM sets itself (run times, I/O, partitions and analysis members),
 plus a list of options whose E3SM defaults differ, with the standalone
 values. A case can read the staged files from a directory other than
-inputdata, for a run before they are copied there. `create_case.sh` is
+inputdata, for a run before they are copied there. The directory's config
+option may name the experiment, since each experiment has its own
+assembly. `create_case.sh` is
 rendered from a template, with the task counts `get_core_list()` gives for
 each mesh's partition bounds.
 
