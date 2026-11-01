@@ -760,6 +760,10 @@ seaice/api
    :toctree: generated/
 
    read
+   read_file
+   get_stream
+   find_stream_files
+   StreamFile
    write
    update_defaults
    update_tree
