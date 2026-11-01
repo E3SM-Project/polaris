@@ -651,9 +651,9 @@ Each model's goal and bounds are in its partitions' section of
 `[misomip_landice_partitions]`: a new `goal_cells_per_core`, and the
 existing `max_cells_per_core` and `min_cells_per_core`. With 1 thread a
 task, a core is a task. One setting serves every pair of meshes. The
-ocean's goal is 200 cells per task, with bounds of 40 and 2000, from a
-scaling series of 4 km Ocean0 cases on Chrysalis, and 2 km cases on 1, 2
-and 4 nodes check them. MALI's come from prognostic cases. The machine's
+ocean's goal is 100 cells per task, with bounds of 40 and 2000, from
+scaling series of 4 km and 2 km Ocean0 cases on Chrysalis. MALI's come
+from prognostic cases. The machine's
 cores and MPI tasks per node, and whether it is a batch system, come from
 the component's parallel system, which mache builds from `[parallel]`.
 The machine's name and the compiler are `[build] machine` and
@@ -1003,7 +1003,9 @@ MPAS-Ocean's default layouts assume 2 threads a task on some machines, so
 a case of 1-thread tasks left half of each node idle. In the 4 km series,
 from 2 to 128 tasks, doubling the tasks sped a case by 1.5 to 1.7 times
 above about 170 cells per task, and by about 1.25 times below it, down to
-21 cells per task. Memory was 1.3 GB a task at 1379 cells. A whole node is
+21 cells per task. At 2 km, doubling sped a case by 1.57 times from 172 to
+86 cells per task and by 1.43 times from 86 to 43, so the goal is lower
+than the 4 km knee. Memory was 1.3 GB a task at 1379 cells. A whole node is
 charged whether or not its cores are used, so filling it costs nothing
 while each added task still speeds the run. The minimum cells per task
 keeps the tasks above where added tasks would stop doing so. Cells per
