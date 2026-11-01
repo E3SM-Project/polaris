@@ -760,7 +760,10 @@ On FAnSSIE:
   and in standalone time-varying forcing, so newly floating cells melt and
   cells that lose their ice are treated as open ocean;
 - write the land-ice geometry the ocean imports to E3SM's monthly ocean
-  output, which Ocean3–4 need for their mean melt rate and checks.
+  output, which Ocean3–4 need for their mean melt rate and checks;
+- deliver to glc the ocean's melt from the first coupling intervals of a
+  new run, which the MCT driver drops at startup though restarts are
+  exact, as the coupler budgets of 4 km Ocean0 in E3SM showed.
 
 The notes on the melt-coupling pull request name wetting-and-drying runs
 as the next project after melt coupling. This package is that project.
