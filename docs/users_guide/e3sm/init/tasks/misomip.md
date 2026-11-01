@@ -189,7 +189,7 @@ idealized ice-shelf cases, at commit `eb0b74201c` of the
 
 ```bash
 <assembled_files>/case_config/ocean0/create_case.sh \
-    -e <E3SM checkout> -c <case directory> -m chrysalis -p e3sm
+    -e <E3SM checkout> -c <case directory> -m <machine> -p <project>
 ```
 
 The machine, project and output root, `-r`, which holds the case's build
@@ -200,8 +200,8 @@ tasks in turn.  `-o` and `-g` choose other counts for the ocean and MALI,
 which must be among the staged partitions.  The script gives
 `create_newcase` the layout in `pes.xml` beside it, in place of
 MPAS-Ocean's, whose layouts on some machines assume 2 threads a task.
-Each task has 1 thread, so the machine's own MPI tasks per node apply, and
-on Chrysalis 64 tasks run on 1 node.  The script does not submit the case;
+Each task has 1 thread, so the machine's own MPI tasks per node apply,
+such as 64 on Chrysalis.  The script does not submit the case;
 run `./case.submit` in the case directory.
 
 To create a case by hand instead, use the MCT driver:
@@ -327,9 +327,9 @@ pair of meshes through a short link per experiment:
 
 ```cfg
 [misomip_case_config]
-inputdata_root = /lcrc/group/e3sm/<user>/misomip_inputdata/{experiment}
+inputdata_root = <scratch>/misomip_inputdata/{experiment}
 ```
 
-where `/lcrc/group/e3sm/<user>/misomip_inputdata/ocean3` links to
+where `<scratch>/misomip_inputdata/ocean3` links to
 `<work dir>/e3sm/init/misomip-o4km-li1km/misomip/ocean3/assemble/assembled_files/inputdata`,
 and so on.
