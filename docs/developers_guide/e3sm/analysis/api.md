@@ -16,3 +16,16 @@
    E3smCase.find_stream_files
    E3smCase.find_logs
 ```
+
+### budgets
+
+```{eval-rst}
+.. currentmodule:: polaris.e3sm.analysis.budgets
+
+.. autosummary::
+   :toctree: generated/
+
+   BudgetTable
+   read_budget_tables
+   budget_time_series
+```
