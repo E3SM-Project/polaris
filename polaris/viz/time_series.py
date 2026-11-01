@@ -54,6 +54,7 @@ def plot_time_series(
     ensemble_label='ensemble range',
     figsize=(8.0, 4.0),
     xlim=None,
+    legend_outside=False,
 ):
     """
     Plot time series as lines, optionally over an ensemble's range
@@ -89,6 +90,10 @@ def plot_time_series(
 
     xlim : tuple of float, optional
         The limits of the x axis
+
+    legend_outside : bool, optional
+        Whether to place the legend to the right of the axes, so it hides no
+        lines
     """
     with mplstyle_context():
         fig = Figure(figsize=figsize)
@@ -123,7 +128,10 @@ def plot_time_series(
         if title is not None:
             ax.set_title(title)
         if len(series) > 1 or ensemble:
-            ax.legend(loc='best')
+            if legend_outside:
+                ax.legend(loc='center left', bbox_to_anchor=(1.02, 0.5))
+            else:
+                ax.legend(loc='best')
         ax.grid(True, alpha=0.3)
         if xlim is not None:
             ax.set_xlim(xlim)
