@@ -83,8 +83,24 @@ if [ -n "${MACHE_DEPLOY_SPACK_LIBRARY_VIEW:-}" ] && \
        [ "$POLARIS_MACHINE" = "chrysalis" ]; then
         _polaris_mpicxx="-lmpi_cxx"
     fi
-    export POLARIS_ALBANY_LINK_LIBS="${ALBANY_LINK_LIBS}${_polaris_rpaths} -lstdc++ ${_polaris_mpicxx}"
-    unset _polaris_spack_root _polaris_rpaths _polaris_flag _polaris_mpicxx
+    # MALI links with the Fortran compiler, but Albany and Trilinos need the
+    # libstdc++ of the C++ compiler that built them.  With oneAPI, ifx finds
+    # the system's libstdc++, which can be older than the one icpx uses (and
+    # the -L/usr/lib64 in ALBANY_LINK_LIBS puts it first), so link to icpx's
+    # by its path
+    _polaris_libstdcxx="-lstdc++"
+    case "$POLARIS_COMPILER" in
+        intel*)
+            _polaris_flag="$(icpx -print-file-name=libstdc++.so 2>/dev/null)"
+            if [ -f "${_polaris_flag}" ]; then
+                _polaris_flag="$(realpath "${_polaris_flag}")"
+                _polaris_libstdcxx="${_polaris_flag} -Wl,-rpath,${_polaris_flag%/*}"
+            fi
+            ;;
+    esac
+    export POLARIS_ALBANY_LINK_LIBS="${ALBANY_LINK_LIBS}${_polaris_rpaths} ${_polaris_libstdcxx} ${_polaris_mpicxx}"
+    unset _polaris_spack_root _polaris_rpaths _polaris_flag _polaris_mpicxx \
+        _polaris_libstdcxx
 fi
 unset _polaris_albany_flags
 
