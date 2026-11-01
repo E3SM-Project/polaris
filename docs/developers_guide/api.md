@@ -828,6 +828,26 @@ seaice/api
    plot_lat_elevation_field
 ```
 
+```{eval-rst}
+.. currentmodule:: polaris.viz.planar
+
+.. autosummary::
+   :toctree: generated/
+
+   plot_horiz_comparison
+   plot_mask_boundary
+```
+
+```{eval-rst}
+.. currentmodule:: polaris.viz.time_series
+
+.. autosummary::
+   :toctree: generated/
+
+   Series
+   plot_time_series
+```
+
 ### yaml
 
 ```{eval-rst}
