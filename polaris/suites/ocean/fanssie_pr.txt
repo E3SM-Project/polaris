@@ -2,3 +2,7 @@ ocean/planar/ice_shelf_2d/5km/z-star/default/with_restart
 ocean/planar/ice_shelf_2d/5km/z-level/default/with_restart
 ocean/planar/ice_shelf_2d/5km/z-star/default/with_viz
 ocean/planar/isomip_plus/4km/z-star/ocean0
+landice/dome/2km/sia/decomp
+landice/dome/2km/sia/restart
+landice/dome/2km/fo/decomp
+landice/dome/2km/fo/restart
