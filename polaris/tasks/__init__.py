@@ -3,6 +3,8 @@ from typing import List
 from polaris import Component
 
 # import new components here
+from polaris.tasks.e3sm.analysis import e3sm_analysis
+from polaris.tasks.e3sm.analysis.add_tasks import add_e3sm_analysis_tasks
 from polaris.tasks.e3sm.init import e3sm_init
 from polaris.tasks.e3sm.init.add_tasks import add_e3sm_init_tasks
 from polaris.tasks.landice import landice
@@ -16,6 +18,7 @@ from polaris.tasks.seaice.add_tasks import add_seaice_tasks
 
 # Add new components alphabetically to this list
 _components: List[Component] = [
+    e3sm_analysis,
     e3sm_init,
     landice,
     mesh,
@@ -46,6 +49,7 @@ def get_components(add_tasks=True):
     global _tasks_added
     if add_tasks and not _tasks_added:
         # add tasks to each component
+        add_e3sm_analysis_tasks(component=e3sm_analysis)
         add_e3sm_init_tasks(component=e3sm_init)
         add_landice_tasks(component=landice)
         add_mesh_tasks(component=mesh)

@@ -372,7 +372,8 @@ runs' last months, and each COM submission's last months.
 **Cornford et al. (2020).** The grounding line on the centerline, volume
 above flotation and grounded area of IceOcean1r and IceOcean1ra are
 plotted with the Cornford et al. (2020) Ice1r and Ice1ra entries and with
-MALI's standalone runs, against the years since each experiment started.
+MALI's standalone runs, against the coupled run's model year, with the
+others aligned at its start.
 Volume above flotation and grounded area come from each MALI run's global
 statistics. MALI writes history only at the end of a step, so a
 standalone run for the first years forces its steps to end on each month,

@@ -10,4 +10,5 @@ coupler. Its shared framework code is in `polaris.e3sm.analysis`.
 :titlesonly: true
 
 framework
+tasks/misomip
 ```
