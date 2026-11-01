@@ -395,8 +395,9 @@ $$
 
 and the floating and land-ice fractions are $R(m\phi_f)/R(m)$ and
 $R(m(\phi_f + \phi_g))/R(m)$, each capped at 1. All three are zero where
-$R(m) = 0$. In data mode, the initial condition matches the record MALI
-reads at the start.
+$R(m) = 0$ and where the land-ice fraction is at most 10⁻³, so slivers at
+the calving front are open ocean. In data mode, the initial condition
+matches the record MALI reads at the start.
 
 The constants are E3SM's and the protocol's ([D6](#decisions)):
 $\rho_i = 918$ kg m⁻³, $g = 9.80616$ m s⁻², and an ocean density of
@@ -758,7 +759,13 @@ On FAnSSIE:
   advancing in a data-mode record is not removed, as in Ocean4;
 - make the ocean's land-ice mask follow the imported ice fraction, in E3SM
   and in standalone time-varying forcing, so newly floating cells melt and
-  cells that lose their ice are treated as open ocean;
+  cells that lose their ice are treated as open ocean; cells whose ice
+  fraction is at most 10⁻³, slivers at the calving front, are open ocean
+  too, in the import and in the inputs;
+- form no frazil and compute no melt under ice where glc's floating
+  fraction is at most 10⁻³, the threshold below which the coupler sends glc
+  no fluxes, so the ocean's budget no longer books frazil that glc never
+  receives;
 - write the land-ice geometry the ocean imports to E3SM's monthly ocean
   output, which Ocean3–4 need for their mean melt rate and checks.
 
