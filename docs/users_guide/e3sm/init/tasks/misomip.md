@@ -288,7 +288,8 @@ The case configuration has options of its own:
 # Where an E3SM case finds the staged files: blank for E3SM's inputdata
 # directory, DIN_LOC_ROOT, once they are there, or a directory with the same
 # layout, such as a short link to an assembly's inputdata directory, for a
-# case run before then
+# case run before then.  {experiment} is replaced by each experiment's name,
+# since each assembly has its own directory.
 inputdata_root =
 
 # The months each job of a case runs, a divisor of every experiment's length
@@ -306,4 +307,15 @@ The coupling intervals are E3SM's defaults: the ocean couples every 30
 minutes, and MALI once a day.
 
 MCT reads map paths of up to 256 characters, so a directory given in
-`inputdata_root` needs a short path.
+`inputdata_root` needs a short path.  Each experiment's assembly has its
+own `inputdata/` directory, so one setting can serve every experiment of a
+pair of meshes through a short link per experiment:
+
+```cfg
+[misomip_case_config]
+inputdata_root = /lcrc/group/e3sm/<user>/misomip_inputdata/{experiment}
+```
+
+where `/lcrc/group/e3sm/<user>/misomip_inputdata/ocean3` links to
+`<work dir>/e3sm/init/misomip-o4km-li1km/misomip/ocean3/assemble/assembled_files/inputdata`,
+and so on.

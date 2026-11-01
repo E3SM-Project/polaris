@@ -361,6 +361,7 @@
    case_config.CaseConfigStep
    case_config.CaseConfigStep.run
    case_config.get_mali_mode
+   case_config.get_inputdata_root
    case_config.get_grid_file
    case_config.get_shell_commands
    case_config.get_user_nl_mpaso

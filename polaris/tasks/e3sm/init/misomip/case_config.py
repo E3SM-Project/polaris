@@ -244,11 +244,7 @@ class CaseConfigStep(Step):
         grids = names.get_grid_names(config)
         date = inputdata.get_creation_date(config, names.INPUTS_SECTION)
         section = config[CASE_CONFIG_SECTION]
-        root = inputdata.get_nonempty_option(
-            config, CASE_CONFIG_SECTION, 'inputdata_root'
-        )
-        if root is None:
-            root = DIN_LOC_ROOT
+        root = get_inputdata_root(config, experiment)
         months_per_job = section.getint('months_per_job')
         couplings_per_day = {
             grid: section.getint(f'{grid}_couplings_per_day')
@@ -327,6 +323,33 @@ def get_mali_mode(experiment):
         The mode, a key of :py:data:`COMPSETS`
     """
     return 'data' if experiment in DATA_MODE_EXPERIMENTS else 'static'
+
+
+def get_inputdata_root(config, experiment):
+    """
+    Get where an experiment's case finds the staged files, from
+    ``[misomip_case_config] inputdata_root``, with ``{experiment}`` replaced
+    by the experiment's name
+
+    Parameters
+    ----------
+    config : polaris.config.PolarisConfigParser
+        The config options of the pair of meshes
+
+    experiment : str
+        The experiment
+
+    Returns
+    -------
+    inputdata_root : str
+        :py:data:`DIN_LOC_ROOT` if the option is blank, or the directory
+    """
+    root = inputdata.get_nonempty_option(
+        config, CASE_CONFIG_SECTION, 'inputdata_root'
+    )
+    if root is None:
+        return DIN_LOC_ROOT
+    return root.replace('{experiment}', experiment)
 
 
 def get_grid_file(grids, creation_date, inputdata_root, cell_counts):
