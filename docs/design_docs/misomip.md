@@ -545,7 +545,7 @@ whole. Task, step and file names are working names.
 | WP5 Meshes and maps       | Polaris       | projection, SCRIP files and maps in `e3sm/init`           | `misomip_e3sm_init.md`, shared with WP6           |
 | WP6 E3SM inputs           | Polaris       | initial conditions, data files, partitions, cases         | `misomip_e3sm_init.md`, shared with WP5           |
 | WP7 Idealized cases       | E3SM          | no atmosphere, coupler areas, namelists, user grids       | `misomip_e3sm_cases.md`                           |
-| WP8 Moving grounding line | E3SM          | grounded-ice cap and fluxes; fractions; data mode         | the PR that adds Ocean3–4 to the E3SM inputs      |
+| WP8 Moving grounding line | E3SM          | grounded-ice cap and fluxes; fractions; data mode         | `misomip_moving_grounding_line.md`                |
 | WP9 Analysis              | Polaris       | diagnostics and comparisons                               | `misomip_analysis.md`                             |
 | WP10 Subgrid W&D          | E3SM, Polaris | subgrid wetting and drying in partly grounded cells       | the PR that first tests it                        |
 | WP11 E3SM's physics       | Polaris, E3SM | E3SM's physics in the ISOMIP+ tasks; COM variants         | `isomip_plus.md`, in the PR that switches physics |
