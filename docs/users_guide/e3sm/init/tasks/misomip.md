@@ -119,6 +119,13 @@ record, one a month, and MPAS-Ocean interpolates between them, while MALI's
 data mode steps from record to record.  `iceocean1r` and `iceocean1ra` have
 no standalone counterpart.
 
+Besides the daily `output.nc`, `land_ice_fluxes.nc` and global statistics,
+the `forward` step writes E3SM's monthly means,
+`timeSeriesStatsMonthly.<date>.nc`, with the fields E3SM's monthly files
+hold that the standalone run computes.  For `ocean3` and `ocean4`, they
+also hold the land-ice pressure, fraction, floating fraction and the draft
+the ocean's SSH sees, `landIceDraftForSsh`.
+
 ## Graph partitions
 
 The `ocean_partitions` and `landice_partitions` steps partition each

@@ -1,8 +1,12 @@
+import importlib.resources as imp_res
 import os
 from types import SimpleNamespace
 
 import numpy as np
+import pytest
 import xarray as xr
+import yaml
+from jinja2 import Template
 
 from polaris.component import Component
 from polaris.tasks.e3sm.init.misomip import (
@@ -179,6 +183,59 @@ def test_forward_steps():
     for experiment in ['iceocean1r', 'iceocean1ra']:
         steps, _ = get_misomip_experiment_steps(mesh_name, experiment)
         assert 'ocean/forward' not in steps
+
+
+@pytest.mark.parametrize('data_mode', [True, False])
+def test_forward_writes_e3sm_monthly_means(data_mode):
+    text = (
+        imp_res.files('polaris.tasks.ocean.misomip')
+        .joinpath('monthly_output.yaml')
+        .read_text()
+    )
+    options = yaml.safe_load(Template(text).render(data_mode=data_mode))[
+        'mpas-ocean'
+    ]
+    monthly = options['AM_timeSeriesStatsMonthly']
+    assert monthly['config_AM_timeSeriesStatsMonthly_enable']
+    assert monthly['config_AM_timeSeriesStatsMonthly_output_stream'] == (
+        'timeSeriesStatsMonthlyOutput'
+    )
+    stream = options['streams']['timeSeriesStatsMonthlyOutput']
+    assert stream['output_interval'] == '00-01-00_00:00:00'
+    # stream attributes are written as strings
+    assert all(
+        isinstance(value, str)
+        for attr, value in stream.items()
+        if attr != 'contents'
+    )
+    contents = stream['contents']
+    for name in [
+        'ssh',
+        'layerThickness',
+        'normalVelocity',
+        'velocityX',
+        'velocityY',
+        'tracers',
+        'vertVelocityTop',
+        'landIceFreshwaterFlux',
+        'landIceFreshwaterFluxTotal',
+        'landIceHeatFlux',
+        'heatFluxToLandIce',
+        'landIceFrictionVelocity',
+        'landIceBoundaryLayerTracers',
+        'landIceInterfaceTracers',
+    ]:
+        assert name in contents
+    geometry = [
+        'landIcePressure',
+        'landIceFraction',
+        'landIceFloatingFraction',
+        'landIceDraftForSsh',
+    ]
+    for name in geometry:
+        assert (name in contents) == data_mode
+    # timeSeriesStats averages only real fields
+    assert 'landIceMask' not in contents
 
 
 def test_forward_is_not_run_by_default():
