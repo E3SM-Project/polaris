@@ -394,7 +394,8 @@ Each experiment's case configuration holds:
   - `shell_commands` with the XML changes: the case variables that name
     the initial conditions, the ocean's interior restoring and tidal mask,
     the data-mode file and partitions, MALI's runoff to the ocean turned
-    off, the coupling intervals, and the run length in jobs;
+    off, the coupler's budgets turned on, the coupling intervals, and the
+    run length in jobs;
 - **a README** with the compset by long name, which sets MALI's mode
   (static, data or prognostic);
 - **`create_case.sh`**, which creates a case with the MCT driver, the
