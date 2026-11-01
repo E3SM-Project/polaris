@@ -129,6 +129,12 @@ E3SM_OCEAN_OPTIONS = {
     'config_glc_ice_shelf_coupling_import_geometry': '.true.',
 }
 
+#: The MPAS-Ocean option with the land-ice fraction at or below which the
+#: import of MALI's geometry leaves a cell open ocean, written from
+#: ``[misomip_land_ice_on_ocean] min_land_ice_fraction``, so the initial
+#: conditions and the imports agree
+MIN_FRACTION_OPTION = 'config_glc_ice_shelf_coupling_min_floating_fraction'
+
 #: MALI options an E3SM case sets.  The densities are those the ocean's
 #: initial condition used for the land-ice pressure.  Building Albany's
 #: finite-element grid once avoids a leak at every rebuild.
@@ -298,7 +304,13 @@ class CaseConfigStep(Step):
         )
         _write(
             os.path.join(USER_MODS, 'user_nl_mpaso'),
-            get_user_nl_mpaso(standalone, defaults),
+            get_user_nl_mpaso(
+                standalone,
+                defaults,
+                config.getfloat(
+                    'misomip_land_ice_on_ocean', 'min_land_ice_fraction'
+                ),
+            ),
         )
         _write(os.path.join(USER_MODS, 'user_nl_mali'), get_user_nl_mali())
         task_counts = {
@@ -613,11 +625,12 @@ def get_shell_commands(
     return '\n'.join(lines)
 
 
-def get_user_nl_mpaso(standalone, defaults):
+def get_user_nl_mpaso(standalone, defaults, min_land_ice_fraction):
     """
     Get the text of ``user_nl_mpaso``: the options the standalone run sets,
     less those E3SM sets itself, those E3SM would otherwise give a
-    different value, and whether each analysis member is on
+    different value, whether each analysis member is on, and the options
+    only an E3SM case has
 
     Parameters
     ----------
@@ -627,6 +640,10 @@ def get_user_nl_mpaso(standalone, defaults):
 
     defaults : dict
         MPAS-Ocean's default namelist, read the same way
+
+    min_land_ice_fraction : float
+        The land-ice fraction at or below which MPAS-Ocean's import of
+        MALI's geometry leaves a cell open ocean
 
     Returns
     -------
@@ -646,6 +663,9 @@ def get_user_nl_mpaso(standalone, defaults):
         raise ValueError(
             f'The standalone namelist lacks {", ".join(sorted(missing))}.'
         )
+
+    e3sm_only = dict(E3SM_OCEAN_OPTIONS)
+    e3sm_only[MIN_FRACTION_OPTION] = f'{min_land_ice_fraction:g}'
 
     lines = [
         "! The standalone MPAS-Ocean run's options, written by Polaris",
@@ -668,6 +688,7 @@ def get_user_nl_mpaso(standalone, defaults):
                 option: value
                 for option, value in options.items()
                 if option not in E3SM_OWNED_OPTIONS
+                and option not in e3sm_only
                 and (
                     option in E3SM_DEFAULT_OPTIONS
                     or not _same(value, default_values.get(option))
@@ -687,7 +708,7 @@ def get_user_nl_mpaso(standalone, defaults):
             lines.append(f'{option} = {value}')
 
     lines.extend(['', '! E3SM only'])
-    for option, value in E3SM_OCEAN_OPTIONS.items():
+    for option, value in e3sm_only.items():
         lines.append(f'{option} = {value}')
     lines.append('')
     return '\n'.join(lines)
