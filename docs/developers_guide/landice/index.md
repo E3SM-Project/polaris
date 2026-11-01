@@ -77,7 +77,8 @@ Albany has its own library environments, named
 Add `--deploy-spack` to build these environments rather than load existing
 ones.  `deploy/albany_supported.txt` lists the machines, compilers
 and MPI libraries that support Albany, and `deploy/pins.cfg` pins Albany and
-Trilinos.  A machine can override the Albany and Trilinos variants with
+Trilinos to commits on Albany's `master` and Trilinos's `develop` branches,
+as Spack versions like `git.<commit>=develop`.  A machine can override the Albany and Trilinos variants with
 `albany_variants` and `trilinos_variants` in the `[deploy]` section of its
 config file, as pm-gpu does to build them for its GPUs.
 
