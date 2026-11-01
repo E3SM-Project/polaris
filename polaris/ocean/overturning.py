@@ -365,14 +365,17 @@ def compute_overturning_in_z(
     z_bottom: xr.DataArray,
     dz: float,
     vert_dim: str = 'nVertLevels',
+    top: float | None = None,
+    bottom: float | None = None,
 ) -> xr.DataArray:
     """
     Compute the overturning stream function at fixed elevations
 
     Each layer's transport is spread over bins of height ``dz`` by the
     fraction of the layer each bin overlaps, summed along the line, and
-    accumulated from the top.  The bins span the layers, so all of the
-    transport is counted.
+    accumulated from the top.  By default the bins span the layers, so all
+    of the transport is counted; a ``top`` and ``bottom`` that span them too
+    put several lines on the same elevations.
 
     Parameters
     ----------
@@ -390,6 +393,11 @@ def compute_overturning_in_z(
     vert_dim : str, optional
         The vertical dimension, indexed from the top
 
+    top, bottom : float, optional
+        The elevations (m) of the top of the first bin and the bottom of the
+        last, multiples of ``dz`` that must span the layers.  By default,
+        the nearest multiples of ``dz`` beyond the layers.
+
     Returns
     -------
     overturning : xarray.DataArray
@@ -397,27 +405,48 @@ def compute_overturning_in_z(
         ``nZInterfaces``, with the coordinate ``zInterface`` (m), descending
         from the top
     """
-    thickness = (z_top - z_bottom).where(z_top > z_bottom)
-    top = dz * np.ceil(float(z_top.max()) / dz)
-    bottom = dz * np.floor(float(z_bottom.min()) / dz)
+    other_dims = [
+        dim for dim in transport.dims if dim not in (vert_dim, 'nLineEdges')
+    ]
+    dims = other_dims + ['nLineEdges', vert_dim]
+    transport_values = transport.transpose(*dims).values
+    top_values = z_top.broadcast_like(transport).transpose(*dims).values
+    bottom_values = z_bottom.broadcast_like(transport).transpose(*dims).values
+
+    if top is None:
+        top = dz * np.ceil(np.nanmax(top_values) / dz)
+    if bottom is None:
+        bottom = dz * np.floor(np.nanmin(bottom_values) / dz)
+    if np.nanmax(top_values) > top or np.nanmin(bottom_values) < bottom:
+        raise ValueError(
+            f'The bins from {top} to {bottom} m do not span the layers.'
+        )
     count = int(round((top - bottom) / dz))
     edges = top - dz * np.arange(count + 1)
 
-    binned = []
-    for bin_top, bin_bottom in zip(edges[:-1], edges[1:], strict=True):
-        overlap = np.minimum(z_top, bin_top) - np.maximum(z_bottom, bin_bottom)
-        fraction = (overlap.clip(min=0.0) / thickness).fillna(0.0)
-        binned.append((transport * fraction).sum(dim=[vert_dim, 'nLineEdges']))
-    cumulative = xr.concat(binned, dim='nZInterfaces').cumsum(
-        dim='nZInterfaces'
+    # the overlap of each layer with each bin, on a last dimension of bins
+    upper = np.minimum(top_values[..., np.newaxis], edges[:-1])
+    lower = np.maximum(bottom_values[..., np.newaxis], edges[1:])
+    thickness = (top_values - bottom_values)[..., np.newaxis]
+    with np.errstate(invalid='ignore', divide='ignore'):
+        fraction = np.where(
+            thickness > 0.0, np.clip(upper - lower, 0.0, None) / thickness, 0.0
+        )
+    binned = np.nansum(
+        transport_values[..., np.newaxis] * fraction, axis=(-3, -2)
     )
-    surface = xr.zeros_like(cumulative.isel(nZInterfaces=[0]))
-    overturning = xr.concat([surface, cumulative], dim='nZInterfaces')
-    dims = [
-        dim for dim in transport.dims if dim not in (vert_dim, 'nLineEdges')
-    ] + ['nZInterfaces']
-    overturning = overturning.transpose(*dims)
-    overturning.coords['zInterface'] = ('nZInterfaces', edges)
+    cumulative = np.cumsum(binned, axis=-1)
+    surface = np.zeros(cumulative.shape[:-1] + (1,))
+    values = np.concatenate([surface, cumulative], axis=-1)
+
+    overturning = xr.DataArray(
+        values,
+        dims=other_dims + ['nZInterfaces'],
+        coords={'zInterface': ('nZInterfaces', edges)},
+    )
+    for dim in other_dims:
+        if dim in transport.coords:
+            overturning.coords[dim] = transport.coords[dim]
     overturning.attrs = dict(
         long_name='overturning stream function', units='m3 s-1'
     )

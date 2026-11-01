@@ -272,3 +272,36 @@ def test_line_interfaces_stack_down_from_the_ssh(channel_mesh):
 
     np.testing.assert_allclose(z_top.isel(nLineEdges=0), [-100.0, -110.0])
     np.testing.assert_allclose(z_bottom.isel(nLineEdges=0), [-110.0, -130.0])
+
+
+def test_overturning_in_z_keeps_time_and_fixed_bins():
+    """A Time dimension is kept, and bins given explicitly extend past the
+    layers with no transport in them."""
+    transport = xr.DataArray(
+        [[[7.0, 13.0]], [[14.0, 26.0]]],
+        dims=('Time', 'nLineEdges', 'nVertLevels'),
+    )
+    z_top = xr.DataArray([[0.0, -7.0]], dims=('nLineEdges', 'nVertLevels'))
+    z_bottom = xr.DataArray(
+        [[-7.0, -20.0]], dims=('nLineEdges', 'nVertLevels')
+    )
+
+    overturning = compute_overturning_in_z(
+        transport, z_top, z_bottom, dz=10.0, top=10.0, bottom=-30.0
+    )
+
+    assert overturning.dims == ('Time', 'nZInterfaces')
+    np.testing.assert_allclose(
+        overturning.isel(Time=1), [0.0, 0.0, 2 * 10.0, 2 * 20.0, 2 * 20.0]
+    )
+
+
+def test_bins_that_do_not_span_the_layers_raise():
+    transport = xr.DataArray([[1.0]], dims=('nLineEdges', 'nVertLevels'))
+    z_top = xr.DataArray([[0.0]], dims=('nLineEdges', 'nVertLevels'))
+    z_bottom = xr.DataArray([[-20.0]], dims=('nLineEdges', 'nVertLevels'))
+
+    with pytest.raises(ValueError, match='do not span'):
+        compute_overturning_in_z(
+            transport, z_top, z_bottom, dz=5.0, top=0.0, bottom=-10.0
+        )
