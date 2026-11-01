@@ -162,6 +162,7 @@ assembled_files/
     case_config/ocean3/
         README
         create_case.sh
+        pes.xml
         user_mods/
             config_grids.xml
             shell_commands
@@ -192,11 +193,16 @@ idealized ice-shelf cases, at commit `eb0b74201c` of the
 ```
 
 The machine, project and output root, `-r`, which holds the case's build
-and run directories, default to CIME's, and the compiler, `-C`, to `gnu`.  By default, the ocean and MALI each run on the most tasks both
-meshes are partitioned for, 64 for `misomip-o4km-li1km`, with MALI on the
-ocean's tasks in turn.  `-o` and `-g` choose other counts for the ocean
-and MALI, which must be among the staged partitions.  The script does not
-submit the case; run `./case.submit` in the case directory.
+and run directories, default to CIME's, and the compiler, `-C`, to `gnu`.
+By default, the ocean and MALI each run on the most tasks both meshes are
+partitioned for, 64 for `misomip-o4km-li1km`, with MALI on the ocean's
+tasks in turn.  `-o` and `-g` choose other counts for the ocean and MALI,
+which must be among the staged partitions.  The script gives
+`create_newcase` the layout in `pes.xml` beside it, in place of
+MPAS-Ocean's, whose layouts on some machines assume 2 threads a task.
+Each task has 1 thread, so the machine's own MPI tasks per node apply, and
+on Chrysalis 64 tasks run on 1 node.  The script does not submit the case;
+run `./case.submit` in the case directory.
 
 To create a case by hand instead, use the MCT driver:
 
@@ -204,7 +210,8 @@ To create a case by hand instead, use the MCT driver:
 ./create_newcase --case <case> --driver mct \
     --compset 2000_SATM_SLND_SICE_MPASO%PISMF_SROF_MALI%SIASTATIC_SWAV \
     --res misomip-o4km-li1km \
-    --user-mods-dirs <assembled_files>/case_config/ocean0/user_mods
+    --user-mods-dirs <assembled_files>/case_config/ocean0/user_mods \
+    --pesfile <assembled_files>/case_config/ocean0/pes.xml
 ```
 
 and set `NTASKS_OCN` and `NTASKS_GLC` to counts the meshes are partitioned

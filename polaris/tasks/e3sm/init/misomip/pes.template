@@ -1,0 +1,25 @@
+<?xml version="1.0"?>
+<config_pes>
+  <grid name="any">
+    <mach name="any">
+      <pes compset="any" pesize="any">
+        <comment>MISOMIP: {{ ocean_tasks }} tasks of 1 thread, MALI on {{ landice_tasks }} of them in turn</comment>
+        <ntasks>
+{%- for component in components %}
+          <ntasks_{{ component }}>{{ landice_tasks if component == 'glc' else ocean_tasks }}</ntasks_{{ component }}>
+{%- endfor %}
+        </ntasks>
+        <nthrds>
+{%- for component in components %}
+          <nthrds_{{ component }}>1</nthrds_{{ component }}>
+{%- endfor %}
+        </nthrds>
+        <rootpe>
+{%- for component in components %}
+          <rootpe_{{ component }}>0</rootpe_{{ component }}>
+{%- endfor %}
+        </rootpe>
+      </pes>
+    </mach>
+  </grid>
+</config_pes>

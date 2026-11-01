@@ -9,6 +9,7 @@ import pytest
 from polaris.tasks.e3sm.init import e3sm_init
 from polaris.tasks.e3sm.init.misomip import get_misomip_experiment_steps
 from polaris.tasks.e3sm.init.misomip.case_config import (
+    COMPONENTS,
     DIN_LOC_ROOT,
     E3SM_COMMIT,
     E3SM_DEFAULT_OPTIONS,
@@ -16,6 +17,7 @@ from polaris.tasks.e3sm.init.misomip.case_config import (
     get_create_case_script,
     get_grid_file,
     get_inputdata_root,
+    get_pes_file,
     get_shell_commands,
     get_user_nl_mpaso,
 )
@@ -278,12 +280,32 @@ def test_create_case_script():
     ) in lines
     assert '      --res misomip-o4km-li1km' in lines
     assert f'merge-base --is-ancestor {E3SM_COMMIT} HEAD' in text
+    # the layout beside the script, in place of MPAS-Ocean's
+    assert '      --pesfile "$here/pes.xml"' in lines
     # submitting is left to the person
     assert not any(line.strip().startswith('./case.submit') for line in lines)
     result = subprocess.run(
         ['bash', '-n'], input=text, text=True, capture_output=True
     )
     assert result.returncode == 0, result.stderr
+
+
+def test_pes_file():
+    counts = {'ocean': [2, 4, 8, 64, 66], 'landice': [3, 4, 8, 64, 600]}
+    root = ET.fromstring(get_pes_file(counts))
+    # only the catch-all entry, which no machine-specific one overrides
+    assert [grid.attrib['name'] for grid in root.iter('grid')] == ['any']
+    assert [mach.attrib['name'] for mach in root.iter('mach')] == ['any']
+    pes = root.find('grid/mach/pes')
+    assert pes is not None
+    assert pes.attrib == {'compset': 'any', 'pesize': 'any'}
+    for component in COMPONENTS:
+        assert pes.findtext(f'ntasks/ntasks_{component}') == '64'
+        assert pes.findtext(f'nthrds/nthrds_{component}') == '1'
+        assert pes.findtext(f'rootpe/rootpe_{component}') == '0'
+    # the machine's own tasks per node apply
+    assert pes.find('MAX_MPITASKS_PER_NODE') is None
+    assert pes.find('MAX_TASKS_PER_NODE') is None
 
 
 def test_create_case_script_needs_a_shared_task_count():

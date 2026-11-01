@@ -62,12 +62,15 @@ check_tasks () {
 check_tasks "The ocean's mesh" "$ocean_tasks" "$ocean_counts"
 check_tasks "MALI's mesh" "$landice_tasks" "$landice_counts"
 
-user_mods="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/user_mods"
+here="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
+# The layout in pes.xml has 1 thread a task, so the machine's own tasks per
+# node apply
 args=(--case "$case_dir" --driver mct
       --compset {{ compset }}
       --res {{ model_grid }}
-      --user-mods-dirs "$user_mods"
+      --user-mods-dirs "$here/user_mods"
+      --pesfile "$here/pes.xml"
       --compiler "$compiler")
 if [ -n "$machine" ]; then
     args+=(--machine "$machine")

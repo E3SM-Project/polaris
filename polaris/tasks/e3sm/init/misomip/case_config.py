@@ -140,9 +140,15 @@ USER_MODS = 'user_mods'
 #: The script that creates, sets up and builds a case
 CREATE_CASE = 'create_case.sh'
 
+#: The case's layout, which the script gives ``create_newcase``
+PES = 'pes.xml'
+
 #: What the step writes that is staged: the user-mods directory, and the
-#: README and script beside it
-CASE_CONFIG_FILES = [USER_MODS, 'README', CREATE_CASE]
+#: README, script and layout beside it
+CASE_CONFIG_FILES = [USER_MODS, 'README', CREATE_CASE, PES]
+
+#: The components of an MCT case, each with a task count in the layout
+COMPONENTS = ['atm', 'lnd', 'rof', 'ice', 'ocn', 'glc', 'wav', 'cpl']
 
 #: The config section of each mesh's graph partitions
 PARTITION_SECTIONS = {
@@ -234,6 +240,7 @@ class CaseConfigStep(Step):
             self.add_output_file(filename=os.path.join(USER_MODS, filename))
         self.add_output_file(filename='README')
         self.add_output_file(filename=CREATE_CASE)
+        self.add_output_file(filename=PES)
 
     def run(self):
         """
@@ -306,6 +313,7 @@ class CaseConfigStep(Step):
             get_create_case_script(experiment, grids, task_counts),
             executable=True,
         )
+        _write(PES, get_pes_file(task_counts))
 
 
 def get_mali_mode(experiment):
@@ -646,10 +654,12 @@ def get_readme(experiment, grids):
         '  ./create_newcase --case <case> --driver mct \\',
         f'      --compset {compset} \\',
         f'      --res {grids["model"]} \\',
-        '      --user-mods-dirs <this directory>/user_mods',
+        '      --user-mods-dirs <this directory>/user_mods \\',
+        '      --pesfile <this directory>/pes.xml',
         '',
         'and set NTASKS_OCN and NTASKS_GLC to counts the meshes are',
-        'partitioned for.',
+        'partitioned for.  `pes.xml` gives every task 1 thread, so the',
+        "machine's own MPI tasks per node apply.",
         '',
         '`user_mods/` holds the grid file, `config_grids.xml`, which CIME',
         "uses in place of E3SM's, the standalone ocean run's options in",
@@ -684,13 +694,7 @@ def get_create_case_script(experiment, grids, task_counts):
     text : str
         The script
     """
-    shared = set(task_counts['ocean']) & set(task_counts['landice'])
-    if not shared:
-        raise ValueError(
-            'The ocean and MALI meshes are partitioned for no task count in '
-            'common.'
-        )
-    tasks = max(shared)
+    tasks = _get_default_tasks(task_counts)
     mode = get_mali_mode(experiment)
     template = Template(
         imp_res.files(__package__)
@@ -711,6 +715,48 @@ def get_create_case_script(experiment, grids, task_counts):
             str(count) for count in task_counts['landice']
         ),
     )
+
+
+def get_pes_file(task_counts):
+    """
+    Get the text of the case's layout, a PE file that ``create_newcase``
+    uses in place of the ocean's.  Every task has 1 thread, so the machine's
+    own tasks per node apply.  By default, the ocean and MALI each run on
+    the most tasks both meshes are partitioned for, and the other
+    components on the ocean's tasks.
+
+    Parameters
+    ----------
+    task_counts : dict of str to list of int
+        The task counts the ``ocean`` and ``landice`` meshes are partitioned
+        for
+
+    Returns
+    -------
+    text : str
+        The PE file
+    """
+    tasks = _get_default_tasks(task_counts)
+    template = Template(
+        imp_res.files(__package__).joinpath('pes.template').read_text(),
+        keep_trailing_newline=True,
+    )
+    return template.render(
+        components=COMPONENTS, ocean_tasks=tasks, landice_tasks=tasks
+    )
+
+
+def _get_default_tasks(task_counts):
+    """
+    The most tasks both meshes are partitioned for
+    """
+    shared = set(task_counts['ocean']) & set(task_counts['landice'])
+    if not shared:
+        raise ValueError(
+            'The ocean and MALI meshes are partitioned for no task count in '
+            'common.'
+        )
+    return max(shared)
 
 
 def _get_cell_counts():
