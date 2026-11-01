@@ -6,7 +6,8 @@ build) and run CTests for a given compiler.
 By default, the utility checks out submodules that Omega needs and builds Omega
 with the requested compiler (see below). You can also point to an existing
 Omega build with `-p/--component_path` (analogous to `polaris setup` and
-`polaris suite`). On a compute node, the utility will also run CTests directly.
+`polaris suite`). On a compute node (in an interactive or batch job), the
+utility will also run CTests directly, unless `--build_only` is given.
 On a login node, it will create a job script for running CTests and can
 optionally submit the job script.
 
@@ -79,8 +80,8 @@ optionally submit the job script.
 
    * `--cmake_flags="<flags>"`: Extra flags to pass to the `cmake` command
 
-   * `--build_only`: build Omega and link the meshes, but do not write or
-     submit a job script for the CTests
+   * `--build_only`: build Omega and link the meshes, but do not run the
+     CTests or write or submit a job script for them
 
    * `--build_jobs N`: build with `make -j N` instead of Omega's own
      `omega_build.sh`, for a host that cannot afford its parallelism (the
@@ -91,7 +92,8 @@ optionally submit the job script.
      runs the build through `ctest_build()` and the tests through
      `ctest_test()`, which write `Build.xml` and `Test.xml` under
      `Testing/<tag>/` in the build directory.  The build stage runs where the
-     utility runs and the test stage in the job, appending to the same tag.
+     utility runs and the test stage in the job (or right after the build on
+     a compute node), appending to the same tag.
 
    * `--cdash_site`, `--cdash_build_name`, `--cdash_model`, `--cdash_url`:
      what the dashboard entry is called and where it goes.  The defaults are
@@ -99,8 +101,8 @@ optionally submit the job script.
      Omega project on my.cdash.org.  The nightly cron jobs pass `Nightly`
      and their own build names.
 
-   * `--cdash_submit`: submit to CDash when the tests finish (implies
-     `--dashboard`)
+   * `--cdash_submit`: submit to CDash when the tests finish, or when the
+     build fails, since then no tests run (implies `--dashboard`)
 
    Example reusing an existing build created by `polaris setup` or
    `polaris suite`:

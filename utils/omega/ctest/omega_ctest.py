@@ -71,7 +71,6 @@ def make_build_script(
     machine,
     compiler,
     branch,
-    build_only,
     build_dir,
     meshes,
     debug,
@@ -83,7 +82,9 @@ def make_build_script(
 ):
     """
     Make a shell script using the standard Omega builder, then append
-    CTest-specific commands (link meshes and optionally run ctests).
+    the commands that link the meshes the CTests read.  The CTests are not
+    in this script: it runs under ``env -i``, which would clear the job
+    environment that ``srun`` needs.
 
     ``meshes`` maps the name of each mesh in the build's ``test`` directory
     to the file to link there, as returned by :py:func:`download_meshes`.
@@ -141,12 +142,7 @@ def make_build_script(
             build_command=build_command,
         )
 
-        if build_only:
-            appended_script = base_script
-        else:
-            appended_script = os.path.join(
-                build_dir, f'build_and_ctest_omega_{machine}_{compiler}.sh'
-            )
+        appended_script = base_script
 
         with open(base_script, 'r', encoding='utf-8') as f:
             content = f.read()
@@ -157,12 +153,6 @@ def make_build_script(
         f'ln -sfn "{filename}" test/{link_name}\n'
         for link_name, filename in meshes.items()
     )
-
-    if not build_only:
-        ctest_command = test_command(
-            branch=branch, build_dir=build_dir, dashboard=dashboard
-        )
-        extra = f'{extra}{ctest_command}\n'
 
     with open(appended_script, 'w', encoding='utf-8') as f:
         f.write(content)
@@ -297,7 +287,7 @@ def dashboard_ctest_command(
     ]
     if stage == 'build':
         parts.append(f'-DCTEST_BUILD_COMMAND={build_command}')
-    if stage == 'test':
+    if stage in ('build', 'test'):
         submit = 'ON' if dashboard.submit else 'OFF'
         parts.append(f'-DSUBMIT={submit}')
 
@@ -329,19 +319,8 @@ def write_omega_ctest_job_script(
     build_omega_dir = os.path.abspath('build_omega')
     os.makedirs(build_omega_dir, exist_ok=True)
 
-    build_type = 'Debug' if debug else 'Release'
-
-    template_filename = os.path.join(THIS_DIR, 'run_command.template')
-
-    with open(template_filename, 'r', encoding='utf-8') as f:
-        template = Template(f.read())
-
-    run_command = template.render(
-        build_dir=build_dir,
-        machine=machine,
-        compiler=compiler,
-        build_type=build_type,
-        ctest_command=ctest_command,
+    run_command = _render_run_command(
+        machine, compiler, build_dir, debug, ctest_command
     )
 
     job_script_filename = f'job_build_and_ctest_omega_{machine}_{compiler}.sh'
@@ -356,6 +335,29 @@ def write_omega_ctest_job_script(
         run_command=run_command,
     )
     return job_script_filename
+
+
+def write_omega_ctest_run_script(
+    machine, compiler, build_dir, debug, ctest_command
+):
+    """
+    Write a script that runs the CTests the way the job script does, for
+    running them in a job that is already in progress.
+    """
+    build_omega_dir = os.path.abspath('build_omega')
+    os.makedirs(build_omega_dir, exist_ok=True)
+
+    run_command = _render_run_command(
+        machine, compiler, build_dir, debug, ctest_command
+    )
+
+    script_filename = os.path.join(
+        build_omega_dir, f'ctest_omega_{machine}_{compiler}.sh'
+    )
+    with open(script_filename, 'w', encoding='utf-8') as f:
+        f.write(f'#!/bin/bash\n\n{run_command}\n')
+    os.chmod(script_filename, 0o755)
+    return script_filename
 
 
 def main():
@@ -455,8 +457,8 @@ def main():
         '--cdash_submit',
         dest='cdash_submit',
         action='store_true',
-        help='Submit the results to CDash when the ctests finish (implies '
-        '--dashboard)',
+        help='Submit the results to CDash when the ctests finish, or when '
+        'the build fails (implies --dashboard)',
     )
 
     args = parser.parse_args()
@@ -508,12 +510,8 @@ def main():
 
     system = config.get('parallel', 'system')
     job_env_var = JOB_ENV_VARS.get(system)
-    if job_env_var is not None and job_env_var in os.environ:
-        # already on a compute node so we will just run ctests directly
-        submit = False
-        build_only = False
-    else:
-        build_only = True
+    # already on a compute node, so the CTests run here rather than in a job
+    in_job = job_env_var is not None and job_env_var in os.environ
 
     meshes = download_meshes(config=config)
 
@@ -521,7 +519,6 @@ def main():
         machine=machine,
         compiler=compiler,
         branch=branch,
-        build_only=build_only,
         build_dir=build_dir,
         meshes=meshes,
         debug=debug,
@@ -547,6 +544,18 @@ def main():
         branch=branch, build_dir=build_dir, dashboard=dashboard
     )
 
+    if in_job:
+        # not under env -i: srun needs the job's environment
+        run_script = write_omega_ctest_run_script(
+            machine=machine,
+            compiler=compiler,
+            build_dir=build_dir,
+            debug=debug,
+            ctest_command=ctest_command,
+        )
+        subprocess.check_call(['bash', run_script])
+        return
+
     job_script_filename = write_omega_ctest_job_script(
         config=config,
         machine=machine,
@@ -566,6 +575,24 @@ def main():
         cmd = [submit, job_script_filename]
         print(f'\nRunning:\n   {" ".join(cmd)}\n')
         subprocess.run(args=cmd, check=True)
+
+
+def _render_run_command(machine, compiler, build_dir, debug, ctest_command):
+    """
+    The commands that run the CTests and write their summary, from
+    ``run_command.template``.
+    """
+    template_filename = os.path.join(THIS_DIR, 'run_command.template')
+    with open(template_filename, 'r', encoding='utf-8') as f:
+        template = Template(f.read())
+
+    return template.render(
+        build_dir=build_dir,
+        machine=machine,
+        compiler=compiler,
+        build_type='Debug' if debug else 'Release',
+        ctest_command=ctest_command,
+    )
 
 
 def _read_cmake_cache_value(build_dir, key):
