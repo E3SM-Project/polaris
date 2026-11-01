@@ -78,8 +78,9 @@ class MisomipForward(Forward):
 
     def dynamic_model_config(self, at_setup):
         """
-        Add the options of the ISOMIP+ forward run with a thin film, and turn
-        off the time-varying land-ice forcing if the geometry is fixed
+        Add the options of the ISOMIP+ forward run with a thin film and
+        E3SM's monthly means, and turn off the time-varying land-ice forcing
+        if the geometry is fixed
 
         Parameters
         ----------
@@ -88,6 +89,11 @@ class MisomipForward(Forward):
             opposed to at runtime
         """
         super().dynamic_model_config(at_setup)
+        self.add_yaml_file(
+            'polaris.tasks.ocean.misomip',
+            'monthly_output.yaml',
+            template_replacements=dict(data_mode=self.data_mode),
+        )
         if not self.data_mode:
             self.add_yaml_file(
                 'polaris.tasks.ocean.misomip', 'static_land_ice.yaml'
