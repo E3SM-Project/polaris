@@ -26,6 +26,10 @@ COLORS = {'e3sm': 'tab:blue', 'standalone': 'tab:orange'}
 #: The model whose entry is marked, the one Polaris descends from
 MARKED_MODEL = 'MPAS-Ocean'
 
+#: The length (years) of each experiment in the protocol, the shortest
+#: x axis of the time series
+NOMINAL_YEARS = {'ocean0': 1.0, 'ocean1': 20.0, 'ocean2': 20.0}
+
 #: The series compared: the variable, the file's stem, the title, the y
 #: label and the scale
 SERIES = [
@@ -80,6 +84,9 @@ class PublishedComparison(ProductStep):
     ----------
     kinds : list of str
         The runs compared, ``e3sm`` and ``standalone``
+
+    experiment : str
+        The experiment
     """
 
     def __init__(self, component, subdir, yung2026, diagnostics):
@@ -108,6 +115,7 @@ class PublishedComparison(ProductStep):
             cpus_per_task=1,
         )
         self.kinds = list(diagnostics)
+        self.experiment = yung2026.experiment
         self.add_input_file(
             filename=YUNG2026_FILENAME,
             work_dir_target=f'{yung2026.path}/{YUNG2026_FILENAME}',
@@ -146,7 +154,7 @@ class PublishedComparison(ProductStep):
         time = ds_pub.time.values
         ensemble = []
         lines = []
-        for index, model in enumerate(ds_pub.model.values):
+        for index, model in enumerate(_model_names(ds_pub)):
             values = scale * ds_pub[name].isel(nModels=index).values
             if model == MARKED_MODEL:
                 lines.append(
@@ -172,8 +180,13 @@ class PublishedComparison(ProductStep):
                     LABELS[kind],
                     color=COLORS[kind],
                     linewidth=2.0,
+                    marker='o',
                 )
             )
+        ends = [
+            float(series[kind].time.max()) + 1.0 / 12.0 for kind in self.kinds
+        ]
+        end = max([NOMINAL_YEARS[self.experiment]] + ends)
         plot = f'{stem}.png'
         data = f'{stem}.nc'
         plot_time_series(
@@ -183,6 +196,7 @@ class PublishedComparison(ProductStep):
             title=f'{title} and the COM results of Yung et al. (2026)',
             ensemble=ensemble,
             ensemble_label='other COM models',
+            xlim=(0.0, end),
         )
         write_netcdf(ds_data, data)
         self.add_product(
@@ -200,7 +214,7 @@ class PublishedComparison(ProductStep):
         with mplstyle_context():
             fig = Figure(figsize=(6.0, 6.0))
             ax = fig.add_subplot(111)
-            for index, model in enumerate(ds_pub.model.values):
+            for index, model in enumerate(_model_names(ds_pub)):
                 melt = SECONDS_PER_YEAR * ds_pub.meltRateByDraft.isel(
                     nModels=index
                 )
@@ -269,7 +283,7 @@ class PublishedComparison(ProductStep):
                 ax = fig.add_subplot(1, 2, index + 1)
                 strength = ds_pub[f'{name}Strength'].values
                 ax.scatter(melt_pub, strength, color='0.6', label='COM models')
-                for model_index, model in enumerate(ds_pub.model.values):
+                for model_index, model in enumerate(_model_names(ds_pub)):
                     ax.annotate(
                         model,
                         (melt_pub[model_index], strength[model_index]),
@@ -379,3 +393,11 @@ class PublishedComparison(ProductStep):
             gallery='melt',
             title='Time-mean melt rate and the COM models',
         )
+
+
+def _model_names(ds_pub):
+    """The models' names, which come back from netCDF as bytes"""
+    return [
+        name.decode() if isinstance(name, bytes) else str(name)
+        for name in ds_pub.model.values
+    ]
