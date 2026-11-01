@@ -50,7 +50,7 @@ digraph fanssie {
     d151 [label=<<b>#151</b>  merge MALI-Dev's develop<br/><font color="#52514e">merged into FAnSSIE</font>>, fillcolor="#e3fcef"];
     d158 [label=<<b>#158–#163</b>  ocean without an atmosphere; wetting and drying<br/>and tidal forcing in E3SM; kept floating fraction;<br/>MPAS-Ocean inputs named by case variables;<br/>an option that keeps glc runoff out of the ocean;<br/>conserved fluxes under ice shelves<br/><font color="#52514e">merged into FAnSSIE</font>>, fillcolor="#e3fcef"];
     d164 [label=<<b>#164–#167</b>  grounded-ice pressure cap in one threaded loop;<br/>one ocean density from pressure to depth;<br/>land-ice mask follows the ice fraction;<br/>land-ice geometry in monthly means<br/><font color="#52514e">merged into FAnSSIE</font>>, fillcolor="#e3fcef"];
-    d168 [label=<<b>#168</b>  MALI's data-mode export follows its thickness file<br/><font color="#52514e">open</font>>, fillcolor="#deebff"];
+    d168 [label=<<b>#168</b>  MALI's data-mode export follows its thickness file<br/><font color="#52514e">merged into FAnSSIE</font>>, fillcolor="#e3fcef"];
     d156 [label=<<b>#156, #157</b>  MALI's E3SM namelist without the lapse rate;<br/>MALI's inputs named by case variables<br/><font color="#52514e">merged into FAnSSIE</font>>, fillcolor="#e3fcef"];
     fanssie [label=<<b>fanssie-ocn-glc-coupling</b><br/>shared FAnSSIE branch (since Oct 16)<br/><font color="#52514e">only gains commits · ledger in FANSSIE.md</font>>,
              fillcolor="#fff0b3", penwidth=2, color="#c98500", fontsize=12];
@@ -94,7 +94,7 @@ digraph fanssie {
   d156 -> fanssie;
   d158 -> fanssie;
   d164 -> fanssie;
-  d168 -> fanssie [style=dashed];
+  d168 -> fanssie;
   malidev -> d151 [constraint=false];
   d151 -> fanssie;
 
