@@ -265,12 +265,13 @@ For ocean components (`mpas-ocean` and `omega`), `polaris setup` and
 `polaris suite` check that Polaris' packaged
 [Physical Constants Dictionary (PCD)](https://github.com/E3SM-Project/PhysicalConstantsDictionary)
 version
-(`polaris/constants/pcd.yaml`) matches the target branch's
-`share/pcd.yaml` version.
+(`polaris/constants/pcd.yaml`) matches the `share/pcd.yaml` version of the
+branch the model is built from: the `--branch` being built, or else the branch
+that the existing build in the component path was made from.
 
 - If the versions differ, setup stops with an error.
-- If `share/pcd.yaml` is not found in the branch, Polaris warns and skips the
-   check.
+- If `share/pcd.yaml` is not found in the branch, or Polaris cannot tell which
+   branch an existing build was made from, Polaris warns and skips the check.
 
 When working with a branch that has a newer PCD version, update
 `polaris/constants/pcd.yaml` to the matching version in Polaris. In general,

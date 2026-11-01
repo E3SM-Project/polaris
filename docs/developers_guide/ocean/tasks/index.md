@@ -21,6 +21,7 @@ inertial_gravity_wave
 internal_wave
 manufactured_solution
 merry_go_round
+mixed_layer_eddies
 nondivergent_2d
 overflow
 realistic_global

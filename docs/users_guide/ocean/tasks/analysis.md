@@ -238,6 +238,43 @@ what makes re-analysis behave sensibly:
   so analyzing years 21--40 leaves the results for years 1--20 in place.  This
   also makes it impossible to get a plot labelled with one range whose
   contents came from another.
+- **An overlapping range inherits rather than recomputes.**  The products that
+  reduce the simulation month by month -- ocean heat content so far -- cache
+  each month they reduce, and a later range reads the months an earlier one
+  already did instead of reading those monthly means again.  Extending a
+  twenty-year series to forty therefore costs twenty years, and re-running a
+  sub-range of one already analyzed costs nothing.
+
+(ocean-analysis-inheritance)=
+
+### what may be inherited, and what may not
+
+Inheriting numbers that were computed from something else is the one way this
+could go quietly wrong, so what a cache has to agree with before it is used is
+deliberately narrow:
+
+- Only directories of **the same product** in **the same work directory** are
+  looked at -- sibling ranges of that product, and nothing else.
+- Only steps that **finished** are, so a cache left behind by an interrupted
+  run is not picked up.  The exception is the step's own directory: a run that
+  was interrupted picks up where it left off when it is re-run.
+- Only caches carrying the same **provenance stamp** are: the simulation's
+  Omega configuration and output directory, the mesh, the config options and
+  constants that decide the numbers -- the elevation ranges and the specific
+  heat capacity for heat content -- and a version number for the code that
+  computed them.
+  The path says nothing about which simulation was analyzed, so the stamp is
+  what keeps a work directory pointed at a second simulation from mixing the
+  two.
+
+Every run says in its log how many months it inherited and from where, and
+names any candidate it turned down together with the entry of the stamp that
+differs.  The stamp is also written into the cache and into the product beside
+it, so `ncdump -h` on a result says what it came from.
+
+Setting `reuse_previous = False` in `[ocean_analysis]` turns inheritance off
+and recomputes everything from the monthly means, for anyone who wants
+determinism rather than discovery.
 
 Re-running `polaris setup` rewrites the suite pickle at the root of the work
 directory, so the range most recently set up is the one `polaris serial` will
@@ -256,22 +293,14 @@ The suite is being built up product by product.  What exists so far:
 
 | task | product | status |
 | --- | --- | --- |
-| `climatology_maps` | map-view climatologies, one step per field group | {ref}`available <ocean-analysis-climatology-maps>` |
+| `climatology_maps` | map-view climatologies and maps of the change in ocean heat content, one step per field group | {ref}`available <ocean-analysis-climatology-maps>` |
 | `global_stats` | time series of the simulation's global statistics | {ref}`available <ocean-analysis-global-stats>` |
-| `heat_content_series` | time series of globally integrated ocean heat content | not yet implemented |
-| `moc` | latitude-elevation plot of the meridional overturning circulation | not yet implemented |
+| `heat_content_series` | time series of globally integrated ocean heat content | {ref}`available <ocean-analysis-heat-content-series>` |
+| `moc` | latitude-elevation plot of the meridional overturning circulation | {ref}`available <ocean-analysis-moc>` |
 | `publish` | the staging tree and the {ref}`gallery <ocean-analysis-gallery>` over it | implemented |
 
-A task that is not yet implemented resolves the simulation files it will read,
-links them into its work directory and reports them in its log, which is
-enough to check that a simulation is being located correctly.  No step
-describes its products in a manifest yet, so `publish` generates an empty
-gallery.
-
-The `moc` task additionally depends on a diagnostic that Omega computes in
-situ and does not yet provide.  A simulation without it is an ordinary case:
-the step reports that no MOC output was written and produces nothing, rather
-than failing the suite.
+In the case of a simulation without MOC output, the step reports that no MOC
+output was written and produces nothing, rather than failing the suite.
 
 (ocean-analysis-climatology-maps)=
 
@@ -309,7 +338,9 @@ group, which has to be enabled in the simulation with the fields the analysis
 reads in its `Fields` list.  Omega names each field of a monthly mean for the
 field and the period, `Temperature_TimeMean1Month`, and names each file for
 the month after the one it averages; the climatology strips the suffix and
-takes the file named `0001-02` as January of year 1.
+takes the file named `0001-02` as January of year 1.  Each file's time bounds
+are checked against the month it is taken to cover, and one that does not
+match stops the step with an error.
 
 Only the variables the analysis needs are averaged, so the cost scales with
 what is being plotted rather than with the size of the monthly means.  A
@@ -389,14 +420,72 @@ the climatology of the reconstructed velocity.  It needs `NormalVelocity` in
 the simulation's `MonthlyAverages` group; a simulation that writes the
 components themselves has those plotted instead.
 
+(ocean-analysis-heat-content-maps)=
+
+#### ocean heat content
+
+The `heat_content` field group is the one group that derives its field rather
+than reading it.  It is always present, whatever `fields` asks for, since it
+is a diagnostic Polaris computes rather than a variable a simulation writes.
+
+What it maps is the **change** in heat content from the first monthly mean of
+the range, `heat_content_anomaly`, since a map of heat content itself mostly
+shows how deep each column is.  Each season's heat content comes from the
+climatology and the first month's from that monthly mean, computed the same
+way, and the map is the difference.  The first monthly mean stands in for the
+initial condition, so a seasonal map carries the difference between that
+season and the first month as well as any drift.
+
+Heat content per unit area is a **mass**-weighted integral of conservative
+temperature: the specific heat capacity times the sum over layers of
+temperature weighted by each layer's mass per unit area.  That mass comes
+from the model's own mass-like thickness -- `PseudoThickness` for Omega,
+`layerThickness` for MPAS-Ocean -- times the reference density that defines
+Omega's pseudo-height.  Weighting by mass rather than by a geometric
+thickness is what removes the in-situ-versus-reference density error of a few
+tenths of a percent that MPAS-Analysis's formulation carries.
+
+The ranges to integrate over are given by `elevation_ranges` in
+`[ocean_analysis_ohc]`, written `<top>:<bottom>` in m, positive up:
+
+```cfg
+[ocean_analysis_ohc]
+elevation_ranges = top:-700.0, -700.0:-2000.0, -2000.0:bottom, top:bottom
+```
+
+`top` is the free surface of each column and `bottom` is its seafloor, so
+`top:bottom` is the whole column.  These are geometric elevations, matching
+the convention MPAS-Analysis and the observational products use; the integral
+itself is still mass-weighted.  Writing the upper bound as `top` rather than
+as `0.0` matters: `0.0` would exclude the water between the resting sea
+surface and the free surface, and a different amount of it in every column and
+every season.
+
+A range boundary usually falls inside a layer rather than on an interface,
+and the geometry enters there and nowhere else: the layer is weighted by the
+fraction of its thickness that the range covers, and that fraction is applied
+to its mass.  A layer lying wholly within the range therefore contributes its
+whole mass whatever the geometry says, and a range that reaches below the
+seafloor is truncated there.  A column with no water in the range at all --
+one shallower than 2000 m, for the `-2000.0:bottom` band -- is masked rather
+than plotted as zero.
+
+The specific heat capacity is the one in Polaris's Physical Constants
+Dictionary, which is the one the rest of E3SM uses.  Like the reference
+density, it is not a config option.
+
+Output names follow the rest of the maps, with the range in place of the
+elevation, for example `heat_content_anomaly_ANN_top_to_bottom.png`.  The
+netCDF is written in J m-2, which is the unit the quantity means, and carries
+the range and the month it is a change from as attributes, so a plot cannot be
+mistaken for a different one.  The plot is drawn in GJ m-2 with a diverging
+colormap, set in `[ocean_analysis_map_heat_content_anomaly]`.
+
 #### what is not there yet
 
 **`mixedLayerDepth`** is in the config file's field list but is a diagnostic
 Omega does not compute yet, so its maps are reported as skipped in the step's
 log rather than silently dropped.
-
-The `heat_content` field group exists but derives nothing yet, so it produces
-no maps.
 
 (ocean-analysis-global-stats)=
 
@@ -448,6 +537,144 @@ Omega can write these statistics either as snapshots or as time means over a
 period it is configured with, and it names the variables differently in the
 two cases.  Polaris reads the simulation's Omega configuration to find out
 which it wrote, so this needs no option of its own.
+
+(ocean-analysis-heat-content-series)=
+
+### ocean heat content time series
+
+The `heat_content_series` task reduces every month of the simulation to the
+globally integrated ocean heat content of each elevation range and plots the
+series.  Heat content drift is what a long coupled simulation is judged on.
+
+The integral is the same mass-weighted one the maps take, over the same ranges
+from `[ocean_analysis_ohc]`, described under
+{ref}`ocean-analysis-heat-content-maps`; the difference is that it is taken
+from the monthly means themselves rather than from a climatology.  Averaging
+over the range is exactly what a drift curve must not do, so the climatology
+is no use here.
+
+The range of years is `start_year` and `end_year` in
+`[ocean_analysis_time_series]`, the same range the global statistics use:
+
+```cfg
+[ocean_analysis_time_series]
+start_year = 1
+end_year = 60
+```
+
+Three files land in the step's directory:
+
+`heat_content.png`
+: two panels sharing a time axis -- the heat content of each range in
+  $10^{22}$ J, which the deep ocean dominates, and its anomaly from the first
+  month of the range, which is where a drift of a few tenths of a percent is
+  visible at all.
+
+`heat_content.nc`
+: the same series in J, with the year and the month of each value, and the
+  range and the options it was computed under as attributes.
+
+`ocean_heat_content_cache.nc`
+: the reduced months, which is what a later range inherits; see
+  {ref}`ocean-analysis-inheritance`.
+
+Only `temperature`, the model's mass-like thickness and, when a range has a
+bound inside the column, `GeomZInterface` are read from each month, and only
+one month is held at a time, so the memory this step needs does not grow with
+the length of the record.  A first run over several decades at high
+resolution is the expensive one, and every run after it is nearly free.
+
+(ocean-analysis-moc)=
+
+### meridional overturning circulation
+
+The `moc` task plots the annual climatology of the global meridional
+overturning streamfunction against latitude and elevation over the climatology
+years.
+
+**Polaris does not compute the MOC.**  Getting the streamfunction right needs
+the full three-dimensional velocity at every time step, not a monthly mean of
+it, which is why Omega computes it in situ; Polaris computes the climatology
+of what Omega wrote and plots it.  The vertical axis is Omega's too: the streamfunction lives on
+layer interfaces, whose elevation moves, and Omega reports the mean elevation
+of each interface over the same period alongside the streamfunction.  Polaris
+does not reconstruct it, since an axis averaged over a different period would
+quietly disagree with the diagnostic it labels.  How Omega computes both is
+described in the
+[MOC section](https://docs.e3sm.org/Omega/Omega/userGuide/Analysis.html#moc)
+of Omega's User's Guide.
+
+Only the **global** streamfunction is plotted.  Omega's MOC group can compute
+the streamfunction for named regions, and regional overturning --- the
+Atlantic MOC in particular --- comes with the rest of the regional analysis
+later.
+
+The simulation has to have run with the `MOC` analysis group turned on:
+
+```yaml
+Omega:
+  Analysis:
+    MOC:
+      Enable: true
+      NumBins: 180
+      Regions: [Global]
+      ReductionPeriod: [1Month]
+      Filename: moc.$Y-$M.nc
+```
+
+Polaris reads the group from the simulation's Omega configuration, so nothing
+about it is restated in the Polaris config file.  The group has to write
+monthly means to one file per month, as above: the climatology is computed
+from them with `ncclimo`, the same way and with the same weighting by the
+length of each month as the climatology the
+{ref}`maps <ocean-analysis-climatology-maps>` are made from.  MOC output of any other kind is reported, with what
+the group would need to write instead, and nothing is plotted.
+
+Two files land in `ocean/analysis/moc/<range>/`:
+
+`global.png`
+: The streamfunction in Sv as filled contours with contour lines over them,
+  on a diverging color map centered on zero.  The color bar marks the value
+  of each contour line.  Elevation is on the vertical
+  axis, positive up, so the sea surface is at the top without the axis being
+  inverted.
+
+  Polaris preserves Omega's streamfunction sign convention.  Omega computes
+  the global streamfunction by accumulating upward-positive vertical volume
+  flux from south to north, taking zero at the southern boundary.  With
+  latitude increasing to the right and elevation increasing upward, positive
+  streamfunction corresponds to clockwise overturning and negative
+  streamfunction to counterclockwise overturning.  For an isolated positive
+  cell, the upper branch flows northward and the lower branch southward.
+
+`global.nc`
+: The streamfunction that was plotted, with the latitude of each bin center
+  and the elevation of each interface, and the year range, the reduction
+  period and the files it came from as attributes.
+
+Two options in `[ocean_analysis_moc]` govern the plot, alongside the color map
+options every plot has:
+
+`contour_interval`
+: The spacing of the contour lines, in Sv.
+
+`max_streamfunction`
+: The maximum absolute value of the color map, in Sv, which is symmetric about
+  zero.  The default is the largest value the streamfunction reaches.  Setting
+  it brings out a weak circulation that a strong one would otherwise flatten,
+  and costs nothing: the contour lines are drawn over the whole range whatever
+  the color map is clipped to.
+
+The range of years is `start_year` and `end_year` in
+`[ocean_analysis_climatology]` --- the same range the maps use, since both are
+averages over the climatology period rather than time series.
+
+**A simulation that wrote no MOC output, or wrote it before the axes were
+attached to the stream, is reported rather than failed.**  Omega attaches the
+latitude bin boundaries and the interface elevations to every MOC output
+stream, but that came later than the streamfunction itself, so a file with one
+and not the other will be met.  The step names the field that is missing and
+what would have written it, and produces nothing.
 
 ## troubleshooting
 

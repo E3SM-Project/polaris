@@ -1,8 +1,8 @@
 # Omega PR testing utility
 
 This utility runs the testing the Omega pull request template asks for: the
-CTests and the Polaris `omega_pr` suite on each supported machine and
-compiler, plus linting and the documentation build, reported as `Testing`
+CTests, the Polaris `omega_pr` suite and coupled CIME tests on each
+supported machine and compiler, plus linting and the documentation build, reported as `Testing`
 comments on the PR.  It can be driven by a developer or by AI agents, who
 follow [AGENTS.md](AGENTS.md).
 
@@ -30,14 +30,18 @@ its rows.  An agent on every machine also works, but is discouraged.
    builds and sets one up.  A baseline with its own Polaris commit is found
    or set up from a second checkout: by default the deployed checkout of
    `main` that the settings' `polaris_main` names, or the one whose load
-   script `--baseline-load-script` gives.  It then builds and sets up the PR suite, and
-   prepares the CTests.  It prints the three jobs, or submits them with
-   `--submit`.  With `--parallel`, the PR suite, and a baseline it sets up,
+   script `--baseline-load-script` gives.  It then builds and sets up the PR suite,
+   prepares the CTests, and builds the coupled CIME tests (by default
+   `ERS_D` and `PEM_D` of `T62_oQU240.COMEGA-IAF`, or those
+   `--coupled-tests` names) with `create_test --no-run`, in a clean shell
+   with the machine's `load_latest_cime_env.sh` sourced.  It prints the
+   jobs, or submits them with `--submit`.  The coupled tests run only on
+   the PR, since `ERS` and `PEM` tests compare a run with itself.  With `--parallel`, the PR suite, and a baseline it sets up,
    run their steps at the same time with `polaris parallel`.
 4. **`report`** (each machine) writes one comment for the machine's rows:
    a table with a line for each row, generated from the results, and for
-   each row a collapsed block with the files Polaris and CTest wrote,
-   pasted unchanged, and the compiler warnings the PR build has that the
+   each row a collapsed block with the files Polaris, CTest and CIME
+   (`TestStatus`) wrote, pasted unchanged, and the compiler warnings the PR build has that the
    baseline build does not.
 5. **`post`** posts a comment that `report` or `lint` wrote, once someone
    has read it.  Neither posts by itself.  A comment written on a machine
@@ -45,6 +49,12 @@ its rows.  An agent on every machine also works, but is discouraged.
 6. **`status`** lists which rows have been reported and whether they are
    for the PR's current head.  Given the test branch, it lists the rows to
    test from each machine.
+7. **`cleanup`** (each machine), only when you ask, lists the old runs,
+   baselines and Omega worktrees in `work_base`, and removes them with
+   `--delete`.  It keeps anything an open Omega or Polaris PR cites, which
+   **`cited`** lists on your computer, and anything modified in the last
+   few days.  With `--branches` on your computer, it also deletes the test
+   branches of PRs that have merged or closed.
 
 ## Setup
 
@@ -111,6 +121,13 @@ omega_pr_test.py post --pr 553 \
     <work_base>/pr553-54456ec/report_chrysalis.md
 
 omega_pr_test.py status --pr 553
+
+# cleaning up, when you choose to: on your computer
+omega_pr_test.py cited
+omega_pr_test.py cleanup --branches
+# copy <work_base>/cited_paths.txt to work_base on each machine, then there
+omega_pr_test.py cleanup
+# ...and once the lists look right, run each again with --delete
 ```
 
 ## Layout
@@ -120,11 +137,13 @@ omega_pr_test.py status --pr 553
   omega/<sha12>/                  Omega worktrees, one per commit
   baselines/<machine>_<compiler>_polaris-<sha7>_omega-<sha7>/
     build/  omega_pr/             baselines, reused across PRs
+  cited_paths.txt                 paths open PRs cite, for cleanup
   pr<N>-<head sha7>/
     lint/                         lint report (and local logs)
     report_<machine>.md           a machine's comment
     <machine>_<compiler>/
       build/  omega_pr/  ctest/   the PR build, suite and CTest job
+      coupled/                    the coupled CIME tests' cases
       setup.json
 ```
 
@@ -132,4 +151,5 @@ The modules this utility shares with other PR testing utilities are in
 [utils/pr_testing](../../pr_testing).
 
 Test branches, `omega-pr-test/<N>-<head sha7>` and its `-baseline`
-branch, can be deleted from the fork once the PR merges.
+branch, can be deleted from the fork once the PR merges or closes, which
+`cleanup --branches` does.

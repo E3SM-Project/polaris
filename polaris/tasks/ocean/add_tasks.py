@@ -20,6 +20,9 @@ from polaris.tasks.ocean.manufactured_solution import (
     add_manufactured_solution_tasks as add_manufactured_solution_tasks,
 )
 from polaris.tasks.ocean.merry_go_round import add_merry_go_round_tasks
+from polaris.tasks.ocean.mixed_layer_eddies import (
+    add_mixed_layer_eddies_tasks as add_mixed_layer_eddies_tasks,
+)
 from polaris.tasks.ocean.overflow import add_overflow_tasks
 from polaris.tasks.ocean.realistic_global import add_realistic_global_tasks
 from polaris.tasks.ocean.seamount import add_seamount_tasks
@@ -48,6 +51,7 @@ def add_ocean_tasks(component):
     add_manufactured_solution_tasks(component=component)
     add_overflow_tasks(component=component)
     add_merry_go_round_tasks(component=component)
+    add_mixed_layer_eddies_tasks(component=component)
     add_seamount_tasks(component=component)
 
     # single column tasks

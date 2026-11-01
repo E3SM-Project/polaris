@@ -175,19 +175,39 @@ def get_requester(fork: Optional[str]) -> str:
 
 def get_comment_bodies(repo: str, number: int) -> List[str]:
     """The bodies of all comments on a pull request, oldest first"""
-    if not gh_usable():
-        pages = api_get(f'repos/{repo}/issues/{number}/comments?per_page=100')
-        return [comment['body'] for page in pages for comment in page]
-    output = gh(
-        [
-            'api',
-            '--paginate',
+    return [
+        item['body'] or ''
+        for item in _get_items(f'repos/{repo}/issues/{number}/comments')
+    ]
+
+
+def get_open_pull_request_texts(repo: str) -> Dict[int, List[str]]:
+    """
+    Everything written on each open pull request: its description,
+    comments, reviews and review comments
+
+    Parameters
+    ----------
+    repo : str
+        The repository, such as ``E3SM-Project/Omega``
+
+    Returns
+    -------
+    texts : dict of int to list of str
+        The texts of each open pull request, by number
+    """
+    texts = {}
+    for pr in _get_items(f'repos/{repo}/pulls?state=open'):
+        number = pr['number']
+        items = [pr]
+        for path in [
             f'repos/{repo}/issues/{number}/comments',
-            '--jq',
-            '.[].body | @json',
-        ]
-    )
-    return [json.loads(line) for line in output.splitlines() if line]
+            f'repos/{repo}/pulls/{number}/reviews',
+            f'repos/{repo}/pulls/{number}/comments',
+        ]:
+            items.extend(_get_items(path))
+        texts[number] = [item['body'] or '' for item in items]
+    return texts
 
 
 def post_comment(repo: str, number: int, body_file: str) -> str:
@@ -297,6 +317,24 @@ def get_job_steps(repo: str, job_id: int) -> List[Dict[str, Any]]:
             f'repos/{repo}/actions/jobs/{job_id}',
             '--jq',
             '.steps[] | {name, conclusion} | @json',
+        ]
+    )
+    return [json.loads(line) for line in output.splitlines() if line]
+
+
+def _get_items(path: str) -> List[Dict[str, Any]]:
+    """The items of a GitHub API list, from every page"""
+    separator = '&' if '?' in path else '?'
+    if not gh_usable():
+        pages = api_get(f'{path}{separator}per_page=100')
+        return [item for page in pages for item in page]
+    output = gh(
+        [
+            'api',
+            '--paginate',
+            f'{path}{separator}per_page=100',
+            '--jq',
+            '.[] | @json',
         ]
     )
     return [json.loads(line) for line in output.splitlines() if line]

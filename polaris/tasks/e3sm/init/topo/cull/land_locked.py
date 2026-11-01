@@ -42,6 +42,32 @@ def remove_ocean_land_locked_cells(ds_mesh, ocean_mask, ocean_seed_mask):
     return connected_to_seeds(ds_mesh, ocean, seeds)
 
 
+def find_dead_end_cells(ds_mesh, ocean_mask):
+    """
+    Find the dead ends of a candidate ocean domain: the cells that the
+    C-grid criterion removes, either because they have fewer than two
+    active edges or because removing their neighbors leaves them so.
+
+    Dead ends form cul-de-sacs, so removing them never disconnects one part
+    of the ocean from another.
+
+    Parameters
+    ----------
+    ds_mesh : xarray.Dataset
+        An MPAS mesh with ``cellsOnCell`` and ``nEdgesOnCell``
+
+    ocean_mask : numpy.ndarray
+        A boolean mask on cells, True for the candidate ocean domain
+
+    Returns
+    -------
+    dead_end_mask : numpy.ndarray
+        A boolean mask on cells, True for the dead ends of the domain
+    """
+    ocean = np.asarray(ocean_mask).astype(bool)
+    return np.logical_and(ocean, ~_enforce_ocean_criteria(ds_mesh, ocean))
+
+
 def remove_land_locked_cells(
     ds_mesh,
     ocean_mask,

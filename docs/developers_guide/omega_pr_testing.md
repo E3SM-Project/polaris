@@ -2,8 +2,9 @@
 
 # Testing an Omega pull request
 
-The Omega pull request template asks for the CTests and the Polaris
-`omega_pr` suite to pass on each supported machine and compiler, and for the
+The Omega pull request template asks for the CTests, the Polaris
+`omega_pr` suite and coupled CIME tests to pass on each supported machine
+and compiler, and for the
 results to be recorded in `Testing` comments.  The utility in
 `utils/omega/pr_testing` does this, run by a developer or by an AI agent.
 Its `README.md` describes the commands, and its `AGENTS.md` holds the
@@ -12,8 +13,8 @@ instructions agents follow.
 In outline, an *initiator* pins what to test in a branch on the requester's
 fork and reports on linting and the documentation build.  A *tester* builds
 and runs the baseline and the PR on each machine, then posts one comment
-for the machine's rows: a line for each row, and the files Polaris and the
-CTests wrote, with the commits of Polaris and both Omega builds and any new
+for the machine's rows: a line for each row, and the files Polaris, the
+CTests and CIME wrote, with the commits of Polaris and both Omega builds and any new
 compiler warnings.  By default, one agent
 on the requester's own computer is both, running each machine's commands
 over ssh through the connections the requester opens by logging in.

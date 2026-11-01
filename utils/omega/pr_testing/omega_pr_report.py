@@ -1,12 +1,13 @@
 """
 The tester's Testing comment for a machine: a line for each of its rows,
-generated from the results, and below it the files Polaris and CTest wrote,
-pasted unchanged, with any new build warnings
+generated from the results, and below it the files Polaris, CTest and CIME
+wrote, pasted unchanged, with any new build warnings
 """
 
 import os
 from typing import Any, Dict, List, Optional, Tuple
 
+import omega_pr_coupled as coupled
 import pr_test_git as git_tools
 import pr_test_report as report
 from omega_pr_manifest import (
@@ -20,13 +21,13 @@ from omega_pr_setup import SUITE, get_row_dir, get_run_dir
 from pr_test_config import PrTestConfig
 from pr_test_report import ReportError, RowResult
 from pr_test_rows import Row, get_machine_rows
-from pr_test_setup import SetupError, read_state
+from pr_test_setup import Job, SetupError, get_system, read_state
 from pr_test_warnings import format_warnings_section
 
 from polaris.machines import discover_machine
 
 #: the table's columns after each row's label
-COLUMNS = ['CTests', f'`{SUITE}`', 'New build warnings']
+COLUMNS = ['CTests', f'`{SUITE}`', 'Coupled', 'New build warnings']
 
 
 def run_report(
@@ -226,6 +227,18 @@ def _row_result(config, manifest, row: Row, changed) -> RowResult:
         state.pr_work_dir, SUITE, state.baseline_work_dir
     )
     ctest_passed, ctest_cell = report.summarize_ctests(state.pr_build_dir)
+    if state.coupled_cases:
+        coupled_passed, coupled_cell, coupled_text = (
+            coupled.summarize_coupled_tests(
+                state.coupled_cases,
+                [Job(**job) for job in state.jobs],
+                get_system(row.machine),
+                coupled.get_cime_env_script(row.machine),
+            )
+        )
+    else:
+        # set up before the utility ran coupled tests
+        coupled_passed, coupled_cell, coupled_text = True, 'not run', ''
 
     if state.no_baseline_reason is None:
         baseline_build = None
@@ -252,10 +265,14 @@ def _row_result(config, manifest, row: Row, changed) -> RowResult:
     return RowResult(
         row=row,
         status='complete',
-        result='pass' if suite_passed and ctest_passed else 'fail',
-        cells=[ctest_cell, suite_cell, warnings_cell],
+        result='pass'
+        if suite_passed and ctest_passed and coupled_passed
+        else 'fail',
+        cells=[ctest_cell, suite_cell, coupled_cell, warnings_cell],
         details='\n\n'.join(
-            text.strip() for text in [pr_md, ctest_md, warnings_text]
+            text.strip()
+            for text in [pr_md, ctest_md, coupled_text, warnings_text]
+            if text
         ),
         marker=marker,
     )

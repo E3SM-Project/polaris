@@ -167,9 +167,41 @@ def connected_to_seeds(ds_mesh, cell_mask, seed_mask, link_mask=None):
         A boolean array of shape ``(nCells,)`` that is True for cells in the
         domain that are reachable from a seed
     """
+    mask = np.asarray(cell_mask).astype(bool)
+    seeds = np.logical_and(np.asarray(seed_mask).astype(bool), mask)
+    if not seeds.any():
+        return np.zeros(mask.size, dtype=bool)
+
+    label = label_regions(ds_mesh, mask, link_mask=link_mask)
+    return np.logical_and(mask, np.isin(label, np.unique(label[seeds])))
+
+
+def label_regions(ds_mesh, cell_mask, link_mask=None):
+    """
+    Label the connected regions of a domain.
+
+    Parameters
+    ----------
+    ds_mesh : xarray.Dataset
+        An MPAS mesh with ``cellsOnCell`` and ``nEdgesOnCell``
+
+    cell_mask : numpy.ndarray or xarray.DataArray
+        A boolean mask on cells that is True for cells in the domain
+
+    link_mask : numpy.ndarray, optional
+        A boolean array of shape ``(nCells, maxEdges)`` selecting the local
+        edges that connect cells.  The default connects every active edge,
+        as in :py:func:`connected_to_seeds`.
+
+    Returns
+    -------
+    label : numpy.ndarray
+        An integer array of shape ``(nCells,)`` giving each cell of the
+        domain the label of its region, and -1 to cells outside the domain.
+        Labels are not contiguous.
+    """
     cells_on_cell = ds_mesh.cellsOnCell.values - 1
     mask = np.asarray(cell_mask).astype(bool)
-    seeds = np.asarray(seed_mask).astype(bool)
     n_cells = cells_on_cell.shape[0]
 
     if link_mask is None:
@@ -184,12 +216,7 @@ def connected_to_seeds(ds_mesh, cell_mask, seed_mask, link_mask=None):
         shape=(n_cells, n_cells),
     )
     _, label = connected_components(graph, directed=False)
-
-    seeds = np.logical_and(seeds, mask)
-    if not seeds.any():
-        return np.zeros(n_cells, dtype=bool)
-
-    return np.logical_and(mask, np.isin(label, np.unique(label[seeds])))
+    return np.where(mask, label, -1)
 
 
 def seed_mask_from_points(ds_mesh, lon_seed, lat_seed):

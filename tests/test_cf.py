@@ -16,7 +16,6 @@ from polaris.mesh.attrs import add_mesh_var_attrs
 
 # the tables of variable attributes Polaris fills in before writing a file
 TABLES = [
-    ('polaris.mesh', 'attrs.yaml'),
     ('polaris.ocean.model', 'attrs.yaml'),
 ]
 
@@ -147,8 +146,8 @@ def test_table_entries_are_valid(package, filename):
 
 
 def test_planar_hex_mesh_gets_mesh_attrs():
-    """make_planar_hex_mesh() writes no attributes; every variable gets a
-    long_name and every non-integer one gets units"""
+    """every variable of a planar mesh has a long_name and every non-integer
+    one has units"""
     ds = add_mesh_var_attrs(
         make_planar_hex_mesh(
             nx=4, ny=4, dc=1e3, nonperiodic_x=False, nonperiodic_y=True
@@ -158,3 +157,29 @@ def test_planar_hex_mesh_gets_mesh_attrs():
         assert 'long_name' in da.attrs, name
         if da.dtype.kind == 'f':
             assert 'units' in da.attrs, name
+
+
+@pytest.mark.parametrize(
+    'on_a_sphere, standard_name', [('YES', 'latitude'), ('NO', None)]
+)
+def test_mesh_latitude_standard_name(on_a_sphere, standard_name):
+    """only a spherical mesh's latitude gets a standard_name"""
+    ds = xr.Dataset(
+        {'latCell': ('nCells', [0.0])}, attrs={'on_a_sphere': on_a_sphere}
+    )
+    ds = add_mesh_var_attrs(ds)
+    assert ds.latCell.attrs.get('standard_name') == standard_name
+
+
+def test_mesh_standard_name_kept_without_on_a_sphere():
+    """a dataset that has lost on_a_sphere keeps the standard names its mesh
+    variables came with, and gains none"""
+    ds = xr.Dataset(
+        {
+            'latCell': ('nCells', [0.0], {'standard_name': 'latitude'}),
+            'lonCell': ('nCells', [0.0]),
+        }
+    )
+    ds = add_mesh_var_attrs(ds)
+    assert ds.latCell.attrs['standard_name'] == 'latitude'
+    assert 'standard_name' not in ds.lonCell.attrs

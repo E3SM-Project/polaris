@@ -26,9 +26,10 @@ cd polaris
 git submodule update --init --recursive
 ```
 
-There are 3 submodules with different versions of E3SM (`E3SM-Project` for
-MPAS-Ocean, `Omega` for Omega and `MALI-Dev` for MALI) in a `e3sm_submodules`
-directory of the polaris repository.
+There are 4 submodules with different versions of E3SM (`E3SM-Project` for
+MPAS-Ocean, `FAnSSIE` for MPAS-Ocean in ocean–ice-sheet coupling work, `Omega`
+for Omega and `MALI-Dev` for MALI) in a `e3sm_submodules` directory of the
+polaris repository.
 
 (dev-conda-env)=
 
@@ -321,8 +322,9 @@ be safe.
 
 ## Building E3SM components
 
-There are 3 E3SM repositories that are submodules within the polaris
-repository, but the MALI-Dev submodule is not yet used.
+There are 4 E3SM submodules within the polaris repository, but the MALI-Dev
+submodule is not yet used.  The FAnSSIE submodule is only for ocean–ice-sheet
+coupling work (see {ref}`dev-ocean-fanssie`).
 
 For MPAS-Ocean and Omega, the recommended workflow is to let Polaris build
 the component automatically during `polaris setup` or `polaris suite`.

@@ -8,6 +8,8 @@ Polaris is designed to support multiple ocean models.
 
 ## Supported Models
 
+- [Omega](https://docs.e3sm.org/Omega/Omega/index.html)
+
 ```{toctree}
 :titlesonly: true
 
