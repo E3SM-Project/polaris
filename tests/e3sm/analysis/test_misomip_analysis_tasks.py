@@ -105,7 +105,9 @@ def test_each_run_gets_steps_named_for_its_months(tmp_path):
         f'{TASK}/standalone/plots_0001-01_0001-01',
         'misomip/yung2026/ocean0',
     ]
-    diagnostics = task.steps['e3sm_diagnostics']
+    diagnostics = task.steps[
+        f'{TASK}/e3sm/diagnostics_0001-01_0001-02'.replace('/', '_')
+    ]
     assert diagnostics.min_thickness == 1.0e-3
     assert len(diagnostics.monthly_filenames) == 2
     assert len(diagnostics.daily_filenames) == 2
@@ -131,7 +133,7 @@ def test_a_case_without_budgets_has_no_conservation_step(tmp_path):
         tmp_path, e3sm_case=_e3sm_case(tmp_path, months=[1], budgets='FALSE')
     )
 
-    assert sorted(task.steps) == [
+    assert sorted(_short_names(task)) == [
         'e3sm_diagnostics',
         'e3sm_plots',
         'publish',
@@ -159,7 +161,7 @@ def test_runs_over_the_same_months_get_distinct_steps(tmp_path):
         standalone=_standalone_run(tmp_path, months=[1]),
     )
 
-    assert sorted(task.steps) == [
+    assert sorted(_short_names(task)) == [
         'comparison',
         'e3sm_diagnostics',
         'e3sm_plots',
@@ -195,8 +197,53 @@ def test_only_ocean0_to_ocean2_are_compared_with_published_results(tmp_path):
     )
     task.configure()
 
-    assert sorted(task.steps) == [
+    assert sorted(_short_names(task)) == [
         'publish',
         'standalone_diagnostics',
         'standalone_plots',
     ]
+
+
+def _short_names(task):
+    """Step names, with the diagnostics' long names shortened to their kind"""
+    names = []
+    for name in task.steps:
+        for kind in ['e3sm', 'standalone']:
+            if f'_{kind}_diagnostics_' in name:
+                name = f'{kind}_diagnostics'
+        names.append(name)
+    return names
+
+
+def test_experiments_are_compared_one_kind_at_a_time(tmp_path):
+    """Two experiments with standalone runs and one with an E3SM run give
+    one comparison, of the standalone runs."""
+    component = Component(name='e3sm/analysis')
+    add_misomip_analysis_tasks(component)
+    task = component.tasks[f'{MESH}/misomip/experiments']
+    section = f'misomip_analysis_{MESH}'
+    for experiment in ['ocean0', 'ocean1']:
+        task.config.set(
+            section,
+            f'{experiment}_standalone',
+            _standalone_run(tmp_path / experiment, months=[1]),
+            user=True,
+        )
+    task.config.set(
+        section,
+        'ocean0_e3sm_case',
+        _e3sm_case(tmp_path, months=[1], budgets='FALSE'),
+        user=True,
+    )
+    task.configure()
+
+    comparisons = [
+        step for name, step in task.steps.items() if 'comparison' in name
+    ]
+    assert len(comparisons) == 1
+    assert comparisons[0].kind == 'standalone'
+    assert comparisons[0].labels == [
+        'standalone ocean0, 4km',
+        'standalone ocean1, 4km',
+    ]
+    assert comparisons[0].include_maps is False

@@ -85,17 +85,14 @@ class MisomipAnalysisTask(Task):
         runs = get_configured_runs(
             self.config, self.mesh_name, self.experiment
         )
-        resolution = self.mesh_name.split('-')[1][1:]
-        diagnostics = dict()
+        resolution = get_resolution(self.mesh_name)
+        diagnostics = get_diagnostics_steps(
+            self.component, self.config, self.mesh_name, self.experiment, runs
+        )
         products = []
         for kind, run in runs.items():
+            self.add_step(diagnostics[kind])
             label = f'{RUN_LABELS[kind]} {self.experiment}, {resolution}'
-            diagnostics[kind] = self._add_shared_step(
-                RunDiagnostics,
-                f'{self.subdir}/{kind}/diagnostics_{run.key}',
-                configured_run=run,
-                experiment=self.experiment,
-            )
             products.append(
                 self._add_shared_step(
                     RunPlots,
@@ -145,11 +142,12 @@ class MisomipAnalysisTask(Task):
             component=self.component,
             subdir=f'{self.subdir}/publish',
             product_steps=products,
-            mesh_name=self.mesh_name,
-            experiment=self.experiment,
-            runs_option=(
-                f'{self.experiment}_e3sm_case or {self.experiment}_standalone '
-                f'in [{runs_section(self.mesh_name)}]'
+            relative_path=f'{self.mesh_name}/{self.experiment}',
+            missing=(
+                f'No runs of {self.experiment} on {self.mesh_name} are '
+                f'configured.  Set {self.experiment}_e3sm_case or '
+                f'{self.experiment}_standalone in '
+                f'[{runs_section(self.mesh_name)}].'
             ),
         )
         self.add_step(publish)
@@ -165,3 +163,60 @@ class MisomipAnalysisTask(Task):
         )
         self.add_step(step)
         return step
+
+
+def get_diagnostics_steps(component, config, mesh_name, experiment, runs):
+    """
+    Get or create the shared diagnostics step of each run of an experiment
+
+    Parameters
+    ----------
+    component : polaris.Component
+        The e3sm/analysis component
+
+    config : polaris.config.PolarisConfigParser
+        The config shared by the MISOMIP analysis tasks
+
+    mesh_name : str
+        The pair of meshes
+
+    experiment : str
+        The experiment
+
+    runs : dict of str to ConfiguredRun
+        The experiment's runs, by kind
+
+    Returns
+    -------
+    diagnostics : dict of str to RunDiagnostics
+        The steps, by kind
+    """
+    return {
+        kind: component.get_or_create_shared_step(
+            step_cls=RunDiagnostics,
+            subdir=f'{mesh_name}/misomip/{experiment}/{kind}/'
+            f'diagnostics_{run.key}',
+            config=config,
+            config_filename='misomip_analysis.cfg',
+            configured_run=run,
+            experiment=experiment,
+        )
+        for kind, run in runs.items()
+    }
+
+
+def get_resolution(mesh_name):
+    """
+    Get the ocean resolution of a pair of meshes, such as ``4km``
+
+    Parameters
+    ----------
+    mesh_name : str
+        The pair of meshes, such as ``misomip-o4km-li1km``
+
+    Returns
+    -------
+    resolution : str
+        The ocean's resolution
+    """
+    return mesh_name.split('-')[1][1:]

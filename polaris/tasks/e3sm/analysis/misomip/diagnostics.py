@@ -109,7 +109,9 @@ class RunDiagnostics(Step):
         """
         super().__init__(
             component=component,
-            name=f'{configured_run.kind}_diagnostics',
+            # unique across experiments and meshes, since the comparison
+            # tasks hold the diagnostics of several
+            name=subdir.replace('/', '_'),
             subdir=subdir,
             ntasks=1,
             cpus_per_task=1,
