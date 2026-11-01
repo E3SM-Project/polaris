@@ -22,16 +22,24 @@
 #   - "cmake@{{ spack.cmake }}"
 #
 library:
+{%- if spack.albany_enabled | default(false) %}
+  - "cmake@{{ spack.albany_cmake }}"
+{%- else %}
   - "cmake@{{ spack.cmake }}"
+{%- endif %}
 {%- if not e3sm_hdf5_netcdf %}
   - "hdf5@{{ spack.hdf5 }}+cxx+fortran+hl+mpi+shared"
   - "netcdf-c@{{ all.netcdf_c }}+mpi~parallel-netcdf"
   - "netcdf-fortran@{{ all.netcdf_fortran }}"
   - "parallel-netcdf@{{ all.pnetcdf }}+cxx+fortran"
 {%- endif %}
-  - "metis@{{ all.metis }}+int64+real64~shared"
-  - "parmetis@{{ spack.parmetis }}+int64~shared"
+  - "metis@{{ all.metis }}+int64+real64~shared+pic"
+  - "parmetis@{{ spack.parmetis }}+int64~shared+pic"
   - "e3sm-scorpio@{{ spack.scorpio }}+mpi~timing~internal-timing~tools+malloc"
+{%- if spack.albany_enabled | default(false) %}
+  - "trilinos-for-albany@{{ spack.trilinos }}{{ spack.trilinos_variants }}"
+  - "albany@{{ spack.albany }}{{ spack.albany_variants }}"
+{%- endif %}
 
 software:
   - "cmake@{{ spack.cmake }}"
