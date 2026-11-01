@@ -15,6 +15,7 @@ from polaris.tasks.e3sm.init.misomip.case_config import (
     E3SM_OWNED_OPTIONS,
     get_create_case_script,
     get_grid_file,
+    get_inputdata_root,
     get_shell_commands,
     get_user_nl_mpaso,
 )
@@ -289,6 +290,23 @@ def test_create_case_script_needs_a_shared_task_count():
     counts = {'ocean': [2, 4], 'landice': [3, 9]}
     with pytest.raises(ValueError, match='no task count in common'):
         get_create_case_script('ocean0', GRIDS, counts)
+
+
+@pytest.mark.parametrize(
+    'value, expected',
+    [
+        ('', DIN_LOC_ROOT),
+        ('/short/inputdata', '/short/inputdata'),
+        ('/short/{experiment}/inputdata', '/short/ocean3/inputdata'),
+    ],
+)
+def test_inputdata_root_names_the_experiment(value, expected):
+    from polaris.config import PolarisConfigParser
+
+    config = PolarisConfigParser()
+    config.add_section('misomip_case_config')
+    config.set('misomip_case_config', 'inputdata_root', value)
+    assert get_inputdata_root(config, 'ocean3') == expected
 
 
 def test_grid_file():
