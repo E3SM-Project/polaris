@@ -8,6 +8,7 @@ from polaris.analysis.product_step import ProductStep
 from polaris.e3sm.analysis.budgets import (
     budget_time_series,
     read_budget_tables,
+    read_initial_start,
 )
 from polaris.viz.time_series import Series, plot_time_series
 
@@ -83,6 +84,13 @@ class CouplerConservation(ProductStep):
         Check the budgets
         """
         tables = read_budget_tables(self.log_filenames)
+        start = read_initial_start(self.log_filenames)
+        if start is not None:
+            self.logger.info(
+                f'The run started at {start}.  The budgets containing the '
+                f"start book the ocean's initial export, which glc never "
+                f'receives, and are reported apart.'
+            )
         rows = []
         for budget, row, stem, title, ylabel, scale in EXCHANGES:
             for period in PERIODS:
@@ -104,22 +112,41 @@ class CouplerConservation(ProductStep):
                         ylabel,
                         scale,
                         period,
+                        start,
                     )
                 )
+        largest: dict[tuple[str, str], float] = dict()
         with open('exchange_residuals.csv', 'w') as csv:
-            csv.write('budget,period,date,ocn,glc,sum,relative_residual\n')
-            for budget, period, date, ocn, glc, total in rows:
+            csv.write(
+                'budget,period,date,ocn,glc,sum,relative_residual,'
+                'initial_start\n'
+            )
+            for budget, period, date, ocn, glc, total, initial in rows:
                 relative = abs(total) / abs(ocn) if ocn != 0.0 else np.nan
                 csv.write(
                     f'{budget},{period},{date},{ocn:.8g},{glc:.8g},'
-                    f'{total:.8g},{relative:.3g}\n'
+                    f'{total:.8g},{relative:.3g},{initial}\n'
                 )
+                note = ', with the initial start' if initial else ''
                 self.logger.info(
                     f'{budget} {period} {date}: ocn {ocn:.6g}, glc '
                     f'{glc:.6g}, sum {total:.3g} ({relative:.2g} of ocn)'
+                    f'{note}'
                 )
+                if not initial:
+                    key = (budget, period)
+                    largest[key] = np.nanmax(
+                        [largest.get(key, np.nan), relative]
+                    )
+        for (budget, period), relative in largest.items():
+            self.logger.info(
+                f'The largest relative residual of the other {budget} '
+                f'{period} budgets is {relative:.2g}.'
+            )
 
-    def _plot_exchange(self, ds, row, stem, title, ylabel, scale, period):
+    def _plot_exchange(
+        self, ds, row, stem, title, ylabel, scale, period, start
+    ):
         """Plot the ocean's and glc's columns of one row and their sum"""
         values = scale * ds.budget.sel(row=row)
         time = np.arange(ds.sizes['Time'])
@@ -152,14 +179,26 @@ class CouplerConservation(ProductStep):
             title=f'{title}, {period}',
         )
         budget = str(ds.budget.attrs['long_name']).split()[0].upper()
+        dates = [str(date) for date in ds.date.values]
+        initial = _index_with_start(dates, start)
         return [
             (
                 budget,
                 period,
-                str(date),
+                date,
                 float(values.sel(component='ocn').isel(Time=index)),
                 float(values.sel(component='glc').isel(Time=index)),
                 float(values.sel(component='*SUM*').isel(Time=index)),
+                index == initial,
             )
-            for index, date in enumerate(ds.date.values)
+            for index, date in enumerate(dates)
         ]
+
+
+def _index_with_start(dates, start):
+    """The index of the budget whose period contains the start, the first
+    to end after it, or None"""
+    if start is None:
+        return None
+    later = [index for index, date in enumerate(dates) if date > start]
+    return later[0] if later else None

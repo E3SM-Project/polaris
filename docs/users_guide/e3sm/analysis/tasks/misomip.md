@@ -92,6 +92,14 @@ and their sum, as totals.  `exchange_residuals.csv` lists the sum relative
 to the ocean's column for each budget.  The coupler prints global means to
 8 decimals, which limits how small a residual it can show.
 
+At an initial start, the driver skips the ocean's first coupling interval.
+The coupler still books the ocean's initial export for that interval in
+the ocean's column, and glc never receives it, so the first daily, monthly
+and annual budgets of a run don't close by that amount.  `exchange_residuals.csv` marks them
+in its `initial_start` column, and the step's log gives the largest
+residual of the others.  Daily budgets show whether the rest of the first
+month closes.
+
 ## Comparing experiments and resolutions
 
 Two more tasks compare runs named in the same config, one kind of run at a
