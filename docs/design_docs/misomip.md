@@ -886,8 +886,13 @@ Each step builds on the one before it.
    Stage B compares Ocean0 and the first years of Ocean1–2; stage E
    compares the full runs.
 6. **Ocean3–4.** The geometry the ocean imports tracks the data-mode file.
-   The grounding line moves without failure, the open-ocean SSH stays near
-   zero, and no open-ocean cell receives land-ice fluxes.
+   The grounding line moves without failure, and no open-ocean cell
+   receives land-ice fluxes. The open-ocean SSH matches the height its
+   density implies relative to the restoring region, as in runs with
+   static geometry, leaving out the narrow open strips along the side
+   walls. It is not zero: the outflow removes nearly all the meltwater,
+   but a freshened open ocean stands above the restoring region, where the
+   SSH is held at zero.
 7. **MISOMIP1.** The melt MALI receives equals the melt the ocean sends,
    each from its own model's output (stage D). In stage E, MALI's
    grounding-line retreat and volume above flotation in IceOcean1r are
