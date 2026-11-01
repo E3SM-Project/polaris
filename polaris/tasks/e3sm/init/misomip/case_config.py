@@ -638,7 +638,7 @@ def get_readme(experiment, grids):
         '',
         f'  ./{CREATE_CASE} -e <E3SM checkout> -c <case directory> \\',
         '      [-m <machine>] [-p <project>] [-C <compiler>] \\',
-        '      [-o <ocean tasks>] [-g <MALI tasks>]',
+        '      [-r <output root>] [-o <ocean tasks>] [-g <MALI tasks>]',
         '',
         'Submit the case yourself.  To create a case by hand instead, use',
         'the MCT driver:',

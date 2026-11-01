@@ -191,8 +191,8 @@ idealized ice-shelf cases, at commit `eb0b74201c` of the
     -e <E3SM checkout> -c <case directory> -m chrysalis -p e3sm
 ```
 
-The machine and project default to CIME's, and the compiler, `-C`, to
-`gnu`.  By default, the ocean and MALI each run on the most tasks both
+The machine, project and output root, `-r`, which holds the case's build
+and run directories, default to CIME's, and the compiler, `-C`, to `gnu`.  By default, the ocean and MALI each run on the most tasks both
 meshes are partitioned for, 64 for `misomip-o4km-li1km`, with MALI on the
 ocean's tasks in turn.  `-o` and `-g` choose other counts for the ocean
 and MALI, which must be among the staged partitions.  The script does not
