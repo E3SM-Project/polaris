@@ -1190,9 +1190,15 @@
    SshForward.dynamic_model_config
 
    compute_freezing_temperature
+   compute_haline_driving
    compute_land_ice_draft_from_pressure
    compute_land_ice_pressure_from_draft
    compute_land_ice_pressure_from_thickness
+   compute_melt_diagnostics
+   compute_melt_rate
+   compute_melt_rate_by_draft
+   compute_thermal_driving
+   compute_thin_film_diagnostics
 ```
 
 ### Ocean Model
