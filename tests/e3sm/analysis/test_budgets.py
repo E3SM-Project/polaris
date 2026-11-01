@@ -22,10 +22,11 @@ COMPONENTS = [
 
 
 def _header_line(budget, units, period, date, seconds):
-    """The coupler's FAH format: (4a,i9,i6)"""
+    """The coupler's FAH format: (4a,i9,i6), with the period's name
+    right-justified in 8 characters, as the coupler's names are"""
     return (
         f'(seq_diag_print_mct) NET {budget} BUDGET ({units}): period = '
-        f'{period}: date = {date:9d}{seconds:6d}'
+        f'{period:>8}: date = {date:9d}{seconds:6d}'
     )
 
 
