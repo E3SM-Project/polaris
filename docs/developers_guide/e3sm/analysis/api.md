@@ -1,5 +1,46 @@
 # e3sm/analysis
 
+```{eval-rst}
+.. currentmodule:: polaris.tasks.e3sm.analysis
+
+.. autosummary::
+   :toctree: generated/
+
+   add_tasks.add_e3sm_analysis_tasks
+```
+
+## Tasks
+
+### misomip
+
+```{eval-rst}
+.. currentmodule:: polaris.tasks.e3sm.analysis.misomip
+
+.. autosummary::
+   :toctree: generated/
+
+   add_misomip_analysis_tasks
+   task.MisomipAnalysisTask
+   task.MisomipAnalysisTask.configure
+   runs.ConfiguredRun
+   runs.get_configured_runs
+   runs.get_mean_months
+   runs.runs_section
+   diagnostics.RunDiagnostics
+   diagnostics.RunDiagnostics.run
+   diagnostics.read_initial_condition
+   diagnostics.isomip_mesh
+   plots.RunPlots
+   plots.RunPlots.run
+   comparison.RunComparison
+   comparison.RunComparison.run
+   conservation.CouplerConservation
+   conservation.CouplerConservation.run
+   publish.MisomipPublish
+   publish.MisomipPublish.setup
+   publish.MisomipPublish.output_path
+```
+
 ## Framework
 
 ### case

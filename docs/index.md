@@ -60,6 +60,7 @@ users_guide/tasks
 users_guide/config_files
 users_guide/suites
 users_guide/mesh/index
+users_guide/e3sm/analysis/index
 users_guide/e3sm/init/index
 users_guide/landice/index
 users_guide/ocean/index
