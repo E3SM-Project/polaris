@@ -9,6 +9,7 @@ import yaml
 from jinja2 import Template
 
 from polaris.component import Component
+from polaris.config import PolarisConfigParser
 from polaris.tasks.e3sm.init.misomip import (
     MisomipTask,
     get_misomip_experiment_steps,
@@ -135,6 +136,10 @@ def test_land_ice_on_ocean_from_data_mode(tmp_path):
         map_step=_step('map'),
         landice_data_step=_step('landice_data'),
     )
+    config = PolarisConfigParser()
+    config.add_section('misomip_land_ice_on_ocean')
+    config.set('misomip_land_ice_on_ocean', 'min_land_ice_fraction', '1e-3')
+    step.config = config
     bed = np.array([-900.0, -900.0, -500.0])
     ds_init = xr.Dataset()
     ds_init['bedTopography'] = (('Time', 'nCells'), bed[np.newaxis, :])
@@ -158,7 +163,7 @@ def test_land_ice_on_ocean_from_data_mode(tmp_path):
     ds = xr.open_dataset(tmp_path / 'land_ice_fields.nc')
     assert [value.decode().strip() for value in ds.xtime.values] == xtimes
     expected = compute_land_ice_fields(
-        read_map(str(tmp_path / 'map.nc')), records, bed
+        read_map(str(tmp_path / 'map.nc')), records, bed, 1e-3
     )
     for name, field in expected.items():
         np.testing.assert_allclose(ds[name].values, field)
