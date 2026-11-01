@@ -760,10 +760,7 @@ On FAnSSIE:
   and in standalone time-varying forcing, so newly floating cells melt and
   cells that lose their ice are treated as open ocean;
 - write the land-ice geometry the ocean imports to E3SM's monthly ocean
-  output, which Ocean3–4 need for their mean melt rate and checks;
-- deliver to glc the ocean's melt from the first coupling intervals of a
-  new run, which the MCT driver drops at startup though restarts are
-  exact, as the coupler budgets of 4 km Ocean0 in E3SM showed.
+  output, which Ocean3–4 need for their mean melt rate and checks.
 
 The notes on the melt-coupling pull request name wetting-and-drying runs
 as the next project after melt coupling. This package is that project.
@@ -859,7 +856,10 @@ Each step builds on the one before it.
    month. Each difference is traced to the coupler or to a recorded
    configuration difference.
 4. **Conservation.** With `BUDGETS=TRUE`, the budgets close for the
-   exchanged melt.
+   exchanged melt from the second day of a new run. On its first day, the
+   MCT driver skips the ocean's first coupling interval, as it does in
+   every E3SM run, yet the ocean's budget books the initial export there,
+   so the ocean's column exceeds glc's. Restarts are exact.
 5. **Published results.** E3SM's Ocean0–2 are plotted against the
    ensemble of Yung et al. (2026). They use E3SM's physics, not the
    protocol's common configuration, so the comparison is qualitative.
