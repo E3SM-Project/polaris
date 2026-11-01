@@ -9,9 +9,9 @@ from mpas_tools.io import write_netcdf
 from polaris import Task
 from polaris.analysis.product_step import ProductStep
 from polaris.tasks.e3sm.analysis.misomip.diagnostics import (
-    INIT_FILENAME,
     TIME_MEAN_FILENAME,
     TIME_SERIES_FILENAME,
+    add_geometry_inputs,
     isomip_mesh,
     read_initial_condition,
 )
@@ -84,7 +84,8 @@ class SeriesComparison(ProductStep):
         for index, (_, step) in enumerate(runs):
             filenames = [TIME_SERIES_FILENAME]
             if include_maps:
-                filenames += [TIME_MEAN_FILENAME, INIT_FILENAME]
+                filenames.append(TIME_MEAN_FILENAME)
+                add_geometry_inputs(self, step, prefix=f'run{index}_')
             for filename in filenames:
                 self.add_input_file(
                     filename=f'run{index}_{filename}',
@@ -138,7 +139,7 @@ class SeriesComparison(ProductStep):
         means = []
         floating = []
         for index in range(len(self.labels)):
-            ds_init = read_initial_condition(f'run{index}_{INIT_FILENAME}')
+            ds_init = read_initial_condition(prefix=f'run{index}_')
             meshes.append(isomip_mesh(ds_init))
             means.append(xr.open_dataset(f'run{index}_{TIME_MEAN_FILENAME}'))
             floating.append(ds_init.landIceFloatingFraction > 0.0)
