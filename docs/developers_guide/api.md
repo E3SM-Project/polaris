@@ -12,6 +12,7 @@ documentation.
 :maxdepth: 1
 :titlesonly: true
 
+e3sm/analysis/api
 e3sm/init/api
 landice/api
 mesh/api
