@@ -155,6 +155,10 @@ renders `create_case.template`, with the task counts that
 mesh's `[misomip_*_partitions]` bounds.  The script checks that the E3SM
 checkout has `E3SM_COMMIT`, and that a partition is staged for each task
 count, before `./case.setup`.
+{py:func}`polaris.tasks.e3sm.init.misomip.case_config.get_pes_file()`
+renders `pes.template`, the layout the script gives `create_newcase` in
+place of MPAS-Ocean's, with 1 thread a task, so that the machine's own MPI
+tasks per node apply.
 
 Only experiments with a standalone ocean run have a case configuration,
 since the namelist comes from that run.

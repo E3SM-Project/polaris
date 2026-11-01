@@ -425,7 +425,10 @@ number of the ocean's.
 
 By default, the ocean and MALI each run on the most tasks both meshes are
 partitioned for, MALI on the ocean's tasks in turn. The other components
-run on the ocean's tasks. *(E3SM runs)* The layouts for long runs.
+run on the ocean's tasks. Each task has 1 thread, and every core of a
+node runs a task. The case's layout comes from a PE file beside the
+script, in place of MPAS-Ocean's, so the machine's own MPI tasks per node
+apply. *(E3SM runs)* The layouts for long runs.
 
 ### Algorithm Design: The inputs are staged as on inputdata
 
@@ -451,6 +454,8 @@ assembled_files/
         cpl/gridmaps/<glc grid>/map_<glc grid>_to_<ocn grid>_<method>.<date>.nc
     case_config/<experiment>/
         README
+        create_case.sh
+        pes.xml
         user_mods/
 ```
 
@@ -596,8 +601,8 @@ plus a list of options whose E3SM defaults differ, with the standalone
 values. A case can read the staged files from a directory other than
 inputdata, for a run before they are copied there. The directory's config
 option may name the experiment, since each experiment has its own
-assembly. `create_case.sh` is
-rendered from a template, with the task counts `get_core_list()` gives for
+assembly. `create_case.sh` and `pes.xml` are
+rendered from templates, with the task counts `get_core_list()` gives for
 each mesh's partition bounds.
 
 ```{admonition} Rationale

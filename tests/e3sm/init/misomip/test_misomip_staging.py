@@ -116,6 +116,7 @@ def _expected(
             f'case_config/{experiment}/user_mods',
             f'case_config/{experiment}/README',
             f'case_config/{experiment}/create_case.sh',
+            f'case_config/{experiment}/pes.xml',
         }
     return expected
 
