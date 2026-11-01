@@ -1,8 +1,48 @@
+import glob
 import importlib.resources as imp_res
+import os
+import re
 from copy import deepcopy
+from typing import NamedTuple
 
 from jinja2 import Template
 from lxml import etree
+
+#: The fields of an MPAS filename template that this module can match, and
+#: the name and pattern of each
+_TEMPLATE_FIELDS = {
+    '$Y': ('year', r'\d{4,}'),
+    '$M': ('month', r'\d{2}'),
+    '$D': ('day', r'\d{2}'),
+    '$h': ('hour', r'\d{2}'),
+    '$m': ('minute', r'\d{2}'),
+    '$s': ('second', r'\d{2}'),
+    '$S': ('seconds_of_day', r'\d{5}'),
+}
+
+
+class StreamFile(NamedTuple):
+    """
+    A file a stream wrote, and the date its name gives
+
+    Attributes
+    ----------
+    path : str
+        The absolute path to the file
+
+    year, month, day : int
+        The date in the file's name, with month and day 1 if the name has
+        none
+
+    seconds : int
+        The seconds since midnight in the file's name, 0 if it has none
+    """
+
+    path: str
+    year: int
+    month: int
+    day: int
+    seconds: int
 
 
 def read(package, streams_filename, tree=None, replacements=None):
@@ -40,6 +80,105 @@ def read(package, streams_filename, tree=None, replacements=None):
     tree = update_tree(tree, new_tree)
 
     return tree
+
+
+def read_file(filename):
+    """
+    Parse a streams file at a path, such as the ``streams.ocean`` that a run
+    of MPAS-Ocean read
+
+    Parameters
+    ----------
+    filename : str
+        The path to the streams file
+
+    Returns
+    -------
+    tree : lxml.etree
+        A tree of XML data describing the run's i/o streams
+    """
+    return etree.parse(filename).getroot()
+
+
+def get_stream(tree, name):
+    """
+    Get a stream, mutable or immutable, from a tree of streams
+
+    Parameters
+    ----------
+    tree : lxml.etree
+        A tree of XML data describing MPAS i/o streams
+
+    name : str
+        The name of the stream
+
+    Returns
+    -------
+    stream : lxml.etree.Element
+        The stream, whose attributes include ``filename_template``
+
+    Raises
+    ------
+    ValueError
+        If the tree has no stream of that name
+    """
+    names = []
+    for tag in ['stream', 'immutable_stream']:
+        for stream in tree.iter(tag):
+            stream_name = stream.attrib.get('name')
+            if stream_name == name:
+                return stream
+            names.append(stream_name)
+    raise ValueError(
+        f'There is no stream named "{name}".  The streams are: '
+        f'{", ".join(sorted(names))}'
+    )
+
+
+def find_stream_files(filename_template, directories):
+    """
+    Find the files that a stream's filename template matches, and the date
+    each was named for
+
+    The date fields ``$Y``, ``$M``, ``$D``, ``$h``, ``$m``, ``$s`` and ``$S``
+    may appear in the template, each at most once.  A file found in more
+    than one directory is taken from the first, so the directories are given
+    in order of preference.
+
+    Parameters
+    ----------
+    filename_template : str
+        The stream's ``filename_template``, which may include a relative
+        directory
+
+    directories : list of str
+        The directories to search
+
+    Returns
+    -------
+    stream_files : list of polaris.streams.StreamFile
+        The files found, in order of their dates
+    """
+    pattern, regex = _template_to_patterns(filename_template)
+    found = dict()
+    for directory in directories:
+        for path in glob.glob(os.path.join(directory, pattern)):
+            relative = os.path.relpath(path, directory)
+            if relative in found:
+                continue
+            match = regex.fullmatch(relative)
+            if match is None:
+                continue
+            found[relative] = _stream_file(os.path.abspath(path), match)
+    return sorted(
+        found.values(),
+        key=lambda stream_file: (
+            stream_file.year,
+            stream_file.month,
+            stream_file.day,
+            stream_file.seconds,
+        ),
+    )
 
 
 def write(streams, out_filename):
@@ -212,3 +351,52 @@ def set_default_io_type(tree, io_type='pnetcdf,cdf5'):
         stream_type = stream.attrib.get('type')
         if 'io_type' not in stream.attrib and 'output' in stream_type:
             stream.attrib['io_type'] = io_type
+
+
+def _template_to_patterns(filename_template):
+    """
+    Make a glob pattern and a regular expression from a filename template
+    """
+    pieces = re.split(r'(\$[A-Za-z])', filename_template)
+    glob_pattern = ''
+    regex = ''
+    seen = set()
+    for piece in pieces:
+        if piece.startswith('$') and len(piece) == 2:
+            if piece not in _TEMPLATE_FIELDS:
+                raise ValueError(
+                    f'The filename template "{filename_template}" has the '
+                    f'field {piece}, which cannot be matched.  The fields '
+                    f'that can are {", ".join(_TEMPLATE_FIELDS)}.'
+                )
+            if piece in seen:
+                raise ValueError(
+                    f'The filename template "{filename_template}" has the '
+                    f'field {piece} more than once.'
+                )
+            seen.add(piece)
+            name, field_regex = _TEMPLATE_FIELDS[piece]
+            glob_pattern += '*'
+            regex += f'(?P<{name}>{field_regex})'
+        else:
+            glob_pattern += glob.escape(piece)
+            regex += re.escape(piece)
+    return glob_pattern, re.compile(regex)
+
+
+def _stream_file(path, match):
+    """
+    Make a stream file from the path and the match of its name
+    """
+    fields = match.groupdict()
+    seconds = int(fields.get('seconds_of_day') or 0)
+    seconds += 3600 * int(fields.get('hour') or 0)
+    seconds += 60 * int(fields.get('minute') or 0)
+    seconds += int(fields.get('second') or 0)
+    return StreamFile(
+        path=path,
+        year=int(fields['year']) if 'year' in fields else 0,
+        month=int(fields.get('month') or 1),
+        day=int(fields.get('day') or 1),
+        seconds=seconds,
+    )
