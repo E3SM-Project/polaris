@@ -189,20 +189,40 @@ idealized ice-shelf cases, at commit `eb0b74201c` of the
 
 ```bash
 <assembled_files>/case_config/ocean0/create_case.sh \
-    -e <E3SM checkout> -c <case directory> -m <machine> -p <project>
+    -e <E3SM checkout> -c <case directory> -p <project>
 ```
 
-The machine, project and output root, `-r`, which holds the case's build
-and run directories, default to CIME's, and the compiler, `-C`, to `gnu`.
-By default, the ocean and MALI each run on the most tasks both meshes are
-partitioned for, 64 for `misomip-o4km-li1km`, with MALI on the ocean's
-tasks in turn.  `-o` and `-g` choose other counts for the ocean and MALI,
-which must be among the staged partitions.  The script gives
-`create_newcase` the layout in `pes.xml` beside it, in place of
-MPAS-Ocean's, whose layouts on some machines assume 2 threads a task.
-Each task has 1 thread, so the machine's own MPI tasks per node apply,
-such as 64 on Chrysalis.  The script does not submit the case;
+The case is for the machine Polaris was set up on, and the script stops
+on any other.  The project and output root, `-r`, which holds the case's
+build and run directories, default to CIME's, and the compiler, `-C`, to
+the one Polaris was set up with.  The script does not submit the case;
 run `./case.submit` in the case directory.
+
+Every component runs on the same tasks, MALI on them in turn, with 1
+thread a task.  The `case_config` step chooses the task count from the
+ocean's cells per task, which the partitions' config options below bound,
+and the machine's cores per node:
+
+1. The ocean's cells over `goal_cells_per_core` give the target tasks.
+   Over `max_cells_per_core` and `min_cells_per_core`, they give the
+   fewest and most tasks.
+2. On a batch system, the tasks fill whole nodes near the target, at
+   least the fewest, and at most the most tasks.  A node is charged
+   whether its cores run tasks or not, so the tasks fill it while each
+   added task still speeds the run.
+3. On a single node, the tasks are the target, or the node's cores if
+   fewer.
+4. The count is then the most tasks at or below that which both meshes
+   are partitioned for.  Fewer than the fewest is an error.
+
+On Chrysalis, `misomip-o4km-li1km` runs on 64 tasks, 1 node, and
+`misomip-o2km-li1km` on 128 tasks, 2 nodes, by default.
+The README and the step's log give the choice and what it comes from.
+`-o` and `-g` choose other counts for the ocean and MALI, which must lie
+between the fewest and most tasks and be among the staged partitions.
+The script gives `create_newcase` the layout in `pes.xml` beside it, in
+place of MPAS-Ocean's, whose layouts on some machines assume 2 threads a
+task.
 
 To create a case by hand instead, use the MCT driver:
 
@@ -262,23 +282,34 @@ Setup fails if any of them is blank.
 The maps are made with the tool in `[mapping] map_tool`.
 
 The partitions are made for core counts between bounds on the number of
-cells per core:
+cells per core, which also bound a case's tasks:
 
 ```cfg
-# options for the graph partitions of the ocean's mesh
+# options for the graph partitions of the ocean's mesh, which also set the
+# tasks of a case
 [misomip_ocean_partitions]
 
+# The number of cells per core a case aims for, which sets its target tasks
+goal_cells_per_core = 100
+
 # The approximate maximum number of cells per core, which sets the fewest
-# cores a partition is made for
+# cores a partition is made for and the fewest tasks of a case
 max_cells_per_core = 2000
 
 # The approximate minimum number of cells per core, which sets the most cores
-# a partition is made for
+# a partition is made for and the most tasks of a case
 min_cells_per_core = 40
 ```
 
-The section `[misomip_landice_partitions]` sets the same options for MALI,
-30000 and 100 by default.
+The goal and bounds come from 4 km and 2 km `ocean0` cases on Chrysalis.
+At 4 km, doubling the tasks sped a case by 1.5 to 1.7 times above about
+170 cells per task, and by about 1.25 times below, down to 21 cells per
+task.  At 2 km, doubling sped a case by 1.57 times from 172 to 86 cells
+per task, and by 1.43 times from 86 to 43.
+
+The section `[misomip_landice_partitions]` sets the bounds for MALI,
+30000 and 100 by default.  They limit only MALI's partitions until a case
+has a prognostic MALI.
 
 The staged files are stamped with a creation date:
 
