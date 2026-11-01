@@ -40,12 +40,18 @@ fi
 echo "${polaris_build_config}" > "${polaris_build_record}"
 
 {# where netCDF and PnetCDF come from the Spack library view rather than
-   modules (e.g. on Katara), nothing puts the view on the library path, so
-   MALI gets an rpath to it #}
+   modules (e.g. on Katara), nothing puts the view on the library path, and
+   some modules do not put their libraries on it either (e.g. PnetCDF with
+   Intel on Chrysalis), so MALI gets an rpath to each #}
 polaris_view_rpath=""
 if [ -n "${MACHE_DEPLOY_SPACK_LIBRARY_VIEW:-}" ]; then
     polaris_view_rpath="-Wl,-rpath,${MACHE_DEPLOY_SPACK_LIBRARY_VIEW}/lib"
 fi
+for polaris_prefix in "${NETCDF:-}" "${NETCDFF:-}" "${PNETCDF:-}"; do
+    if [ -n "${polaris_prefix}" ] && [ -d "${polaris_prefix}/lib" ]; then
+        polaris_view_rpath="${polaris_view_rpath} -Wl,-rpath,${polaris_prefix}/lib"
+    fi
+done
 
 {%- if albany %}
 {# deploy/load.sh sets POLARIS_ALBANY_LINK_LIBS from Albany's Spack package #}
