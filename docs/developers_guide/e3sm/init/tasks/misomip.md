@@ -127,8 +127,10 @@ MPAS-Ocean's default namelist, found from the experiment's ocean config
 file.
 {py:func}`polaris.tasks.e3sm.init.misomip.case_config.get_user_nl_mpaso()`
 writes the options whose values differ from the defaults, except in the
-groups E3SM sets itself (`STANDALONE_GROUPS` and analysis members).  It
-also writes every option in `E3SM_DEFAULT_OPTIONS`, with the standalone
+groups E3SM sets itself (`STANDALONE_GROUPS`).  Of each analysis member's
+group, it writes only whether the member is on, so the case has the
+standalone run's members, and E3SM configures their output.  It also
+writes every option in `E3SM_DEFAULT_OPTIONS`, with the standalone
 value: those whose E3SM default differs from MPAS-Ocean's, or which E3SM
 gives a default only for the grids it lists.  A unit test compares that
 list with the defaults of the E3SM submodule's MPAS-Ocean, so it fails
