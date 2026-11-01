@@ -546,8 +546,8 @@ class RunPlots(ProductStep):
                 )
             ax.legend(loc='upper right', fontsize='small')
             ax.set_title(
-                f"Ocean's floating fraction, {months}, and MALI's "
-                f'grounding line, {self.label}'
+                f"Ocean's floating fraction, {months}, and MALI's grounding "
+                f'line,\n{self.label}'
             )
             fig.savefig(plot, bbox_inches='tight', pad_inches=0.2)
         ds_data = ds_landice[

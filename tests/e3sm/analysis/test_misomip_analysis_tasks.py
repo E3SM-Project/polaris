@@ -100,8 +100,10 @@ def test_each_run_gets_steps_named_for_its_months(tmp_path):
         f'{TASK}/e3sm/diagnostics_0001-01_0001-02',
         f'{TASK}/e3sm/plots_0001-01_0001-02',
         f'{TASK}/publish',
+        f'{TASK}/published_0001-01_0001-02_0001-01_0001-01',
         f'{TASK}/standalone/diagnostics_0001-01_0001-01',
         f'{TASK}/standalone/plots_0001-01_0001-01',
+        'misomip/yung2026/ocean0',
     ]
     diagnostics = task.steps['e3sm_diagnostics']
     assert diagnostics.min_thickness == 1.0e-3
@@ -113,6 +115,7 @@ def test_each_run_gets_steps_named_for_its_months(tmp_path):
         f'{prefix}_comparison_0001-01_0001-02_0001-01_0001-01',
         f'{prefix}_e3sm_conservation_0001-01_0001-02',
         f'{prefix}_e3sm_plots_0001-01_0001-02',
+        f'{prefix}_published_0001-01_0001-02_0001-01_0001-01',
         f'{prefix}_standalone_plots_0001-01_0001-01',
     ]
     # setup gives each step its task's config
@@ -128,7 +131,13 @@ def test_a_case_without_budgets_has_no_conservation_step(tmp_path):
         tmp_path, e3sm_case=_e3sm_case(tmp_path, months=[1], budgets='FALSE')
     )
 
-    assert sorted(task.steps) == ['e3sm_diagnostics', 'e3sm_plots', 'publish']
+    assert sorted(task.steps) == [
+        'e3sm_diagnostics',
+        'e3sm_plots',
+        'publish',
+        'published',
+        'yung2026_ocean0',
+    ]
 
 
 def test_a_task_without_runs_fails_at_setup(tmp_path):
@@ -155,8 +164,10 @@ def test_runs_over_the_same_months_get_distinct_steps(tmp_path):
         'e3sm_diagnostics',
         'e3sm_plots',
         'publish',
+        'published',
         'standalone_diagnostics',
         'standalone_plots',
+        'yung2026_ocean0',
     ]
 
 
@@ -169,3 +180,23 @@ def test_tasks_sharing_the_config_have_distinct_names():
 
     names = [task.name for task in component.tasks.values()]
     assert len(set(names)) == len(names)
+
+
+def test_only_ocean0_to_ocean2_are_compared_with_published_results(tmp_path):
+    """Ocean3 and Ocean4 have no published results to compare with."""
+    component = Component(name='e3sm/analysis')
+    add_misomip_analysis_tasks(component)
+    task = component.tasks[f'{MESH}/misomip/ocean3']
+    task.config.set(
+        f'misomip_analysis_{MESH}',
+        'ocean3_standalone',
+        _standalone_run(tmp_path, months=[1]),
+        user=True,
+    )
+    task.configure()
+
+    assert sorted(task.steps) == [
+        'publish',
+        'standalone_diagnostics',
+        'standalone_plots',
+    ]
