@@ -766,6 +766,8 @@ On FAnSSIE:
   fraction is at most 10⁻³, the threshold below which the coupler sends glc
   no fluxes, so the ocean's budget no longer books frazil that glc never
   receives;
+- book in glc's heat budget the enthalpy of the melted ice at the interface
+  temperature, which the ocean's budget books and glc's leaves out;
 - write the land-ice geometry the ocean imports to E3SM's monthly ocean
   output, which Ocean3–4 need for their mean melt rate and checks.
 
@@ -862,11 +864,12 @@ Each step builds on the one before it.
    Ocean0, on the same inputs with RK4 at 4 km, are compared after a
    month. Each difference is traced to the coupler or to a recorded
    configuration difference.
-4. **Conservation.** With `BUDGETS=TRUE`, the budgets close for the
-   exchanged melt from the second day of a new run. On its first day, the
-   MCT driver skips the ocean's first coupling interval, as it does in
-   every E3SM run, yet the ocean's budget books the initial export there,
-   so the ocean's column exceeds glc's. Restarts are exact.
+4. **Conservation.** With `BUDGETS=TRUE`, the water and heat budgets close
+   for the exchanged melt and frazil from the second day of a new run. On
+   its first day, the MCT driver skips the ocean's first coupling
+   interval, as it does in every E3SM run, yet the ocean's budget books the
+   initial export there, so the ocean's column exceeds glc's. Restarts are
+   exact.
 5. **Published results.** E3SM's Ocean0–2 are plotted against the
    ensemble of Yung et al. (2026). They use E3SM's physics, not the
    protocol's common configuration, so the comparison is qualitative.
