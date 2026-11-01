@@ -24,6 +24,12 @@ _HEADER = re.compile(
     r'(?P<date>\d+)\s+(?P<seconds>\d+)'
 )
 
+#: The driver's start date and whether it skips the ocean's first coupling
+#: interval, which it does at an initial start
+_START_YMD = re.compile(r'\(seq_timemgr_clockInit\)\s+start_ymd\s+=\s*(\d+)')
+_START_TOD = re.compile(r'\(seq_timemgr_clockInit\)\s+start_tod\s+=\s*(\d+)')
+_SKIP_OCEAN = re.compile(r'skip init ocean run\s+=\s*(?P<skip>[TF])')
+
 #: The width of the indent and row name, and of each value
 _NAME_END = 16
 _FIELD_WIDTH = 15
@@ -106,11 +112,45 @@ def read_budget_tables(log_filenames):
     """
     tables = []
     for filename in log_filenames:
-        opener = gzip.open if filename.endswith('.gz') else open
-        with opener(filename, 'rt') as log:
-            lines = log.read().splitlines()
-        tables.extend(_parse_tables(lines))
+        tables.extend(_parse_tables(_read_lines(filename)))
     return tables
+
+
+def read_initial_start(log_filenames):
+    """
+    Find the date of a run's initial start in its coupler logs
+
+    At an initial start, the driver skips the ocean's first coupling
+    interval.  The coupler's ocean column books the ocean's initial export
+    for that interval, which glc never receives, so the budgets that contain
+    the start don't close by that amount.
+
+    Parameters
+    ----------
+    log_filenames : list of str
+        The coupler logs, in the order they were written
+
+    Returns
+    -------
+    start : str or None
+        The date of the latest initial start, ``YYYY-MM-DD_SSSSS`` as
+        :py:func:`polaris.e3sm.analysis.budgets.budget_time_series` gives
+        dates, or None if no log is from an initial start
+    """
+    start = None
+    for filename in log_filenames:
+        text = '\n'.join(_read_lines(filename))
+        skip = _SKIP_OCEAN.search(text)
+        ymd = _START_YMD.search(text)
+        tod = _START_TOD.search(text)
+        if skip is None or skip.group('skip') != 'T' or ymd is None:
+            continue
+        date = int(ymd.group(1))
+        seconds = 0 if tod is None else int(tod.group(1))
+        start = _format_date(
+            date // 10000, (date // 100) % 100, date % 100, seconds
+        )
+    return start
 
 
 def budget_time_series(tables, budget, period):
@@ -144,9 +184,8 @@ def budget_time_series(tables, budget, period):
     selected = dict()
     for table in tables:
         if table.budget == budget and table.period == period:
-            date = (
-                f'{table.year:04d}-{table.month:02d}-{table.day:02d}_'
-                f'{table.seconds:05d}'
+            date = _format_date(
+                table.year, table.month, table.day, table.seconds
             )
             selected[date] = table
     if not selected:
@@ -178,6 +217,18 @@ def budget_time_series(tables, budget, period):
     ds.coords['row'] = ('row', first.rows)
     ds.coords['component'] = ('component', first.components)
     return ds
+
+
+def _read_lines(filename):
+    """Read a log's lines, compressed or not"""
+    opener = gzip.open if filename.endswith('.gz') else open
+    with opener(filename, 'rt') as log:
+        return log.read().splitlines()
+
+
+def _format_date(year, month, day, seconds):
+    """A date as ``YYYY-MM-DD_SSSSS``"""
+    return f'{year:04d}-{month:02d}-{day:02d}_{seconds:05d}'
 
 
 def _parse_tables(lines):

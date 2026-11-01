@@ -7,6 +7,7 @@ from mpas_tools.cime.constants import constants
 from polaris.e3sm.analysis.budgets import (
     budget_time_series,
     read_budget_tables,
+    read_initial_start,
 )
 
 COMPONENTS = [
@@ -136,3 +137,29 @@ def test_a_missing_budget_asks_whether_budgets_were_on(tmp_path):
 
     with pytest.raises(ValueError, match='BUDGETS=TRUE'):
         budget_time_series(tables, 'HEAT', 'monthly')
+
+
+def _driver_lines(skip):
+    """The driver's start date and whether it skipped the ocean's first
+    coupling interval, padded as the driver writes them"""
+    return [
+        '(seq_timemgr_clockInit) start_ymd      =      10101',
+        '(seq_timemgr_clockInit) start_tod      =          0',
+        f'(cpl7mct_driver) : skip init ocean run   =      {skip}',
+    ]
+
+
+def test_the_initial_start_is_found_in_its_log(tmp_path):
+    """A run started in one log and continued in another: only the first
+    skipped the ocean's first coupling interval."""
+    first = str(tmp_path / 'cpl.log.1')
+    second = str(tmp_path / 'cpl.log.2.gz')
+    _write_log(first, _driver_lines('T') + _water_table(10201, 0.003, -0.002))
+    _write_log(
+        second,
+        _driver_lines('F') + _water_table(10301, 0.003, -0.003),
+        compress=True,
+    )
+
+    assert read_initial_start([first, second]) == '0001-01-01_00000'
+    assert read_initial_start([second]) is None
