@@ -1,0 +1,11 @@
+# a list of supported machine, compiler and mpi combinations for Albany
+
+aurora, intel, mpich
+chrysalis, gnu, openmpi
+chrysalis, intel, openmpi
+katara, gnu, openmpi
+pm-cpu, gnu, mpich
+pm-cpu, intel, mpich
+pm-gpu, gnu, mpich
+pm-gpu, gnugpu, mpich
+pm-gpu, intel, mpich

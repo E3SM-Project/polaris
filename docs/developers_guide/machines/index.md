@@ -45,8 +45,8 @@ perlmutter
 ### Supported Machine Configurations
 
 The following table lists all supported machine, model, and compiler
-combinations. The MPAS make target is only applicable for MPAS-Ocean and
-MPAS-Seaice builds.  It is generated from
+combinations. The MPAS make target is only applicable for MPAS-Ocean,
+MPAS-Seaice and MALI builds.  It is generated from
 `docs/developers_guide/supported_machines.yaml` (see
 {ref}`dev-supported-machines-yaml`).
 
@@ -86,7 +86,7 @@ Each entry under `models` has these fields:
 
 | Field | Description |
 | --- | --- |
-| `model` | `Omega` or `MPAS` (MPAS-Ocean and MPAS-Seaice) |
+| `model` | `Omega`, `MPAS` (MPAS-Ocean and MPAS-Seaice) or `MALI` |
 | `compiler` | the compiler name, as it appears in the load script |
 | `mpi` | the MPI library, as it appears in the load script |
 | `mpas_target` | the MPAS make target, or `null` for Omega |

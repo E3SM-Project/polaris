@@ -56,6 +56,54 @@ export PIO=${_polaris_stack_root}
 export METIS_ROOT=${_polaris_stack_root}
 export PARMETIS_ROOT=${_polaris_stack_root}
 
+# Albany is only in Spack environments deployed with --with-albany.  Only MALI
+# builds link to it, so it is left out of MPAS_EXTERNAL_LIBS.
+_polaris_albany_flags="${MACHE_DEPLOY_SPACK_LIBRARY_VIEW:-}/export_albany.in"
+if [ -n "${MACHE_DEPLOY_SPACK_LIBRARY_VIEW:-}" ] && \
+   [ -f "${_polaris_albany_flags}" ]; then
+    # shellcheck source=/dev/null
+    source "${_polaris_albany_flags}"
+    # Albany and Trilinos are shared libraries that nothing else puts on the
+    # library path, so MALI gets an rpath to each library directory in this
+    # Spack installation
+    _polaris_spack_root="${MACHE_DEPLOY_SPACK_LIBRARY_VIEW%%/var/spack/*}"
+    _polaris_rpaths=""
+    for _polaris_flag in ${ALBANY_LINK_LIBS}; do
+        case "${_polaris_flag}" in
+            -L"${_polaris_spack_root}"/opt/*)
+                case "${_polaris_rpaths} " in
+                    *" -Wl,-rpath,${_polaris_flag#-L} "*) ;;
+                    *) _polaris_rpaths="${_polaris_rpaths} -Wl,-rpath,${_polaris_flag#-L}" ;;
+                esac
+                ;;
+        esac
+    done
+    _polaris_mpicxx=""
+    if [ "$POLARIS_MPI" = "openmpi" ] && \
+       [ "$POLARIS_MACHINE" = "chrysalis" ]; then
+        _polaris_mpicxx="-lmpi_cxx"
+    fi
+    # MALI links with the Fortran compiler, but Albany and Trilinos need the
+    # libstdc++ of the C++ compiler that built them.  With oneAPI, ifx finds
+    # the system's libstdc++, which can be older than the one icpx uses (and
+    # the -L/usr/lib64 in ALBANY_LINK_LIBS puts it first), so link to icpx's
+    # by its path
+    _polaris_libstdcxx="-lstdc++"
+    case "$POLARIS_COMPILER" in
+        intel*)
+            _polaris_flag="$(icpx -print-file-name=libstdc++.so 2>/dev/null)"
+            if [ -f "${_polaris_flag}" ]; then
+                _polaris_flag="$(realpath "${_polaris_flag}")"
+                _polaris_libstdcxx="${_polaris_flag} -Wl,-rpath,${_polaris_flag%/*}"
+            fi
+            ;;
+    esac
+    export POLARIS_ALBANY_LINK_LIBS="${ALBANY_LINK_LIBS}${_polaris_rpaths} ${_polaris_libstdcxx} ${_polaris_mpicxx}"
+    unset _polaris_spack_root _polaris_rpaths _polaris_flag _polaris_mpicxx \
+        _polaris_libstdcxx
+fi
+unset _polaris_albany_flags
+
 export USE_PIO2=true
 export OPENMP=true
 export HDF5_USE_FILE_LOCKING=FALSE
