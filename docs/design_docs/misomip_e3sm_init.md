@@ -460,7 +460,7 @@ mesh. `case_config/` is not inputdata.
 
 ### Algorithm Design: A standalone ocean run shares the inputs
 
-Date last modified: 2026/10/30
+Date last modified: 2026/11/01
 
 Contributors: Xylar Asay-Davis, Claude
 
@@ -469,6 +469,8 @@ physics, wetting and drying, outflow and RK4. For Ocean3–4, its land-ice
 forcing is every data-mode record through $R$, from step 2 above. Its
 length is a config option, one month by default, for comparison with the
 first E3SM run. IceOcean1r and IceOcean1ra have no standalone counterpart.
+It writes E3SM's monthly means, less the fields it does not compute, and
+for Ocean3–4 the land-ice pressure, fractions and draft.
 
 MPAS-Ocean interpolates land-ice forcing in time, while MALI's data mode
 steps from record to record. Comparisons of E3SM's Ocean3–4 with the
