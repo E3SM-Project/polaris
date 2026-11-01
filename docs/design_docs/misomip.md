@@ -616,10 +616,14 @@ test it. The work lands on FAnSSIE, and an upstream pull request can
 follow when it is ready. E3SM's default `split_explicit_ab2` stays
 without wetting and drying ([D18](#decisions)).
 
-WP2 is on hold until Carolyn Begeman has reviewed the pull request that
-brings it to FAnSSIE
-([E3SM-Ocean-Discussion#144](https://github.com/E3SM-Ocean-Discussion/E3SM/pull/144),
-[D19](#decisions)). Until it merges, the other packages use RK4.
+WP2 also makes the thin film robust under the split-explicit scheme and
+makes grounded cells drain faster, since the film stays too thick for too
+long. The pull request that brings the split-explicit series to FAnSSIE
+([E3SM-Ocean-Discussion#144](https://github.com/E3SM-Ocean-Discussion/E3SM/pull/144))
+waits for Carolyn Begeman's review and changes as little as possible
+meanwhile. Further work goes on a feature branch from it, and a temporary
+branch combines both with FAnSSIE for runs ([D19](#decisions)). Until
+split-explicit is on FAnSSIE, the other packages use RK4.
 
 ### WP3: Landice component
 
@@ -836,10 +840,12 @@ changes land on FAnSSIE. The design amends
 | B     | Ocean0–2               | stage A, WP6, WP7, WP9                               |
 | C     | Ocean3–4               | stage B, WP8                                         |
 | D     | IceOcean1r, 1ra        | stage C, all of WP4                                  |
+| E     | all, at full length    | stage D, WP2                                         |
 
-No stage waits for WP2. Until it lands, each uses RK4 and accepts the cost:
-at 2 km on 36 tasks, 20 years take about 40 days and 100 years about half a
-year. Stage A needs only WP4's MALI mesh, WP6's Ocean0 initial conditions
+Stages A–D use RK4 runs of at most about 2 years, which test the coupling
+but not the protocol's long-term results ([D22](#decisions)). Stage E
+repeats the experiments at the protocol's length with split-explicit
+wetting and drying. Stage A needs only WP4's MALI mesh, WP6's Ocean0 initial conditions
 and the E3SM changes from WP7 that let a hand-built case run; WP4's steady
 state waits until stage D. WP3 needs nothing, WP4 needs only WP3, and WP11
 needs only WP1. WP10 follows WP2, and no stage needs it. WP5 and WP6 start
@@ -877,13 +883,16 @@ Each step builds on the one before it.
 5. **Published results.** E3SM's Ocean0–2 are plotted against the
    ensemble of Yung et al. (2026). They use E3SM's physics, not the
    protocol's common configuration, so the comparison is qualitative.
+   Stage B compares Ocean0 and the first years of Ocean1–2; stage E
+   compares the full runs.
 6. **Ocean3–4.** The geometry the ocean imports tracks the data-mode file.
    The grounding line moves without failure, the open-ocean SSH stays near
    zero, and no open-ocean cell receives land-ice fluxes.
-7. **MISOMIP1.** MALI's grounding-line retreat and volume above flotation
-   in IceOcean1r are compared with its own Ice1r, which uses the
-   protocol's melt parameterization. The melt MALI receives equals the
-   melt the ocean sends, each from its own model's output.
+7. **MISOMIP1.** The melt MALI receives equals the melt the ocean sends,
+   each from its own model's output (stage D). In stage E, MALI's
+   grounding-line retreat and volume above flotation in IceOcean1r are
+   compared with its own Ice1r, which uses the protocol's melt
+   parameterization.
 8. **Split-explicit.** At 4 km, split-explicit and RK4 Ocean0 agree in
    melt to within a few percent over a month.
 
@@ -1055,8 +1064,8 @@ The ocean uses 2 km for the protocol runs, the COM resolution
 MALI's resolution is set in the MISMIP+ design ([D13](#decisions)). The
 long runs take what they take: with split-explicit wetting and drying, 100
 years at 2 km take about two weeks on two Chrysalis nodes, and about half
-a year on 36 tasks with RK4, which the runs use until WP2 lands
-([D19](#decisions)).
+a year on 36 tasks with RK4, so only runs of a few years use RK4
+([D22](#decisions)).
 
 Rejected: a wall-clock target for 100-year runs, first set at a week. It
 would need a time step about twice what the thin film allows. Also
@@ -1222,23 +1231,25 @@ modest saving, in a model that Omega will replace.
 Rejected: porting wetting and drying to `split_explicit_ab2`. This is
 revisited if realistic E3SM runs with wetting and drying need its savings.
 
-### D19: WP2 waits for Carolyn Begeman's review
+### D19: Split-explicit merges after Carolyn Begeman's review
 
-Date last modified: 2026/10/30
+Date last modified: 2026/11/01
 
 Contributors: Xylar Asay-Davis, Claude
 
 Split-explicit wetting and drying merges into FAnSSIE only after Carolyn
 Begeman has reviewed it carefully, as she asked at the FAnSSIE ocean
-meeting of 2026-10-27. Until then, WP2 is on hold, and the other packages
-and stages proceed with RK4, accepting its cost.
+meeting of 2026-10-27. Meanwhile, its pull request changes as little as
+possible, and further work goes on a feature branch from it. A temporary
+branch, on Xylar's fork, merges FAnSSIE, that pull request and the feature
+branch, and only gains commits. It is the one exception to building from
+FAnSSIE: stage E's runs build from it until split-explicit is on FAnSSIE,
+and then it is dropped. It is not in the ledger.
 
-*Effect:* Polaris's split-explicit ISOMIP+ variants stay a draft and join
-`fanssie_pr` only once split-explicit wetting and drying is on FAnSSIE.
-Runs switch to split-explicit then.
-
-Rejected: merging it before her review, or holding the other packages
-until it merges.
+*Effect:* Polaris's split-explicit ISOMIP+ variants stay a draft, and no
+Polaris pull request that pins the temporary branch merges to main. The
+variants join `fanssie_pr` once split-explicit wetting and drying is on
+FAnSSIE.
 
 ### D20: Fixes for Albany's timer leak are good to have, not required
 
@@ -1308,3 +1319,22 @@ Rejected: moving the helpers to a small pull request from main, so that
 WP5 and WP6 start from main; and waiting for the component inputs to be
 under review, or
 for the realistic stack to merge, before WP5 and WP6 start.
+
+### D22: RK4 runs stay short
+
+Date last modified: 2026/11/01
+
+Contributors: Xylar Asay-Davis, Claude
+
+No RK4 run goes beyond about 2 simulated years. Stages A–D test the
+coupling with short runs, and the protocol's full-length runs wait for
+split-explicit wetting and drying in stage E. Making the thin film robust
+under the split-explicit scheme is part of this work.
+
+```{admonition} Rationale
+At 2 km, RK4 takes about 40 days for 20 years and half a year for 100.
+The coupling's problems show within months, so the long runs would spend
+that time on results split-explicit gives at a fraction of the cost.
+```
+
+Rejected: running stages B–D at full length with RK4, as planned before.

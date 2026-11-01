@@ -8,7 +8,7 @@ Regenerate with any Python that has matplotlib:
 To update, edit STATUS_DATE and ROWS. Each row is
 (package, what it delivers, where the work is, status, first stage, note):
 status is a key of STATUS; the first stage is an index into STAGES
-(0 = A ... 3 = D), or None if no stage needs the package, in which case the
+(0 = A ... 4 = E), or None if no stage needs the package, in which case the
 note is shown instead. Stage needs follow the "Order" table of the design.
 """
 
@@ -43,8 +43,8 @@ ROWS = [
     ('WP1', 'Standalone ISOMIP+ Ocean0–2 and thin-film tasks',
      'polaris #826, #844', 'review', 0, ''),
     ('WP2', 'Split-explicit wetting and drying with a thin film',
-     "E3SM-O-D #144 awaits Carolyn's review; polaris #861", 'hold', None,
-     'none waits; RK4 until it lands'),
+     "E3SM-O-D #144 awaits Carolyn's review; polaris #861", 'review', 4,
+     ''),
     ('WP3', 'Landice component: MALI + Albany in Polaris',
      'polaris #871; E3SM-O-D #151 merged', 'draft', 0, ''),
     ('WP4', 'MISMIP+ spin-up with MALI',
@@ -60,7 +60,7 @@ ROWS = [
      'E3SM-O-D #156–#163 merged; design polaris #937', 'draft',
      0, ''),
     ('WP8', 'Moving grounding line in coupled runs',
-     'E3SM-O-D #164–#170 merged; 6-month Ocean3–4 runs', 'started', 2, ''),
+     'E3SM-O-D #164–#170 merged, #171–#172 open', 'review', 2, ''),
     ('WP9', 'Analysis of the E3SM runs',
      'polaris #939, #940; first 4 km Ocean0 E3SM run submitted',
      'drafting', 1, ''),
@@ -75,6 +75,7 @@ STAGES = [
     ('B', 'Ocean0–2\nin E3SM'),
     ('C', 'Ocean3–4\n(moving GL)'),
     ('D', 'IceOcean1r/1ra\n(MALI evolves)'),
+    ('E', 'full-length\nruns'),
 ]
 
 
@@ -94,7 +95,7 @@ def main():
         'needs a package; the line shows it is needed from there on.',
         fontsize=10, color=INK2, va='center')
 
-    stage_x = [83.5, 93, 102.5, 112]
+    stage_x = [79, 87.5, 96, 104.5, 113]
     header_y = 55.5
     for x, (letter, desc) in zip(stage_x, STAGES):
         ax.text(x, header_y + 1.6, f'Stage {letter}', ha='center',
