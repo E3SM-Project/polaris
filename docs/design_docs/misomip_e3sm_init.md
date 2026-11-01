@@ -318,7 +318,7 @@ first record equals the initial condition. Each file is about 0.6 GB.
 
 ### Algorithm Design: The ocean starts from MALI's geometry
 
-Date last modified: 2026/10/30
+Date last modified: 2026/11/01
 
 Contributors: Xylar Asay-Davis, Claude
 
@@ -332,7 +332,8 @@ Contributors: Xylar Asay-Davis, Claude
    normalized as MPAS-Ocean's import does: $p = R(m \rho_i g H)/R(m)$,
    with floating and land-ice fractions $R(m\phi_f)/R(m)$ and
    $R(m(\phi_f + \phi_g))/R(m)$, each capped at 1. All three are zero
-   where $R(m) = 0$.
+   where $R(m) = 0$, and where the land-ice fraction is at or below
+   $10^{-3}$, which MPAS-Ocean's import leaves open ocean.
 3. **Geometry and state.** The ISOMIP+ initial condition is built with
    these fields in place of its remapped input geometry. The draft follows
    from the pressure with $\rho_{sw} = 1028$ kg m⁻³ and E3SM's gravity.
