@@ -524,7 +524,7 @@ carried over to the code that merges.
 
 ## Implementation: work packages
 
-Date last modified: 2026/10/30
+Date last modified: 2026/11/01
 
 Contributors: Xylar Asay-Davis, Claude
 
@@ -654,8 +654,9 @@ which WP5's steps build on. The tasks have:
 - in every experiment but not the spin-up, calving of floating ice thinner
   than 10 m and removal of icebergs;
 - the MISMIP+ output: grounding line, volume above flotation and grounded
-  area, computed from any dataset with MALI's thickness, bed and mesh, so
-  WP9 can apply it to E3SM's output.
+  area, computed in a public `landice` module from any dataset with MALI's
+  thickness, bed and mesh, with the densities as arguments, so WP9 can
+  apply it to E3SM's output.
 
 The steady state, cached with `polaris cache`, is MALI's initial condition
 for IceOcean1r.
@@ -753,26 +754,34 @@ On FAnSSIE:
   pressure and ice fraction but the previous record's floating fraction
   for one glc coupling interval, as the 4 km Ocean3 runs in E3SM showed;
 - confirm that the floating mask follows the imported geometry, so newly
-  floating cells melt and newly grounded ones stop.
+  floating cells melt and newly grounded ones stop;
+- write the land-ice geometry the ocean imports to E3SM's monthly ocean
+  output, which Ocean3–4 need for their mean melt rate and checks.
 
 The notes on the melt-coupling pull request name wetting-and-drying runs
 as the next project after melt coupling. This package is that project.
 
 ### WP9: Analysis
 
-Analysis tasks read E3SM history files from a configured run directory and
-compute:
+Analysis tasks `e3sm/analysis/<mesh_name>/misomip/<experiment>` find an
+E3SM run from its case directory and the standalone run on the same inputs
+from its work directory. Both write the same monthly means. On the native
+meshes, the tasks compute:
 
 - melt rates and fluxes, grounding-line position, volume above flotation
   and grounded area;
-- conservation from the coupler budgets;
+- conservation from the coupler budgets, and in IceOcean1r and 1ra, where
+  MALI evolves and records the melt it receives, the ocean's melt against
+  MALI's;
 - plots comparing E3SM with standalone Polaris on the same inputs, across
-  experiments, and with published results: Yung et al. (2026) for Ocean0–2
-  and [Cornford et al. (2020)](https://doi.org/10.5194/tc-14-2283-2020)
-  for MISMIP+.
+  experiments, and with published results: the Ocean0–2 ensemble of Yung
+  et al. (2026) and
+  [Cornford et al. (2020)](https://doi.org/10.5194/tc-14-2283-2020) for
+  MISMIP+.
 
 Compass's `misomip` and streamfunction steps can be ported where they
-help. The protocol's file format is not a goal. WP9 also runs stage B's
+help. The protocol's file format is not a goal; writing its fields is an
+option, off by default. WP9 also runs stage B's
 E3SM cases, Ocean0–2 at 4 and 2 km, from WP6's case configurations, since
 its analysis needs their output.
 
@@ -824,7 +833,7 @@ request stands.
 
 ## Testing and Validation
 
-Date last modified: 2026/10/30
+Date last modified: 2026/11/01
 
 Contributors: Xylar Asay-Davis, Claude
 
@@ -844,15 +853,16 @@ Each step builds on the one before it.
    configuration difference.
 4. **Conservation.** With `BUDGETS=TRUE`, the budgets close for the
    exchanged melt.
-5. **Published results.** The COM variants of Ocean0–2 are compared with
-   Yung et al. (2026).
+5. **Published results.** E3SM's Ocean0–2 are plotted against the
+   ensemble of Yung et al. (2026). They use E3SM's physics, not the
+   protocol's common configuration, so the comparison is qualitative.
 6. **Ocean3–4.** The geometry the ocean imports tracks the data-mode file.
    The grounding line moves without failure, the open-ocean SSH stays near
-   zero, and no open-ocean cell receives land-ice fluxes. In partly
-   floating cells, the melt MALI receives equals the melt the ocean sends.
+   zero, and no open-ocean cell receives land-ice fluxes.
 7. **MISOMIP1.** MALI's grounding-line retreat and volume above flotation
    in IceOcean1r are compared with its own Ice1r, which uses the
-   protocol's melt parameterization.
+   protocol's melt parameterization. The melt MALI receives equals the
+   melt the ocean sends, each from its own model's output.
 8. **Split-explicit.** At 4 km, split-explicit and RK4 Ocean0 agree in
    melt to within a few percent over a month.
 
@@ -864,7 +874,7 @@ branch's previous commit. The 4 km Ocean0 case also repeats steps 2 and 4.
 - Omega does not yet support ice-shelf cavities, so it is out of scope.
 - IceOcean2r and IceOcean2ra are out of scope ([D9](#decisions)).
 - The results are not submitted to MISOMIP, and no publication centers on
-  them. The protocol's output files are not produced.
+  them. The protocol's output files are not a goal.
 - Matching realistic Antarctic initial conditions, "option B" in the notes
   on the melt-coupling pull request, is separate work. It can reuse the
   principle that the ocean follows MALI.
