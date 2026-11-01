@@ -60,6 +60,24 @@ def test_melt_is_averaged_over_the_floating_area():
     assert float(ds_diag.meanFrictionVelocity) == pytest.approx(0.015)
     # only the first cell is deeper than 300 m
     np.testing.assert_allclose(ds_diag.meanMeltRateDeep, [1.0e-6, 2.0e-6])
+    # without frazil in the output, there is no frazil flux
+    assert 'totalFrazilFlux' not in ds_diag
+
+
+def test_frazil_is_summed_under_the_ice_shelf_apart_from_melt():
+    """Frazil forms in the half-floating cell and in the open ocean; only
+    the first counts, and the melt flux is unchanged."""
+    ds = _fluxes()
+    ds['frazilIceFreshwaterFlux'] = xr.DataArray(
+        [0.0, -1.0e-3, 0.0, -5.0e-4], dims='nCells'
+    )
+
+    ds_diag = compute_melt_diagnostics(AREA, ds, FLOATING)
+
+    # -1e-3 * 2e6 kg s-1, all of the cell's frazil
+    np.testing.assert_allclose(ds_diag.totalFrazilFlux, [-2.0e3])
+    np.testing.assert_allclose(ds_diag.totalMeltFlux, [5.0e3])
+    assert ds_diag.totalFrazilFlux.attrs['units'] == 'kg s-1'
 
 
 def test_melt_is_binned_by_draft():
