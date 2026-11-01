@@ -15,6 +15,7 @@ isomip_plus
 land_locked_cells
 landice_component
 mismip_plus
+misomip_analysis
 misomip_e3sm_init
 mixed_layer_eddies
 ocean_analysis
