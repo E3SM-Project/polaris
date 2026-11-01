@@ -19,8 +19,9 @@ from polaris.viz.planar import plot_mask_boundary
 from polaris.viz.time_series import Series, plot_time_series
 
 #: The time series plotted for each run: the gallery, the file's stem, the
-#: title, the y label, and each variable with its scale and label
-TIME_SERIES = [
+#: title, the y label, and each variable with its scale and label.  A
+#: variable a run lacks, such as one only a coupled run has, is left out.
+TIME_SERIES: list[tuple[str, str, str, str, list[tuple]]] = [
     (
         'melt',
         'total_melt_flux',

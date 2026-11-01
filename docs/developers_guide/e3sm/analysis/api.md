@@ -41,6 +41,14 @@
    yung2026.Yung2026
    yung2026.Yung2026.run
    yung2026.get_yung2026_step
+   comparisons.SeriesComparison
+   comparisons.SeriesComparison.run
+   comparisons.MisomipExperimentsTask
+   comparisons.MisomipExperimentsTask.configure
+   comparisons.MisomipResolutionsTask
+   comparisons.MisomipResolutionsTask.configure
+   task.get_diagnostics_steps
+   task.get_resolution
    publish.MisomipPublish
    publish.MisomipPublish.setup
    publish.MisomipPublish.output_path

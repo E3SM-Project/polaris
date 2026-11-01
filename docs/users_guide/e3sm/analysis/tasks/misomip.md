@@ -98,7 +98,32 @@ annual budgets from its log and plots the ocean's and
 glc's columns of the ice-shelf water (`wpolar`) and heat (`hpolar`) rows
 and their sum, as totals.  `exchange_residuals.csv` lists the sum relative
 to the ocean's column for each budget.  The coupler prints global means to
-8 decimals, which limits how small a residual it can show.
+8 decimals, which limits how small a residual it can show.  The monthly
+water plot also shows the ocean's own melt and the frazil it forms under
+the ice shelf, from its monthly means: the ocean's column is their sum, so
+frazil the coupler doesn't pass to glc shows as a residual.
+
+At an initial start, the driver skips the ocean's first coupling interval.
+The coupler still books the ocean's initial export for that interval in
+the ocean's column, and glc never receives it, so the first daily, monthly
+and annual budgets of a run don't close by that amount.  `exchange_residuals.csv` marks them
+in its `initial_start` column, and the step's log gives the largest
+residual of the others.  Daily budgets show whether the rest of the first
+month closes.
+
+## Comparing experiments and resolutions
+
+Two more tasks compare runs named in the same config, one kind of run at a
+time:
+
+- `e3sm/analysis/<mesh_name>/misomip/experiments` overlays the time series
+  of every experiment with runs on that mesh;
+- `e3sm/analysis/misomip/resolutions/<experiment>` overlays the time series
+  of the experiment at 4 and 2 km and draws its time-mean maps side by
+  side, each on its own mesh.
+
+They share the diagnostics steps of the experiment tasks, so setting them
+up together computes each run's diagnostics once.
 
 ## Published results
 

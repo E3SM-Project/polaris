@@ -5,30 +5,22 @@ from polaris.analysis.publish_step import PublishStep
 
 class MisomipPublish(PublishStep):
     """
-    The step that publishes one experiment's products, under
-    ``<output_path>/<mesh_name>/<experiment>``
+    The step that publishes one MISOMIP analysis task's products, under
+    ``<output_path>/<relative_path>``
 
     Attributes
     ----------
-    mesh_name : str
-        The pair of meshes
+    relative_path : str
+        Where the task's gallery goes within the output path, such as
+        ``misomip-o4km-li1km/ocean0``
 
-    experiment : str
-        The experiment
-
-    runs_option : str
-        The config options that name the experiment's runs, for the error
-        when there are none
+    missing : str
+        The error when the task has nothing to publish, which names the
+        config options it needs
     """
 
     def __init__(
-        self,
-        component,
-        subdir,
-        product_steps,
-        mesh_name,
-        experiment,
-        runs_option,
+        self, component, subdir, product_steps, relative_path, missing
     ):
         """
         Create the step
@@ -44,14 +36,11 @@ class MisomipPublish(PublishStep):
         product_steps : list of polaris.analysis.product_step.ProductStep
             The steps whose products are published
 
-        mesh_name : str
-            The pair of meshes
+        relative_path : str
+            Where the task's gallery goes within the output path
 
-        experiment : str
-            The experiment
-
-        runs_option : str
-            The config options that name the experiment's runs
+        missing : str
+            The error when the task has nothing to publish
         """
         super().__init__(
             component=component,
@@ -59,31 +48,24 @@ class MisomipPublish(PublishStep):
             product_steps=product_steps,
             section='misomip_analysis',
         )
-        self.mesh_name = mesh_name
-        self.experiment = experiment
-        self.runs_option = runs_option
+        self.relative_path = relative_path
+        self.missing = missing
 
     def setup(self):
         """
-        Make it an error to set up an experiment with no runs to analyze
+        Make it an error to set up a task with nothing to publish
         """
         super().setup()
         if not self.fragment_filenames:
-            raise ValueError(
-                f'No runs of {self.experiment} on {self.mesh_name} are '
-                f'configured.  Set {self.runs_option}.'
-            )
+            raise ValueError(self.missing)
 
     def output_path(self):
         """
-        Get the directory this experiment's gallery is published into
+        Get the directory this task's gallery is published into
 
         Returns
         -------
         output_path : str
-            The experiment's directory under ``[misomip_analysis]
-            output_path``
+            The task's directory under ``[misomip_analysis] output_path``
         """
-        return os.path.join(
-            super().output_path(), self.mesh_name, self.experiment
-        )
+        return os.path.join(super().output_path(), self.relative_path)
