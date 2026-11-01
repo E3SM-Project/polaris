@@ -90,7 +90,10 @@ annual budgets from its log and plots the ocean's and
 glc's columns of the ice-shelf water (`wpolar`) and heat (`hpolar`) rows
 and their sum, as totals.  `exchange_residuals.csv` lists the sum relative
 to the ocean's column for each budget.  The coupler prints global means to
-8 decimals, which limits how small a residual it can show.
+8 decimals, which limits how small a residual it can show.  The monthly
+water plot also shows the ocean's own melt and the frazil it forms under
+the ice shelf, from its monthly means: the ocean's column is their sum, so
+frazil the coupler doesn't pass to glc shows as a residual.
 
 At an initial start, the driver skips the ocean's first coupling interval.
 The coupler still books the ocean's initial export for that interval in

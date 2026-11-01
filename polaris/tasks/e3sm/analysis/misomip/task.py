@@ -154,6 +154,7 @@ class MisomipAnalysisTask(Task):
                         CouplerConservation,
                         f'{self.subdir}/e3sm/conservation_{runs["e3sm"].key}',
                         case=case,
+                        diagnostics=diagnostics['e3sm'],
                     )
                 )
         publish = MisomipPublish(
