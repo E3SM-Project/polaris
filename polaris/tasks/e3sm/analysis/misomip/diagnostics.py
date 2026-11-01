@@ -6,6 +6,13 @@ from mpas_tools.io import write_netcdf
 from mpas_tools.ocean import compute_barotropic_streamfunction
 
 from polaris import Step
+from polaris.e3sm.analysis.runs import E3smRun
+from polaris.landice.diagnostics import (
+    compute_volume_and_area,
+    grounding_line_on_row,
+    grounding_line_points,
+    thickness_above_flotation,
+)
 from polaris.mpas.time_series_stats import rename_time_series_stats
 from polaris.ocean.ice_shelf.diagnostics import (
     compute_haline_driving,
@@ -32,6 +39,11 @@ TIME_MEAN_FILENAME = 'time_mean.nc'
 MONTHLY_MAPS_FILENAME = 'monthly_maps.nc'
 DAILY_FILENAME = 'daily.nc'
 INIT_FILENAME = 'init.nc'
+LANDICE_FILENAME = 'landice.nc'
+LANDICE_INIT_FILENAME = 'landice_init.nc'
+
+#: MALI's history stream
+LANDICE_STREAM = 'output'
 
 #: The fields of the daily global statistics kept for comparisons
 DAILY_FIELDS = [
@@ -67,6 +79,14 @@ class RunDiagnostics(Step):
     min_thickness : float
         The minimum thickness (m) of a layer from the run's namelist, which
         sets which columns are dry
+
+    landice_filenames : list of str
+        The local names of MALI's history files in the years analyzed, empty
+        for a run without MALI
+
+    densities : tuple of float
+        MALI's ice and ocean densities (kg m-3) from its namelist, for the
+        flotation criterion
     """
 
     def __init__(self, component, subdir, configured_run, experiment):
@@ -133,6 +153,39 @@ class RunDiagnostics(Step):
             DAILY_FILENAME,
         ]:
             self.add_output_file(filename=filename)
+        self.landice_filenames = []
+        self.densities = (0.0, 0.0)
+        if configured_run.kind == 'e3sm':
+            self._add_landice_inputs(configured_run, first.year, last.year)
+
+    def _add_landice_inputs(self, configured_run, start_year, end_year):
+        """Link MALI's initial condition and history, if it wrote any"""
+        landice = E3smRun(configured_run.path, 'mali')
+        streams = os.path.join(landice.case.run_dir, 'streams.landice')
+        if not os.path.exists(streams):
+            return
+        stream_files = [
+            stream_file
+            for stream_file in landice.find_stream_files(LANDICE_STREAM)
+            if start_year <= stream_file.year <= end_year
+        ]
+        if not stream_files:
+            return
+        self.add_input_file(
+            filename=LANDICE_INIT_FILENAME,
+            target=landice.initial_condition,
+        )
+        for stream_file in stream_files:
+            filename = os.path.join(
+                'landice', os.path.basename(stream_file.path)
+            )
+            self.add_input_file(filename=filename, target=stream_file.path)
+            self.landice_filenames.append(filename)
+        self.densities = (
+            _fortran_float(landice.namelist_option('config_ice_density')),
+            _fortran_float(landice.namelist_option('config_ocean_density')),
+        )
+        self.add_output_file(filename=LANDICE_FILENAME)
 
     def run(self):
         """
@@ -192,6 +245,51 @@ class RunDiagnostics(Step):
         write_netcdf(ds_maps, MONTHLY_MAPS_FILENAME)
 
         write_netcdf(self._daily(), DAILY_FILENAME)
+
+        if self.landice_filenames:
+            section_y = section.getfloat('section_y')
+            write_netcdf(self._landice(section_y), LANDICE_FILENAME)
+
+    def _landice(self, section_y):
+        """
+        Compute the ice sheet's volume, volume above flotation, grounded area
+        and grounding line from MALI's thickness and bed
+        """
+        ds_mesh = xr.open_dataset(LANDICE_INIT_FILENAME, decode_times=False)
+        if 'Time' in ds_mesh.dims:
+            ds_mesh = ds_mesh.isel(Time=0)
+        ds = xr.open_mfdataset(
+            self.landice_filenames,
+            combine='nested',
+            concat_dim='Time',
+            decode_times=False,
+            data_vars='minimal',
+        )
+        thickness = ds.thickness.load()
+        ice_density, ocean_density = self.densities
+        bed = ds_mesh.bedTopography
+        ds_landice = compute_volume_and_area(
+            thickness, bed, ds_mesh.areaCell, ice_density, ocean_density
+        )
+        haf = thickness_above_flotation(
+            thickness, bed, ice_density, ocean_density
+        )
+        ds_landice['xGL'] = grounding_line_on_row(haf, ds_mesh, y=section_y)
+        ds_landice.xGL.attrs = dict(
+            long_name=f'grounding line along y = {section_y:g} m', units='m'
+        )
+        ds_landice['daysSinceStart'] = ds.daysSinceStart.load()
+        for label, t_index in [('First', 0), ('Last', -1)]:
+            x_gl, y_gl = grounding_line_points(haf.isel(Time=t_index), ds_mesh)
+            ds_landice[f'xGroundingLine{label}'] = (
+                f'nPointsGroundingLine{label}',
+                np.asarray(x_gl),
+            )
+            ds_landice[f'yGroundingLine{label}'] = (
+                f'nPointsGroundingLine{label}',
+                np.asarray(y_gl),
+            )
+        return ds_landice
 
     def _daily(self):
         """Gather the daily global statistics"""

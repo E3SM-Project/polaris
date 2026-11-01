@@ -73,6 +73,12 @@ tuning does, and the last 12 months of the other experiments, or all of a
 shorter run.  Partly floating cells melt only over their floating fraction,
 so means over the ice base are weighted by floating area.
 
+For an E3SM run, MALI's history gives the ice sheet's volume, volume above
+flotation, grounded area and grounding line along $y = 40$ km, from MALI's
+thickness and bed with the densities in its namelist.  A map shows the
+ocean's floating fraction with MALI's grounding line at the start and end
+of the period drawn over it.
+
 With both runs, a `comparison` step overlays their monthly and daily time
 series and maps the E3SM run's difference from the standalone run in each
 field, averaged over the months both have.  It writes the RMS and largest

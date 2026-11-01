@@ -7,6 +7,7 @@ from mpas_tools.ocean.viz.transect import compute_transect, plot_transect
 from polaris.analysis.product_step import ProductStep
 from polaris.tasks.e3sm.analysis.misomip.diagnostics import (
     INIT_FILENAME,
+    LANDICE_FILENAME,
     SECONDS_PER_YEAR,
     TIME_MEAN_FILENAME,
     TIME_SERIES_FILENAME,
@@ -176,6 +177,33 @@ MAPS = [
     ),
 ]
 
+#: The time series of the ice sheet: the variable, the file's stem, the
+#: title, the y label and the scale
+LANDICE_SERIES = [
+    ('iceVolume', 'ice_volume', 'Ice volume', 'volume (km$^3$)', 1e-9),
+    (
+        'iceVAF',
+        'volume_above_flotation',
+        'Volume above flotation',
+        'volume (km$^3$)',
+        1e-9,
+    ),
+    (
+        'groundedArea',
+        'grounded_area',
+        'Grounded area',
+        'area (km$^2$)',
+        1e-6,
+    ),
+    (
+        'xGL',
+        'grounding_line_position',
+        'Grounding line along the section',
+        'x (km)',
+        1e-3,
+    ),
+]
+
 #: The sections plotted: the variable, the title, the color bar's label and
 #: the colormap
 SECTION_FIELDS = [
@@ -196,6 +224,9 @@ class RunPlots(ProductStep):
 
     label : str
         A short description of the run for plot titles
+
+    has_landice : bool
+        Whether the run has MALI output to plot
     """
 
     def __init__(self, component, subdir, diagnostics, kind, label):
@@ -236,6 +267,12 @@ class RunPlots(ProductStep):
             self.add_input_file(
                 filename=filename,
                 work_dir_target=f'{diagnostics.path}/{filename}',
+            )
+        self.has_landice = bool(diagnostics.landice_filenames)
+        if self.has_landice:
+            self.add_input_file(
+                filename=LANDICE_FILENAME,
+                work_dir_target=f'{diagnostics.path}/{LANDICE_FILENAME}',
             )
         self.add_dependency(diagnostics)
 
@@ -281,6 +318,10 @@ class RunPlots(ProductStep):
             self._plot_sections(ds_mesh, ds_init, ds_mean, axis, value, months)
         self._plot_overturning(ds_mean, months)
         self._plot_melt_by_draft(ds_mean, months)
+        if self.has_landice:
+            ds_landice = xr.open_dataset(LANDICE_FILENAME)
+            self._plot_landice_series(ds_landice)
+            self._plot_grounding_lines(ds_mesh, ds_mean, ds_landice, months)
 
     def _plot_series(self, ds_series, gallery, stem, title, ylabel, variables):
         """Plot one time series and describe it as a product"""
@@ -450,4 +491,79 @@ class RunPlots(ProductStep):
             group=self.kind,
             gallery='melt',
             title='Melt rate by draft',
+        )
+
+    def _plot_landice_series(self, ds_landice):
+        """Plot MALI's volume, volume above flotation, grounded area and
+        grounding line over time"""
+        years = ds_landice.daysSinceStart.values / 365.0
+        for name, stem, title, ylabel, scale in LANDICE_SERIES:
+            values = scale * ds_landice[name]
+            plot = f'{stem}.png'
+            data = f'{stem}.nc'
+            plot_time_series(
+                [Series(time=years, values=values.values, label=self.label)],
+                plot,
+                ylabel=ylabel,
+                xlabel='time since the start of the run (years)',
+                title=f'{title}, {self.label}',
+            )
+            write_netcdf(values.to_dataset(name=name), data)
+            self.add_product(
+                plot=plot,
+                data=data,
+                group=self.kind,
+                gallery='ice_sheet',
+                title=title,
+            )
+
+    def _plot_grounding_lines(self, ds_mesh, ds_mean, ds_landice, months):
+        """Map the ocean's floating fraction with MALI's grounding line at
+        the start and end of the period"""
+        plot = 'grounding_lines.png'
+        data = 'grounding_lines.nc'
+        fraction = ds_mean.landIceFloatingFraction
+        with mplstyle_context():
+            fig = Figure(figsize=(10.0, 2.6))
+            ax = fig.add_subplot(111)
+            plot_horiz_field(
+                ds_mesh,
+                fraction,
+                ax=ax,
+                vmin=0.0,
+                vmax=1.0,
+                cmap='cmo.ice_r',
+                cmap_title='floating fraction',
+            )
+            for label, color in [('First', 'tab:orange'), ('Last', 'k')]:
+                ax.plot(
+                    ds_landice[f'xGroundingLine{label}'].values,
+                    ds_landice[f'yGroundingLine{label}'].values,
+                    '.',
+                    color=color,
+                    markersize=2,
+                    label=f'MALI, {label.lower()} record',
+                )
+            ax.legend(loc='upper right', fontsize='small')
+            ax.set_title(
+                f"Ocean's floating fraction, {months}, and MALI's "
+                f'grounding line, {self.label}'
+            )
+            fig.savefig(plot, bbox_inches='tight', pad_inches=0.2)
+        ds_data = ds_landice[
+            [
+                'xGroundingLineFirst',
+                'yGroundingLineFirst',
+                'xGroundingLineLast',
+                'yGroundingLineLast',
+            ]
+        ].copy()
+        ds_data['landIceFloatingFraction'] = fraction
+        write_netcdf(ds_data, data)
+        self.add_product(
+            plot=plot,
+            data=data,
+            group=self.kind,
+            gallery='ice_sheet',
+            title="The ocean's floating fraction and MALI's grounding line",
         )
