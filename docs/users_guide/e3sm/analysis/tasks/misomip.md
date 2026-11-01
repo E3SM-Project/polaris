@@ -91,6 +91,20 @@ and their sum, as totals.  `exchange_residuals.csv` lists the sum relative
 to the ocean's column for each budget.  The coupler prints global means to
 8 decimals, which limits how small a residual it can show.
 
+## Comparing experiments and resolutions
+
+Two more tasks compare runs named in the same config, one kind of run at a
+time:
+
+- `e3sm/analysis/<mesh_name>/misomip/experiments` overlays the time series
+  of every experiment with runs on that mesh;
+- `e3sm/analysis/misomip/resolutions/<experiment>` overlays the time series
+  of the experiment at 4 and 2 km and draws its time-mean maps side by
+  side, each on its own mesh.
+
+They share the diagnostics steps of the experiment tasks, so setting them
+up together computes each run's diagnostics once.
+
 ## Published results
 
 For Ocean0–2, a `published` step compares the runs with the COM results of

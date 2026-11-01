@@ -20,7 +20,7 @@ from polaris.viz.time_series import Series, plot_time_series
 
 #: The time series plotted for each run: the gallery, the file's stem, the
 #: title, the y label, and each variable with its scale and label
-TIME_SERIES = [
+TIME_SERIES: list[tuple[str, str, str, str, list[tuple]]] = [
     (
         'melt',
         'total_melt_flux',
