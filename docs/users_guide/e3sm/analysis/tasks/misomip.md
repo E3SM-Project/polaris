@@ -132,6 +132,20 @@ beside the ensemble's mean.  The runs use E3SM's physics, not the protocol's
 COM physics, and are labeled as such: the comparison places them among the
 COM models rather than validating them.
 
+## Output on the protocol's grid
+
+Set `write_protocol_fields = True` to also write each run's monthly means
+on the output grid of the MISOMIP protocol
+([Asay-Davis et al. 2016](https://doi.org/10.5194/gmd-9-2471-2016),
+Sect. 3.3), 2 km in $x$ and $y$ and 5 m in $z$.  A `protocol_map` step
+makes a conservative map from the run's mesh to the grid, and a
+`protocol_fields_<months>` step writes `<Experiment>_TYP_Polaris-<kind>.nc`
+with the protocol's variables.  Fields under the ice are averaged over the
+floating area in each grid cell and the others over its ocean area.  The
+overturning streamfunction is computed across each of the grid's lines of
+constant $x$, and the sections take the nearest cell to each point of the
+grid.  The tasks don't plot these files.
+
 ## Publishing
 
 Each task's `publish` step copies its plots into a gallery under

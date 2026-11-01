@@ -50,6 +50,7 @@ def add_misomip_analysis_tasks(component):
 def _make_config(filepath):
     """Build the config shared by the MISOMIP analysis tasks"""
     config = PolarisConfigParser(filepath=filepath)
+    config.add_from_package('polaris.remap', 'mapping.cfg')
     config.add_from_package(
         'polaris.tasks.e3sm.analysis.misomip', 'misomip_analysis.cfg'
     )

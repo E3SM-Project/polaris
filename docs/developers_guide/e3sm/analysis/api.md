@@ -41,6 +41,12 @@
    yung2026.Yung2026
    yung2026.Yung2026.run
    yung2026.get_yung2026_step
+   protocol.ProtocolMapStep
+   protocol.ProtocolMapStep.runtime_setup
+   protocol.ProtocolFields
+   protocol.ProtocolFields.run
+   protocol.write_protocol_scrip
+   protocol.bin_column
    comparisons.SeriesComparison
    comparisons.SeriesComparison.run
    comparisons.MisomipExperimentsTask

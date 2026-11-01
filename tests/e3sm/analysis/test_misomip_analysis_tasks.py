@@ -247,3 +247,28 @@ def test_experiments_are_compared_one_kind_at_a_time(tmp_path):
         'standalone ocean1, 4km',
     ]
     assert comparisons[0].include_maps is False
+
+
+def test_protocol_fields_are_written_only_on_request(tmp_path):
+    component = Component(name='e3sm/analysis')
+    add_misomip_analysis_tasks(component)
+    task = component.tasks[f'{MESH}/misomip/ocean3']
+    task.config.set(
+        f'misomip_analysis_{MESH}',
+        'ocean3_standalone',
+        _standalone_run(tmp_path, months=[1]),
+        user=True,
+    )
+    task.configure()
+    assert not any('protocol' in name for name in task.steps)
+
+    task.config.set(
+        'misomip_analysis', 'write_protocol_fields', 'True', user=True
+    )
+    task.configure()
+    assert sorted(
+        step.subdir for name, step in task.steps.items() if 'protocol' in name
+    ) == [
+        f'{MESH}/misomip/ocean3/standalone/protocol_fields_0001-01_0001-01',
+        f'{MESH}/misomip/ocean3/standalone/protocol_map',
+    ]
