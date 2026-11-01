@@ -121,9 +121,14 @@ initialize the submodule and point the build to it:
 ```bash
 git submodule update --init e3sm_submodules/FAnSSIE
 polaris suite -c ocean -t fanssie_pr --model mpas-ocean \
-    --branch e3sm_submodules/FAnSSIE -w <work_dir> -p <build_dir> \
-    -b <baseline_dir>
+    --branch e3sm_submodules/FAnSSIE \
+    --landice_branch e3sm_submodules/FAnSSIE -w <work_dir> \
+    -p <build_dir> --landice_path <landice_build_dir> -b <baseline_dir>
 ```
+
+The suite includes MALI tasks, so it needs a Polaris environment deployed with
+`--with-albany` (see {ref}`dev-landice-albany`).  MPAS-Ocean and MALI are
+built one after the other from the same checkout.
 
 The `fanssie_pr` suite (see {ref}`ocean-suite-fanssie-pr`) is the regression
 test for FAnSSIE:
