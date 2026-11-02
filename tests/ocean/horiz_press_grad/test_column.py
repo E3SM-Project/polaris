@@ -11,6 +11,7 @@ import pytest
 from polaris.tasks.ocean.horiz_press_grad.column import (
     get_pchip_interpolator,
     get_pchip_layer_mean,
+    get_polynomial_layer_mean,
 )
 
 # A deliberately non-uniform set of layers.  A formula that quietly assumes
@@ -226,3 +227,72 @@ def test_layer_mean_validates_nodes():
         get_pchip_layer_mean(np.array([0.0]), np.array([22.0]), 'temperature')
     with pytest.raises(ValueError, match='must match'):
         get_pchip_layer_mean(_CURVED_Z, _CURVED_T[:-1], 'temperature')
+
+
+@pytest.mark.parametrize(
+    'z_nodes, values',
+    [
+        (np.array([0.0, -500.0, -1000.0]), np.array([22.0, 8.0, 1.0])),
+        (
+            np.array([0.0, -200.0, -600.0, -1000.0]),
+            np.array([22.0, 15.0, 6.0, 1.0]),
+        ),
+    ],
+    ids=['quadratic', 'cubic'],
+)
+def test_polynomial_layer_mean_is_exact(z_nodes, values):
+    """The polynomial through the nodes is averaged exactly, on any layers.
+
+    Three nodes give a quadratic, which is what puts a resting state in the
+    parabolic reconstruction's exact set, and four a cubic; the two-point Gauss
+    rule is exact for both.  The comparison is against the polynomial's own
+    antiderivative, which is exact in principle and accurate enough on layers
+    this thick.
+    """
+    layer_mean = get_polynomial_layer_mean(z_nodes, values, 'temperature')
+    polynomial = np.polynomial.Polynomial.fit(
+        -z_nodes, values, deg=len(z_nodes) - 1
+    )
+    antiderivative = polynomial.integ()
+
+    top = _NON_UNIFORM[:-1]
+    bot = _NON_UNIFORM[1:]
+    expected = (antiderivative(-bot) - antiderivative(-top)) / (top - bot)
+    np.testing.assert_allclose(layer_mean(top, bot), expected, rtol=1e-12)
+    # and the profile does pass through its nodes
+    np.testing.assert_allclose(polynomial(-z_nodes), values, rtol=1e-12)
+
+
+def test_polynomial_layer_mean_of_two_nodes_is_the_linear_one():
+    """With two nodes the polynomial and PCHIP profiles are the same line."""
+    z_nodes = np.array([0.0, -1000.0])
+    t_nodes = np.array([22.0, 2.0])
+    top = _NON_UNIFORM[:-1]
+    bot = _NON_UNIFORM[1:]
+    np.testing.assert_allclose(
+        get_polynomial_layer_mean(z_nodes, t_nodes, 'temperature')(top, bot),
+        get_pchip_layer_mean(z_nodes, t_nodes, 'temperature')(top, bot),
+        rtol=1e-14,
+    )
+
+
+def test_polynomial_layer_mean_validates_its_input():
+    """At most four nodes, shared node validation, and no extrapolation."""
+    with pytest.raises(ValueError, match='At most four'):
+        get_polynomial_layer_mean(_CURVED_Z, _CURVED_T, 'temperature')
+    with pytest.raises(ValueError, match='strictly monotonic'):
+        get_polynomial_layer_mean(
+            np.array([0.0, -100.0, -50.0]),
+            np.array([22.0, 18.0, 8.0]),
+            'temperature',
+        )
+
+    layer_mean = get_polynomial_layer_mean(
+        np.array([0.0, -500.0, -1000.0]),
+        np.array([22.0, 8.0, 1.0]),
+        'temperature',
+    )
+    with pytest.raises(ValueError, match='extrapolation'):
+        layer_mean(np.array([-900.0]), np.array([-1100.0]))
+    with pytest.raises(ValueError, match='positive thickness'):
+        layer_mean(np.array([-200.0]), np.array([-100.0]))

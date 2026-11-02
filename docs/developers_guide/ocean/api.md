@@ -335,6 +335,7 @@
    column.get_array_from_mid_grad
    column.get_pchip_interpolator
    column.get_pchip_layer_mean
+   column.get_polynomial_layer_mean
 
    edge.edge_delta
    edge.edge_mean
@@ -359,6 +360,7 @@
    finite_volume.finite_volume_hpga
 
    reconstruction.linear_slope
+   reconstruction.ppm_coefficients
    reconstruction.layer_deviation
    reconstruction.reconstruct
 

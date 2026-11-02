@@ -14,11 +14,15 @@ The task family includes four such variants:
 - `surface_pressure_gradient`
 
 {py:class}`polaris.tasks.ocean.horiz_press_grad.resting_state_task.HorizPressGradRestingStateTask`
-provides two further variants that are exact resting states, in which the true
+provides further variants that are exact resting states, in which the true
 HPGA is identically zero and no reference solution is used:
 
 - `hydrostatic_consistency`
+- `hydrostatic_consistency_linear`
+- `hydrostatic_consistency_quadratic`
 - `bathymetry_step`
+- `bathymetry_step_linear`
+- `bathymetry_step_quadratic`
 
 ## framework
 
@@ -63,9 +67,17 @@ pressure in dbar but returns the pressure derivative per Pa; the tests assert
 this rather than trusting it.
 
 {py:mod}`polaris.tasks.ocean.horiz_press_grad.reconstruction` builds the
-mean-preserving linear reconstruction of temperature and salinity in pressure.
-The slope is a centred difference of the layer means against *mid-layer
-pressure*, which is what makes it exact on a non-uniform grid.
+mean-preserving linear and parabolic reconstructions of temperature and
+salinity in pressure.  The linear slope is a centred difference of the layer
+means against *mid-layer pressure*, which is what makes it exact on a
+non-uniform grid.  `ppm_coefficients()` is the unlimited piecewise parabolic
+method of design §3.4: interface values from the polynomial through the
+cumulative integral at the nearest five interfaces, assembled from divided
+differences of the layer means, with the coefficients of a column's two
+outermost layers at each end taken from that polynomial's derivatives at the
+layer midpoint so that a thin end layer does not amplify round-off when it is
+extrapolated.  `reconstruct()` and `layer_deviation()` take an optional
+curvature, and serve xarray, numpy and scalars alike.
 
 {py:mod}`polaris.tasks.ocean.horiz_press_grad.finite_volume` assembles the
 scheme.  The essential piece is `delta_specvol_at_pressure()`, which
@@ -78,6 +90,15 @@ into a different one.  `column_scan()` then accumulates the fixed-pressure
 height difference along the column from `anchor_difference()`, and
 `finite_volume_hpga()` forms the layer mean and the tendency.
 
+`matched_pressure_pieces()` and `finite_volume_hpga()` take a
+`vertical_reconstruction`, `'linear'` or `'ppm'`, matching Omega's
+`VerticalReconstruction`.  Every place the kernel needs a column's
+temperature or salinity -- the integrand, the anchor's two short integrals
+and the anchor's carry-down -- goes through the one helper `_column_state()`,
+so the three cannot describe different water, which design §4.5.2 requires.
+With `'linear'` the results are bit-for-bit those of the kernel before the
+parabolic reconstruction existed.
+
 **The scan anchors at the sea floor**, per design §3.7.4, at the deepest
 interface valid in both columns.  This is not a conditioning preference:
 `VertCoord` builds geometric height upward from a prescribed bathymetry by
@@ -86,6 +107,17 @@ differently by a tilt derive sea-surface heights that differ at
 $O(\tilde h^2)$, and a surface anchor would feed that straight into the answer.
 Note that §3.5.1 of the design still describes a surface anchor; §3.7.4 is
 later, gives the argument, and is what Omega implements.
+
+The shift of each floor height to a common pressure uses one first-order
+expansion, so it is only accurate across about a layer.  Where the two floors
+are more than a layer apart in pressure -- in this task, the 50 m/km
+`hydrostatic_consistency` tilts on 128 m and 64 m layers -- `anchor_difference()`
+compares the shallower floor with the deeper column's own interface just below
+its pressure instead, with the expansion shared by the two layers that meet
+there, and carries the result down to the edge's deepest interface with the
+matched-pressure integrand.  Stretched across the whole offset, the expansion
+would leave an error that grows with the cube of the offset and is the same at
+every depth.  This mirrors Omega's `PressureGrad::computeColumnScan`.
 
 One consequence is worth knowing before reading the tests: on these states the
 sea-floor anchor is **not** zero, even on `hydrostatic_consistency_linear`.
@@ -209,8 +241,10 @@ The class implements the two extension points required by `PStarInitStep`:
 
 - `init_tracers()` reconstructs conservative temperature and absolute salinity
   at p-star layer midpoints by calling the private helper `_interpolate_t_s()`,
-  which applies a PCHIP interpolator to the piecewise pseudo-height profiles
-  defined in the configuration.
+  which averages the pseudo-height profiles defined in the configuration over
+  each layer: the PCHIP interpolant through the nodes, or with
+  `profile_interpolation = polynomial` the single polynomial through them
+  ({py:func}`~polaris.tasks.ocean.horiz_press_grad.column.get_polynomial_layer_mean`).
 - `_build_pstar_coord_ds()` overrides the base-class default to call
   {py:func}`~polaris.ocean.vertical.pstar.init_pstar_vertical_coord()` per
   column, allowing each column to have a different reference pseudo-depth set
@@ -234,19 +268,23 @@ scheme**, named `forward_<res>_<scheme>`.
 It runs Omega from the corresponding `init` output and writes `output.nc`
 (with `NormalVelocityTend` validation), using options from `forward.yaml`.
 `forward.yaml` is a Jinja2 template whose `PressureGrad` block is filled in per
-step from the `scheme` argument and the `quadrature_points` config option.
+step: `PressureGradType` and `VerticalReconstruction` from the `scheme`
+argument, and `QuadraturePoints` from the `quadrature_points` config option.
 
 The schemes are listed by the `pressure_grad_types` config option and named in
 the module-level `SCHEMES` dict, which maps the config spelling to Omega's
-`PressureGradType`.  `SCHEME_HPGA` maps each to the field in `init.nc` that is
-its Polaris counterpart, which is what the analysis steps compare Omega
-against.
+`PressureGradType`.  `finite_volume` and `finite_volume_ppm` are the same
+Omega scheme with its linear and its parabolic vertical reconstruction, and
+`SCHEME_VERTICAL_RECONSTRUCTION` gives each its `VerticalReconstruction`.
+`SCHEME_HPGA` maps each to the field in `init.nc` that is its Polaris
+counterpart, which is what the analysis steps compare Omega against.
 
 Two things about this axis are worth stating, because both were decided
 against plausible alternatives:
 
-- **Both schemes share one `Init` step.**  `Init` is scheme-independent -- it
-  writes `HPGA` and `HPGAFiniteVolume` from the same state -- so duplicating it
+- **All the schemes share one `Init` step.**  `Init` is scheme-independent --
+  it writes `HPGA`, `HPGAFiniteVolume` and `HPGAFiniteVolumePPM` from the same
+  state -- so duplicating it
   per scheme would cost run time and, worse, would leave the comparison open to
   the objection that the two schemes ran on different initial conditions.  The
   cost is that the scheme label is in every forward step's directory, so
@@ -254,9 +292,9 @@ against plausible alternatives:
 - **There is no "centered limit" of the finite-volume scheme.**  The two are
   separate implementations and no setting reduces one to the other, so this is
   a choice between schemes rather than a parameter of one.  Omega treats an
-  unrecognized `PressureGradType` as fatal rather than falling back to
-  `Centered`, so a typo aborts the run instead of producing centered answers
-  that read as a pass.
+  unrecognized `PressureGradType` or `VerticalReconstruction` as fatal rather
+  than falling back, so a typo aborts the run instead of producing another
+  scheme's answers that read as a pass.
 
 ### analysis
 
@@ -266,7 +304,8 @@ compares each `forward` result with:
 - the analytic reference solution (built from `ReferenceColumn`), which is a
   property of the state and so is shared by both schemes, and
 - the Python-computed HPGA from `init.nc` **for the matching scheme**:
-  `HPGA` for `centered`, `HPGAFiniteVolume` for `finite_volume`.  Comparing
+  `HPGA` for `centered`, `HPGAFiniteVolume` for `finite_volume` and
+  `HPGAFiniteVolumePPM` for `finite_volume_ppm`.  Comparing
   Omega's finite-volume output against the centered `HPGA` would measure the
   difference between two schemes and report it as an implementation
   disagreement.
@@ -287,8 +326,9 @@ The step enforces regression criteria from `[horiz_press_grad]`:
   (`omega_vs_reference_convergence_rate_{min,max}_{scheme}`);
 - high-resolution RMS threshold for Omega-vs-reference, per scheme;
 - RMS threshold for Omega-vs-Python consistency, per scheme; and
-- `omega_vs_reference_accuracy_ratio_min`, the ratio of the centered to the
-  finite-volume RMS error at the **coarsest** resolution.
+- `omega_vs_reference_accuracy_ratio_min_{scheme}`, for each finite-volume
+  scheme the ratio of the centered RMS error to its own at the **coarsest**
+  resolution.
 
 Three things about the last two are worth knowing, because each was set from
 measurement against a plausible alternative:
@@ -311,6 +351,14 @@ measurement against a plausible alternative:
   configuration with nothing to improve.  `ztilde_gradient` raises it to 1.5
   (measured 1.80 at the coarse end) and `surface_pressure_gradient` to 1.8
   (measured 2.19).
+- **With the parabolic reconstruction the two-cell stencil still sets the
+  order.**  Over the shipped resolutions `finite_volume_ppm` converges at
+  1.63, 1.80, 2.00 and 2.00 on the four variants, so its bands are those of
+  `finite_volume`.  It is 2.8 to 2.9 times more accurate than the linear
+  reconstruction on `ztilde_gradient`, 1.5 times on
+  `surface_pressure_gradient`, and the same on the two level-coordinate
+  variants; its coarse-end gates are 3.0 (measured 5.11) and 2.5 (measured
+  3.27).
 
 `ztilde_gradient` is also where the design's own guidance needs qualifying: the
 advantage there **widens** under refinement, 1.80x at 4 km against 14.8x at
@@ -383,8 +431,8 @@ replaces `Analysis` for these variants.  Per sweep point it:
    layers, for each scheme.  The truth is zero, so this is the error, not a
    difference from a reference;
 4. does the same for the matching Polaris-side field from `init.nc` --
-   `HPGA` or `HPGAFiniteVolume` per `SCHEME_HPGA` -- and RMS-differences the
-   two.
+   `HPGA`, `HPGAFiniteVolume` or `HPGAFiniteVolumePPM` per `SCHEME_HPGA` --
+   and RMS-differences the two.
 
 It then groups the sweep by resolution pair, fits the tilt exponent within each
 group and scheme over the points at or below `tilt_fit_max` when `tilt_fit` is
@@ -408,8 +456,9 @@ checks:
   be requiring the new scheme to fail;
 - `_check_max_rms()` — the consistency gate, applied per scheme and skipped
   while `resting_state_max_rms` is `none`;
-- `_check_improvement()` — the centered RMS divided by the finite-volume RMS
-  must reach `resting_state_improvement_min` at **every** sweep point.  The
+- `_check_improvement()` — for each finite-volume scheme, the centered RMS
+  divided by that scheme's must reach `resting_state_improvement_min_{scheme}`
+  at **every** sweep point.  The
   true HPGA is zero here, so both are pure error and the ratio is a clean
   statement of what the higher-order scheme buys, with no reference solution
   and none of its discretization involved.  The ratio is logged whether or not
@@ -418,14 +467,37 @@ checks:
 The improvement gate is set **per variant** because the advantage spans four
 orders of magnitude, and a shared value would be vacuous at one end and
 unreachable at the other.  Measured offline, the smallest ratio anywhere in
-each sweep:
+each sweep, for the linear reconstruction (`finite_volume`):
 
 | variant | worst ratio | at | gate |
 | --- | --- | --- | --- |
-| `hydrostatic_consistency` | 2.58x | 4 km, 128 m, tilt 50 | 1.5 |
-| `hydrostatic_consistency_linear` | 7.71x | 4 km, 64 m, tilt 50 | 4.0 |
+| `hydrostatic_consistency` | 2.68x | 4 km, 128 m, tilt 50 | 1.5 |
+| `hydrostatic_consistency_linear` | 29.4x | 4 km, 64 m, tilt 0.1 | 15 |
 | `bathymetry_step` | 1170x | 4 km, 256 m, grad 200 | 500 |
 | `bathymetry_step_linear` | 58828x | 4 km, 256 m, grad 200 | 20000 |
+| `hydrostatic_consistency_quadratic` | 7.71x | 4 km, 64 m, tilt 0.1 | 4.0 |
+| `bathymetry_step_quadratic` | 15.4x | 4 km, 256 m, grad 100 | 8.0 |
+
+and for the parabolic one (`finite_volume_ppm`):
+
+| variant | worst ratio | at | gate |
+| --- | --- | --- | --- |
+| `hydrostatic_consistency` | 5.05x | 4 km, 128 m, tilt 50 | 2.5 |
+| `hydrostatic_consistency_linear` | 29.4x | 4 km, 64 m, tilt 0.1 | 15 |
+| `bathymetry_step` | 632x | 4 km, 256 m, grad 1 | 300 |
+| `bathymetry_step_linear` | 58828x | 4 km, 256 m, grad 200 | 20000 |
+| `hydrostatic_consistency_quadratic` | 27.5x | 4 km, 64 m, tilt 0.1 | 15 |
+| `bathymetry_step_quadratic` | 61515x | 4 km, 256 m, grad 200 | 20000 |
+
+On the `_linear` variants the two reconstructions agree, and on the
+`_quadratic` ones the parabolic integrand is zero at every quadrature point,
+so what is left of either is the anchor.  On `bathymetry_step` at 256 m layers
+the parabolic reconstruction is about three times *less* accurate than the
+linear one: the profile's PCHIP node at -3000 m, where its curvature jumps,
+falls inside the five-interface window of the bottom layers.  With the node
+moved to -2000 m it is 340 to 510 times more accurate there instead, and at
+128 m layers, whose window stays below the node, it is up to a thousand times
+more accurate as shipped.
 
 The ordering is the result, not an accident of the sweeps: the advantage is
 smallest where the profile is curved and only the coordinate tilts, and largest

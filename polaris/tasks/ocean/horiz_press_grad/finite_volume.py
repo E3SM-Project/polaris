@@ -60,6 +60,9 @@ __all__ = [
     'delta_specvol_at_pressure',
 ]
 
+# The values of Omega's VerticalReconstruction this kernel implements
+VERTICAL_RECONSTRUCTIONS = ('linear', 'ppm')
+
 
 def centered_shift(ds: xr.Dataset) -> xr.DataArray:
     """
@@ -392,7 +395,9 @@ def _at_valid_end(
 
 
 def matched_pressure_pieces(
-    ds: xr.Dataset, guards: set[str] | None = None
+    ds: xr.Dataset,
+    guards: set[str] | None = None,
+    vertical_reconstruction: str = 'linear',
 ) -> dict:
     """
     Everything the matched-pressure integrand needs, computed once per state.
@@ -403,17 +408,34 @@ def matched_pressure_pieces(
         The two-column state, which must contain ``temperature``, ``salinity``,
         ``pressure``, ``ZTildeInterface`` and ``maxLevelCell``.
 
+    guards : set of str, optional
+        Verification-only switches; see :py:func:`finite_volume_hpga`.
+
+    vertical_reconstruction : str, optional
+        ``'linear'`` or ``'ppm'``, as Omega's ``VerticalReconstruction``.  The
+        reconstruction is evaluated by :py:func:`_column_state` wherever the
+        scheme needs a column's temperature or salinity -- the integrand, the
+        anchor's short integrals and its carry-down -- so all three use the
+        same one, as design §4.5.2 requires.
+
     Returns
     -------
     pieces : dict
         ``expansion`` (the edge-shared coefficients per edge layer),
-        ``theta``/``salinity`` and their reconstruction ``slope``s and
-        ``pressure_mid``, each column's ``interface`` pressures and its
-        ``deepest`` valid layer, and the edge-layer interface pressures
-        ``edge_interface``.
+        ``theta``/``salinity`` and their reconstruction ``slope``s,
+        ``curvature``s (``None`` for the linear reconstruction) and
+        ``pressure_mid``, each column's ``interface`` pressures, layer
+        ``thickness`` and ``deepest`` valid layer, and the edge-layer
+        interface pressures ``edge_interface``.
 
     """
-    interface = pressure_from_z_tilde(ds.ZTildeInterface).isel(Time=0).values
+    if vertical_reconstruction not in VERTICAL_RECONSTRUCTIONS:
+        raise ValueError(
+            f'Unknown vertical reconstruction {vertical_reconstruction!r}; '
+            f'expected one of {VERTICAL_RECONSTRUCTIONS}.'
+        )
+    interface_pressure = pressure_from_z_tilde(ds.ZTildeInterface)
+    interface = interface_pressure.isel(Time=0).values
     deepest = ds.maxLevelCell.values.astype(int) - 1
 
     guards = guards or set()
@@ -438,26 +460,33 @@ def matched_pressure_pieces(
     cell_local['s_ref'] = ds.salinity.isel(Time=0)
     cell_local['p_ref'] = ds.pressure.isel(Time=0)
 
-    return {
+    pieces = {
         'guards': guards,
         'cell_local': cell_local,
         'expansion': expansion,
+        'vertical_reconstruction': vertical_reconstruction,
         'theta': ds.temperature.isel(Time=0).values,
         'salinity': ds.salinity.isel(Time=0).values,
-        'slope_theta': reconstruction.linear_slope(ds.temperature, ds.pressure)
-        .isel(Time=0)
-        .values,
-        'slope_salinity': reconstruction.linear_slope(ds.salinity, ds.pressure)
-        .isel(Time=0)
-        .values,
         'pressure_mid': ds.pressure.isel(Time=0).values,
         'interface': interface,
+        'thickness': np.diff(interface, axis=-1),
         'deepest': deepest,
         'edge_interface': 0.5 * (interface[0, :] + interface[1, :]),
         # every interface, not just the sea surface: the scan anchors at the
         # sea floor, whose index depends on maxLevelCell
         'interface_height': ds.GeomZInterface.isel(Time=0).values,
     }
+    for name, field in [('theta', ds.temperature), ('salinity', ds.salinity)]:
+        if vertical_reconstruction == 'linear':
+            slope = reconstruction.linear_slope(field, ds.pressure)
+            pieces[f'curvature_{name}'] = None
+        else:
+            slope, curvature = reconstruction.ppm_coefficients(
+                field, interface_pressure
+            )
+            pieces[f'curvature_{name}'] = curvature.isel(Time=0).values
+        pieces[f'slope_{name}'] = slope.isel(Time=0).values
+    return pieces
 
 
 def layer_containing_pressure(
@@ -568,10 +597,9 @@ def delta_specvol_at_pressure(
     for name in ['theta', 'salinity']:
         values = np.empty((2, len(pressure)))
         for icell in range(2):
-            index = level[icell]
-            values[icell] = pieces[name][icell, index] + pieces[
-                f'slope_{name}'
-            ][icell, index] * (pressure - pieces['pressure_mid'][icell, index])
+            values[icell] = _column_state(
+                pieces, name, icell, level[icell], pressure
+            )
         state[name] = values
 
     total = np.zeros(len(pressure))
@@ -662,6 +690,21 @@ def anchor_difference(
     comparison the recurrence makes at every other interface.  A state only
     approximately at rest carries a real gradient, and the scheme reports it.
 
+    **The shift to a common pressure never spans more than one layer.**  The
+    short integrals use one first-order expansion, so stretched across a floor
+    offset of several layers -- as terrain-following layers over a steep slope
+    produce -- they leave an error that grows with the cube of the offset and
+    is the same at every depth.  Where the shallower floor's pressure lies
+    above the deeper column's own layer ``K``, the deeper column is represented
+    instead by its own interface at or just below that pressure, its height
+    there taken from ``GeomZInterface``, and the expansion is shared by the two
+    layers that meet there.  The result is then carried down to
+    :math:`\\bar q_{K+1}` with the matched-pressure integrand, which vanishes
+    on the exact set.  Where the floors are within one layer of each other,
+    which includes every flat floor and every floor cut by partial cells
+    beneath level interior layers, this is the comparison above unchanged.
+    It mirrors Omega's ``PressureGrad::computeColumnScan``.
+
     Parameters
     ----------
     pieces : dict
@@ -669,8 +712,8 @@ def anchor_difference(
 
     order : int
         Number of Gauss-Legendre points, matching Omega's ``QuadraturePoints``.
-        The integrand is linear in pressure within a layer, so 2 integrates it
-        exactly.
+        The integrand is linear in pressure within a layer, or quadratic with
+        the parabolic reconstruction, so 2 integrates it exactly.
 
     guards : set of str, optional
         Verification-only switches; see :py:func:`finite_volume_hpga`.
@@ -691,35 +734,104 @@ def anchor_difference(
         return float(delta_z)
 
     nodes, weights = np.polynomial.legendre.leggauss(order)
-    common = pieces['edge_interface'][interface]
     # the edge layer adjacent to the anchor interface supplies the shared
     # coefficients, as it does for every other interface in the scan
     edge_layer = max(interface - 1, 0)
 
+    # each column's own interface the comparison is made at: the anchor
+    # interface itself unless the floors are more than a layer apart
+    own_interface = [interface, interface]
+    if interface > 0:
+        floor = pieces['interface'][:, interface]
+        deep = 1 if floor[0] <= floor[1] else 0
+        # the deeper column's layer containing the shallower floor's pressure,
+        # searched upward from the edge's deepest layer as Omega's
+        # findLayerForPress does from that hint
+        layer = layer_containing_pressure(
+            pieces, deep, np.array([floor[1 - deep]])
+        )
+        own_interface[deep] = min(int(layer[0]), edge_layer) + 1
+
+    if own_interface == [interface, interface]:
+        common = pieces['edge_interface'][interface]
+        expansion = pieces['expansion'].isel(nVertLevels=edge_layer)
+        coefficients = {
+            name: float(expansion[name])
+            for name in [
+                'alpha_0',
+                'alpha_theta',
+                'alpha_s',
+                'alpha_p',
+                'theta_ref',
+                's_ref',
+                'p_ref',
+            ]
+        }
+    else:
+        common = 0.5 * (
+            pieces['interface'][0, own_interface[0]]
+            + pieces['interface'][1, own_interface[1]]
+        )
+        # shared by the two layers that meet where the comparison is made
+        local = pieces['cell_local']
+        layers = [own_interface[0] - 1, own_interface[1] - 1]
+        coefficients = {
+            name: 0.5
+            * (
+                float(local[name].isel(nCells=0, nVertLevels=layers[0]))
+                + float(local[name].isel(nCells=1, nVertLevels=layers[1]))
+            )
+            for name in [
+                'alpha_0',
+                'alpha_theta',
+                'alpha_s',
+                'alpha_p',
+                'theta_ref',
+                's_ref',
+                'p_ref',
+            ]
+        }
+
+    delta_z = (
+        pieces['interface_height'][1, own_interface[1]]
+        - pieces['interface_height'][0, own_interface[0]]
+    )
+
     correction = np.empty(2)
     for icell in range(2):
-        own = pieces['interface'][icell, interface]
+        own = pieces['interface'][icell, own_interface[icell]]
         middle = 0.5 * (own + common)
         half = 0.5 * (common - own)
         probe = middle + half * nodes
         level = layer_containing_pressure(pieces, icell, probe)
-        theta = pieces['theta'][icell, level] + pieces['slope_theta'][
-            icell, level
-        ] * (probe - pieces['pressure_mid'][icell, level])
-        salinity = pieces['salinity'][icell, level] + pieces['slope_salinity'][
-            icell, level
-        ] * (probe - pieces['pressure_mid'][icell, level])
-        expansion = pieces['expansion'].isel(nVertLevels=edge_layer)
+        theta = _column_state(pieces, 'theta', icell, level, probe)
+        salinity = _column_state(pieces, 'salinity', icell, level, probe)
         specvol = (
-            float(expansion.alpha_0)
-            + float(expansion.alpha_theta)
-            * (theta - float(expansion.theta_ref))
-            + float(expansion.alpha_s) * (salinity - float(expansion.s_ref))
-            + float(expansion.alpha_p) * (probe - float(expansion.p_ref))
+            coefficients['alpha_0']
+            + coefficients['alpha_theta'] * (theta - coefficients['theta_ref'])
+            + coefficients['alpha_s'] * (salinity - coefficients['s_ref'])
+            + coefficients['alpha_p'] * (probe - coefficients['p_ref'])
         )
         correction[icell] = half * float(np.sum(weights * specvol))
 
-    return float(delta_z - (correction[1] - correction[0]) / Gravity)
+    anchor = float(delta_z - (correction[1] - correction[0]) / Gravity)
+
+    if own_interface != [interface, interface]:
+        # carried down to the edge's deepest interface with the
+        # matched-pressure integrand of that edge layer
+        bottom = pieces['edge_interface'][interface]
+        middle = 0.5 * (common + bottom)
+        half = 0.5 * (bottom - common)
+        probe = middle + half * nodes
+        shift = half * float(
+            np.sum(
+                weights
+                * delta_specvol_at_pressure(pieces, edge_layer, probe, guards)
+            )
+        )
+        anchor -= shift / Gravity
+
+    return anchor
 
 
 def column_scan(
@@ -886,6 +998,7 @@ def finite_volume_hpga(
     dx: float,
     order: int = 2,
     guards: set[str] | None = None,
+    vertical_reconstruction: str = 'linear',
 ) -> xr.DataArray:
     """
     The assembled ``FiniteVolume`` horizontal pressure-gradient acceleration,
@@ -933,6 +1046,9 @@ def finite_volume_hpga(
             :py:func:`anchor_difference`.  It exists so the gap between the two
             can be measured rather than assumed.
 
+    vertical_reconstruction : str, optional
+        ``'linear'`` or ``'ppm'``, matching Omega's ``VerticalReconstruction``.
+
     Returns
     -------
     hpga : xarray.DataArray
@@ -943,22 +1059,61 @@ def finite_volume_hpga(
     if dx == 0.0:
         raise ValueError('dx must be non-zero for finite differences.')
 
-    pieces = matched_pressure_pieces(ds, guards=guards)
+    pieces = matched_pressure_pieces(
+        ds, guards=guards, vertical_reconstruction=vertical_reconstruction
+    )
     mean = layer_mean_difference(pieces, order=order, guards=guards)
 
     values = np.full(ds.sizes['nVertLevels'], np.nan)
     values[: len(mean)] = -(Gravity / dx) * mean
 
+    long_name = (
+        'along-layer pressure gradient acceleration at layer midpoints, '
+        'finite-volume scheme'
+    )
+    if vertical_reconstruction == 'ppm':
+        long_name = f'{long_name}, parabolic reconstruction'
     hpga = xr.DataArray(
         data=values[np.newaxis, :],
         dims=['Time', 'nVertLevels'],
-        attrs={
-            'long_name': 'along-layer pressure gradient acceleration at layer '
-            'midpoints, finite-volume scheme',
-            'units': 'm s-2',
-        },
+        attrs={'long_name': long_name, 'units': 'm s-2'},
     )
     return hpga
+
+
+def _column_state(
+    pieces: dict,
+    name: str,
+    icell: int,
+    level: np.ndarray,
+    pressure: np.ndarray,
+) -> np.ndarray:
+    """
+    One column's reconstructed ``theta`` or ``salinity`` at some pressures,
+    each from the layer of that column given in ``level``.
+
+    The one place the reconstruction is evaluated, so that the integrand, the
+    anchor's short integrals and its carry-down cannot describe different
+    water.  With the linear reconstruction this is the layer mean plus the
+    slope times the offset from the mid-layer pressure, as before; the
+    parabolic one adds its curvature term.
+    """
+    curvature = pieces[f'curvature_{name}']
+    if curvature is None:
+        return reconstruction.reconstruct(
+            pieces[name][icell, level],
+            pieces[f'slope_{name}'][icell, level],
+            pieces['pressure_mid'][icell, level],
+            pressure,
+        )
+    return reconstruction.reconstruct(
+        pieces[name][icell, level],
+        pieces[f'slope_{name}'][icell, level],
+        pieces['pressure_mid'][icell, level],
+        pressure,
+        curvature=curvature[icell, level],
+        thickness=pieces['thickness'][icell, level],
+    )
 
 
 def _coefficients_for(

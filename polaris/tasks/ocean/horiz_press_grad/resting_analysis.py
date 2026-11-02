@@ -131,12 +131,17 @@ class RestingAnalysis(OceanIOStep):
         )
         max_rms_text = section.get('resting_state_max_rms').strip().lower()
         max_rms = None if max_rms_text == 'none' else float(max_rms_text)
-        improvement_text = (
-            section.get('resting_state_improvement_min').strip().lower()
-        )
-        improvement_min = (
-            None if improvement_text == 'none' else float(improvement_text)
-        )
+        # one improvement gate per finite-volume scheme, each against centered
+        improvement_min: dict[str, float | None] = {}
+        for scheme in self.schemes:
+            if scheme == 'centered':
+                continue
+            text = (
+                section.get(f'resting_state_improvement_min_{scheme}')
+                .strip()
+                .lower()
+            )
+            improvement_min[scheme] = None if text == 'none' else float(text)
 
         omega_rms: dict[str, list[float]] = {
             scheme: [] for scheme in self.schemes
@@ -288,13 +293,15 @@ class RestingAnalysis(OceanIOStep):
         if 'centered' in omega:
             self._check_sensitivity(omega['centered'], sensitivity_min_rms)
 
-        if 'centered' in omega and 'finite_volume' in omega:
-            self._check_improvement(
-                centered=omega['centered'],
-                finite_volume=omega['finite_volume'],
-                improvement_min=improvement_min,
-                logger=logger,
-            )
+        if 'centered' in omega:
+            for scheme, gate in improvement_min.items():
+                self._check_improvement(
+                    centered=omega['centered'],
+                    finite_volume=omega[scheme],
+                    improvement_min=gate,
+                    logger=logger,
+                    scheme=scheme,
+                )
 
     def _check_bathymetry(self, bathy_error, max_bathy_error):
         """
@@ -368,10 +375,10 @@ class RestingAnalysis(OceanIOStep):
         )
 
     def _check_improvement(
-        self, centered, finite_volume, improvement_min, logger
+        self, centered, finite_volume, improvement_min, logger, scheme
     ):
         """
-        Fail if the finite-volume scheme is not enough better than centered.
+        Fail if a finite-volume scheme is not enough better than centered.
 
         The true HPGA is identically zero here, so both are pure error and
         their ratio is a clean statement of what the higher-order scheme buys
@@ -390,7 +397,7 @@ class RestingAnalysis(OceanIOStep):
         if np.any(finite):
             worst_index = int(np.argmin(np.where(finite, ratio, np.inf)))
             logger.info(
-                'centered / finite_volume RMS HPGA: smallest is '
+                f'centered / {scheme} RMS HPGA: smallest is '
                 f'{ratio[worst_index]:.2f}x at '
                 f'{sweep_suffix(*self.sweep_keys[worst_index])}'
             )
@@ -402,9 +409,9 @@ class RestingAnalysis(OceanIOStep):
         if not np.any(failing):
             return
         raise ValueError(
-            'The finite-volume scheme is not enough better than the centered '
-            f'one: resting_state_improvement_min={improvement_min:.3e} is not '
-            f'met at: {self._failing_text(failing, ratio)}'
+            f'{scheme} is not enough better than the centered scheme: '
+            f'resting_state_improvement_min_{scheme}={improvement_min:.3e} is '
+            f'not met at: {self._failing_text(failing, ratio)}'
         )
 
     def _failing_text(self, failing, values):
