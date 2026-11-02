@@ -1,4 +1,5 @@
 from polaris.tasks.landice.dome import add_dome_tasks
+from polaris.tasks.landice.mismip_plus import add_mismip_plus_tasks
 
 
 def add_landice_tasks(component):
@@ -10,3 +11,4 @@ def add_landice_tasks(component):
     """
     # add tasks alphabetically
     add_dome_tasks(component=component)
+    add_mismip_plus_tasks(component=component)

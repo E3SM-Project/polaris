@@ -26,3 +26,20 @@ landice/dome/2km/sia/restart
 landice/dome/2km/fo/decomp
 landice/dome/2km/fo/restart
 ```
+
+(landice-suite-mismip-plus)=
+
+## mismip_plus suite
+
+The `mismip_plus` suite runs the MISMIP+ experiments that end by 200 years
+from the cached steady state (see {ref}`landice-mismip-plus`).  Each
+experiment takes hours on several nodes, so the suite is not meant for
+testing pull requests.
+
+```none
+landice/mismip_plus/1km/ice0
+landice/mismip_plus/1km/ice1r
+landice/mismip_plus/1km/ice1ra
+landice/mismip_plus/1km/ice2r
+landice/mismip_plus/1km/ice2ra
+```
