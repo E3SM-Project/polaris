@@ -427,14 +427,14 @@ stays a no-op.
 
 ### Principle: a thin film and an outflow
 
-Date last modified: 2026/10/30
+Date last modified: 2026/11/02
 
 Contributors: Xylar Asay-Davis, Claude
 
 As in the standalone thin-film tasks, every ocean cell under grounded ice
-holds a fresh film at MPAS-Ocean's pressure cap, and the SSH is held at
-zero in the restoring region by MPAS-Ocean's tidal forcing, in its direct
-mode with zero amplitude. Meltwater and the water the ice displaces leave
+holds a fresh film, 5 cm per layer ([D23](#decisions)), at MPAS-Ocean's
+pressure cap, and the SSH is held at zero in the restoring region by
+MPAS-Ocean's tidal forcing, in its direct mode with zero amplitude. Meltwater and the water the ice displaces leave
 there with the local temperature and salinity. Every E3SM experiment
 takes the wetting-and-drying settings of the thin-film tasks, including
 the velocity ramp of split-explicit wetting and drying, since every
@@ -1348,3 +1348,36 @@ that time on results split-explicit gives at a fraction of the cost.
 ```
 
 Rejected: running stages B–D at full length with RK4, as planned before.
+
+### D23: The thin film is 5 cm per layer
+
+Date last modified: 2026/11/02
+
+Contributors: Xylar Asay-Davis, Claude
+
+Each layer of the thin film is 5 cm thick, not 1 mm, in the standalone
+thin-film tasks and so in every E3SM experiment. MPAS-Ocean's minimum layer
+thickness and the start of its drying velocity ramp match it.
+
+```{admonition} Rationale
+With the pressure capped at MALI's ocean density ([D6](#decisions)), a few
+cells near the grounding line fall just short of the cap and stay
+uncapped. They drain to layers of a few centimeters beside columns of
+meters, and upwinding into them goes unstable: 4 km Ocean4 within days,
+and the 2 km drying task within hours. A 5 cm film turns these cells into
+film cells. Every thin-film task then passes with RK4 and split-explicit,
+and 4 km Ocean4 runs quietly through its first geometry change. The film
+holds about 10 km³ of nearly fresh water at 4 km, 0.06% of the ocean's
+volume. RK4, but not split-explicit, drains some film columns to about 87%
+of the film.
+```
+
+Rejected:
+
+- capping the pressure at 1026 kg m⁻³ again, since the density stays
+  MALI's;
+- a negative overburden height, since it is constant while the offset
+  needed grows with depth, and the 2 km RK4 drying task still fails;
+- upwinding only in thinner columns (0.25 to 0.5 m), which fixes
+  split-explicit but not 2 km RK4 drying, and with a 5 cm film takes every
+  film edge off pure upwind.
