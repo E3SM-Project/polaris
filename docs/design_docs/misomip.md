@@ -1357,7 +1357,8 @@ Contributors: Xylar Asay-Davis, Claude
 
 Each layer of the thin film is 5 cm thick, not 1 mm, in the standalone
 thin-film tasks and so in every E3SM experiment. MPAS-Ocean's minimum layer
-thickness and the start of its drying velocity ramp match it.
+thickness and the start of its drying velocity ramp match it. The thickness
+is a working choice, and a thinner film may be revisited later.
 
 ```{admonition} Rationale
 With the pressure capped at MALI's ocean density ([D6](#decisions)), a few
