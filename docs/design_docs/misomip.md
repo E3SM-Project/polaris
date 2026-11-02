@@ -1361,12 +1361,15 @@ thickness and the start of its drying velocity ramp match it. The thickness
 is a working choice, and a thinner film may be revisited later.
 
 ```{admonition} Rationale
-With the pressure capped at MALI's ocean density ([D6](#decisions)), a few
-cells near the grounding line fall just short of the cap and stay
-uncapped. They drain to layers of a few centimeters beside columns of
+The film's thickness is also the threshold for capping: a cell whose
+floating column would be thinner than the film is capped and holds the
+film. With the pressure capped at MALI's ocean density ([D6](#decisions)),
+a 1 mm film leaves cells near the grounding line fully wet with columns of
+about a meter split into layers of a few centimeters, beside layers of
 meters, and upwinding into them goes unstable: 4 km Ocean4 within days,
-and the 2 km drying task within hours. A 5 cm film turns these cells into
-film cells. Every thin-film task then passes with RK4 and split-explicit,
+and the 2 km drying task within hours. A cap at 1026 kg m⁻³ had hidden
+these cells, capping any cell within 0.2% of flotation. A 5 cm film turns
+them into film cells. Every thin-film task then passes with RK4 and split-explicit,
 and 4 km Ocean4 runs quietly through its first geometry change. The film
 holds about 10 km³ of nearly fresh water at 4 km, 0.06% of the ocean's
 volume. RK4, but not split-explicit, drains some film columns to about 87%
@@ -1381,4 +1384,10 @@ Rejected:
   needed grows with depth, and the 2 km RK4 drying task still fails;
 - upwinding only in thinner columns (0.25 to 0.5 m), which fixes
   split-explicit but not 2 km RK4 drying, and with a 5 cm film takes every
-  film edge off pure upwind.
+  film edge off pure upwind;
+- a drying velocity ramp up to 0.5 to 1 m, which would smooth the step from
+  film to fully wet but damp the flow in every column thinner than about
+  12 to 25 m near the grounding line;
+- 1026 kg m⁻³ for MALI's flotation as well, which would leave every
+  floating column at least 0.2% of its depth thick, but departs from the
+  protocol and moves MALI's grounding line.
