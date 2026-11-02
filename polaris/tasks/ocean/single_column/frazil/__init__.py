@@ -1,4 +1,9 @@
+import numpy as np
+
 from polaris import Task
+from polaris.constants import get_constant
+from polaris.ocean.eos import compute_ct_freezing
+from polaris.ocean.model import OceanIOStep
 from polaris.tasks.ocean.single_column.conservation_summary import (
     ConservationSummary,
 )
@@ -65,19 +70,14 @@ class Frazil(Task):
         comparisons = dict()
         forward_steps = dict()
         self._frazil_type_steps = dict()
-        run_duration_steps = None
-        frazil_conservation = False
-        if self.case == 'freezing':
-            time_step = self.config.getfloat('single_column', 'time_step')
-            run_duration_steps = int(round(86400.0 / time_step))
-            if run_duration_steps * time_step != 86400.0:
-                raise ValueError(
-                    'The freezing frazil run must contain an integer number '
-                    'of time steps in one day'
-                )
-            frazil_conservation = True
-        elif self.case == 'melting':
-            run_duration_steps = 2
+        time_step = self.config.getfloat('single_column', 'time_step')
+        run_duration_steps = int(round(86400.0 / time_step))
+        if run_duration_steps * time_step != 86400.0:
+            raise ValueError(
+                'The frazil run must contain an integer number '
+                'of time steps in one day'
+            )
+        frazil_conservation = self.case == 'freezing'
         for frazil_type in ('FixedProperty', 'teos'):
             forward_step = Forward(
                 component=component,
@@ -105,6 +105,10 @@ class Frazil(Task):
             frazil_diagnostics=(case == 'freezing'),
         )
         self.add_step(self.conservation_summary)
+        if case == 'melting':
+            self.add_step(
+                MeltingAnalysis(component, subdir, init_step, comparisons)
+            )
         self.viz = FrazilViz(
             component=component,
             indir=subdir,
@@ -136,6 +140,16 @@ class Frazil(Task):
             self.conservation_summary.forward_steps.pop(teos_step.name, None)
             comparisons = dict(self.viz.comparisons)
             comparisons.pop('teos', None)
+            if self.case == 'melting':
+                self.remove_step(self.steps['analysis'])
+                self.add_step(
+                    MeltingAnalysis(
+                        self.component,
+                        self.subdir,
+                        self.steps['init'],
+                        comparisons,
+                    )
+                )
             self.remove_step(self.viz)
             self.viz = FrazilViz(
                 component=self.component,
@@ -145,3 +159,74 @@ class Frazil(Task):
                 mpas_ocean_frazil=True,
             )
             self.add_step(self.viz, run_by_default=False)
+
+
+class MeltingAnalysis(OceanIOStep):
+    """Check initial and final supercooling in the melting column."""
+
+    def __init__(self, component, indir, init, comparisons):
+        super().__init__(component=component, name='analysis', indir=indir)
+        self.comparisons = dict(comparisons)
+        self.add_input_file(
+            filename='init.nc', work_dir_target=f'{init.path}/init.nc'
+        )
+        for name, path in comparisons.items():
+            self.add_input_file(
+                filename=f'{name}.nc', target=f'{path}/output.nc'
+            )
+
+    def run(self):
+        """Require initial supercooling and final relaxation to freezing."""
+        section = self.config['single_column_frazil']
+        initial_minimum = section.getfloat('initial_supercooling_minimum')
+        final_maximum = section.getfloat('final_supercooling_tolerance')
+        if (
+            not np.isfinite(initial_minimum)
+            or not np.isfinite(final_maximum)
+            or initial_minimum <= 0.0
+            or final_maximum < 0.0
+        ):
+            raise ValueError('Invalid melting supercooling thresholds')
+        with self.open_model_dataset('init.nc', config=self.config) as ds:
+            initial = self._maximum_supercooling(ds.isel(Time=0))
+        self.logger.info(f'Initial maximum supercooling: {initial:.6e} degC')
+        if initial < initial_minimum:
+            raise ValueError(
+                f'Initial supercooling {initial:.6e} degC is below '
+                f'{initial_minimum:.6e} degC'
+            )
+        for name in self.comparisons:
+            with self.open_model_dataset(
+                f'{name}.nc', config=self.config
+            ) as ds:
+                final = self._maximum_supercooling(ds.isel(Time=-1))
+            self.logger.info(
+                f'{name} final maximum supercooling: {final:.6e} degC'
+            )
+            if final > final_maximum:
+                raise ValueError(
+                    f'{name} final supercooling {final:.6e} degC exceeds '
+                    f'{final_maximum:.6e} degC'
+                )
+
+    def _maximum_supercooling(self, ds):
+        model = self.config.get('ocean', 'model')
+        thickness = ds[
+            'PseudoThickness' if model == 'omega' else 'layerThickness'
+        ]
+        depth = thickness.cumsum('nVertLevels') - 0.5 * thickness
+        pressure = (
+            depth
+            * get_constant('seawater_density_reference')
+            * get_constant('standard_acceleration_of_gravity')
+        )
+        freezing = compute_ct_freezing(
+            self.config, ds.salinity, pressure=pressure
+        )
+        active = depth <= self.config.getfloat(
+            'single_column_frazil', 'maximum_depth'
+        )
+        supercooling = (freezing - ds.temperature).values[active.values]
+        if supercooling.size == 0 or not np.isfinite(supercooling).all():
+            raise ValueError('Missing or nonfinite active-layer supercooling')
+        return max(0.0, float(np.max(supercooling)))

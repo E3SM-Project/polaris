@@ -452,6 +452,10 @@ class Forward(OceanModelStep):
                 'latent_heat_of_fusion_reference'
             ),
         )
+        if self.task_name == 'frazil':
+            replacements['frazil_maximum_depth'] = self.config.getfloat(
+                'single_column_frazil', 'maximum_depth'
+            )
         if 'kpp_regimes' in self.task_package:
             replacements['match_technique'] = (
                 self.match_technique or 'SimpleShapes'

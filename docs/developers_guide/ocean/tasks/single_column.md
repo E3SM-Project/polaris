@@ -294,9 +294,14 @@ signature from an enforced validation threshold.
 The {py:class}`polaris.tasks.ocean.single_column.frazil.Frazil` task creates
 four single-column cases covering the combinations of the two initial
 conditions (``melting`` and ``freezing``) and the two frazil algorithms
-(``FixedProperty`` and ``teos``).  Each case uses the standard 10-day run
-length from the shared `single_column` config and runs the shared `Viz` step
-from the single-column framework.
+(``FixedProperty`` and ``teos``). Each case runs for one day and has an
+optional visualization step from the single-column framework.
+
+Melting also runs
+{py:class}`polaris.tasks.ocean.single_column.frazil.MeltingAnalysis`
+by default. It checks initial and final maximum supercooling within the
+configured frazil depth limit; thresholds are described in
+{ref}`ocean-single-column`.
 
 The melting case sets a linear salinity profile with depth and a vertical
 profile with warm water near the surface and colder water below, using the

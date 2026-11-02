@@ -824,8 +824,7 @@ stratification inside the boundary layer.
 
 The `frazil` task creates four single-column cases that combine the two
 initial-condition regimes (``melting`` and ``freezing``) with the two frazil
-algorithms (``FixedProperty`` and ``teos``). Melting runs for two timesteps
-(20 minutes with the default 600 s timestep), while freezing runs for one day.
+algorithms (``FixedProperty`` and ``teos``). Both cases run for one day.
 Both output the state and diagnostics needed for frazil growth and melting.
 For MPAS-Ocean, the ``teos`` variant is omitted
 because that model only supports the ``FixedProperty`` algorithm.
@@ -840,9 +839,20 @@ All MPAS-Ocean frazil cases use the linear density equation of state.
 The standard freezing case starts at a uniform temperature
 `temperature_above_freezing` (default 0.001 degC) above the warmest local
 freezing point calculated by `compute_linear_ct_freezing`.
-MPAS-Ocean's frazil formation still uses its own mushy-layer freezing
-relation, which differs from this linear initialization threshold.
+For MPAS-Ocean, the freezing helper uses the default open-ocean mushy-layer
+relation, matching frazil formation. Omega's linear-EOS freezing relation
+is unchanged.
 Omega retains the TEOS-10 equation of state and its existing initialization.
+
+Melting includes a default analysis step that checks only the initial and
+final states. Within `single_column_frazil:maximum_depth` (default 100 m),
+the initial maximum supercooling must be at least
+`initial_supercooling_minimum` (default 0.1 degC), and the final maximum
+supercooling must not exceed `final_supercooling_tolerance` (default
+1.e-4 degC). Supercooling is the positive difference between the local
+freezing temperature from the configured EOS and the water temperature,
+using the salinity and hydrostatic pressure of each state. Warm layers
+need not reach freezing, and layers below the frazil depth limit are excluded.
 
 MPAS-Ocean frazil tendency figures show the last available output in each
 day, including a partial final day. One-layer cases omit these figures.

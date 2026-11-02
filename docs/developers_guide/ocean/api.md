@@ -428,6 +428,8 @@
 
    Frazil
    Frazil.configure
+   MeltingAnalysis
+   MeltingAnalysis.run
 ```
 
 ```{eval-rst}

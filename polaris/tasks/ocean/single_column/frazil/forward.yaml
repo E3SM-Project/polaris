@@ -12,7 +12,7 @@ ocean:
   frazil_ice:
     config_use_frazil_ice_formation: true
     config_frazil_fractional_thickness_limit: 0.1
-    config_frazil_maximum_depth: 100.
+    config_frazil_maximum_depth: {{ frazil_maximum_depth }}
   debug:
     config_disable_tr_sflux: false
     config_disable_thick_sflux: false
