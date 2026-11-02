@@ -62,6 +62,9 @@ For each run, from its monthly means:
 - the ocean's volume and mean temperature and salinity;
 - with a thin film, the area of dry columns under grounded ice and the
   open ocean's mean sea-surface height;
+- in an E3SM run, the share of MALI's floating area in cells next to the
+  grounding line that the ocean holds at the thin film, and an estimate of
+  the share of melt missed there;
 - time-mean maps of melt rate, thermal and haline driving, friction
   velocity, the barotropic streamfunction, bottom temperature and
   salinity and SSH, sections of temperature and salinity at

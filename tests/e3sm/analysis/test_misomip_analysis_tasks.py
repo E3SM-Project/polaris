@@ -26,6 +26,9 @@ STREAMS = """<streams>
 NAMELIST = """&wetting_drying
     config_drying_min_cell_height = 1.0d-3
 /
+&coupling
+    config_glc_ice_shelf_coupling_min_floating_fraction = 1.0e-3
+/
 """
 
 
