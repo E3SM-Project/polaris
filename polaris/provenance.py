@@ -5,6 +5,7 @@ import subprocess
 import sys
 from typing import Any, Dict, List, Optional
 
+from polaris.build.mali import get_mali_source_dir
 from polaris.build.mpas_ocean import get_mpas_ocean_source_dir
 from polaris.build.omega import (
     detect_omega_build_type,
@@ -339,7 +340,11 @@ def _get_component_source_dir(config):
         return _get_branch_source_dir(config)
 
     build_dir = _get_build_dir(config)
-    for get_source_dir in (get_omega_source_dir, get_mpas_ocean_source_dir):
+    for get_source_dir in (
+        get_omega_source_dir,
+        get_mpas_ocean_source_dir,
+        get_mali_source_dir,
+    ):
         source_dir = get_source_dir(build_dir)
         if source_dir is not None:
             if not os.path.isdir(source_dir):
@@ -438,9 +443,10 @@ def _get_build_dir(config):
 def _get_model(config):
     if config is None:
         return None
-    if config.has_option('ocean', 'model'):
-        val = config.get('ocean', 'model')
-        return val or None
+    for section in ('ocean', 'landice'):
+        if config.has_option(section, 'model'):
+            val = config.get(section, 'model')
+            return val or None
     return None
 
 

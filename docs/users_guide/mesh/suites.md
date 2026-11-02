@@ -34,7 +34,8 @@ supported unified mesh.
 mesh/spherical/unified/u-oi-so12to30-lr10/river/task
 mesh/spherical/unified/u-oi240-lr240/river/task
 mesh/spherical/unified/u-oi30-lr10/river/task
-mesh/spherical/unified/u-oi6to18-lr6to10/river/task
+mesh/spherical/unified/u-oi6to18-lr12p5/river/task
+mesh/spherical/unified/u-oi6to18-lr25/river/task
 ```
 
 (mesh-suite-sizing-field)=
@@ -48,7 +49,8 @@ supported unified mesh.
 mesh/spherical/unified/u-oi-so12to30-lr10/sizing_field/task
 mesh/spherical/unified/u-oi240-lr240/sizing_field/task
 mesh/spherical/unified/u-oi30-lr10/sizing_field/task
-mesh/spherical/unified/u-oi6to18-lr6to10/sizing_field/task
+mesh/spherical/unified/u-oi6to18-lr12p5/sizing_field/task
+mesh/spherical/unified/u-oi6to18-lr25/sizing_field/task
 ```
 
 (mesh-suite-base-mesh)=
@@ -62,5 +64,6 @@ supported unified mesh.
 mesh/spherical/unified/u-oi-so12to30-lr10/base_mesh/task
 mesh/spherical/unified/u-oi240-lr240/base_mesh/task
 mesh/spherical/unified/u-oi30-lr10/base_mesh/task
-mesh/spherical/unified/u-oi6to18-lr6to10/base_mesh/task
+mesh/spherical/unified/u-oi6to18-lr12p5/base_mesh/task
+mesh/spherical/unified/u-oi6to18-lr25/base_mesh/task
 ```

@@ -216,7 +216,7 @@ class Forward(OceanModelStep):
 
     def dynamic_model_config(self, at_setup):
         """
-        Render ``forward.yaml`` from the stage and apply MPAS-Ocean damping.
+        Render ``forward.yaml`` from the stage and add the physics options.
 
         Parameters
         ----------
@@ -233,12 +233,6 @@ class Forward(OceanModelStep):
         stage = self.stage
         if stage is None:
             stage = ForwardStage.from_config(config)
-
-        if not at_setup:
-            # deferred to run time, as the time-integrator check is, so that a
-            # user can set the task up and then change the model or the
-            # schedule
-            stage.check_damping_supported(model)
 
         replacements = stage.model_replacements(
             model, min_res, at_setup=at_setup
@@ -298,6 +292,13 @@ class Forward(OceanModelStep):
             self.add_model_config_options(
                 options=stage.omega_physics_options(), config_model='Omega'
             )
+            damping = stage.omega_damping_replacements()
+            if damping is not None:
+                self.add_yaml_file(
+                    self.package,
+                    'omega_damping.yaml',
+                    template_replacements=damping,
+                )
 
         if model == 'omega' and self.work_dir is not None:
             # Omega does not make the directories its streams write into

@@ -72,7 +72,8 @@ Runs cull-topography tasks for all supported unified meshes.
 e3sm/init/u-oi-so12to30-lr10/topo/cull
 e3sm/init/u-oi240-lr240/topo/cull
 e3sm/init/u-oi30-lr10/topo/cull
-e3sm/init/u-oi6to18-lr6to10/topo/cull
+e3sm/init/u-oi6to18-lr12p5/topo/cull
+e3sm/init/u-oi6to18-lr25/topo/cull
 ```
 
 (e3sm-init-suite-remap-topo-unified)=
@@ -85,5 +86,6 @@ Runs remap-topography tasks for all supported unified meshes.
 e3sm/init/u-oi-so12to30-lr10/topo/remap
 e3sm/init/u-oi240-lr240/topo/remap
 e3sm/init/u-oi30-lr10/topo/remap
-e3sm/init/u-oi6to18-lr6to10/topo/remap
+e3sm/init/u-oi6to18-lr12p5/topo/remap
+e3sm/init/u-oi6to18-lr25/topo/remap
 ```

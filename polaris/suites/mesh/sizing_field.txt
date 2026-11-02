@@ -1,4 +1,5 @@
 mesh/spherical/unified/u-oi-so12to30-lr10/sizing_field/task
 mesh/spherical/unified/u-oi240-lr240/sizing_field/task
 mesh/spherical/unified/u-oi30-lr10/sizing_field/task
-mesh/spherical/unified/u-oi6to18-lr6to10/sizing_field/task
+mesh/spherical/unified/u-oi6to18-lr12p5/sizing_field/task
+mesh/spherical/unified/u-oi6to18-lr25/sizing_field/task

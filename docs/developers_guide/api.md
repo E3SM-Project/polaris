@@ -13,6 +13,7 @@ documentation.
 :titlesonly: true
 
 e3sm/init/api
+landice/api
 mesh/api
 ocean/api
 seaice/api
@@ -653,6 +654,12 @@ seaice/api
 .. autosummary::
    :toctree: generated/
 
+   mali.build_mali
+   mali.environment_has_albany
+   mali.get_mali_build_albany
+   mali.get_mali_source_dir
+   mali.make_build_script
+   mpas_framework.get_framework_check
    mpas_ocean.build_mpas_ocean
    mpas_ocean.make_build_script
    omega.build_omega
@@ -725,7 +732,11 @@ seaice/api
    :toctree: generated/
 
    MappingFileStep
+   MappingFileStep.src_from_scrip
+   MappingFileStep.dst_from_scrip
    MappingFileStep.runtime_setup
+   ScripFileDescriptor
+   ScripFileDescriptor.to_scrip
 ```
 
 ### resolution

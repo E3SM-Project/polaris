@@ -317,8 +317,8 @@ steps of its own:
    stress components and magnitude are also written, which is where remapping
    artifacts would show up.
 
-On large meshes, `viz` is the most expensive step: it took 78 minutes of a
-run of about 2.5 hours on `u-oi6to18-lr6to10`.  It runs only in this task;
+On large meshes, `viz` is the most expensive step: it took 33 minutes of a
+run of about 1.8 hours on `u-oi6to18-lr12p5`.  It runs only in this task;
 other workflows that reuse the init steps leave it out.
 
 ### mesh
@@ -491,11 +491,11 @@ Currently:
   depth.  The shallow ocean is deliberate: these coarse meshes exist for fast
   smoke-testing of E3SM, Omega and MPAS-Ocean rather than for physically
   realistic simulations.
-- All four unified meshes set `culled_ocean_cell_count`, the approximate size
+- All five unified meshes set `culled_ocean_cell_count`, the approximate size
   of the ocean + sea-ice culled mesh that the ocean model actually runs.  It is
   used to size MPI task counts and is smaller than the full mesh, which
   includes land and river-channel refinement that is culled away first.
-- All four unified meshes, plus `qu240km` and `icos240km`, set the
+- All five unified meshes, plus `qu240km` and `icos240km`, set the
   resolution-dependent forward-run options described under
   [forward](#ocean-realistic-global-forward): the horizontal mixing
   coefficients, how mixing is scaled across the mesh, which eddy
@@ -844,7 +844,7 @@ step runs, and the step's log reports it with the coefficients.
 
 A mesh whose coefficients come from E3SM states its finest resolution instead,
 because E3SM's per-grid `mom_del2` and `mom_del4` values are referenced to that:
-`u-oi6to18-lr6to10` pairs `RRSwISC6to18E3r5`'s `3.2e09` with 6 km,
+the `u-oi6to18` meshes pair `RRSwISC6to18E3r5`'s `3.2e09` with 6 km,
 `u-oi-so12to30-lr10` pairs `SOwISC12to30E3r3`'s `1.18e10` with 12 km, and the
 three 240 km meshes take `oQU240`'s `2.0e14` with 240 km.  Omega has no
 reference width of its own to set, so when one is stated, Polaris converts the
@@ -970,7 +970,9 @@ omega_time_integrator = split_explicit
 # Run duration as an MPAS-style duration string (DDDD_HH:MM:SS)
 run_duration = 0001_00:00:00
 
-# Interval between writes to the output stream (DDDD_HH:MM:SS)
+# Interval between writes to the output stream (DDDD_HH:MM:SS).  MPAS-Ocean
+# also writes on startup; Omega cannot, so an Omega run shorter than this
+# interval writes its final state instead.
 output_interval = 0001_00:00:00
 
 # Interval between writes to the restart stream (DDDD_HH:MM:SS); leave blank to
@@ -1005,8 +1007,9 @@ btr_dt =
 rk4_dt =
 
 # Rayleigh damping coefficient (1/s); leave blank for no Rayleigh damping.
-# MPAS-Ocean only: Omega has no Rayleigh damping, so a non-blank value is an
-# error there (https://github.com/E3SM-Project/Omega/issues/495)
+# Applied in every layer by both models: through MPAS-Ocean's
+# constant_and_rayleigh bottom drag and Omega's RayleighDamping.  For Omega, a
+# non-blank value needs a build with RayleighDamping.
 damping =
 
 # Horizontal mixing coefficients.  A blank value turns the corresponding term
@@ -1283,3 +1286,394 @@ moc_num_bins = 60
 
 The number of cores used by the `forward` step is determined algorithmically
 from the number of cells in the mesh.  The `global_stats` step runs serially.
+
+(ocean-realistic-global-dynamic-adjustment)=
+
+## dynamic_adjustment
+
+The `dynamic_adjustment` task runs a sequence of short forward stages that
+dissipate the fast waves introduced by the initial condition, producing a
+relaxed restart suitable for a longer production run.  One
+`realistic_global_dynamic_adjustment` task is registered per MPAS mesh; the
+target model (MPAS-Ocean or Omega) is set by the `[ocean] model` config
+option.
+
+The task can be set up with:
+
+```bash
+polaris setup -t ocean/spherical/realistic_global/<mesh>/dynamic_adjustment ...
+```
+
+### description
+
+Each stage is a forward run that restarts from the previous stage, with its own
+run duration, time step, output/restart cadence, and (typically decreasing)
+Rayleigh damping.  The stages are read from a schedule YAML: a mesh-specific
+`<mesh_name>.yaml` when the mesh has one, and otherwise `default.yaml`.  Polaris
+ships schedules for all five unified meshes — `u-oi240-lr240`, `u-oi30-lr10`,
+`u-oi6to18-lr12p5`, `u-oi6to18-lr25` and `u-oi-so12to30-lr10` (the last four
+ported from Compass' `ec30to60`, `rrs6to18` (twice) and `so12to30`).
+`default.yaml` is what the
+base meshes such as `icos240km` and `qu240km` fall back to; it is only two
+stages, which is a quick check that a mesh runs rather than an adjustment worth
+keeping.  The final stage, `simulation`, writes the relaxed restart, and its
+`output.nc` is compared against a baseline when one is provided.
+
+The ported schedules, and `default.yaml` (Compass' `qu240`), keep Compass'
+stage durations, time steps and damping unchanged; they have not been retuned
+for Polaris.  They were found by trial and error: where a stage crashed, its
+time step was shortened or its damping increased.  Omega runs the same
+schedules, which have worked for it as they are, without a separate tuning.
+`u-oi240-lr240` has no Compass counterpart; it uses the time steps of Compass'
+`qu240` schedule, which are also what `dt_per_km` and `btr_dt_per_km` give at
+240 km, with the three-stage damping ramp of `ec30to60`.
+
+The number and settings of the stages come from the schedule, so a user can
+retune them by editing the checked-in YAML or by pointing the `schedule` config
+option at an alternate file before setup.  Because the Polaris step graph is
+fixed at setup, changing the schedule requires re-running `polaris setup`.
+
+### schedule format
+
+A stage is a [`forward` run](#ocean-realistic-global-forward), so it starts from
+the `[realistic_global_forward]` config options for the mesh — including the
+[per-mesh overrides](#ocean-realistic-global-mesh-configs) — and the schedule
+supplies only what varies from stage to stage.  The horizontal mixing
+coefficients, the eddy parameterizations and the time integrators are therefore
+the same as they would be for a `forward` run on that mesh, and are not repeated
+in the schedule.
+
+A schedule has a `shared` block of per-stage defaults and an ordered `stages`
+block:
+
+```yaml
+dynamic_adjustment:
+  shared:
+    output_interval: 10_00:00:00
+    restart_interval: 10_00:00:00
+    start_time: 0001-01-01_00:00:00
+  stages:
+    damped_adjustment_1:
+      run_duration: 10_00:00:00
+      dt: 00:15:00
+      btr_dt: 00:00:30
+      damping: 1.0e-4
+    simulation:
+      run_duration: 10_00:00:00
+      dt: 00:30:00
+      btr_dt: 00:01:00
+      # damping omitted => the config default, which is no Rayleigh damping
+```
+
+Every key must name a forward-run setting — a `ForwardStage` field, which is to
+say a `[realistic_global_forward]` config option — and overrides that option for
+that stage.  A key that names nothing is an error at setup rather than a silent
+fall back to the config value, so a schedule cannot quietly go stale when an
+option is renamed.  `run_duration` is the one key a stage must set, since the
+restart chain's timing follows from it; `restart_interval` defaults to the
+stage's own `run_duration` rather than to the config value, because each stage
+has to write the restart the next one reads.  Time steps may instead be given per
+km of mesh minimum resolution with `dt_per_km` / `btr_dt_per_km`.
+
+Two cadences a stage cannot get wrong are checked at setup, because both fail
+only after the model has run.  A `restart_interval` must put the stage's stop
+time on MPAS-Ocean's restart alarm, which is measured from a fixed reference of
+`0001-01-01_00:00:00` and not from where the stage starts — otherwise the
+restart the next stage reads is never written.  And a `stats_interval` must be
+no longer than the stage, or the statistics hold only the record written at
+startup.  `output_interval` is not checked: an interval longer than the stage is
+a legitimate way to say "no 3-D output during the damped stages", which is what
+the ported Compass schedules do.  Such a stage still writes one record: its
+initial state for MPAS-Ocean, and its final state for Omega, which cannot write
+on startup.
+
+`start_time` belongs in the `shared` block: it is where the chain begins, and
+each stage's own start time follows from the durations before it.  The remaining
+restart settings (`do_restart`, `restart_in`, `restart_out`) are owned by the
+chain and cannot be set by a schedule.
+
+Rayleigh damping runs the other way round from the other options: it is off in
+config (`damping` is blank) and turned on per stage by the schedule, so the
+`simulation` stage gets an undamped run simply by omitting `damping`.
+
+The boundary layer, the submesoscale parameterization and the pressure gradient
+are stage-settable on the same terms as everything else, which is worth saying
+because the shipped schedules never touch them: `use_KPP`, `use_submesoscale`
+and `pressure_gradient_type` are `[realistic_global_forward]` options, so a
+schedule may vary them from stage to stage.  All three default to what E3SM
+runs, and a stage that says nothing keeps that.  Varying them is a real thing to
+want — `use_KPP: false` for the earliest, most heavily damped stages, say, where
+the boundary-layer scheme is mixing a surface layer that the damping is still
+holding down — but no shipped schedule does, so treat it as untried rather than
+merely unused.
+
+:::{note}
+`use_KPP` and `use_submesoscale` apply to both models.  `pressure_gradient_type`
+has no Omega counterpart, so a schedule that sets it is describing an
+MPAS-Ocean run.  It does not raise for Omega; it is simply not translated, and
+an Omega run proceeds without it.
+:::
+
+:::{note}
+`damping` applies to both models: MPAS-Ocean's `constant_and_rayleigh` bottom
+drag and Omega's `RayleighDamping` both damp the velocity in every layer.  An
+Omega dynamic adjustment needs an Omega build that has `RayleighDamping`; the
+undamped `simulation` stage, and any other forward run, does not.
+:::
+
+### restart chaining
+
+The stages share a `restarts` directory beside them in the task work directory.
+Each stage writes `restarts/rst.<timestamp>.nc` at the end of its run and
+declares it as an output; the next stage declares the same file as an input and
+starts from it, so a break in the chain is caught before the model launches.
+
+For MPAS-Ocean the restart stream is both an input and an output stream, so one
+`filename_template` serves both directions: a restarting stage sets
+`config_do_restart` and `config_start_time` to its predecessor's timestamp and
+the template resolves to that file.  There is no restart-pointer file.
+
+Omega reads a restart through a separate `RestartRead` stream, which
+`restart_streams.yaml` supplies, and finds it through a pointer file.  Each
+stage writes its restart and pointer into a directory under `restarts` named for
+its restart time, and a restarting stage reads its predecessor's.  The restart
+files are declared as step inputs and outputs for both models.
+
+### diagnostics and validation
+
+A final `summary` step summarizes the sequence, and a `viz` step plots the
+underlying time series.
+
+The summary is `dynamic_adjustment_stats.csv`, one row per stage, and the same
+table is written to the step's log.  It is the quickest way to see whether the
+damping ramp and the stage durations were chosen well: kinetic energy should be
+falling and flattening from stage to stage, the volume-weighted mean tracers
+should not be moving at all, and nothing should be approaching a blow-up.
+Columns ending `_in_stage` are the extreme reached at any point during the
+stage; the rest are end-of-stage values.
+
+The two `mean_*_change_per_day` columns are a conservation check rather than a
+sign of settling.  These runs are forced by wind alone, with no surface fluxes,
+so the volume-weighted mean temperature and salinity are conserved exactly and
+both columns should be zero to within machine noise — `u-oi30-lr10` reaches
+-4e-17 °C/day and `u-oi6to18-lr12p5` -5e-14 °C/day.  A value larger than that
+means tracer was lost or gained, which says nothing about whether the fast
+waves have been damped out.
+
+The numbers come from each stage's global-statistics file wherever the
+configured model reports them, because the model has already reduced them over
+the whole domain at the `stats_interval` cadence — so an excursion in the middle
+of a stage is visible, which it is not in an end-of-stage field.  That cadence is
+deliberately separate from the 3-D `output_interval`: the statistics are a
+handful of scalars, so they can be written far more often than the 3-D fields
+without the output growing.  What the model does
+not report is computed from `output.nc` instead, but only for maxima and minima,
+which mean the same thing however they are obtained.  A volume-weighted mean does
+not, so `kinetic_energy_mean` and `kinetic_energy_total` are left blank rather
+than quietly replaced with an unweighted mean.
+
+Omega's `GlobalStats` covers temperature, salinity, layer thickness, normal
+velocity and kinetic energy but has no CFL number or volume-weighted sums, so
+`kinetic_energy_total`, `ocean_volume` and `cfl_max_in_stage` are blank for an
+Omega run.  A blank means "this model does not report it", not that something
+went wrong; the log says which source each metric came from.
+
+In place of the CFL number, an Omega run fills `cfl_estimate_max_in_stage`
+with a conservative estimate: the larger magnitude of the minimum and maximum
+normal velocity, times the stage's baroclinic time step, divided by the
+smallest cell spacing on the mesh.  The fastest flow and the smallest cell
+need not be in the same place, so this is an upper bound rather than Omega's
+CFL number, and it is reported for inspection, not checked against `cfl_max`.
+
+There are four checks, all per stage, run in a `<stage>_check` step
+immediately after that stage, so a stage that is already out of bounds stops the
+sequence instead of costing the whole job:
+
+* the maximum temperature in the stage must stay below `temperature_max`;
+* the minimum temperature must stay above `temperature_min`, which catches water
+  colder than the initial condition that only the numerics can have produced,
+  such as a tracer overshoot in a thin bottom cell that does not blow up;
+* the maximum salinity must stay below `salinity_max`;
+* the maximum CFL number must stay below `cfl_max`, which is what catches a
+  stage whose time step is too long for the flow it produced.
+
+All four report *when* the extreme occurred as well as how large it was, which
+is usually most of the diagnosis.
+
+They deliberately ignore the sample written before a stage's first time step.
+For the first stage that sample is the initial condition, which dynamic
+adjustment did not produce; for every later stage it is the previous stage's
+final state, which that stage's own check already covered.  So nothing goes
+unexamined, and each stage is judged on what it did rather than on what it was
+handed.  The `viz` figure still plots the full series, so an inherited extreme
+remains visible there.
+
+The two tracer checks ignore a further `startup_exclusion_duration` at the
+beginning of the sequence, over which the initial condition's artifacts are
+still mixing away.  That window is measured from the start of the *sequence*,
+not of each stage, so it covers only the stages it actually reaches — a window
+measured from each stage would instead stop looking just after every damping
+change, which is where a schedule that steps the damping down too fast would
+show itself.  For the same reason the CFL check does not get the window at all:
+the opening hours are exactly where a time step that is too long shows up.
+
+This matters in practice.  NOAA's January WOA23 analysis contains one bad grid
+cell off Sumatra, reaching 36.9 °C at 70 m.  It is a known source-data problem
+that cannot be filtered without discarding real hydrography, and how much of it
+survives into the initial condition depends on the mesh: a single cell at
+33.46 °C on `u-oi30-lr10`, but 35.94 °C on `u-oi6to18-lr12p5` and 36.11 °C on
+`u-oi6to18-lr25`, which average the bad source cell far less.  It also erodes
+far more slowly there — about 34.3 °C after six hours, and by extrapolation
+more than a day to fall below 33 — so it is still present when the second and
+third stages begin.  A second source artifact in the Red Sea does the same for
+salinity, and erodes more slowly still: it is a ~25-cell blob at 1150 m, where
+there is almost no flow, and it settles near 42.1 PSU for the rest of the
+adjustment.
+
+The two tracer thresholds are therefore blow-up detectors rather than
+plausibility bounds, and they are set above the artifacts rather than above the
+physics.  A real blow-up produces hundreds of degrees or NaN, not a fraction of
+a degree over, so there is ample room between the two: the warmest genuine water
+these runs reach is about 32 °C, and nothing in the `u-oi6to18` initial
+conditions is above 42 PSU outside the Red Sea artifact.
+
+The `summary` step applies no checks.  It collects the per-stage diagnostics,
+writes `dynamic_adjustment_stats.csv` and logs the table.
+
+:::{note}
+There used to be a fourth check there, on whether the mean kinetic energy was
+settling stage over stage.  It was rewritten three times — comparing kinetic
+energy levels, then the fractional change from stage to stage, then that change
+per unit time — and **every** revision was forced by a healthy run failing it.
+
+The reason is that the quantity is not comparable across stages.  A schedule's
+stages differ in length (0.25 to 18 days on `u-oi6to18-lr12p5`), so a longer
+stage changes more for no interesting reason; the final stage switches the
+Rayleigh damping off, so its kinetic energy rises by design; and a stage where
+the energy happens to dip makes the *next* ordinary rise look like an
+acceleration.  Three samples cannot separate those from a run that is genuinely
+running away.
+
+Whether an adjustment has settled is now read from the diagnostics table and
+the `viz` figure, which show the whole series.  The checks that remain are
+bounds on quantities with real failure modes behind them.  Please do not
+re-add an automated settling criterion without evidence that it survives
+schedules whose stages differ in length and damping.
+:::
+
+Each check is skipped, with a log line, when the configured model does not
+report the quantity: Omega's `GlobalStats` has no CFL number.
+
+One caveat the thresholds cannot express: Omega's temperature is conservative
+temperature where MPAS-Ocean's is potential temperature, and its salinity is
+absolute salinity where MPAS-Ocean's is practical salinity, so the bounds are
+not literally on the same quantities in the two models.  Against these
+thresholds the difference is immaterial.
+
+The `viz` step writes `dynamic_adjustment_stats.png` from the same statistics,
+plotting kinetic energy (maximum, mean and domain-integrated), maximum normal
+velocity, CFL number, tracer extremes, mean tracer change and minimum layer
+thickness on one continuous axis, with the stage boundaries marked and each
+stage labelled with its damping.  The labels read upwards, abbreviated to
+`d1`, `d2` and so on with `sim` for the final undamped stage, and a label
+climbs to a second or third row where its stage is too narrow to hold one —
+`u-oi6to18-lr12p5` opens with two 6-hour stages on a 30-day axis.  A summary row cannot distinguish a quantity
+that was flat through a stage from one that spiked and recovered, and those
+call for different changes to the schedule; the figure can.  Reading it against
+the damping labels is usually the fastest way to tell a response to the ramp
+from a trend that would have happened anyway.  For Omega, the CFL panel shows
+the conservative estimate described above, labelled as an upper bound.
+
+The `viz` step also writes `dynamic_adjustment_tracer_change.png`, which shows
+how far the adjustment moved the ocean from its initial condition: histograms
+of the change in temperature and in salinity, cell by cell and layer by layer,
+from the initial state to the last record of the final stage.  Each cell is
+weighted by its initial volume, so the histograms are probability densities
+over the ocean's volume, drawn on a logarithmic axis so the rare large changes
+show.  Each model is compared in its own convention (potential temperature and
+practical salinity for MPAS-Ocean, conservative temperature and absolute
+salinity for Omega).  The volume-weighted mean and RMS change, the change that
+99% of the volume stays within and the largest change are printed on the
+figure and in the step's log.
+
+The `viz` step belongs to the standalone task.  If the stages are later reused
+as shared steps by a longer spin-up workflow, a figure describing a completed
+adjustment is not what that workflow is asking about.
+
+### config options
+
+```cfg
+# Options for realistic global ocean dynamic-adjustment runs
+[realistic_global_dynamic_adjustment]
+
+# Path to an alternate schedule YAML that overrides the built-in per-mesh
+# schedule; leave blank to use the checked-in schedule for the mesh
+schedule =
+
+# Maximum allowed temperature (deg C) reached during any stage; exceeding it is
+# treated as numerical blow-up.  Neither the sample written before a stage's
+# first time step nor the startup window below is checked, so this bounds what
+# the stage did rather than the state it started from.
+# Set above the WOA23 warm artifact off Sumatra rather than at a physical
+# bound.  On the u-oi6to18 meshes that cell starts at 35.9 to 36.1 deg C and
+# erodes far more slowly than it does at 30 km -- 34.3 after six hours, and by
+# extrapolation more than a day to fall below 33 -- so a bound at 33 would fail
+# the first three stages of a healthy run.
+temperature_max = 35.0
+
+# Minimum allowed temperature (deg C) reached during any stage, on the same
+# terms as temperature_max.  A detector for numerical problems rather than a
+# physical bound: with no surface heat loss, water colder than the initial
+# condition can only come from the numerics, as in a tracer update that is not
+# monotone in a thin partial bottom cell.  The coldest water in the WOA23
+# initial conditions is about -2.12 deg C on every unified mesh, and healthy
+# MPAS-Ocean adjustments stay above it.  None of these meshes has ice-shelf
+# cavities, where water below this bound is real; revisit it if one gains them.
+temperature_min = -2.5
+
+# Maximum allowed salinity reached during any stage, on the same terms: practical
+# salinity (PSU) for MPAS-Ocean and absolute salinity (g/kg) for Omega, about
+# 0.5% higher.  A blow-up detector rather than a plausibility bound: the WOA23
+# source data carries a Red Sea artifact that reaches 44.1 to 44.5 PSU (44.7
+# g/kg) in the u-oi6to18 initial conditions.  In MPAS-Ocean it settles near 42.1
+# within a few hours, but Omega erodes it far more slowly, since it is a
+# ~25-cell blob at 1150 m where there is almost no flow to erode it.  Nothing
+# else in those initial conditions is above 42, and a real blow-up produces far
+# more than 45.
+salinity_max = 45.0
+
+# A window at the start of the adjustment, in addition to each stage's first
+# sample, over which the tracer extremes are not checked, as an MPAS duration
+# string.  It is measured from the start of the sequence rather than of each
+# stage, because what it skips belongs to the initial condition: the WOA23
+# artifacts need a couple of hours of mixing at 6-18 km before they fall back
+# to the values they then hold for the rest of the run.  A per-stage window
+# would instead stop looking just after every damping change, which is where a
+# schedule that steps the damping down too fast would show itself.
+# The CFL number is deliberately still checked inside this window, for the same
+# reason: the opening hours are where a time step that is too long shows up.
+startup_exclusion_duration = 00_02:00:00
+
+# Maximum allowed CFL number at any point in any stage.  MPAS-Ocean is not
+# usually pushed much past 0.1; the AB2 split-explicit integrator these
+# schedules use tolerates more, so this is set at 0.2 as a loose upper bound
+# rather than a tuned value.  Worth revisiting against experience.
+# MPAS-Ocean only: Omega's GlobalStats reports no CFL number.
+cfl_max = 0.2
+
+
+# Forward-run options overridden for the dynamic-adjustment stages.  A stage is
+# a forward run, so it starts from [realistic_global_forward]; this section is
+# applied on top of it, and a per-mesh config file can still override this in
+# turn.
+[realistic_global_forward]
+
+# Don't write density.  It is in the forward output stream so that MPAS-Ocean
+# and Omega can be compared on the same fields, which is not what a dynamic
+# adjustment is for, and it is 3-D: about 13% of the output volume, or 2.4 GB
+# per stage on u-oi6to18-lr12p5, written eight times over.  ssh stays, being
+# 2-D and nearly free.  Nothing here reads density -- the checks and the
+# summary come from the global statistics, and the stratification questions
+# density would answer are asked of the initial condition, not of a stage.
+output_density = False
+```

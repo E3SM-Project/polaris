@@ -1,4 +1,4 @@
-# Supported machines for MPAS-Ocean, MPAS-Seaice, and Omega
+# Supported machines for MPAS-Ocean, MPAS-Seaice, MALI and Omega
 machines:
   - name: aurora
     models:
@@ -14,6 +14,10 @@ machines:
   - name: chrysalis
     models:
       - model: MPAS
+        compiler: gnu
+        mpi: openmpi
+        mpas_target: gfortran
+      - model: MALI
         compiler: gnu
         mpi: openmpi
         mpas_target: gfortran
@@ -67,6 +71,10 @@ machines:
         compiler: intel
         mpi: mpich
         mpas_target: intel-cray
+      - model: MALI
+        compiler: gnu
+        mpi: mpich
+        mpas_target: gnu-cray
       - model: Omega
         compiler: gnu
         mpi: mpich
@@ -78,6 +86,10 @@ machines:
 
   - name: pm-gpu
     models:
+      - model: MALI
+        compiler: gnugpu
+        mpi: mpich
+        mpas_target: gnu-cray
       - model: Omega
         compiler: gnugpu
         mpi: mpich
