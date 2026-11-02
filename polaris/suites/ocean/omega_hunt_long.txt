@@ -1,0 +1,8 @@
+ocean/planar/baroclinic_channel/1km/default
+ocean/planar/baroclinic_channel/10km/rpe
+ocean/planar/overflow/linear/zstar/rpe
+ocean/planar/seamount/nonlinear/sigma/default
+ocean/spherical/icos/cosine_bell/convergence_both/with_viz
+ocean/spherical/qu/geostrophic/convergence_both
+ocean/spherical/realistic_global/e3sm-ec30to60e2r2/cached_forward/split_explicit
+ocean/spherical/realistic_global/e3sm-qu240/analysis_output/1_year
