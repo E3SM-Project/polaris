@@ -322,8 +322,8 @@ Contributors: Xylar Asay-Davis, Claude
   the shared mesh is kept. Cells where the draft at the land-ice
   pressure reaches the bed are grounded. They hold a thin film of fresh
   water at its freezing point under the land-ice pressure
-  ([D19](#decisions)). The film is $10^{-3}$ m thick per active layer,
-  the column at which MPAS-Ocean caps the land-ice pressure
+  ([D19](#decisions)). The film is $5\times10^{-2}$ m thick per active
+  layer, the column at which MPAS-Ocean caps the land-ice pressure
   ([D18](#decisions)).
 
 ```{admonition} Rationale
@@ -548,7 +548,7 @@ Contributors: Xylar Asay-Davis, Claude
    first record, and the thin-film mask where the task has a thin film;
 5. in thin-film tasks, calls `init_vertical_coord()` to find each
    cell's active layers, raises the SSH where needed to give
-   $10^{-3}$ m per active layer, and stretches the layers with
+   $5\times10^{-2}$ m per active layer, and stretches the layers with
    `update_layer_thickness()`.
 
 The thin-film minimum layer thickness, which must match
@@ -1165,15 +1165,15 @@ through the calving front is close to that in `wetting` and `drying`.
 
 ### D18: The thin film starts at MPAS-Ocean's pressure cap
 
-Date last modified: 2026/10/07
+Date last modified: 2026/11/02
 
 Contributors: Xylar Asay-Davis, Claude
 
-The thin film is $10^{-3}$ m thick per active layer, so its thickness
-depends on the bed depth. The layers share it in proportion to their
-resting thickness, as in the rest of the z-star column. MPAS-Ocean caps
-the land-ice pressure in grounded cells at the floatation pressure of
-that column
+The thin film is $5\times10^{-2}$ m thick per active layer, so its
+thickness depends on the bed depth. The layers share it in proportion to
+their resting thickness, as in the rest of the z-star column. MPAS-Ocean
+caps the land-ice pressure in grounded cells at the floatation pressure
+of that column
 ([E3SM-Ocean-Discussion#119](https://github.com/E3SM-Ocean-Discussion/E3SM/pull/119)).
 The film therefore starts in balance with the pressure the model
 applies.
@@ -1182,7 +1182,15 @@ Compass, and the first version of this design, used a 1 mm film across
 all active layers. In the 4 km `drying` task, grounded cells have 6–33
 active layers, so its layers started as thin as $5\times10^{-8}$ m.
 
-*Effect:* the film is 6–33 mm thick in the 4 km `drying` task.
+A 1 mm film per active layer was used until the land-ice pressure cap
+moved from a density of 1026 to 1028 kg/m$^3$. With the higher cap,
+cells near the grounding line that are partly floating no longer reach
+it. They drain to layers a few centimeters thick beside columns tens of
+meters deep, and the flow between them grows until the run fails, as
+in the 2 km `drying` task. A 5 cm film per layer makes these cells
+part of the film, so the cap holds them.
+
+*Effect:* the film is 0.3–1.65 m thick in the 4 km `drying` task.
 
 ### D19: The thin film is fresh
 
