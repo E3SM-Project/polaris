@@ -67,6 +67,8 @@ For each run, as time series and as maps or sections, Polaris computes:
   in sections and at the seafloor, and the ocean's volume and mean
   temperature and salinity;
 - with a thin film, its extent and the open ocean's sea-surface height;
+- in a coupled run, MALI's floating ice that the ocean treats as grounded
+  next to the grounding line, and the melt missed there;
 - from MALI's output, the grounding line, the volume above flotation, the
   grounded area and the ice volume.
 
@@ -174,6 +176,18 @@ et al. (2026), in 20 m bins of draft.
 **Thin film.** The dry area is the area under grounded ice whose column is
 within twice the minimum thickness of its active layers, read from the
 run's namelist. The open-ocean SSH is its mean where there is no land ice.
+
+**Grounding-line band.** A band cell is one where MALI's floating fraction,
+as the ocean receives it, exceeds the coupling's minimum but the ocean's
+own floating fraction is zero, so the ocean holds the column at the film.
+Each month gives the band's share of MALI's floating area,
+$\sum_{band} f_g A / \sum f_g A$, and an estimate of the melt missed,
+$\sum_{band} f_g A\, m_n / \sum m A$, where $f_g$ is MALI's floating
+fraction, $m$ the melt flux per cell area and $m_n$ the melt flux per
+floating area of the nearest melting cell. Cells next to the grounding line
+melt less than their neighbors, so the estimate is likely an upper bound.
+Subgrid wetting and drying is expected to make the band hold water and
+melt.
 
 **Ice sheet.** From MALI's thickness $H$ and the static bed $b$,
 $h_{af} = H + (\rho_{sw}/\rho_i) \min(b, 0)$. The volume above flotation is
