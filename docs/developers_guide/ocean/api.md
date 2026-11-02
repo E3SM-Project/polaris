@@ -1187,6 +1187,7 @@
    SshForward.dynamic_model_config
 
    compute_freezing_temperature
+   compute_grounding_line_band_diagnostics
    compute_haline_driving
    compute_land_ice_draft_from_pressure
    compute_land_ice_pressure_from_draft

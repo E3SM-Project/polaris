@@ -4,6 +4,7 @@ import xarray as xr
 
 from polaris.mpas.time_series_stats import rename_time_series_stats
 from polaris.ocean.ice_shelf.diagnostics import (
+    compute_grounding_line_band_diagnostics,
     compute_melt_diagnostics,
     compute_melt_rate_by_draft,
     compute_thin_film_diagnostics,
@@ -78,6 +79,32 @@ def test_frazil_is_summed_under_the_ice_shelf_apart_from_melt():
     np.testing.assert_allclose(ds_diag.totalFrazilFlux, [-2.0e3])
     np.testing.assert_allclose(ds_diag.totalMeltFlux, [5.0e3])
     assert ds_diag.totalFrazilFlux.attrs['units'] == 'kg s-1'
+
+
+def test_a_band_cell_misses_the_melt_of_its_nearest_melting_cell():
+    """The land-ice model floats half of the second cell, which the ocean
+    holds at the film; its nearest melting cell is the third, which melts
+    at 2e-3 kg m-2 s-1 per floating area.  The fourth cell floats less
+    than the minimum fraction, so it is not in the band."""
+    x_cell = xr.DataArray([0.0, 1.8e3, 2.0e3, 10.0e3], dims='nCells')
+    y_cell = xr.zeros_like(x_cell)
+    melt = xr.DataArray([[1.0e-3, 0.0, 1.0e-3, 0.0]], dims=('Time', 'nCells'))
+    ocean = xr.DataArray([1.0, 0.0, 0.5, 0.0], dims='nCells')
+    coupled = xr.DataArray([[1.0, 0.5, 0.5, 5.0e-4]], dims=('Time', 'nCells'))
+
+    ds_diag = compute_grounding_line_band_diagnostics(
+        AREA, x_cell, y_cell, melt, ocean, coupled, 1.0e-3
+    )
+
+    # 2e6 m2 * 0.5 of the second cell
+    np.testing.assert_allclose(ds_diag.bandFloatingArea, [1.0e6])
+    np.testing.assert_allclose(ds_diag.coupledFloatingArea, [3.502e6])
+    np.testing.assert_allclose(
+        ds_diag.bandFloatingAreaFraction, [1.0e6 / 3.502e6]
+    )
+    # 1e6 m2 * 2e-3 kg m-2 s-1, of 4e3 kg s-1 of melt
+    np.testing.assert_allclose(ds_diag.bandMissedMeltFlux, [2.0e3])
+    np.testing.assert_allclose(ds_diag.bandMissedMeltFraction, [0.5])
 
 
 def test_melt_is_binned_by_draft():
