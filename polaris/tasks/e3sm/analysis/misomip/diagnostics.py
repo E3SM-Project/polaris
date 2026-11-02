@@ -15,6 +15,7 @@ from polaris.landice.diagnostics import (
 )
 from polaris.mpas.time_series_stats import rename_time_series_stats
 from polaris.ocean.ice_shelf.diagnostics import (
+    compute_grounding_line_band_diagnostics,
     compute_haline_driving,
     compute_melt_diagnostics,
     compute_melt_rate,
@@ -80,6 +81,10 @@ class RunDiagnostics(Step):
     min_thickness : float
         The minimum thickness (m) of a layer from the run's namelist, which
         sets which columns are dry
+
+    min_floating_fraction : float
+        The floating fraction from the land-ice model above which the ocean
+        and land-ice model exchange melt, from the run's namelist
 
     landice_filenames : list of str
         The local names of MALI's history files in the years analyzed, empty
@@ -150,6 +155,11 @@ class RunDiagnostics(Step):
         self.min_thickness = _fortran_float(
             run.namelist_option('config_drying_min_cell_height')
         )
+        self.min_floating_fraction = _fortran_float(
+            run.namelist_option(
+                'config_glc_ice_shelf_coupling_min_floating_fraction'
+            )
+        )
         for filename in [
             TIME_SERIES_FILENAME,
             TIME_MEAN_FILENAME,
@@ -217,6 +227,7 @@ class RunDiagnostics(Step):
             geometry,
             deep_draft=section.getfloat('deep_draft'),
             min_thickness=self.min_thickness,
+            min_floating_fraction=self.min_floating_fraction,
         )
         self.logger.info('computing streamfunctions for each month')
         strengths = _streamfunction_strengths(
@@ -424,7 +435,9 @@ def _add_bottom_values(ds, ds_init):
     return ds
 
 
-def _time_series(ds, ds_init, geometry, deep_draft, min_thickness):
+def _time_series(
+    ds, ds_init, geometry, deep_draft, min_thickness, min_floating_fraction
+):
     """Compute the monthly time series"""
     area = ds_init.areaCell
     ds_series = compute_melt_diagnostics(
@@ -456,7 +469,21 @@ def _time_series(ds, ds_init, geometry, deep_draft, min_thickness):
         geometry['landIceFloatingFraction'],
         min_thickness,
     )
-    return xr.merge([ds_series, ds_film])
+    datasets = [ds_series, ds_film]
+    if 'landIceGlcFloatingFraction' in ds:
+        # only a coupled run has the land-ice model's floating fraction
+        datasets.append(
+            compute_grounding_line_band_diagnostics(
+                area,
+                ds_init.xCell,
+                ds_init.yCell,
+                ds.landIceFreshwaterFlux,
+                geometry['landIceFloatingFraction'],
+                ds.landIceGlcFloatingFraction,
+                min_floating_fraction,
+            )
+        )
+    return xr.merge(datasets)
 
 
 def _streamfunction_strengths(ds, ds_init, geometry, dx, dz):

@@ -108,6 +108,8 @@ class SeriesComparison(ProductStep):
                 zip(self.labels, series, strict=True)
             ):
                 for name, scale, line_label in variables:
+                    if name not in ds:
+                        continue
                     values = scale * ds[name]
                     ds_data[f'run{index}_{name}'] = values.rename(
                         {'Time': f'run{index}_Time'}
@@ -118,6 +120,8 @@ class SeriesComparison(ProductStep):
                     lines.append(
                         Series(ds.time.values, values.values, full_label)
                     )
+            if not lines:
+                continue
             ds_data.attrs['runs'] = ', '.join(self.labels)
             plot = f'{stem}.png'
             data = f'{stem}.nc'

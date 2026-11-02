@@ -124,6 +124,8 @@ class RunComparison(ProductStep):
         ds_data = xr.Dataset()
         for kind in KINDS:
             for name, scale, label in variables:
+                if name not in series[kind]:
+                    continue
                 values = scale * series[kind][name]
                 ds_data[f'{kind}_{name}'] = values.rename(
                     {'Time': f'{kind}_Time'}
@@ -139,6 +141,8 @@ class RunComparison(ProductStep):
                         linestyle='-' if kind == 'e3sm' else '--',
                     )
                 )
+        if not lines:
+            return
         plot = f'{stem}.png'
         data = f'{stem}.nc'
         plot_time_series(lines, plot, ylabel=ylabel, title=title)

@@ -19,7 +19,8 @@ from polaris.viz.planar import plot_mask_boundary
 from polaris.viz.time_series import Series, plot_time_series
 
 #: The time series plotted for each run: the gallery, the file's stem, the
-#: title, the y label, and each variable with its scale and label
+#: title, the y label, and each variable with its scale and label.  A
+#: variable a run lacks, such as one only a coupled run has, is left out.
 TIME_SERIES: list[tuple[str, str, str, str, list[tuple]]] = [
     (
         'melt',
@@ -96,6 +97,20 @@ TIME_SERIES: list[tuple[str, str, str, str, list[tuple]]] = [
         'Mean sea-surface height of the open ocean',
         'SSH (m)',
         [('openOceanMeanSsh', 1.0, None)],
+    ),
+    (
+        'thin_film',
+        'grounding_line_band',
+        'Floating ice the ocean treats as grounded',
+        'fraction (%)',
+        [
+            (
+                'bandFloatingAreaFraction',
+                100.0,
+                "of the land-ice model's floating area",
+            ),
+            ('bandMissedMeltFraction', 100.0, 'of the melt (estimate)'),
+        ],
     ),
 ]
 
@@ -325,6 +340,8 @@ class RunPlots(ProductStep):
         series = []
         ds_data = xr.Dataset()
         for name, scale, line_label in variables:
+            if name not in ds_series:
+                continue
             values = scale * ds_series[name]
             ds_data[name] = values
             series.append(
@@ -334,6 +351,8 @@ class RunPlots(ProductStep):
                     label=line_label or self.label,
                 )
             )
+        if not series:
+            return
         plot = f'{stem}.png'
         data = f'{stem}.nc'
         plot_time_series(
