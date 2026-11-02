@@ -7,6 +7,9 @@ from polaris import (
     Task as Task,
 )
 from polaris.ocean.ice_shelf.diagnostics import (
+    compute_grounding_line_band_diagnostics as compute_grounding_line_band_diagnostics,  # noqa: E501
+)
+from polaris.ocean.ice_shelf.diagnostics import (
     compute_haline_driving as compute_haline_driving,
 )
 from polaris.ocean.ice_shelf.diagnostics import (

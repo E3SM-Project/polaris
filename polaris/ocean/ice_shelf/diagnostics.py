@@ -9,6 +9,7 @@ it.  Monthly means are first renamed with
 
 import numpy as np
 import xarray as xr
+from scipy.spatial import KDTree
 
 from polaris.constants import get_constant
 
@@ -293,6 +294,141 @@ def compute_thin_film_diagnostics(
     )
     ds_diag.openOceanMeanSsh.attrs = dict(
         long_name='mean sea-surface height of the open ocean', units='m'
+    )
+    return ds_diag
+
+
+def compute_grounding_line_band_diagnostics(
+    area_cell,
+    x_cell,
+    y_cell,
+    fresh_water_flux,
+    floating_fraction,
+    coupled_floating_fraction,
+    min_floating_fraction,
+):
+    """
+    Compute how much of the land-ice model's floating ice the ocean treats
+    as grounded, in cells next to the grounding line, and an estimate of
+    the melt the ocean misses there
+
+    A cell is in the band if the land-ice model floats more than the
+    minimum fraction of it but the ocean holds its column at the thin film,
+    with no floating fraction of its own.  The melt missed in a band cell is
+    its floating area under the land-ice model times the melt rate per
+    floating area of the nearest melting cell.  Cells next to the grounding
+    line generally melt less, so the estimate is likely an upper bound.
+
+    Parameters
+    ----------
+    area_cell : xarray.DataArray
+        The area of each cell (m2)
+
+    x_cell : xarray.DataArray
+        The x coordinate of each cell center (m)
+
+    y_cell : xarray.DataArray
+        The y coordinate of each cell center (m)
+
+    fresh_water_flux : xarray.DataArray
+        ``landIceFreshwaterFlux`` (kg m-2 s-1), per unit area of the cell
+
+    floating_fraction : xarray.DataArray
+        ``landIceFloatingFraction``, the ocean's floating fraction
+
+    coupled_floating_fraction : xarray.DataArray
+        ``landIceGlcFloatingFraction``, the floating fraction the ocean
+        receives from the land-ice model
+
+    min_floating_fraction : float
+        The land-ice model's floating fraction above which the ocean and
+        land-ice model exchange melt, the namelist option
+        ``config_glc_ice_shelf_coupling_min_floating_fraction``
+
+    Returns
+    -------
+    ds_diag : xarray.Dataset
+        ``bandFloatingArea`` and ``coupledFloatingArea`` (m2), their ratio
+        ``bandFloatingAreaFraction``, ``bandMissedMeltFlux`` (kg s-1) and
+        its ratio to the total melt flux, ``bandMissedMeltFraction``
+    """
+    fresh_water_flux, floating_fraction, coupled_floating_fraction = (
+        xr.broadcast(
+            fresh_water_flux, floating_fraction, coupled_floating_fraction
+        )
+    )
+    has_time = 'Time' in fresh_water_flux.dims
+    if not has_time:
+        fresh_water_flux = fresh_water_flux.expand_dims('Time')
+        floating_fraction = floating_fraction.expand_dims('Time')
+        coupled_floating_fraction = coupled_floating_fraction.expand_dims(
+            'Time'
+        )
+    names = [
+        'bandFloatingArea',
+        'coupledFloatingArea',
+        'bandMissedMeltFlux',
+        'totalMeltFlux',
+    ]
+    values: dict[str, list[float]] = {name: [] for name in names}
+    area = area_cell.values
+    points = np.column_stack([x_cell.values, y_cell.values])
+    for t_index in range(fresh_water_flux.sizes['Time']):
+        melt = fresh_water_flux.isel(Time=t_index).values
+        ocean = floating_fraction.isel(Time=t_index).values
+        coupled = coupled_floating_fraction.isel(Time=t_index).values
+        band = np.logical_and(ocean == 0.0, coupled > min_floating_fraction)
+        band_area = area[band] * coupled[band]
+        melting = np.logical_and(melt > 0.0, ocean > 0.0)
+        missed = 0.0
+        if band.any() and melting.any():
+            rate = melt[melting] / ocean[melting]
+            _, nearest = KDTree(points[melting]).query(points[band])
+            missed = float(np.sum(band_area * rate[nearest]))
+        values['bandFloatingArea'].append(float(np.sum(band_area)))
+        values['coupledFloatingArea'].append(float(np.sum(area * coupled)))
+        values['bandMissedMeltFlux'].append(missed)
+        values['totalMeltFlux'].append(float(np.sum(area * melt)))
+
+    ds_diag = xr.Dataset()
+    for name in names[:3]:
+        ds_diag[name] = ('Time', np.array(values[name]))
+    total = np.array(values['totalMeltFlux'])
+    ds_diag['bandFloatingAreaFraction'] = (
+        ds_diag.bandFloatingArea / ds_diag.coupledFloatingArea
+    )
+    ds_diag['bandMissedMeltFraction'] = ds_diag.bandMissedMeltFlux / (
+        xr.DataArray(total, dims='Time').where(total != 0.0)
+    )
+    if not has_time:
+        ds_diag = ds_diag.isel(Time=0)
+    ds_diag.bandFloatingArea.attrs = dict(
+        long_name=(
+            "the land-ice model's floating area in cells the ocean treats "
+            'as grounded'
+        ),
+        units='m2',
+    )
+    ds_diag.coupledFloatingArea.attrs = dict(
+        long_name="the land-ice model's floating area", units='m2'
+    )
+    ds_diag.bandMissedMeltFlux.attrs = dict(
+        long_name='estimated melt flux missed in the grounding-line band',
+        units='kg s-1',
+    )
+    ds_diag.bandFloatingAreaFraction.attrs = dict(
+        long_name=(
+            "fraction of the land-ice model's floating area that the ocean "
+            'treats as grounded'
+        ),
+        units='1',
+    )
+    ds_diag.bandMissedMeltFraction.attrs = dict(
+        long_name=(
+            'estimated melt missed in the grounding-line band, as a '
+            'fraction of the total melt'
+        ),
+        units='1',
     )
     return ds_diag
 
