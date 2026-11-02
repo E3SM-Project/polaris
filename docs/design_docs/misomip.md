@@ -525,7 +525,7 @@ carried over to the code that merges.
 
 ## Implementation: work packages
 
-Date last modified: 2026/11/01
+Date last modified: 2026/11/02
 
 Contributors: Xylar Asay-Davis, Claude
 
@@ -770,7 +770,8 @@ On FAnSSIE:
   in proportion to that fraction, including cells that wetting and
   drying holds as a thin film, so floating ice next to the grounding line
   is not left without melt; the film's physics may limit that melt, but
-  it is not zeroed, and the pressure and its cap do not change;
+  it is not zeroed, freezing does not thin the film, and the pressure and
+  its cap do not change ([D24](#decisions));
 - form no frazil and compute no melt under ice where glc's floating
   fraction is at most 10⁻³, the threshold below which the coupler sends glc
   no fluxes, so the ocean's budget no longer books frazil that glc never
@@ -799,6 +800,8 @@ meshes, the tasks compute:
 - conservation from the coupler budgets, and in IceOcean1r and 1ra, where
   MALI evolves and records the melt it receives, the ocean's melt against
   MALI's;
+- the floating area the ocean holds as a film and the melt it misses
+  there ([D24](#decisions));
 - plots comparing E3SM with standalone Polaris on the same inputs, across
   experiments, and with published results: the Ocean0–2 ensemble of Yung
   et al. (2026) and
@@ -819,8 +822,9 @@ MPAS-Ocean's subgrid wetting and drying
 partly wet cells using lookup tables built in init mode from fine-scale
 topography. It supports one layer, RK4, standalone runs and a free surface
 over static topography. WP10 extends it to partly grounded cells under ice
-shelves, with RK4 and static geometry first. Its own design settles the
-details.
+shelves, with RK4 and static geometry first, so that cells next to the
+grounding line hold water where the ice floats and melt there
+([D24](#decisions)). Its own design settles the details.
 
 ### WP11: E3SM's physics
 
@@ -1391,3 +1395,34 @@ Rejected:
 - 1026 kg m⁻³ for MALI's flotation as well, which would leave every
   floating column at least 0.2% of its depth thick, but departs from the
   protocol and moves MALI's grounding line.
+
+### D24: Melt next to the grounding line waits for subgrid wetting and drying
+
+Date last modified: 2026/11/02
+
+Contributors: Xylar Asay-Davis, Claude
+
+Cells that MALI floats in part but whose column would be thinner than the
+film compute melt in proportion to the floating fraction, as every floating
+cell does, but freezing there does not thin the film. The melt they miss is
+left to subgrid wetting and drying (WP10), and the analysis reports it.
+
+```{admonition} Rationale
+These cells are partly grounded, a subgrid problem. The film holds no heat:
+it is fresh, at the freezing point and exchanges nothing with its
+neighbors, so its melt is about zero. In 4 km Ocean4, 41 such cells hold
+0.5% of MALI's floating area and miss about 2.5% of the melt. Subgrid
+wetting and drying gives these cells water where the ice floats, and
+with it the heat to melt.
+```
+
+Rejected:
+
+- blending in the neighbors' boundary-layer temperature and salinity, which
+  gives melt but takes its heat from a film that has none unless the heat
+  loss moves to the neighbors;
+- computing these cells' melt from the adjacent fully wet cell and applying
+  the fluxes there, a new parameterization that subgrid wetting and drying
+  would replace;
+- lowering the pressure in these cells to hold more water, since the ocean
+  needs the ice's full weight.
