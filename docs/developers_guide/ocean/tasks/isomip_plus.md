@@ -65,8 +65,9 @@ all cells. Every task computes the draft, which is also the initial SSH,
 from the land-ice pressure, limited to the bed. Tasks with a thin film mark
 the cells where it reaches the bed as thin-film cells. After the vertical
 coordinate is built, they raise the SSH where needed so that the column has
-`thin_film_layer_thickness` per active layer, and the thin film starts fresh
-at its freezing point.
+`thin_film_layer_thickness` per active layer, shared among the layers in
+proportion to their resting thickness, and the thin film starts fresh at its
+freezing point.
 The step writes the task's mesh with Coriolis and its graph file, then
 computes the land-ice masks and fractions, pressure and bottom depth, the
 vertical coordinate, the SSH from the bed that partial cells leave, and the
