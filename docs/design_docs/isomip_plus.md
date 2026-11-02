@@ -1563,7 +1563,7 @@ Rejected:
 
 ### D26: Top drag is implicit
 
-Date last modified: 2026/10/18
+Date last modified: 2026/11/02
 
 Contributors: Xylar Asay-Davis, Claude
 
@@ -1575,9 +1575,10 @@ forcing as with explicit drag.
 
 ```{admonition} Rationale
 E3SM's explicit top drag predates MPAS-Ocean's implicit option. In the
-thin film, the explicit drag is stiff: a 1 mm layer moving at 0.1 m/s
-loses its momentum to the drag in about 2 s, a third of the 6 s time
-step at 1 km.
+thin film, the explicit drag is stiff where the film moves fast: a 5 cm
+layer moving at 1 m/s, as at a wetting front, loses its momentum to the
+drag in about 11 s, less than the 12 s time step at 2 km. Implicit drag
+also stays stable if the film is made thinner again.
 ```
 
 Rejected: explicit top drag, as on E3SM's meshes today.
