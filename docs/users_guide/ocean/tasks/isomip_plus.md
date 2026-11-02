@@ -325,7 +325,7 @@ step reads. The SSH-adjustment runs use the first record of the forcing.
 
 The initial sea-surface height is where ice with the prescribed pressure
 would float. Where that is below the bed, the ice is grounded, and the cell
-holds a thin film of fresh water at its freezing point. The film is 1 mm
+holds a thin film of fresh water at its freezing point. The film is 5 cm
 thick per active layer, the column at which MPAS-Ocean caps the land-ice
 pressure in grounded cells.
 
@@ -341,7 +341,7 @@ the mean sea-surface height in the open ocean.
 # Thickness (m) of each active layer of the thin film under grounded ice,
 # where MPAS-Ocean caps the land-ice pressure.  This must match
 # config_drying_min_cell_height in physics.yaml.
-thin_film_layer_thickness = 1e-3
+thin_film_layer_thickness = 5e-2
 ```
 
 ```cfg
