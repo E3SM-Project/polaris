@@ -1121,8 +1121,10 @@ overturning in density coordinates.  The mixed-layer eddies tasks
 <p>The package <code class="docutils literal notranslate"><span class="pre">polaris.tasks.ocean.analysis</span></code> contains the tasks of the
 <code class="docutils literal notranslate"><span class="pre">omega_analysis</span></code> suite, which analyze a simulation that has already been run
 rather than running one.  <a class="reference internal" href="../../users_guide/ocean/tasks/analysis.html#ocean-analysis"><span class="std std-ref">analysis</span></a> describes the suite from a
-user’s point of view.  Four pieces of it are shared machinery that a new
-analysis product builds on.</p>
+user’s point of view.  The analysis reads only Omega output, and MPAS-Ocean
+output is out of scope for now (see <a class="reference internal" href="../../users_guide/ocean/tasks/analysis.html#ocean-analysis-supported-models"><span class="std std-ref">supported models</span></a> and
+<a class="reference external" href="https://github.com/E3SM-Project/polaris/issues/854">#854</a>).  Four pieces of
+it are shared machinery that a new analysis product builds on.</p>
 <section id="locating-the-simulation-s-files">
 <h3>Locating the simulation’s files<a class="headerlink" href="#locating-the-simulation-s-files" title="Link to this heading"></a></h3>
 <p><code class="docutils literal notranslate"><span class="pre">polaris.tasks.ocean.analysis.sim_files</span></code> is a leaf module — it does not

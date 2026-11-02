@@ -15,6 +15,8 @@ simulation's own output.
 Analysis products are added over time; {ref}`ocean-analysis-products` lists
 what is available so far.
 
+(ocean-analysis-supported-models)=
+
 ## supported models
 
 **Omega only.**  The analysis locates a simulation's output by reading the

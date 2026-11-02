@@ -1080,8 +1080,10 @@ overturning in density coordinates.  The mixed-layer eddies tasks
 The package `polaris.tasks.ocean.analysis` contains the tasks of the
 `omega_analysis` suite, which analyze a simulation that has already been run
 rather than running one.  {ref}`ocean-analysis` describes the suite from a
-user's point of view.  Four pieces of it are shared machinery that a new
-analysis product builds on.
+user's point of view.  The analysis reads only Omega output, and MPAS-Ocean
+output is out of scope for now (see {ref}`ocean-analysis-supported-models` and
+[#854](https://github.com/E3SM-Project/polaris/issues/854)).  Four pieces of
+it are shared machinery that a new analysis product builds on.
 
 ### Locating the simulation's files
 
