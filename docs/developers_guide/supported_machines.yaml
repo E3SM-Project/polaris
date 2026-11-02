@@ -25,10 +25,6 @@ machines:
         compiler: gnu
         mpi: openmpi
         mpas_target: null
-      - model: Omega
-        compiler: null
-        mpi: openmpi
-        mpas_target: null
 
   - name: frontier
     models:
