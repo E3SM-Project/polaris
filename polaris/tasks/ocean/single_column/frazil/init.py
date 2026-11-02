@@ -147,7 +147,7 @@ class FrazilInit(Init):
                     'temperature_above_freezing must be finite and positive'
                 )
             ct_freezing = compute_linear_ct_freezing(
-                salinity.isel(Time=0, nCells=0)
+                salinity.isel(Time=0, nCells=0), model='mpas-ocean'
             )
             temperature_vert = (
                 float(np.max(ct_freezing)) + temperature_offset

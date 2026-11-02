@@ -54,7 +54,7 @@ def test_freezing_temperature_is_uniform_above_freezing(dsdz):
     task = _make_task('mpas-ocean', 'freezing')
     task.config.set('single_column_frazil', 'dsdz', str(dsdz))
     temperature, salinity = _initial_tracers(task)
-    freezing = compute_linear_ct_freezing(salinity)
+    freezing = compute_linear_ct_freezing(salinity, model='mpas-ocean')
     offset = task.config.getfloat(
         'single_column_frazil', 'temperature_above_freezing'
     )
@@ -78,7 +78,8 @@ def test_one_layer_still_starts_at_freezing():
     task = _make_task('mpas-ocean', 'one_layer')
     temperature, salinity = _initial_tracers(task)
     np.testing.assert_allclose(
-        temperature, compute_linear_ct_freezing(salinity)
+        temperature,
+        compute_linear_ct_freezing(salinity, model='mpas-ocean'),
     )
 
 
@@ -90,7 +91,9 @@ def test_short_bottom_layer_still_starts_supercooled():
     )
     np.testing.assert_allclose(
         temperature.isel(nVertLevels=-1),
-        compute_linear_ct_freezing(salinity.isel(nVertLevels=-1))
+        compute_linear_ct_freezing(
+            salinity.isel(nVertLevels=-1), model='mpas-ocean'
+        )
         - supercooling,
     )
 
