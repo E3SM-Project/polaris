@@ -210,9 +210,9 @@ Compass sets it up for MPAS-Ocean:
 - vertical viscosity and diffusivity $10^{-3}$ and $5\times10^{-5}$
   m² s⁻¹, convective values 0.1 m² s⁻¹, no shear mixing;
 - horizontal Laplacian viscosity and diffusivity 6.0 and 1.0 m² s⁻¹;
-- wetting and drying, with a minimum layer thickness of $10^{-3}$ m and
-  thickness fluxes upwinded only in columns thinner than 5 to 10 m
-  ([D11](#decisions));
+- wetting and drying, with a minimum layer thickness of $5\times10^{-2}$ m
+  ([D18](#decisions)) and thickness fluxes upwinded only in columns
+  thinner than 5 to 10 m ([D11](#decisions));
 - RK4 time stepping with $\Delta t = 6$ s per km, since MPAS-Ocean
   supports wetting and drying only with RK4;
 - 36 uniform z-star levels over 720 m, at least 3 levels per column,
@@ -303,7 +303,7 @@ Among the task's cells:
   logged, is 1 where the land-ice fraction exceeds 0.01;
 - once partial cells have moved the bed, the SSH is raised where needed
   so the water column is at least $1.1\times10^{-2}$ m thick in
-  Ocean0–2, or $10^{-3}$ m per active layer in thin-film tasks
+  Ocean0–2, or $5\times10^{-2}$ m per active layer in thin-film tasks
   ([D18](#decisions)).
 
 The first three thresholds are Compass's.
@@ -692,8 +692,8 @@ Contributors: Xylar Asay-Davis, Claude
 For static geometry, recompute the keep mask from the remapped
 topography and check that the init mesh contains exactly those cells.
 For scaled geometry, check that all cells are kept and that
-thin-film cells have $10^{-3}$ m per active layer, zero salinity and
-the freezing-point temperature.
+thin-film cells have $5\times10^{-2}$ m per active layer, zero salinity
+and the freezing-point temperature.
 
 ### Testing and Validation: Initial conditions and forcing follow the ISOMIP+ protocol
 
