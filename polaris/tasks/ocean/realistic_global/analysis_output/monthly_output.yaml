@@ -1,10 +1,10 @@
 Omega:
   Analysis:
     GlobalStats:
-      # Omega's default list plus the two remaining fields the ocean analysis
-      # plots time series of.  Both KineticEnergyCell (2D) and SshCell (1D)
-      # have spatial operators registered for their rank.  The period and file
-      # name come from the forward step's own yaml.
+      # The forward step's list plus SshCell, the remaining field the ocean
+      # analysis plots time series of.  SshCell (1D), like KineticEnergyCell
+      # (2D), has spatial operators registered for its rank.  The period and
+      # file name come from the forward step's own yaml.
       Fields: [NormalVelocity, PseudoThickness, Temperature, Salinity,
                KineticEnergyCell, SshCell]
     MonthlyAverages:

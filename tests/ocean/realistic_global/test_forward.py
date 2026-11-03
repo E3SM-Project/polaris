@@ -174,6 +174,31 @@ def test_model_replacements_omega_maps_split_explicit():
     assert rep['btr_dt'] == '0000_00:00:45.000'  # 1.5 s/km * 30 km
 
 
+def test_omega_writes_the_final_state_of_a_run_shorter_than_its_output():
+    # Omega cannot write on startup as MPAS-Ocean does, so a 6-hour run with a
+    # 10-day output interval would otherwise write no output at all
+    stage = dataclasses.replace(
+        ForwardStage.from_config(_forward_config()),
+        run_duration='0000_06:00:00',
+        output_interval='0010_00:00:00',
+    )
+    omega = stage.model_replacements('omega', min_res=30.0)
+    assert omega['output_freq'] == str(6 * 3600)
+    # MPAS-Ocean keeps the interval it was given
+    mpaso = stage.model_replacements('mpas-ocean', min_res=30.0)
+    assert mpaso['output_interval'] == '0010_00:00:00'
+
+
+def test_omega_keeps_an_output_interval_within_the_run():
+    stage = dataclasses.replace(
+        ForwardStage.from_config(_forward_config()),
+        run_duration='0010_00:00:00',
+        output_interval='0001_00:00:00',
+    )
+    rep = stage.model_replacements('omega', min_res=30.0)
+    assert rep['output_freq'] == str(86400)
+
+
 def test_the_two_models_get_their_own_split_integrator():
     # both default to split time stepping, but each with its own integrator:
     # split_explicit_ab2 for MPAS-Ocean, which Omega does not support, and
@@ -435,6 +460,29 @@ def test_omega_global_stats_are_snapshots_not_reductions():
     assert names[('temperature', 'max')] == 'Temperature_SpatialMax'
 
 
+def test_omega_global_stats_include_kinetic_energy():
+    """
+    MPAS-Ocean's global statistics cover kinetic energy, which is what an
+    adjustment is judged on, so Omega's are asked for it too, alongside its
+    default fields.
+    """
+    stage = ForwardStage.from_config(_forward_config())
+    yaml = PolarisYaml.read(
+        filename='forward.yaml',
+        package='polaris.tasks.ocean.realistic_global.forward',
+        replacements=stage.model_replacements('omega', min_res=30.0),
+        model='Omega',
+    )
+    fields = yaml.configs['Analysis']['GlobalStats']['Fields']
+    assert list(fields) == [
+        'NormalVelocity',
+        'PseudoThickness',
+        'Temperature',
+        'Salinity',
+        'KineticEnergyCell',
+    ]
+
+
 def test_bottom_drag_options():
     # an undamped stage states a zero coefficient rather than leaving the
     # Registry default of 1.0e-4, which reads as though the run were damped
@@ -448,20 +496,29 @@ def test_bottom_drag_options():
     }
 
 
-def test_damping_is_an_error_for_omega():
-    # Omega has no Rayleigh damping, so a damped stage cannot run there
-    stage = ForwardStage(name='damped_adjustment_1', damping=1.0e-4)
-    with pytest.raises(ValueError, match='Omega/issues/495'):
-        stage.check_damping_supported('omega')
-    # ... but it is fine for MPAS-Ocean
-    stage.check_damping_supported('mpas-ocean')
+def test_omega_damping_replacements_carry_the_coefficient():
+    replacements = ForwardStage(damping=1.0e-5).omega_damping_replacements()
+    assert replacements == {'damping_coeff': '1.000000e-05'}
 
 
-def test_no_damping_is_fine_for_either_model():
-    # an undamped stage -- the final `simulation` stage, and every stage of a
-    # simple forward run -- is unaffected
-    for model in ('mpas-ocean', 'omega'):
-        ForwardStage(name='simulation').check_damping_supported(model)
+def test_omega_damping_is_left_out_of_an_undamped_stage():
+    # leaving the group out, rather than stating it off, is what lets every
+    # undamped stage run on an Omega build without Rayleigh damping
+    assert ForwardStage().omega_damping_replacements() is None
+
+
+def test_omega_damping_yaml_turns_damping_on_with_its_coefficient():
+    replacements = ForwardStage(damping=1.0e-4).omega_damping_replacements()
+    assert replacements is not None
+    yaml = PolarisYaml.read(
+        filename='omega_damping.yaml',
+        package='polaris.tasks.ocean.realistic_global.forward',
+        replacements=replacements,
+        model='Omega',
+    )
+    damping = yaml.configs['RayleighDamping']
+    assert damping['Enable'] is True
+    assert damping['DampingCoeff'] == 1.0e-4
 
 
 # --- physics options ---

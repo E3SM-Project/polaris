@@ -87,7 +87,7 @@ def test_sizing_field_mesh_outputs_and_active_control():
         ds_coastline=ds_coastline,
         ds_river=ds_river,
         resolution=0.03125,
-        mesh_name='u-oi6to18-lr6to10',
+        mesh_name='u-oi6to18-lr12p5',
         ocean_background=build_ocean_background_from_mode(
             lat=ds_coastline.lat.values,
             lon=ds_coastline.lon.values,
@@ -628,6 +628,13 @@ def test_river_clip_matches_the_coastline_transition():
         )
 
 
+# The steepest coastal mesh-size gradient known to pass the dcEdge CFL guard:
+# u-oi6to18-lr6to10's, where its 18 km equatorial ocean met 10 km land across
+# a 36 km quadratic transition, and which passed at 0.799 against the 0.70
+# floor.  That mesh has since been replaced, but the measurement stands.
+PASSING_COASTAL_GRADIENT = 2.0 * (18.0 - 10.0) * 18.0 / 36.0**2
+
+
 def test_steep_meshes_widen_the_transition():
     """
     With a quadratic blend the mesh-size gradient one cell width inland is
@@ -635,31 +642,40 @@ def test_steep_meshes_widen_the_transition():
     needs a wider transition to reach the same gradient.  u-oi30-lr10 and
     u-oi-so12to30-lr10 ask for (30 - 10) / 30 = 0.67 against
     u-oi6to18-lr6to10's 0.44, and failed the dcEdge CFL guard at T = 2 L.
+
+    The steepest point need not be at the coarsest ocean cells: where the
+    land is coarser than the ocean, the gradient peaks where the ocean cells
+    are half the land width, so it is taken over the mesh's whole range of
+    ocean cell widths.
     """
     gradients = {}
     for mesh_name in UNIFIED_MESH_NAMES:
         config = get_unified_mesh_config(mesh_name=mesh_name)
         section = config['sizing_field']
-        ocean = section.getfloat('ocean_background_max_km')
+        ocean = np.linspace(
+            section.getfloat('ocean_background_min_km'),
+            section.getfloat('ocean_background_max_km'),
+            121,
+        )
         land = section.getfloat('land_background_km')
         transition = section.getfloat('coastline_transition_land_km')
         exponent = section.getfloat('coastline_transition_exponent')
-        if transition == 0.0 or ocean == land:
+        if transition == 0.0:
             continue
         # d(h)/dd at one ocean cell width inland
-        gradients[mesh_name] = (
+        gradient = (
             exponent
-            * abs(land - ocean)
+            * np.abs(land - ocean)
             * (ocean / transition) ** (exponent - 1.0)
             / transition
         )
+        gradients[mesh_name] = float(gradient.max())
 
-    passing = gradients['u-oi6to18-lr6to10']
     for mesh_name, gradient in gradients.items():
-        assert gradient <= passing + 1e-12, (
+        assert gradient <= PASSING_COASTAL_GRADIENT + 1e-12, (
             f'{mesh_name}: coastal mesh-size gradient {gradient:.3f} exceeds '
-            f"u-oi6to18-lr6to10's {passing:.3f}, which is the steepest "
-            f'value known to pass the dcEdge CFL guard'
+            f'{PASSING_COASTAL_GRADIENT:.3f}, the steepest value known to '
+            f'pass the dcEdge CFL guard'
         )
 
 

@@ -410,6 +410,12 @@ class ForwardStage:
                     f'{supported}.'
                 )
         output_freq = int(round(duration_to_seconds(self.output_interval)))
+        if model == 'omega':
+            # Omega has no counterpart to MPAS-Ocean's write on startup, so a
+            # run shorter than its output interval would write no output at
+            # all; it writes its final state instead
+            run_seconds = int(round(duration_to_seconds(self.run_duration)))
+            output_freq = min(output_freq, run_seconds)
         stats_freq = int(round(duration_to_seconds(self.stats_interval)))
         restart_freq = int(round(duration_to_seconds(self.restart_interval)))
         return dict(
@@ -488,41 +494,6 @@ class ForwardStage:
         prefix = output_filename.split('.')[0]
         return f'{prefix}_{self.stats_period()}Instants'
 
-    def check_damping_supported(self, model: str) -> None:
-        """
-        Raise when the configured model cannot honor this stage's damping.
-
-        Omega has no Rayleigh damping
-        (https://github.com/E3SM-Project/Omega/issues/495), and
-        ``config_Rayleigh_damping_coeff`` has no counterpart in
-        ``mpaso_to_omega``, so a damped stage would run undamped with nothing
-        said.  For a staged adjustment that is not a small difference in a
-        low-level control: the ramp is the whole purpose of the damped stages,
-        and dropping it silently would make a run look adjusted when it is not.
-
-        A stage with no damping -- the final ``simulation`` stage, and every
-        stage of a simple forward run -- is unaffected.
-
-        Parameters
-        ----------
-        model : str
-            The configured ocean model, ``'mpas-ocean'`` or ``'omega'``.
-
-        Raises
-        ------
-        ValueError
-            If ``damping`` is set and ``model`` is Omega.
-        """
-        if self.damping is None or model != 'omega':
-            return
-        raise ValueError(
-            f'Stage {self.name!r} sets Rayleigh damping '
-            f'({self.damping:g} 1/s), which Omega does not support; see '
-            f'https://github.com/E3SM-Project/Omega/issues/495.  Run this '
-            f'stage with MPAS-Ocean, or drop "damping" from the schedule to '
-            f'run it undamped.'
-        )
-
     def bottom_drag_options(self) -> Dict[str, Any]:
         """
         MPAS-Ocean bottom-drag config options implied by the damping setting.
@@ -535,9 +506,8 @@ class ForwardStage:
         reads as though the run were damped.  An undamped stage should look
         undamped.
 
-        Applied by the forward step for MPAS-Ocean only, because Omega has no
-        Rayleigh damping; :py:meth:`check_damping_supported` is what keeps that
-        from being a silent omission.
+        Applied by the forward step for MPAS-Ocean only; Omega's counterpart
+        is :py:meth:`omega_damping_replacements`.
 
         Returns
         -------
@@ -550,6 +520,34 @@ class ForwardStage:
             'config_implicit_bottom_drag_type': 'constant_and_rayleigh',
             'config_Rayleigh_damping_coeff': self.damping,
         }
+
+    def omega_damping_replacements(self) -> Optional[Dict[str, str]]:
+        """
+        Template replacements for ``omega_damping.yaml``, or ``None`` for a
+        stage with no damping.
+
+        Omega's ``RayleighDamping`` group applies the damping in every layer
+        inside the implicit vertical-mixing solve, as MPAS-Ocean's
+        ``constant_and_rayleigh`` bottom-drag type does.  It has no counterpart
+        in ``mpaso_to_omega``, because MPAS-Ocean turns damping on through the
+        drag type rather than a switch of its own.
+
+        Unlike :py:meth:`bottom_drag_options`, an undamped stage leaves the
+        group out rather than stating it off.  Omega's default is off, and an
+        Omega build without Rayleigh damping, which Polaris rejects any
+        ``RayleighDamping`` option against, can then still run every stage
+        that has no damping.
+
+        Returns
+        -------
+        dict of str or None
+            The template replacements for ``omega_damping.yaml``.
+        """
+        if self.damping is None:
+            return None
+        # exponent notation with a decimal point, which reads back as a float
+        # whichever YAML version parses it
+        return {'damping_coeff': f'{self.damping:.6e}'}
 
     def restart_stream_replacements(self) -> Dict[str, str]:
         """

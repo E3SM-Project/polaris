@@ -196,9 +196,15 @@ Omega:
     # Filename is a prefix, not a file name: Omega writes
     # <Filename>_<period>Instants (no .nc), so with a one-day period this
     # gives global_stats_1DayInstants.
+    #
+    # Fields is Omega's default list plus KineticEnergyCell, the counterpart of
+    # MPAS-Ocean's kineticEnergyCell statistics.  Omega has no CFL number
+    # field yet to add alongside it.
     Analysis:
         GlobalStats:
             Enable: true
+            Fields: [NormalVelocity, PseudoThickness, Temperature, Salinity,
+                     KineticEnergyCell]
             ReductionPeriod: []
             SnapshotPeriod: ["{{ stats_period }}"]
             Filename: global_stats

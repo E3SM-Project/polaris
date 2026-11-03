@@ -87,7 +87,7 @@ its own `polaris/mesh/spherical/unified/<mesh_name>.cfg`, which is read after
 override went away when the CFL guard was separated out.
 
 A failure here does not by itself mean resolution has leaked.  On
-`u-oi6to18-lr6to10` it does not: the sizing field prescribes the full ocean
+`u-oi6to18-lr6to10` it did not: the sizing field prescribes the full ocean
 background at every edge in the low tail, and the short edges are the seams
 of pentagon-heptagon dislocation pairs in JIGSAW's hexagonal packing.  That
 distribution is the same on every unified mesh, so the minimum falls as the
