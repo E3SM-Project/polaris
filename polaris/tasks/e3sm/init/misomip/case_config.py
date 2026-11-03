@@ -37,8 +37,8 @@ RUN_MONTHS = {
     'ocean4': 1200,
 }
 
-#: The earliest commit of FAnSSIE, E3SM's development branch for coupling the
-#: ocean and ice sheets, that has every change the cases need
+#: The head of FAnSSIE, E3SM's development branch for coupling the ocean and
+#: ice sheets, at the ledger entry by which it has every change the cases need
 E3SM_COMMIT = '4e2f0816b6'
 
 #: The compset of each mode of MALI, by long name
