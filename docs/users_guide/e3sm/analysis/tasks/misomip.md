@@ -61,9 +61,22 @@ For each run, from its monthly means:
 
 - the total melt flux and the mean melt rate over the floating ice base,
   over all of it and where the draft is deeper than 300 m, and the mean
-  thermal driving and friction velocity;
+  thermal driving and friction velocity.  Melt here and below never
+  includes frazil; the total melt flux is plotted beside the freshwater
+  flux of the frazil that forms under the ice, and a flux that includes
+  both says "melt + frazil";
 - the ranges under the ice of the barotropic streamfunction and of the
   overturning streamfunction across lines of constant $x$;
+- the strongest gyre in the open ocean, the barotropic streamfunction of
+  largest magnitude between the ice front and the restoring region;
+- the open ocean's mean SSH there above the restoring region's, the height
+  its density implies, and the residual, which is the excess pressure at
+  the seafloor as a height of water;
+- the part of that residual that the gyres make, the geostrophic height of
+  the flow in a slab above the seafloor (`bottom_slab_thickness`, 100 m by
+  default), and the rest, a uniform offset from the restoring region.
+  Ageostrophic flow near the seafloor and the choice of slab make the split
+  good to about 0.1–0.2 cm;
 - the ocean's volume and mean temperature and salinity;
 - with a thin film, the area of dry columns under grounded ice and the
   open ocean's mean sea-surface height;

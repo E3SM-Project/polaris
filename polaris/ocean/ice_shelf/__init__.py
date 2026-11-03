@@ -22,10 +22,16 @@ from polaris.ocean.ice_shelf.diagnostics import (
     compute_melt_rate_by_draft as compute_melt_rate_by_draft,
 )
 from polaris.ocean.ice_shelf.diagnostics import (
+    compute_open_ocean_ssh_diagnostics as compute_open_ocean_ssh_diagnostics,
+)
+from polaris.ocean.ice_shelf.diagnostics import (
     compute_thermal_driving as compute_thermal_driving,
 )
 from polaris.ocean.ice_shelf.diagnostics import (
     compute_thin_film_diagnostics as compute_thin_film_diagnostics,
+)
+from polaris.ocean.ice_shelf.diagnostics import (
+    get_open_ocean_mask as get_open_ocean_mask,
 )
 from polaris.ocean.ice_shelf.freeze import (
     compute_freezing_temperature as compute_freezing_temperature,

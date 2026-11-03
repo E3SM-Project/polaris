@@ -7,6 +7,7 @@ from polaris.ocean.ice_shelf.diagnostics import (
     compute_grounding_line_band_diagnostics,
     compute_melt_diagnostics,
     compute_melt_rate_by_draft,
+    compute_open_ocean_ssh_diagnostics,
     compute_thin_film_diagnostics,
 )
 
@@ -139,6 +140,52 @@ def test_a_thin_film_is_dry_under_grounded_ice_only():
 
     assert float(ds_diag.dryAreaUnderGroundedIce) == 3.0e6
     assert float(ds_diag.openOceanMeanSsh) == pytest.approx(0.1)
+
+
+def test_open_ocean_ssh_is_compared_with_the_height_density_implies():
+    """Ice covers the first cell, so the ice front is at 600 km.  The second
+    cell is a strip along a side wall, west of the front, and is left out.
+    The third is lighter than the restoring region (the fourth) by 1 kg m-3
+    in its one active layer of 10 m; the NaN below it is not active."""
+    area = xr.DataArray([1.0e6, 1.0e6, 2.0e6, 1.0e6], dims='nCells')
+    x_cell = xr.DataArray([600.0e3, 500.0e3, 700.0e3, 795.0e3], dims='nCells')
+    ssh = xr.DataArray([[-100.0, 1.0, 0.03, 0.01]], dims=('Time', 'nCells'))
+    density = xr.DataArray(
+        [
+            [
+                [1026.0, 1028.0],
+                [1020.0, 1020.0],
+                [1026.0, np.nan],
+                [1027.0, 1028.0],
+            ]
+        ],
+        dims=('Time', 'nCells', 'nVertLevels'),
+    )
+    thickness = xr.full_like(density, 10.0)
+    min_level = xr.DataArray([1, 1, 1, 1], dims='nCells')
+    max_level = xr.DataArray([2, 2, 1, 2], dims='nCells')
+    land_ice_fraction = xr.DataArray([1.0, 0.0, 0.0, 0.0], dims='nCells')
+
+    ds_diag = compute_open_ocean_ssh_diagnostics(
+        area,
+        x_cell,
+        ssh,
+        density,
+        thickness,
+        min_level,
+        max_level,
+        land_ice_fraction,
+        restoring_x=790.0e3,
+        ref_density=1026.0,
+    )
+
+    np.testing.assert_allclose(ds_diag.openOceanSshAboveRestoring, [0.02])
+    np.testing.assert_allclose(
+        ds_diag.openOceanDensityImpliedSsh, [10.0 / 1026.0]
+    )
+    np.testing.assert_allclose(
+        ds_diag.openOceanSshResidual, [0.02 - 10.0 / 1026.0]
+    )
 
 
 def test_monthly_means_take_the_names_of_their_fields():

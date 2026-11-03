@@ -298,6 +298,155 @@ def compute_thin_film_diagnostics(
     return ds_diag
 
 
+def compute_open_ocean_ssh_diagnostics(
+    area_cell,
+    x_cell,
+    ssh,
+    density,
+    layer_thickness,
+    min_level_cell,
+    max_level_cell,
+    land_ice_fraction,
+    restoring_x,
+    ref_density,
+):
+    """
+    Compare the sea-surface height of the open ocean, relative to that of
+    the restoring region, with the height its density implies
+
+    With no difference in pressure at the seafloor from the restoring
+    region, the sea-surface height of a column relative to the mean of the
+    restoring region is
+
+    .. math::
+
+        \\eta - \\eta_r = \\sum_k (\\rho_r(k) - \\rho(k)) h(k) / \\rho_0,
+
+    where :math:`\\rho_r(k)` is the mean in-situ density of the restoring
+    region in layer :math:`k`.  The residual, the height less this, is the
+    excess of pressure at the seafloor over the restoring region's, as a
+    height of water.  The open ocean averaged over lies between the ice
+    front and the restoring region; the strips of open ocean along the side
+    walls, west of the ice front, are left out.
+
+    Parameters
+    ----------
+    area_cell : xarray.DataArray
+        The area of each cell (m2)
+
+    x_cell : xarray.DataArray
+        The x coordinate of each cell center (m)
+
+    ssh : xarray.DataArray
+        The sea-surface height (m)
+
+    density : xarray.DataArray
+        The in-situ density (kg m-3)
+
+    layer_thickness : xarray.DataArray
+        The thickness of each layer (m)
+
+    min_level_cell : xarray.DataArray
+        The index (one-based) of each column's top active layer
+
+    max_level_cell : xarray.DataArray
+        The index (one-based) of each column's bottom active layer
+
+    land_ice_fraction : xarray.DataArray
+        ``landIceFraction``
+
+    restoring_x : float
+        The x coordinate (m) from which the restoring region extends
+
+    ref_density : float
+        The reference density (kg m-3) of the hydrostatic balance, the
+        namelist option ``config_density0``
+
+    Returns
+    -------
+    ds_diag : xarray.Dataset
+        ``openOceanSshAboveRestoring``, ``openOceanDensityImpliedSsh`` and
+        ``openOceanSshResidual`` (m), means over the open ocean
+    """
+    levels = xr.DataArray(
+        np.arange(1, density.sizes['nVertLevels'] + 1), dims='nVertLevels'
+    )
+    valid = np.logical_and(levels >= min_level_cell, levels <= max_level_cell)
+    restoring = np.logical_and(land_ice_fraction == 0.0, x_cell >= restoring_x)
+    between = get_open_ocean_mask(x_cell, land_ice_fraction, restoring_x)
+
+    restoring_weights = area_cell.where(restoring, 0.0)
+    layer_weights = restoring_weights.where(valid, 0.0)
+    restoring_density = (density.where(valid, 0.0) * layer_weights).sum(
+        dim='nCells'
+    ) / layer_weights.sum(dim='nCells')
+    restoring_ssh = _weighted_mean(ssh, restoring_weights)
+    implied = ((restoring_density - density) * layer_thickness).where(
+        valid, 0.0
+    ).sum(dim='nVertLevels') / ref_density
+
+    weights = area_cell.where(between, 0.0)
+    ds_diag = xr.Dataset()
+    ds_diag['openOceanSshAboveRestoring'] = _weighted_mean(
+        ssh - restoring_ssh, weights
+    )
+    ds_diag['openOceanDensityImpliedSsh'] = _weighted_mean(implied, weights)
+    ds_diag['openOceanSshResidual'] = (
+        ds_diag.openOceanSshAboveRestoring - ds_diag.openOceanDensityImpliedSsh
+    )
+    ds_diag.openOceanSshAboveRestoring.attrs = dict(
+        long_name=(
+            'mean sea-surface height of the open ocean above that of the '
+            'restoring region'
+        ),
+        units='m',
+    )
+    ds_diag.openOceanDensityImpliedSsh.attrs = dict(
+        long_name=(
+            'mean sea-surface height of the open ocean above that of the '
+            'restoring region implied by density'
+        ),
+        units='m',
+    )
+    ds_diag.openOceanSshResidual.attrs = dict(
+        long_name=(
+            'mean sea-surface height of the open ocean above that of the '
+            'restoring region less the height implied by density'
+        ),
+        units='m',
+    )
+    return ds_diag
+
+
+def get_open_ocean_mask(x_cell, land_ice_fraction, restoring_x):
+    """
+    Get the open ocean between the ice front and the restoring region,
+    leaving out the strips of open ocean along the side walls, west of the
+    ice front
+
+    Parameters
+    ----------
+    x_cell : xarray.DataArray
+        The x coordinate of each cell center (m)
+
+    land_ice_fraction : xarray.DataArray
+        ``landIceFraction``
+
+    restoring_x : float
+        The x coordinate (m) from which the restoring region extends
+
+    Returns
+    -------
+    mask : xarray.DataArray
+        Whether each cell is in this open ocean
+    """
+    open_ocean = land_ice_fraction == 0.0
+    ice_front = x_cell.where(land_ice_fraction > 0.0).max(dim='nCells')
+    return np.logical_and(
+        np.logical_and(open_ocean, x_cell >= ice_front), x_cell < restoring_x
+    )
+
+
 def compute_grounding_line_band_diagnostics(
     area_cell,
     x_cell,

@@ -826,7 +826,14 @@ height.  In a coupled run,
 {py:func}`polaris.ocean.ice_shelf.compute_grounding_line_band_diagnostics()`
 gives the land-ice model's floating area in cells the ocean holds at the
 thin film, next to the grounding line, and estimates the melt missed there
-from the melt rate per floating area of the nearest melting cell.  Means over the ice base are weighted by each cell's floating area,
+from the melt rate per floating area of the nearest melting cell.
+{py:func}`polaris.ocean.ice_shelf.compute_open_ocean_ssh_diagnostics()`
+compares the open ocean's sea-surface height, relative to the restoring
+region's, with the height its density implies with no difference in
+pressure at the seafloor, and gives the residual.  The open ocean it
+averages over lies between the ice front and the restoring region
+({py:func}`polaris.ocean.ice_shelf.get_open_ocean_mask()`), leaving out
+the strips along the side walls.  Means over the ice base are weighted by each cell's floating area,
 since a partly floating cell melts only over its floating fraction.  The
 functions take MPAS-Ocean's names with or without a `Time` dimension;
 monthly means are renamed first with
