@@ -19,6 +19,7 @@ Each check takes values rather than datasets, so that the step decides what to
 read and the check decides what is acceptable.
 """
 
+import math
 from typing import Any, Optional
 
 
@@ -176,6 +177,7 @@ def _check_upper_bound(
             f'check.'
         )
         return
+    _check_finite(value, when, stage_name, quantity)
     if value > limit:
         raise ValueError(
             f'Stage {stage_name!r}: {quantity} reached {value:.4g}{units}'
@@ -205,6 +207,7 @@ def _check_lower_bound(
             f'check.'
         )
         return
+    _check_finite(value, when, stage_name, quantity)
     if value < limit:
         raise ValueError(
             f'Stage {stage_name!r}: {quantity} fell to {value:.4g}{units}'
@@ -215,6 +218,20 @@ def _check_lower_bound(
         f'Stage {stage_name!r}: min {quantity} {value:.4g}{units}'
         f'{_at_day(when)} >= {limit:.4g}{units}.'
     )
+
+
+def _check_finite(
+    value: float, when: Optional[float], stage_name: str, quantity: str
+) -> None:
+    """
+    Raise if ``value`` is NaN or infinite.  A NaN compares false against any
+    limit, so without this a stage that produced one would pass.
+    """
+    if not math.isfinite(value):
+        raise ValueError(
+            f'Stage {stage_name!r}: {quantity} was {value}{_at_day(when)}; '
+            f'the model produced a non-finite value.'
+        )
 
 
 def _at_day(when: Optional[float]) -> str:

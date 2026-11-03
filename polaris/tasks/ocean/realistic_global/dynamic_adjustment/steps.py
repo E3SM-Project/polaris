@@ -107,6 +107,7 @@ def get_realistic_dynamic_adjustment_steps(
     stages = load_schedule_stages(mesh_name, config)
 
     previous = None
+    previous_check = None
     for stage in stages:
         forward_step = component.get_or_create_shared_step(
             step_cls=Forward,
@@ -126,9 +127,14 @@ def get_realistic_dynamic_adjustment_steps(
         )
         # the restart chain, which cannot be expressed as an input/output pair
         # because the restart filename comes from the schedule rather than
-        # from the step.  Re-wiring it on a later call is a no-op.
+        # from the step.  It waits for the previous stage's check as well, or
+        # a parallel run would start this stage alongside that check and a
+        # failed check would stop nothing.  Re-wiring either on a later call
+        # is a no-op.
         if previous is not None:
             forward_step.add_dependency(previous, previous.name)
+        if previous_check is not None:
+            forward_step.add_dependency(previous_check, previous_check.name)
         steps[forward_step.name] = forward_step
         previous = forward_step
 
@@ -148,6 +154,7 @@ def get_realistic_dynamic_adjustment_steps(
         )
         check_step.add_dependency(forward_step, forward_step.name)
         steps[check_step.name] = check_step
+        previous_check = check_step
 
     summary_step = component.get_or_create_shared_step(
         step_cls=Summary,

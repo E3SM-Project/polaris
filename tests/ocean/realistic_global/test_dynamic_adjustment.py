@@ -362,6 +362,23 @@ def test_the_viz_step_waits_for_every_stage():
     assert targets == {f'../{stage.name}/output.nc' for stage in stages}
 
 
+def test_each_stage_waits_for_the_previous_stages_check():
+    """
+    A failed check has to stop the sequence.  Waiting on the previous stage
+    alone is not enough: a parallel run would start the next stage alongside
+    the check, before the check could fail.
+    """
+    component = Ocean()
+    steps, _, stages = get_realistic_dynamic_adjustment_steps(
+        component=component, mesh_name='u-oi240-lr240'
+    )
+    assert len(stages) > 1
+    for previous, current in zip(stages[:-1], stages[1:], strict=True):
+        dependencies = steps[current.name].dependencies.values()
+        check = steps[f'{previous.name}_check']
+        assert any(step is check for step in dependencies), current.name
+
+
 def test_the_steps_that_read_the_mesh_link_it_from_the_init_step():
     """
     A step's ``path`` is relative to the base work directory, not to the
@@ -1151,6 +1168,21 @@ def test_cfl_max_skipped_when_not_reported():
     check_cfl_max(None, 1.0, 0.2, 'simulation', LOGGER)
 
 
+@pytest.mark.parametrize('value', [np.nan, np.inf])
+def test_check_raises_on_a_non_finite_maximum(value):
+    # a NaN compares false against any limit, so it would otherwise pass
+    with pytest.raises(ValueError, match='non-finite'):
+        check_temperature_max(value, 2.0, 33.0, 'simulation', LOGGER)
+    with pytest.raises(ValueError, match='non-finite'):
+        check_cfl_max(value, 2.0, 0.2, 'simulation', LOGGER)
+
+
+@pytest.mark.parametrize('value', [np.nan, -np.inf])
+def test_check_raises_on_a_non_finite_minimum(value):
+    with pytest.raises(ValueError, match='non-finite'):
+        check_temperature_min(value, 2.0, -2.5, 'simulation', LOGGER)
+
+
 # --- the summary step, for both models ---
 
 
@@ -1293,6 +1325,16 @@ def test_stage_check_still_catches_an_extreme_after_the_first_sample(
     _write_stage_stats(tmp_path, 'damped_1', 'mpas-ocean', **series)
     monkeypatch.chdir(tmp_path / 'checks')
     with pytest.raises(ValueError, match='temperature reached 99'):
+        step.run()
+
+
+def test_stage_check_catches_a_nan(tmp_path, monkeypatch):
+    step = _stage_check(tmp_path, 'mpas-ocean', 'damped_1')
+    series = _stats_series(5.0, 3.5)
+    series['temperatureMax'] = [29.0, np.nan, 30.0]
+    _write_stage_stats(tmp_path, 'damped_1', 'mpas-ocean', **series)
+    monkeypatch.chdir(tmp_path / 'checks')
+    with pytest.raises(ValueError, match='temperature was nan'):
         step.run()
 
 
