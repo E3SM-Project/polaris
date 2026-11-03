@@ -187,7 +187,7 @@ replays its geometry in data mode for `ocean3` and `ocean4`.
 
 `create_case.sh` creates, sets up and builds a case from the `user_mods/`
 directory beside it.  It needs an E3SM checkout with the changes for
-idealized ice-shelf cases, at commit `eb0b74201c` of the
+idealized ice-shelf cases, at commit `4e2f0816b6` of the
 `fanssie-ocn-glc-coupling` branch of E3SM-Ocean-Discussion/E3SM or later:
 
 ```bash

@@ -14,9 +14,11 @@ from polaris.tasks.e3sm.init.misomip.case_config import (
     E3SM_COMMIT,
     E3SM_DEFAULT_OPTIONS,
     E3SM_OWNED_OPTIONS,
+    RUN_MONTHS,
     get_create_case_script,
     get_grid_file,
     get_inputdata_root,
+    get_mali_mode,
     get_pes_file,
     get_readme,
     get_shell_commands,
@@ -259,6 +261,18 @@ def test_shell_commands_static_mali_has_no_data_mode_file():
         f"misomip-o4km/mpaso.misomip-o4km.ocean0.{DATE}.nc'"
     ) in text.splitlines()
     assert './xmlchange RESUBMIT=11' in text.splitlines()
+
+
+@pytest.mark.parametrize('experiment', list(RUN_MONTHS))
+def test_shell_commands_data_mode_file_has_reference_time(experiment):
+    # MALI's buildnml stops if a case names a data-mode file without the
+    # time of its first record
+    text = get_shell_commands(
+        experiment, GRIDS, DATE, DIN_LOC_ROOT, 12, COUPLINGS, DT
+    )
+    has_file = 'MALI_DATAMODE_FILE=' in text
+    assert has_file == (get_mali_mode(experiment) == 'data')
+    assert has_file == ('MALI_DATAMODE_REFERENCE_TIME=' in text)
 
 
 def test_shell_commands_need_whole_jobs():
