@@ -191,7 +191,15 @@ over the open ocean of the SSH above $\eta_r$, of this height and of the
 residual between them. The residual is the excess pressure at the
 seafloor, as a height of water. Gyres in the open ocean raise or lower it
 by their geostrophic bottom pressure, so it is read beside the strength
-of the strongest gyre.
+of the strongest gyre and beside the geostrophic height of the flow near
+the seafloor, $\eta_g = f \psi_b / (g\, \Delta z)$, where $\psi_b$ is
+the streamfunction of the flow in a slab of thickness $\Delta z$ (100 m by
+default) above the seafloor. The mean of $\eta_g$ over the open ocean,
+relative to its mean over the restoring region, is the gyres' share. The
+residual less it is a uniform offset from the restoring region, which
+closed gyres cannot make, since $\psi_b$ is zero on every wall.
+Ageostrophic flow near the seafloor and the choice of slab make the split
+good to about 0.1–0.2 cm.
 
 **Grounding-line band.** A band cell is one where MALI's floating fraction,
 as the ocean receives it, exceeds the coupling's minimum but the ocean's
