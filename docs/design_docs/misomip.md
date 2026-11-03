@@ -865,7 +865,7 @@ request stands.
 
 ## Testing and Validation
 
-Date last modified: 2026/11/01
+Date last modified: 2026/11/03
 
 Contributors: Xylar Asay-Davis, Claude
 
@@ -894,8 +894,9 @@ Each step builds on the one before it.
    protocol's common configuration, so the comparison is qualitative.
    Stage B compares Ocean0 and the first years of Ocean1–2; stage E
    compares the full runs.
-6. **Ocean3–4.** The geometry the ocean imports tracks the data-mode file.
-   The grounding line moves without failure, and no open-ocean cell
+6. **Ocean3–4.** The geometry the ocean imports over each day equals the
+   data-mode record of the month containing that day. The grounding line
+   moves without failure, and no open-ocean cell
    receives land-ice fluxes. The open-ocean SSH matches the height its
    density implies relative to the restoring region, as in runs with
    static geometry, leaving out the narrow open strips along the side
