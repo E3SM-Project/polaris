@@ -7,9 +7,6 @@ as ``sphere_transport`` that transport several tracers silently checked only
 the first of them.
 """
 
-import subprocess
-import sys
-
 import numpy as np
 import pytest
 import xarray as xr
@@ -127,15 +124,13 @@ def test_mixed_properties_keep_their_order():
     ]
 
 
-def test_conservation_can_be_imported_on_its_own():
+def test_conservation_can_be_imported_on_its_own(fresh_interpreter):
     # polaris.ocean.conservation must not pull in polaris.ocean.model at
     # module scope: that package imports the step classes, which import this
     # module back, so the import only works when something else happens to
     # import polaris.ocean.model first
-    code = 'import polaris.ocean.conservation'
-    subprocess.run(
-        [sys.executable, '-c', code], check=True, capture_output=True
-    )
+    assert not fresh_interpreter['ocean_model_preloaded']
+    assert fresh_interpreter['conservation_error'] is None
 
 
 def _mesh_and_state(n_times=None):
