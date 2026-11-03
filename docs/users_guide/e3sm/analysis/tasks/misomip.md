@@ -59,6 +59,11 @@ For each run, from its monthly means:
   thermal driving and friction velocity;
 - the ranges under the ice of the barotropic streamfunction and of the
   overturning streamfunction across lines of constant $x$;
+- the strongest gyre in the open ocean, the barotropic streamfunction of
+  largest magnitude between the ice front and the restoring region;
+- the open ocean's mean SSH there above the restoring region's, the height
+  its density implies, and the residual, which is the excess pressure at
+  the seafloor as a height of water;
 - the ocean's volume and mean temperature and salinity;
 - with a thin film, the area of dry columns under grounded ice and the
   open ocean's mean sea-surface height;

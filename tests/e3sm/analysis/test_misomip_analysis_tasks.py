@@ -29,6 +29,9 @@ NAMELIST = """&wetting_drying
 &coupling
     config_glc_ice_shelf_coupling_min_floating_fraction = 1.0e-3
 /
+&ocean_constants
+    config_density0 = 1026.0
+/
 """
 
 

@@ -64,6 +64,24 @@ TIME_SERIES: list[tuple[str, str, str, str, list[tuple]]] = [
         ],
     ),
     (
+        'circulation',
+        'open_ocean_ssh_residual',
+        'SSH of the open ocean above the restoring region',
+        'height (cm)',
+        [
+            ('openOceanSshAboveRestoring', 100.0, 'SSH'),
+            ('openOceanDensityImpliedSsh', 100.0, 'implied by density'),
+            ('openOceanSshResidual', 100.0, 'residual'),
+        ],
+    ),
+    (
+        'circulation',
+        'open_ocean_gyre_strength',
+        'Strongest gyre in the open ocean',
+        'barotropic streamfunction (Sv)',
+        [('openOceanGyreStrength', 1.0, None)],
+    ),
+    (
         'water_masses',
         'mean_temperature',
         'Mean temperature',
