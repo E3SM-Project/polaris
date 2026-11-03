@@ -1365,23 +1365,25 @@ dynamic_adjustment:
       # damping omitted => the config default, which is no Rayleigh damping
 ```
 
-Every key must name a forward-run setting — a `ForwardStage` field, which is to
-say a `[realistic_global_forward]` config option — and overrides that option for
-that stage.  A key that names nothing is an error at setup rather than a silent
-fall back to the config value, so a schedule cannot quietly go stale when an
-option is renamed.  `run_duration` is the one key a stage must set, since the
-restart chain's timing follows from it; `restart_interval` defaults to the
-stage's own `run_duration` rather than to the config value, because each stage
-has to write the restart the next one reads.  Time steps may instead be given per
-km of mesh minimum resolution with `dt_per_km` / `btr_dt_per_km`.
+Every key in a schedule must be a setting that `ForwardStage` recognizes, which
+is to say a `[realistic_global_forward]` config option, and it overrides that
+option for that stage.  An unknown or misspelled key is an error at setup rather
+than being ignored in favor of the config value, so a schedule cannot silently
+stop taking effect when an option is renamed.  Each stage must specify
+`run_duration`, because it determines when each stage starts and stops.  Other
+settings may be omitted and then come from the `shared` block or, failing that,
+from config.  The exception is `restart_interval`, which defaults to the stage's
+own `run_duration`, because each stage has to write the restart the next one
+starts from.  Time steps may instead be given per km of mesh minimum resolution
+with `dt_per_km` / `btr_dt_per_km`.
 
-Two cadences a stage cannot get wrong are checked at setup, because both fail
-only after the model has run.  A `restart_interval` must put the stage's stop
+Two intervals are checked at setup, because a bad value would otherwise only
+show up after the model has run.  A `restart_interval` must put the stage's stop
 time on MPAS-Ocean's restart alarm, which is measured from a fixed reference of
 `0001-01-01_00:00:00` and not from where the stage starts — otherwise the
 restart the next stage reads is never written.  And a `stats_interval` must be
-no longer than the stage, or the statistics hold only the record written at
-startup.  `output_interval` is not checked: an interval longer than the stage is
+no longer than the stage, or the statistics file holds only the record written
+when the stage starts.  `output_interval` is not checked: an interval longer than the stage is
 a legitimate way to say "no 3-D output during the damped stages", which is what
 the ported Compass schedules do.  Such a stage still writes one record: its
 initial state for MPAS-Ocean, and its final state for Omega, which cannot write
@@ -1389,8 +1391,8 @@ on startup.
 
 `start_time` belongs in the `shared` block: it is where the chain begins, and
 each stage's own start time follows from the durations before it.  The remaining
-restart settings (`do_restart`, `restart_in`, `restart_out`) are owned by the
-chain and cannot be set by a schedule.
+restart settings (`do_restart`, `restart_in`, `restart_out`) are set by Polaris
+to link the stages together and cannot be set by a schedule.
 
 Rayleigh damping runs the other way round from the other options: it is off in
 config (`damping` is blank) and turned on per stage by the schedule, so the
@@ -1416,9 +1418,7 @@ an Omega run proceeds without it.
 
 :::{note}
 `damping` applies to both models: MPAS-Ocean's `constant_and_rayleigh` bottom
-drag and Omega's `RayleighDamping` both damp the velocity in every layer.  An
-Omega dynamic adjustment needs an Omega build that has `RayleighDamping`; the
-undamped `simulation` stage, and any other forward run, does not.
+drag and Omega's `RayleighDamping` both damp the velocity in every layer.
 :::
 
 ### restart chaining
@@ -1454,23 +1454,23 @@ stage; the rest are end-of-stage values.
 
 The two `mean_*_change_per_day` columns are a conservation check rather than a
 sign of settling.  These runs are forced by wind alone, with no surface fluxes,
-so the volume-weighted mean temperature and salinity are conserved exactly and
-both columns should be zero to within machine noise — `u-oi30-lr10` reaches
+so the volume-weighted mean temperature and salinity are conserved and both
+columns should be zero to within round-off — `u-oi30-lr10` reaches
 -4e-17 °C/day and `u-oi6to18-lr12p5` -5e-14 °C/day.  A value larger than that
 means tracer was lost or gained, which says nothing about whether the fast
 waves have been damped out.
 
-The numbers come from each stage's global-statistics file wherever the
-configured model reports them, because the model has already reduced them over
-the whole domain at the `stats_interval` cadence — so an excursion in the middle
-of a stage is visible, which it is not in an end-of-stage field.  That cadence is
-deliberately separate from the 3-D `output_interval`: the statistics are a
-handful of scalars, so they can be written far more often than the 3-D fields
-without the output growing.  What the model does
-not report is computed from `output.nc` instead, but only for maxima and minima,
-which mean the same thing however they are obtained.  A volume-weighted mean does
-not, so `kinetic_energy_mean` and `kinetic_energy_total` are left blank rather
-than quietly replaced with an unweighted mean.
+The numbers come from each stage's global-statistics file wherever the model
+reports them.  The model computes these over the whole domain every
+`stats_interval`, so an extreme in the middle of a stage shows up, which it
+would not in a field written only at the end of the stage.  `stats_interval` is
+separate from `output_interval`, which controls the 3-D output: the statistics
+are a handful of numbers, so they can be written far more often than the 3-D
+fields without making the output much larger.  Quantities the model does not
+report in the statistics file are computed from `output.nc` instead, but only
+for maxima and minima, which are the same however they are computed.  A
+volume-weighted mean is not, so `kinetic_energy_mean` and `kinetic_energy_total`
+are left blank rather than replaced with an unweighted mean.
 
 Omega's `GlobalStats` covers temperature, salinity, layer thickness, normal
 velocity and kinetic energy but has no CFL number or volume-weighted sums, so
@@ -1486,19 +1486,20 @@ need not be in the same place, so this is an upper bound rather than Omega's
 CFL number, and it is reported for inspection, not checked against `cfl_max`.
 
 There are four checks, all per stage, run in a `<stage>_check` step
-immediately after that stage, so a stage that is already out of bounds stops the
-sequence instead of costing the whole job:
+immediately after that stage.  The next stage does not start until the check has
+passed, so a stage that is already out of bounds stops the sequence instead of
+using up the rest of the job:
 
 * the maximum temperature in the stage must stay below `temperature_max`;
 * the minimum temperature must stay above `temperature_min`, which catches water
-  colder than the initial condition that only the numerics can have produced,
+  colder than the initial condition that only the numerics could have produced,
   such as a tracer overshoot in a thin bottom cell that does not blow up;
 * the maximum salinity must stay below `salinity_max`;
 * the maximum CFL number must stay below `cfl_max`, which is what catches a
   stage whose time step is too long for the flow it produced.
 
 All four report *when* the extreme occurred as well as how large it was, which
-is usually most of the diagnosis.
+is usually most of the diagnosis.  A NaN or infinite value fails any of them.
 
 They deliberately ignore the sample written before a stage's first time step.
 For the first stage that sample is the initial condition, which dynamic

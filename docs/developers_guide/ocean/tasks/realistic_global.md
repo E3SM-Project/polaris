@@ -409,20 +409,23 @@ A downstream workflow that wants the adjusted restart — `e3sm/init`'s
 component inputs — calls it and gets the same step instances rather than a
 second copy of a very expensive chain.
 
-It returns the stages alongside the steps and config, because which stage hands
-off the adjusted state, and what that restart file is called, both depend on the
-schedule: `stages[-1].restart_out` is what such a consumer is after.
-`include_viz` follows the `init` convention — the step is always created, but
-only returned, and so only in a task's `steps_to_run`, when asked for.  A figure
-describing a completed adjustment is not what a workflow that only wants the
-relaxed restart is asking about.
+It returns the stages along with the steps and config, because which stage
+writes the adjusted restart, and what that file is called, both depend on the
+schedule: a workflow that wants the adjusted restart reads
+`stages[-1].restart_out`.  `include_viz` follows the `init` convention: the
+`viz` step is always created, but it is only returned, and so only added to a
+task's `steps_to_run`, when `include_viz=True`.  Workflows that only need the
+adjusted restart can leave it out, since they don't need a figure of the
+completed adjustment.
 
-Two details are specific to this workflow.  The restart chain is wired with
-{py:meth}`polaris.Step.add_dependency()` rather than through input/output files,
-because a stage's restart filename comes from the schedule rather than from the
-step.  Wiring it inside the step constructor — the pattern the `init` steps use
-— is not available for a chain whose links only this helper knows, so it is
-wired from here, which is safe because re-adding the same dependency is a no-op.
+Two details are specific to this workflow.  Each stage depends on the previous
+stage, and on the previous stage's check, through
+{py:meth}`polaris.Step.add_dependency()`.  The `init` steps add their
+dependencies in each step's constructor, but only this function knows the order
+of the stages, so it adds them here.  Waiting for the check matters when steps
+run in parallel: otherwise the next stage would start at the same time as the
+check, and a failed check would not stop it.  Calling the function again is safe,
+because adding the same dependency twice has no effect.
 
 And because the set of steps depends on the schedule,
 {py:meth}`...RealisticGlobalDynamicAdjustment.configure` rebuilds them when a
@@ -511,8 +514,8 @@ columns are derived rather than read, from the change in a volume-weighted mean
 across the stage divided by the stage's run duration, which is why `Summary`
 takes the `ForwardStage` list rather than just the stage names.  They are a
 conservation check, not a settling one: these runs are forced by wind alone,
-with no surface fluxes, so the volume-weighted mean tracers are conserved
-exactly and the expected value of both columns is zero.
+with no surface fluxes, so the volume-weighted mean tracers are conserved and
+both columns should be zero to within round-off.
 
 The statistics cadence is `ForwardStage.stats_interval`, which drives the
 `globalStatsOutput` stream and through it the analysis member's compute
@@ -543,8 +546,8 @@ so that a step decides what to read and a check decides what is acceptable.
 The `temperature_max`, `temperature_min`, `salinity_max` and `cfl_max`
 thresholds all belong to
 {py:class}`polaris.tasks.ocean.realistic_global.dynamic_adjustment.validate.StageCheck`,
-one per stage, added right after its forward step so the sequence stops at the
-stage that broke.  Each is skipped, with a log line, when the model reports no
+one per stage.  Each check runs right after its stage and the next stage waits
+for it, so the sequence stops at the stage that broke.  Each is skipped, with a log line, when the model reports no
 such metric.  `Summary` applies none of them; it collects, writes and logs the
 diagnostics.
 
@@ -556,6 +559,8 @@ whole allocation open to compare a few scalars.
 The thresholds read the extreme reached at any point in the stage, so an
 excursion the run recovered from is still caught, and
 `diagnostics.extreme_and_day` returns the day it happened alongside the value.
+A NaN or infinite value fails a check outright, since a NaN compares as false
+against any bound and would otherwise pass.
 
 Which samples a stage is judged on is decided in one place,
 `diagnostics.first_judged_index`, which both that function and
