@@ -20,6 +20,7 @@ from polaris.tasks.e3sm.init.misomip.layout import (
     get_layout_lines,
     get_task_bounds,
 )
+from polaris.tasks.e3sm.init.misomip.records import get_monthly_record_times
 
 #: The section of config options for the case configuration
 CASE_CONFIG_SECTION = 'misomip_case_config'
@@ -512,8 +513,9 @@ def get_shell_commands(
 ):
     """
     Get the text of ``shell_commands``, which sets the case variables that
-    name the staged files, turns off MALI's runoff to the ocean, turns on
-    the coupler's budgets and sets the coupling intervals and the run length
+    name the staged files and give the time of the data-mode file's first
+    record, turns off MALI's runoff to the ocean, turns on the coupler's
+    budgets and sets the coupling intervals and the run length
 
     Parameters
     ----------
@@ -566,7 +568,8 @@ def get_shell_commands(
             landice, date
         ),
     }
-    if get_mali_mode(experiment) == 'data':
+    data_mode = get_mali_mode(experiment) == 'data'
+    if data_mode:
         files['MALI_DATAMODE_FILE'] = names.landice_data_mode_path(
             landice, experiment, date
         )
@@ -601,6 +604,16 @@ def get_shell_commands(
     for variable, path in files.items():
         path = _inputdata_path(path, inputdata_root)
         lines.append(f"./xmlchange '{variable}={path}'")
+    if data_mode:
+        xtimes, _ = get_monthly_record_times(year_count=1)
+        lines.extend(
+            [
+                '',
+                "# The time of the data-mode file's first record, from which",
+                '# MALI counts the months between records',
+                f"./xmlchange 'MALI_DATAMODE_REFERENCE_TIME={xtimes[0]}'",
+            ]
+        )
     lines.extend(
         [
             '',

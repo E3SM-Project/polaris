@@ -150,8 +150,11 @@ file.
 names the staged files relative to `$DIN_LOC_ROOT`, or to
 `[misomip_case_config] inputdata_root`, in which
 {py:func}`polaris.tasks.e3sm.init.misomip.case_config.get_inputdata_root()`
-replaces `{experiment}` with the experiment's name, sets the coupling intervals, which
-it checks against the standalone run's time step, and splits the
+replaces `{experiment}` with the experiment's name, gives
+`MALI_DATAMODE_REFERENCE_TIME` the `xtime` of the first record from
+{py:func}`polaris.tasks.e3sm.init.misomip.records.get_monthly_record_times()`,
+sets the coupling intervals, which it checks against the standalone run's
+time step, and splits the
 experiment's length, in `RUN_MONTHS`, into jobs.  The README gives the
 compset from `COMPSETS`.
 The step chooses the case's layout in `_get_layout()`.

@@ -238,6 +238,7 @@ def test_shell_commands_name_the_staged_files():
         f"mpasli.graph.info.{DATE}.part.'",
         f"./xmlchange 'MALI_DATAMODE_FILE={glc}/"
         f"misomip-li1km.ocean3_datamode.{DATE}.nc'",
+        "./xmlchange 'MALI_DATAMODE_REFERENCE_TIME=0001-01-01_00:00:00'",
         './xmlchange GLC_RUNOFF_TO_OCN=FALSE',
         './xmlchange BUDGETS=TRUE',
         './xmlchange NCPL_BASE_PERIOD=day,ATM_NCPL=48,OCN_NCPL=48,GLC_NCPL=1',
@@ -252,6 +253,7 @@ def test_shell_commands_static_mali_has_no_data_mode_file():
         'ocean0', GRIDS, DATE, '/short/inputdata', 1, COUPLINGS, DT
     )
     assert 'MALI_DATAMODE_FILE' not in text
+    assert 'MALI_DATAMODE_REFERENCE_TIME' not in text
     assert (
         f"./xmlchange 'MPASO_IC_FILE=/short/inputdata/ocn/mpas-o/"
         f"misomip-o4km/mpaso.misomip-o4km.ocean0.{DATE}.nc'"
