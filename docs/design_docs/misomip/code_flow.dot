@@ -37,7 +37,8 @@ digraph fanssie {
     labeljust=l; fontsize=12; color="#c3c2b7"; style="rounded";
     malidev [label=<<b>develop</b><br/><font color="#52514e">97 MALI commits ahead of E3SM</font>>, fillcolor="#ffffff"];
     m213 [label=<<b>#213, #214, #216</b>  MALI's E3SM namelist without the lapse rate;<br/>MALI's inputs named by case variables;<br/>MALI's data-mode export follows its thickness file<br/><font color="#52514e">open · already in FAnSSIE</font>>, fillcolor="#deebff"];
-    m211 [label=<<b>#211</b>  rebuild Albany's grid only when masks change<br/><font color="#52514e">open · good to have for forward MALI runs</font>>, fillcolor="#deebff"];
+    m211 [label=<<b>#211, #218</b>  rebuild Albany's grid only when masks change;<br/>MALI's logical flags reach the velocity solver as integers<br/><font color="#52514e">open, approved · good to have for forward MALI runs</font>>, fillcolor="#deebff"];
+    m219 [label=<<b>#219</b>  MALI's data-mode reference time from a case variable<br/><font color="#52514e">draft · after #214 · already in FAnSSIE</font>>, fillcolor="#e8e8e4"];
   }
 
   subgraph cluster_eod {
@@ -46,13 +47,14 @@ digraph fanssie {
     d119 [label=<<b>#119</b>  thin film under grounded ice, RK4<br/><font color="#52514e">Carolyn · draft · already in FAnSSIE</font>>, fillcolor="#e8e8e4"];
     d141 [label=<<b>#141, #142</b>  land-ice fluxes only under floating ice<br/><font color="#52514e">open · already in FAnSSIE</font>>, fillcolor="#deebff"];
     d143 [label=<<b>#143, #145–#150</b>  forcing clock; fixes and options<br/>for E3SM's physics with a thin film<br/><font color="#52514e">merged into FAnSSIE</font>>, fillcolor="#e3fcef"];
-    d144 [label=<<b>#144</b>  split-explicit wetting and drying<br/>(Carolyn's series + fixes)<br/><font color="#52514e">open · waits for Carolyn's review</font>>, fillcolor="#deebff"];
+    d175 [label=<<b>#175</b>  split-explicit wetting and drying<br/>(Carolyn's series + fixes; replaces #144)<br/><font color="#52514e">draft · waits for Carolyn's review</font>>, fillcolor="#e8e8e4"];
     d151 [label=<<b>#151</b>  merge MALI-Dev's develop<br/><font color="#52514e">merged into FAnSSIE</font>>, fillcolor="#e3fcef"];
     d158 [label=<<b>#158–#163</b>  ocean without an atmosphere; wetting and drying<br/>and tidal forcing in E3SM; kept floating fraction;<br/>MPAS-Ocean inputs named by case variables;<br/>an option that keeps glc runoff out of the ocean;<br/>conserved fluxes under ice shelves<br/><font color="#52514e">merged into FAnSSIE</font>>, fillcolor="#e3fcef"];
     d164 [label=<<b>#164–#167</b>  grounded-ice pressure cap in one threaded loop;<br/>one ocean density from pressure to depth;<br/>land-ice mask follows the ice fraction;<br/>land-ice geometry in monthly means<br/><font color="#52514e">merged into FAnSSIE</font>>, fillcolor="#e3fcef"];
     d168 [label=<<b>#168</b>  MALI's data-mode export follows its thickness file<br/><font color="#52514e">merged into FAnSSIE</font>>, fillcolor="#e3fcef"];
     d169 [label=<<b>#169, #170</b>  no frazil or melt where glc has too little floating ice;<br/>slivers of imported land ice are open ocean<br/><font color="#52514e">merged into FAnSSIE</font>>, fillcolor="#e3fcef"];
     d171 [label=<<b>#171, #172</b>  land ice's heat capacity from E3SM's constants;<br/>ice enthalpy in glc's heat budget<br/><font color="#52514e">merged into FAnSSIE</font>>, fillcolor="#e3fcef"];
+    d173 [label=<<b>#173, #174</b>  melt in thin-film cells under glc's floating ice;<br/>MALI's data-mode reference time from a case variable<br/><font color="#52514e">merged into FAnSSIE</font>>, fillcolor="#e3fcef"];
     d156 [label=<<b>#156, #157</b>  MALI's E3SM namelist without the lapse rate;<br/>MALI's inputs named by case variables<br/><font color="#52514e">merged into FAnSSIE</font>>, fillcolor="#e3fcef"];
     fanssie [label=<<b>fanssie-ocn-glc-coupling</b><br/>shared FAnSSIE branch (since Oct 16)<br/><font color="#52514e">only gains commits · ledger in FANSSIE.md</font>>,
              fillcolor="#fff0b3", penwidth=2, color="#c98500", fontsize=12];
@@ -67,7 +69,7 @@ digraph fanssie {
       <tr><td border="0" colspan="2"><font color="#898781">↓ then</font></td></tr>
       <tr><td port="p844" bgcolor="#deebff" colspan="2" style="rounded" cellpadding="6"><b>#844</b>  thin-film tasks: inception, wetting, drying<br/><font color="#52514e">open</font></td></tr>
       <tr><td border="0" colspan="2"><font color="#898781">↓ then</font></td></tr>
-      <tr><td port="p861" bgcolor="#e8e8e4" colspan="1" style="rounded" cellpadding="6"><b>#861</b>  split-explicit ISOMIP+ variants<br/><font color="#52514e">draft · waits for #144</font></td><td port="p862" bgcolor="#e8e8e4" colspan="1" style="rounded" cellpadding="6"><b>#862</b>  E3SM's physics in ISOMIP+<br/><font color="#52514e">draft</font></td></tr>
+      <tr><td port="p861" bgcolor="#e8e8e4" colspan="1" style="rounded" cellpadding="6"><b>#861</b>  split-explicit ISOMIP+ variants<br/><font color="#52514e">draft · waits for #175</font></td><td port="p862" bgcolor="#e8e8e4" colspan="1" style="rounded" cellpadding="6"><b>#862</b>  E3SM's physics in ISOMIP+<br/><font color="#52514e">draft</font></td></tr>
       <tr><td border="0" colspan="2"><font color="#898781">also after #842:</font></td></tr>
       <tr><td port="p871" bgcolor="#e8e8e4" colspan="1" style="rounded" cellpadding="6"><b>#871</b>  landice component:<br/>MALI + Albany<br/><font color="#52514e">draft · review: Carolyn,<br/>Matt, Trevor</font></td><td port="p858" bgcolor="#deebff" colspan="1" style="rounded" cellpadding="6"><b>#858</b>  MISOMIP in E3SM:<br/>the plan (12 work packages)<br/><font color="#52514e">open</font></td></tr>
       <tr><td border="0" colspan="1"><font color="#898781">↓ then</font></td><td border="0" colspan="1"></td></tr>
@@ -90,15 +92,17 @@ digraph fanssie {
   d119 -> fanssie;
   d141 -> fanssie;
   d143 -> fanssie;
-  d144 -> fanssie [style=dashed];
+  d175 -> fanssie [style=dashed];
   m211 -> malidev [style=dashed];
   m213 -> malidev [style=dashed];
+  m219 -> malidev [style=dashed];
   d156 -> fanssie;
   d158 -> fanssie;
   d164 -> fanssie;
   d168 -> fanssie;
   d169 -> fanssie;
   d171 -> fanssie;
+  d173 -> fanssie;
   malidev -> d151 [constraint=false];
   d151 -> fanssie;
 
@@ -108,6 +112,6 @@ e3sm_submodules/FAnSSIE", penwidth=1.5];
   legend [shape=plaintext, style="", label=<
     <table border="0" cellborder="1" cellspacing="4" cellpadding="4" color="#c3c2b7">
       <tr><td bgcolor="#e3fcef">merged</td><td bgcolor="#deebff">open</td><td bgcolor="#e8e8e4">draft</td><td bgcolor="#ffffff">no PR yet</td></tr>
-      <tr><td colspan="4" border="0"><font point-size="10" color="#52514e">dashed: not merged yet · as of 2026-11-01</font></td></tr>
+      <tr><td colspan="4" border="0"><font point-size="10" color="#52514e">dashed: not merged yet · as of 2026-11-03</font></td></tr>
     </table>>];
 }
