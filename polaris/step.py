@@ -6,7 +6,6 @@ import shutil
 import warnings
 from typing import Dict
 
-from mache import MachineInfo
 from mache.permissions import update_permissions
 
 from polaris.cf_check import (
@@ -183,9 +182,6 @@ class Step:
     config : polaris.config.PolarisConfigParser
         Configuration options for this step, possibly shared with other tasks
         and steps
-
-    machine_info : mache.MachineInfo
-        Information about E3SM supported machines
 
     config_filename : str
         The filename or symlink within the step where ``config`` is written to
@@ -437,7 +433,6 @@ class Step:
         self.tasks = dict()
 
         # these will be set later during setup, dummy placeholders for now
-        self.machine_info = MachineInfo(machine='default')
         self.work_dir = ''
         self.base_work_dir = ''
         # may be set during setup if there is a baseline for comparison

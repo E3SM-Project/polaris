@@ -270,10 +270,6 @@ framework:
 : The name of a log file where output/errors from the step are being logged,
   or `None` if output is to stdout/stderr
 
-`self.machine_info`
-
-: Information about E3SM supported machines
-
 The inputs and outputs should not be altered but they may be used to get file
 names to read or write.
 
