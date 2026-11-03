@@ -1279,7 +1279,7 @@ FAnSSIE.
 
 ### D20: Fixes for Albany's timer leak are good to have, not required
 
-Date last modified: 2026/10/30
+Date last modified: 2026/11/03
 
 Contributors: Xylar Asay-Davis, Claude
 
@@ -1297,9 +1297,14 @@ Two fixes are on the way, and no coupled run waits for either:
   the rebuild, unless the masks change, in runs that set the option to
   `.false.`. It reaches FAnSSIE only through MALI-Dev's `develop`, the
   next time FAnSSIE merges it in.
-- Changes to Trilinos and Albany, planned in the Albany issue, stop the
-  leak even when MALI rebuilds at every solve. They reach E3SM through the
-  Spack builds of Trilinos and Albany.
+- Changes to Trilinos
+  ([trilinos/Trilinos#15877](https://github.com/trilinos/Trilinos/pull/15877),
+  in Trilinos's `develop`) and Albany
+  ([sandialabs/Albany#1237](https://github.com/sandialabs/Albany/pull/1237))
+  stop the leak even when MALI rebuilds at every solve: Albany's MPAS
+  interface now leaves the index out of Phalanx's timer names by default.
+  They reach E3SM and Polaris through the Spack builds of Trilinos and
+  Albany, once those builds move to versions that contain them.
 
 WP6 sets the option to `.false.`, which helps once MALI's change is on
 FAnSSIE.
