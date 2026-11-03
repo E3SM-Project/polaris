@@ -167,6 +167,10 @@ et al. (2026), in 20 m bins of draft.
 - Each streamfunction's strength is its range under the ice. Both use
   monthly means of velocity and thickness, whose product differs a little
   from the mean transport.
+- The open ocean is the region between the ice front and the restoring
+  region, $x \ge 790$ km, leaving out the strips along the side walls
+  west of the ice front. The strongest gyre there is the barotropic
+  streamfunction of largest magnitude, with its sign.
 - Sections along $y = 40$ km and $x = 520$ km use `mpas_tools`' transects,
   drawn with the draft and bed; top and bottom values use
   `polaris.ocean.vertical`.
@@ -176,6 +180,18 @@ et al. (2026), in 20 m bins of draft.
 **Thin film.** The dry area is the area under grounded ice whose column is
 within twice the minimum thickness of its active layers, read from the
 run's namelist. The open-ocean SSH is its mean where there is no land ice.
+
+**Open-ocean SSH.** With no difference in pressure at the seafloor from
+the restoring region, a column's SSH relative to the restoring region's
+mean, $\eta_r$, would be
+$\eta - \eta_r = \sum_k (\rho_r(k) - \rho(k))\, h(k) / \rho_0$, where
+$\rho_r(k)$ is the restoring region's mean in-situ density in layer $k$
+and $\rho_0$ is the run's `config_density0`. Each month gives the means
+over the open ocean of the SSH above $\eta_r$, of this height and of the
+residual between them. The residual is the excess pressure at the
+seafloor, as a height of water. Gyres in the open ocean raise or lower it
+by their geostrophic bottom pressure, so it is read beside the strength
+of the strongest gyre.
 
 **Grounding-line band.** A band cell is one where MALI's floating fraction,
 as the ocean receives it, exceeds the coupling's minimum but the ocean's
