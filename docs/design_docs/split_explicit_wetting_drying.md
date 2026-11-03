@@ -370,17 +370,22 @@ justify that in a model that Omega will replace.
 
 ### Implementation: E3SM
 
-Date last modified: 2026/10/18
+Date last modified: 2026/11/03
 
 Contributors: Xylar Asay-Davis, Claude
 
-The branch `xylar/E3SM:ocn/split-explicit-thin-film` starts at FAnSSIE
-`23b25eb360`. Its first commit merges `abc3b5daee`, resolving the
-conflicts in `mpas_ocn_wetting_drying.F` by the two designs above and in
+The branch `xylar/E3SM:ocn/robust-split-explicit-thin-film` starts at
+FAnSSIE. Its first commit merges `abc3b5daee`, resolving the conflicts in
+`mpas_ocn_wetting_drying.F` by the two designs above and in
 `mpas_ocn_time_integration_split.F` by dropping the
 `effectiveDensityInLandIce` exchange. Fixes follow as separate commits. A
-pull request merges the branch into `fanssie-ocn-glc-coupling`, which adds
-a row to the ledger in `FANSSIE.md`.
+pull request,
+[E3SM-Ocean-Discussion#175](https://github.com/E3SM-Ocean-Discussion/E3SM/pull/175),
+merges the branch into `fanssie-ocn-glc-coupling` after Carolyn Begeman's
+review, which adds a row to the ledger in `FANSSIE.md`. It replaces
+[E3SM-Ocean-Discussion#144](https://github.com/E3SM-Ocean-Discussion/E3SM/pull/144),
+from `ocn/split-explicit-thin-film`, which the coupled E3SM runs showed
+was not enough.
 
 ### Implementation: Polaris
 
