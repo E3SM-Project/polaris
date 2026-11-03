@@ -35,35 +35,35 @@ NOMINAL_YEARS = {'ocean0': 1.0, 'ocean1': 20.0, 'ocean2': 20.0}
 SERIES = [
     (
         'totalMeltFlux',
-        'published_total_melt_flux',
+        'total_melt_flux',
         'Total melt flux',
         'melt flux (Gt yr$^{-1}$)',
         SECONDS_PER_YEAR * 1e-12,
     ),
     (
         'meanMeltRate',
-        'published_mean_melt_rate',
+        'mean_melt_rate',
         'Mean melt rate over the ice base',
         'melt rate (m yr$^{-1}$)',
         SECONDS_PER_YEAR,
     ),
     (
         'meanMeltRateDeep',
-        'published_mean_melt_rate_deep',
+        'mean_melt_rate_deep',
         'Mean melt rate where the draft is below 300 m',
         'melt rate (m yr$^{-1}$)',
         SECONDS_PER_YEAR,
     ),
     (
         'meanTemperature',
-        'published_mean_temperature',
+        'mean_temperature',
         'Mean temperature',
         r'temperature ($^\circ$C)',
         1.0,
     ),
     (
         'meanSalinity',
-        'published_mean_salinity',
+        'mean_salinity',
         'Mean salinity',
         'salinity (PSU)',
         1.0,
@@ -209,8 +209,8 @@ class PublishedComparison(ProductStep):
 
     def _plot_melt_by_draft(self, ds_pub, means):
         """Plot the time-mean melt rate in bins of draft"""
-        plot = 'published_melt_rate_by_draft.png'
-        data = 'published_melt_rate_by_draft.nc'
+        plot = 'melt_rate_by_draft.png'
+        data = 'melt_rate_by_draft.nc'
         with mplstyle_context():
             fig = Figure(figsize=(6.0, 6.0))
             ax = fig.add_subplot(111)
@@ -260,8 +260,8 @@ class PublishedComparison(ProductStep):
     def _plot_strengths(self, ds_pub, series):
         """Plot the streamfunctions' strengths against the mean melt rate,
         as Yung et al. (2026) do"""
-        plot = 'published_streamfunction_strengths.png'
-        data = 'published_streamfunction_strengths.nc'
+        plot = 'streamfunction_strengths.png'
+        data = 'streamfunction_strengths.nc'
         count = int(ds_pub.attrs['mean_months'])
         melt_pub = SECONDS_PER_YEAR * ds_pub.meanMeltRateEnd.values
         ours = {
@@ -327,8 +327,8 @@ class PublishedComparison(ProductStep):
 
     def _plot_melt_maps(self, ds_pub, means):
         """Map each run's time-mean melt rate beside the ensemble mean"""
-        plot = 'published_melt_rate_maps.png'
-        data = 'published_melt_rate_maps.nc'
+        plot = 'melt_rate_maps.png'
+        data = 'melt_rate_maps.nc'
         ds_init = read_initial_condition()
         ds_mesh = isomip_mesh(ds_init)
         ensemble = SECONDS_PER_YEAR * ds_pub.meltRate.mean(dim='nModels')
