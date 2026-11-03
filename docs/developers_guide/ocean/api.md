@@ -1195,8 +1195,10 @@
    compute_melt_diagnostics
    compute_melt_rate
    compute_melt_rate_by_draft
+   compute_open_ocean_ssh_diagnostics
    compute_thermal_driving
    compute_thin_film_diagnostics
+   get_open_ocean_mask
 ```
 
 ### Ocean Model
