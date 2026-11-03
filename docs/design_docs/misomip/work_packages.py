@@ -17,7 +17,7 @@ import sys
 import matplotlib.pyplot as plt
 from matplotlib.patches import Circle, FancyBboxPatch
 
-STATUS_DATE = '2026-11-01'
+STATUS_DATE = '2026-11-03'
 
 SURFACE = '#fcfcfb'
 INK = '#0b0b0b'
@@ -43,7 +43,8 @@ ROWS = [
     ('WP1', 'Standalone ISOMIP+ Ocean0–2 and thin-film tasks',
      'polaris #826, #844', 'review', 0, ''),
     ('WP2', 'Split-explicit wetting and drying with a thin film',
-     "E3SM-O-D #144 awaits Carolyn's review; polaris #861", 'review', 4,
+     "E3SM-O-D #175 (replaces #144) awaits Carolyn's review; polaris #861",
+     'drafting', 4,
      ''),
     ('WP3', 'Landice component: MALI + Albany in Polaris',
      'polaris #871; E3SM-O-D #151 merged', 'draft', 0, ''),
@@ -60,9 +61,10 @@ ROWS = [
      'E3SM-O-D #156–#163 merged; design polaris #937', 'draft',
      0, ''),
     ('WP8', 'Moving grounding line in coupled runs',
-     'E3SM-O-D #164–#172 merged; 6-month Ocean3–4 runs', 'started', 2, ''),
+     'E3SM-O-D #164–#174 merged; Ocean3–4 step 6 passed', 'started', 2,
+     ''),
     ('WP9', 'Analysis of the E3SM runs',
-     'polaris #939, #940; first 4 km Ocean0 E3SM run submitted',
+     'polaris #939, #940; 1-year 4 km Ocean0–2 runs',
      'drafting', 1, ''),
     ('WP10', 'Subgrid wetting and drying (optional)', '', 'none', None,
      'no stage needs it'),
