@@ -525,7 +525,7 @@ carried over to the code that merges.
 
 ## Implementation: work packages
 
-Date last modified: 2026/11/02
+Date last modified: 2026/11/03
 
 Contributors: Xylar Asay-Davis, Claude
 
@@ -618,12 +618,14 @@ without wetting and drying ([D18](#decisions)).
 
 WP2 also makes the thin film robust under the split-explicit scheme and
 makes grounded cells drain faster, since the film stays too thick for too
-long. The pull request that brings the split-explicit series to FAnSSIE
+long. The E3SM runs showed that the series alone is not enough: the film
+went unstable under KPP, and the melt exceeded RK4's at the shelf margin.
+One pull request brings the series and these fixes to FAnSSIE, after
+Carolyn Begeman's review, and a temporary branch combines it with FAnSSIE
+for runs until then ([D19](#decisions)). The first such pull request
 ([E3SM-Ocean-Discussion#144](https://github.com/E3SM-Ocean-Discussion/E3SM/pull/144))
-waits for Carolyn Begeman's review and changes as little as possible
-meanwhile. Further work goes on a feature branch from it, and a temporary
-branch combines both with FAnSSIE for runs ([D19](#decisions)). Until
-split-explicit is on FAnSSIE, the other packages use RK4.
+was closed in favor of its successor. Until split-explicit is on FAnSSIE,
+the other packages use RK4.
 
 ### WP3: Landice component
 
@@ -1248,16 +1250,18 @@ revisited if realistic E3SM runs with wetting and drying need its savings.
 
 ### D19: Split-explicit merges after Carolyn Begeman's review
 
-Date last modified: 2026/11/01
+Date last modified: 2026/11/03
 
 Contributors: Xylar Asay-Davis, Claude
 
 Split-explicit wetting and drying merges into FAnSSIE only after Carolyn
 Begeman has reviewed it carefully, as she asked at the FAnSSIE ocean
-meeting of 2026-10-27. Meanwhile, its pull request changes as little as
-possible, and further work goes on a feature branch from it. A temporary
-branch, on Xylar's fork, merges FAnSSIE, that pull request and the feature
-branch, and only gains commits. It is the one exception to building from
+meeting of 2026-10-27. Until then, development continues in one pull
+request, so that she reviews a current branch, not one that later fixes
+have left behind. The first pull request was closed when the E3SM runs
+showed it was not enough; its successor carries the same commits and the
+fixes. A temporary branch, on Xylar's fork, merges FAnSSIE and that pull
+request, and only gains commits. It is the one exception to building from
 FAnSSIE: stage E's runs build from it until split-explicit is on FAnSSIE,
 and then it is dropped. It is not in the ledger.
 
