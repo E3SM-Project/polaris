@@ -139,7 +139,9 @@ class Init(OceanIOStep):
 
     def _cull_mesh(self):
         """
-        Remove cells that never hold ocean from the mesh and topography.
+        Remove cells that never hold ocean from the mesh and topography:
+        cells without enough floating ice or open ocean, then columns too
+        thin for wetting and drying and cells left without ocean neighbors.
         With a thin film, all cells are kept.
         """
         logger = self.logger
@@ -165,13 +167,46 @@ class Init(OceanIOStep):
             f'Keeping {int(keep.sum())} of {ds_base.sizes["nCells"]} cells '
             f'that hold ocean'
         )
+        ds_mesh, ds_topo = self._cull_cells(ds_base, ds_topo, keep)
 
+        # wetting and drying holds each active layer at its minimum
+        # thickness, so a column thinner than that would start out partly
+        # dry.  Treat such columns as grounded, along with cells left with
+        # no ocean neighbors.
+        too_thin = self._find_too_thin_columns(ds_mesh, ds_topo)
+        n_cells = ds_mesh.sizes['nCells']
+        cells_on_cell = ds_mesh.cellsOnCell.values - 1
+        edge_index = np.arange(cells_on_cell.shape[1])
+        valid = np.logical_and(
+            edge_index[np.newaxis, :]
+            < ds_mesh.nEdgesOnCell.values[:, np.newaxis],
+            np.logical_and(cells_on_cell >= 0, cells_on_cell < n_cells),
+        )
+        neighbors = np.where(valid, cells_on_cell, 0)
+        kept_neighbor = np.logical_and(valid, ~too_thin[neighbors])
+        stranded = np.logical_and(~too_thin, ~kept_neighbor.any(axis=1))
+        logger.info(
+            f'Removing {int(too_thin.sum())} cells with columns too thin for '
+            f'wetting and drying and {int(stranded.sum())} cells left '
+            f'without ocean neighbors'
+        )
+        remove = np.logical_or(too_thin, stranded)
+        if remove.any():
+            keep = xr.DataArray(~remove, dims=('nCells',))
+            ds_mesh, ds_topo = self._cull_cells(ds_mesh, ds_topo, keep)
+
+        return ds_mesh, ds_topo
+
+    def _cull_cells(self, ds_base, ds_topo, keep):
+        """
+        Cull the cells that are not kept from the mesh and topography
+        """
         ds_mask = xr.Dataset()
         ds_mask['regionCellMasks'] = xr.where(keep, 0, 1).expand_dims(
             dim='nRegions', axis=1
         )
 
-        with LoggingContext(name=__name__, logger=logger) as logger:
+        with LoggingContext(name=__name__, logger=self.logger) as logger:
             ds_mesh = cull(ds_base, dsMask=ds_mask, logger=logger, dir='.')
 
         # sort the cell, edge and vertex indices for better performances
@@ -182,6 +217,23 @@ class Init(OceanIOStep):
             ds=ds_topo, ds_base_mesh=ds_base, ds_culled_mesh=ds_mesh
         )
         return ds_mesh, ds_topo
+
+    def _find_too_thin_columns(self, ds_mesh, ds_topo):
+        """
+        Find the columns with less than the minimum thickness of wetting
+        and drying in each active layer
+        """
+        if 'Time' in ds_topo.dims:
+            ds_topo = ds_topo.isel(Time=0)
+        ds = self._compute_geometry(ds_mesh, ds_topo)
+        init_vertical_coord(self.config, ds)
+        self._set_ssh_from_bed(ds)
+        layer_thickness = self.config.getfloat(
+            'isomip_plus', 'thin_film_layer_thickness'
+        )
+        level_count = ds.maxLevelCell - ds.minLevelCell + 1
+        column_thickness = ds.ssh.isel(Time=0) + ds.bottomDepth
+        return (column_thickness < layer_thickness * level_count).values
 
     def _compute_geometry(self, ds_mesh, ds_topo):
         """

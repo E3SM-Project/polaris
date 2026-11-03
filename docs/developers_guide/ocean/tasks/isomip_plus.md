@@ -60,8 +60,11 @@ For tasks without a thin film,
 {py:class}`polaris.tasks.ocean.isomip_plus.init.Init` removes the cells that
 are less than half floating ice or open ocean from the shared culled mesh,
 carrying the topography over with
-{py:func}`mpas_tools.mesh.cull.cull_dataset()`. Tasks with a thin film keep
-all cells. Every task computes the draft, which is also the initial SSH,
+{py:func}`mpas_tools.mesh.cull.cull_dataset()`. It then computes the
+vertical coordinate once and removes, as if grounded, the columns with less
+than `thin_film_layer_thickness` per active layer, which wetting and drying
+would hold partly dry, along with any cells this leaves without ocean
+neighbors. Tasks with a thin film keep all cells. Every task computes the draft, which is also the initial SSH,
 from the land-ice pressure, limited to the bed. Tasks with a thin film mark
 the cells where it reaches the bed as thin-film cells. After the vertical
 coordinate is built, they raise the SSH where needed so that the column has
