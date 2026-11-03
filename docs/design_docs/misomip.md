@@ -1019,7 +1019,7 @@ the ocean's planar areas must use the same one.
 
 ### D7: Data-mode files hold monthly records
 
-Date last modified: 2026/10/16
+Date last modified: 2026/11/03
 
 Contributors: Xylar Asay-Davis, Claude
 
@@ -1028,6 +1028,12 @@ after interpolating (Sects. 3.1.2 and 3.2.4). MALI's data mode steps from
 record to record without interpolation. Polaris therefore writes monthly
 records, each interpolated in time and then calved. Yearly records are
 rejected because the geometry would move in yearly jumps.
+
+Monthly steps are still about 30 times larger than the daily changes of
+prognostic coupling, and each one drives a transient of a few hours at thin
+cells near the grounding line. Interpolating thickness in time within MALI's
+data mode would remove them, but data mode is a stepping stone to
+prognostic coupling, so that is left as a possible future improvement.
 
 ### D8: An outflow, not evaporation
 
