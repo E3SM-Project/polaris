@@ -1,13 +1,17 @@
+import inspect
 import os
+import sys
 
 import pytest
 
 from polaris import Component, Step, Task, provenance
+from polaris.__main__ import main as polaris_main
 from polaris.config import PolarisConfigParser
 from polaris.job import write_job_script
 from polaris.setup import (
     _get_required_resources,
     _run_steps_concurrently,
+    setup_tasks,
 )
 
 
@@ -356,30 +360,26 @@ def test_the_flag_and_the_config_option_are_one_mechanism():
     assert _run_steps_concurrently(config)
 
 
-def test_setup_and_suite_can_be_asked_without_a_config_file():
+def test_setup_and_suite_can_be_asked_without_a_config_file(
+    monkeypatch, capsys
+):
     """
     Asking for a concurrent run should not require writing a config file.
 
     It did, and the awkwardness showed up the moment cross-machine
     instructions had to say "a config file containing this option".
     """
-    import inspect
-    import subprocess
-    import sys
-
-    from polaris.setup import setup_tasks
-
     assert 'concurrent_steps' in inspect.signature(setup_tasks).parameters
 
     # `polaris suite` passes its arguments through to `setup_tasks`, so the
-    # only thing left to check is that each front end offers the flag
+    # only thing left to check is that each front end offers the flag.  This
+    # calls the entry point in this process: a fresh interpreter would have to
+    # import every task before it could print the help.
     for command in ('setup', 'suite'):
-        helped = subprocess.run(
-            [sys.executable, '-m', 'polaris', command, '--help'],
-            capture_output=True,
-            text=True,
-        )
-        assert '-P, --parallel' in helped.stdout, (
+        monkeypatch.setattr(sys, 'argv', ['polaris', command, '--help'])
+        with pytest.raises(SystemExit):
+            polaris_main()
+        assert '-P, --parallel' in capsys.readouterr().out, (
             f'polaris {command} does not offer the flag'
         )
 
