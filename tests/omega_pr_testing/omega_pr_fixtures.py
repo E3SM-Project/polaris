@@ -1,8 +1,11 @@
 """Helpers for the Omega PR testing utility's fixture repositories"""
 
+import atexit
 import json
 import os
+import shutil
 import subprocess
+import tempfile
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -18,6 +21,10 @@ CIME_ENV = '/cime/load_latest_cime_env.sh'
 
 #: coupled tests whose builds the fake create_test fails
 FAILED_BUILDS = ['PEM_D.T62_oQU240.FAIL']
+
+# the fixture repositories every test copies, and their branch heads, built
+# by the first test that asks for them
+_TEMPLATE: dict = {}
 
 
 def git(path, *args):
@@ -52,8 +59,52 @@ def make_fixture(tmp_path, monkeypatch):
     """
     Local stand-ins for E3SM-Project/Omega, E3SM-Project/polaris, the
     requester's fork and the requester's Omega clone
+
+    The repositories are built once per test session and copied into
+    ``tmp_path``, since building them takes a few dozen git commands.  The
+    clone's ``origin`` is the only path a repository records, so it is
+    pointed at the copy of the Omega upstream.
     """
-    omega = tmp_path / 'omega-work'
+    template, heads = _get_template()
+    shutil.copytree(template, tmp_path, dirs_exist_ok=True)
+
+    upstream = tmp_path / 'omega.git'
+    polaris_upstream = tmp_path / 'polaris.git'
+    polaris = tmp_path / 'polaris'
+    fork = tmp_path / 'fork.git'
+    clone = tmp_path / 'clone'
+    git(clone, 'remote', 'set-url', 'origin', str(upstream))
+
+    monkeypatch.setattr(pr_test_git, 'OMEGA_URL', str(upstream))
+    monkeypatch.setattr(pr_test_git, 'POLARIS_URL', str(polaris_upstream))
+    mock_github(monkeypatch, heads['pr_head'])
+
+    config = PrTestConfig(
+        work_base=str(tmp_path / 'work'),
+        omega_repo=str(clone),
+        fork=str(fork),
+    )
+    return Fixture(
+        config=config,
+        polaris_dir=str(polaris),
+        fork=str(fork),
+        **heads,
+    )
+
+
+def _get_template():
+    """The fixture repositories and their heads, built on first use"""
+    if not _TEMPLATE:
+        root = Path(tempfile.mkdtemp(prefix='omega_pr_fixture_'))
+        atexit.register(shutil.rmtree, root, ignore_errors=True)
+        _TEMPLATE['heads'] = _build_repositories(root)
+        _TEMPLATE['root'] = root
+    return _TEMPLATE['root'], _TEMPLATE['heads']
+
+
+def _build_repositories(root):
+    """Build the fixture repositories in ``root`` and return their heads"""
+    omega = root / 'omega-work'
     (omega / 'components' / 'omega' / 'doc').mkdir(parents=True)
     git(omega, 'init', '-q')
     commit(omega, 'components/omega/doc/index.md', '# Omega\n', 'Add docs')
@@ -67,8 +118,8 @@ def make_fixture(tmp_path, monkeypatch):
     git(omega, 'checkout', '-q', '-b', 'conflict', pin)
     conflict_head = commit(omega, 'b.txt', 'not b\n', 'Change b')
 
-    upstream = tmp_path / 'omega.git'
-    git(tmp_path, 'init', '-q', '--bare', str(upstream))
+    upstream = root / 'omega.git'
+    git(root, 'init', '-q', '--bare', str(upstream))
     git(
         omega,
         'push',
@@ -80,7 +131,7 @@ def make_fixture(tmp_path, monkeypatch):
         f'{conflict_head}:refs/pull/9/head',
     )
 
-    polaris = tmp_path / 'polaris'
+    polaris = root / 'polaris'
     polaris.mkdir()
     git(polaris, 'init', '-q')
     git(
@@ -91,28 +142,14 @@ def make_fixture(tmp_path, monkeypatch):
         f'160000,{pin},e3sm_submodules/Omega',
     )
     git(polaris, 'commit', '-q', '-m', 'Pin Omega')
-    polaris_upstream = tmp_path / 'polaris.git'
-    git(tmp_path, 'init', '-q', '--bare', str(polaris_upstream))
+    polaris_upstream = root / 'polaris.git'
+    git(root, 'init', '-q', '--bare', str(polaris_upstream))
     git(polaris, 'push', '-q', str(polaris_upstream), 'HEAD:refs/heads/main')
 
-    fork = tmp_path / 'fork.git'
-    git(tmp_path, 'init', '-q', '--bare', str(fork))
-    clone = tmp_path / 'clone'
-    git(tmp_path, 'clone', '-q', str(upstream), str(clone))
+    git(root, 'init', '-q', '--bare', str(root / 'fork.git'))
+    git(root, 'clone', '-q', str(upstream), str(root / 'clone'))
 
-    monkeypatch.setattr(pr_test_git, 'OMEGA_URL', str(upstream))
-    monkeypatch.setattr(pr_test_git, 'POLARIS_URL', str(polaris_upstream))
-    mock_github(monkeypatch, pr_head)
-
-    config = PrTestConfig(
-        work_base=str(tmp_path / 'work'),
-        omega_repo=str(clone),
-        fork=str(fork),
-    )
-    return Fixture(
-        config=config,
-        polaris_dir=str(polaris),
-        fork=str(fork),
+    return dict(
         pin=pin,
         develop=develop,
         pr_head=pr_head,
