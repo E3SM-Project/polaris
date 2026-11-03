@@ -1,4 +1,5 @@
 import dataclasses
+import functools
 import importlib.resources as imp_res
 from configparser import ConfigParser
 from typing import cast
@@ -31,9 +32,7 @@ from polaris.yaml import PolarisYaml
 
 
 def test_add_realistic_global_tasks_registers_woa23():
-    component = Ocean()
-
-    add_realistic_global_tasks(component=component)
+    component = _realistic_global_component()
 
     task_subdir = 'spherical/realistic_global/hydrography/woa23'
     assert task_subdir in component.tasks
@@ -94,8 +93,7 @@ def test_woa23_steps_hand_back_the_config_their_steps_use():
 
 
 def test_add_realistic_global_tasks_registers_jra55():
-    component = Ocean()
-    add_realistic_global_tasks(component=component)
+    component = _realistic_global_component()
 
     task = component.tasks['spherical/realistic_global/forcing/jra55']
     # the standalone task regenerates the cached product and plots it
@@ -112,8 +110,7 @@ def test_every_step_can_be_found_from_its_task():
     tasks.  The forward tasks once sat in a ``task`` directory beside their
     own steps, with no way to reach them from the task.
     """
-    component = Ocean()
-    add_realistic_global_tasks(component=component)
+    component = _realistic_global_component()
 
     hidden = []
     for task in component.tasks.values():
@@ -128,8 +125,7 @@ def test_every_step_can_be_found_from_its_task():
 
 
 def test_add_realistic_global_tasks_registers_init_for_all_meshes():
-    component = Ocean()
-    add_realistic_global_tasks(component=component)
+    component = _realistic_global_component()
 
     expected_mesh_names = list(get_base_mesh_step_names()) + list(
         UNIFIED_MESH_NAMES
@@ -142,8 +138,7 @@ def test_add_realistic_global_tasks_registers_init_for_all_meshes():
 
 
 def test_realistic_global_init_icos240km_steps():
-    component = Ocean()
-    add_realistic_global_tasks(component=component)
+    component = _realistic_global_component()
 
     task_subdir = 'spherical/realistic_global/icos240km/init'
     assert task_subdir in component.tasks
@@ -168,8 +163,7 @@ def test_realistic_global_init_icos240km_steps():
 
 
 def test_add_realistic_global_tasks_registers_forward_for_all_meshes():
-    component = Ocean()
-    add_realistic_global_tasks(component=component)
+    component = _realistic_global_component()
 
     expected_mesh_names = list(get_base_mesh_step_names()) + list(
         UNIFIED_MESH_NAMES
@@ -186,8 +180,7 @@ def test_add_realistic_global_tasks_registers_forward_for_all_meshes():
 
 
 def test_realistic_global_forward_icos240km_steps():
-    component = Ocean()
-    add_realistic_global_tasks(component=component)
+    component = _realistic_global_component()
 
     task_subdir = 'spherical/realistic_global/icos240km/forward/split_explicit'
     assert task_subdir in component.tasks
@@ -214,8 +207,7 @@ def test_add_realistic_global_tasks_registers_cached_forward():
     they can run without remapping WOA23 first.  They sit beside the
     init-chain task on the same mesh name, which is why the directory differs.
     """
-    component = Ocean()
-    add_realistic_global_tasks(component=component)
+    component = _realistic_global_component()
 
     for mesh_name in CACHED_MESHES:
         for time_integrator in TIME_INTEGRATORS:
@@ -570,8 +562,7 @@ def test_forward_task_config_has_the_viz_colormaps():
 
 def test_realistic_global_init_one_task_per_mesh():
     """Exactly one task is registered per mesh (no model variants)."""
-    component = Ocean()
-    add_realistic_global_tasks(component=component)
+    component = _realistic_global_component()
 
     expected_mesh_names = list(get_base_mesh_step_names()) + list(
         UNIFIED_MESH_NAMES
@@ -587,3 +578,25 @@ def test_realistic_global_init_one_task_per_mesh():
             assert model_subdir not in component.tasks, (
                 f'Unexpected per-model task found: {model_subdir!r}'
             )
+
+
+@pytest.fixture(scope='module', autouse=True)
+def _release_component():
+    """
+    Drop the shared component when the module is done, so that a later test
+    that walks every object it can reach, as the count of the steps in a
+    pickle does, does not find these tasks as well.
+    """
+    yield
+    _realistic_global_component.cache_clear()
+
+
+@functools.cache
+def _realistic_global_component():
+    """
+    A component with every realistic_global task registered, built once for
+    the module since the tests that use it only read it.
+    """
+    component = Ocean()
+    add_realistic_global_tasks(component=component)
+    return component

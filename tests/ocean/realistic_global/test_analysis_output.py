@@ -1,3 +1,4 @@
+import functools
 from types import SimpleNamespace
 from typing import cast
 
@@ -28,10 +29,27 @@ PACKAGE = 'polaris.tasks.ocean.realistic_global.analysis_output'
 INIT_MESHES = sorted(get_base_mesh_step_names()) + sorted(UNIFIED_MESH_NAMES)
 
 
+@pytest.fixture(scope='module', autouse=True)
+def _release_tasks():
+    """
+    Drop the shared tasks when the module is done, so that a later test that
+    walks every object it can reach, as the count of the steps in a pickle
+    does, does not find them as well.
+    """
+    yield
+    _one_year_task.cache_clear()
+    _realistic_global_component.cache_clear()
+
+
+@functools.cache
 def _one_year_task(mesh_name, model='omega'):
-    """The registered one-year task, with its config combined for ``model``"""
-    component = Ocean()
-    add_realistic_global_tasks(component=component)
+    """
+    The registered one-year task, with its config combined for ``model``
+
+    Each task is configured once per model and shared by the tests that ask
+    for it; none of them changes anything another one checks.
+    """
+    component = _realistic_global_component(model)
     subdir = f'spherical/realistic_global/{mesh_name}/analysis_output/1_year'
     task = component.tasks[subdir]
     config = task.config
@@ -39,6 +57,14 @@ def _one_year_task(mesh_name, model='omega'):
     config.set('ocean', 'model', model)
     config.combine()
     return task
+
+
+@functools.cache
+def _realistic_global_component(model):
+    """Every realistic_global task, registered once per model"""
+    component = Ocean()
+    add_realistic_global_tasks(component=component)
+    return component
 
 
 def _model_config_entry(step, package, yaml):
