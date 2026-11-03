@@ -6,6 +6,7 @@ from mpas_tools.io import write_netcdf
 from mpas_tools.ocean import compute_barotropic_streamfunction
 
 from polaris import Step
+from polaris.constants import get_constant
 from polaris.e3sm.analysis.runs import E3smRun
 from polaris.landice.diagnostics import (
     compute_volume_and_area,
@@ -248,8 +249,20 @@ class RunDiagnostics(Step):
             dx=section.getfloat('overturning_dx'),
             dz=section.getfloat('overturning_dz'),
             restoring_x=section.getfloat('restoring_x'),
+            bottom_slab=section.getfloat('bottom_slab_thickness'),
         )
         ds_series = xr.merge([ds_series, strengths])
+        ds_series['openOceanSshOffset'] = (
+            ds_series.openOceanSshResidual
+            - ds_series.openOceanBottomGeostrophicSsh
+        )
+        ds_series.openOceanSshOffset.attrs = dict(
+            long_name=(
+                "the open ocean's mean residual SSH less the geostrophic "
+                'height of its bottom flow'
+            ),
+            units='m',
+        )
         ds_series = _add_time(ds_series, ds)
         write_netcdf(ds_series, TIME_SERIES_FILENAME)
 
@@ -517,32 +530,52 @@ def _time_series(
     return xr.merge(datasets)
 
 
-def _streamfunction_strengths(ds, ds_init, geometry, dx, dz, restoring_x):
+def _streamfunction_strengths(
+    ds, ds_init, geometry, dx, dz, restoring_x, bottom_slab
+):
     """
     The range under the ice of the barotropic and overturning
-    streamfunctions in each month, and the barotropic streamfunction's
-    extremum in the open ocean
+    streamfunctions in each month, the barotropic streamfunction's
+    extremum in the open ocean, and the open ocean's mean geostrophic
+    height of the flow in a slab above the seafloor
     """
     floating = geometry['landIceFloatingFraction'] > 0.0
+    land_ice_fraction = geometry['landIceFraction']
     open_ocean = get_open_ocean_mask(
-        ds_init.xIsomipCell, geometry['landIceFraction'], restoring_x
+        ds_init.xIsomipCell, land_ice_fraction, restoring_x
+    )
+    restoring = np.logical_and(
+        land_ice_fraction == 0.0, ds_init.xIsomipCell >= restoring_x
+    )
+    seafloor = -float(
+        ds_init.bottomDepth.where(np.logical_or(open_ocean, restoring)).max()
     )
     bsf_range = []
     osf_range = []
     gyre = []
+    bottom_height = []
     for t_index in range(ds.sizes['Time']):
         ds_month = ds.isel(Time=slice(t_index, t_index + 1))
         floating_month = floating
         if 'Time' in floating.dims:
             floating_month = floating.isel(Time=t_index)
         open_month = open_ocean
+        restoring_month = restoring
         if 'Time' in open_ocean.dims:
             open_month = open_ocean.isel(Time=t_index)
+            restoring_month = restoring.isel(Time=t_index)
         bsf_cell = _cell_mean_of_vertices(
             ds_init, _barotropic_streamfunction(ds_init, ds_month.isel(Time=0))
         )
         bsf_range.append(_range_where(bsf_cell, floating_month))
         gyre.append(_extremum_where(bsf_cell, open_month))
+        height = _bottom_geostrophic_height(
+            ds_init, ds_month.isel(Time=0), seafloor, bottom_slab
+        )
+        bottom_height.append(
+            _area_mean_where(height, ds_init.areaCell, open_month)
+            - _area_mean_where(height, ds_init.areaCell, restoring_month)
+        )
         osf = _overturning(ds_month, ds_init, dx, dz).isel(Time=0)
         under_ice = osf.x <= _ice_front_x(ds_init, floating_month)
         osf_range.append(_range_where(osf, under_ice))
@@ -550,6 +583,10 @@ def _streamfunction_strengths(ds, ds_init, geometry, dx, dz, restoring_x):
     ds_strength['barotropicStrength'] = ('Time', np.array(bsf_range))
     ds_strength['overturningStrength'] = ('Time', np.array(osf_range))
     ds_strength['openOceanGyreStrength'] = ('Time', np.array(gyre))
+    ds_strength['openOceanBottomGeostrophicSsh'] = (
+        'Time',
+        np.array(bottom_height),
+    )
     ds_strength.barotropicStrength.attrs = dict(
         long_name='range of the barotropic streamfunction under the ice',
         units='Sv',
@@ -564,6 +601,13 @@ def _streamfunction_strengths(ds, ds_init, geometry, dx, dz, restoring_x):
             'ocean'
         ),
         units='Sv',
+    )
+    ds_strength.openOceanBottomGeostrophicSsh.attrs = dict(
+        long_name=(
+            "the open ocean's mean geostrophic height of the flow above the "
+            "seafloor, relative to the restoring region's"
+        ),
+        units='m',
     )
     return ds_strength
 
@@ -633,6 +677,32 @@ def _barotropic_streamfunction(ds_init, ds_month):
     return compute_barotropic_streamfunction(
         ds_init, ds_month, prefix='', quiet=True
     ).rename('barotropicStreamfunction')
+
+
+def _bottom_geostrophic_height(ds_init, ds_month, seafloor, slab):
+    """
+    The geostrophic height (m) of the mean flow in a slab of the given
+    thickness (m) above the seafloor at the given elevation (m), on cells
+    """
+    # mpas_tools keeps the layers whose middle is at or below min_depth
+    # and at or above max_depth
+    psi = compute_barotropic_streamfunction(
+        ds_init,
+        ds_month,
+        prefix='',
+        quiet=True,
+        min_depth=seafloor + slab,
+        max_depth=seafloor,
+    )
+    psi_cell = _cell_mean_of_vertices(ds_init, psi)
+    gravity = get_constant('standard_acceleration_of_gravity')
+    return ds_init.fCell * 1e6 * psi_cell / (gravity * slab)
+
+
+def _area_mean_where(field, area_cell, mask):
+    """The area-weighted mean of a field where a mask is true"""
+    weights = area_cell.where(mask, 0.0)
+    return float((field * weights).sum() / weights.sum())
 
 
 def _cell_mean_of_vertices(ds_init, field_vertex):
