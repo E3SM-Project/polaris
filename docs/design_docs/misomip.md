@@ -620,12 +620,13 @@ WP2 also makes the thin film robust under the split-explicit scheme and
 makes grounded cells drain faster, since the film stays too thick for too
 long. The E3SM runs showed that the series alone is not enough: the film
 went unstable under KPP, and the melt exceeded RK4's at the shelf margin.
-One pull request brings the series and these fixes to FAnSSIE, after
-Carolyn Begeman's review, and a temporary branch combines it with FAnSSIE
-for runs until then ([D19](#decisions)). The first such pull request
-([E3SM-Ocean-Discussion#144](https://github.com/E3SM-Ocean-Discussion/E3SM/pull/144))
-was closed in favor of its successor. Until split-explicit is on FAnSSIE,
-the other packages use RK4.
+One pull request
+([E3SM-Ocean-Discussion#175](https://github.com/E3SM-Ocean-Discussion/E3SM/pull/175))
+brings the series and these fixes to FAnSSIE, after Carolyn Begeman's
+review, and a temporary branch combines it with FAnSSIE for runs until
+then ([D19](#decisions)). It replaces the first such pull request
+([E3SM-Ocean-Discussion#144](https://github.com/E3SM-Ocean-Discussion/E3SM/pull/144)).
+Until split-explicit is on FAnSSIE, the other packages use RK4.
 
 ### WP3: Landice component
 
