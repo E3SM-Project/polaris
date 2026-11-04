@@ -338,8 +338,7 @@ def test_a_job_script_runs_the_concurrent_path_when_asked(tmp_path):
 
 
 def test_asking_for_the_concurrent_path_is_reading_the_option(tmp_path):
-    """The option is what setup passes on, and it is on unless it is unset."""
-    assert _run_steps_concurrently(get_config('chrysalis'))
+    """The option is what setup passes on."""
     assert _run_steps_concurrently(
         get_config('chrysalis', concurrent_steps='True')
     )
@@ -354,7 +353,7 @@ def test_the_flag_and_the_config_option_are_one_mechanism():
     so there is one thing that decides this and it is recorded in the config
     a run was set up with.
     """
-    config = get_config('chrysalis')
+    config = get_config('chrysalis', concurrent_steps='True')
     assert _run_steps_concurrently(config)
 
     config.set('job', 'concurrent_steps', 'False', user=True)

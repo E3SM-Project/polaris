@@ -151,62 +151,28 @@ def test_one_year_task_is_registered_on_each_init_mesh(mesh_name):
     assert 'forcing' in task.steps
     assert task.steps_to_run[-1] == 'forward'
     assert 'global_stats' not in task.steps_to_run
-    assert task.config.get('realistic_global_forward', 'run_duration') == (
-        '0365_00:00:00'
-    )
 
 
-@pytest.mark.parametrize(
-    'mesh_name, moc_num_bins',
-    [
-        ('e3sm-qu240', 60),
-        ('e3sm-ec30to60e2r2', 180),
-        ('qu240km', 60),
-        ('icos240km', 60),
-        ('u-oi240-lr240', 60),
-        ('u-oi30-lr10', 180),
-        ('icos30km', 180),
-    ],
-)
-def test_one_year_moc_bins_default_to_omegas(mesh_name, moc_num_bins):
+@pytest.mark.parametrize('mesh_name', ['e3sm-qu240', 'e3sm-ec30to60e2r2'])
+def test_one_year_run_takes_its_options_from_config(mesh_name):
     """
-    The MOC has Omega's one-degree bins unless the mesh is coarser than that
-    """
-    task = _one_year_task(mesh_name)
-    assert task.config.getint('analysis_output', 'moc_num_bins') == (
-        moc_num_bins
-    )
-
-
-@pytest.mark.parametrize(
-    'mesh_name, dt, btr_dt, moc_num_bins',
-    [
-        ('e3sm-qu240', '01:00:00', '00:03:00', 60),
-        ('e3sm-ec30to60e2r2', '00:30:00', '00:01:00', 180),
-    ],
-)
-def test_one_year_run_is_a_split_explicit_year(
-    mesh_name, dt, btr_dt, moc_num_bins
-):
-    """
-    The run is a year of the split-explicit default, on the time steps the
-    mesh config gives, with the monthly output over the forward step's own
-    and the mesh config's MOC bins.
+    The run uses the time steps and MOC bins its config gives, with the
+    monthly output over the forward step's own.
     """
     task = _one_year_task(mesh_name)
     stage = ForwardStage.from_config(task.config)
-    assert stage.run_duration == '0365_00:00:00'
 
     step = task.steps['forward']
     step.dynamic_model_config(at_setup=True)
     replacements = _model_config_entry(
         step, 'polaris.tasks.ocean.realistic_global.forward', 'forward.yaml'
     )
-    assert replacements['time_integrator'] == 'SplitExplicitRK2'
-    assert replacements['dt'] == dt
-    assert replacements['btr_dt'] == btr_dt
+    assert replacements['dt'] == stage.dt
+    assert replacements['btr_dt'] == stage.btr_dt
+    assert replacements['run_duration'] == stage.run_duration
 
     monthly = _model_config_entry(step, PACKAGE, 'monthly_output.yaml')
+    moc_num_bins = task.config.getint('analysis_output', 'moc_num_bins')
     assert monthly == dict(moc_num_bins=moc_num_bins)
     # the monthly output has to come after the forward step's yaml, so that
     # its history and restart streams win

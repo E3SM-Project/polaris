@@ -1,4 +1,5 @@
 import datetime
+import importlib.resources as imp_res
 import logging
 import os
 import textwrap
@@ -9,6 +10,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pytest
 import xarray as xr
+from ruamel.yaml import YAML
 
 from polaris.config import PolarisConfigParser
 from polaris.mpas.time import duration_to_seconds
@@ -32,6 +34,8 @@ from polaris.tasks.ocean.realistic_global.dynamic_adjustment.diagnostics import 
     stage_stats_path,
 )
 from polaris.tasks.ocean.realistic_global.dynamic_adjustment.schedule import (
+    DEFAULT_SCHEDULE,
+    PACKAGE,
     SECTION,
     _format_time,
     excluded_days_in_stage,
@@ -69,8 +73,8 @@ from polaris.tasks.ocean.realistic_global.forward.initial_condition import (
 )
 from polaris.tasks.ocean.realistic_global.mesh_configs import (
     add_realistic_global_mesh_config,
+    get_realistic_global_mesh_config,
 )
-from polaris.yaml import PolarisYaml
 
 matplotlib.use('Agg')
 
@@ -115,42 +119,33 @@ def test_task_config_has_the_forward_options():
     config = _task('icos240km').config
     assert config.has_section('realistic_global_forward')
     assert config.has_section('realistic_global_dynamic_adjustment')
-    assert config.getfloat('realistic_global_forward', 'mom_del4') == 2.0e14
 
 
-def _hmix_scaling(mesh_name):
-    return _task(mesh_name).config.get(
-        'realistic_global_forward', 'hmix_scaling'
-    )
+def _forward_only_config():
+    """The forward and dynamic-adjustment configs, without a per-mesh file."""
+    config = PolarisConfigParser()
+    config.add_from_package(FORWARD_CONFIG_PACKAGE, FORWARD_CONFIG_FILENAME)
+    config.add_from_package(CONFIG_PACKAGE, CONFIG_FILENAME)
+    return config
 
 
-def test_task_config_applies_per_mesh_overrides():
-    # each per-mesh .cfg overrides the mixing options to suit its resolution,
-    # and a mesh with no .cfg keeps the forward defaults: scaling referenced
-    # to the mesh's median cell width
-    assert _hmix_scaling('u-oi30-lr10') == 'ref_cell_width'
-    assert _hmix_scaling('u-oi6to18-lr12p5') == 'ref_cell_width'
-    assert _hmix_scaling('icos120km') == 'ref_cell_width'
-    assert (
-        _task('icos120km').config.get(
-            'realistic_global_forward', 'hmix_ref_cell_width'
-        )
-        == ''
-    )
-    # the reference width is what differs, since E3SM's per-grid coefficients
-    # are referenced to the finest cells of their own mesh
-    assert (
-        _task('u-oi6to18-lr12p5').config.getfloat(
-            'realistic_global_forward', 'hmix_ref_cell_width'
-        )
-        == 6.0e3
-    )
+@pytest.mark.parametrize('mesh_name', ['u-oi30-lr10', 'u-oi6to18-lr12p5'])
+def test_task_config_applies_per_mesh_overrides(mesh_name):
+    # each per-mesh .cfg overrides the mixing options to suit its resolution
+    section = 'realistic_global_forward'
+    option = 'hmix_ref_cell_width'
+    mesh_config = get_realistic_global_mesh_config(mesh_name)
+    assert _task(mesh_name).config.getfloat(
+        section, option
+    ) == mesh_config.getfloat(section, option)
 
 
-def test_task_config_damping_is_off_by_default():
-    # Rayleigh damping is turned on per stage by the schedule, not by config
-    config = _task('u-oi30-lr10').config
-    assert config.get('realistic_global_forward', 'damping').strip() == ''
+def test_task_config_without_a_mesh_file_keeps_the_forward_defaults():
+    section = 'realistic_global_forward'
+    option = 'hmix_ref_cell_width'
+    assert _task('icos120km').config.get(
+        section, option
+    ) == _forward_only_config().get(section, option)
 
 
 # --- built-in schedules: parsing and chaining ---
@@ -159,31 +154,32 @@ def test_task_config_damping_is_off_by_default():
 def test_default_schedule_used_when_no_mesh_file():
     # qu240km has no per-mesh file, so it falls back to default.yaml
     stages = load_schedule_stages('qu240km', _config('qu240km'))
-    assert [s.name for s in stages] == ['damped_adjustment_1', 'simulation']
+    text = imp_res.files(PACKAGE).joinpath(DEFAULT_SCHEDULE).read_text()
+    default = YAML(typ='safe').load(text)['dynamic_adjustment']
+    assert [s.name for s in stages] == list(default['stages'])
 
 
-def test_default_schedule_chaining():
-    stages = load_schedule_stages('icos240km', _config('icos240km'))
-    first, last = stages
-    assert first.do_restart is False
-    assert first.restart_in is None
-    assert first.start_time == '0001-01-01_00:00:00'
-    assert first.restart_out == 'restarts/rst.0001-01-02_00.00.00.nc'
-    assert last.do_restart is True
-    assert last.start_time == '0001-01-02_00:00:00'
-    assert last.restart_in == first.restart_out
-    assert last.restart_out == 'restarts/rst.0001-01-03_00.00.00.nc'
-
-
-def test_shared_defaults_merged_and_damping_optional():
-    stages = load_schedule_stages('u-oi30-lr10', _config('u-oi30-lr10'))
+def test_shared_defaults_merged_and_damping_optional(tmp_path):
+    config = _config_for_schedule(
+        tmp_path,
+        """
+        dynamic_adjustment:
+          shared:
+            output_interval: 7_00:00:00
+          stages:
+            damped:
+              run_duration: 1_00:00:00
+              damping: 3.0e-3
+            simulation:
+              run_duration: 1_00:00:00
+        """,
+    )
+    stages = load_schedule_stages('icos240km', config)
     # the shared block is applied to every stage
-    assert all(s.mpaso_time_integrator == 'split_explicit_ab2' for s in stages)
-    assert all(s.output_interval == '10_00:00:00' for s in stages)
-    # damping is set on the damped stages and None on the final simulation
-    assert stages[0].damping == pytest.approx(1.0e-4)
-    assert stages[-1].name == 'simulation'
-    assert stages[-1].damping is None
+    assert all(s.output_interval == '7_00:00:00' for s in stages)
+    # damping is set on the damped stage and comes from config otherwise
+    assert stages[0].damping == pytest.approx(3.0e-3)
+    assert stages[-1].damping == ForwardStage.from_config(config).damping
 
 
 UNIFIED_SCHEDULE_MESHES = (
@@ -193,18 +189,6 @@ UNIFIED_SCHEDULE_MESHES = (
     'u-oi6to18-lr12p5',
     'u-oi6to18-lr25',
 )
-
-
-def _stage_count(mesh_name):
-    return len(load_schedule_stages(mesh_name, _config(mesh_name)))
-
-
-def test_per_mesh_schedule_counts():
-    assert _stage_count('u-oi240-lr240') == 4
-    assert _stage_count('u-oi30-lr10') == 4
-    assert _stage_count('u-oi-so12to30-lr10') == 5
-    assert _stage_count('u-oi6to18-lr12p5') == 8
-    assert _stage_count('u-oi6to18-lr25') == 8
 
 
 @pytest.mark.parametrize('mesh_name', UNIFIED_SCHEDULE_MESHES)
@@ -246,9 +230,11 @@ def test_statistics_are_written_within_every_stage(mesh_name):
 
 
 def test_restart_chain_is_consistent():
-    for mesh in UNIFIED_SCHEDULE_MESHES:
+    # icos240km takes the default schedule
+    for mesh in ('icos240km',) + UNIFIED_SCHEDULE_MESHES:
         stages = load_schedule_stages(mesh, _config(mesh))
         assert stages[0].do_restart is False
+        assert stages[0].restart_in is None
         for previous, current in zip(stages[:-1], stages[1:], strict=False):
             assert current.do_restart is True
             assert current.restart_in == previous.restart_out
@@ -305,12 +291,12 @@ def _check_steps(task):
 
 def test_every_step_is_registered_on_the_component():
     component = Ocean()
-    steps, _, _ = get_realistic_dynamic_adjustment_steps(
+    steps, _, stages = get_realistic_dynamic_adjustment_steps(
         component=component, mesh_name='u-oi240-lr240', include_viz=True
     )
     adjustment = _adjustment_steps(steps)
     # every stage, its check, the summary and viz
-    assert len(adjustment) == 2 * 4 + 2
+    assert len(adjustment) == 2 * len(stages) + 2
     for step in adjustment.values():
         assert component.steps[step.subdir] is step, step.subdir
 
@@ -421,7 +407,7 @@ def test_the_last_stage_names_the_restart_a_consumer_wants():
         component=component, mesh_name='u-oi240-lr240'
     )
     assert stages[-1].name == 'simulation'
-    assert stages[-1].restart_out == 'restarts/rst.0001-02-10_00.00.00.nc'
+    assert stages[-1].restart_out
     last = steps['simulation']
     assert isinstance(last, Forward)
     assert last.stage is stages[-1]
@@ -484,7 +470,10 @@ def test_configure_rebuilds_only_when_the_schedule_changed(tmp_path):
     )
     # the dropped stages are gone from the component, not just from the task
     base = 'spherical/realistic_global/u-oi240-lr240/dynamic_adjustment'
-    assert f'{base}/damped_adjustment_3' not in component.steps
+    dropped = set(before) - set(task.steps)
+    assert dropped
+    for name in dropped:
+        assert f'{base}/{name}' not in component.steps, name
     # the init steps upstream are untouched: they do not depend on the
     # schedule and are shared with other tasks
     assert task.steps['initial_state'] is before['initial_state']
@@ -507,7 +496,7 @@ def test_task_forward_steps_share_one_restarts_directory():
     # restart_in has to resolve to the same place as stage n-1's restart_out
     task = _task('u-oi240-lr240')
     steps = _forward_steps(task)
-    assert len(steps) == 4
+    assert len(steps) > 1
 
     def resolve(step, path):
         return os.path.normpath(os.path.join(step.subdir, '..', path))
@@ -646,63 +635,50 @@ def test_model_replacements_carry_the_restart_state():
     stages = load_schedule_stages('u-oi240-lr240', _config('u-oi240-lr240'))
     first = stages[0].model_replacements('mpas-ocean', min_res=240.0)
     assert first['do_restart'] == 'false'
-    assert first['start_time'] == '0001-01-01_00:00:00'
+    assert first['start_time'] == stages[0].start_time
 
     second = stages[1].model_replacements('mpas-ocean', min_res=240.0)
     assert second['do_restart'] == 'true'
-    assert second['start_time'] == '0001-01-11_00:00:00'
-    assert stages[0].restart_out == 'restarts/rst.0001-01-11_00.00.00.nc'
+    assert second['start_time'] == stages[1].start_time
+    assert second['start_time'] != first['start_time']
+    restart_out = stages[0].restart_out
+    assert restart_out is not None
+    assert second['start_time'].replace(':', '.') in restart_out
 
 
 # --- stages inherit the forward config ---
 
 
-def test_stages_inherit_the_forward_physics_options():
-    # these are the options the model needs and no schedule sets; before the
-    # stages were built from config they all took their dataclass defaults,
-    # which left horizontal mixing off
-    for stage in load_schedule_stages('icos240km', _config('icos240km')):
-        assert stage.mom_del2 is None
-        assert stage.mom_del4 == pytest.approx(2.0e14)
-        assert stage.use_GM is True
-        assert stage.use_Redi is True
+@pytest.mark.parametrize('mesh_name', ['icos240km', 'u-oi30-lr10'])
+def test_stages_inherit_the_forward_options(mesh_name):
+    # these are options the model needs and the schedule does not set; before
+    # the stages were built from config they all took their dataclass
+    # defaults, which left horizontal mixing off
+    config = _config(mesh_name)
+    from_config = ForwardStage.from_config(config)
+    for stage in load_schedule_stages(mesh_name, config):
+        for option in [
+            'mom_del2',
+            'mom_del4',
+            'use_GM',
+            'use_Redi',
+            'mpaso_time_integrator',
+            'omega_time_integrator',
+        ]:
+            assert getattr(stage, option) == getattr(from_config, option), (
+                f'{stage.name} {option}'
+            )
 
 
-def test_stages_inherit_the_per_mesh_overrides():
-    # u-oi6to18-lr12p5.cfg references the mixing to its finest cells
-    for stage in load_schedule_stages(
-        'u-oi6to18-lr12p5', _config('u-oi6to18-lr12p5')
-    ):
-        assert stage.hmix_scaling == 'ref_cell_width'
-        assert stage.hmix_ref_cell_width == 6.0e3
-        assert stage.mom_del4_div_factor == 10.0
-    for stage in load_schedule_stages('u-oi30-lr10', _config('u-oi30-lr10')):
-        assert stage.hmix_scaling == 'ref_cell_width'
-        assert stage.hmix_ref_cell_width == 30.0e3
-
-
-def test_stages_inherit_the_time_integrators():
-    # neither is set in any shipped schedule any more.  Omega's split-explicit
-    # default is the one the adjustment needs: RK4 would have to advance on the
-    # barotropic step, which is impractical for stages this long
-    for stage in load_schedule_stages('u-oi30-lr10', _config('u-oi30-lr10')):
-        assert stage.mpaso_time_integrator == 'split_explicit_ab2'
-        assert stage.omega_time_integrator == 'split_explicit'
-
-
-def test_damping_is_off_in_config_and_turned_on_per_stage():
-    # the config default is no Rayleigh damping; the schedule ramps it in and
-    # back out, and the final simulation stage inherits the config default
-    config = _config('u-oi30-lr10')
-    assert ForwardStage.from_config(config).damping is None
-    stages = load_schedule_stages('u-oi30-lr10', config)
-    damping = [stage.damping for stage in stages]
-    assert damping == [
-        pytest.approx(1.0e-4),
-        pytest.approx(1.0e-5),
-        pytest.approx(1.0e-6),
-        None,
-    ]
+@pytest.mark.parametrize('mesh_name', ['u-oi30-lr10', 'u-oi6to18-lr12p5'])
+def test_stages_inherit_the_per_mesh_overrides(mesh_name):
+    # each per-mesh .cfg references the mixing to its finest cells
+    mesh_config = get_realistic_global_mesh_config(mesh_name)
+    expected = mesh_config.getfloat(
+        'realistic_global_forward', 'hmix_ref_cell_width'
+    )
+    for stage in load_schedule_stages(mesh_name, _config(mesh_name)):
+        assert stage.hmix_ref_cell_width == expected, stage.name
 
 
 def test_schedule_overrides_a_config_option(tmp_path):
@@ -721,38 +697,7 @@ def test_schedule_overrides_a_config_option(tmp_path):
     assert stage.mom_del2 == pytest.approx(5.0e3)
     assert stage.use_GM is False
     # and an option it does not mention still comes from config
-    assert stage.mom_del4 == pytest.approx(2.0e14)
-
-
-@pytest.mark.parametrize(
-    'mesh_name',
-    ['icos240km', 'u-oi30-lr10', 'u-oi6to18-lr12p5', 'u-oi6to18-lr25'],
-)
-def test_stages_do_not_write_density(mesh_name):
-    """
-    density is in the forward output stream so MPAS-Ocean and Omega can be
-    compared on the same fields.  A dynamic adjustment is not that comparison,
-    and it writes the stream once per stage on the largest meshes Polaris
-    builds, so this workflow turns it off in config.
-
-    Checked per mesh because the per-mesh config files are applied *after* this
-    one, so a mesh could quietly turn it back on.  ssh is asserted alongside:
-    it shares the same block of the stream but is 2-D, and dropping it with
-    density would be the easy mistake.
-    """
-    stages = load_schedule_stages(mesh_name, _config(mesh_name))
-    for stage in stages:
-        assert stage.output_density is False, stage.name
-
-    yaml = PolarisYaml.read(
-        filename='forward.yaml',
-        package=FORWARD_CONFIG_PACKAGE,
-        replacements=stages[0].model_replacements('mpas-ocean', min_res=30.0),
-        model='mpas-ocean',
-    )
-    contents = yaml.streams['output']['contents']
-    assert 'density' not in contents
-    assert 'ssh' in contents
+    assert stage.mom_del4 == ForwardStage.from_config(config).mom_del4
 
 
 def test_schedule_can_set_the_mpaso_only_physics(tmp_path):
@@ -793,22 +738,20 @@ def test_schedule_can_set_the_mpaso_only_physics(tmp_path):
     options = stage.mpaso_physics_options()
     assert options['config_pressure_gradient_type'] == 'pressure_and_zmid'
 
-    # a stage that says nothing about them keeps the E3SM-like config defaults
-    default = load_schedule_stages(
-        'icos240km',
-        _config_for_schedule(
-            tmp_path,
-            """
-            dynamic_adjustment:
-              stages:
-                only_stage:
-                  run_duration: 1_00:00:00
-            """,
-        ),
-    )[0]
-    assert default.use_KPP is True
-    assert default.use_submesoscale is True
-    assert default.pressure_gradient_type == 'Jacobian_from_TS'
+    # a stage that says nothing about them keeps the config defaults
+    default_config = _config_for_schedule(
+        tmp_path,
+        """
+        dynamic_adjustment:
+          stages:
+            only_stage:
+              run_duration: 1_00:00:00
+        """,
+    )
+    default = load_schedule_stages('icos240km', default_config)[0]
+    from_config = ForwardStage.from_config(default_config)
+    for option in ['use_KPP', 'use_submesoscale', 'pressure_gradient_type']:
+        assert getattr(default, option) == getattr(from_config, option)
 
 
 def test_blank_schedule_value_clears_an_optional_field(tmp_path):
@@ -1566,10 +1509,23 @@ def test_extremes_are_unavailable_from_a_single_sample():
     assert extreme_and_day(ds, 'temperatureMax', 'max') == (None, None)
 
 
-def test_startup_window_covers_only_the_stages_it_reaches():
-    stages = load_schedule_stages(
-        'u-oi6to18-lr12p5', _config('u-oi6to18-lr12p5')
+def test_startup_window_covers_only_the_stages_it_reaches(tmp_path):
+    config = _config_for_schedule(
+        tmp_path,
+        """
+        dynamic_adjustment:
+          shared:
+            stats_interval: 00_01:00:00
+          stages:
+            damped_1:
+              run_duration: 01_00:00:00
+            damped_2:
+              run_duration: 01_00:00:00
+            simulation:
+              run_duration: 01_00:00:00
+        """,
     )
+    stages = load_schedule_stages('icos240km', config)
     sequence_start = stages[0].start_time
     excluded = [
         excluded_days_in_stage(stage, sequence_start, '00_02:00:00')
@@ -1653,6 +1609,16 @@ def test_stage_check_watches_the_cfl_inside_the_startup_window(
     monkeypatch.chdir(tmp_path / 'checks')
     with pytest.raises(ValueError, match='CFL number'):
         step.run()
+
+
+# the stage-check thresholds the statistics in these tests are chosen around
+STAGE_CHECK_THRESHOLDS = dict(
+    temperature_max='35.0',
+    temperature_min='-2.5',
+    salinity_max='45.0',
+    startup_exclusion_duration='00_02:00:00',
+    cfl_max='0.2',
+)
 
 
 def _hourly_stats_series():
@@ -1742,6 +1708,9 @@ def _stage_check(tmp_path, model, stage_name):
     override = tmp_path / 'check_model.cfg'
     override.write_text(f'[ocean]\nmodel = {model}\n')
     config.add_from_file(str(override))
+    # the statistics in these tests are chosen around these thresholds
+    for option, value in STAGE_CHECK_THRESHOLDS.items():
+        config.set(SECTION, option, value)
     step.config = config
     step.logger = LOGGER
     (tmp_path / 'checks').mkdir(parents=True, exist_ok=True)

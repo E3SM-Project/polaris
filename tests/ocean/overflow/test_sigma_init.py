@@ -21,8 +21,6 @@ from polaris.tasks.ocean.overflow.init_utils import (
     compute_initial_temperature,
 )
 
-SIGMA_LEVELS = 64
-
 
 def _tree_config(eos_type, coord_type):
     """The shared config of one overflow tree, plus the ocean defaults."""
@@ -81,8 +79,10 @@ def test_sigma_trees_are_added(eos_type):
     assert sigma_tasks == zstar_tasks
 
     assert config.get('vertical_grid', 'coord_type') == 'sigma'
-    assert config.getint('vertical_grid', 'vert_levels') == SIGMA_LEVELS
-    assert config.getfloat('overflow', 'max_bottom_depth') == 2000.0
+    _, zstar_config = _tree_config('linear', 'zstar')
+    assert config.getfloat('overflow', 'max_bottom_depth') == (
+        zstar_config.getfloat('overflow', 'max_bottom_depth')
+    )
 
 
 def test_sigma_layers_follow_bathymetry():
@@ -92,17 +92,20 @@ def test_sigma_layers_follow_bathymetry():
     """
     _, config = _tree_config('linear', 'sigma')
     ds = _make_ds(config)
+    vert_levels = config.getint('vertical_grid', 'vert_levels')
 
     assert np.all(ds.minLevelCell == 1)
-    assert np.all(ds.maxLevelCell == SIGMA_LEVELS)
+    assert np.all(ds.maxLevelCell == vert_levels)
 
     thickness = ds.layerThickness.isel(Time=0)
-    expected = ds.bottomDepth / SIGMA_LEVELS
+    expected = ds.bottomDepth / vert_levels
     assert np.max(np.abs(thickness - expected).values) < 1.0e-10
 
     # the columns really do span the shelf and the deep ocean
-    assert ds.bottomDepth.min() < 501.0
-    assert ds.bottomDepth.max() > 1999.0
+    shelf_depth = config.getfloat('overflow', 'shelf_depth')
+    max_bottom_depth = config.getfloat('overflow', 'max_bottom_depth')
+    assert ds.bottomDepth.min() < shelf_depth + 1.0
+    assert ds.bottomDepth.max() > max_bottom_depth - 1.0
 
 
 def test_linear_zstar_density_is_unchanged():

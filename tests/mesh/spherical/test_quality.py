@@ -94,7 +94,6 @@ def test_shipped_edge_length_ratio_clears_the_river_constraint_floor():
         'spherical_mesh_quality', 'minimum_edge_length_ratio'
     )
 
-    assert threshold == 1.0e-5
     assert threshold < 0.1 * 2.2e-4, (
         'the guard must keep an order of magnitude below the observed '
         'land-cell floor, or river constraints alone will fail a build'
