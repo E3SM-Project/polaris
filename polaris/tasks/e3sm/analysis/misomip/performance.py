@@ -58,6 +58,13 @@ PART_ORDER = [
 #: The days in a simulated year
 DAYS_PER_YEAR = 365.0
 
+#: The width of every figure in inches, the legends' font size and the
+#: width of the lines, the same in every figure so they can be shown at one
+#: width with the same font sizes
+FIG_WIDTH = 10.0
+LEGEND_SIZE = 10
+LINE_WIDTH = 1.2
+
 
 class RunPerformance(ProductStep):
     """
@@ -238,7 +245,7 @@ class RunPerformance(ProductStep):
     def _plot_throughput(self, segments, stamps):
         """Plot each segment's throughput and the coupler's daily rate"""
         with mplstyle_context():
-            fig = Figure(figsize=(8.0, 4.0))
+            fig = Figure(figsize=(FIG_WIDTH, 4.0), layout='constrained')
             ax = fig.add_subplot(111)
             daily = 86400.0 / (DAYS_PER_YEAR * stamps.seconds_per_day)
             ax.plot(
@@ -268,8 +275,8 @@ class RunPerformance(ProductStep):
             ax.set_title('Throughput')
             ax.set_ylim(bottom=0.0)
             ax.grid(True, alpha=0.3)
-            ax.legend(loc='lower right', fontsize='small')
-            fig.savefig('throughput.png', bbox_inches='tight')
+            ax.legend(loc='lower right', fontsize=LEGEND_SIZE)
+            fig.savefig('throughput.png')
         self.add_product(
             plot='throughput.png',
             group='performance',
@@ -285,7 +292,7 @@ class RunPerformance(ProductStep):
             if any(label in segment_parts for segment_parts in parts)
         ]
         with mplstyle_context():
-            fig = Figure(figsize=(9.0, 4.5))
+            fig = Figure(figsize=(FIG_WIDTH, 4.5), layout='constrained')
             ax = fig.add_subplot(111)
             starts = np.array([s.start_day for s in segments]) / DAYS_PER_YEAR
             ends = np.array([s.end_day for s in segments]) / DAYS_PER_YEAR
@@ -311,10 +318,8 @@ class RunPerformance(ProductStep):
             ax.set_ylabel('wall-clock seconds per model day')
             ax.set_title('Run time of each segment, by part')
             ax.grid(True, axis='y', alpha=0.3)
-            ax.legend(
-                loc='center left', bbox_to_anchor=(1.02, 0.5), fontsize='small'
-            )
-            fig.savefig('run_time_breakdown.png', bbox_inches='tight')
+            fig.legend(loc='outside right center', fontsize=LEGEND_SIZE)
+            fig.savefig('run_time_breakdown.png')
         self.add_product(
             plot='run_time_breakdown.png',
             group='performance',
@@ -330,27 +335,31 @@ class RunPerformance(ProductStep):
             / DAYS_PER_YEAR
         )
         with mplstyle_context():
-            fig = Figure(figsize=(8.0, 6.5))
+            fig = Figure(figsize=(FIG_WIDTH, 6.5), layout='constrained')
             ax = fig.add_subplot(211)
-            ax.plot(middles, [s.cost for s in segments], 'o-')
+            ax.plot(
+                middles, [s.cost for s in segments], 'o-', linewidth=LINE_WIDTH
+            )
             pes = sorted({s.cost_pes for s in segments})
+            ax.set_ylim(0.0, 1.15 * max(s.cost for s in segments))
             ax.set_ylabel('pe-hours per simulated year')
             ax.set_title(
                 f'Cost, on {", ".join(str(p) for p in pes)} processors'
             )
-            ax.set_ylim(bottom=0.0)
             ax.grid(True, alpha=0.3)
             ax = fig.add_subplot(212, sharex=ax)
             ax.plot(
                 middles,
                 [s.init_time / 60.0 for s in segments],
                 'o-',
+                linewidth=LINE_WIDTH,
                 label='initialization',
             )
             ax.plot(
                 middles,
                 [s.final_time / 60.0 for s in segments],
                 's-',
+                linewidth=LINE_WIDTH,
                 label='finalization',
             )
             waits = [
@@ -360,7 +369,13 @@ class RunPerformance(ProductStep):
                 for s in segments
             ]
             if not np.all(np.isnan(waits)):
-                ax.plot(middles, waits, '^-', label='queue wait')
+                ax.plot(
+                    middles,
+                    waits,
+                    '^-',
+                    linewidth=LINE_WIDTH,
+                    label='queue wait',
+                )
             ax.set_xlim(
                 segments[0].start_day / DAYS_PER_YEAR,
                 segments[-1].end_day / DAYS_PER_YEAR,
@@ -370,9 +385,8 @@ class RunPerformance(ProductStep):
             ax.set_title("Each segment's time outside its run")
             ax.set_ylim(bottom=0.0)
             ax.grid(True, alpha=0.3)
-            ax.legend(loc='best', fontsize='small')
-            fig.subplots_adjust(hspace=0.35)
-            fig.savefig('cost.png', bbox_inches='tight')
+            ax.legend(loc='best', fontsize=LEGEND_SIZE)
+            fig.savefig('cost.png')
         self.add_product(
             plot='cost.png',
             group='performance',
@@ -388,7 +402,9 @@ class RunPerformance(ProductStep):
             return
         panels = 1 if node_memory is None else 2
         with mplstyle_context():
-            fig = Figure(figsize=(8.0, 3.6 * panels))
+            fig = Figure(
+                figsize=(FIG_WIDTH, 3.6 * panels), layout='constrained'
+            )
             ax = fig.add_subplot(panels, 1, 1)
             _plot_by_segment(ax, root_memory, scale=1.0)
             peaks = [
@@ -410,7 +426,7 @@ class RunPerformance(ProductStep):
             ax.set_ylabel('MB')
             ax.set_title("Memory of the coupler's root task")
             ax.grid(True, alpha=0.3)
-            ax.legend(loc='lower right', fontsize='small')
+            ax.legend(loc='lower right', fontsize=LEGEND_SIZE)
             if node_memory is not None:
                 ax = fig.add_subplot(panels, 1, 2, sharex=ax)
                 _plot_by_segment(ax, node_memory, scale=1.0 / 1024.0)
@@ -419,9 +435,9 @@ class RunPerformance(ProductStep):
                     "Memory of the root task's node, summed over its tasks"
                 )
                 ax.grid(True, alpha=0.3)
-                ax.legend(loc='lower right', fontsize='small')
+                ax.legend(loc='lower right', fontsize=LEGEND_SIZE)
             ax.set_xlabel('model time (years)')
-            fig.savefig('memory.png', bbox_inches='tight')
+            fig.savefig('memory.png')
         self.add_product(
             plot='memory.png',
             group='performance',
@@ -472,6 +488,7 @@ def _plot_by_segment(ax, memory, scale):
             scale * memory.highwater[mask],
             '-',
             color='C0',
+            linewidth=LINE_WIDTH,
             label='high water' if index == 0 else None,
         )
         ax.plot(
@@ -479,6 +496,7 @@ def _plot_by_segment(ax, memory, scale):
             scale * memory.usage[mask],
             ':',
             color='C1',
+            linewidth=LINE_WIDTH,
             label='in use' if index == 0 else None,
         )
 
