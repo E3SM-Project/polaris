@@ -651,11 +651,13 @@ thin film alone did not explain:
 - Remnant bottom layers, millimeters thick, came from the initial
   condition, not from split-explicit ([D26](#decisions)).
 
-With these fixed, split-explicit still melts about 8% more than RK4 after
+With these fixed, split-explicit still melted about 9% more than RK4 after
 three weeks of Ocean0, through a stronger depth-mean cavity circulation.
-The excess depends on the number of outer iterations: it nearly vanishes
-with 3 and returns with 4, also without the per-layer limit, so it lies
-in the split-explicit iteration itself. That is open.
+The excess came from the outer iteration: it converges with alternating
+sign, so the state handed to vertical mixing carries a residual whose sign
+depends on whether the number of iterations is odd or even, and switch-like
+mixing in near-neutral cavity water turns that sign into a systematic
+difference. Under-relaxing the iteration removes it ([D29](#decisions)).
 
 ### WP3: Landice component
 
@@ -1596,3 +1598,35 @@ tasks pass on both partial-cell and earlier initial conditions.
 
 Rejected: capping the stage-3 edge thickness at the donor's; keeping the
 column-wise factors.
+
+### D29: Split-explicit under-relaxes its outer iteration
+
+Date last modified: 2026/11/04
+
+Contributors: Xylar Asay-Davis, Claude
+
+An MPAS-Ocean option under-relaxes each non-final outer iteration of
+`split_explicit`: the state it hands to the next iteration (velocities,
+thicknesses and active tracers) moves only halfway from the previous
+hand-off toward its own result. The final iteration is unchanged. The
+option is off by default and on in MISOMIP's configurations, with the
+default two outer iterations.
+
+```{admonition} Rationale
+Without it, the iteration converges with alternating sign, and Ocean0's
+melt excess over RK4 is +8.6% with two iterations, +1.2% with three and
++9.0% with four. Under-relaxed, the iteration converges without changing
+sign, two and three iterations agree, and two give +1.5%, for about 1%
+more cost per step.
+```
+
+Rejected:
+
+- three outer iterations, which cost 38% more and match RK4 only because
+  the odd-count branch happens to;
+- computing vertical mixing from a state that does not depend on the
+  iteration count, which removes the signature in one step but not the
+  month-scale excess;
+- averaging the last two iterates, whose residual still alternates in
+  sign.
+
