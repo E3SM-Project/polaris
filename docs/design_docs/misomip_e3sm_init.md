@@ -387,7 +387,7 @@ config options, and also each case's limits on cells per task
 
 ### Algorithm Design: Each experiment has a case configuration
 
-Date last modified: 2026/11/01
+Date last modified: 2026/11/04
 
 Contributors: Xylar Asay-Davis, Claude
 
@@ -404,10 +404,10 @@ Each experiment's case configuration holds:
     whose E3SM default differs from the standalone value is written;
   - `user_nl_mali`: the MISMIP+ tasks' MALI options, read from their
     files, with `config_always_compute_fem_grid = .false.`;
-  - MALI's Albany input for IceOcean1r and IceOcean1ra, the MISMIP+
-    tasks' file;
-  - a MALI history stream with thickness, `bedTopography` and the mesh
-    variables the MISMIP+ diagnostics need;
+  - for IceOcean1r and IceOcean1ra, MALI's Albany input, the MISMIP+
+    tasks' file, and the MISMIP+ tasks' MALI options with those of their
+    Ice1r run, less the melt under floating ice, which E3SM takes from the
+    ocean;
   - `shell_commands` with the XML changes: the case variables that name
     the initial conditions, the ocean's interior restoring and tidal mask,
     the data-mode file and partitions, the time of the data-mode file's
@@ -418,7 +418,12 @@ Each experiment's case configuration holds:
   (static, data or prognostic);
 - **`create_case.sh`**, which creates a case with the MCT driver, the
   compset, the model grid and the user-mods directory, sets its layout,
-  and sets it up and builds it ([D8](#decisions)).
+  and sets it up and builds it ([D8](#decisions)). For IceOcean1r and
+  IceOcean1ra, it first adds their output to the streams files E3SM
+  writes ([D10](#decisions)): the ocean's daily melt means and MALI's
+  monthly history, with thickness, `bedTopography` and the mesh variables
+  the MISMIP+ diagnostics need, and daily melt. IceOcean1ra is a branch
+  run from an IceOcean1r case's restarts on a date the person gives.
   It takes the E3SM checkout, the case directory, and optionally the
   project, output root, compiler and task counts. The machine is the one
   Polaris was set up on, and the compiler defaults to Polaris's. It
@@ -512,7 +517,7 @@ mesh. `case_config/` is not inputdata.
 
 ### Algorithm Design: A standalone ocean run shares the inputs
 
-Date last modified: 2026/11/01
+Date last modified: 2026/11/04
 
 Contributors: Xylar Asay-Davis, Claude
 
@@ -520,7 +525,8 @@ A forward run starts from the E3SM initial condition, with the same
 physics, wetting and drying, outflow and RK4. For Ocean3–4, its land-ice
 forcing is every data-mode record through $R$, from step 2 above. Its
 length is a config option, one month by default, for comparison with the
-first E3SM run. IceOcean1r and IceOcean1ra have no standalone counterpart.
+first E3SM run. IceOcean1r's run, with MALI's geometry fixed, is set up
+but not run by default: its namelist is the one both IceOcean cases share.
 It writes E3SM's monthly means, less the fields it does not compute, and
 for Ocean3–4 the land-ice pressure, fractions and draft.
 
@@ -788,7 +794,7 @@ The planned counts are among the partitions.
 
 ### Testing and Validation: Each experiment has a case configuration
 
-Date last modified: 2026/11/01
+Date last modified: 2026/11/04
 
 Contributors: Xylar Asay-Davis, Claude
 
@@ -798,6 +804,10 @@ coupling intervals divide evenly, and `create_case.sh` passes `bash -n`.
 The task count follows the rule for a batch system and a single node,
 including a count the partitions do not cover and a machine below the
 minimum, and MALI's goal and bounds apply only when MALI is prognostic.
+For IceOcean1r and IceOcean1ra, `edit_streams.py` edits synthetic
+streams files as above and refuses a linked SourceMods, `user_nl_mali`
+names each option once, and IceOcean1ra's script branches from the
+restarts and names IceOcean1r's initial conditions.
 A 5-day Ocean0 case at 4 km on Chrysalis runs on 1 node and is bit for
 bit with the same case before the change.
 
@@ -1046,3 +1056,39 @@ one machine; task counts for each pair of meshes, which need values for
 each resolution; the target alone on a node it does not fill, which
 leaves cores idle that would speed the run; and bounds for the case
 apart from the partitions', which repeat them.
+
+### D10: IceOcean cases patch the streams E3SM writes
+
+Date last modified: 2026/11/04
+
+Contributors: Xylar Asay-Davis, Claude
+
+For IceOcean1r and IceOcean1ra, `create_case.sh` runs
+`./preview_namelists` after `case.setup`, then `edit_streams.py`. The
+script copies `streams.ocean` and `streams.landice` from the run
+directory into the case's SourceMods and edits them:
+
+- the ocean's daily means hold only `landIceFreshwaterFlux`,
+  `frazilIceFreshwaterFlux`, `landIceFreshwaterFluxNotSentToGlc` and
+  `landIceHeatFlux`, and `user_nl_mpaso` turns them on;
+- the ocean's monthly means add `landIceFreshwaterFluxNotSentToGlc`;
+- MALI's history is monthly, with the MISMIP+ tasks' output fields, the
+  mesh, and `avgFloatingBMBFlux`;
+- a daily MALI stream holds `floatingBasalMassBal` and
+  `floatingBasalMassBalApplied`.
+
+Ocean0–4 keep E3SM's streams.
+
+```{admonition} Rationale
+The melt MALI applies must be checked against the melt the ocean sends,
+day by day, only when MALI is prognostic. E3SM writes each streams file
+from the case name, the initial condition and the I/O type, so the edited
+file starts from the one E3SM wrote for the case. E3SM's daily ocean
+list holds full-depth velocities and tendencies, too much to write every
+day for 100 years.
+```
+
+Rejected: complete streams files written by Polaris, which would repeat
+E3SM's builders and drift from them. The script stops if SourceMods is a
+link, as in a keepexe clone, which shares it with the case it was cloned
+from.
