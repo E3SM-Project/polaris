@@ -104,6 +104,7 @@ def test_each_run_gets_steps_named_for_its_months(tmp_path):
         f'{TASK}/comparison_0001-01_0001-02_0001-01_0001-01',
         f'{TASK}/e3sm/conservation_0001-01_0001-02',
         f'{TASK}/e3sm/diagnostics_0001-01_0001-02',
+        f'{TASK}/e3sm/performance_0001-01_0001-02',
         f'{TASK}/e3sm/plots_0001-01_0001-02',
         f'{TASK}/publish',
         f'{TASK}/published_0001-01_0001-02_0001-01_0001-01',
@@ -122,6 +123,7 @@ def test_each_run_gets_steps_named_for_its_months(tmp_path):
     assert sorted(publish.dependencies) == [
         f'{prefix}_comparison_0001-01_0001-02_0001-01_0001-01',
         f'{prefix}_e3sm_conservation_0001-01_0001-02',
+        f'{prefix}_e3sm_performance_0001-01_0001-02',
         f'{prefix}_e3sm_plots_0001-01_0001-02',
         f'{prefix}_published_0001-01_0001-02_0001-01_0001-01',
         f'{prefix}_standalone_plots_0001-01_0001-01',
@@ -142,6 +144,7 @@ def test_a_case_without_budgets_has_no_conservation_step(tmp_path):
     assert sorted(_short_names(task)) == [
         'e3sm_diagnostics',
         'e3sm_plots',
+        'performance',
         'publish',
         'published',
         'yung2026_ocean0',
@@ -171,6 +174,7 @@ def test_runs_over_the_same_months_get_distinct_steps(tmp_path):
         'comparison',
         'e3sm_diagnostics',
         'e3sm_plots',
+        'performance',
         'publish',
         'published',
         'standalone_diagnostics',
@@ -372,6 +376,7 @@ def test_a_coupled_run_compares_both_models_melt_and_ice_sheet(tmp_path):
         'e3sm_plots',
         'ice_sheet_comparison',
         'model_exchange',
+        'performance',
         'publish',
     ]
     exchange = next(
