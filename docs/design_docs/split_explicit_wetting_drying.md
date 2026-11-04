@@ -389,7 +389,7 @@ was not enough.
 
 ### Implementation: Polaris
 
-Date last modified: 2026/10/19
+Date last modified: 2026/11/04
 
 Contributors: Xylar Asay-Davis, Claude
 
@@ -403,7 +403,11 @@ run, in `[isomip_plus_forward]`, and for SSH adjustment, in
 `[ssh_adjustment]`, so SSH adjustment uses the same scheme as the forward
 run. If that makes debugging harder, the variants adjust SSH with RK4
 until split-explicit is stable. `Forward` sets the MPAS-Ocean time
-integrator from these options. A restart variant,
+integrator from these options. The split-explicit forward runs also add
+`split_explicit.yaml`, which turns on `config_split_pv_coriolis`, as in
+MISOMIP's split-explicit configurations. SSH adjustment leaves it off: its
+yaml is shared with `ice_shelf_2d`, where `split_explicit_ab2` would also
+change, and its runs only initialize the forward run. A restart variant,
 `.../split_explicit/wetting/with_restart`, follows `ice_shelf_2d`'s: it
 reuses its task's init and SSH adjustment and compares a full run with
 one that restarts halfway. With a thin film, `Forward` and the SSH
