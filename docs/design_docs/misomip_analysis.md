@@ -308,6 +308,14 @@ preparation) will serve IceOcean1r and IceOcean1ra as Yung et al. (2026)
 serves Ocean0–2. Comparing with it is follow-up work, once its data are
 available.
 
+**The centerline transect.** An animation of the x–z section along the
+channel's centerline shows the two models evolving together: the bed,
+MALI's ice with its draft and grounding line, and the ocean beneath it,
+with its thermal driving or temperature and its velocity. It needs daily
+MALI thickness and daily ocean means of the tracers and velocity, which
+the IceOcean cases write once their year-long runs are set up. Building it
+is planned work, once such a run exists.
+
 ### Algorithm Design: The protocol's fields can be written
 
 Date last modified: 2026/11/01
