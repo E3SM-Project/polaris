@@ -4,6 +4,7 @@ from matplotlib.figure import Figure
 from mpas_tools.io import write_netcdf
 
 from polaris.analysis.product_step import ProductStep
+from polaris.e3sm.analysis.calendar import MODEL_YEAR_LABEL
 from polaris.tasks.e3sm.analysis.misomip.diagnostics import (
     SECONDS_PER_YEAR,
     TIME_MEAN_FILENAME,

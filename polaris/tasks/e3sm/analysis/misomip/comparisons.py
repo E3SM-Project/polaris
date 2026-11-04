@@ -8,6 +8,7 @@ from mpas_tools.io import write_netcdf
 
 from polaris import Task
 from polaris.analysis.product_step import ProductStep
+from polaris.e3sm.analysis.calendar import MODEL_YEAR_LABEL
 from polaris.tasks.e3sm.analysis.misomip.diagnostics import (
     TIME_MEAN_FILENAME,
     TIME_SERIES_FILENAME,

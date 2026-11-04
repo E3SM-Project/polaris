@@ -36,6 +36,16 @@ EXCHANGES = [
     ),
 ]
 
+#: The budget and period beside which the ocean's own monthly melt and
+#: frazil are plotted
+OCEAN_SERIES = ('WATER', 'monthly')
+
+#: The local name of the run's monthly time series
+OCEAN_SERIES_FILENAME = 'ocean_time_series.nc'
+
+#: The days in each month of the 365-day calendar
+DAYS_IN_MONTH = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
+
 #: The periods checked, where the case prints them: daily budgets need
 #: budget_daily in user_nl_cpl, but show when within a month a residual
 #: arises
@@ -247,6 +257,78 @@ class CouplerConservation(ProductStep):
             )
             for index, date in enumerate(dates)
         ]
+
+    def _log_ocean_series(self, dates, values, ocean):
+        """Log the ocean's monthly melt and frazil beside its column"""
+        for index, date in enumerate(dates):
+            melt = ocean['totalMeltFlux'][index]
+            if np.isnan(melt):
+                continue
+            frazil = ocean.get('totalFrazilFlux', np.zeros(len(dates)))[index]
+            column = float(values.sel(component='ocn').isel(Time=index))
+            self.logger.info(
+                f'WATER monthly {date}: ocean melt {melt:.6g}, frazil '
+                f'{frazil:.6g}, melt + frazil {melt + frazil:.6g}, ocean '
+                f'column {column:.6g}'
+            )
+
+
+def _ocean_series(ds_ocean, dates, scale):
+    """The ocean's monthly melt and frazil, scaled, at the monthly budgets
+    whose months the run's diagnostics have, NaN elsewhere"""
+    times = ds_ocean.time.values
+    names = [
+        name
+        for name in ['totalMeltFlux', 'totalFrazilFlux']
+        if name in ds_ocean
+    ]
+    ocean = {name: np.full(len(dates), np.nan) for name in names}
+    for index, date in enumerate(dates):
+        matches = np.nonzero(np.abs(times - _month_middle(date)) < 1e-6)[0]
+        if len(matches) == 0:
+            continue
+        for name in names:
+            ocean[name][index] = scale * float(
+                ds_ocean[name].isel(Time=matches[0])
+            )
+    if 'totalFrazilFlux' in ocean:
+        ocean['meltPlusFrazil'] = (
+            ocean['totalMeltFlux'] + ocean['totalFrazilFlux']
+        )
+    return ocean
+
+
+def _ends_in_period(table, start_day, end_day):
+    """Whether a budget, dated at the end of what it covers, ends after the
+    start of a period and no later than its end"""
+    end = (
+        month_start_days(table.year, table.month)
+        + table.day
+        - 1
+        + table.seconds / 86400.0
+    )
+    return start_day < end <= end_day
+
+
+def _end_years(dates):
+    """The end of each budget's period, in model years"""
+    years = []
+    for date in dates:
+        year, month, day = int(date[:4]), int(date[5:7]), int(date[8:10])
+        seconds = int(date[11:16])
+        days = sum(DAYS_IN_MONTH[: month - 1]) + day - 1 + seconds / 86400.0
+        years.append(year + days / 365.0)
+    return np.array(years)
+
+
+def _month_middle(date):
+    """The middle of the month a monthly budget covers, in model years, as
+    the diagnostics' time: the budget is dated at the end of its month"""
+    year, month = int(date[:4]), int(date[5:7])
+    month -= 1
+    if month == 0:
+        year, month = year - 1, 12
+    return year + (month - 0.5) / 12.0
 
 
 def _index_with_start(dates, start):

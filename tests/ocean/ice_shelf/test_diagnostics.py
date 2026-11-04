@@ -4,6 +4,7 @@ import xarray as xr
 
 from polaris.mpas.time_series_stats import rename_time_series_stats
 from polaris.ocean.ice_shelf.diagnostics import (
+    compute_flux_sent_to_land_ice,
     compute_grounding_line_band_diagnostics,
     compute_melt_diagnostics,
     compute_melt_rate_by_draft,
@@ -106,6 +107,36 @@ def test_a_band_cell_misses_the_melt_of_its_nearest_melting_cell():
     # 1e6 m2 * 2e-3 kg m-2 s-1, of 4e3 kg s-1 of melt
     np.testing.assert_allclose(ds_diag.bandMissedMeltFlux, [2.0e3])
     np.testing.assert_allclose(ds_diag.bandMissedMeltFraction, [0.5])
+
+
+def test_the_ocean_sends_melt_less_frazil_where_the_land_ice_floats():
+    """The ocean sends its melt less the frazil under the land ice, and keeps
+    what falls where the land-ice model floats less than the minimum."""
+    ds = _fluxes()
+    ds['frazilIceFreshwaterFlux'] = xr.DataArray(
+        [-1.0e-4, -1.0e-4, 0.0, -5.0e-4], dims='nCells'
+    )
+    # the land-ice model floats too little of the half-floating cell
+    coupled = xr.DataArray([1.0, 0.0005, 0.0, 0.0], dims='nCells')
+
+    ds_estimated = compute_flux_sent_to_land_ice(
+        AREA, ds, LAND_ICE, coupled, min_floating_fraction=0.001
+    )
+
+    # (1e-3 - 1e-4) * 1e6 from the floating cell only; the open ocean's
+    # frazil is not under the land ice
+    np.testing.assert_allclose(ds_estimated.totalFluxSentToLandIce, 900.0)
+    assert ds_estimated.totalFluxSentToLandIce.attrs['estimated'] == 1
+
+    ds['landIceFreshwaterFluxNotSentToGlc'] = xr.DataArray(
+        [0.0, 1.9e-3, 0.0, 0.0], dims='nCells'
+    )
+    ds_exact = compute_flux_sent_to_land_ice(
+        AREA, ds, LAND_ICE, coupled, min_floating_fraction=0.001
+    )
+
+    np.testing.assert_allclose(ds_exact.totalFluxSentToLandIce, 900.0)
+    assert ds_exact.totalFluxSentToLandIce.attrs['estimated'] == 0
 
 
 def test_melt_is_binned_by_draft():

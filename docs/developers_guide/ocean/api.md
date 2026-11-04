@@ -1186,6 +1186,7 @@
    SshForward.compute_cell_count
    SshForward.dynamic_model_config
 
+   compute_flux_sent_to_land_ice
    compute_freezing_temperature
    compute_grounding_line_band_diagnostics
    compute_haline_driving

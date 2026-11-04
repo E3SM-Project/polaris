@@ -5,6 +5,10 @@ from mpas_tools.io import write_netcdf
 from mpas_tools.ocean.viz.transect import compute_transect, plot_transect
 
 from polaris.analysis.product_step import ProductStep
+from polaris.e3sm.analysis.calendar import (
+    MODEL_YEAR_LABEL,
+    days_to_model_year,
+)
 from polaris.tasks.e3sm.analysis.misomip.diagnostics import (
     LANDICE_FILENAME,
     SECONDS_PER_YEAR,
