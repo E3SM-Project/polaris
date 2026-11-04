@@ -87,6 +87,17 @@ $O(\tilde h^2)$, and a surface anchor would feed that straight into the answer.
 Note that §3.5.1 of the design still describes a surface anchor; §3.7.4 is
 later, gives the argument, and is what Omega implements.
 
+The shift of each floor height to a common pressure uses one first-order
+expansion, so it is only accurate across about a layer.  Where the two floors
+are more than a layer apart in pressure -- in this task, the 50 m/km
+`hydrostatic_consistency` tilts on 128 m and 64 m layers -- `anchor_difference()`
+compares the shallower floor with the deeper column's own interface just below
+its pressure instead, with the expansion shared by the two layers that meet
+there, and carries the result down to the edge's deepest interface with the
+matched-pressure integrand.  Stretched across the whole offset, the expansion
+would leave an error that grows with the cube of the offset and is the same at
+every depth.  This mirrors Omega's `PressureGrad::computeColumnScan`.
+
 One consequence is worth knowing before reading the tests: on these states the
 sea-floor anchor is **not** zero, even on `hydrostatic_consistency_linear`.
 
@@ -422,8 +433,8 @@ each sweep:
 
 | variant | worst ratio | at | gate |
 | --- | --- | --- | --- |
-| `hydrostatic_consistency` | 2.58x | 4 km, 128 m, tilt 50 | 1.5 |
-| `hydrostatic_consistency_linear` | 7.71x | 4 km, 64 m, tilt 50 | 4.0 |
+| `hydrostatic_consistency` | 2.68x | 4 km, 128 m, tilt 50 | 1.5 |
+| `hydrostatic_consistency_linear` | 29.4x | 4 km, 64 m, tilt 0.1 | 15 |
 | `bathymetry_step` | 1170x | 4 km, 256 m, grad 200 | 500 |
 | `bathymetry_step_linear` | 58828x | 4 km, 256 m, grad 200 | 20000 |
 
