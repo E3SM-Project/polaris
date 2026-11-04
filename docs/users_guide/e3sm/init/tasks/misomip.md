@@ -266,8 +266,10 @@ The directory holds:
   conditions do;
 - `user_nl_mali`, with the densities the ocean's land-ice pressure used,
   and, for `iceocean1r` and `iceocean1ra`, the {ref}`landice-mismip-plus`
-  tasks' MALI options with the calving of their Ice1r run.  The melt
-  under floating ice comes from the ocean;
+  tasks' MALI options with the calving of their Ice1r run, and MALI's own
+  defaults where E3SM's differ: no thermal solver, tracer advection, ISMIP6
+  or face melt, or regional statistics.  The melt under floating ice comes
+  from the ocean;
 - for `iceocean1r` and `iceocean1ra`, `SourceMods/src.mali/` with the
   MISMIP+ tasks' Albany input.
 

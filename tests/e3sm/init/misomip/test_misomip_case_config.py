@@ -19,6 +19,8 @@ from polaris.tasks.e3sm.init.misomip.case_config import (
     E3SM_DEFAULT_OPTIONS,
     E3SM_OWNED_OPTIONS,
     MALI_DAILY_FIELDS,
+    MALI_E3SM_DEFAULT_OPTIONS,
+    MALI_E3SM_OWNED_OPTIONS,
     MALI_HISTORY_FIELDS,
     MALI_HISTORY_INTERVAL,
     MISMIP_PLUS_STANDALONE_OPTIONS,
@@ -63,6 +65,8 @@ MPAS_OCEAN = os.path.join(
     'components',
     'mpas-ocean',
 )
+
+MALI = os.path.join(os.path.dirname(MPAS_OCEAN), 'mpas-albany-landice')
 
 #: Options with differing defaults that E3SM sets for itself
 E3SM_MANAGED = {
@@ -168,13 +172,13 @@ def test_user_nl_mpaso_needs_every_e3sm_default_option():
         get_user_nl_mpaso(standalone, defaults, 1e-3)
 
 
-def _registry_defaults():
+def _registry_defaults(component=MPAS_OCEAN):
     defaults = dict()
     pattern = re.compile(
         r'<nml_option\s+name="(\w+)"[^>]*?default_value="([^"]*)"', re.S
     )
     filenames = glob(
-        os.path.join(MPAS_OCEAN, 'src', '**', 'Registry*.xml'), recursive=True
+        os.path.join(component, 'src', '**', 'Registry*.xml'), recursive=True
     )
     for filename in filenames:
         with open(filename) as handle:
@@ -827,3 +831,45 @@ def test_readme_describes_the_branch_run():
     text = get_readme('ocean0', GRIDS, ['layout: 64 tasks'])
     assert 'branch run' not in text
     assert 'edit_streams.py' not in text
+
+
+@pytest.mark.skipif(
+    not os.path.exists(os.path.join(MALI, 'bld')),
+    reason="E3SM's MALI is not checked out",
+)
+def test_mali_e3sm_default_options_are_those_that_differ():
+    """
+    Every MALI option whose E3SM default differs from MALI's own, which the
+    MISMIP+ tasks run with, is written for a prognostic MALI or kept as
+    E3SM's for a stated reason.  Fails when E3SM's defaults change.
+    """
+    from polaris.tasks.e3sm.init.misomip.case_config import _same
+
+    registry = {
+        option.lower(): value
+        for option, value in _registry_defaults(MALI).items()
+    }
+    filename = os.path.join(
+        MALI, 'bld', 'namelist_files', 'namelist_defaults_mali.xml'
+    )
+    differ = set()
+    for element in ET.parse(filename).getroot():
+        option = element.tag.lower()
+        default = registry.get(option)
+        if element.attrib or default is None:
+            continue
+        if not _same(element.text or '', default):
+            differ.add(option)
+
+    written = set(_options(get_user_nl_mali('iceocean1r', 6.0e-25)))
+    kept = set(MALI_E3SM_OWNED_OPTIONS)
+    # subglacial hydrology is off in both, so its options are unused
+    assert not _same(registry['config_sgh'], '.true.')
+    unused = {option for option in differ if option.startswith('config_sgh_')}
+    accounted = {option.lower() for option in written | kept} | unused
+    assert differ - accounted == set()
+
+    # MALI's own defaults, and only where E3SM's differ
+    for option, value in MALI_E3SM_DEFAULT_OPTIONS.items():
+        assert option.lower() in differ
+        assert _same(value, registry[option.lower()])

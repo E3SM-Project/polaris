@@ -192,7 +192,11 @@ prognostic MALI (`PROGNOSTIC_EXPERIMENTS`),
 {py:func}`polaris.tasks.e3sm.init.misomip.case_config.get_user_nl_mali()`
 adds the MISMIP+ tasks' `namelist.landice`, less
 `MISMIP_PLUS_STANDALONE_OPTIONS`, with the rate factor from their
-`mismip_plus.cfg` and their Ice1r run's calving, each option once.  The
+`mismip_plus.cfg` and their Ice1r run's calving, then
+`MALI_E3SM_DEFAULT_OPTIONS`, MALI's own defaults where E3SM's differ, each
+option once.  A unit test checks that every MALI option whose E3SM default
+differs from the submodule's MALI Registry is written or in
+`MALI_E3SM_OWNED_OPTIONS`, which keep E3SM's values.  The
 step copies their `albany_input.yaml` into `SourceMods/src.mali/` and
 writes `edit_streams.py` from `edit_streams.template` through
 {py:func}`polaris.tasks.e3sm.init.misomip.case_config.get_edit_streams_script()`,

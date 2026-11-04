@@ -217,6 +217,48 @@ MALI_HISTORY_FIELDS = [
 #: ocean sends and the melt MALI applies
 MALI_DAILY_FIELDS = ['floatingBasalMassBal', 'floatingBasalMassBalApplied']
 
+#: MALI options whose E3SM default differs from MALI's own, which the
+#: MISMIP+ tasks run with, written for a prognostic MALI with MALI's
+#: values: no thermal solver or tracer advection, no ISMIP6 melt or face
+#: melt, the calving options' MALI defaults, and no regional statistics,
+#: which need region masks the cases lack
+MALI_E3SM_DEFAULT_OPTIONS = {
+    'config_thermal_solver': "'none'",
+    'config_tracer_advection': "'none'",
+    'config_front_mass_bal_grounded': "'none'",
+    'config_use_3d_thermal_forcing_for_face_melt': '.false.',
+    'config_ocean_data_extrapolation': '.false.',
+    'config_calving_error_threshold': '0.1',
+    'config_crevasse_water_depth': '0.0',
+    'config_distribute_unablatedVolumeDynCell': '.false.',
+    'config_restore_calving_front_prevent_retreat': '.true.',
+    'config_AM_regionalStats_enable': '.false.',
+}
+
+#: MALI options whose E3SM default differs from MALI's own that keep E3SM's
+#: value, with the reason
+MALI_E3SM_OWNED_OPTIONS = {
+    # the first-order solver is the point of a prognostic MALI
+    'config_velocity_solver': 'Albany',
+    # the melt under floating ice comes from the ocean
+    'config_basal_mass_bal_float': 'coupling',
+    # MALI's time step follows its coupling, and the 1-hour floor is far
+    # below its CFL limit on the 1 km mesh
+    'config_dt': 'coupling',
+    'config_adaptive_timestep_force_interval': 'coupling',
+    'config_min_adaptive_timestep': 'coupling',
+    # E3SM's run control, files and calendar
+    'config_restart_timestamp_name': 'E3SM',
+    'config_calendar_type': 'E3SM',
+    'config_block_decomp_file_prefix': 'E3SM',
+    'config_proc_decomp_file_prefix': 'E3SM',
+    # E3SM's SMB source is set from the case; the cases read the file's
+    'config_smb_source': 'E3SM',
+    # the global statistics, on as in the MISMIP+ tasks, with E3SM's output
+    'config_AM_globalStats_enable': 'output',
+    'config_AM_globalStats_compute_interval': 'output',
+}
+
 #: Options of the MISMIP+ tasks' MALI namelist that an E3SM case leaves to
 #: E3SM: the run's start, the partition files and the analysis members,
 #: whose output E3SM configures
@@ -935,6 +977,15 @@ def get_user_nl_mali(experiment, flow_param_a):
         options['config_calving'] = "'thickness_threshold'"
         options['config_calving_thickness'] = repr(MALI_DYNAMIC_THICKNESS)
         options['config_remove_icebergs'] = '.true.'
+        lines.extend(
+            [f'{option} = {value}' for option, value in options.items()]
+            + ['', "! MALI's defaults, where E3SM's differ"]
+        )
+        options = {
+            option: value
+            for option, value in MALI_E3SM_DEFAULT_OPTIONS.items()
+            if option not in options
+        }
         for option, value in options.items():
             lines.append(f'{option} = {value}')
     lines.append('')
