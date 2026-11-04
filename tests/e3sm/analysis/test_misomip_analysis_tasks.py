@@ -410,3 +410,34 @@ def test_iceocean1ra_reads_iceocean1r_s_initial_conditions(tmp_path):
     assert targets['landice_init.nc'] == str(
         tmp_path / 'iceocean1r_mali_ic.nc'
     )
+
+
+def test_the_coupled_run_s_mali_is_the_primary_ice_sheet_reference(tmp_path):
+    """The standalone run with the coupled run's MALI comes first, as the
+    primary reference, and runs with another MALI version follow it."""
+    task = _coupled_task(
+        tmp_path,
+        'iceocean1r',
+        {'iceocean1r': _coupled_case(tmp_path, 'iceocean1r', [1])},
+    )
+    section = 'misomip_analysis_mismip_plus'
+    for option in ['forward', 'coupled_mali_monthly_forward']:
+        task.config.set(
+            section, f'ice1r_{option}', str(tmp_path / option), user=True
+        )
+    step = next(
+        step
+        for step in task.steps.values()
+        if step.name == 'ice_sheet_comparison'
+    )
+    step.config = task.config
+    step.setup()
+
+    assert step.references == [
+        (
+            "MALI Ice1r, coupled run's MALI, monthly-forced steps",
+            'coupled_mali_monthly_forward_',
+            True,
+        ),
+        ('MALI Ice1r, other MALI version', 'forward_', False),
+    ]
