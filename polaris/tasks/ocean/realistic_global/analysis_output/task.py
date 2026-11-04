@@ -8,6 +8,7 @@ from polaris.tasks.ocean.realistic_global.analysis_output.forward import (
     AnalysisOutputForward,
 )
 from polaris.tasks.ocean.realistic_global.forward import (
+    DatabaseInitialCondition,
     InitialCondition,
     StatsAnalysis,
     StepInitialCondition,
@@ -52,6 +53,21 @@ def add_realistic_global_analysis_output_tasks(component):
                 init_condition=init_condition,
             )
         )
+
+    rrs_init_condition = DatabaseInitialCondition(
+        mesh_name='RRS18to6v3',
+        mpaso_id=210321,
+        omega_id=260807,
+        min_res=6.0,
+        approx_cell_count=3693225,
+    )
+    component.add_task(
+        AnalysisOutput(
+            component=component,
+            mesh_name='RRS18to6v3',
+            init_condition=rrs_init_condition,
+        )
+    )
 
     # the same meshes as the forward tasks, each running from the initial
     # condition the shared init steps build
