@@ -669,9 +669,6 @@ def get_grid_file(grids, creation_date, inputdata_root, cell_counts):
     landice = grids['landice']
     maps = dict(
         glc_to_ocn=names.map_path(landice, ocean, 'aave', creation_date),
-        glc_to_ocn_smoothed=names.map_path(
-            landice, ocean, 'smoothed', creation_date
-        ),
         ocn_to_glc=names.map_path(ocean, landice, 'aave', creation_date),
     )
     for key, path in maps.items():
@@ -770,6 +767,11 @@ def get_shell_commands(
         'MPASO_TIDAL_MASK_FILE': forcing,
         'MALI_DECOMP_FILE_PREFIX': names.landice_partition_prefix(
             landice, date
+        ),
+        # MALI's geometry on the ocean, through the smoothed map, which is
+        # not a map between a pair of grids in the grid file
+        'GLC2OCN_SHELF_SMAPNAME': names.map_path(
+            landice, ocean, 'smoothed', date
         ),
     }
     data_mode = get_mali_mode(experiment) == 'data'

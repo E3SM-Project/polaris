@@ -90,7 +90,7 @@
       <map name="OCN2GLC_SHELF_FMAPNAME">{{ ocn_to_glc }}</map>
       <map name="OCN2GLC_SHELF_SMAPNAME">{{ ocn_to_glc }}</map>
       <map name="GLC2OCN_FMAPNAME">{{ glc_to_ocn }}</map>
-      <map name="GLC2OCN_SMAPNAME">{{ glc_to_ocn_smoothed }}</map>
+      <map name="GLC2OCN_SMAPNAME">{{ glc_to_ocn }}</map>
     </gridmap>
   </gridmaps>
 

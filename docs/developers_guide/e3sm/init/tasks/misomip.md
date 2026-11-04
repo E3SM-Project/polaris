@@ -149,7 +149,8 @@ added by hand.
 renders `config_grids.template`, with each mesh's cell count from its SCRIP
 file.
 {py:func}`polaris.tasks.e3sm.init.misomip.case_config.get_shell_commands()`
-names the staged files relative to `$DIN_LOC_ROOT`, or to
+names the staged files, including the smoothed map in
+`GLC2OCN_SHELF_SMAPNAME`, relative to `$DIN_LOC_ROOT`, or to
 `[misomip_case_config] inputdata_root`, in which
 {py:func}`polaris.tasks.e3sm.init.misomip.case_config.get_inputdata_root()`
 replaces `{experiment}` with the experiment's name, gives

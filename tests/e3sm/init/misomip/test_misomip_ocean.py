@@ -117,7 +117,7 @@ def test_bed_and_geometry_are_smoothed_alike(mesh_name, expand_distance):
     assert smoothed_map.expand_distance == expand_distance
     assert steps['ocean/topo/map'].expand_distance == expand_distance
     # the land-ice fields come from the smoothed map, the coupler's
-    # GLC2OCN_SMAPNAME
+    # GLC2OCN_SHELF_SMAPNAME
     targets = [
         entry['work_dir_target']
         for entry in steps['land_ice_on_ocean'].input_data

@@ -251,6 +251,7 @@ The directory holds:
 
 - `config_grids.xml`, the grid file, which CIME uses in place of E3SM's;
 - `shell_commands`, which names the staged files with case variables,
+  including the smoothed map, in `GLC2OCN_SHELF_SMAPNAME`,
   gives MALI the time of the data-mode file's first record, from which it
   counts the months between records, turns off the ocean's thermal
   forcing of a prognostic MALI (`GLC_NZOC=0`), whose melt comes through

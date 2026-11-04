@@ -258,6 +258,9 @@ def test_shell_commands_name_the_staged_files():
         f"mpasli.graph.info.{DATE}.part.'",
         f"./xmlchange 'MALI_DATAMODE_FILE={glc}/"
         f"misomip-li1km.ocean3_datamode.{DATE}.nc'",
+        f"./xmlchange 'GLC2OCN_SHELF_SMAPNAME=$DIN_LOC_ROOT/cpl/gridmaps/"
+        f'misomip-li1km/map_misomip-li1km_to_misomip-o4km_smoothed.'
+        f"{DATE}.nc'",
         "./xmlchange 'MALI_DATAMODE_REFERENCE_TIME=0001-01-01_00:00:00'",
         './xmlchange GLC_RUNOFF_TO_OCN=FALSE',
         './xmlchange BUDGETS=TRUE',
@@ -476,10 +479,6 @@ def test_grid_file():
         f'cpl/gridmaps/misomip-li1km/'
         f'map_misomip-li1km_to_misomip-o4km_aave.{DATE}.nc'
     )
-    glc_to_ocn_smoothed = (
-        f'cpl/gridmaps/misomip-li1km/'
-        f'map_misomip-li1km_to_misomip-o4km_smoothed.{DATE}.nc'
-    )
     ocn_to_glc = (
         f'cpl/gridmaps/misomip-o4km/'
         f'map_misomip-o4km_to_misomip-li1km_aave.{DATE}.nc'
@@ -488,7 +487,7 @@ def test_grid_file():
         'OCN2GLC_SHELF_FMAPNAME': ocn_to_glc,
         'OCN2GLC_SHELF_SMAPNAME': ocn_to_glc,
         'GLC2OCN_FMAPNAME': glc_to_ocn,
-        'GLC2OCN_SMAPNAME': glc_to_ocn_smoothed,
+        'GLC2OCN_SMAPNAME': glc_to_ocn,
     }
 
     text = get_grid_file(GRIDS, DATE, '/short/inputdata', counts)
