@@ -29,7 +29,8 @@ GT_PER_YEAR = SECONDS_PER_YEAR * 1e-12
 MIN_COVERAGE = 0.999
 
 #: The shifts, in coupling intervals, at which the daily series are also
-#: compared, to confirm that MALI applies the ocean's melt one interval late
+#: compared, to confirm that MALI applies the ocean's melt over the same
+#: interval
 CHECKED_SHIFTS = [0, 1, 2]
 
 
@@ -38,9 +39,9 @@ class ModelExchange(ProductStep):
     A step that compares the net mass flux out of the ice shelves that the
     ocean sends with the melt MALI applies, each from its own model's output
 
-    MALI receives the coupler's average of what the ocean sent over one
-    glc coupling interval and applies it over the next, so each of the
-    ocean's periods is compared with MALI's period one interval later.
+    MALI's step over each glc coupling interval applies the coupler's
+    average of what the ocean sent over the same interval, so each of the
+    ocean's periods is compared with the same period in MALI.
 
     Attributes
     ----------
@@ -182,7 +183,7 @@ class ModelExchange(ProductStep):
             Series(
                 years,
                 GT_PER_YEAR * ds.landiceApplied.values,
-                'MALI, applied one interval later',
+                'MALI, applied',
                 linestyle='--',
                 marker='.',
             ),
@@ -308,10 +309,10 @@ def read_landice_steps(filenames):
     return steps
 
 
-def compare_with_landice(ds_ocean, steps, interval, start, shift=1):
+def compare_with_landice(ds_ocean, steps, interval, start, shift=0):
     """
     Compare the ocean's flux in each period with the melt MALI applies over
-    the period shifted later by whole coupling intervals
+    the same period, or over it shifted later by whole coupling intervals
 
     Parameters
     ----------
@@ -330,7 +331,8 @@ def compare_with_landice(ds_ocean, steps, interval, start, shift=1):
         The start of the run, if an initial start, whose period is marked
 
     shift : int, optional
-        The shift in coupling intervals
+        The shift in coupling intervals, 0 for the period MALI applies the
+        ocean's flux over
 
     Returns
     -------

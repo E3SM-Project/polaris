@@ -60,12 +60,12 @@ def _steps(melt, lengths=None):
     return steps
 
 
-def test_mali_applies_each_day_s_melt_one_interval_later():
-    """MALI applies the ocean's day-d melt on day d + 1, so the ocean's
-    days match MALI's one day later, and the last day has no MALI day."""
+def test_mali_applies_each_day_s_melt_over_the_same_day():
+    """MALI's step over day d applies the ocean's day-d melt, so the
+    ocean's days match MALI's same days, and a shift of one interval
+    compares each with MALI's next day, which the last day lacks."""
     ds_ocean = _ocean_days([10.0, 20.0, 30.0])
-    # MALI's first day applies the ocean's initial export
-    steps = _steps([1.0, 10.0, 20.0, 30.0 * 1.01])
+    steps = _steps([10.0, 20.0, 30.0 * 1.01])
 
     ds = compare_with_landice(ds_ocean, steps, interval=1.0, start=0.0)
 
@@ -74,10 +74,11 @@ def test_mali_applies_each_day_s_melt_one_interval_later():
     np.testing.assert_allclose(ds.landiceCoverage, [1.0, 1.0, 1.0])
     np.testing.assert_array_equal(ds.initialStart, [True, False, False])
 
-    ds_unshifted = compare_with_landice(
-        ds_ocean, steps, interval=1.0, start=0.0, shift=0
+    ds_shifted = compare_with_landice(
+        ds_ocean, steps, interval=1.0, start=0.0, shift=1
     )
-    np.testing.assert_allclose(ds_unshifted.landiceApplied, [1.0, 10.0, 20.0])
+    np.testing.assert_allclose(ds_shifted.landiceApplied[:2], [20.0, 30.3])
+    np.testing.assert_allclose(ds_shifted.landiceCoverage, [1.0, 1.0, 0.0])
 
 
 def test_mali_s_melt_is_averaged_over_its_steps_in_a_period():
@@ -91,7 +92,9 @@ def test_mali_s_melt_is_averaged_over_its_steps_in_a_period():
         [0.0, 0.0, 10.0, 10.0, 16.0, 16.0, 0.0, 0.0], lengths=0.5 * np.ones(8)
     )
 
-    ds = compare_with_landice(ds_ocean, steps, interval=1.0, start=None)
+    ds = compare_with_landice(
+        ds_ocean, steps, interval=1.0, start=None, shift=1
+    )
 
     # MALI's days 1 to 3: two half days at 10 and two at 16
     np.testing.assert_allclose(ds.landiceApplied[0], 13.0)

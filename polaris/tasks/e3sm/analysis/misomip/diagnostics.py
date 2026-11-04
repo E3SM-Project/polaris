@@ -394,9 +394,11 @@ class RunDiagnostics(Step):
             prefix=DAILY_MEANS_PREFIX,
         )
         ds_exchange = xr.Dataset()
+        # the start is the first sample, which the compute interval puts
+        # after the start of the day
         ds_exchange['dayStart'] = (
             'Time',
-            xtime_to_days(ds.xtime_startDaily.values),
+            np.floor(xtime_to_days(ds.xtime_startDaily.values)),
         )
         ds_exchange['dayEnd'] = (
             'Time',
