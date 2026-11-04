@@ -115,6 +115,16 @@ Contributors: Xylar Asay-Davis, Claude
 On request, Polaris writes the protocol's ocean fields (Sect. 3.3) on its
 2 km by 5 m output grid.
 
+### Requirement: E3SM runs report their performance
+
+Date last modified: 2026/11/04
+
+Contributors: Xylar Asay-Davis, Claude
+
+Polaris reports each E3SM run's throughput over model time, the share of
+each model in its run time, its cost and its memory, so that a long run
+shows whether it slows down or grows.
+
 ## Algorithm Design
 
 ### Algorithm Design: The analysis reads runs it did not set up
@@ -330,6 +340,30 @@ averaged over each 5 m bin by overlap with each layer, and the overturning
 streamfunction is computed directly on the protocol's $x$ and $z$. Names
 and units are the protocol's.
 
+### Algorithm Design: E3SM runs report their performance
+
+Date last modified: 2026/11/04
+
+Contributors: Xylar Asay-Davis, Claude
+
+Each job of a run, or segment, leaves CIME's timing summary and timer
+statistics, a coupler log and, with memory profiling, the driver's memory
+profile. All carry the segment's LID.
+
+- Throughput is the simulated years per day of each segment, from its
+  summary, and of each model day, from the coupler's daily wall-clock
+  stamps.
+- Each segment's run time splits into the ocean's time integration, its
+  analysis members and the rest of the ocean; MALI's finite-element grid
+  build, the rest of its velocity solve and the rest of MALI; and the
+  coupler and driver, the rest of the total. The coupler's communication
+  overlaps the models' run times, so it is not a part of its own.
+- Cost is the summary's processor hours per simulated year. Start-up and
+  finishing times come from the summary, and queue waits from Slurm.
+- Memory is the coupler's root task's, from its log, and its node's, from
+  the profile. Each segment starts new processes, so each is its own line,
+  and growth within a segment is told apart from growth over the run.
+
 ## Implementation
 
 ### Implementation: The analysis reads runs it did not set up
@@ -448,6 +482,19 @@ Contributors: Xylar Asay-Davis, Claude
 each experiment gets a `protocol_fields` step, and each mesh gets the map to
 the protocol's grid as a `MappingFileStep`.
 
+### Implementation: E3SM runs report their performance
+
+Date last modified: 2026/11/04
+
+Contributors: Xylar Asay-Davis, Claude
+
+`polaris/e3sm/analysis/performance.py` parses the timing summary, the
+timer statistics, the coupler's stamps and memory records, the memory
+profile and `sacct`'s accounting ([D8](#decisions)).
+The MISOMIP tasks' `performance` step, added for every E3SM run, links each
+segment's files at setup and plots them. Where `sacct` is missing, queue
+waits and Slurm's memory are left out.
+
 ## Testing
 
 ### Testing and Validation
@@ -473,6 +520,9 @@ Contributors: Xylar Asay-Davis, Claude
   Twenty-year standalone COM runs are not part of this work.
 - With protocol fields on, 4 km Ocean0's remapped total melt flux matches
   the native one to the map's area error.
+- Unit tests parse a timing summary, timer statistics, coupler logs and a
+  memory profile with the formats of the first coupled year's segments,
+  and check that the parts of a segment's run time add up to its total.
 - No task joins a suite, since each needs a run's output.
 
 ## Decisions
