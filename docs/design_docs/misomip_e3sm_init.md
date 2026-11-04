@@ -1079,7 +1079,8 @@ directory into the case's SourceMods and edits them:
 
 - the ocean's daily means hold only `landIceFreshwaterFlux`,
   `frazilIceFreshwaterFlux`, `landIceFreshwaterFluxNotSentToGlc` and
-  `landIceHeatFlux`, and `user_nl_mpaso` turns them on;
+  `landIceHeatFlux`, and `user_nl_mpaso` turns them on, sampled every
+  time step rather than hourly, as E3SM's monthly means already are;
 - the ocean's monthly means add `landIceFreshwaterFluxNotSentToGlc`;
 - MALI's history is monthly, with the MISMIP+ tasks' output fields, the
   mesh, and `avgFloatingBMBFlux`;
