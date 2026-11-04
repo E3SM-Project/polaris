@@ -115,8 +115,8 @@ spack:
   # Optional overrides for the Spack, spack-packages and e3sm-spack-packages
   # sources that mache pins (mache/spack/pins.yaml), each a tag, commit or
   # branch per repository.  mache 5.4.0 pins e3sm-spack-packages v2026.06.2,
-  # and v2026.06.3 adds netcdf-fortran 4.6.4, which mpas_tools 2.2.1
-  # requires.
+  # and v2026.06.3 adds netcdf-fortran 4.6.4, which `[all]` in
+  # deploy/pins.cfg pins.
   pins:
     repos:
       e3sm:
