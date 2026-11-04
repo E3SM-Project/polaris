@@ -43,7 +43,7 @@ def get_cull_topo_steps(mesh_name, include_viz=False):
     base_mesh_step = remap_steps['base_mesh']
     unsmoothed_topo_step = remap_steps['remap_unsmoothed_topo']
     # only unified meshes have a sizing-field step, used by the dcEdge
-    # diagnostic in the cull-mask step
+    # and dvEdge diagnostics in the cull-mask step
     sizing_field_step = remap_steps.get('sizing_field', None)
 
     config_filename = 'cull_topo.cfg'
@@ -98,7 +98,7 @@ def _get_cull_topo_config(filepath, base_mesh_step, mesh_name):
 
         if mesh_name in UNIFIED_MESH_NAMES:
             # unified-mesh config options (e.g. per-mesh overrides of the
-            # dcEdge diagnostic thresholds)
+            # dcEdge and dvEdge diagnostic thresholds)
             config.add_from_package(
                 'polaris.mesh.spherical.unified', 'unified_mesh.cfg'
             )

@@ -26,6 +26,7 @@ from polaris.tasks.e3sm.init.topo.cull.consistency import (
 )
 from polaris.tasks.e3sm.init.topo.cull.dc_edge_diagnostics import (
     check_ocean_dc_edge,
+    check_ocean_dv_edge,
 )
 from polaris.tasks.e3sm.init.topo.cull.land_locked import (
     find_dead_end_cells,
@@ -78,7 +79,7 @@ class CullMaskStep(Step):
     sizing_field_step : polaris.Step or None
         For unified meshes, the sizing-field build step whose
         ``sizing_field.nc`` provides the ocean background cell width used
-        by the ``dcEdge`` diagnostic
+        by the ``dcEdge`` and ``dvEdge`` diagnostics
     """
 
     def __init__(
@@ -114,7 +115,7 @@ class CullMaskStep(Step):
         sizing_field_step : polaris.Step, optional
             For unified meshes, the sizing-field build step whose
             ``sizing_field.nc`` provides the ocean background cell width
-            used by the ``dcEdge`` diagnostic
+            used by the ``dcEdge`` and ``dvEdge`` diagnostics
         """
         super().__init__(
             component,
@@ -383,6 +384,7 @@ class CullMaskStep(Step):
         self._combine_masks()
         self._check_mask_consistency()
         self._check_ocean_dc_edge()
+        self._check_ocean_dv_edge()
         logger.info('Completed CullMaskStep run sequence.')
 
     def _create_critical_transects(self):
@@ -891,6 +893,36 @@ class CullMaskStep(Step):
             ds_sizing=ds_sizing,
             min_ratio=min_ratio,
             max_ratio=max_ratio,
+            min_abs_ratio=min_abs_ratio,
+            logger=logger,
+        )
+
+    def _check_ocean_dv_edge(self):
+        """
+        Check that the shortest dvEdge in the ocean/sea-ice domain, which
+        limits the sea-ice time step, is not too short relative to the
+        finest ocean background cell width (only available for unified
+        meshes with a sizing-field step).
+        """
+        logger = self.logger
+        if self.sizing_field_step is None:
+            logger.info(
+                'No sizing-field step, skipping the dvEdge diagnostic.'
+            )
+            return
+
+        min_abs_ratio = self.config.getfloat(
+            'cull_mesh', 'min_dv_edge_abs_ratio'
+        )
+
+        ds_base_mesh = open_dataset('base_mesh.nc')
+        ds_masks = open_dataset('cull_masks.nc')
+        ds_sizing = open_dataset('sizing_field.nc')
+
+        check_ocean_dv_edge(
+            ds_base_mesh=ds_base_mesh,
+            ocean_cull_mask=ds_masks.oceanCullMask.values,
+            ds_sizing=ds_sizing,
             min_abs_ratio=min_abs_ratio,
             logger=logger,
         )
