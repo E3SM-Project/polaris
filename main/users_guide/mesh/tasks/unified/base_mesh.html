@@ -149,7 +149,8 @@ controlled by the mesh configuration.</p>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">u-oi240-lr240</span></code></p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">u-oi30-lr10</span></code></p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">u-oi6to18-lr6to10</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">u-oi6to18-lr12p5</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">u-oi6to18-lr25</span></code></p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">u-oi-so12to30-lr10</span></code></p></li>
 </ul>
 <p>The task work directory contains symlinks to all upstream coastline, river,
@@ -203,7 +204,7 @@ for merging nearby constraint vertices from different river features.
 Vertices closer than this distance are merged into a single cluster at their
 centroid, preventing JIGSAW from creating thin-sliver triangles that would
 produce degenerate MPAS cell polygons.  The default is 2 km; mesh-specific
-configs may override it (e.g. 3 km for <code class="docutils literal notranslate"><span class="pre">u-oi6to18-lr6to10</span></code>).</p></li>
+configs may override it (e.g. 6.25 km for <code class="docutils literal notranslate"><span class="pre">u-oi6to18-lr12p5</span></code>).</p></li>
 </ul>
 <p>Refinement options are controlled through the <code class="docutils literal notranslate"><span class="pre">[sizing_field]</span></code> section (see
 <a class="reference internal" href="sizing_field.html#users-mesh-unified-sizing-field"><span class="std std-ref">Sizing-field tasks</span></a>).</p>

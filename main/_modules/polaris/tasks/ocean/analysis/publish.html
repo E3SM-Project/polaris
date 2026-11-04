@@ -490,7 +490,7 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">    gallery over it</span>
 
 <span class="sd">    This is the only step that knows how results are presented.  It reads</span>
-<span class="sd">    each step's manifest fragment, symlinks the products into the staging</span>
+<span class="sd">    each step's manifest fragment, copies the products into the staging</span>
 <span class="sd">    tree, renders a thumbnail for each plot, writes the merged manifest, and</span>
 <span class="sd">    generates the site.  Working from the fragments rather than from the</span>
 <span class="sd">    directory structure is what lets the work be re-chunked later without</span>
@@ -571,6 +571,7 @@ window.runMermaid = runMermaid;</script>
             <span class="n">thumbnail_quality</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">getint</span><span class="p">(</span>
                 <span class="s1">'ocean_analysis'</span><span class="p">,</span> <span class="s1">'thumbnail_quality'</span>
             <span class="p">),</span>
+            <span class="n">copy_data</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">getboolean</span><span class="p">(</span><span class="s1">'ocean_analysis'</span><span class="p">,</span> <span class="s1">'copy_netcdf'</span><span class="p">),</span>
         <span class="p">)</span>
 
         <span class="n">generate_site</span><span class="p">(</span>

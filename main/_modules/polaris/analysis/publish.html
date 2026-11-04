@@ -471,6 +471,7 @@ window.runMermaid = runMermaid;</script>
   <h1>Source code for polaris.analysis.publish</h1><div class="highlight"><pre>
 <span></span><span class="kn">import</span><span class="w"> </span><span class="nn">json</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">shutil</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">polaris.analysis.manifest</span><span class="w"> </span><span class="kn">import</span> <span class="n">range_key</span><span class="p">,</span> <span class="n">read_fragment</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">polaris.analysis.thumbnail</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
@@ -532,14 +533,20 @@ window.runMermaid = runMermaid;</script>
     <span class="n">thumbnail_scale</span><span class="o">=</span><span class="n">DEFAULT_SCALE</span><span class="p">,</span>
     <span class="n">thumbnail_format</span><span class="o">=</span><span class="n">DEFAULT_FORMAT</span><span class="p">,</span>
     <span class="n">thumbnail_quality</span><span class="o">=</span><span class="n">DEFAULT_QUALITY</span><span class="p">,</span>
+    <span class="n">copy_data</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
 <span class="p">):</span>
 <span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Publish every product the fragments describe into the staging tree</span>
 
-<span class="sd">    Products are published by symlink from the step that owns them, so that</span>
-<span class="sd">    each file has exactly one owner, Polaris's output checking continues to</span>
-<span class="sd">    work, and the staging tree is a view rather than a second source of</span>
-<span class="sd">    truth.</span>
+<span class="sd">    Products are published by copying them from the step that owns them, not</span>
+<span class="sd">    by symlink, so that the staging tree can be served from a web portal</span>
+<span class="sd">    that cannot read the work directory.  A web server only follows a link</span>
+<span class="sd">    if it can read every directory on the way to its target, and a work</span>
+<span class="sd">    directory on scratch space normally does not allow that.  The plots are</span>
+<span class="sd">    always copied, since they are small.  The data files are only copied if</span>
+<span class="sd">    ``copy_data`` is set, since for a large mesh they can be most of the</span>
+<span class="sd">    size of the analysis; a product whose data file is not copied is</span>
+<span class="sd">    published without one.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
@@ -573,6 +580,10 @@ window.runMermaid = runMermaid;</script>
 
 <span class="sd">    thumbnail_quality : int, optional</span>
 <span class="sd">        The compression quality of thumbnails, from 1 to 100</span>
+
+<span class="sd">    copy_data : bool, optional</span>
+<span class="sd">        Whether to copy each product's data file into the staging tree beside</span>
+<span class="sd">        its plot</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
@@ -616,6 +627,7 @@ window.runMermaid = runMermaid;</script>
                 <span class="n">plots_path</span><span class="o">=</span><span class="n">plots_path</span><span class="p">,</span>
                 <span class="n">step_name</span><span class="o">=</span><span class="n">manifest</span><span class="o">.</span><span class="n">step_name</span><span class="p">,</span>
                 <span class="n">missing</span><span class="o">=</span><span class="n">missing</span><span class="p">,</span>
+                <span class="n">copy_data</span><span class="o">=</span><span class="n">copy_data</span><span class="p">,</span>
             <span class="p">)</span>
             <span class="k">if</span> <span class="n">entry</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="n">published</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">entry</span><span class="p">)</span>
@@ -670,8 +682,10 @@ window.runMermaid = runMermaid;</script>
 
 
 
-<span class="k">def</span><span class="w"> </span><span class="nf">_publish_product</span><span class="p">(</span><span class="n">product</span><span class="p">,</span> <span class="n">step_path</span><span class="p">,</span> <span class="n">plots_path</span><span class="p">,</span> <span class="n">step_name</span><span class="p">,</span> <span class="n">missing</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">"""Symlink one product's files, or record it as missing"""</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_publish_product</span><span class="p">(</span>
+    <span class="n">product</span><span class="p">,</span> <span class="n">step_path</span><span class="p">,</span> <span class="n">plots_path</span><span class="p">,</span> <span class="n">step_name</span><span class="p">,</span> <span class="n">missing</span><span class="p">,</span> <span class="n">copy_data</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">"""Copy one product's files, or record it as missing"""</span>
     <span class="n">sources</span> <span class="o">=</span> <span class="p">{</span><span class="s1">'plot'</span><span class="p">:</span> <span class="n">product</span><span class="o">.</span><span class="n">plot</span><span class="p">}</span>
     <span class="k">if</span> <span class="n">product</span><span class="o">.</span><span class="n">data</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">sources</span><span class="p">[</span><span class="s1">'data'</span><span class="p">]</span> <span class="o">=</span> <span class="n">product</span><span class="o">.</span><span class="n">data</span>
@@ -687,16 +701,50 @@ window.runMermaid = runMermaid;</script>
     <span class="n">entry</span> <span class="o">=</span> <span class="n">product</span><span class="o">.</span><span class="n">to_dict</span><span class="p">()</span>
     <span class="n">entry</span><span class="p">[</span><span class="s1">'step'</span><span class="p">]</span> <span class="o">=</span> <span class="n">step_name</span>
     <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="p">(</span><span class="n">source</span><span class="p">,</span> <span class="n">basename</span><span class="p">)</span> <span class="ow">in</span> <span class="n">targets</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-        <span class="n">_symlink</span><span class="p">(</span><span class="n">source</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">plots_path</span><span class="p">,</span> <span class="n">basename</span><span class="p">))</span>
+        <span class="n">destination</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">plots_path</span><span class="p">,</span> <span class="n">basename</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">key</span> <span class="o">==</span> <span class="s1">'data'</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">copy_data</span><span class="p">:</span>
+            <span class="c1"># a data file published by an earlier run would otherwise stay</span>
+            <span class="c1"># in the tree with nothing linking to it</span>
+            <span class="n">_remove</span><span class="p">(</span><span class="n">destination</span><span class="p">)</span>
+            <span class="n">entry</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="k">continue</span>
+        <span class="n">_copy</span><span class="p">(</span><span class="n">source</span><span class="p">,</span> <span class="n">destination</span><span class="p">)</span>
         <span class="n">entry</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">PLOTS_DIRNAME</span><span class="p">,</span> <span class="n">basename</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">entry</span>
 
 
-<span class="k">def</span><span class="w"> </span><span class="nf">_symlink</span><span class="p">(</span><span class="n">source</span><span class="p">,</span> <span class="n">link_path</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">"""Point link_path at source, replacing a link left by an earlier run"""</span>
-    <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">islink</span><span class="p">(</span><span class="n">link_path</span><span class="p">)</span> <span class="ow">or</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">link_path</span><span class="p">):</span>
-        <span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">link_path</span><span class="p">)</span>
-    <span class="n">os</span><span class="o">.</span><span class="n">symlink</span><span class="p">(</span><span class="n">source</span><span class="p">,</span> <span class="n">link_path</span><span class="p">)</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_copy</span><span class="p">(</span><span class="n">source</span><span class="p">,</span> <span class="n">destination</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Copy source to destination unless an earlier run already did, replacing</span>
+<span class="sd">    a symlink left by an earlier version of Polaris</span>
+<span class="sd">    """</span>
+    <span class="k">if</span> <span class="n">_is_current_copy</span><span class="p">(</span><span class="n">source</span><span class="p">,</span> <span class="n">destination</span><span class="p">):</span>
+        <span class="k">return</span>
+    <span class="n">_remove</span><span class="p">(</span><span class="n">destination</span><span class="p">)</span>
+    <span class="n">shutil</span><span class="o">.</span><span class="n">copyfile</span><span class="p">(</span><span class="n">source</span><span class="p">,</span> <span class="n">destination</span><span class="p">)</span>
+    <span class="c1"># the copy keeps the source's modification time, so that an unchanged</span>
+    <span class="c1"># file is not copied again and its thumbnail is not rendered again; the</span>
+    <span class="c1"># permissions are left to the umask, as for any new file</span>
+    <span class="n">mtime</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">stat</span><span class="p">(</span><span class="n">source</span><span class="p">)</span><span class="o">.</span><span class="n">st_mtime_ns</span>
+    <span class="n">os</span><span class="o">.</span><span class="n">utime</span><span class="p">(</span><span class="n">destination</span><span class="p">,</span> <span class="n">ns</span><span class="o">=</span><span class="p">(</span><span class="n">mtime</span><span class="p">,</span> <span class="n">mtime</span><span class="p">))</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_is_current_copy</span><span class="p">(</span><span class="n">source</span><span class="p">,</span> <span class="n">destination</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""Whether destination is a copy of source as it is now"""</span>
+    <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">islink</span><span class="p">(</span><span class="n">destination</span><span class="p">)</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">destination</span><span class="p">):</span>
+        <span class="k">return</span> <span class="kc">False</span>
+    <span class="n">source_stat</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">stat</span><span class="p">(</span><span class="n">source</span><span class="p">)</span>
+    <span class="n">destination_stat</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">stat</span><span class="p">(</span><span class="n">destination</span><span class="p">)</span>
+    <span class="k">return</span> <span class="p">(</span>
+        <span class="n">source_stat</span><span class="o">.</span><span class="n">st_size</span> <span class="o">==</span> <span class="n">destination_stat</span><span class="o">.</span><span class="n">st_size</span>
+        <span class="ow">and</span> <span class="n">source_stat</span><span class="o">.</span><span class="n">st_mtime_ns</span> <span class="o">==</span> <span class="n">destination_stat</span><span class="o">.</span><span class="n">st_mtime_ns</span>
+    <span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_remove</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""Remove a file or symlink if there is one"""</span>
+    <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">islink</span><span class="p">(</span><span class="n">path</span><span class="p">)</span> <span class="ow">or</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_add_thumbnails</span><span class="p">(</span>

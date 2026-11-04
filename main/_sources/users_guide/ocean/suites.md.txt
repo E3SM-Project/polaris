@@ -102,9 +102,10 @@ ocean/spherical/icos/cosine_bell/restart
 
 The `omega_analysis` suite analyzes a simulation that has already been run,
 rather than running one.  It is pointed at a completed Omega simulation
-through a config file and produces plots and the netCDF data behind them.  See
-{ref}`ocean-analysis` for the config file it needs and for what each task
-produces.
+through a config file and produces plots and the netCDF data behind them.  It
+reads only Omega output, not MPAS-Ocean output (see
+{ref}`ocean-analysis-supported-models`).  See {ref}`ocean-analysis` for the
+config file it needs and for what each task produces.
 
 Unlike the other suites here, it needs neither an Omega nor an MPAS-Ocean
 build, since no model is run, and it can be run on the machine where the

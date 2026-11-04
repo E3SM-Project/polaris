@@ -497,6 +497,7 @@ window.runMermaid = runMermaid;</script>
 <span class="p">)</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">polaris.tasks.e3sm.init.topo.cull.dc_edge_diagnostics</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">check_ocean_dc_edge</span><span class="p">,</span>
+    <span class="n">check_ocean_dv_edge</span><span class="p">,</span>
 <span class="p">)</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">polaris.tasks.e3sm.init.topo.cull.land_locked</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">find_dead_end_cells</span><span class="p">,</span>
@@ -551,7 +552,7 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">    sizing_field_step : polaris.Step or None</span>
 <span class="sd">        For unified meshes, the sizing-field build step whose</span>
 <span class="sd">        ``sizing_field.nc`` provides the ocean background cell width used</span>
-<span class="sd">        by the ``dcEdge`` diagnostic</span>
+<span class="sd">        by the ``dcEdge`` and ``dvEdge`` diagnostics</span>
 <span class="sd">    """</span>
 
 <div class="viewcode-block" id="CullMaskStep.__init__">
@@ -589,7 +590,7 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">        sizing_field_step : polaris.Step, optional</span>
 <span class="sd">            For unified meshes, the sizing-field build step whose</span>
 <span class="sd">            ``sizing_field.nc`` provides the ocean background cell width</span>
-<span class="sd">            used by the ``dcEdge`` diagnostic</span>
+<span class="sd">            used by the ``dcEdge`` and ``dvEdge`` diagnostics</span>
 <span class="sd">        """</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
             <span class="n">component</span><span class="p">,</span>
@@ -879,6 +880,7 @@ window.runMermaid = runMermaid;</script>
         <span class="bp">self</span><span class="o">.</span><span class="n">_combine_masks</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_check_mask_consistency</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_check_ocean_dc_edge</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_check_ocean_dv_edge</span><span class="p">()</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">'Completed CullMaskStep run sequence.'</span><span class="p">)</span></div>
 
 
@@ -1388,6 +1390,38 @@ window.runMermaid = runMermaid;</script>
             <span class="n">ds_sizing</span><span class="o">=</span><span class="n">ds_sizing</span><span class="p">,</span>
             <span class="n">min_ratio</span><span class="o">=</span><span class="n">min_ratio</span><span class="p">,</span>
             <span class="n">max_ratio</span><span class="o">=</span><span class="n">max_ratio</span><span class="p">,</span>
+            <span class="n">min_abs_ratio</span><span class="o">=</span><span class="n">min_abs_ratio</span><span class="p">,</span>
+            <span class="n">logger</span><span class="o">=</span><span class="n">logger</span><span class="p">,</span>
+        <span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_check_ocean_dv_edge</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">        Check that the shortest dvEdge in the sea-ice domain (the ocean</span>
+<span class="sd">        without cavities), which limits the sea-ice time step, is not too</span>
+<span class="sd">        short relative to the finest ocean background cell width (only</span>
+<span class="sd">        available for unified meshes with a sizing-field step).</span>
+<span class="sd">        """</span>
+        <span class="n">logger</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">logger</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">sizing_field_step</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+                <span class="s1">'No sizing-field step, skipping the dvEdge diagnostic.'</span>
+            <span class="p">)</span>
+            <span class="k">return</span>
+
+        <span class="n">min_abs_ratio</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span>
+            <span class="s1">'cull_mesh'</span><span class="p">,</span> <span class="s1">'min_dv_edge_abs_ratio'</span>
+        <span class="p">)</span>
+
+        <span class="n">ds_base_mesh</span> <span class="o">=</span> <span class="n">open_dataset</span><span class="p">(</span><span class="s1">'base_mesh.nc'</span><span class="p">)</span>
+        <span class="n">ds_masks</span> <span class="o">=</span> <span class="n">open_dataset</span><span class="p">(</span><span class="s1">'cull_masks.nc'</span><span class="p">)</span>
+        <span class="n">ds_sizing</span> <span class="o">=</span> <span class="n">open_dataset</span><span class="p">(</span><span class="s1">'sizing_field.nc'</span><span class="p">)</span>
+
+        <span class="n">check_ocean_dv_edge</span><span class="p">(</span>
+            <span class="n">ds_base_mesh</span><span class="o">=</span><span class="n">ds_base_mesh</span><span class="p">,</span>
+            <span class="n">ocean_no_cavities_cull_mask</span><span class="o">=</span><span class="p">(</span>
+                <span class="n">ds_masks</span><span class="o">.</span><span class="n">oceanNoCavitiesCullMask</span><span class="o">.</span><span class="n">values</span>
+            <span class="p">),</span>
+            <span class="n">ds_sizing</span><span class="o">=</span><span class="n">ds_sizing</span><span class="p">,</span>
             <span class="n">min_abs_ratio</span><span class="o">=</span><span class="n">min_abs_ratio</span><span class="p">,</span>
             <span class="n">logger</span><span class="o">=</span><span class="n">logger</span><span class="p">,</span>
         <span class="p">)</span>

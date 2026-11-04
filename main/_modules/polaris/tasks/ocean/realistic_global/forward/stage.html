@@ -890,6 +890,12 @@ window.runMermaid = runMermaid;</script>
                     <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">supported</span><span class="si">}</span><span class="s1">.'</span>
                 <span class="p">)</span>
         <span class="n">output_freq</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="nb">round</span><span class="p">(</span><span class="n">duration_to_seconds</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">output_interval</span><span class="p">)))</span>
+        <span class="k">if</span> <span class="n">model</span> <span class="o">==</span> <span class="s1">'omega'</span><span class="p">:</span>
+            <span class="c1"># Omega has no counterpart to MPAS-Ocean's write on startup, so a</span>
+            <span class="c1"># run shorter than its output interval would write no output at</span>
+            <span class="c1"># all; it writes its final state instead</span>
+            <span class="n">run_seconds</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="nb">round</span><span class="p">(</span><span class="n">duration_to_seconds</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">run_duration</span><span class="p">)))</span>
+            <span class="n">output_freq</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">output_freq</span><span class="p">,</span> <span class="n">run_seconds</span><span class="p">)</span>
         <span class="n">stats_freq</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="nb">round</span><span class="p">(</span><span class="n">duration_to_seconds</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">stats_interval</span><span class="p">)))</span>
         <span class="n">restart_freq</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="nb">round</span><span class="p">(</span><span class="n">duration_to_seconds</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">restart_interval</span><span class="p">)))</span>
         <span class="k">return</span> <span class="nb">dict</span><span class="p">(</span>
@@ -975,44 +981,6 @@ window.runMermaid = runMermaid;</script>
         <span class="k">return</span> <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s1">_</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">stats_period</span><span class="p">()</span><span class="si">}</span><span class="s1">Instants'</span></div>
 
 
-<div class="viewcode-block" id="ForwardStage.check_damping_supported">
-<a class="viewcode-back" href="../../../../../../developers_guide/ocean/generated/polaris.tasks.ocean.realistic_global.forward.stage.ForwardStage.check_damping_supported.html#polaris.tasks.ocean.realistic_global.forward.stage.ForwardStage.check_damping_supported">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">check_damping_supported</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">"""</span>
-<span class="sd">        Raise when the configured model cannot honor this stage's damping.</span>
-
-<span class="sd">        Omega has no Rayleigh damping</span>
-<span class="sd">        (https://github.com/E3SM-Project/Omega/issues/495), and</span>
-<span class="sd">        ``config_Rayleigh_damping_coeff`` has no counterpart in</span>
-<span class="sd">        ``mpaso_to_omega``, so a damped stage would run undamped with nothing</span>
-<span class="sd">        said.  For a staged adjustment that is not a small difference in a</span>
-<span class="sd">        low-level control: the ramp is the whole purpose of the damped stages,</span>
-<span class="sd">        and dropping it silently would make a run look adjusted when it is not.</span>
-
-<span class="sd">        A stage with no damping -- the final ``simulation`` stage, and every</span>
-<span class="sd">        stage of a simple forward run -- is unaffected.</span>
-
-<span class="sd">        Parameters</span>
-<span class="sd">        ----------</span>
-<span class="sd">        model : str</span>
-<span class="sd">            The configured ocean model, ``'mpas-ocean'`` or ``'omega'``.</span>
-
-<span class="sd">        Raises</span>
-<span class="sd">        ------</span>
-<span class="sd">        ValueError</span>
-<span class="sd">            If ``damping`` is set and ``model`` is Omega.</span>
-<span class="sd">        """</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">damping</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">model</span> <span class="o">!=</span> <span class="s1">'omega'</span><span class="p">:</span>
-            <span class="k">return</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s1">'Stage </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">!r}</span><span class="s1"> sets Rayleigh damping '</span>
-            <span class="sa">f</span><span class="s1">'(</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">damping</span><span class="si">:</span><span class="s1">g</span><span class="si">}</span><span class="s1"> 1/s), which Omega does not support; see '</span>
-            <span class="sa">f</span><span class="s1">'https://github.com/E3SM-Project/Omega/issues/495.  Run this '</span>
-            <span class="sa">f</span><span class="s1">'stage with MPAS-Ocean, or drop "damping" from the schedule to '</span>
-            <span class="sa">f</span><span class="s1">'run it undamped.'</span>
-        <span class="p">)</span></div>
-
-
 <div class="viewcode-block" id="ForwardStage.bottom_drag_options">
 <a class="viewcode-back" href="../../../../../../developers_guide/ocean/generated/polaris.tasks.ocean.realistic_global.forward.stage.ForwardStage.bottom_drag_options.html#polaris.tasks.ocean.realistic_global.forward.stage.ForwardStage.bottom_drag_options">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">bottom_drag_options</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
@@ -1027,9 +995,8 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">        reads as though the run were damped.  An undamped stage should look</span>
 <span class="sd">        undamped.</span>
 
-<span class="sd">        Applied by the forward step for MPAS-Ocean only, because Omega has no</span>
-<span class="sd">        Rayleigh damping; :py:meth:`check_damping_supported` is what keeps that</span>
-<span class="sd">        from being a silent omission.</span>
+<span class="sd">        Applied by the forward step for MPAS-Ocean only; Omega's counterpart</span>
+<span class="sd">        is :py:meth:`omega_damping_replacements`.</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
@@ -1042,6 +1009,37 @@ window.runMermaid = runMermaid;</script>
             <span class="s1">'config_implicit_bottom_drag_type'</span><span class="p">:</span> <span class="s1">'constant_and_rayleigh'</span><span class="p">,</span>
             <span class="s1">'config_Rayleigh_damping_coeff'</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">damping</span><span class="p">,</span>
         <span class="p">}</span></div>
+
+
+<div class="viewcode-block" id="ForwardStage.omega_damping_replacements">
+<a class="viewcode-back" href="../../../../../../developers_guide/ocean/generated/polaris.tasks.ocean.realistic_global.forward.stage.ForwardStage.omega_damping_replacements.html#polaris.tasks.ocean.realistic_global.forward.stage.ForwardStage.omega_damping_replacements">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">omega_damping_replacements</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]:</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">        Template replacements for ``omega_damping.yaml``, or ``None`` for a</span>
+<span class="sd">        stage with no damping.</span>
+
+<span class="sd">        Omega's ``RayleighDamping`` group applies the damping in every layer</span>
+<span class="sd">        inside the implicit vertical-mixing solve, as MPAS-Ocean's</span>
+<span class="sd">        ``constant_and_rayleigh`` bottom-drag type does.  It has no counterpart</span>
+<span class="sd">        in ``mpaso_to_omega``, because MPAS-Ocean turns damping on through the</span>
+<span class="sd">        drag type rather than a switch of its own.</span>
+
+<span class="sd">        Unlike :py:meth:`bottom_drag_options`, an undamped stage leaves the</span>
+<span class="sd">        group out rather than stating it off.  Omega's default is off, and an</span>
+<span class="sd">        Omega build without Rayleigh damping, which Polaris rejects any</span>
+<span class="sd">        ``RayleighDamping`` option against, can then still run every stage</span>
+<span class="sd">        that has no damping.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        dict of str or None</span>
+<span class="sd">            The template replacements for ``omega_damping.yaml``.</span>
+<span class="sd">        """</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">damping</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span>
+        <span class="c1"># exponent notation with a decimal point, which reads back as a float</span>
+        <span class="c1"># whichever YAML version parses it</span>
+        <span class="k">return</span> <span class="p">{</span><span class="s1">'damping_coeff'</span><span class="p">:</span> <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">damping</span><span class="si">:</span><span class="s1">.6e</span><span class="si">}</span><span class="s1">'</span><span class="p">}</span></div>
 
 
 <div class="viewcode-block" id="ForwardStage.restart_stream_replacements">

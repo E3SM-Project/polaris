@@ -342,14 +342,10 @@ version of this test; shear mixing is disabled.  MPAS-Ocean uses CVMix
 (the <code class="docutils literal notranslate"><span class="pre">constant</span></code> background scheme); Omega uses its implicit <code class="docutils literal notranslate"><span class="pre">VertMix</span></code>
 background and convective mixing, which is equivalent for this
 configuration.</p>
-<p>Both models run with explicit bottom drag (drag coefficient 1.0e-3).  For
+<p>As in the compass version of this test, both models use split-explicit
+time stepping and implicit bottom drag (drag coefficient 1.0e-3).  For
 Omega, the bottom-drag tendency is enabled through the mapped MPAS-Ocean
-debug flag <code class="docutils literal notranslate"><span class="pre">config_disable_vel_explicit_bottom_drag</span> <span class="pre">=</span> <span class="pre">false</span></code>, an interim
-approach until Omega supports implicit bottom drag.  Compared with the
-compass version of this test, split-explicit time stepping and implicit
-bottom drag remain disabled because they are not yet available in Omega:
-the tasks use the RK4 time integrator, and implicit bottom drag will be
-enabled in both models once Omega supports it.</p>
+debug flag <code class="docutils literal notranslate"><span class="pre">config_disable_vel_explicit_bottom_drag</span> <span class="pre">=</span> <span class="pre">false</span></code>.</p>
 </section>
 <section id="config-options">
 <h2>config options<a class="headerlink" href="#config-options" title="Link to this heading"></a></h2>
@@ -360,8 +356,9 @@ enabled in both models once Omega supports it.</p>
 <span class="c1"># Time integration scheme</span>
 <span class="na">time_integrator</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">split_explicit</span>
 
-<span class="c1"># Baroclinic timestep per km horizontal resolution (s)</span>
-<span class="na">dt_per_km</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">45</span>
+<span class="c1"># Baroclinic timestep per km horizontal resolution (s). Longer steps take the</span>
+<span class="c1"># vertical CFL number above 1 where the dense water descends the slope.</span>
+<span class="na">dt_per_km</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">22.5</span>
 
 <span class="c1"># Barotropic timestep per km horizontal resolution (s)</span>
 <span class="na">btr_dt_per_km</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">1.5</span>

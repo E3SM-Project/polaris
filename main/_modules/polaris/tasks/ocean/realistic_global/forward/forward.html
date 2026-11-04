@@ -702,7 +702,7 @@ window.runMermaid = runMermaid;</script>
 <a class="viewcode-back" href="../../../../../../developers_guide/ocean/generated/polaris.tasks.ocean.realistic_global.forward.forward.Forward.dynamic_model_config.html#polaris.tasks.ocean.realistic_global.forward.forward.Forward.dynamic_model_config">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">dynamic_model_config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">at_setup</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">"""</span>
-<span class="sd">        Render ``forward.yaml`` from the stage and apply MPAS-Ocean damping.</span>
+<span class="sd">        Render ``forward.yaml`` from the stage and add the physics options.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -719,12 +719,6 @@ window.runMermaid = runMermaid;</script>
         <span class="n">stage</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">stage</span>
         <span class="k">if</span> <span class="n">stage</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">stage</span> <span class="o">=</span> <span class="n">ForwardStage</span><span class="o">.</span><span class="n">from_config</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
-
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">at_setup</span><span class="p">:</span>
-            <span class="c1"># deferred to run time, as the time-integrator check is, so that a</span>
-            <span class="c1"># user can set the task up and then change the model or the</span>
-            <span class="c1"># schedule</span>
-            <span class="n">stage</span><span class="o">.</span><span class="n">check_damping_supported</span><span class="p">(</span><span class="n">model</span><span class="p">)</span>
 
         <span class="n">replacements</span> <span class="o">=</span> <span class="n">stage</span><span class="o">.</span><span class="n">model_replacements</span><span class="p">(</span>
             <span class="n">model</span><span class="p">,</span> <span class="n">min_res</span><span class="p">,</span> <span class="n">at_setup</span><span class="o">=</span><span class="n">at_setup</span>
@@ -784,6 +778,13 @@ window.runMermaid = runMermaid;</script>
             <span class="bp">self</span><span class="o">.</span><span class="n">add_model_config_options</span><span class="p">(</span>
                 <span class="n">options</span><span class="o">=</span><span class="n">stage</span><span class="o">.</span><span class="n">omega_physics_options</span><span class="p">(),</span> <span class="n">config_model</span><span class="o">=</span><span class="s1">'Omega'</span>
             <span class="p">)</span>
+            <span class="n">damping</span> <span class="o">=</span> <span class="n">stage</span><span class="o">.</span><span class="n">omega_damping_replacements</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">damping</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">add_yaml_file</span><span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">package</span><span class="p">,</span>
+                    <span class="s1">'omega_damping.yaml'</span><span class="p">,</span>
+                    <span class="n">template_replacements</span><span class="o">=</span><span class="n">damping</span><span class="p">,</span>
+                <span class="p">)</span>
 
         <span class="k">if</span> <span class="n">model</span> <span class="o">==</span> <span class="s1">'omega'</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">work_dir</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="c1"># Omega does not make the directories its streams write into</span>

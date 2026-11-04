@@ -676,6 +676,145 @@ window.runMermaid = runMermaid;</script>
 
 
 
+<div class="viewcode-block" id="check_ocean_dv_edge">
+<a class="viewcode-back" href="../../../../../../../developers_guide/e3sm/init/generated/polaris.tasks.e3sm.init.topo.cull.dc_edge_diagnostics.check_ocean_dv_edge.html#polaris.tasks.e3sm.init.topo.cull.dc_edge_diagnostics.check_ocean_dv_edge">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">check_ocean_dv_edge</span><span class="p">(</span>
+    <span class="n">ds_base_mesh</span><span class="p">,</span>
+    <span class="n">ocean_no_cavities_cull_mask</span><span class="p">,</span>
+    <span class="n">ds_sizing</span><span class="p">,</span>
+    <span class="n">min_abs_ratio</span><span class="p">,</span>
+    <span class="n">logger</span><span class="p">,</span>
+    <span class="n">out_filename</span><span class="o">=</span><span class="s1">'ocean_dv_edge_diagnostics.nc'</span><span class="p">,</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Check that the shortest ``dvEdge`` in the sea-ice domain, the ocean</span>
+<span class="sd">    without ice-shelf cavities, is not too short for the sea-ice time step.</span>
+
+<span class="sd">    ``dvEdge`` is the length of a cell side.  MPAS-Seaice's incremental</span>
+<span class="sd">    remapping needs the distance ice travels in one dynamics time step to</span>
+<span class="sd">    stay below the shortest side meeting at each vertex, so the shortest</span>
+<span class="sd">    ``dvEdge`` in the domain limits the sea-ice time step much as the</span>
+<span class="sd">    shortest ``dcEdge`` limits the ocean's (see</span>
+<span class="sd">    :py:func:`check_ocean_dc_edge`).</span>
+
+<span class="sd">    Edges are measured against the side of a regular hexagon whose</span>
+<span class="sd">    cell-center spacing is the ocean background cell width, which is the</span>
+<span class="sd">    background divided by sqrt(3), so a perfect hexagonal mesh has a ratio</span>
+<span class="sd">    of 1.  Every edge of a kept cell is checked, including edges on the</span>
+<span class="sd">    coastline, because sea-ice advection uses those too.  A diagnostics</span>
+<span class="sd">    file with the per-edge ratio to the local background is written, and</span>
+<span class="sd">    a ``ValueError`` is raised if the shortest edge, measured against the</span>
+<span class="sd">    finest ocean background anywhere in the domain, falls below</span>
+<span class="sd">    ``min_abs_ratio``.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    ds_base_mesh : xarray.Dataset</span>
+<span class="sd">        The base MPAS mesh, with ``dvEdge``, ``latEdge``, ``lonEdge``</span>
+<span class="sd">        and ``cellsOnEdge``</span>
+
+<span class="sd">    ocean_no_cavities_cull_mask : xarray.DataArray or numpy.ndarray</span>
+<span class="sd">        The ocean-without-cavities cull mask on base-mesh cells (1 where</span>
+<span class="sd">        cells are culled, 0 where they are kept as ocean and sea ice)</span>
+
+<span class="sd">    ds_sizing : xarray.Dataset</span>
+<span class="sd">        The unified sizing field, with ``ocean_background_cell_width``</span>
+<span class="sd">        (km) on ``lat``/``lon`` coordinates (degrees)</span>
+
+<span class="sd">    min_abs_ratio : float</span>
+<span class="sd">        The minimum allowed ratio of the shortest ``dvEdge`` anywhere in</span>
+<span class="sd">        the domain to the regular-hexagon side at the finest ocean</span>
+<span class="sd">        background anywhere in it</span>
+
+<span class="sd">    logger : logging.Logger</span>
+<span class="sd">        The logger for summary output</span>
+
+<span class="sd">    out_filename : str, optional</span>
+<span class="sd">        The name of the diagnostics file to write</span>
+
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    ValueError</span>
+<span class="sd">        If the shortest edge violates the absolute bound</span>
+<span class="sd">    """</span>
+    <span class="n">dv_edge</span> <span class="o">=</span> <span class="n">ds_base_mesh</span><span class="o">.</span><span class="n">dvEdge</span><span class="o">.</span><span class="n">values</span> <span class="o">/</span> <span class="mf">1e3</span>
+    <span class="n">lat_edge</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">degrees</span><span class="p">(</span><span class="n">ds_base_mesh</span><span class="o">.</span><span class="n">latEdge</span><span class="o">.</span><span class="n">values</span><span class="p">)</span>
+    <span class="n">lon_edge</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">degrees</span><span class="p">(</span><span class="n">ds_base_mesh</span><span class="o">.</span><span class="n">lonEdge</span><span class="o">.</span><span class="n">values</span><span class="p">)</span>
+    <span class="n">cells_on_edge</span> <span class="o">=</span> <span class="n">ds_base_mesh</span><span class="o">.</span><span class="n">cellsOnEdge</span><span class="o">.</span><span class="n">values</span>
+
+    <span class="n">kept</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">ocean_no_cavities_cull_mask</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span>
+
+    <span class="c1"># edges of kept cells, including those on the coastline</span>
+    <span class="n">exists</span> <span class="o">=</span> <span class="n">cells_on_edge</span> <span class="o">&gt;</span> <span class="mi">0</span>
+    <span class="n">cells</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">maximum</span><span class="p">(</span><span class="n">cells_on_edge</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+    <span class="n">domain_edge</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">exists</span> <span class="o">&amp;</span> <span class="n">kept</span><span class="p">[</span><span class="n">cells</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+    <span class="n">background</span> <span class="o">=</span> <span class="n">_sample_nearest</span><span class="p">(</span>
+        <span class="n">ds_sizing</span><span class="o">.</span><span class="n">ocean_background_cell_width</span><span class="o">.</span><span class="n">values</span><span class="p">,</span>
+        <span class="n">ds_sizing</span><span class="o">.</span><span class="n">lat</span><span class="o">.</span><span class="n">values</span><span class="p">,</span>
+        <span class="n">ds_sizing</span><span class="o">.</span><span class="n">lon</span><span class="o">.</span><span class="n">values</span><span class="p">,</span>
+        <span class="n">lat_edge</span><span class="p">,</span>
+        <span class="n">lon_edge</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">hexagon_side</span> <span class="o">=</span> <span class="n">background</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mf">3.0</span><span class="p">)</span>
+
+    <span class="n">ratio</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">full</span><span class="p">(</span><span class="n">dv_edge</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">)</span>
+    <span class="n">ratio</span><span class="p">[</span><span class="n">domain_edge</span><span class="p">]</span> <span class="o">=</span> <span class="n">dv_edge</span><span class="p">[</span><span class="n">domain_edge</span><span class="p">]</span> <span class="o">/</span> <span class="n">hexagon_side</span><span class="p">[</span><span class="n">domain_edge</span><span class="p">]</span>
+
+    <span class="n">ds_out</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">()</span>
+    <span class="n">ds_out</span><span class="p">[</span><span class="s1">'oceanDomainEdgeMask'</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="p">(</span><span class="s1">'nEdges'</span><span class="p">,),</span>
+        <span class="n">domain_edge</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">),</span>
+        <span class="p">{</span><span class="s1">'long_name'</span><span class="p">:</span> <span class="s1">'mask of edges of kept sea-ice cells'</span><span class="p">},</span>
+    <span class="p">)</span>
+    <span class="n">ds_out</span><span class="p">[</span><span class="s1">'dvEdgeRatio'</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="p">(</span><span class="s1">'nEdges'</span><span class="p">,),</span>
+        <span class="n">ratio</span><span class="p">,</span>
+        <span class="p">{</span>
+            <span class="s1">'long_name'</span><span class="p">:</span> <span class="s1">'ratio of dvEdge to the side of a regular hexagon '</span>
+            <span class="s1">'at the ocean background cell width'</span><span class="p">,</span>
+            <span class="s1">'units'</span><span class="p">:</span> <span class="s1">'1'</span><span class="p">,</span>
+        <span class="p">},</span>
+    <span class="p">)</span>
+    <span class="n">ds_out</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">'min_dv_edge_abs_ratio'</span><span class="p">]</span> <span class="o">=</span> <span class="n">min_abs_ratio</span>
+    <span class="n">write_netcdf</span><span class="p">(</span><span class="n">ds_out</span><span class="p">,</span> <span class="n">out_filename</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">domain_edge</span><span class="p">):</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">'dvEdge diagnostic: no sea-ice edges found.'</span><span class="p">)</span>
+        <span class="k">return</span>
+
+    <span class="n">dv_domain</span> <span class="o">=</span> <span class="n">dv_edge</span><span class="p">[</span><span class="n">domain_edge</span><span class="p">]</span>
+    <span class="n">index</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">argmin</span><span class="p">(</span><span class="n">dv_domain</span><span class="p">))</span>
+    <span class="n">shortest_edge</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">dv_domain</span><span class="p">[</span><span class="n">index</span><span class="p">])</span>
+    <span class="n">finest_side</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">hexagon_side</span><span class="p">[</span><span class="n">domain_edge</span><span class="p">]</span><span class="o">.</span><span class="n">min</span><span class="p">())</span>
+    <span class="n">abs_ratio</span> <span class="o">=</span> <span class="n">shortest_edge</span> <span class="o">/</span> <span class="n">finest_side</span>
+    <span class="n">lon</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">mod</span><span class="p">(</span><span class="n">lon_edge</span><span class="p">[</span><span class="n">domain_edge</span><span class="p">][</span><span class="n">index</span><span class="p">]</span> <span class="o">+</span> <span class="mf">180.0</span><span class="p">,</span> <span class="mf">360.0</span><span class="p">)</span> <span class="o">-</span> <span class="mf">180.0</span><span class="p">)</span>
+    <span class="n">lat</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">lat_edge</span><span class="p">[</span><span class="n">domain_edge</span><span class="p">][</span><span class="n">index</span><span class="p">])</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+        <span class="sa">f</span><span class="s1">'dvEdge CFL guard: shortest sea-ice edge </span><span class="si">{</span><span class="n">shortest_edge</span><span class="si">:</span><span class="s1">.3f</span><span class="si">}</span><span class="s1"> '</span>
+        <span class="sa">f</span><span class="s1">'km at lon=</span><span class="si">{</span><span class="n">lon</span><span class="si">:</span><span class="s1">.3f</span><span class="si">}</span><span class="s1">, lat=</span><span class="si">{</span><span class="n">lat</span><span class="si">:</span><span class="s1">.3f</span><span class="si">}</span><span class="s1">, against a regular-hexagon '</span>
+        <span class="sa">f</span><span class="s1">'side of </span><span class="si">{</span><span class="n">finest_side</span><span class="si">:</span><span class="s1">.3f</span><span class="si">}</span><span class="s1"> km at the finest ocean background, '</span>
+        <span class="sa">f</span><span class="s1">'ratio </span><span class="si">{</span><span class="n">abs_ratio</span><span class="si">:</span><span class="s1">.3f</span><span class="si">}</span><span class="s1">, minimum allowed </span><span class="si">{</span><span class="n">min_abs_ratio</span><span class="si">}</span><span class="s1">.  The '</span>
+        <span class="sa">f</span><span class="s1">'sea-ice dynamics time step times the fastest ice speed must stay '</span>
+        <span class="sa">f</span><span class="s1">'below </span><span class="si">{</span><span class="n">shortest_edge</span><span class="si">:</span><span class="s1">.3f</span><span class="si">}</span><span class="s1"> km.'</span>
+    <span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">abs_ratio</span> <span class="o">&lt;</span> <span class="n">min_abs_ratio</span><span class="p">:</span>
+        <span class="n">message</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="sa">f</span><span class="s1">'The shortest edge in the culled sea-ice domain is '</span>
+            <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">shortest_edge</span><span class="si">:</span><span class="s1">.3f</span><span class="si">}</span><span class="s1"> km long, only </span><span class="si">{</span><span class="n">abs_ratio</span><span class="si">:</span><span class="s1">.3f</span><span class="si">}</span><span class="s1"> times the '</span>
+            <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">finest_side</span><span class="si">:</span><span class="s1">.3f</span><span class="si">}</span><span class="s1"> km side of a regular hexagon at the finest '</span>
+            <span class="sa">f</span><span class="s1">'ocean background, below the </span><span class="si">{</span><span class="n">min_abs_ratio</span><span class="si">}</span><span class="s1"> minimum.  This '</span>
+            <span class="sa">f</span><span class="s1">'sets the sea-ice time step (see </span><span class="si">{</span><span class="n">out_filename</span><span class="si">}</span><span class="s1">).  Worst edge '</span>
+            <span class="sa">f</span><span class="s1">'at lon=</span><span class="si">{</span><span class="n">lon</span><span class="si">:</span><span class="s1">.3f</span><span class="si">}</span><span class="s1">, lat=</span><span class="si">{</span><span class="n">lat</span><span class="si">:</span><span class="s1">.3f</span><span class="si">}</span><span class="s1">.'</span>
+        <span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="n">message</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">message</span><span class="p">)</span>
+
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">'dvEdge diagnostic passed.'</span><span class="p">)</span></div>
+
+
+
 <span class="k">def</span><span class="w"> </span><span class="nf">_sample_nearest</span><span class="p">(</span><span class="n">field</span><span class="p">,</span> <span class="n">lat</span><span class="p">,</span> <span class="n">lon</span><span class="p">,</span> <span class="n">lat_points</span><span class="p">,</span> <span class="n">lon_points</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Sample a lat/lon field at scattered points via nearest neighbor.</span>

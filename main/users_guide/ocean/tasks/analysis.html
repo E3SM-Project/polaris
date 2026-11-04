@@ -173,7 +173,7 @@ simulation’s own output.</p>
 <p>Analysis products are added over time; <a class="reference internal" href="#ocean-analysis-products"><span class="std std-ref">products</span></a> lists
 what is available so far.</p>
 <section id="supported-models">
-<h2>supported models<a class="headerlink" href="#supported-models" title="Link to this heading"></a></h2>
+<span id="ocean-analysis-supported-models"></span><h2>supported models<a class="headerlink" href="#supported-models" title="Link to this heading"></a></h2>
 <p><strong>Omega only.</strong>  The analysis locates a simulation’s output by reading the
 simulation’s own Omega configuration file, which is also how it learns the
 mesh, the vertical coordinate and the output streams.  MPAS-Ocean describes
@@ -229,9 +229,13 @@ the run directory.  Set it if the output has moved since the run.</p>
 <code class="docutils literal notranslate"><span class="pre">simulation_path</span></code>.  Each defaults to the file the Omega configuration names.
 Set one if it has moved.</p>
 </dd>
-<dt><code class="docutils literal notranslate"><span class="pre">output_path</span></code></dt><dd><p>Where plots and their netCDF files are published for browsing.  Defaults to
+<dt><code class="docutils literal notranslate"><span class="pre">output_path</span></code></dt><dd><p>Where plots are published for browsing.  Defaults to
 <code class="docutils literal notranslate"><span class="pre">&lt;work_dir&gt;/analysis_output</span></code>.  Point it somewhere web-servable to share the
 results.</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">copy_netcdf</span></code></dt><dd><p>Whether to publish the netCDF file behind each plot alongside it.  Defaults
+to <code class="docutils literal notranslate"><span class="pre">False</span></code>, since on a large mesh these files can be most of the size of the
+analysis.</p>
 </dd>
 </dl>
 <p>The remaining sections — <code class="docutils literal notranslate"><span class="pre">[ocean_analysis_climatology]</span></code>,
@@ -293,7 +297,7 @@ easy to archive, to serve and to search:</p>
 │   └── climatology_maps_temperature_0021-0040.html
 ├── plots/
 │   ├── climatology_maps_temperature_ANN_-100m_0021-0040.png
-│   └── climatology_maps_temperature_ANN_-100m_0021-0040.nc
+│   └── climatology_maps_temperature_ANN_-100m_0021-0040.nc  (if copy_netcdf)
 └── thumbnails/
     └── climatology_maps_temperature_ANN_-100m_0021-0040.jpg
 </pre></div>
@@ -301,10 +305,11 @@ easy to archive, to serve and to search:</p>
 <p><code class="docutils literal notranslate"><span class="pre">output_path</span></code> defaults to <code class="docutils literal notranslate"><span class="pre">analysis_output</span></code> at the root of the work
 directory.  Point it somewhere a web server can reach if the results are to be
 shared.</p>
-<p>The plots and their netCDF files are <strong>symlinks</strong> into the step that made
-them, so each file has one owner and the staging tree is a view rather than a
-second copy.  Copying the tree to another machine therefore needs
-<code class="docutils literal notranslate"><span class="pre">cp</span> <span class="pre">-rL</span></code>, or <code class="docutils literal notranslate"><span class="pre">rsync</span> <span class="pre">-L</span></code>, to follow them.</p>
+<p>The plots, and the netCDF files if <code class="docutils literal notranslate"><span class="pre">copy_netcdf</span></code> is set, are <strong>copies</strong> of
+the files in the step that made them, so a web server can serve the staging
+tree without being able to read the work directory.  Running <code class="docutils literal notranslate"><span class="pre">publish</span></code> again
+copies only what has changed.  The netCDF files stay in the work directory
+either way.</p>
 </section>
 <section id="the-published-gallery">
 <span id="ocean-analysis-gallery"></span><h2>the published gallery<a class="headerlink" href="#the-published-gallery" title="Link to this heading"></a></h2>
@@ -316,10 +321,10 @@ JavaScript, and the pages look the same either way.</p>
 <p>The landing page shows each <strong>gallery group</strong> — a product for one range of
 years, such as “Climatology maps, years 0021-0040” — with one thumbnail per
 gallery within it.  A gallery page shows every plot in that gallery, in the
-order the step made them, and clicking a thumbnail opens the full image with
-its netCDF file linked beside it.  Every page carries the simulation name, the
-ranges and the Polaris provenance, so a page found later can be traced back to
-what produced it.</p>
+order the step made them, and clicking a thumbnail opens the full image, with
+its netCDF file linked beside it if <code class="docutils literal notranslate"><span class="pre">copy_netcdf</span></code> is set.  Every page carries
+the simulation name, the ranges and the Polaris provenance, so a page found
+later can be traced back to what produced it.</p>
 <p>Four config options control what a page costs to load, which matters on a
 portal that throttles:</p>
 <div class="highlight-cfg notranslate"><div class="highlight"><pre><span></span><span class="k">[ocean_analysis]</span>

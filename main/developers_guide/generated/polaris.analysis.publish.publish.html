@@ -161,12 +161,17 @@
 <h1>polaris.analysis.publish.publish<a class="headerlink" href="#polaris-analysis-publish-publish" title="Link to this heading"></a></h1>
 <dl class="py function">
 <dt class="sig sig-object py" id="polaris.analysis.publish.publish">
-<span class="sig-prename descclassname"><span class="pre">polaris.analysis.publish.</span></span><span class="sig-name descname"><span class="pre">publish</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fragment_filenames</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">logger</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">thumbnail_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(320,</span> <span class="pre">240)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">thumbnail_scale</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">thumbnail_format</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'jpeg'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">thumbnail_quality</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">75</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/polaris/analysis/publish.html#publish"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#polaris.analysis.publish.publish" title="Link to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">polaris.analysis.publish.</span></span><span class="sig-name descname"><span class="pre">publish</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fragment_filenames</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">logger</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">thumbnail_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(320,</span> <span class="pre">240)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">thumbnail_scale</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">thumbnail_format</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'jpeg'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">thumbnail_quality</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">75</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">copy_data</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/polaris/analysis/publish.html#publish"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#polaris.analysis.publish.publish" title="Link to this definition"></a></dt>
 <dd><p>Publish every product the fragments describe into the staging tree</p>
-<p>Products are published by symlink from the step that owns them, so that
-each file has exactly one owner, Polaris’s output checking continues to
-work, and the staging tree is a view rather than a second source of
-truth.</p>
+<p>Products are published by copying them from the step that owns them, not
+by symlink, so that the staging tree can be served from a web portal
+that cannot read the work directory.  A web server only follows a link
+if it can read every directory on the way to its target, and a work
+directory on scratch space normally does not allow that.  The plots are
+always copied, since they are small.  The data files are only copied if
+<code class="docutils literal notranslate"><span class="pre">copy_data</span></code> is set, since for a large mesh they can be most of the
+size of the analysis; a product whose data file is not copied is
+published without one.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -187,6 +192,8 @@ thumbnail is sharp on a high-resolution display; it need not be a
 whole number</p></li>
 <li><p><strong>thumbnail_format</strong> (<em>{'jpeg'</em><em>, </em><em>'webp'}</em><em>, </em><em>optional</em>) – The format thumbnails are written in</p></li>
 <li><p><strong>thumbnail_quality</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.15)"><em>int</em></a><em>, </em><em>optional</em>) – The compression quality of thumbnails, from 1 to 100</p></li>
+<li><p><strong>copy_data</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#bool" title="(in Python v3.15)"><em>bool</em></a><em>, </em><em>optional</em>) – Whether to copy each product’s data file into the staging tree beside
+its plot</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>

@@ -473,6 +473,9 @@ window.runMermaid = runMermaid;</script>
 <span></span><span class="kn">from</span><span class="w"> </span><span class="nn">polaris.tasks.ocean.realistic_global.analysis_output</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">add_realistic_global_analysis_output_tasks</span><span class="p">,</span>
 <span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.tasks.ocean.realistic_global.dynamic_adjustment.tasks</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">add_realistic_global_dynamic_adjustment_tasks</span><span class="p">,</span>
+<span class="p">)</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">polaris.tasks.ocean.realistic_global.forcing.jra55</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">Jra55</span> <span class="k">as</span> <span class="n">Jra55</span><span class="p">,</span>
 <span class="p">)</span>
@@ -494,8 +497,8 @@ window.runMermaid = runMermaid;</script>
 <a class="viewcode-back" href="../../../../developers_guide/ocean/generated/polaris.tasks.ocean.realistic_global.add_realistic_global_tasks.html#polaris.tasks.ocean.realistic_global.add_realistic_global_tasks">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">add_realistic_global_tasks</span><span class="p">(</span><span class="n">component</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">"""</span>
-<span class="sd">    Add tasks for realistic global ocean preprocessing, initialization, and</span>
-<span class="sd">    forward runs.</span>
+<span class="sd">    Add tasks for realistic global ocean preprocessing, initialization,</span>
+<span class="sd">    forward runs, and dynamic adjustment.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
@@ -508,6 +511,7 @@ window.runMermaid = runMermaid;</script>
     <span class="n">add_realistic_global_forward_tasks</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">)</span>
     <span class="n">add_realistic_global_cached_forward_tasks</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">)</span>
     <span class="n">add_realistic_global_analysis_output_tasks</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">)</span>
+    <span class="n">add_realistic_global_dynamic_adjustment_tasks</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">)</span>
 
     <span class="c1"># the restart task is only defined for the mesh it is cheap enough to run</span>
     <span class="c1"># on in the pull-request suite</span>

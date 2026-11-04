@@ -183,6 +183,10 @@ anywhere in it (unified meshes only).  This is the CFL guard.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">min_dc_edge_ratio</span></code> and <code class="docutils literal notranslate"><span class="pre">max_dc_edge_ratio</span></code>: The allowed range of <code class="docutils literal notranslate"><span class="pre">dcEdge</span></code>
 relative to the <em>local</em> ocean background cell width (unified meshes only).
 This is the leak guard.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">min_dv_edge_abs_ratio</span></code>: The minimum ratio of the shortest <code class="docutils literal notranslate"><span class="pre">dvEdge</span></code> in the
+culled sea-ice domain (the ocean without cavities) to the side of a regular
+hexagon at the finest ocean background anywhere in it (unified meshes
+only).  This is the sea-ice CFL guard.</p></li>
 </ul>
 <p>See <code class="docutils literal notranslate"><span class="pre">cull.cfg</span></code> for the full set of options.</p>
 </section>
@@ -212,7 +216,7 @@ its own <code class="docutils literal notranslate"><span class="pre">polaris/mes
 <code class="docutils literal notranslate"><span class="pre">u-oi6to18-lr6to10</span></code> once overrode the ratio floor for a single edge, and that
 override went away when the CFL guard was separated out.</p>
 <p>A failure here does not by itself mean resolution has leaked.  On
-<code class="docutils literal notranslate"><span class="pre">u-oi6to18-lr6to10</span></code> it does not: the sizing field prescribes the full ocean
+<code class="docutils literal notranslate"><span class="pre">u-oi6to18-lr6to10</span></code> it did not: the sizing field prescribes the full ocean
 background at every edge in the low tail, and the short edges are the seams
 of pentagon-heptagon dislocation pairs in JIGSAW’s hexagonal packing.  That
 distribution is the same on every unified mesh, so the minimum falls as the
@@ -225,6 +229,28 @@ coastline transition is shaped to leave the ocean flat (see
 <code class="docutils literal notranslate"><span class="pre">coastline_transition_exponent</span></code> in <a class="reference internal" href="../../../../../users_guide/mesh/tasks/unified/sizing_field.html#users-mesh-unified-sizing-field"><span class="std std-ref">Sizing-field tasks</span></a>).
 JIGSAW’s centroidal-Voronoi kernel was also tried and is not used (see
 <a class="reference internal" href="../../../../mesh/framework/spherical.html#dev-spherical-jigsaw-optimization"><span class="std std-ref">JIGSAW mesh optimization</span></a>).</p>
+</section>
+<section id="dvedge-diagnostic-for-unified-meshes">
+<h2>dvEdge Diagnostic for Unified Meshes<a class="headerlink" href="#dvedge-diagnostic-for-unified-meshes" title="Link to this heading"></a></h2>
+<p>MPAS-Seaice’s time step is limited by a different length than
+MPAS-Ocean’s.  Its incremental remapping needs the distance ice travels in
+one dynamics time step to stay below the shortest cell side meeting at each
+vertex, and a cell side is <code class="docutils literal notranslate"><span class="pre">dvEdge</span></code>, not <code class="docutils literal notranslate"><span class="pre">dcEdge</span></code>.  After the <code class="docutils literal notranslate"><span class="pre">dcEdge</span></code>
+diagnostic, <code class="docutils literal notranslate"><span class="pre">CullMaskStep</span></code> calls
+<a class="reference internal" href="../../generated/polaris.tasks.e3sm.init.topo.cull.dc_edge_diagnostics.check_ocean_dv_edge.html#polaris.tasks.e3sm.init.topo.cull.dc_edge_diagnostics.check_ocean_dv_edge" title="polaris.tasks.e3sm.init.topo.cull.dc_edge_diagnostics.check_ocean_dv_edge"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.tasks.e3sm.init.topo.cull.dc_edge_diagnostics.check_ocean_dv_edge()</span></code></a>,
+which measures <code class="docutils literal notranslate"><span class="pre">dvEdge</span></code> on every edge of a cell in the ocean without
+cavities, the sea-ice domain, coastline edges included.  Each edge is
+compared with the side of a regular hexagon at the local ocean background,
+which is the background cell width divided by sqrt(3).  It writes the
+ratio to the local background to <code class="docutils literal notranslate"><span class="pre">ocean_dv_edge_diagnostics.nc</span></code>, logs the
+shortest edge, which the sea-ice dynamics time step times the fastest ice
+speed must stay below, and raises an error if that edge is shorter than
+<code class="docutils literal notranslate"><span class="pre">min_dv_edge_abs_ratio</span></code> times the regular-hexagon side at the finest ocean
+background.</p>
+<p>There is no local-ratio guard for <code class="docutils literal notranslate"><span class="pre">dvEdge</span></code>, since a leak already shows up
+in <code class="docutils literal notranslate"><span class="pre">dcEdge</span></code>.  The shortest sides sit on the same pentagon-heptagon seams as
+the shortest <code class="docutils literal notranslate"><span class="pre">dcEdge</span></code>, but unlike <code class="docutils literal notranslate"><span class="pre">dcEdge</span></code>, their minimum hardly falls as
+the edge count rises: every unified mesh comes out at 0.41 to 0.48.</p>
 <p>The Antarctic land-ice ownership mask also includes southern cells that have
 already been removed from the open-ocean cull mask, so the cull workflow
 remains consistent with the remapped topography masks.</p>

@@ -566,7 +566,7 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
 <span class="sd">    plot_filename : str</span>
-<span class="sd">        The plot to render, normally the published symlink</span>
+<span class="sd">        The plot to render, normally the published copy</span>
 
 <span class="sd">    thumbnail_filename : str</span>
 <span class="sd">        Where to write the thumbnail</span>
@@ -631,7 +631,8 @@ window.runMermaid = runMermaid;</script>
 <span class="w">    </span><span class="sd">"""Whether the thumbnail is at least as new as the plot it came from"""</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">thumbnail_filename</span><span class="p">):</span>
         <span class="k">return</span> <span class="kc">False</span>
-    <span class="c1"># getmtime() follows the symlink, so this is the plot's own time</span>
+    <span class="c1"># a published plot keeps the modification time of the one it was copied</span>
+    <span class="c1"># from, so this is the plot's own time</span>
     <span class="k">return</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">getmtime</span><span class="p">(</span><span class="n">thumbnail_filename</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">getmtime</span><span class="p">(</span>
         <span class="n">plot_filename</span>
     <span class="p">)</span>

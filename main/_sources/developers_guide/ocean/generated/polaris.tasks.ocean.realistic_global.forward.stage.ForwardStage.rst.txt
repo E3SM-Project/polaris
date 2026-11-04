@@ -15,11 +15,11 @@
    
       ~ForwardStage.__init__
       ~ForwardStage.bottom_drag_options
-      ~ForwardStage.check_damping_supported
       ~ForwardStage.from_config
       ~ForwardStage.horiz_mixing_options
       ~ForwardStage.model_replacements
       ~ForwardStage.mpaso_physics_options
+      ~ForwardStage.omega_damping_replacements
       ~ForwardStage.omega_hmix_ratio
       ~ForwardStage.omega_physics_options
       ~ForwardStage.omega_restart_write_dir

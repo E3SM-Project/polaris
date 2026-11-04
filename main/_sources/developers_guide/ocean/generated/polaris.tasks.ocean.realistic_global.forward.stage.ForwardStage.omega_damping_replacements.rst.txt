@@ -1,0 +1,6 @@
+﻿polaris.tasks.ocean.realistic\_global.forward.stage.ForwardStage.omega\_damping\_replacements
+=============================================================================================
+
+.. currentmodule:: polaris.tasks.ocean.realistic_global.forward.stage
+
+.. automethod:: ForwardStage.omega_damping_replacements

@@ -306,9 +306,13 @@ setup, before an init-chain mesh has been made, neither happens until run time
 rewrites the config.  Do not map <code class="docutils literal notranslate"><span class="pre">config_hmix_scaleWithMesh</span></code> to
 <code class="docutils literal notranslate"><span class="pre">MeshScalingEnable</span></code> in <code class="docutils literal notranslate"><span class="pre">mpaso_to_omega.yaml</span></code>: a stated reference would then
 reach Omega unconverted.</p>
-<p>An unsupported <code class="docutils literal notranslate"><span class="pre">omega_time_integrator</span></code>, and a <code class="docutils literal notranslate"><span class="pre">damping</span></code> Omega cannot honor, are
-errors at run time rather than at setup, so that a task can be set up and the
-config changed before it is run.</p>
+<p>An unsupported <code class="docutils literal notranslate"><span class="pre">omega_time_integrator</span></code> is an error at run time rather than at
+setup, so that a task can be set up and the config changed before it is run.</p>
+<p>Damping reaches Omega as its <code class="docutils literal notranslate"><span class="pre">RayleighDamping</span></code> group, which is not mapped in
+<code class="docutils literal notranslate"><span class="pre">mpaso_to_omega.yaml</span></code> because MPAS-Ocean turns damping on through
+<code class="docutils literal notranslate"><span class="pre">config_implicit_bottom_drag_type</span></code> rather than a switch of its own.  The forward
+step adds <code class="docutils literal notranslate"><span class="pre">omega_damping.yaml</span></code> to a damped stage only, so that an undamped run
+does not need an Omega build that has the group.</p>
 </section>
 <section id="initialcondition">
 <h3>InitialCondition<a class="headerlink" href="#initialcondition" title="Link to this heading"></a></h3>
@@ -423,8 +427,8 @@ is a forward-package <code class="docutils literal notranslate"><span class="pre
 <code class="docutils literal notranslate"><span class="pre">monthly_output.yaml</span></code> after the forward step’s own yaml files, so that it
 overrides them.  The fragment replaces the <code class="docutils literal notranslate"><span class="pre">History</span></code> stream with monthly
 snapshots in <code class="docutils literal notranslate"><span class="pre">output/</span></code>, turns on the <code class="docutils literal notranslate"><span class="pre">MonthlyAverages</span></code> and <code class="docutils literal notranslate"><span class="pre">MOC</span></code> analysis
-groups with <code class="docutils literal notranslate"><span class="pre">moc_num_bins</span></code> latitude bins, adds kinetic energy and
-sea surface height to <code class="docutils literal notranslate"><span class="pre">GlobalStats</span></code>, and makes restarts monthly.  A stream’s
+groups with <code class="docutils literal notranslate"><span class="pre">moc_num_bins</span></code> latitude bins, adds sea surface height to
+<code class="docutils literal notranslate"><span class="pre">GlobalStats</span></code>, and makes restarts monthly.  A stream’s
 options merge across yaml files, so the fragment has to set the <code class="docutils literal notranslate"><span class="pre">History</span></code>
 stream’s <code class="docutils literal notranslate"><span class="pre">FileFreq</span></code> explicitly: the forward step’s value of 9999 years would
 put every snapshot into one file.  The step appends <code class="docutils literal notranslate"><span class="pre">output</span></code> to <code class="docutils literal notranslate"><span class="pre">stream_dirs</span></code>
@@ -529,6 +533,211 @@ takes.  It also checks that the history up to the restart holds fewer frames
 than the full run’s and matches its first ones; otherwise the restart run
 would have had nothing to append to, and the time-axis check would pass
 without testing anything.</p>
+</section>
+</section>
+<section id="dynamic-adjustment">
+<span id="dev-ocean-realistic-global-dynamic-adjustment"></span><h2>dynamic_adjustment<a class="headerlink" href="#dynamic-adjustment" title="Link to this heading"></a></h2>
+<p>The <code class="docutils literal notranslate"><span class="pre">dynamic_adjustment</span></code> task family (steps under
+<code class="docutils literal notranslate"><span class="pre">spherical/realistic_global/{mesh_name}/dynamic_adjustment</span></code>) runs a
+restart-chained sequence of forward stages from a mesh’s realistic initial
+condition.  One
+<a class="reference internal" href="../generated/polaris.tasks.ocean.realistic_global.dynamic_adjustment.task.RealisticGlobalDynamicAdjustment.html#polaris.tasks.ocean.realistic_global.dynamic_adjustment.task.RealisticGlobalDynamicAdjustment" title="polaris.tasks.ocean.realistic_global.dynamic_adjustment.task.RealisticGlobalDynamicAdjustment"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.tasks.ocean.realistic_global.dynamic_adjustment.task.RealisticGlobalDynamicAdjustment</span></code></a>
+task is registered per MPAS mesh.</p>
+<section id="shared-steps">
+<h3>shared steps<a class="headerlink" href="#shared-steps" title="Link to this heading"></a></h3>
+<p><a class="reference internal" href="../generated/polaris.tasks.ocean.realistic_global.dynamic_adjustment.steps.get_realistic_dynamic_adjustment_steps.html#polaris.tasks.ocean.realistic_global.dynamic_adjustment.steps.get_realistic_dynamic_adjustment_steps" title="polaris.tasks.ocean.realistic_global.dynamic_adjustment.steps.get_realistic_dynamic_adjustment_steps"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.tasks.ocean.realistic_global.dynamic_adjustment.steps.get_realistic_dynamic_adjustment_steps()</span></code></a>
+builds the whole chain — the shared <code class="docutils literal notranslate"><span class="pre">init</span></code> steps, one <code class="docutils literal notranslate"><span class="pre">Forward</span></code> stage per
+schedule entry, a <code class="docutils literal notranslate"><span class="pre">StageCheck</span></code> after each, <code class="docutils literal notranslate"><span class="pre">summary</span></code> and <code class="docutils literal notranslate"><span class="pre">viz</span></code> — through
+<a class="reference internal" href="../../generated/polaris.Component.get_or_create_shared_step.html#polaris.Component.get_or_create_shared_step" title="polaris.Component.get_or_create_shared_step"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.Component.get_or_create_shared_step()</span></code></a>, following the same
+pattern as
+<a class="reference internal" href="../generated/polaris.tasks.ocean.realistic_global.init.steps.get_realistic_init_steps.html#polaris.tasks.ocean.realistic_global.init.steps.get_realistic_init_steps" title="polaris.tasks.ocean.realistic_global.init.steps.get_realistic_init_steps"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.tasks.ocean.realistic_global.init.steps.get_realistic_init_steps()</span></code></a>.
+A downstream workflow that wants the adjusted restart — <code class="docutils literal notranslate"><span class="pre">e3sm/init</span></code>’s
+component inputs — calls it and gets the same step instances rather than a
+second copy of a very expensive chain.</p>
+<p>It returns the stages along with the steps and config, because which stage
+writes the adjusted restart, and what that file is called, both depend on the
+schedule: a workflow that wants the adjusted restart reads
+<code class="docutils literal notranslate"><span class="pre">stages[-1].restart_out</span></code>.  <code class="docutils literal notranslate"><span class="pre">include_viz</span></code> follows the <code class="docutils literal notranslate"><span class="pre">init</span></code> convention: the
+<code class="docutils literal notranslate"><span class="pre">viz</span></code> step is always created, but it is only returned, and so only added to a
+task’s <code class="docutils literal notranslate"><span class="pre">steps_to_run</span></code>, when <code class="docutils literal notranslate"><span class="pre">include_viz=True</span></code>.  Workflows that only need the
+adjusted restart can leave it out, since they don’t need a figure of the
+completed adjustment.</p>
+<p>Two details are specific to this workflow.  Each stage depends on the previous
+stage, and on the previous stage’s check, through
+<a class="reference internal" href="../../generated/polaris.Step.add_dependency.html#polaris.Step.add_dependency" title="polaris.Step.add_dependency"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.Step.add_dependency()</span></code></a>.  The <code class="docutils literal notranslate"><span class="pre">init</span></code> steps add their
+dependencies in each step’s constructor, but only this function knows the order
+of the stages, so it adds them here.  Waiting for the check matters when steps
+run in parallel: otherwise the next stage would start at the same time as the
+check, and a failed check would not stop it.  Calling the function again is safe,
+because adding the same dependency twice has no effect.</p>
+<p>And because the set of steps depends on the schedule,
+<code class="xref py py-meth docutils literal notranslate"><span class="pre">RealisticGlobalDynamicAdjustment.configure()</span></code> rebuilds them when a
+user’s setup-time config changed it — a stage whose name survived the change
+would otherwise be handed back from the shared-step cache still carrying its old
+run duration.  It discards the adjustment steps from the component and then
+simply asks for the whole chain again; the <code class="docutils literal notranslate"><span class="pre">init</span></code> steps upstream do not depend
+on the schedule, so they come back unchanged.</p>
+</section>
+<section id="schedule-parsing">
+<h3>schedule parsing<a class="headerlink" href="#schedule-parsing" title="Link to this heading"></a></h3>
+<p><a class="reference internal" href="../generated/polaris.tasks.ocean.realistic_global.dynamic_adjustment.schedule.load_schedule_stages.html#polaris.tasks.ocean.realistic_global.dynamic_adjustment.schedule.load_schedule_stages" title="polaris.tasks.ocean.realistic_global.dynamic_adjustment.schedule.load_schedule_stages"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.tasks.ocean.realistic_global.dynamic_adjustment.schedule.load_schedule_stages()</span></code></a>
+reads a schedule YAML (the per-mesh <code class="docutils literal notranslate"><span class="pre">&lt;mesh_name&gt;.yaml</span></code> or <code class="docutils literal notranslate"><span class="pre">default.yaml</span></code>, or a
+file named by the <code class="docutils literal notranslate"><span class="pre">schedule</span></code> config option) and returns a list of
+<a class="reference internal" href="../generated/polaris.tasks.ocean.realistic_global.forward.stage.ForwardStage.html#polaris.tasks.ocean.realistic_global.forward.stage.ForwardStage" title="polaris.tasks.ocean.realistic_global.forward.stage.ForwardStage"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.tasks.ocean.realistic_global.forward.stage.ForwardStage</span></code></a>
+objects.</p>
+<p>A stage is a forward run, so the base stage comes from
+<code class="docutils literal notranslate"><span class="pre">ForwardStage.from_config</span></code> on the <code class="docutils literal notranslate"><span class="pre">[realistic_global_forward]</span></code> section and the
+schedule is applied on top with <code class="docutils literal notranslate"><span class="pre">dataclasses.replace</span></code>.  The task’s config
+carries that section, this task’s own, and the per-mesh overrides from
+<code class="xref py py-mod docutils literal notranslate"><span class="pre">polaris.tasks.ocean.realistic_global.mesh_configs</span></code>, so the physics
+options and per-mesh tuning reach the stages without the schedule mentioning
+them.  Keeping the schedule a delta is what stops it from becoming a second
+configuration system that has to track <code class="docutils literal notranslate"><span class="pre">ForwardStage</span></code> field by field.</p>
+<p>Schedule keys are validated against <code class="docutils literal notranslate"><span class="pre">SCHEDULE_FIELDS</span></code> — the <code class="docutils literal notranslate"><span class="pre">ForwardStage</span></code>
+fields minus the ones the restart chain owns — and coerced to each field’s
+declared type, so a renamed or misspelled option raises at setup instead of
+falling back to the config value.  The parser also computes the chain itself:
+the cumulative <code class="docutils literal notranslate"><span class="pre">start_time</span></code>, <code class="docutils literal notranslate"><span class="pre">do_restart</span></code>, and the shared <code class="docutils literal notranslate"><span class="pre">restart_in</span></code> /
+<code class="docutils literal notranslate"><span class="pre">restart_out</span></code> filenames (<code class="docutils literal notranslate"><span class="pre">restarts/rst.&lt;stop-time&gt;.nc</span></code>).</p>
+</section>
+<section id="restart-chaining">
+<h3>restart chaining<a class="headerlink" href="#restart-chaining" title="Link to this heading"></a></h3>
+<p>Each stage is a
+<a class="reference internal" href="../generated/polaris.tasks.ocean.realistic_global.forward.forward.Forward.html#polaris.tasks.ocean.realistic_global.forward.forward.Forward" title="polaris.tasks.ocean.realistic_global.forward.forward.Forward"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.tasks.ocean.realistic_global.forward.forward.Forward</span></code></a> step
+reused from the forward workflow.  When a stage’s <code class="docutils literal notranslate"><span class="pre">ForwardStage</span></code> sets
+<code class="docutils literal notranslate"><span class="pre">restart_out</span></code>, the step writes its restart to the shared <code class="docutils literal notranslate"><span class="pre">../restarts</span></code>
+directory (via <code class="docutils literal notranslate"><span class="pre">restart_streams.yaml</span></code>) and declares it as an output; a stage
+that sets <code class="docutils literal notranslate"><span class="pre">restart_in</span></code> declares its predecessor’s restart as an input, so the
+chain is explicit to Polaris and a missing link fails before the model
+launches.  Consecutive stages are also linked with <code class="docutils literal notranslate"><span class="pre">add_dependency</span></code>.</p>
+<p>For MPAS-Ocean the restart stream is both an input and an output stream, so one
+<code class="docutils literal notranslate"><span class="pre">filename_template</span></code> serves both directions and the read side is just
+<code class="docutils literal notranslate"><span class="pre">config_do_restart</span></code> / <code class="docutils literal notranslate"><span class="pre">config_start_time</span></code> from <code class="docutils literal notranslate"><span class="pre">forward.yaml</span></code>.  The start time
+is explicit rather than <code class="docutils literal notranslate"><span class="pre">'file'</span></code> with a <code class="docutils literal notranslate"><span class="pre">restart_timestamp</span></code>, matching
+<code class="docutils literal notranslate"><span class="pre">cosine_bell/restart</span></code> and <code class="docutils literal notranslate"><span class="pre">ice_shelf_2d</span></code>.</p>
+<p>Omega needs a separate <code class="docutils literal notranslate"><span class="pre">RestartRead</span></code> stream, which the <code class="docutils literal notranslate"><span class="pre">Omega</span></code> block of
+<code class="docutils literal notranslate"><span class="pre">restart_streams.yaml</span></code> supplies, switched on per stage by
+<code class="docutils literal notranslate"><span class="pre">ForwardStage.restart_stream_replacements</span></code>.  Each stage writes its restart and
+pointer file into a directory of its own under <code class="docutils literal notranslate"><span class="pre">restarts</span></code>, and
+<code class="docutils literal notranslate"><span class="pre">ForwardStage.restart_files</span></code> gives the files <code class="docutils literal notranslate"><span class="pre">Forward.setup()</span></code> declares for
+either model.</p>
+</section>
+<section id="setup-time-rebuild">
+<h3>setup-time rebuild<a class="headerlink" href="#setup-time-rebuild" title="Link to this heading"></a></h3>
+<p>The stages are built in <code class="docutils literal notranslate"><span class="pre">__init__</span></code> from the built-in schedule (so <code class="docutils literal notranslate"><span class="pre">polaris</span> <span class="pre">list</span></code> shows a representative set) and rebuilt in <code class="docutils literal notranslate"><span class="pre">configure()</span></code>, which runs after
+the user config is merged, following the
+<a class="reference internal" href="../generated/polaris.tasks.ocean.cosine_bell.CosineBell.html#polaris.tasks.ocean.cosine_bell.CosineBell" title="polaris.tasks.ocean.cosine_bell.CosineBell"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.tasks.ocean.cosine_bell.CosineBell</span></code></a> pattern.  This lets a
+user’s setup-time <code class="docutils literal notranslate"><span class="pre">schedule</span></code> override or edited stage options take effect.  The
+step graph is therefore fixed at setup, not run time.</p>
+</section>
+<section id="diagnostics-and-validation">
+<h3>diagnostics and validation<a class="headerlink" href="#diagnostics-and-validation" title="Link to this heading"></a></h3>
+<p>The
+<a class="reference internal" href="../generated/polaris.tasks.ocean.realistic_global.dynamic_adjustment.summary.Summary.html#polaris.tasks.ocean.realistic_global.dynamic_adjustment.summary.Summary" title="polaris.tasks.ocean.realistic_global.dynamic_adjustment.summary.Summary"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.tasks.ocean.realistic_global.dynamic_adjustment.summary.Summary</span></code></a>
+step builds one row of diagnostics per stage with
+<code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.tasks.ocean.realistic_global.dynamic_adjustment.diagnostics.collect_stage_diagnostics()</span></code>
+and writes <code class="docutils literal notranslate"><span class="pre">dynamic_adjustment_stats.csv</span></code>.  It makes no checks of its own; the
+per-stage checks below read the same statistics with the same windows, so the
+summary a user reads and the checks that passed or failed cannot disagree.</p>
+<p><code class="docutils literal notranslate"><span class="pre">diagnostics.METRICS</span></code> is the column list.  Each metric names the global-statistics
+variable it reads (in MPAS-Ocean naming, which <code class="docutils literal notranslate"><span class="pre">diagnostics.open_stage_stats</span></code>
+renames Omega’s statistics to), how to reduce that variable’s time series over
+the stage, and the <code class="docutils literal notranslate"><span class="pre">output.nc</span></code> field to fall back to when the model does not
+report the statistic.
+A metric with no fallback is left blank instead: <code class="docutils literal notranslate"><span class="pre">output_var</span></code> is set only where
+computing the metric from the 3-D field gives the same quantity, which is true of
+a maximum and not of a volume-weighted mean.  The <code class="docutils literal notranslate"><span class="pre">mean_*_change_per_day</span></code>
+columns are derived rather than read, from the change in a volume-weighted mean
+across the stage divided by the stage’s run duration, which is why <code class="docutils literal notranslate"><span class="pre">Summary</span></code>
+takes the <code class="docutils literal notranslate"><span class="pre">ForwardStage</span></code> list rather than just the stage names.  They are a
+conservation check, not a settling one: these runs are forced by wind alone,
+with no surface fluxes, so the volume-weighted mean tracers are conserved and
+both columns should be zero to within round-off.</p>
+<p>The statistics cadence is <code class="docutils literal notranslate"><span class="pre">ForwardStage.stats_interval</span></code>, which drives the
+<code class="docutils literal notranslate"><span class="pre">globalStatsOutput</span></code> stream and through it the analysis member’s compute
+interval.  It is separate from the 3-D <code class="docutils literal notranslate"><span class="pre">output_interval</span></code> on purpose: tying a few
+scalars to the cadence of 3-D fields gave two samples per stage on the 10-day
+schedules and, on <code class="docutils literal notranslate"><span class="pre">u-oi6to18-lr12p5</span></code>, a single startup record for every stage
+shorter than the 10-day output interval.</p>
+<p><code class="docutils literal notranslate"><span class="pre">schedule._check_stage_writes_its_records</span></code> rejects a <code class="docutils literal notranslate"><span class="pre">restart_interval</span></code> that
+misses MPAS-Ocean’s restart alarm (measured from the stream’s fixed
+<code class="docutils literal notranslate"><span class="pre">reference_time</span></code>, not the stage start) and a <code class="docutils literal notranslate"><span class="pre">stats_interval</span></code> longer than the
+stage.  Both otherwise fail only after the model has run.</p>
+<p>The statistics file is opened by relative path rather than declared as a step
+input, so a stage that did not write one degrades to computing what it can from
+<code class="docutils literal notranslate"><span class="pre">output.nc</span></code>.  Its name comes from
+<a class="reference internal" href="../generated/polaris.tasks.ocean.realistic_global.forward.stage.ForwardStage.stats_filename.html#polaris.tasks.ocean.realistic_global.forward.stage.ForwardStage.stats_filename" title="polaris.tasks.ocean.realistic_global.forward.stage.ForwardStage.stats_filename"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.tasks.ocean.realistic_global.forward.stage.ForwardStage.stats_filename()</span></code></a>
+on the stage itself, because for Omega it depends on the stage: Omega treats
+its <code class="docutils literal notranslate"><span class="pre">Filename</span></code> as a prefix and appends its own analysis period with no <code class="docutils literal notranslate"><span class="pre">.nc</span></code>,
+so a stage writing hourly statistics writes them somewhere a daily one does
+not.  MPAS-Ocean’s name does not move, which is exactly what makes the Omega
+one moving easy to miss — and the symptom is silence, since a name that is not
+found reads as a stage that wrote no statistics.</p>
+<p>The checks live in
+<code class="xref py py-mod docutils literal notranslate"><span class="pre">polaris.tasks.ocean.realistic_global.dynamic_adjustment.checks</span></code>,
+so that a step decides what to read and a check decides what is acceptable.
+The <code class="docutils literal notranslate"><span class="pre">temperature_max</span></code>, <code class="docutils literal notranslate"><span class="pre">temperature_min</span></code>, <code class="docutils literal notranslate"><span class="pre">salinity_max</span></code> and <code class="docutils literal notranslate"><span class="pre">cfl_max</span></code>
+thresholds all belong to
+<a class="reference internal" href="../generated/polaris.tasks.ocean.realistic_global.dynamic_adjustment.validate.StageCheck.html#polaris.tasks.ocean.realistic_global.dynamic_adjustment.validate.StageCheck" title="polaris.tasks.ocean.realistic_global.dynamic_adjustment.validate.StageCheck"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.tasks.ocean.realistic_global.dynamic_adjustment.validate.StageCheck</span></code></a>,
+one per stage.  Each check runs right after its stage and the next stage waits
+for it, so the sequence stops at the stage that broke.  Each is skipped, with a log line, when the model reports no
+such metric.  <code class="docutils literal notranslate"><span class="pre">Summary</span></code> applies none of them; it collects, writes and logs the
+diagnostics.</p>
+<p><code class="docutils literal notranslate"><span class="pre">StageCheck</span></code> is a step of its own rather than work the forward step does after
+the model exits.  A Polaris step is sized for its MPI call and there is no good
+mechanism for post-MPI Python, so folding the check in would hold the model’s
+whole allocation open to compare a few scalars.</p>
+<p>The thresholds read the extreme reached at any point in the stage, so an
+excursion the run recovered from is still caught, and
+<code class="docutils literal notranslate"><span class="pre">diagnostics.extreme_and_day</span></code> returns the day it happened alongside the value.
+A NaN or infinite value fails a check outright, since a NaN compares as false
+against any bound and would otherwise pass.</p>
+<p>Which samples a stage is judged on is decided in one place,
+<code class="docutils literal notranslate"><span class="pre">diagnostics.first_judged_index</span></code>, which both that function and
+<code class="docutils literal notranslate"><span class="pre">diagnostics._reduce</span></code> go through.  It always skips the stage’s first sample,
+written before any time step: for the first stage it is the initial condition
+and for the rest it is the predecessor’s final state, already checked, so the
+extremes describe what each stage did.  Without this the <code class="docutils literal notranslate"><span class="pre">u-oi30-lr10</span></code> run
+failed on a WOA23 source artifact in its initial condition.  It returns <code class="docutils literal notranslate"><span class="pre">None</span></code>
+when a stage wrote nothing else, which the schedule’s <code class="docutils literal notranslate"><span class="pre">stats_interval</span></code> check is
+what prevents.</p>
+<p>Its <code class="docutils literal notranslate"><span class="pre">exclude_days</span></code> argument is how the sequence’s <code class="docutils literal notranslate"><span class="pre">startup_exclusion_duration</span></code>
+reaches a stage.  <code class="docutils literal notranslate"><span class="pre">schedule.excluded_days_in_stage</span></code> turns that duration into a
+number of days <em>into a given stage</em>, measuring from the first stage’s
+<code class="docutils literal notranslate"><span class="pre">start_time</span></code> and returning zero for a stage that begins after the window has
+closed.  Measuring from the sequence rather than from each stage is deliberate:
+what the window skips belongs to the initial condition, and a per-stage window
+would stop watching the hours just after every damping change.  Expressing the
+result relative to the stage is deliberate too — a stage’s statistics count
+time from their own first sample, and this way nothing depends on whether the
+model restarted its clock.</p>
+<p>Only the metrics with <code class="docutils literal notranslate"><span class="pre">Metric.startup_window</span></code> set — the tracer extremes — are
+given it.  <code class="docutils literal notranslate"><span class="pre">cfl_max_in_stage</span></code> is not, because a time step too long for the flow
+shows up in exactly the hours the window covers.  <code class="docutils literal notranslate"><span class="pre">Summary</span></code> passes the same
+windows when it builds the summary, so the CSV a user reads and the checks that
+passed cannot disagree.  This is what the <code class="docutils literal notranslate"><span class="pre">u-oi6to18</span></code> runs need: their
+statistics are hourly, and the Sumatra artifact is still at 35.1 to 36.1 °C an
+hour in.</p>
+<p>There is deliberately no automated settling criterion.  One existed and was
+rewritten three times – comparing kinetic-energy levels, then the fractional
+change stage over stage, then that change per unit time – and every revision
+was forced by a healthy run failing it.  The quantity is not comparable across
+stages: they differ in length by up to 70x, the last one switches the damping
+off, and a stage whose energy dips makes the next ordinary rise read as
+acceleration.  Three samples cannot separate any of that from a runaway.  The
+judgement is made from the diagnostics table and the <code class="docutils literal notranslate"><span class="pre">viz</span></code> figure instead.  The
+final <code class="docutils literal notranslate"><span class="pre">simulation</span></code> stage additionally compares the <code class="docutils literal notranslate"><span class="pre">'state'</span></code> class of
+variables in its <code class="docutils literal notranslate"><span class="pre">output.nc</span></code> against a baseline, as the forward tasks do.</p>
+<p><a class="reference internal" href="../generated/polaris.tasks.ocean.realistic_global.dynamic_adjustment.viz.VizDynamicAdjustmentStep.html#polaris.tasks.ocean.realistic_global.dynamic_adjustment.viz.VizDynamicAdjustmentStep" title="polaris.tasks.ocean.realistic_global.dynamic_adjustment.viz.VizDynamicAdjustmentStep"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.tasks.ocean.realistic_global.dynamic_adjustment.viz.VizDynamicAdjustmentStep</span></code></a>
+plots the same statistics as time series.  Its panels are declared in
+<code class="docutils literal notranslate"><span class="pre">viz.PANELS</span></code>, each naming the variables it draws in MPAS-Ocean naming, so a
+panel whose variables the configured model does not report is dropped and the
+grid closes up around it.  Stages are placed on a common axis from their
+schedule start times rather than from the time variable in the files, because a
+restart may or may not reset what the model counts from.</p>
+<p>Omega’s temperature is conservative temperature where MPAS-Ocean’s is potential
+temperature, so <code class="docutils literal notranslate"><span class="pre">temperature_max</span></code> and <code class="docutils literal notranslate"><span class="pre">temperature_min</span></code> are not literally the
+same quantity in the two models — immaterial against these thresholds.</p>
 </section>
 </section>
 <section id="hydrography-woa23">

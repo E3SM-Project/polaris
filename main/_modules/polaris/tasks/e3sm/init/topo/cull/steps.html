@@ -516,7 +516,7 @@ window.runMermaid = runMermaid;</script>
     <span class="n">base_mesh_step</span> <span class="o">=</span> <span class="n">remap_steps</span><span class="p">[</span><span class="s1">'base_mesh'</span><span class="p">]</span>
     <span class="n">unsmoothed_topo_step</span> <span class="o">=</span> <span class="n">remap_steps</span><span class="p">[</span><span class="s1">'remap_unsmoothed_topo'</span><span class="p">]</span>
     <span class="c1"># only unified meshes have a sizing-field step, used by the dcEdge</span>
-    <span class="c1"># diagnostic in the cull-mask step</span>
+    <span class="c1"># and dvEdge diagnostics in the cull-mask step</span>
     <span class="n">sizing_field_step</span> <span class="o">=</span> <span class="n">remap_steps</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'sizing_field'</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
 
     <span class="n">config_filename</span> <span class="o">=</span> <span class="s1">'cull_topo.cfg'</span>
@@ -572,7 +572,7 @@ window.runMermaid = runMermaid;</script>
 
         <span class="k">if</span> <span class="n">mesh_name</span> <span class="ow">in</span> <span class="n">UNIFIED_MESH_NAMES</span><span class="p">:</span>
             <span class="c1"># unified-mesh config options (e.g. per-mesh overrides of the</span>
-            <span class="c1"># dcEdge diagnostic thresholds)</span>
+            <span class="c1"># dcEdge and dvEdge diagnostic thresholds)</span>
             <span class="n">config</span><span class="o">.</span><span class="n">add_from_package</span><span class="p">(</span>
                 <span class="s1">'polaris.mesh.spherical.unified'</span><span class="p">,</span> <span class="s1">'unified_mesh.cfg'</span>
             <span class="p">)</span>

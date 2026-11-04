@@ -1,0 +1,48 @@
+﻿polaris.tasks.ocean.realistic\_global.dynamic\_adjustment.validate.StageCheck
+=============================================================================
+
+.. currentmodule:: polaris.tasks.ocean.realistic_global.dynamic_adjustment.validate
+
+.. autoclass:: StageCheck
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~StageCheck.__init__
+      ~StageCheck.add_cf_check
+      ~StageCheck.add_dependency
+      ~StageCheck.add_input_file
+      ~StageCheck.add_output_file
+      ~StageCheck.add_property_check
+      ~StageCheck.check_cf
+      ~StageCheck.check_properties
+      ~StageCheck.constrain_resources
+      ~StageCheck.process_inputs_and_outputs
+      ~StageCheck.run
+      ~StageCheck.runtime_setup
+      ~StageCheck.set_resources
+      ~StageCheck.set_shared_config
+      ~StageCheck.setup
+      ~StageCheck.validate_baselines
+      ~StageCheck.work_path
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~StageCheck.cores
+      ~StageCheck.gpus
+      ~StageCheck.may_span_nodes
+      ~StageCheck.min_cores
+      ~StageCheck.min_gpus
+   
+   

@@ -1,0 +1,1364 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>polaris.tasks.ocean.realistic_global.dynamic_adjustment.viz</title>
+      <link rel="stylesheet" type="text/css" href="../../../../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../../../../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../../../../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../../../../_static/documentation_options.js?v=a8da1a53"></script>
+      <script src="../../../../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script type="module">import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11.12.1/dist/mermaid.esm.min.mjs";
+
+
+
+
+
+const initStyles = () => {
+    const defaultStyle = document.createElement('style');
+    defaultStyle.textContent = "pre.mermaid {\n    /* Same as .mermaid-container > pre */\n    display: block;\n    width: 100%;\n}\n\npre.mermaid > svg {\n    /* Same as .mermaid-container > pre > svg */\n    height: 500px;\n    width: 100%;\n    max-width: 100% !important;\n}";
+    document.head.appendChild(defaultStyle);
+
+    const fullscreenStyle = document.createElement('style');
+    fullscreenStyle.textContent = ".mermaid-container {\n    position: relative;\n    display: flex;\n    flex-direction: row;\n    width: 100%;\n}\n\n.mermaid-container > pre {\n    display: block;\n    width: 100%;\n}\n\n.mermaid-container > pre > svg {\n    height: 500px;\n    width: 100%;\n    max-width: 100% !important;\n}\n\n.mermaid-fullscreen-btn {\n    position: absolute;\n    width: 28px;\n    height: 28px;\n    background: rgba(255, 255, 255, 0.95);\n    border: 1px solid rgba(0, 0, 0, 0.3);\n    border-radius: 4px;\n    cursor: pointer;\n    display: flex;\n    align-items: center;\n    justify-content: center;\n    transition: all 0.2s;\n    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);\n    font-size: 14px;\n    line-height: 1;\n    padding: 0;\n    color: #333;\n}\n\n.mermaid-fullscreen-btn:hover {\n    opacity: 100% !important;\n    background: rgba(255, 255, 255, 1);\n    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.3);\n    transform: scale(1.1);\n}\n\n.mermaid-fullscreen-btn.dark-theme {\n    background: rgba(50, 50, 50, 0.95);\n    border: 1px solid rgba(255, 255, 255, 0.3);\n    color: #e0e0e0;\n}\n\n.mermaid-fullscreen-btn.dark-theme:hover {\n    background: rgba(60, 60, 60, 1);\n    box-shadow: 0 3px 10px rgba(255, 255, 255, 0.2);\n}\n\n.mermaid-fullscreen-modal {\n    display: none;\n    position: fixed !important;\n    top: 0 !important;\n    left: 0 !important;\n    width: 95vw;\n    height: 100vh;\n    background: rgba(255, 255, 255, 0.98);\n    z-index: 9999;\n    padding: 20px;\n    overflow: auto;\n}\n\n.mermaid-fullscreen-modal.dark-theme {\n    background: rgba(0, 0, 0, 0.98);\n}\n\n.mermaid-fullscreen-modal.active {\n    display: flex;\n    align-items: center;\n    justify-content: center;\n}\n\n.mermaid-container-fullscreen {\n    position: relative;\n    width: 95vw;\n    height: 90vh;\n    max-width: 95vw;\n    max-height: 90vh;\n    background: white;\n    border-radius: 8px;\n    padding: 20px;\n    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);\n    overflow: auto;\n    display: flex;\n    align-items: center;\n    justify-content: center;\n}\n\n.mermaid-container-fullscreen.dark-theme {\n    background: #1a1a1a;\n    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.8);\n}\n\n.mermaid-container-fullscreen pre.mermaid {\n    width: 100%;\n    height: 100%;\n    display: flex;\n    align-items: center;\n    justify-content: center;\n}\n\n.mermaid-container-fullscreen .mermaid svg {\n    height: 100% !important;\n    width: 100% !important;\n    cursor: grab;\n}\n\n.mermaid-fullscreen-close {\n    position: fixed !important;\n    top: 20px !important;\n    right: 20px !important;\n    width: 40px;\n    height: 40px;\n    background: rgba(255, 255, 255, 0.95);\n    border: 1px solid rgba(0, 0, 0, 0.2);\n    border-radius: 50%;\n    cursor: pointer;\n    z-index: 10000;\n    display: flex;\n    align-items: center;\n    justify-content: center;\n    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);\n    transition: all 0.2s;\n    font-size: 24px;\n    line-height: 1;\n    color: #333;\n}\n\n.mermaid-fullscreen-close:hover {\n    background: white;\n    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);\n    transform: scale(1.1);\n}\n\n.mermaid-fullscreen-close.dark-theme {\n    background: rgba(50, 50, 50, 0.95);\n    border: 1px solid rgba(255, 255, 255, 0.2);\n    color: #e0e0e0;\n}\n\n.mermaid-fullscreen-close.dark-theme:hover {\n    background: rgba(60, 60, 60, 1);\n    box-shadow: 0 6px 16px rgba(255, 255, 255, 0.2);\n}\n\n.mermaid-fullscreen-modal .mermaid-fullscreen-btn {\n    display: none !important;\n}";
+    document.head.appendChild(fullscreenStyle);
+}
+
+// Detect if page has dark background
+const isDarkTheme = () => {
+    // We use a set of heuristics:
+    // 1. Check for common dark mode classes or attributes
+    // 2. Check computed background color brightness
+    if (document.documentElement.classList.contains('dark') ||
+        document.documentElement.getAttribute('data-theme') === 'dark' ||
+        document.body.classList.contains('dark') ||
+        document.body.getAttribute('data-theme') === 'dark') {
+        // console.log("Dark theme detected via class/attribute");
+        return true;
+    }
+    if (document.documentElement.classList.contains('light') ||
+        document.documentElement.getAttribute('data-theme') === 'light' ||
+        document.body.classList.contains('light') ||
+        document.body.getAttribute('data-theme') === 'light') {
+        // console.log("Light theme detected via class/attribute");
+        return false;
+    }
+    if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        // console.log("Dark theme detected via prefers-color-scheme");
+        return true;
+    }
+    const bgColor = window.getComputedStyle(document.body).backgroundColor;
+    const match = bgColor.match(/rgb\((\d+),\s*(\d+),\s*(\d+)/);
+    if (match) {
+        const r = parseInt(match[1]);
+        const g = parseInt(match[2]);
+        const b = parseInt(match[3]);
+        const brightness = (r * 299 + g * 587 + b * 114) / 1000;
+        // console.log("Background color brightness:", brightness);
+        return brightness < 128;
+    }
+    // console.log("No dark or light theme detected, defaulting to light theme");
+    return false;
+};
+
+let darkTheme = isDarkTheme();
+let modal = null;
+let modalContent = null;
+let previousScrollOffset = [window.scrollX, window.scrollY];
+let _lazyObserver = null;
+let _renderQueue = Promise.resolve();
+let closeModal = () => {};
+
+document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && modal?.classList.contains('active')) {
+        closeModal();
+    }
+});
+
+// Apply d3 zoom to each SVG. Idempotent: an SVG already wrapped is skipped,
+// so this is safe to call both for the initial batch and for diagrams that
+// render lazily once they become visible.
+const addZoomToSvgs = (svgs) => {
+    svgs.each(function() {
+        if (this.getAttribute('data-zoom-applied') === 'true') return;
+        var svg = d3.select(this);
+        svg.html("<g class='wrapper'>" + svg.html() + "</g>");
+        var inner = svg.select("g");
+        var zoom = d3.zoom().on("zoom", function(event) {
+            inner.attr("transform", event.transform);
+        });
+        svg.call(zoom);
+        this.setAttribute('data-zoom-applied', 'true');
+    });
+};
+
+const runMermaid = async (rerun) => {
+    console.log("Running mermaid diagrams, rerun =", rerun);
+    // clear all existing mermaid charts
+    let all_mermaids = document.querySelectorAll(".mermaid");
+
+    if (rerun) {
+        // Disconnect any previous lazy rendering observer
+        if (_lazyObserver) {
+            _lazyObserver.disconnect();
+            _lazyObserver = null;
+        }
+
+        all_mermaids.forEach((el) => {
+            el.removeAttribute('data-mermaid-deferred');
+            el.removeAttribute('data-mermaid-render-failed');
+            if(!el.hasAttribute("data-original-code")) {
+                // store original code
+                // console.log(`Storing original code for first run: `, el.innerHTML);
+                el.setAttribute('data-original-code', el.innerHTML);
+            }
+            if(el.getAttribute("data-processed") === "true") {
+                // remove and restore original
+                el.removeAttribute("data-processed");
+                // console.log(`Restoring original code for re-run: `, el.getAttribute('data-original-code'));
+                el.innerHTML = el.getAttribute('data-original-code');
+            } else {
+                // store original code
+                // console.log(`Storing original code for re-run: `, el.innerHTML);
+                el.setAttribute('data-original-code', el.innerHTML);
+            }
+        });
+
+        // Separate visible and hidden elements. Mermaid's layout engine measures
+        // text dimensions via the DOM, which fails for elements hidden by a parent
+        // (e.g., Reveal.js non-active slides, sphinx-design unopened tabs),
+        // producing broken SVGs. Render visible elements now, defer hidden ones.
+        const visible = [];
+        const hidden = [];
+        all_mermaids.forEach((el) => {
+            // offsetParent is null for display:none ancestors.
+            // getClientRects().length > 0 catches position:fixed elements
+            // (which also have null offsetParent but are still visible).
+            if (el.offsetParent !== null || el.getClientRects().length > 0) {
+                visible.push(el);
+            } else {
+                hidden.push(el);
+                el.setAttribute('data-mermaid-deferred', 'true');
+            }
+        });
+
+        if (visible.length > 0) {
+            try {
+                await mermaid.run({ nodes: visible });
+            } catch (e) {
+                console.error("Mermaid rendering failed:", e);
+            }
+        }
+
+        // Lazily render hidden elements when they become visible.
+        // Uses a promise chain (_renderQueue) to serialize rendering,
+        // since IntersectionObserver may report multiple entries at once
+        // and mermaid.run() is not safe to call concurrently.
+        if (hidden.length > 0) {
+            if (typeof IntersectionObserver === 'undefined') {
+                console.warn("IntersectionObserver not available; hidden mermaid diagrams will not render.");
+            } else {
+                _renderQueue = Promise.resolve();
+                _lazyObserver = new IntersectionObserver((entries) => {
+                    for (const entry of entries) {
+                        if (entry.isIntersecting && entry.target.getAttribute("data-processed") !== "true") {
+                            _lazyObserver.unobserve(entry.target);
+                            const el = entry.target;
+                            _renderQueue = _renderQueue.then(async () => {
+                                try {
+                                    await mermaid.run({ nodes: [el] });
+                                    el.removeAttribute('data-mermaid-deferred');
+                                    // Apply zoom to the now-rendered diagram, matching
+                                    // the decoration visible diagrams receive.
+                                    if (false) {
+                                        addZoomToSvgs(d3.selectAll("").select(function() {
+                                            return this.querySelector("svg");
+                                        }));
+                                    }
+                                } catch (e) {
+                                    console.error("Mermaid deferred rendering failed:", e);
+                                    el.removeAttribute('data-mermaid-deferred');
+                                    el.setAttribute('data-mermaid-render-failed', 'true');
+                                }
+                            });
+                        }
+                    }
+                });
+                hidden.forEach((el) => _lazyObserver.observe(el));
+            }
+        }
+    }
+
+    all_mermaids = document.querySelectorAll(".mermaid");
+    // Exclude deferred (hidden) and render-failed elements from completion checks
+    const mermaids_active = document.querySelectorAll(".mermaid:not([data-mermaid-deferred]):not([data-mermaid-render-failed])");
+    const mermaids_processed = document.querySelectorAll(".mermaid:not([data-mermaid-deferred]):not([data-mermaid-render-failed])[data-processed='true']");
+
+    if (false) {
+        const mermaids_to_add_zoom = 0 === -1 ? mermaids_active.length : 0;
+        if(mermaids_to_add_zoom > 0) {
+            var svgs = d3.selectAll("").select(function() {
+                return this.querySelector("svg");
+            });
+            // Wait until every active (visible) diagram has rendered. Deferred
+            // diagrams are excluded, so a fixed d3_node_count that counts a
+            // hidden diagram no longer loops forever waiting for its SVG.
+            if(mermaids_active.length !== mermaids_processed.length) {
+                setTimeout(() => runMermaid(false), 200);
+                return;
+            }
+            addZoomToSvgs(svgs);
+        }
+    } else if(mermaids_active.length !== mermaids_processed.length) {
+        // Wait for mermaid to process all diagrams
+        setTimeout(() => runMermaid(false), 200);
+        return;
+    }
+
+    // Stop here if not adding fullscreen capability
+    if (!true) return;
+
+    if (modal !== null ) {
+        // Destroy existing modal
+        modal.remove();
+        modal = null;
+        modalContent = null;
+    }
+
+    modal = document.createElement('div');
+    modal.className = 'mermaid-fullscreen-modal' + (darkTheme ? ' dark-theme' : '');
+    modal.setAttribute('role', 'dialog');
+    modal.setAttribute('aria-modal', 'true');
+    modal.setAttribute('aria-label', 'Fullscreen diagram viewer');
+    modal.innerHTML = `
+        <button class="mermaid-fullscreen-close${darkTheme ? ' dark-theme' : ''}" aria-label="Close fullscreen">✕</button>
+        <div class="mermaid-container-fullscreen${darkTheme ? ' dark-theme' : ''}"></div>
+    `;
+    document.body.appendChild(modal);
+
+    modalContent = modal.querySelector('.mermaid-container-fullscreen');
+    const closeBtn = modal.querySelector('.mermaid-fullscreen-close');
+
+    closeModal = () => {
+        modal.classList.remove('active');
+        modalContent.innerHTML = '';
+        document.body.style.overflow = ''
+        window.scrollTo({left: previousScrollOffset[0], top: previousScrollOffset[1], behavior: 'instant'});
+    };
+
+    closeBtn.addEventListener('click', closeModal);
+    modal.addEventListener('click', (e) => {
+        if (e.target === modal) closeModal();
+    });
+    document.querySelectorAll('.mermaid').forEach((mermaidDiv) => {
+        if (mermaidDiv.parentNode.classList.contains('mermaid-container') ||
+            mermaidDiv.closest('.mermaid-fullscreen-modal')) {
+            // Already processed, adjust button class if needed
+            const existingBtn = mermaidDiv.parentNode.querySelector('.mermaid-fullscreen-btn');
+            if (existingBtn) {
+                existingBtn.className = 'mermaid-fullscreen-btn' + (darkTheme ? ' dark-theme' : '');
+            }
+            return;
+        }
+
+        const container = document.createElement('div');
+        container.className = 'mermaid-container';
+        mermaidDiv.parentNode.insertBefore(container, mermaidDiv);
+        container.appendChild(mermaidDiv);
+
+        const fullscreenBtn = document.createElement('button');
+        fullscreenBtn.className = 'mermaid-fullscreen-btn' + (darkTheme ? ' dark-theme' : '');
+        fullscreenBtn.setAttribute('aria-label', 'View diagram in fullscreen');
+        fullscreenBtn.textContent = "\u26f6";
+        fullscreenBtn.style.opacity = "50%";
+
+        // Calculate dynamic position based on diagram's margin and padding
+        const diagramStyle = window.getComputedStyle(mermaidDiv);
+        const marginTop = parseFloat(diagramStyle.marginTop) || 0;
+        const marginRight = parseFloat(diagramStyle.marginRight) || 0;
+        const paddingTop = parseFloat(diagramStyle.paddingTop) || 0;
+        const paddingRight = parseFloat(diagramStyle.paddingRight) || 0;
+        fullscreenBtn.style.top = `${marginTop + paddingTop + 4}px`;
+        fullscreenBtn.style.right = `${marginRight + paddingRight + 4}px`;
+
+        fullscreenBtn.addEventListener('click', () => {
+            previousScrollOffset = [window.scrollX, window.scrollY];
+            const clone = mermaidDiv.cloneNode(true);
+            modalContent.innerHTML = '';
+            modalContent.appendChild(clone);
+
+            const svg = clone.querySelector('svg');
+            if (svg) {
+                svg.removeAttribute('width');
+                svg.removeAttribute('height');
+                svg.style.width = '100%';
+                svg.style.height = 'auto';
+                svg.style.maxWidth = '100%';
+                svg.style.display = 'block';
+
+                if (false) {
+                    setTimeout(() => {
+                        const g = svg.querySelector('g');
+                        if (g) {
+                            var svgD3 = d3.select(svg);
+                            svgD3.html("<g class='wrapper'>" + svgD3.html() + "</g>");
+                            var inner = svgD3.select("g");
+                            var zoom = d3.zoom().on("zoom", function(event) {
+                                inner.attr("transform", event.transform);
+                            });
+                            svgD3.call(zoom);
+                        }
+                    }, 100);
+                }
+            }
+
+            modal.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        });
+        container.appendChild(fullscreenBtn);
+    });
+};
+
+
+
+const load = async () => {
+    initStyles();
+
+
+    await runMermaid(true);
+
+    const reRunIfThemeChanges = async () => {
+        const newDarkTheme = isDarkTheme();
+        if (newDarkTheme !== darkTheme) {
+            darkTheme = newDarkTheme;
+            console.log("Theme change detected, re-running mermaid with", darkTheme ? "dark" : "default", "theme");
+            await mermaid.initialize(
+                {...{"startOnLoad": false},
+                ...{ darkMode: darkTheme, theme: darkTheme ? "dark" : "default" },
+                }
+            );
+            await runMermaid(true);
+        }
+    };
+
+    // Update theme classes when theme changes
+    const themeObserver = new MutationObserver(reRunIfThemeChanges);
+    themeObserver.observe(document.documentElement, {
+        attributes: true,
+        attributeFilter: ['class', 'style', 'data-theme']
+    });
+    themeObserver.observe(document.body, {
+        attributes: true,
+        attributeFilter: ['class', 'style', 'data-theme']
+    });
+};
+
+
+
+
+
+console.log("Initializing mermaid with", darkTheme ? "dark" : "default", "theme");
+mermaid.initialize(
+    {...{"startOnLoad": false},
+    ...{ darkMode: darkTheme, theme: darkTheme ? "dark" : "default" },
+    }
+);
+
+window.addEventListener("load", load);
+window.runMermaid = runMermaid;</script>
+    <script src="../../../../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../../../search.html" />
+    <link href="../../../../../../_static/style.css" rel="stylesheet" type="text/css">
+
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../../../../index.html" class="icon icon-home">
+            Polaris
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">User's guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../users_guide/quick_start.html">Quick Start for Users</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../users_guide/tasks.html">Tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../users_guide/config_files.html">Config Files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../users_guide/suites.html">Suites</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../users_guide/mesh/index.html">Mesh component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../users_guide/e3sm/init/index.html">E3SM Initial Condition Component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../users_guide/ocean/index.html">Ocean component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../users_guide/seaice/index.html">Sea ice component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../users_guide/machines/index.html">Machines</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Developer's guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../developers_guide/quick_start.html">Quick Start for Developers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../developers_guide/overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../developers_guide/command_line.html">Command-line interface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../developers_guide/organization/index.html">Organization of Tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../developers_guide/e3sm/init/index.html">E3SM initial condition (e3sm/init) component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../developers_guide/mesh/index.html">Mesh component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../developers_guide/ocean/index.html">Ocean component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../developers_guide/seaice/index.html">Sea ice component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../developers_guide/framework/index.html">Framework</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../developers_guide/machines/index.html">Machines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../developers_guide/benchmarking.html">Benchmarking a branch against a baseline</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../developers_guide/omega_pr_testing.html">Testing an Omega pull request</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../developers_guide/troubleshooting.html">Troubleshooting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../developers_guide/docs.html">Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../developers_guide/building_docs.html">Building the Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../developers_guide/building_docs.html#previewing-the-documentation">Previewing the Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../developers_guide/conda_vs_spack.html">How Conda and Spack Work Together in Polaris</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../developers_guide/updating_conda.html">Updating Deployment Dependencies</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../developers_guide/updating_spack/index.html">Updating Shared Spack Environments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../developers_guide/api.html">API reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../design_docs/index.html">Design Documents</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../tutorials/dev_add_category_of_tasks/index.html">Developer Tutorial: Adding a New Category of Tasks</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Glossary</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../glossary.html">Glossary</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../../../index.html">Polaris</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../../../../index.html">Module code</a></li>
+          <li class="breadcrumb-item"><a href="../../../ocean.html">polaris.tasks.ocean</a></li>
+          <li class="breadcrumb-item"><a href="../../realistic_global.html">polaris.tasks.ocean.realistic_global</a></li>
+      <li class="breadcrumb-item active">polaris.tasks.ocean.realistic_global.dynamic_adjustment.viz</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for polaris.tasks.ocean.realistic_global.dynamic_adjustment.viz</h1><div class="highlight"><pre>
+<span></span><span class="sd">"""</span>
+<span class="sd">Plot the global-statistics time series of a dynamic-adjustment sequence.</span>
+
+<span class="sd">The per-stage summary in ``dynamic_adjustment_stats.csv`` reduces each stage to</span>
+<span class="sd">one row, which is enough to say whether a check passed but not enough to say</span>
+<span class="sd">*why*.  A quantity that ends a stage where it started may have been flat</span>
+<span class="sd">throughout or may have spiked and recovered, and those call for different</span>
+<span class="sd">changes to the schedule.  This step plots the underlying series so that the</span>
+<span class="sd">shape is visible.</span>
+
+<span class="sd">The stages are drawn on one continuous axis with their boundaries marked and</span>
+<span class="sd">their damping coefficients labelled, because the question being asked is almost</span>
+<span class="sd">always how a quantity responded to the damping coming off.</span>
+
+<span class="sd">A second figure asks how far the adjustment moved the ocean away from its</span>
+<span class="sd">initial condition: volume-weighted histograms of the change in temperature</span>
+<span class="sd">and salinity from the initial state to the end of the last stage.</span>
+<span class="sd">"""</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">datetime</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">dataclass</span><span class="p">,</span> <span class="n">field</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Tuple</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">xarray</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">xr</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris</span><span class="w"> </span><span class="kn">import</span> <span class="n">Step</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.mpas.time</span><span class="w"> </span><span class="kn">import</span> <span class="n">duration_to_seconds</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.ocean.model.time</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_time_since_start</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.tasks.ocean.realistic_global.dynamic_adjustment.diagnostics</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>  <span class="c1"># noqa: E501</span>
+    <span class="n">cfl_estimate_series</span><span class="p">,</span>
+    <span class="n">min_edge_length_of_mesh</span><span class="p">,</span>
+    <span class="n">open_stage_stats</span><span class="p">,</span>
+    <span class="n">stage_stats_path</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="n">FIGURE_FILENAME</span> <span class="o">=</span> <span class="s1">'dynamic_adjustment_stats.png'</span>
+<span class="n">TRACER_CHANGE_FILENAME</span> <span class="o">=</span> <span class="s1">'dynamic_adjustment_tracer_change.png'</span>
+
+<span class="c1"># What each model's temperature and salinity are, for the axis labels of the</span>
+<span class="c1"># tracer-change figure: each model is plotted in its own convention.</span>
+<span class="n">_TRACER_LABELS</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s1">'mpas-ocean'</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s1">'temperature'</span><span class="p">:</span> <span class="p">(</span><span class="s1">'potential temperature'</span><span class="p">,</span> <span class="sa">r</span><span class="s1">'$^\circ$C'</span><span class="p">),</span>
+        <span class="s1">'salinity'</span><span class="p">:</span> <span class="p">(</span><span class="s1">'salinity'</span><span class="p">,</span> <span class="s1">'PSU'</span><span class="p">),</span>
+    <span class="p">},</span>
+    <span class="s1">'omega'</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s1">'temperature'</span><span class="p">:</span> <span class="p">(</span><span class="s1">'conservative temperature'</span><span class="p">,</span> <span class="sa">r</span><span class="s1">'$^\circ$C'</span><span class="p">),</span>
+        <span class="s1">'salinity'</span><span class="p">:</span> <span class="p">(</span><span class="s1">'absolute salinity'</span><span class="p">,</span> <span class="sa">r</span><span class="s1">'g kg$^{-1}$'</span><span class="p">),</span>
+    <span class="p">},</span>
+<span class="p">}</span>
+
+<span class="c1"># Values this large in magnitude are fill values in an inactive layer, not</span>
+<span class="c1"># tracer values.</span>
+<span class="n">_FILL_THRESHOLD</span> <span class="o">=</span> <span class="mf">1.0e20</span>
+
+
+<span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">Panel</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    One panel of the figure.</span>
+
+<span class="sd">    Attributes</span>
+<span class="sd">    ----------</span>
+<span class="sd">    title : str</span>
+<span class="sd">        The panel title.</span>
+
+<span class="sd">    ylabel : str</span>
+<span class="sd">        The y-axis label.</span>
+
+<span class="sd">    series : list</span>
+<span class="sd">        ``(variable, label)`` pairs to draw, in MPAS-Ocean naming.  A label of</span>
+<span class="sd">        ``''`` draws an unlabelled line and no legend.</span>
+
+<span class="sd">    log : bool</span>
+<span class="sd">        Whether the y axis is logarithmic.  Used where the quantity spans</span>
+<span class="sd">        orders of magnitude, which kinetic energy does during a spin-up.</span>
+
+<span class="sd">    anomaly : bool</span>
+<span class="sd">        Whether to plot the change from the first sample rather than the value.</span>
+<span class="sd">        A volume-weighted mean tracer moves by a tiny fraction of its own</span>
+<span class="sd">        magnitude, so the change is invisible on an absolute axis.</span>
+<span class="sd">    """</span>
+
+    <span class="n">title</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">ylabel</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">series</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="nb">list</span><span class="p">)</span>
+    <span class="n">log</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="n">anomaly</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
+
+
+<span class="c1"># The panels, in the order they are drawn.  Kinetic energy comes first: it is</span>
+<span class="c1"># what the adjustment is judged on.  A panel whose series are all missing --</span>
+<span class="c1"># Omega reports no CFL number or volume-weighted sums -- is dropped, and the</span>
+<span class="c1"># grid closes up around it.</span>
+<span class="n">PANELS</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">Panel</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="n">Panel</span><span class="p">(</span>
+        <span class="s1">'cell kinetic energy'</span><span class="p">,</span>
+        <span class="sa">r</span><span class="s1">'m$^2$ s$^{-2}$'</span><span class="p">,</span>
+        <span class="p">[(</span><span class="s1">'kineticEnergyCellMax'</span><span class="p">,</span> <span class="s1">'max'</span><span class="p">),</span> <span class="p">(</span><span class="s1">'kineticEnergyCellAvg'</span><span class="p">,</span> <span class="s1">'mean'</span><span class="p">)],</span>
+        <span class="n">log</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="p">),</span>
+    <span class="n">Panel</span><span class="p">(</span>
+        <span class="s1">'domain-integrated kinetic energy'</span><span class="p">,</span>
+        <span class="sa">r</span><span class="s1">'m$^5$ s$^{-2}$'</span><span class="p">,</span>
+        <span class="p">[(</span><span class="s1">'kineticEnergyCellSum'</span><span class="p">,</span> <span class="s1">''</span><span class="p">)],</span>
+        <span class="n">log</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="p">),</span>
+    <span class="n">Panel</span><span class="p">(</span>
+        <span class="s1">'maximum normal velocity'</span><span class="p">,</span>
+        <span class="sa">r</span><span class="s1">'m s$^{-1}$'</span><span class="p">,</span>
+        <span class="p">[(</span><span class="s1">'normalVelocityMax'</span><span class="p">,</span> <span class="s1">''</span><span class="p">)],</span>
+    <span class="p">),</span>
+    <span class="c1"># Omega reports no CFL number, so for Omega the panel shows the</span>
+    <span class="c1"># conservative estimate from its normal-velocity extrema instead, labelled</span>
+    <span class="c1"># as the upper bound it is</span>
+    <span class="n">Panel</span><span class="p">(</span>
+        <span class="s1">'CFL number'</span><span class="p">,</span>
+        <span class="s1">''</span><span class="p">,</span>
+        <span class="p">[</span>
+            <span class="p">(</span><span class="s1">'CFLNumberGlobal'</span><span class="p">,</span> <span class="s1">''</span><span class="p">),</span>
+            <span class="p">(</span><span class="s1">'CFLNumberEstimate'</span><span class="p">,</span> <span class="s1">'upper-bound estimate'</span><span class="p">),</span>
+        <span class="p">],</span>
+    <span class="p">),</span>
+    <span class="n">Panel</span><span class="p">(</span>
+        <span class="s1">'temperature extremes'</span><span class="p">,</span>
+        <span class="sa">r</span><span class="s1">'$^\circ$C'</span><span class="p">,</span>
+        <span class="p">[(</span><span class="s1">'temperatureMax'</span><span class="p">,</span> <span class="s1">'max'</span><span class="p">),</span> <span class="p">(</span><span class="s1">'temperatureMin'</span><span class="p">,</span> <span class="s1">'min'</span><span class="p">)],</span>
+    <span class="p">),</span>
+    <span class="n">Panel</span><span class="p">(</span>
+        <span class="s1">'mean temperature change'</span><span class="p">,</span>
+        <span class="sa">r</span><span class="s1">'$^\circ$C'</span><span class="p">,</span>
+        <span class="p">[(</span><span class="s1">'temperatureAvg'</span><span class="p">,</span> <span class="s1">''</span><span class="p">)],</span>
+        <span class="n">anomaly</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="p">),</span>
+    <span class="n">Panel</span><span class="p">(</span>
+        <span class="s1">'salinity extremes'</span><span class="p">,</span>
+        <span class="s1">'PSU'</span><span class="p">,</span>
+        <span class="p">[(</span><span class="s1">'salinityMax'</span><span class="p">,</span> <span class="s1">'max'</span><span class="p">),</span> <span class="p">(</span><span class="s1">'salinityMin'</span><span class="p">,</span> <span class="s1">'min'</span><span class="p">)],</span>
+    <span class="p">),</span>
+    <span class="n">Panel</span><span class="p">(</span>
+        <span class="s1">'mean salinity change'</span><span class="p">,</span>
+        <span class="s1">'PSU'</span><span class="p">,</span>
+        <span class="p">[(</span><span class="s1">'salinityAvg'</span><span class="p">,</span> <span class="s1">''</span><span class="p">)],</span>
+        <span class="n">anomaly</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="p">),</span>
+    <span class="n">Panel</span><span class="p">(</span>
+        <span class="s1">'minimum layer thickness'</span><span class="p">,</span>
+        <span class="s1">'m'</span><span class="p">,</span>
+        <span class="p">[(</span><span class="s1">'layerThicknessMin'</span><span class="p">,</span> <span class="s1">''</span><span class="p">)],</span>
+    <span class="p">),</span>
+<span class="p">)</span>
+
+
+<div class="viewcode-block" id="VizDynamicAdjustmentStep">
+<a class="viewcode-back" href="../../../../../../developers_guide/ocean/generated/polaris.tasks.ocean.realistic_global.dynamic_adjustment.viz.VizDynamicAdjustmentStep.html#polaris.tasks.ocean.realistic_global.dynamic_adjustment.viz.VizDynamicAdjustmentStep">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">VizDynamicAdjustmentStep</span><span class="p">(</span><span class="n">Step</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    A step that plots the global-statistics time series of a completed</span>
+<span class="sd">    dynamic-adjustment sequence.</span>
+
+<span class="sd">    It reads the same statistics files the ``summary`` step reduces, so the</span>
+<span class="sd">    figure and the summary describe the same run.  Like that step, it opens</span>
+<span class="sd">    them by path rather than declaring them as inputs, so a stage that wrote no</span>
+<span class="sd">    statistics is skipped rather than failing the step -- a partial picture of</span>
+<span class="sd">    a run that went wrong is more use than none.  Also like that step, it</span>
+<span class="sd">    declares each stage's ``output.nc`` as an input, which is what makes a</span>
+<span class="sd">    parallel run wait for the stages before plotting.</span>
+
+<span class="sd">    The step belongs to the standalone ``dynamic_adjustment`` task.  If the</span>
+<span class="sd">    stages are later reused as shared steps by a longer spin-up workflow, this</span>
+<span class="sd">    should not come with them: it describes a completed adjustment, which is</span>
+<span class="sd">    not what a workflow consuming the relaxed restart is asking about.</span>
+
+<span class="sd">    Attributes</span>
+<span class="sd">    ----------</span>
+<span class="sd">    stages : list of ForwardStage</span>
+<span class="sd">        The stages of the adjustment, in schedule order.</span>
+
+<span class="sd">    min_res : float or None</span>
+<span class="sd">        The mesh minimum resolution in km, used for a per-kilometer Omega</span>
+<span class="sd">        timestep in the CFL estimate.</span>
+
+<span class="sd">    mesh_filename : str or None</span>
+<span class="sd">        The local name of the horizontal mesh, if one was given.</span>
+
+<span class="sd">    init_filename : str or None</span>
+<span class="sd">        The local name of the initial state, if one was given.</span>
+<span class="sd">    """</span>
+
+<div class="viewcode-block" id="VizDynamicAdjustmentStep.__init__">
+<a class="viewcode-back" href="../../../../../../developers_guide/ocean/generated/polaris.tasks.ocean.realistic_global.dynamic_adjustment.viz.VizDynamicAdjustmentStep.html#polaris.tasks.ocean.realistic_global.dynamic_adjustment.viz.VizDynamicAdjustmentStep.__init__">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">component</span><span class="p">,</span>
+        <span class="n">subdir</span><span class="p">,</span>
+        <span class="n">stages</span><span class="p">,</span>
+        <span class="n">min_res</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">mesh_target</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">init_target</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">        Create the step.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        component : polaris.tasks.ocean.Ocean</span>
+<span class="sd">            The ocean component the step belongs to.</span>
+
+<span class="sd">        subdir : str</span>
+<span class="sd">            The subdirectory for the step.</span>
+
+<span class="sd">        stages : list of ForwardStage</span>
+<span class="sd">            The stages of the adjustment, in schedule order.  Their start times</span>
+<span class="sd">            are what place the stages on a common axis, and their damping is</span>
+<span class="sd">            what the stage labels report.</span>
+
+<span class="sd">        min_res : float, optional</span>
+<span class="sd">            The mesh minimum resolution in km, used for a per-kilometer Omega</span>
+<span class="sd">            timestep in the CFL estimate.</span>
+
+<span class="sd">        mesh_target : str, optional</span>
+<span class="sd">            The horizontal mesh, relative to the base work directory.  Its</span>
+<span class="sd">            cell areas weight the tracer-change histograms, and its smallest</span>
+<span class="sd">            edge sets Omega's CFL estimate.  It is linked as ``mesh.nc``.</span>
+
+<span class="sd">        init_target : str, optional</span>
+<span class="sd">            The initial state the first stage starts from, relative to the base</span>
+<span class="sd">            work directory.  The tracer changes are measured from it.  It is</span>
+<span class="sd">            linked as ``init.nc``.</span>
+<span class="sd">        """</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">'viz'</span><span class="p">,</span> <span class="n">subdir</span><span class="o">=</span><span class="n">subdir</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">stages</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">stages</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">min_res</span> <span class="o">=</span> <span class="n">min_res</span>
+        <span class="k">for</span> <span class="n">stage</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">stages</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">add_input_file</span><span class="p">(</span>
+                <span class="n">filename</span><span class="o">=</span><span class="sa">f</span><span class="s1">'output_</span><span class="si">{</span><span class="n">stage</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s1">.nc'</span><span class="p">,</span>
+                <span class="n">target</span><span class="o">=</span><span class="sa">f</span><span class="s1">'../</span><span class="si">{</span><span class="n">stage</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s1">/output.nc'</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mesh_filename</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="n">mesh_target</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">add_input_file</span><span class="p">(</span>
+                <span class="n">filename</span><span class="o">=</span><span class="s1">'mesh.nc'</span><span class="p">,</span> <span class="n">work_dir_target</span><span class="o">=</span><span class="n">mesh_target</span>
+            <span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">mesh_filename</span> <span class="o">=</span> <span class="s1">'mesh.nc'</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">init_filename</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="n">init_target</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">add_input_file</span><span class="p">(</span>
+                <span class="n">filename</span><span class="o">=</span><span class="s1">'init.nc'</span><span class="p">,</span> <span class="n">work_dir_target</span><span class="o">=</span><span class="n">init_target</span>
+            <span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">init_filename</span> <span class="o">=</span> <span class="s1">'init.nc'</span></div>
+
+
+<div class="viewcode-block" id="VizDynamicAdjustmentStep.run">
+<a class="viewcode-back" href="../../../../../../developers_guide/ocean/generated/polaris.tasks.ocean.realistic_global.dynamic_adjustment.viz.VizDynamicAdjustmentStep.run.html#polaris.tasks.ocean.realistic_global.dynamic_adjustment.viz.VizDynamicAdjustmentStep.run">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">        Read each stage's statistics and plot them as one series, then plot</span>
+<span class="sd">        how far the adjustment moved temperature and salinity.</span>
+<span class="sd">        """</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'ocean'</span><span class="p">,</span> <span class="s1">'model'</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_plot_stats</span><span class="p">(</span><span class="n">model</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_plot_tracer_change</span><span class="p">(</span><span class="n">model</span><span class="p">)</span></div>
+
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_plot_stats</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Plot the global-statistics series of every stage."""</span>
+        <span class="n">logger</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">logger</span>
+        <span class="n">stage_data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_read_stages</span><span class="p">(</span><span class="n">model</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">stage_data</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+                <span class="s1">'No global statistics were found for any stage; there is '</span>
+                <span class="s1">'nothing to plot.'</span>
+            <span class="p">)</span>
+            <span class="k">return</span>
+
+        <span class="n">available</span> <span class="o">=</span> <span class="p">{</span><span class="n">variable</span> <span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">data</span> <span class="ow">in</span> <span class="n">stage_data</span> <span class="k">for</span> <span class="n">variable</span> <span class="ow">in</span> <span class="n">data</span><span class="p">}</span>
+        <span class="n">panels</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">panel</span>
+            <span class="k">for</span> <span class="n">panel</span> <span class="ow">in</span> <span class="n">PANELS</span>
+            <span class="k">if</span> <span class="nb">any</span><span class="p">(</span><span class="n">variable</span> <span class="ow">in</span> <span class="n">available</span> <span class="k">for</span> <span class="n">variable</span><span class="p">,</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">panel</span><span class="o">.</span><span class="n">series</span><span class="p">)</span>
+        <span class="p">]</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">panels</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+                <span class="s1">'The statistics hold none of the plotted variables; there is '</span>
+                <span class="s1">'nothing to plot.'</span>
+            <span class="p">)</span>
+            <span class="k">return</span>
+
+        <span class="n">_plot</span><span class="p">(</span><span class="n">panels</span><span class="p">,</span> <span class="n">stage_data</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">stages</span><span class="p">,</span> <span class="n">FIGURE_FILENAME</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">'Wrote </span><span class="si">{</span><span class="n">FIGURE_FILENAME</span><span class="si">}</span><span class="s1">'</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_plot_tracer_change</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">        Plot volume-weighted histograms of the change in temperature and</span>
+<span class="sd">        salinity from the initial state to the end of the last stage.</span>
+<span class="sd">        """</span>
+        <span class="n">logger</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">logger</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">init_filename</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">mesh_filename</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+                <span class="s1">'No initial state or mesh was linked; skipping the '</span>
+                <span class="s1">'tracer-change histograms.'</span>
+            <span class="p">)</span>
+            <span class="k">return</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">stages</span><span class="p">:</span>
+            <span class="k">return</span>
+        <span class="n">final_filename</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">'output_</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">stages</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s1">.nc'</span>
+        <span class="n">changes</span> <span class="o">=</span> <span class="n">tracer_changes</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">component</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">,</span>
+            <span class="n">init_filename</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">init_filename</span><span class="p">,</span>
+            <span class="n">final_filename</span><span class="o">=</span><span class="n">final_filename</span><span class="p">,</span>
+            <span class="n">mesh_filename</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">mesh_filename</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">change</span> <span class="ow">in</span> <span class="n">changes</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s1"> change from the initial state to the end of '</span>
+                <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">stages</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">name</span><span class="si">!r}</span><span class="s1">: volume-weighted mean '</span>
+                <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">change</span><span class="o">.</span><span class="n">mean</span><span class="si">:</span><span class="s1">.3g</span><span class="si">}</span><span class="s1">, RMS </span><span class="si">{</span><span class="n">change</span><span class="o">.</span><span class="n">rms</span><span class="si">:</span><span class="s1">.3g</span><span class="si">}</span><span class="s1">, 99% of the volume '</span>
+                <span class="sa">f</span><span class="s1">'within </span><span class="si">{</span><span class="n">change</span><span class="o">.</span><span class="n">p99</span><span class="si">:</span><span class="s1">.3g</span><span class="si">}</span><span class="s1">, largest </span><span class="si">{</span><span class="n">change</span><span class="o">.</span><span class="n">max_abs</span><span class="si">:</span><span class="s1">.3g</span><span class="si">}</span><span class="s1">'</span>
+            <span class="p">)</span>
+        <span class="n">plot_tracer_changes</span><span class="p">(</span>
+            <span class="n">changes</span><span class="p">,</span>
+            <span class="n">model</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">stages</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+            <span class="n">TRACER_CHANGE_FILENAME</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">'Wrote </span><span class="si">{</span><span class="n">TRACER_CHANGE_FILENAME</span><span class="si">}</span><span class="s1">'</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_read_stages</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">        ``(stage, {variable: (days, values)})`` for each stage that wrote</span>
+<span class="sd">        statistics, with the days measured from the start of the first stage so</span>
+<span class="sd">        the stages share one axis.</span>
+<span class="sd">        """</span>
+        <span class="n">min_edge_length</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="p">(</span>
+            <span class="n">model</span> <span class="o">==</span> <span class="s1">'omega'</span>
+            <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">mesh_filename</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+            <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">min_res</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+        <span class="p">):</span>
+            <span class="n">min_edge_length</span> <span class="o">=</span> <span class="n">min_edge_length_of_mesh</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">component</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">mesh_filename</span>
+            <span class="p">)</span>
+        <span class="n">origin</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">stages</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">start_time</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">stages</span> <span class="k">else</span> <span class="kc">None</span>
+        <span class="n">stage_data</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">stage</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">stages</span><span class="p">:</span>
+            <span class="n">path</span> <span class="o">=</span> <span class="n">stage_stats_path</span><span class="p">(</span><span class="n">stage</span><span class="p">,</span> <span class="n">model</span><span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s1">'Stage </span><span class="si">{</span><span class="n">stage</span><span class="o">.</span><span class="n">name</span><span class="si">!r}</span><span class="s1"> wrote no statistics; skipping it.'</span>
+                <span class="p">)</span>
+                <span class="k">continue</span>
+            <span class="n">ds</span> <span class="o">=</span> <span class="n">open_stage_stats</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">component</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">)</span>
+            <span class="k">with</span> <span class="n">ds</span><span class="p">:</span>
+                <span class="n">offset</span> <span class="o">=</span> <span class="n">_days_between</span><span class="p">(</span><span class="n">origin</span><span class="p">,</span> <span class="n">stage</span><span class="o">.</span><span class="n">start_time</span><span class="p">)</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">days</span> <span class="o">=</span> <span class="n">get_time_since_start</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="n">units</span><span class="o">=</span><span class="s1">'days'</span><span class="p">)</span>
+                <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+                    <span class="c1"># nothing to put the samples on an axis with; a partial</span>
+                    <span class="c1"># figure is still worth more than no figure</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+                        <span class="sa">f</span><span class="s1">'Stage </span><span class="si">{</span><span class="n">stage</span><span class="o">.</span><span class="n">name</span><span class="si">!r}</span><span class="s1"> statistics carry no time '</span>
+                        <span class="sa">f</span><span class="s1">'variable; skipping it.'</span>
+                    <span class="p">)</span>
+                    <span class="k">continue</span>
+                <span class="n">days</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">days</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
+                <span class="c1"># the file's own origin is whatever the model counted from,</span>
+                <span class="c1"># which a restart may or may not reset, so anchor on the</span>
+                <span class="c1"># schedule instead</span>
+                <span class="n">days</span> <span class="o">=</span> <span class="n">offset</span> <span class="o">+</span> <span class="p">(</span><span class="n">days</span> <span class="o">-</span> <span class="n">days</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+                <span class="n">data</span> <span class="o">=</span> <span class="p">{</span>
+                    <span class="n">variable</span><span class="p">:</span> <span class="p">(</span><span class="n">days</span><span class="p">,</span> <span class="n">ds</span><span class="p">[</span><span class="n">variable</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">))</span>
+                    <span class="k">for</span> <span class="n">panel</span> <span class="ow">in</span> <span class="n">PANELS</span>
+                    <span class="k">for</span> <span class="n">variable</span><span class="p">,</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">panel</span><span class="o">.</span><span class="n">series</span>
+                    <span class="k">if</span> <span class="n">variable</span> <span class="ow">in</span> <span class="n">ds</span>
+                <span class="p">}</span>
+                <span class="k">if</span> <span class="n">min_edge_length</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="n">estimate</span> <span class="o">=</span> <span class="n">cfl_estimate_series</span><span class="p">(</span>
+                        <span class="n">ds</span><span class="p">,</span> <span class="n">stage</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">min_res</span><span class="p">,</span> <span class="n">min_edge_length</span>
+                    <span class="p">)</span>
+                    <span class="k">if</span> <span class="n">estimate</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                        <span class="n">data</span><span class="p">[</span><span class="s1">'CFLNumberEstimate'</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">days</span><span class="p">,</span> <span class="n">estimate</span><span class="p">)</span>
+            <span class="n">stage_data</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">stage</span><span class="p">,</span> <span class="n">data</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">stage_data</span></div>
+
+
+
+<div class="viewcode-block" id="TracerChange">
+<a class="viewcode-back" href="../../../../../../developers_guide/ocean/generated/polaris.tasks.ocean.realistic_global.dynamic_adjustment.viz.TracerChange.html#polaris.tasks.ocean.realistic_global.dynamic_adjustment.viz.TracerChange">[docs]</a>
+<span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">TracerChange</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    The change in one tracer over the adjustment: a volume-weighted histogram</span>
+<span class="sd">    and the numbers that summarize it.</span>
+
+<span class="sd">    Attributes</span>
+<span class="sd">    ----------</span>
+<span class="sd">    density : numpy.ndarray</span>
+<span class="sd">        The volume-weighted probability density in each bin, per unit of the</span>
+<span class="sd">        tracer.</span>
+
+<span class="sd">    edges : numpy.ndarray</span>
+<span class="sd">        The bin edges, symmetric about zero.</span>
+
+<span class="sd">    mean : float</span>
+<span class="sd">        The volume-weighted mean change.</span>
+
+<span class="sd">    rms : float</span>
+<span class="sd">        The volume-weighted root-mean-square change.</span>
+
+<span class="sd">    p99 : float</span>
+<span class="sd">        The magnitude of change that 99% of the ocean volume stays within.</span>
+
+<span class="sd">    max_abs : float</span>
+<span class="sd">        The largest magnitude of change anywhere.</span>
+<span class="sd">    """</span>
+
+    <span class="n">density</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span>
+    <span class="n">edges</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span>
+    <span class="n">mean</span><span class="p">:</span> <span class="nb">float</span>
+    <span class="n">rms</span><span class="p">:</span> <span class="nb">float</span>
+    <span class="n">p99</span><span class="p">:</span> <span class="nb">float</span>
+    <span class="n">max_abs</span><span class="p">:</span> <span class="nb">float</span></div>
+
+
+
+<div class="viewcode-block" id="tracer_changes">
+<a class="viewcode-back" href="../../../../../../developers_guide/ocean/generated/polaris.tasks.ocean.realistic_global.dynamic_adjustment.viz.tracer_changes.html#polaris.tasks.ocean.realistic_global.dynamic_adjustment.viz.tracer_changes">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">tracer_changes</span><span class="p">(</span>
+    <span class="n">component</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>
+    <span class="n">config</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>
+    <span class="n">init_filename</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">final_filename</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">mesh_filename</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">bin_count</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">201</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">TracerChange</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    The change in temperature and salinity from an initial state to the last</span>
+<span class="sd">    record of a stage's output, cell by cell and layer by layer, weighted by</span>
+<span class="sd">    the initial volume of each cell.</span>
+
+<span class="sd">    Each model's tracers are compared in that model's own convention.  Only</span>
+<span class="sd">    active layers count: those with a positive initial thickness and finite,</span>
+<span class="sd">    unfilled values at both ends.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    component : polaris.tasks.ocean.Ocean</span>
+<span class="sd">        The ocean component, which opens the files with MPAS-Ocean names.</span>
+
+<span class="sd">    config : polaris.config.PolarisConfigParser</span>
+<span class="sd">        The config, which says which model wrote the files.</span>
+
+<span class="sd">    init_filename : str</span>
+<span class="sd">        The initial state.</span>
+
+<span class="sd">    final_filename : str</span>
+<span class="sd">        The output of the last stage; its last record is the end state.</span>
+
+<span class="sd">    mesh_filename : str</span>
+<span class="sd">        The horizontal mesh, whose cell areas weight the histograms.</span>
+
+<span class="sd">    bin_count : int, optional</span>
+<span class="sd">        The number of histogram bins.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    dict</span>
+<span class="sd">        A :py:class:`TracerChange` for ``temperature`` and for ``salinity``.</span>
+<span class="sd">    """</span>
+    <span class="k">with</span> <span class="n">component</span><span class="o">.</span><span class="n">open_model_dataset</span><span class="p">(</span><span class="n">mesh_filename</span><span class="p">,</span> <span class="n">config</span><span class="p">)</span> <span class="k">as</span> <span class="n">ds_mesh</span><span class="p">:</span>
+        <span class="n">area</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">ds_mesh</span><span class="p">[</span><span class="s1">'areaCell'</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
+    <span class="k">with</span> <span class="n">component</span><span class="o">.</span><span class="n">open_model_dataset</span><span class="p">(</span><span class="n">init_filename</span><span class="p">,</span> <span class="n">config</span><span class="p">)</span> <span class="k">as</span> <span class="n">ds_init</span><span class="p">:</span>
+        <span class="n">thickness</span> <span class="o">=</span> <span class="n">_record</span><span class="p">(</span><span class="n">ds_init</span><span class="p">[</span><span class="s1">'layerThickness'</span><span class="p">],</span> <span class="mi">0</span><span class="p">)</span>
+    <span class="n">active</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">thickness</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">thickness</span> <span class="o">&gt;</span> <span class="mf">0.0</span><span class="p">)</span>
+    <span class="n">weights</span> <span class="o">=</span> <span class="n">area</span><span class="p">[:,</span> <span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">]</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">active</span><span class="p">,</span> <span class="n">thickness</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">)</span>
+    <span class="k">del</span> <span class="n">thickness</span>
+
+    <span class="c1"># one record per chunk, so that only the last record of what may be a</span>
+    <span class="c1"># long output file is read, and nothing Omega's layer thickness would be</span>
+    <span class="c1"># derived from is computed</span>
+    <span class="n">time_dim</span> <span class="o">=</span> <span class="n">_time_dim</span><span class="p">(</span><span class="n">final_filename</span><span class="p">)</span>
+    <span class="n">chunks</span> <span class="o">=</span> <span class="p">{}</span> <span class="k">if</span> <span class="n">time_dim</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="p">{</span><span class="n">time_dim</span><span class="p">:</span> <span class="mi">1</span><span class="p">}</span>
+
+    <span class="n">changes</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="p">(</span><span class="s1">'temperature'</span><span class="p">,</span> <span class="s1">'salinity'</span><span class="p">):</span>
+        <span class="k">with</span> <span class="n">component</span><span class="o">.</span><span class="n">open_model_dataset</span><span class="p">(</span><span class="n">init_filename</span><span class="p">,</span> <span class="n">config</span><span class="p">)</span> <span class="k">as</span> <span class="n">ds_init</span><span class="p">:</span>
+            <span class="n">initial</span> <span class="o">=</span> <span class="n">_record</span><span class="p">(</span><span class="n">ds_init</span><span class="p">[</span><span class="n">name</span><span class="p">],</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="k">with</span> <span class="n">component</span><span class="o">.</span><span class="n">open_model_dataset</span><span class="p">(</span>
+            <span class="n">final_filename</span><span class="p">,</span> <span class="n">config</span><span class="p">,</span> <span class="n">chunks</span><span class="o">=</span><span class="n">chunks</span>
+        <span class="p">)</span> <span class="k">as</span> <span class="n">ds_final</span><span class="p">:</span>
+            <span class="n">final</span> <span class="o">=</span> <span class="n">_record</span><span class="p">(</span><span class="n">ds_final</span><span class="p">[</span><span class="n">name</span><span class="p">],</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">changes</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">_tracer_change</span><span class="p">(</span>
+            <span class="n">initial</span><span class="p">,</span> <span class="n">final</span><span class="p">,</span> <span class="n">weights</span><span class="p">,</span> <span class="n">active</span><span class="p">,</span> <span class="n">bin_count</span>
+        <span class="p">)</span>
+        <span class="k">del</span> <span class="n">initial</span><span class="p">,</span> <span class="n">final</span>
+    <span class="k">return</span> <span class="n">changes</span></div>
+
+
+
+<div class="viewcode-block" id="plot_tracer_changes">
+<a class="viewcode-back" href="../../../../../../developers_guide/ocean/generated/polaris.tasks.ocean.realistic_global.dynamic_adjustment.viz.plot_tracer_changes.html#polaris.tasks.ocean.realistic_global.dynamic_adjustment.viz.plot_tracer_changes">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">plot_tracer_changes</span><span class="p">(</span>
+    <span class="n">changes</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">TracerChange</span><span class="p">],</span>
+    <span class="n">model</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">last_stage_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">filename</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Plot the volume-weighted histograms of tracer change side by side.</span>
+
+<span class="sd">    The density axis is logarithmic, because the question is how large the</span>
+<span class="sd">    rare changes are as much as how small the typical one is.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    changes : dict</span>
+<span class="sd">        A :py:class:`TracerChange` for each tracer, as from</span>
+<span class="sd">        :py:func:`tracer_changes`.</span>
+
+<span class="sd">    model : str</span>
+<span class="sd">        The ocean model, which says what the tracers are called.</span>
+
+<span class="sd">    last_stage_name : str</span>
+<span class="sd">        The stage whose end state the changes are measured to.</span>
+
+<span class="sd">    filename : str</span>
+<span class="sd">        The figure to write.</span>
+<span class="sd">    """</span>
+    <span class="n">labels</span> <span class="o">=</span> <span class="n">_TRACER_LABELS</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">_TRACER_LABELS</span><span class="p">[</span><span class="s1">'mpas-ocean'</span><span class="p">])</span>
+    <span class="n">figure</span><span class="p">,</span> <span class="n">axes</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span>
+        <span class="mi">1</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">changes</span><span class="p">),</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mf">6.0</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">changes</span><span class="p">),</span> <span class="mf">3.8</span><span class="p">),</span> <span class="n">squeeze</span><span class="o">=</span><span class="kc">False</span>
+    <span class="p">)</span>
+    <span class="k">for</span> <span class="n">axis</span><span class="p">,</span> <span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">change</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">axes</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">changes</span><span class="o">.</span><span class="n">items</span><span class="p">(),</span> <span class="n">strict</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="n">long_name</span><span class="p">,</span> <span class="n">units</span> <span class="o">=</span> <span class="n">labels</span><span class="p">[</span><span class="n">name</span><span class="p">]</span>
+        <span class="n">axis</span><span class="o">.</span><span class="n">stairs</span><span class="p">(</span><span class="n">change</span><span class="o">.</span><span class="n">density</span><span class="p">,</span> <span class="n">change</span><span class="o">.</span><span class="n">edges</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mf">1.2</span><span class="p">)</span>
+        <span class="n">axis</span><span class="o">.</span><span class="n">set_yscale</span><span class="p">(</span><span class="s1">'log'</span><span class="p">)</span>
+        <span class="n">axis</span><span class="o">.</span><span class="n">axvline</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">'0.7'</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mf">0.8</span><span class="p">,</span> <span class="n">linestyle</span><span class="o">=</span><span class="s1">'--'</span><span class="p">)</span>
+        <span class="n">axis</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="n">long_name</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+        <span class="n">axis</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="sa">f</span><span class="s1">'change (</span><span class="si">{</span><span class="n">units</span><span class="si">}</span><span class="s1">)'</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">9</span><span class="p">)</span>
+        <span class="n">axis</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="sa">f</span><span class="s1">'volume-weighted PDF (per </span><span class="si">{</span><span class="n">units</span><span class="si">}</span><span class="s1">)'</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">9</span><span class="p">)</span>
+        <span class="n">axis</span><span class="o">.</span><span class="n">tick_params</span><span class="p">(</span><span class="n">labelsize</span><span class="o">=</span><span class="mi">8</span><span class="p">)</span>
+        <span class="n">summary</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="sa">f</span><span class="s1">'mean </span><span class="si">{</span><span class="n">change</span><span class="o">.</span><span class="n">mean</span><span class="si">:</span><span class="s1">.2g</span><span class="si">}</span><span class="se">\n</span><span class="s1">'</span>
+            <span class="sa">f</span><span class="s1">'RMS </span><span class="si">{</span><span class="n">change</span><span class="o">.</span><span class="n">rms</span><span class="si">:</span><span class="s1">.2g</span><span class="si">}</span><span class="se">\n</span><span class="s1">'</span>
+            <span class="sa">f</span><span class="s1">'99% of volume within $</span><span class="se">\\</span><span class="s1">pm$</span><span class="si">{</span><span class="n">change</span><span class="o">.</span><span class="n">p99</span><span class="si">:</span><span class="s1">.2g</span><span class="si">}</span><span class="se">\n</span><span class="s1">'</span>
+            <span class="sa">f</span><span class="s1">'largest </span><span class="si">{</span><span class="n">change</span><span class="o">.</span><span class="n">max_abs</span><span class="si">:</span><span class="s1">.2g</span><span class="si">}</span><span class="s1">'</span>
+        <span class="p">)</span>
+        <span class="n">axis</span><span class="o">.</span><span class="n">text</span><span class="p">(</span>
+            <span class="mf">0.02</span><span class="p">,</span>
+            <span class="mf">0.97</span><span class="p">,</span>
+            <span class="n">summary</span><span class="p">,</span>
+            <span class="n">transform</span><span class="o">=</span><span class="n">axis</span><span class="o">.</span><span class="n">transAxes</span><span class="p">,</span>
+            <span class="n">ha</span><span class="o">=</span><span class="s1">'left'</span><span class="p">,</span>
+            <span class="n">va</span><span class="o">=</span><span class="s1">'top'</span><span class="p">,</span>
+            <span class="n">fontsize</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span>
+            <span class="n">bbox</span><span class="o">=</span><span class="p">{</span><span class="s1">'boxstyle'</span><span class="p">:</span> <span class="s1">'round'</span><span class="p">,</span> <span class="s1">'facecolor'</span><span class="p">:</span> <span class="s1">'white'</span><span class="p">,</span> <span class="s1">'alpha'</span><span class="p">:</span> <span class="mf">0.8</span><span class="p">},</span>
+        <span class="p">)</span>
+    <span class="n">figure</span><span class="o">.</span><span class="n">suptitle</span><span class="p">(</span>
+        <span class="sa">f</span><span class="s1">'dynamic adjustment: change from the initial state to the end of '</span>
+        <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">last_stage_name</span><span class="si">}</span><span class="s1">'</span><span class="p">,</span>
+        <span class="n">fontsize</span><span class="o">=</span><span class="mi">11</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">figure</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
+    <span class="n">figure</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">dpi</span><span class="o">=</span><span class="mi">150</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">close</span><span class="p">(</span><span class="n">figure</span><span class="p">)</span></div>
+
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_record</span><span class="p">(</span><span class="n">data_array</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="n">index</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""One time record of a field, or the field if it has no time."""</span>
+    <span class="k">if</span> <span class="s1">'Time'</span> <span class="ow">in</span> <span class="n">data_array</span><span class="o">.</span><span class="n">dims</span><span class="p">:</span>
+        <span class="n">data_array</span> <span class="o">=</span> <span class="n">data_array</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span><span class="n">Time</span><span class="o">=</span><span class="n">index</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">data_array</span><span class="o">.</span><span class="n">values</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_time_dim</span><span class="p">(</span><span class="n">filename</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">"""The name a file gives its time dimension, before any renaming."""</span>
+    <span class="k">with</span> <span class="n">xr</span><span class="o">.</span><span class="n">open_dataset</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">decode_times</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span> <span class="k">as</span> <span class="n">ds</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="p">(</span><span class="s1">'Time'</span><span class="p">,</span> <span class="s1">'time'</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">ds</span><span class="o">.</span><span class="n">dims</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">name</span>
+    <span class="k">return</span> <span class="kc">None</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_tracer_change</span><span class="p">(</span>
+    <span class="n">initial</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">final</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">weights</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">active</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">bin_count</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">TracerChange</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""The volume-weighted histogram and summary of one tracer's change."""</span>
+    <span class="n">valid</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">active</span>
+        <span class="o">&amp;</span> <span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">initial</span><span class="p">)</span>
+        <span class="o">&amp;</span> <span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">final</span><span class="p">)</span>
+        <span class="o">&amp;</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">initial</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">_FILL_THRESHOLD</span><span class="p">)</span>
+        <span class="o">&amp;</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">final</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">_FILL_THRESHOLD</span><span class="p">)</span>
+    <span class="p">)</span>
+    <span class="n">change</span> <span class="o">=</span> <span class="p">(</span><span class="n">final</span> <span class="o">-</span> <span class="n">initial</span><span class="p">)[</span><span class="n">valid</span><span class="p">]</span>
+    <span class="n">weight</span> <span class="o">=</span> <span class="n">weights</span><span class="p">[</span><span class="n">valid</span><span class="p">]</span>
+    <span class="n">total</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">weight</span><span class="o">.</span><span class="n">sum</span><span class="p">())</span>
+    <span class="k">if</span> <span class="n">change</span><span class="o">.</span><span class="n">size</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">or</span> <span class="n">total</span> <span class="o">&lt;=</span> <span class="mf">0.0</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="s1">'No active cells hold the tracer at both ends of the adjustment.'</span>
+        <span class="p">)</span>
+    <span class="n">magnitude</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">change</span><span class="p">)</span>
+    <span class="n">max_abs</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">magnitude</span><span class="o">.</span><span class="n">max</span><span class="p">())</span>
+    <span class="n">limit</span> <span class="o">=</span> <span class="n">max_abs</span> <span class="k">if</span> <span class="n">max_abs</span> <span class="o">&gt;</span> <span class="mf">0.0</span> <span class="k">else</span> <span class="mf">1.0</span>
+    <span class="n">density</span><span class="p">,</span> <span class="n">edges</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">histogram</span><span class="p">(</span>
+        <span class="n">change</span><span class="p">,</span>
+        <span class="n">bins</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="o">-</span><span class="n">limit</span><span class="p">,</span> <span class="n">limit</span><span class="p">,</span> <span class="n">bin_count</span> <span class="o">+</span> <span class="mi">1</span><span class="p">),</span>
+        <span class="n">weights</span><span class="o">=</span><span class="n">weight</span><span class="p">,</span>
+        <span class="n">density</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">TracerChange</span><span class="p">(</span>
+        <span class="n">density</span><span class="o">=</span><span class="n">density</span><span class="p">,</span>
+        <span class="n">edges</span><span class="o">=</span><span class="n">edges</span><span class="p">,</span>
+        <span class="n">mean</span><span class="o">=</span><span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">weight</span> <span class="o">*</span> <span class="n">change</span><span class="p">)</span> <span class="o">/</span> <span class="n">total</span><span class="p">),</span>
+        <span class="n">rms</span><span class="o">=</span><span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">weight</span> <span class="o">*</span> <span class="n">change</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span> <span class="o">/</span> <span class="n">total</span><span class="p">)),</span>
+        <span class="n">p99</span><span class="o">=</span><span class="n">_weighted_quantile</span><span class="p">(</span><span class="n">magnitude</span><span class="p">,</span> <span class="n">weight</span><span class="p">,</span> <span class="mf">0.99</span><span class="p">,</span> <span class="n">limit</span><span class="p">),</span>
+        <span class="n">max_abs</span><span class="o">=</span><span class="n">max_abs</span><span class="p">,</span>
+    <span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_weighted_quantile</span><span class="p">(</span>
+    <span class="n">values</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">weights</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">quantile</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">limit</span><span class="p">:</span> <span class="nb">float</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    A weighted quantile of non-negative values, from a fine histogram rather</span>
+<span class="sd">    than a sort, which would cost far more on a large mesh.  It is accurate to</span>
+<span class="sd">    one ten-thousandth of ``limit``.</span>
+<span class="sd">    """</span>
+    <span class="n">counts</span><span class="p">,</span> <span class="n">edges</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">histogram</span><span class="p">(</span>
+        <span class="n">values</span><span class="p">,</span> <span class="n">bins</span><span class="o">=</span><span class="mi">10000</span><span class="p">,</span> <span class="nb">range</span><span class="o">=</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">limit</span><span class="p">),</span> <span class="n">weights</span><span class="o">=</span><span class="n">weights</span>
+    <span class="p">)</span>
+    <span class="n">cumulative</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">cumsum</span><span class="p">(</span><span class="n">counts</span><span class="p">)</span> <span class="o">/</span> <span class="n">counts</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+    <span class="n">index</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">searchsorted</span><span class="p">(</span><span class="n">cumulative</span><span class="p">,</span> <span class="n">quantile</span><span class="p">))</span>
+    <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="n">edges</span><span class="p">[</span><span class="nb">min</span><span class="p">(</span><span class="n">index</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">edges</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)])</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_days_between</span><span class="p">(</span><span class="n">origin</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">when</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Days from the chain origin to a stage's start time."""</span>
+    <span class="k">if</span> <span class="n">origin</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="mf">0.0</span>
+    <span class="n">time_format</span> <span class="o">=</span> <span class="s1">'%Y-%m-</span><span class="si">%d</span><span class="s1">_%H:%M:%S'</span>
+    <span class="n">start</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">strptime</span><span class="p">(</span><span class="n">origin</span><span class="p">,</span> <span class="n">time_format</span><span class="p">)</span>
+    <span class="n">stop</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">strptime</span><span class="p">(</span><span class="n">when</span><span class="p">,</span> <span class="n">time_format</span><span class="p">)</span>
+    <span class="k">return</span> <span class="p">(</span><span class="n">stop</span> <span class="o">-</span> <span class="n">start</span><span class="p">)</span><span class="o">.</span><span class="n">total_seconds</span><span class="p">()</span> <span class="o">/</span> <span class="mf">86400.0</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_plot</span><span class="p">(</span><span class="n">panels</span><span class="p">,</span> <span class="n">stage_data</span><span class="p">,</span> <span class="n">stages</span><span class="p">,</span> <span class="n">filename</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Draw the panels and save the figure."""</span>
+    <span class="n">columns</span> <span class="o">=</span> <span class="mi">2</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">panels</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span> <span class="k">else</span> <span class="mi">1</span>
+    <span class="n">rows</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">ceil</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">panels</span><span class="p">)</span> <span class="o">/</span> <span class="n">columns</span><span class="p">))</span>
+    <span class="n">figure</span><span class="p">,</span> <span class="n">axes</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span>
+        <span class="n">rows</span><span class="p">,</span>
+        <span class="n">columns</span><span class="p">,</span>
+        <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mf">6.0</span> <span class="o">*</span> <span class="n">columns</span><span class="p">,</span> <span class="mf">2.6</span> <span class="o">*</span> <span class="n">rows</span><span class="p">),</span>
+        <span class="n">squeeze</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">sharex</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">flat_axes</span> <span class="o">=</span> <span class="p">[</span><span class="n">axis</span> <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">axes</span> <span class="k">for</span> <span class="n">axis</span> <span class="ow">in</span> <span class="n">row</span><span class="p">]</span>
+
+    <span class="n">boundaries</span> <span class="o">=</span> <span class="n">_stage_boundaries</span><span class="p">(</span><span class="n">stages</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">axis</span><span class="p">,</span> <span class="n">panel</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">flat_axes</span><span class="p">,</span> <span class="n">panels</span><span class="p">,</span> <span class="n">strict</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="n">_draw_panel</span><span class="p">(</span><span class="n">axis</span><span class="p">,</span> <span class="n">panel</span><span class="p">,</span> <span class="n">stage_data</span><span class="p">,</span> <span class="n">boundaries</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">axis</span> <span class="ow">in</span> <span class="n">flat_axes</span><span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="n">panels</span><span class="p">)</span> <span class="p">:]:</span>
+        <span class="n">axis</span><span class="o">.</span><span class="n">set_visible</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">axis</span> <span class="ow">in</span> <span class="n">axes</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]:</span>
+        <span class="k">if</span> <span class="n">axis</span><span class="o">.</span><span class="n">get_visible</span><span class="p">():</span>
+            <span class="n">axis</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">'days'</span><span class="p">)</span>
+
+    <span class="n">_label_stages</span><span class="p">(</span><span class="n">flat_axes</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">stages</span><span class="p">)</span>
+    <span class="c1"># only a strip for the suptitle: the stage labels are annotations on the</span>
+    <span class="c1"># top-left axes, so tight_layout already counts them in its bounding box</span>
+    <span class="c1"># and makes room for however many rows they were stacked onto</span>
+    <span class="n">top</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="o">-</span> <span class="mf">0.3</span> <span class="o">/</span> <span class="n">figure</span><span class="o">.</span><span class="n">get_figheight</span><span class="p">()</span>
+    <span class="n">figure</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">(</span><span class="n">rect</span><span class="o">=</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="n">top</span><span class="p">))</span>
+    <span class="n">figure</span><span class="o">.</span><span class="n">suptitle</span><span class="p">(</span><span class="s1">'dynamic adjustment: global statistics'</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="mf">0.995</span><span class="p">)</span>
+    <span class="n">figure</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">dpi</span><span class="o">=</span><span class="mi">150</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">close</span><span class="p">(</span><span class="n">figure</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_draw_panel</span><span class="p">(</span><span class="n">axis</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="n">panel</span><span class="p">:</span> <span class="n">Panel</span><span class="p">,</span> <span class="n">stage_data</span><span class="p">,</span> <span class="n">boundaries</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Draw one panel, joining every stage into a single line per variable."""</span>
+    <span class="n">labelled</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="k">for</span> <span class="n">variable</span><span class="p">,</span> <span class="n">label</span> <span class="ow">in</span> <span class="n">panel</span><span class="o">.</span><span class="n">series</span><span class="p">:</span>
+        <span class="n">days</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">values</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">data</span> <span class="ow">in</span> <span class="n">stage_data</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">variable</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">data</span><span class="p">:</span>
+                <span class="k">continue</span>
+            <span class="n">stage_days</span><span class="p">,</span> <span class="n">stage_values</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="n">variable</span><span class="p">]</span>
+            <span class="n">days</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">stage_days</span><span class="o">.</span><span class="n">tolist</span><span class="p">())</span>
+            <span class="n">values</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">stage_values</span><span class="o">.</span><span class="n">tolist</span><span class="p">())</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">days</span><span class="p">:</span>
+            <span class="k">continue</span>
+        <span class="n">array</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">values</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">panel</span><span class="o">.</span><span class="n">anomaly</span><span class="p">:</span>
+            <span class="n">array</span> <span class="o">=</span> <span class="n">array</span> <span class="o">-</span> <span class="n">array</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">axis</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">days</span><span class="p">,</span> <span class="n">array</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="n">label</span> <span class="ow">or</span> <span class="kc">None</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mf">1.2</span><span class="p">)</span>
+        <span class="n">labelled</span> <span class="o">=</span> <span class="n">labelled</span> <span class="ow">or</span> <span class="nb">bool</span><span class="p">(</span><span class="n">label</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">boundary</span> <span class="ow">in</span> <span class="n">boundaries</span><span class="p">:</span>
+        <span class="n">axis</span><span class="o">.</span><span class="n">axvline</span><span class="p">(</span><span class="n">boundary</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">'0.7'</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mf">0.8</span><span class="p">,</span> <span class="n">linestyle</span><span class="o">=</span><span class="s1">'--'</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">panel</span><span class="o">.</span><span class="n">log</span><span class="p">:</span>
+        <span class="n">axis</span><span class="o">.</span><span class="n">set_yscale</span><span class="p">(</span><span class="s1">'log'</span><span class="p">)</span>
+    <span class="n">axis</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="n">panel</span><span class="o">.</span><span class="n">title</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+    <span class="n">axis</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="n">panel</span><span class="o">.</span><span class="n">ylabel</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">9</span><span class="p">)</span>
+    <span class="n">axis</span><span class="o">.</span><span class="n">tick_params</span><span class="p">(</span><span class="n">labelsize</span><span class="o">=</span><span class="mi">8</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">labelled</span><span class="p">:</span>
+        <span class="n">axis</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">fontsize</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span> <span class="n">loc</span><span class="o">=</span><span class="s1">'best'</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_stage_boundaries</span><span class="p">(</span><span class="n">stages</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">"""The day of each stage start after the first, for the divider lines."""</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">stages</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">[]</span>
+    <span class="n">origin</span> <span class="o">=</span> <span class="n">stages</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">start_time</span>
+    <span class="k">return</span> <span class="p">[</span><span class="n">_days_between</span><span class="p">(</span><span class="n">origin</span><span class="p">,</span> <span class="n">stage</span><span class="o">.</span><span class="n">start_time</span><span class="p">)</span> <span class="k">for</span> <span class="n">stage</span> <span class="ow">in</span> <span class="n">stages</span><span class="p">[</span><span class="mi">1</span><span class="p">:]]</span>
+
+
+<span class="c1"># The stage labels are drawn rotated, so a label's horizontal footprint is one</span>
+<span class="c1"># line height and its vertical one is its length.  These are rough point sizes</span>
+<span class="c1"># at LABEL_FONTSIZE; a label is measured as slightly wider than the digits it</span>
+<span class="c1"># usually holds, so that a letter-heavy one like 'sim undamped' still fits.</span>
+<span class="n">LABEL_FONTSIZE</span> <span class="o">=</span> <span class="mi">7</span>
+<span class="n">_LINE_HEIGHT_PT</span> <span class="o">=</span> <span class="mf">1.3</span> <span class="o">*</span> <span class="n">LABEL_FONTSIZE</span> <span class="o">+</span> <span class="mf">2.0</span>
+<span class="n">_CHARACTER_WIDTH_PT</span> <span class="o">=</span> <span class="mf">0.62</span> <span class="o">*</span> <span class="n">LABEL_FONTSIZE</span>
+<span class="c1"># Labels are stacked in points from the top of the axes, so their spacing does</span>
+<span class="c1"># not depend on how tall tight_layout ends up making the panel.  Only the</span>
+<span class="c1"># horizontal test needs a width, and an axes about 5.4 in wide is what a</span>
+<span class="c1"># 6.0 in cell leaves; getting this wrong costs a row of headroom, not a</span>
+<span class="c1"># collision.</span>
+<span class="n">_AXES_WIDTH_PT</span> <span class="o">=</span> <span class="mf">5.4</span> <span class="o">*</span> <span class="mf">72.0</span>
+<span class="c1"># enough to clear the panel's own title, which sits just above the axes</span>
+<span class="n">_TITLE_CLEARANCE_PT</span> <span class="o">=</span> <span class="mf">20.0</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_label_stages</span><span class="p">(</span><span class="n">axis</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="n">stages</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Name each stage above the first panel, with its damping.</span>
+
+<span class="sd">    The damping is what the labels are for: the usual question of one of these</span>
+<span class="sd">    figures is how a quantity responded to the damping coming off.</span>
+
+<span class="sd">    Labels read upwards, because a stage can be a small fraction of the axis:</span>
+<span class="sd">    ``u-oi6to18-lr12p5`` opens with two 6-hour stages on a 30-day axis, and</span>
+<span class="sd">    horizontal labels there overprinted into an unreadable smear.  Rotating</span>
+<span class="sd">    cuts a label's width to one line height, and where even that does not fit</span>
+<span class="sd">    -- those two stages are 0.25 days apart, narrower than any legible label</span>
+<span class="sd">    -- the label climbs a row rather than overlap its neighbour.  Schedules</span>
+<span class="sd">    whose stages are all comfortably wide stay on one row.</span>
+
+<span class="sd">    Returns the number of rows the labels were stacked onto, which is 1 for</span>
+<span class="sd">    every schedule but the crowded ones.</span>
+<span class="sd">    """</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">stages</span><span class="p">:</span>
+        <span class="k">return</span> <span class="mi">0</span>
+    <span class="n">origin</span> <span class="o">=</span> <span class="n">stages</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">start_time</span>
+    <span class="n">labels</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">stage</span> <span class="ow">in</span> <span class="n">stages</span><span class="p">:</span>
+        <span class="n">start</span> <span class="o">=</span> <span class="n">_days_between</span><span class="p">(</span><span class="n">origin</span><span class="p">,</span> <span class="n">stage</span><span class="o">.</span><span class="n">start_time</span><span class="p">)</span>
+        <span class="n">middle</span> <span class="o">=</span> <span class="n">start</span> <span class="o">+</span> <span class="n">duration_to_seconds</span><span class="p">(</span><span class="n">stage</span><span class="o">.</span><span class="n">run_duration</span><span class="p">)</span> <span class="o">/</span> <span class="mf">172800.0</span>
+        <span class="n">damping</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="s1">'undamped'</span> <span class="k">if</span> <span class="n">stage</span><span class="o">.</span><span class="n">damping</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">stage</span><span class="o">.</span><span class="n">damping</span><span class="si">:</span><span class="s1">.0e</span><span class="si">}</span><span class="s1">'</span>
+        <span class="p">)</span>
+        <span class="n">labels</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">middle</span><span class="p">,</span> <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">_short_stage_name</span><span class="p">(</span><span class="n">stage</span><span class="o">.</span><span class="n">name</span><span class="p">)</span><span class="si">}</span><span class="s1"> </span><span class="si">{</span><span class="n">damping</span><span class="si">}</span><span class="s1">'</span><span class="p">))</span>
+
+    <span class="n">span</span> <span class="o">=</span> <span class="n">_days_between</span><span class="p">(</span><span class="n">origin</span><span class="p">,</span> <span class="n">stages</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">start_time</span><span class="p">)</span> <span class="o">+</span> <span class="p">(</span>
+        <span class="n">duration_to_seconds</span><span class="p">(</span><span class="n">stages</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">run_duration</span><span class="p">)</span> <span class="o">/</span> <span class="mf">86400.0</span>
+    <span class="p">)</span>
+    <span class="c1"># a label's half-width in days, from one line height in points</span>
+    <span class="n">half_width</span> <span class="o">=</span> <span class="mf">0.0</span>
+    <span class="k">if</span> <span class="n">span</span> <span class="o">&gt;</span> <span class="mf">0.0</span><span class="p">:</span>
+        <span class="n">half_width</span> <span class="o">=</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="n">_LINE_HEIGHT_PT</span> <span class="o">*</span> <span class="n">span</span> <span class="o">/</span> <span class="n">_AXES_WIDTH_PT</span>
+
+    <span class="c1"># each label goes on the lowest row where it clears the last one placed</span>
+    <span class="c1"># there, so a crowded run of short stages climbs and the rest stay put</span>
+    <span class="n">rows</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">row_free_from</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">middle</span><span class="p">,</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">labels</span><span class="p">:</span>
+        <span class="n">row</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">while</span> <span class="p">(</span>
+            <span class="n">row</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">row_free_from</span><span class="p">)</span>
+            <span class="ow">and</span> <span class="n">middle</span> <span class="o">-</span> <span class="n">half_width</span> <span class="o">&lt;</span> <span class="p">(</span><span class="n">row_free_from</span><span class="p">[</span><span class="n">row</span><span class="p">])</span>
+        <span class="p">):</span>
+            <span class="n">row</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="k">if</span> <span class="n">row</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">row_free_from</span><span class="p">):</span>
+            <span class="n">row_free_from</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="mf">0.0</span><span class="p">)</span>
+        <span class="n">row_free_from</span><span class="p">[</span><span class="n">row</span><span class="p">]</span> <span class="o">=</span> <span class="n">middle</span> <span class="o">+</span> <span class="n">half_width</span>
+        <span class="n">rows</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">row</span><span class="p">)</span>
+
+    <span class="c1"># a row has to start above the tallest label on the row below it, so a</span>
+    <span class="c1"># single long label -- 'sim undamped' -- does not push every row up</span>
+    <span class="n">heights</span> <span class="o">=</span> <span class="p">[</span><span class="mf">0.0</span><span class="p">]</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">row_free_from</span><span class="p">)</span>
+    <span class="k">for</span> <span class="p">(</span><span class="n">_</span><span class="p">,</span> <span class="n">text</span><span class="p">),</span> <span class="n">row</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">labels</span><span class="p">,</span> <span class="n">rows</span><span class="p">,</span> <span class="n">strict</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="n">height</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">text</span><span class="p">)</span> <span class="o">*</span> <span class="n">_CHARACTER_WIDTH_PT</span>
+        <span class="n">heights</span><span class="p">[</span><span class="n">row</span><span class="p">]</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">heights</span><span class="p">[</span><span class="n">row</span><span class="p">],</span> <span class="n">height</span><span class="p">)</span>
+    <span class="n">offsets</span> <span class="o">=</span> <span class="p">[</span><span class="n">_TITLE_CLEARANCE_PT</span><span class="p">]</span>
+    <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">heights</span><span class="p">)):</span>
+        <span class="n">offsets</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">offsets</span><span class="p">[</span><span class="n">row</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">heights</span><span class="p">[</span><span class="n">row</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="mf">4.0</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="p">(</span><span class="n">middle</span><span class="p">,</span> <span class="n">text</span><span class="p">),</span> <span class="n">row</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">labels</span><span class="p">,</span> <span class="n">rows</span><span class="p">,</span> <span class="n">strict</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="n">axis</span><span class="o">.</span><span class="n">annotate</span><span class="p">(</span>
+            <span class="n">text</span><span class="p">,</span>
+            <span class="n">xy</span><span class="o">=</span><span class="p">(</span><span class="n">middle</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">),</span>
+            <span class="n">xycoords</span><span class="o">=</span><span class="p">(</span><span class="s1">'data'</span><span class="p">,</span> <span class="s1">'axes fraction'</span><span class="p">),</span>
+            <span class="n">xytext</span><span class="o">=</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">offsets</span><span class="p">[</span><span class="n">row</span><span class="p">]),</span>
+            <span class="n">textcoords</span><span class="o">=</span><span class="s1">'offset points'</span><span class="p">,</span>
+            <span class="n">ha</span><span class="o">=</span><span class="s1">'center'</span><span class="p">,</span>
+            <span class="n">va</span><span class="o">=</span><span class="s1">'bottom'</span><span class="p">,</span>
+            <span class="n">rotation</span><span class="o">=</span><span class="mi">90</span><span class="p">,</span>
+            <span class="n">fontsize</span><span class="o">=</span><span class="n">LABEL_FONTSIZE</span><span class="p">,</span>
+            <span class="n">color</span><span class="o">=</span><span class="s1">'0.35'</span><span class="p">,</span>
+        <span class="p">)</span>
+    <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="n">heights</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_short_stage_name</span><span class="p">(</span><span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    A stage name short enough to sit above a stage's span without colliding</span>
+<span class="sd">    with its neighbours.  The schedules name their damped stages</span>
+<span class="sd">    ``damped_adjustment_&lt;n&gt;``, which is far longer than the label has room for</span>
+<span class="sd">    once the damping value is appended.</span>
+<span class="sd">    """</span>
+    <span class="n">prefix</span> <span class="o">=</span> <span class="s1">'damped_adjustment_'</span>
+    <span class="k">if</span> <span class="n">name</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="n">prefix</span><span class="p">):</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s1">'d</span><span class="si">{</span><span class="n">name</span><span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="n">prefix</span><span class="p">)</span><span class="w"> </span><span class="p">:]</span><span class="si">}</span><span class="s1">'</span>
+    <span class="k">if</span> <span class="n">name</span> <span class="o">==</span> <span class="s1">'simulation'</span><span class="p">:</span>
+        <span class="k">return</span> <span class="s1">'sim'</span>
+    <span class="k">return</span> <span class="n">name</span>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2026, Energy Exascale Earth System Model Project.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+   
+
+  <!-- Meta tags for JS to use -->
+  <meta name="doc-version" content="main">
+  <meta name="doc-site-root" content="../../../../../../">
+
+  <!-- Create version switcher container -->
+  <script>
+    const sidebar = document.querySelector('.wy-side-nav-search');
+    if (sidebar) {
+      const versionDiv = document.createElement('div');
+      versionDiv.id = 'version-switcher';
+      versionDiv.style.marginTop = '1em';
+      sidebar.appendChild(versionDiv);
+    }
+  </script>
+
+  <!-- Load version-switcher.js using the correct relative path -->
+  <script src="../../../../../../../shared/version-switcher.js"></script>
+
+
+</body>
+</html>

@@ -1341,7 +1341,7 @@
 <table class="autosummary longtable docutils align-default">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.realistic_global.add_realistic_global_tasks.html#polaris.tasks.ocean.realistic_global.add_realistic_global_tasks" title="polaris.tasks.ocean.realistic_global.add_realistic_global_tasks"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_realistic_global_tasks</span></code></a>(component)</p></td>
-<td><p>Add tasks for realistic global ocean preprocessing, initialization, and forward runs.</p></td>
+<td><p>Add tasks for realistic global ocean preprocessing, initialization, forward runs, and dynamic adjustment.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.realistic_global.mesh_info.estimate_cell_count.html#polaris.tasks.ocean.realistic_global.mesh_info.estimate_cell_count" title="polaris.tasks.ocean.realistic_global.mesh_info.estimate_cell_count"><code class="xref py py-obj docutils literal notranslate"><span class="pre">mesh_info.estimate_cell_count</span></code></a>(mesh_name)</p></td>
 <td><p>Return an approximate MPAS cell count for the given mesh name, or <code class="docutils literal notranslate"><span class="pre">None</span></code> if the count cannot be determined.</p></td>
@@ -1481,7 +1481,7 @@
 <td><p>Compute the number of cells used to size resources.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.realistic_global.forward.forward.Forward.dynamic_model_config.html#polaris.tasks.ocean.realistic_global.forward.forward.Forward.dynamic_model_config" title="polaris.tasks.ocean.realistic_global.forward.forward.Forward.dynamic_model_config"><code class="xref py py-obj docutils literal notranslate"><span class="pre">forward.Forward.dynamic_model_config</span></code></a>(at_setup)</p></td>
-<td><p>Render <code class="docutils literal notranslate"><span class="pre">forward.yaml</span></code> from the stage and apply MPAS-Ocean damping.</p></td>
+<td><p>Render <code class="docutils literal notranslate"><span class="pre">forward.yaml</span></code> from the stage and add the physics options.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.realistic_global.forward.stage.ForwardStage.html#polaris.tasks.ocean.realistic_global.forward.stage.ForwardStage" title="polaris.tasks.ocean.realistic_global.forward.stage.ForwardStage"><code class="xref py py-obj docutils literal notranslate"><span class="pre">stage.ForwardStage</span></code></a>([name, run_duration, ...])</p></td>
 <td><p>Model-agnostic settings for a single realistic-global forward run (or one stage of a multi-stage workflow such as dynamic adjustment).</p></td>
@@ -1498,11 +1498,11 @@
 <tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.realistic_global.forward.stage.ForwardStage.stats_filename.html#polaris.tasks.ocean.realistic_global.forward.stage.ForwardStage.stats_filename" title="polaris.tasks.ocean.realistic_global.forward.stage.ForwardStage.stats_filename"><code class="xref py py-obj docutils literal notranslate"><span class="pre">stage.ForwardStage.stats_filename</span></code></a>(model[, ...])</p></td>
 <td><p>The name of the global-statistics file <code class="docutils literal notranslate"><span class="pre">model</span></code> writes for this stage.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.realistic_global.forward.stage.ForwardStage.check_damping_supported.html#polaris.tasks.ocean.realistic_global.forward.stage.ForwardStage.check_damping_supported" title="polaris.tasks.ocean.realistic_global.forward.stage.ForwardStage.check_damping_supported"><code class="xref py py-obj docutils literal notranslate"><span class="pre">stage.ForwardStage.check_damping_supported</span></code></a>(model)</p></td>
-<td><p>Raise when the configured model cannot honor this stage's damping.</p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.realistic_global.forward.stage.ForwardStage.bottom_drag_options.html#polaris.tasks.ocean.realistic_global.forward.stage.ForwardStage.bottom_drag_options" title="polaris.tasks.ocean.realistic_global.forward.stage.ForwardStage.bottom_drag_options"><code class="xref py py-obj docutils literal notranslate"><span class="pre">stage.ForwardStage.bottom_drag_options</span></code></a>()</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.realistic_global.forward.stage.ForwardStage.bottom_drag_options.html#polaris.tasks.ocean.realistic_global.forward.stage.ForwardStage.bottom_drag_options" title="polaris.tasks.ocean.realistic_global.forward.stage.ForwardStage.bottom_drag_options"><code class="xref py py-obj docutils literal notranslate"><span class="pre">stage.ForwardStage.bottom_drag_options</span></code></a>()</p></td>
 <td><p>MPAS-Ocean bottom-drag config options implied by the damping setting.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.realistic_global.forward.stage.ForwardStage.omega_damping_replacements.html#polaris.tasks.ocean.realistic_global.forward.stage.ForwardStage.omega_damping_replacements" title="polaris.tasks.ocean.realistic_global.forward.stage.ForwardStage.omega_damping_replacements"><code class="xref py py-obj docutils literal notranslate"><span class="pre">stage.ForwardStage.omega_damping_replacements</span></code></a>()</p></td>
+<td><p>Template replacements for <code class="docutils literal notranslate"><span class="pre">omega_damping.yaml</span></code>, or <code class="docutils literal notranslate"><span class="pre">None</span></code> for a stage with no damping.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.realistic_global.forward.stage.ForwardStage.restart_stream_replacements.html#polaris.tasks.ocean.realistic_global.forward.stage.ForwardStage.restart_stream_replacements" title="polaris.tasks.ocean.realistic_global.forward.stage.ForwardStage.restart_stream_replacements"><code class="xref py py-obj docutils literal notranslate"><span class="pre">stage.ForwardStage.restart_stream_replacements</span></code></a>()</p></td>
 <td><p>Template replacements for <code class="docutils literal notranslate"><span class="pre">restart_streams.yaml</span></code>.</p></td>
@@ -1721,6 +1721,73 @@
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.realistic_global.init.viz.VizInitStep.run.html#polaris.tasks.ocean.realistic_global.init.viz.VizInitStep.run" title="polaris.tasks.ocean.realistic_global.init.viz.VizInitStep.run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">viz.VizInitStep.run</span></code></a>()</p></td>
 <td><p>Create the visualizations and ParaView exports.</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="realistic-global-dynamic-adjustment">
+<h3>realistic_global.dynamic_adjustment<a class="headerlink" href="#realistic-global-dynamic-adjustment" title="Link to this heading"></a></h3>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.realistic_global.dynamic_adjustment.tasks.add_realistic_global_dynamic_adjustment_tasks.html#polaris.tasks.ocean.realistic_global.dynamic_adjustment.tasks.add_realistic_global_dynamic_adjustment_tasks" title="polaris.tasks.ocean.realistic_global.dynamic_adjustment.tasks.add_realistic_global_dynamic_adjustment_tasks"><code class="xref py py-obj docutils literal notranslate"><span class="pre">tasks.add_realistic_global_dynamic_adjustment_tasks</span></code></a>(...)</p></td>
+<td><p>Add <a class="reference internal" href="generated/polaris.tasks.ocean.realistic_global.dynamic_adjustment.task.RealisticGlobalDynamicAdjustment.html#polaris.tasks.ocean.realistic_global.dynamic_adjustment.task.RealisticGlobalDynamicAdjustment" title="polaris.tasks.ocean.realistic_global.dynamic_adjustment.task.RealisticGlobalDynamicAdjustment"><code class="xref py py-class docutils literal notranslate"><span class="pre">RealisticGlobalDynamicAdjustment</span></code></a> tasks for every supported base and unified MPAS mesh.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.realistic_global.dynamic_adjustment.task.RealisticGlobalDynamicAdjustment.html#polaris.tasks.ocean.realistic_global.dynamic_adjustment.task.RealisticGlobalDynamicAdjustment" title="polaris.tasks.ocean.realistic_global.dynamic_adjustment.task.RealisticGlobalDynamicAdjustment"><code class="xref py py-obj docutils literal notranslate"><span class="pre">task.RealisticGlobalDynamicAdjustment</span></code></a>(...)</p></td>
+<td><p>A staged dynamic-adjustment run of the configured ocean model for a realistic global ocean simulation on one MPAS mesh.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.realistic_global.dynamic_adjustment.task.RealisticGlobalDynamicAdjustment.configure.html#polaris.tasks.ocean.realistic_global.dynamic_adjustment.task.RealisticGlobalDynamicAdjustment.configure" title="polaris.tasks.ocean.realistic_global.dynamic_adjustment.task.RealisticGlobalDynamicAdjustment.configure"><code class="xref py py-obj docutils literal notranslate"><span class="pre">task.RealisticGlobalDynamicAdjustment.configure</span></code></a>()</p></td>
+<td><p>Rebuild the stages if a user's setup-time config changed the schedule.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.realistic_global.dynamic_adjustment.steps.get_realistic_dynamic_adjustment_steps.html#polaris.tasks.ocean.realistic_global.dynamic_adjustment.steps.get_realistic_dynamic_adjustment_steps" title="polaris.tasks.ocean.realistic_global.dynamic_adjustment.steps.get_realistic_dynamic_adjustment_steps"><code class="xref py py-obj docutils literal notranslate"><span class="pre">steps.get_realistic_dynamic_adjustment_steps</span></code></a>(...)</p></td>
+<td><p>Get shared steps for the realistic global ocean dynamic-adjustment workflow for one MPAS mesh.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.realistic_global.dynamic_adjustment.steps.adjustment_subdir.html#polaris.tasks.ocean.realistic_global.dynamic_adjustment.steps.adjustment_subdir" title="polaris.tasks.ocean.realistic_global.dynamic_adjustment.steps.adjustment_subdir"><code class="xref py py-obj docutils literal notranslate"><span class="pre">steps.adjustment_subdir</span></code></a>(mesh_name)</p></td>
+<td><p>The work directory the dynamic-adjustment steps for a mesh live under.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.realistic_global.dynamic_adjustment.schedule.load_schedule_stages.html#polaris.tasks.ocean.realistic_global.dynamic_adjustment.schedule.load_schedule_stages" title="polaris.tasks.ocean.realistic_global.dynamic_adjustment.schedule.load_schedule_stages"><code class="xref py py-obj docutils literal notranslate"><span class="pre">schedule.load_schedule_stages</span></code></a>(mesh_name, config)</p></td>
+<td><p>Build the ordered list of restart-chained stages for a mesh.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.realistic_global.dynamic_adjustment.schedule.excluded_days_in_stage.html#polaris.tasks.ocean.realistic_global.dynamic_adjustment.schedule.excluded_days_in_stage" title="polaris.tasks.ocean.realistic_global.dynamic_adjustment.schedule.excluded_days_in_stage"><code class="xref py py-obj docutils literal notranslate"><span class="pre">schedule.excluded_days_in_stage</span></code></a>(stage, ...)</p></td>
+<td><p>How much of a stage falls inside the startup window of the sequence.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.realistic_global.dynamic_adjustment.checks.check_temperature_max.html#polaris.tasks.ocean.realistic_global.dynamic_adjustment.checks.check_temperature_max" title="polaris.tasks.ocean.realistic_global.dynamic_adjustment.checks.check_temperature_max"><code class="xref py py-obj docutils literal notranslate"><span class="pre">checks.check_temperature_max</span></code></a>(value, when, ...)</p></td>
+<td><p>Raise if the stage's maximum temperature exceeds the threshold.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.realistic_global.dynamic_adjustment.checks.check_temperature_min.html#polaris.tasks.ocean.realistic_global.dynamic_adjustment.checks.check_temperature_min" title="polaris.tasks.ocean.realistic_global.dynamic_adjustment.checks.check_temperature_min"><code class="xref py py-obj docutils literal notranslate"><span class="pre">checks.check_temperature_min</span></code></a>(value, when, ...)</p></td>
+<td><p>Raise if the stage's minimum temperature falls below the threshold.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.realistic_global.dynamic_adjustment.checks.check_salinity_max.html#polaris.tasks.ocean.realistic_global.dynamic_adjustment.checks.check_salinity_max" title="polaris.tasks.ocean.realistic_global.dynamic_adjustment.checks.check_salinity_max"><code class="xref py py-obj docutils literal notranslate"><span class="pre">checks.check_salinity_max</span></code></a>(value, when, ...)</p></td>
+<td><p>Raise if the stage's maximum salinity exceeds the threshold.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.realistic_global.dynamic_adjustment.checks.check_cfl_max.html#polaris.tasks.ocean.realistic_global.dynamic_adjustment.checks.check_cfl_max" title="polaris.tasks.ocean.realistic_global.dynamic_adjustment.checks.check_cfl_max"><code class="xref py py-obj docutils literal notranslate"><span class="pre">checks.check_cfl_max</span></code></a>(value, when, cfl_max, ...)</p></td>
+<td><p>Raise if the stage went above the allowed CFL number at any point.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.realistic_global.dynamic_adjustment.summary.Summary.html#polaris.tasks.ocean.realistic_global.dynamic_adjustment.summary.Summary" title="polaris.tasks.ocean.realistic_global.dynamic_adjustment.summary.Summary"><code class="xref py py-obj docutils literal notranslate"><span class="pre">summary.Summary</span></code></a>(component, subdir, stages[, ...])</p></td>
+<td><p>A step that summarizes a completed dynamic-adjustment sequence as one row of diagnostics per stage (see <code class="xref py py-mod docutils literal notranslate"><span class="pre">diagnostics</span></code>), written to <code class="docutils literal notranslate"><span class="pre">dynamic_adjustment_stats.csv</span></code> and logged as a table.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.realistic_global.dynamic_adjustment.summary.Summary.run.html#polaris.tasks.ocean.realistic_global.dynamic_adjustment.summary.Summary.run" title="polaris.tasks.ocean.realistic_global.dynamic_adjustment.summary.Summary.run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">summary.Summary.run</span></code></a>()</p></td>
+<td><p>Summarize the sequence.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.realistic_global.dynamic_adjustment.validate.StageCheck.html#polaris.tasks.ocean.realistic_global.dynamic_adjustment.validate.StageCheck" title="polaris.tasks.ocean.realistic_global.dynamic_adjustment.validate.StageCheck"><code class="xref py py-obj docutils literal notranslate"><span class="pre">validate.StageCheck</span></code></a>(component, subdir, stage)</p></td>
+<td><p>A step that applies the per-stage thresholds to one stage, as soon as that stage has finished.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.realistic_global.dynamic_adjustment.validate.StageCheck.run.html#polaris.tasks.ocean.realistic_global.dynamic_adjustment.validate.StageCheck.run" title="polaris.tasks.ocean.realistic_global.dynamic_adjustment.validate.StageCheck.run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">validate.StageCheck.run</span></code></a>()</p></td>
+<td><p>Check this stage's tracer and CFL extremes.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.realistic_global.dynamic_adjustment.viz.VizDynamicAdjustmentStep.html#polaris.tasks.ocean.realistic_global.dynamic_adjustment.viz.VizDynamicAdjustmentStep" title="polaris.tasks.ocean.realistic_global.dynamic_adjustment.viz.VizDynamicAdjustmentStep"><code class="xref py py-obj docutils literal notranslate"><span class="pre">viz.VizDynamicAdjustmentStep</span></code></a>(component, ...)</p></td>
+<td><p>A step that plots the global-statistics time series of a completed dynamic-adjustment sequence.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.realistic_global.dynamic_adjustment.viz.VizDynamicAdjustmentStep.run.html#polaris.tasks.ocean.realistic_global.dynamic_adjustment.viz.VizDynamicAdjustmentStep.run" title="polaris.tasks.ocean.realistic_global.dynamic_adjustment.viz.VizDynamicAdjustmentStep.run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">viz.VizDynamicAdjustmentStep.run</span></code></a>()</p></td>
+<td><p>Read each stage's statistics and plot them as one series, then plot how far the adjustment moved temperature and salinity.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.realistic_global.dynamic_adjustment.viz.TracerChange.html#polaris.tasks.ocean.realistic_global.dynamic_adjustment.viz.TracerChange" title="polaris.tasks.ocean.realistic_global.dynamic_adjustment.viz.TracerChange"><code class="xref py py-obj docutils literal notranslate"><span class="pre">viz.TracerChange</span></code></a>(density, edges, mean, rms, ...)</p></td>
+<td><p>The change in one tracer over the adjustment: a volume-weighted histogram and the numbers that summarize it.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.realistic_global.dynamic_adjustment.viz.tracer_changes.html#polaris.tasks.ocean.realistic_global.dynamic_adjustment.viz.tracer_changes" title="polaris.tasks.ocean.realistic_global.dynamic_adjustment.viz.tracer_changes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">viz.tracer_changes</span></code></a>(component, config, ...[, ...])</p></td>
+<td><p>The change in temperature and salinity from an initial state to the last record of a stage's output, cell by cell and layer by layer, weighted by the initial volume of each cell.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.realistic_global.dynamic_adjustment.viz.plot_tracer_changes.html#polaris.tasks.ocean.realistic_global.dynamic_adjustment.viz.plot_tracer_changes" title="polaris.tasks.ocean.realistic_global.dynamic_adjustment.viz.plot_tracer_changes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">viz.plot_tracer_changes</span></code></a>(changes, model, ...)</p></td>
+<td><p>Plot the volume-weighted histograms of tracer change side by side.</p></td>
 </tr>
 </tbody>
 </table>

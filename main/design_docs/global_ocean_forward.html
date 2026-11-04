@@ -20,7 +20,7 @@
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="Realistic Ocean Initial Conditions" href="global_ocean_init.html" />
-    <link rel="prev" title="Design Documents" href="index.html" />
+    <link rel="prev" title="Global Ocean Dynamic Adjustment" href="global_ocean_dynamic_adjustment.html" />
     <link href="../_static/style.css" rel="stylesheet" type="text/css">
 
 </head>
@@ -79,6 +79,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../developers_guide/updating_spack/index.html">Updating Shared Spack Environments</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../developers_guide/api.html">API reference</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="index.html">Design Documents</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="global_ocean_dynamic_adjustment.html">Global Ocean Dynamic Adjustment</a></li>
 <li class="toctree-l2 current"><a class="current reference internal" href="#">Global Ocean Forward Runs</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#summary">Summary</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#requirements">Requirements</a><ul>
@@ -208,7 +209,7 @@ forward step plus one runnable “simple forward” task (a run whose duration a
 cadence come from config). The framework is deliberately shaped so that the two
 other forward run types from Compass — a restart test and the staged dynamic
 adjustment described in
-<code class="docutils literal notranslate"><span class="pre">global_ocean_dynamic_adjustment.md</span></code> — are
+<a class="reference internal" href="global_ocean_dynamic_adjustment.html"><span class="std std-doc">global_ocean_dynamic_adjustment.md</span></a> — are
 straightforward to build on top of it later.</p>
 <p>That first phase has landed, and so has more than it promised. Two runnable
 task families exist rather than one — <code class="docutils literal notranslate"><span class="pre">forward</span></code> on a mesh the <code class="docutils literal notranslate"><span class="pre">init</span></code> workflow
@@ -317,7 +318,7 @@ existing restart (a restart flag, a start time, and a restart input file).</p>
 <p>The framework itself is not required to implement the restart test or dynamic
 adjustment in this phase; it is required only to leave clean seams for them,
 consistent with
-<code class="docutils literal notranslate"><span class="pre">global_ocean_dynamic_adjustment.md</span></code>, which
+<a class="reference internal" href="global_ocean_dynamic_adjustment.html"><span class="std std-doc">global_ocean_dynamic_adjustment.md</span></a>, which
 decomposes dynamic adjustment into one restart-chained forward step per stage.</p>
 </section>
 <section id="requirement-forward-steps-produce-inspectable-outputs-and-support-basic-validation">
@@ -424,7 +425,7 @@ scalings, a damping strength, and the fields needed to continue from a restart
 fills this structure from a config section; a future dynamic-adjustment workflow
 fills a list of them from a schedule file. This is the “common internal
 representation” called for in
-<code class="docutils literal notranslate"><span class="pre">global_ocean_dynamic_adjustment.md</span></code>.</p>
+<a class="reference internal" href="global_ocean_dynamic_adjustment.html"><span class="std std-doc">global_ocean_dynamic_adjustment.md</span></a>.</p>
 <p>The mapping from this structure onto model configuration should happen in one
 place. Durations are formatted as model duration strings; the time integrator
 name is translated where the models differ (for example <code class="docutils literal notranslate"><span class="pre">RK4</span></code> to
@@ -444,7 +445,7 @@ file. A restart test then becomes two forward steps — a full run that writes a
 restart partway through and a restart run that resumes from it — compared for
 bit-for-bit agreement. A dynamic-adjustment workflow becomes an ordered list of
 settings structures, each producing a restart consumed by the next, exactly as
-laid out in <code class="docutils literal notranslate"><span class="pre">global_ocean_dynamic_adjustment.md</span></code>.</p>
+laid out in <a class="reference internal" href="global_ocean_dynamic_adjustment.html"><span class="std std-doc">global_ocean_dynamic_adjustment.md</span></a>.</p>
 <p>The forward step does not need to know which of these workflows it participates
 in; it only needs to honor the settings it is given. Keeping start and stop times
 derived from cumulative durations, as in Compass, lets the higher-level workflow
@@ -608,7 +609,7 @@ damping (Rayleigh) coefficient, the mixing and parameterization options
 described further below, and the restart fields (<code class="docutils literal notranslate"><span class="pre">do_restart</span></code>, <code class="docutils literal notranslate"><span class="pre">start_time</span></code>,
 <code class="docutils literal notranslate"><span class="pre">restart_in</span></code>, <code class="docutils literal notranslate"><span class="pre">restart_out</span></code>). Durations are duration strings of the form
 <code class="docutils literal notranslate"><span class="pre">DDDD_HH:MM:SS</span></code>, matching the schedule format in
-<code class="docutils literal notranslate"><span class="pre">global_ocean_dynamic_adjustment.md</span></code>.</p>
+<a class="reference internal" href="global_ocean_dynamic_adjustment.html"><span class="std std-doc">global_ocean_dynamic_adjustment.md</span></a>.</p>
 <p>The time integrator turned out to be the one setting that cannot be shared, so
 there are two fields rather than one: <code class="docutils literal notranslate"><span class="pre">mpaso_time_integrator</span></code>, defaulting to
 <code class="docutils literal notranslate"><span class="pre">split_explicit_ab2</span></code>, and <code class="docutils literal notranslate"><span class="pre">omega_time_integrator</span></code>, defaulting to
@@ -953,7 +954,7 @@ producing NaNs, which is the failure mode these options exist to prevent.</p>
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="index.html" class="btn btn-neutral float-left" title="Design Documents" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="global_ocean_dynamic_adjustment.html" class="btn btn-neutral float-left" title="Global Ocean Dynamic Adjustment" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
         <a href="global_ocean_init.html" class="btn btn-neutral float-right" title="Realistic Ocean Initial Conditions" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
