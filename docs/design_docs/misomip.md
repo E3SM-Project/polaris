@@ -1489,10 +1489,11 @@ Contributors: Xylar Asay-Davis, Claude
 
 MALI's geometry reaches the ocean through a glc-to-ocean map built with
 each ocean cell inflated by one cell width (4 km at 4 km, 2 km at 2 km),
-in the initial condition and in the coupling. The ocean's bed, from the
-protocol's input, is smoothed the same way, normalized by the remapped
-below-sea-level mask. Fluxes, and the floating fraction that normalizes
-them, keep the conservative map. The map is an option of Polaris's shared
+in the initial condition and in the coupling. MALI's land-ice fields are
+normalized by the remapped below-sea-level mask, as the import does. The
+ocean's bed, from the protocol's input, is remapped conservatively onto
+the same inflated cells. Fluxes, and the floating fraction that
+normalizes them, keep the conservative map. The map is an option of Polaris's shared
 map-building code for any glc–ocean pair, and the driver maps MALI's
 geometry with it (WP8). The ocean still follows MALI ([D1](#decisions)),
 through the smoothed map.
