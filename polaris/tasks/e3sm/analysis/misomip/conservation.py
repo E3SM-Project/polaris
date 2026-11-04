@@ -65,9 +65,13 @@ class CouplerConservation(ProductStep):
     has_ocean_series : bool
         Whether the ocean's monthly melt and frazil, from the run's
         diagnostics, are plotted beside the monthly water budget
+
+    period : tuple of float or None
+        The period analyzed, in days since 0001-01-01, whose budgets are
+        checked, or ``None`` for all of them
     """
 
-    def __init__(self, component, subdir, case, diagnostics=None):
+    def __init__(self, component, subdir, case, diagnostics=None, period=None):
         """
         Create the step
 
@@ -85,6 +89,11 @@ class CouplerConservation(ProductStep):
         diagnostics : RunDiagnostics, optional
             The diagnostics step of the case's run, whose monthly melt and
             frazil are plotted beside the monthly water budget
+
+        period : tuple of float, optional
+            The period analyzed, in days since 0001-01-01; only the budgets
+            that end in it are checked, from the logs of the segments that
+            start before its end
         """
         super().__init__(
             component=component,
@@ -93,8 +102,13 @@ class CouplerConservation(ProductStep):
             ntasks=1,
             cpus_per_task=1,
         )
+        self.period = period
         self.log_filenames = []
-        for path in case.find_logs('cpl'):
+        logs = case.find_logs('cpl')
+        if period is not None:
+            # a segment that starts before the period may run into it
+            logs = select_segment_logs(logs, -np.inf, period[1])
+        for path in logs:
             filename = os.path.join('logs', os.path.basename(path))
             self.add_input_file(filename=filename, target=path)
             self.log_filenames.append(filename)

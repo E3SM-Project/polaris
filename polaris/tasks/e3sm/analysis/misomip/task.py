@@ -7,6 +7,7 @@ from polaris.tasks.e3sm.analysis.misomip.conservation import (
 from polaris.tasks.e3sm.analysis.misomip.diagnostics import RunDiagnostics
 from polaris.tasks.e3sm.analysis.misomip.exchange import ModelExchange
 from polaris.tasks.e3sm.analysis.misomip.ice_sheet import IceSheetComparison
+from polaris.tasks.e3sm.analysis.misomip.performance import RunPerformance
 from polaris.tasks.e3sm.analysis.misomip.plots import RunPlots
 from polaris.tasks.e3sm.analysis.misomip.protocol import (
     ProtocolFields,
@@ -151,6 +152,14 @@ class MisomipAnalysisTask(Task):
             )
         if 'e3sm' in runs:
             case = E3smCase(runs['e3sm'].path)
+            products.append(
+                self._add_shared_step(
+                    RunPerformance,
+                    f'{self.subdir}/e3sm/performance_{runs["e3sm"].key}',
+                    case=case,
+                    period=runs['e3sm'].period,
+                )
+            )
             if case.get_value('BUDGETS').upper() == 'TRUE':
                 products.append(
                     self._add_shared_step(
@@ -158,6 +167,7 @@ class MisomipAnalysisTask(Task):
                         f'{self.subdir}/e3sm/conservation_{runs["e3sm"].key}',
                         case=case,
                         diagnostics=diagnostics['e3sm'],
+                        period=runs['e3sm'].period,
                     )
                 )
             if self.experiment in COUPLED_EXPERIMENTS:

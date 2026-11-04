@@ -24,7 +24,11 @@ Each run gets two shared steps, named for the months it has:
 {py:class}`polaris.tasks.e3sm.analysis.misomip.comparison.RunComparison`
 compares the two runs' diagnostics, and
 {py:class}`polaris.tasks.e3sm.analysis.misomip.conservation.CouplerConservation`
-reads the coupler's budgets.  In the coupled experiments, IceOcean1r and
+reads the coupler's budgets.  Every E3SM run gets a
+{py:class}`polaris.tasks.e3sm.analysis.misomip.performance.RunPerformance`
+step, which plots the run's performance from each segment's timing files,
+coupler log and memory profile.  It splits the ocean's and MALI's run times
+into the parts its `RUN_TIME_PARTS` names, from the models' timers.  In the coupled experiments, IceOcean1r and
 IceOcean1ra,
 {py:class}`polaris.tasks.e3sm.analysis.misomip.exchange.ModelExchange`
 compares the flux the ocean sends with the melt MALI applies over the
