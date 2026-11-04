@@ -1,12 +1,13 @@
 import xarray as xr
 
 from polaris.config import PolarisConfigParser
+from polaris.constants import get_constant
 
 # Linear salinity dependence of the freezing temperature (degC/PSU) and the
 # absolute-to-practical salinity conversion (g/kg per PSU), matching the
 # LinearEos branch of Omega's Eos::calcCtFreezing()
 FREEZING_SALINITY_COEFF = -0.054
-PSU_TO_GPKG = 35.16504 / 35.0
+PSU_TO_GPKG = get_constant('reference_salinity_per_practical_salinity_teos10')
 
 
 def compute_linear_density(

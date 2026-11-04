@@ -1007,12 +1007,13 @@ over cells $i$ with area `areaCell`.
 
 **Decision:** both constants come from Polaris's Physical Constants
 Dictionary, and neither is a config option: $c_p$ is
-`seawater_specific_heat_capacity_reference` = 3996.0 J kg⁻¹ K⁻¹ and $\rho_0$
-is `seawater_density_reference` = 1026.0 kg m⁻³.  The PCD is how Polaris, Omega
-and the rest of E3SM agree on a constant, so a model that uses a different
-value is the thing to fix, not the analysis.  TEOS-10 defines potential
-enthalpy with $c_p^0 = 3991.86795711963$ J kg⁻¹ K⁻¹, 0.1% lower; if E3SM adopts
-that constant, it belongs in the PCD, and the analysis picks it up from there.
+`seawater_specific_heat_capacity_teos10` = 3991.86795711963 J kg⁻¹ K⁻¹, the
+TEOS-10 $c_p^0$ that defines potential enthalpy and that Omega uses, and
+$\rho_0$ is `seawater_density_reference` = 1026.0 kg m⁻³.  The PCD is how
+Polaris, Omega and the rest of E3SM agree on a constant, so a model that uses a
+different value is the thing to fix, not the analysis.  The analysis used
+`seawater_specific_heat_capacity_reference` = 3996.0 J kg⁻¹ K⁻¹, 0.1% higher,
+until $c_p^0$ was added to the PCD (E3SM-Project/Omega#641).
 
 **$\rho_0$ is not a free parameter.**  The reference density in
 the discrete sum is not a modeling choice we are making --- it is the constant
