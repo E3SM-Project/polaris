@@ -2,8 +2,7 @@ import os
 
 import xarray as xr
 
-from polaris.analysis import Manifest
-from polaris.analysis.manifest import FRAGMENT_FILENAME
+from polaris.analysis.product_step import ProductStep
 from polaris.ocean.model import OceanIOStep
 from polaris.ocean.vertical.elevation import get_valid_level_range
 from polaris.tasks.ocean.analysis.sim_files import SimulationFiles
@@ -15,13 +14,14 @@ MESH_FILENAME = 'mesh.nc'
 VERT_COORD_FILENAME = 'vert_coord.nc'
 
 
-class AnalysisStep(OceanIOStep):
+class AnalysisStep(ProductStep, OceanIOStep):
     """
     A step of the ocean analysis suite
 
     Every analysis step covers a range of simulation years and reads some of
     the simulation's output, so both live here rather than being repeated by
-    each product.
+    each product.  How a step describes its products for the gallery comes
+    from :py:class:`polaris.analysis.product_step.ProductStep`.
 
     Attributes
     ----------
@@ -34,19 +34,7 @@ class AnalysisStep(OceanIOStep):
     input_filenames : list of str
         The local names of the simulation files symlinked into the step's
         work directory, in the order they were added
-
-    manifest : polaris.analysis.manifest.Manifest
-        The products this step has described so far, written to
-        ``manifest.json`` in the step's work directory as they are added.
-        Steps add to it through :py:meth:`add_product` rather than directly.
     """
-
-    #: Whether this step makes products for the published gallery, and so
-    #: writes a manifest fragment describing them.  A step that only computes
-    #: intermediate results for other steps to plot sets this to ``False``,
-    #: which keeps the ``publish`` step from depending on it and from
-    #: reporting the fragment it was never going to write.
-    makes_products = True
 
     def __init__(
         self, component, name, subdir, start_year, end_year, **kwargs
@@ -82,31 +70,6 @@ class AnalysisStep(OceanIOStep):
         self.start_year = start_year
         self.end_year = end_year
         self.input_filenames: list = []
-        # the step's work directory names the range as well as the product,
-        # so it is what tells two ranges of one step apart in the merged
-        # manifest
-        self.manifest = Manifest(step_name=self.subdir)
-        if self.makes_products:
-            self.add_output_file(FRAGMENT_FILENAME)
-
-    def runtime_setup(self):
-        """
-        Write the empty manifest fragment before the step runs
-
-        The fragment is written here, and again by each
-        :py:meth:`add_product` call, so that a step that makes products
-        always leaves one behind: an empty product list until it has
-        something to put in it.  Nothing is asked of the step author, because
-        a rule that has to be remembered at the end of ``run()`` would be
-        forgotten in exactly the step that made nothing --- which is the case
-        that stops the ``publish`` step.
-
-        Writing it again also clears out what a previous run of the step
-        described, so a fragment never outlives the products it names.
-        """
-        super().runtime_setup()
-        if self.makes_products:
-            self._write_manifest()
 
     def add_product(self, plot, group, gallery, title, data=None, **facets):
         """
@@ -142,15 +105,9 @@ class AnalysisStep(OceanIOStep):
         product : polaris.analysis.manifest.Product
             The product that was added
         """
-        if not self.makes_products:
-            raise ValueError(
-                f'The step {self.name} sets makes_products = False, so it '
-                f'writes no manifest fragment and cannot describe the '
-                f'product plotted in "{plot}".'
-            )
         facets.setdefault('start_year', self.start_year)
         facets.setdefault('end_year', self.end_year)
-        product = self.manifest.add(
+        return super().add_product(
             plot=plot,
             group=group,
             gallery=gallery,
@@ -158,8 +115,6 @@ class AnalysisStep(OceanIOStep):
             data=data,
             **facets,
         )
-        self._write_manifest()
-        return product
 
     def get_sim_files(self):
         """
@@ -298,7 +253,3 @@ class AnalysisStep(OceanIOStep):
         )
         for filename in self.input_filenames:
             self.logger.info(f'  {self.work_path(filename)}')
-
-    def _write_manifest(self):
-        """Write the fragment describing what the step has made so far"""
-        self.manifest.write(self.work_path())
