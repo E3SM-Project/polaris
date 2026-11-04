@@ -55,6 +55,10 @@ The culling steps are configured through the `[cull_mesh]` section in the config
 - `min_dc_edge_ratio` and `max_dc_edge_ratio`: The allowed range of `dcEdge`
   relative to the *local* ocean background cell width (unified meshes only).
   This is the leak guard.
+- `min_dv_edge_abs_ratio`: The minimum ratio of the shortest `dvEdge` in the
+  culled ocean/sea-ice domain to the side of a regular hexagon at the finest
+  ocean background anywhere in it (unified meshes only).  This is the
+  sea-ice CFL guard.
 
 See `cull.cfg` for the full set of options.
 
@@ -100,6 +104,28 @@ coastline transition is shaped to leave the ocean flat (see
 `coastline_transition_exponent` in {ref}`users-mesh-unified-sizing-field`).
 JIGSAW's centroidal-Voronoi kernel was also tried and is not used (see
 {ref}`dev-spherical-jigsaw-optimization`).
+
+## dvEdge Diagnostic for Unified Meshes
+
+MPAS-Seaice's time step is limited by a different length than
+MPAS-Ocean's.  Its incremental remapping needs the distance ice travels in
+one dynamics time step to stay below the shortest cell side meeting at each
+vertex, and a cell side is `dvEdge`, not `dcEdge`.  After the `dcEdge`
+diagnostic, `CullMaskStep` calls
+{py:func}`polaris.tasks.e3sm.init.topo.cull.dc_edge_diagnostics.check_ocean_dv_edge`,
+which measures `dvEdge` on every edge of a kept cell, coastline edges
+included, against the side of a regular hexagon at the ocean background
+(the background divided by sqrt(3)).  It writes the ratio to the local
+background to `ocean_dv_edge_diagnostics.nc`, logs the shortest edge,
+which the sea-ice dynamics time step times the fastest ice speed must stay
+below, and raises an error if that edge is shorter than
+`min_dv_edge_abs_ratio` times the regular-hexagon side at the finest ocean
+background.
+
+There is no local-ratio guard for `dvEdge`, since a leak already shows up
+in `dcEdge`.  The shortest sides sit on the same pentagon-heptagon seams as
+the shortest `dcEdge`, but unlike `dcEdge`, their minimum hardly falls as
+the edge count rises: every unified mesh comes out at 0.41 to 0.48.
 
 The Antarctic land-ice ownership mask also includes southern cells that have
 already been removed from the open-ocean cull mask, so the cull workflow
