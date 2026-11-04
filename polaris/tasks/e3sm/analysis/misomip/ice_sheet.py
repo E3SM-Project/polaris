@@ -242,7 +242,9 @@ class IceSheetComparison(ProductStep):
             ensemble = _cornford_members(
                 cornford, cornford_name, scale, self.start_year
             )
+            title = f'{title}, {self.mismip_experiment}'
             self._plot(lines, ensemble, stem, title, ylabel, end_year)
+            self._plot_differences(lines, stem, title, ylabel, end_year)
 
         ylabel, scale = GROUNDING_LINE_AXIS
         lines = [
@@ -264,14 +266,13 @@ class IceSheetComparison(ProductStep):
                 )
             )
         ensemble = _cornford_members(cornford, 'xGL', scale, self.start_year)
-        self._plot(
-            lines,
-            ensemble,
-            'grounding_line_position',
-            f'Grounding line on y = {1e-3 * self.section_y:g} km',
-            ylabel,
-            end_year,
+        title = (
+            f'Grounding line on y = {1e-3 * self.section_y:g} km, '
+            f'{self.mismip_experiment}'
         )
+        stem = 'grounding_line_position'
+        self._plot(lines, ensemble, stem, title, ylabel, end_year)
+        self._plot_differences(lines, stem, title, ylabel, end_year)
 
     def _reference(self, prefix):
         """Read a standalone MALI run's global statistics and history"""
@@ -312,7 +313,7 @@ class IceSheetComparison(ProductStep):
             f'{stem}.png',
             ylabel=ylabel,
             xlabel='time since the experiment started (years)',
-            title=f'{title}, {self.mismip_experiment}',
+            title=title,
             ensemble=ensemble,
             ensemble_label='Cornford et al. (2020) range',
             xlim=(0.0, end_year),
@@ -329,7 +330,38 @@ class IceSheetComparison(ProductStep):
             data=f'{stem}.nc',
             group='ice_sheet',
             gallery='mismip_plus_comparison',
-            title=f'{title}, {self.mismip_experiment}',
+            title=title,
+        )
+
+    def _plot_differences(self, lines, stem, title, ylabel, end_year):
+        """Plot the coupled run, the first line, less each standalone run,
+        interpolated to the coupled run's times within the standalone run's
+        times"""
+        if len(lines) < 2:
+            return
+        coupled = lines[0]
+        differences = []
+        for line in lines[1:]:
+            within = np.logical_and(
+                coupled.time >= line.time[0], coupled.time <= line.time[-1]
+            )
+            differences.append(
+                Series(
+                    coupled.time[within],
+                    coupled.values[within]
+                    - np.interp(coupled.time[within], line.time, line.values),
+                    f'coupled less {line.label}',
+                    linestyle=line.linestyle,
+                    marker='.',
+                )
+            )
+        self._plot(
+            differences,
+            None,
+            f'{stem}_difference',
+            f'{title}: coupled less standalone',
+            ylabel,
+            end_year,
         )
 
 
