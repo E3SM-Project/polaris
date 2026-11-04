@@ -899,10 +899,10 @@ class CullMaskStep(Step):
 
     def _check_ocean_dv_edge(self):
         """
-        Check that the shortest dvEdge in the ocean/sea-ice domain, which
-        limits the sea-ice time step, is not too short relative to the
-        finest ocean background cell width (only available for unified
-        meshes with a sizing-field step).
+        Check that the shortest dvEdge in the sea-ice domain (the ocean
+        without cavities), which limits the sea-ice time step, is not too
+        short relative to the finest ocean background cell width (only
+        available for unified meshes with a sizing-field step).
         """
         logger = self.logger
         if self.sizing_field_step is None:
@@ -921,7 +921,9 @@ class CullMaskStep(Step):
 
         check_ocean_dv_edge(
             ds_base_mesh=ds_base_mesh,
-            ocean_cull_mask=ds_masks.oceanCullMask.values,
+            ocean_no_cavities_cull_mask=(
+                ds_masks.oceanNoCavitiesCullMask.values
+            ),
             ds_sizing=ds_sizing,
             min_abs_ratio=min_abs_ratio,
             logger=logger,

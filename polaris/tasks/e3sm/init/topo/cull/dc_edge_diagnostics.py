@@ -204,15 +204,15 @@ def check_ocean_dc_edge(
 
 def check_ocean_dv_edge(
     ds_base_mesh,
-    ocean_cull_mask,
+    ocean_no_cavities_cull_mask,
     ds_sizing,
     min_abs_ratio,
     logger,
     out_filename='ocean_dv_edge_diagnostics.nc',
 ):
     """
-    Check that the shortest ``dvEdge`` in the ocean/sea-ice domain is not
-    too short for the sea-ice time step.
+    Check that the shortest ``dvEdge`` in the sea-ice domain, the ocean
+    without ice-shelf cavities, is not too short for the sea-ice time step.
 
     ``dvEdge`` is the length of a cell side.  MPAS-Seaice's incremental
     remapping needs the distance ice travels in one dynamics time step to
@@ -237,9 +237,9 @@ def check_ocean_dv_edge(
         The base MPAS mesh, with ``dvEdge``, ``latEdge``, ``lonEdge``
         and ``cellsOnEdge``
 
-    ocean_cull_mask : xarray.DataArray or numpy.ndarray
-        The ocean cull mask on base-mesh cells (1 where cells are
-        culled, 0 where they are kept as ocean/sea-ice)
+    ocean_no_cavities_cull_mask : xarray.DataArray or numpy.ndarray
+        The ocean-without-cavities cull mask on base-mesh cells (1 where
+        cells are culled, 0 where they are kept as ocean and sea ice)
 
     ds_sizing : xarray.Dataset
         The unified sizing field, with ``ocean_background_cell_width``
@@ -266,7 +266,7 @@ def check_ocean_dv_edge(
     lon_edge = np.degrees(ds_base_mesh.lonEdge.values)
     cells_on_edge = ds_base_mesh.cellsOnEdge.values
 
-    kept = np.asarray(ocean_cull_mask) == 0
+    kept = np.asarray(ocean_no_cavities_cull_mask) == 0
 
     # edges of kept cells, including those on the coastline
     exists = cells_on_edge > 0
@@ -289,7 +289,7 @@ def check_ocean_dv_edge(
     ds_out['oceanDomainEdgeMask'] = (
         ('nEdges',),
         domain_edge.astype(np.int32),
-        {'long_name': 'mask of edges of kept ocean/sea-ice cells'},
+        {'long_name': 'mask of edges of kept sea-ice cells'},
     )
     ds_out['dvEdgeRatio'] = (
         ('nEdges',),
@@ -304,7 +304,7 @@ def check_ocean_dv_edge(
     write_netcdf(ds_out, out_filename)
 
     if not np.any(domain_edge):
-        logger.info('dvEdge diagnostic: no ocean/sea-ice edges found.')
+        logger.info('dvEdge diagnostic: no sea-ice edges found.')
         return
 
     dv_domain = dv_edge[domain_edge]
@@ -315,7 +315,7 @@ def check_ocean_dv_edge(
     lon = float(np.mod(lon_edge[domain_edge][index] + 180.0, 360.0) - 180.0)
     lat = float(lat_edge[domain_edge][index])
     logger.info(
-        f'dvEdge CFL guard: shortest ocean/sea-ice edge {shortest_edge:.3f} '
+        f'dvEdge CFL guard: shortest sea-ice edge {shortest_edge:.3f} '
         f'km at lon={lon:.3f}, lat={lat:.3f}, against a regular-hexagon '
         f'side of {finest_side:.3f} km at the finest ocean background, '
         f'ratio {abs_ratio:.3f}, minimum allowed {min_abs_ratio}.  The '
@@ -325,7 +325,7 @@ def check_ocean_dv_edge(
 
     if abs_ratio < min_abs_ratio:
         message = (
-            f'The shortest edge in the culled ocean/sea-ice domain is '
+            f'The shortest edge in the culled sea-ice domain is '
             f'{shortest_edge:.3f} km long, only {abs_ratio:.3f} times the '
             f'{finest_side:.3f} km side of a regular hexagon at the finest '
             f'ocean background, below the {min_abs_ratio} minimum.  This '

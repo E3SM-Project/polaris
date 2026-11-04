@@ -56,9 +56,9 @@ The culling steps are configured through the `[cull_mesh]` section in the config
   relative to the *local* ocean background cell width (unified meshes only).
   This is the leak guard.
 - `min_dv_edge_abs_ratio`: The minimum ratio of the shortest `dvEdge` in the
-  culled ocean/sea-ice domain to the side of a regular hexagon at the finest
-  ocean background anywhere in it (unified meshes only).  This is the
-  sea-ice CFL guard.
+  culled sea-ice domain (the ocean without cavities) to the side of a regular
+  hexagon at the finest ocean background anywhere in it (unified meshes
+  only).  This is the sea-ice CFL guard.
 
 See `cull.cfg` for the full set of options.
 
@@ -113,12 +113,13 @@ one dynamics time step to stay below the shortest cell side meeting at each
 vertex, and a cell side is `dvEdge`, not `dcEdge`.  After the `dcEdge`
 diagnostic, `CullMaskStep` calls
 {py:func}`polaris.tasks.e3sm.init.topo.cull.dc_edge_diagnostics.check_ocean_dv_edge`,
-which measures `dvEdge` on every edge of a kept cell, coastline edges
-included, against the side of a regular hexagon at the ocean background
-(the background divided by sqrt(3)).  It writes the ratio to the local
-background to `ocean_dv_edge_diagnostics.nc`, logs the shortest edge,
-which the sea-ice dynamics time step times the fastest ice speed must stay
-below, and raises an error if that edge is shorter than
+which measures `dvEdge` on every edge of a cell in the ocean without
+cavities, the sea-ice domain, coastline edges included.  Each edge is
+compared with the side of a regular hexagon at the local ocean background,
+which is the background cell width divided by sqrt(3).  It writes the
+ratio to the local background to `ocean_dv_edge_diagnostics.nc`, logs the
+shortest edge, which the sea-ice dynamics time step times the fastest ice
+speed must stay below, and raises an error if that edge is shorter than
 `min_dv_edge_abs_ratio` times the regular-hexagon side at the finest ocean
 background.
 

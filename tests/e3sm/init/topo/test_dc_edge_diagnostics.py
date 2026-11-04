@@ -194,11 +194,11 @@ def test_check_ocean_dv_edge_passes(tmp_path):
     """
     ds_base_mesh = _base_mesh(dc_edge_km=[30.0, 30.0, 30.0, 30.0])
     ds_sizing = _sizing(background_km=30.0)
-    ocean_cull_mask = np.zeros(4, dtype=int)
+    ocean_no_cavities_cull_mask = np.zeros(4, dtype=int)
 
     check_ocean_dv_edge(
         ds_base_mesh=ds_base_mesh,
-        ocean_cull_mask=ocean_cull_mask,
+        ocean_no_cavities_cull_mask=ocean_no_cavities_cull_mask,
         ds_sizing=ds_sizing,
         min_abs_ratio=0.35,
         logger=LOGGER,
@@ -222,12 +222,12 @@ def test_check_ocean_dv_edge_fails_on_a_short_edge(tmp_path):
         dv_edge_km=[side, 0.25 * side, side, side],
     )
     ds_sizing = _sizing(background_km=30.0)
-    ocean_cull_mask = np.zeros(4, dtype=int)
+    ocean_no_cavities_cull_mask = np.zeros(4, dtype=int)
 
     with pytest.raises(ValueError, match='sea-ice time step'):
         check_ocean_dv_edge(
             ds_base_mesh=ds_base_mesh,
-            ocean_cull_mask=ocean_cull_mask,
+            ocean_no_cavities_cull_mask=ocean_no_cavities_cull_mask,
             ds_sizing=ds_sizing,
             min_abs_ratio=0.35,
             logger=LOGGER,
@@ -246,12 +246,12 @@ def test_check_ocean_dv_edge_includes_coastline_edges(tmp_path):
         dv_edge_km=[side, side, 0.25 * side, side],
     )
     ds_sizing = _sizing(background_km=30.0)
-    ocean_cull_mask = np.array([0, 0, 0, 1])
+    ocean_no_cavities_cull_mask = np.array([0, 0, 0, 1])
 
     with pytest.raises(ValueError, match='sea-ice time step'):
         check_ocean_dv_edge(
             ds_base_mesh=ds_base_mesh,
-            ocean_cull_mask=ocean_cull_mask,
+            ocean_no_cavities_cull_mask=ocean_no_cavities_cull_mask,
             ds_sizing=ds_sizing,
             min_abs_ratio=0.35,
             logger=LOGGER,
@@ -270,11 +270,11 @@ def test_check_ocean_dv_edge_ignores_culled_edges(tmp_path):
         dv_edge_km=[side, side, side, 0.25 * side],
     )
     ds_sizing = _sizing(background_km=30.0)
-    ocean_cull_mask = np.array([0, 0, 0, 1])
+    ocean_no_cavities_cull_mask = np.array([0, 0, 0, 1])
 
     check_ocean_dv_edge(
         ds_base_mesh=ds_base_mesh,
-        ocean_cull_mask=ocean_cull_mask,
+        ocean_no_cavities_cull_mask=ocean_no_cavities_cull_mask,
         ds_sizing=ds_sizing,
         min_abs_ratio=0.35,
         logger=LOGGER,
@@ -305,11 +305,11 @@ def test_check_ocean_dv_edge_uses_finest_background(tmp_path):
         ],
         lat_edge=[-70.0, -70.0, 40.0, 40.0],
     )
-    ocean_cull_mask = np.zeros(4, dtype=int)
+    ocean_no_cavities_cull_mask = np.zeros(4, dtype=int)
 
     check_ocean_dv_edge(
         ds_base_mesh=ds_base_mesh,
-        ocean_cull_mask=ocean_cull_mask,
+        ocean_no_cavities_cull_mask=ocean_no_cavities_cull_mask,
         ds_sizing=ds_sizing,
         min_abs_ratio=0.7,
         logger=LOGGER,

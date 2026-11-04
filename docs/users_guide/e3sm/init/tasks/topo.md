@@ -147,9 +147,10 @@ Common user-tunable options are:
 	that reach 0.51 on the finest meshes, at a different location every
 	build.
 - `min_dv_edge_abs_ratio`: For unified meshes, the minimum allowed ratio of
-	the *shortest* `dvEdge` (cell side) in the culled ocean/sea-ice domain,
-	coastline edges included, to the side of a regular hexagon at the
-	*finest* ocean background, which is that background divided by sqrt(3).
+	the *shortest* `dvEdge` (cell side) in the culled sea-ice domain, the
+	ocean without cavities, coastline edges included, to the side of a
+	regular hexagon at the *finest* ocean background, which is that
+	background cell width divided by sqrt(3).
 	This is the sea-ice CFL guard: MPAS-Seaice's incremental remapping needs
 	the distance ice travels in one dynamics time step to stay below the
 	shortest cell side at each vertex.
