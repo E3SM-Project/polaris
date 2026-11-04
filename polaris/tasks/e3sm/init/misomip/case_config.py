@@ -816,6 +816,17 @@ def get_shell_commands(
                 f"./xmlchange 'MALI_DATAMODE_REFERENCE_TIME={xtimes[0]}'",
             ]
         )
+    if get_mali_mode(experiment) == 'prognostic':
+        lines.extend(
+            [
+                '',
+                "# The ocean's melt reaches MALI through ice-shelf",
+                '# coupling, not thermal forcing, so the ocean sends MALI',
+                "# no z-levels.  MALI's ISMIP6 melt, which would hold",
+                '# them, is off.',
+                './xmlchange GLC_NZOC=0',
+            ]
+        )
     lines.extend(
         [
             '',

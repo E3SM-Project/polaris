@@ -297,6 +297,11 @@ def test_shell_commands_data_mode_file_has_reference_time(experiment):
     has_file = 'MALI_DATAMODE_FILE=' in text
     assert has_file == (get_mali_mode(experiment) == 'data')
     assert has_file == ('MALI_DATAMODE_REFERENCE_TIME=' in text)
+    # a prognostic MALI gets no ocean thermal forcing, whose z-levels it
+    # would have nowhere to put
+    assert ('./xmlchange GLC_NZOC=0' in text.splitlines()) == (
+        get_mali_mode(experiment) == 'prognostic'
+    )
 
 
 def test_shell_commands_need_whole_jobs():

@@ -252,8 +252,9 @@ The directory holds:
 - `config_grids.xml`, the grid file, which CIME uses in place of E3SM's;
 - `shell_commands`, which names the staged files with case variables,
   gives MALI the time of the data-mode file's first record, from which it
-  counts the months between records, turns off MALI's runoff to the
-  ocean, turns on the coupler's monthly and annual budgets, and sets the
+  counts the months between records, turns off the ocean's thermal
+  forcing of a prognostic MALI (`GLC_NZOC=0`), whose melt comes through
+  ice-shelf coupling, turns off MALI's runoff to the ocean, turns on the coupler's monthly and annual budgets, and sets the
   coupling intervals and the run length;
 - `user_nl_mpaso`, with the options of the standalone ocean run, and every
   option whose E3SM default differs from that run's value, except the bulk
