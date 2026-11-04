@@ -3,10 +3,13 @@
 Add a MISOMIP case's output to the streams files E3SM wrote for it, and put
 the results in the case's SourceMods, which E3SM then reads in place of
 writing its own.  Run it from the case directory after ./preview_namelists
-has written the streams files to the run directory.  Written by Polaris.
+has written the streams files to the run directory.  It stops, rather than
+leaving anything out, if E3SM's streams lack a stream it edits or E3SM's
+Registry a field it adds.  Written by Polaris.
 """
 
 import os
+import re
 import subprocess
 import sys
 import xml.etree.ElementTree as ET
@@ -32,20 +35,52 @@ def main():
             'would change the streams of every case that shares it.  '
             'Replace the link with a copy first.'
         )
-    rundir = subprocess.check_output(
-        ['./xmlquery', '--value', 'RUNDIR'], text=True
+    rundir = xmlquery('RUNDIR')
+    srcroot = xmlquery('SRCROOT')
+    check_registry(
+        srcroot,
+        'mpas-ocean',
+        ['xtime'] + DAILY_OCEAN_FIELDS + MONTHLY_OCEAN_FIELDS,
+    )
+    check_registry(
+        srcroot,
+        'mpas-albany-landice',
+        MALI_HISTORY_FIELDS + ['xtime'] + MALI_DAILY_FIELDS,
+    )
+    # both files are edited before either is written
+    ocean = edit_ocean(os.path.join(rundir, 'streams.ocean'))
+    landice = edit_landice(os.path.join(rundir, 'streams.landice'))
+    write(ocean, os.path.join('SourceMods', 'src.mpaso', 'streams.ocean'))
+    write(landice, os.path.join('SourceMods', 'src.mali', 'streams.landice'))
+
+
+def xmlquery(variable):
+    return subprocess.check_output(
+        ['./xmlquery', '--value', variable], text=True
     ).strip()
-    edit_ocean(
-        os.path.join(rundir, 'streams.ocean'),
-        os.path.join('SourceMods', 'src.mpaso', 'streams.ocean'),
-    )
-    edit_landice(
-        os.path.join(rundir, 'streams.landice'),
-        os.path.join('SourceMods', 'src.mali', 'streams.landice'),
-    )
 
 
-def edit_ocean(in_filename, out_filename):
+def check_registry(srcroot, component, names):
+    """
+    Stop if a field is not defined in a component's Registry files
+    """
+    src = os.path.join(srcroot, 'components', component, 'src')
+    definition = re.compile(r'<var\s+name="(\w+)"[^>]*\btype=')
+    defined = set()
+    for dirpath, _, filenames in os.walk(src):
+        for filename in filenames:
+            if filename.startswith('Registry') and filename.endswith('.xml'):
+                with open(os.path.join(dirpath, filename)) as registry:
+                    defined.update(definition.findall(registry.read()))
+    missing = sorted(set(names) - defined)
+    if missing:
+        sys.exit(
+            f'{", ".join(missing)} not defined in the Registry files in '
+            f'{src}.'
+        )
+
+
+def edit_ocean(in_filename):
     tree = ET.parse(in_filename)
     root = tree.getroot()
     daily = get_stream(root, 'timeSeriesStatsDailyOutput')
@@ -56,10 +91,10 @@ def edit_ocean(in_filename, out_filename):
     monthly = get_stream(root, 'timeSeriesStatsMonthlyOutput')
     for name in MONTHLY_OCEAN_FIELDS:
         add_var(monthly, name)
-    write(tree, out_filename)
+    return tree
 
 
-def edit_landice(in_filename, out_filename):
+def edit_landice(in_filename):
     tree = ET.parse(in_filename)
     root = tree.getroot()
     output = get_stream(root, 'output')
@@ -84,7 +119,7 @@ def edit_landice(in_filename, out_filename):
     daily = ET.SubElement(root, 'stream', attributes)
     for name in ['xtime'] + MALI_DAILY_FIELDS:
         add_var(daily, name)
-    write(tree, out_filename)
+    return tree
 
 
 def get_stream(root, name):

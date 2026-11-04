@@ -286,8 +286,10 @@ the streams files E3SM wrote into the case's SourceMods with more output:
   the mesh, and a daily MALI stream with `floatingBasalMassBal` and
   `floatingBasalMassBalApplied`.
 
-A keepexe clone shares its SourceMods with the case it was cloned from,
-so the script stops if SourceMods is a link.
+The script stops, writing nothing, if E3SM's streams files lack a stream
+it edits or E3SM's Registry files a field it adds, so an E3SM change cannot
+silently drop them.  A keepexe clone shares its SourceMods with the case it
+was cloned from, so the script also stops if SourceMods is a link.
 
 `iceocean1ra` is a branch run from an `iceocean1r` case's restarts:
 

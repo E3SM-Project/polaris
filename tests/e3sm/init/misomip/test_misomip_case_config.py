@@ -644,20 +644,91 @@ def _vars(stream):
     return [var.attrib['name'] for var in stream.iter('var')]
 
 
-def test_edit_streams_script(tmp_path):
+def _write_registries(srcroot, missing):
+    fields = {
+        'mpas-ocean': ['xtime'] + DAILY_OCEAN_FIELDS + MONTHLY_OCEAN_FIELDS,
+        'mpas-albany-landice': (
+            ['xtime']
+            + get_mismip_plus_output_fields()
+            + MALI_HISTORY_FIELDS
+            + MALI_DAILY_FIELDS
+        ),
+    }
+    for component, names in fields.items():
+        src = srcroot / 'components' / component / 'src'
+        src.mkdir(parents=True)
+        lines = [
+            f'<var name="{name}" type="real" dimensions="nCells Time"/>'
+            for name in names
+            if name != missing
+        ]
+        (src / 'Registry.xml').write_text('\n'.join(lines))
+
+
+def _run_edit_streams(tmp_path, missing_field=None, missing_stream=None):
+    """
+    Run the script in a fake case whose xmlquery gives the run directory,
+    with E3SM's streams files, and the source root, with Registry files
+    """
     case_dir = tmp_path / 'case'
     rundir = tmp_path / 'run'
+    srcroot = tmp_path / 'e3sm'
     case_dir.mkdir()
     rundir.mkdir()
     _write_streams(rundir)
+    if missing_stream is not None:
+        filename, stream = missing_stream
+        path = rundir / filename
+        path.write_text(
+            path.read_text().replace(f'name="{stream}"', 'name="other"')
+        )
+    _write_registries(srcroot, missing_field)
     xmlquery = case_dir / 'xmlquery'
-    xmlquery.write_text(f'#!/bin/bash\necho {rundir}\n')
+    xmlquery.write_text(
+        '#!/bin/bash\n'
+        'case $2 in\n'
+        f'    RUNDIR) echo {rundir} ;;\n'
+        f'    SRCROOT) echo {srcroot} ;;\n'
+        'esac\n'
+    )
     xmlquery.chmod(0o755)
     script = tmp_path / 'edit_streams.py'
     script.write_text(get_edit_streams_script())
     result = subprocess.run(
         ['python3', str(script)], cwd=case_dir, text=True, capture_output=True
     )
+    return case_dir, result
+
+
+@pytest.mark.parametrize(
+    'missing',
+    ['landIceFreshwaterFluxNotSentToGlc', 'floatingBasalMassBalApplied'],
+)
+def test_edit_streams_script_stops_without_a_registry_field(tmp_path, missing):
+    case_dir, result = _run_edit_streams(tmp_path, missing_field=missing)
+    assert result.returncode != 0
+    assert f'{missing} not defined' in result.stderr
+    assert not (case_dir / 'SourceMods').exists()
+
+
+@pytest.mark.parametrize(
+    'missing',
+    [
+        ('streams.ocean', 'timeSeriesStatsDailyOutput'),
+        ('streams.ocean', 'timeSeriesStatsMonthlyOutput'),
+        ('streams.landice', 'output'),
+    ],
+)
+def test_edit_streams_script_stops_without_a_stream(tmp_path, missing):
+    case_dir, result = _run_edit_streams(tmp_path, missing_stream=missing)
+    assert result.returncode != 0
+    assert f'No stream {missing[1]}' in result.stderr
+    # neither file is written
+    assert not (case_dir / 'SourceMods').exists()
+
+
+def test_edit_streams_script(tmp_path):
+    case_dir, result = _run_edit_streams(tmp_path)
     assert result.returncode == 0, result.stderr
 
     ocean = ET.parse(case_dir / 'SourceMods/src.mpaso/streams.ocean')
