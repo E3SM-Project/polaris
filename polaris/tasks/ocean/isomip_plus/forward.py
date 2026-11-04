@@ -212,6 +212,10 @@ class Forward(OceanModelStep):
             'forward.yaml',
             template_replacements=replacements,
         )
+        if time_integrator == 'split_explicit':
+            self.add_yaml_file(
+                'polaris.tasks.ocean.isomip_plus', 'split_explicit.yaml'
+            )
 
         if self.thin_film:
             self.add_yaml_file(

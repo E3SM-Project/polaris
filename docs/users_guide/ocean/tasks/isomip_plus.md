@@ -432,7 +432,11 @@ records must reach past the end of the run.
 variants, such as `planar/isomip_plus/4km/z-star/split_explicit/ocean0`. They
 adjust SSH and run forward with MPAS-Ocean's split-explicit time integrator,
 which needs MPAS-Ocean from FAnSSIE for wetting and drying, and are otherwise
-the same as the default tasks, so the two can be compared.
+the same as the default tasks, so the two can be compared. Their forward runs
+also turn on `config_split_pv_coriolis`, which splits RK4's
+potential-vorticity flux form of the Coriolis term between the barotropic and
+baroclinic modes, so that the Coriolis terms do no net work where layer
+thicknesses change across edges. SSH adjustment leaves it off.
 
 `planar/isomip_plus/<res>/z-star/split_explicit/wetting/with_restart` checks
 that a split-explicit run with wetting and drying restarts exactly. It shares
