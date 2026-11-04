@@ -27,7 +27,9 @@ experiments it applies to. A variant adds a level to the task path,
 `split_explicit` variant's `split_explicit.cfg` sets the time integrator
 and time steps of both SSH adjustment and the forward run, which
 {py:class}`polaris.tasks.ocean.isomip_plus.forward.Forward` reads from the
-`isomip_plus_forward` section.
+`isomip_plus_forward` section. When its time integrator is `split_explicit`,
+`Forward` also adds `split_explicit.yaml`, which turns on
+`config_split_pv_coriolis`. SSH adjustment, a shared step, leaves it off.
 
 `RESTART_TASKS` maps a variant to the experiments that also have a
 restart test, in `with_restart` within the variant's task. The test is
