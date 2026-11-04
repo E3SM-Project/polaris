@@ -14,6 +14,9 @@ POLARIS_DIR = str(Path(__file__).resolve().parents[2])
 #: the URL fetches from E3SM-Project/Omega use, which needs no credentials
 OMEGA_URL = 'https://github.com/E3SM-Project/Omega.git'
 
+#: the URL fetches from E3SM-Project/E3SM use, which needs no credentials
+E3SM_URL = 'https://github.com/E3SM-Project/E3SM.git'
+
 #: the URL fetches from E3SM-Project/polaris use, which needs no credentials
 POLARIS_URL = 'https://github.com/E3SM-Project/polaris.git'
 

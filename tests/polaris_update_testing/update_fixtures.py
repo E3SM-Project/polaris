@@ -103,6 +103,7 @@ class Fixture:
     new_pin: str
     fix_head: str
     e3sm_fork: str
+    e3sm_head: str
 
 
 def make_fixture(tmp_path, monkeypatch):
@@ -129,6 +130,21 @@ def make_fixture(tmp_path, monkeypatch):
         f'{new_pin}:refs/heads/develop',
         f'{fix_head}:refs/pull/600/head',
         f'{old_pin}:refs/pull/601/head',
+    )
+    # an E3SM PR, such as a PCD update to E3SM master that Omega has yet to
+    # merge, from the history Omega shares with E3SM
+    git(omega, 'checkout', '-q', '-b', 'e3sm-fix', old_pin)
+    e3sm_head = _commit(omega, {'pcd.txt': 'pcd\n'}, 'Update PCD')
+    e3sm_upstream = tmp_path / 'e3sm.git'
+    git(tmp_path, 'init', '-q', '--bare', str(e3sm_upstream))
+    git(
+        omega,
+        'push',
+        '-q',
+        str(e3sm_upstream),
+        f'{old_pin}:refs/heads/master',
+        f'{e3sm_head}:refs/pull/9000/head',
+        f'{old_pin}:refs/pull/9001/head',
     )
     omega_clone = tmp_path / 'omega'
     git(tmp_path, 'clone', '-q', str(omega_upstream), str(omega_clone))
@@ -178,6 +194,7 @@ def make_fixture(tmp_path, monkeypatch):
     git(tmp_path, 'init', '-q', '--bare', str(e3sm_fork))
 
     monkeypatch.setattr(pr_test_git, 'OMEGA_URL', str(omega_upstream))
+    monkeypatch.setattr(pr_test_git, 'E3SM_URL', str(e3sm_upstream))
     monkeypatch.setattr(pr_test_git, 'POLARIS_URL', str(upstream))
     mock_github(monkeypatch, pr_head)
 
@@ -198,6 +215,7 @@ def make_fixture(tmp_path, monkeypatch):
         new_pin=new_pin,
         fix_head=fix_head,
         e3sm_fork=str(e3sm_fork),
+        e3sm_head=e3sm_head,
     )
 
 

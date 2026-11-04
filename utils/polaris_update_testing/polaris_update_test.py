@@ -74,6 +74,7 @@ def _init(args):
         baseline_ref=args.baseline,
         row_names=row_names,
         merge_omega_prs=args.merge_omega_pr,
+        merge_e3sm_prs=args.merge_e3sm_pr,
         notes=args.notes,
         push=args.push,
         force=args.force,
@@ -191,6 +192,16 @@ def _parse_args():
         help='An Omega PR to merge into the Omega the Polaris PR pins, such '
         'as a fix still in review (may be repeated).  The merge is pushed to '
         'the E3SM fork, "fork" in the config file.',
+    )
+    init.add_argument(
+        '--merge-e3sm-pr',
+        type=int,
+        action='append',
+        default=[],
+        help='An E3SM PR to merge into the Omega the Polaris PR pins, after '
+        'any Omega PRs, such as a change to E3SM master that Omega has yet to '
+        "merge (may be repeated).  The PR's MPAS-Ocean rows still build the "
+        'E3SM it pins.',
     )
     init.add_argument('--notes', help='Notes for the requester')
     init.add_argument(

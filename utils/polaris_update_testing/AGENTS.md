@@ -112,8 +112,11 @@ otherwise.
    baseline.  The baseline is the current `main` of E3SM-Project/polaris,
    run with its own shared environments.  If the Omega the PR pins needs
    a fix still in review on some machine, the requester may ask for
-   `--merge-omega-pr <number>`.  The merge is pushed to their E3SM fork
+   `--merge-omega-pr <number>`.  For a change to E3SM master that Omega
+   has not merged yet, they may ask for `--merge-e3sm-pr <number>`, which
+   is merged after any Omega PRs.  The merge is pushed to their E3SM fork
    (`fork` in the settings), and every machine's Omega rows build it.
+   MPAS-Ocean rows build the E3SM the PR pins, whatever is merged.
 
    If `main` cannot run some rows, the requester may name an older commit
    of `main` as their baseline.  Leave those rows out of the first

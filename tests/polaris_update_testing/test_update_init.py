@@ -164,6 +164,65 @@ def test_init_refuses_an_omega_pr_already_pinned(fixture):
         _initiate(fixture, merge_omega_prs=[601])
 
 
+def test_init_merges_e3sm_prs_after_omega_prs(fixture):
+    result = _initiate(
+        fixture,
+        baseline_ref='main',
+        merge_omega_prs=[600],
+        merge_e3sm_prs=[9000],
+        push=True,
+    )
+
+    merge = result.manifest.omega_merge
+    assert merge is not None
+    assert merge.pull_requests == {600: fixture.fix_head}
+    assert merge.e3sm_pull_requests == {9000: fixture.e3sm_head}
+    assert merge.merged_names() == [
+        'E3SM-Project/Omega#600',
+        'E3SM-Project/E3SM#9000',
+    ]
+    # the E3SM PR is merged into the merge of the Omega PR
+    parents = git(fixture.e3sm_fork, 'rev-parse', f'{merge.commit}^@')
+    first, second = parents.split()
+    assert second == fixture.e3sm_head
+    first_parents = git(fixture.e3sm_fork, 'rev-parse', f'{first}^@')
+    assert first_parents.split() == [fixture.new_pin, fixture.fix_head]
+    assert fetch_manifest(
+        fixture.polaris_dir, fixture.fork, result.manifest.branch
+    ) == (result.manifest)
+    assert (
+        'with E3SM-Project/Omega#600, E3SM-Project/E3SM#9000 merged in'
+    ) in polaris_update_init.format_result(result, fixture.polaris_dir)
+
+    # an equivalent manifest without the E3SM PR is a different one
+    other = _initiate(fixture, baseline_ref='main', merge_omega_prs=[600])
+    assert not other.existing
+
+
+def test_init_merges_only_e3sm_prs(fixture):
+    result = _initiate(fixture, merge_e3sm_prs=[9000])
+
+    merge = result.manifest.omega_merge
+    assert merge is not None
+    assert merge.pull_requests == {}
+    assert merge.e3sm_pull_requests == {9000: fixture.e3sm_head}
+
+
+def test_init_refuses_an_e3sm_pr_already_pinned(fixture):
+    with pytest.raises(
+        polaris_update_init.InitError, match='E3SM-Project/E3SM#9001'
+    ):
+        _initiate(fixture, merge_e3sm_prs=[9001])
+
+
+def test_manifest_from_before_e3sm_prs_could_be_merged(fixture):
+    manifest = _initiate(fixture, merge_omega_prs=[600]).manifest
+    text = manifest.to_yaml().replace('  e3sm_pull_requests: []\n', '')
+
+    assert 'e3sm_pull_requests' not in text
+    assert Manifest.from_yaml(text) == manifest
+
+
 def test_init_refuses_a_baseline_with_the_pr(fixture):
     with pytest.raises(polaris_update_init.InitError, match='contains'):
         _initiate(fixture, baseline_ref=fixture.pr_head)

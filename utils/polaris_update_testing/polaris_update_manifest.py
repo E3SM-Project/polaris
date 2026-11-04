@@ -83,7 +83,7 @@ class PolarisSide:
 class OmegaMerge:
     """
     The Omega built in place of the one the PR pins: that commit with other
-    Omega PRs merged in, such as a fix still in review
+    Omega or E3SM PRs merged in, such as a fix still in review
 
     Attributes
     ----------
@@ -98,21 +98,32 @@ class OmegaMerge:
 
     branch : str
         The branch on the fork with the merge
+
+    e3sm_pull_requests : dict of int to str
+        The head commit of each E3SM PR merged in after the Omega PRs, by
+        number
     """
 
     commit: str
     pull_requests: Dict[int, str]
     fork: str
     branch: str
+    e3sm_pull_requests: Dict[int, str] = field(default_factory=dict)
+
+    def merged_names(self) -> List[str]:
+        """The PRs merged in, such as ``E3SM-Project/Omega#639``, in order"""
+        names = [f'E3SM-Project/Omega#{n}' for n in self.pull_requests]
+        names += [f'E3SM-Project/E3SM#{n}' for n in self.e3sm_pull_requests]
+        return names
 
     def to_dict(self) -> Dict[str, Any]:
         """The merge as it is written in the manifest"""
         return {
             'commit': self.commit,
-            'pull_requests': [
-                {'pull_request': number, 'commit': head}
-                for number, head in self.pull_requests.items()
-            ],
+            'pull_requests': _pull_requests_to_list(self.pull_requests),
+            'e3sm_pull_requests': _pull_requests_to_list(
+                self.e3sm_pull_requests
+            ),
             'fork': self.fork,
             'branch': self.branch,
         }
@@ -122,12 +133,13 @@ class OmegaMerge:
         """Read the merge as it is written in the manifest"""
         return cls(
             commit=str(contents['commit']),
-            pull_requests={
-                int(merge['pull_request']): str(merge['commit'])
-                for merge in contents['pull_requests']
-            },
+            pull_requests=_pull_requests_from_list(contents['pull_requests']),
             fork=str(contents['fork']),
             branch=str(contents['branch']),
+            # manifests from before E3SM PRs could be merged have none
+            e3sm_pull_requests=_pull_requests_from_list(
+                contents.get('e3sm_pull_requests', [])
+            ),
         )
 
 
@@ -444,3 +456,18 @@ def _yaml():
     yaml = YAML(typ='rt')
     yaml.default_flow_style = False
     return yaml
+
+
+def _pull_requests_to_list(pull_requests):
+    """PR heads by number, as they are written in the manifest"""
+    return [
+        {'pull_request': number, 'commit': head}
+        for number, head in pull_requests.items()
+    ]
+
+
+def _pull_requests_from_list(merges):
+    """PR heads by number, read from the manifest"""
+    return {
+        int(merge['pull_request']): str(merge['commit']) for merge in merges
+    }
