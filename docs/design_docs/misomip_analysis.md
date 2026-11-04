@@ -130,7 +130,9 @@ the initial geometry and MALI's bed. The run's streams files give each
 stream's files, found in the archive or the run directory. A **standalone
 run** is given by its forward step's work directory, read the same way.
 Both write monthly means ([D3](#decisions)) and daily global statistics,
-which only the first-month comparison uses.
+which only the first-month comparison uses. IceOcean1ra continues from
+IceOcean1r's restart and has no initial conditions of its own, so it reads
+IceOcean1r's.
 
 Each run contributes its monthly means in a configured range of years,
 and its steps are keyed by the months it has, so analyzing more of a run
@@ -248,9 +250,18 @@ for it in the ocean's column, and glc never receives it. The budgets that contai
 marked and reported apart from the closure.
 
 **Each model's own output** ([D6](#decisions)). In IceOcean1r and
-IceOcean1ra, the ocean's melt, $\sum F A$ from its monthly means, is
-compared month by month with the melt MALI applies, from MALI's monthly
-flux averages and its own cell areas.
+IceOcean1ra, the net flux the ocean sends, $\sum (F + F_{fr} - F_{ns}) A$,
+is compared with the melt MALI applies, from MALI's global statistics at
+every time step. $F_{fr}$ is the frazil flux under the land ice, and
+$F_{ns}$ the flux the ocean keeps where MALI floats less than the
+coupling's minimum. MALI applies over each glc coupling interval the
+coupler's average of what the ocean sent over the one before. So each of
+the ocean's months, and each day where it writes daily means, is compared
+with the same period one interval later in MALI. Without $F_{ns}$ in the
+ocean's output, the cells it sends from are estimated from the mean
+floating fraction MALI gives it, and the comparison is labeled as an
+estimate. A period that contains the initial start, or that MALI's steps
+do not yet cover, is reported apart.
 
 ### Algorithm Design: Runs are compared with each other
 
@@ -281,10 +292,14 @@ and its drivers, melt against draft and the streamfunctions' strengths are
 shown beside the ensemble's. Runs without the COM physics, including every
 E3SM run, are labeled as such.
 
-**Cornford et al. (2020).** The grounding line, volume above flotation and
-grounded area of IceOcean1r and IceOcean1ra are plotted with the Cornford
-et al. (2020) Ice1r and Ice1ra entries and with MALI's standalone runs, as
-the MISMIP+ tasks plot them.
+**Cornford et al. (2020).** The grounding line on the centerline, volume
+above flotation and grounded area of IceOcean1r and IceOcean1ra are
+plotted with the Cornford et al. (2020) Ice1r and Ice1ra entries and with
+MALI's standalone runs, against the years since each experiment started.
+Volume above flotation and grounded area come from each MALI run's global
+statistics. MALI writes history only at the end of a step, so a
+standalone run for the first years forces its steps to end on each month,
+and is labeled as such.
 
 **MISOMIP1's results.** A paper on MISOMIP1's results (Seroussi et al., in
 preparation) will serve IceOcean1r and IceOcean1ra as Yung et al. (2026)
@@ -382,7 +397,9 @@ Contributors: Xylar Asay-Davis, Claude
 log, compressed or not, into a dataset over period, row and component,
 converted to kg s⁻¹ and W with E3SM's Earth radius. The MISOMIP cases set
 `BUDGETS=TRUE` ([MISOMIP inputs design](misomip_e3sm_init.md)). IceOcean's
-case configuration writes MALI's history monthly, with its flux averages.
+cases add the flux the ocean keeps to its monthly means and write its daily
+means of the fluxes exchanged with MALI. MALI's global statistics, written
+every time step, hold the melt it applies.
 
 ### Implementation: Runs are compared with each other
 
@@ -407,7 +424,9 @@ registration's identifier and its license. Where a model gives several
 Ocean0 runs, the step takes the one tuned to the protocol's target. For
 IceOcean, the `published`
 step reaches the MISMIP+ tasks' download of Cornford et al. (2020) and
-their Ice1r and Ice1ra output through public accessors.
+their Ice1r and Ice1ra output through public accessors. Until those
+exist, `[misomip_analysis_mismip_plus]` names the work directories of a
+`cornford2020` step and of the forward steps.
 
 ### Implementation: The protocol's fields can be written
 
@@ -517,8 +536,9 @@ The melt the ocean sends is compared with the melt MALI applies only in
 IceOcean1r and IceOcean1ra. Ocean0–4 rely on the coupler's budgets.
 
 Rejected: the coupler's history times model areas, which repeats the
-coupler's own view, since the area corrections are applied on import; and
-a MALI change that records the melt static and data-mode MALI receive.
+coupler's own view, since the area corrections are applied on import;
+MALI's history of flux averages, which MALI resets at each glc coupling;
+and a MALI change that records the melt static and data-mode MALI receive.
 Those modes do not use it, so an error in MALI's import cannot affect
 their runs.
 
