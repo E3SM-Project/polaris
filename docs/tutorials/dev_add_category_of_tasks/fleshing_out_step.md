@@ -79,7 +79,7 @@ Now we add the config options we need to the config file:
 $ vim polaris/tasks/ocean/my_overflow/my_overflow.cfg
 ```
 ```{code-block} cfg
-:emphasize-lines: 1-17, 27-37
+:emphasize-lines: 1-20, 30-40
 
 # Options related to the vertical grid
 [vertical_grid]
@@ -97,7 +97,10 @@ grid_type = uniform
 coord_type = z-star
 
 # Whether to use "partial" or "full", or "None" to not alter the topography
-partial_cell_type = None
+partial_cell_type = partial
+
+# The minimum fraction of a layer for partial cells
+min_pc_fraction = 0.1
 
 # Options related to the overflow case
 [overflow]
@@ -121,8 +124,8 @@ l_slope = 7.0
 ```
 
 What we're doing here is defining a z-star coordinate with 60 uniform vertical
-levels, a bottom depth of 2000 m (so each layer is 33 1/3 m thick) and without
-any alteration of layer thickness for partial cells.  A major feature of the
+levels, a bottom depth of 2000 m (so each layer is 33 1/3 m thick) and partial
+bottom cells at least 10% of a layer thick.  A major feature of the
 `overflow` tests is that they have a `bottomDepth` field that that is shallow
 on the left (depth given by `shelf_depth`) and deep on the right (depth given
 by `max_bottom_depth`) with a `tanh` transition between the two centered at
