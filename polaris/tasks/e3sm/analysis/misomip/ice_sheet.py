@@ -32,11 +32,25 @@ MISMIP_PLUS_EXPERIMENTS = {
 MISMIP_PLUS_SECTION = 'misomip_analysis_mismip_plus'
 
 #: The standalone MALI runs of a MISMIP+ experiment that may be compared:
-#: the config option's suffix and the label's suffix
+#: the config option's suffix, the label's suffix and whether the run is
+#: the primary reference, a run of the coupled run's MALI.  The others are
+#: runs of another MALI version, drawn as secondary lines.
 REFERENCE_RUNS = [
-    ('forward', ''),
-    ('monthly_forward', ', monthly-forced steps'),
+    (
+        'coupled_mali_monthly_forward',
+        ", coupled run's MALI, monthly-forced steps",
+        True,
+    ),
+    ('forward', ', other MALI version', False),
+    (
+        'monthly_forward',
+        ', other MALI version, monthly-forced steps',
+        False,
+    ),
 ]
+
+#: The line style and width of the primary and secondary references
+REFERENCE_STYLES = {True: ('--', None), False: (':', 1.0)}
 
 #: The quantities compared: the variable in MALI's global statistics and in
 #: Cornford et al. (2020), the file's stem, the title, the y label and the
@@ -90,7 +104,8 @@ class IceSheetComparison(ProductStep):
         The start of the coupled run, in days since the start of year 1
 
     references : list of tuple
-        The label and local prefix of each standalone MALI run compared
+        The label, local prefix and whether it is the primary reference, of
+        each standalone MALI run compared
 
     has_cornford : bool
         Whether the entries of Cornford et al. (2020) are compared
@@ -163,7 +178,7 @@ class IceSheetComparison(ProductStep):
         section = config[MISMIP_PLUS_SECTION]
         name = self.mismip_experiment.lower()
         self.references = []
-        for suffix, label_suffix in REFERENCE_RUNS:
+        for suffix, label_suffix, primary in REFERENCE_RUNS:
             path = section.get(f'{name}_{suffix}', '').strip()
             if not path:
                 continue
@@ -179,7 +194,11 @@ class IceSheetComparison(ProductStep):
                     target=os.path.join(os.path.abspath(path), filename),
                 )
             self.references.append(
-                (f'MALI {self.mismip_experiment}{label_suffix}', prefix)
+                (
+                    f'MALI {self.mismip_experiment}{label_suffix}',
+                    prefix,
+                    primary,
+                )
             )
         cornford_dir = section.get('cornford2020_dir', '').strip()
         self.has_cornford = bool(cornford_dir)
@@ -207,8 +226,8 @@ class IceSheetComparison(ProductStep):
             1.0, float(np.nanmax(coupled_stats['years'])), coupled_gl_years[-1]
         )
         references = [
-            (label, self._reference(prefix))
-            for label, prefix in self.references
+            (label, self._reference(prefix), *REFERENCE_STYLES[primary])
+            for label, prefix, primary in self.references
         ]
         cornford = None
         if self.has_cornford:
@@ -230,13 +249,14 @@ class IceSheetComparison(ProductStep):
                     coupled_label,
                 )
             ]
-            for label, reference in references:
+            for label, reference, linestyle, linewidth in references:
                 lines.append(
                     Series(
                         reference['years'],
                         scale * reference[stats_name],
                         label,
-                        linestyle='--',
+                        linestyle=linestyle,
+                        linewidth=linewidth,
                     )
                 )
             ensemble = _cornford_members(
@@ -255,13 +275,14 @@ class IceSheetComparison(ProductStep):
                 marker='.',
             )
         ]
-        for label, reference in references:
+        for label, reference, linestyle, linewidth in references:
             lines.append(
                 Series(
                     reference['glYears'],
                     scale * reference['xGL'],
                     label,
-                    linestyle='--',
+                    linestyle=linestyle,
+                    linewidth=linewidth,
                     marker='.',
                 )
             )
@@ -352,6 +373,7 @@ class IceSheetComparison(ProductStep):
                     - np.interp(coupled.time[within], line.time, line.values),
                     f'coupled less {line.label}',
                     linestyle=line.linestyle,
+                    linewidth=line.linewidth,
                     marker='.',
                 )
             )

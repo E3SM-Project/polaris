@@ -147,14 +147,21 @@ the years since each experiment started.  The volume above flotation and
 grounded area come from each MALI run's global statistics.  MALI writes its
 history only at the end of a step, and the MISMIP+ runs take steps of
 several months, so a run with steps forced to end on each month gives the
-grounding line over the first years:
+grounding line over the first years.  The primary reference is such a run
+with MALI built from the coupled run's source, and the coupled run less it
+is the main difference shown.  Runs with another MALI version are drawn as
+secondary lines:
 
 ```cfg
 [misomip_analysis_mismip_plus]
 cornford2020_dir = <work dir>/landice/mismip_plus/cornford2020
+ice1r_coupled_mali_monthly_forward = <work dir of a run with the coupled run's MALI and monthly-forced steps>
 ice1r_forward = <work dir>/landice/mismip_plus/1km/ice1r/forward
 ice1r_monthly_forward = <work dir of a run with monthly-forced steps>
 ```
+
+To build MALI from the coupled run's source, set up the MISMIP+ task with
+`--build --branch <E3SM source of the coupled run>`.
 
 ## Comparing experiments and resolutions
 
