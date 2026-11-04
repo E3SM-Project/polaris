@@ -123,8 +123,9 @@ default; run it with `polaris serial` in its directory.  Its length is
 `[isomip_plus_forward] run_duration`, one month (744 hours) by default.  For
 `ocean3` and `ocean4`, it reads the land-ice fields of every data-mode
 record, one a month, and MPAS-Ocean interpolates between them, while MALI's
-data mode steps from record to record.  `iceocean1r` and `iceocean1ra` have
-no standalone counterpart.
+data mode steps from record to record.  `iceocean1r` has one only for its
+namelist, which both IceOcean cases share; in it, MALI's geometry stays
+fixed.  `iceocean1ra` has none.
 
 Besides the daily `output.nc`, `land_ice_fluxes.nc` and global statistics,
 the `forward` step writes E3SM's monthly means,
@@ -185,10 +186,11 @@ cases turn off MALI's runoff to the ocean.
 
 ## Case configuration
 
-The `case_config` step of `ocean0` to `ocean4` writes the configuration of
-an E3SM case, which the `assemble` step stages in `case_config/`.  The
-README gives the compset: MALI is static for `ocean0` to `ocean2` and
-replays its geometry in data mode for `ocean3` and `ocean4`.
+The `case_config` step of each experiment writes the configuration of an
+E3SM case, which the `assemble` step stages in `case_config/`.  The README
+gives the compset: MALI is static for `ocean0` to `ocean2`, replays its
+geometry in data mode for `ocean3` and `ocean4`, and is prognostic, with
+Albany's first-order velocity solver, for `iceocean1r` and `iceocean1ra`.
 
 `create_case.sh` creates, sets up and builds a case from the `user_mods/`
 directory beside it.  It needs an E3SM checkout with the changes for
@@ -262,11 +264,42 @@ The directory holds:
   `[misomip_land_ice_on_ocean] min_land_ice_fraction` open ocean, through
   `config_glc_ice_shelf_coupling_min_floating_fraction`, as the initial
   conditions do;
-- `user_nl_mali`, with the densities the ocean's land-ice pressure used.
+- `user_nl_mali`, with the densities the ocean's land-ice pressure used,
+  and, for `iceocean1r` and `iceocean1ra`, the {ref}`landice-mismip-plus`
+  tasks' MALI options with the calving of their Ice1r run.  The melt
+  under floating ice comes from the ocean;
+- for `iceocean1r` and `iceocean1ra`, `SourceMods/src.mali/` with the
+  MISMIP+ tasks' Albany input.
 
 The case needs an E3SM that has these case variables and grids it does not
-list.  `iceocean1r` and `iceocean1ra`, with a prognostic MALI, have no case
-configuration yet.
+list.
+
+For `iceocean1r` and `iceocean1ra`, `create_case.sh` also runs
+`./preview_namelists` and then `edit_streams.py`, beside it, which copies
+the streams files E3SM wrote into the case's SourceMods with more output:
+
+- the ocean's daily means of `landIceFreshwaterFlux`,
+  `frazilIceFreshwaterFlux`, `landIceFreshwaterFluxNotSentToGlc` and
+  `landIceHeatFlux`, in place of E3SM's daily list, and
+  `landIceFreshwaterFluxNotSentToGlc` in the monthly means;
+- MALI's history every month, with the MISMIP+ tasks' output fields and
+  the mesh, and a daily MALI stream with `floatingBasalMassBal` and
+  `floatingBasalMassBalApplied`.
+
+A keepexe clone shares its SourceMods with the case it was cloned from,
+so the script stops if SourceMods is a link.
+
+`iceocean1ra` is a branch run from an `iceocean1r` case's restarts:
+
+```bash
+<assembled_files>/case_config/iceocean1ra/create_case.sh \
+    -e <E3SM checkout> -c <case directory> -p <project> \
+    -R <iceocean1r case directory> -d <YYYY-MM-DD>
+```
+
+The script copies the coupler's, the ocean's and MALI's restarts on that
+date into the new case's run directory and points `rpointer.drv` at the
+coupler's.
 
 The step does not copy the files to inputdata.  Its work directory has
 `sync_to_inputdata.sh` for doing that by hand, once the files have been

@@ -6,6 +6,9 @@
 set -e
 
 usage="usage: $0 -e <E3SM checkout> -c <case directory>
+{%- if source %}
+           -R <{{ source }} case directory> -d <restart date, YYYY-MM-DD>
+{%- endif %}
            [-p <project>] [-C <compiler>] [-r <output root>]
            [-o <ocean tasks>] [-g <MALI tasks>]"
 
@@ -29,11 +32,21 @@ min_tasks={{ min_tasks }}
 max_tasks={{ max_tasks }}
 ocean_counts="{{ ocean_counts }}"
 landice_counts="{{ landice_counts }}"
+{%- if source %}
+# The {{ source }} case this one branches from, and the date of the restart
+# it starts from
+source_case_dir=
+restart_date=
+{%- endif %}
 
-while getopts "e:c:p:C:r:o:g:h" option; do
+while getopts "e:c:{% if source %}R:d:{% endif %}p:C:r:o:g:h" option; do
     case $option in
         e) e3sm=$OPTARG ;;
         c) case_dir=$OPTARG ;;
+{%- if source %}
+        R) source_case_dir=$OPTARG ;;
+        d) restart_date=$OPTARG ;;
+{%- endif %}
         p) project=$OPTARG ;;
         C) compiler=$OPTARG ;;
         r) output_root=$OPTARG ;;
@@ -48,6 +61,24 @@ if [ -z "$e3sm" ] || [ -z "$case_dir" ]; then
     echo "$usage" >&2
     exit 1
 fi
+{%- if source %}
+if [ -z "$source_case_dir" ] || [ -z "$restart_date" ]; then
+    echo "$usage" >&2
+    exit 1
+fi
+source_case_dir="$(cd "$source_case_dir" && pwd)"
+source_case="$(basename "$source_case_dir")"
+source_run_dir="$(cd "$source_case_dir" && ./xmlquery --value RUNDIR)"
+restarts=("$source_case.cpl.r.$restart_date-00000.nc"
+          "$source_case.mpaso.rst.${restart_date}_00000.nc"
+          "$source_case.mali.rst.${restart_date}_00000.nc")
+for restart in "${restarts[@]}"; do
+    if [ ! -f "$source_run_dir/$restart" ]; then
+        echo "The restart $source_run_dir/$restart is missing." >&2
+        exit 1
+    fi
+done
+{%- endif %}
 
 check_tasks () {
     if [ "$2" -lt "$min_tasks" ] || [ "$2" -gt "$max_tasks" ]; then
@@ -123,6 +154,27 @@ for check in "MPASO_DECOMP_FILE_PREFIX $ocean_tasks" \
 done
 
 ./case.setup
+{%- if source %}
+
+# A branch run from the {{ source }} case's restarts, which the case's run
+# directory needs before its namelists are built.  The coupler finds its
+# restart through rpointer.drv.
+run_dir="$(./xmlquery --value RUNDIR)"
+mkdir -p "$run_dir"
+for restart in "${restarts[@]}"; do
+    cp "$source_run_dir/$restart" "$run_dir/"
+done
+echo "${restarts[0]}" > "$run_dir/rpointer.drv"
+./xmlchange "RUN_TYPE=branch,RUN_REFCASE=$source_case"
+./xmlchange "RUN_REFDATE=$restart_date,RUN_REFTOD=00000,GET_REFCASE=FALSE"
+{%- endif %}
+{%- if mode == 'prognostic' %}
+
+# The ocean's daily melt means and MALI's monthly history and daily melt,
+# added to the streams files E3SM writes
+./preview_namelists
+python3 "$here/{{ edit_streams }}"
+{%- endif %}
 ./case.build
 
 echo "Submit the case with: cd $case_dir && ./case.submit"

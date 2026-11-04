@@ -1,5 +1,7 @@
 import importlib.resources as imp_res
 import os
+import re
+import shutil
 
 from jinja2 import Template
 from mpas_tools.io import open_dataset
@@ -15,12 +17,14 @@ from polaris.tasks.e3sm.init.misomip import names
 from polaris.tasks.e3sm.init.misomip.landice_data import (
     DATA_MODE_EXPERIMENTS,
 )
+from polaris.tasks.e3sm.init.misomip.landice_init import CONTINUES_FROM
 from polaris.tasks.e3sm.init.misomip.layout import (
     get_layout,
     get_layout_lines,
     get_task_bounds,
 )
 from polaris.tasks.e3sm.init.misomip.records import get_monthly_record_times
+from polaris.tasks.landice.mismip_plus.forward import MALI_DYNAMIC_THICKNESS
 
 #: The section of config options for the case configuration
 CASE_CONFIG_SECTION = 'misomip_case_config'
@@ -35,7 +39,13 @@ RUN_MONTHS = {
     'ocean2': 240,
     'ocean3': 1200,
     'ocean4': 1200,
+    'iceocean1r': 1200,
+    'iceocean1ra': 1200,
 }
+
+#: The experiments in which MALI is prognostic, with Albany's first-order
+#: velocity solver
+PROGNOSTIC_EXPERIMENTS = ['iceocean1r', 'iceocean1ra']
 
 #: The head of FAnSSIE, E3SM's development branch for coupling the ocean and
 #: ice sheets, at the ledger entry by which it has every change the cases need
@@ -45,6 +55,7 @@ E3SM_COMMIT = '4e2f0816b6'
 COMPSETS = {
     'static': '2000_SATM_SLND_SICE_MPASO%PISMF_SROF_MALI%SIASTATIC_SWAV',
     'data': '2000_SATM_SLND_SICE_MPASO%PISMF_SROF_MALI%SIADATA_SWAV',
+    'prognostic': '2000_SATM_SLND_SICE_MPASO%PISMF_SROF_MALI_SWAV',
 }
 
 #: MPAS-Ocean namelist groups whose options a standalone run sets but an
@@ -130,6 +141,9 @@ E3SM_OCEAN_OPTIONS = {
     'config_glc_ice_shelf_coupling_import_geometry': '.true.',
 }
 
+#: The MPAS-Ocean option that turns on the daily means
+DAILY_SWITCH = 'config_AM_timeSeriesStatsDaily_enable'
+
 #: The MPAS-Ocean option with the land-ice fraction at or below which the
 #: import of MALI's geometry leaves a cell open ocean, written from
 #: ``[misomip_land_ice_on_ocean] min_land_ice_fraction``, so the initial
@@ -155,9 +169,66 @@ CREATE_CASE = 'create_case.sh'
 #: The case's layout, which the script gives ``create_newcase``
 PES = 'pes.xml'
 
+#: The MISMIP+ tasks' Albany input, which a prognostic MALI reads
+ALBANY_INPUT = 'albany_input.yaml'
+
+#: Where in the user-mods directory MALI's source modifications go, which
+#: CIME copies to the case's
+MALI_SOURCE_MODS = os.path.join('SourceMods', 'src.mali')
+
+#: The script with which ``create_case.sh`` adds a prognostic MALI case's
+#: output to the streams files E3SM writes
+EDIT_STREAMS = 'edit_streams.py'
+
 #: What the step writes that is staged: the user-mods directory, and the
 #: README, script and layout beside it
 CASE_CONFIG_FILES = [USER_MODS, 'README', CREATE_CASE, PES]
+
+#: The ocean's daily means in a case with a prognostic MALI, in place of
+#: E3SM's daily list: the melt and freezing fluxes, and the part of the melt
+#: not sent to MALI, from which the melt exchange can be checked day by day
+DAILY_OCEAN_FIELDS = [
+    'landIceFreshwaterFlux',
+    'frazilIceFreshwaterFlux',
+    'landIceFreshwaterFluxNotSentToGlc',
+    'landIceHeatFlux',
+]
+
+#: Fields added to the ocean's monthly means in a case with a prognostic
+#: MALI
+MONTHLY_OCEAN_FIELDS = ['landIceFreshwaterFluxNotSentToGlc']
+
+#: The interval of MALI's history in a case with a prognostic MALI, a month
+#: so that it aligns with the ocean's monthly means
+MALI_HISTORY_INTERVAL = '0000-01-00_00:00:00'
+
+#: Fields added to MALI's history in a case with a prognostic MALI, besides
+#: those of the MISMIP+ tasks' output: the mesh the MISMIP+ diagnostics
+#: read, and the melt MALI applies, averaged over the interval
+MALI_HISTORY_FIELDS = [
+    'xCell',
+    'yCell',
+    'areaCell',
+    'dcEdge',
+    'avgFloatingBMBFlux',
+]
+
+#: MALI's daily output in a case with a prognostic MALI: the melt the
+#: ocean sends and the melt MALI applies
+MALI_DAILY_FIELDS = ['floatingBasalMassBal', 'floatingBasalMassBalApplied']
+
+#: Options of the MISMIP+ tasks' MALI namelist that an E3SM case leaves to
+#: E3SM: the run's start, the partition files and the analysis members,
+#: whose output E3SM configures
+MISMIP_PLUS_STANDALONE_OPTIONS = [
+    'config_start_time',
+    'config_year_digits',
+    'config_block_decomp_file_prefix',
+    'config_AM_globalStats_enable',
+    'config_AM_globalStats_compute_interval',
+    'config_AM_globalStats_compute_on_startup',
+    'config_AM_globalStats_write_on_startup',
+]
 
 #: The components of an MCT case, each with a task count in the layout
 COMPONENTS = ['atm', 'lnd', 'rof', 'ice', 'ocn', 'glc', 'wav', 'cpl']
@@ -213,7 +284,8 @@ class CaseConfigStep(Step):
 
         forward_step : polaris.Step
             The standalone MPAS-Ocean run, whose namelist holds the options
-            the E3SM case shares
+            the E3SM case shares.  For an experiment that continues from
+            another, it is the other experiment's.
 
         ocean_config_filepath : str
             The config file of the experiment's ocean steps, relative to the
@@ -257,6 +329,17 @@ class CaseConfigStep(Step):
         self.add_output_file(filename='README')
         self.add_output_file(filename=CREATE_CASE)
         self.add_output_file(filename=PES)
+        if get_mali_mode(experiment) == 'prognostic':
+            self.add_input_file(
+                filename=ALBANY_INPUT,
+                target=ALBANY_INPUT,
+                package='polaris.tasks.landice.mismip_plus',
+            )
+            albany_input = os.path.join(
+                USER_MODS, MALI_SOURCE_MODS, ALBANY_INPUT
+            )
+            self.add_output_file(filename=albany_input)
+            self.add_output_file(filename=EDIT_STREAMS)
 
     def run(self):
         """
@@ -264,10 +347,15 @@ class CaseConfigStep(Step):
         """
         config = self.config
         experiment = self.experiment
+        prognostic = get_mali_mode(experiment) == 'prognostic'
         grids = names.get_grid_names(config)
         date = inputdata.get_creation_date(config, names.INPUTS_SECTION)
         section = config[CASE_CONFIG_SECTION]
         root = get_inputdata_root(config, experiment)
+        source = CONTINUES_FROM.get(experiment)
+        source_root = (
+            None if source is None else get_inputdata_root(config, source)
+        )
         months_per_job = section.getint('months_per_job')
         couplings_per_day = {
             grid: section.getint(f'{grid}_couplings_per_day')
@@ -300,6 +388,7 @@ class CaseConfigStep(Step):
                 months_per_job,
                 couplings_per_day,
                 dt,
+                source_inputdata_root=source_root,
             ),
             executable=True,
         )
@@ -311,9 +400,27 @@ class CaseConfigStep(Step):
                 config.getfloat(
                     'misomip_land_ice_on_ocean', 'min_land_ice_fraction'
                 ),
+                daily_means=prognostic,
             ),
         )
-        _write(os.path.join(USER_MODS, 'user_nl_mali'), get_user_nl_mali())
+        mismip_plus_config = PolarisConfigParser()
+        mismip_plus_config.add_from_package(
+            'polaris.tasks.landice.mismip_plus', 'mismip_plus.cfg'
+        )
+        _write(
+            os.path.join(USER_MODS, 'user_nl_mali'),
+            get_user_nl_mali(
+                experiment,
+                mismip_plus_config.getfloat('mismip_plus', 'flow_param_a'),
+            ),
+        )
+        if prognostic:
+            source_mods = os.path.join(USER_MODS, MALI_SOURCE_MODS)
+            os.makedirs(source_mods, exist_ok=True)
+            shutil.copyfile(
+                ALBANY_INPUT, os.path.join(source_mods, ALBANY_INPUT)
+            )
+            _write(EDIT_STREAMS, get_edit_streams_script(), executable=True)
         task_counts = {
             grid: [
                 int(count)
@@ -421,10 +528,34 @@ def get_mali_mode(experiment):
 
     Returns
     -------
-    mode : {'static', 'data'}
+    mode : {'static', 'data', 'prognostic'}
         The mode, a key of :py:data:`COMPSETS`
     """
+    if experiment in PROGNOSTIC_EXPERIMENTS:
+        return 'prognostic'
     return 'data' if experiment in DATA_MODE_EXPERIMENTS else 'static'
+
+
+def get_case_config_files(experiment):
+    """
+    Get what the case configuration step writes that is staged for an
+    experiment
+
+    Parameters
+    ----------
+    experiment : str
+        The experiment
+
+    Returns
+    -------
+    filenames : list of str
+        :py:data:`CASE_CONFIG_FILES`, and :py:data:`EDIT_STREAMS` for an
+        experiment with a prognostic MALI
+    """
+    filenames = list(CASE_CONFIG_FILES)
+    if get_mali_mode(experiment) == 'prognostic':
+        filenames.append(EDIT_STREAMS)
+    return filenames
 
 
 def get_inputdata_root(config, experiment):
@@ -513,6 +644,7 @@ def get_shell_commands(
     months_per_job,
     couplings_per_day,
     ocean_dt,
+    source_inputdata_root=None,
 ):
     """
     Get the text of ``shell_commands``, which sets the case variables that
@@ -545,6 +677,12 @@ def get_shell_commands(
         The ocean's time step in seconds, which must divide its coupling
         interval
 
+    source_inputdata_root : str, optional
+        For an experiment that continues from another's restart, where the
+        case finds the other experiment's staged initial conditions.  A
+        branch run reads the restart in their place, but E3SM still names
+        them.
+
     Returns
     -------
     text : str
@@ -554,19 +692,27 @@ def get_shell_commands(
     landice = grids['landice']
     date = creation_date
     forcing = names.ocean_forcing_path(ocean, experiment, date)
+    source = CONTINUES_FROM.get(experiment, experiment)
+    if source != experiment and source_inputdata_root is None:
+        raise ValueError(
+            f'{experiment} continues from {source}, so it needs '
+            f'source_inputdata_root.'
+        )
+    ic_files = {
+        'MPASO_IC_FILE': names.ocean_initial_condition_path(
+            ocean, source, date
+        ),
+        'MALI_IC_FILE': names.landice_initial_condition_path(
+            landice, source, date
+        ),
+    }
     # each prefix ends just before the task count
     files = {
-        'MPASO_IC_FILE': names.ocean_initial_condition_path(
-            ocean, experiment, date
-        ),
         'MPASO_DECOMP_FILE_PREFIX': (
             f'{inputdata.ocean_graph_path(ocean, date)}.part.'
         ),
         'MPASO_INTERIOR_RESTORING_FILE': forcing,
         'MPASO_TIDAL_MASK_FILE': forcing,
-        'MALI_IC_FILE': names.landice_initial_condition_path(
-            landice, experiment, date
-        ),
         'MALI_DECOMP_FILE_PREFIX': names.landice_partition_prefix(
             landice, date
         ),
@@ -604,6 +750,10 @@ def get_shell_commands(
         '# The staged files.  Single quotes keep $DIN_LOC_ROOT for CIME to',
         '# expand.',
     ]
+    ic_root = inputdata_root if source == experiment else source_inputdata_root
+    for variable, path in ic_files.items():
+        path = _inputdata_path(path, ic_root)
+        lines.append(f"./xmlchange '{variable}={path}'")
     for variable, path in files.items():
         path = _inputdata_path(path, inputdata_root)
         lines.append(f"./xmlchange '{variable}={path}'")
@@ -641,7 +791,9 @@ def get_shell_commands(
     return '\n'.join(lines)
 
 
-def get_user_nl_mpaso(standalone, defaults, min_land_ice_fraction):
+def get_user_nl_mpaso(
+    standalone, defaults, min_land_ice_fraction, daily_means=False
+):
     """
     Get the text of ``user_nl_mpaso``: the options the standalone run sets,
     less those E3SM sets itself, those E3SM would otherwise give a
@@ -660,6 +812,10 @@ def get_user_nl_mpaso(standalone, defaults, min_land_ice_fraction):
     min_land_ice_fraction : float
         The land-ice fraction at or below which MPAS-Ocean's import of
         MALI's geometry leaves a cell open ocean
+
+    daily_means : bool, optional
+        Whether to turn on the daily means, of
+        :py:data:`DAILY_OCEAN_FIELDS`, for a case with a prognostic MALI
 
     Returns
     -------
@@ -682,6 +838,8 @@ def get_user_nl_mpaso(standalone, defaults, min_land_ice_fraction):
 
     e3sm_only = dict(E3SM_OCEAN_OPTIONS)
     e3sm_only[MIN_FRACTION_OPTION] = f'{min_land_ice_fraction:g}'
+    if daily_means:
+        e3sm_only[DAILY_SWITCH] = '.true.'
 
     lines = [
         "! The standalone MPAS-Ocean run's options, written by Polaris",
@@ -690,7 +848,7 @@ def get_user_nl_mpaso(standalone, defaults, min_land_ice_fraction):
     for group, options in standalone.items():
         if group.startswith('AM_'):
             switch = f'config_{group}_enable'
-            if switch in options:
+            if switch in options and switch not in e3sm_only:
                 analysis_members[switch] = options[switch]
             continue
         if group in STANDALONE_GROUPS:
@@ -730,9 +888,21 @@ def get_user_nl_mpaso(standalone, defaults, min_land_ice_fraction):
     return '\n'.join(lines)
 
 
-def get_user_nl_mali():
+def get_user_nl_mali(experiment, flow_param_a):
     """
-    Get the text of ``user_nl_mali``
+    Get the text of ``user_nl_mali``.  A prognostic MALI also takes the
+    MISMIP+ tasks' options and those of their Ice1r run, which IceOcean1r
+    follows, except the melt under floating ice, which E3SM takes from the
+    ocean.
+
+    Parameters
+    ----------
+    experiment : str
+        The experiment
+
+    flow_param_a : float
+        The MISMIP+ tasks' rate factor in Pa^-3 s^-1, from
+        ``[mismip_plus] flow_param_a``
 
     Returns
     -------
@@ -742,6 +912,24 @@ def get_user_nl_mali():
     lines = ['! MALI options, written by Polaris']
     for option, value in MALI_OPTIONS.items():
         lines.append(f'{option} = {value}')
+    if get_mali_mode(experiment) == 'prognostic':
+        lines.extend(
+            ['', "! the MISMIP+ tasks' options, with those of their Ice1r run"]
+        )
+        options = {
+            option: value
+            for option, value in polaris.namelist.parse_replacements(
+                'polaris.tasks.landice.mismip_plus', 'namelist.landice'
+            ).items()
+            if option not in MISMIP_PLUS_STANDALONE_OPTIONS
+        }
+        options['config_default_flowParamA'] = repr(flow_param_a)
+        # Ice1r calves floating ice too thin to be dynamic, and icebergs
+        options['config_calving'] = "'thickness_threshold'"
+        options['config_calving_thickness'] = repr(MALI_DYNAMIC_THICKNESS)
+        options['config_remove_icebergs'] = '.true.'
+        for option, value in options.items():
+            lines.append(f'{option} = {value}')
     lines.append('')
     return '\n'.join(lines)
 
@@ -769,6 +957,12 @@ def get_readme(experiment, grids, layout_lines):
     """
     mode = get_mali_mode(experiment)
     compset = COMPSETS[mode]
+    source = CONTINUES_FROM.get(experiment)
+    branch_args = (
+        []
+        if source is None
+        else [f'      -R <{source} case directory> -d <YYYY-MM-DD> \\']
+    )
     lines = [
         f'The E3SM case configuration of MISOMIP {experiment} on '
         f'{grids["model"]}, with MALI',
@@ -779,6 +973,7 @@ def get_readme(experiment, grids, layout_lines):
         f'{E3SM_COMMIT} or later, on the machine the layout is for:',
         '',
         f'  ./{CREATE_CASE} -e <E3SM checkout> -c <case directory> \\',
+        *branch_args,
         '      [-p <project>] [-C <compiler>] [-r <output root>] \\',
         '      [-o <ocean tasks>] [-g <MALI tasks>]',
         '',
@@ -809,6 +1004,30 @@ def get_readme(experiment, grids, layout_lines):
             '',
         ]
     )
+    if mode == 'prognostic':
+        lines.extend(
+            [
+                "MALI's Albany input is in `user_mods/SourceMods/src.mali/`.",
+                f'`{CREATE_CASE}` runs `./preview_namelists`, then',
+                f'`{EDIT_STREAMS}`, which copies the streams files E3SM',
+                "wrote into the case's SourceMods with the ocean's daily melt",
+                "means and MALI's monthly history and daily melt added.  A",
+                'keepexe clone shares its SourceMods with the case it was',
+                'cloned from, so replace the link with a copy before editing',
+                'them.',
+                '',
+            ]
+        )
+    if source is not None:
+        lines.extend(
+            [
+                f"The case is a branch run from a {source} case's restarts",
+                'on the date given with `-R` and `-d`.  The script copies the',
+                "coupler's, the ocean's and MALI's restarts into the run",
+                'directory and points `rpointer.drv` at the coupler restart.',
+                '',
+            ]
+        )
     return '\n'.join(lines)
 
 
@@ -855,6 +1074,8 @@ def get_create_case_script(
     )
     return template.render(
         experiment=experiment,
+        source=CONTINUES_FROM.get(experiment),
+        edit_streams=EDIT_STREAMS,
         model_grid=grids['model'],
         mode=mode,
         compset=COMPSETS[mode],
@@ -869,6 +1090,57 @@ def get_create_case_script(
             str(count) for count in task_counts['landice']
         ),
     )
+
+
+def get_edit_streams_script():
+    """
+    Get the text of the script with which ``create_case.sh`` adds a case's
+    output to the streams files E3SM writes, for a case with a prognostic
+    MALI.  MALI's history takes the fields of the MISMIP+ tasks' output and
+    :py:data:`MALI_HISTORY_FIELDS`.
+
+    Returns
+    -------
+    text : str
+        The script
+    """
+    mali_history_fields = get_mismip_plus_output_fields()
+    for name in MALI_HISTORY_FIELDS:
+        if name not in mali_history_fields:
+            mali_history_fields.append(name)
+    template = Template(
+        imp_res.files(__package__)
+        .joinpath('edit_streams.template')
+        .read_text(),
+        keep_trailing_newline=True,
+    )
+    return template.render(
+        daily_ocean_fields=repr(DAILY_OCEAN_FIELDS),
+        monthly_ocean_fields=repr(MONTHLY_OCEAN_FIELDS),
+        mali_history_interval=MALI_HISTORY_INTERVAL,
+        mali_history_fields=repr(mali_history_fields),
+        mali_daily_fields=repr(MALI_DAILY_FIELDS),
+    )
+
+
+def get_mismip_plus_output_fields():
+    """
+    Get the fields of the MISMIP+ tasks' MALI output stream
+
+    Returns
+    -------
+    fields : list of str
+        The fields, in the order of the streams file
+    """
+    text = (
+        imp_res.files('polaris.tasks.landice.mismip_plus')
+        .joinpath('streams.landice')
+        .read_text()
+    )
+    match = re.search(r'<stream name="output".*?</stream>', text, re.DOTALL)
+    if match is None:
+        raise ValueError("The MISMIP+ tasks' streams have no output stream.")
+    return re.findall(r'<var name="(\w+)"/>', match.group(0))
 
 
 def get_pes_file(layout):

@@ -4,7 +4,7 @@ from functools import partial
 from polaris.e3sm.init import inputdata
 from polaris.e3sm.init.assemble import AssembleStep
 from polaris.tasks.e3sm.init.misomip import names
-from polaris.tasks.e3sm.init.misomip.case_config import CASE_CONFIG_FILES
+from polaris.tasks.e3sm.init.misomip.case_config import get_case_config_files
 from polaris.tasks.e3sm.init.misomip.maps import MAPS
 
 #: The file each product step writes that is staged, keyed as
@@ -20,8 +20,9 @@ PRODUCT_FILES = {
     'landice_data': 'landice_datamode.nc',
 }
 
-#: The step that writes the case configuration, whose files are in
-#: :py:data:`~polaris.tasks.e3sm.init.misomip.case_config.CASE_CONFIG_FILES`
+#: The step that writes the case configuration, whose files are those
+#: ``get_case_config_files()`` gives, in
+#: :py:mod:`polaris.tasks.e3sm.init.misomip.case_config`
 CASE_CONFIG = 'case_config'
 
 #: The steps whose partitions are staged, and the stem of their files
@@ -83,7 +84,7 @@ class MisomipAssembleStep(AssembleStep):
                 self.add_dependency(step, name=key)
                 continue
             if key == CASE_CONFIG:
-                filenames = CASE_CONFIG_FILES
+                filenames = get_case_config_files(experiment)
             else:
                 filenames = [_get_product_file(key)]
             for filename in filenames:
@@ -142,7 +143,7 @@ class MisomipAssembleStep(AssembleStep):
                 )
             elif key == CASE_CONFIG:
                 case_dir = names.case_config_dir(experiment)
-                for filename in CASE_CONFIG_FILES:
+                for filename in get_case_config_files(experiment):
                     self.stage(
                         _get_staged_source(key, filename),
                         f'{case_dir}/{filename}',

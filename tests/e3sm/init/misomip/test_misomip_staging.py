@@ -120,6 +120,8 @@ def _expected(
             f'case_config/{experiment}/create_case.sh',
             f'case_config/{experiment}/pes.xml',
         }
+        if experiment.startswith('iceocean'):
+            expected.add(f'case_config/{experiment}/edit_streams.py')
     return expected
 
 
@@ -128,8 +130,8 @@ def _expected(
     [
         ('ocean0', True, False, True),
         ('ocean3', True, True, True),
-        ('iceocean1r', True, False, False),
-        ('iceocean1ra', False, False, False),
+        ('iceocean1r', True, False, True),
+        ('iceocean1ra', False, False, True),
     ],
 )
 def test_every_product_lands_at_its_e3sm_path(

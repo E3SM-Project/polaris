@@ -1,0 +1,114 @@
+#!/usr/bin/env python3
+"""
+Add a MISOMIP case's output to the streams files E3SM wrote for it, and put
+the results in the case's SourceMods, which E3SM then reads in place of
+writing its own.  Run it from the case directory after ./preview_namelists
+has written the streams files to the run directory.  Written by Polaris.
+"""
+
+import os
+import subprocess
+import sys
+import xml.etree.ElementTree as ET
+
+# The ocean's daily means, in place of E3SM's daily list
+DAILY_OCEAN_FIELDS = {{ daily_ocean_fields }}
+
+# Fields added to the ocean's monthly means
+MONTHLY_OCEAN_FIELDS = {{ monthly_ocean_fields }}
+
+# The interval of MALI's history, and the fields added to it
+MALI_HISTORY_INTERVAL = '{{ mali_history_interval }}'
+MALI_HISTORY_FIELDS = {{ mali_history_fields }}
+
+# MALI's daily output
+MALI_DAILY_FIELDS = {{ mali_daily_fields }}
+
+
+def main():
+    if os.path.islink('SourceMods'):
+        sys.exit(
+            'SourceMods is a link, as in a keepexe clone, so editing it '
+            'would change the streams of every case that shares it.  '
+            'Replace the link with a copy first.'
+        )
+    rundir = subprocess.check_output(
+        ['./xmlquery', '--value', 'RUNDIR'], text=True
+    ).strip()
+    edit_ocean(
+        os.path.join(rundir, 'streams.ocean'),
+        os.path.join('SourceMods', 'src.mpaso', 'streams.ocean'),
+    )
+    edit_landice(
+        os.path.join(rundir, 'streams.landice'),
+        os.path.join('SourceMods', 'src.mali', 'streams.landice'),
+    )
+
+
+def edit_ocean(in_filename, out_filename):
+    tree = ET.parse(in_filename)
+    root = tree.getroot()
+    daily = get_stream(root, 'timeSeriesStatsDailyOutput')
+    for child in list(daily):
+        daily.remove(child)
+    for name in ['xtime'] + DAILY_OCEAN_FIELDS:
+        add_var(daily, name)
+    monthly = get_stream(root, 'timeSeriesStatsMonthlyOutput')
+    for name in MONTHLY_OCEAN_FIELDS:
+        add_var(monthly, name)
+    write(tree, out_filename)
+
+
+def edit_landice(in_filename, out_filename):
+    tree = ET.parse(in_filename)
+    root = tree.getroot()
+    output = get_stream(root, 'output')
+    output.set('output_interval', MALI_HISTORY_INTERVAL)
+    for name in MALI_HISTORY_FIELDS:
+        add_var(output, name)
+    template = output.get('filename_template')
+    if '.mali.hist.' not in template:
+        sys.exit(f'Unexpected name of MALI history files: {template}')
+    attributes = {
+        'name': 'dailyOutput',
+        'type': 'output',
+        'filename_template': template.replace(
+            '.mali.hist.', '.mali.hist.daily.'
+        ),
+        'filename_interval': '0000-01-00_00:00:00',
+        'clobber_mode': 'truncate',
+        'output_interval': '0000-00-01_00:00:00',
+    }
+    if 'io_type' in output.attrib:
+        attributes['io_type'] = output.get('io_type')
+    daily = ET.SubElement(root, 'stream', attributes)
+    for name in ['xtime'] + MALI_DAILY_FIELDS:
+        add_var(daily, name)
+    write(tree, out_filename)
+
+
+def get_stream(root, name):
+    for stream in root:
+        if stream.get('name') == name:
+            return stream
+    sys.exit(f'No stream {name} in the streams file E3SM wrote.')
+
+
+def add_var(stream, name):
+    for child in stream:
+        if child.tag == 'var' and child.get('name') == name:
+            return
+    ET.SubElement(stream, 'var', {'name': name})
+
+
+def write(tree, filename):
+    os.makedirs(os.path.dirname(filename), exist_ok=True)
+    if os.path.islink(filename):
+        os.remove(filename)
+    ET.indent(tree)
+    tree.write(filename, encoding='unicode')
+    print(f'Wrote {filename}')
+
+
+if __name__ == '__main__':
+    main()

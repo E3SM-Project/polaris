@@ -14,6 +14,7 @@ from polaris.tasks.e3sm.init.misomip.landice_data import (
     LandiceDataStep,
 )
 from polaris.tasks.e3sm.init.misomip.landice_init import (
+    CONTINUES_FROM,
     INPUT_GEOMETRY,
     InputMapStep,
     LandiceInitStep,
@@ -45,11 +46,9 @@ MESH_PAIRS = {
 }
 
 #: The steps that the tasks include but don't run by default: the
-#: standalone ocean run, for comparison with E3SM
-NOT_RUN_BY_DEFAULT = ['ocean/forward']
-
-#: The experiments that continue from another experiment's E3SM restart
-CONTINUES_FROM = {'iceocean1ra': 'iceocean1r'}
+#: standalone ocean run, for comparison with E3SM and for the namelist the
+#: E3SM case shares.  IceOcean1ra's case takes IceOcean1r's namelist.
+NOT_RUN_BY_DEFAULT = ['ocean/forward', 'iceocean1r/ocean/forward']
 
 #: The stem of each model's partition files, as E3SM names them
 PARTITION_BASENAMES = {
@@ -210,11 +209,28 @@ def get_misomip_experiment_steps(mesh_name, experiment):
         ocean_mesh_step=steps['ocean_mesh'],
         land_ice_fields_step=land_ice_on_ocean,
         ssh_adjustment=not continues,
-        forward=INPUT_GEOMETRY.get(experiment) is not None,
+        forward=not continues,
         data_mode=experiment in DATA_MODE_EXPERIMENTS,
     )
     for name, step in ocean_steps.items():
         steps.setdefault(name, step)
+    if continues:
+        # the standalone run of the experiment this one continues from,
+        # whose namelist the E3SM case shares
+        source_ocean_steps, _, _ = get_misomip_ocean_steps(
+            mesh_name=mesh_name,
+            resolution=MESH_PAIRS[mesh_name]['ocean'],
+            experiment=source,
+            ocean_mesh_step=steps['ocean_mesh'],
+            land_ice_fields_step=land_ice_on_ocean,
+            ssh_adjustment=True,
+            forward=True,
+            data_mode=source in DATA_MODE_EXPERIMENTS,
+        )
+        forward_step = source_ocean_steps['ocean/forward']
+        steps[f'{source}/ocean/forward'] = forward_step
+    else:
+        forward_step = ocean_steps['ocean/forward']
 
     expdir = os.path.join('misomip', experiment)
     product_steps = {
@@ -241,22 +257,21 @@ def get_misomip_experiment_steps(mesh_name, experiment):
         if 'landice_data' in landice_steps:
             product_steps['landice_data'] = landice_steps['landice_data']
 
-    if 'ocean/forward' in ocean_steps:
-        case_config = _get_step(
-            mesh_name,
-            config,
-            CaseConfigStep,
-            os.path.join(expdir, 'case_config'),
-            experiment=experiment,
-            mesh_steps={
-                'ocean': steps['ocean_mesh'],
-                'landice': steps['landice_mesh'],
-            },
-            forward_step=ocean_steps['ocean/forward'],
-            ocean_config_filepath=ocean_config.filepath,
-        )
-        steps['case_config'] = case_config
-        product_steps['case_config'] = case_config
+    case_config = _get_step(
+        mesh_name,
+        config,
+        CaseConfigStep,
+        os.path.join(expdir, 'case_config'),
+        experiment=experiment,
+        mesh_steps={
+            'ocean': steps['ocean_mesh'],
+            'landice': steps['landice_mesh'],
+        },
+        forward_step=forward_step,
+        ocean_config_filepath=ocean_config.filepath,
+    )
+    steps['case_config'] = case_config
+    product_steps['case_config'] = case_config
 
     steps['assemble'] = _get_step(
         mesh_name,

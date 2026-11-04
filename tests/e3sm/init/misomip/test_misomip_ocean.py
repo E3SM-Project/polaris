@@ -205,10 +205,15 @@ def test_forward_steps():
         'none'
     )
 
-    # the coupled experiments have no standalone counterpart
-    for experiment in ['iceocean1r', 'iceocean1ra']:
-        steps, _ = get_misomip_experiment_steps(mesh_name, experiment)
-        assert 'ocean/forward' not in steps
+    # IceOcean1r's standalone run, with MALI's geometry fixed, is set up for
+    # the namelist both IceOcean cases share; IceOcean1ra has none of its own
+    steps, _ = get_misomip_experiment_steps(mesh_name, 'iceocean1r')
+    assert not steps['ocean/forward'].data_mode
+    steps, _ = get_misomip_experiment_steps(mesh_name, 'iceocean1ra')
+    assert 'ocean/forward' not in steps
+    assert steps['iceocean1r/ocean/forward'].path == (
+        f'ocean/planar/misomip/{mesh_name}/iceocean1r/forward'
+    )
 
 
 @pytest.mark.parametrize('data_mode', [True, False])

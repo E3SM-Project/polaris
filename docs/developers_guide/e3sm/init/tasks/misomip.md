@@ -185,8 +185,24 @@ renders `pes.template`, the layout the script gives `create_newcase` in
 place of MPAS-Ocean's, with 1 thread a task and `MAX_MPITASKS_PER_NODE`
 the layout's tasks per node, so CIME's nodes match Polaris's.
 
-Only experiments with a standalone ocean run have a case configuration,
-since the namelist comes from that run.
+Every experiment has a case configuration.  `iceocean1r`'s standalone
+run is set up, not run, for its namelist, and `iceocean1ra`, in
+`CONTINUES_FROM`, reads `iceocean1r`'s.  For an experiment with a
+prognostic MALI (`PROGNOSTIC_EXPERIMENTS`),
+{py:func}`polaris.tasks.e3sm.init.misomip.case_config.get_user_nl_mali()`
+adds the MISMIP+ tasks' `namelist.landice`, less
+`MISMIP_PLUS_STANDALONE_OPTIONS`, with the rate factor from their
+`mismip_plus.cfg` and their Ice1r run's calving, each option once.  The
+step copies their `albany_input.yaml` into `SourceMods/src.mali/` and
+writes `edit_streams.py` from `edit_streams.template` through
+{py:func}`polaris.tasks.e3sm.init.misomip.case_config.get_edit_streams_script()`,
+with `DAILY_OCEAN_FIELDS`, `MONTHLY_OCEAN_FIELDS`, the MISMIP+ tasks'
+output fields with `MALI_HISTORY_FIELDS`, and `MALI_DAILY_FIELDS`.
+{py:func}`polaris.tasks.e3sm.init.misomip.case_config.get_case_config_files()`
+adds the script to what the `assemble` step stages.  For `iceocean1ra`,
+`get_shell_commands()` names `iceocean1r`'s initial conditions under its
+inputdata root, and `create_case.sh` takes `-R` and `-d` for the branch
+run.
 
 ## Projection and SCRIP files
 

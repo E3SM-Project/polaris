@@ -6,22 +6,35 @@ from glob import glob
 
 import pytest
 
+import polaris.namelist
 from polaris.tasks.e3sm.init import e3sm_init
 from polaris.tasks.e3sm.init.misomip import get_misomip_experiment_steps
 from polaris.tasks.e3sm.init.misomip.case_config import (
     COMPONENTS,
+    COMPSETS,
+    DAILY_OCEAN_FIELDS,
+    DAILY_SWITCH,
     DIN_LOC_ROOT,
     E3SM_COMMIT,
     E3SM_DEFAULT_OPTIONS,
     E3SM_OWNED_OPTIONS,
+    MALI_DAILY_FIELDS,
+    MALI_HISTORY_FIELDS,
+    MALI_HISTORY_INTERVAL,
+    MISMIP_PLUS_STANDALONE_OPTIONS,
+    MONTHLY_OCEAN_FIELDS,
     RUN_MONTHS,
+    get_case_config_files,
     get_create_case_script,
+    get_edit_streams_script,
     get_grid_file,
     get_inputdata_root,
     get_mali_mode,
+    get_mismip_plus_output_fields,
     get_pes_file,
     get_readme,
     get_shell_commands,
+    get_user_nl_mali,
     get_user_nl_mpaso,
 )
 from polaris.tasks.e3sm.init.misomip.layout import Layout, TaskBounds
@@ -268,7 +281,14 @@ def test_shell_commands_data_mode_file_has_reference_time(experiment):
     # MALI's buildnml stops if a case names a data-mode file without the
     # time of its first record
     text = get_shell_commands(
-        experiment, GRIDS, DATE, DIN_LOC_ROOT, 12, COUPLINGS, DT
+        experiment,
+        GRIDS,
+        DATE,
+        DIN_LOC_ROOT,
+        12,
+        COUPLINGS,
+        DT,
+        source_inputdata_root=DIN_LOC_ROOT,
     )
     has_file = 'MALI_DATAMODE_FILE=' in text
     assert has_file == (get_mali_mode(experiment) == 'data')
@@ -470,34 +490,269 @@ def test_grid_file():
 
 
 @pytest.mark.parametrize(
-    'experiment, has_case_config',
+    'experiment, namelist_experiment',
     [
-        ('ocean0', True),
-        ('ocean3', True),
-        ('iceocean1r', False),
-        ('iceocean1ra', False),
+        ('ocean0', 'ocean0'),
+        ('ocean3', 'ocean3'),
+        ('iceocean1r', 'iceocean1r'),
+        # IceOcean1ra continues from IceOcean1r and shares its namelist
+        ('iceocean1ra', 'iceocean1r'),
     ],
 )
-def test_experiments_with_a_standalone_run_have_a_case_config(
-    experiment, has_case_config
-):
+def test_every_experiment_has_a_case_config(experiment, namelist_experiment):
     _reset_shared_components()
     steps, _ = get_misomip_experiment_steps(MESH_NAME, experiment)
-    assert ('case_config' in steps) == has_case_config
-    if has_case_config:
-        step = steps['case_config']
-        assert step.path == (
-            f'e3sm/init/{MESH_NAME}/misomip/{experiment}/case_config'
+    step = steps['case_config']
+    assert step.path == (
+        f'e3sm/init/{MESH_NAME}/misomip/{experiment}/case_config'
+    )
+    targets = {
+        entry['filename']: entry['work_dir_target']
+        for entry in step.input_data
+    }
+    assert targets['namelist.ocean'] == (
+        f'ocean/planar/misomip/{MESH_NAME}/{namelist_experiment}/forward/'
+        f'namelist.ocean'
+    )
+    assert targets['ocean.cfg'] == (
+        f'ocean/planar/misomip/{MESH_NAME}/{experiment}/misomip_ocean.cfg'
+    )
+    assert 'case_config' in steps['assemble'].product_steps
+
+
+@pytest.mark.parametrize(
+    'experiment, mode',
+    [
+        ('ocean0', 'static'),
+        ('ocean3', 'data'),
+        ('iceocean1r', 'prognostic'),
+        ('iceocean1ra', 'prognostic'),
+    ],
+)
+def test_mali_mode(experiment, mode):
+    assert get_mali_mode(experiment) == mode
+    # the streams script is staged only where MALI is prognostic
+    assert ('edit_streams.py' in get_case_config_files(experiment)) == (
+        mode == 'prognostic'
+    )
+
+
+def test_prognostic_compset_uses_albany():
+    # MALI's shallow-ice compsets build MALI without Albany
+    assert '_MALI%SIA' in COMPSETS['static']
+    assert '_MALI%SIA' in COMPSETS['data']
+    assert '_MALI_' in COMPSETS['prognostic']
+
+
+def test_shell_commands_branch_run_names_the_source_initial_conditions():
+    text = get_shell_commands(
+        'iceocean1ra',
+        GRIDS,
+        DATE,
+        '/short/iceocean1ra',
+        12,
+        COUPLINGS,
+        DT,
+        source_inputdata_root='/short/iceocean1r',
+    )
+    lines = text.splitlines()
+    assert (
+        f"./xmlchange 'MPASO_IC_FILE=/short/iceocean1r/ocn/mpas-o/"
+        f"misomip-o4km/mpaso.misomip-o4km.iceocean1r.{DATE}.nc'"
+    ) in lines
+    assert (
+        f"./xmlchange 'MALI_IC_FILE=/short/iceocean1r/glc/mpasli/"
+        f"misomip-li1km/misomip-li1km.iceocean1r.{DATE}.nc'"
+    ) in lines
+    # its own restoring
+    assert (
+        f"./xmlchange 'MPASO_INTERIOR_RESTORING_FILE=/short/iceocean1ra/ocn/"
+        f'mpas-o/misomip-o4km/mpaso.misomip-o4km.iceocean1ra_forcing.'
+        f"{DATE}.nc'"
+    ) in lines
+    with pytest.raises(ValueError, match='source_inputdata_root'):
+        get_shell_commands(
+            'iceocean1ra', GRIDS, DATE, DIN_LOC_ROOT, 12, COUPLINGS, DT
         )
-        targets = {
-            entry['filename']: entry['work_dir_target']
-            for entry in step.input_data
-        }
-        assert targets['namelist.ocean'] == (
-            f'ocean/planar/misomip/{MESH_NAME}/{experiment}/forward/'
-            f'namelist.ocean'
-        )
-        assert targets['ocean.cfg'] == (
-            f'ocean/planar/misomip/{MESH_NAME}/{experiment}/misomip_ocean.cfg'
-        )
-        assert 'case_config' in steps['assemble'].product_steps
+
+
+def test_user_nl_mpaso_turns_on_the_daily_means_once():
+    standalone, defaults = _namelists()
+    standalone['AM_timeSeriesStatsDaily'] = {DAILY_SWITCH: '.false.'}
+    text = get_user_nl_mpaso(standalone, defaults, 1e-3, daily_means=True)
+    switches = [
+        line for line in text.splitlines() if line.startswith(DAILY_SWITCH)
+    ]
+    assert switches == [f'{DAILY_SWITCH} = .true.']
+    text = get_user_nl_mpaso(standalone, defaults, 1e-3)
+    assert _options(text)[DAILY_SWITCH] == '.false.'
+
+
+def test_user_nl_mali_prognostic_takes_the_mismip_plus_options():
+    mismip_plus = polaris.namelist.parse_replacements(
+        'polaris.tasks.landice.mismip_plus', 'namelist.landice'
+    )
+    text = get_user_nl_mali('iceocean1r', 6.0e-25)
+    options = _options(text)
+    # each option once, since E3SM's namelist builder rejects repeats
+    lines = [line for line in text.splitlines() if '=' in line]
+    assert len(lines) == len(options)
+    # Ice1r's calving in place of the MISMIP+ tasks' default
+    ice1r = {'config_calving', 'config_remove_icebergs'}
+    for option, value in mismip_plus.items():
+        if option in MISMIP_PLUS_STANDALONE_OPTIONS:
+            assert option not in options
+        elif option not in ice1r:
+            assert options[option] == value
+    assert options['config_default_flowParamA'] == '6e-25'
+    assert options['config_calving'] == "'thickness_threshold'"
+    assert options['config_remove_icebergs'] == '.true.'
+    assert options['config_always_compute_fem_grid'] == '.false.'
+    # E3SM takes the melt from the ocean
+    assert 'config_basal_mass_bal_float' not in options
+
+    options = _options(get_user_nl_mali('ocean3', 6.0e-25))
+    assert 'config_calving' not in options
+    assert 'config_default_flowParamA' not in options
+
+
+def _write_streams(rundir):
+    ocean = """<streams>
+<stream name="timeSeriesStatsDailyOutput" type="output"
+        filename_template="case.mpaso.hist.am.timeSeriesStatsDaily.nc">
+    <var name="normalVelocity"/>
+</stream>
+<stream name="timeSeriesStatsMonthlyOutput" type="output"
+        filename_template="case.mpaso.hist.am.timeSeriesStatsMonthly.nc">
+    <var name="landIceFreshwaterFlux"/>
+</stream>
+</streams>
+"""
+    landice = """<streams>
+<stream name="output" type="output" io_type="pnetcdf"
+        filename_template="case.mali.hist.$Y-$M-$D_$S.nc"
+        output_interval="0000-00-10_00:00:00">
+    <var name="thickness"/>
+</stream>
+</streams>
+"""
+    (rundir / 'streams.ocean').write_text(ocean)
+    (rundir / 'streams.landice').write_text(landice)
+
+
+def _vars(stream):
+    return [var.attrib['name'] for var in stream.iter('var')]
+
+
+def test_edit_streams_script(tmp_path):
+    case_dir = tmp_path / 'case'
+    rundir = tmp_path / 'run'
+    case_dir.mkdir()
+    rundir.mkdir()
+    _write_streams(rundir)
+    xmlquery = case_dir / 'xmlquery'
+    xmlquery.write_text(f'#!/bin/bash\necho {rundir}\n')
+    xmlquery.chmod(0o755)
+    script = tmp_path / 'edit_streams.py'
+    script.write_text(get_edit_streams_script())
+    result = subprocess.run(
+        ['python3', str(script)], cwd=case_dir, text=True, capture_output=True
+    )
+    assert result.returncode == 0, result.stderr
+
+    ocean = ET.parse(case_dir / 'SourceMods/src.mpaso/streams.ocean')
+    streams = {s.attrib['name']: s for s in ocean.getroot()}
+    # E3SM's daily list is replaced
+    assert _vars(streams['timeSeriesStatsDailyOutput']) == (
+        ['xtime'] + DAILY_OCEAN_FIELDS
+    )
+    assert _vars(streams['timeSeriesStatsMonthlyOutput']) == (
+        ['landIceFreshwaterFlux'] + MONTHLY_OCEAN_FIELDS
+    )
+
+    landice = ET.parse(case_dir / 'SourceMods/src.mali/streams.landice')
+    streams = {s.attrib['name']: s for s in landice.getroot()}
+    output = streams['output']
+    assert output.attrib['output_interval'] == MALI_HISTORY_INTERVAL
+    history = _vars(output)
+    for name in get_mismip_plus_output_fields() + MALI_HISTORY_FIELDS:
+        assert history.count(name) == 1
+    daily = streams['dailyOutput']
+    assert _vars(daily) == ['xtime'] + MALI_DAILY_FIELDS
+    assert daily.attrib['filename_template'] == (
+        'case.mali.hist.daily.$Y-$M-$D_$S.nc'
+    )
+    assert daily.attrib['io_type'] == 'pnetcdf'
+
+
+def test_edit_streams_script_refuses_a_shared_source_mods(tmp_path):
+    case_dir = tmp_path / 'case'
+    case_dir.mkdir()
+    (tmp_path / 'base_source_mods').mkdir()
+    os.symlink(tmp_path / 'base_source_mods', case_dir / 'SourceMods')
+    script = tmp_path / 'edit_streams.py'
+    script.write_text(get_edit_streams_script())
+    result = subprocess.run(
+        ['python3', str(script)], cwd=case_dir, text=True, capture_output=True
+    )
+    assert result.returncode != 0
+    assert 'keepexe' in result.stderr
+
+
+def test_create_case_script_branches_iceocean1ra():
+    text = get_create_case_script(
+        'iceocean1ra', GRIDS, COUNTS, LAYOUT, 'chrysalis', 'gnu'
+    )
+    lines = text.splitlines()
+    assert 'while getopts "e:c:R:d:p:C:r:o:g:h" option; do' in lines
+    assert ('./xmlchange "RUN_TYPE=branch,RUN_REFCASE=$source_case"') in lines
+    assert 'echo "${restarts[0]}" > "$run_dir/rpointer.drv"' in lines
+    # the streams are edited after the restarts are in place, before the
+    # build
+    assert lines.index('./preview_namelists') > lines.index(
+        'echo "${restarts[0]}" > "$run_dir/rpointer.drv"'
+    )
+    assert lines.index('./case.build') > lines.index(
+        'python3 "$here/edit_streams.py"'
+    )
+    result = subprocess.run(
+        ['bash', '-n'], input=text, text=True, capture_output=True
+    )
+    assert result.returncode == 0, result.stderr
+
+    # IceOcean1r has the streams edit but no branch
+    text = get_create_case_script(
+        'iceocean1r', GRIDS, COUNTS, LAYOUT, 'chrysalis', 'gnu'
+    )
+    assert './preview_namelists' in text.splitlines()
+    assert 'RUN_TYPE=branch' not in text
+    # the other experiments have neither
+    text = get_create_case_script(
+        'ocean3', GRIDS, COUNTS, LAYOUT, 'chrysalis', 'gnu'
+    )
+    assert './preview_namelists' not in text.splitlines()
+    assert 'RUN_TYPE=branch' not in text
+
+
+def test_create_case_script_needs_the_iceocean1r_restart(tmp_path):
+    script = tmp_path / 'create_case.sh'
+    script.write_text(
+        get_create_case_script('iceocean1ra', GRIDS, COUNTS, LAYOUT, '', 'gnu')
+    )
+    result = subprocess.run(
+        ['bash', str(script), '-e', 'e3sm', '-c', str(tmp_path / 'case')],
+        text=True,
+        capture_output=True,
+    )
+    assert result.returncode != 0
+    assert 'usage' in result.stderr
+
+
+def test_readme_describes_the_branch_run():
+    text = get_readme('iceocean1ra', GRIDS, ['layout: 64 tasks'])
+    assert '-R <iceocean1r case directory> -d <YYYY-MM-DD>' in text
+    assert 'branch run' in text
+    assert 'edit_streams.py' in text
+    text = get_readme('ocean0', GRIDS, ['layout: 64 tasks'])
+    assert 'branch run' not in text
+    assert 'edit_streams.py' not in text

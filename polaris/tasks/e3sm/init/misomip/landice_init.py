@@ -35,6 +35,9 @@ INPUT_GEOMETRY = {
     'iceocean1r': None,
 }
 
+#: The experiments that continue from another experiment's E3SM restart
+CONTINUES_FROM = {'iceocean1ra': 'iceocean1r'}
+
 #: MALI's time at the start of the E3SM runs
 START_XTIME = '00001-01-01_00:00:00'
 
