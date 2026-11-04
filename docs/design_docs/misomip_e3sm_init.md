@@ -407,7 +407,11 @@ Each experiment's case configuration holds:
   - for IceOcean1r and IceOcean1ra, MALI's Albany input, the MISMIP+
     tasks' file, and the MISMIP+ tasks' MALI options with those of their
     Ice1r run, less the melt under floating ice, which E3SM takes from the
-    ocean;
+    ocean. Where E3SM's MALI defaults differ from MALI's own, which the
+    MISMIP+ tasks run with, MALI's are written: no thermal solver, tracer
+    advection, ISMIP6 or face melt, or regional statistics, and MALI's
+    calving defaults. The rest keep E3SM's values for coupling, run
+    control or output;
   - `shell_commands` with the XML changes: the case variables that name
     the initial conditions, the ocean's interior restoring and tidal mask,
     the data-mode file and partitions, the time of the data-mode file's
@@ -807,8 +811,11 @@ minimum, and MALI's goal and bounds apply only when MALI is prognostic.
 For IceOcean1r and IceOcean1ra, `edit_streams.py` edits synthetic
 streams files as above, stops without a stream or Registry field it needs
 and refuses a linked SourceMods, `user_nl_mali`
-names each option once, and IceOcean1ra's script branches from the
-restarts and names IceOcean1r's initial conditions.
+names each option once and accounts for every MALI option whose E3SM
+default differs from MALI's, and IceOcean1ra's script branches from the
+restarts and names IceOcean1r's initial conditions. The namelist E3SM
+builds for IceOcean1r differs from the standalone Ice1r run's only in
+coupling, run control, output and options one MALI version lacks.
 A 5-day Ocean0 case at 4 km on Chrysalis runs on 1 node and is bit for
 bit with the same case before the change.
 
