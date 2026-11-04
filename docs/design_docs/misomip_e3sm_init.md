@@ -805,7 +805,8 @@ The task count follows the rule for a batch system and a single node,
 including a count the partitions do not cover and a machine below the
 minimum, and MALI's goal and bounds apply only when MALI is prognostic.
 For IceOcean1r and IceOcean1ra, `edit_streams.py` edits synthetic
-streams files as above and refuses a linked SourceMods, `user_nl_mali`
+streams files as above, stops without a stream or Registry field it needs
+and refuses a linked SourceMods, `user_nl_mali`
 names each option once, and IceOcean1ra's script branches from the
 restarts and names IceOcean1r's initial conditions.
 A 5-day Ocean0 case at 4 km on Chrysalis runs on 1 node and is bit for
@@ -1077,7 +1078,9 @@ directory into the case's SourceMods and edits them:
 - a daily MALI stream holds `floatingBasalMassBal` and
   `floatingBasalMassBalApplied`.
 
-Ocean0–4 keep E3SM's streams.
+The script stops, writing nothing, if E3SM's streams lack a stream it
+edits or the case's E3SM Registry files a field it adds. Ocean0–4 keep
+E3SM's streams.
 
 ```{admonition} Rationale
 The melt MALI applies must be checked against the melt the ocean sends,
