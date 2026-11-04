@@ -20,6 +20,8 @@ from polaris.constants.pcd import (
         ('water_triple_point_pressure', 611.655),
         ('seawater_specific_heat_capacity_teos10', 3991.86795711963),
         ('ocean_reference_salinity_teos10', 35.16504),
+        ('seconds_per_day', 86400),
+        ('iron_molar_mass_reference', 0.055845),
     ],
 )
 def test_get_constant_expected_values(name, expected):
