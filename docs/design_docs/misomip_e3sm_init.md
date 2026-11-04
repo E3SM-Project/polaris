@@ -233,16 +233,18 @@ between the ocean (ocn) and MALI (glc):
 | Coupler variable          | What the coupler maps with it             | Method       |
 |---------------------------|-------------------------------------------|--------------|
 | `GLC2OCN_FMAPNAME`        | MALI's fluxes and the floating fraction that normalizes the melt sent to MALI | conservative |
-| `GLC2OCN_SMAPNAME`        | MALI's geometry: the below-sea-level mask, pressure and ice masks | conservative, smoothed |
+| `GLC2OCN_SHELF_SMAPNAME`  | MALI's geometry: the below-sea-level mask, pressure and ice masks | conservative, smoothed |
+| `GLC2OCN_SMAPNAME`        | MALI's other states                       | conservative |
 | `OCN2GLC_SHELF_FMAPNAME`  | melt flux                                 | conservative |
 | `OCN2GLC_SHELF_SMAPNAME`  | interface temperature and its weight      | conservative |
 
-`GLC2OCN_SMAPNAME` is the map $R$ that carries MALI's geometry to the
-ocean: a conservative map onto ocean cells inflated by one cell width
-([D4](#decisions)). `GLC2OCN_FMAPNAME` is the conservative map without
-inflation. The coupler maps MALI's geometry with `GLC2OCN_SMAPNAME` only
-with the E3SM changes; before them, it maps everything with
-`GLC2OCN_FMAPNAME`. With ice-shelf coupling,
+`GLC2OCN_SHELF_SMAPNAME` is the map $R$ that carries MALI's geometry to
+the ocean: a conservative map onto ocean cells inflated by one cell width
+([D4](#decisions)). `GLC2OCN_FMAPNAME` and `GLC2OCN_SMAPNAME` are the
+conservative map without inflation. `GLC2OCN_SHELF_SMAPNAME` is a case
+variable of the E3SM changes, not a map between a pair of grids, so
+`shell_commands` sets it. Its default maps the geometry with
+`GLC2OCN_FMAPNAME`, so other configurations do not change. With ice-shelf coupling,
 `GLC2OCN_ICE_RMAPNAME` is not read, and `OCN2GLC_TF_SMAPNAME` is read only
 with thermal-forcing coupling, which these runs leave off. Neither is
 built.
@@ -414,7 +416,8 @@ Each experiment's case configuration holds:
     control or output;
   - `shell_commands` with the XML changes: the case variables that name
     the initial conditions, the ocean's interior restoring and tidal mask,
-    the data-mode file and partitions, the time of the data-mode file's
+    the data-mode file and partitions, the smoothed map
+    (`GLC2OCN_SHELF_SMAPNAME`), the time of the data-mode file's
     first record, from which MALI counts its months, for a prognostic MALI
     no ocean thermal forcing (`GLC_NZOC=0`), since the melt comes through
     ice-shelf coupling, MALI's runoff to the ocean turned off, the coupler's budgets turned on, the coupling
@@ -816,7 +819,8 @@ names each option once and accounts for every MALI option whose E3SM
 default differs from MALI's, and IceOcean1ra's script branches from the
 restarts and names IceOcean1r's initial conditions. The namelist E3SM
 builds for IceOcean1r differs from the standalone Ice1r run's only in
-coupling, run control, output and options one MALI version lacks.
+coupling, run control, output and options E3SM's MALI namelist
+definition lacks, whose MALI defaults equal Ice1r's.
 A 5-day Ocean0 case at 4 km on Chrysalis runs on 1 node and is bit for
 bit with the same case before the change.
 
@@ -936,7 +940,7 @@ initial condition's land-ice fields come from the map the coupler uses.
 
 *Effect:* the ocean follows MALI ([D1](#decisions)) through the smoothed
 map. Smoothing needs the E3SM changes to map MALI's geometry with
-`GLC2OCN_SMAPNAME`.
+`GLC2OCN_SHELF_SMAPNAME`.
 
 Rejected:
 
