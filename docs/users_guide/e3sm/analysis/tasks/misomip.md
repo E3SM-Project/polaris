@@ -126,12 +126,13 @@ compares the net mass flux out of the ice shelves that the ocean sends with
 the melt MALI applies, each from its own model's output.  The ocean sends
 its melt less the frazil under the land ice, and only where MALI floats
 more than `config_glc_ice_shelf_coupling_min_floating_fraction`.  MALI's
-global statistics give the melt it applies in each time step.  MALI
-applies over each glc coupling interval what the ocean sent over the one
-before, so each month of the ocean's means is compared with MALI's month
-one interval later.  Where the case writes the ocean's daily means, days
-are compared too, and the step's log gives the RMS difference with MALI
-0, 1 and 2 intervals later, which confirms the shift.  Without
+global statistics give the melt it applies in each time step.  MALI's
+step over each glc coupling interval applies the coupler's average of what
+the ocean sent over the same interval, so each month of the ocean's means
+is compared with the same month in MALI.  Where the case writes the
+ocean's daily means, days are compared too, and the step's log gives the
+RMS difference with MALI 0, 1 and 2 intervals later, which confirms the
+alignment.  Without
 `landIceFreshwaterFluxNotSentToGlc` in the ocean's output, the flux sent
 is estimated from the floating fraction MALI gives the ocean, and the plots
 say so.  `model_exchange.csv` lists every period, and a period that

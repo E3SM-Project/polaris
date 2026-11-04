@@ -27,8 +27,8 @@ compares the two runs' diagnostics, and
 reads the coupler's budgets.  In the coupled experiments, IceOcean1r and
 IceOcean1ra,
 {py:class}`polaris.tasks.e3sm.analysis.misomip.exchange.ModelExchange`
-compares the flux the ocean sends with the melt MALI applies one glc
-coupling interval later, from MALI's global statistics, and
+compares the flux the ocean sends with the melt MALI applies over the
+same period, from MALI's global statistics, and
 {py:class}`polaris.tasks.e3sm.analysis.misomip.ice_sheet.IceSheetComparison`
 compares MALI's ice sheet with standalone MALI runs of MISMIP+ and the
 entries of Cornford et al. (2020), which
