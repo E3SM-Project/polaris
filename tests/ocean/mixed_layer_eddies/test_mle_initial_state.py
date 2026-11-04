@@ -70,16 +70,22 @@ def test_fronts_are_periodic_and_centered(config):
     center = anomaly.isel(nCells=4)
     assert float(anomaly.isel(nCells=5)) > float(center)
     # Delta rho_y Y_S - Delta rho_z, with Y_S = 0 at the front
-    assert float(center) == pytest.approx(-1.5, rel=1e-4)
+    offset = config['mixed_layer_eddies'].getfloat(
+        'mixed_layer_density_offset'
+    )
+    assert float(center) == pytest.approx(-offset, rel=1e-4)
 
 
 def test_anomaly_tapers_at_the_mixed_layer_base(config):
     y_period = 200.0e3
+    section = config['mixed_layer_eddies']
+    offset = section.getfloat('mixed_layer_density_offset')
+    ml_depth = section.getfloat('mixed_layer_depth')
     y = xr.DataArray([0.5 * y_period], dims=('nCells',))
-    z = xr.DataArray([0.0, -30.0, -60.0], dims=('nVertLevels',))
+    z = xr.DataArray([0.0, -ml_depth, -2.0 * ml_depth], dims=('nVertLevels',))
     anomaly = compute_density_anomaly(config, y, z, y_period)
     anomaly = anomaly.isel(nCells=0).values
     # full offset at the surface, half at H_m, none well below
-    assert anomaly[0] == pytest.approx(-1.5, rel=1e-4)
-    assert anomaly[1] == pytest.approx(-0.75, rel=1e-6)
+    assert anomaly[0] == pytest.approx(-offset, rel=1e-4)
+    assert anomaly[1] == pytest.approx(-0.5 * offset, rel=1e-6)
     assert abs(anomaly[2]) < 1e-4

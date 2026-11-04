@@ -21,8 +21,12 @@ PUBLISH_SUBDIR = 'analysis/publish'
 
 
 def _make_component():
+    """The analysis tasks, set up for years 1 to 10 of both ranges"""
     component = Ocean()
     add_analysis_tasks(component)
+    _set_range(component, 'ocean_analysis_climatology', 1, 10)
+    _set_range(component, 'ocean_analysis_time_series', 1, 10)
+    _configure(component, TASK_SUBDIRS)
     return component
 
 

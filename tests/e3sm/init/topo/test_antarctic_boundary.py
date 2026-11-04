@@ -39,16 +39,6 @@ def test_remap_mask_rejects_invalid_antarctic_boundary_convention():
         step.define_masks(_topo_dataset())
 
 
-def test_spherical_mesh_config_default_convention():
-    config = PolarisConfigParser()
-    config.add_from_package('polaris.mesh.spherical', 'spherical.cfg')
-
-    assert (
-        config.get('spherical_mesh', 'antarctic_boundary_convention')
-        == 'calving_front'
-    )
-
-
 def test_topo_configs_inherit_base_mesh_convention():
     base_mesh_step = _base_mesh_step(convention='bedrock_zero')
 

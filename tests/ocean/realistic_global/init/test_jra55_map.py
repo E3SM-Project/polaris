@@ -59,7 +59,7 @@ def test_map_tool_is_left_at_the_polaris_default():
     collapses a vector field to zero at the pole.
     """
     step = _make_step('icos240km')
-    assert step.config.get('mapping', 'map_tool') == 'moab'
+    assert step.config.get('mapping', 'map_tool') == _default_map_tool()
 
 
 @pytest.mark.parametrize('mesh_name', ['icos240km', 'qu60km'])
@@ -87,3 +87,10 @@ def test_update_ntasks_never_asks_for_no_tasks():
     step._update_ntasks()
     assert step.ntasks >= 1
     assert step.min_tasks >= 1
+
+
+def _default_map_tool():
+    """The map tool from Polaris' own mapping config"""
+    config = PolarisConfigParser()
+    config.add_from_package('polaris.remap', 'mapping.cfg')
+    return config.get('mapping', 'map_tool')

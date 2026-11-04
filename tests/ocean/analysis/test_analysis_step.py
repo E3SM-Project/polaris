@@ -10,6 +10,7 @@ from polaris.analysis.manifest import (
 )
 from polaris.tasks.ocean import Ocean
 from polaris.tasks.ocean.analysis import add_analysis_tasks
+from polaris.tasks.ocean.analysis.sim_files import year_range_key
 
 
 def _make_component():
@@ -47,7 +48,8 @@ def test_a_step_that_makes_products_writes_a_fragment_before_it_runs(
     manifest = read_fragment(_fragment(step))
     assert manifest.products == []
     # the work directory names the range as well as the product
-    assert manifest.step_name == 'analysis/moc/0001-0010'
+    key = year_range_key(step.start_year, step.end_year)
+    assert manifest.step_name == f'analysis/moc/{key}'
 
 
 def test_the_fragment_is_current_as_each_product_is_described(tmp_path):

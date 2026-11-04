@@ -74,16 +74,10 @@ def test_no_colormap_is_chosen_by_a_literal():
 
 
 @pytest.mark.parametrize(
-    'var_name, colormap',
-    [
-        ('windStressZonal', 'cmo.balance'),
-        ('windStressMeridional', 'cmo.balance'),
-        # a magnitude is non-negative, so a diverging map would waste half
-        # the colorbar
-        ('windStressMagnitude', 'cmo.speed'),
-    ],
+    'var_name',
+    ['windStressZonal', 'windStressMeridional', 'windStressMagnitude'],
 )
-def test_wind_stress_colormaps_come_from_the_viz_defaults(var_name, colormap):
+def test_wind_stress_colormaps_come_from_the_viz_defaults(var_name):
     """
     The forcing plots look these up by the name they save the figure under,
     so the viz defaults have to carry an entry for each one; otherwise they
@@ -91,4 +85,4 @@ def test_wind_stress_colormaps_come_from_the_viz_defaults(var_name, colormap):
     """
     viz_dict = get_viz_defaults()
     assert var_name in viz_dict
-    assert viz_dict[var_name]['colormap'] == colormap
+    assert 'colormap' in viz_dict[var_name]

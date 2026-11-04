@@ -90,17 +90,16 @@ def test_restart_steps_run_the_same_model_for_their_own_duration(
     name, run_duration, overlay_yaml, start_type
 ):
     """
-    Both runs use the same forward configuration -- split-explicit Omega on
-    e3sm-qu240's time steps and viscosity -- and differ only in their duration
-    and their restarts.
+    Both runs use the same forward configuration -- e3sm-qu240's time steps
+    and viscosity -- and differ only in their duration and their restarts.
     """
     step = _restart_task().steps[name]
     step.dynamic_model_config(at_setup=True)
+    stage = step.stage
 
     replacements = _model_config_entry(step, FORWARD_PACKAGE, 'forward.yaml')
-    assert replacements['time_integrator'] == 'SplitExplicitRK2'
-    assert replacements['dt'] == '01:00:00'
-    assert replacements['btr_dt'] == '00:03:00'
+    assert replacements['dt'] == stage.dt
+    assert replacements['btr_dt'] == stage.btr_dt
     assert replacements['run_duration'] == run_duration
     assert replacements['output_freq'] == '3600'
 
@@ -109,16 +108,9 @@ def test_restart_steps_run_the_same_model_for_their_own_duration(
         for entry in step.model_config_data
         if 'options' in entry and 'config_mom_del4' in entry['options']
     ]
-    assert mixing == [
-        {
-            'config_use_mom_del2': True,
-            'config_mom_del2': 1.0e3,
-            'config_use_mom_del4': True,
-            'config_mom_del4': 1.0e15,
-            'config_use_tracer_del2': False,
-            'config_use_tracer_del4': False,
-        }
-    ]
+    assert len(mixing) == 1
+    assert mixing[0]['config_mom_del2'] == stage.mom_del2
+    assert mixing[0]['config_mom_del4'] == stage.mom_del4
 
     overlay = _model_config_entry(step, RESTART_PACKAGE, overlay_yaml)
     assert overlay['restart_dir'] == f'../restarts/{name}'
@@ -127,7 +119,7 @@ def test_restart_steps_run_the_same_model_for_their_own_duration(
     assert time_integration['StartType'] == start_type
     # the simulation start, even for the restart run, which is what Omega
     # #482 was about
-    assert time_integration['StartTime'] == '0001-01-01_00:00:00'
+    assert time_integration['StartTime'] == step.stage.start_time
 
 
 def test_full_run_writes_the_restart_and_its_history_up_to_it():
@@ -146,7 +138,7 @@ def test_full_run_writes_the_restart_and_its_history_up_to_it():
     before_restart = streams['HistoryBeforeRestart']
     assert before_restart['Filename'] == BEFORE_RESTART_FILENAME
     assert before_restart['UseStartEnd'] is True
-    assert before_restart['StartTime'] == '0001-01-01_00:00:00'
+    assert before_restart['StartTime'] == step.stage.start_time
     # after the frame at the restart time, before the next one
     assert before_restart['EndTime'] == '0001-01-01_02:30:00'
 

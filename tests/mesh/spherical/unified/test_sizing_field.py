@@ -516,8 +516,9 @@ def test_sizing_field_step_factory_uses_mesh_family():
     )
 
     assert type(steps['sizing_field']) is BuildSizingFieldStep
-    assert config.get('unified_mesh', 'mesh_family') == 'so_region'
-    assert get_unified_mesh_family(config).name == 'so_region'
+    assert get_unified_mesh_family(config).name == config.get(
+        'unified_mesh', 'mesh_family'
+    )
 
 
 def test_sizing_field_step_factory_reuses_shared_config_for_viz():

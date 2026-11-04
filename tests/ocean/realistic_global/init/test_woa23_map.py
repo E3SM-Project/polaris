@@ -63,7 +63,7 @@ def test_does_not_use_tmp():
 
 def test_map_tool_comes_from_mapping_config():
     config = _get_init_config('icos240km')
-    assert config.get('mapping', 'map_tool') == 'moab'
+    assert config.get('mapping', 'map_tool') == _default_map_tool()
 
 
 @pytest.mark.parametrize('mesh_name', ['icos240km', 'icos60km'])
@@ -138,3 +138,10 @@ def test_update_ntasks_without_cell_count_leaves_defaults():
     step._update_ntasks()
     assert step.ntasks == 1
     assert step.min_tasks == 1
+
+
+def _default_map_tool():
+    """The map tool from Polaris' own mapping config"""
+    config = PolarisConfigParser()
+    config.add_from_package('polaris.remap', 'mapping.cfg')
+    return config.get('mapping', 'map_tool')

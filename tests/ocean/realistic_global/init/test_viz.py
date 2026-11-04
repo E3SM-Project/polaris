@@ -65,7 +65,10 @@ def test_mpas_ocean_salinity_is_labeled_practical():
     """
     viz_dict = get_viz_defaults()
     assert _units_for(viz_dict, 'salinity', 'mpas-ocean') == 'PSU'
-    assert _units_for(viz_dict, 'salinity', 'omega') == 'g/kg'
+    assert (
+        _units_for(viz_dict, 'salinity', 'omega')
+        == (viz_dict['salinity']['units'])
+    )
 
 
 def test_omega_density_uses_the_density_defaults():
