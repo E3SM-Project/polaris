@@ -16,7 +16,22 @@ from polaris.e3sm.analysis.runs import (
 MESH_NAMES = ['misomip-o4km-li1km', 'misomip-o2km-li1km']
 
 #: The experiments analyzed
-EXPERIMENTS = ['ocean0', 'ocean1', 'ocean2', 'ocean3', 'ocean4']
+EXPERIMENTS = [
+    'ocean0',
+    'ocean1',
+    'ocean2',
+    'ocean3',
+    'ocean4',
+    'iceocean1r',
+    'iceocean1ra',
+]
+
+#: The experiments in which MALI evolves, coupled to the ocean
+COUPLED_EXPERIMENTS = ['iceocean1r', 'iceocean1ra']
+
+#: The experiments that continue from the end of another, whose initial
+#: conditions hold their meshes and MALI's bed
+CONTINUES_FROM = {'iceocean1ra': 'iceocean1r'}
 
 #: The kinds of run, each a config option per experiment
 RUN_KINDS = {'e3sm': 'e3sm_case', 'standalone': 'standalone'}
@@ -24,6 +39,9 @@ RUN_KINDS = {'e3sm': 'e3sm_case', 'standalone': 'standalone'}
 #: The ocean's stream of monthly means and of daily global statistics
 MONTHLY_STREAM = 'timeSeriesStatsMonthlyOutput'
 DAILY_STREAM = 'globalStatsOutput'
+
+#: The ocean's stream of daily means, which a run may write
+DAILY_MEANS_STREAM = 'timeSeriesStatsDailyOutput'
 
 
 class ConfiguredRun(NamedTuple):
@@ -46,6 +64,10 @@ class ConfiguredRun(NamedTuple):
 
     key : str
         The months they cover, such as ``0001-01_0001-12``
+
+    continues : ConfiguredRun or None
+        The run of the same kind that this one continues from, whose initial
+        conditions hold the meshes and MALI's bed, or ``None``
     """
 
     kind: str
@@ -53,6 +75,14 @@ class ConfiguredRun(NamedTuple):
     run: E3smRun | StandaloneRun
     monthly: list
     key: str
+    continues: 'ConfiguredRun | None' = None
+
+    @property
+    def initial_run(self):
+        """The run whose initial conditions this run's analysis reads"""
+        if self.continues is not None:
+            return self.continues.initial_run
+        return self.run
 
 
 def runs_section(mesh_name):
@@ -96,6 +126,11 @@ def get_configured_runs(config, mesh_name, experiment):
     analysis = config['misomip_analysis']
     start_year = analysis.getint('start_year')
     end_year = analysis.getint('end_year')
+    base_runs = dict()
+    if experiment in CONTINUES_FROM:
+        base_runs = get_configured_runs(
+            config, mesh_name, CONTINUES_FROM[experiment]
+        )
     runs = dict()
     for kind, suffix in RUN_KINDS.items():
         path = section.get(f'{experiment}_{suffix}', '').strip()
@@ -108,12 +143,23 @@ def get_configured_runs(config, mesh_name, experiment):
         monthly = select_months(
             run.find_stream_files(MONTHLY_STREAM), start_year, end_year
         )
+        continues = None
+        if experiment in CONTINUES_FROM:
+            base = CONTINUES_FROM[experiment]
+            if kind not in base_runs:
+                raise ValueError(
+                    f'{experiment} continues from {base}, whose initial '
+                    f'conditions hold its meshes, so set {base}_{suffix} in '
+                    f'[{runs_section(mesh_name)}] too.'
+                )
+            continues = base_runs[kind]
         runs[kind] = ConfiguredRun(
             kind=kind,
             path=path,
             run=run,
             monthly=monthly,
             key=month_range_key(monthly),
+            continues=continues,
         )
     return runs
 

@@ -5,6 +5,8 @@ from polaris.tasks.e3sm.analysis.misomip.conservation import (
     CouplerConservation,
 )
 from polaris.tasks.e3sm.analysis.misomip.diagnostics import RunDiagnostics
+from polaris.tasks.e3sm.analysis.misomip.exchange import ModelExchange
+from polaris.tasks.e3sm.analysis.misomip.ice_sheet import IceSheetComparison
 from polaris.tasks.e3sm.analysis.misomip.plots import RunPlots
 from polaris.tasks.e3sm.analysis.misomip.protocol import (
     ProtocolFields,
@@ -15,6 +17,7 @@ from polaris.tasks.e3sm.analysis.misomip.published import (
     PublishedComparison,
 )
 from polaris.tasks.e3sm.analysis.misomip.runs import (
+    COUPLED_EXPERIMENTS,
     get_configured_runs,
     get_mean_months,
     runs_section,
@@ -157,6 +160,26 @@ class MisomipAnalysisTask(Task):
                         diagnostics=diagnostics['e3sm'],
                     )
                 )
+            if self.experiment in COUPLED_EXPERIMENTS:
+                key = runs['e3sm'].key
+                products.append(
+                    self._add_shared_step(
+                        ModelExchange,
+                        f'{self.subdir}/e3sm/model_exchange_{key}',
+                        case=case,
+                        diagnostics=diagnostics['e3sm'],
+                    )
+                )
+                if diagnostics['e3sm'].landice_filenames:
+                    products.append(
+                        self._add_shared_step(
+                            IceSheetComparison,
+                            f'{self.subdir}/e3sm/ice_sheet_{key}',
+                            case=case,
+                            diagnostics=diagnostics['e3sm'],
+                            experiment=self.experiment,
+                        )
+                    )
         publish = MisomipPublish(
             component=self.component,
             subdir=f'{self.subdir}/publish',

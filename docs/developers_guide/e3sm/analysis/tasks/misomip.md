@@ -24,8 +24,18 @@ Each run gets two shared steps, named for the months it has:
 {py:class}`polaris.tasks.e3sm.analysis.misomip.comparison.RunComparison`
 compares the two runs' diagnostics, and
 {py:class}`polaris.tasks.e3sm.analysis.misomip.conservation.CouplerConservation`
-reads the coupler's budgets.  None of these reads model output twice: the
-comparison reads only the diagnostics steps' files.
+reads the coupler's budgets.  In the coupled experiments, IceOcean1r and
+IceOcean1ra,
+{py:class}`polaris.tasks.e3sm.analysis.misomip.exchange.ModelExchange`
+compares the flux the ocean sends with the melt MALI applies one glc
+coupling interval later, from MALI's global statistics, and
+{py:class}`polaris.tasks.e3sm.analysis.misomip.ice_sheet.IceSheetComparison`
+compares MALI's ice sheet with standalone MALI runs of MISMIP+ and the
+entries of Cornford et al. (2020), which
+`[misomip_analysis_mismip_plus]` names.  IceOcean1ra reads IceOcean1r's
+initial conditions, since it continues from IceOcean1r's restart.  None of
+these reads model output twice: the comparison reads only the diagnostics
+steps' files.
 {py:class}`polaris.tasks.e3sm.analysis.misomip.publish.MisomipPublish`
 publishes a task's products under its mesh and experiment.
 

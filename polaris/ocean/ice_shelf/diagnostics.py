@@ -582,6 +582,80 @@ def compute_grounding_line_band_diagnostics(
     return ds_diag
 
 
+def compute_flux_sent_to_land_ice(
+    area_cell,
+    ds,
+    land_ice_fraction,
+    coupled_floating_fraction,
+    min_floating_fraction,
+):
+    """
+    Compute the net mass flux out of the ice shelves that the ocean sends to
+    the land-ice model, from the ocean's own output
+
+    The ocean sends its melt less the frazil it forms under the land ice,
+    and only in cells where the land-ice model floats more than the minimum
+    fraction.  It keeps the rest, ``landIceFreshwaterFluxNotSentToGlc``.
+    Without that field, the cells the ocean sends from are estimated from
+    ``coupled_floating_fraction``, which misses cells whose fraction crosses
+    the minimum within an averaging interval.
+
+    Parameters
+    ----------
+    area_cell : xarray.DataArray
+        The area of each cell (m2)
+
+    ds : xarray.Dataset
+        A dataset with ``landIceFreshwaterFlux`` and optionally
+        ``frazilIceFreshwaterFlux`` and
+        ``landIceFreshwaterFluxNotSentToGlc`` (kg m-2 s-1), per unit area
+        of the cell
+
+    land_ice_fraction : xarray.DataArray
+        ``landIceFraction``, which marks the cells under land ice, where
+        frazil goes to the land-ice model
+
+    coupled_floating_fraction : xarray.DataArray
+        ``landIceGlcFloatingFraction``, the floating fraction the ocean
+        receives from the land-ice model
+
+    min_floating_fraction : float
+        The land-ice model's floating fraction above which the ocean and
+        land-ice model exchange melt, the namelist option
+        ``config_glc_ice_shelf_coupling_min_floating_fraction``
+
+    Returns
+    -------
+    ds_diag : xarray.Dataset
+        ``totalFluxSentToLandIce`` (kg s-1), positive for melt, with the
+        attribute ``estimated`` set to 1 if the cells it is sent from were
+        estimated
+    """
+    net = ds.landIceFreshwaterFlux
+    if 'frazilIceFreshwaterFlux' in ds:
+        net = net + ds.frazilIceFreshwaterFlux.where(
+            land_ice_fraction > 0.0, 0.0
+        )
+    estimated = 'landIceFreshwaterFluxNotSentToGlc' not in ds
+    if estimated:
+        sent = net.where(
+            coupled_floating_fraction > min_floating_fraction, 0.0
+        )
+    else:
+        sent = net - ds.landIceFreshwaterFluxNotSentToGlc
+    ds_diag = xr.Dataset()
+    ds_diag['totalFluxSentToLandIce'] = _area_sum(sent, area_cell)
+    ds_diag.totalFluxSentToLandIce.attrs = dict(
+        long_name=(
+            'net mass flux out of the ice shelves that the ocean sends to '
+            'the land-ice model'
+        ),
+        units='kg s-1',
+        estimated=int(estimated),
+    )
+    return ds_diag
+
+
 def _area_sum(field, area_cell):
     """Sum a field per unit area over the cells"""
     return (field * area_cell).sum(dim='nCells')
