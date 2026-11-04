@@ -12,6 +12,7 @@ from polaris.tasks.e3sm.init.misomip import get_misomip_experiment_steps
 from polaris.tasks.e3sm.init.misomip.case_config import (
     COMPONENTS,
     COMPSETS,
+    DAILY_COMPUTE_INTERVAL,
     DAILY_OCEAN_FIELDS,
     DAILY_SWITCH,
     DIN_LOC_ROOT,
@@ -593,8 +594,11 @@ def test_user_nl_mpaso_turns_on_the_daily_means_once():
         line for line in text.splitlines() if line.startswith(DAILY_SWITCH)
     ]
     assert switches == [f'{DAILY_SWITCH} = .true.']
+    # every time step, not E3SM's hourly samples
+    assert _options(text)[DAILY_COMPUTE_INTERVAL] == "'dt'"
     text = get_user_nl_mpaso(standalone, defaults, 1e-3)
     assert _options(text)[DAILY_SWITCH] == '.false.'
+    assert DAILY_COMPUTE_INTERVAL not in _options(text)
 
 
 def test_user_nl_mali_prognostic_takes_the_mismip_plus_options():

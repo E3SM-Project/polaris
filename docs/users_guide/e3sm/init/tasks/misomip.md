@@ -283,7 +283,8 @@ the streams files E3SM wrote into the case's SourceMods with more output:
 
 - the ocean's daily means of `landIceFreshwaterFlux`,
   `frazilIceFreshwaterFlux`, `landIceFreshwaterFluxNotSentToGlc` and
-  `landIceHeatFlux`, in place of E3SM's daily list, and
+  `landIceHeatFlux`, sampled every time step, in place of E3SM's daily
+  list and hourly samples, and
   `landIceFreshwaterFluxNotSentToGlc` in the monthly means;
 - MALI's history every month, with the MISMIP+ tasks' output fields and
   the mesh, and a daily MALI stream with `floatingBasalMassBal` and

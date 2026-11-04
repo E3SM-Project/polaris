@@ -144,6 +144,12 @@ E3SM_OCEAN_OPTIONS = {
 #: The MPAS-Ocean option that turns on the daily means
 DAILY_SWITCH = 'config_AM_timeSeriesStatsDaily_enable'
 
+#: The MPAS-Ocean option with the interval between the daily means'
+#: samples, every time step in place of E3SM's hourly samples, which alias
+#: fast changes in the melt.  E3SM's monthly means already sample every
+#: time step.
+DAILY_COMPUTE_INTERVAL = 'config_AM_timeSeriesStatsDaily_compute_interval'
+
 #: The MPAS-Ocean option with the land-ice fraction at or below which the
 #: import of MALI's geometry leaves a cell open ocean, written from
 #: ``[misomip_land_ice_on_ocean] min_land_ice_fraction``, so the initial
@@ -875,7 +881,8 @@ def get_user_nl_mpaso(
 
     daily_means : bool, optional
         Whether to turn on the daily means, of
-        :py:data:`DAILY_OCEAN_FIELDS`, for a case with a prognostic MALI
+        :py:data:`DAILY_OCEAN_FIELDS` sampled every time step, for a case
+        with a prognostic MALI
 
     Returns
     -------
@@ -900,6 +907,7 @@ def get_user_nl_mpaso(
     e3sm_only[MIN_FRACTION_OPTION] = f'{min_land_ice_fraction:g}'
     if daily_means:
         e3sm_only[DAILY_SWITCH] = '.true.'
+        e3sm_only[DAILY_COMPUTE_INTERVAL] = "'dt'"
 
     lines = [
         "! The standalone MPAS-Ocean run's options, written by Polaris",
