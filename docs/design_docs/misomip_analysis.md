@@ -299,7 +299,9 @@ MALI's standalone runs, against the years since each experiment started.
 Volume above flotation and grounded area come from each MALI run's global
 statistics. MALI writes history only at the end of a step, so a
 standalone run for the first years forces its steps to end on each month,
-and is labeled as such.
+and is labeled as such. The primary standalone reference is built from the
+coupled run's MALI source. Runs with another MALI version are secondary
+lines.
 
 **MISOMIP1's results.** A paper on MISOMIP1's results (Seroussi et al., in
 preparation) will serve IceOcean1r and IceOcean1ra as Yung et al. (2026)
