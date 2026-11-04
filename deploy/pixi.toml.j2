@@ -36,7 +36,7 @@ metis = "{{ metis }}.*"
 moab = {version = "{{ moab }}.*", build = "*_tempest_*"}
 mosaic = ">=1.3.0,<2.0.0"
 mpas_tools = "{{ mpas_tools }}.*"
-nco = "*"
+nco = "{{ nco }}.*"
 netcdf4 = {version = "*", build = "nompi_*"}
 numpy = ">=2.0,<3.0"
 {%- if platform == 'linux-64' %}
