@@ -254,11 +254,11 @@ IceOcean1ra, the net flux the ocean sends, $\sum (F + F_{fr} - F_{ns}) A$,
 is compared with the melt MALI applies, from MALI's global statistics at
 every time step. $F_{fr}$ is the frazil flux under the land ice, and
 $F_{ns}$ the flux the ocean keeps where MALI floats less than the
-coupling's minimum. MALI applies over each glc coupling interval the
-coupler's average of what the ocean sent over the one before. So each of
-the ocean's months, and each day where it writes daily means, is compared
-with the same period one interval later in MALI. Without $F_{ns}$ in the
-ocean's output, the cells it sends from are estimated from the mean
+coupling's minimum. MALI's step over each glc coupling interval applies
+the coupler's average of what the ocean sent over the same interval, as
+the first coupled run shows. So each of the ocean's months, and each day
+where it writes daily means, is compared with the same period in MALI.
+Without $F_{ns}$ in the ocean's output, the cells it sends from are estimated from the mean
 floating fraction MALI gives it, and the comparison is labeled as an
 estimate. A period that contains the initial start, or that MALI's steps
 do not yet cover, is reported apart.
