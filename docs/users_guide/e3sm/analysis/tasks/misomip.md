@@ -3,11 +3,11 @@
 # MISOMIP Analysis Tasks
 
 The `e3sm/analysis` `misomip` tasks analyze the ISOMIP+ experiments
-Ocean0–4 run in E3SM with MPAS-Ocean coupled to MALI, from the inputs and
-case configurations of the {ref}`e3sm-init-misomip-tasks`, and the
-standalone MPAS-Ocean runs on the same inputs.  They compare E3SM with the
-standalone run and check the coupler's budgets for the melt the two models
-exchange.
+Ocean0–4 and the MISOMIP1 experiments IceOcean1r and IceOcean1ra run in
+E3SM with MPAS-Ocean coupled to MALI, from the inputs and case
+configurations of the {ref}`e3sm-init-misomip-tasks`, and the standalone
+MPAS-Ocean runs on the same inputs.  They compare E3SM with the standalone
+run and check the coupler's budgets for the melt the two models exchange.
 
 ## Tasks
 
@@ -16,7 +16,10 @@ There is a task for each experiment on each pair of ocean and MALI meshes:
 - `e3sm/analysis/<mesh_name>/misomip/<experiment>`
 
 where `<mesh_name>` is `misomip-o4km-li1km` or `misomip-o2km-li1km` and
-`<experiment>` is one of `ocean0` through `ocean4`.
+`<experiment>` is one of `ocean0` through `ocean4`, `iceocean1r` or
+`iceocean1ra`.  IceOcean1ra continues from IceOcean1r's restart, so its
+task reads IceOcean1r's initial conditions and needs IceOcean1r's run in
+the config too.
 
 ## Pointing the tasks at runs
 
@@ -115,6 +118,43 @@ and annual budgets of a run don't close by that amount.  `exchange_residuals.csv
 in its `initial_start` column, and the step's log gives the largest
 residual of the others.  Daily budgets show whether the rest of the first
 month closes.
+
+## Coupled experiments
+
+In IceOcean1r and IceOcean1ra, where MALI evolves, a `model_exchange` step
+compares the net mass flux out of the ice shelves that the ocean sends with
+the melt MALI applies, each from its own model's output.  The ocean sends
+its melt less the frazil under the land ice, and only where MALI floats
+more than `config_glc_ice_shelf_coupling_min_floating_fraction`.  MALI's
+global statistics give the melt it applies in each time step.  MALI
+applies over each glc coupling interval what the ocean sent over the one
+before, so each month of the ocean's means is compared with MALI's month
+one interval later.  Where the case writes the ocean's daily means, days
+are compared too, and the step's log gives the RMS difference with MALI
+0, 1 and 2 intervals later, which confirms the shift.  Without
+`landIceFreshwaterFluxNotSentToGlc` in the ocean's output, the flux sent
+is estimated from the floating fraction MALI gives the ocean, and the plots
+say so.  `model_exchange.csv` lists every period, and a period that
+contains the initial start, or that MALI's steps do not yet cover, is
+reported apart.
+
+An `ice_sheet_comparison` step plots MALI's grounding line on the
+centerline, volume above flotation and grounded area against standalone
+MALI runs of the matching MISMIP+ experiment, Ice1r or Ice1ra, and the
+range of the entries of
+[Cornford et al. (2020)](https://doi.org/10.5194/tc-14-2283-2020), against
+the years since each experiment started.  The volume above flotation and
+grounded area come from each MALI run's global statistics.  MALI writes its
+history only at the end of a step, and the MISMIP+ runs take steps of
+several months, so a run with steps forced to end on each month gives the
+grounding line over the first years:
+
+```cfg
+[misomip_analysis_mismip_plus]
+cornford2020_dir = <work dir>/landice/mismip_plus/cornford2020
+ice1r_forward = <work dir>/landice/mismip_plus/1km/ice1r/forward
+ice1r_monthly_forward = <work dir of a run with monthly-forced steps>
+```
 
 ## Comparing experiments and resolutions
 

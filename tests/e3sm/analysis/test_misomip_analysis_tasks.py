@@ -278,3 +278,135 @@ def test_protocol_fields_are_written_only_on_request(tmp_path):
         f'{MESH}/misomip/ocean3/standalone/protocol_fields_0001-01_0001-01',
         f'{MESH}/misomip/ocean3/standalone/protocol_map',
     ]
+
+
+LANDICE_STREAMS = """<streams>
+<stream name="output"
+        type="output"
+        filename_template="{prefix}hist.$Y-$M-$D_$S.nc"
+        output_interval="0000-00-10_00:00:00">
+</stream>
+<stream name="globalStatsOutput"
+        type="output"
+        filename_template="{prefix}hist.am.globalStats.$Y-$M-$D.nc"
+        output_interval="0000_00:00:01">
+</stream>
+</streams>
+"""
+
+LANDICE_NAMELIST = """&physical_parameters
+    config_ice_density = 918.0
+    config_ocean_density = 1028.0
+/
+"""
+
+
+def _coupled_case(tmp_path, name, months):
+    """An E3SM case of a coupled experiment, in which MALI writes history
+    and global statistics"""
+    case_dir = str(tmp_path / f'{name}_case')
+    run_dir = str(tmp_path / f'{name}_run')
+    _write_case(
+        case_dir,
+        {
+            'env_run.xml': {
+                'CASE': name,
+                'RUNDIR': run_dir,
+                'DOUT_S_ROOT': str(tmp_path / f'{name}_archive'),
+                'MPASO_IC_FILE': str(tmp_path / f'{name}_ocean_ic.nc'),
+                'MALI_IC_FILE': str(tmp_path / f'{name}_mali_ic.nc'),
+                'BUDGETS': 'TRUE',
+                'RUN_TYPE': 'startup',
+                'RUN_STARTDATE': '0001-01-01',
+                'START_TOD': '0',
+                'NCPL_BASE_PERIOD': 'day',
+                'GLC_NCPL': '1',
+            }
+        },
+    )
+    _write_run(run_dir, f'{name}.mpaso.hist.am.', months, 'mpaso_in')
+    with open(os.path.join(run_dir, 'cpl.log.1.gz'), 'w'):
+        pass
+    prefix = f'{name}.mali.'
+    with open(os.path.join(run_dir, 'streams.landice'), 'w') as out:
+        out.write(LANDICE_STREAMS.format(prefix=prefix))
+    with open(os.path.join(run_dir, 'mali_in'), 'w') as out:
+        out.write(LANDICE_NAMELIST)
+    for month in months:
+        for stream in ['hist', 'hist.am.globalStats']:
+            suffix = '_00000' if stream == 'hist' else ''
+            filename = f'{prefix}{stream}.0001-{month:02d}-01{suffix}.nc'
+            with open(os.path.join(run_dir, filename), 'w'):
+                pass
+    return case_dir
+
+
+def _coupled_task(tmp_path, experiment, cases):
+    component = Component(name='e3sm/analysis')
+    add_misomip_analysis_tasks(component)
+    task = component.tasks[f'{MESH}/misomip/{experiment}']
+    for name, case_dir in cases.items():
+        task.config.set(
+            f'misomip_analysis_{MESH}',
+            f'{name}_e3sm_case',
+            case_dir,
+            user=True,
+        )
+    task.configure()
+    return task
+
+
+def test_a_coupled_run_compares_both_models_melt_and_ice_sheet(tmp_path):
+    """IceOcean1r's E3SM run gets the comparison of the melt the ocean sends
+    with what MALI applies, and of its ice sheet with MISMIP+, but no
+    comparison with Yung et al. (2026)."""
+    task = _coupled_task(
+        tmp_path,
+        'iceocean1r',
+        {'iceocean1r': _coupled_case(tmp_path, 'iceocean1r', [1, 2])},
+    )
+
+    assert sorted(_short_names(task)) == [
+        'conservation',
+        'e3sm_diagnostics',
+        'e3sm_plots',
+        'ice_sheet_comparison',
+        'model_exchange',
+        'publish',
+    ]
+    exchange = next(
+        step for step in task.steps.values() if step.name == 'model_exchange'
+    )
+    assert exchange.interval == 1.0
+    assert exchange.start == 0.0
+    assert len(exchange.stats_filenames) == 2
+
+
+def test_iceocean1ra_reads_iceocean1r_s_initial_conditions(tmp_path):
+    """IceOcean1ra continues from IceOcean1r's restart, so it needs
+    IceOcean1r's run for its meshes and MALI's bed."""
+    iceocean1ra = _coupled_case(tmp_path, 'iceocean1ra', [1])
+    with pytest.raises(ValueError, match='set iceocean1r_e3sm_case'):
+        _coupled_task(tmp_path, 'iceocean1ra', {'iceocean1ra': iceocean1ra})
+
+    task = _coupled_task(
+        tmp_path,
+        'iceocean1ra',
+        {
+            'iceocean1r': _coupled_case(tmp_path, 'iceocean1r', [1]),
+            'iceocean1ra': iceocean1ra,
+        },
+    )
+
+    diagnostics = next(
+        step
+        for step in task.steps.values()
+        if step.name.endswith('_e3sm_diagnostics_0001-01_0001-01')
+    )
+    targets = {
+        entry['filename']: entry['target'] for entry in diagnostics.input_data
+    }
+    assert targets['init.nc'] == str(tmp_path / 'iceocean1r_ocean_ic.nc')
+    assert targets['landice_init.nc'] == str(
+        tmp_path / 'iceocean1r_mali_ic.nc'
+    )

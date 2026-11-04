@@ -7,6 +7,7 @@ from mpas_tools.ocean import compute_barotropic_streamfunction
 
 from polaris import Step
 from polaris.constants import get_constant
+from polaris.e3sm.analysis.calendar import xtime_to_days
 from polaris.e3sm.analysis.runs import E3smRun
 from polaris.landice.diagnostics import (
     compute_volume_and_area,
@@ -16,6 +17,7 @@ from polaris.landice.diagnostics import (
 )
 from polaris.mpas.time_series_stats import rename_time_series_stats
 from polaris.ocean.ice_shelf.diagnostics import (
+    compute_flux_sent_to_land_ice,
     compute_grounding_line_band_diagnostics,
     compute_haline_driving,
     compute_melt_diagnostics,
@@ -33,6 +35,7 @@ from polaris.ocean.overturning import (
     get_line_edges,
 )
 from polaris.tasks.e3sm.analysis.misomip.runs import (
+    DAILY_MEANS_STREAM,
     DAILY_STREAM,
     get_mean_months,
 )
@@ -42,6 +45,7 @@ TIME_SERIES_FILENAME = 'time_series.nc'
 TIME_MEAN_FILENAME = 'time_mean.nc'
 MONTHLY_MAPS_FILENAME = 'monthly_maps.nc'
 DAILY_FILENAME = 'daily.nc'
+DAILY_EXCHANGE_FILENAME = 'daily_exchange.nc'
 INIT_FILENAME = 'init.nc'
 MESH_FILENAME = 'mesh.nc'
 LANDICE_FILENAME = 'landice.nc'
@@ -58,6 +62,9 @@ DAILY_FIELDS = [
     'salinityAvg',
     'kineticEnergyCellAvg',
 ]
+
+#: The prefix of the fields in the ocean's daily means
+DAILY_MEANS_PREFIX = 'timeDaily_avg_'
 
 #: The seconds in a year of 365 days
 SECONDS_PER_YEAR = 365.0 * 86400.0
@@ -80,6 +87,10 @@ class RunDiagnostics(Step):
 
     daily_filenames : list of str
         The local names of the files of daily global statistics, in order
+
+    daily_mean_filenames : list of str
+        The local names of the files of the ocean's daily means, in order,
+        empty if the run wrote none
 
     min_thickness : float
         The minimum thickness (m) of a layer from the run's namelist, which
@@ -131,10 +142,13 @@ class RunDiagnostics(Step):
         )
         self.experiment = experiment
         run = configured_run.run
+        initial_run = configured_run.initial_run
         self.add_input_file(
-            filename=INIT_FILENAME, target=run.initial_condition
+            filename=INIT_FILENAME, target=initial_run.initial_condition
         )
-        self.add_input_file(filename=MESH_FILENAME, target=run.mesh_file)
+        self.add_input_file(
+            filename=MESH_FILENAME, target=initial_run.mesh_file
+        )
         self.monthly_filenames = []
         for stream_file in configured_run.monthly:
             filename = os.path.join(
@@ -144,21 +158,19 @@ class RunDiagnostics(Step):
             self.monthly_filenames.append(filename)
         first = configured_run.monthly[0]
         last = configured_run.monthly[-1]
-        self.daily_filenames = []
-        for stream_file in run.find_stream_files(DAILY_STREAM):
-            if (
-                (first.year, first.month)
-                <= (
-                    stream_file.year,
-                    stream_file.month,
-                )
-                <= (last.year, last.month)
-            ):
-                filename = os.path.join(
-                    'daily', os.path.basename(stream_file.path)
-                )
-                self.add_input_file(filename=filename, target=stream_file.path)
-                self.daily_filenames.append(filename)
+        self.daily_filenames = self._add_daily_inputs(
+            run.find_stream_files(DAILY_STREAM), 'daily', first, last
+        )
+        try:
+            daily_means = run.find_stream_files(DAILY_MEANS_STREAM)
+        except ValueError:
+            # the run's streams file has no daily means
+            daily_means = []
+        self.daily_mean_filenames = self._add_daily_inputs(
+            daily_means, 'daily_means', first, last
+        )
+        if self.daily_mean_filenames:
+            self.add_output_file(filename=DAILY_EXCHANGE_FILENAME)
         self.min_thickness = _fortran_float(
             run.namelist_option('config_drying_min_cell_height')
         )
@@ -182,6 +194,23 @@ class RunDiagnostics(Step):
         if configured_run.kind == 'e3sm':
             self._add_landice_inputs(configured_run, first.year, last.year)
 
+    def _add_daily_inputs(self, stream_files, subdir, first, last):
+        """Link the daily files in the months of the first and last
+        monthly means"""
+        filenames = []
+        for stream_file in stream_files:
+            if (
+                (first.year, first.month)
+                <= (stream_file.year, stream_file.month)
+                <= (last.year, last.month)
+            ):
+                filename = os.path.join(
+                    subdir, os.path.basename(stream_file.path)
+                )
+                self.add_input_file(filename=filename, target=stream_file.path)
+                filenames.append(filename)
+        return filenames
+
     def _add_landice_inputs(self, configured_run, start_year, end_year):
         """Link MALI's initial condition and history, if it wrote any"""
         landice = E3smRun(configured_run.path, 'mali')
@@ -195,9 +224,15 @@ class RunDiagnostics(Step):
         ]
         if not stream_files:
             return
+        # a run that continues from another reads that run's initial
+        # condition, which holds MALI's mesh and bed
+        base = configured_run
+        while base.continues is not None:
+            base = base.continues
+        initial = E3smRun(base.path, 'mali')
         self.add_input_file(
             filename=LANDICE_INIT_FILENAME,
-            target=landice.initial_condition,
+            target=initial.initial_condition,
         )
         for stream_file in stream_files:
             filename = os.path.join(
@@ -286,6 +321,11 @@ class RunDiagnostics(Step):
 
         write_netcdf(self._daily(), DAILY_FILENAME)
 
+        if self.daily_mean_filenames:
+            write_netcdf(
+                self._daily_exchange(ds_init), DAILY_EXCHANGE_FILENAME
+            )
+
         if self.landice_filenames:
             section_y = section.getfloat('section_y')
             write_netcdf(self._landice(section_y), LANDICE_FILENAME)
@@ -319,6 +359,13 @@ class RunDiagnostics(Step):
             long_name=f'grounding line along y = {section_y:g} m', units='m'
         )
         ds_landice['daysSinceStart'] = ds.daysSinceStart.load()
+        ds_landice['daysSince0001'] = (
+            'Time',
+            xtime_to_days(ds.xtime.values),
+        )
+        ds_landice.daysSince0001.attrs = dict(
+            long_name='time of the record', units='days since 0001-01-01'
+        )
         for label, t_index in [('First', 0), ('Last', -1)]:
             x_gl, y_gl = grounding_line_points(haf.isel(Time=t_index), ds_mesh)
             ds_landice[f'xGroundingLine{label}'] = (
@@ -330,6 +377,91 @@ class RunDiagnostics(Step):
                 np.asarray(y_gl),
             )
         return ds_landice
+
+    def _daily_exchange(self, ds_init):
+        """
+        Compute the ocean's daily melt and the net flux it sends to the
+        land-ice model from its daily means
+        """
+        ds = rename_time_series_stats(
+            xr.open_mfdataset(
+                self.daily_mean_filenames,
+                combine='nested',
+                concat_dim='Time',
+                decode_times=False,
+                data_vars='minimal',
+            ),
+            prefix=DAILY_MEANS_PREFIX,
+        )
+        ds_exchange = xr.Dataset()
+        ds_exchange['dayStart'] = (
+            'Time',
+            xtime_to_days(ds.xtime_startDaily.values),
+        )
+        ds_exchange['dayEnd'] = (
+            'Time',
+            xtime_to_days(ds.xtime_endDaily.values),
+        )
+        for name in ['dayStart', 'dayEnd']:
+            ds_exchange[name].attrs = dict(
+                long_name=f'{name[3:].lower()} of the day',
+                units='days since 0001-01-01',
+            )
+        if 'landIceFreshwaterFlux' not in ds:
+            self.logger.info(
+                "The ocean's daily means have no landIceFreshwaterFlux, so "
+                'the daily exchange is not computed.'
+            )
+            return ds_exchange
+        fields = [
+            name
+            for name in [
+                'landIceFreshwaterFlux',
+                'frazilIceFreshwaterFlux',
+                'landIceFreshwaterFluxNotSentToGlc',
+                'landIceFraction',
+                'landIceGlcFloatingFraction',
+            ]
+            if name in ds
+        ]
+        ds = ds[fields].load()
+        area = ds_init.areaCell
+        ds_exchange['totalMeltFlux'] = (ds.landIceFreshwaterFlux * area).sum(
+            dim='nCells'
+        )
+        ds_exchange.totalMeltFlux.attrs = dict(
+            long_name='total melt flux', units='kg s-1'
+        )
+        if (
+            'landIceFreshwaterFluxNotSentToGlc' not in ds
+            and 'landIceGlcFloatingFraction' not in ds
+        ):
+            self.logger.info(
+                "The ocean's daily means have neither "
+                'landIceFreshwaterFluxNotSentToGlc nor '
+                'landIceGlcFloatingFraction, so the daily flux sent to the '
+                'land-ice model is not computed.'
+            )
+            return ds_exchange
+        land_ice_fraction = ds_init.landIceFraction
+        if 'landIceFraction' in ds:
+            land_ice_fraction = ds.landIceFraction
+        coupled = ds_init.landIceFloatingFraction
+        if 'landIceGlcFloatingFraction' in ds:
+            coupled = ds.landIceGlcFloatingFraction
+        ds_exchange = xr.merge(
+            [
+                ds_exchange,
+                compute_flux_sent_to_land_ice(
+                    area,
+                    ds,
+                    land_ice_fraction,
+                    coupled,
+                    self.min_floating_fraction,
+                ),
+            ]
+        )
+        return ds_exchange
 
     def _daily(self):
         """Gather the daily global statistics"""
@@ -523,6 +655,15 @@ def _time_series(
                 ds_init.yCell,
                 ds.landIceFreshwaterFlux,
                 geometry['landIceFloatingFraction'],
+                ds.landIceGlcFloatingFraction,
+                min_floating_fraction,
+            )
+        )
+        datasets.append(
+            compute_flux_sent_to_land_ice(
+                area,
+                ds,
+                geometry['landIceFraction'],
                 ds.landIceGlcFloatingFraction,
                 min_floating_fraction,
             )

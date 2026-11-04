@@ -36,6 +36,15 @@
    comparison.RunComparison.run
    conservation.CouplerConservation
    conservation.CouplerConservation.run
+   exchange.ModelExchange
+   exchange.ModelExchange.run
+   exchange.get_coupling_interval
+   exchange.read_landice_steps
+   exchange.compare_with_landice
+   ice_sheet.IceSheetComparison
+   ice_sheet.IceSheetComparison.setup
+   ice_sheet.IceSheetComparison.run
+   ice_sheet.read_landice_stats
    published.PublishedComparison
    published.PublishedComparison.run
    yung2026.Yung2026
@@ -89,6 +98,18 @@
    read_budget_tables
    read_initial_start
    budget_time_series
+```
+
+### calendar
+
+```{eval-rst}
+.. currentmodule:: polaris.e3sm.analysis.calendar
+
+.. autosummary::
+   :toctree: generated/
+
+   xtime_to_days
+   month_start_days
 ```
 
 ### runs

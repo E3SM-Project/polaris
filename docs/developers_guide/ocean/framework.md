@@ -826,7 +826,11 @@ height.  In a coupled run,
 {py:func}`polaris.ocean.ice_shelf.compute_grounding_line_band_diagnostics()`
 gives the land-ice model's floating area in cells the ocean holds at the
 thin film, next to the grounding line, and estimates the melt missed there
-from the melt rate per floating area of the nearest melting cell.
+from the melt rate per floating area of the nearest melting cell, and
+{py:func}`polaris.ocean.ice_shelf.compute_flux_sent_to_land_ice()` gives
+the net flux the ocean sends the land-ice model: its melt less the frazil
+under the land ice, less what it keeps where the land-ice model floats less
+than the coupling's minimum.
 {py:func}`polaris.ocean.ice_shelf.compute_open_ocean_ssh_diagnostics()`
 compares the open ocean's sea-surface height, relative to the restoring
 region's, with the height its density implies with no difference in
