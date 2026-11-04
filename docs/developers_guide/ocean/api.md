@@ -491,6 +491,10 @@
    MisomipForward
    MisomipForward.get_forcing_interval
    MisomipForward.dynamic_model_config
+
+   topo.get_smoothing_distance
+   topo.MisomipTopoMap
+   topo.MisomipTopoMap.runtime_setup
 ```
 
 ### inertial_gravity_wave

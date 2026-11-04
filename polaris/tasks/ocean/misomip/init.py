@@ -54,8 +54,8 @@ class MisomipInit(Init):
             writing ``ocean_mesh.nc``
 
         topo_step : polaris.Step
-            The step that remapped the protocol's bed to the ocean's mesh
-            without smoothing
+            The step that remapped the protocol's bed to the ocean's mesh,
+            smoothed as MALI's geometry is
 
         land_ice_fields_step : polaris.Step
             The step that computed the land-ice fields on the ocean's mesh,

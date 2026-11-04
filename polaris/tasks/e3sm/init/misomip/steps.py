@@ -18,7 +18,11 @@ from polaris.tasks.e3sm.init.misomip.landice_init import (
     InputMapStep,
     LandiceInitStep,
 )
-from polaris.tasks.e3sm.init.misomip.maps import MAPS, MapStep
+from polaris.tasks.e3sm.init.misomip.maps import (
+    MAPS,
+    SMOOTHED_MAP,
+    MapStep,
+)
 from polaris.tasks.e3sm.init.misomip.mesh import (
     LandiceMeshStep,
     OceanMeshStep,
@@ -32,6 +36,7 @@ from polaris.tasks.landice.mismip_plus.steps import (
 from polaris.tasks.mesh.planar.mismip_plus import get_mismip_plus_mesh_steps
 from polaris.tasks.ocean.isomip_plus import get_isomip_plus_mesh_steps
 from polaris.tasks.ocean.misomip import get_misomip_ocean_steps
+from polaris.tasks.ocean.misomip.topo import get_smoothing_distance
 
 #: The pairs of ocean and MALI meshes, with each one's resolution in km
 MESH_PAIRS = {
@@ -122,6 +127,7 @@ def get_misomip_mesh_steps(mesh_name):
             os.path.join('maps', map_name),
             map_name=map_name,
             mesh_steps=mesh_steps,
+            expand_distance=get_smoothing_distance(resolutions['ocean']),
         )
 
     graphs = {
@@ -192,7 +198,7 @@ def get_misomip_experiment_steps(mesh_name, experiment):
         LandIceOnOceanStep,
         os.path.join('misomip', source, 'land_ice_on_ocean'),
         landice_init_step=landice_steps['landice_init'],
-        map_step=steps['maps/landice_to_ocean_aave'],
+        map_step=steps[f'maps/{SMOOTHED_MAP}'],
         landice_data_step=landice_steps.get('landice_data'),
     )
     steps[f'{prefix}land_ice_on_ocean'] = land_ice_on_ocean

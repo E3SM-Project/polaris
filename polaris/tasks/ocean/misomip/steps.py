@@ -5,9 +5,13 @@ from polaris.ocean.ice_shelf import get_ssh_adjustment_steps
 from polaris.tasks.ocean import ocean
 from polaris.tasks.ocean.isomip_plus import get_isomip_plus_mesh_steps
 from polaris.tasks.ocean.isomip_plus.ssh_forward import SshForward
-from polaris.tasks.ocean.isomip_plus.topo import TopoMap, TopoRemap
+from polaris.tasks.ocean.isomip_plus.topo import TopoRemap
 from polaris.tasks.ocean.misomip.forward import MisomipForward
 from polaris.tasks.ocean.misomip.init import MisomipInit
+from polaris.tasks.ocean.misomip.topo import (
+    MisomipTopoMap,
+    get_smoothing_distance,
+)
 
 #: The name of the config file shared by an experiment's ocean steps
 CONFIG_FILENAME = 'misomip_ocean.cfg'
@@ -86,10 +90,9 @@ def get_misomip_ocean_steps(
     ]:
         steps[f'isomip_plus/{name}'] = mesh_steps[name]
 
-    # the protocol's bed, remapped without smoothing so that the ocean's
-    # grounding line stays where MALI's is
+    # the protocol's bed, smoothed as MALI's geometry is on the ocean
     topo_map = component.get_or_create_shared_step(
-        step_cls=TopoMap,
+        step_cls=MisomipTopoMap,
         subdir=os.path.join(pairdir, 'topo', 'map'),
         config=topo_config,
         config_filename=TOPO_CONFIG_FILENAME,
@@ -97,8 +100,7 @@ def get_misomip_ocean_steps(
         mesh_name=f'{mesh_name}_ocean',
         mesh_step=mesh_steps['topo/cull_mesh'],
         mesh_filename='culled_mesh.nc',
-        method='conserve',
-        smooth=False,
+        expand_distance=get_smoothing_distance(resolution),
     )
     topo_remap = component.get_or_create_shared_step(
         step_cls=TopoRemap,

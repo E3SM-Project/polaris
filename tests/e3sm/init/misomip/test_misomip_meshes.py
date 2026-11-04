@@ -198,7 +198,11 @@ def test_mesh_steps_are_shared():
         'ocean/planar/isomip_plus/4km/topo/cull_mesh'
     )
     assert steps['mismip_plus/mesh'].path == 'mesh/planar/mismip_plus/1km/mesh'
-    for map_name in ['landice_to_ocean_aave', 'ocean_to_landice_aave']:
+    for map_name in [
+        'landice_to_ocean_aave',
+        'landice_to_ocean_smoothed',
+        'ocean_to_landice_aave',
+    ]:
         assert f'maps/{map_name}' in steps
     assert steps['ocean_partitions'].basename == 'mpas-o.graph.info'
     assert steps['landice_partitions'].basename == 'mpasli.graph.info'

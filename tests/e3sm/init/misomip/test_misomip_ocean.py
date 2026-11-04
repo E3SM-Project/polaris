@@ -106,6 +106,27 @@ def test_misomip_init(tmp_path):
     assert 'cell_measures' not in ds_topo.bedrockTopography.attrs
 
 
+@pytest.mark.parametrize(
+    'mesh_name, expand_distance',
+    [('misomip-o4km-li1km', 4000.0), ('misomip-o2km-li1km', 2000.0)],
+)
+def test_bed_and_geometry_are_smoothed_alike(mesh_name, expand_distance):
+    steps, _ = get_misomip_experiment_steps(mesh_name, 'ocean0')
+    smoothed_map = steps['maps/landice_to_ocean_smoothed']
+    assert smoothed_map.smoothed
+    assert smoothed_map.expand_distance == expand_distance
+    assert steps['ocean/topo/map'].expand_distance == expand_distance
+    # the land-ice fields come from the smoothed map, the coupler's
+    # GLC2OCN_SMAPNAME
+    targets = [
+        entry['work_dir_target']
+        for entry in steps['land_ice_on_ocean'].input_data
+    ]
+    assert os.path.join(smoothed_map.path, 'map.nc') in targets
+    for name in ['landice_to_ocean_aave', 'ocean_to_landice_aave']:
+        assert not steps[f'maps/{name}'].smoothed
+
+
 def test_experiment_steps():
     mesh_name = 'misomip-o4km-li1km'
     steps, _ = get_misomip_experiment_steps(mesh_name, 'ocean3')

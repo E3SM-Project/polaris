@@ -11,7 +11,7 @@ inputdata tree:
     MALI's data-mode file for Ocean3 and Ocean4, MALI's grid's SCRIP file
     and its graph partitions
   * `cpl/gridmaps/<grid>/`: the conservative maps the coupler reads between
-    the ocean and MALI
+    the ocean and MALI, and the smoothed map of MALI's geometry to the ocean
 
 `case_config/<experiment>/` is not part of inputdata.  It holds the E3SM
 case configuration: a `user_mods/` directory to create a case with, which

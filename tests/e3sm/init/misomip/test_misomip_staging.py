@@ -99,6 +99,8 @@ def _expected(
         f'{date}.nc',
         f'{maps}/{LANDICE_GRID}/map_{LANDICE_GRID}_to_{OCEAN_GRID}_aave.'
         f'{date}.nc',
+        f'{maps}/{LANDICE_GRID}/map_{LANDICE_GRID}_to_{OCEAN_GRID}_smoothed.'
+        f'{date}.nc',
     }
     expected |= {
         f'{ocn}/partitions/mpas-o.graph.info.{date}.part.{n}' for n in NCORES

@@ -446,6 +446,10 @@ def test_grid_file():
         f'cpl/gridmaps/misomip-li1km/'
         f'map_misomip-li1km_to_misomip-o4km_aave.{DATE}.nc'
     )
+    glc_to_ocn_smoothed = (
+        f'cpl/gridmaps/misomip-li1km/'
+        f'map_misomip-li1km_to_misomip-o4km_smoothed.{DATE}.nc'
+    )
     ocn_to_glc = (
         f'cpl/gridmaps/misomip-o4km/'
         f'map_misomip-o4km_to_misomip-li1km_aave.{DATE}.nc'
@@ -454,7 +458,7 @@ def test_grid_file():
         'OCN2GLC_SHELF_FMAPNAME': ocn_to_glc,
         'OCN2GLC_SHELF_SMAPNAME': ocn_to_glc,
         'GLC2OCN_FMAPNAME': glc_to_ocn,
-        'GLC2OCN_SMAPNAME': glc_to_ocn,
+        'GLC2OCN_SMAPNAME': glc_to_ocn_smoothed,
     }
 
     text = get_grid_file(GRIDS, DATE, '/short/inputdata', counts)

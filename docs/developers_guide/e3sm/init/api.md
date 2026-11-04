@@ -326,6 +326,8 @@
    mesh.LandiceMeshStep
    mesh.LandiceMeshStep.run
 
+   maps.MAPS
+   maps.SMOOTHED_MAP
    maps.MapStep
    maps.MapStep.runtime_setup
 

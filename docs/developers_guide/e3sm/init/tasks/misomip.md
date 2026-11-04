@@ -29,10 +29,12 @@ The steps of the `e3sm/init` component are:
 - {py:class}`polaris.tasks.e3sm.init.misomip.mesh.LandiceMeshStep` gives
   MALI's mesh the projection's latitude and longitude and writes its SCRIP
   file, with the polygons of the cells on the walls trimmed to the walls.
-- {py:class}`polaris.tasks.e3sm.init.misomip.maps.MapStep` makes one of
-  the maps in `MAPS` from the two SCRIP files, through
-  {py:meth}`polaris.remap.MappingFileStep.src_from_scrip()` and
-  {py:meth}`polaris.remap.MappingFileStep.dst_from_scrip()`.
+- {py:class}`polaris.tasks.e3sm.init.misomip.maps.MapStep`, a
+  {py:class}`polaris.e3sm.init.glc_ocean_maps.GlcOceanMapStep`, makes one
+  of the maps in `MAPS`.  The conservative maps read the two SCRIP files.
+  `SMOOTHED_MAP` reads MALI's SCRIP file and the ocean's mesh, whose cells
+  are inflated by
+  {py:func}`polaris.tasks.ocean.misomip.topo.get_smoothing_distance()`.
 - Two {py:class}`polaris.e3sm.init.graph_partition.GraphPartitionStep`
   steps partition the ocean's graph, from `ocean_mesh`, and MALI's, from
   the MISMIP+ mesh step, with options from `[misomip_ocean_partitions]`

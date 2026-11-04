@@ -118,7 +118,7 @@ class MisomipAssembleStep(AssembleStep):
                 landice, experiment, date
             ),
         }
-        for map_name, (src, dst, _) in MAPS.items():
+        for map_name, (src, dst) in MAPS.items():
             method = map_name.rsplit('_', 1)[-1]
             paths[f'maps/{map_name}'] = names.map_path(
                 grids[src], grids[dst], method, date

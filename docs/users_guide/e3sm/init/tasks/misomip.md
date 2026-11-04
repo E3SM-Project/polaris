@@ -37,8 +37,12 @@ gets the global attribute `sphere_radius`.  In MALI's SCRIP file, the
 cells on the domain's walls, $y = 0$ and $y = 80$ km, are trimmed to the
 walls, since MALI's mesh gives them half a cell's area.
 
-The `maps` steps make the conservative maps between the two meshes that
-E3SM's coupler reads, in each direction.
+The `maps` steps make the maps between the two meshes that E3SM's coupler
+reads.  Conservative maps in each direction carry fluxes.  A smoothed map
+from MALI to the ocean carries MALI's geometry: it inflates each ocean cell
+by one cell width, 4 km for `misomip-o4km-li1km` and 2 km for
+`misomip-o2km-li1km`, which spreads the steps in the draft at the grounding
+line over neighboring cells.
 
 ## MALI's initial conditions and data-mode files
 
@@ -72,8 +76,8 @@ In E3SM, MPAS-Ocean takes its land-ice pressure and fractions from MALI
 through the coupler.  Its initial condition holds what the coupler delivers
 from MALI's initial geometry, so the first import changes nothing.  The
 `land_ice_on_ocean` step computes these fields as E3SM does: MALI's
-ice-shelf exports with E3SM's gravity, the conservative map from MALI to
-the ocean, and MPAS-Ocean's normalization by the part of each cell below
+ice-shelf exports with E3SM's gravity, the smoothed map from MALI to the
+ocean, and MPAS-Ocean's normalization by the part of each cell below
 sea level in MALI.  A cell with a land-ice fraction at or below
 `[misomip_land_ice_on_ocean] min_land_ice_fraction`, $10^{-3}$, is open
 ocean, with no land-ice pressure, fractions or mask, as MPAS-Ocean's
@@ -83,8 +87,8 @@ of MALI's data-mode file.
 The ocean steps are shared steps of the ocean component, in
 `ocean/planar/misomip/<mesh_name>/`:
 
-- `topo/map` and `topo/remap` remap the protocol's bed to the ocean's mesh
-  without smoothing, so the ocean's grounding line stays at MALI's;
+- `topo/map` and `topo/remap` remap the protocol's bed to the ocean's mesh,
+  smoothed over the same distance as MALI's geometry;
 - `<experiment>/init` builds the initial condition and forcing as the
   {ref}`ocean-isomip-plus` tasks with a thin film do, from these land-ice
   fields and with the projection's latitude and longitude.  The draft
@@ -162,6 +166,7 @@ assembled_files/
             map_misomip-o4km_to_misomip-li1km_aave.<date>.nc
         cpl/gridmaps/misomip-li1km/
             map_misomip-li1km_to_misomip-o4km_aave.<date>.nc
+            map_misomip-li1km_to_misomip-o4km_smoothed.<date>.nc
     case_config/ocean3/
         README
         create_case.sh
