@@ -115,3 +115,13 @@ def test_layout_lines():
     ]
     lines = get_layout_lines(layout, {'the ocean': OCEAN}, '')
     assert lines[2] == 'machine: a batch system of 64 tasks per node'
+
+
+def test_layout_lines_without_a_goal():
+    layout = _layout(CELLS['o8km'], 64)
+    lines = get_layout_lines(
+        layout, {'the ocean': OCEAN, 'MALI': (None, 100.0, 30000.0)}, ''
+    )
+    assert lines[1] == (
+        'MALI: no goal yet, with at least 100 and at most 30000 cells per task'
+    )

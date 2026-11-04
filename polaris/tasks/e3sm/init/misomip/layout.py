@@ -176,7 +176,8 @@ def get_layout_lines(layout, cells_per_task, machine):
         The layout
 
     cells_per_task : dict of str to tuple of float
-        The goal, minimum and maximum cells per task of each model whose
+        The goal, or ``None`` if there is none yet, minimum and maximum
+        cells per task of each model whose
         mesh limits the tasks, keyed by its name
 
     machine : str
@@ -190,6 +191,12 @@ def get_layout_lines(layout, cells_per_task, machine):
     """
     lines = []
     for model, (goal, low, high) in cells_per_task.items():
+        if goal is None:
+            lines.append(
+                f'{model}: no goal yet, with at least {low:g} and at most '
+                f'{high:g} cells per task'
+            )
+            continue
         lines.append(
             f'{model}: a goal of {goal:g} cells per task, with at least '
             f'{low:g} and at most {high:g}'

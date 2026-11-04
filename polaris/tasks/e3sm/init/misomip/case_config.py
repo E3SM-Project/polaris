@@ -470,12 +470,19 @@ class CaseConfigStep(Step):
         model_bounds = list()
         for grid in grids:
             section = config[PARTITION_SECTIONS[grid]]
-            goal = section.getfloat('goal_cells_per_core')
+            option = inputdata.get_nonempty_option(
+                config, PARTITION_SECTIONS[grid], 'goal_cells_per_core'
+            )
+            goal = None if option is None else float(option)
             low = section.getfloat('min_cells_per_core')
             high = section.getfloat('max_cells_per_core')
             cells_per_task[MODEL_NAMES[grid]] = (goal, low, high)
+            # without a goal, only the model's bounds apply: its target is
+            # its most tasks, so another model's target sets the tasks
             model_bounds.append(
-                get_task_bounds(cell_counts[grid], goal, low, high)
+                get_task_bounds(
+                    cell_counts[grid], low if goal is None else goal, low, high
+                )
             )
 
         # a batch system's node, not the cores of wherever the step runs,

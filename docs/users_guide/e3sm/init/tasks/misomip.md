@@ -357,8 +357,10 @@ task.  At 2 km, doubling sped a case by 1.57 times from 172 to 86 cells
 per task, and by 1.43 times from 86 to 43.
 
 The section `[misomip_landice_partitions]` sets the bounds for MALI,
-30000 and 100 by default.  They limit only MALI's partitions until a case
-has a prognostic MALI.
+30000 and 100 by default.  In `iceocean1r` and `iceocean1ra`, with a
+prognostic MALI, they also bound the case's tasks.  MALI's
+`goal_cells_per_core` is blank until prognostic cases give one, so the
+ocean's goal sets the target.
 
 The staged files are stamped with a creation date:
 
