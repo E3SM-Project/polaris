@@ -65,3 +65,46 @@ for water and salt, and W for heat. Values are read by position, as the
 Fortran format writes them, since a value that fills its field touches the
 one before it. A field the coupler could not fit, printed as asterisks, is
 NaN. A date in more than one table, as when a run restarts, takes the last.
+
+## Performance
+
+{py:mod}`polaris.e3sm.analysis.performance` reads what CIME and the driver
+write for each segment of a run, the job that runs one stretch of model
+time.  Each segment's files end in its LID, `<job ID>.<date>-<time>`:
+
+- {py:func}`polaris.e3sm.analysis.performance.find_timing_files` finds the
+  timing summary and timer statistics in the case's `timing` directory, in
+  the order the segments ran;
+- {py:func}`polaris.e3sm.analysis.performance.read_segment` reads a
+  segment's throughput, cost, start-up, run and finishing times, each
+  component's run time and the largest time of each timer, and takes the
+  segment's model period from its coupler log;
+- {py:func}`polaris.e3sm.analysis.performance.read_wall_clock_stamps`
+  reads the coupler's daily wall-clock stamps, as wall-clock seconds per
+  model day;
+- {py:func}`polaris.e3sm.analysis.performance.read_root_memory` reads the
+  memory of the coupler's root task from the coupler's logs, and
+  {py:func}`polaris.e3sm.analysis.performance.read_node_memory` reads the
+  memory of a root task's node from the driver's profiles at level 3;
+- {py:func}`polaris.e3sm.analysis.performance.read_slurm_jobs` reads each
+  job's queue wait and largest task memory from `sacct`, where Slurm's
+  accounting is available.
+
+```python
+from polaris.e3sm.analysis.performance import (
+    find_lid,
+    find_timing_files,
+    read_segment,
+)
+
+logs = {find_lid(path): path for path in case.find_logs('cpl')}
+segments = [
+    read_segment(summary, stats, logs[lid])
+    for lid, (summary, stats) in find_timing_files(case.case_dir).items()
+]
+```
+
+Each segment starts new processes, so memory records are kept for every
+segment, even where the last record of one and the first of the next share
+a model time.  A model day that a later segment runs again takes the later
+segment's wall-clock stamp.

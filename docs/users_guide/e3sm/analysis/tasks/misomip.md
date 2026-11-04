@@ -119,6 +119,31 @@ in its `initial_start` column, and the step's log gives the largest
 residual of the others.  Daily budgets show whether the rest of the first
 month closes.
 
+## Performance
+
+A `performance` step plots each E3SM run's performance over the segments
+of the run, the jobs that each run one stretch of model time.  It reads
+CIME's timing files in the case's `timing` directory, the coupler's logs
+and, with memory profiling at level 3, the driver's memory profiles:
+
+- `throughput.png`: simulated years per day over model time, for each
+  segment from its timing summary and for each model day from the
+  coupler's wall-clock stamps;
+- `run_time_breakdown.png`: each segment's wall-clock seconds per model
+  day, in parts: the ocean's time integration, its analysis members and the
+  rest of the ocean; MALI's build of its finite-element grid, the rest of its
+  velocity solve and the rest of MALI; and the coupler and driver;
+- `cost.png`: each segment's cost in processor hours per simulated year,
+  and the minutes it spends starting up, finishing and, from Slurm, waiting
+  in the queue;
+- `memory.png`: the memory of the coupler's root task over model time, each
+  segment its own line, with the largest task memory Slurm records, and the
+  memory of the task's node where the case profiles it.
+
+`performance.csv` lists each segment's numbers.  Queue waits and Slurm's
+memory are left out where `sacct` isn't available.  Set the task up again
+as a run goes on to add its new segments.
+
 ## Coupled experiments
 
 In IceOcean1r and IceOcean1ra, where MALI evolves, a `model_exchange` step

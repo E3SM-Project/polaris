@@ -36,6 +36,8 @@
    comparison.RunComparison.run
    conservation.CouplerConservation
    conservation.CouplerConservation.run
+   performance.RunPerformance
+   performance.RunPerformance.run
    exchange.ModelExchange
    exchange.ModelExchange.run
    exchange.get_coupling_interval
@@ -98,6 +100,30 @@
    read_budget_tables
    read_initial_start
    budget_time_series
+```
+
+### performance
+
+```{eval-rst}
+.. currentmodule:: polaris.e3sm.analysis.performance
+
+.. autosummary::
+   :toctree: generated/
+
+   Segment
+   WallClockStamps
+   Memory
+   Job
+   find_lid
+   find_timing_files
+   read_segment
+   read_timers
+   read_segment_period
+   read_wall_clock_stamps
+   read_root_memory
+   read_node_memory
+   read_slurm_jobs
+   date_to_days
 ```
 
 ### calendar
