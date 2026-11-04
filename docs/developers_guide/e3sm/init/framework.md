@@ -2,10 +2,11 @@
 
 # Framework
 
-The `e3sm/init` component includes a small amount of shared framework code in
-`polaris.e3sm.init.topo`. This framework defines supported source-topography
-resolutions and helper functions used by `e3sm/init` tasks and by other
-components that need the same resolution logic.
+The `e3sm/init` component includes a small amount of shared framework code.
+`polaris.e3sm.init.topo` defines supported source-topography resolutions and
+helper functions used by `e3sm/init` tasks and by other components that need
+the same resolution logic. `polaris.e3sm.init.glc_ocean_maps` makes the maps
+between a land-ice mesh and an ocean mesh that E3SM's coupler reads.
 
 ## Supported Resolutions
 
@@ -50,3 +51,20 @@ at least `LOW_RES_BASE_MESH_CELL_WIDTH`, currently `120.0` km.
 This separation keeps shared resolution logic in the component framework
 rather than in `polaris.tasks.e3sm.init`, which allows mesh and ocean
 workflows to reuse the same supported-resolution definitions.
+
+## Maps Between Land Ice and the Ocean
+
+{py:class}`polaris.e3sm.init.glc_ocean_maps.GlcOceanMapStep` makes a
+conservative map between a land-ice (glc) mesh and an ocean mesh, in either
+direction. The caller adds the step's input files, `glc_scrip.nc` and
+`ocn_scrip.nc`, and sets the mesh names, which give the map a unique name,
+either when the step is created or before its `runtime_setup()` runs.
+
+A map from the land ice to the ocean can be smoothed with `smoothed=True`.
+Each ocean cell is then inflated by `expand_distance` meters outward from its
+center before the cells are overlapped, so each land-ice cell is spread over
+the ocean cells within about that distance. pyremap inflates only the cells of
+a mesh, so a smoothed map reads the ocean's MPAS mesh from `ocn_mesh.nc`
+instead of its SCRIP file. A smoothed map can smooth the land-ice geometry the
+ocean sees, both in its initial condition and through the coupler, while the
+fluxes use the unsmoothed conservative map.

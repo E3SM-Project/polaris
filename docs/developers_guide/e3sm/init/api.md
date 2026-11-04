@@ -40,6 +40,18 @@
    uses_low_res_cubed_sphere
 ```
 
+### maps between land ice and the ocean
+
+```{eval-rst}
+.. currentmodule:: polaris.e3sm.init.glc_ocean_maps
+
+.. autosummary::
+   :toctree: generated/
+
+   GlcOceanMapStep
+   GlcOceanMapStep.runtime_setup
+```
+
 ### topo
 
 #### combine
