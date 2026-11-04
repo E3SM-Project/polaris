@@ -19,9 +19,18 @@ These instructions apply to the whole repository unless a deeper
   the load scripts, with `--compiler` for the compilers they need. Ask the
   developer before passing `--deploy-spack` or `--spack-path`, which build
   or replace Spack environments that may be shared.
-- Prefer running tools from `pixi-env/.pixi/envs/default/bin/` (for
-  example `python`, `pytest`, `pre-commit`, `ruff`, and `mypy`) instead
-  of relying on the system environment.
+- Run tools with `pixi-env` activated: source a `load_polaris_*.sh` script
+  from the repo root if there is one, and otherwise use
+  `pixi run --frozen --manifest-path pixi-env/pixi.toml <command>` (for
+  example `pytest`, `pre-commit`, `ruff` or `mypy`). Do not call a binary
+  under `pixi-env/.pixi/envs/default/bin/` by its path. That does not
+  activate the environment, so executables the tests run, such as
+  `MpasCellCuller.x`, are not on `PATH` and the tests fail with
+  `FileNotFoundError`.
+- If `import polaris` fails in the activated environment, the `./deploy.py`
+  that made it did not finish, because Polaris is installed after the
+  Spack step. Rerun it, or ask the developer if it cannot finish. Do not
+  work around it with `python -m pytest` or `PYTHONPATH`.
 - Only fall back to other Python environments if `pixi-env/` does not
   exist or is clearly incomplete.
 
