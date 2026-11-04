@@ -657,7 +657,9 @@ The excess came from the outer iteration: it converges with alternating
 sign, so the state handed to vertical mixing carries a residual whose sign
 depends on whether the number of iterations is odd or even, and switch-like
 mixing in near-neutral cavity water turns that sign into a systematic
-difference. Under-relaxing the iteration removes it ([D29](#decisions)).
+difference. No fix tried so far removes it without a cost or accuracy
+penalty, so split-explicit keeps two outer iterations and the excess is
+documented ([D29](#decisions)).
 
 ### WP3: Landice component
 
@@ -1599,34 +1601,37 @@ tasks pass on both partial-cell and earlier initial conditions.
 Rejected: capping the stage-3 edge thickness at the donor's; keeping the
 column-wise factors.
 
-### D29: Split-explicit under-relaxes its outer iteration
+### D29: Split-explicit keeps two outer iterations
 
 Date last modified: 2026/11/04
 
 Contributors: Xylar Asay-Davis, Claude
 
-An MPAS-Ocean option under-relaxes each non-final outer iteration of
-`split_explicit`: the state it hands to the next iteration (velocities,
-thicknesses and active tracers) moves only halfway from the previous
-hand-off toward its own result. The final iteration is unchanged. The
-option is off by default and on in MISOMIP's configurations, with the
-default two outer iterations.
+Split-explicit runs keep MPAS-Ocean's default two outer iterations, with
+no change to the iteration. In Ocean0, its melt then exceeds RK4's by
+about 9%, and that excess is documented with stage E's results.
 
 ```{admonition} Rationale
-Without it, the iteration converges with alternating sign, and Ocean0's
-melt excess over RK4 is +8.6% with two iterations, +1.2% with three and
-+9.0% with four. Under-relaxed, the iteration converges without changing
-sign, two and three iterations agree, and two give +1.5%, for about 1%
-more cost per step.
+The outer iteration converges with alternating sign, and switch-like
+mixing in near-neutral cavity water turns the sign of its residual into
+a systematic difference: Ocean0's melt excess over RK4 is +8.6% with two
+iterations, +1.2% with three and +9.0% with four. Every fix that removes
+the excess either costs about 38% more or breaks the scheme's accuracy.
+Split-explicit is still about 7.5 times cheaper than RK4 here.
 ```
 
 Rejected:
 
 - three outer iterations, which cost 38% more and match RK4 only because
   the odd-count branch happens to;
+- under-relaxing every intermediate iteration, which removes the excess
+  at two iterations but moves the first predictor off mid-step, so a
+  baroclinic mode grows at longer time steps;
+- under-relaxing from the second iteration, which keeps the accuracy but
+  needs three iterations;
+- extrapolating the first iteration's hand-off from the previous step,
+  which passes an idealized channel but raises Ocean0's melt excess to
+  30–40%;
 - computing vertical mixing from a state that does not depend on the
   iteration count, which removes the signature in one step but not the
-  month-scale excess;
-- averaging the last two iterates, whose residual still alternates in
-  sign.
-
+  month-scale excess.
