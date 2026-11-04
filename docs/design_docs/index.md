@@ -13,6 +13,7 @@ horiz_press_grad_hydrostatic_consistency
 horiz_press_grad_reference
 isomip_plus
 land_locked_cells
+landice_component
 mixed_layer_eddies
 ocean_analysis
 ocean_analysis_initial
