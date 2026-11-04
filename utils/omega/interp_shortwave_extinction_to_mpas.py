@@ -6,8 +6,9 @@ from pathlib import Path
 import xarray as xr
 from convert_mpaso_ic_to_omega import (
     SHORTWAVE_EXTINCTION_VARIABLES,
-    _get_shortwave_extinction_files,
     _remap_shortwave_to_mpas,
+    _resolve_shortwave_extinction_files,
+    _validate_optional_file_pair,
 )
 from mpas_tools.io import write_netcdf
 
@@ -33,17 +34,16 @@ def parse_args():
         '--input-file',
         default=None,
         help=(
-            'Optional source shortwave extinction file. If not supplied, '
-            'the file is downloaded from the Polaris data repository.'
+            'Source shortwave extinction file. Provide with '
+            '--src-scrip-file; if neither is supplied, both are downloaded.'
         ),
     )
     parser.add_argument(
         '--src-scrip-file',
         default=None,
         help=(
-            'Optional source SCRIP file for shortwave extinction data. '
-            'If not supplied, the file is downloaded from the Polaris '
-            'data repository.'
+            'Source SCRIP file. Provide with --input-file; if neither is '
+            'supplied, both are downloaded.'
         ),
     )
     parser.add_argument(
@@ -68,7 +68,17 @@ def parse_args():
             "(default: the output file's directory)."
         ),
     )
-    return parser.parse_args()
+    args = parser.parse_args()
+    try:
+        _validate_optional_file_pair(
+            args.input_file,
+            args.src_scrip_file,
+            '--input-file',
+            '--src-scrip-file',
+        )
+    except ValueError as error:
+        parser.error(str(error))
+    return args
 
 
 def main():
@@ -77,12 +87,9 @@ def main():
     work_dir = Path(args.work_dir) if args.work_dir else output_path.parent
     work_dir.mkdir(parents=True, exist_ok=True)
 
-    input_file = args.input_file
-    src_scrip_file = args.src_scrip_file
-    if input_file is None or src_scrip_file is None:
-        dl_sw, dl_scrip = _get_shortwave_extinction_files()
-        input_file = input_file or dl_sw
-        src_scrip_file = src_scrip_file or dl_scrip
+    input_file, src_scrip_file = _resolve_shortwave_extinction_files(
+        args.input_file, args.src_scrip_file
+    )
 
     ds_remap = _remap_shortwave_to_mpas(
         mpas_file=args.mesh,
@@ -111,10 +118,6 @@ def main():
         engine='netcdf4',
     )
     print(f'Wrote {args.output_file}')
-
-
-if __name__ == '__main__':
-    main()
 
 
 if __name__ == '__main__':

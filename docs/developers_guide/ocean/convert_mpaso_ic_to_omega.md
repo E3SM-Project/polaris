@@ -116,12 +116,15 @@ python utils/omega/convert_mpaso_ic_to_omega.py \
     --forcing-scrip-file /path/to/era5_0.25deg_scrip.nc \
 ```
 
+When supplying local forcing data, provide both the forcing file and its SCRIP
+file. If neither is supplied, both are downloaded.
+
 The forcing file generation uses conservative remapping by default; if you wish to use another method add `--remap-method bilinear` to the command.
 
 ### Shortwave Extinction Coefficients
 
 To include red-band and blue-band shortwave extinction coefficients
-(`ExtinctionCoeffRed` and `ExtinctionCoeffBlue`) in the converted MPAS companion
+(`ExtinctionCoeffRedCell` and `ExtinctionCoeffBlueCell`) in the converted MPAS companion
 file and Omega initial condition, add `--include-shortwave-extinction`:
 
 ```bash
@@ -148,8 +151,11 @@ python utils/omega/convert_mpaso_ic_to_omega.py \
     --shortwave-scrip-file /path/to/shortwave_extinction_scrip.nc
 ```
 
+When supplying local shortwave data, provide both the data file and its SCRIP
+file. If neither is supplied, both are downloaded.
+
 If you only need a standalone companion file containing `latCell`, `lonCell`,
-`ExtinctionCoeffRed`, and `ExtinctionCoeffBlue` for an MPAS mesh rather than
+`ExtinctionCoeffRedCell`, and `ExtinctionCoeffBlueCell` for an MPAS mesh rather than
 converting an entire initial condition, use the companion utility
 `utils/omega/interp_shortwave_extinction_to_mpas.py`:
 
@@ -158,6 +164,9 @@ python utils/omega/interp_shortwave_extinction_to_mpas.py \
     --mesh /path/to/mpas_mesh.nc \
     --output-file /path/to/shortwave_extinction_on_mesh.nc
 ```
+
+For custom source data, provide both `--input-file` and `--src-scrip-file`;
+when neither is supplied, both are downloaded.
 
 The script appends an EOS suffix automatically unless it is already present:
 
@@ -181,11 +190,11 @@ used for this integration.
 The converter can produce up to four artifacts:
 
 - An MPAS-style file with zeroed velocity fields, written next to the input
-  file with the suffix `.mpas.nc` (optionally including `ExtinctionCoeffRed`
-  and `ExtinctionCoeffBlue` when `--include-shortwave-extinction` is given)
+  file with the suffix `.mpas.nc` (optionally including `ExtinctionCoeffRedCell`
+  and `ExtinctionCoeffBlueCell` when `--include-shortwave-extinction` is given)
 - An Omega-formatted initial condition written next to the requested output
-  path with an EOS-specific suffix (optionally including `ExtinctionCoeffRed`
-  and `ExtinctionCoeffBlue` mapped to dimension `NCells`)
+  path with an EOS-specific suffix (optionally including `ExtinctionCoeffRedCell`
+  and `ExtinctionCoeffBlueCell` mapped to dimension `NCells`)
 - A temperature comparison figure named
   `<output_stem>_temperature_absolute_difference.png` when
   `--visualization` is enabled

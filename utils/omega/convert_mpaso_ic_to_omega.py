@@ -83,16 +83,16 @@ def parse_args():
         '--forcing-file',
         default=None,
         help=(
-            'Optional local ERA5 forcing file. If not supplied, the file is '
-            'downloaded from the Polaris data repository.'
+            'Local ERA5 forcing file. Provide with --forcing-scrip-file; '
+            'if neither is supplied, both are downloaded.'
         ),
     )
     parser.add_argument(
         '--forcing-scrip-file',
         default=None,
         help=(
-            'Optional local ERA5 SCRIP file. If not supplied, the file is '
-            'downloaded from the Polaris data repository.'
+            'Local ERA5 SCRIP file. Provide with --forcing-file; if neither '
+            'is supplied, both are downloaded.'
         ),
     )
     parser.add_argument(
@@ -107,17 +107,17 @@ def parse_args():
         '--shortwave-file',
         default=None,
         help=(
-            'Optional local shortwave extinction file. If not supplied, '
-            'the file is downloaded from the Polaris data repository.'
+            'Local shortwave extinction file. Provide with '
+            '--shortwave-scrip-file; if neither is supplied, both are '
+            'downloaded.'
         ),
     )
     parser.add_argument(
         '--shortwave-scrip-file',
         default=None,
         help=(
-            'Optional local shortwave extinction SCRIP file. If not '
-            'supplied, the file is downloaded from the Polaris data '
-            'repository.'
+            'Local shortwave extinction SCRIP file. Provide with '
+            '--shortwave-file; if neither is supplied, both are downloaded.'
         ),
     )
     parser.add_argument(
@@ -136,7 +136,25 @@ def parse_args():
             "generated for planar meshes (i.e., on_a_sphere = 'NO')."
         ),
     )
-    return parser.parse_args()
+    args = parser.parse_args()
+    try:
+        if args.include_realistic_forcing:
+            _validate_optional_file_pair(
+                args.forcing_file,
+                args.forcing_scrip_file,
+                '--forcing-file',
+                '--forcing-scrip-file',
+            )
+        if args.include_shortwave_extinction:
+            _validate_optional_file_pair(
+                args.shortwave_file,
+                args.shortwave_scrip_file,
+                '--shortwave-file',
+                '--shortwave-scrip-file',
+            )
+    except ValueError as error:
+        parser.error(str(error))
+    return args
 
 
 def _print_summary(
@@ -279,11 +297,9 @@ def convert_to_omega(
     # 1. Setup forcing and shortwave dependencies up front
     ds_forcing = None
     if include_realistic_forcing:
-        if forcing_file is None or forcing_scrip_file is None:
-            downloaded = _get_realistic_forcing_files()
-            downloaded_forcing, downloaded_scrip = downloaded
-            forcing_file = forcing_file or downloaded_forcing
-            forcing_scrip_file = forcing_scrip_file or downloaded_scrip
+        forcing_file, forcing_scrip_file = _resolve_realistic_forcing_files(
+            forcing_file, forcing_scrip_file
+        )
 
         ds_forcing = _remap_forcing_to_mpas(
             mpas_file=input_file,
@@ -294,11 +310,11 @@ def convert_to_omega(
 
     ds_shortwave = None
     if include_shortwave_extinction:
-        if shortwave_file is None or shortwave_scrip_file is None:
-            downloaded = _get_shortwave_extinction_files()
-            dl_sw, dl_scrip = downloaded
-            shortwave_file = shortwave_file or dl_sw
-            shortwave_scrip_file = shortwave_scrip_file or dl_scrip
+        shortwave_file, shortwave_scrip_file = (
+            _resolve_shortwave_extinction_files(
+                shortwave_file, shortwave_scrip_file
+            )
+        )
 
         ds_shortwave = _remap_shortwave_to_mpas(
             mpas_file=input_file,
@@ -490,6 +506,30 @@ def _get_realistic_forcing_files():
     return forcing_file, forcing_scrip_file
 
 
+def _validate_optional_file_pair(
+    file_path,
+    scrip_path,
+    file_option,
+    scrip_option,
+):
+    if (file_path is None) != (scrip_path is None):
+        raise ValueError(
+            f'Provide both {file_option} and {scrip_option}, or neither.'
+        )
+
+
+def _resolve_realistic_forcing_files(forcing_file, forcing_scrip_file):
+    _validate_optional_file_pair(
+        forcing_file,
+        forcing_scrip_file,
+        '--forcing-file',
+        '--forcing-scrip-file',
+    )
+    if forcing_file is None:
+        return _get_realistic_forcing_files()
+    return forcing_file, forcing_scrip_file
+
+
 def _get_shortwave_extinction_files():
     config = _get_polaris_config()
 
@@ -531,6 +571,18 @@ def _get_shortwave_extinction_files():
     )
 
     return sw_file, scrip_file
+
+
+def _resolve_shortwave_extinction_files(shortwave_file, scrip_file):
+    _validate_optional_file_pair(
+        shortwave_file,
+        scrip_file,
+        '--shortwave-file',
+        '--shortwave-scrip-file',
+    )
+    if shortwave_file is None:
+        return _get_shortwave_extinction_files()
+    return shortwave_file, scrip_file
 
 
 def _append_eos_suffix(output_file, eos_type):
@@ -1035,17 +1087,16 @@ def _remap_shortwave_to_mpas(
         mpas_scrip = Path(mpas_scrip_file)
     else:
         mpas_scrip = work_dir / 'mpas.scrip.nc'
-        if not mpas_scrip.exists():
-            subprocess.run(
-                [
-                    'scrip_from_mpas',
-                    '-m',
-                    str(mpas_file),
-                    '-s',
-                    str(mpas_scrip),
-                ],
-                check=True,
-            )
+        subprocess.run(
+            [
+                'scrip_from_mpas',
+                '-m',
+                str(mpas_file),
+                '-s',
+                str(mpas_scrip),
+            ],
+            check=True,
+        )
 
     if shortwave_scrip_file is not None:
         src_scrip = Path(shortwave_scrip_file)
