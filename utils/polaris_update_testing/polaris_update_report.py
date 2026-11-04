@@ -179,10 +179,7 @@ def describe(manifest: Manifest, spack: str, states: List[SetupState]) -> str:
         where = f' in {", ".join(f"`{path}`" for path in paths)}'
     omega = f'Omega `{test.omega_commit[:10]}`'
     if manifest.omega_merge is not None:
-        merged = ', '.join(
-            f'E3SM-Project/Omega#{number}'
-            for number in manifest.omega_merge.pull_requests
-        )
+        merged = ', '.join(manifest.omega_merge.merged_names())
         omega = (
             f'{omega} with {merged} merged in '
             f'(`{manifest.omega_merge.commit[:10]}`)'

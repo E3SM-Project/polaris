@@ -109,6 +109,21 @@ def test_describe_omega_merge(finished):
     ) in text
 
 
+def test_describe_omega_merge_with_e3sm_prs(finished):
+    _, manifest = finished
+    merge = OmegaMerge(
+        'm' * 40, {600: 'f' * 40}, 'e3sm-fork', 'branch', {9000: 'e' * 40}
+    )
+
+    text = polaris_update_report.describe(
+        dataclasses.replace(manifest, omega_merge=merge), 'shared', []
+    )
+
+    assert (
+        'with E3SM-Project/Omega#600, E3SM-Project/E3SM#9000 merged in'
+    ) in text
+
+
 def test_describe_mache_branch(finished):
     _, manifest = finished
     state = pr_test_setup.SetupState(

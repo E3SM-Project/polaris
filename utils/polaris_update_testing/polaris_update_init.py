@@ -76,6 +76,7 @@ def initiate(
     baseline_ref: Optional[str] = None,
     row_names: Optional[Sequence[str]] = None,
     merge_omega_prs: Sequence[int] = (),
+    merge_e3sm_prs: Sequence[int] = (),
     notes: Optional[str] = None,
     push: bool = False,
     force: bool = False,
@@ -106,6 +107,11 @@ def initiate(
         in review.  The merge is pushed to the requester's E3SM fork, and
         the PR's Omega rows build it.
 
+    merge_e3sm_prs : sequence of int, optional
+        E3SM PRs to merge into the Omega the PR pins after any Omega PRs,
+        such as a change to E3SM master that Omega has yet to merge.  The
+        PR's MPAS-Ocean rows still build the E3SM the PR pins.
+
     notes : str, optional
         Notes for the requester, repeated in reports
 
@@ -126,10 +132,10 @@ def initiate(
     fork = config.polaris_fork
     if push and fork is None:
         raise InitError('Pushing needs "polaris_fork" in the config file.')
-    if merge_omega_prs and config.fork is None:
+    if (merge_omega_prs or merge_e3sm_prs) and config.fork is None:
         raise InitError(
-            '--merge-omega-pr needs "fork" in the config file, the E3SM fork '
-            'the merge is pushed to.'
+            '--merge-omega-pr and --merge-e3sm-pr need "fork" in the config '
+            'file, the E3SM fork the merge is pushed to.'
         )
 
     pr = github.get_pull_request(UPSTREAM, pull_request)
@@ -190,11 +196,12 @@ def initiate(
         notes=notes,
         baseline_is_main=baseline_ref in (None, POLARIS_MAIN),
     )
-    if merge_omega_prs:
+    if merge_omega_prs or merge_e3sm_prs:
         manifest.omega_merge = _merge_omega(
             config,
             manifest.test.omega_commit,
             merge_omega_prs,
+            merge_e3sm_prs,
             f'{manifest.branch}-omega',
             pull_request,
         )
@@ -313,10 +320,7 @@ def format_result(result: InitResult, polaris_dir: str) -> str:
             f'{baseline.e3sm_commit}',
         ]
     if manifest.omega_merge is not None:
-        merged = ', '.join(
-            f'E3SM-Project/Omega#{number}'
-            for number in manifest.omega_merge.pull_requests
-        )
+        merged = ', '.join(manifest.omega_merge.merged_names())
         lines.append(
             f'Omega built: {manifest.omega_merge.commit}, with {merged} '
             f'merged in'
@@ -382,31 +386,29 @@ def _merge_omega(
     config: PrTestConfig,
     pin: str,
     numbers: Sequence[int],
+    e3sm_numbers: Sequence[int],
     branch: str,
     pull_request: int,
 ) -> OmegaMerge:
-    """Merge Omega PRs into the Omega the Polaris PR pins"""
+    """Merge Omega PRs, then E3SM PRs, into the Omega the Polaris PR pins"""
     repo = config.omega_repo
     assert config.fork is not None
-    git_tools.fetch(
-        repo,
-        git_tools.OMEGA_URL,
-        [
-            f'refs/pull/{number}/head:{REF_PREFIX}/pr-{number}'
-            for number in numbers
-        ],
+    heads = _fetch_pr_heads(repo, git_tools.OMEGA_URL, 'pr', numbers)
+    e3sm_heads = _fetch_pr_heads(
+        repo, git_tools.E3SM_URL, 'e3sm-pr', e3sm_numbers
     )
-    heads: Dict[int, str] = {
-        number: git_tools.rev_parse(repo, f'{REF_PREFIX}/pr-{number}')
-        for number in numbers
-    }
     if not git_tools.has_commit(repo, pin):
         git_tools.fetch(repo, git_tools.OMEGA_URL, [f'{pin}:{REF_PREFIX}/pin'])
-    for number, head in heads.items():
+    merges = [
+        (f'E3SM-Project/Omega#{number}', heads[number]) for number in heads
+    ] + [
+        (f'E3SM-Project/E3SM#{number}', e3sm_heads[number])
+        for number in e3sm_heads
+    ]
+    for name, head in merges:
         if git_tools.is_ancestor(repo, head, pin):
             raise InitError(
-                f'E3SM-Project/Omega#{number} is already in the Omega the PR '
-                f'pins ({pin[:12]}).'
+                f'{name} is already in the Omega the PR pins ({pin[:12]}).'
             )
 
     worktree = os.path.join(
@@ -416,23 +418,42 @@ def _merge_omega(
         git_tools.remove_worktree(repo, worktree)
     git_tools.add_worktree(repo, pin, worktree)
     try:
-        for number, head in heads.items():
+        for name, head in merges:
             conflicts = git_tools.merge(
                 worktree,
                 head,
-                f'Test merge of E3SM-Project/Omega#{number} ({head[:10]}) '
-                f'into {pin[:10]}',
+                f'Test merge of {name} ({head[:10]}) into {pin[:10]}',
             )
             if conflicts is not None:
                 raise InitError(
-                    f'E3SM-Project/Omega#{number} does not merge cleanly into '
-                    f'the Omega the PR pins:\n{conflicts}'
+                    f'{name} does not merge cleanly into the Omega the PR '
+                    f'pins:\n{conflicts}'
                 )
         commit = git_tools.rev_parse(worktree, 'HEAD')
     finally:
         git_tools.remove_worktree(repo, worktree)
     git_tools.git(['update-ref', f'{REF_PREFIX}/{branch}', commit], repo)
-    return OmegaMerge(commit, heads, config.fork, branch)
+    return OmegaMerge(commit, heads, config.fork, branch, e3sm_heads)
+
+
+def _fetch_pr_heads(
+    repo: str, url: str, prefix: str, numbers: Sequence[int]
+) -> Dict[int, str]:
+    """Fetch the heads of PRs from a repository, by number"""
+    if not numbers:
+        return {}
+    git_tools.fetch(
+        repo,
+        url,
+        [
+            f'refs/pull/{number}/head:{REF_PREFIX}/{prefix}-{number}'
+            for number in numbers
+        ],
+    )
+    return {
+        number: git_tools.rev_parse(repo, f'{REF_PREFIX}/{prefix}-{number}')
+        for number in numbers
+    }
 
 
 def _find_equivalent(polaris_dir, omega_repo, fork, manifest):
@@ -468,7 +489,10 @@ def _same_omega_merge(omega_repo, existing, new):
     """Whether two Omega merges merge the same PRs into the same tree"""
     if existing is None or new is None:
         return existing is None and new is None
-    if existing.pull_requests != new.pull_requests:
+    if (
+        existing.pull_requests != new.pull_requests
+        or existing.e3sm_pull_requests != new.e3sm_pull_requests
+    ):
         return False
     try:
         git_tools.fetch(

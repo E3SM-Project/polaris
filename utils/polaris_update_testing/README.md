@@ -21,7 +21,10 @@ machine, and its code in [utils/pr_testing](../pr_testing).
    current `main` of E3SM-Project/polaris as the baseline.  With
    `--merge-omega-pr`, it merges an Omega PR, such as a fix still in
    review, into the Omega the PR pins, and pushes the merge to your E3SM
-   fork for the Omega rows to build.
+   fork for the Omega rows to build.  `--merge-e3sm-pr` merges an E3SM PR
+   into that Omega too, after any Omega PRs, such as a change to E3SM
+   master that Omega has yet to merge.  MPAS-Ocean rows always build the
+   E3SM the PR pins.
 2. **`deploy`** (each machine) shows the `./deploy.py --deploy-spack`
    command for the compilers and MPI libraries of the machine's supported
    rows, with `--spack-path` for test environments, and with
