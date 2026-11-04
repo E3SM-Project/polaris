@@ -223,7 +223,7 @@ downstream changes.
 
 ### Algorithm Design: The coupler can map fields between the models
 
-Date last modified: 2026/10/30
+Date last modified: 2026/11/04
 
 Contributors: Xylar Asay-Davis, Claude
 
@@ -232,13 +232,17 @@ between the ocean (ocn) and MALI (glc):
 
 | Coupler variable          | What the coupler maps with it             | Method       |
 |---------------------------|-------------------------------------------|--------------|
-| `GLC2OCN_FMAPNAME`        | all of MALI's ice-shelf exports           | conservative |
-| `GLC2OCN_SMAPNAME`        | nothing; read at initialization           | conservative |
+| `GLC2OCN_FMAPNAME`        | MALI's fluxes and the floating fraction that normalizes the melt sent to MALI | conservative |
+| `GLC2OCN_SMAPNAME`        | MALI's geometry: the below-sea-level mask, pressure and ice masks | conservative, smoothed |
 | `OCN2GLC_SHELF_FMAPNAME`  | melt flux                                 | conservative |
 | `OCN2GLC_SHELF_SMAPNAME`  | interface temperature and its weight      | conservative |
 
-`GLC2OCN_FMAPNAME` is the map $R$ that carries MALI's geometry to the
-ocean. `GLC2OCN_SMAPNAME` names the same file. With ice-shelf coupling,
+`GLC2OCN_SMAPNAME` is the map $R$ that carries MALI's geometry to the
+ocean: a conservative map onto ocean cells inflated by one cell width
+([D4](#decisions)). `GLC2OCN_FMAPNAME` is the conservative map without
+inflation. The coupler maps MALI's geometry with `GLC2OCN_SMAPNAME` only
+with the E3SM changes; before them, it maps everything with
+`GLC2OCN_FMAPNAME`. With ice-shelf coupling,
 `GLC2OCN_ICE_RMAPNAME` is not read, and `OCN2GLC_TF_SMAPNAME` is read only
 with thermal-forcing coupling, which these runs leave off. Neither is
 built.
@@ -318,7 +322,7 @@ first record equals the initial condition. Each file is about 0.6 GB.
 
 ### Algorithm Design: The ocean starts from MALI's geometry
 
-Date last modified: 2026/11/01
+Date last modified: 2026/11/04
 
 Contributors: Xylar Asay-Davis, Claude
 
@@ -340,7 +344,10 @@ Contributors: Xylar Asay-Davis, Claude
    Where it is at or below the bed, the cell holds the ISOMIP+ tasks' thin
    film: fresh water, $10^{-3}$ m thick per active layer, the column at
    which MPAS-Ocean caps the land-ice pressure. The bed is the protocol's,
-   remapped without smoothing ([D4](#decisions)). The profiles, restoring
+   remapped onto the same inflated ocean cells as $R$ ([D4](#decisions)).
+   Partial bottom cells leave no bottom layer thinner than a tenth of a
+   layer, and the film is set on the bed they leave by raising the SSH.
+   The profiles, restoring
    and outflow through the restoring region are the ISOMIP+ tasks'.
 4. **Frame.** The projection's latitude and longitude replace the ISOMIP+
    tasks', and the global attribute `sphere_radius` is 6,371,220 m.
@@ -556,12 +563,15 @@ accessors (see
 
 ### Implementation: The coupler can map fields between the models
 
-Date last modified: 2026/10/30
+Date last modified: 2026/11/04
 
 Contributors: Xylar Asay-Davis, Claude
 
-Each map is a `MappingFileStep` from the two SCRIP files, with the tool
-in `[mapping] map_tool`. The component-input tasks' `scrip.py` and
+Each map is a `GlcOceanMapStep`, from `polaris.e3sm.init`, with the tool
+in `[mapping] map_tool`. The conservative maps read the two SCRIP files.
+The smoothed map reads MALI's SCRIP file and the ocean's mesh, whose cells
+pyremap inflates by `get_smoothing_distance()`, the distance the bed is
+smoothed over. The component-input tasks' `scrip.py` and
 `maps.py` do not apply: the first restamps SCRIP files the cull step
 wrote, and the second builds index maps, not coupler maps. Map filenames
 follow E3SM's `map_<src>_to_<dst>_<method>.<date>.nc`.
@@ -588,7 +598,7 @@ at a time.
 
 ### Implementation: The ocean starts from MALI's geometry
 
-Date last modified: 2026/10/30
+Date last modified: 2026/11/04
 
 Contributors: Xylar Asay-Davis, Claude
 
@@ -598,7 +608,7 @@ or build its inputs, so they are shared steps of the `ocean` component
 with an ocean config ([D5](#decisions)):
 
 ```none
-ocean/planar/misomip/<mesh_name>/topo/...            unsmoothed bed
+ocean/planar/misomip/<mesh_name>/topo/...            smoothed bed
 ocean/planar/misomip/<mesh_name>/<experiment>/init
 ocean/planar/misomip/<mesh_name>/<experiment>/ssh_adjustment/...
 ocean/planar/misomip/<mesh_name>/<experiment>/forward
@@ -609,8 +619,9 @@ Their code is in `polaris/tasks/ocean/misomip/`, which imports from
 
 - `init` subclasses the ISOMIP+ `Init`, reading the mesh from
   `ocean_mesh` and the land-ice fields from `land_ice_on_ocean`;
-- the bed comes from the ISOMIP+ `TopoMap` and `TopoRemap` without
-  smoothing, at the paths above;
+- the bed comes from `MisomipTopoMap`, a subclass of the ISOMIP+ `TopoMap`
+  that inflates the ocean cells by `get_smoothing_distance()`, one ocean
+  cell, and from the ISOMIP+ `TopoRemap`, at the paths above;
 - the SSH adjustment uses the ISOMIP+ `SshForward`, through a function in
   `polaris/ocean/ice_shelf/` that creates the steps in a given component.
   `IceShelfTask.setup_ssh_adjustment_steps()` calls it;
@@ -884,30 +895,39 @@ Rejected: calving the input grid before remapping, as the ISOMIP+ tasks do
 for the ocean. MALI would then hold thin ice from cells that straddle the
 calving front.
 
-### D4: The ocean's bed is not smoothed
+### D4: The geometry is smoothed onto the ocean
 
-Date last modified: 2026/10/30
+Date last modified: 2026/11/04
 
 Contributors: Xylar Asay-Davis, Claude
 
-The ocean's bed is the protocol's, remapped conservatively to the ocean's
-cells. The ISOMIP+ tasks smooth theirs by remapping onto cells expanded by
-a factor of 2.
+MALI's geometry reaches the ocean through $R$, a conservative map onto
+ocean cells inflated by one cell width: 4 km at 4 km, 2 km at 2 km. The
+initial condition and the coupler use the same map. The ocean's bed, the
+protocol's, is remapped onto the same inflated cells. Fluxes keep the
+conservative map without inflation.
 
 ```{admonition} Rationale
-The land-ice fields cannot be smoothed: the first import must change
-nothing. Smoothing only the bed would move the ocean's grounding line away
-from MALI's.
+Unsmoothed, the draft and bed step by up to 140 m between cells at the
+grounding line at 4 km, beside columns a few meters thick. Smoothing both
+surfaces leaves no step over 100 m next to the film. The grounding line
+retreats 0.4 km net. The first import still changes nothing, since the
+initial condition's land-ice fields come from the map the coupler uses.
 ```
 
-*Effect:* the bed and draft of E3SM's ocean are unsmoothed, while the
-ISOMIP+ tasks smooth both. E3SM's runs are therefore compared with this
-design's standalone run, not with the ISOMIP+ tasks. A month of 4 km
-Ocean0 in that run is where pressure-gradient noise from the unsmoothed
-geometry would show.
+*Effect:* the ocean follows MALI ([D1](#decisions)) through the smoothed
+map. Smoothing needs the E3SM changes to map MALI's geometry with
+`GLC2OCN_SMAPNAME`.
 
-Rejected: the ISOMIP+ tasks' smoothed topography; and MALI's bed through
-$R$, which leaves the open ocean beyond MALI's mesh without a bed.
+Rejected:
+
+- no smoothing, the earlier design, for the steps above;
+- smoothing only the draft, since the largest steps at the grounding line
+  come from the bed;
+- smoothing in the initial condition only, since the first import would
+  then differ from it;
+- MALI's bed through $R$, since MALI's mesh ends at $x = 641$ km and the
+  ocean's runs to 800 km.
 
 ### D5: Ocean steps belong to the ocean component
 
