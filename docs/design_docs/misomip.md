@@ -74,7 +74,7 @@ Success means:
 
 ## Status
 
-Date last modified: 2026/10/30
+Date last modified: 2026/11/04
 
 Contributors: Xylar Asay-Davis, Claude
 
@@ -379,14 +379,17 @@ map, as it does MALI's, and corrects for areas under the ice shelves.
 
 ### Principle: the ocean follows MALI
 
-Date last modified: 2026/10/30
+Date last modified: 2026/11/04
 
 Contributors: Xylar Asay-Davis, Claude
 
 The ocean's land-ice fields are what the coupler would deliver from MALI's
-initial geometry. Polaris applies the coupler's own glc-to-ocean map $R$
-to MALI's initial export, then the normalization MPAS-Ocean applies when
-it imports geometry. With $m$ MALI's below-sea-level mask and $\phi_f$ and
+initial geometry. Polaris applies the coupler's own glc-to-ocean geometry
+map $R$ to MALI's initial export, then the normalization MPAS-Ocean
+applies when it imports geometry. $R$ smooths: it is built with each ocean
+cell inflated by one ocean cell width, 4 km at 4 km and 2 km at 2 km, and
+the ocean's bed is smoothed the same way ([D25](#decisions)). Fluxes keep
+the conservative map. With $m$ MALI's below-sea-level mask and $\phi_f$ and
 $\phi_g$ its floating and grounded masks, the land-ice pressure is
 
 $$
@@ -403,8 +406,10 @@ The constants are E3SM's and the protocol's ([D6](#decisions)):
 $\rho_i = 918$ kg m⁻³, $g = 9.80616$ m s⁻², and an ocean density of
 1028 kg m⁻³ in both MALI's flotation test and MPAS-Ocean's draft. The
 ocean's bed comes from the same source as MALI's, on the ocean's mesh, with
-no minimum water column imposed. The thin film and the grounded-ice
-pressure cap handle cells whose pressure exceeds flotation.
+no minimum water column imposed, and partial bottom cells keep every
+bottom layer at least a tenth of a full layer ([D26](#decisions)). The thin
+film and the grounded-ice pressure cap handle cells whose pressure exceeds
+flotation.
 
 ```{admonition} Rationale
 Separate remaps of the input for each model would disagree at grounding
@@ -594,7 +599,9 @@ Compass ([D8](#decisions)).
 The floating mask over the open ocean is fixed first, on FAnSSIE, so that
 the reset applies only where there is land ice. The standalone tasks are
 rerun with the fix before they merge. The same work drops the JIGSAW
-spherical meshes and most of the spherical tasks ([D2](#decisions)).
+spherical meshes and most of the spherical tasks ([D2](#decisions)). The
+tasks use partial bottom cells, and the thin film is placed on the bed
+that partial cells leave ([D26](#decisions)).
 
 ### WP2: Split-explicit wetting and drying
 
@@ -627,6 +634,28 @@ review, and a temporary branch combines it with FAnSSIE for runs until
 then ([D19](#decisions)). It replaces the first such pull request
 ([E3SM-Ocean-Discussion#144](https://github.com/E3SM-Ocean-Discussion/E3SM/pull/144)).
 Until split-explicit is on FAnSSIE, the other packages use RK4.
+
+Comparing split-explicit with RK4 on Ocean0 found three defects that the
+thin film alone did not explain:
+
+- The split-explicit integrators add Coriolis to the barotropic and
+  baroclinic velocities without the thickness weighting of RK4's
+  potential-vorticity flux form, so they do net work where layer
+  thickness varies across edges. An option splits RK4's form between the
+  modes instead ([D27](#decisions)). It is on FAnSSIE, and MISOMIP's
+  configurations turn it on.
+- Split-explicit limited drying per column, so a thin layer in a thicker
+  column could drain, and a floating film blew up. It now limits drying
+  per layer, as RK4 does, and its stage 3 uses the same edge thickness as
+  the rest of the step ([D28](#decisions)).
+- Remnant bottom layers, millimeters thick, came from the initial
+  condition, not from split-explicit ([D26](#decisions)).
+
+With these fixed, split-explicit still melts about 8% more than RK4 after
+three weeks of Ocean0, through a stronger depth-mean cavity circulation.
+The excess depends on the number of outer iterations: it nearly vanishes
+with 3 and returns with 4, also without the per-layer limit, so it lies
+in the split-explicit iteration itself. That is open.
 
 ### WP3: Landice component
 
@@ -699,9 +728,10 @@ Tasks `e3sm/init/<mesh_name>/misomip/<experiment>` build:
   input, remapped to MALI's cells and calved, and prognostic ones from
   WP4;
 - data-mode files for Ocean3–4 ([D7](#decisions));
-- MPAS-Ocean initial conditions that follow MALI through WP5's map, with
-  the thin film, profiles, restoring and outflow forcing, after SSH
-  adjustment;
+- MPAS-Ocean initial conditions that follow MALI through WP5's smoothed
+  geometry map, on a bed smoothed the same way ([D25](#decisions)), with
+  partial bottom cells, the thin film, profiles, restoring and outflow
+  forcing, after SSH adjustment;
 - graph partitions for both models at the planned task counts;
 - the case configuration: a grid file and a user-mods directory with
   namelists, streams and XML changes ([D12](#decisions)).
@@ -786,7 +816,12 @@ On FAnSSIE:
   the budgets alone, so frazil is booked at 0 °C on both sides, as
   open-ocean frazil is for sea ice;
 - write the land-ice geometry the ocean imports to E3SM's monthly ocean
-  output, which Ocean3–4 need for their mean melt rate and checks.
+  output, which Ocean3–4 need for their mean melt rate and checks;
+- map the geometry MALI exports with the smoothed map that built the
+  ocean's initial condition, and the fluxes and the floating fraction
+  that normalizes them with the conservative map, so the first import
+  still matches the initial condition and the fluxes still conserve
+  ([D25](#decisions)).
 
 The notes on the melt-coupling pull request name wetting-and-drying runs
 as the next project after melt coupling. This package is that project.
@@ -857,7 +892,9 @@ changes land on FAnSSIE. The design amends
 Stages A–D use RK4 runs of at most about 2 years, which test the coupling
 but not the protocol's long-term results ([D22](#decisions)). Stage E
 repeats the experiments at the protocol's length with split-explicit
-wetting and drying. Stage A needs only WP4's MALI mesh, WP6's Ocean0 initial conditions
+wetting and drying. Stage D already uses everything else stage E will:
+the smoothed geometry in the initial condition and the coupling
+([D25](#decisions)), and partial bottom cells ([D26](#decisions)). Stage A needs only WP4's MALI mesh, WP6's Ocean0 initial conditions
 and the E3SM changes from WP7 that let a hand-built case run; WP4's steady
 state waits until stage D. WP3 needs nothing, WP4 needs only WP3, and WP11
 needs only WP1. WP10 follows WP2, and no stage needs it. WP5 and WP6 start
@@ -1443,3 +1480,118 @@ Rejected:
   would replace;
 - lowering the pressure in these cells to hold more water, since the ocean
   needs the ice's full weight.
+
+### D25: The geometry is smoothed onto the ocean
+
+Date last modified: 2026/11/04
+
+Contributors: Xylar Asay-Davis, Claude
+
+MALI's geometry reaches the ocean through a glc-to-ocean map built with
+each ocean cell inflated by one cell width (4 km at 4 km, 2 km at 2 km),
+in the initial condition and in the coupling. The ocean's bed, from the
+protocol's input, is smoothed the same way, normalized by the remapped
+below-sea-level mask. Fluxes, and the floating fraction that normalizes
+them, keep the conservative map. The map is an option of Polaris's shared
+map-building code for any glc–ocean pair, and the driver maps MALI's
+geometry with it (WP8). The ocean still follows MALI ([D1](#decisions)),
+through the smoothed map.
+
+```{admonition} Rationale
+Without smoothing, steps of up to 140 m in draft and bed separate cells at
+the grounding line at 4 km, beside columns a few meters thick, and the
+instabilities found so far started at such steps. Smoothing both
+surfaces leaves no step over 100 m next to the film, and the grounding
+line retreats 0.4 km net. Realistic coupling will need the same. It is not
+a fix for split-explicit's excess melt, which WP2 pursues on its own.
+```
+
+Rejected:
+
+- smoothing only the draft, since the largest steps at the grounding line
+  come from the bed;
+- smoothing in the initial condition only, since the first import would
+  then differ from it;
+- MALI's bed, since MALI's mesh ends at 641 km and the ocean's runs to
+  800 km.
+
+### D26: Partial bottom cells
+
+Date last modified: 2026/11/04
+
+Contributors: Xylar Asay-Davis, Claude
+
+The ISOMIP+ and MISOMIP ocean grids use partial bottom cells, with no
+bottom layer thinner than a tenth of a full layer. The thin film is set on
+the bed that partial cells leave, by raising the SSH, not by deepening the
+bed.
+
+```{admonition} Rationale
+Without partial cells, which Compass's configuration left off, the bottom
+layer kept whatever remained above the bed, down to millimeters: 61 such
+layers in MISOMIP's 4 km Ocean0. They crashed split-explicit runs and
+added to their excess melt. Partial cells move the bed by at most 1 m in
+about 6% of the cells, and leave a month of RK4 Ocean0 unchanged.
+```
+
+Rejected: placing the film before partial cells move the bed, which left
+grounded cells with columns of up to 1 m instead of a film.
+
+### D27: Split-explicit Coriolis follows RK4's form
+
+Date last modified: 2026/11/04
+
+Contributors: Xylar Asay-Davis, Claude
+
+An MPAS-Ocean option, `config_split_pv_coriolis`, splits RK4's
+potential-vorticity flux form of the planetary Coriolis term between the
+modes in `split_explicit`, `split_explicit_ab2` and `split_implicit`. The
+barotropic subcycles get its flux-thickness-weighted column mean, and each
+layer gets the rest. It is off by default and on in MISOMIP's
+configurations. It is on FAnSSIE
+([E3SM-Ocean-Discussion#176](https://github.com/E3SM-Ocean-Discussion/E3SM/pull/176)),
+is proposed against master
+([E3SM-Ocean-Discussion#177](https://github.com/E3SM-Ocean-Discussion/E3SM/pull/177)),
+and Omega has the same defect
+([E3SM-Project/Omega#675](https://github.com/E3SM-Project/Omega/issues/675)).
+
+```{admonition} Rationale
+Without thickness weighting, the split form does net work where layer
+thickness varies across edges: about 6,000 GJ over 11 days in Ocean0's
+cavity. In a channel with a shelf, split-explicit's kinetic energy is 5–7%
+above RK4's with a centered thickness flux, and several times RK4's with
+upwinding. With the option, all three integrators come within 0.5% of
+RK4, the Coriolis work is near zero, and the cost does not change
+measurably. With it off, results are bit-for-bit.
+```
+
+Rejected, but kept as a fallback for reviewers: a correction toward RK4's
+form computed once per step, which lags the subcycles and leaves 1–15% of
+the pressure-gradient work as Coriolis work.
+
+### D28: Split-explicit limits drying per layer
+
+Date last modified: 2026/11/04
+
+Contributors: Xylar Asay-Davis, Claude
+
+Split-explicit wetting and drying closes each layer that would dry, as
+RK4 does, rather than limiting whole columns. Closed layers are at rest,
+and the barotropic forcing and column thickness count only open layers.
+Stage 3 moves thickness with the edge thickness diagnosed for the rest of
+the step, RK4's blend of centered and upwind, with no separate upwinding
+or cap.
+
+```{admonition} Rationale
+With column-wise limits, the top layer of a floating film accelerated
+and every variant blew up within 14 hours; with per-layer limits the film
+stays at rest for 10 days, as in RK4. The stage-3 upwinding and cap
+differed from the thickness the rest of the step used. A cap at the donor
+thickness seemed to help near the grounding line, but the gain reversed
+when the time step was shortened, so it was compensating for a time-step
+error. With per-layer limits and no cap, the split-explicit thin-film
+tasks pass on both partial-cell and earlier initial conditions.
+```
+
+Rejected: capping the stage-3 edge thickness at the donor's; keeping the
+column-wise factors.
