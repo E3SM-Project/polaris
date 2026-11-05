@@ -276,8 +276,8 @@ floating fraction MALI gives it, and the comparison is labeled as an
 estimate. A period that contains the initial start, or that MALI's steps
 do not yet cover, is reported apart.
 
-**Ocean volume.** The ocean's volume changes by the melt and frazil under
-the ice, by the inflow through the cells whose tidal forcing holds their
+**Ocean volume.** The ocean's volume changes by the melt under the ice,
+by frazil, by the inflow through the cells whose tidal forcing holds their
 sea-surface height, and by a small rest. Water the ice shelf displaces as
 it grows heavier leaves through those cells, so the inflow follows the
 change in the ice's load. The daily change comes from the global
@@ -286,8 +286,12 @@ daily mean of its thickness tendency, summed over the region, where the
 forcing is a thickness source and the ocean writes it. Forcing that sets
 the thickness directly leaves that tendency at zero, so the volume change
 less melt and frazil is then shown as the inflow and anything else (D10).
-The load comes from daily means, so it is an estimate. The volume change less melt and
-frazil is also compared with the change in the load,
+Frazil's volume is the daily mean of its thickness tendency, summed over
+the layers. Its freshwater flux, used where the tendency is missing, is an
+approximation: it holds only the frazil under the land ice, and open-ocean
+frazil goes to the coupler as frozen water. The load comes from daily
+means, so it is an estimate. The volume change less melt and frazil is
+also compared with the change in the load,
 $-\Delta(\sum p_{li} A)/(\rho_0 g)$.
 
 ### Algorithm Design: Runs are compared with each other
@@ -464,8 +468,8 @@ means of the fluxes exchanged with MALI. MALI's global statistics, written
 every time step, hold the melt it applies.
 
 The ocean's volume budget reads `volumeCellGlobal` from the daily global
-statistics and the daily means of melt, frazil, the tidal thickness
-tendency and land-ice pressure. The run's `config_tidal_forcing_type`
+statistics and the daily means of melt, frazil's freshwater flux and
+thickness tendency, the tidal thickness tendency and land-ice pressure. The run's `config_tidal_forcing_type`
 decides whether the tendency is used.
 
 ### Implementation: Runs are compared with each other
