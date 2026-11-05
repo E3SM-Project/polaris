@@ -7,7 +7,7 @@ from mpas_tools.ocean import compute_barotropic_streamfunction
 
 from polaris import Step
 from polaris.constants import get_constant
-from polaris.e3sm.analysis.calendar import xtime_to_days
+from polaris.e3sm.analysis.calendar import month_start_days, xtime_to_days
 from polaris.e3sm.analysis.runs import E3smRun
 from polaris.landice.diagnostics import (
     compute_volume_and_area,
@@ -46,6 +46,7 @@ TIME_MEAN_FILENAME = 'time_mean.nc'
 MONTHLY_MAPS_FILENAME = 'monthly_maps.nc'
 DAILY_FILENAME = 'daily.nc'
 DAILY_EXCHANGE_FILENAME = 'daily_exchange.nc'
+DAILY_VOLUME_FILENAME = 'daily_volume.nc'
 INIT_FILENAME = 'init.nc'
 MESH_FILENAME = 'mesh.nc'
 LANDICE_FILENAME = 'landice.nc'
@@ -91,6 +92,22 @@ class RunDiagnostics(Step):
     daily_mean_filenames : list of str
         The local names of the files of the ocean's daily means, in order,
         empty if the run wrote none
+
+    has_daily_volume : bool
+        Whether the run wrote both daily global statistics and daily means,
+        from which the ocean's daily volume budget is computed
+
+    tidal_forcing_type : str or None
+        The run's ``config_tidal_forcing_type`` if it has tidal forcing
+
+    snapshot_filenames : list of str
+        The local names of the files of layer thickness at the start of each
+        month analyzed and of the month after, empty if the run wrote none
+
+    has_monthly_volume : bool
+        Whether the run has tidal forcing and wrote snapshots of layer
+        thickness, from which the volume budget of the cells outside the
+        tidally forced ones is computed each month
 
     min_thickness : float
         The minimum thickness (m) of a layer from the run's namelist, which
@@ -171,6 +188,18 @@ class RunDiagnostics(Step):
         )
         if self.daily_mean_filenames:
             self.add_output_file(filename=DAILY_EXCHANGE_FILENAME)
+        self.has_daily_volume = bool(
+            self.daily_mean_filenames and self.daily_filenames
+        )
+        self.tidal_forcing_type = None
+        if self.has_daily_volume:
+            self.add_output_file(filename=DAILY_VOLUME_FILENAME)
+            if _has_tidal_forcing(run):
+                self.tidal_forcing_type = (
+                    run.namelist_option('config_tidal_forcing_type')
+                    .strip()
+                    .strip('\'"')
+                )
         self.min_thickness = _fortran_float(
             run.namelist_option('config_drying_min_cell_height')
         )
@@ -326,6 +355,12 @@ class RunDiagnostics(Step):
                 self._daily_exchange(ds_init), DAILY_EXCHANGE_FILENAME
             )
 
+        if self.has_daily_volume:
+            write_netcdf(
+                self._daily_volume(ds_init),
+                DAILY_VOLUME_FILENAME,
+            )
+
         if self.landice_filenames:
             section_y = section.getfloat('section_y')
             write_netcdf(self._landice(section_y), LANDICE_FILENAME)
@@ -465,6 +500,97 @@ class RunDiagnostics(Step):
         )
         return ds_exchange
 
+    def _daily_volume(self, ds_init):
+        """
+        Compute the ocean's daily volume budget from its daily global
+        statistics and daily means
+        """
+        ds_means = rename_time_series_stats(
+            xr.open_mfdataset(
+                self.daily_mean_filenames,
+                combine='nested',
+                concat_dim='Time',
+                decode_times=False,
+                data_vars='minimal',
+            ),
+            prefix=DAILY_MEANS_PREFIX,
+        )
+        ds_stats = xr.open_mfdataset(
+            self.daily_filenames,
+            combine='nested',
+            concat_dim='Time',
+            decode_times=False,
+            data_vars='minimal',
+        )
+        missing = [
+            name
+            for name in [
+                'landIceFreshwaterFlux',
+                'landIcePressure',
+            ]
+            if name not in ds_means
+        ]
+        if missing:
+            self.logger.info(
+                f"The ocean's daily means have no {', '.join(missing)}, so "
+                f'the daily volume budget leaves out the terms that need them.'
+            )
+        return compute_daily_volume_budget(
+            ds_means,
+            ds_stats[['xtime', 'volumeCellGlobal']],
+            ds_init,
+            self.ref_density,
+            self.tidal_forcing_type,
+        )
+
+    def _monthly_volume(self, ds, ds_init):
+        """
+        Compute the volume budget of the cells outside the tidally forced
+        ones each month, from the snapshots of layer thickness and the
+        monthly means
+        """
+        ds_mask = _open_without_time(TIDAL_MASK_FILENAME)
+        interior = ds_mask.tidalInputMask.values == 0
+        area = ds_init.areaCell.values
+        days = []
+        volumes = []
+        if 'xtime' in ds_init:
+            start = ds_init.xtime.values.item()
+        else:
+            # an initial condition without a time is at the start of year 1
+            start = '0001-01-01_00:00:00'
+        days.append(xtime_to_days(start))
+        volumes.append(
+            _interior_volume(ds_init.layerThickness, area, interior)
+        )
+        for filename in self.snapshot_filenames:
+            ds_snapshot = xr.open_dataset(filename, decode_times=False)
+            for t_index in range(ds_snapshot.sizes['Time']):
+                ds_one = ds_snapshot.isel(Time=t_index)
+                days.append(xtime_to_days(ds_one.xtime.values.item()))
+                volumes.append(
+                    _interior_volume(ds_one.layerThickness, area, interior)
+                )
+        missing = [
+            name
+            for name in ['normalLayerThicknessFlux', 'landIceFreshwaterFlux']
+            if name not in ds
+        ]
+        if missing:
+            self.logger.info(
+                f"The ocean's monthly means have no {', '.join(missing)}, "
+                f'so the monthly volume budget leaves out the terms that '
+                f'need them.'
+            )
+        return compute_monthly_volume_budget(
+            ds,
+            np.array(days),
+            np.array(volumes),
+            ds_init,
+            interior,
+            self.ref_density,
+        )
+
     def _daily(self):
         """Gather the daily global statistics"""
         if not self.daily_filenames:
@@ -480,6 +606,347 @@ class RunDiagnostics(Step):
         ds_daily = ds[fields + ['daysSinceStartOfSim']].load()
         _, unique = np.unique(ds_daily.daysSinceStartOfSim, return_index=True)
         return ds_daily.isel(Time=unique)
+
+
+def compute_daily_volume_budget(
+    ds_means,
+    ds_stats,
+    ds_init,
+    ref_density,
+    tidal_forcing_type=None,
+):
+    """
+    Compute the ocean's daily volume budget
+
+    The volume changes by the melt under the ice, by frazil, by the volume the
+    tidal forcing adds in the cells whose sea-surface height it holds and by a
+    small rest.  Frazil's volume is its thickness tendency where the daily
+    means have it, and otherwise its freshwater flux, which leaves out frazil
+    formed in the open ocean.  Water the land ice displaces as it grows heavier
+    leaves through the tidally forced cells.  The tidal forcing's term comes
+    from ``tidalLayerThicknessTendency`` where the forcing is a thickness
+    source.  Forcing that sets the thickness directly leaves that tendency at
+    zero, and no daily mean gives the exact flow out of those cells, so the
+    budget then has no tidal term.  The land-ice load is an estimate from daily
+    means.
+
+    Parameters
+    ----------
+    ds_means : xarray.Dataset
+        The ocean's daily means, renamed without their prefix, with
+        ``xtime_startDaily`` and ``xtime_endDaily`` and any of
+        ``landIceFreshwaterFlux``, ``frazilIceFreshwaterFlux``,
+        ``frazilLayerThicknessTendency``,
+        ``tidalLayerThicknessTendency`` and ``landIcePressure``
+
+    ds_stats : xarray.Dataset
+        The daily global statistics, with ``xtime`` and
+        ``volumeCellGlobal`` at the end of each day
+
+    ds_init : xarray.Dataset
+        The initial condition and mesh, with ``areaCell``
+
+    ref_density : float
+        The reference density (kg m-3) by which the ocean converts its
+        freshwater fluxes to thickness
+
+    tidal_forcing_type : str, optional
+        The run's ``config_tidal_forcing_type``, if it has tidal forcing.
+        The tidal tendency is used only for ``thickness_source``.
+
+    Returns
+    -------
+    ds_volume : xarray.Dataset
+        The terms of the budget (m3) over each day, with the tidal forcing
+        type, or ``none``, in its attribute ``tidal_forcing_type``
+    """
+    day_end = xtime_to_days(ds_means.xtime_endDaily.values)
+    _, unique = np.unique(day_end, return_index=True)
+    ds_means = ds_means.isel(Time=unique)
+    day_end = day_end[unique]
+    # the start is the first sample, which the compute interval puts after
+    # the start of the day
+    day_start = np.floor(xtime_to_days(ds_means.xtime_startDaily.values))
+    seconds = 86400.0 * (day_end - day_start)
+
+    # the statistics are instantaneous, so a day's change needs them at
+    # both of its ends; a segment writes none at its start
+    stats_seconds = np.round(86400.0 * xtime_to_days(ds_stats.xtime.values))
+    volumes = dict(
+        zip(stats_seconds, ds_stats.volumeCellGlobal.values, strict=True)
+    )
+
+    def volume_at(days):
+        return np.array(
+            [volumes.get(second, np.nan) for second in np.round(86400 * days)]
+        )
+
+    ds_volume = xr.Dataset()
+    ds_volume.attrs['tidal_forcing_type'] = tidal_forcing_type or 'none'
+    ds_volume['dayStart'] = ('Time', day_start)
+    ds_volume['dayEnd'] = ('Time', day_end)
+    for name in ['dayStart', 'dayEnd']:
+        ds_volume[name].attrs = dict(
+            long_name=f'{name[3:].lower()} of the day',
+            units='days since 0001-01-01',
+        )
+    ds_volume['volumeChange'] = (
+        'Time',
+        volume_at(day_end) - volume_at(day_start),
+    )
+    ds_volume.volumeChange.attrs = dict(
+        long_name="change in the ocean's volume", units='m3'
+    )
+
+    area = ds_init.areaCell
+    volume, frazil_source = _melt_and_frazil(ds_means, area, ref_density)
+    if volume is not None:
+        ds_volume['meltAndFrazilVolume'] = ('Time', seconds * volume)
+        ds_volume.meltAndFrazilVolume.attrs = dict(
+            long_name='volume added by melt and frazil',
+            units='m3',
+            frazil=frazil_source,
+        )
+
+    if (
+        tidal_forcing_type == 'thickness_source'
+        and 'tidalLayerThicknessTendency' in ds_means
+    ):
+        # the tendency the tidal forcing adds, sampled every time step, is
+        # exact; it is zero outside the tidally forced cells
+        # a day without the means, as before a run wrote them, has no term
+        rate = (ds_means.tidalLayerThicknessTendency * area).sum(
+            dim=['nCells', 'nVertLevels'], min_count=1
+        )
+        ds_volume['tidalForcingInflow'] = ('Time', seconds * rate.values)
+        ds_volume.tidalForcingInflow.attrs = dict(
+            long_name='volume added by the tidal forcing',
+            units='m3',
+        )
+
+    if 'landIcePressure' in ds_means:
+        gravity = get_constant('standard_acceleration_of_gravity')
+        load = (ds_means.landIcePressure * area).sum(dim='nCells').values / (
+            ref_density * gravity
+        )
+        ds_volume['landIceLoad'] = ('Time', load)
+        ds_volume.landIceLoad.attrs = dict(
+            long_name=(
+                'the land-ice pressure on the ocean, as a volume of '
+                'seawater at the reference density'
+            ),
+            units='m3',
+        )
+        # the change from the day before, where the days follow each other
+        change = np.full(len(load), np.nan)
+        follows = day_start[1:] == day_end[:-1]
+        change[1:] = np.where(follows, load[1:] - load[:-1], np.nan)
+        ds_volume['landIceLoadChange'] = ('Time', change)
+        ds_volume.landIceLoadChange.attrs = dict(
+            long_name='change in the land-ice load from the day before',
+            units='m3',
+        )
+    return ds_volume
+
+
+def compute_monthly_volume_budget(
+    ds_means, snapshot_days, snapshot_volumes, ds_mesh, interior, ref_density
+):
+    """
+    Compute each month's volume budget of the cells outside the tidally
+    forced ones
+
+    Where the tidal forcing sets the forced cells' thickness directly, no
+    output gives the volume it adds, but the cells outside them, the
+    interior, have a closed budget: their volume changes by the melt and
+    frazil in them and by the transport out across the edges they share
+    with the forced cells.  The transport is the monthly mean of
+    ``normalLayerThicknessFlux``, the thickness flux the ocean's continuity
+    equation applies, sampled every time step, so the budget closes to
+    round-off.
+
+    Parameters
+    ----------
+    ds_means : xarray.Dataset
+        The ocean's monthly means, renamed without their prefix, with
+        ``xtime_startMonthly`` and any of ``normalLayerThicknessFlux``,
+        ``landIceFreshwaterFlux``, ``frazilIceFreshwaterFlux`` and
+        ``frazilLayerThicknessTendency``
+
+    snapshot_days : numpy.ndarray
+        The times (days since 0001-01-01) of the interior's volume
+
+    snapshot_volumes : numpy.ndarray
+        The interior's volume (m3) at those times
+
+    ds_mesh : xarray.Dataset
+        The mesh, with ``areaCell``, ``cellsOnEdge`` and ``dvEdge``
+
+    interior : numpy.ndarray
+        Whether each cell is outside the tidally forced cells
+
+    ref_density : float
+        The reference density (kg m-3) by which the ocean converts its
+        freshwater fluxes to thickness
+
+    Returns
+    -------
+    ds_volume : xarray.Dataset
+        The terms of the interior's budget (m3) over each month: the volume
+        change, which needs the volume at both ends of the month, the volume
+        melt and frazil add and the transport out to the forced cells
+    """
+    months = [
+        tuple(int(part) for part in _start_date(ds_means, t_index).split('-'))
+        for t_index in range(ds_means.sizes['Time'])
+    ]
+    month_start = np.array(
+        [month_start_days(year, month) for year, month in months]
+    )
+    month_end = np.array(
+        [month_start_days(year, month + 1) for year, month in months]
+    )
+    seconds = 86400.0 * (month_end - month_start)
+
+    volumes = dict(
+        zip(
+            np.round(86400.0 * snapshot_days),
+            snapshot_volumes,
+            strict=True,
+        )
+    )
+
+    def volume_at(days):
+        return np.array(
+            [volumes.get(second, np.nan) for second in np.round(86400 * days)]
+        )
+
+    ds_volume = xr.Dataset()
+    ds_volume['monthStart'] = ('Time', month_start)
+    ds_volume['monthEnd'] = ('Time', month_end)
+    for name in ['monthStart', 'monthEnd']:
+        ds_volume[name].attrs = dict(
+            long_name=f'{name[5:].lower()} of the month',
+            units='days since 0001-01-01',
+        )
+    ds_volume['volumeChange'] = (
+        'Time',
+        volume_at(month_end) - volume_at(month_start),
+    )
+    ds_volume.volumeChange.attrs = dict(
+        long_name='change in the volume outside the tidally forced cells',
+        units='m3',
+    )
+
+    cells = np.flatnonzero(interior)
+    area = ds_mesh.areaCell.isel(nCells=cells)
+    ds_interior = ds_means.isel(nCells=cells)
+    for name in ['frazilLayerThicknessTendency', 'frazilIceFreshwaterFlux']:
+        if name in ds_interior:
+            ds_interior[name] = _without_fill(ds_interior[name])
+    volume, frazil_source = _melt_and_frazil(ds_interior, area, ref_density)
+    if volume is not None:
+        ds_volume['meltAndFrazilVolume'] = ('Time', seconds * volume)
+        ds_volume.meltAndFrazilVolume.attrs = dict(
+            long_name=(
+                'volume added by melt and frazil outside the tidally forced '
+                'cells'
+            ),
+            units='m3',
+            frazil=frazil_source,
+        )
+
+    if 'normalLayerThicknessFlux' in ds_means:
+        cells_on_edge = ds_mesh.cellsOnEdge.values - 1
+        both = np.all(cells_on_edge >= 0, axis=1)
+        first = np.where(both, cells_on_edge[:, 0], 0)
+        second = np.where(both, cells_on_edge[:, 1], 0)
+        edges = np.flatnonzero(
+            np.logical_and(both, interior[first] != interior[second])
+        )
+        # the normal points from the edge's first cell to its second, so
+        # the flux is out of the interior where the first cell is in it
+        sign = np.where(interior[first[edges]], 1.0, -1.0)
+        flux = _without_fill(ds_means.normalLayerThicknessFlux).isel(
+            nEdges=edges
+        )
+        rate = (
+            flux.sum(dim='nVertLevels')
+            * xr.DataArray(sign * ds_mesh.dvEdge.values[edges], dims='nEdges')
+        ).sum(dim='nEdges')
+        ds_volume['outflow'] = ('Time', seconds * rate.values)
+        ds_volume.outflow.attrs = dict(
+            long_name='transport out to the tidally forced cells',
+            units='m3',
+        )
+    return ds_volume
+
+
+def _interior_volume(layer_thickness, area, interior):
+    """The volume (m3) of the cells outside the tidally forced ones"""
+    column = _without_fill(layer_thickness).sum(dim='nVertLevels').values
+    return float(np.sum((column * area)[interior]))
+
+
+def _melt_and_frazil(ds_means, area, ref_density):
+    """
+    The volume (m3 s-1) melt and frazil add each day, and where the frazil
+    comes from: ``thickness tendency``, ``freshwater flux`` (an
+    approximation), ``mixed`` or ``none``
+
+    The melt's thickness flux is its freshwater flux over the reference
+    density, as in MPAS-Ocean.  Frazil's volume is its thickness tendency,
+    which includes frazil formed in the open ocean.  Its freshwater flux is
+    only the frazil under the ice, so it is used, as an approximation, only
+    on days without the tendency.
+    """
+    terms = []
+    if 'landIceFreshwaterFlux' in ds_means:
+        terms.append(
+            (ds_means.landIceFreshwaterFlux * area).sum(dim='nCells').values
+            / ref_density
+        )
+    frazil = None
+    if 'frazilIceFreshwaterFlux' in ds_means:
+        frazil = (ds_means.frazilIceFreshwaterFlux * area).sum(
+            dim='nCells'
+        ).values / ref_density
+    from_tendency = np.zeros(ds_means.sizes['Time'], dtype=bool)
+    if 'frazilLayerThicknessTendency' in ds_means:
+        # a day without the tendency, as before a run wrote it, has none
+        tendency = (
+            (ds_means.frazilLayerThicknessTendency * area)
+            .sum(dim=['nCells', 'nVertLevels'], min_count=1)
+            .values
+        )
+        from_tendency = np.isfinite(tendency)
+        frazil = (
+            tendency
+            if frazil is None
+            else np.where(from_tendency, tendency, frazil)
+        )
+    if frazil is not None:
+        terms.append(frazil)
+    if not terms:
+        return None, 'none'
+    if frazil is None:
+        source = 'none'
+    elif np.all(from_tendency):
+        source = 'thickness tendency'
+    elif np.any(from_tendency):
+        source = 'mixed'
+    else:
+        source = 'freshwater flux'
+    return sum(terms), source
+
+
+def _has_tidal_forcing(run):
+    """Whether a run's namelist turns on tidal forcing"""
+    try:
+        value = run.namelist_option('config_use_tidal_forcing')
+    except KeyError:
+        return False
+    return value.strip().strip('\'"').lower() in ('.true.', 'true', 't')
 
 
 def read_initial_condition(prefix=''):

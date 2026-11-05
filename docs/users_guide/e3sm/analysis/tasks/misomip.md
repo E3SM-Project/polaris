@@ -127,6 +127,39 @@ in its `initial_start` column, and the step's log gives the largest
 residual of the others.  Daily budgets show whether the rest of the first
 month closes.
 
+A run with daily global statistics and daily means also gets a
+`volume_budget` step, which plots the ocean's volume budget each day and
+summed from the start.  The volume changes by the melt under the ice
+shelf, by frazil and by the volume the tidal forcing adds in the cells of
+the restoring region whose sea-surface height it holds.
+As the ice shelf grows heavier, the water it displaces leaves through
+those cells; when it grows lighter, as when MALI calves, water comes back
+in.  A second plot compares the volume change, less melt and frazil, with
+the change in the land ice's load on the ocean, as a volume of seawater.
+Where the tidal forcing is a thickness source
+(`config_tidal_forcing_type = 'thickness_source'`) and the ocean writes
+daily means of `tidalLayerThicknessTendency`, the volume the tidal forcing
+adds comes from them and is exact.  Forcing that sets the thickness
+directly (`'direct'`) leaves that tendency at zero, and no daily mean gives
+it.  The plot then shows the volume change less melt and frazil as the
+tidal forcing's term.  That nothing else adds volume is shown by the cells
+outside the forced ones: where the run writes monthly snapshots of layer
+thickness (`layerThicknessSnapshot`) and the monthly mean of
+`normalLayerThicknessFlux`, the step also plots their budget each month,
+summed from the start.  Their volume changes by their melt and frazil and
+by the transport in across the edges they share with the forced cells,
+from the monthly mean of the thickness flux the ocean applies, and the rest
+is round-off.  The exception is the first month of a run from its initial
+condition, which in the 2 km Ocean1 and IceOcean1r runs misses by about a
+fifth of that month's melt; the log gives the largest rest.
+Frazil's volume is the daily mean of `frazilLayerThicknessTendency`,
+summed over the layers, where the ocean writes it.  Otherwise it comes
+from `frazilIceFreshwaterFlux`, which leaves out the frazil that forms in
+the open ocean, and the plot marks the frazil as approximate.  The load
+needs the daily means of `landIcePressure`.  The
+statistics are instantaneous and a segment writes none at its start, so
+each segment's first day has no volume change and is left out of the sums.
+
 ## Performance
 
 A `performance` step plots each E3SM run's performance over the segments
