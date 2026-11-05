@@ -245,7 +245,7 @@ does.
 
 ### Algorithm Design: Exchanged fluxes are checked for conservation
 
-Date last modified: 2026/11/04
+Date last modified: 2026/11/05
 
 Contributors: Xylar Asay-Davis, Claude
 
@@ -281,8 +281,11 @@ the ice, by the transport in from the cells whose tidal forcing holds
 their sea-surface height, and by a small rest. Water the ice shelf
 displaces as it grows heavier leaves through those cells, so the
 transport follows the change in the ice's load. The daily change comes
-from the global statistics at each day's ends. The other terms come from
-daily means, so they are estimates. The volume change less melt and
+from the global statistics at each day's ends. The volume the tidal
+forcing adds is the daily mean of its thickness tendency, summed over the
+region, where the ocean writes it. Otherwise it is estimated from the
+daily means of velocity and thickness at the region's edges. The load
+comes from daily means, so it is an estimate. The volume change less melt and
 frazil is also compared with the change in the load,
 $-\Delta(\sum p_{li} A)/(\rho_0 g)$.
 
@@ -447,7 +450,7 @@ Contributors: Xylar Asay-Davis, Claude
 
 ### Implementation: Exchanged fluxes are checked for conservation
 
-Date last modified: 2026/11/04
+Date last modified: 2026/11/05
 
 Contributors: Xylar Asay-Davis, Claude
 
@@ -460,9 +463,10 @@ means of the fluxes exchanged with MALI. MALI's global statistics, written
 every time step, hold the melt it applies.
 
 The ocean's volume budget reads `volumeCellGlobal` from the daily global
-statistics and the daily means of melt, frazil, velocity, layer thickness
-and land-ice pressure. The tidally forced cells are the run's
-`tidalInputMask`, from the input stream `tidal_forcing_mask`.
+statistics and the daily means of melt, frazil, the tidal thickness
+tendency, velocity, layer thickness and land-ice pressure. The tidally
+forced cells, for the estimate, are the run's `tidalInputMask`, from the
+input stream `tidal_forcing_mask`.
 
 ### Implementation: Runs are compared with each other
 
@@ -518,7 +522,7 @@ waits and Slurm's memory are left out.
 
 ### Testing and Validation
 
-Date last modified: 2026/11/04
+Date last modified: 2026/11/05
 
 Contributors: Xylar Asay-Davis, Claude
 
@@ -526,9 +530,9 @@ Contributors: Xylar Asay-Davis, Claude
   E3SM runs, parse budget tables from a coupler log, check melt totals and
   means on a small planar mesh against hand computation, and check that
   spreading transport over bins of $z$ conserves it.
-- On a small mesh, the volume budget's transport counts only the edges
-  out of the tidally forced cells, and its load change only days that
-  follow each other.
+- On a small mesh, the volume budget uses the tidal tendency where it has
+  it, its transport counts only the edges out of the tidally forced cells,
+  and its load change only days that follow each other.
 - On the existing 4 km Ocean0 and Ocean3 runs, the monthly-mean melt
   flux matches the mean of the daily statistics, the overturning is near
   zero at the seafloor, and Ocean3's grounding line from MALI's history
