@@ -122,9 +122,12 @@ class ModelExchange(ProductStep):
         steps = read_landice_steps(self.stats_filenames)
         periods = [('monthly', _ocean_months(OCEAN_SERIES_FILENAME))]
         if self.has_daily:
-            ds_daily = xr.open_dataset(OCEAN_DAILY_FILENAME).rename(
-                dayStart='periodStart', dayEnd='periodEnd'
-            )
+            # the times are days, not dates to decode
+            ds_daily = xr.open_dataset(
+                OCEAN_DAILY_FILENAME,
+                decode_times=False,
+                decode_timedelta=False,
+            ).rename(dayStart='periodStart', dayEnd='periodEnd')
             if 'totalFluxSentToLandIce' in ds_daily:
                 periods.append(('daily', ds_daily))
             else:
