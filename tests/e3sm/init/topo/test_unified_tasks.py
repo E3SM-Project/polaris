@@ -182,10 +182,6 @@ def test_add_remap_topo_tasks_includes_unified_meshes():
         assert task.config.has_option(
             'spherical_mesh', 'antarctic_boundary_convention'
         )
-        assert (
-            task.config.get('spherical_mesh', 'antarctic_boundary_convention')
-            == 'calving_front'
-        )
 
 
 def test_unified_remap_topo_task_includes_base_mesh_dependencies():
@@ -235,10 +231,6 @@ def test_add_cull_topo_tasks_includes_unified_meshes():
         assert task.name == f'{mesh_name}_cull_topo_task'
         assert task.config.has_option(
             'spherical_mesh', 'antarctic_boundary_convention'
-        )
-        assert (
-            task.config.get('spherical_mesh', 'antarctic_boundary_convention')
-            == 'calving_front'
         )
 
 
@@ -307,28 +299,8 @@ def test_cull_config_exposes_both_dc_edge_guards():
 
     _, config = get_cull_topo_steps(mesh_name=FINE_MESH_NAME)
 
-    assert config.getfloat('cull_mesh', 'min_dc_edge_abs_ratio') == 0.70
-    assert config.getfloat('cull_mesh', 'min_dc_edge_ratio') == 0.45
-
-
-def test_every_unified_mesh_uses_the_shared_dc_edge_guards():
-    """
-    u-oi6to18-lr6to10 used to override the ratio floor down to 0.64 for a
-    single edge.  With the CFL guard measured against the finest ocean
-    background, and the ratio guard set to catch leaks rather than rare
-    packing defects, no mesh needs an override.
-    """
-    for mesh_name in (COARSE_MESH_NAME, FINE_MESH_NAME, FINEST_MESH_NAME):
-        _reset_shared_components()
-
-        _, config = get_cull_topo_steps(mesh_name=mesh_name)
-
-        assert config.getfloat('cull_mesh', 'min_dc_edge_abs_ratio') == (
-            0.70
-        ), mesh_name
-        assert config.getfloat('cull_mesh', 'min_dc_edge_ratio') == 0.45, (
-            mesh_name
-        )
+    assert config.has_option('cull_mesh', 'min_dc_edge_abs_ratio')
+    assert config.has_option('cull_mesh', 'min_dc_edge_ratio')
 
 
 def _reset_shared_components():

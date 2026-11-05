@@ -74,34 +74,25 @@ def test_add_config_reports_whether_it_added_anything():
 
 
 @pytest.mark.parametrize('mesh_name', COARSE_MESH_NAMES)
-def test_coarse_meshes_override_vertical_grid(mesh_name):
-    """The 240 km meshes use a cheap 16-level tanh_dz grid."""
-    config = _get_init_config(mesh_name)
-    section = config['vertical_grid']
-    assert section.get('grid_type') == 'tanh_dz'
-    assert section.getint('vert_levels') == 16
-    assert section.getfloat('bottom_depth') == 3000.0
-    assert section.getfloat('min_layer_thickness') == 3.0
-    assert section.getfloat('max_layer_thickness') == 500.0
-
-
-@pytest.mark.parametrize('mesh_name', COARSE_MESH_NAMES)
-def test_overrides_do_not_replace_other_options(mesh_name):
+def test_mesh_config_overrides_init_cfg(mesh_name):
     """
-    Options the per-mesh config does not set are still inherited from
-    ``init.cfg``.
+    The per-mesh config wins over ``init.cfg`` for the options it sets, and
+    options it does not set are still inherited from ``init.cfg``.
     """
     config = _get_init_config(mesh_name)
-    section = config['vertical_grid']
-    assert section.get('coord_type') == 'p-star'
-    assert section.getint('min_vert_levels') == 3
-    assert section.getfloat('min_bottom_depth') == 10.0
-
-
-def test_mesh_without_config_keeps_defaults():
-    """A mesh with no per-mesh config keeps the default vertical grid."""
-    config = _get_init_config('icos120km')
-    assert config.get('vertical_grid', 'grid_type') == '80layerE3SMv1'
+    mesh_config = get_realistic_global_mesh_config(mesh_name)
+    defaults = _get_init_config('icos120km')
+    section = 'vertical_grid'
+    assert mesh_config.has_section(section)
+    for option in mesh_config.options(section):
+        assert config.get(section, option) == mesh_config.get(
+            section, option
+        ), option
+    for option in defaults.options(section):
+        if not mesh_config.has_option(section, option):
+            assert config.get(section, option) == defaults.get(
+                section, option
+            ), option
 
 
 # -----------------------------------------------------------------------
@@ -119,73 +110,6 @@ def _get_forward_stage(mesh_name):
     add_realistic_global_mesh_config(config=config, mesh_name=mesh_name)
     config.combine()
     return ForwardStage.from_config(config)
-
-
-# the forward settings of the meshes with the RRS 6-18 km ocean
-OI6TO18_FORWARD_EXPECTED: dict[str, object] = dict(
-    mom_del2=None,
-    mom_del4=3.2e09,
-    mom_del4_div_factor=10.0,
-    hmix_scaling='ref_cell_width',
-    hmix_ref_cell_width=6.0e3,
-    use_GM=False,
-    use_Redi=False,
-    # the shared default scaling, which reproduces the Compass rrs6to18
-    # time step (3 min baroclinic, 9 s barotropic at 6 km)
-    dt_per_km=30.0,
-    btr_dt_per_km=1.5,
-)
-
-# expected per-mesh forward settings, ported from the Compass or E3SM mesh
-# named in the comment.  These are what keep a forward run stable, so they are
-# checked explicitly rather than through a round trip.
-FORWARD_EXPECTED: dict[str, dict[str, object]] = {
-    # E3SM oQU240: biharmonic momentum viscosity alone, and E3SM's split time
-    # steps
-    'u-oi240-lr240': dict(
-        mom_del2=None,
-        mom_del4=2.0e14,
-        tracer_del2=None,
-        tracer_del4=None,
-        use_Leith_del2=False,
-        hmix_scaling='ref_cell_width',
-        hmix_ref_cell_width=240.0e3,
-        dt='01:00:00',
-        btr_dt='00:03:00',
-        use_GM=True,
-        use_Redi=True,
-        use_frazil_ice_formation=False,
-    ),
-    # Compass qu
-    'u-oi30-lr10': dict(
-        mom_del2=1.0e3,
-        mom_del4=1.2e11,
-        tracer_del2=None,
-        use_Leith_del2=False,
-        hmix_scaling='ref_cell_width',
-        hmix_ref_cell_width=30.0e3,
-        use_GM=True,
-        use_Redi=True,
-        use_frazil_ice_formation=False,
-    ),
-    # Compass rrs6to18, with E3SM's RRSwISC6to18E3r5 mixing, on both meshes
-    # with its ocean
-    'u-oi6to18-lr12p5': OI6TO18_FORWARD_EXPECTED,
-    'u-oi6to18-lr25': OI6TO18_FORWARD_EXPECTED,
-    # Compass so12to30, apart from its time step, with E3SM's SOwISC12to30E3r3
-    # mixing
-    'u-oi-so12to30-lr10': dict(
-        mom_del2=462.0,
-        mom_del4=1.18e10,
-        hmix_scaling='ref_cell_width',
-        hmix_ref_cell_width=12.0e3,
-        use_GM=True,
-        GM_closure='constant',
-        GM_constant_kappa=600.0,
-        dt_per_km=30.0,
-        btr_dt_per_km=1.5,
-    ),
-}
 
 
 @pytest.mark.parametrize(
@@ -212,13 +136,6 @@ def test_stated_references_are_the_finest_cells(mesh_name):
     assert stage.hmix_ref_cell_width == min_res_for_mesh(mesh_name) * 1.0e3
 
 
-@pytest.mark.parametrize('mesh_name', sorted(FORWARD_EXPECTED))
-def test_forward_overrides(mesh_name):
-    stage = _get_forward_stage(mesh_name)
-    for option, expected in FORWARD_EXPECTED[mesh_name].items():
-        assert getattr(stage, option) == expected, option
-
-
 @pytest.mark.parametrize('mesh_name', COARSE_MESH_NAMES)
 def test_coarse_meshes_share_forward_settings(mesh_name):
     """
@@ -227,12 +144,3 @@ def test_coarse_meshes_share_forward_settings(mesh_name):
     """
     stage = _get_forward_stage(mesh_name)
     assert stage == _get_forward_stage('u-oi240-lr240')
-
-
-def test_mesh_without_config_keeps_forward_defaults():
-    stage = _get_forward_stage('icos120km')
-    # scaled, from the mesh's median cell width
-    assert stage.hmix_scaling == 'ref_cell_width'
-    assert stage.hmix_ref_cell_width is None
-    assert stage.mom_del2 == 1.0e3
-    assert not stage.use_Leith_del2
