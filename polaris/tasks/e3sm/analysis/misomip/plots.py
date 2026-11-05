@@ -364,7 +364,10 @@ class RunPlots(ProductStep):
         self._plot_overturning(ds_mean, months)
         self._plot_melt_by_draft(ds_mean, months)
         if self.has_landice:
-            ds_landice = xr.open_dataset(LANDICE_FILENAME)
+            # the times are days, not dates to decode
+            ds_landice = xr.open_dataset(
+                LANDICE_FILENAME, decode_times=False, decode_timedelta=False
+            )
             self._plot_landice_series(ds_landice)
             self._plot_grounding_lines(ds_mesh, ds_mean, ds_landice, months)
 
