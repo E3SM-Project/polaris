@@ -368,8 +368,7 @@ def _commit_manifest(polaris_dir, work_dir, manifest):
                 '--quiet',
                 '--no-verify',
                 '-m',
-                f'Add the manifest for testing '
-                f'{UPSTREAM}#{manifest.pull_request}',
+                'Add the manifest for this test branch',
                 '-m',
                 'Temporary.  Testers test the parent of this commit.',
             ],
@@ -422,7 +421,8 @@ def _merge_omega(
             conflicts = git_tools.merge(
                 worktree,
                 head,
-                f'Test merge of {name} ({head[:10]}) into {pin[:10]}',
+                # no PR number: GitHub would list the commit on the PR
+                f'Test merge of {head[:10]} into {pin[:10]}',
             )
             if conflicts is not None:
                 raise InitError(
