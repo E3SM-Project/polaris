@@ -6,4 +6,5 @@
 :titlesonly: true
 
 topo
+component_inputs
 ```
