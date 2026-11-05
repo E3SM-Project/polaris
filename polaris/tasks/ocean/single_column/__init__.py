@@ -96,7 +96,6 @@ def add_single_column_tasks(component):
         )
     )
 
-    forcing = ['wind_stress']
     name = 'ekman'
     filepath = f'{component.name}/column/{name}/{name}.cfg'
     config = PolarisConfigParser(filepath=filepath)
@@ -107,13 +106,12 @@ def add_single_column_tasks(component):
         'polaris.tasks.ocean.single_column',
         'neutral_temperature_salinity.cfg',
     )
-    for forcing_name in forcing:
-        config.add_from_package(
-            'polaris.tasks.ocean.single_column', f'{forcing_name}.cfg'
-        )
+    config.add_from_package(
+        'polaris.tasks.ocean.single_column', 'wind_stress.cfg'
+    )
     init_step = component.get_or_create_shared_step(
         step_cls=Init,
-        subdir=f'column/init/{forcing_name}/neutral',
+        subdir=f'column/init/{name}/wind_stress/neutral',
         config=config,
         config_filename=f'{name}.cfg',
     )
