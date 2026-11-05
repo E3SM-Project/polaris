@@ -47,10 +47,6 @@ MONTHLY_MAPS_FILENAME = 'monthly_maps.nc'
 DAILY_FILENAME = 'daily.nc'
 DAILY_EXCHANGE_FILENAME = 'daily_exchange.nc'
 DAILY_VOLUME_FILENAME = 'daily_volume.nc'
-TIDAL_MASK_FILENAME = 'tidal_forcing_mask.nc'
-
-#: The ocean's input stream with the mask of its tidal forcing
-TIDAL_MASK_STREAM = 'tidal_forcing_mask'
 INIT_FILENAME = 'init.nc'
 MESH_FILENAME = 'mesh.nc'
 LANDICE_FILENAME = 'landice.nc'
@@ -100,10 +96,6 @@ class RunDiagnostics(Step):
     has_daily_volume : bool
         Whether the run wrote both daily global statistics and daily means,
         from which the ocean's daily volume budget is computed
-
-    has_tidal_mask : bool
-        Whether the run has tidal forcing, whose mask marks the cells whose
-        sea-surface height it holds
 
     tidal_forcing_type : str or None
         The run's ``config_tidal_forcing_type`` if it has tidal forcing
@@ -190,16 +182,10 @@ class RunDiagnostics(Step):
         self.has_daily_volume = bool(
             self.daily_mean_filenames and self.daily_filenames
         )
-        self.has_tidal_mask = False
         self.tidal_forcing_type = None
         if self.has_daily_volume:
             self.add_output_file(filename=DAILY_VOLUME_FILENAME)
             if _has_tidal_forcing(run):
-                self.add_input_file(
-                    filename=TIDAL_MASK_FILENAME,
-                    target=run.input_filename(TIDAL_MASK_STREAM),
-                )
-                self.has_tidal_mask = True
                 self.tidal_forcing_type = (
                     run.namelist_option('config_tidal_forcing_type')
                     .strip()
@@ -531,8 +517,6 @@ class RunDiagnostics(Step):
             name
             for name in [
                 'landIceFreshwaterFlux',
-                'normalVelocity',
-                'layerThickness',
                 'landIcePressure',
             ]
             if name not in ds_means
@@ -542,16 +526,11 @@ class RunDiagnostics(Step):
                 f"The ocean's daily means have no {', '.join(missing)}, so "
                 f'the daily volume budget leaves out the terms that need them.'
             )
-        tidal_mask = None
-        if self.has_tidal_mask:
-            tidal_mask = _open_without_time(TIDAL_MASK_FILENAME).tidalInputMask
-            tidal_mask = tidal_mask > 0
         return compute_daily_volume_budget(
             ds_means,
             ds_stats[['xtime', 'volumeCellGlobal']],
             ds_init,
             self.ref_density,
-            tidal_mask,
             self.tidal_forcing_type,
         )
 
@@ -577,7 +556,6 @@ def compute_daily_volume_budget(
     ds_stats,
     ds_init,
     ref_density,
-    tidal_mask=None,
     tidal_forcing_type=None,
 ):
     """
@@ -586,12 +564,11 @@ def compute_daily_volume_budget(
     The volume changes by the melt and frazil under the ice, by the
     volume the tidal forcing adds in the cells whose sea-surface height it
     holds and by a small rest.  Water the land ice displaces as it grows
-    heavier leaves through those cells.  The tidal forcing's term is exact
-    where the forcing is a thickness source and the daily means have
-    ``tidalLayerThicknessTendency``.  Forcing that sets the thickness
-    directly leaves that tendency at zero, so the term is then the
-    transport in from those cells, an estimate from the daily means of the
-    velocity and thickness.  The land-ice load is an estimate
+    heavier leaves through those cells.  The tidal forcing's term comes
+    from ``tidalLayerThicknessTendency`` where the forcing is a thickness
+    source.  Forcing that sets the thickness directly leaves that tendency
+    at zero, and no daily mean gives the exact flow out of those cells, so
+    the budget then has no tidal term.  The land-ice load is an estimate
     from daily means.
 
     Parameters
@@ -600,33 +577,28 @@ def compute_daily_volume_budget(
         The ocean's daily means, renamed without their prefix, with
         ``xtime_startDaily`` and ``xtime_endDaily`` and any of
         ``landIceFreshwaterFlux``, ``frazilIceFreshwaterFlux``,
-        ``tidalLayerThicknessTendency``, ``normalVelocity``,
-        ``layerThickness`` and ``landIcePressure``
+        ``tidalLayerThicknessTendency`` and ``landIcePressure``
 
     ds_stats : xarray.Dataset
         The daily global statistics, with ``xtime`` and
         ``volumeCellGlobal`` at the end of each day
 
     ds_init : xarray.Dataset
-        The initial condition and mesh, with ``areaCell``, ``cellsOnEdge``
-        and ``dvEdge``
+        The initial condition and mesh, with ``areaCell``
 
     ref_density : float
         The reference density (kg m-3) by which the ocean converts its
         freshwater fluxes to thickness
 
-    tidal_mask : xarray.DataArray, optional
-        Whether each cell is tidally forced, for the transport in from those
-        cells where the tidal tendency is not used
-
     tidal_forcing_type : str, optional
-        The run's ``config_tidal_forcing_type``.  The tidal tendency is used
-        only for ``thickness_source``.
+        The run's ``config_tidal_forcing_type``, if it has tidal forcing.
+        The tidal tendency is used only for ``thickness_source``.
 
     Returns
     -------
     ds_volume : xarray.Dataset
-        The terms of the budget (m3) over each day
+        The terms of the budget (m3) over each day, with the tidal forcing
+        type, or ``none``, in its attribute ``tidal_forcing_type``
     """
     day_end = xtime_to_days(ds_means.xtime_endDaily.values)
     _, unique = np.unique(day_end, return_index=True)
@@ -650,6 +622,7 @@ def compute_daily_volume_budget(
         )
 
     ds_volume = xr.Dataset()
+    ds_volume.attrs['tidal_forcing_type'] = tidal_forcing_type or 'none'
     ds_volume['dayStart'] = ('Time', day_start)
     ds_volume['dayEnd'] = ('Time', day_end)
     for name in ['dayStart', 'dayEnd']:
@@ -685,30 +658,13 @@ def compute_daily_volume_budget(
     ):
         # the tendency the tidal forcing adds, sampled every time step, is
         # exact; it is zero outside the tidally forced cells
+        # a day without the means, as before a run wrote them, has no term
         rate = (ds_means.tidalLayerThicknessTendency * area).sum(
-            dim=['nCells', 'nVertLevels']
+            dim=['nCells', 'nVertLevels'], min_count=1
         )
         ds_volume['tidalForcingInflow'] = ('Time', seconds * rate.values)
         ds_volume.tidalForcingInflow.attrs = dict(
             long_name='volume added by the tidal forcing',
-            units='m3',
-        )
-    elif (
-        tidal_mask is not None
-        and 'normalVelocity' in ds_means
-        and 'layerThickness' in ds_means
-    ):
-        # an estimate: the product of daily means leaves out how the
-        # velocity and thickness vary together within the day
-        inflow = _transport_out_of(
-            ds_init,
-            tidal_mask.values,
-            ds_means.normalVelocity,
-            ds_means.layerThickness,
-        )
-        ds_volume['tidalForcingInflow'] = ('Time', seconds * inflow)
-        ds_volume.tidalForcingInflow.attrs = dict(
-            long_name='transport in from the tidally forced cells',
             units='m3',
         )
 
@@ -735,36 +691,6 @@ def compute_daily_volume_budget(
             units='m3',
         )
     return ds_volume
-
-
-def _transport_out_of(ds_init, inside, normal_velocity, layer_thickness):
-    """
-    The transport (m3 s-1) out of a set of cells, summed over the edges
-    between them and the other cells, with the flux thickness on each edge
-    the mean of its two cells', as in MPAS-Ocean
-    """
-    cells_on_edge = ds_init.cellsOnEdge.values - 1
-    edges = np.flatnonzero(np.all(cells_on_edge >= 0, axis=1))
-    cell1 = cells_on_edge[edges, 0]
-    cell2 = cells_on_edge[edges, 1]
-    crossing = inside[cell1] != inside[cell2]
-    edges = edges[crossing]
-    cell1 = cell1[crossing]
-    cell2 = cell2[crossing]
-    # positive normal velocity is from the first cell to the second
-    sign = np.where(inside[cell1], 1.0, -1.0)
-    dim = 'nBoundaryEdges'
-    velocity = normal_velocity.isel(nEdges=xr.DataArray(edges, dims=dim))
-    thickness = 0.5 * (
-        layer_thickness.isel(nCells=xr.DataArray(cell1, dims=dim))
-        + layer_thickness.isel(nCells=xr.DataArray(cell2, dims=dim))
-    )
-    weight = xr.DataArray(sign * ds_init.dvEdge.values[edges], dims=dim)
-    # a day without the means, as before a run wrote them, has no transport
-    transport = (velocity * thickness * weight).sum(
-        dim=[dim, 'nVertLevels'], min_count=1
-    )
-    return transport.values
 
 
 def _has_tidal_forcing(run):

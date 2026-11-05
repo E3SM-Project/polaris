@@ -328,20 +328,17 @@ class OceanVolumeBudget(ProductStep):
         if 'tidalForcingInflow' in ds:
             inflow = ds.tidalForcingInflow.values
             rest = change - surface - inflow
-            # exact from the tidal tendency or estimated from the transport
             label = ds.tidalForcingInflow.attrs['long_name']
             terms.append((label, inflow, '-'))
             terms.append(('the rest', rest, ':'))
             self._log_budget(ds, change, surface, label, inflow, rest)
         else:
-            terms.append(
-                (
-                    'outflow through the tidally forced cells, and anything '
-                    'else',
-                    change - surface,
-                    ':',
-                )
-            )
+            # forcing that sets the thickness directly gives no daily term
+            # for the flow through the forced cells
+            label = 'the rest'
+            if ds.attrs.get('tidal_forcing_type', 'none') != 'none':
+                label = 'inflow through the forced cells, and anything else'
+            terms.append((label, change - surface, ':'))
         names = ['volumeChange', 'meltAndFrazilVolume', 'tidalForcingInflow']
         self._plot_terms(
             time, terms, 'volume_budget', 'Ocean volume budget', ds, names
