@@ -105,6 +105,9 @@ class RunDiagnostics(Step):
         Whether the run has tidal forcing, whose mask marks the cells whose
         sea-surface height it holds
 
+    tidal_forcing_type : str or None
+        The run's ``config_tidal_forcing_type`` if it has tidal forcing
+
     min_thickness : float
         The minimum thickness (m) of a layer from the run's namelist, which
         sets which columns are dry
@@ -188,6 +191,7 @@ class RunDiagnostics(Step):
             self.daily_mean_filenames and self.daily_filenames
         )
         self.has_tidal_mask = False
+        self.tidal_forcing_type = None
         if self.has_daily_volume:
             self.add_output_file(filename=DAILY_VOLUME_FILENAME)
             if _has_tidal_forcing(run):
@@ -196,6 +200,11 @@ class RunDiagnostics(Step):
                     target=run.input_filename(TIDAL_MASK_STREAM),
                 )
                 self.has_tidal_mask = True
+                self.tidal_forcing_type = (
+                    run.namelist_option('config_tidal_forcing_type')
+                    .strip()
+                    .strip('\'"')
+                )
         self.min_thickness = _fortran_float(
             run.namelist_option('config_drying_min_cell_height')
         )
@@ -543,6 +552,7 @@ class RunDiagnostics(Step):
             ds_init,
             self.ref_density,
             tidal_mask,
+            self.tidal_forcing_type,
         )
 
     def _daily(self):
@@ -563,7 +573,12 @@ class RunDiagnostics(Step):
 
 
 def compute_daily_volume_budget(
-    ds_means, ds_stats, ds_init, ref_density, tidal_mask=None
+    ds_means,
+    ds_stats,
+    ds_init,
+    ref_density,
+    tidal_mask=None,
+    tidal_forcing_type=None,
 ):
     """
     Compute the ocean's daily volume budget
@@ -572,9 +587,11 @@ def compute_daily_volume_budget(
     volume the tidal forcing adds in the cells whose sea-surface height it
     holds and by a small rest.  Water the land ice displaces as it grows
     heavier leaves through those cells.  The tidal forcing's term is exact
-    where the daily means have ``tidalLayerThicknessTendency``; otherwise
-    it is the transport in from those cells, an estimate from the daily
-    means of the velocity and thickness.  The land-ice load is an estimate
+    where the forcing is a thickness source and the daily means have
+    ``tidalLayerThicknessTendency``.  Forcing that sets the thickness
+    directly leaves that tendency at zero, so the term is then the
+    transport in from those cells, an estimate from the daily means of the
+    velocity and thickness.  The land-ice load is an estimate
     from daily means.
 
     Parameters
@@ -600,7 +617,11 @@ def compute_daily_volume_budget(
 
     tidal_mask : xarray.DataArray, optional
         Whether each cell is tidally forced, for the transport in from those
-        cells where the daily means have no tidal tendency
+        cells where the tidal tendency is not used
+
+    tidal_forcing_type : str, optional
+        The run's ``config_tidal_forcing_type``.  The tidal tendency is used
+        only for ``thickness_source``.
 
     Returns
     -------
@@ -658,7 +679,10 @@ def compute_daily_volume_budget(
             units='m3',
         )
 
-    if 'tidalLayerThicknessTendency' in ds_means:
+    if (
+        tidal_forcing_type == 'thickness_source'
+        and 'tidalLayerThicknessTendency' in ds_means
+    ):
         # the tendency the tidal forcing adds, sampled every time step, is
         # exact; it is zero outside the tidally forced cells
         rate = (ds_means.tidalLayerThicknessTendency * area).sum(
