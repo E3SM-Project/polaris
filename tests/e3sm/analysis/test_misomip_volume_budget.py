@@ -119,6 +119,31 @@ def test_only_edges_out_of_the_tidally_forced_cells_carry_their_inflow():
     np.testing.assert_allclose(ds.tidalForcingInflow, [expected, expected])
 
 
+def test_the_tidal_tendency_replaces_the_transport_estimate():
+    """The tendency is exact, so it is used even where the transport could
+    be estimated"""
+    ds_init, tidal_mask = _mesh()
+    ds_means = _means(STARTS, ENDS, velocity_into_domain=0.01)
+    tendency = np.zeros((2, 4, 2))
+    tendency[:, 2:, :] = 1.0e-9
+    ds_means['tidalLayerThicknessTendency'] = (
+        ('Time', 'nCells', 'nVertLevels'),
+        tendency,
+    )
+    ds = compute_daily_volume_budget(
+        ds_means,
+        _stats(ENDS, [0.0, 0.0]),
+        ds_init,
+        REF_DENSITY,
+        tidal_mask,
+    )
+    expected = 86400.0 * 1.0e-9 * AREA * 4
+    np.testing.assert_allclose(ds.tidalForcingInflow, [expected, expected])
+    assert ds.tidalForcingInflow.long_name == (
+        'volume added by the tidal forcing'
+    )
+
+
 def test_without_tidal_forcing_there_is_no_inflow_term():
     ds_init, _ = _mesh()
     ds = compute_daily_volume_budget(

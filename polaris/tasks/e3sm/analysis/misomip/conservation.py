@@ -328,11 +328,11 @@ class OceanVolumeBudget(ProductStep):
         if 'tidalForcingInflow' in ds:
             inflow = ds.tidalForcingInflow.values
             rest = change - surface - inflow
-            terms.append(
-                ('transport in from the tidally forced cells', inflow, '-')
-            )
+            # exact from the tidal tendency or estimated from the transport
+            label = ds.tidalForcingInflow.attrs['long_name']
+            terms.append((label, inflow, '-'))
             terms.append(('the rest', rest, ':'))
-            self._log_budget(ds, change, surface, inflow, rest)
+            self._log_budget(ds, change, surface, label, inflow, rest)
         else:
             terms.append(
                 (
@@ -428,7 +428,7 @@ class OceanVolumeBudget(ProductStep):
             title=title,
         )
 
-    def _log_budget(self, ds, change, surface, inflow, rest):
+    def _log_budget(self, ds, change, surface, label, inflow, rest):
         """Log the budget's totals and its largest rest"""
         valid = np.isfinite(change)
         if not np.any(valid):
@@ -437,8 +437,8 @@ class OceanVolumeBudget(ProductStep):
         self.logger.info(
             f'Over the {np.count_nonzero(valid)} days with the volume at '
             f'both ends: volume change {change[valid].sum():.4g} m3, melt + '
-            f'frazil {surface[valid].sum():.4g} m3, transport in from the '
-            f'tidally forced cells {inflow[valid].sum():.4g} m3, the rest '
+            f'frazil {surface[valid].sum():.4g} m3, {label} '
+            f'{inflow[valid].sum():.4g} m3, the rest '
             f'{rest[valid].sum():.4g} m3.'
         )
         index = int(np.nanargmax(np.abs(rest)))
