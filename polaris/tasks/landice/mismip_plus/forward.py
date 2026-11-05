@@ -111,6 +111,11 @@ class Forward(MismipPlusModelStep):
         options['config_calving'] = 'thickness_threshold'
         options['config_calving_thickness'] = MALI_DYNAMIC_THICKNESS
         options['config_remove_icebergs'] = True
+        # remove any ice that advances beyond the ice's initial extent, which
+        # ends at the calving front, since the calving mask removes only ice
+        # that MALI treats as dynamic, and leave alone any retreat
+        options['config_restore_calving_front'] = True
+        options['config_restore_calving_front_prevent_retreat'] = False
         options.update(_get_melt_options(experiment.melt))
         self.add_model_config_options(options=options)
 
@@ -122,8 +127,12 @@ class Forward(MismipPlusModelStep):
         Write the starting state, then set up MALI's namelist and partition
         the mesh
         """
-        _write_starting_state(
+        removed = _write_starting_state(
             'steady_state.nc', 'landice_grid.nc', self.start_year
+        )
+        self.logger.info(
+            f'Removed the ice in {removed} cells where the calving mask is '
+            f'1, beyond the calving front'
         )
         super().runtime_setup()
 
@@ -135,12 +144,41 @@ class Forward(MismipPlusModelStep):
         return f'restart.{self.end_year:05d}.nc'
 
 
+def remove_masked_ice(filename):
+    """
+    Remove the ice where MALI's calving mask is 1: the protocol calves all
+    ice beyond the calving front, so the initial condition holds none there
+
+    Parameters
+    ----------
+    filename : str
+        A MALI file with ``thickness`` and ``calvingMask``
+
+    Returns
+    -------
+    removed : int
+        The number of cells whose ice was removed
+    """
+    with netCDF4.Dataset(filename, 'a') as ds:
+        thickness = ds.variables['thickness'][:]
+        masked = np.logical_and(
+            ds.variables['calvingMask'][:] == 1, thickness > 0.0
+        )
+        thickness[masked] = 0.0
+        ds.variables['thickness'][:] = thickness
+    return int(masked.sum())
+
+
 def _write_starting_state(in_filename, out_filename, start_year):
     """
     Copy the steady state, a MALI restart, with its time set to the start of
-    the experiment, since MALI reads its starting state only at that time
+    the experiment, since MALI reads its starting state only at that time,
+    and without the ice beyond the calving front, so that the ice's initial
+    extent, to which MALI restores the calving front, ends there. Return the
+    number of cells whose ice was removed.
     """
     shutil.copyfile(in_filename, out_filename)
+    removed = remove_masked_ice(out_filename)
     with netCDF4.Dataset(out_filename, 'a') as ds:
         xtime = ds.variables['xtime']
         xtime.set_auto_chartostring(False)
@@ -149,6 +187,7 @@ def _write_starting_state(in_filename, out_filename, start_year):
         xtime[0, :] = np.frombuffer(
             start.ljust(xtime.shape[-1], b'\0'), dtype='S1'
         )
+    return removed
 
 
 def _get_melt_options(melt):

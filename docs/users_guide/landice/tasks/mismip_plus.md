@@ -47,7 +47,9 @@ The bed is that of Eqs. 1-4 of Asay-Davis et al. (2016).  Ice accumulates at
 0.3 m a⁻¹, and ice beyond $x = 640$ km is removed by MALI's calving mask.
 The experiments also calve floating ice thinner than 10 m, and icebergs,
 floating ice cut off from the grounded ice, both of which Ice2's melting can
-leave behind.  The spin-up removes no other ice.  Basal friction follows the
+leave behind.  They start without the steady state's ice beyond 640 km and
+restore the calving front, removing any ice that advances beyond it.  The
+spin-up removes no other ice.  Basal friction follows the
 power law (Eq. 6), with $m = 3$ and $\beta^2 = 3.160 \times 10^6$ Pa m⁻¹ᐟ³
 s¹ᐟ³, as MALI's Weertman law with a uniform friction coefficient and an
 effective pressure of 1 Pa.  Glen's law has $n = 3$ and a rate factor $A$ set

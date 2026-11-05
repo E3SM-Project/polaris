@@ -86,6 +86,7 @@
 
    forward.Forward
    forward.Forward.end_restart_filename
+   forward.remove_masked_ice
 
    cornford.Cornford2020
    cornford.Cornford2020.run

@@ -122,11 +122,14 @@ The physics:
 - the bed from Eqs. 1–4;
 - ice removed beyond $x = 640$ km: `config_apply_calving_mask = .true.`
   with `calvingMask` set to 1 where $x > 640$ km, and
-  `config_restore_calving_front` and `config_remove_small_islands`
-  `.false.`. The spin-up removes no other ice, with `config_calving` set to
-  `'none'` and `config_remove_icebergs` to `.false.`. The experiments also
+  `config_remove_small_islands` `.false.`. The spin-up removes no other
+  ice, with `config_calving` set to `'none'` and `config_remove_icebergs`
+  and `config_restore_calving_front` to `.false.`. The experiments also
   calve floating ice thinner than 10 m, and icebergs
-  ([D13](#decisions)). MALI counts the removed ice in `calvingThickness`;
+  ([D13](#decisions)). They start without the steady state's ice beyond
+  $x = 640$ km and restore the calving front, removing any ice that
+  advances beyond the initial extent ([D14](#decisions)). MALI counts the
+  removed ice in `calvingThickness`;
 - accumulation of 0.3 m a⁻¹;
 - the power law, Eq. 6, with $m = 3$ and the protocol's $\beta^2$, as
   MALI's Weertman law with uniform $\mu$ and an effective pressure of 1
@@ -586,3 +589,29 @@ allows.
 Rejected: shorter time steps, as in Compass's 2017 runs, with a CFL
 fraction of 0.25 rather than 0.8. They were not tried, since they would
 more than triple the cost of every experiment.
+
+### D14: The experiments restore the calving front
+
+Date last modified: 2026/11/05
+
+Contributors: Xylar Asay-Davis, Claude
+
+Every experiment starts from the steady state without its ice where the
+calving mask is 1, so the initial extent ends at $x = 640$ km. MALI
+restores the calving front to that extent, with
+`config_restore_calving_front = .true.`, and leaves retreat alone, with
+`config_restore_calving_front_prevent_retreat = .false.`. The calving mask
+stays on. The spin-up does neither.
+
+```{admonition} Rationale
+MALI's mask calving starts only from dynamic cells on the marine margin. A
+partly filled front cell is not dynamic until it reaches 95% of its inland
+neighbor's thickness, so ice beyond 640 km grows for months before the mask
+removes it. The steady state holds such ice in 95 cells, up to 88 m thick,
+and Ice0 removes and regrows it every 8 months. With the calving front
+restored, no ice lies beyond 640 km in any monthly record of a 20-year
+Ice0, and the drift is unchanged.
+```
+
+Rejected: a mesh extending beyond the calving front alone. On a 660 km
+mesh, Ice0 still cycles the same 95 cells.
