@@ -77,7 +77,7 @@ netCDF file, which can be published with it.
 
 ### Requirement: Exchanged fluxes are checked for conservation
 
-Date last modified: 2026/11/01
+Date last modified: 2026/11/04
 
 Contributors: Xylar Asay-Davis, Claude
 
@@ -85,6 +85,9 @@ Polaris reports whether the coupler's budgets close for the meltwater and
 heat exchanged between the ocean and MALI. In IceOcean1r and IceOcean1ra,
 it also compares the melt the ocean sends with the melt MALI applies, each
 from its own model's output.
+
+Polaris also closes the ocean's volume budget, so water that enters or
+leaves the ocean other than as melt is visible.
 
 ### Requirement: Runs are compared with each other
 
@@ -242,7 +245,7 @@ does.
 
 ### Algorithm Design: Exchanged fluxes are checked for conservation
 
-Date last modified: 2026/11/01
+Date last modified: 2026/11/04
 
 Contributors: Xylar Asay-Davis, Claude
 
@@ -272,6 +275,16 @@ Without $F_{ns}$ in the ocean's output, the cells it sends from are estimated fr
 floating fraction MALI gives it, and the comparison is labeled as an
 estimate. A period that contains the initial start, or that MALI's steps
 do not yet cover, is reported apart.
+
+**Ocean volume.** The ocean's volume changes by the melt and frazil under
+the ice, by the transport in from the cells whose tidal forcing holds
+their sea-surface height, and by a small rest. Water the ice shelf
+displaces as it grows heavier leaves through those cells, so the
+transport follows the change in the ice's load. The daily change comes
+from the global statistics at each day's ends. The other terms come from
+daily means, so they are estimates. The volume change less melt and
+frazil is also compared with the change in the load,
+$-\Delta(\sum p_{li} A)/(\rho_0 g)$.
 
 ### Algorithm Design: Runs are compared with each other
 
@@ -368,7 +381,7 @@ profile. All carry the segment's LID.
 
 ### Implementation: The analysis reads runs it did not set up
 
-Date last modified: 2026/11/01
+Date last modified: 2026/11/04
 
 Contributors: Xylar Asay-Davis, Claude
 
@@ -380,6 +393,7 @@ e3sm/analysis/<mesh_name>/misomip/<experiment>     one experiment
     standalone/diagnostics_<months>, standalone/plots_<months>
     comparison_<months>
     e3sm/conservation_<months>
+    <run>/volume_budget_<months>                   with daily output
     published_<months>
     protocol_fields_<months>                       only if enabled
     publish
@@ -433,7 +447,7 @@ Contributors: Xylar Asay-Davis, Claude
 
 ### Implementation: Exchanged fluxes are checked for conservation
 
-Date last modified: 2026/11/01
+Date last modified: 2026/11/04
 
 Contributors: Xylar Asay-Davis, Claude
 
@@ -444,6 +458,11 @@ converted to kg s⁻¹ and W with E3SM's Earth radius. The MISOMIP cases set
 cases add the flux the ocean keeps to its monthly means and write its daily
 means of the fluxes exchanged with MALI. MALI's global statistics, written
 every time step, hold the melt it applies.
+
+The ocean's volume budget reads `volumeCellGlobal` from the daily global
+statistics and the daily means of melt, frazil, velocity, layer thickness
+and land-ice pressure. The tidally forced cells are the run's
+`tidalInputMask`, from the input stream `tidal_forcing_mask`.
 
 ### Implementation: Runs are compared with each other
 
@@ -499,7 +518,7 @@ waits and Slurm's memory are left out.
 
 ### Testing and Validation
 
-Date last modified: 2026/11/01
+Date last modified: 2026/11/04
 
 Contributors: Xylar Asay-Davis, Claude
 
@@ -507,6 +526,9 @@ Contributors: Xylar Asay-Davis, Claude
   E3SM runs, parse budget tables from a coupler log, check melt totals and
   means on a small planar mesh against hand computation, and check that
   spreading transport over bins of $z$ conserves it.
+- On a small mesh, the volume budget's transport counts only the edges
+  out of the tidally forced cells, and its load change only days that
+  follow each other.
 - On the existing 4 km Ocean0 and Ocean3 runs, the monthly-mean melt
   flux matches the mean of the daily statistics, the overturning is near
   zero at the seafloor, and Ocean3's grounding line from MALI's history
