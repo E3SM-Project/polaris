@@ -283,10 +283,12 @@ For `iceocean1r` and `iceocean1ra`, `create_case.sh` also runs
 the streams files E3SM wrote into the case's SourceMods with more output:
 
 - the ocean's daily means of `landIceFreshwaterFlux`,
-  `frazilIceFreshwaterFlux`, `landIceFreshwaterFluxNotSentToGlc` and
-  `landIceHeatFlux`, sampled every time step, in place of E3SM's daily
-  list and hourly samples, and
-  `landIceFreshwaterFluxNotSentToGlc` in the monthly means;
+  `frazilIceFreshwaterFlux`, `landIceFreshwaterFluxNotSentToGlc`,
+  `landIceHeatFlux` and `tidalLayerThicknessTendency`, the thickness
+  tendency of the restoring region, sampled every time step, in place of
+  E3SM's daily list and hourly samples, and
+  `landIceFreshwaterFluxNotSentToGlc` and `tidalLayerThicknessTendency` in
+  the monthly means;
 - MALI's history every month, with the MISMIP+ tasks' output fields and
   the mesh, and a daily MALI stream with `floatingBasalMassBal` and
   `floatingBasalMassBalApplied`.

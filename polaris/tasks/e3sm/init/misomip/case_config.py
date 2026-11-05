@@ -192,17 +192,23 @@ CASE_CONFIG_FILES = [USER_MODS, 'README', CREATE_CASE, PES]
 
 #: The ocean's daily means in a case with a prognostic MALI, in place of
 #: E3SM's daily list: the melt and freezing fluxes, and the part of the melt
-#: not sent to MALI, from which the melt exchange can be checked day by day
+#: not sent to MALI, from which the melt exchange can be checked day by day,
+#: and the thickness tendency of the restoring region, which closes the
+#: ocean's volume budget
 DAILY_OCEAN_FIELDS = [
     'landIceFreshwaterFlux',
     'frazilIceFreshwaterFlux',
     'landIceFreshwaterFluxNotSentToGlc',
     'landIceHeatFlux',
+    'tidalLayerThicknessTendency',
 ]
 
 #: Fields added to the ocean's monthly means in a case with a prognostic
 #: MALI
-MONTHLY_OCEAN_FIELDS = ['landIceFreshwaterFluxNotSentToGlc']
+MONTHLY_OCEAN_FIELDS = [
+    'landIceFreshwaterFluxNotSentToGlc',
+    'tidalLayerThicknessTendency',
+]
 
 #: The interval of MALI's history in a case with a prognostic MALI, a month
 #: so that it aligns with the ocean's monthly means
