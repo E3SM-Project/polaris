@@ -175,3 +175,60 @@ def test_a_day_run_again_is_counted_once():
     )
     assert ds.sizes['Time'] == 2
     assert ds.volumeChange.values[1] == pytest.approx(2.0e7)
+
+
+def _with_frazil_tendency(ds_means, value, first_day_missing=False):
+    """Add a frazil thickness tendency in every layer of every cell"""
+    count = ds_means.sizes['Time']
+    values = np.full((count, 4, 2), value)
+    if first_day_missing:
+        values[0] = np.nan
+    ds_means['frazilLayerThicknessTendency'] = (
+        ('Time', 'nCells', 'nVertLevels'),
+        values,
+    )
+    return ds_means
+
+
+def test_frazil_s_thickness_tendency_is_its_volume():
+    """The tendency includes open-ocean frazil, which its freshwater flux
+    leaves out"""
+    ds = compute_daily_volume_budget(
+        _with_frazil_tendency(_means(STARTS, ENDS), -2.0e-10),
+        _stats(ENDS, [0.0, 0.0]),
+        _mesh(),
+        REF_DENSITY,
+    )
+    melt = AREA * 1.0e-5 / REF_DENSITY
+    frazil = -2.0e-10 * AREA * 4 * 2
+    expected = 86400.0 * (melt + frazil)
+    np.testing.assert_allclose(ds.meltAndFrazilVolume, [expected, expected])
+    assert ds.meltAndFrazilVolume.frazil == 'thickness tendency'
+
+
+def test_frazil_falls_back_to_its_flux_on_days_without_the_tendency():
+    ds = compute_daily_volume_budget(
+        _with_frazil_tendency(
+            _means(STARTS, ENDS), -2.0e-10, first_day_missing=True
+        ),
+        _stats(ENDS, [0.0, 0.0]),
+        _mesh(),
+        REF_DENSITY,
+    )
+    melt = AREA * 1.0e-5 / REF_DENSITY
+    from_flux = 86400.0 * (melt - AREA * 4 * 1.0e-7 / REF_DENSITY)
+    from_tendency = 86400.0 * (melt - 2.0e-10 * AREA * 4 * 2)
+    np.testing.assert_allclose(
+        ds.meltAndFrazilVolume, [from_flux, from_tendency]
+    )
+    assert ds.meltAndFrazilVolume.frazil == 'mixed'
+
+
+def test_without_the_tendency_frazil_comes_from_its_flux():
+    ds = compute_daily_volume_budget(
+        _means(STARTS, ENDS),
+        _stats(ENDS, [0.0, 0.0]),
+        _mesh(),
+        REF_DENSITY,
+    )
+    assert ds.meltAndFrazilVolume.frazil == 'freshwater flux'
