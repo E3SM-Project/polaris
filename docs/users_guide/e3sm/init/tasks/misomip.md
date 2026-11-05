@@ -46,9 +46,16 @@ line over neighboring cells.
 
 ## MALI's initial conditions and data-mode files
 
-Every MALI initial condition starts from the cached MISMIP+ steady state
-({ref}`landice-mismip-plus`), with the projection's latitude and longitude
-and its time set to the start of the run.  The `landice_init` step of
+MALI's mesh is the MISMIP+ 1 km mesh extended to $x = 660$ km, 20 km
+past the calving front, so the ocean sees ice-free MALI cells beyond the
+front.  The `landice_steady_state` step copies the cached MISMIP+ steady
+state ({ref}`landice-mismip-plus`) onto it by position, removing the ice
+where the calving mask is 1, as MALI does before its first output.  The
+cells past the MISMIP+ mesh have no ice.
+
+Every MALI initial condition starts from that steady state, with the
+projection's latitude and longitude and its time set to the start of the
+run.  The `landice_init` step of
 Ocean0–4 replaces the thickness where the ISOMIP+ input geometry covers
 MALI's mesh, $x \ge 320$ km, with the input's, remapped conservatively by
 the `maps/input_to_landice_aave` step:

@@ -19,6 +19,10 @@ from polaris.tasks.e3sm.init.misomip.landice_init import (
     InputMapStep,
     LandiceInitStep,
 )
+from polaris.tasks.e3sm.init.misomip.landice_steady_state import (
+    LANDICE_MESH_LENGTH,
+    LandiceSteadyStateStep,
+)
 from polaris.tasks.e3sm.init.misomip.maps import (
     MAPS,
     SMOOTHED_MAP,
@@ -31,6 +35,7 @@ from polaris.tasks.e3sm.init.misomip.mesh import (
 from polaris.tasks.e3sm.init.misomip.ocean_initial_condition import (
     OceanInitialConditionStep,
 )
+from polaris.tasks.landice.mismip_plus.init import Init as MismipPlusInit
 from polaris.tasks.landice.mismip_plus.steps import (
     get_mismip_plus_steady_state_steps,
 )
@@ -99,7 +104,9 @@ def get_misomip_mesh_steps(mesh_name):
     ]:
         steps[f'isomip_plus/{name}'] = isomip_plus_steps['ocean1'][name]
 
-    mismip_plus_steps, _ = get_mismip_plus_mesh_steps(resolutions['landice'])
+    mismip_plus_steps, _ = get_mismip_plus_mesh_steps(
+        resolutions['landice'], length=LANDICE_MESH_LENGTH
+    )
     steps['mismip_plus/mesh'] = mismip_plus_steps['mesh']
 
     def get_step(step_cls, subdir, **kwargs):
@@ -186,7 +193,7 @@ def get_misomip_experiment_steps(mesh_name, experiment):
 
     landice_steps = _get_landice_steps(mesh_name, config, steps, source)
     for name, step in landice_steps.items():
-        if name.startswith('mismip_plus/') or name.startswith('maps/'):
+        if name.startswith(('mismip_plus/', 'maps/', 'landice_steady_state')):
             steps[name] = step
         else:
             steps[f'{prefix}{name}'] = step
@@ -295,7 +302,27 @@ def _get_landice_steps(mesh_name, config, steps, experiment):
     )
     for name in ['init', 'spin_up_run', 'spin_up']:
         landice_steps[f'mismip_plus/{name}'] = steady_state_steps[name]
-    spin_up = steady_state_steps['spin_up']
+
+    # the steady state on the domain's mesh, copied onto MALI's longer mesh
+    long_init = _get_step(
+        mesh_name,
+        config,
+        MismipPlusInit,
+        os.path.join('landice_steady_state', 'init'),
+        mesh_step=steps['mismip_plus/mesh'],
+        name='landice_steady_state_init',
+    )
+    landice_steps['landice_steady_state/init'] = long_init
+    spin_up = _get_step(
+        mesh_name,
+        config,
+        LandiceSteadyStateStep,
+        'landice_steady_state',
+        spin_up_step=steady_state_steps['spin_up'],
+        init_step=long_init,
+        mesh_step=steps['mismip_plus/mesh'],
+    )
+    landice_steps['landice_steady_state'] = spin_up
 
     input_map = _get_step(
         mesh_name,

@@ -197,7 +197,9 @@ def test_mesh_steps_are_shared():
     assert steps['isomip_plus/topo/cull_mesh'].path == (
         'ocean/planar/isomip_plus/4km/topo/cull_mesh'
     )
-    assert steps['mismip_plus/mesh'].path == 'mesh/planar/mismip_plus/1km/mesh'
+    assert steps['mismip_plus/mesh'].path == (
+        'mesh/planar/mismip_plus/1km/660km/mesh'
+    )
     for map_name in [
         'landice_to_ocean_aave',
         'landice_to_ocean_smoothed',

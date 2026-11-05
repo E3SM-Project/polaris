@@ -344,6 +344,13 @@
    landice_init.set_lat_lon
    landice_init.set_xtime
 
+   landice_steady_state.LANDICE_MESH_LENGTH
+   landice_steady_state.LandiceSteadyStateStep
+   landice_steady_state.LandiceSteadyStateStep.run
+   landice_steady_state.copy_by_position
+   landice_steady_state.get_indices_by_position
+   landice_steady_state.remove_masked_ice
+
    landice_data.LandiceDataStep
    landice_data.LandiceDataStep.run
    landice_data.write_data_mode_file

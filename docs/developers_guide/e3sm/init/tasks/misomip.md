@@ -17,7 +17,9 @@ that make the meshes:
 - the ISOMIP+ ocean mesh, from
   {py:func}`polaris.tasks.ocean.isomip_plus.get_isomip_plus_mesh_steps()`;
 - MALI's mesh, from
-  {py:func}`polaris.tasks.mesh.planar.mismip_plus.get_mismip_plus_mesh_steps()`.
+  {py:func}`polaris.tasks.mesh.planar.mismip_plus.get_mismip_plus_mesh_steps()`,
+  with the length
+  {py:data}`polaris.tasks.e3sm.init.misomip.landice_steady_state.LANDICE_MESH_LENGTH`.
 
 The steps of the `e3sm/init` component are:
 
@@ -46,11 +48,19 @@ MISMIP+ steps that make the steady state, from
 {py:func}`polaris.tasks.landice.mismip_plus.steps.get_mismip_plus_steady_state_steps()`,
 and these steps, also of the `e3sm/init` component:
 
+- the MISMIP+ `init` step, on MALI's longer mesh, and
+  {py:class}`polaris.tasks.e3sm.init.misomip.landice_steady_state.LandiceSteadyStateStep`,
+  which copies the steady state onto that mesh with
+  {py:func}`polaris.tasks.e3sm.init.misomip.landice_steady_state.copy_by_position()`,
+  matching cells, edges and vertices by position, and removes the ice
+  where the calving mask is 1 with
+  {py:func}`polaris.tasks.e3sm.init.misomip.landice_steady_state.remove_masked_ice()`.
+  The cells past the MISMIP+ mesh keep the `init` step's fields;
 - {py:class}`polaris.tasks.e3sm.init.misomip.landice_init.InputMapStep`
   makes the conservative map from the ISOMIP+ input grid, described by the
   projection, to MALI's mesh, from its SCRIP file;
 - {py:class}`polaris.tasks.e3sm.init.misomip.landice_init.LandiceInitStep`
-  copies the steady state and replaces its thickness with
+  copies that steady state and replaces its thickness with
   {py:func}`polaris.tasks.e3sm.init.misomip.landice_init.get_landice_thickness()`,
   sets the latitude and longitude, and sets the time to the start of the
   run;

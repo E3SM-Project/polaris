@@ -24,7 +24,7 @@ class Init(Step):
     mesh
     """
 
-    def __init__(self, component, mesh_step, subdir):
+    def __init__(self, component, mesh_step, subdir, name='init'):
         """
         Create the step
 
@@ -38,8 +38,11 @@ class Init(Step):
 
         subdir : str
             The subdirectory for the step
+
+        name : str, optional
+            The name of the step
         """
-        super().__init__(component=component, name='init', subdir=subdir)
+        super().__init__(component=component, name=name, subdir=subdir)
         self.add_input_file(
             filename='mesh.nc',
             work_dir_target=f'{mesh_step.path}/mali_mesh.nc',
