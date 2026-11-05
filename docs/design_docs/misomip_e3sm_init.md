@@ -878,8 +878,9 @@ Contributors: Xylar Asay-Davis, Claude
 MALI's mesh is the MISMIP+ 1 km mesh extended in $x$ to 660 km, 20 km past
 the calving front, plus its two-cell gutter. Its first cells are the
 MISMIP+ mesh's, at the same positions. The MISMIP+ steady state is copied
-onto it by position, and its ice where the calving mask is 1 is removed,
-as MALI removes it before its first output. The cells beyond the MISMIP+
+onto it by position, and its ice where the calving mask is 1, beyond the
+protocol's calving front, is removed, so the initial condition puts no
+ice on the ocean past the front. The cells beyond the MISMIP+
 mesh take the MISMIP+ initial fields: no ice, a calving mask of 1 and the
 analytic bed. The calving front stays at $x = 640$ km.
 
