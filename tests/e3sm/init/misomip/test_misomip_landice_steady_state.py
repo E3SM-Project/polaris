@@ -124,3 +124,13 @@ def test_landice_steady_state_steps():
         entry['work_dir_target'] for entry in steps['landice_init'].input_data
     ]
     assert f'{steady_state.path}/steady_state.nc' in targets
+
+
+@pytest.mark.parametrize('experiment', ['ocean3', 'iceocean1r', 'iceocean1ra'])
+def test_step_links_do_not_nest(experiment):
+    # a task links each step at its key, so no key may be a directory
+    # holding another
+    steps, _ = get_misomip_experiment_steps('misomip-o4km-li1km', experiment)
+    for name in steps:
+        nested = [other for other in steps if other.startswith(f'{name}/')]
+        assert not nested, f'{name} would hold {nested}'

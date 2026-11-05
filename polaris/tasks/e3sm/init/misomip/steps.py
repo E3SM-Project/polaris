@@ -308,11 +308,11 @@ def _get_landice_steps(mesh_name, config, steps, experiment):
         mesh_name,
         config,
         MismipPlusInit,
-        os.path.join('landice_steady_state', 'init'),
+        'landice_steady_state_init',
         mesh_step=steps['mismip_plus/mesh'],
         name='landice_steady_state_init',
     )
-    landice_steps['landice_steady_state/init'] = long_init
+    landice_steps['landice_steady_state_init'] = long_init
     spin_up = _get_step(
         mesh_name,
         config,
