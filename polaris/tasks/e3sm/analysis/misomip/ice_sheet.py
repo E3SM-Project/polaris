@@ -218,7 +218,10 @@ class IceSheetComparison(ProductStep):
         coupled_stats = _stats_series(
             read_landice_stats(self.stats_filenames), self.start
         )
-        ds_landice = xr.open_dataset(LANDICE_FILENAME)
+        # the times are days, not dates to decode
+        ds_landice = xr.open_dataset(
+            LANDICE_FILENAME, decode_times=False, decode_timedelta=False
+        )
         coupled_gl_years = (ds_landice.daysSince0001.values - self.start) / (
             365.0
         )
