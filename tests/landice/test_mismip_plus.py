@@ -180,13 +180,19 @@ def test_write_starting_state(tmp_path):
     ds = xr.Dataset()
     ds['xtime'] = ('Time', np.array(['1000-01-01_00:00:00'], dtype='S64'))
     ds['thickness'] = (('Time', 'nCells'), np.ones((1, 3)))
+    # the last cell is beyond the calving front
+    ds['calvingMask'] = (('Time', 'nCells'), np.array([[0, 0, 1]], 'int32'))
     write_netcdf(ds, str(tmp_path / 'steady_state.nc'))
 
     out_filename = str(tmp_path / 'landice_grid.nc')
-    _write_starting_state(str(tmp_path / 'steady_state.nc'), out_filename, 100)
+    removed = _write_starting_state(
+        str(tmp_path / 'steady_state.nc'), out_filename, 100
+    )
     ds = read_output(out_filename)
     np.testing.assert_allclose(ds.Time, [100.0])
-    np.testing.assert_allclose(ds.thickness, 1.0)
+    # the ice beyond the calving front is removed
+    np.testing.assert_allclose(ds.thickness, [[1.0, 1.0, 0.0]])
+    assert removed == 1
 
 
 def test_mismip_plus_tasks():

@@ -89,11 +89,13 @@ the experiment it starts from.  It is named for its experiment, such as
 `ice1r_forward`, since a task may include the step of the experiment it
 starts from as well.  It copies the steady state to `landice_grid.nc` with
 its time set to the experiment's start, since MALI reads its starting state
-only at that time, and makes its own graph file from it, so it does not
-depend on the mesh step.  MALI takes Ice2's melt rate as a heat flux, which
+only at that time, and without the ice where the calving mask is 1, with
+{py:func}`polaris.tasks.landice.mismip_plus.forward.remove_masked_ice`.  It
+makes its own graph file from it, so it does not depend on the mesh step.  MALI takes Ice2's melt rate as a heat flux, which
 the step computes with the latent heat of a standalone MALI build.  It also
 has MALI calve floating ice thinner than 10 m, the thickness below which
-MALI's ice is not dynamic by default, and icebergs.
+MALI's ice is not dynamic by default, and icebergs, and restore the calving
+front to the ice's initial extent, without preventing its retreat.
 
 ### cornford2020
 
