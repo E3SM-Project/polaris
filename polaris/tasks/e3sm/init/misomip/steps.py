@@ -41,7 +41,10 @@ from polaris.tasks.landice.mismip_plus.steps import (
 )
 from polaris.tasks.mesh.planar.mismip_plus import get_mismip_plus_mesh_steps
 from polaris.tasks.ocean.isomip_plus import get_isomip_plus_mesh_steps
-from polaris.tasks.ocean.misomip import get_misomip_ocean_steps
+from polaris.tasks.ocean.misomip import (
+    SPLIT_EXPLICIT,
+    get_misomip_ocean_steps,
+)
 from polaris.tasks.ocean.misomip.topo import get_smoothing_distance
 
 #: The pairs of ocean and MALI meshes, with each one's resolution in km
@@ -50,10 +53,19 @@ MESH_PAIRS = {
     'misomip-o2km-li1km': {'ocean': 2.0, 'landice': 1.0},
 }
 
+#: The time integrators of an experiment's case configurations, each with
+#: the subdirectory of its case configuration and standalone forward run:
+#: RK4's at the top and split-explicit's in its own
+INTEGRATOR_SUBDIRS = {'RK4': '', 'split_explicit': SPLIT_EXPLICIT}
+
 #: The steps that the tasks include but don't run by default: the
-#: standalone ocean run, for comparison with E3SM and for the namelist the
-#: E3SM case shares.  IceOcean1ra's case takes IceOcean1r's namelist.
-NOT_RUN_BY_DEFAULT = ['ocean/forward', 'iceocean1r/ocean/forward']
+#: standalone ocean runs, for comparison with E3SM and for the namelists the
+#: E3SM cases share.  IceOcean1ra's cases take IceOcean1r's namelists.
+NOT_RUN_BY_DEFAULT = [
+    os.path.join(prefix, 'ocean', subdir, 'forward')
+    for prefix in ['', 'iceocean1r']
+    for subdir in INTEGRATOR_SUBDIRS.values()
+]
 
 #: The stem of each model's partition files, as E3SM names them
 PARTITION_BASENAMES = {
@@ -209,7 +221,7 @@ def get_misomip_experiment_steps(mesh_name, experiment):
     )
     steps[f'{prefix}land_ice_on_ocean'] = land_ice_on_ocean
 
-    ocean_steps, ocean_config, final_ocean_step = get_misomip_ocean_steps(
+    ocean_steps, _, final_ocean_step = get_misomip_ocean_steps(
         mesh_name=mesh_name,
         resolution=MESH_PAIRS[mesh_name]['ocean'],
         experiment=experiment,
@@ -234,10 +246,16 @@ def get_misomip_experiment_steps(mesh_name, experiment):
             forward=True,
             data_mode=source in DATA_MODE_EXPERIMENTS,
         )
-        forward_step = source_ocean_steps['ocean/forward']
-        steps[f'{source}/ocean/forward'] = forward_step
+        forward_steps = dict()
+        for subdir in INTEGRATOR_SUBDIRS.values():
+            name = os.path.join('ocean', subdir, 'forward')
+            forward_steps[subdir] = source_ocean_steps[name]
+            steps[f'{source}/{name}'] = source_ocean_steps[name]
     else:
-        forward_step = ocean_steps['ocean/forward']
+        forward_steps = {
+            subdir: ocean_steps[os.path.join('ocean', subdir, 'forward')]
+            for subdir in INTEGRATOR_SUBDIRS.values()
+        }
 
     expdir = os.path.join('misomip', experiment)
     product_steps = {
@@ -264,21 +282,26 @@ def get_misomip_experiment_steps(mesh_name, experiment):
         if 'landice_data' in landice_steps:
             product_steps['landice_data'] = landice_steps['landice_data']
 
-    case_config = _get_step(
-        mesh_name,
-        config,
-        CaseConfigStep,
-        os.path.join(expdir, 'case_config'),
-        experiment=experiment,
-        mesh_steps={
-            'ocean': steps['ocean_mesh'],
-            'landice': steps['landice_mesh'],
-        },
-        forward_step=forward_step,
-        ocean_config_filepath=ocean_config.filepath,
-    )
-    steps['case_config'] = case_config
-    product_steps['case_config'] = case_config
+    for integrator, subdir in INTEGRATOR_SUBDIRS.items():
+        forward_step = forward_steps[subdir]
+        name = os.path.join(subdir, 'case_config')
+        case_config = _get_step(
+            mesh_name,
+            config,
+            CaseConfigStep,
+            os.path.join(expdir, name),
+            experiment=experiment,
+            mesh_steps={
+                'ocean': steps['ocean_mesh'],
+                'landice': steps['landice_mesh'],
+            },
+            forward_step=forward_step,
+            ocean_config_filepath=forward_step.config.filepath,
+            time_integrator=integrator,
+            name=name.replace('/', '_'),
+        )
+        steps[name] = case_config
+        product_steps[name] = case_config
 
     steps['assemble'] = _get_step(
         mesh_name,

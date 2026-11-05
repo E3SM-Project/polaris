@@ -20,7 +20,14 @@ class MisomipForward(Forward):
     """
 
     def __init__(
-        self, component, subdir, resolution, init, ssh_adjust, data_mode
+        self,
+        component,
+        subdir,
+        resolution,
+        init,
+        ssh_adjust,
+        data_mode,
+        name='forward',
     ):
         """
         Create the step
@@ -45,9 +52,13 @@ class MisomipForward(Forward):
 
         data_mode : bool
             Whether the land-ice geometry varies in time
+
+        name : str, optional
+            The name of the step, unique among the steps of a task that
+            has more than one forward run
         """
-        indir, name = os.path.split(subdir)
-        if name != 'forward':
+        indir, basename = os.path.split(subdir)
+        if basename != 'forward':
             raise ValueError(f'The subdirectory {subdir} must end in forward')
         super().__init__(
             component=component,
@@ -57,6 +68,8 @@ class MisomipForward(Forward):
             ssh_adjust=ssh_adjust,
             thin_film=True,
         )
+        # the ISOMIP+ forward step names itself for its directory
+        self.name = name
         self.data_mode = data_mode
 
     def get_forcing_interval(self, at_setup):

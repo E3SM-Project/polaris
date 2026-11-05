@@ -114,14 +114,19 @@ def _expected(
     if data_mode:
         expected.add(f'{glc}/{LANDICE_GRID}.{experiment}_datamode.{date}.nc')
     if case_config:
-        expected |= {
-            f'case_config/{experiment}/user_mods',
-            f'case_config/{experiment}/README',
-            f'case_config/{experiment}/create_case.sh',
-            f'case_config/{experiment}/pes.xml',
-        }
-        if experiment.startswith('iceocean'):
-            expected.add(f'case_config/{experiment}/edit_streams.py')
+        # RK4's case configuration and split-explicit's
+        for case_dir in [
+            f'case_config/{experiment}',
+            f'case_config/split_explicit/{experiment}',
+        ]:
+            expected |= {
+                f'{case_dir}/user_mods',
+                f'{case_dir}/README',
+                f'{case_dir}/create_case.sh',
+                f'{case_dir}/pes.xml',
+            }
+            if experiment.startswith('iceocean'):
+                expected.add(f'{case_dir}/edit_streams.py')
     return expected
 
 

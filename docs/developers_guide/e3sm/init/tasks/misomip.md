@@ -92,16 +92,22 @@ drying options, as the forward run does.  `iceocean1ra` (in `CONTINUES_FROM`) ge
 thin-film options, overriding
 {py:meth}`polaris.tasks.ocean.isomip_plus.forward.Forward.get_forcing_interval()`
 to give the monthly interval of the data-mode records.  With fixed
-geometry, it turns the time-varying land-ice forcing off.  The task adds it
-with `run_by_default=False` (see `NOT_RUN_BY_DEFAULT`).
+geometry, it turns the time-varying land-ice forcing off.  Each experiment
+with a forward run has two, from the same initial condition: one with RK4,
+from the experiment's ocean config, and one in `split_explicit`
+(`SPLIT_EXPLICIT` in `polaris.tasks.ocean.misomip`), whose own config
+adds the ISOMIP+ `split_explicit.cfg`.  Only the forward run reads that
+config, so the SSH adjustment keeps RK4.  The task adds both runs with
+`run_by_default=False` (see `NOT_RUN_BY_DEFAULT`).
 
 {py:class}`polaris.tasks.e3sm.init.misomip.ocean_initial_condition.OceanInitialConditionStep`
 merges the ocean's mesh, from `init`, with the state the final SSH
 adjustment wrote, since E3SM's MPAS-Ocean reads both from its initial
 condition.
 {py:class}`polaris.tasks.e3sm.init.misomip.case_config.CaseConfigStep`
-writes the E3SM case configuration of an experiment with a standalone
-ocean run.
+writes the E3SM case configuration of an experiment for each of the
+standalone runs' time integrators, in `INTEGRATOR_SUBDIRS`: RK4's in
+`case_config` and split-explicit's in `split_explicit/case_config`.
 {py:class}`polaris.tasks.e3sm.init.misomip.assemble.MisomipAssembleStep`
 subclasses {py:class}`polaris.e3sm.init.assemble.AssembleStep` to stage the
 experiment's files.
@@ -125,9 +131,11 @@ workflow would stage the same way, and from MISOMIP's own path functions in
 `polaris.tasks.e3sm.init.misomip.names`, such as
 {py:func}`polaris.tasks.e3sm.init.misomip.names.ocean_initial_condition_path()`
 and {py:func}`polaris.tasks.e3sm.init.misomip.names.map_path()`.  The case
-configuration's step is keyed `case_config`, and its user-mods directory
-and README are staged under
-{py:func}`polaris.tasks.e3sm.init.misomip.names.case_config_dir()`.  The
+configurations' steps are keyed `case_config` and
+`split_explicit/case_config`, and their user-mods directories and READMEs
+are staged under
+{py:func}`polaris.tasks.e3sm.init.misomip.names.case_config_dir()`, with
+the integrator's subdirectory.  The
 creation date is `[misomip_inputs] creation_date`, which
 {py:meth}`polaris.tasks.e3sm.init.misomip.MisomipTask.configure()` fills in
 with {py:func}`polaris.e3sm.init.inputdata.set_creation_date()`.
@@ -135,9 +143,12 @@ with {py:func}`polaris.e3sm.init.inputdata.set_creation_date()`.
 ## Case configuration
 
 {py:class}`polaris.tasks.e3sm.init.misomip.case_config.CaseConfigStep`
-reads the namelist the standalone `ocean/forward` step wrote at setup, and
-MPAS-Ocean's default namelist, found from the experiment's ocean config
-file.
+reads the namelist its standalone forward step wrote at setup, and
+MPAS-Ocean's default namelist, found from that step's ocean config
+file.  The split-explicit options all differ from MPAS-Ocean's defaults,
+which are E3SM's, so they are written like any other.  The README of a
+split-explicit case names the change it needs that FAnSSIE lacks,
+`SPLIT_EXPLICIT_PENDING`, since no option can check for it.
 {py:func}`polaris.tasks.e3sm.init.misomip.case_config.get_user_nl_mpaso()`
 writes the options whose values differ from the defaults, except in the
 groups E3SM sets itself (`STANDALONE_GROUPS`).  Of each analysis member's

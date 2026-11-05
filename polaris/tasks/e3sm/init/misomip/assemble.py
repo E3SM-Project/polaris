@@ -20,9 +20,11 @@ PRODUCT_FILES = {
     'landice_data': 'landice_datamode.nc',
 }
 
-#: The step that writes the case configuration, whose files are those
+#: The step that writes a case configuration, whose files are those
 #: ``get_case_config_files()`` gives, in
-#: :py:mod:`polaris.tasks.e3sm.init.misomip.case_config`
+#: :py:mod:`polaris.tasks.e3sm.init.misomip.case_config`.  The key of the
+#: step of a time integrator other than RK4 is in that integrator's
+#: subdirectory, ``<subdir>/case_config``.
 CASE_CONFIG = 'case_config'
 
 #: The steps whose partitions are staged, and the stem of their files
@@ -46,7 +48,7 @@ class MisomipAssembleStep(AssembleStep):
         The steps whose outputs are staged, keyed as in
         :py:data:`PRODUCT_FILES` and :py:data:`PARTITION_PRODUCTS`, with
         each map's step keyed ``maps/<map name>`` and the case
-        configuration's :py:data:`CASE_CONFIG`
+        configurations' as in :py:data:`CASE_CONFIG`
     """
 
     def __init__(self, component, subdir, experiment, product_steps):
@@ -83,7 +85,7 @@ class MisomipAssembleStep(AssembleStep):
                 # known until the mesh exists, so found at run time
                 self.add_dependency(step, name=key)
                 continue
-            if key == CASE_CONFIG:
+            if _is_case_config(key):
                 filenames = get_case_config_files(experiment)
             else:
                 filenames = [_get_product_file(key)]
@@ -141,8 +143,10 @@ class MisomipAssembleStep(AssembleStep):
                     basename=PARTITION_PRODUCTS[key],
                     path_func=partition_paths[key],
                 )
-            elif key == CASE_CONFIG:
-                case_dir = names.case_config_dir(experiment)
+            elif _is_case_config(key):
+                case_dir = names.case_config_dir(
+                    experiment, os.path.dirname(key)
+                )
                 for filename in get_case_config_files(experiment):
                     self.stage(
                         _get_staged_source(key, filename),
@@ -150,6 +154,13 @@ class MisomipAssembleStep(AssembleStep):
                     )
             else:
                 self.stage(_get_staged_source(key), paths[key])
+
+
+def _is_case_config(key):
+    """
+    Whether a product step writes a case configuration
+    """
+    return os.path.basename(key) == CASE_CONFIG
 
 
 def _get_product_file(key):

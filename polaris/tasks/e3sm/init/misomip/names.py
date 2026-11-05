@@ -1,3 +1,5 @@
+import os
+
 from polaris.e3sm.init.inputdata import (
     get_nonempty_option,
     gridmaps_dir,
@@ -260,7 +262,7 @@ def map_path(src_grid, dst_grid, method, creation_date):
     )
 
 
-def case_config_dir(experiment):
+def case_config_dir(experiment, subdir=''):
     """
     Where an experiment's E3SM case configuration is staged
 
@@ -269,9 +271,13 @@ def case_config_dir(experiment):
     experiment : str
         The experiment
 
+    subdir : str, optional
+        The subdirectory of a case configuration with a time integrator
+        other than RK4, such as ``split_explicit``
+
     Returns
     -------
     path : str
         The path, relative to the assembled tree
     """
-    return f'case_config/{experiment}'
+    return os.path.join('case_config', subdir, experiment)

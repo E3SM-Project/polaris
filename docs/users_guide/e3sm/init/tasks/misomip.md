@@ -134,6 +134,12 @@ data mode steps from record to record.  `iceocean1r` has one only for its
 namelist, which both IceOcean cases share; in it, MALI's geometry stays
 fixed.  `iceocean1ra` has none.
 
+The `forward` step runs with RK4.  Beside it, `split_explicit/forward`
+runs from the same initial condition with the split-explicit time
+integrator of the ISOMIP+ `split_explicit` tasks, with its time steps,
+which scale with resolution, and the split form of the Coriolis term.  It
+is not run by default either.
+
 Besides the daily `output.nc`, `land_ice_fluxes.nc` and global statistics,
 the `forward` step writes E3SM's monthly means,
 `timeSeriesStatsMonthly.<date>.nc`, with the fields E3SM's monthly files
@@ -184,6 +190,8 @@ assembled_files/
             shell_commands
             user_nl_mpaso
             user_nl_mali
+    case_config/split_explicit/ocean3/
+        ...
 ```
 
 The `_forcing` file holds the ocean's interior restoring and the mask of
@@ -194,7 +202,14 @@ cases turn off MALI's runoff to the ocean.
 ## Case configuration
 
 The `case_config` step of each experiment writes the configuration of an
-E3SM case, which the `assemble` step stages in `case_config/`.  The README
+E3SM case, which the `assemble` step stages in `case_config/`.  The ocean
+takes the options of the standalone `forward` step, with RK4.  The
+`split_explicit/case_config` step writes a second configuration, staged in
+`case_config/split_explicit/`, from `split_explicit/forward`.  Both read
+the same staged files.  The split-explicit cases also need
+E3SM-Ocean-Discussion/E3SM#175, the ocean's per-layer limit on drying,
+which FAnSSIE does not have yet and which no option turns on, so build
+them from a checkout that has it.  The README
 gives the compset: MALI is static for `ocean0` to `ocean2`, replays its
 geometry in data mode for `ocean3` and `ocean4`, and is prognostic, with
 Albany's first-order velocity solver, for `iceocean1r` and `iceocean1ra`.

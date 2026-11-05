@@ -19,6 +19,10 @@ CONFIG_FILENAME = 'misomip_ocean.cfg'
 #: The name of the config file shared by the topography steps
 TOPO_CONFIG_FILENAME = 'isomip_plus_topo.cfg'
 
+#: The subdirectory of the standalone forward run with ISOMIP+'s
+#: split-explicit time integrator, beside the one with RK4
+SPLIT_EXPLICIT = 'split_explicit'
+
 
 def get_misomip_ocean_steps(
     mesh_name,
@@ -56,7 +60,8 @@ def get_misomip_ocean_steps(
         the SSH to the land-ice pressure, rather than only its forcing
 
     forward : bool, optional
-        Whether to add a standalone forward run from the initial condition
+        Whether to add standalone forward runs from the initial condition,
+        one with RK4 and one with ISOMIP+'s split-explicit time integrator
 
     data_mode : bool, optional
         Whether the land-ice geometry varies in time, as MALI's data mode
@@ -146,24 +151,44 @@ def get_misomip_ocean_steps(
         steps[f'ocean/{name}'] = step
 
     if forward:
-        steps['ocean/forward'] = component.get_or_create_shared_step(
-            step_cls=MisomipForward,
-            subdir=os.path.join(expdir, 'forward'),
-            config=config,
-            config_filename=CONFIG_FILENAME,
-            resolution=resolution,
-            init=init,
-            ssh_adjust=final_step,
-            data_mode=data_mode,
-        )
+        # both runs start from the same initial condition, from the SSH
+        # adjustment with RK4
+        forward_configs = {
+            'ocean/forward': ('forward', expdir, config),
+            f'ocean/{SPLIT_EXPLICIT}/forward': (
+                f'{SPLIT_EXPLICIT}_forward',
+                os.path.join(expdir, SPLIT_EXPLICIT),
+                _get_config(expdir, split_explicit=True),
+            ),
+        }
+        for key, (
+            name,
+            forward_dir,
+            forward_config,
+        ) in forward_configs.items():
+            steps[key] = component.get_or_create_shared_step(
+                step_cls=MisomipForward,
+                subdir=os.path.join(forward_dir, 'forward'),
+                config=forward_config,
+                config_filename=CONFIG_FILENAME,
+                resolution=resolution,
+                init=init,
+                ssh_adjust=final_step,
+                data_mode=data_mode,
+                name=name,
+            )
     return steps, config, final_step
 
 
-def _get_config(expdir):
+def _get_config(expdir, split_explicit=False):
     """
     Get or create the shared config for an experiment's ocean steps, those
-    of the ISOMIP+ tasks with a thin film, changed for MISOMIP
+    of the ISOMIP+ tasks with a thin film, changed for MISOMIP, or for its
+    split-explicit forward run alone, which adds the options of the ISOMIP+
+    split-explicit tasks
     """
+    if split_explicit:
+        expdir = os.path.join(expdir, SPLIT_EXPLICIT)
     filepath = os.path.join(ocean.name, expdir, CONFIG_FILENAME)
 
     def create():
@@ -178,6 +203,12 @@ def _get_config(expdir):
                 'polaris.tasks.ocean.isomip_plus', filename
             )
         config.add_from_package('polaris.tasks.ocean.misomip', CONFIG_FILENAME)
+        if split_explicit:
+            # only the forward run reads this config, so its SSH-adjustment
+            # options are unused
+            config.add_from_package(
+                'polaris.tasks.ocean.isomip_plus', f'{SPLIT_EXPLICIT}.cfg'
+            )
         config.set('vertical_grid', 'coord_type', 'z-star')
         return config
 

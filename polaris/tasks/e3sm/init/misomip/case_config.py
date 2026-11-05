@@ -52,6 +52,14 @@ PROGNOSTIC_EXPERIMENTS = ['iceocean1r', 'iceocean1ra']
 #: the ocean's ramp of the land-ice pressure it imports from MALI
 E3SM_COMMIT = '9d52375cfa'
 
+#: The change the split-explicit cases need that FAnSSIE does not have yet:
+#: the ocean's per-layer limit on drying, which has no namelist option, so
+#: no script can check for it
+SPLIT_EXPLICIT_PENDING = 'E3SM-Ocean-Discussion/E3SM#175'
+
+#: The ocean's time integrators a case configuration can have
+TIME_INTEGRATORS = ['RK4', 'split_explicit']
+
 #: The compset of each mode of MALI, by long name
 COMPSETS = {
     'static': '2000_SATM_SLND_SICE_MPASO%PISMF_SROF_MALI%SIASTATIC_SWAV',
@@ -324,6 +332,8 @@ class CaseConfigStep(Step):
         mesh_steps,
         forward_step,
         ocean_config_filepath,
+        time_integrator='RK4',
+        name='case_config',
     ):
         """
         Create the step
@@ -351,15 +361,26 @@ class CaseConfigStep(Step):
             The config file of the experiment's ocean steps, relative to the
             base work directory, which says where MPAS-Ocean's default
             namelist is
+
+        time_integrator : str, optional
+            The standalone run's time integrator, one of
+            :py:data:`TIME_INTEGRATORS`
+
+        name : str, optional
+            The name of the step, unique among the task's steps
         """
+        if time_integrator not in TIME_INTEGRATORS:
+            raise ValueError(
+                f'No E3SM case configuration with the time integrator '
+                f'{time_integrator}.'
+            )
         if experiment not in RUN_MONTHS:
             raise ValueError(
                 f'No E3SM case configuration for experiment {experiment}.'
             )
-        super().__init__(
-            component=component, name='case_config', subdir=subdir
-        )
+        super().__init__(component=component, name=name, subdir=subdir)
         self.experiment = experiment
+        self.time_integrator = time_integrator
         self.add_input_file(
             filename='ocean_scrip.nc',
             work_dir_target=os.path.join(
@@ -504,7 +525,10 @@ class CaseConfigStep(Step):
         layout_lines = get_layout_lines(layout, cells_per_task, machine)
         for line in layout_lines:
             self.logger.info(line)
-        _write('README', get_readme(experiment, grids, layout_lines))
+        _write(
+            'README',
+            get_readme(experiment, grids, layout_lines, self.time_integrator),
+        )
         _write(
             CREATE_CASE,
             get_create_case_script(
@@ -1041,7 +1065,7 @@ def get_user_nl_mali(experiment, flow_param_a):
     return '\n'.join(lines)
 
 
-def get_readme(experiment, grids, layout_lines):
+def get_readme(experiment, grids, layout_lines, time_integrator='RK4'):
     """
     Get the text of the README beside the user-mods directory, with the
     compset a case is created with and the layout
@@ -1056,6 +1080,9 @@ def get_readme(experiment, grids, layout_lines):
 
     layout_lines : list of str
         The description of the layout
+
+    time_integrator : str, optional
+        The ocean's time integrator, one of :py:data:`TIME_INTEGRATORS`
 
     Returns
     -------
@@ -1073,7 +1100,7 @@ def get_readme(experiment, grids, layout_lines):
     lines = [
         f'The E3SM case configuration of MISOMIP {experiment} on '
         f'{grids["model"]}, with MALI',
-        f'in {mode} mode.',
+        f"in {mode} mode and the ocean's {time_integrator} time integrator.",
         '',
         f'`{CREATE_CASE}` creates, sets up and builds a case, with the',
         "layout below.  It needs an E3SM checkout at FAnSSIE's",
@@ -1100,6 +1127,17 @@ def get_readme(experiment, grids, layout_lines):
         '',
     ]
     lines.extend(f'  {line}' for line in layout_lines)
+    if time_integrator == 'split_explicit':
+        lines.extend(
+            [
+                '',
+                'The split-explicit ocean also needs the per-layer limit on',
+                f'drying of {SPLIT_EXPLICIT_PENDING}, which FAnSSIE does not',
+                f'have yet.  It has no namelist option, so `{CREATE_CASE}`',
+                'cannot check for it: without it, the ocean runs without the',
+                'limit.  Build from an E3SM checkout that has it.',
+            ]
+        )
     lines.extend(
         [
             '',

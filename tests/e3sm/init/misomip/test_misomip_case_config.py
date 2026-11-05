@@ -7,8 +7,12 @@ from glob import glob
 import pytest
 
 import polaris.namelist
+from polaris.component import Component
 from polaris.tasks.e3sm.init import e3sm_init
-from polaris.tasks.e3sm.init.misomip import get_misomip_experiment_steps
+from polaris.tasks.e3sm.init.misomip import (
+    MisomipTask,
+    get_misomip_experiment_steps,
+)
 from polaris.tasks.e3sm.init.misomip.case_config import (
     COMPONENTS,
     COMPSETS,
@@ -28,6 +32,8 @@ from polaris.tasks.e3sm.init.misomip.case_config import (
     MONTHLY_OCEAN_FIELDS,
     RAMP_OPTION,
     RUN_MONTHS,
+    SPLIT_EXPLICIT_PENDING,
+    CaseConfigStep,
     get_case_config_files,
     get_create_case_script,
     get_edit_streams_script,
@@ -442,6 +448,14 @@ def test_readme_gives_the_layout():
     assert '--pesfile <this directory>/pes.xml' in text
 
 
+def test_readme_names_the_split_explicit_change_fanssie_lacks():
+    lines = ['layout: 64 tasks']
+    assert SPLIT_EXPLICIT_PENDING not in get_readme('ocean0', GRIDS, lines)
+    text = get_readme('iceocean1r', GRIDS, lines, 'split_explicit')
+    assert "the ocean's split_explicit time integrator" in text
+    assert SPLIT_EXPLICIT_PENDING in text
+
+
 @pytest.mark.parametrize(
     'value, expected',
     [
@@ -509,25 +523,93 @@ def test_grid_file():
         ('iceocean1ra', 'iceocean1r'),
     ],
 )
-def test_every_experiment_has_a_case_config(experiment, namelist_experiment):
+@pytest.mark.parametrize(
+    'integrator, subdir', [('RK4', ''), ('split_explicit', 'split_explicit/')]
+)
+def test_every_experiment_has_a_case_config(
+    experiment, namelist_experiment, integrator, subdir
+):
     _reset_shared_components()
     steps, _ = get_misomip_experiment_steps(MESH_NAME, experiment)
-    step = steps['case_config']
+    step = steps[f'{subdir}case_config']
+    assert step.time_integrator == integrator
     assert step.path == (
-        f'e3sm/init/{MESH_NAME}/misomip/{experiment}/case_config'
+        f'e3sm/init/{MESH_NAME}/misomip/{experiment}/{subdir}case_config'
     )
     targets = {
         entry['filename']: entry['work_dir_target']
         for entry in step.input_data
     }
+    # each integrator's case takes its own standalone run's namelist and
+    # config
+    ocean_dir = f'ocean/planar/misomip/{MESH_NAME}/{namelist_experiment}'
     assert targets['namelist.ocean'] == (
-        f'ocean/planar/misomip/{MESH_NAME}/{namelist_experiment}/forward/'
-        f'namelist.ocean'
+        f'{ocean_dir}/{subdir}forward/namelist.ocean'
     )
-    assert targets['ocean.cfg'] == (
-        f'ocean/planar/misomip/{MESH_NAME}/{experiment}/misomip_ocean.cfg'
+    assert targets['ocean.cfg'] == f'{ocean_dir}/{subdir}misomip_ocean.cfg'
+    assert f'{subdir}case_config' in steps['assemble'].product_steps
+
+
+@pytest.mark.parametrize('experiment', ['ocean3', 'iceocean1r', 'iceocean1ra'])
+def test_task_steps_have_unique_names(experiment):
+    # a task keys its steps by name, so the two forward runs and the two
+    # case configurations need their own
+    _reset_shared_components()
+    task = MisomipTask(
+        component=Component(name='e3sm/init'),
+        mesh_name=MESH_NAME,
+        experiment=experiment,
     )
-    assert 'case_config' in steps['assemble'].product_steps
+    assert task.steps['case_config'].time_integrator == 'RK4'
+    split = task.steps['split_explicit_case_config']
+    assert split.time_integrator == 'split_explicit'
+    assert split.subdir.endswith('split_explicit/case_config')
+    forward = 'split_explicit_forward'
+    assert task.steps[forward].subdir.endswith('split_explicit/forward')
+
+
+def test_split_explicit_forward_shares_the_initial_condition():
+    _reset_shared_components()
+    steps, _ = get_misomip_experiment_steps(MESH_NAME, 'iceocean1r')
+    rk4 = steps['ocean/forward']
+    split = steps['ocean/split_explicit/forward']
+    section = 'isomip_plus_forward'
+    assert rk4.config.get(section, 'time_integrator') == 'RK4'
+    assert split.config.get(section, 'time_integrator') == 'split_explicit'
+    # the SSH adjustment, which both runs start from, keeps RK4
+    ssh_steps = [
+        step for name, step in steps.items() if 'ssh_adjustment' in name
+    ]
+    assert ssh_steps
+    for step in ssh_steps:
+        assert step.config.get('ssh_adjustment', 'time_integrator') == 'RK4'
+    rk4_inputs = {entry['filename']: entry for entry in rk4.input_data}
+    split_inputs = {entry['filename']: entry for entry in split.input_data}
+    for filename, entry in rk4_inputs.items():
+        if entry['work_dir_target'] is not None:
+            assert (
+                split_inputs[filename]['work_dir_target']
+                == (entry['work_dir_target'])
+            )
+
+
+def test_case_config_needs_a_known_time_integrator():
+    _reset_shared_components()
+    steps, _ = get_misomip_experiment_steps(MESH_NAME, 'ocean0')
+    step = steps['case_config']
+    with pytest.raises(ValueError, match='time integrator'):
+        CaseConfigStep(
+            component=step.component,
+            subdir='other',
+            experiment='ocean0',
+            mesh_steps={
+                'ocean': steps['ocean_mesh'],
+                'landice': steps['landice_mesh'],
+            },
+            forward_step=steps['ocean/forward'],
+            ocean_config_filepath='misomip_ocean.cfg',
+            time_integrator='RK3',
+        )
 
 
 @pytest.mark.parametrize(

@@ -276,9 +276,13 @@ def test_forward_is_not_run_by_default():
         mesh_name='misomip-o4km-li1km',
         experiment='ocean0',
     )
-    assert 'forward' in task.steps
-    assert 'forward' not in task.steps_to_run
+    for name in ['forward', 'split_explicit_forward']:
+        assert name in task.steps
+        assert name not in task.steps_to_run
     assert 'ocean_init' in task.steps_to_run
+    # both case configurations run by default
+    assert 'case_config' in task.steps_to_run
+    assert 'split_explicit_case_config' in task.steps_to_run
 
 
 def test_ssh_adjustment_has_thin_film_wetting_and_drying():
