@@ -36,9 +36,9 @@ digraph fanssie {
     label="MALI-Dev/E3SM";
     labeljust=l; fontsize=12; color="#c3c2b7"; style="rounded";
     malidev [label=<<b>develop</b><br/><font color="#52514e">97 MALI commits ahead of E3SM</font>>, fillcolor="#ffffff"];
-    m213 [label=<<b>#213, #214, #216</b>  MALI's E3SM namelist without the lapse rate;<br/>MALI's inputs named by case variables;<br/>MALI's data-mode export follows its thickness file<br/><font color="#52514e">open · already in FAnSSIE</font>>, fillcolor="#deebff"];
-    m211 [label=<<b>#211, #218</b>  rebuild Albany's grid only when masks change;<br/>MALI's logical flags reach the velocity solver as integers<br/><font color="#52514e">open, approved · good to have for forward MALI runs</font>>, fillcolor="#deebff"];
-    m219 [label=<<b>#219</b>  MALI's data-mode reference time from a case variable<br/><font color="#52514e">draft · after #214 · already in FAnSSIE</font>>, fillcolor="#e8e8e4"];
+    m213 [label=<<b>#213, #214, #216, #218</b>  MALI's E3SM namelist without the lapse rate;<br/>MALI's inputs named by case variables;<br/>MALI's data-mode export follows its thickness file;<br/>MALI's logical flags reach the velocity solver as integers<br/><font color="#52514e">merged into develop · the first three already in FAnSSIE</font>>, fillcolor="#e3fcef"];
+    m211 [label=<<b>#211</b>  rebuild Albany's grid only when masks change<br/><font color="#52514e">open, approved · good to have for forward MALI runs</font>>, fillcolor="#deebff"];
+    m219 [label=<<b>#219</b>  MALI's data-mode reference time from a case variable;<br/>MALI skips inactive thermal-forcing fields<br/><font color="#52514e">open · already in FAnSSIE</font>>, fillcolor="#deebff"];
   }
 
   subgraph cluster_eod {
@@ -48,7 +48,8 @@ digraph fanssie {
     d141 [label=<<b>#141, #142</b>  land-ice fluxes only under floating ice<br/><font color="#52514e">open · already in FAnSSIE</font>>, fillcolor="#deebff"];
     d143 [label=<<b>#143, #145–#150</b>  forcing clock; fixes and options<br/>for E3SM's physics with a thin film<br/><font color="#52514e">merged into FAnSSIE</font>>, fillcolor="#e3fcef"];
     d175 [label=<<b>#175</b>  split-explicit wetting and drying<br/>(Carolyn's series + fixes; replaces #144);<br/>drying limited per layer, as in RK4<br/><font color="#52514e">draft · waits for Carolyn's review</font>>, fillcolor="#e8e8e4"];
-    d176 [label=<<b>#176</b>  split-explicit Coriolis in RK4's PV-flux form<br/>(option, default off; also proposed against master as #177)<br/><font color="#52514e">merged into FAnSSIE</font>>, fillcolor="#e3fcef"];
+    d176 [label=<<b>#176, #180</b>  split-explicit Coriolis in RK4's PV-flux form<br/>(option, default off, settable in E3SM's namelists;<br/>also proposed against master as #177)<br/><font color="#52514e">merged into FAnSSIE</font>>, fillcolor="#e3fcef"];
+    d178 [label=<<b>#178, #179, #181</b>  MALI skips inactive thermal-forcing fields;<br/>glc's ice-shelf geometry on its own (smoothed) map;<br/>the ocean ramps glc's land-ice pressure<br/><font color="#52514e">merged into FAnSSIE</font>>, fillcolor="#e3fcef"];
     d151 [label=<<b>#151</b>  merge MALI-Dev's develop<br/><font color="#52514e">merged into FAnSSIE</font>>, fillcolor="#e3fcef"];
     d158 [label=<<b>#158–#163</b>  ocean without an atmosphere; wetting and drying<br/>and tidal forcing in E3SM; kept floating fraction;<br/>MPAS-Ocean inputs named by case variables;<br/>an option that keeps glc runoff out of the ocean;<br/>conserved fluxes under ice shelves<br/><font color="#52514e">merged into FAnSSIE</font>>, fillcolor="#e3fcef"];
     d164 [label=<<b>#164–#167</b>  grounded-ice pressure cap in one threaded loop;<br/>one ocean density from pressure to depth;<br/>land-ice mask follows the ice fraction;<br/>land-ice geometry in monthly means<br/><font color="#52514e">merged into FAnSSIE</font>>, fillcolor="#e3fcef"];
@@ -95,7 +96,7 @@ digraph fanssie {
   d143 -> fanssie;
   d175 -> fanssie [style=dashed];
   m211 -> malidev [style=dashed];
-  m213 -> malidev [style=dashed];
+  m213 -> malidev;
   m219 -> malidev [style=dashed];
   d156 -> fanssie;
   d158 -> fanssie;
@@ -105,6 +106,7 @@ digraph fanssie {
   d171 -> fanssie;
   d173 -> fanssie;
   d176 -> fanssie;
+  d178 -> fanssie;
   malidev -> d151 [constraint=false];
   d151 -> fanssie;
 
@@ -114,6 +116,6 @@ e3sm_submodules/FAnSSIE", penwidth=1.5];
   legend [shape=plaintext, style="", label=<
     <table border="0" cellborder="1" cellspacing="4" cellpadding="4" color="#c3c2b7">
       <tr><td bgcolor="#e3fcef">merged</td><td bgcolor="#deebff">open</td><td bgcolor="#e8e8e4">draft</td><td bgcolor="#ffffff">no PR yet</td></tr>
-      <tr><td colspan="4" border="0"><font point-size="10" color="#52514e">dashed: not merged yet · as of 2026-11-04</font></td></tr>
+      <tr><td colspan="4" border="0"><font point-size="10" color="#52514e">dashed: not merged yet · as of 2026-11-05</font></td></tr>
     </table>>];
 }

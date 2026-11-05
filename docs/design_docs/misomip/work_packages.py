@@ -17,7 +17,7 @@ import sys
 import matplotlib.pyplot as plt
 from matplotlib.patches import Circle, FancyBboxPatch
 
-STATUS_DATE = '2026-11-04'
+STATUS_DATE = '2026-11-05'
 
 SURFACE = '#fcfcfb'
 INK = '#0b0b0b'
@@ -43,29 +43,29 @@ ROWS = [
     ('WP1', 'Standalone ISOMIP+ Ocean0–2 and thin-film tasks',
      'polaris #826 (partial bottom cells), #844', 'review', 0, ''),
     ('WP2', 'Split-explicit wetting and drying with a thin film',
-     "E3SM-O-D #176 merged (Coriolis); #175 awaits Carolyn's review; #861",
+     "E3SM-O-D #176, #180 merged (Coriolis); #175 awaits Carolyn's review; #861",
      'drafting', 4,
      ''),
     ('WP3', 'Landice component: MALI + Albany in Polaris',
      'polaris #871; E3SM-O-D #151 merged', 'draft', 0, ''),
     ('WP4', 'MISMIP+ spin-up with MALI',
-     'polaris #922; 1 km spin-up converged; Ice0–Ice2ra run',
+     'polaris #922; 1 km spin-up converged; front restore next',
      'draft', 0, ''),
     ('WP5', 'Mesh projection, SCRIP files and coupler maps',
      'polaris #931 (with WP6)', 'draft', 0,
      ''),
     ('WP6', 'E3SM inputs: initial conditions, partitions, cases',
-     'polaris #931 (with WP5); smoothed geometry next', 'draft', 0,
+     'polaris #931 (with WP5); 660 km MALI mesh, new inputs', 'draft', 0,
      ''),
     ('WP7', 'Idealized E3SM cases (no atmosphere, namelists)',
      'E3SM-O-D #156–#163 merged; design polaris #937', 'draft',
      0, ''),
     ('WP8', 'Moving grounding line in coupled runs',
-     'E3SM-O-D #164–#174 merged; step 6 passed; smoothed coupling next',
+     'E3SM-O-D #164–#174, #179, #181 merged; first coupled year run',
      'started', 2,
      ''),
     ('WP9', 'Analysis of the E3SM runs',
-     'polaris #939, #940; 1-year 4 km Ocean0–2 runs',
+     'polaris #939, #940; IceOcean1r year page',
      'drafting', 1, ''),
     ('WP10', 'Subgrid wetting and drying (optional)', '', 'none', None,
      'no stage needs it'),
