@@ -869,11 +869,19 @@ case configuration follows that run and the E3SM changes.
 
 ## Decisions
 
-### D1: Every experiment uses the MISMIP+ 1 km MALI mesh
+### D1: Every experiment uses the MISMIP+ 1 km MALI mesh, extended
 
-Date last modified: 2026/10/30
+Date last modified: 2026/11/05
 
 Contributors: Xylar Asay-Davis, Claude
+
+MALI's mesh is the MISMIP+ 1 km mesh extended in $x$ to 660 km, 20 km past
+the calving front, plus its two-cell gutter. Its first cells are the
+MISMIP+ mesh's, at the same positions. The MISMIP+ steady state is copied
+onto it by position, and its ice where the calving mask is 1 is removed,
+as MALI removes it before its first output. The cells beyond the MISMIP+
+mesh take the MISMIP+ initial fields: no ice, a calving mask of 1 and the
+analytic bed. The calving front stays at $x = 640$ km.
 
 Ocean0–4 use the mesh IceOcean1r uses. It covers all of the ISOMIP+ box's
 ice. Upstream of the protocol's input, $x < 320$ km, MALI keeps its
@@ -883,10 +891,20 @@ steady state, which no ocean cell sees.
 One MALI mesh means one set of SCRIP files and maps per ocean resolution.
 The E3SM runs of Ocean0–4 then test the maps that IceOcean1r and
 IceOcean1ra use.
+
+The ocean normalizes MALI's geometry by the mapped below-sea-level
+fraction. Where MALI's mesh ends at the calving front, an ocean cell
+beyond it is only partly covered, and the normalization raises its ice to
+full pressure, as at a side wall. Ice-free MALI cells past the front let
+the pressure taper across it. The copy by position needs no new spin-up.
 ```
 
-Rejected: a MALI mesh of the ISOMIP+ box. It would need its own mesh step,
-SCRIP files and maps, and its maps would not be the ones IceOcean1r uses.
+Rejected:
+
+- a MALI mesh of the ISOMIP+ box. It would need its own mesh step, SCRIP
+  files and maps, and its maps would not be the ones IceOcean1r uses;
+- the MISMIP+ mesh, which ends at the calving front;
+- a mesh to the ocean's 800 km.
 
 ### D2: The projection is centered on the ISOMIP+ box
 
@@ -950,7 +968,7 @@ Rejected:
   come from the bed;
 - smoothing in the initial condition only, since the first import would
   then differ from it;
-- MALI's bed through $R$, since MALI's mesh ends at $x = 641$ km and the
+- MALI's bed through $R$, since MALI's mesh ends at $x = 662$ km and the
   ocean's runs to 800 km.
 
 ### D5: Ocean steps belong to the ocean component
