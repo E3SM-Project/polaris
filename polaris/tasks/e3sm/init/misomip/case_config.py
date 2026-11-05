@@ -49,8 +49,8 @@ PROGNOSTIC_EXPERIMENTS = ['iceocean1r', 'iceocean1ra']
 
 #: The commit of FAnSSIE, E3SM's development branch for coupling the ocean
 #: and ice sheets, by which it has every change the cases need: the last is
-#: the map of MALI's geometry onto the ocean, ``GLC2OCN_SHELF_SMAPNAME``
-E3SM_COMMIT = '46549a6b31'
+#: the ocean's ramp of the land-ice pressure it imports from MALI
+E3SM_COMMIT = '9d52375cfa'
 
 #: The compset of each mode of MALI, by long name
 COMPSETS = {
@@ -156,6 +156,11 @@ DAILY_COMPUTE_INTERVAL = 'config_AM_timeSeriesStatsDaily_compute_interval'
 #: ``[misomip_land_ice_on_ocean] min_land_ice_fraction``, so the initial
 #: conditions and the imports agree
 MIN_FRACTION_OPTION = 'config_glc_ice_shelf_coupling_min_floating_fraction'
+
+#: The MPAS-Ocean option that ramps the land-ice pressure from MALI over
+#: each of MALI's coupling intervals, for a case whose MALI geometry
+#: changes.  E3SM sets the interval from the case's coupling.
+RAMP_OPTION = 'config_glc_ice_shelf_coupling_ramp_land_ice_pressure'
 
 #: MALI options an E3SM case sets.  The densities are those the ocean's
 #: initial condition used for the land-ice pressure.  Building Albany's
@@ -456,6 +461,9 @@ class CaseConfigStep(Step):
                     'misomip_land_ice_on_ocean', 'min_land_ice_fraction'
                 ),
                 daily_means=prognostic,
+                # MALI's geometry changes in data mode and when prognostic
+                ramp_land_ice_pressure=get_mali_mode(self.experiment)
+                != 'static',
             ),
         )
         mismip_plus_config = PolarisConfigParser()
@@ -867,7 +875,11 @@ def get_shell_commands(
 
 
 def get_user_nl_mpaso(
-    standalone, defaults, min_land_ice_fraction, daily_means=False
+    standalone,
+    defaults,
+    min_land_ice_fraction,
+    daily_means=False,
+    ramp_land_ice_pressure=False,
 ):
     """
     Get the text of ``user_nl_mpaso``: the options the standalone run sets,
@@ -893,6 +905,10 @@ def get_user_nl_mpaso(
         :py:data:`DAILY_OCEAN_FIELDS` sampled every time step, for a case
         with a prognostic MALI
 
+    ramp_land_ice_pressure : bool, optional
+        Whether to ramp the land-ice pressure from MALI over each of MALI's
+        coupling intervals, for a case in which MALI's geometry changes
+
     Returns
     -------
     text : str
@@ -917,6 +933,8 @@ def get_user_nl_mpaso(
     if daily_means:
         e3sm_only[DAILY_SWITCH] = '.true.'
         e3sm_only[DAILY_COMPUTE_INTERVAL] = "'dt'"
+    if ramp_land_ice_pressure:
+        e3sm_only[RAMP_OPTION] = '.true.'
 
     lines = [
         "! The standalone MPAS-Ocean run's options, written by Polaris",

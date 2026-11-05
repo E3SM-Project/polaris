@@ -26,6 +26,7 @@ from polaris.tasks.e3sm.init.misomip.case_config import (
     MALI_HISTORY_INTERVAL,
     MISMIP_PLUS_STANDALONE_OPTIONS,
     MONTHLY_OCEAN_FIELDS,
+    RAMP_OPTION,
     RUN_MONTHS,
     get_case_config_files,
     get_create_case_script,
@@ -583,6 +584,18 @@ def test_shell_commands_branch_run_names_the_source_initial_conditions():
         get_shell_commands(
             'iceocean1ra', GRIDS, DATE, DIN_LOC_ROOT, 12, COUPLINGS, DT
         )
+
+
+def test_user_nl_mpaso_ramps_the_land_ice_pressure():
+    standalone, defaults = _namelists()
+    text = get_user_nl_mpaso(
+        standalone, defaults, 1e-3, ramp_land_ice_pressure=True
+    )
+    assert _options(text)[RAMP_OPTION] == '.true.'
+    # E3SM sets the interval of the ramp from the case's coupling
+    assert 'config_glc_ice_shelf_coupling_interval' not in _options(text)
+    text = get_user_nl_mpaso(standalone, defaults, 1e-3)
+    assert RAMP_OPTION not in _options(text)
 
 
 def test_user_nl_mpaso_turns_on_the_daily_means_once():
