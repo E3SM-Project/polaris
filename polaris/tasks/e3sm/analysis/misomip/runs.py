@@ -5,6 +5,7 @@ means each holds
 
 from typing import NamedTuple
 
+from polaris.e3sm.analysis.calendar import month_start_days
 from polaris.e3sm.analysis.runs import (
     E3smRun,
     StandaloneRun,
@@ -83,6 +84,17 @@ class ConfiguredRun(NamedTuple):
         if self.continues is not None:
             return self.continues.initial_run
         return self.run
+
+    @property
+    def period(self):
+        """The months analyzed, as days since 0001-01-01 from the start of
+        the first to the end of the last"""
+        first = self.monthly[0]
+        last = self.monthly[-1]
+        return (
+            month_start_days(first.year, first.month),
+            month_start_days(last.year, last.month + 1),
+        )
 
 
 def runs_section(mesh_name):

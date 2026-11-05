@@ -10,6 +10,7 @@ from polaris.e3sm.analysis.budgets import (
     read_budget_tables,
     read_initial_start,
 )
+from polaris.e3sm.analysis.performance import select_segment_logs
 from polaris.tasks.e3sm.analysis.misomip.diagnostics import (
     DAILY_VOLUME_FILENAME,
     TIME_SERIES_FILENAME,
@@ -71,7 +72,7 @@ class CouplerConservation(ProductStep):
         diagnostics, are plotted beside the monthly water budget
     """
 
-    def __init__(self, component, subdir, case, diagnostics=None):
+    def __init__(self, component, subdir, case, diagnostics=None, period=None):
         """
         Create the step
 
@@ -89,6 +90,10 @@ class CouplerConservation(ProductStep):
         diagnostics : RunDiagnostics, optional
             The diagnostics step of the case's run, whose monthly melt and
             frazil are plotted beside the monthly water budget
+
+        period : tuple of float, optional
+            The period analyzed, in days since 0001-01-01; only the logs of
+            the segments that start in it are read
         """
         super().__init__(
             component=component,
@@ -98,7 +103,10 @@ class CouplerConservation(ProductStep):
             cpus_per_task=1,
         )
         self.log_filenames = []
-        for path in case.find_logs('cpl'):
+        logs = case.find_logs('cpl')
+        if period is not None:
+            logs = select_segment_logs(logs, *period)
+        for path in logs:
             filename = os.path.join('logs', os.path.basename(path))
             self.add_input_file(filename=filename, target=path)
             self.log_filenames.append(filename)

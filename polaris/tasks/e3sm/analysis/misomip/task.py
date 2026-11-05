@@ -167,6 +167,7 @@ class MisomipAnalysisTask(Task):
                     RunPerformance,
                     f'{self.subdir}/e3sm/performance_{runs["e3sm"].key}',
                     case=case,
+                    period=runs['e3sm'].period,
                 )
             )
             if case.get_value('BUDGETS').upper() == 'TRUE':
@@ -176,6 +177,7 @@ class MisomipAnalysisTask(Task):
                         f'{self.subdir}/e3sm/conservation_{runs["e3sm"].key}',
                         case=case,
                         diagnostics=diagnostics['e3sm'],
+                        period=runs['e3sm'].period,
                     )
                 )
             if self.experiment in COUPLED_EXPERIMENTS:

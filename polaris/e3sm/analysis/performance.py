@@ -385,6 +385,59 @@ def read_segment_period(log_filename):
     return start, end
 
 
+def read_segment_start(log_filename):
+    """
+    Read the model time at which a segment starts from its coupler log,
+    reading only as far as the driver clock's first print
+
+    Parameters
+    ----------
+    log_filename : str
+        The coupler's log
+
+    Returns
+    -------
+    start_day : float or None
+        Days since 0001-01-01, or ``None`` if the log has no driver clock
+        yet
+    """
+    opener = gzip.open if log_filename.endswith('.gz') else open
+    with opener(log_filename, 'rt', errors='replace') as handle:
+        for line in handle:
+            match = _CLOCK.search(line)
+            if match is not None and match.group('name') == 'Curr':
+                return date_to_days(match.group('ymd'), match.group('tod'))
+    return None
+
+
+def select_segment_logs(log_filenames, start_day, end_day):
+    """
+    Select the coupler logs of the segments that start within a period
+
+    Parameters
+    ----------
+    log_filenames : list of str
+        The coupler's logs
+
+    start_day, end_day : float
+        The period, in days since 0001-01-01, from its start to before its
+        end
+
+    Returns
+    -------
+    selected : list of str
+        The logs of the segments that start in the period, in the order
+        given.  A log without a driver clock yet, from a segment just
+        starting, is left out.
+    """
+    selected = []
+    for filename in log_filenames:
+        start = read_segment_start(filename)
+        if start is not None and start_day <= start < end_day:
+            selected.append(filename)
+    return selected
+
+
 def read_wall_clock_stamps(log_filenames):
     """
     Read the coupler's daily wall-clock stamps from each segment's log

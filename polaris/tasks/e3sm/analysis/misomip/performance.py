@@ -12,6 +12,7 @@ from polaris.e3sm.analysis.performance import (
     read_segment,
     read_slurm_jobs,
     read_wall_clock_stamps,
+    select_segment_logs,
 )
 from polaris.viz.style import mplstyle_context
 
@@ -85,7 +86,7 @@ class RunPerformance(ProductStep):
         The local names of the driver's memory profiles
     """
 
-    def __init__(self, component, subdir, case):
+    def __init__(self, component, subdir, case, period=None):
         """
         Create the step
 
@@ -99,6 +100,10 @@ class RunPerformance(ProductStep):
 
         case : polaris.e3sm.analysis.case.E3smCase
             The case whose performance is read
+
+        period : tuple of float, optional
+            The period analyzed, in days since 0001-01-01; only the
+            segments that start in it are read
         """
         super().__init__(
             component=component,
@@ -109,7 +114,10 @@ class RunPerformance(ProductStep):
         )
         self.log_filenames = []
         logs_by_lid = {}
-        for path in case.find_logs('cpl'):
+        logs = case.find_logs('cpl')
+        if period is not None:
+            logs = select_segment_logs(logs, *period)
+        for path in logs:
             if find_lid(path) is None:
                 continue
             filename = os.path.join('logs', os.path.basename(path))
@@ -131,7 +139,7 @@ class RunPerformance(ProductStep):
             )
         self.memory_filenames = []
         for path in case.find_logs('memory.3.*'):
-            if find_lid(path) is None:
+            if find_lid(path) not in logs_by_lid:
                 continue
             filename = os.path.join('logs', os.path.basename(path))
             self.add_input_file(filename=filename, target=path)
