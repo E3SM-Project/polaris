@@ -43,7 +43,10 @@ which {py:func}`polaris.tasks.mesh.planar.mismip_plus.get_mismip_plus_mesh_steps
 returns.  It writes the planar mesh, `planar_mesh.nc`, and the MALI mesh
 made from it with {py:func}`polaris.landice.mesh.make_mali_mesh()`,
 `mali_mesh.nc`, along with its graph file.  Its config file is
-`mismip_plus_mesh.cfg`.
+`mismip_plus_mesh.cfg`.  The function's `length` argument makes a mesh
+that extends past the calving front, in `<length>km` within the
+resolution's directory.  Its first cells are those of the domain's mesh,
+at the same positions, followed by more columns.
 
 ### init
 

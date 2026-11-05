@@ -102,6 +102,34 @@ def test_make_mismip_plus_mesh():
     np.testing.assert_allclose(area[~wall], area[~wall].max())
 
 
+def test_longer_mesh_extends_the_domain_mesh():
+    # a longer mesh has every cell of the domain's mesh at the same
+    # position, with the same area to round-off, followed by more columns
+    logger = logging.getLogger(__name__)
+    ds = make_mismip_plus_mesh(resolution=8.0, logger=logger)
+    ds_long = make_mismip_plus_mesh(
+        resolution=8.0, logger=logger, length=700.0e3
+    )
+    _, _, dc = get_mesh_parameters(resolution=8.0)
+    assert ds_long.xCell.max() > 700.0e3 + dc
+    long_index = {
+        (x, y): index
+        for index, (x, y) in enumerate(
+            zip(ds_long.xCell.values, ds_long.yCell.values, strict=True)
+        )
+    }
+    indices = np.array(
+        [
+            long_index[(x, y)]
+            for x, y in zip(ds.xCell.values, ds.yCell.values, strict=True)
+        ]
+    )
+    np.testing.assert_allclose(
+        ds_long.areaCell.values[indices], ds.areaCell.values, rtol=1e-14
+    )
+    assert ds_long.sizes['nCells'] > ds.sizes['nCells']
+
+
 def test_compute_diagnostics():
     ds = _make_centerline_dataset(x_gl=4.0e3, x0=0.0)
     ds_diag = compute_diagnostics(ds)

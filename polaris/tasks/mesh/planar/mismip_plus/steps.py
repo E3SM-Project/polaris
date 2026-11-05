@@ -1,12 +1,13 @@
 import os
 
 from polaris.config import PolarisConfigParser
+from polaris.landice.mismip_plus.geometry import DOMAIN_LENGTH
 from polaris.resolution import resolution_to_string
 from polaris.tasks.mesh import mesh as mesh_component
 from polaris.tasks.mesh.planar.mismip_plus.mesh import MismipPlusMesh
 
 
-def get_mismip_plus_mesh_steps(resolution):
+def get_mismip_plus_mesh_steps(resolution, length=DOMAIN_LENGTH):
     """
     Get the shared steps for making the MISMIP+ mesh at a given resolution
 
@@ -14,6 +15,11 @@ def get_mismip_plus_mesh_steps(resolution):
     ----------
     resolution : float
         The nominal resolution of the mesh in km
+
+    length : float, optional
+        The length in m that the cells span in x, before the gutter.  A mesh
+        longer than the domain, which extends past the calving front, is in
+        its own directory, ``<resolution>/<length>km``.
 
     Returns
     -------
@@ -24,6 +30,8 @@ def get_mismip_plus_mesh_steps(resolution):
         The shared config options for the mesh
     """
     subdir = f'planar/mismip_plus/{resolution_to_string(resolution)}'
+    if length != DOMAIN_LENGTH:
+        subdir = f'{subdir}/{length * 1e-3:g}km'
     config_filename = 'mismip_plus_mesh.cfg'
     filepath = os.path.join(mesh_component.name, subdir, config_filename)
 
@@ -44,5 +52,6 @@ def get_mismip_plus_mesh_steps(resolution):
         config=config,
         config_filename=config_filename,
         resolution=resolution,
+        length=length,
     )
     return {'mesh': mesh_step}, config

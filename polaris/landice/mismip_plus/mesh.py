@@ -10,19 +10,25 @@ from mpas_tools.planar_hex import make_planar_hex_mesh
 from polaris.landice.mismip_plus.geometry import DOMAIN_LENGTH, DOMAIN_WIDTH
 
 
-def get_mesh_parameters(resolution):
+def get_mesh_parameters(resolution, length=DOMAIN_LENGTH):
     """
     Get the arguments to :py:func:`mpas_tools.planar_hex.make_planar_hex_mesh`
     for a mesh with rows of cell centers exactly on the domain's walls
 
     The cell spacing is adjusted from the nominal resolution so that a whole,
     even number of rows spans the domain's width.  The cells span the
-    domain's length plus a two-cell gutter.
+    mesh's length plus a two-cell gutter.
 
     Parameters
     ----------
     resolution : float
         The nominal resolution of the mesh in km
+
+    length : float, optional
+        The length in m that the cells span in x, before the gutter: the
+        domain's length, or more for a mesh that extends past the calving
+        front.  The cells of a longer mesh are those of the domain's mesh,
+        at the same positions, followed by more columns.
 
     Returns
     -------
@@ -43,8 +49,8 @@ def get_mesh_parameters(resolution):
     dc = 2.0 * (DOMAIN_WIDTH / ny) / np.sqrt(3.0)
 
     # one more column than spans the domain, so that the gutter is two cells
-    nx = int(np.ceil(DOMAIN_LENGTH / dc)) + 1
-    if DOMAIN_LENGTH % dc > 0.5 * dc:
+    nx = int(np.ceil(length / dc)) + 1
+    if length % dc > 0.5 * dc:
         # the shifted rows would otherwise fall short of the calving front
         nx += 1
 
@@ -53,7 +59,7 @@ def get_mesh_parameters(resolution):
     return nx, ny + 2, dc
 
 
-def make_mismip_plus_mesh(resolution, logger):
+def make_mismip_plus_mesh(resolution, logger, length=DOMAIN_LENGTH):
     """
     Make the culled planar mesh of MISMIP+ in the protocol's coordinates
 
@@ -70,12 +76,16 @@ def make_mismip_plus_mesh(resolution, logger):
     logger : logging.Logger
         A logger for output from culling and conversion
 
+    length : float, optional
+        The length in m that the cells span in x, before the gutter, as in
+        :py:func:`get_mesh_parameters`
+
     Returns
     -------
     ds_mesh : xarray.Dataset
         The mesh
     """
-    nx, ny, dc = get_mesh_parameters(resolution)
+    nx, ny, dc = get_mesh_parameters(resolution, length)
     ds_mesh = make_planar_hex_mesh(
         nx=nx, ny=ny, dc=dc, nonperiodic_x=True, nonperiodic_y=True
     )
