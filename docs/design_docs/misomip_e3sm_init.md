@@ -636,7 +636,8 @@ Their code is in `polaris/tasks/ocean/misomip/`, which imports from
 - the bed comes from `MisomipTopoMap`, a subclass of the ISOMIP+ `TopoMap`
   that inflates the ocean cells by `get_smoothing_distance()`, one ocean
   cell, and from the ISOMIP+ `TopoRemap`, at the paths above;
-- the SSH adjustment uses the ISOMIP+ `SshForward`, through a function in
+- the SSH adjustment uses the ISOMIP+ `ThinFilmSshForward`, with the
+  thin-film tasks' wetting and drying options, through a function in
   `polaris/ocean/ice_shelf/` that creates the steps in a given component.
   `IceShelfTask.setup_ssh_adjustment_steps()` calls it;
 - `compute_land_ice_draft_from_pressure()` and its siblings take an
