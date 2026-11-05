@@ -146,7 +146,9 @@ each segment's first day has no volume change and is left out of the sums.
 ## Performance
 
 A `performance` step plots each E3SM run's performance over the segments
-of the run, the jobs that each run one stretch of model time.  It reads
+of the run, the jobs that each run one stretch of model time.  Only the
+segments that start in the years analyzed are read, here and in the
+`conservation` step's coupler budgets.  It reads
 CIME's timing files in the case's `timing` directory, the coupler's logs
 and, with memory profiling at level 3, the driver's memory profiles:
 

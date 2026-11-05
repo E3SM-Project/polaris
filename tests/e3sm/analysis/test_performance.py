@@ -12,6 +12,7 @@ from polaris.e3sm.analysis.performance import (
     read_segment,
     read_slurm_jobs,
     read_wall_clock_stamps,
+    select_segment_logs,
 )
 from polaris.tasks.e3sm.analysis.misomip.performance import _run_time_parts
 
@@ -265,3 +266,17 @@ def test_slurm_jobs_give_queue_waits_and_the_largest_task_memory(
 def test_driver_dates_are_days_since_the_start_of_year_1():
     assert date_to_days('00010101') == 0.0
     assert date_to_days('00020301', 43200) == 365.0 + 59.0 + 0.5
+
+
+def test_only_segments_that_start_in_the_period_are_selected(case, tmp_path):
+    """The first segment starts in January, the second in February; a log
+    without its clock yet is left out"""
+    _, logs = case
+    starting = _write(tmp_path / 'cpl.log.1322500.261104-150000', ['init'])
+    january = date_to_days('00010101')
+    february = date_to_days('00010201')
+    march = date_to_days('00010301')
+    every = logs + [starting]
+    assert select_segment_logs(every, january, february) == [logs[0]]
+    assert select_segment_logs(every, february, march) == [logs[1]]
+    assert select_segment_logs(every, january, march) == logs

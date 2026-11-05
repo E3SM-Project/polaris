@@ -122,6 +122,8 @@
    read_segment
    read_timers
    read_segment_period
+   read_segment_start
+   select_segment_logs
    read_wall_clock_stamps
    read_root_memory
    read_node_memory
