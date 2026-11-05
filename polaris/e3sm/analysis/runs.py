@@ -71,6 +71,25 @@ class E3smRun:
         """
         return self.case.find_stream_files(self.model, stream_name)
 
+    def input_filename(self, stream_name):
+        """
+        Get the file an input stream of one file reads
+
+        Parameters
+        ----------
+        stream_name : str
+            The stream, such as ``tidal_forcing_mask``
+
+        Returns
+        -------
+        filename : str
+            The file, relative paths taken from the run directory
+        """
+        stream = get_stream(self.case.read_streams(self.model), stream_name)
+        return os.path.join(
+            self.case.run_dir, stream.attrib['filename_template']
+        )
+
     def namelist_option(self, option):
         """
         Get an option from the namelist the model read
@@ -154,6 +173,24 @@ class StandaloneRun:
         return find_stream_files(
             stream.attrib['filename_template'], [self.work_dir]
         )
+
+    def input_filename(self, stream_name):
+        """
+        Get the file an input stream of one file reads
+
+        Parameters
+        ----------
+        stream_name : str
+            The stream, such as ``tidal_forcing_mask``
+
+        Returns
+        -------
+        filename : str
+            The file, relative paths taken from the work directory
+        """
+        tree = read_file(os.path.join(self.work_dir, 'streams.ocean'))
+        stream = get_stream(tree, stream_name)
+        return os.path.join(self.work_dir, stream.attrib['filename_template'])
 
     def namelist_option(self, option):
         """
