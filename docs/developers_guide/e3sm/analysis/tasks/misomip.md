@@ -24,7 +24,12 @@ Each run gets two shared steps, named for the months it has:
 {py:class}`polaris.tasks.e3sm.analysis.misomip.comparison.RunComparison`
 compares the two runs' diagnostics, and
 {py:class}`polaris.tasks.e3sm.analysis.misomip.conservation.CouplerConservation`
-reads the coupler's budgets.  Every E3SM run gets a
+reads the coupler's budgets.  A run with daily global statistics and
+daily means gets a
+{py:class}`polaris.tasks.e3sm.analysis.misomip.conservation.OceanVolumeBudget`
+step, which plots the ocean's volume budget that
+{py:func}`polaris.tasks.e3sm.analysis.misomip.diagnostics.compute_daily_volume_budget`
+computes in the run's diagnostics.  Every E3SM run gets a
 {py:class}`polaris.tasks.e3sm.analysis.misomip.performance.RunPerformance`
 step, which plots the run's performance from each segment's timing files,
 coupler log and memory profile.  It splits the ocean's and MALI's run times

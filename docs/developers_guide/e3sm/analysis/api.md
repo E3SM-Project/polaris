@@ -29,6 +29,7 @@
    diagnostics.RunDiagnostics
    diagnostics.RunDiagnostics.run
    diagnostics.read_initial_condition
+   diagnostics.compute_daily_volume_budget
    diagnostics.isomip_mesh
    plots.RunPlots
    plots.RunPlots.run
@@ -36,6 +37,8 @@
    comparison.RunComparison.run
    conservation.CouplerConservation
    conservation.CouplerConservation.run
+   conservation.OceanVolumeBudget
+   conservation.OceanVolumeBudget.run
    performance.RunPerformance
    performance.RunPerformance.run
    exchange.ModelExchange
@@ -149,9 +152,11 @@
    E3smRun
    E3smRun.find_stream_files
    E3smRun.namelist_option
+   E3smRun.input_filename
    StandaloneRun
    StandaloneRun.find_stream_files
    StandaloneRun.namelist_option
+   StandaloneRun.input_filename
    select_months
    month_range_key
 ```

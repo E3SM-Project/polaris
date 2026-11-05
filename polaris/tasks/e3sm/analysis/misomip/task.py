@@ -3,6 +3,7 @@ from polaris.e3sm.analysis.case import E3smCase
 from polaris.tasks.e3sm.analysis.misomip.comparison import RunComparison
 from polaris.tasks.e3sm.analysis.misomip.conservation import (
     CouplerConservation,
+    OceanVolumeBudget,
 )
 from polaris.tasks.e3sm.analysis.misomip.diagnostics import RunDiagnostics
 from polaris.tasks.e3sm.analysis.misomip.exchange import ModelExchange
@@ -110,6 +111,15 @@ class MisomipAnalysisTask(Task):
                     label=label,
                 )
             )
+            if diagnostics[kind].has_daily_volume:
+                products.append(
+                    self._add_shared_step(
+                        OceanVolumeBudget,
+                        f'{self.subdir}/{kind}/volume_budget_{run.key}',
+                        diagnostics=diagnostics[kind],
+                        kind=kind,
+                    )
+                )
         if self.config.getboolean('misomip_analysis', 'write_protocol_fields'):
             for kind, run in runs.items():
                 map_step = self._add_shared_step(
