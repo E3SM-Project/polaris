@@ -47,9 +47,10 @@ RUN_MONTHS = {
 #: velocity solver
 PROGNOSTIC_EXPERIMENTS = ['iceocean1r', 'iceocean1ra']
 
-#: The head of FAnSSIE, E3SM's development branch for coupling the ocean and
-#: ice sheets, at the ledger entry by which it has every change the cases need
-E3SM_COMMIT = '4e2f0816b6'
+#: The commit of FAnSSIE, E3SM's development branch for coupling the ocean
+#: and ice sheets, by which it has every change the cases need: the last is
+#: the map of MALI's geometry onto the ocean, ``GLC2OCN_SHELF_SMAPNAME``
+E3SM_COMMIT = '46549a6b31'
 
 #: The compset of each mode of MALI, by long name
 COMPSETS = {

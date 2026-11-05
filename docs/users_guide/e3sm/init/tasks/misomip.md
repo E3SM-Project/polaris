@@ -201,7 +201,7 @@ Albany's first-order velocity solver, for `iceocean1r` and `iceocean1ra`.
 
 `create_case.sh` creates, sets up and builds a case from the `user_mods/`
 directory beside it.  It needs an E3SM checkout with the changes for
-idealized ice-shelf cases, at commit `4e2f0816b6` of the
+idealized ice-shelf cases, at commit `46549a6b31` of the
 `fanssie-ocn-glc-coupling` branch of E3SM-Ocean-Discussion/E3SM or later:
 
 ```bash
