@@ -34,6 +34,7 @@ from polaris.tasks.e3sm.init.misomip.case_config import (
     RUN_MONTHS,
     SPLIT_EXPLICIT_PENDING,
     CaseConfigStep,
+    check_time_integrator,
     get_case_config_files,
     get_create_case_script,
     get_edit_streams_script,
@@ -591,6 +592,35 @@ def test_split_explicit_forward_shares_the_initial_condition():
                 split_inputs[filename]['work_dir_target']
                 == (entry['work_dir_target'])
             )
+
+
+def _split_explicit_namelist():
+    return {
+        'time_integration': {
+            'config_dt': "'0000_00:02:00'",
+            'config_time_integrator': "'split_explicit'",
+        },
+        'split_explicit_ts': {'config_split_pv_coriolis': '.true.'},
+    }
+
+
+def test_check_time_integrator_accepts_the_options():
+    check_time_integrator(_split_explicit_namelist(), 'split_explicit')
+    rk4 = {'time_integration': {'config_time_integrator': "'RK4'"}}
+    check_time_integrator(rk4, 'RK4')
+
+
+def test_check_time_integrator_needs_the_integrator():
+    with pytest.raises(ValueError, match='time integrator split_explicit'):
+        check_time_integrator(_split_explicit_namelist(), 'RK4')
+
+
+def test_check_time_integrator_needs_the_yaml_options():
+    # a build older than an option drops it from the rendered namelist
+    standalone = _split_explicit_namelist()
+    standalone['split_explicit_ts'].pop('config_split_pv_coriolis')
+    with pytest.raises(ValueError, match='config_split_pv_coriolis'):
+        check_time_integrator(standalone, 'split_explicit')
 
 
 def test_case_config_needs_a_known_time_integrator():

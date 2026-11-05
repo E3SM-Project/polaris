@@ -3,6 +3,7 @@ import os
 import re
 import shutil
 
+import yaml
 from jinja2 import Template
 from mpas_tools.io import open_dataset
 
@@ -59,6 +60,17 @@ SPLIT_EXPLICIT_PENDING = 'E3SM-Ocean-Discussion/E3SM#175'
 
 #: The ocean's time integrators a case configuration can have
 TIME_INTEGRATORS = ['RK4', 'split_explicit']
+
+#: The YAML files of MPAS-Ocean options the standalone run of each time
+#: integrator adds, by package and file name.  An MPAS-Ocean build older
+#: than an option leaves it out of the namelist it renders, with only a
+#: warning at setup.
+INTEGRATOR_YAML_FILES = {
+    'RK4': [],
+    'split_explicit': [
+        ('polaris.tasks.ocean.isomip_plus', 'split_explicit.yaml'),
+    ],
+}
 
 #: The compset of each mode of MALI, by long name
 COMPSETS = {
@@ -450,6 +462,7 @@ class CaseConfigStep(Step):
             ocean_config.get('namelists', 'forward')
         )
         standalone = polaris.namelist.ingest('namelist.ocean')
+        check_time_integrator(standalone, self.time_integrator)
         dt = duration_to_seconds(
             standalone['time_integration']['config_dt'].strip('\'"')
         )
@@ -628,6 +641,49 @@ def get_mali_mode(experiment):
     if experiment in PROGNOSTIC_EXPERIMENTS:
         return 'prognostic'
     return 'data' if experiment in DATA_MODE_EXPERIMENTS else 'static'
+
+
+def check_time_integrator(standalone, time_integrator):
+    """
+    Check that the standalone run's namelist has the case's time integrator
+    and every option the integrator's YAML files add, which an MPAS-Ocean
+    build older than an option leaves out
+
+    Parameters
+    ----------
+    standalone : dict
+        The standalone run's namelist, as :py:func:`polaris.namelist.ingest`
+        reads it
+
+    time_integrator : str
+        The case's time integrator, one of :py:data:`TIME_INTEGRATORS`
+
+    Raises
+    ------
+    ValueError
+        If the namelist has another time integrator or lacks an option
+    """
+    options = {
+        option: value
+        for group in standalone.values()
+        for option, value in group.items()
+    }
+    found = options.get('config_time_integrator', '').strip('\'"')
+    if found != time_integrator:
+        raise ValueError(
+            f'The standalone namelist has the time integrator {found}, not '
+            f'{time_integrator}.'
+        )
+    missing: list[str] = list()
+    for package, filename in INTEGRATOR_YAML_FILES[time_integrator]:
+        text = imp_res.files(package).joinpath(filename).read_text()
+        for group in yaml.safe_load(text)['mpas-ocean'].values():
+            missing.extend(option for option in group if option not in options)
+    if missing:
+        raise ValueError(
+            f'The standalone namelist lacks {", ".join(sorted(missing))}. '
+            f'Set the task up with an MPAS-Ocean build that has them.'
+        )
 
 
 def get_case_config_files(experiment):

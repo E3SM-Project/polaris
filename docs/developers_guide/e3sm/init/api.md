@@ -388,6 +388,7 @@
    case_config.get_user_nl_mpaso
    case_config.get_user_nl_mali
    case_config.get_readme
+   case_config.check_time_integrator
    case_config.get_create_case_script
    case_config.get_edit_streams_script
    case_config.get_mismip_plus_output_fields

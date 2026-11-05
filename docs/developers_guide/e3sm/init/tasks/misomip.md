@@ -146,7 +146,12 @@ with {py:func}`polaris.e3sm.init.inputdata.set_creation_date()`.
 reads the namelist its standalone forward step wrote at setup, and
 MPAS-Ocean's default namelist, found from that step's ocean config
 file.  The split-explicit options all differ from MPAS-Ocean's defaults,
-which are E3SM's, so they are written like any other.  The README of a
+which are E3SM's, so they are written like any other.  An MPAS-Ocean
+build older than an option leaves it out of the namelist it renders, with
+only a warning at setup, so
+{py:func}`polaris.tasks.e3sm.init.misomip.case_config.check_time_integrator()`
+stops the step unless the namelist has the step's time integrator and
+every option of its YAML files, in `INTEGRATOR_YAML_FILES`.  The README of a
 split-explicit case names the change it needs that FAnSSIE lacks,
 `SPLIT_EXPLICIT_PENDING`, since no option can check for it.
 {py:func}`polaris.tasks.e3sm.init.misomip.case_config.get_user_nl_mpaso()`
