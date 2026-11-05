@@ -697,7 +697,8 @@ the calving front, with the steady state copied onto it by cell position
 - Ice0, Ice1r, Ice1ra, Ice2r and Ice2ra, which run, and Ice1rr and Ice2rr,
   which exist but do not;
 - in every experiment but not the spin-up, calving of floating ice thinner
-  than 10 m and removal of icebergs;
+  than 10 m, removal of icebergs, and a calving front held at 640 km
+  ([D32](#decisions));
 - the MISMIP+ output: grounding line, volume above flotation and grounded
   area, computed in a public `landice` module from any dataset with MALI's
   thickness, bed and mesh, with the densities as arguments, so WP9 can
@@ -1651,7 +1652,8 @@ Date last modified: 2026/11/05
 Contributors: Xylar Asay-Davis, Claude
 
 MISOMIP's MALI mesh runs about 20 km past the 640 km calving front, and
-mask calving still removes any ice beyond 640 km. The added cells start
+MALI still removes any ice beyond 640 km ([D32](#decisions)). The added
+cells start
 with no ice, on the protocol's bed. MISMIP+'s own mesh and spin-up do not
 change: the steady state is copied onto the longer mesh by cell position,
 which is exact because every cell of the shorter mesh lies in the longer
@@ -1713,3 +1715,37 @@ Rejected:
 - interpolating MALI's data-mode records in time inside MALI, for now,
   since the ramp serves coupled and data-mode runs alike;
 - no ramp, given the transients.
+
+### D32: MALI restores its calving front
+
+Date last modified: 2026/11/05
+
+Contributors: Xylar Asay-Davis, Claude
+
+MALI holds the protocol's calving front at 640 km by restoring its initial
+ice extent: each step, ice that has crossed the front is removed and
+booked as calving, and a front that retreats is not refilled. This holds in
+MISOMIP's coupled experiments, in the standalone MALI runs they are
+compared with, and in the MISMIP+ experiments. Each starts from ice that
+ends at 640 km: the strip the cached steady state holds beyond the front is
+removed first. IceOcean1ra, a branch run, takes its extent from
+IceOcean1r's final ice, so it holds only if that ice has no ice-free holes
+behind the front.
+
+```{admonition} Rationale
+MALI's mask calving now starts only from dynamic ice at a marine margin,
+and MALI keeps a partly filled front cell non-dynamic until it is 95% as
+thick as the ice behind it. Ice crossing 640 km therefore fills one column
+of cells past the front, about 25 m a month, until a cell turns dynamic and
+all 95 calve at once: every 8 months in a 20-year Ice0, and twice in the
+first year of IceOcean1r, each time setting off ocean transients of up to
+13 m/s. Restoring the extent left no ice past 640 km in any monthly record
+of a 20-year Ice0, with the same drift as without it.
+```
+
+Rejected:
+
+- the longer mesh alone ([D30](#decisions)), which shows the same cycle;
+- relying on mask calving until it can start from non-dynamic ice, a change
+  for MALI's developers;
+- refilling a retreating front with thin ice, which does not conserve mass.
