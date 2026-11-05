@@ -1100,7 +1100,7 @@ apart from the partitions', which repeat them.
 
 ### D10: IceOcean cases patch the streams E3SM writes
 
-Date last modified: 2026/11/04
+Date last modified: 2026/11/05
 
 Contributors: Xylar Asay-Davis, Claude
 
@@ -1111,11 +1111,11 @@ directory into the case's SourceMods and edits them:
 
 - the ocean's daily means hold only `landIceFreshwaterFlux`,
   `frazilIceFreshwaterFlux`, `landIceFreshwaterFluxNotSentToGlc`,
-  `landIceHeatFlux` and `tidalLayerThicknessTendency`, and
-  `user_nl_mpaso` turns them on, sampled every time step rather than
-  hourly, as E3SM's monthly means already are;
-- the ocean's monthly means add `landIceFreshwaterFluxNotSentToGlc` and
-  `tidalLayerThicknessTendency`;
+  `landIceHeatFlux`, `layerThickness` and
+  `frazilLayerThicknessTendency`, and `user_nl_mpaso` turns them on,
+  sampled every time step rather than hourly, as E3SM's monthly means
+  already are;
+- the ocean's monthly means add `landIceFreshwaterFluxNotSentToGlc`;
 - MALI's history is monthly, with the MISMIP+ tasks' output fields, the
   mesh, and `avgFloatingBMBFlux`;
 - a daily MALI stream holds `floatingBasalMassBal` and
