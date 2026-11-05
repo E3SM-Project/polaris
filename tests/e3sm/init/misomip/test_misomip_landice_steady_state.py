@@ -5,11 +5,11 @@ import pytest
 from polaris.tasks.e3sm.init.misomip.landice_steady_state import (
     LANDICE_MESH_LENGTH,
     copy_by_position,
-    remove_masked_ice,
 )
 from polaris.tasks.e3sm.init.misomip.steps import (
     get_misomip_experiment_steps,
 )
+from polaris.tasks.landice.mismip_plus.forward import remove_masked_ice
 
 
 def _write_mesh(filename, x_cell, fields):

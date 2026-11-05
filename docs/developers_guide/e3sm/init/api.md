@@ -349,7 +349,6 @@
    landice_steady_state.LandiceSteadyStateStep.run
    landice_steady_state.copy_by_position
    landice_steady_state.get_indices_by_position
-   landice_steady_state.remove_masked_ice
 
    landice_data.LandiceDataStep
    landice_data.LandiceDataStep.run

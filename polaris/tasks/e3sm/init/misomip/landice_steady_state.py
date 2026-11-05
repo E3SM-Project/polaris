@@ -4,6 +4,7 @@ import netCDF4
 import numpy as np
 
 from polaris.step import Step
+from polaris.tasks.landice.mismip_plus.forward import remove_masked_ice
 
 #: The length in m that MISOMIP's MALI mesh spans in x, before its gutter:
 #: 20 km past the MISMIP+ calving front, so that the ocean sees ice-free
@@ -193,31 +194,6 @@ def get_indices_by_position(ds_src, ds_dst, x_name, y_name):
             )
         indices.append(dst_index[position])
     return np.array(indices)
-
-
-def remove_masked_ice(filename):
-    """
-    Remove the ice where MALI's calving mask is 1: the protocol calves all
-    ice beyond the calving front, so the initial condition holds none there
-
-    Parameters
-    ----------
-    filename : str
-        A MALI file with ``thickness`` and ``calvingMask``
-
-    Returns
-    -------
-    removed : int
-        The number of cells whose ice was removed
-    """
-    with netCDF4.Dataset(filename, 'a') as ds:
-        thickness = ds.variables['thickness'][:]
-        masked = np.logical_and(
-            ds.variables['calvingMask'][:] == 1, thickness > 0.0
-        )
-        thickness[masked] = 0.0
-        ds.variables['thickness'][:] = thickness
-    return int(masked.sum())
 
 
 def _round(values):

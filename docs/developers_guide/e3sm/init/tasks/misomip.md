@@ -54,7 +54,7 @@ and these steps, also of the `e3sm/init` component:
   {py:func}`polaris.tasks.e3sm.init.misomip.landice_steady_state.copy_by_position()`,
   matching cells, edges and vertices by position, and removes the ice
   where the calving mask is 1 with
-  {py:func}`polaris.tasks.e3sm.init.misomip.landice_steady_state.remove_masked_ice()`.
+  {py:func}`polaris.tasks.landice.mismip_plus.forward.remove_masked_ice()`.
   The cells past the MISMIP+ mesh keep the `init` step's fields;
 - {py:class}`polaris.tasks.e3sm.init.misomip.landice_init.InputMapStep`
   makes the conservative map from the ISOMIP+ input grid, described by the
