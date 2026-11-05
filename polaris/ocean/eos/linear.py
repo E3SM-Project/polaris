@@ -55,20 +55,31 @@ def compute_linear_density(
 
 def compute_linear_ct_freezing(
     salinity: xr.DataArray | float,
+    model: str = 'omega',
 ) -> xr.DataArray | float:
     """
     Compute the freezing temperature of seawater for the linear equation of
-    state using a simple linear dependence on salinity.
+    state using the model's freezing relation. MPAS-Ocean uses its default
+    open-ocean mushy liquidus; Omega uses a linear salinity approximation.
 
     Parameters
     ----------
     salinity : float or xarray.DataArray
         Salinity of the seawater (g/kg).
 
+    model : {'omega', 'mpas-ocean'}, optional
+        Model whose freezing relation to use. The MPAS-Ocean relation assumes
+        its default open-ocean coefficients, including az1_liq = -18.48.
+
     Returns
     -------
     ct_freezing : float or xarray.DataArray
         The freezing temperature (degC) of the seawater.
     """
-    ct_freezing = FREEZING_SALINITY_COEFF * salinity / PSU_TO_GPKG
+    if model == 'mpas-ocean':
+        ct_freezing = salinity / (-18.48 * (1.0 - salinity / 1000.0))
+    elif model == 'omega':
+        ct_freezing = FREEZING_SALINITY_COEFF * salinity / PSU_TO_GPKG
+    else:
+        raise ValueError(f'Unsupported model for linear freezing: {model}')
     return ct_freezing

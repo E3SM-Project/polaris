@@ -141,6 +141,36 @@ def compute_total_energy(ds_mesh, ds, model):
     return total_energy
 
 
+def compute_energy_change(ds_mesh, ds_start, ds_end, model):
+    """Integrate local heat-content changes without subtracting totals.
+
+    Factor the difference of thickness-temperature products before summing,
+    using extended precision to retain residuals below float64 total-energy
+    spacing. Each state must contain a single time slice.
+    """
+    start = _reduce_dataset_time_dim(ds_start, caller='compute_energy_change')
+    end = _reduce_dataset_time_dim(ds_end, caller='compute_energy_change')
+    start = start.squeeze(
+        dim=[dim for dim in ['Time', 'time'] if dim in start.dims],
+        drop=True,
+    )
+    end = end.squeeze(
+        dim=[dim for dim in ['Time', 'time'] if dim in end.dims],
+        drop=True,
+    )
+    h_start = _get_mass_thickness(start).astype(np.longdouble)
+    h_end = _get_mass_thickness(end).astype(np.longdouble)
+    t_start = start.temperature.astype(np.longdouble)
+    t_end = end.temperature.astype(np.longdouble)
+    delta = h_end * (t_end - t_start) + t_start * (h_end - h_start)
+    area = ds_mesh.areaCell.astype(np.longdouble)
+    return (
+        np.longdouble(rho_sw)
+        * np.longdouble(cp_sw[model])
+        * (area * delta.sum(dim='nVertLevels')).sum(dim='nCells')
+    )
+
+
 def compute_total_tracer(ds_mesh, ds, tracer_name='tracer1'):
     """
     Compute the total tracer in an ocean model output file
@@ -293,6 +323,89 @@ def compute_flux_forcing(
         )
 
     return total * dt
+
+
+def compute_frazil_fluxes(
+    ds_mesh, ds, time_index_end=-1, model='omega', time_step=None
+):
+    """Integrate frazil contributions to ocean mass, salt, and energy.
+
+    Omega supplies column fluxes, positive into the ocean. MPAS-Ocean
+    supplies tendencies of thickness, thickness-weighted salinity, and
+    thickness-weighted temperature. Its output must include every model
+    timestep from the start of the run; each tendency drives the timestep
+    ending at its output timestamp. An optional startup record has zero
+    weight. Return domain-integrated changes in kg, kg, and J.
+
+    ``time_step`` is required for MPAS-Ocean to detect missing records.
+    """
+    from polaris.ocean.model.time import get_time_since_start
+
+    if model == 'omega':
+        fields = {
+            'mass': ('FrazilMassFlux', 1.0),
+            'salt': ('FrazilSaltFlux', 1.0),
+            'energy': ('FrazilEnergyFlux', 1.0),
+        }
+    elif model == 'mpas-ocean':
+        fields = {
+            'mass': ('frazilLayerThicknessTendency', rho_sw),
+            'salt': ('frazilSalinityTendency', rho_sw / 1000.0),
+            'energy': (
+                'frazilTemperatureTendency',
+                rho_sw * cp_sw[model],
+            ),
+        }
+    else:
+        raise ValueError(f'Unsupported frazil model: {model}')
+    missing = [field for field, _ in fields.values() if field not in ds]
+    if missing:
+        raise ValueError(
+            f'{model} frazil fields are missing from output: '
+            + ', '.join(missing)
+        )
+
+    time = np.asarray(get_time_since_start(ds, units='seconds'), dtype=float)
+    end = len(time) if time_index_end == -1 else time_index_end + 1
+    time = time[:end]
+    if (
+        time.size == 0
+        or not np.all(np.isfinite(time))
+        or time[0] < 0.0
+        or np.any(np.diff(time) <= 0.0)
+    ):
+        raise ValueError('Frazil output times must be finite and increasing')
+    intervals = np.diff(np.concatenate(([0.0], time)))
+    if model == 'mpas-ocean':
+        if time_step is None or not np.isfinite(time_step) or time_step <= 0:
+            raise ValueError('MPAS-Ocean frazil requires a positive time_step')
+        if not (
+            np.allclose(intervals[1:], time_step, rtol=1.0e-10, atol=1.0e-8)
+            and (
+                np.isclose(intervals[0], 0.0, rtol=0.0, atol=1.0e-8)
+                or np.isclose(
+                    intervals[0], time_step, rtol=1.0e-10, atol=1.0e-8
+                )
+            )
+        ):
+            raise ValueError(
+                'MPAS-Ocean frazil output must include every timestep '
+                'from the start of the run'
+            )
+    ds = ds.isel(Time=slice(0, end))
+    totals = {}
+    for budget, (field, factor) in fields.items():
+        flux = ds[field]
+        if model == 'mpas-ocean':
+            active = ds.layerThickness.notnull() & (ds.layerThickness > 0.0)
+            flux = flux.where(active, 0.0).sum(dim='nVertLevels', skipna=False)
+        flux = (flux * ds_mesh.areaCell).transpose('Time', 'nCells')
+        if not np.all(np.isfinite(flux.values)):
+            raise ValueError(f'Non-finite frazil contribution in {field}')
+        totals[budget] = factor * float(
+            np.sum(flux.values * intervals[:, None])
+        )
+    return totals
 
 
 def _compute_enthalpy_forcing(
