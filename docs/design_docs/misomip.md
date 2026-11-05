@@ -829,7 +829,11 @@ On FAnSSIE:
   ocean's initial condition, and the fluxes and the floating fraction
   that normalizes them with the conservative map, so the first import
   still matches the initial condition and the fluxes still conserve
-  ([D25](#decisions)).
+  ([D25](#decisions));
+- ramp the land-ice pressure the ocean imports over one glc coupling
+  interval, keeping the fractions and mask on MALI's latest geometry, with
+  the ramp's starting pressure in the ocean's restart files
+  ([D31](#decisions)).
 
 The notes on the melt-coupling pull request name wetting-and-drying runs
 as the next project after melt coupling. This package is that project.
@@ -1673,3 +1677,38 @@ Rejected:
 - extending MALI's mesh to the ocean's end at 800 km, a quarter more cells
   with no benefit;
 - accepting the inflated pressure at the front.
+
+### D31: The ocean ramps MALI's load over a coupling interval
+
+Date last modified: 2026/11/05
+
+Contributors: Xylar Asay-Davis, Claude
+
+When a new geometry arrives from MALI, the ocean ramps its land-ice
+pressure linearly from its current value to MALI's over the next glc
+coupling interval, one day in MISOMIP, so it sees MALI's load one interval
+late. The land-ice fractions and mask follow MALI at once, as before, so
+the fluxes exchanged with MALI are computed exactly as without the ramp.
+The ramp's starting pressure is always kept in the ocean's restart files.
+This is a first try, to be revisited if it falls short.
+
+```{admonition} Rationale
+Abrupt changes in MALI's geometry set off transients in the ocean. After
+a monthly data-mode record, the open ocean's SSH drops by about half a
+meter within an hour and rings for hours, film cells fill to meters, and
+velocities reach 5.5 m/s in the smoothed Ocean3. These follow the change
+in load.
+With the fractions on MALI's geometry, the ocean's floating area still
+covers MALI's, so melt sent to MALI and MALI's conductive heat stay exact.
+For one interval, a cell can carry load without ice or ice without its
+full load.
+```
+
+Rejected:
+
+- ramping the fractions with the load and exchanging fluxes over the
+  overlap of the two floating areas, which needs a new rule for
+  conductive heat where the overlap is small;
+- interpolating MALI's data-mode records in time inside MALI, for now,
+  since the ramp serves coupled and data-mode runs alike;
+- no ramp, given the transients.
