@@ -121,8 +121,8 @@ month closes.
 
 A run with daily global statistics and daily means also gets a
 `volume_budget` step, which plots the ocean's volume budget each day and
-summed from the start.  The volume changes by the melt and frazil under
-the ice shelf and by the inflow through the cells of the restoring region
+summed from the start.  The volume changes by the melt under the ice
+shelf, by frazil and by the inflow through the cells of the restoring region
 whose tidal forcing holds their sea-surface height, with the rest small.
 As the ice shelf grows heavier, the water it displaces leaves through
 those cells; when it grows lighter, as when MALI calves, water comes back
@@ -134,8 +134,12 @@ daily means of `tidalLayerThicknessTendency`, the volume the tidal forcing
 adds comes from them and is exact.  Forcing that sets the thickness
 directly (`'direct'`) leaves that tendency at zero, and no daily mean gives
 the inflow exactly.  The plot then shows the volume change less melt and
-frazil as the inflow through the forced cells and anything else.  The
-load needs the daily means of `landIcePressure`.  The
+frazil as the inflow through the forced cells and anything else.
+Frazil's volume is the daily mean of `frazilLayerThicknessTendency`,
+summed over the layers, where the ocean writes it.  Otherwise it comes
+from `frazilIceFreshwaterFlux`, which leaves out the frazil that forms in
+the open ocean, and the plot marks the frazil as approximate.  The load
+needs the daily means of `landIcePressure`.  The
 statistics are instantaneous and a segment writes none at its start, so
 each segment's first day has no volume change and is left out of the sums.
 

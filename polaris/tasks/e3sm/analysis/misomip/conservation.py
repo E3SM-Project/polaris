@@ -324,7 +324,12 @@ class OceanVolumeBudget(ProductStep):
         terms = [('volume change', change, '-')]
         if 'meltAndFrazilVolume' in ds:
             surface = ds.meltAndFrazilVolume.values
-            terms.append(('melt + frazil', surface, '-'))
+            source = ds.meltAndFrazilVolume.attrs.get('frazil', 'none')
+            label = 'melt + frazil'
+            if source in ('freshwater flux', 'mixed'):
+                # frazil's freshwater flux leaves out open-ocean frazil
+                label = 'melt + frazil (frazil approximate)'
+            terms.append((label, surface, '-'))
         if 'tidalForcingInflow' in ds:
             inflow = ds.tidalForcingInflow.values
             rest = change - surface - inflow

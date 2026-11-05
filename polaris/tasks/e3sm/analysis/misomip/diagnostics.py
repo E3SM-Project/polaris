@@ -561,15 +561,17 @@ def compute_daily_volume_budget(
     """
     Compute the ocean's daily volume budget
 
-    The volume changes by the melt and frazil under the ice, by the
-    volume the tidal forcing adds in the cells whose sea-surface height it
-    holds and by a small rest.  Water the land ice displaces as it grows
-    heavier leaves through those cells.  The tidal forcing's term comes
+    The volume changes by the melt under the ice, by frazil, by the volume the
+    tidal forcing adds in the cells whose sea-surface height it holds and by a
+    small rest.  Frazil's volume is its thickness tendency where the daily
+    means have it, and otherwise its freshwater flux, which leaves out frazil
+    formed in the open ocean.  Water the land ice displaces as it grows heavier
+    leaves through the tidally forced cells.  The tidal forcing's term comes
     from ``tidalLayerThicknessTendency`` where the forcing is a thickness
-    source.  Forcing that sets the thickness directly leaves that tendency
-    at zero, and no daily mean gives the exact flow out of those cells, so
-    the budget then has no tidal term.  The land-ice load is an estimate
-    from daily means.
+    source.  Forcing that sets the thickness directly leaves that tendency at
+    zero, and no daily mean gives the exact flow out of those cells, so the
+    budget then has no tidal term.  The land-ice load is an estimate from daily
+    means.
 
     Parameters
     ----------
@@ -577,6 +579,7 @@ def compute_daily_volume_budget(
         The ocean's daily means, renamed without their prefix, with
         ``xtime_startDaily`` and ``xtime_endDaily`` and any of
         ``landIceFreshwaterFlux``, ``frazilIceFreshwaterFlux``,
+        ``frazilLayerThicknessTendency``,
         ``tidalLayerThicknessTendency`` and ``landIcePressure``
 
     ds_stats : xarray.Dataset
@@ -639,17 +642,13 @@ def compute_daily_volume_budget(
     )
 
     area = ds_init.areaCell
-    fluxes = [
-        ds_means[name]
-        for name in ['landIceFreshwaterFlux', 'frazilIceFreshwaterFlux']
-        if name in ds_means
-    ]
-    if fluxes:
-        flux = (sum(fluxes) * area).sum(dim='nCells') / ref_density
-        ds_volume['meltAndFrazilVolume'] = ('Time', seconds * flux.values)
+    volume, frazil_source = _melt_and_frazil(ds_means, area, ref_density)
+    if volume is not None:
+        ds_volume['meltAndFrazilVolume'] = ('Time', seconds * volume)
         ds_volume.meltAndFrazilVolume.attrs = dict(
-            long_name='volume added by melt and frazil under the ice',
+            long_name='volume added by melt and frazil',
             units='m3',
+            frazil=frazil_source,
         )
 
     if (
@@ -691,6 +690,58 @@ def compute_daily_volume_budget(
             units='m3',
         )
     return ds_volume
+
+
+def _melt_and_frazil(ds_means, area, ref_density):
+    """
+    The volume (m3 s-1) melt and frazil add each day, and where the frazil
+    comes from: ``thickness tendency``, ``freshwater flux`` (an
+    approximation), ``mixed`` or ``none``
+
+    The melt's thickness flux is its freshwater flux over the reference
+    density, as in MPAS-Ocean.  Frazil's volume is its thickness tendency,
+    which includes frazil formed in the open ocean.  Its freshwater flux is
+    only the frazil under the ice, so it is used, as an approximation, only
+    on days without the tendency.
+    """
+    terms = []
+    if 'landIceFreshwaterFlux' in ds_means:
+        terms.append(
+            (ds_means.landIceFreshwaterFlux * area).sum(dim='nCells').values
+            / ref_density
+        )
+    frazil = None
+    if 'frazilIceFreshwaterFlux' in ds_means:
+        frazil = (ds_means.frazilIceFreshwaterFlux * area).sum(
+            dim='nCells'
+        ).values / ref_density
+    from_tendency = np.zeros(ds_means.sizes['Time'], dtype=bool)
+    if 'frazilLayerThicknessTendency' in ds_means:
+        # a day without the tendency, as before a run wrote it, has none
+        tendency = (
+            (ds_means.frazilLayerThicknessTendency * area)
+            .sum(dim=['nCells', 'nVertLevels'], min_count=1)
+            .values
+        )
+        from_tendency = np.isfinite(tendency)
+        frazil = (
+            tendency
+            if frazil is None
+            else np.where(from_tendency, tendency, frazil)
+        )
+    if frazil is not None:
+        terms.append(frazil)
+    if not terms:
+        return None, 'none'
+    if frazil is None:
+        source = 'none'
+    elif np.all(from_tendency):
+        source = 'thickness tendency'
+    elif np.any(from_tendency):
+        source = 'mixed'
+    else:
+        source = 'freshwater flux'
+    return sum(terms), source
 
 
 def _has_tidal_forcing(run):
