@@ -379,7 +379,7 @@ map, as it does MALI's, and corrects for areas under the ice shelves.
 
 ### Principle: the ocean follows MALI
 
-Date last modified: 2026/11/04
+Date last modified: 2026/11/05
 
 Contributors: Xylar Asay-Davis, Claude
 
@@ -399,8 +399,10 @@ $$
 and the floating and land-ice fractions are $R(m\phi_f)/R(m)$ and
 $R(m(\phi_f + \phi_g))/R(m)$, each capped at 1. All three are zero where
 $R(m) = 0$ and where the land-ice fraction is at most 10⁻³, so slivers at
-the calving front are open ocean. In data mode, the initial condition
-matches the record MALI reads at the start.
+the calving front are open ocean. MALI's mesh reaches past its calving
+front, so $R(m)$ is 1 in the open ocean beyond it and the pressure tapers
+to zero across the front ([D30](#decisions)). In data mode, the initial
+condition matches the record MALI reads at the start.
 
 The constants are E3SM's and the protocol's ([D6](#decisions)):
 $\rho_i = 918$ kg m⁻³, $g = 9.80616$ m s⁻², and an ocean density of
@@ -682,7 +684,9 @@ before Albany is back.
 
 Tasks `landice/mismip_plus/1km/...` port Compass's spin-up to Polaris.
 The 1 km MALI mesh for MISOMIP1 is a shared step in the `mesh` component,
-which WP5's steps build on. The tasks have:
+which WP5's steps build on. MISOMIP's copy of it reaches about 20 km past
+the calving front, with the steady state copied onto it by cell position
+([D30](#decisions)). The tasks have:
 
 - the bed (Eqs. 1–4), Weertman friction, and the densities 918 and
   1028 kg m⁻³;
@@ -1487,7 +1491,7 @@ Rejected:
 
 ### D25: The geometry is smoothed onto the ocean
 
-Date last modified: 2026/11/04
+Date last modified: 2026/11/05
 
 Contributors: Xylar Asay-Davis, Claude
 
@@ -1517,8 +1521,8 @@ Rejected:
   come from the bed;
 - smoothing in the initial condition only, since the first import would
   then differ from it;
-- MALI's bed, since MALI's mesh ends at 641 km and the ocean's runs to
-  800 km.
+- MALI's bed, since MALI's mesh ends about 20 km past the calving front
+  ([D30](#decisions)) and the ocean's runs to 800 km.
 
 ### D26: Partial bottom cells
 
@@ -1635,3 +1639,37 @@ Rejected:
 - computing vertical mixing from a state that does not depend on the
   iteration count, which removes the signature in one step but not the
   month-scale excess.
+
+### D30: MALI's mesh extends past the calving front
+
+Date last modified: 2026/11/05
+
+Contributors: Xylar Asay-Davis, Claude
+
+MISOMIP's MALI mesh runs about 20 km past the 640 km calving front, and
+mask calving still removes any ice beyond 640 km. The added cells start
+with no ice, on the protocol's bed. MISMIP+'s own mesh and spin-up do not
+change: the steady state is copied onto the longer mesh by cell position,
+which is exact because every cell of the shorter mesh lies in the longer
+one. The 1 km mesh keeps its E3SM name, `misomip-li1km`. The standalone
+MALI runs that MISOMIP compares against are rerun on the longer mesh.
+
+```{admonition} Rationale
+The import renormalizes MALI's land-ice fields by the remapped
+below-sea-level mask, so ocean cells that reach past MALI's side walls
+keep their full pressure. With MALI's mesh ending at its calving front,
+the open ocean past the front looked like the gap at a wall, and the front
+was renormalized to full pressure too: the ocean's ice front sat about
+5 km past MALI's, and a calving changed the ocean's load 2.7 times more
+than MALI's. With open ocean past the front in MALI's mesh, its mask is 1
+there, and the smoothed pressure tapers to zero across the front. 20 km
+is well beyond what the smoothing reaches.
+```
+
+Rejected:
+
+- treating the area outside MALI's mesh as below sea level, which would
+  also lower the pressure at the side walls;
+- extending MALI's mesh to the ocean's end at 800 km, a quarter more cells
+  with no benefit;
+- accepting the inflated pressure at the front.
