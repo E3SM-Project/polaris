@@ -3,6 +3,7 @@ from polaris.tasks.ocean.single_column.conservation_summary import (
     ConservationSummary,
 )
 from polaris.tasks.ocean.single_column.forward import Forward
+from polaris.tasks.ocean.single_column.frazil import MeltingAnalysis
 from polaris.tasks.ocean.single_column.frazil.init import FrazilInit
 from polaris.tasks.ocean.single_column.frazil.melting_short.viz import (
     MeltingShortViz,
@@ -112,6 +113,13 @@ class FrazilMeltingShort(Task):
             frazil_diagnostics=True,
         )
         self.add_step(self.conservation_summary)
+        if variant_cfg == 'warm.cfg':
+            self.config.set(
+                'single_column_frazil', 'final_supercooling_tolerance', '1.e-3'
+            )
+            self.add_step(
+                MeltingAnalysis(component, subdir, init_step, comparisons)
+            )
         self.viz = MeltingShortViz(
             component=component,
             indir=subdir,
@@ -137,3 +145,18 @@ class FrazilMeltingShort(Task):
             self.remove_step(step)
             self.conservation_summary.forward_steps.pop(step.name, None)
             self.viz.comparisons.pop(f'{key[0]} {key[1]}', None)
+            if 'analysis' in self.steps:
+                self.steps['analysis'].comparisons.pop(
+                    f'{key[0]} {key[1]}', None
+                )
+        if 'analysis' in self.steps:
+            comparisons = self.steps['analysis'].comparisons
+            self.remove_step(self.steps['analysis'])
+            self.add_step(
+                MeltingAnalysis(
+                    self.component,
+                    self.subdir,
+                    self.steps['init'],
+                    comparisons,
+                )
+            )

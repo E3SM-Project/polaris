@@ -452,7 +452,7 @@ class Forward(OceanModelStep):
                 'latent_heat_of_fusion_reference'
             ),
         )
-        if self.task_name == 'frazil':
+        if self.task_name in ('frazil', 'frazil_melting_short'):
             replacements['frazil_maximum_depth'] = self.config.getfloat(
                 'single_column_frazil', 'maximum_depth'
             )

@@ -28,7 +28,7 @@ class Frazil(Task):
         ``'freezing'``
     """
 
-    def __init__(self, component, subdir, case):
+    def __init__(self, component, subdir, case, depth_limit=False):
         """
         Create the test case
 
@@ -43,8 +43,11 @@ class Frazil(Task):
         case : str
             The initial condition/forcing case, either ``'melting'`` or
             ``'freezing'``
+
+        depth_limit : bool, optional
+            Run one frazil-only melting timestep and check the depth limit.
         """
-        name = case
+        name = 'melting_depth_limit' if depth_limit else case
         super().__init__(component=component, name=name, subdir=subdir)
         self.case = case
 
@@ -54,6 +57,10 @@ class Frazil(Task):
         self.config.add_from_package(
             'polaris.tasks.ocean.single_column.frazil', 'frazil.cfg'
         )
+        if depth_limit:
+            self.config.set(
+                'single_column_frazil', 'temperature_lower_melting', '-3.0'
+            )
         init_step = FrazilInit(
             component=component,
             subdir=f'{subdir}/init',
@@ -77,7 +84,9 @@ class Frazil(Task):
                 'The frazil run must contain an integer number '
                 'of time steps in one day'
             )
-        frazil_conservation = self.case == 'freezing'
+        if depth_limit:
+            run_duration_steps = 1
+        frazil_conservation = self.case == 'freezing' or depth_limit
         for frazil_type in ('FixedProperty', 'teos'):
             forward_step = Forward(
                 component=component,
@@ -89,11 +98,23 @@ class Frazil(Task):
                 openmp_threads=1,
                 validate_vars=validate_vars,
                 task_name='frazil',
-                task_package='polaris.tasks.ocean.single_column.frazil',
+                task_package=(
+                    'polaris.tasks.ocean.single_column.frazil.melting_short'
+                    if depth_limit
+                    else 'polaris.tasks.ocean.single_column.frazil'
+                ),
                 frazil_type=frazil_type,
                 run_duration_steps=run_duration_steps,
                 frazil_conservation=frazil_conservation,
             )
+            if depth_limit:
+                forward_step.add_model_config_options(
+                    options={
+                        'config_disable_vel_vmix': True,
+                        'config_disable_tr_vmix': True,
+                    },
+                    config_model='ocean',
+                )
             self.add_step(forward_step)
             self._frazil_type_steps[frazil_type] = forward_step
             comparisons[frazil_type] = f'../forward_{frazil_type}'
@@ -105,9 +126,15 @@ class Frazil(Task):
             frazil_diagnostics=(case == 'freezing'),
         )
         self.add_step(self.conservation_summary)
-        if case == 'melting':
+        if depth_limit:
             self.add_step(
-                MeltingAnalysis(component, subdir, init_step, comparisons)
+                MeltingAnalysis(
+                    component,
+                    subdir,
+                    init_step,
+                    comparisons,
+                    depth_limit=True,
+                )
             )
         self.viz = FrazilViz(
             component=component,
@@ -140,7 +167,8 @@ class Frazil(Task):
             self.conservation_summary.forward_steps.pop(teos_step.name, None)
             comparisons = dict(self.viz.comparisons)
             comparisons.pop('teos', None)
-            if self.case == 'melting':
+            if 'analysis' in self.steps:
+                depth_limit = self.steps['analysis'].depth_limit
                 self.remove_step(self.steps['analysis'])
                 self.add_step(
                     MeltingAnalysis(
@@ -148,6 +176,7 @@ class Frazil(Task):
                         self.subdir,
                         self.steps['init'],
                         comparisons,
+                        depth_limit=depth_limit,
                     )
                 )
             self.remove_step(self.viz)
@@ -162,11 +191,12 @@ class Frazil(Task):
 
 
 class MeltingAnalysis(OceanIOStep):
-    """Check initial and final supercooling in the melting column."""
+    """Check bottom-layer relaxation or frazil depth-limit enforcement."""
 
-    def __init__(self, component, indir, init, comparisons):
+    def __init__(self, component, indir, init, comparisons, depth_limit=False):
         super().__init__(component=component, name='analysis', indir=indir)
         self.comparisons = dict(comparisons)
+        self.depth_limit = depth_limit
         self.add_input_file(
             filename='init.nc', work_dir_target=f'{init.path}/init.nc'
         )
@@ -176,7 +206,7 @@ class MeltingAnalysis(OceanIOStep):
             )
 
     def run(self):
-        """Require initial supercooling and final relaxation to freezing."""
+        """Check isolated frazil warming or bottom-layer relaxation."""
         section = self.config['single_column_frazil']
         initial_minimum = section.getfloat('initial_supercooling_minimum')
         final_maximum = section.getfloat('final_supercooling_tolerance')
@@ -188,8 +218,18 @@ class MeltingAnalysis(OceanIOStep):
         ):
             raise ValueError('Invalid melting supercooling thresholds')
         with self.open_model_dataset('init.nc', config=self.config) as ds:
-            initial = self._maximum_supercooling(ds.isel(Time=0))
-        self.logger.info(f'Initial maximum supercooling: {initial:.6e} degC')
+            initial_state = ds.isel(Time=0).load()
+        if self.depth_limit:
+            for name in self.comparisons:
+                with self.open_model_dataset(
+                    f'{name}.nc', config=self.config
+                ) as ds:
+                    self._check_depth_limit(
+                        initial_state, ds.isel(Time=0), name
+                    )
+            return
+        initial = float(np.min(self._bottom_supercooling(initial_state)))
+        self.logger.info(f'Initial minimum supercooling: {initial:.6e} degC')
         if initial < initial_minimum:
             raise ValueError(
                 f'Initial supercooling {initial:.6e} degC is below '
@@ -199,17 +239,19 @@ class MeltingAnalysis(OceanIOStep):
             with self.open_model_dataset(
                 f'{name}.nc', config=self.config
             ) as ds:
-                final = self._maximum_supercooling(ds.isel(Time=-1))
+                final = float(
+                    np.max(abs(self._bottom_supercooling(ds.isel(Time=-1))))
+                )
             self.logger.info(
-                f'{name} final maximum supercooling: {final:.6e} degC'
+                f'{name} final maximum freezing-point error: {final:.6e} degC'
             )
-            if final > final_maximum:
+            if abs(final) > final_maximum:
                 raise ValueError(
                     f'{name} final supercooling {final:.6e} degC exceeds '
                     f'{final_maximum:.6e} degC'
                 )
 
-    def _maximum_supercooling(self, ds):
+    def _bottom_supercooling(self, ds):
         model = self.config.get('ocean', 'model')
         thickness = ds[
             'PseudoThickness' if model == 'omega' else 'layerThickness'
@@ -223,10 +265,43 @@ class MeltingAnalysis(OceanIOStep):
         freezing = compute_ct_freezing(
             self.config, ds.salinity, pressure=pressure
         )
-        active = depth <= self.config.getfloat(
-            'single_column_frazil', 'maximum_depth'
-        )
-        supercooling = (freezing - ds.temperature).values[active.values]
+        supercooling = (freezing - ds.temperature).isel(nVertLevels=-1).values
         if supercooling.size == 0 or not np.isfinite(supercooling).all():
-            raise ValueError('Missing or nonfinite active-layer supercooling')
-        return max(0.0, float(np.max(supercooling)))
+            raise ValueError('Missing or nonfinite bottom-layer supercooling')
+        return supercooling
+
+    def _check_depth_limit(self, initial, final, name):
+        depth = abs(initial.zMid)
+        limit = self.config.getfloat('single_column_frazil', 'maximum_depth')
+        pressure = (
+            depth
+            * get_constant('seawater_density_reference')
+            * get_constant('standard_acceleration_of_gravity')
+        )
+        freezing = compute_ct_freezing(
+            self.config, initial.salinity, pressure=pressure
+        )
+        supercooled = initial.temperature < freezing
+        allowed = depth <= limit
+        if not bool((supercooled & allowed).any()) or not bool(
+            (supercooled & ~allowed).any()
+        ):
+            raise ValueError(
+                'Depth-limit test needs supercooled water above and below '
+                f'{limit} m'
+            )
+        warming = final.temperature - initial.temperature
+        tolerance = 1.0e-10
+        invalid = (
+            ~np.isfinite(warming)
+            | (supercooled & allowed & (warming <= tolerance))
+            | (~allowed & (abs(warming) > tolerance))
+        )
+        if bool(invalid.any()):
+            raise ValueError(
+                f'{name}: frazil depth-limit check failed; '
+                f'depth (m)={depth.values[invalid.values]}, '
+                f'temperature change (degC)='
+                f'{warming.values[invalid.values]}'
+            )
+        self.logger.info(f'{name}: frazil depth-limit check passed')

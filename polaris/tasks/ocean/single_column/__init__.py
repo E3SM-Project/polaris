@@ -310,12 +310,13 @@ def add_single_column_tasks(component):
         )
     )
 
-    for case in ('melting', 'freezing'):
+    for case in ('melting', 'freezing', 'melting_depth_limit'):
         component.add_task(
             Frazil(
                 component=component,
                 subdir=f'column/frazil/{case}',
-                case=case,
+                case='melting' if case == 'melting_depth_limit' else case,
+                depth_limit=case == 'melting_depth_limit',
             )
         )
 
