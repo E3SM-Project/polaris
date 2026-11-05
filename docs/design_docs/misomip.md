@@ -1129,17 +1129,19 @@ vertical-remap and debugging commits.
 
 ### D11: Ocean resolutions are 4 and 2 km
 
-Date last modified: 2026/10/28
+Date last modified: 2026/11/05
 
 Contributors: Xylar Asay-Davis, Claude
 
 The ocean uses 2 km for the protocol runs, the COM resolution
 (Sect. 3.1.5), and 4 km for development and the quick coupling test.
 MALI's resolution is set in the MISMIP+ design ([D13](#decisions)). The
-long runs take what they take: with split-explicit wetting and drying, 100
-years at 2 km take about two weeks on two Chrysalis nodes, and about half
-a year on 36 tasks with RK4, so only runs of a few years use RK4
-([D22](#decisions)).
+long runs take what they take. Coupled with MALI and with split-explicit
+wetting and drying, 2 km runs at about 5.3 simulated years per day on four
+Chrysalis nodes, the most its partitions can use. The 200 years of
+IceOcean1r and IceOcean1ra, run one after the other, take about 38 days
+and 3,600 node-hours. RK4 would take about half a year per 100 years, so
+only runs of a few years use RK4 ([D22](#decisions)).
 
 Rejected: a wall-clock target for 100-year runs, first set at a week. It
 would need a time step about twice what the thin film allows. Also
