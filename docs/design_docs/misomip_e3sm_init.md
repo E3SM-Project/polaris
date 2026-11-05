@@ -389,7 +389,7 @@ config options, and also each case's limits on cells per task
 
 ### Algorithm Design: Each experiment has a case configuration
 
-Date last modified: 2026/11/04
+Date last modified: 2026/11/05
 
 Contributors: Xylar Asay-Davis, Claude
 
@@ -401,8 +401,9 @@ Each experiment's case configuration holds:
     the two grids' domains and the maps above, but no runoff maps. The
     other components' grids are null. Experiments of a pair hold the same
     file;
-  - `user_nl_mpaso`: the options of the standalone runs: the ISOMIP+
-    tasks' E3SM physics, wetting and drying, and outflow. Every option
+  - `user_nl_mpaso`: the options of the standalone run with the case's
+    time integrator, RK4 or split-explicit ([D11](#decisions)): the
+    ISOMIP+ tasks' E3SM physics, wetting and drying, and outflow. Every option
     whose E3SM default differs from the standalone value is written.
     Where MALI's geometry changes, in data mode and with a prognostic
     MALI, the ocean ramps the land-ice pressure over each of MALI's
@@ -530,12 +531,14 @@ mesh. `case_config/` is not inputdata.
 
 ### Algorithm Design: A standalone ocean run shares the inputs
 
-Date last modified: 2026/11/04
+Date last modified: 2026/11/05
 
 Contributors: Xylar Asay-Davis, Claude
 
 A forward run starts from the E3SM initial condition, with the same
-physics, wetting and drying, outflow and RK4. For Ocean3–4, its land-ice
+physics, wetting and drying, outflow and RK4. A second forward run, from
+the same initial condition, uses the ISOMIP+ split-explicit settings
+([D11](#decisions)). For Ocean3–4, its land-ice
 forcing is every data-mode record through $R$, from step 2 above. Its
 length is a config option, one month by default, for comparison with the
 first E3SM run. IceOcean1r's run, with MALI's geometry fixed, is set up
@@ -1135,3 +1138,28 @@ Rejected: complete streams files written by Polaris, which would repeat
 E3SM's builders and drift from them. The script stops if SourceMods is a
 link, as in a keepexe clone, which shares it with the case it was cloned
 from.
+
+### D11: Each experiment has an RK4 and a split-explicit case
+
+Date last modified: 2026/11/05
+
+Contributors: Xylar Asay-Davis, Claude
+
+Each experiment has two case configurations, which read the same staged
+files. RK4's takes its namelist from the RK4 forward run. Split-explicit's
+takes it from a second forward run with the options of the ISOMIP+
+split-explicit tasks: their time steps, two outer iterations and the split
+form of the Coriolis term. The SSH adjustment, which both runs start from,
+keeps RK4. The split-explicit README names the E3SM change that FAnSSIE
+does not have yet. No option turns it on, so `create_case.sh` cannot check
+for it.
+
+```{admonition} Rationale
+The full-length runs use split-explicit, and short RK4 runs remain the
+reference to compare them with. A shared initial condition keeps the
+comparison to the time integrator alone.
+```
+
+Rejected: split-explicit variant tasks, as ISOMIP+ has, which would stage
+the same files twice; a config option choosing the integrator, which the
+shared forward step would apply to every task that uses it.
