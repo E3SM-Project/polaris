@@ -119,6 +119,20 @@ in its `initial_start` column, and the step's log gives the largest
 residual of the others.  Daily budgets show whether the rest of the first
 month closes.
 
+A run with daily global statistics and daily means also gets a
+`volume_budget` step, which plots the ocean's volume budget each day and
+summed from the start.  The volume changes by the melt and frazil under
+the ice shelf and by the transport in from the cells of the restoring
+region whose tidal forcing holds their sea-surface height, with the rest
+small.  As the ice shelf grows heavier, the water it displaces leaves
+through those cells; when it grows lighter, as when MALI calves, water
+comes back in.  A second plot compares the volume change, less melt and
+frazil, with the change in the land ice's load on the ocean, as a volume
+of seawater.  The transport needs the daily means of `normalVelocity` and
+`layerThickness`, and the load those of `landIcePressure`.  The
+statistics are instantaneous and a segment writes none at its start, so
+each segment's first day has no volume change and is left out of the sums.
+
 ## Performance
 
 A `performance` step plots each E3SM run's performance over the segments
