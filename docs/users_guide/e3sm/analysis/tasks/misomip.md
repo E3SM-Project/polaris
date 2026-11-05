@@ -128,8 +128,12 @@ small.  As the ice shelf grows heavier, the water it displaces leaves
 through those cells; when it grows lighter, as when MALI calves, water
 comes back in.  A second plot compares the volume change, less melt and
 frazil, with the change in the land ice's load on the ocean, as a volume
-of seawater.  The transport needs the daily means of `normalVelocity` and
-`layerThickness`, and the load those of `landIcePressure`.  The
+of seawater.  Where the ocean writes daily means of
+`tidalLayerThicknessTendency`, the volume the tidal forcing adds comes from
+them and is exact.  Otherwise it is the transport in from those cells,
+estimated from the daily means of `normalVelocity` and `layerThickness`,
+which leaves out how the two vary together within a day.  The load needs
+the daily means of `landIcePressure`.  The
 statistics are instantaneous and a segment writes none at its start, so
 each segment's first day has no volume change and is left out of the sums.
 

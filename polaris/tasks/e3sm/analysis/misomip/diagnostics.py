@@ -569,10 +569,13 @@ def compute_daily_volume_budget(
     Compute the ocean's daily volume budget
 
     The volume changes by the melt and frazil under the ice, by the
-    transport in from the cells whose tidal forcing holds their sea-surface
-    height and by a small rest.  Water the land ice displaces as it grows
-    heavier leaves through those cells.  The transport and the land-ice
-    load come from daily means, so they are estimates.
+    volume the tidal forcing adds in the cells whose sea-surface height it
+    holds and by a small rest.  Water the land ice displaces as it grows
+    heavier leaves through those cells.  The tidal forcing's term is exact
+    where the daily means have ``tidalLayerThicknessTendency``; otherwise
+    it is the transport in from those cells, an estimate from the daily
+    means of the velocity and thickness.  The land-ice load is an estimate
+    from daily means.
 
     Parameters
     ----------
@@ -580,7 +583,8 @@ def compute_daily_volume_budget(
         The ocean's daily means, renamed without their prefix, with
         ``xtime_startDaily`` and ``xtime_endDaily`` and any of
         ``landIceFreshwaterFlux``, ``frazilIceFreshwaterFlux``,
-        ``normalVelocity``, ``layerThickness`` and ``landIcePressure``
+        ``tidalLayerThicknessTendency``, ``normalVelocity``,
+        ``layerThickness`` and ``landIcePressure``
 
     ds_stats : xarray.Dataset
         The daily global statistics, with ``xtime`` and
@@ -596,7 +600,7 @@ def compute_daily_volume_budget(
 
     tidal_mask : xarray.DataArray, optional
         Whether each cell is tidally forced, for the transport in from those
-        cells
+        cells where the daily means have no tidal tendency
 
     Returns
     -------
@@ -654,11 +658,24 @@ def compute_daily_volume_budget(
             units='m3',
         )
 
-    if (
+    if 'tidalLayerThicknessTendency' in ds_means:
+        # the tendency the tidal forcing adds, sampled every time step, is
+        # exact; it is zero outside the tidally forced cells
+        rate = (ds_means.tidalLayerThicknessTendency * area).sum(
+            dim=['nCells', 'nVertLevels']
+        )
+        ds_volume['tidalForcingInflow'] = ('Time', seconds * rate.values)
+        ds_volume.tidalForcingInflow.attrs = dict(
+            long_name='volume added by the tidal forcing',
+            units='m3',
+        )
+    elif (
         tidal_mask is not None
         and 'normalVelocity' in ds_means
         and 'layerThickness' in ds_means
     ):
+        # an estimate: the product of daily means leaves out how the
+        # velocity and thickness vary together within the day
         inflow = _transport_out_of(
             ds_init,
             tidal_mask.values,
