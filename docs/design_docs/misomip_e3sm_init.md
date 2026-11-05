@@ -445,8 +445,9 @@ solve, and each rebuild leaks memory, so a long prognostic run grows and
 slows.
 ```
 
-If the MISMIP+ tasks add thin-ice calving and iceberg removal to Ice1r,
-IceOcean1r takes them too, since its options are read from theirs.
+IceOcean1r and IceOcean1ra take Ice1r's calving: thin floating ice and
+icebergs are calved, and the calving front is restored to the initial
+extent without preventing its retreat. The calving mask stays on.
 
 The case variables, the runoff option and the compsets are those of the
 E3SM changes for idealized ice-shelf cases.
