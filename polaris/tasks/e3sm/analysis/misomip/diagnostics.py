@@ -760,7 +760,10 @@ def _transport_out_of(ds_init, inside, normal_velocity, layer_thickness):
         + layer_thickness.isel(nCells=xr.DataArray(cell2, dims=dim))
     )
     weight = xr.DataArray(sign * ds_init.dvEdge.values[edges], dims=dim)
-    transport = (velocity * thickness * weight).sum(dim=[dim, 'nVertLevels'])
+    # a day without the means, as before a run wrote them, has no transport
+    transport = (velocity * thickness * weight).sum(
+        dim=[dim, 'nVertLevels'], min_count=1
+    )
     return transport.values
 
 
