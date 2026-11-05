@@ -119,10 +119,9 @@ def test_only_edges_out_of_the_tidally_forced_cells_carry_their_inflow():
     np.testing.assert_allclose(ds.tidalForcingInflow, [expected, expected])
 
 
-def test_the_tidal_tendency_replaces_the_transport_estimate():
-    """The tendency is exact, so it is used even where the transport could
-    be estimated"""
-    ds_init, tidal_mask = _mesh()
+def _means_with_tidal_tendency():
+    """Daily means with flow in from the tidally forced cells and their
+    tidal tendency"""
     ds_means = _means(STARTS, ENDS, velocity_into_domain=0.01)
     tendency = np.zeros((2, 4, 2))
     tendency[:, 2:, :] = 1.0e-9
@@ -130,17 +129,44 @@ def test_the_tidal_tendency_replaces_the_transport_estimate():
         ('Time', 'nCells', 'nVertLevels'),
         tendency,
     )
+    return ds_means
+
+
+def test_the_tidal_tendency_replaces_the_transport_estimate():
+    """The tendency of a thickness source is exact, so it is used even
+    where the transport could be estimated"""
+    ds_init, tidal_mask = _mesh()
     ds = compute_daily_volume_budget(
-        ds_means,
+        _means_with_tidal_tendency(),
         _stats(ENDS, [0.0, 0.0]),
         ds_init,
         REF_DENSITY,
         tidal_mask,
+        'thickness_source',
     )
     expected = 86400.0 * 1.0e-9 * AREA * 4
     np.testing.assert_allclose(ds.tidalForcingInflow, [expected, expected])
     assert ds.tidalForcingInflow.long_name == (
         'volume added by the tidal forcing'
+    )
+
+
+def test_direct_tidal_forcing_uses_the_transport_estimate():
+    """Forcing that sets the thickness directly leaves the tendency at
+    zero, so the transport is estimated instead"""
+    ds_init, tidal_mask = _mesh()
+    ds = compute_daily_volume_budget(
+        _means_with_tidal_tendency(),
+        _stats(ENDS, [0.0, 0.0]),
+        ds_init,
+        REF_DENSITY,
+        tidal_mask,
+        'direct',
+    )
+    expected = 86400.0 * 0.01 * THICKNESS * DV_EDGE * 2
+    np.testing.assert_allclose(ds.tidalForcingInflow, [expected, expected])
+    assert ds.tidalForcingInflow.long_name == (
+        'transport in from the tidally forced cells'
     )
 
 
