@@ -403,7 +403,11 @@ Each experiment's case configuration holds:
     file;
   - `user_nl_mpaso`: the options of the standalone runs: the ISOMIP+
     tasks' E3SM physics, wetting and drying, and outflow. Every option
-    whose E3SM default differs from the standalone value is written;
+    whose E3SM default differs from the standalone value is written.
+    Where MALI's geometry changes, in data mode and with a prognostic
+    MALI, the ocean ramps the land-ice pressure over each of MALI's
+    coupling intervals (`config_glc_ice_shelf_coupling_ramp_land_ice_pressure`),
+    an interval E3SM sets from the case's coupling;
   - `user_nl_mali`: the MISMIP+ tasks' MALI options, read from their
     files, with `config_always_compute_fem_grid = .false.`;
   - for IceOcean1r and IceOcean1ra, MALI's Albany input, the MISMIP+
