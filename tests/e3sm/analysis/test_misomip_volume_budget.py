@@ -119,6 +119,29 @@ def test_only_edges_out_of_the_tidally_forced_cells_carry_their_inflow():
     np.testing.assert_allclose(ds.tidalForcingInflow, [expected, expected])
 
 
+def test_a_day_without_the_thickness_has_no_transport():
+    """Before a run writes the daily thickness, its days have no transport
+    rather than none in"""
+    ds_init, tidal_mask = _mesh()
+    ds_means = _means(STARTS, ENDS, velocity_into_domain=0.01)
+    thickness = ds_means.layerThickness.values.copy()
+    thickness[0] = np.nan
+    ds_means['layerThickness'] = (
+        ('Time', 'nCells', 'nVertLevels'),
+        thickness,
+    )
+    ds = compute_daily_volume_budget(
+        ds_means,
+        _stats(ENDS, [0.0, 0.0]),
+        ds_init,
+        REF_DENSITY,
+        tidal_mask,
+        'direct',
+    )
+    expected = 86400.0 * 0.01 * THICKNESS * DV_EDGE * 2
+    np.testing.assert_allclose(ds.tidalForcingInflow, [np.nan, expected])
+
+
 def _means_with_tidal_tendency():
     """Daily means with flow in from the tidally forced cells and their
     tidal tendency"""

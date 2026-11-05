@@ -430,14 +430,26 @@ class OceanVolumeBudget(ProductStep):
 
     def _log_budget(self, ds, change, surface, label, inflow, rest):
         """Log the budget's totals and its largest rest"""
-        valid = np.isfinite(change)
-        if not np.any(valid):
+        has_change = np.isfinite(change)
+        if not np.any(has_change):
             self.logger.info('No day has the volume at both of its ends.')
+            return
+        valid = np.logical_and(has_change, np.isfinite(inflow))
+        without = np.logical_and(has_change, np.logical_not(valid))
+        if np.any(without):
+            self.logger.info(
+                f'Over the {np.count_nonzero(without)} days with the volume '
+                f'at both ends but without the {label}: volume change '
+                f'{change[without].sum():.4g} m3, melt + frazil '
+                f'{surface[without].sum():.4g} m3.'
+            )
+        if not np.any(valid):
             return
         self.logger.info(
             f'Over the {np.count_nonzero(valid)} days with the volume at '
-            f'both ends: volume change {change[valid].sum():.4g} m3, melt + '
-            f'frazil {surface[valid].sum():.4g} m3, {label} '
+            f'both ends and the {label}: volume change '
+            f'{change[valid].sum():.4g} m3, melt + frazil '
+            f'{surface[valid].sum():.4g} m3, {label} '
             f'{inflow[valid].sum():.4g} m3, the rest '
             f'{rest[valid].sum():.4g} m3.'
         )
