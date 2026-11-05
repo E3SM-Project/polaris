@@ -50,7 +50,7 @@ MALI's mesh is the MISMIP+ 1 km mesh extended to $x = 660$ km, 20 km
 past the calving front, so the ocean sees ice-free MALI cells beyond the
 front.  The `landice_steady_state` step copies the cached MISMIP+ steady
 state ({ref}`landice-mismip-plus`) onto it by position, removing the ice
-where the calving mask is 1, as MALI does before its first output.  The
+where the calving mask is 1, beyond the protocol's calving front.  The
 cells past the MISMIP+ mesh have no ice.
 
 Every MALI initial condition starts from that steady state, with the

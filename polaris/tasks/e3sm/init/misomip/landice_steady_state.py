@@ -80,7 +80,7 @@ class LandiceSteadyStateStep(Step):
         removed = remove_masked_ice('steady_state.nc')
         self.logger.info(
             f'Removed the ice in {removed} cells where the calving mask is '
-            f'1, as MALI does before its first output'
+            f'1, beyond the calving front'
         )
 
 
@@ -197,7 +197,8 @@ def get_indices_by_position(ds_src, ds_dst, x_name, y_name):
 
 def remove_masked_ice(filename):
     """
-    Remove the ice where MALI's calving mask is 1
+    Remove the ice where MALI's calving mask is 1: the protocol calves all
+    ice beyond the calving front, so the initial condition holds none there
 
     Parameters
     ----------
