@@ -1655,7 +1655,8 @@ mask calving still removes any ice beyond 640 km. The added cells start
 with no ice, on the protocol's bed. MISMIP+'s own mesh and spin-up do not
 change: the steady state is copied onto the longer mesh by cell position,
 which is exact because every cell of the shorter mesh lies in the longer
-one. The 1 km mesh keeps its E3SM name, `misomip-li1km`. The standalone
+one. The copy calves the ice the steady state holds beyond 640 km, in
+what were the shorter mesh's last columns. The 1 km mesh keeps its E3SM name, `misomip-li1km`. The standalone
 MALI runs that MISOMIP compares against are rerun on the longer mesh.
 
 ```{admonition} Rationale
