@@ -291,17 +291,19 @@ a specific implementation feature, and distinguish its intended physical
 signature from an enforced validation threshold.
 ## frazil
 
-The {py:class}`polaris.tasks.ocean.single_column.frazil.Frazil` task creates
-four single-column cases covering the combinations of the two initial
-conditions (``melting`` and ``freezing``) and the two frazil algorithms
-(``FixedProperty`` and ``teos``). Each case runs for one day and has an
-optional visualization step from the single-column framework.
+The {py:class}`polaris.tasks.ocean.single_column.frazil.Frazil` class
+creates the full-column `melting`, `freezing` and `melting_depth_limit` tasks,
+each with a forward step per frazil algorithm (``FixedProperty`` and
+``teos``). `melting` and `freezing` run for one day and have an optional
+visualization step from the single-column framework. The one-layer and
+`melting_short` tasks have their own classes, described below.
 
-Melting also runs
+The frazil-only `melting_depth_limit` variant and `melting_short/warm` run
 {py:class}`polaris.tasks.ocean.single_column.frazil.MeltingAnalysis`
-by default. It checks initial and final maximum supercooling within the
-configured frazil depth limit; thresholds are described in
-{ref}`ocean-single-column`.
+by default. The former checks one-timestep temperature changes on both
+sides of the depth limit; the latter checks bottom-layer relaxation.
+Standard melting has no convergence assertion. Thresholds and suite
+coverage are described in {ref}`ocean-single-column`.
 
 The melting case sets a linear salinity profile with depth and a vertical
 profile with warm water near the surface and colder water below, using the
@@ -325,7 +327,7 @@ residuals for mass, salt, and energy. Missing tendency fields or skipped
 timesteps raise an error. This accounting is for standalone runs, not
 coupled runs. Omega retains its existing frazil-flux accounting for freezing.
 
-## frazil one layer (freezing)
+### one_layer
 
 The
 {py:class}`polaris.tasks.ocean.single_column.frazil.one_layer.FrazilOneLayer`
@@ -365,7 +367,7 @@ Both models include frazil contributions in their conservation checks and
 summary logs. MPAS-Ocean uses the applied tendencies rather than the
 accumulated ice mass to account for local-density effects and meltwater heat.
 
-## frazil melting short
+### melting_short
 
 The
 {py:class}`polaris.tasks.ocean.single_column.frazil.melting_short.FrazilMeltingShort`
