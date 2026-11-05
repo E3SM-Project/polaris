@@ -610,7 +610,11 @@ def test_user_nl_mali_prognostic_takes_the_mismip_plus_options():
     lines = [line for line in text.splitlines() if '=' in line]
     assert len(lines) == len(options)
     # Ice1r's calving in place of the MISMIP+ tasks' default
-    ice1r = {'config_calving', 'config_remove_icebergs'}
+    ice1r = {
+        'config_calving',
+        'config_remove_icebergs',
+        'config_restore_calving_front',
+    }
     for option, value in mismip_plus.items():
         if option in MISMIP_PLUS_STANDALONE_OPTIONS:
             assert option not in options
@@ -619,6 +623,10 @@ def test_user_nl_mali_prognostic_takes_the_mismip_plus_options():
     assert options['config_default_flowParamA'] == '6e-25'
     assert options['config_calving'] == "'thickness_threshold'"
     assert options['config_remove_icebergs'] == '.true.'
+    assert options['config_restore_calving_front'] == '.true.'
+    assert options['config_restore_calving_front_prevent_retreat'] == (
+        '.false.'
+    )
     assert options['config_always_compute_fem_grid'] == '.false.'
     # E3SM takes the melt from the ocean
     assert 'config_basal_mass_bal_float' not in options

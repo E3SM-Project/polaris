@@ -1001,10 +1001,13 @@ def get_user_nl_mali(experiment, flow_param_a):
             if option not in MISMIP_PLUS_STANDALONE_OPTIONS
         }
         options['config_default_flowParamA'] = repr(flow_param_a)
-        # Ice1r calves floating ice too thin to be dynamic, and icebergs
+        # Ice1r calves floating ice too thin to be dynamic, and icebergs,
+        # and restores the calving front without preventing its retreat
         options['config_calving'] = "'thickness_threshold'"
         options['config_calving_thickness'] = repr(MALI_DYNAMIC_THICKNESS)
         options['config_remove_icebergs'] = '.true.'
+        options['config_restore_calving_front'] = '.true.'
+        options['config_restore_calving_front_prevent_retreat'] = '.false.'
         lines.extend(
             [f'{option} = {value}' for option, value in options.items()]
             + ['', "! MALI's defaults, where E3SM's differ"]
