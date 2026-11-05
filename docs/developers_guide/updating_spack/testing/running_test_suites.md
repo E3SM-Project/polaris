@@ -5,6 +5,11 @@ running the required test suite(s) for each supported machine, compiler, and
 MPI variant. This ensures that core E3SM components build and run correctly in
 the new environment.
 
+The utility in `utils/polaris_update_testing` deploys the environments, runs
+these suites on every supported row and reports the results on the pull
+request (see {ref}`dev-polaris-update-testing`).  The steps below are what
+it does, for running them by hand.
+
 ---
 
 ## MPAS-Ocean: Running the `pr` Suite

@@ -95,8 +95,104 @@ Once testing across all platforms is complete:
   the `main` branch)
 * Merge once CI passes
 
-Afterward, update any references to the RC version in the Polaris repo to
-point to the final release.
+Afterward, update Polaris to the final release, as described below.
+
+---
+
+## Updating Polaris to a new mache
+
+Polaris pins one version of `mache` in `deploy/pins.cfg`.  Two of
+Polaris' files belong to `mache` and must match that version: `deploy.py`
+and `deploy/cli_spec.json`.  Never edit them by hand.  Have the new
+`mache` regenerate them instead.  The steps work for a release on
+conda-forge, such as `5.3.0`, or a release candidate on the `mache_dev`
+label, such as `5.3.0rc1`.
+
+1. From the root of your Polaris branch, make a bootstrap environment with
+   the new `mache`:
+
+   ```bash
+   ./deploy.py --bootstrap-only --mache-version 5.3.0
+   ```
+
+   For an hour or more after a release is uploaded, this can fail with "No
+   candidates were found for mache".  Pixi finds packages through the
+   channel's sharded index, `noarch/repodata_shards.msgpack.zst` on
+   `conda.anaconda.org/conda-forge`.  It sees the release only once that
+   index has been rebuilt, even though anaconda.org already lists the
+   package.  `pixi search -c conda-forge 'mache==5.3.0'` finds it once the
+   index has it.  Meanwhile, you can bootstrap from the release's tag with
+   `--mache-fork E3SM-Project/mache --mache-branch 5.3.0` in place of
+   `--mache-version`.
+
+2. Follow the instructions it prints:
+
+   ```bash
+   pixi shell -m deploy_tmp/bootstrap_pixi/pixi.toml
+   mache deploy update --software polaris --mache-version 5.3.0
+   exit
+   ```
+
+   This replaces `deploy.py` and `deploy/cli_spec.json` with the versions
+   from the new `mache`.
+
+3. Set `mache` under `[pixi]` in `deploy/pins.cfg` to the new version.
+   Until the pin and `meta.mache_version` in `deploy/cli_spec.json` name
+   the same version, `./deploy.py` refuses to run.
+
+4. Update any other dependencies in `deploy/pins.cfg`, `deploy/pixi.toml.j2`
+   and `deploy/spack.yaml.j2` (see {ref}`dev-updating-conda` and
+   [Updating Spack Dependencies](../updating_packages.md)).
+
+5. `mache deploy update` leaves Polaris' own deployment files alone:
+   `deploy/config.yaml.j2`, `deploy/pixi.toml.j2`, `deploy/spack.yaml.j2`,
+   `deploy/hooks.py`, `deploy/load.sh` and `deploy/custom_cli_spec.json`.
+   Read the release notes of every `mache` release since the old pin, and
+   the descriptions of the PRs they list.  Look for:
+
+   * changes Polaris' own deployment files need, such as a new Spack
+     variant to request in `deploy/spack.yaml.j2`;
+   * changes to how hooks are called, or to what a hook may do, which
+     `deploy/hooks.py` must follow;
+   * breaking changes that need the shared Spack environments rebuilt, such
+     as a new compiler or module version in a machine's Spack template.  A
+     machine whose shared environments are not rebuilt under the new
+     Polaris version breaks for everyone who loads them;
+   * caveats asking to keep a change out of a release, or out of Polaris,
+     until something else happens, such as Omega or E3SM moving to a new
+     module.  If such a change was released anyway, raise it in the
+     version-update PR before deploying.
+
+6. Review the diff, and commit the regenerated files and the new pins
+   together.
+
+---
+
+## Testing an unreleased mache
+
+To deploy Polaris with a `mache` branch that has not been released yet,
+such as a `mache` PR that fixes a machine's Spack template, pass its fork
+and branch to `./deploy.py`:
+
+```bash
+./deploy.py --deploy-spack --spack-path <test_spack_path> \
+    --compiler <compiler...> --mpi <mpi...> \
+    --mache-fork <org>/mache --mache-branch <branch>
+```
+
+`./deploy.py` then downloads the bootstrap script from the branch, clones
+it, and installs `mache` from the clone into the Polaris environment.  It
+skips the check that the pin matches `deploy/cli_spec.json`, so you can
+test a branch before updating Polaris to it.  If the branch changes
+`deploy.py` or `deploy/cli_spec.json`, regenerate them from the branch
+first, as above but with `--mache-fork` and `--mache-branch` in place of
+`--mache-version`.  Leave `--mache-version` off `mache deploy update` too,
+so it uses the version of the `mache` it was installed with.
+
+Use a `mache` branch only for test deployments.  Release `mache`, then
+update Polaris to the release as above, before deploying the shared Spack
+environments.  The Polaris version update testing utility takes the same
+flags ({ref}`dev-polaris-update-testing`).
 
 ---
 

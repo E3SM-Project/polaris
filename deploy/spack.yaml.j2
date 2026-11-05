@@ -29,8 +29,8 @@ library:
   - "netcdf-fortran@{{ all.netcdf_fortran }}"
   - "parallel-netcdf@{{ all.pnetcdf }}+cxx+fortran"
 {%- endif %}
-  - "metis@{{ all.metis }}+int64+real64~shared"
-  - "parmetis@{{ spack.parmetis }}+int64~shared"
+  - "metis@{{ all.metis }}+int64+real64~shared+pic"
+  - "parmetis@{{ spack.parmetis }}+int64~shared+pic"
   - "e3sm-scorpio@{{ spack.scorpio }}+mpi~timing~internal-timing~tools+malloc"
 
 software:

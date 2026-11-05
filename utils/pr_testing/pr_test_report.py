@@ -8,7 +8,7 @@ import json
 import os
 import re
 from dataclasses import dataclass, field
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Dict, List, Optional, Sequence, Tuple
 
 import pr_test_github as github
 from pr_test_rows import Row
@@ -65,6 +65,173 @@ class RowResult:
     cells: List[str]
     details: Optional[str] = None
     marker: Dict[str, Any] = field(default_factory=dict)
+
+
+@dataclass
+class BaselineComparison:
+    """
+    How a suite's tasks compare with the baseline.  A baseline comparison
+    in Polaris passes only if the variables are bit-for-bit.
+
+    Attributes
+    ----------
+    suite : str
+        The suite
+
+    bit_for_bit : list of str
+        The tasks whose compared variables are bit-for-bit
+
+    differ : dict of str to list of str
+        The tasks that are not bit-for-bit, with the variables that differ
+
+    did_not_run : list of str
+        The tasks that failed to run or never ran, which have no
+        bit-for-bit result either way
+
+    not_compared : list of str
+        The tasks that ran but compare no variables with the baseline
+
+    failed_in_baseline : list of str
+        The tasks that ran but could not be compared, because they failed
+        in the baseline
+    """
+
+    suite: str
+    bit_for_bit: List[str] = field(default_factory=list)
+    differ: Dict[str, List[str]] = field(default_factory=dict)
+    did_not_run: List[str] = field(default_factory=list)
+    not_compared: List[str] = field(default_factory=list)
+    failed_in_baseline: List[str] = field(default_factory=list)
+
+
+def compare_with_baseline(
+    work_dir: str, suite: str, baseline_work_dir: Optional[str] = None
+) -> BaselineComparison:
+    """
+    Read how a suite's tasks compare with the baseline from its results
+
+    Parameters
+    ----------
+    work_dir : str
+        The suite's work directory
+
+    suite : str
+        The suite
+
+    baseline_work_dir : str, optional
+        The baseline's work directory, whose failed tasks have nothing to
+        compare with
+
+    Returns
+    -------
+    comparison : pr_test_report.BaselineComparison
+        The comparison
+    """
+    path = os.path.join(work_dir, f'{suite}_results.json')
+    with open(path, 'r', encoding='utf-8') as f:
+        results = json.load(f)
+    failed_in_baseline = _failed_tasks(baseline_work_dir, suite)
+    comparison = BaselineComparison(suite)
+    for task in results.get('tasks', []):
+        name = task['path']
+        if task.get('execution') != 'pass':
+            comparison.did_not_run.append(name)
+        elif task.get('baseline') == 'fail':
+            variables = _differing_variables(task)
+            if variables or name not in failed_in_baseline:
+                comparison.differ[name] = variables
+            else:
+                comparison.failed_in_baseline.append(name)
+        elif task.get('baseline') == 'pass':
+            comparison.bit_for_bit.append(name)
+        else:
+            comparison.not_compared.append(name)
+    return comparison
+
+
+def format_bit_for_bit(
+    rows: Sequence[Tuple[Row, Optional[BaselineComparison], str]],
+) -> str:
+    """
+    A section that says plainly whether each row is bit-for-bit with the
+    baseline, keeping tasks that did not run apart
+
+    Parameters
+    ----------
+    rows : list of tuple
+        Each row, its comparison with the baseline, or ``None`` if it was
+        not compared, and why not
+
+    Returns
+    -------
+    text : str
+        The section
+    """
+    compared = [comparison for _, comparison, _ in rows if comparison]
+    differ = sum(len(comparison.differ) for comparison in compared)
+    did_not_run = sum(len(comparison.did_not_run) for comparison in compared)
+    failed_in_baseline = sum(
+        len(comparison.failed_in_baseline) for comparison in compared
+    )
+    lines = ['### Bit-for-bit with the baseline', '']
+    if not compared:
+        lines.append('Nothing was compared with a baseline.')
+    elif differ == 0:
+        identical = sum(len(comparison.bit_for_bit) for comparison in compared)
+        lines.append(
+            f'Every task compared with the baseline is bit-for-bit '
+            f'({_count(identical, "task")}).'
+        )
+    else:
+        rows_differing = sum(1 for comparison in compared if comparison.differ)
+        lines.append(
+            f'**Not bit-for-bit: {_count(differ, "task")}, on '
+            f'{_count(rows_differing, "row")}.**'
+        )
+    if did_not_run:
+        lines.append(
+            f'{_count(did_not_run, "task")} did not run, so '
+            f'{"it has" if did_not_run == 1 else "they have"} no bit-for-bit '
+            f'result either way.'
+        )
+    if failed_in_baseline:
+        lines.append(
+            f'{_count(failed_in_baseline, "task")} failed in the baseline, '
+            f'so {"it has" if failed_in_baseline == 1 else "they have"} '
+            f'nothing to compare with.'
+        )
+    lines.append('')
+    for row, comparison, reason in rows:
+        if comparison is None:
+            lines.append(f'- {row.label}: not compared, because {reason}.')
+            continue
+        ran = (
+            len(comparison.bit_for_bit)
+            + len(comparison.differ)
+            + len(comparison.not_compared)
+            + len(comparison.failed_in_baseline)
+        )
+        lines.append(
+            f'- {row.label}, `{comparison.suite}`: '
+            f'{len(comparison.bit_for_bit)} of {ran} tasks that ran are '
+            f'bit-for-bit.'
+        )
+        for task, variables in comparison.differ.items():
+            changed = ', '.join(f'`{variable}`' for variable in variables)
+            lines.append(
+                f'  - Not bit-for-bit: `{task}` '
+                f'({changed or "see the task log"})'
+            )
+        for task in comparison.did_not_run:
+            lines.append(f'  - Did not run: `{task}`')
+        for task in comparison.failed_in_baseline:
+            lines.append(f'  - Failed in the baseline: `{task}`')
+        if comparison.not_compared:
+            lines.append(
+                f'  - Compares nothing with the baseline: '
+                f'{_count(len(comparison.not_compared), "task")}'
+            )
+    return '\n'.join(lines)
 
 
 def make_marker(prefix: str, **contents: Any) -> str:
@@ -399,12 +566,7 @@ def summarize_suite(
         execution = task.get('execution')
         baseline = task.get('baseline')
         if baseline == 'fail' and task['path'] in failed_in_baseline:
-            diffs_by_variable = (task.get('baseline_diffs') or {}).values()
-            if not any(
-                _is_nonzero(norm)
-                for norms in diffs_by_variable
-                for norm in norms.values()
-            ):
+            if not _differing_variables(task):
                 baseline = None
                 not_compared += 1
         if baseline == 'fail':
@@ -471,6 +633,16 @@ def _failed_tasks(work_dir: Optional[str], suite: str) -> List[str]:
         for task in results.get('tasks', [])
         if task.get('execution') != 'pass'
     ]
+
+
+def _differing_variables(task: Dict[str, Any]) -> List[str]:
+    """The variables with a nonzero difference from the baseline"""
+    diffs = task.get('baseline_diffs') or {}
+    return sorted(
+        variable
+        for variable, norms in diffs.items()
+        if any(_is_nonzero(norm) for norm in norms.values())
+    )
 
 
 def _is_nonzero(norm):
