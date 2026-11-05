@@ -283,7 +283,9 @@ displaces as it grows heavier leaves through those cells, so the
 transport follows the change in the ice's load. The daily change comes
 from the global statistics at each day's ends. The volume the tidal
 forcing adds is the daily mean of its thickness tendency, summed over the
-region, where the ocean writes it. Otherwise it is estimated from the
+region, where the forcing is a thickness source and the ocean writes it.
+Forcing that sets the thickness directly leaves that tendency at zero.
+Otherwise the volume is estimated from the
 daily means of velocity and thickness at the region's edges. The load
 comes from daily means, so it is an estimate. The volume change less melt and
 frazil is also compared with the change in the load,
@@ -530,8 +532,8 @@ Contributors: Xylar Asay-Davis, Claude
   E3SM runs, parse budget tables from a coupler log, check melt totals and
   means on a small planar mesh against hand computation, and check that
   spreading transport over bins of $z$ conserves it.
-- On a small mesh, the volume budget uses the tidal tendency where it has
-  it, its transport counts only the edges out of the tidally forced cells,
+- On a small mesh, the volume budget uses the tidal tendency of a
+  thickness source where it has it, its transport counts only the edges out of the tidally forced cells,
   and its load change only days that follow each other.
 - On the existing 4 km Ocean0 and Ocean3 runs, the monthly-mean melt
   flux matches the mean of the daily statistics, the overturning is near
