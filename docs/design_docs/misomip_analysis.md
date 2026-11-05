@@ -511,7 +511,7 @@ the protocol's grid as a `MappingFileStep`.
 
 ### Implementation: E3SM runs report their performance
 
-Date last modified: 2026/11/04
+Date last modified: 2026/11/05
 
 Contributors: Xylar Asay-Davis, Claude
 
@@ -519,7 +519,9 @@ Contributors: Xylar Asay-Davis, Claude
 timer statistics, the coupler's stamps and memory records, the memory
 profile and `sacct`'s accounting ([D8](#decisions)).
 The MISOMIP tasks' `performance` step, added for every E3SM run, links each
-segment's files at setup and plots them. Where `sacct` is missing, queue
+segment's files at setup and plots them. It and the `conservation` step take
+only the segments whose coupler logs start their clocks in the months
+analyzed. Where `sacct` is missing, queue
 waits and Slurm's memory are left out.
 
 ## Testing
