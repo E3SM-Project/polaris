@@ -4,7 +4,7 @@ from polaris.config import PolarisConfigParser
 from polaris.ocean.ice_shelf import get_ssh_adjustment_steps
 from polaris.tasks.ocean import ocean
 from polaris.tasks.ocean.isomip_plus import get_isomip_plus_mesh_steps
-from polaris.tasks.ocean.isomip_plus.ssh_forward import SshForward
+from polaris.tasks.ocean.isomip_plus.ssh_forward import ThinFilmSshForward
 from polaris.tasks.ocean.isomip_plus.topo import TopoRemap
 from polaris.tasks.ocean.misomip.forward import MisomipForward
 from polaris.tasks.ocean.misomip.init import MisomipInit
@@ -138,7 +138,7 @@ def get_misomip_ocean_steps(
         init_filename=f'{init.path}/init.nc',
         config=config,
         config_filename=CONFIG_FILENAME,
-        ForwardStep=SshForward,
+        ForwardStep=ThinFilmSshForward,
         package='polaris.tasks.ocean.isomip_plus',
         yaml_filename='physics.yaml',
     )

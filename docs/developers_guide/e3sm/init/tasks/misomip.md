@@ -74,7 +74,8 @@ component, and `polaris.tasks.ocean.misomip` imports nothing from
 starts from and the topography it reads, with E3SM's gravity and the
 experiment's profiles.  The SSH-adjustment steps come from
 {py:func}`polaris.ocean.ice_shelf.get_ssh_adjustment_steps()`, with the
-ISOMIP+ `SshForward`.  `iceocean1ra` (in `CONTINUES_FROM`) gets only the
+ISOMIP+ `ThinFilmSshForward`, which adds the thin-film tasks' wetting and
+drying options, as the forward run does.  `iceocean1ra` (in `CONTINUES_FROM`) gets only the
 `init` step, on `iceocean1r`'s land-ice fields.
 {py:class}`polaris.tasks.ocean.misomip.MisomipForward` subclasses the ISOMIP+
 {py:class}`polaris.tasks.ocean.isomip_plus.forward.Forward` with its

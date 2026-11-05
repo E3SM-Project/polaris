@@ -28,6 +28,7 @@ from polaris.tasks.e3sm.init.misomip.landice_data import (
     write_data_mode_file,
 )
 from polaris.tasks.ocean import Ocean
+from polaris.tasks.ocean.isomip_plus.ssh_forward import ThinFilmSshForward
 from polaris.tasks.ocean.misomip import MisomipInit
 
 
@@ -278,3 +279,28 @@ def test_forward_is_not_run_by_default():
     assert 'forward' in task.steps
     assert 'forward' not in task.steps_to_run
     assert 'ocean_init' in task.steps_to_run
+
+
+def test_ssh_adjustment_has_thin_film_wetting_and_drying():
+    # SSH adjustment and the forward run, whose namelist the case
+    # configurations follow, both add the thin film's wetting and drying
+    # options, with the ramp of velocities in thin columns
+    steps, _ = get_misomip_experiment_steps('misomip-o4km-li1km', 'ocean0')
+    ssh_forwards = [
+        step
+        for name, step in steps.items()
+        if name.startswith('ocean/ssh_adjustment/ssh_forward_')
+    ]
+    assert ssh_forwards
+    for step in ssh_forwards:
+        assert isinstance(step, ThinFilmSshForward)
+    assert steps['ocean/forward'].thin_film
+    options = yaml.safe_load(
+        imp_res.files('polaris.tasks.ocean.isomip_plus')
+        .joinpath('thin_film_wetting_drying.yaml')
+        .read_text()
+    )['mpas-ocean']
+    assert any(
+        section.get('config_zero_drying_velocity_ramp') is True
+        for section in options.values()
+    )
