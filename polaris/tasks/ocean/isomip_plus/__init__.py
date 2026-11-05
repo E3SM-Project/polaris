@@ -40,7 +40,12 @@ EXPERIMENTS = ['ocean0', 'ocean1', 'ocean2', 'inception', 'wetting', 'drying']
 VARIANTS: Dict[str, List[str]] = {
     # the COM physics of the protocol, for comparison with published results
     'com': ['ocean0', 'ocean1', 'ocean2'],
+    'split_explicit': ['ocean0', 'inception', 'wetting', 'drying'],
 }
+
+# Variants with experiments that also have a restart test, in a
+# ``with_restart`` directory within the variant's task
+RESTART_TASKS: Dict[str, List[str]] = {'split_explicit': ['wetting']}
 
 
 def add_isomip_plus_tasks(component):
@@ -79,6 +84,16 @@ def add_isomip_plus_tasks(component):
                         variant=variant,
                     )
                     component.add_task(task)
+                    if experiment in _get_restart_experiments(variant):
+                        _add_restart_task(
+                            component,
+                            resdir,
+                            resolution,
+                            vertical_coordinate,
+                            experiment,
+                            variant,
+                            shared_steps[experiment],
+                        )
 
 
 def _get_variants():
@@ -88,14 +103,65 @@ def _get_variants():
     return [(None, EXPERIMENTS)] + list(VARIANTS.items())
 
 
+def _get_restart_experiments(variant):
+    """
+    Get the experiments of a variant that also have a restart test
+    """
+    if variant is None:
+        return []
+    return RESTART_TASKS.get(variant, [])
+
+
+def _add_restart_task(
+    component,
+    resdir,
+    resolution,
+    vertical_coordinate,
+    experiment,
+    variant,
+    shared_steps,
+):
+    """
+    Add the restart test of a variant's task, which must already be added
+    """
+    config = _get_task_config(
+        component,
+        resdir,
+        vertical_coordinate,
+        experiment,
+        variant,
+        with_restart=True,
+    )
+    task = IsomipPlusTest(
+        component=component,
+        resdir=resdir,
+        resolution=resolution,
+        experiment=experiment,
+        vertical_coordinate=vertical_coordinate,
+        shared_steps=shared_steps,
+        config=config,
+        variant=variant,
+        with_restart=True,
+    )
+    component.add_task(task)
+
+
 def _get_task_config(
-    component, resdir, vertical_coordinate, experiment, variant
+    component,
+    resdir,
+    vertical_coordinate,
+    experiment,
+    variant,
+    with_restart=False,
 ):
     """Get a config parser shared by the steps of one task"""
     taskdir = os.path.join(component.name, resdir, vertical_coordinate)
     if variant is not None:
         taskdir = os.path.join(taskdir, variant)
-    filepath = os.path.join(taskdir, experiment, 'isomip_plus.cfg')
+    taskdir = os.path.join(taskdir, experiment)
+    if with_restart:
+        taskdir = os.path.join(taskdir, 'with_restart')
+    filepath = os.path.join(taskdir, 'isomip_plus.cfg')
     config = PolarisConfigParser(filepath=filepath)
     config.add_from_package('polaris.ocean.eos', 'teos10.cfg')
     config.add_from_package('polaris.ocean.ice_shelf', 'ssh_adjustment.cfg')

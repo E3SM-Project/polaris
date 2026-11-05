@@ -459,6 +459,8 @@
    ssh_forward.SshForward
    ssh_forward.SshForward.compute_cell_count
    ssh_forward.SshForward.dynamic_model_config
+   ssh_forward.ThinFilmSshForward
+   ssh_forward.ThinFilmSshForward.dynamic_model_config
 
    topo.TopoMap
    topo.TopoMap.run
@@ -467,6 +469,9 @@
    topo.TopoScale
    topo.TopoScale.run
    topo.calving.calve_thin_ice
+
+   validate.Validate
+   validate.Validate.run
 
    viz.Viz
    viz.Viz.run

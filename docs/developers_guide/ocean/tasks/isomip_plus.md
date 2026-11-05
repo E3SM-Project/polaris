@@ -30,7 +30,22 @@ experiments it applies to. A variant adds a level to the task path,
 `<resolution>/z-star/<variant>/<experiment>`, and its config file,
 `<variant>.cfg` in the package, comes last in the task's config. The `com`
 variants of `ocean0`–`ocean2` add `com.cfg`, which sets `physics = com` and
-the linear equation of state of the ISOMIP+ protocol.
+the linear equation of state of the ISOMIP+ protocol. The
+`split_explicit` variant's `split_explicit.cfg` sets the time integrator
+and time steps of both SSH adjustment and the forward run, which
+{py:class}`polaris.tasks.ocean.isomip_plus.forward.Forward` reads from the
+`isomip_plus_forward` section. When its time integrator is `split_explicit`,
+`Forward` also adds `split_explicit.yaml`, which turns on
+`config_split_pv_coriolis`. SSH adjustment, a shared step, leaves it off.
+
+`RESTART_TASKS` maps a variant to the experiments that also have a
+restart test, in `with_restart` within the variant's task. The test is
+an `IsomipPlusTest` with `with_restart=True`, which shares the `init` and
+SSH-adjustment steps of the task it is in. It adds two
+{py:class}`polaris.tasks.ocean.isomip_plus.forward.Forward` steps, with
+`restart_test` set to `'full'` and `'restart'`, which add `restart.yaml`,
+and a {py:class}`polaris.tasks.ocean.isomip_plus.validate.Validate` step
+that compares their results.
 
 {py:class}`polaris.tasks.ocean.isomip_plus.IsomipPlusTest` is an
 {py:class}`polaris.ocean.ice_shelf.IceShelfTask`. Its `thin_film` attribute
@@ -124,6 +139,12 @@ which scales them with resolution. Where `physics = com`,
 {py:func}`polaris.tasks.ocean.isomip_plus.physics.add_com_physics_yaml()`
 adds `com.yaml` after it, which restores the COM physics of the protocol for
 every option in `physics.yaml` that the two physics do not share.
+Tasks with a thin film use
+{py:class}`polaris.tasks.ocean.isomip_plus.ssh_forward.ThinFilmSshForward`
+for SSH adjustment, which, like their forward run, also adds
+`thin_film_wetting_drying.yaml`. It ramps velocities down in thin columns
+(`config_zero_drying_velocity_ramp`), which keeps wetting and drying at the
+grounding line stable.
 Both model steps estimate their cell count with
 {py:func}`polaris.tasks.ocean.isomip_plus.cell_count.estimate_cell_count()`.
 
@@ -141,9 +162,10 @@ where `tidalInputMask` is 1 so that the SSH there is zero, leaving the tracer
 concentrations unchanged, so the meltwater, and with a thin film the water
 that the ice displaces, leaves the domain in the restoring region. With a
 thin film, the step also links `land_ice_forcing.nc` and adds
-`thin_film.yaml`, which turns on MPAS-Ocean's time-varying land-ice forcing.
-MPAS-Ocean finds the land-ice forcing records by their spacing, which the
-step reads from `land_ice_forcing.nc` at runtime with
+`thin_film_wetting_drying.yaml` and `thin_film.yaml`, which turns on
+MPAS-Ocean's time-varying land-ice forcing. MPAS-Ocean finds the land-ice
+forcing records by their spacing, which the step reads from
+`land_ice_forcing.nc` at runtime with
 {py:func}`polaris.tasks.ocean.isomip_plus.xtime.get_record_times()`, since
 the file does not exist at setup.
 

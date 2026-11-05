@@ -168,8 +168,13 @@ load. Melt fluxes use MPAS-Ocean's three-equation parameterization.
 All model runs use MPAS-Ocean's wetting and drying, so that water columns
 under ice heavier than the water it would displace thin to a film rather than
 becoming negative. This happens in cells that are partly grounded, where the
-land-ice pressure comes from the full weight of the ice. MPAS-Ocean supports
-wetting and drying only with the RK4 time integrator.
+land-ice pressure comes from the full weight of the ice. The default tasks
+use the RK4 time integrator, and their
+[split-explicit variants](ocean-isomip-plus-split-explicit) use
+MPAS-Ocean's split-explicit wetting and drying. The tasks with a thin film
+also ramp velocities down in thin columns, following O'Dea et al. (2021),
+which keeps wetting and drying at the grounding line stable with either
+time integrator.
 
 (ocean-isomip-plus-physics)=
 
@@ -317,9 +322,27 @@ run_duration = 1.0
 # run
 output_interval = none
 
-# Time step in seconds as a function of resolution for RK4 time integration,
-# which is required for wetting and drying
+# Time integration scheme: RK4 or split_explicit
+time_integrator = RK4
+
+# Time step in seconds as a function of resolution for RK4 time integration
 rk4_dt_per_km = 6
+
+# Baroclinic time step in seconds as a function of resolution for
+# split-explicit time integration
+split_dt_per_km = 30
+
+# Barotropic time step in seconds as a function of resolution for
+# split-explicit time integration
+btr_dt_per_km = 6
+
+
+# config options for ISOMIP+ restart tests
+[isomip_plus_restart]
+
+# Duration in hours of the full run, which writes a restart halfway, where
+# the restart run starts
+run_duration = 2.0
 
 
 # config options for visualizing ISOMIP+ output
@@ -479,3 +502,73 @@ output_interval = 1.0
 
 If you change `run_duration`, extend the record dates to match, since the
 records must reach past the end of the run.
+
+(ocean-isomip-plus-split-explicit)=
+
+## split-explicit variants
+
+### description
+
+`ocean0`, `inception`, `wetting` and `drying` also have split-explicit
+variants, such as `planar/isomip_plus/4km/z-star/split_explicit/ocean0`. They
+adjust SSH and run forward with MPAS-Ocean's split-explicit time integrator,
+which needs MPAS-Ocean from FAnSSIE for wetting and drying, and are otherwise
+the same as the default tasks, so the two can be compared. Their forward runs
+also turn on `config_split_pv_coriolis`, which splits RK4's
+potential-vorticity flux form of the Coriolis term between the barotropic and
+baroclinic modes, so that the Coriolis terms do no net work where layer
+thicknesses change across edges. SSH adjustment leaves it off.
+
+`planar/isomip_plus/<res>/z-star/split_explicit/wetting/with_restart` checks
+that a split-explicit run with wetting and drying restarts exactly. It shares
+the `init` and SSH-adjustment steps of `split_explicit/wetting`. Its `forward`
+step runs for 2 hours and writes a restart after 1 hour, from which its
+`restart` step runs to the end. Its `validate` step checks that the two runs
+end with identical ocean states and land-ice fluxes. The duration of the full
+run is in the `isomip_plus_restart` section:
+
+```cfg
+# config options for ISOMIP+ restart tests
+[isomip_plus_restart]
+
+# Duration in hours of the full run, which writes a restart halfway, where
+# the restart run starts
+run_duration = 2.0
+```
+
+### time step and run duration
+
+The baroclinic and barotropic time steps are 30 s and 1.5 s per km of
+resolution, in both SSH adjustment and the forward run, and the run durations
+are those of the default tasks:
+
+```cfg
+# Options related to ssh adjustment steps
+[ssh_adjustment]
+
+# Time integration scheme, the same as in the forward run
+time_integrator = split_explicit
+
+# Baroclinic time step in seconds as a function of resolution, below the
+# 37.5 s/km that is stable with a thin film at 4 and 2 km
+split_dt_per_km = 30
+
+# Barotropic time step in seconds as a function of resolution, below the
+# 7.5 s/km that is stable at 4 and 2 km
+btr_dt_per_km = 6
+
+
+# config options for ISOMIP+ forward runs
+[isomip_plus_forward]
+
+# Time integration scheme
+time_integrator = split_explicit
+
+# Baroclinic time step in seconds as a function of resolution, below the
+# 37.5 s/km that is stable with a thin film at 4 and 2 km
+split_dt_per_km = 30
+
+# Barotropic time step in seconds as a function of resolution, below the
+# 7.5 s/km that is stable at 4 and 2 km
+btr_dt_per_km = 6
+```

@@ -3,8 +3,6 @@
 # drying or the thin film requires and for the top drag.  com.yaml restores the
 # COM physics of the ISOMIP+ protocol.
 mpas-ocean:
-  time_integration:
-    config_time_integrator: RK4
   advection:
     config_thickness_flux_type: upwind
     # upwind only in columns thinner than 5 to 10 m, where wetting and drying
