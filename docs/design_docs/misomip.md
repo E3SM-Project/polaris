@@ -1329,50 +1329,46 @@ Polaris pull request that pins the temporary branch merges to main. The
 variants join `fanssie_pr` once split-explicit wetting and drying is on
 FAnSSIE.
 
-### D20: Fixes for Albany's timer leak are good to have, not required
+### D20: MALI rebuilds Albany's grid only when its masks change
 
-Date last modified: 2026/11/03
+Date last modified: 2026/11/06
 
 Contributors: Xylar Asay-Davis, Claude
 
-MALI rebuilds Albany's finite-element grid at every velocity solve, since
-`config_always_compute_fem_grid` defaults to `.true.`, and each rebuild
+MALI rebuilt Albany's finite-element grid at every velocity solve, since
+`config_always_compute_fem_grid` defaulted to `.true.`, and each rebuild
 leaks Albany's timers
 ([sandialabs/Albany#1232](https://github.com/sandialabs/Albany/issues/1232)).
-Memory, wall time and the time MALI's finalize spends writing the timer
-report grow with the number of solves since MALI started. Only forward
-MALI runs are affected; data-mode MALI never calls the velocity solver.
-Two fixes are on the way, and no coupled run waits for either:
+Memory and the time MALI's finalize spends writing the timer report grow
+with the number of rebuilds since MALI started, which limits forward MALI
+runs to short segments. Data-mode MALI never calls the velocity solver.
 
-- A MALI change
-  ([MALI-Dev/E3SM#211](https://github.com/MALI-Dev/E3SM/pull/211)) skips
-  the rebuild, unless the masks change, in runs that set the option to
-  `.false.`. It reaches FAnSSIE only through MALI-Dev's `develop`, the
-  next time FAnSSIE merges it in.
-- Changes to Trilinos
-  ([trilinos/Trilinos#15877](https://github.com/trilinos/Trilinos/pull/15877),
-  in Trilinos's `develop`) and Albany
-  ([sandialabs/Albany#1237](https://github.com/sandialabs/Albany/pull/1237))
-  stop the leak even when MALI rebuilds at every solve: Albany's MPAS
-  interface now leaves the index out of Phalanx's timer names by default.
-  They reach E3SM and Polaris through the Spack builds of Trilinos and
-  Albany, once those builds move to versions that contain them.
-
-WP6 sets the option to `.false.`, which helps once MALI's change is on
-FAnSSIE.
+MALI's change
+([MALI-Dev/E3SM#211](https://github.com/MALI-Dev/E3SM/pull/211)), which
+rebuilds the grid only when the masks change and makes `.false.` the
+default, is cherry-picked onto FAnSSIE ahead of MALI-Dev's review, so
+that the long runs can use segments of several years. Changes to Trilinos
+([trilinos/Trilinos#15877](https://github.com/trilinos/Trilinos/pull/15877),
+in Trilinos's `develop`) and Albany
+([sandialabs/Albany#1237](https://github.com/sandialabs/Albany/pull/1237))
+stop the leak even when MALI rebuilds at every solve. They reach E3SM and
+Polaris through the Spack builds of Trilinos and Albany, once those builds
+move to versions that contain them.
 
 ```{admonition} Rationale
 In the 1 km MISMIP+ spin-up, wall time per 50 years grew from 16 to
 35 minutes over about 1,200 steps, and some ranks reached 19 GB. After
 550 years in one job, MALI's finalize took 10.2 of the job's 14.7 hours.
-The growth starts over each time MALI restarts. Over 50 years, MALI's
-change cut the wall time from 20.0 to 11.8 minutes, and the Trilinos
-change to 14.1 minutes.
+Over 50 years, MALI's change cut the wall time from 20.0 to 11.8 minutes,
+and the Trilinos change to 14.1 minutes. In a 4-month coupled IceOcean1r
+job, MALI's finalize took 232 s without the change and 0.14 s with it:
+MALI rebuilt its grid once in 366 solves, and memory stayed flat. With
+queue waits of hours, one-month segments are impractical: 100 years at
+2 km would take 1,200 jobs.
 ```
 
-Rejected: holding coupled production runs until MALI's change is on
-FAnSSIE; and merging that change into FAnSSIE on its own, before MALI-Dev
-merges it.
+Rejected: waiting for MALI-Dev's `develop` to bring the change, which
+held coupled runs to one-month segments.
 
 ### D21: WP5 and WP6 build on the realistic component inputs
 
