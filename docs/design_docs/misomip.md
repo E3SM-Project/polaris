@@ -1759,13 +1759,13 @@ drying, on at most eight nodes in two slots of four. One slot runs
 IceOcean1r and then IceOcean1ra on four nodes each, about 38 days. The
 other runs Ocean0 on four nodes, then Ocean1 and Ocean2 side by side on
 two nodes each, then Ocean3 and Ocean4 the same way, about 31 days. Ocean0
-runs a year, and a second if its analysis finds that melt and the cavity's
-water masses have not yet settled, judged against their variability rather
-than a fixed threshold. Jobs run several model years each
-([D20](#decisions)). Daily output keeps the two-dimensional fields and the
-daily speed maximum throughout; daily three-dimensional fields are written
-only for each run's first year and the last year of the 100-year runs, and
-monthly means otherwise.
+runs a year at a time, up to three, while its analysis finds that melt and
+the cavity's water masses have not yet settled, judged against their
+variability rather than a fixed threshold. Jobs run several model years
+each ([D20](#decisions)). Daily output keeps the two-dimensional fields and
+the daily speed maximum throughout; daily three-dimensional fields are
+written for every year of Ocean0, the first year of the other runs and the
+last year of the 100-year runs, and monthly means otherwise.
 
 ```{admonition} Rationale
 IceOcean1r and IceOcean1ra form the longest chain, since IceOcean1ra
@@ -1774,8 +1774,11 @@ nodes, so that slot sets the stage's length. At 2 km, four nodes run only
 about 1.4 times as fast as two, so the ocean-only experiments finish sooner
 and cheaper in pairs on two nodes: about 31 days and 120 node-days, against
 43 days and 170 node-days one at a time on four. The whole stage then takes
-about 38 days and 6,600 node-hours. Daily three-dimensional output for all
-441 model years would be several terabytes.
+about 38 days and 6,600 node-hours. Ocean0 melts less than the ISOMIP+
+models with the protocol's common settings, so it may take more than two
+years to settle, and each extra year costs only about four hours. Daily
+three-dimensional output for all of stage E's roughly 440 model years would
+be several terabytes.
 ```
 
 Rejected:
