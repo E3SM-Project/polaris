@@ -2,6 +2,8 @@ import importlib.resources as imp_res
 import os
 import re
 import shutil
+import textwrap
+from collections import namedtuple
 
 import yaml
 from jinja2 import Template
@@ -44,14 +46,35 @@ RUN_MONTHS = {
     'iceocean1ra': 1200,
 }
 
+#: The length in months of the long runs, whose jobs run
+#: ``[misomip_case_config] long_run_months_per_job`` and whose last year has
+#: daily means of 3D fields
+LONG_RUN_MONTHS = 1200
+
+#: The months between restarts, a divisor of every job's months
+RESTART_MONTHS = 12
+
+#: The months at the start of every run, and at the end of a long one, with
+#: daily means of :py:data:`DAILY_3D_OCEAN_FIELDS`
+DAILY_3D_MONTHS = 12
+
+#: The length in months of a run short enough to have daily means of 3D
+#: fields throughout
+DAILY_3D_WHOLE_RUN_MONTHS = 24
+
+#: A segment of a run: the months run before it, its months and whether the
+#: ocean writes daily means of 3D fields
+Segment = namedtuple('Segment', ['start', 'months', 'daily_3d'])
+
 #: The experiments in which MALI is prognostic, with Albany's first-order
 #: velocity solver
 PROGNOSTIC_EXPERIMENTS = ['iceocean1r', 'iceocean1ra']
 
 #: The commit of FAnSSIE, E3SM's development branch for coupling the ocean
 #: and ice sheets, by which it has every change the cases need: the last is
-#: the ocean's ramp of the land-ice pressure it imports from MALI
-E3SM_COMMIT = '9d52375cfa'
+#: MALI's rebuild of Albany's finite-element grid only when its masks
+#: change, without which a multi-year job grows and slows
+E3SM_COMMIT = '5eb5f0385b'
 
 #: The change the split-explicit cases need that FAnSSIE does not have yet:
 #: the ocean's per-layer limit on drying, which has no namelist option, so
@@ -212,23 +235,50 @@ MALI_SOURCE_MODS = os.path.join('SourceMods', 'src.mali')
 #: streams files E3SM writes
 EDIT_STREAMS = 'edit_streams.py'
 
+#: The script that sets up each segment of a case, which CIME runs after
+#: each job
+NEXT_SEGMENT = 'next_segment.sh'
+
+#: The directory in the case directory with the ocean's streams files with
+#: and without daily means of 3D fields, from which ``next_segment.sh``
+#: copies one into SourceMods
+OCEAN_STREAMS_DIR = 'ocean_streams'
+
 #: What the step writes that is staged: the user-mods directory, and the
 #: README, scripts and layout beside it
-CASE_CONFIG_FILES = [USER_MODS, 'README', CREATE_CASE, PES, EDIT_STREAMS]
+CASE_CONFIG_FILES = [
+    USER_MODS,
+    'README',
+    CREATE_CASE,
+    PES,
+    EDIT_STREAMS,
+    NEXT_SEGMENT,
+]
 
 #: The ocean's daily means in every case, in place of E3SM's daily list:
 #: the melt and freezing fluxes, and the part of the melt not sent to MALI,
-#: from which the melt exchange can be checked day by day, and the layer
-#: thickness and the thickness frazil formation applies, from
-#: which the ocean's volume budget estimates the transport across edges
+#: from which the melt exchange can be checked day by day
 DAILY_OCEAN_FIELDS = [
     'landIceFreshwaterFlux',
     'frazilIceFreshwaterFlux',
     'landIceFreshwaterFluxNotSentToGlc',
     'landIceHeatFlux',
+]
+
+#: The 3D fields added to the ocean's daily means in the segments with
+#: them (:py:func:`get_segments`): the state, and the layer thickness and
+#: the thickness frazil formation applies, from which the ocean's volume
+#: budget estimates the transport across edges.  ``activeTracers`` is a
+#: variable array.
+DAILY_3D_OCEAN_FIELDS = [
+    'normalVelocity',
     'layerThickness',
+    'activeTracers',
     'frazilLayerThicknessTendency',
 ]
+
+#: The variable arrays among the ocean's daily fields
+OCEAN_VAR_ARRAYS = ['activeTracers']
 
 #: Fields added to the ocean's monthly means in every case, which already
 #: hold the layer thickness and its frazil tendency
@@ -446,6 +496,7 @@ class CaseConfigStep(Step):
         self.add_output_file(filename=CREATE_CASE)
         self.add_output_file(filename=PES)
         self.add_output_file(filename=EDIT_STREAMS)
+        self.add_output_file(filename=NEXT_SEGMENT)
         if get_mali_mode(experiment) == 'prognostic':
             self.add_input_file(
                 filename=ALBANY_INPUT,
@@ -472,7 +523,9 @@ class CaseConfigStep(Step):
         source_root = (
             None if source is None else get_inputdata_root(config, source)
         )
-        months_per_job = section.getint('months_per_job')
+        segments = get_segments(
+            experiment, get_months_per_job(config, experiment)
+        )
         couplings_per_day = {
             grid: section.getint(f'{grid}_couplings_per_day')
             for grid in ['ocean', 'landice']
@@ -502,7 +555,7 @@ class CaseConfigStep(Step):
                 grids,
                 date,
                 root,
-                months_per_job,
+                segments,
                 couplings_per_day,
                 dt,
                 source_inputdata_root=source_root,
@@ -544,6 +597,11 @@ class CaseConfigStep(Step):
             get_edit_streams_script(experiment),
             executable=True,
         )
+        _write(
+            NEXT_SEGMENT,
+            get_next_segment_script(experiment, segments),
+            executable=True,
+        )
         task_counts = {
             grid: [
                 int(count)
@@ -566,7 +624,13 @@ class CaseConfigStep(Step):
             self.logger.info(line)
         _write(
             'README',
-            get_readme(experiment, grids, layout_lines, self.time_integrator),
+            get_readme(
+                experiment,
+                grids,
+                layout_lines,
+                self.time_integrator,
+                segments=segments,
+            ),
         )
         _write(
             CREATE_CASE,
@@ -667,6 +731,99 @@ def get_mali_mode(experiment):
     if experiment in PROGNOSTIC_EXPERIMENTS:
         return 'prognostic'
     return 'data' if experiment in DATA_MODE_EXPERIMENTS else 'static'
+
+
+def get_months_per_job(config, experiment):
+    """
+    Get the most months a job of an experiment's case runs, from
+    ``[misomip_case_config] long_run_months_per_job`` for a run of
+    :py:data:`LONG_RUN_MONTHS` and ``short_run_months_per_job`` for a shorter
+    one
+
+    Parameters
+    ----------
+    config : polaris.config.PolarisConfigParser
+        The step's config options
+
+    experiment : str
+        The experiment
+
+    Returns
+    -------
+    months_per_job : int
+        The most months a job runs
+    """
+    length = 'long' if RUN_MONTHS[experiment] >= LONG_RUN_MONTHS else 'short'
+    return config.getint(CASE_CONFIG_SECTION, f'{length}_run_months_per_job')
+
+
+def get_daily_3d_windows(experiment):
+    """
+    Get the months of an experiment's run with daily means of
+    :py:data:`DAILY_3D_OCEAN_FIELDS`: the first year, the last year of a
+    long run, and all of a run of :py:data:`DAILY_3D_WHOLE_RUN_MONTHS` or
+    fewer
+
+    Parameters
+    ----------
+    experiment : str
+        The experiment
+
+    Returns
+    -------
+    windows : list of tuple of int
+        The months run before each window starts and ends
+    """
+    months = RUN_MONTHS[experiment]
+    if months <= DAILY_3D_WHOLE_RUN_MONTHS:
+        return [(0, months)]
+    windows = [(0, DAILY_3D_MONTHS)]
+    if months >= LONG_RUN_MONTHS:
+        windows.append((months - DAILY_3D_MONTHS, months))
+    return windows
+
+
+def get_segments(experiment, months_per_job):
+    """
+    Get the segments an experiment's case runs in, one a job.  Each runs
+    ``months_per_job`` months, or fewer where it must end at the start or
+    end of a window with daily means of 3D fields
+    (:py:func:`get_daily_3d_windows`), so each segment is wholly in or out
+    of one.
+
+    Parameters
+    ----------
+    experiment : str
+        The experiment
+
+    months_per_job : int
+        The most months a job runs, a multiple of
+        :py:data:`RESTART_MONTHS`
+
+    Returns
+    -------
+    segments : list of Segment
+        The segments, in order
+    """
+    if months_per_job <= 0 or months_per_job % RESTART_MONTHS != 0:
+        raise ValueError(
+            f'A job runs {months_per_job} months, not a multiple of the '
+            f'{RESTART_MONTHS} months between restarts.'
+        )
+    months = RUN_MONTHS[experiment]
+    windows = get_daily_3d_windows(experiment)
+    bounds = sorted(
+        {0, months} | {edge for window in windows for edge in window}
+    )
+    segments = list()
+    for begin, end in zip(bounds[:-1], bounds[1:], strict=True):
+        daily_3d = any(first <= begin < last for first, last in windows)
+        start = begin
+        while start < end:
+            length = min(months_per_job, end - start)
+            segments.append(Segment(start, length, daily_3d))
+            start += length
+    return segments
 
 
 def check_time_integrator(standalone, time_integrator):
@@ -810,7 +967,7 @@ def get_shell_commands(
     grids,
     creation_date,
     inputdata_root,
-    months_per_job,
+    segments,
     couplings_per_day,
     ocean_dt,
     source_inputdata_root=None,
@@ -819,7 +976,8 @@ def get_shell_commands(
     Get the text of ``shell_commands``, which sets the case variables that
     name the staged files and give the time of the data-mode file's first
     record, turns off MALI's runoff to the ocean, turns on the coupler's
-    budgets and sets the coupling intervals and the run length
+    budgets and sets the coupling intervals, the first segment's length,
+    the restarts and the jobs
 
     Parameters
     ----------
@@ -836,8 +994,9 @@ def get_shell_commands(
         Where the case finds the staged files: ``$DIN_LOC_ROOT``, or a
         directory with the same layout
 
-    months_per_job : int
-        The months each job of the case runs
+    segments : list of Segment
+        The segments the case runs in, one a job, from
+        :py:func:`get_segments`
 
     couplings_per_day : dict of str to int
         The times a day the ``ocean`` and ``landice`` models couple
@@ -898,12 +1057,12 @@ def get_shell_commands(
         )
 
     months = RUN_MONTHS[experiment]
-    if months % months_per_job != 0:
+    if sum(segment.months for segment in segments) != months:
         raise ValueError(
-            f'{experiment} runs {months} months, which is not a multiple of '
-            f'months_per_job = {months_per_job}.'
+            f'The segments do not add up to the {months} months {experiment} '
+            f'runs.'
         )
-    resubmit = months // months_per_job - 1
+    resubmit = len(segments) - 1
 
     ocean_ncpl = couplings_per_day['ocean']
     landice_ncpl = couplings_per_day['landice']
@@ -966,9 +1125,12 @@ def get_shell_commands(
             f'./xmlchange NCPL_BASE_PERIOD=day,ATM_NCPL={ocean_ncpl},'
             f'OCN_NCPL={ocean_ncpl},GLC_NCPL={landice_ncpl}',
             '',
-            f'# {months} months in all, {months_per_job} per job',
-            f'./xmlchange STOP_OPTION=nmonths,STOP_N={months_per_job}',
-            f'./xmlchange REST_OPTION=nmonths,REST_N={months_per_job}',
+            f'# {months} months in all, in {len(segments)} jobs, with',
+            f'# restarts every {RESTART_MONTHS} months.  {NEXT_SEGMENT} sets '
+            f'each',
+            "# later job's months.",
+            f'./xmlchange STOP_OPTION=nmonths,STOP_N={segments[0].months}',
+            f'./xmlchange REST_OPTION=nmonths,REST_N={RESTART_MONTHS}',
             f'./xmlchange RESUBMIT={resubmit}',
             '',
         ]
@@ -1139,7 +1301,9 @@ def get_user_nl_mali(experiment, flow_param_a):
     return '\n'.join(lines)
 
 
-def get_readme(experiment, grids, layout_lines, time_integrator='RK4'):
+def get_readme(
+    experiment, grids, layout_lines, time_integrator='RK4', segments=None
+):
     """
     Get the text of the README beside the user-mods directory, with the
     compset a case is created with and the layout
@@ -1157,6 +1321,10 @@ def get_readme(experiment, grids, layout_lines, time_integrator='RK4'):
 
     time_integrator : str, optional
         The ocean's time integrator, one of :py:data:`TIME_INTEGRATORS`
+
+    segments : list of Segment, optional
+        The segments the case runs in, from :py:func:`get_segments`, which
+        the README describes with ``next_segment.sh``
 
     Returns
     -------
@@ -1247,6 +1415,8 @@ def get_readme(experiment, grids, layout_lines, time_integrator='RK4'):
             '',
         ]
     )
+    if segments is not None:
+        lines.extend(_get_segment_lines(experiment, segments))
     if source is not None:
         lines.extend(
             [
@@ -1255,9 +1425,81 @@ def get_readme(experiment, grids, layout_lines, time_integrator='RK4'):
                 "coupler's, the ocean's and MALI's restarts into the run",
                 'directory and points `rpointer.drv` at the coupler restart.',
                 '',
+                f"Before creating it, check that the {source} case's ice on",
+                'that date has no ice-free holes behind the calving front.',
+                'MALI restores its calving front to the extent of the ice it',
+                f'starts from, which a branch run takes from the {source}',
+                'restart, so a hole there would stay ice-free and keep the',
+                'ice from readvancing through it.',
+                '',
             ]
         )
     return '\n'.join(lines)
+
+
+def _get_segment_lines(experiment, segments):
+    """
+    Get the README's lines on the case's segments and ``next_segment.sh``
+    """
+    months = RUN_MONTHS[experiment]
+    jobs: list[list[int]] = list()
+    for segment in segments:
+        if jobs and jobs[-1][1] == segment.months:
+            jobs[-1][0] += 1
+        else:
+            jobs.append([1, segment.months])
+    parts = [
+        f'{length} months' if count == 1 else f'{count} of {length} months'
+        for count, length in jobs
+    ]
+    if len(parts) == 1:
+        described = parts[0]
+    else:
+        described = f'{", ".join(parts[:-1])} and {parts[-1]}'
+    windows = get_daily_3d_windows(experiment)
+    if windows == [(0, months)]:
+        daily_3d = 'throughout'
+    elif len(windows) == 1:
+        daily_3d = f'in its first {DAILY_3D_MONTHS} months'
+    else:
+        daily_3d = f'in its first and last {DAILY_3D_MONTHS} months'
+    fields = [f'`{name}`' for name in DAILY_3D_OCEAN_FIELDS]
+    fields_text = f'{", ".join(fields[:-1])} and {fields[-1]}'
+    job_count = '1 job' if len(segments) == 1 else f'{len(segments)} jobs'
+    text = (
+        f'The case runs {months} months in {job_count}: '
+        f'{described}, with restarts every {RESTART_MONTHS} months.  The '
+        f"ocean's daily means hold the 3D fields {fields_text} {daily_3d}.  "
+        f'`{CREATE_CASE}` copies `{NEXT_SEGMENT}` into the case directory '
+        f"and makes it CIME's `POSTRUN_SCRIPT`, which CIME runs after each "
+        f'job, before it resubmits the case.  It reads the months run so '
+        f"far from the coupler's restart pointer, `rpointer.drv`, and the "
+        f"case's start, `RUN_STARTDATE`, or `RUN_REFDATE` for a branch run, "
+        f"not from a count of jobs.  It sets the next job's `STOP_N` and "
+        f'copies the streams file with or without the daily 3D fields from '
+        f'`{OCEAN_STREAMS_DIR}/` into `SourceMods/src.mpaso/`.  It lowers '
+        f'`RESUBMIT` to the jobs left, never raising it, and sets it to 0 '
+        f'when the run is done.  It logs each change in '
+        f'`next_segment.log` in the case directory, and it stops the chain, '
+        f'exiting with an error, if it cannot tell the date, finds a date '
+        f'that does not start a segment or cannot copy the file.  After its '
+        f'own work, it runs `postrun.local` in the case directory, if there '
+        f'is one, with the case directory as its argument.'
+    )
+    override = (
+        'To stop the chain, set `RESUBMIT=0`.  To run on without the '
+        'script changing anything, create `next_segment.skip` in the case '
+        'directory; it still runs `postrun.local`.  To rerun a segment, '
+        'resubmit as usual, since the script works from the date.'
+    )
+    return _wrap(text) + [''] + _wrap(override) + ['']
+
+
+def _wrap(text):
+    """
+    Wrap a paragraph of the README
+    """
+    return textwrap.wrap(text, width=70)
 
 
 def get_create_case_script(
@@ -1305,6 +1547,7 @@ def get_create_case_script(
         experiment=experiment,
         source=CONTINUES_FROM.get(experiment),
         edit_streams=EDIT_STREAMS,
+        next_segment=NEXT_SEGMENT,
         model_grid=grids['model'],
         mode=mode,
         compset=COMPSETS[mode],
@@ -1350,6 +1593,9 @@ def get_edit_streams_script(experiment):
     )
     return template.render(
         daily_ocean_fields=repr(DAILY_OCEAN_FIELDS),
+        daily_3d_ocean_fields=repr(DAILY_3D_OCEAN_FIELDS),
+        ocean_var_arrays=repr(OCEAN_VAR_ARRAYS),
+        streams_dir=OCEAN_STREAMS_DIR,
         monthly_ocean_fields=repr(MONTHLY_OCEAN_FIELDS),
         daily_max_ocean_fields=repr(DAILY_MAX_OCEAN_FIELDS),
         global_stats_interval=GLOBAL_STATS_INTERVAL,
@@ -1358,6 +1604,43 @@ def get_edit_streams_script(experiment):
         mali_history_fields=repr(mali_history_fields),
         mali_daily_fields=repr(MALI_DAILY_FIELDS),
         edit_landice=get_mali_mode(experiment) == 'prognostic',
+    )
+
+
+def get_next_segment_script(experiment, segments):
+    """
+    Get the text of the script that sets up each job of a case: its months,
+    and the ocean's streams file with or without daily means of 3D fields
+
+    Parameters
+    ----------
+    experiment : str
+        The experiment
+
+    segments : list of Segment
+        The segments the case runs in, from :py:func:`get_segments`
+
+    Returns
+    -------
+    text : str
+        The script
+    """
+    template = Template(
+        imp_res.files(__package__)
+        .joinpath('next_segment.template')
+        .read_text(),
+        keep_trailing_newline=True,
+    )
+    return template.render(
+        experiment=experiment,
+        run_months=RUN_MONTHS[experiment],
+        segment_count=len(segments),
+        segment_starts=' '.join(str(segment.start) for segment in segments),
+        segment_months=' '.join(str(segment.months) for segment in segments),
+        segment_daily_3d=' '.join(
+            str(int(segment.daily_3d)) for segment in segments
+        ),
+        streams_dir=OCEAN_STREAMS_DIR,
     )
 
 

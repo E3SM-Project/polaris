@@ -16,6 +16,7 @@ from polaris.tasks.e3sm.init.misomip import (
 from polaris.tasks.e3sm.init.misomip.case_config import (
     COMPONENTS,
     COMPSETS,
+    DAILY_3D_OCEAN_FIELDS,
     DAILY_COMPUTE_INTERVAL,
     DAILY_MAX_INTERVAL,
     DAILY_MAX_OCEAN_FIELDS,
@@ -46,8 +47,10 @@ from polaris.tasks.e3sm.init.misomip.case_config import (
     get_inputdata_root,
     get_mali_mode,
     get_mismip_plus_output_fields,
+    get_next_segment_script,
     get_pes_file,
     get_readme,
+    get_segments,
     get_shell_commands,
     get_user_nl_mali,
     get_user_nl_mpaso,
@@ -251,7 +254,13 @@ def test_e3sm_default_options_are_those_that_differ():
 
 def test_shell_commands_name_the_staged_files():
     text = get_shell_commands(
-        'ocean3', GRIDS, DATE, DIN_LOC_ROOT, 12, COUPLINGS, DT
+        'ocean3',
+        GRIDS,
+        DATE,
+        DIN_LOC_ROOT,
+        get_segments('ocean3', 48),
+        COUPLINGS,
+        DT,
     )
     ocn = '$DIN_LOC_ROOT/ocn/mpas-o/misomip-o4km'
     glc = '$DIN_LOC_ROOT/glc/mpasli/misomip-li1km'
@@ -277,15 +286,23 @@ def test_shell_commands_name_the_staged_files():
         './xmlchange GLC_RUNOFF_TO_OCN=FALSE',
         './xmlchange BUDGETS=TRUE',
         './xmlchange NCPL_BASE_PERIOD=day,ATM_NCPL=48,OCN_NCPL=48,GLC_NCPL=1',
+        # the first year's job, restarts every year and 27 jobs
         './xmlchange STOP_OPTION=nmonths,STOP_N=12',
-        './xmlchange RESUBMIT=99',
+        './xmlchange REST_OPTION=nmonths,REST_N=12',
+        './xmlchange RESUBMIT=26',
     ]:
         assert line in lines
 
 
 def test_shell_commands_static_mali_has_no_data_mode_file():
     text = get_shell_commands(
-        'ocean0', GRIDS, DATE, '/short/inputdata', 1, COUPLINGS, DT
+        'ocean0',
+        GRIDS,
+        DATE,
+        '/short/inputdata',
+        get_segments('ocean0', 12),
+        COUPLINGS,
+        DT,
     )
     assert 'MALI_DATAMODE_FILE' not in text
     assert 'MALI_DATAMODE_REFERENCE_TIME' not in text
@@ -293,7 +310,7 @@ def test_shell_commands_static_mali_has_no_data_mode_file():
         f"./xmlchange 'MPASO_IC_FILE=/short/inputdata/ocn/mpas-o/"
         f"misomip-o4km/mpaso.misomip-o4km.ocean0.{DATE}.nc'"
     ) in text.splitlines()
-    assert './xmlchange RESUBMIT=11' in text.splitlines()
+    assert './xmlchange RESUBMIT=0' in text.splitlines()
 
 
 @pytest.mark.parametrize('experiment', list(RUN_MONTHS))
@@ -305,7 +322,7 @@ def test_shell_commands_data_mode_file_has_reference_time(experiment):
         GRIDS,
         DATE,
         DIN_LOC_ROOT,
-        12,
+        get_segments(experiment, 12),
         COUPLINGS,
         DT,
         source_inputdata_root=DIN_LOC_ROOT,
@@ -320,10 +337,16 @@ def test_shell_commands_data_mode_file_has_reference_time(experiment):
     )
 
 
-def test_shell_commands_need_whole_jobs():
-    with pytest.raises(ValueError, match='multiple'):
+def test_shell_commands_need_the_whole_run():
+    with pytest.raises(ValueError, match='do not add up'):
         get_shell_commands(
-            'ocean0', GRIDS, DATE, DIN_LOC_ROOT, 5, COUPLINGS, DT
+            'ocean1',
+            GRIDS,
+            DATE,
+            DIN_LOC_ROOT,
+            get_segments('ocean1', 12)[:-1],
+            COUPLINGS,
+            DT,
         )
 
 
@@ -338,7 +361,13 @@ def test_shell_commands_need_whole_jobs():
 def test_shell_commands_need_whole_coupling_intervals(couplings, dt, match):
     with pytest.raises(ValueError, match=match):
         get_shell_commands(
-            'ocean0', GRIDS, DATE, DIN_LOC_ROOT, 1, couplings, dt
+            'ocean0',
+            GRIDS,
+            DATE,
+            DIN_LOC_ROOT,
+            get_segments('ocean0', 12),
+            couplings,
+            dt,
         )
 
 
@@ -674,7 +703,7 @@ def test_shell_commands_branch_run_names_the_source_initial_conditions():
         GRIDS,
         DATE,
         '/short/iceocean1ra',
-        12,
+        get_segments('iceocean1ra', 48),
         COUPLINGS,
         DT,
         source_inputdata_root='/short/iceocean1r',
@@ -696,7 +725,13 @@ def test_shell_commands_branch_run_names_the_source_initial_conditions():
     ) in lines
     with pytest.raises(ValueError, match='source_inputdata_root'):
         get_shell_commands(
-            'iceocean1ra', GRIDS, DATE, DIN_LOC_ROOT, 12, COUPLINGS, DT
+            'iceocean1ra',
+            GRIDS,
+            DATE,
+            DIN_LOC_ROOT,
+            get_segments('iceocean1ra', 48),
+            COUPLINGS,
+            DT,
         )
 
 
@@ -800,7 +835,9 @@ def _write_streams(rundir):
 
 
 def _vars(stream):
-    return [var.attrib['name'] for var in stream.iter('var')]
+    return [
+        var.attrib['name'] for var in stream if var.tag in ['var', 'var_array']
+    ]
 
 
 def _write_registries(srcroot, missing):
@@ -808,6 +845,7 @@ def _write_registries(srcroot, missing):
         'mpas-ocean': (
             ['xtime']
             + DAILY_OCEAN_FIELDS
+            + DAILY_3D_OCEAN_FIELDS
             + MONTHLY_OCEAN_FIELDS
             + DAILY_MAX_OCEAN_FIELDS
         ),
@@ -821,8 +859,10 @@ def _write_registries(srcroot, missing):
     for component, names in fields.items():
         src = srcroot / 'components' / component / 'src'
         src.mkdir(parents=True)
+        # activeTracers is a variable array, as in E3SM's Registry
         lines = [
-            f'<var name="{name}" type="real" dimensions="nCells Time"/>'
+            f'<{"var_array" if name == "activeTracers" else "var"} '
+            f'name="{name}" type="real" dimensions="nCells Time"/>'
             for name in names
             if name != missing
         ]
@@ -871,6 +911,7 @@ def _run_edit_streams(
     [
         'landIceFreshwaterFluxNotSentToGlc',
         'kineticEnergyCell',
+        'activeTracers',
         'floatingBasalMassBalApplied',
     ],
 )
@@ -879,6 +920,7 @@ def test_edit_streams_script_stops_without_a_registry_field(tmp_path, missing):
     assert result.returncode != 0
     assert f'{missing} not defined' in result.stderr
     assert not (case_dir / 'SourceMods').exists()
+    assert not (case_dir / 'ocean_streams').exists()
 
 
 @pytest.mark.parametrize(
@@ -895,30 +937,41 @@ def test_edit_streams_script_stops_without_a_stream(tmp_path, missing):
     case_dir, result = _run_edit_streams(tmp_path, missing_stream=missing)
     assert result.returncode != 0
     assert f'No stream {missing[1]}' in result.stderr
-    # neither file is written
+    # no file is written
     assert not (case_dir / 'SourceMods').exists()
+    assert not (case_dir / 'ocean_streams').exists()
 
 
 def test_edit_streams_script(tmp_path):
     case_dir, result = _run_edit_streams(tmp_path)
     assert result.returncode == 0, result.stderr
 
-    ocean = ET.parse(case_dir / 'SourceMods/src.mpaso/streams.ocean')
-    streams = {s.attrib['name']: s for s in ocean.getroot()}
-    # E3SM's daily list is replaced
-    assert _vars(streams['timeSeriesStatsDailyOutput']) == (
-        ['xtime'] + DAILY_OCEAN_FIELDS
-    )
-    assert _vars(streams['timeSeriesStatsMonthlyOutput']) == (
-        ['landIceFreshwaterFlux'] + MONTHLY_OCEAN_FIELDS
-    )
-    # the daily maxima, and hourly global statistics
-    custom = streams['timeSeriesStatsCustomOutput']
-    assert _vars(custom) == ['xtime'] + DAILY_MAX_OCEAN_FIELDS
-    assert custom.attrib['output_interval'] == DAILY_MAX_INTERVAL
-    global_stats = streams['globalStatsOutput']
-    assert global_stats.attrib['output_interval'] == GLOBAL_STATS_INTERVAL
-    assert [child.tag for child in global_stats] == ['var_struct']
+    # next_segment.sh copies one of the ocean's files into SourceMods
+    assert not (case_dir / 'SourceMods/src.mpaso').exists()
+    for daily_3d in [False, True]:
+        variant = 'with' if daily_3d else 'without'
+        ocean = ET.parse(
+            case_dir / f'ocean_streams/streams.ocean.{variant}_daily_3d'
+        )
+        streams = {s.attrib['name']: s for s in ocean.getroot()}
+        # E3SM's daily list is replaced
+        daily = streams['timeSeriesStatsDailyOutput']
+        expected = ['xtime'] + DAILY_OCEAN_FIELDS
+        if daily_3d:
+            expected += DAILY_3D_OCEAN_FIELDS
+        assert _vars(daily) == expected
+        tags = {var.attrib['name']: var.tag for var in daily}
+        assert tags.get('activeTracers', 'var_array') == 'var_array'
+        assert _vars(streams['timeSeriesStatsMonthlyOutput']) == (
+            ['landIceFreshwaterFlux'] + MONTHLY_OCEAN_FIELDS
+        )
+        # the daily maxima, and hourly global statistics
+        custom = streams['timeSeriesStatsCustomOutput']
+        assert _vars(custom) == ['xtime'] + DAILY_MAX_OCEAN_FIELDS
+        assert custom.attrib['output_interval'] == DAILY_MAX_INTERVAL
+        global_stats = streams['globalStatsOutput']
+        assert global_stats.attrib['output_interval'] == GLOBAL_STATS_INTERVAL
+        assert [child.tag for child in global_stats] == ['var_struct']
 
     landice = ET.parse(case_dir / 'SourceMods/src.mali/streams.landice')
     streams = {s.attrib['name']: s for s in landice.getroot()}
@@ -944,12 +997,12 @@ def test_edit_streams_script_leaves_a_static_mali(tmp_path):
         experiment='ocean3',
     )
     assert result.returncode == 0, result.stderr
-    ocean = ET.parse(case_dir / 'SourceMods/src.mpaso/streams.ocean')
+    ocean = ET.parse(case_dir / 'ocean_streams/streams.ocean.without_daily_3d')
     streams = {s.attrib['name']: s for s in ocean.getroot()}
     assert _vars(streams['timeSeriesStatsDailyOutput']) == (
         ['xtime'] + DAILY_OCEAN_FIELDS
     )
-    assert not (case_dir / 'SourceMods/src.mali').exists()
+    assert not (case_dir / 'SourceMods').exists()
 
 
 def test_edit_streams_script_refuses_a_shared_source_mods(tmp_path):
@@ -997,8 +1050,16 @@ def test_create_case_script_branches_iceocean1ra():
     text = get_create_case_script(
         'ocean3', GRIDS, COUNTS, LAYOUT, 'chrysalis', 'gnu'
     )
-    assert './preview_namelists' in text.splitlines()
+    lines = text.splitlines()
+    assert './preview_namelists' in lines
     assert 'RUN_TYPE=branch' not in text
+    # the first job is set up from the edited streams, before the build,
+    # and CIME sets up each later one
+    start = '"./next_segment.sh" "$PWD" --start'
+    assert lines.index(start) > lines.index('python3 "$here/edit_streams.py"')
+    assert lines.index('./case.build') > lines.index(
+        './xmlchange "POSTRUN_SCRIPT=$PWD/next_segment.sh"'
+    )
 
 
 def test_create_case_script_needs_the_iceocean1r_restart(tmp_path):
@@ -1018,6 +1079,10 @@ def test_create_case_script_needs_the_iceocean1r_restart(tmp_path):
 def test_readme_describes_the_branch_run():
     text = get_readme('iceocean1ra', GRIDS, ['layout: 64 tasks'])
     assert '-R <iceocean1r case directory> -d <YYYY-MM-DD>' in text
+    # the extent MALI restores comes from IceOcean1r's ice
+    assert 'no ice-free holes behind the calving front' in ' '.join(
+        text.split()
+    )
     assert 'branch run' in text
     assert 'edit_streams.py' in text
     text = get_readme('ocean0', GRIDS, ['layout: 64 tasks'])
@@ -1066,3 +1131,240 @@ def test_mali_e3sm_default_options_are_those_that_differ():
     for option, value in MALI_E3SM_DEFAULT_OPTIONS.items():
         assert option.lower() in differ
         assert _same(value, registry[option.lower()])
+
+
+@pytest.mark.parametrize(
+    'experiment, months_per_job, months, daily_3d',
+    [
+        ('ocean0', 12, [12], [True]),
+        ('ocean1', 12, [12] * 20, [True] + [False] * 19),
+        (
+            'iceocean1r',
+            48,
+            [12] + [48] * 24 + [24, 12],
+            [True] + [False] * 25 + [True],
+        ),
+    ],
+)
+def test_segments(experiment, months_per_job, months, daily_3d):
+    segments = get_segments(experiment, months_per_job)
+    assert [segment.months for segment in segments] == months
+    assert [segment.daily_3d for segment in segments] == daily_3d
+    starts = [segment.start for segment in segments]
+    assert starts == [sum(months[:index]) for index in range(len(months))]
+    assert sum(months) == RUN_MONTHS[experiment]
+
+
+@pytest.mark.parametrize('months_per_job', [0, 5, 18])
+def test_segments_need_whole_years(months_per_job):
+    with pytest.raises(ValueError, match='multiple'):
+        get_segments('ocean3', months_per_job)
+
+
+def _fake_case(tmp_path, experiment='iceocean1r', **values):
+    """
+    A case directory whose xmlquery and xmlchange read and write files, with
+    the ocean's streams files and next_segment.sh
+    """
+    case_dir = tmp_path / 'case'
+    rundir = tmp_path / 'run'
+    xml = case_dir / 'xml'
+    for path in [xml, rundir, case_dir / 'ocean_streams']:
+        path.mkdir(parents=True)
+    defaults = dict(
+        RUN_TYPE='startup',
+        RUN_STARTDATE='0001-01-01',
+        RUN_REFDATE='0001-01-01',
+        RUNDIR=str(rundir),
+        RESUBMIT='26',
+        STOP_OPTION='nmonths',
+        STOP_N='12',
+    )
+    defaults.update(values)
+    for variable, value in defaults.items():
+        (xml / variable).write_text(value)
+    (case_dir / 'xmlquery').write_text(
+        '#!/bin/bash\ncat "$(dirname "$0")/xml/$2"\n'
+    )
+    (case_dir / 'xmlchange').write_text(
+        '#!/bin/bash\n'
+        'IFS== read -r variable value <<< "$1"\n'
+        'echo "$1" >> "$(dirname "$0")/changes"\n'
+        'printf %s "$value" > "$(dirname "$0")/xml/$variable"\n'
+    )
+    for variant in ['with', 'without']:
+        (
+            case_dir / f'ocean_streams/streams.ocean.{variant}_daily_3d'
+        ).write_text(f'{variant}\n')
+    script = case_dir / 'next_segment.sh'
+    script.write_text(
+        get_next_segment_script(
+            experiment,
+            get_segments(experiment, 48 if experiment != 'ocean1' else 12),
+        )
+    )
+    for name in ['xmlquery', 'xmlchange', 'next_segment.sh']:
+        (case_dir / name).chmod(0o755)
+    return case_dir
+
+
+def _next_segment(case_dir, restart_date=None, start=False):
+    if restart_date is not None:
+        rundir = (case_dir / 'xml/RUNDIR').read_text()
+        with open(os.path.join(rundir, 'rpointer.drv'), 'w') as pointer:
+            pointer.write(f'case.cpl.r.{restart_date}-00000.nc\n')
+    args = [str(case_dir / 'next_segment.sh'), str(case_dir)]
+    if start:
+        args.append('--start')
+    return subprocess.run(args, text=True, capture_output=True)
+
+
+def _xml(case_dir, variable):
+    return (case_dir / 'xml' / variable).read_text()
+
+
+def _streams(case_dir):
+    return (case_dir / 'SourceMods/src.mpaso/streams.ocean').read_text()
+
+
+def test_readme_describes_the_segments():
+    text = get_readme(
+        'iceocean1r',
+        GRIDS,
+        ['layout: 64 tasks'],
+        segments=get_segments('iceocean1r', 48),
+    )
+    text = ' '.join(text.split())
+    assert (
+        'The case runs 1200 months in 27 jobs: 12 months, 24 of 48 months, '
+        '24 months and 12 months'
+    ) in text
+    assert 'in its first and last 12 months' in text
+    for name in ['postrun.local', 'next_segment.skip', 'RESUBMIT=0']:
+        assert name in text
+
+
+def test_next_segment_script_passes_bash_syntax_check():
+    text = get_next_segment_script(
+        'iceocean1r', get_segments('iceocean1r', 48)
+    )
+    result = subprocess.run(
+        ['bash', '-n'], input=text, text=True, capture_output=True
+    )
+    assert result.returncode == 0, result.stderr
+
+
+def test_next_segment_sets_up_each_job(tmp_path):
+    case_dir = _fake_case(tmp_path, RESUBMIT='30')
+    # before the first job: the first year, with daily 3D fields, and the
+    # jobs after it
+    result = _next_segment(case_dir, start=True)
+    assert result.returncode == 0, result.stderr
+    assert _xml(case_dir, 'STOP_N') == '12'
+    assert _xml(case_dir, 'RESUBMIT') == '26'
+    assert _streams(case_dir) == 'with\n'
+
+    postrun = case_dir / 'postrun.local'
+    postrun.write_text('#!/bin/bash\necho "$1" >> "$1/postrun.ran"\n')
+    postrun.chmod(0o755)
+
+    # after the first year
+    result = _next_segment(case_dir, '0002-01-01')
+    assert result.returncode == 0, result.stderr
+    assert _xml(case_dir, 'STOP_N') == '48'
+    assert _streams(case_dir) == 'without\n'
+    assert _xml(case_dir, 'RESUBMIT') == '26'
+    assert (case_dir / 'postrun.ran').read_text() == f'{case_dir}\n'
+
+    # a rerun changes nothing
+    changes = (case_dir / 'changes').read_text()
+    result = _next_segment(case_dir, '0002-01-01')
+    assert result.returncode == 0, result.stderr
+    assert (case_dir / 'changes').read_text() == changes
+
+    # 2 years, then the last year with daily 3D fields
+    result = _next_segment(case_dir, '0098-01-01')
+    assert result.returncode == 0, result.stderr
+    assert _xml(case_dir, 'STOP_N') == '24'
+    assert _streams(case_dir) == 'without\n'
+    result = _next_segment(case_dir, '0100-01-01')
+    assert result.returncode == 0, result.stderr
+    assert _xml(case_dir, 'STOP_N') == '12'
+    assert _streams(case_dir) == 'with\n'
+    # a resubmission lowers RESUBMIT, but a lower one is kept
+    assert _xml(case_dir, 'RESUBMIT') == '1'
+
+    # done
+    result = _next_segment(case_dir, '0101-01-01')
+    assert result.returncode == 0, result.stderr
+    assert _xml(case_dir, 'RESUBMIT') == '0'
+    log = (case_dir / 'next_segment.log').read_text()
+    assert 'STOP_N: 12 -> 48' in log
+    assert 'streams.ocean: with_daily_3d' in log
+    assert 'All 1200 months are run.' in log
+
+
+def test_next_segment_keeps_a_stopped_chain(tmp_path):
+    case_dir = _fake_case(tmp_path, RESUBMIT='0')
+    result = _next_segment(case_dir, '0002-01-01')
+    assert result.returncode == 0, result.stderr
+    assert _xml(case_dir, 'RESUBMIT') == '0'
+
+
+def test_next_segment_branch_run_counts_from_its_start(tmp_path):
+    case_dir = _fake_case(
+        tmp_path,
+        experiment='iceocean1ra',
+        RUN_TYPE='branch',
+        RUN_REFDATE='0101-01-01',
+    )
+    result = _next_segment(case_dir, '0102-01-01')
+    assert result.returncode == 0, result.stderr
+    assert _xml(case_dir, 'STOP_N') == '48'
+    assert _streams(case_dir) == 'without\n'
+
+
+@pytest.mark.parametrize(
+    'restart_date, match',
+    [
+        ('0002-01-15', 'not on the first of a month'),
+        ('0003-01-01', 'does not start a segment'),
+    ],
+)
+def test_next_segment_stops_the_chain(tmp_path, restart_date, match):
+    case_dir = _fake_case(tmp_path)
+    result = _next_segment(case_dir, restart_date)
+    assert result.returncode != 0
+    assert match in result.stderr
+    assert match in (case_dir / 'next_segment.log').read_text()
+    assert _xml(case_dir, 'STOP_N') == '12'
+
+
+def test_next_segment_stops_without_a_restart_pointer(tmp_path):
+    case_dir = _fake_case(tmp_path)
+    result = _next_segment(case_dir)
+    assert result.returncode != 0
+    assert 'no restart pointer' in result.stderr
+
+
+def test_next_segment_refuses_a_shared_source_mods(tmp_path):
+    case_dir = _fake_case(tmp_path)
+    (tmp_path / 'base_source_mods').mkdir()
+    os.symlink(tmp_path / 'base_source_mods', case_dir / 'SourceMods')
+    result = _next_segment(case_dir, '0002-01-01')
+    assert result.returncode != 0
+    assert 'keepexe' in result.stderr
+
+
+def test_next_segment_can_be_skipped(tmp_path):
+    case_dir = _fake_case(tmp_path)
+    (case_dir / 'next_segment.skip').write_text('')
+    postrun = case_dir / 'postrun.local'
+    postrun.write_text('#!/bin/bash\ntouch "$1/postrun.ran"\n')
+    postrun.chmod(0o755)
+    # even a date that would stop the chain
+    result = _next_segment(case_dir, '0003-01-01')
+    assert result.returncode == 0, result.stderr
+    assert _xml(case_dir, 'STOP_N') == '12'
+    assert not (case_dir / 'changes').exists()
+    assert (case_dir / 'postrun.ran').exists()

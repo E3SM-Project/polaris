@@ -234,7 +234,22 @@ with `DAILY_OCEAN_FIELDS`, `MONTHLY_OCEAN_FIELDS`,
 `DAILY_MAX_OCEAN_FIELDS` and `GLOBAL_STATS_INTERVAL`, and, with a
 prognostic MALI, the MISMIP+ tasks' output fields with
 `MALI_HISTORY_FIELDS`, and `MALI_DAILY_FIELDS`.  `user_nl_mpaso` turns on
-the daily means and `MONITORING_OPTIONS`.
+the daily means and `MONITORING_OPTIONS`.  The script writes the ocean's
+streams file with and without `DAILY_3D_OCEAN_FIELDS` into
+`OCEAN_STREAMS_DIR` in the case directory.
+{py:func}`polaris.tasks.e3sm.init.misomip.case_config.get_segments()`
+splits a run into jobs of
+{py:func}`polaris.tasks.e3sm.init.misomip.case_config.get_months_per_job()`
+months, ending them at the edges of
+{py:func}`polaris.tasks.e3sm.init.misomip.case_config.get_daily_3d_windows()`,
+so each job is wholly in or out of a window.  `get_shell_commands()` sets
+the first job's months, `RESTART_MONTHS` and `RESUBMIT` from them, and
+{py:func}`polaris.tasks.e3sm.init.misomip.case_config.get_next_segment_script()`
+renders `next_segment.template` with each segment's start, months and
+window.  `create_case.sh` runs the script with `--start` and makes it the
+case's `POSTRUN_SCRIPT`; it picks the next job from the months between
+the case's start and the coupler's restart pointer, so it holds no count
+of jobs.
 {py:func}`polaris.tasks.e3sm.init.misomip.case_config.get_case_config_files()`
 gives what the `assemble` step stages.  For `iceocean1ra`,
 `get_shell_commands()` names `iceocean1r`'s initial conditions under its

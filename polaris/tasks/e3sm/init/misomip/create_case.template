@@ -180,6 +180,12 @@ echo "${restarts[0]}" > "$run_dir/rpointer.drv"
 {%- endif %}
 ./preview_namelists
 python3 "$here/{{ edit_streams }}"
+
+# The first job's months and streams file.  CIME runs the script after each
+# job to set up the next.
+cp "$here/{{ next_segment }}" .
+"./{{ next_segment }}" "$PWD" --start
+./xmlchange "POSTRUN_SCRIPT=$PWD/{{ next_segment }}"
 ./case.build
 
 echo "Submit the case with: cd $case_dir && ./case.submit"

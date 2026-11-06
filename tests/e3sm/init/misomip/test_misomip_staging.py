@@ -125,6 +125,7 @@ def _expected(
                 f'{case_dir}/create_case.sh',
                 f'{case_dir}/pes.xml',
                 f'{case_dir}/edit_streams.py',
+                f'{case_dir}/next_segment.sh',
             }
     return expected
 

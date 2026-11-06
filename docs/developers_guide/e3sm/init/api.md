@@ -381,6 +381,9 @@
    case_config.CaseConfigStep
    case_config.CaseConfigStep.run
    case_config.get_mali_mode
+   case_config.get_months_per_job
+   case_config.get_daily_3d_windows
+   case_config.get_segments
    case_config.get_case_config_files
    case_config.get_inputdata_root
    case_config.get_grid_file
@@ -391,6 +394,7 @@
    case_config.check_time_integrator
    case_config.get_create_case_script
    case_config.get_edit_streams_script
+   case_config.get_next_segment_script
    case_config.get_mismip_plus_output_fields
    case_config.get_pes_file
    case_config.get_machine

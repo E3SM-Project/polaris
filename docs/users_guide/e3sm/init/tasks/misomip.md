@@ -216,7 +216,7 @@ Albany's first-order velocity solver, for `iceocean1r` and `iceocean1ra`.
 
 `create_case.sh` creates, sets up and builds a case from the `user_mods/`
 directory beside it.  It needs an E3SM checkout with the changes for
-idealized ice-shelf cases, at commit `9d52375cfa` of the
+idealized ice-shelf cases, at commit `5eb5f0385b` of the
 `fanssie-ocn-glc-coupling` branch of E3SM-Ocean-Discussion/E3SM or later:
 
 ```bash
@@ -278,7 +278,8 @@ The directory holds:
   counts the months between records, turns off the ocean's thermal
   forcing of a prognostic MALI (`GLC_NZOC=0`), whose melt comes through
   ice-shelf coupling, turns off MALI's runoff to the ocean, turns on the coupler's monthly and annual budgets, and sets the
-  coupling intervals and the run length;
+  coupling intervals, the first job's length, restarts every year and the
+  number of jobs;
 - `user_nl_mpaso`, with the options of the standalone ocean run, and every
   option whose E3SM default differs from that run's value, except the bulk
   wind stress, through which E3SM's ocean takes the coupler's.  The case
@@ -301,15 +302,18 @@ The case needs an E3SM that has these case variables and grids it does not
 list.
 
 `create_case.sh` also runs `./preview_namelists` and then
-`edit_streams.py`, beside it, which copies the streams files E3SM wrote
-into the case's SourceMods with more output:
+`edit_streams.py`, beside it, which edits the streams files E3SM wrote
+with more output.  The ocean's goes in `ocean_streams/` in the case
+directory, with and without daily means of 3D fields, and MALI's in the
+case's SourceMods:
 
 - the ocean's daily means of `landIceFreshwaterFlux`,
-  `frazilIceFreshwaterFlux`, `landIceFreshwaterFluxNotSentToGlc`,
-  `landIceHeatFlux`, `layerThickness` and
-  `frazilLayerThicknessTendency`, sampled every time step, in
-  place of E3SM's daily list and hourly samples, and
-  `landIceFreshwaterFluxNotSentToGlc` in the monthly means;
+  `frazilIceFreshwaterFlux`, `landIceFreshwaterFluxNotSentToGlc` and
+  `landIceHeatFlux`, sampled every time step, in place of E3SM's daily
+  list and hourly samples, and `landIceFreshwaterFluxNotSentToGlc` in the
+  monthly means;
+- in one of the ocean's files, also the daily means of `normalVelocity`,
+  `layerThickness`, `activeTracers` and `frazilLayerThicknessTendency`;
 - the ocean's daily maximum of `kineticEnergyCell`, checked every time
   step, with the custom time series, and its global statistics every hour
   rather than every day;
@@ -322,6 +326,27 @@ it edits or E3SM's Registry files a field it adds, so an E3SM change cannot
 silently drop them.  A keepexe clone shares its SourceMods with the case it
 was cloned from, so the script also stops if SourceMods is a link.
 
+A case runs in jobs of up to 4 years for the 100-year experiments, and of
+1 year for `ocean0` to `ocean2`, with restarts every year.  The ocean's
+daily means hold the 3D fields in the first year of every run and the
+last year of a 100-year run, and a job runs less than 4 years where it
+must end or start at those years: a 100-year run takes jobs of 1 year, 24
+of 4 years, 2 years and 1 year.  `create_case.sh` copies `next_segment.sh`
+into the case directory, runs it once to set up the first job, and makes
+it CIME's `POSTRUN_SCRIPT`, which CIME runs after each job, before it
+resubmits the case.  The script reads the months run so far from the
+coupler's restart pointer, `rpointer.drv`, and the case's start, so a
+rerun or a manual resubmit gets the right job.  It sets the next job's
+`STOP_N`, copies the ocean's streams file with or without the daily 3D
+fields into `SourceMods/src.mpaso/`, and lowers `RESUBMIT` to the jobs
+left, never raising it.  It logs each change in `next_segment.log` and
+stops the chain, exiting with an error, if it cannot tell the date or
+copy the file.  After its own work, it runs `postrun.local` in the case
+directory, if there is one, with the case directory as its argument.
+
+To stop the chain, set `RESUBMIT=0`.  To run on without the script
+changing anything, create `next_segment.skip` in the case directory.
+
 `iceocean1ra` is a branch run from an `iceocean1r` case's restarts:
 
 ```bash
@@ -332,7 +357,10 @@ was cloned from, so the script also stops if SourceMods is a link.
 
 The script copies the coupler's, the ocean's and MALI's restarts on that
 date into the new case's run directory and points `rpointer.drv` at the
-coupler's.
+coupler's.  MALI restores its calving front to the extent of the ice it
+starts from, which the branch run takes from the `iceocean1r` restart, so
+check first that the ice on that date has no ice-free holes behind the
+calving front.
 
 The step does not copy the files to inputdata.  Its work directory has
 `sync_to_inputdata.sh` for doing that by hand, once the files have been
@@ -421,8 +449,12 @@ The case configuration has options of its own:
 # since each assembly has its own directory.
 inputdata_root =
 
-# The months each job of a case runs, a divisor of every experiment's length
-months_per_job = 1
+# The most months each job of a case runs, multiples of 12, for the 100-year
+# runs and for the shorter ones.  A job runs fewer to end at the first year
+# or start the last year of a 100-year run, the years whose daily means hold
+# 3D fields.
+long_run_months_per_job = 48
+short_run_months_per_job = 12
 
 # The times a day the ocean couples, a divisor of 86400 s whose interval is a
 # whole number of ocean time steps
