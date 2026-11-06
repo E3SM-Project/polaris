@@ -1234,7 +1234,9 @@ def _next_segment(case_dir, restart_date=None, start=False):
     if restart_date is not None:
         rundir = (case_dir / 'xml/RUNDIR').read_text()
         with open(os.path.join(rundir, 'rpointer.drv'), 'w') as pointer:
-            pointer.write(f'case.cpl.r.{restart_date}-00000.nc\n')
+            # The coupler pads the file name with spaces.
+            name = f'case.cpl.r.{restart_date}-00000.nc'
+            pointer.write(f'{name:<256}\n')
     args = [str(case_dir / 'next_segment.sh'), str(case_dir)]
     if start:
         args.append('--start')
