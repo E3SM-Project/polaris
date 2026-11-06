@@ -1748,31 +1748,41 @@ Rejected:
   for MALI's developers;
 - refilling a retreating front with thin ice, which does not conserve mass.
 
-### D33: Stage E runs two experiments at a time
+### D33: Stage E runs in two slots of four nodes
 
 Date last modified: 2026/11/06
 
 Contributors: Xylar Asay-Davis, Claude
 
 Stage E runs every experiment at 2 km with split-explicit wetting and
-drying, two at a time on four nodes each. One pair of nodes runs
-IceOcean1r and then IceOcean1ra, about 38 days. The other runs Ocean0,
-Ocean1, Ocean2, Ocean3 and Ocean4 in turn, about 43 days. Ocean0 runs a
-year, and a second if its analysis finds that melt and the cavity's water
-masses have not yet settled, judged against their variability rather than
-a fixed threshold. Jobs run several model years each ([D20](#decisions)).
-Daily output keeps the two-dimensional fields and the daily speed maximum
-throughout; daily three-dimensional fields are written only for each run's
-first year and the last year of the 100-year runs, and monthly means
-otherwise.
+drying, on at most eight nodes in two slots of four. One slot runs
+IceOcean1r and then IceOcean1ra on four nodes each, about 38 days. The
+other runs Ocean0 on four nodes, then Ocean1 and Ocean2 side by side on
+two nodes each, then Ocean3 and Ocean4 the same way, about 31 days. Ocean0
+runs a year, and a second if its analysis finds that melt and the cavity's
+water masses have not yet settled, judged against their variability rather
+than a fixed threshold. Jobs run several model years each
+([D20](#decisions)). Daily output keeps the two-dimensional fields and the
+daily speed maximum throughout; daily three-dimensional fields are written
+only for each run's first year and the last year of the 100-year runs, and
+monthly means otherwise.
 
 ```{admonition} Rationale
 IceOcean1r and IceOcean1ra form the longest chain, since IceOcean1ra
-starts from IceOcean1r's final state, so they go first. Two runs at a time
-keep the whole stage to about six weeks and 7,700 node-hours. Daily
-three-dimensional output for all 441 model years would be several
-terabytes.
+starts from IceOcean1r's final state, and 2 km can use no more than four
+nodes, so that slot sets the stage's length. At 2 km, four nodes run only
+about 1.4 times as fast as two, so the ocean-only experiments finish sooner
+and cheaper in pairs on two nodes: about 31 days and 120 node-days, against
+43 days and 170 node-days one at a time on four. The whole stage then takes
+about 38 days and 6,600 node-hours. Daily three-dimensional output for all
+441 model years would be several terabytes.
 ```
 
-Rejected: a fixed length for Ocean0 longer than the protocol's year, which
-may run longer than needed.
+Rejected:
+
+- Ocean0–4 one at a time on four nodes, which takes longer than the
+  IceOcean1 chain;
+- Ocean1–4 all at once on one node each, which would take as long as the
+  IceOcean1 chain and leave no margin;
+- a fixed length for Ocean0 longer than the protocol's year, which may run
+  longer than needed.
