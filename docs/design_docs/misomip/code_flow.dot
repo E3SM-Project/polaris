@@ -28,8 +28,8 @@ digraph fanssie {
     label="E3SM-Project/E3SM (upstream)";
     labeljust=l; fontsize=12; color="#c3c2b7"; style="rounded";
     e8047 [label=<<b>E3SM#8047</b>  new land-ice melt equations<br/><font color="#52514e">Carolyn · draft, approved by Xylar</font>>, fillcolor="#e8e8e4"];
-    e8661 [label=<<b>E3SM#8661</b>  two-way land-ice coupling, MOAB<br/><font color="#52514e">Rob Jacob · open, approved</font>>, fillcolor="#deebff"];
-    e8887 [label=<<b>E3SM#8887</b>  ocean–MALI melt coupling (MCT)<br/><font color="#52514e">Xylar · draft</font>>, fillcolor="#e8e8e4"];
+    e8661 [label=<<b>E3SM#8661</b>  two-way land-ice coupling, MOAB<br/><font color="#52514e">Rob Jacob · merged into master Nov 3</font>>, fillcolor="#e3fcef"];
+    e8887 [label=<<b>E3SM#8887</b>  ocean–MALI melt coupling (MCT)<br/><font color="#52514e">Xylar · draft · rebased onto master Nov 6;<br/>MOAB port to build on it: E3SM#9103</font>>, fillcolor="#e8e8e4"];
   }
 
   subgraph cluster_malidev {
@@ -37,7 +37,7 @@ digraph fanssie {
     labeljust=l; fontsize=12; color="#c3c2b7"; style="rounded";
     malidev [label=<<b>develop</b><br/><font color="#52514e">97 MALI commits ahead of E3SM</font>>, fillcolor="#ffffff"];
     m213 [label=<<b>#213, #214, #216, #218</b>  MALI's E3SM namelist without the lapse rate;<br/>MALI's inputs named by case variables;<br/>MALI's data-mode export follows its thickness file;<br/>MALI's logical flags reach the velocity solver as integers<br/><font color="#52514e">merged into develop · the first three already in FAnSSIE</font>>, fillcolor="#e3fcef"];
-    m211 [label=<<b>#211</b>  rebuild Albany's grid only when masks change<br/><font color="#52514e">open, approved · good to have for forward MALI runs</font>>, fillcolor="#deebff"];
+    m211 [label=<<b>#211</b>  rebuild Albany's grid only when masks change<br/><font color="#52514e">open · cherry-picked into FAnSSIE (#182)</font>>, fillcolor="#deebff"];
     m219 [label=<<b>#219</b>  MALI's data-mode reference time from a case variable;<br/>MALI skips inactive thermal-forcing fields<br/><font color="#52514e">open · already in FAnSSIE</font>>, fillcolor="#deebff"];
   }
 
@@ -49,7 +49,7 @@ digraph fanssie {
     d143 [label=<<b>#143, #145–#150</b>  forcing clock; fixes and options<br/>for E3SM's physics with a thin film<br/><font color="#52514e">merged into FAnSSIE</font>>, fillcolor="#e3fcef"];
     d175 [label=<<b>#175</b>  split-explicit wetting and drying<br/>(Carolyn's series + fixes; replaces #144);<br/>drying limited per layer, as in RK4<br/><font color="#52514e">draft · waits for Carolyn's review</font>>, fillcolor="#e8e8e4"];
     d176 [label=<<b>#176, #180</b>  split-explicit Coriolis in RK4's PV-flux form<br/>(option, default off, settable in E3SM's namelists;<br/>also proposed against master as #177)<br/><font color="#52514e">merged into FAnSSIE</font>>, fillcolor="#e3fcef"];
-    d178 [label=<<b>#178, #179, #181</b>  MALI skips inactive thermal-forcing fields;<br/>glc's ice-shelf geometry on its own (smoothed) map;<br/>the ocean ramps glc's land-ice pressure<br/><font color="#52514e">merged into FAnSSIE</font>>, fillcolor="#e3fcef"];
+    d178 [label=<<b>#178, #179, #181, #182</b>  MALI skips inactive thermal-forcing fields;<br/>glc's ice-shelf geometry on its own (smoothed) map;<br/>the ocean ramps glc's land-ice pressure;<br/>MALI-Dev #211, cherry-picked<br/><font color="#52514e">merged into FAnSSIE</font>>, fillcolor="#e3fcef"];
     d151 [label=<<b>#151</b>  merge MALI-Dev's develop<br/><font color="#52514e">merged into FAnSSIE</font>>, fillcolor="#e3fcef"];
     d158 [label=<<b>#158–#163</b>  ocean without an atmosphere; wetting and drying<br/>and tidal forcing in E3SM; kept floating fraction;<br/>MPAS-Ocean inputs named by case variables;<br/>an option that keeps glc runoff out of the ocean;<br/>conserved fluxes under ice shelves<br/><font color="#52514e">merged into FAnSSIE</font>>, fillcolor="#e3fcef"];
     d164 [label=<<b>#164–#167</b>  grounded-ice pressure cap in one threaded loop;<br/>one ocean density from pressure to depth;<br/>land-ice mask follows the ice fraction;<br/>land-ice geometry in monthly means<br/><font color="#52514e">merged into FAnSSIE</font>>, fillcolor="#e3fcef"];
@@ -116,6 +116,6 @@ e3sm_submodules/FAnSSIE", penwidth=1.5];
   legend [shape=plaintext, style="", label=<
     <table border="0" cellborder="1" cellspacing="4" cellpadding="4" color="#c3c2b7">
       <tr><td bgcolor="#e3fcef">merged</td><td bgcolor="#deebff">open</td><td bgcolor="#e8e8e4">draft</td><td bgcolor="#ffffff">no PR yet</td></tr>
-      <tr><td colspan="4" border="0"><font point-size="10" color="#52514e">dashed: not merged yet · as of 2026-11-05</font></td></tr>
+      <tr><td colspan="4" border="0"><font point-size="10" color="#52514e">dashed: not merged yet · as of 2026-11-06</font></td></tr>
     </table>>];
 }
