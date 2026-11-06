@@ -1100,7 +1100,7 @@ apart from the partitions', which repeat them.
 
 ### D10: IceOcean cases patch the streams E3SM writes
 
-Date last modified: 2026/11/05
+Date last modified: 2026/11/06
 
 Contributors: Xylar Asay-Davis, Claude
 
@@ -1116,6 +1116,9 @@ directory into the case's SourceMods and edits them:
   sampled every time step rather than hourly, as E3SM's monthly means
   already are;
 - the ocean's monthly means add `landIceFreshwaterFluxNotSentToGlc`;
+- the ocean's custom time series holds the daily maximum of
+  `kineticEnergyCell`, checked every time step, and its global statistics
+  are hourly;
 - MALI's history is monthly, with the MISMIP+ tasks' output fields, the
   mesh, and `avgFloatingBMBFlux`;
 - a daily MALI stream holds `floatingBasalMassBal` and
@@ -1131,7 +1134,9 @@ day by day, only when MALI is prognostic. E3SM writes each streams file
 from the case name, the initial condition and the I/O type, so the edited
 file starts from the one E3SM wrote for the case. E3SM's daily ocean
 list holds full-depth velocities and tendencies, too much to write every
-day for 100 years.
+day for 100 years. The daily maximum of the kinetic energy and the hourly
+global statistics catch short bursts of velocity that daily means smooth
+out.
 ```
 
 Rejected: complete streams files written by Polaris, which would repeat
