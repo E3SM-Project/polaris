@@ -426,17 +426,22 @@ Each experiment's case configuration holds:
     first record, from which MALI counts its months, for a prognostic MALI
     no ocean thermal forcing (`GLC_NZOC=0`), since the melt comes through
     ice-shelf coupling, MALI's runoff to the ocean turned off, the coupler's budgets turned on, the coupling
-    intervals, and the run length in jobs;
+    intervals, the first job's length, yearly restarts and the number of
+    jobs ([D12](#decisions));
 - **a README** with the compset by long name, which sets MALI's mode
   (static, data or prognostic);
 - **`create_case.sh`**, which creates a case with the MCT driver, the
   compset, the model grid and the user-mods directory, sets its layout,
-  and sets it up and builds it ([D8](#decisions)). For IceOcean1r and
-  IceOcean1ra, it first adds their output to the streams files E3SM
-  writes ([D10](#decisions)): the ocean's daily melt means and MALI's
-  monthly history, with thickness, `bedTopography` and the mesh variables
-  the MISMIP+ diagnostics need, and daily melt. IceOcean1ra is a branch
-  run from an IceOcean1r case's restarts on a date the person gives.
+  and sets it up and builds it ([D8](#decisions)). It first adds the
+  case's output to the streams files E3SM writes ([D10](#decisions)): the
+  ocean's daily melt means and monitoring, and, for IceOcean1r and
+  IceOcean1ra, MALI's monthly history, with thickness, `bedTopography`
+  and the mesh variables the MISMIP+ diagnostics need, and daily melt.
+  It sets up the first job and makes `next_segment.sh` set up each later
+  one ([D12](#decisions)). IceOcean1ra is a branch run from an IceOcean1r
+  case's restarts on a date the person gives, whose ice must have no
+  ice-free holes behind the calving front, since MALI restores the front
+  to the extent of the ice it starts from.
   It takes the E3SM checkout, the case directory, and optionally the
   project, output root, compiler and task counts. The machine is the one
   Polaris was set up on, and the compiler defaults to Polaris's. It
@@ -821,9 +826,11 @@ coupling intervals divide evenly, and `create_case.sh` passes `bash -n`.
 The task count follows the rule for a batch system and a single node,
 including a count the partitions do not cover and a machine below the
 minimum, and MALI's goal and bounds apply only when MALI is prognostic.
-For IceOcean1r and IceOcean1ra, `edit_streams.py` edits synthetic
-streams files as above, stops without a stream or Registry field it needs
-and refuses a linked SourceMods, `user_nl_mali`
+`edit_streams.py` edits synthetic streams files as above, stops without a
+stream or Registry field it needs and refuses a linked SourceMods.
+`next_segment.sh` sets up each job of a fake case from the restart
+pointer, keeps a lowered `RESUBMIT`, stops on a date that starts no job and
+can be skipped. For IceOcean1r and IceOcean1ra, `user_nl_mali`
 names each option once and accounts for every MALI option whose E3SM
 default differs from MALI's, and IceOcean1ra's script branches from the
 restarts and names IceOcean1r's initial conditions. The namelist E3SM
@@ -1098,51 +1105,56 @@ each resolution; the target alone on a node it does not fill, which
 leaves cores idle that would speed the run; and bounds for the case
 apart from the partitions', which repeat them.
 
-### D10: IceOcean cases patch the streams E3SM writes
+### D10: Cases patch the streams E3SM writes
 
 Date last modified: 2026/11/06
 
 Contributors: Xylar Asay-Davis, Claude
 
-For IceOcean1r and IceOcean1ra, `create_case.sh` runs
-`./preview_namelists` after `case.setup`, then `edit_streams.py`. The
-script copies `streams.ocean` and `streams.landice` from the run
-directory into the case's SourceMods and edits them:
+`create_case.sh` runs `./preview_namelists` after `case.setup`, then
+`edit_streams.py`. The script edits `streams.ocean` from the run
+directory into two files in the case directory, with and without daily
+means of 3D fields, from which each job takes one ([D12](#decisions)).
+With a prognostic MALI, it also copies `streams.landice` into the case's
+SourceMods and edits it:
 
 - the ocean's daily means hold only `landIceFreshwaterFlux`,
-  `frazilIceFreshwaterFlux`, `landIceFreshwaterFluxNotSentToGlc`,
-  `landIceHeatFlux`, `layerThickness` and
-  `frazilLayerThicknessTendency`, and `user_nl_mpaso` turns them on,
-  sampled every time step rather than hourly, as E3SM's monthly means
-  already are;
+  `frazilIceFreshwaterFlux`, `landIceFreshwaterFluxNotSentToGlc` and
+  `landIceHeatFlux`, and `user_nl_mpaso` turns them on, sampled every time
+  step rather than hourly, as E3SM's monthly means already are;
+- in the first year of every run and the last year of a 100-year run, the
+  daily means add `normalVelocity`, `layerThickness`, `activeTracers` and
+  `frazilLayerThicknessTendency`;
 - the ocean's monthly means add `landIceFreshwaterFluxNotSentToGlc`;
 - the ocean's custom time series holds the daily maximum of
   `kineticEnergyCell`, checked every time step, and its global statistics
   are hourly;
-- MALI's history is monthly, with the MISMIP+ tasks' output fields, the
-  mesh, and `avgFloatingBMBFlux`;
-- a daily MALI stream holds `floatingBasalMassBal` and
+- with a prognostic MALI, MALI's history is monthly, with the MISMIP+
+  tasks' output fields, the mesh, and `avgFloatingBMBFlux`, and a daily
+  MALI stream holds `floatingBasalMassBal` and
   `floatingBasalMassBalApplied`.
 
 The script stops, writing nothing, if E3SM's streams lack a stream it
-edits or the case's E3SM Registry files a field it adds. Ocean0–4 keep
-E3SM's streams.
+edits or the case's E3SM Registry files a field it adds.
 
 ```{admonition} Rationale
 The melt MALI applies must be checked against the melt the ocean sends,
-day by day, only when MALI is prognostic. E3SM writes each streams file
-from the case name, the initial condition and the I/O type, so the edited
-file starts from the one E3SM wrote for the case. E3SM's daily ocean
-list holds full-depth velocities and tendencies, too much to write every
-day for 100 years. The daily maximum of the kinetic energy and the hourly
-global statistics catch short bursts of velocity that daily means smooth
-out.
+day by day, only when MALI is prognostic. The ocean's daily melt and
+monitoring serve every experiment. E3SM writes each streams file from the
+case name, the initial condition and the I/O type, so the edited file
+starts from the one E3SM wrote for the case. E3SM's daily ocean list
+holds full-depth velocities and tendencies, too much to write every day
+for 100 years: at 2 km, the daily 3D fields take about 4 GB a model year.
+The first and last years cover the adjustment from rest and the state the
+runs end in. The daily maximum of the kinetic energy and the hourly global
+statistics catch short bursts of velocity that daily means smooth out.
 ```
 
 Rejected: complete streams files written by Polaris, which would repeat
-E3SM's builders and drift from them. The script stops if SourceMods is a
-link, as in a keepexe clone, which shares it with the case it was cloned
-from.
+E3SM's builders and drift from them; time windows of the daily means,
+which would apply to the 2D fields as well, since one analysis member
+holds them all. The script stops if SourceMods is a link, as in a keepexe
+clone, which shares it with the case it was cloned from.
 
 ### D11: Each experiment has an RK4 and a split-explicit case
 
@@ -1168,3 +1180,42 @@ comparison to the time integrator alone.
 Rejected: split-explicit variant tasks, as ISOMIP+ has, which would stage
 the same files twice; a config option choosing the integrator, which the
 shared forward step would apply to every task that uses it.
+
+### D12: A script sets up each job of a case
+
+Date last modified: 2026/11/06
+
+Contributors: Xylar Asay-Davis, Claude
+
+A case runs in jobs of up to 4 years for the 100-year experiments and 1
+year for Ocean0–2, with restarts every year. A job ends at the first year
+of every run and starts the last year of a 100-year run, so a 100-year
+run takes jobs of 1 year, 24 of 4 years, 2 years and 1 year.
+`create_case.sh` makes `next_segment.sh` CIME's `POSTRUN_SCRIPT`. After
+each job, before CIME resubmits the case, the script:
+
+- takes the months run so far from the coupler's restart pointer and the
+  case's start, `RUN_STARTDATE` or a branch run's `RUN_REFDATE`;
+- sets the next job's `STOP_N` and copies the ocean's streams file with or
+  without the daily 3D fields ([D10](#decisions)) into SourceMods;
+- lowers `RESUBMIT` to the jobs left, never raising it;
+- logs each change in `next_segment.log` in the case directory;
+- exits with an error, which stops the chain, if it cannot tell the date,
+  finds a date that does not start a job or cannot copy the file;
+- then runs `postrun.local` in the case directory, if there is one.
+
+A file `next_segment.skip` in the case directory makes the script change
+nothing. A case needs FAnSSIE at `5eb5f0385b` or later, in which MALI
+rebuilds Albany's finite-element grid only when its masks change.
+
+```{admonition} Rationale
+At about 5.3 simulated years a day on 256 tasks at 2 km, 4 years take
+about 18 hours, within a 2-day limit. Working from the date, not a count
+of jobs, makes a rerun or a manual resubmit set up the right job. CIME
+runs one `POSTRUN_SCRIPT`, so `postrun.local` keeps room for a case's own.
+```
+
+Rejected: a README recipe for changing the streams and job length by hand
+at the first and last years, which a 100-year chain of jobs would wait on;
+jobs of the same length, with daily 3D fields in whole first and last
+jobs, which would write 3 more years of them at each end.
