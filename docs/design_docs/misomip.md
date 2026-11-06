@@ -1747,3 +1747,32 @@ Rejected:
 - relying on mask calving until it can start from non-dynamic ice, a change
   for MALI's developers;
 - refilling a retreating front with thin ice, which does not conserve mass.
+
+### D33: Stage E runs two experiments at a time
+
+Date last modified: 2026/11/06
+
+Contributors: Xylar Asay-Davis, Claude
+
+Stage E runs every experiment at 2 km with split-explicit wetting and
+drying, two at a time on four nodes each. One pair of nodes runs
+IceOcean1r and then IceOcean1ra, about 38 days. The other runs Ocean0,
+Ocean1, Ocean2, Ocean3 and Ocean4 in turn, about 43 days. Ocean0 runs a
+year, and a second if its analysis finds that melt and the cavity's water
+masses have not yet settled, judged against their variability rather than
+a fixed threshold. Jobs run several model years each ([D20](#decisions)).
+Daily output keeps the two-dimensional fields and the daily speed maximum
+throughout; daily three-dimensional fields are written only for each run's
+first year and the last year of the 100-year runs, and monthly means
+otherwise.
+
+```{admonition} Rationale
+IceOcean1r and IceOcean1ra form the longest chain, since IceOcean1ra
+starts from IceOcean1r's final state, so they go first. Two runs at a time
+keep the whole stage to about six weeks and 7,700 node-hours. Daily
+three-dimensional output for all 441 model years would be several
+terabytes.
+```
+
+Rejected: a fixed length for Ocean0 longer than the protocol's year, which
+may run longer than needed.
