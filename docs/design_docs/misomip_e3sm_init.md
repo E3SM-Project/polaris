@@ -1205,7 +1205,9 @@ each job, before CIME resubmits the case, the script:
 - then runs `postrun.local` in the case directory, if there is one.
 
 A file `next_segment.skip` in the case directory makes the script change
-nothing. A case needs FAnSSIE at `5eb5f0385b` or later, in which MALI
+nothing. Each job requests the wall-clock time of
+`[misomip_case_config] job_wall_time`, by default the machine's. A case
+needs FAnSSIE at `5eb5f0385b` or later, in which MALI
 rebuilds Albany's finite-element grid only when its masks change.
 
 ```{admonition} Rationale
