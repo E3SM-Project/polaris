@@ -300,9 +300,9 @@ The directory holds:
 The case needs an E3SM that has these case variables and grids it does not
 list.
 
-For `iceocean1r` and `iceocean1ra`, `create_case.sh` also runs
-`./preview_namelists` and then `edit_streams.py`, beside it, which copies
-the streams files E3SM wrote into the case's SourceMods with more output:
+`create_case.sh` also runs `./preview_namelists` and then
+`edit_streams.py`, beside it, which copies the streams files E3SM wrote
+into the case's SourceMods with more output:
 
 - the ocean's daily means of `landIceFreshwaterFlux`,
   `frazilIceFreshwaterFlux`, `landIceFreshwaterFluxNotSentToGlc`,
@@ -313,9 +313,9 @@ the streams files E3SM wrote into the case's SourceMods with more output:
 - the ocean's daily maximum of `kineticEnergyCell`, checked every time
   step, with the custom time series, and its global statistics every hour
   rather than every day;
-- MALI's history every month, with the MISMIP+ tasks' output fields and
-  the mesh, and a daily MALI stream with `floatingBasalMassBal` and
-  `floatingBasalMassBalApplied`.
+- for `iceocean1r` and `iceocean1ra`, MALI's history every month, with
+  the MISMIP+ tasks' output fields and the mesh, and a daily MALI stream
+  with `floatingBasalMassBal` and `floatingBasalMassBalApplied`.
 
 The script stops, writing nothing, if E3SM's streams files lack a stream
 it edits or E3SM's Registry files a field it adds, so an E3SM change cannot

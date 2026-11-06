@@ -168,13 +168,18 @@ echo "${restarts[0]}" > "$run_dir/rpointer.drv"
 ./xmlchange "RUN_TYPE=branch,RUN_REFCASE=$source_case"
 ./xmlchange "RUN_REFDATE=$restart_date,RUN_REFTOD=00000,GET_REFCASE=FALSE"
 {%- endif %}
+
 {%- if mode == 'prognostic' %}
 
-# The ocean's daily melt means and MALI's monthly history and daily melt,
-# added to the streams files E3SM writes
+# The ocean's daily means and monitoring, and MALI's monthly history and
+# daily melt, added to the streams files E3SM writes
+{%- else %}
+
+# The ocean's daily means and monitoring, added to the streams files E3SM
+# writes
+{%- endif %}
 ./preview_namelists
 python3 "$here/{{ edit_streams }}"
-{%- endif %}
 ./case.build
 
 echo "Submit the case with: cd $case_dir && ./case.submit"

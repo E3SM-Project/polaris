@@ -208,18 +208,18 @@ ALBANY_INPUT = 'albany_input.yaml'
 #: CIME copies to the case's
 MALI_SOURCE_MODS = os.path.join('SourceMods', 'src.mali')
 
-#: The script with which ``create_case.sh`` adds a prognostic MALI case's
-#: output to the streams files E3SM writes
+#: The script with which ``create_case.sh`` adds a case's output to the
+#: streams files E3SM writes
 EDIT_STREAMS = 'edit_streams.py'
 
 #: What the step writes that is staged: the user-mods directory, and the
-#: README, script and layout beside it
-CASE_CONFIG_FILES = [USER_MODS, 'README', CREATE_CASE, PES]
+#: README, scripts and layout beside it
+CASE_CONFIG_FILES = [USER_MODS, 'README', CREATE_CASE, PES, EDIT_STREAMS]
 
-#: The ocean's daily means in a case with a prognostic MALI, in place of
-#: E3SM's daily list: the melt and freezing fluxes, and the part of the melt
-#: not sent to MALI, from which the melt exchange can be checked day by day,
-#: and the layer thickness and the thickness frazil formation applies, from
+#: The ocean's daily means in every case, in place of E3SM's daily list:
+#: the melt and freezing fluxes, and the part of the melt not sent to MALI,
+#: from which the melt exchange can be checked day by day, and the layer
+#: thickness and the thickness frazil formation applies, from
 #: which the ocean's volume budget estimates the transport across edges
 DAILY_OCEAN_FIELDS = [
     'landIceFreshwaterFlux',
@@ -230,17 +230,17 @@ DAILY_OCEAN_FIELDS = [
     'frazilLayerThicknessTendency',
 ]
 
-#: Fields added to the ocean's monthly means in a case with a prognostic
-#: MALI, which already hold the layer thickness and its frazil tendency
+#: Fields added to the ocean's monthly means in every case, which already
+#: hold the layer thickness and its frazil tendency
 MONTHLY_OCEAN_FIELDS = [
     'landIceFreshwaterFluxNotSentToGlc',
 ]
 
-#: MPAS-Ocean options of a case with a prognostic MALI that monitor the
-#: ocean: the global statistics, written hourly by the streams edit, and the
-#: daily maximum of :py:data:`DAILY_MAX_OCEAN_FIELDS` with the custom time
-#: series, checked every time step, which catches a short burst that daily
-#: means smooth out
+#: MPAS-Ocean options of every case that monitor the ocean: the global
+#: statistics, written hourly by the streams edit, and the daily maximum of
+#: :py:data:`DAILY_MAX_OCEAN_FIELDS` with the custom time series, checked
+#: every time step, which catches a short burst that daily means smooth
+#: out
 MONITORING_OPTIONS = {
     'config_AM_globalStats_enable': '.true.',
     'config_AM_timeSeriesStatsCustom_enable': '.true.',
@@ -249,12 +249,11 @@ MONITORING_OPTIONS = {
     'config_AM_timeSeriesStatsCustom_reset_intervals': "'00-00-01_00:00:00'",
 }
 
-#: The ocean's daily maxima in a case with a prognostic MALI, in place of
-#: E3SM's list for the custom time series
+#: The ocean's daily maxima in every case, in place of E3SM's list for the
+#: custom time series
 DAILY_MAX_OCEAN_FIELDS = ['kineticEnergyCell']
 
-#: The interval of the ocean's global statistics in a case with a
-#: prognostic MALI
+#: The interval of the ocean's global statistics in every case
 GLOBAL_STATS_INTERVAL = '0000-00-00_01:00:00'
 
 #: The interval of the ocean's daily maxima
@@ -446,6 +445,7 @@ class CaseConfigStep(Step):
         self.add_output_file(filename='README')
         self.add_output_file(filename=CREATE_CASE)
         self.add_output_file(filename=PES)
+        self.add_output_file(filename=EDIT_STREAMS)
         if get_mali_mode(experiment) == 'prognostic':
             self.add_input_file(
                 filename=ALBANY_INPUT,
@@ -456,7 +456,6 @@ class CaseConfigStep(Step):
                 USER_MODS, MALI_SOURCE_MODS, ALBANY_INPUT
             )
             self.add_output_file(filename=albany_input)
-            self.add_output_file(filename=EDIT_STREAMS)
 
     def run(self):
         """
@@ -518,7 +517,6 @@ class CaseConfigStep(Step):
                 config.getfloat(
                     'misomip_land_ice_on_ocean', 'min_land_ice_fraction'
                 ),
-                daily_means=prognostic,
                 # MALI's geometry changes in data mode and when prognostic
                 ramp_land_ice_pressure=get_mali_mode(self.experiment)
                 != 'static',
@@ -541,7 +539,11 @@ class CaseConfigStep(Step):
             shutil.copyfile(
                 ALBANY_INPUT, os.path.join(source_mods, ALBANY_INPUT)
             )
-            _write(EDIT_STREAMS, get_edit_streams_script(), executable=True)
+        _write(
+            EDIT_STREAMS,
+            get_edit_streams_script(experiment),
+            executable=True,
+        )
         task_counts = {
             grid: [
                 int(count)
@@ -723,13 +725,9 @@ def get_case_config_files(experiment):
     Returns
     -------
     filenames : list of str
-        :py:data:`CASE_CONFIG_FILES`, and :py:data:`EDIT_STREAMS` for an
-        experiment with a prognostic MALI
+        :py:data:`CASE_CONFIG_FILES`
     """
-    filenames = list(CASE_CONFIG_FILES)
-    if get_mali_mode(experiment) == 'prognostic':
-        filenames.append(EDIT_STREAMS)
-    return filenames
+    return list(CASE_CONFIG_FILES)
 
 
 def get_inputdata_root(config, experiment):
@@ -982,14 +980,15 @@ def get_user_nl_mpaso(
     standalone,
     defaults,
     min_land_ice_fraction,
-    daily_means=False,
     ramp_land_ice_pressure=False,
 ):
     """
     Get the text of ``user_nl_mpaso``: the options the standalone run sets,
     less those E3SM sets itself, those E3SM would otherwise give a
     different value, whether each analysis member is on, and the options
-    only an E3SM case has
+    only an E3SM case has, which turn on the daily means, of
+    :py:data:`DAILY_OCEAN_FIELDS` sampled every time step, and the
+    :py:data:`MONITORING_OPTIONS`
 
     Parameters
     ----------
@@ -1003,11 +1002,6 @@ def get_user_nl_mpaso(
     min_land_ice_fraction : float
         The land-ice fraction at or below which MPAS-Ocean's import of
         MALI's geometry leaves a cell open ocean
-
-    daily_means : bool, optional
-        Whether to turn on the daily means, of
-        :py:data:`DAILY_OCEAN_FIELDS` sampled every time step, and the
-        :py:data:`MONITORING_OPTIONS`, for a case with a prognostic MALI
 
     ramp_land_ice_pressure : bool, optional
         Whether to ramp the land-ice pressure from MALI over each of MALI's
@@ -1034,10 +1028,9 @@ def get_user_nl_mpaso(
 
     e3sm_only = dict(E3SM_OCEAN_OPTIONS)
     e3sm_only[MIN_FRACTION_OPTION] = f'{min_land_ice_fraction:g}'
-    if daily_means:
-        e3sm_only[DAILY_SWITCH] = '.true.'
-        e3sm_only[DAILY_COMPUTE_INTERVAL] = "'dt'"
-        e3sm_only.update(MONITORING_OPTIONS)
+    e3sm_only[DAILY_SWITCH] = '.true.'
+    e3sm_only[DAILY_COMPUTE_INTERVAL] = "'dt'"
+    e3sm_only.update(MONITORING_OPTIONS)
     if ramp_land_ice_pressure:
         e3sm_only[RAMP_OPTION] = '.true.'
 
@@ -1234,16 +1227,26 @@ def get_readme(experiment, grids, layout_lines, time_integrator='RK4'):
         lines.extend(
             [
                 "MALI's Albany input is in `user_mods/SourceMods/src.mali/`.",
-                f'`{CREATE_CASE}` runs `./preview_namelists`, then',
-                f'`{EDIT_STREAMS}`, which copies the streams files E3SM',
-                "wrote into the case's SourceMods with the ocean's daily melt",
-                "means and MALI's monthly history and daily melt added.  A",
-                'keepexe clone shares its SourceMods with the case it was',
-                'cloned from, so replace the link with a copy before editing',
-                'them.',
                 '',
             ]
         )
+    mali_streams = (
+        " and MALI's monthly history and daily melt"
+        if mode == 'prognostic'
+        else ''
+    )
+    lines.extend(
+        [
+            f'`{CREATE_CASE}` runs `./preview_namelists`, then',
+            f'`{EDIT_STREAMS}`, which copies the streams files E3SM wrote',
+            "into the case's SourceMods with the ocean's daily melt means,",
+            'daily maximum of the kinetic energy and hourly global',
+            f'statistics{mali_streams} added.  A keepexe clone shares its',
+            'SourceMods with the case it was cloned from, so replace the',
+            'link with a copy before editing them.',
+            '',
+        ]
+    )
     if source is not None:
         lines.extend(
             [
@@ -1318,12 +1321,17 @@ def get_create_case_script(
     )
 
 
-def get_edit_streams_script():
+def get_edit_streams_script(experiment):
     """
     Get the text of the script with which ``create_case.sh`` adds a case's
-    output to the streams files E3SM writes, for a case with a prognostic
-    MALI.  MALI's history takes the fields of the MISMIP+ tasks' output and
-    :py:data:`MALI_HISTORY_FIELDS`.
+    output to the streams files E3SM writes.  With a prognostic MALI, the
+    script also edits MALI's streams: its history takes the fields of the
+    MISMIP+ tasks' output and :py:data:`MALI_HISTORY_FIELDS`.
+
+    Parameters
+    ----------
+    experiment : str
+        The experiment
 
     Returns
     -------
@@ -1349,6 +1357,7 @@ def get_edit_streams_script():
         mali_history_interval=MALI_HISTORY_INTERVAL,
         mali_history_fields=repr(mali_history_fields),
         mali_daily_fields=repr(MALI_DAILY_FIELDS),
+        edit_landice=get_mali_mode(experiment) == 'prognostic',
     )
 
 

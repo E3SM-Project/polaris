@@ -225,14 +225,18 @@ adds the MISMIP+ tasks' `namelist.landice`, less
 option once.  A unit test checks that every MALI option whose E3SM default
 differs from the submodule's MALI Registry is written or in
 `MALI_E3SM_OWNED_OPTIONS`, which keep E3SM's values.  The
-step copies their `albany_input.yaml` into `SourceMods/src.mali/` and
-writes `edit_streams.py` from `edit_streams.template` through
+step copies their `albany_input.yaml` into `SourceMods/src.mali/`.
+
+For every experiment, the step writes `edit_streams.py` from
+`edit_streams.template` through
 {py:func}`polaris.tasks.e3sm.init.misomip.case_config.get_edit_streams_script()`,
 with `DAILY_OCEAN_FIELDS`, `MONTHLY_OCEAN_FIELDS`,
-`DAILY_MAX_OCEAN_FIELDS`, `GLOBAL_STATS_INTERVAL`, the MISMIP+ tasks'
-output fields with `MALI_HISTORY_FIELDS`, and `MALI_DAILY_FIELDS`.
+`DAILY_MAX_OCEAN_FIELDS` and `GLOBAL_STATS_INTERVAL`, and, with a
+prognostic MALI, the MISMIP+ tasks' output fields with
+`MALI_HISTORY_FIELDS`, and `MALI_DAILY_FIELDS`.  `user_nl_mpaso` turns on
+the daily means and `MONITORING_OPTIONS`.
 {py:func}`polaris.tasks.e3sm.init.misomip.case_config.get_case_config_files()`
-adds the script to what the `assemble` step stages.  For `iceocean1ra`,
+gives what the `assemble` step stages.  For `iceocean1ra`,
 `get_shell_commands()` names `iceocean1r`'s initial conditions under its
 inputdata root, and `create_case.sh` takes `-R` and `-d` for the branch
 run.

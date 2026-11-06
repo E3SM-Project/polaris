@@ -657,10 +657,8 @@ def test_case_config_needs_a_known_time_integrator():
 )
 def test_mali_mode(experiment, mode):
     assert get_mali_mode(experiment) == mode
-    # the streams script is staged only where MALI is prognostic
-    assert ('edit_streams.py' in get_case_config_files(experiment)) == (
-        mode == 'prognostic'
-    )
+    # every experiment has the streams script
+    assert 'edit_streams.py' in get_case_config_files(experiment)
 
 
 def test_prognostic_compset_uses_albany():
@@ -719,7 +717,7 @@ def test_user_nl_mpaso_turns_on_the_daily_means_once():
     custom = 'config_AM_timeSeriesStatsCustom_enable'
     standalone['AM_timeSeriesStatsDaily'] = {DAILY_SWITCH: '.false.'}
     standalone['AM_timeSeriesStatsCustom'] = {custom: '.false.'}
-    text = get_user_nl_mpaso(standalone, defaults, 1e-3, daily_means=True)
+    text = get_user_nl_mpaso(standalone, defaults, 1e-3)
     for switch in [DAILY_SWITCH, custom]:
         switches = [
             line for line in text.splitlines() if line.startswith(switch)
@@ -730,10 +728,6 @@ def test_user_nl_mpaso_turns_on_the_daily_means_once():
     # the daily maximum, checked every time step
     for option, value in MONITORING_OPTIONS.items():
         assert _options(text)[option] == value
-    text = get_user_nl_mpaso(standalone, defaults, 1e-3)
-    assert _options(text)[DAILY_SWITCH] == '.false.'
-    assert _options(text)[custom] == '.false.'
-    assert DAILY_COMPUTE_INTERVAL not in _options(text)
 
 
 def test_user_nl_mali_prognostic_takes_the_mismip_plus_options():
@@ -835,7 +829,9 @@ def _write_registries(srcroot, missing):
         (src / 'Registry.xml').write_text('\n'.join(lines))
 
 
-def _run_edit_streams(tmp_path, missing_field=None, missing_stream=None):
+def _run_edit_streams(
+    tmp_path, missing_field=None, missing_stream=None, experiment='iceocean1r'
+):
     """
     Run the script in a fake case whose xmlquery gives the run directory,
     with E3SM's streams files, and the source root, with Registry files
@@ -863,7 +859,7 @@ def _run_edit_streams(tmp_path, missing_field=None, missing_stream=None):
     )
     xmlquery.chmod(0o755)
     script = tmp_path / 'edit_streams.py'
-    script.write_text(get_edit_streams_script())
+    script.write_text(get_edit_streams_script(experiment))
     result = subprocess.run(
         ['python3', str(script)], cwd=case_dir, text=True, capture_output=True
     )
@@ -939,13 +935,30 @@ def test_edit_streams_script(tmp_path):
     assert daily.attrib['io_type'] == 'pnetcdf'
 
 
+def test_edit_streams_script_leaves_a_static_mali(tmp_path):
+    # Ocean0-4 get the ocean's output, and MALI keeps E3SM's streams, so
+    # MALI's Registry is not read
+    case_dir, result = _run_edit_streams(
+        tmp_path,
+        missing_field='floatingBasalMassBalApplied',
+        experiment='ocean3',
+    )
+    assert result.returncode == 0, result.stderr
+    ocean = ET.parse(case_dir / 'SourceMods/src.mpaso/streams.ocean')
+    streams = {s.attrib['name']: s for s in ocean.getroot()}
+    assert _vars(streams['timeSeriesStatsDailyOutput']) == (
+        ['xtime'] + DAILY_OCEAN_FIELDS
+    )
+    assert not (case_dir / 'SourceMods/src.mali').exists()
+
+
 def test_edit_streams_script_refuses_a_shared_source_mods(tmp_path):
     case_dir = tmp_path / 'case'
     case_dir.mkdir()
     (tmp_path / 'base_source_mods').mkdir()
     os.symlink(tmp_path / 'base_source_mods', case_dir / 'SourceMods')
     script = tmp_path / 'edit_streams.py'
-    script.write_text(get_edit_streams_script())
+    script.write_text(get_edit_streams_script('iceocean1r'))
     result = subprocess.run(
         ['python3', str(script)], cwd=case_dir, text=True, capture_output=True
     )
@@ -980,11 +993,11 @@ def test_create_case_script_branches_iceocean1ra():
     )
     assert './preview_namelists' in text.splitlines()
     assert 'RUN_TYPE=branch' not in text
-    # the other experiments have neither
+    # the other experiments have the streams edit but no branch
     text = get_create_case_script(
         'ocean3', GRIDS, COUNTS, LAYOUT, 'chrysalis', 'gnu'
     )
-    assert './preview_namelists' not in text.splitlines()
+    assert './preview_namelists' in text.splitlines()
     assert 'RUN_TYPE=branch' not in text
 
 
@@ -1009,7 +1022,8 @@ def test_readme_describes_the_branch_run():
     assert 'edit_streams.py' in text
     text = get_readme('ocean0', GRIDS, ['layout: 64 tasks'])
     assert 'branch run' not in text
-    assert 'edit_streams.py' not in text
+    assert 'edit_streams.py' in text
+    assert "MALI's monthly history" not in text
 
 
 @pytest.mark.skipif(

@@ -28,12 +28,15 @@ DAILY_MAX_INTERVAL = '{{ daily_max_interval }}'
 # The interval of the ocean's global statistics
 GLOBAL_STATS_INTERVAL = '{{ global_stats_interval }}'
 
+{%- if edit_landice %}
+
 # The interval of MALI's history, and the fields added to it
 MALI_HISTORY_INTERVAL = '{{ mali_history_interval }}'
 MALI_HISTORY_FIELDS = {{ mali_history_fields }}
 
 # MALI's daily output
 MALI_DAILY_FIELDS = {{ mali_daily_fields }}
+{%- endif %}
 
 
 def main():
@@ -53,6 +56,7 @@ def main():
         + MONTHLY_OCEAN_FIELDS
         + DAILY_MAX_OCEAN_FIELDS,
     )
+{%- if edit_landice %}
     check_registry(
         srcroot,
         'mpas-albany-landice',
@@ -63,6 +67,10 @@ def main():
     landice = edit_landice(os.path.join(rundir, 'streams.landice'))
     write(ocean, os.path.join('SourceMods', 'src.mpaso', 'streams.ocean'))
     write(landice, os.path.join('SourceMods', 'src.mali', 'streams.landice'))
+{%- else %}
+    ocean = edit_ocean(os.path.join(rundir, 'streams.ocean'))
+    write(ocean, os.path.join('SourceMods', 'src.mpaso', 'streams.ocean'))
+{%- endif %}
 
 
 def xmlquery(variable):
@@ -111,6 +119,7 @@ def edit_ocean(in_filename):
     global_stats = get_stream(root, 'globalStatsOutput')
     global_stats.set('output_interval', GLOBAL_STATS_INTERVAL)
     return tree
+{%- if edit_landice %}
 
 
 def edit_landice(in_filename):
@@ -139,6 +148,7 @@ def edit_landice(in_filename):
     for name in ['xtime'] + MALI_DAILY_FIELDS:
         add_var(daily, name)
     return tree
+{%- endif %}
 
 
 def get_stream(root, name):

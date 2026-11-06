@@ -124,9 +124,8 @@ def _expected(
                 f'{case_dir}/README',
                 f'{case_dir}/create_case.sh',
                 f'{case_dir}/pes.xml',
+                f'{case_dir}/edit_streams.py',
             }
-            if experiment.startswith('iceocean'):
-                expected.add(f'{case_dir}/edit_streams.py')
     return expected
 
 
