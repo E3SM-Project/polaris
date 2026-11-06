@@ -559,6 +559,9 @@ class CaseConfigStep(Step):
                 couplings_per_day,
                 dt,
                 source_inputdata_root=source_root,
+                job_wall_time=inputdata.get_nonempty_option(
+                    config, CASE_CONFIG_SECTION, 'job_wall_time'
+                ),
             ),
             executable=True,
         )
@@ -971,6 +974,7 @@ def get_shell_commands(
     couplings_per_day,
     ocean_dt,
     source_inputdata_root=None,
+    job_wall_time=None,
 ):
     """
     Get the text of ``shell_commands``, which sets the case variables that
@@ -1010,6 +1014,10 @@ def get_shell_commands(
         case finds the other experiment's staged initial conditions.  A
         branch run reads the restart in their place, but E3SM still names
         them.
+
+    job_wall_time : str, optional
+        The wall-clock time each job requests, as ``HH:MM:SS``, or None for
+        the machine's default
 
     Returns
     -------
@@ -1063,6 +1071,12 @@ def get_shell_commands(
             f'runs.'
         )
     resubmit = len(segments) - 1
+    if job_wall_time is not None and not re.fullmatch(
+        r'\d+:[0-5]\d:[0-5]\d', job_wall_time
+    ):
+        raise ValueError(
+            f'The wall-clock time {job_wall_time} is not HH:MM:SS.'
+        )
 
     ocean_ncpl = couplings_per_day['ocean']
     landice_ncpl = couplings_per_day['landice']
@@ -1135,6 +1149,16 @@ def get_shell_commands(
             '',
         ]
     )
+    if job_wall_time is not None:
+        lines.extend(
+            [
+                '# The wall-clock time each job requests, for the longest',
+                '# job',
+                f'./xmlchange JOB_WALLCLOCK_TIME={job_wall_time} '
+                f'--subgroup case.run',
+                '',
+            ]
+        )
     return '\n'.join(lines)
 
 

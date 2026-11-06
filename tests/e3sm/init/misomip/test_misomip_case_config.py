@@ -337,6 +337,28 @@ def test_shell_commands_data_mode_file_has_reference_time(experiment):
     )
 
 
+def test_shell_commands_set_the_wall_time():
+    def commands(job_wall_time=None):
+        return get_shell_commands(
+            'ocean3',
+            GRIDS,
+            DATE,
+            DIN_LOC_ROOT,
+            get_segments('ocean3', 48),
+            COUPLINGS,
+            DT,
+            job_wall_time=job_wall_time,
+        )
+
+    text = commands('30:00:00')
+    assert (
+        './xmlchange JOB_WALLCLOCK_TIME=30:00:00 --subgroup case.run'
+    ) in text.splitlines()
+    assert 'JOB_WALLCLOCK_TIME' not in commands()
+    with pytest.raises(ValueError, match='HH:MM:SS'):
+        commands('30h')
+
+
 def test_shell_commands_need_the_whole_run():
     with pytest.raises(ValueError, match='do not add up'):
         get_shell_commands(
