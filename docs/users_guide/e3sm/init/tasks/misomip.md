@@ -310,6 +310,9 @@ the streams files E3SM wrote into the case's SourceMods with more output:
   `frazilLayerThicknessTendency`, sampled every time step, in
   place of E3SM's daily list and hourly samples, and
   `landIceFreshwaterFluxNotSentToGlc` in the monthly means;
+- the ocean's daily maximum of `kineticEnergyCell`, checked every time
+  step, with the custom time series, and its global statistics every hour
+  rather than every day;
 - MALI's history every month, with the MISMIP+ tasks' output fields and
   the mesh, and a daily MALI stream with `floatingBasalMassBal` and
   `floatingBasalMassBalApplied`.

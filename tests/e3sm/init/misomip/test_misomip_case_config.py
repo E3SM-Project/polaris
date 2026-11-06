@@ -17,18 +17,22 @@ from polaris.tasks.e3sm.init.misomip.case_config import (
     COMPONENTS,
     COMPSETS,
     DAILY_COMPUTE_INTERVAL,
+    DAILY_MAX_INTERVAL,
+    DAILY_MAX_OCEAN_FIELDS,
     DAILY_OCEAN_FIELDS,
     DAILY_SWITCH,
     DIN_LOC_ROOT,
     E3SM_COMMIT,
     E3SM_DEFAULT_OPTIONS,
     E3SM_OWNED_OPTIONS,
+    GLOBAL_STATS_INTERVAL,
     MALI_DAILY_FIELDS,
     MALI_E3SM_DEFAULT_OPTIONS,
     MALI_E3SM_OWNED_OPTIONS,
     MALI_HISTORY_FIELDS,
     MALI_HISTORY_INTERVAL,
     MISMIP_PLUS_STANDALONE_OPTIONS,
+    MONITORING_OPTIONS,
     MONTHLY_OCEAN_FIELDS,
     RAMP_OPTION,
     RUN_MONTHS,
@@ -712,16 +716,23 @@ def test_user_nl_mpaso_ramps_the_land_ice_pressure():
 
 def test_user_nl_mpaso_turns_on_the_daily_means_once():
     standalone, defaults = _namelists()
+    custom = 'config_AM_timeSeriesStatsCustom_enable'
     standalone['AM_timeSeriesStatsDaily'] = {DAILY_SWITCH: '.false.'}
+    standalone['AM_timeSeriesStatsCustom'] = {custom: '.false.'}
     text = get_user_nl_mpaso(standalone, defaults, 1e-3, daily_means=True)
-    switches = [
-        line for line in text.splitlines() if line.startswith(DAILY_SWITCH)
-    ]
-    assert switches == [f'{DAILY_SWITCH} = .true.']
+    for switch in [DAILY_SWITCH, custom]:
+        switches = [
+            line for line in text.splitlines() if line.startswith(switch)
+        ]
+        assert switches == [f'{switch} = .true.']
     # every time step, not E3SM's hourly samples
     assert _options(text)[DAILY_COMPUTE_INTERVAL] == "'dt'"
+    # the daily maximum, checked every time step
+    for option, value in MONITORING_OPTIONS.items():
+        assert _options(text)[option] == value
     text = get_user_nl_mpaso(standalone, defaults, 1e-3)
     assert _options(text)[DAILY_SWITCH] == '.false.'
+    assert _options(text)[custom] == '.false.'
     assert DAILY_COMPUTE_INTERVAL not in _options(text)
 
 
@@ -771,6 +782,15 @@ def _write_streams(rundir):
         filename_template="case.mpaso.hist.am.timeSeriesStatsMonthly.nc">
     <var name="landIceFreshwaterFlux"/>
 </stream>
+<stream name="timeSeriesStatsCustomOutput" type="output"
+        filename_template="case.mpaso.hist.am.timeSeriesStatsCustom.nc"
+        output_interval="00-01-00_00:00:00">
+</stream>
+<stream name="globalStatsOutput" type="output"
+        filename_template="case.mpaso.hist.am.globalStats.nc"
+        output_interval="00-00-01_00:00:00">
+    <var_struct name="globalStatsAM"/>
+</stream>
 </streams>
 """
     landice = """<streams>
@@ -791,7 +811,12 @@ def _vars(stream):
 
 def _write_registries(srcroot, missing):
     fields = {
-        'mpas-ocean': ['xtime'] + DAILY_OCEAN_FIELDS + MONTHLY_OCEAN_FIELDS,
+        'mpas-ocean': (
+            ['xtime']
+            + DAILY_OCEAN_FIELDS
+            + MONTHLY_OCEAN_FIELDS
+            + DAILY_MAX_OCEAN_FIELDS
+        ),
         'mpas-albany-landice': (
             ['xtime']
             + get_mismip_plus_output_fields()
@@ -847,7 +872,11 @@ def _run_edit_streams(tmp_path, missing_field=None, missing_stream=None):
 
 @pytest.mark.parametrize(
     'missing',
-    ['landIceFreshwaterFluxNotSentToGlc', 'floatingBasalMassBalApplied'],
+    [
+        'landIceFreshwaterFluxNotSentToGlc',
+        'kineticEnergyCell',
+        'floatingBasalMassBalApplied',
+    ],
 )
 def test_edit_streams_script_stops_without_a_registry_field(tmp_path, missing):
     case_dir, result = _run_edit_streams(tmp_path, missing_field=missing)
@@ -861,6 +890,8 @@ def test_edit_streams_script_stops_without_a_registry_field(tmp_path, missing):
     [
         ('streams.ocean', 'timeSeriesStatsDailyOutput'),
         ('streams.ocean', 'timeSeriesStatsMonthlyOutput'),
+        ('streams.ocean', 'timeSeriesStatsCustomOutput'),
+        ('streams.ocean', 'globalStatsOutput'),
         ('streams.landice', 'output'),
     ],
 )
@@ -885,6 +916,13 @@ def test_edit_streams_script(tmp_path):
     assert _vars(streams['timeSeriesStatsMonthlyOutput']) == (
         ['landIceFreshwaterFlux'] + MONTHLY_OCEAN_FIELDS
     )
+    # the daily maxima, and hourly global statistics
+    custom = streams['timeSeriesStatsCustomOutput']
+    assert _vars(custom) == ['xtime'] + DAILY_MAX_OCEAN_FIELDS
+    assert custom.attrib['output_interval'] == DAILY_MAX_INTERVAL
+    global_stats = streams['globalStatsOutput']
+    assert global_stats.attrib['output_interval'] == GLOBAL_STATS_INTERVAL
+    assert [child.tag for child in global_stats] == ['var_struct']
 
     landice = ET.parse(case_dir / 'SourceMods/src.mali/streams.landice')
     streams = {s.attrib['name']: s for s in landice.getroot()}

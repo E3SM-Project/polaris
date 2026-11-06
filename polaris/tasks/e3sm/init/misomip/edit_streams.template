@@ -20,6 +20,14 @@ DAILY_OCEAN_FIELDS = {{ daily_ocean_fields }}
 # Fields added to the ocean's monthly means
 MONTHLY_OCEAN_FIELDS = {{ monthly_ocean_fields }}
 
+# The ocean's daily maxima, in place of E3SM's list for the custom time
+# series, and the interval of its output
+DAILY_MAX_OCEAN_FIELDS = {{ daily_max_ocean_fields }}
+DAILY_MAX_INTERVAL = '{{ daily_max_interval }}'
+
+# The interval of the ocean's global statistics
+GLOBAL_STATS_INTERVAL = '{{ global_stats_interval }}'
+
 # The interval of MALI's history, and the fields added to it
 MALI_HISTORY_INTERVAL = '{{ mali_history_interval }}'
 MALI_HISTORY_FIELDS = {{ mali_history_fields }}
@@ -40,7 +48,10 @@ def main():
     check_registry(
         srcroot,
         'mpas-ocean',
-        ['xtime'] + DAILY_OCEAN_FIELDS + MONTHLY_OCEAN_FIELDS,
+        ['xtime']
+        + DAILY_OCEAN_FIELDS
+        + MONTHLY_OCEAN_FIELDS
+        + DAILY_MAX_OCEAN_FIELDS,
     )
     check_registry(
         srcroot,
@@ -91,6 +102,14 @@ def edit_ocean(in_filename):
     monthly = get_stream(root, 'timeSeriesStatsMonthlyOutput')
     for name in MONTHLY_OCEAN_FIELDS:
         add_var(monthly, name)
+    custom = get_stream(root, 'timeSeriesStatsCustomOutput')
+    custom.set('output_interval', DAILY_MAX_INTERVAL)
+    for child in list(custom):
+        custom.remove(child)
+    for name in ['xtime'] + DAILY_MAX_OCEAN_FIELDS:
+        add_var(custom, name)
+    global_stats = get_stream(root, 'globalStatsOutput')
+    global_stats.set('output_interval', GLOBAL_STATS_INTERVAL)
     return tree
 
 

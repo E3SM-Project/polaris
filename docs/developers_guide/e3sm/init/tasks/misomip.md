@@ -228,7 +228,8 @@ differs from the submodule's MALI Registry is written or in
 step copies their `albany_input.yaml` into `SourceMods/src.mali/` and
 writes `edit_streams.py` from `edit_streams.template` through
 {py:func}`polaris.tasks.e3sm.init.misomip.case_config.get_edit_streams_script()`,
-with `DAILY_OCEAN_FIELDS`, `MONTHLY_OCEAN_FIELDS`, the MISMIP+ tasks'
+with `DAILY_OCEAN_FIELDS`, `MONTHLY_OCEAN_FIELDS`,
+`DAILY_MAX_OCEAN_FIELDS`, `GLOBAL_STATS_INTERVAL`, the MISMIP+ tasks'
 output fields with `MALI_HISTORY_FIELDS`, and `MALI_DAILY_FIELDS`.
 {py:func}`polaris.tasks.e3sm.init.misomip.case_config.get_case_config_files()`
 adds the script to what the `assemble` step stages.  For `iceocean1ra`,

@@ -236,6 +236,30 @@ MONTHLY_OCEAN_FIELDS = [
     'landIceFreshwaterFluxNotSentToGlc',
 ]
 
+#: MPAS-Ocean options of a case with a prognostic MALI that monitor the
+#: ocean: the global statistics, written hourly by the streams edit, and the
+#: daily maximum of :py:data:`DAILY_MAX_OCEAN_FIELDS` with the custom time
+#: series, checked every time step, which catches a short burst that daily
+#: means smooth out
+MONITORING_OPTIONS = {
+    'config_AM_globalStats_enable': '.true.',
+    'config_AM_timeSeriesStatsCustom_enable': '.true.',
+    'config_AM_timeSeriesStatsCustom_operation': "'max'",
+    'config_AM_timeSeriesStatsCustom_compute_interval': "'dt'",
+    'config_AM_timeSeriesStatsCustom_reset_intervals': "'00-00-01_00:00:00'",
+}
+
+#: The ocean's daily maxima in a case with a prognostic MALI, in place of
+#: E3SM's list for the custom time series
+DAILY_MAX_OCEAN_FIELDS = ['kineticEnergyCell']
+
+#: The interval of the ocean's global statistics in a case with a
+#: prognostic MALI
+GLOBAL_STATS_INTERVAL = '0000-00-00_01:00:00'
+
+#: The interval of the ocean's daily maxima
+DAILY_MAX_INTERVAL = '0000-00-01_00:00:00'
+
 #: The interval of MALI's history in a case with a prognostic MALI, a month
 #: so that it aligns with the ocean's monthly means
 MALI_HISTORY_INTERVAL = '0000-01-00_00:00:00'
@@ -982,8 +1006,8 @@ def get_user_nl_mpaso(
 
     daily_means : bool, optional
         Whether to turn on the daily means, of
-        :py:data:`DAILY_OCEAN_FIELDS` sampled every time step, for a case
-        with a prognostic MALI
+        :py:data:`DAILY_OCEAN_FIELDS` sampled every time step, and the
+        :py:data:`MONITORING_OPTIONS`, for a case with a prognostic MALI
 
     ramp_land_ice_pressure : bool, optional
         Whether to ramp the land-ice pressure from MALI over each of MALI's
@@ -1013,6 +1037,7 @@ def get_user_nl_mpaso(
     if daily_means:
         e3sm_only[DAILY_SWITCH] = '.true.'
         e3sm_only[DAILY_COMPUTE_INTERVAL] = "'dt'"
+        e3sm_only.update(MONITORING_OPTIONS)
     if ramp_land_ice_pressure:
         e3sm_only[RAMP_OPTION] = '.true.'
 
@@ -1318,6 +1343,9 @@ def get_edit_streams_script():
     return template.render(
         daily_ocean_fields=repr(DAILY_OCEAN_FIELDS),
         monthly_ocean_fields=repr(MONTHLY_OCEAN_FIELDS),
+        daily_max_ocean_fields=repr(DAILY_MAX_OCEAN_FIELDS),
+        global_stats_interval=GLOBAL_STATS_INTERVAL,
+        daily_max_interval=DAILY_MAX_INTERVAL,
         mali_history_interval=MALI_HISTORY_INTERVAL,
         mali_history_fields=repr(mali_history_fields),
         mali_daily_fields=repr(MALI_DAILY_FIELDS),
