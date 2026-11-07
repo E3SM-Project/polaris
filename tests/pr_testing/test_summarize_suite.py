@@ -159,3 +159,23 @@ def test_format_bit_for_bit_names_each_task_once():
     ) in text
     assert 'xCell' not in text
     assert text.count('mesh/a') == 1
+
+
+def test_format_bit_for_bit_rows_not_compared_share_a_reason():
+    gnu = Row('pm-cpu', 'gnu', 'mpich', model='omega')
+    intel = Row('pm-cpu', 'intel', 'mpich', model='omega')
+    gpu = Row('pm-gpu', 'gnugpu', 'mpich', model='omega')
+    reason = 'it was not run: no node hours'
+    rows = [
+        (gnu, None, reason),
+        (intel, None, reason),
+        (gpu, report.BaselineComparison('omega_pr', bit_for_bit=['a']), ''),
+    ]
+
+    text = report.format_bit_for_bit(rows)
+
+    assert (
+        '2 rows were not compared:\n\n- pm-cpu, gnu, mpich (Omega); pm-cpu, '
+        'intel, mpich (Omega), because it was not run: no node hours.'
+    ) in text
+    assert text.count(reason) == 1

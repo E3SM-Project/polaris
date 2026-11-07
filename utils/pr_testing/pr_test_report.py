@@ -214,16 +214,20 @@ def format_bit_for_bit(
             f'baseline, so there is nothing to compare with:\n\n'
             + _list_tasks(failed_in_baseline, compared_rows, len(rows))
         )
-    not_compared = [
-        f'- {row.label}, because {reason}.'
-        for row, comparison, reason in rows
-        if comparison is None
-    ]
-    if not_compared:
-        verb = 'was' if len(not_compared) == 1 else 'were'
+    by_reason: Dict[str, List[Row]] = {}
+    for row, comparison, reason in rows:
+        if comparison is None:
+            by_reason.setdefault(reason, []).append(row)
+    if by_reason:
+        count = sum(len(reason_rows) for reason_rows in by_reason.values())
+        verb = 'was' if count == 1 else 'were'
         paragraphs.append(
-            f'{_count(len(not_compared), "row")} {verb} not compared:\n\n'
-            + '\n'.join(not_compared)
+            f'{_count(count, "row")} {verb} not compared:\n\n'
+            + '\n'.join(
+                f'- {"; ".join(row.label for row in reason_rows)}, because '
+                f'{reason}.'
+                for reason, reason_rows in by_reason.items()
+            )
         )
     return '### Differences from the baseline\n\n' + '\n\n'.join(paragraphs)
 
