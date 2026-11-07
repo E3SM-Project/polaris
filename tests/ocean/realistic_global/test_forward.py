@@ -1379,14 +1379,29 @@ def test_compute_cell_count_uses_estimate_before_mesh_exists():
     # before the mesh exists, the initial condition's estimate is used
     fake = SimpleNamespace(
         _mesh_path=lambda: None,
+        config=PolarisConfigParser(),
         init_condition=SimpleNamespace(approx_cell_count=10417),
     )
     assert Forward.compute_cell_count(cast(Forward, fake)) == 10417
 
 
+def test_compute_cell_count_honors_the_config_option():
+    # a culled cell count in the step's config, such as a user's override,
+    # takes precedence over the estimate made when the step was created
+    config = PolarisConfigParser()
+    config.set('realistic_global_mesh', 'culled_ocean_cell_count', '123456')
+    fake = SimpleNamespace(
+        _mesh_path=lambda: None,
+        config=config,
+        init_condition=SimpleNamespace(approx_cell_count=10417),
+    )
+    assert Forward.compute_cell_count(cast(Forward, fake)) == 123456
+
+
 def test_compute_cell_count_raises_when_estimate_missing():
     fake = SimpleNamespace(
         _mesh_path=lambda: None,
+        config=PolarisConfigParser(),
         init_condition=SimpleNamespace(approx_cell_count=None),
     )
     with pytest.raises(ValueError, match='approx_cell_count'):

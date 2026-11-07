@@ -255,9 +255,11 @@ class Forward(OceanModelStep):
         Compute the number of cells used to size resources.
 
         Returns the exact ``nCells`` from the mesh once it exists (at run
-        time), and otherwise the initial condition's ``approx_cell_count``
-        estimate (during setup, before the upstream initial condition has been
-        produced).
+        time).  Before that (during setup, before the upstream initial
+        condition has been produced), it returns the
+        ``[realistic_global_mesh] culled_ocean_cell_count`` config option if
+        it is set, so that a user's override is honored, and otherwise the
+        initial condition's ``approx_cell_count`` estimate.
 
         Returns
         -------
@@ -268,7 +270,15 @@ class Forward(OceanModelStep):
         if mesh_path is not None:
             ds = self.component.open_model_dataset(mesh_path, self.config)
             return int(ds.sizes['nCells'])
-        approx = self.init_condition.approx_cell_count
+        approx = None
+        if self.config is not None:
+            approx = self.config.getint(
+                'realistic_global_mesh',
+                'culled_ocean_cell_count',
+                fallback=None,
+            )
+        if approx is None:
+            approx = self.init_condition.approx_cell_count
         if approx is None:
             raise ValueError(
                 'approx_cell_count could not be determined for this mesh; '
