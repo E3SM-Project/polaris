@@ -175,35 +175,27 @@ et al. (2026), in 20 m bins of draft.
 
 - The barotropic streamfunction is `mpas_tools`', with the outer boundary
   at zero.
-- The overturning streamfunction across lines of constant $x$ comes from
-  the volume budget of the region west of each line ([D12](#decisions)),
-  where the run writes the monthly mean of `vertAleTransportTop` and
-  snapshots of layer thickness at each month's start. Above interface $k$,
-  $\psi_k = \sum_{j<k} (S_j - \Delta V_j / \Delta t) + F_k - F_0$, where
-  $\Delta V_j$ is layer $j$'s change in volume west of the line over the
-  month, $S_j$ the volume melt (in the top layer) and frazil add to it each
-  second, and $F_k$ the upward flux through interface $k$. The lines stop
-  west of the restoring region, whose thickness the tidal forcing sets.
-  A month's first snapshot is the initial condition at a run's start.
-  A month that starts at a restart records its start one time step late,
-  so each end of a month takes the snapshot within half a day of it.
-- $\psi_k$ is drawn at each interface's mean elevation along the line,
-  weighted by column thickness so the film counts little. Under the ice
-  shelf the interfaces tilt across a line, so the mean elevation is an
-  approximation there. Comparisons on fixed elevations, such as the
-  protocol's fields, interpolate $\psi_k$ in $z$ between those elevations.
-- Where the monthly means also hold `normalLayerThicknessFlux`, the
-  thickness flux each layer carries across each edge in the time step,
-  its sum along each line on each interface checks the budget. The largest
-  difference each month is a diagnostic, and the step warns where it
-  exceeds `overturning_method_tolerance` of the strength. That flux spread
-  over fixed bins of $z$ by overlap is a second plot.
-- Output with neither keeps the overturning from the monthly means of
-  velocity and thickness, spread over fixed bins of $z$ by overlap. Their
-  product differs a little from the mean transport, and much at an edge
-  whose column wets and dries within the month, which streaks the
-  overturning there. Runs from cases that predate these streams have only
-  this.
+- The overturning streamfunction $\psi(x, z)$ is the vertical flux
+  through each fixed level $z$ summed over the cells west of a line of
+  constant $x$, which is the transport across the line below $z$
+  ([D12](#decisions)). It is computed from the monthly mean of
+  `normalLayerThicknessFlux`, the thickness flux each layer carries
+  across each edge in each time step, on the edges whose two cells
+  straddle the line. For each edge, the flux times the edge's length is
+  integrated up from the seafloor to each level: the layers below in full
+  and the part of the layer the level falls in, by the edge's own
+  interface heights. Summed along the line with the edges' signs, this
+  equals the sum over the region's cells, since each interior face's
+  integral to $z$ is shared by its two cells and cancels. That holds
+  exactly on any MPAS mesh, by the discrete divergence theorem, whatever
+  the tilt of the layers. Its only approximations are the flux spread
+  evenly through each edge's layer and the monthly-mean interface heights
+  of the layer each level falls in.
+- Output without the flux takes the transport on each edge from the
+  monthly means of velocity and thickness instead. Their product differs a
+  little from the mean transport, and much at an edge whose column wets
+  and dries within the month, which streaks the overturning there. Runs
+  from cases that predate the flux have only this.
 - Each streamfunction's strength is its range under the ice. The
   barotropic streamfunction uses the monthly means of velocity and
   thickness.
@@ -401,7 +393,7 @@ ocean's SCRIP file. Those under the ice are normalized by the remapped
 floating fraction, the others by the remapped ocean fraction. Sections are
 averaged over each 5 m bin by overlap with each layer, and the overturning
 streamfunction is computed directly on the protocol's $x$ and $z$: from the
-volume budget, interpolated in $z$, where the run has its inputs. Names
+layer thickness flux where the run writes it. Names
 and units are the protocol's.
 
 ### Algorithm Design: E3SM runs report their performance
@@ -482,10 +474,8 @@ Contributors: Xylar Asay-Davis, Claude
 - `polaris/ocean/ice_shelf/diagnostics.py` (new): melt, driving and the
   thin film, on MPAS-Ocean's names with or without the
   `timeMonthly_avg_` prefix.
-- `polaris/ocean/overturning.py`: spreading layer transport over bins of
-  $z$; the overturning on layer interfaces from the volume budget west of a
-  line and from the layer thickness flux across it, the interfaces' mean
-  elevation along a line, and interpolation to fixed elevations.
+- `polaris/ocean/overturning.py`: the overturning at fixed elevations
+  from the transport across any set of edges that bounds a region.
 - `polaris/landice/`: a public module of the ice-sheet diagnostics, made
   on the MISMIP+ branch, whose own diagnostics become thin wrappers.
 - `polaris/viz/planar.py`: side-by-side and difference panels, and lines
@@ -580,10 +570,9 @@ Contributors: Xylar Asay-Davis, Claude
 - Unit tests read a case's XML and a streams file copied from the first
   E3SM runs, parse budget tables from a coupler log, check melt totals and
   means on a small planar mesh against hand computation, and check that
-  spreading transport over bins of $z$ conserves it. The overturning from
-  the volume budget equals the one from the layer thickness flux for any
-  flux on a small mesh, takes a run's first snapshot from its initial
-  condition, and interpolates between interface elevations.
+  the overturning integrates each layer's transport up to each level. On a
+  small mesh with tilted layers, the integral along a line's edges equals
+  the sum of the face integrals over the cells west of it.
 - On a small mesh, the volume budget uses the tidal tendency of a
   thickness source where it has it and no tidal term for direct forcing,
   and its load change counts only days that follow each other.
@@ -758,25 +747,38 @@ the open ocean. Any other field's range or bins can be fixed there too.
 
 Rejected: ranges from the data alone, which make plots incomparable.
 
-### D12: The overturning comes from the volume budget
+### D12: The overturning comes from the layer thickness flux
 
 Date last modified: 2026/11/07
 
 Contributors: Xylar Asay-Davis, Claude
 
-Where the run writes them, the monthly mean of `vertAleTransportTop` and
-snapshots of layer thickness give the overturning streamfunction on layer
-interfaces from the volume budget west of each line. The layer thickness
-flux across each edge, where E3SM writes it, is a check.
+Where the run writes it, the monthly mean of `normalLayerThicknessFlux`
+gives the overturning streamfunction at fixed elevations, integrated up to
+each level on the edges that bound the region west of each line. Polaris's
+other overturning diagnostics, such as the MOC on the sphere, are meant to
+use the same method, with the edges across a latitude within a basin.
 
 > Rationale: MPAS-Ocean's monthly means are plain means of each sample, so
 > the mean of velocity times the mean of thickness misses their
 > correlation. In Ocean1 at 2 km, one edge at the corner of the lateral
 > grounding line, in a column that wets and dries, carried a false
 > 0.024 Sv, ten times the net transport of the lines beside it. The mean
-> vertical transport and the change in thickness have no such product.
-> The budget gives totals along a line, not per edge, so it lives on layer
-> interfaces.
+> layer thickness flux has no such product, and each edge keeps its own
+> interface heights, so the transport stays at its depth.
 
-Rejected: the product of the monthly means, which streaks; and the layer
-thickness flux alone, which needs an MPAS-Ocean change.
+Rejected:
+
+- the product of the monthly means, which streaks;
+- a volume budget along each line, from the mean `vertAleTransportTop`
+  and snapshots of layer thickness, drawn on layer interfaces at their
+  mean elevation along the line. Summed across a line first, it puts each
+  layer's transport at one depth, which squeezes the field into the
+  line's mean column: at $x = 520$ km in Ocean1 the water spans 0 to
+  −607 m, but the mean interfaces −261 to −515 m;
+- each column's mean `vertVelocityTop` interpolated to fixed levels and
+  summed over the cells west of a line. Flux between two columns moves
+  along their layers, so where the layers tilt it leaves one column and
+  enters the other at different depths, and the interior exchanges do not
+  cancel at a fixed level. In Ocean1 it broke the field into bands of
+  alternating sign.
