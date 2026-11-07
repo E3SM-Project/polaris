@@ -1199,6 +1199,7 @@
    compute_open_ocean_ssh_diagnostics
    compute_thermal_driving
    compute_thin_film_diagnostics
+   get_film_columns
    get_open_ocean_mask
 ```
 

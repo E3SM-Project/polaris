@@ -387,6 +387,31 @@ def test_a_coupled_run_compares_both_models_melt_and_ice_sheet(tmp_path):
     assert len(exchange.stats_filenames) == 2
 
 
+def test_the_ice_sheet_is_compared_over_the_months_analyzed(tmp_path):
+    """MALI has run a month further than the ocean's monthly means, which
+    set the period, so its statistics of that month are left out"""
+    case_dir = _coupled_case(tmp_path, 'iceocean1r', [1, 2])
+    run_dir = str(tmp_path / 'iceocean1r_run')
+    later = 'iceocean1r.mali.hist.am.globalStats.0001-03-01.nc'
+    with open(os.path.join(run_dir, later), 'w'):
+        pass
+
+    task = _coupled_task(tmp_path, 'iceocean1r', {'iceocean1r': case_dir})
+
+    ice_sheet = next(
+        step
+        for step in task.steps.values()
+        if step.name == 'ice_sheet_comparison'
+    )
+    assert [
+        os.path.basename(filename) for filename in ice_sheet.stats_filenames
+    ] == [
+        'iceocean1r.mali.hist.am.globalStats.0001-01-01.nc',
+        'iceocean1r.mali.hist.am.globalStats.0001-02-01.nc',
+    ]
+    assert ice_sheet.period_end == 59.0
+
+
 def test_iceocean1ra_reads_iceocean1r_s_initial_conditions(tmp_path):
     """IceOcean1ra continues from IceOcean1r's restart, so it needs
     IceOcean1r's run for its meshes and MALI's bed."""

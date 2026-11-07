@@ -63,7 +63,8 @@ For each run, from its monthly means:
 - the ranges under the ice of the barotropic streamfunction and of the
   overturning streamfunction across lines of constant $x$;
 - the strongest gyre in the open ocean, the barotropic streamfunction of
-  largest magnitude between the ice front and the restoring region;
+  largest magnitude between the ice front and the restoring region, and
+  the largest and smallest values there, which are plotted;
 - the open ocean's mean SSH there above the restoring region's, the height
   its density implies, and the residual, which is the excess pressure at
   the seafloor as a height of water;
@@ -79,10 +80,19 @@ For each run, from its monthly means:
   grounding line that the ocean holds at the thin film, and an estimate of
   the share of melt missed there;
 - time-mean maps of melt rate, thermal and haline driving, friction
-  velocity, the barotropic streamfunction, bottom temperature and
-  salinity and SSH, sections of temperature and salinity at
-  $y = 40$ km and $x = 520$ km, the overturning streamfunction, and the
-  melt rate in bins of draft.
+  velocity, the top layer's velocity under the ice, the barotropic
+  streamfunction, bottom temperature and salinity, SSH where there is no
+  land ice, ice draft and bathymetry, sections of temperature and salinity
+  at $y = 40$ km and $x = 520$ km against $x$ and $y$, the overturning
+  streamfunction, and the melt rate in bins of draft.
+
+The color ranges of maps and sections are in
+`[misomip_analysis_color_ranges]`, as `minimum, maximum`.  Temperature,
+salinity, draft and bathymetry have fixed ranges by default, the same in
+every run, experiment and resolution, so their plots compare.  A blank
+range comes from each plot's data, leaving out the thin film: the columns
+under grounded ice and the dry columns, whose water keeps the initial
+condition's salinity.  The film is still drawn.
 
 The time means are over the last 6 months of Ocean0, as the protocol's
 tuning does, and the last 12 months of the other experiments, or all of a
@@ -245,7 +255,9 @@ MPAS-Ocean's 2019 entry marked, the melt rate by draft, the streamfunctions'
 strengths against the mean melt rate, and the runs' time-mean melt rate
 beside the ensemble's mean.  The runs use E3SM's physics, not the protocol's
 COM physics, and are labeled as such: the comparison places them among the
-COM models rather than validating them.
+COM models rather than validating them.  The time means are over different
+months: the runs' last months, as above, and each COM submission's last
+months, the end of a 20-year Ocean1 or Ocean2 run.  Each plot names both.
 
 ## Output on the protocol's grid
 

@@ -1,5 +1,6 @@
 import numpy as np
 import xarray as xr
+from matplotlib.collections import QuadMesh
 from matplotlib.figure import Figure
 from mpas_tools.io import write_netcdf
 from mpas_tools.ocean.viz.transect import compute_transect, plot_transect
@@ -92,9 +93,12 @@ TIME_SERIES: list[tuple[str, str, str, str, list[tuple]]] = [
     (
         'circulation',
         'open_ocean_gyre_strength',
-        'Strongest gyre in the open ocean',
+        'Gyres in the open ocean',
         'barotropic streamfunction (Sv)',
-        [('openOceanGyreStrength', 1.0, None)],
+        [
+            ('openOceanGyreMax', 1.0, 'largest'),
+            ('openOceanGyreMin', 1.0, 'smallest'),
+        ],
     ),
     (
         'water_masses',
@@ -148,8 +152,9 @@ TIME_SERIES: list[tuple[str, str, str, str, list[tuple]]] = [
 ]
 
 #: The maps of time means plotted for each run: the gallery, the variable,
-#: the title, the scale, the color bar's label, the colormap, and whether
-#: the field is only valid under floating ice
+#: the title, the scale, the color bar's label, the colormap, and where the
+#: field is shown: ``floating`` under floating ice, ``open`` where there is
+#: no land ice or ``all``
 MAPS = [
     (
         'melt',
@@ -158,7 +163,7 @@ MAPS = [
         SECONDS_PER_YEAR,
         'm yr$^{-1}$',
         'cmo.amp',
-        True,
+        'floating',
     ),
     (
         'melt',
@@ -167,7 +172,7 @@ MAPS = [
         1.0,
         r'$^\circ$C',
         'cmo.thermal',
-        True,
+        'floating',
     ),
     (
         'melt',
@@ -176,7 +181,7 @@ MAPS = [
         1.0,
         'PSU',
         'cmo.haline',
-        True,
+        'floating',
     ),
     (
         'melt',
@@ -185,7 +190,25 @@ MAPS = [
         1.0,
         'm s$^{-1}$',
         'cmo.speed',
-        True,
+        'floating',
+    ),
+    (
+        'circulation',
+        'uBoundaryLayer',
+        'Velocity in x in the top layer under the ice',
+        1.0,
+        'm s$^{-1}$',
+        'cmo.balance',
+        'floating',
+    ),
+    (
+        'circulation',
+        'vBoundaryLayer',
+        'Velocity in y in the top layer under the ice',
+        1.0,
+        'm s$^{-1}$',
+        'cmo.balance',
+        'floating',
     ),
     (
         'circulation',
@@ -194,7 +217,7 @@ MAPS = [
         1.0,
         'Sv',
         'cmo.curl',
-        False,
+        'all',
     ),
     (
         'water_masses',
@@ -203,7 +226,7 @@ MAPS = [
         1.0,
         r'$^\circ$C',
         'cmo.thermal',
-        False,
+        'all',
     ),
     (
         'water_masses',
@@ -212,18 +235,64 @@ MAPS = [
         1.0,
         'PSU',
         'cmo.haline',
-        False,
+        'all',
     ),
     (
         'thin_film',
         'ssh',
-        'Sea-surface height',
+        'Sea-surface height where there is no land ice',
         1.0,
         'm',
         'cmo.deep_r',
-        False,
+        'open',
+    ),
+    (
+        'geometry',
+        'iceDraft',
+        'Ice draft',
+        1.0,
+        'm',
+        'cmo.deep_r',
+        'all',
+    ),
+    (
+        'geometry',
+        'bathymetry',
+        'Bathymetry',
+        1.0,
+        'm',
+        'cmo.deep_r',
+        'all',
     ),
 ]
+
+#: The option in ``[misomip_analysis_color_ranges]`` for each field plotted
+#: in maps and sections
+RANGE_OPTIONS = {
+    'meltRate': 'melt_rate',
+    'thermalDriving': 'thermal_driving',
+    'halineDriving': 'haline_driving',
+    'landIceFrictionVelocity': 'friction_velocity',
+    'uBoundaryLayer': 'boundary_layer_velocity',
+    'vBoundaryLayer': 'boundary_layer_velocity',
+    'barotropicStreamfunction': 'barotropic_streamfunction',
+    'overturningStreamfunction': 'overturning_streamfunction',
+    'temperature': 'temperature',
+    'temperatureBottom': 'temperature',
+    'salinity': 'salinity',
+    'salinityBottom': 'salinity',
+    'ssh': 'ssh',
+    'iceDraft': 'ice_draft',
+    'bathymetry': 'bathymetry',
+}
+
+#: The fields whose color range, when it comes from the data, is centered
+#: on zero
+SYMMETRIC_FIELDS = {
+    'uBoundaryLayer',
+    'vBoundaryLayer',
+    'overturningStreamfunction',
+}
 
 #: The time series of the ice sheet: the variable, the file's stem, the
 #: title, the y label and the scale
@@ -340,7 +409,7 @@ class RunPlots(ProductStep):
 
         floating = ds_mean.landIceFloatingFraction > 0.0
         descriptor = None
-        for gallery, name, title, scale, units, cmap, under_ice in MAPS:
+        for gallery, name, title, scale, units, cmap, where in MAPS:
             descriptor = self._plot_map(
                 ds_mesh,
                 ds_mean,
@@ -352,7 +421,7 @@ class RunPlots(ProductStep):
                 scale,
                 units,
                 cmap,
-                under_ice,
+                where,
             )
 
         section = self.config['misomip_analysis']
@@ -411,12 +480,17 @@ class RunPlots(ProductStep):
         scale,
         units,
         cmap,
-        under_ice,
+        where,
     ):
         """Plot a map of a time mean and describe it as a product"""
         field = scale * ds_mean[name]
         field.name = name
-        mask = floating if under_ice and 'nCells' in field.dims else None
+        mask = None
+        counted = None
+        if 'nCells' in field.dims:
+            mask = get_map_mask(ds_mean, where)
+            counted = get_range_mask(ds_mean, mask)
+        vmin, vmax = get_color_range(self.config, name, field, counted)
         plot = f'{name}_map.png'
         data = f'{name}_map.nc'
         with mplstyle_context():
@@ -430,6 +504,8 @@ class RunPlots(ProductStep):
                 cmap_title=units,
                 field_mask=mask,
                 descriptor=descriptor,
+                vmin=vmin,
+                vmax=vmax,
             )
             plot_mask_boundary(ax, ds_mesh, floating, linewidth=0.75)
             ax.set_title(f'{title}, {self.label}')
@@ -446,10 +522,14 @@ class RunPlots(ProductStep):
             x = [float(ds_mesh.xCell.min()), float(ds_mesh.xCell.max())]
             y = [value, value]
             where = f'y = {1e-3 * value:g} km'
+            start = x[0]
+            distance_label = 'x (km)'
         else:
             y = [float(ds_mesh.yCell.min()), float(ds_mesh.yCell.max())]
             x = [value, value]
             where = f'x = {1e-3 * value:g} km'
+            start = y[0]
+            distance_label = 'y (km)'
         ds_transect = compute_transect(
             x=xr.DataArray(x, dims=('nPoints',)),
             y=xr.DataArray(y, dims=('nPoints',)),
@@ -460,18 +540,24 @@ class RunPlots(ProductStep):
             max_level_cell=ds_init.maxLevelCell - 1,
             spherical=False,
         )
+        counted = get_range_mask(ds_mean)
         for name, title, units, cmap in SECTION_FIELDS:
             stem = f'{name}_section_{axis}'
             plot = f'{stem}.png'
             data = f'{stem}.nc'
-            plot_transect(
-                ds_transect=ds_transect,
-                mpas_field=ds_mean[name],
+            field = ds_mean[name]
+            vmin, vmax = get_color_range(self.config, name, field, counted)
+            plot_section(
+                ds_transect,
+                field,
+                plot,
                 title=f'{title} at {where}, {months}, {self.label}',
-                out_filename=plot,
-                colorbar_label=units,
+                units=units,
                 cmap=cmap,
-                figsize=(10.0, 4.0),
+                vmin=vmin,
+                vmax=vmax,
+                start=start,
+                distance_label=distance_label,
             )
             ds_data = ds_transect.copy()
             ds_data[name] = ds_mean[name]
@@ -489,8 +575,9 @@ class RunPlots(ProductStep):
         osf = ds_mean.overturningStreamfunction
         plot = 'overturning_streamfunction.png'
         data = 'overturning_streamfunction.nc'
-        limit = float(np.nanmax(np.abs(osf.values)))
-        limit = limit if limit > 0.0 else 1.0
+        vmin, vmax = get_color_range(
+            self.config, 'overturningStreamfunction', osf
+        )
         with mplstyle_context():
             fig = Figure(figsize=(10.0, 4.0))
             ax = fig.add_subplot(111)
@@ -499,8 +586,8 @@ class RunPlots(ProductStep):
                 osf.zInterface.values,
                 osf.values,
                 cmap='cmo.curl',
-                vmin=-limit,
-                vmax=limit,
+                vmin=vmin,
+                vmax=vmax,
                 shading='nearest',
             )
             ax.set_xlabel('x (km)')
@@ -619,3 +706,176 @@ class RunPlots(ProductStep):
             gallery='ice_sheet',
             title="The ocean's floating fraction and MALI's grounding line",
         )
+
+
+def get_map_mask(ds, where):
+    """
+    Get where a map shows its field
+
+    Parameters
+    ----------
+    ds : xarray.Dataset
+        A dataset with ``landIceFraction`` and ``landIceFloatingFraction``
+
+    where : {'floating', 'open', 'all'}
+        Under floating ice, where there is no land ice, or everywhere
+
+    Returns
+    -------
+    mask : xarray.DataArray or None
+        Where the field is shown, or ``None`` to show it everywhere
+    """
+    if where == 'all':
+        return None
+    if where == 'floating':
+        return ds.landIceFloatingFraction > 0.0
+    if where == 'open':
+        return ds.landIceFraction == 0.0
+    raise ValueError(f'Unexpected place to show a field: {where}')
+
+
+def get_range_mask(ds, mask=None):
+    """
+    Get the cells whose values count toward a color range taken from the
+    data: those shown, less the columns that hold only the thin film
+
+    The film keeps the initial condition's water, so its values would set
+    the range of the cavity's.  It is still drawn.
+
+    Parameters
+    ----------
+    ds : xarray.Dataset
+        A dataset with ``landIceFraction`` and ``landIceFloatingFraction``
+        and, from a time mean, ``filmColumn``.  Without ``filmColumn``, the
+        film is the columns under grounded ice.
+
+    mask : xarray.DataArray, optional
+        Where the field is shown, everywhere by default
+
+    Returns
+    -------
+    counted : xarray.DataArray
+        The cells whose values set the range
+    """
+    if 'filmColumn' in ds:
+        film = ds.filmColumn > 0
+    else:
+        film = np.logical_and(
+            ds.landIceFraction > 0.0, ds.landIceFloatingFraction == 0.0
+        )
+    counted = np.logical_not(film)
+    if mask is not None:
+        counted = np.logical_and(counted, mask)
+    return counted
+
+
+def get_color_range(config, name, field=None, counted=None):
+    """
+    Get the color range of a field's map or section
+
+    Parameters
+    ----------
+    config : polaris.config.PolarisConfigParser
+        The config options, with ``[misomip_analysis_color_ranges]``
+
+    name : str
+        The field's variable name
+
+    field : xarray.DataArray, optional
+        The field, whose range is used when the config option is blank
+
+    counted : xarray.DataArray, optional
+        The cells whose values count toward the range, every cell by
+        default
+
+    Returns
+    -------
+    vmin, vmax : float or None
+        The range, or ``None`` if neither the config nor a field gives one
+    """
+    section = 'misomip_analysis_color_ranges'
+    option = RANGE_OPTIONS.get(name)
+    value = ''
+    if option is not None and config.has_option(section, option):
+        value = config.get(section, option).strip()
+    if value:
+        vmin, vmax = (float(bound) for bound in value.split(','))
+        return vmin, vmax
+    if field is None:
+        return None, None
+    values = field if counted is None else field.where(counted)
+    vmin = float(np.nanmin(values.values))
+    vmax = float(np.nanmax(values.values))
+    if name in SYMMETRIC_FIELDS:
+        limit = max(abs(vmin), abs(vmax))
+        limit = limit if limit > 0.0 else 1.0
+        vmin, vmax = -limit, limit
+    return vmin, vmax
+
+
+def plot_section(
+    ds_transect,
+    field,
+    out_filename,
+    title,
+    units,
+    cmap,
+    vmin,
+    vmax,
+    start,
+    distance_label,
+):
+    """
+    Plot a section along a line of constant x or y, against the position
+    along it
+
+    Parameters
+    ----------
+    ds_transect : xarray.Dataset
+        The transect from ``mpas_tools.ocean.viz.transect.compute_transect``
+
+    field : xarray.DataArray
+        The field on cells and layers
+
+    out_filename : str
+        The image file to write
+
+    title : str
+        The title
+
+    units : str
+        The color bar's label
+
+    cmap : str
+        The colormap
+
+    vmin, vmax : float or None
+        The color range, from the data if ``None``
+
+    start : float
+        The x or y (m) of the transect's start, from which ``dNode``
+        measures distance
+
+    distance_label : str
+        The label of the horizontal axis
+    """
+    ds_plot = ds_transect.copy()
+    ds_plot['dNode'] = ds_transect.dNode + start
+    with mplstyle_context():
+        fig = Figure(figsize=(10.0, 4.0))
+        ax = fig.add_subplot(111)
+        plot_transect(
+            ds_transect=ds_plot,
+            mpas_field=field,
+            ax=ax,
+            cmap=cmap,
+            vmin=vmin,
+            vmax=vmax,
+        )
+        mesh = next(
+            child for child in ax.collections if isinstance(child, QuadMesh)
+        )
+        fig.colorbar(mesh, ax=ax, extend='both', shrink=0.7, label=units)
+        ax.set_xlabel(distance_label)
+        ax.set_title(title)
+        fig.savefig(out_filename, bbox_inches='tight', pad_inches=0.2)
