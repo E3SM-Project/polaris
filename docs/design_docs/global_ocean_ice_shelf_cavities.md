@@ -273,8 +273,9 @@ and `realistic_global`.  With cavities on, the `realistic_global` forward
 and SSH-adjustment runs add those options, implicit top drag and a
 per-stage land-ice flux mode.
 With cavities, `[realistic_global_forward] mpaso_cavity_time_integrator`,
-`split_explicit` by default, replaces `split_explicit_ab2`,.  Implicit top drag needs MPAS-Ocean's constant
-bottom drag, so it applies only in undamped stages.
+`split_explicit` by default, replaces `split_explicit_ab2`.  Implicit top
+drag needs MPAS-Ocean's constant bottom drag, so it applies only in
+undamped stages.
 
 ### Implementation: Four base meshes match the unified meshes' ocean resolutions
 
