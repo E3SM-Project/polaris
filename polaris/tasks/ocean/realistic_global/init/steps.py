@@ -194,6 +194,7 @@ def get_realistic_init_steps(
         config=model_config,
         config_filename=config_filename,
         remap_jra55_step=remap_jra55_step,
+        cull_topo_step=cull_topo_step,
     )
 
     viz_step = component.get_or_create_shared_step(

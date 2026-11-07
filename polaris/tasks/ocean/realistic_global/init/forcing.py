@@ -20,15 +20,20 @@ class ForcingStep(OceanIOStep):
     forbids.
 
     Only wind stress is written.  Surface restoring, thermal and freshwater
-    fluxes, and time-varying forcing are future work.
+    fluxes, and time-varying forcing are future work.  There is no wind stress
+    under Antarctic land ice.
 
     Attributes
     ----------
     remap_jra55_step : polaris.Step
         The upstream step that produces ``jra55_on_mesh.nc``.
+
+    cull_topo_step : polaris.Step
+        The upstream step that produces ``topography_culled.nc``, with the
+        land-ice mask on the culled mesh.
     """
 
-    def __init__(self, component, subdir, remap_jra55_step):
+    def __init__(self, component, subdir, remap_jra55_step, cull_topo_step):
         """
         Create the step.
 
@@ -42,6 +47,9 @@ class ForcingStep(OceanIOStep):
 
         remap_jra55_step : polaris.Step
             The step that produces ``jra55_on_mesh.nc``.
+
+        cull_topo_step : polaris.Step
+            The step that produces ``topography_culled.nc``.
         """
         super().__init__(
             component=component,
@@ -51,6 +59,7 @@ class ForcingStep(OceanIOStep):
             min_tasks=1,
         )
         self.remap_jra55_step = remap_jra55_step
+        self.cull_topo_step = cull_topo_step
 
     def setup(self):
         """
@@ -62,6 +71,12 @@ class ForcingStep(OceanIOStep):
             work_dir_target=os.path.join(
                 self.remap_jra55_step.path,
                 JRA55_ON_MESH_FILENAME,
+            ),
+        )
+        self.add_input_file(
+            filename='topography_culled.nc',
+            work_dir_target=os.path.join(
+                self.cull_topo_step.path, 'topography_culled.nc'
             ),
         )
         self.add_output_file(filename=self.get_forcing_filename())
@@ -79,6 +94,10 @@ class ForcingStep(OceanIOStep):
             ds['windStressZonal'] = ('nCells', ds_stress.taux.values)
             ds['windStressMeridional'] = ('nCells', ds_stress.tauy.values)
 
+        with xr.open_dataset('topography_culled.nc') as ds_topo:
+            land_ice_mask = ds_topo.landIceMask.values
+        ds = mask_wind_stress_under_land_ice(ds, land_ice_mask)
+
         ds.windStressZonal.attrs = {
             'units': 'N m-2',
             'long_name': 'Zonal (eastward) component of wind stress',
@@ -89,3 +108,29 @@ class ForcingStep(OceanIOStep):
         }
 
         self.write_forcing_dataset(ds, self.get_forcing_filename(), config)
+
+
+def mask_wind_stress_under_land_ice(ds, land_ice_mask):
+    """
+    Set the wind stress to zero under Antarctic land ice.
+
+    Parameters
+    ----------
+    ds : xarray.Dataset
+        A dataset with ``windStressZonal`` and ``windStressMeridional`` at
+        cell centers
+
+    land_ice_mask : numpy.ndarray
+        1 in cells under land ice and 0 elsewhere
+
+    Returns
+    -------
+    ds : xarray.Dataset
+        The dataset with the wind stress zeroed under land ice
+    """
+    under_ice = xr.DataArray(land_ice_mask == 1, dims=('nCells',))
+    for name in ['windStressZonal', 'windStressMeridional']:
+        attrs = ds[name].attrs
+        ds[name] = ds[name].where(~under_ice, 0.0)
+        ds[name].attrs = attrs
+    return ds

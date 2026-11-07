@@ -4,6 +4,9 @@ import xarray as xr
 
 from polaris.cf import CF_VERSION
 from polaris.tasks.ocean import Ocean
+from polaris.tasks.ocean.realistic_global.init.forcing import (
+    mask_wind_stress_under_land_ice,
+)
 
 
 def _stress_dataset(n_cells=5):
@@ -81,3 +84,15 @@ def test_forcing_file_follows_cf(model, tmp_path):
     assert ds_out.attrs['Conventions'] == f'CF-{CF_VERSION}'
     zonal = ds_out['SfcStressZonal' if model == 'omega' else 'windStressZonal']
     assert 'long_name' in zonal.attrs
+
+
+def test_no_wind_stress_under_land_ice():
+    ds = _stress_dataset()
+    zonal = ds.windStressZonal.values.copy()
+    land_ice_mask = np.array([0, 1, 1, 0, 0])
+    ds = mask_wind_stress_under_land_ice(ds, land_ice_mask)
+    np.testing.assert_array_equal(
+        ds.windStressZonal.values, [zonal[0], 0.0, 0.0, zonal[3], zonal[4]]
+    )
+    np.testing.assert_array_equal(ds.windStressMeridional.values[1:3], 0.0)
+    assert ds.windStressZonal.attrs['units'] == 'N m-2'
