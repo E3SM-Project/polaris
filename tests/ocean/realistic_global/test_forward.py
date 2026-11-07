@@ -64,6 +64,7 @@ def _forward_config(**overrides):
         use_frazil_ice_formation='False',
         land_ice_flux_mode='off',
         mpaso_cavity_time_integrator='split_explicit',
+        cavity_pressure_gradient_type='pressure_and_zmid',
         output_density='True',
         start_time='0001-01-01_00:00:00',
     )
@@ -1625,3 +1626,16 @@ def test_top_drag_only_without_damping(damping, top_drag):
     add_land_ice_yaml_files(step, stage, 'split_explicit')
     names = [name for name, _ in step.yaml_files]
     assert ('land_ice_top_drag.yaml' in names) == top_drag
+
+
+@pytest.mark.parametrize(
+    'convention, expected',
+    [
+        ('calving_front', 'Jacobian_from_TS'),
+        ('grounding_line', 'pressure_and_zmid'),
+        ('bedrock_zero', 'pressure_and_zmid'),
+    ],
+)
+def test_cavities_use_their_own_pressure_gradient(convention, expected):
+    stage = ForwardStage.from_config(_cavity_config(convention))
+    assert stage.pressure_gradient_type == expected

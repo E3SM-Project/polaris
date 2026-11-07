@@ -1241,6 +1241,12 @@ use_submesoscale = True
 # equivalent.
 pressure_gradient_type = Jacobian_from_TS
 
+# The MPAS-Ocean horizontal pressure gradient formulation that replaces
+# pressure_gradient_type when the ocean has ice-shelf cavities, as in the
+# ISOMIP+ tasks.  Jacobian_from_TS blows up at the ice fronts and thin films
+# of a qu240km ocean with cavities, where pressure_and_zmid does not.
+cavity_pressure_gradient_type = pressure_and_zmid
+
 # Whether to form frazil ice.  MPAS-Ocean only: Omega's frazil is off by
 # default, and Polaris does not turn it on.  Off, unlike in E3SM, because these
 # standalone runs have no sea ice or ice-shelf cavities for the frazil to go
