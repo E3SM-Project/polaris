@@ -311,7 +311,8 @@ case's SourceMods:
   `frazilIceFreshwaterFlux`, `landIceFreshwaterFluxNotSentToGlc` and
   `landIceHeatFlux`, sampled every time step, in place of E3SM's daily
   list and hourly samples, and `landIceFreshwaterFluxNotSentToGlc`,
-  `vertAleTransportTop` and `normalLayerThicknessFlux` (the thickness flux
+  `vertAleTransportTop`, `vertVelocityTop` and `normalLayerThicknessFlux`
+  (the thickness flux
   the time integrator applies, which `user_nl_mpaso` turns on) in the
   monthly means;
 - snapshots of the ocean's `layerThickness` at the start of each month,

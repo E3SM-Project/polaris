@@ -287,12 +287,15 @@ OCEAN_VAR_ARRAYS = ['activeTracers']
 #: sent to MALI, and the vertical transport through each layer's top
 #: interface, whose monthly mean is exact where the product of the monthly
 #: means of velocity and thickness is not, from which the overturning
-#: streamfunction follows with the snapshots of the layer thickness, and
-#: the thickness flux the time integrator applies across each edge, whose
-#: monthly mean gives the transport exactly, a check on the other
+#: streamfunction follows with the snapshots of the layer thickness, the
+#: vertical velocity relative to fixed heights, from which the overturning
+#: streamfunction in height follows column by column, and the thickness flux
+#: the time integrator applies across each edge, whose monthly mean gives
+#: the transport exactly, a check on the others
 MONTHLY_OCEAN_FIELDS = [
     'landIceFreshwaterFluxNotSentToGlc',
     'vertAleTransportTop',
+    'vertVelocityTop',
     'normalLayerThicknessFlux',
 ]
 
