@@ -6,12 +6,16 @@ from mpas_tools.planar_hex import make_planar_hex_mesh
 from polaris.mesh.vector import compute_edge_normal_vec
 from polaris.ocean.overturning import (
     bin_line_transport,
+    compute_line_interface_elevations,
     compute_line_interfaces,
     compute_line_transport,
     compute_overturning,
+    compute_overturning_from_layer_flux,
+    compute_overturning_from_volume_budget,
     compute_overturning_in_z,
     get_line_edges,
     interp_cell_to_line_edges,
+    interp_overturning_to_z,
 )
 
 DC = 1000.0
@@ -305,3 +309,84 @@ def test_bins_that_do_not_span_the_layers_raise():
         compute_overturning_in_z(
             transport, z_top, z_bottom, dz=5.0, top=0.0, bottom=-10.0
         )
+
+
+def test_volume_budget_gives_the_layer_transports():
+    """One cell on the low side, whose two layers lose t0 and t1 across
+    the line, exchange w1 through their shared interface and gain melt s0
+    in the top layer"""
+    area = xr.DataArray([2.0e6], dims='nCells')
+    low_side = xr.DataArray([True], dims='nCells')
+    t0, t1, w1, s0, duration = 3.0e3, -1.0e3, 2.0e-5, 1.0e-6, 86400.0
+    rates = np.array([s0 - t0 / 2.0e6 + w1, -t1 / 2.0e6 - w1])
+    start = xr.DataArray([[100.0, 200.0]], dims=('nCells', 'nVertLevels'))
+    end = start + duration * xr.DataArray(rates, dims='nVertLevels')
+    vert = xr.DataArray([[0.0, w1, 0.0]], dims=('nCells', 'nVertLevelsP1'))
+    source = xr.DataArray([[s0, 0.0]], dims=('nCells', 'nVertLevels'))
+
+    psi = compute_overturning_from_volume_budget(
+        low_side, area, start, end, duration, vert, source
+    )
+
+    np.testing.assert_allclose(psi.values, [0.0, t0, t0 + t1], atol=1e-6)
+
+
+def test_volume_budget_and_layer_flux_agree_exactly(channel_mesh):
+    """Any layer flux across the edges changes the thicknesses so that the
+    region on a line's low side accounts for what crosses the line"""
+    rng = np.random.default_rng(seed=7)
+    n_edges = channel_mesh.sizes['nEdges']
+    flux = xr.DataArray(
+        rng.normal(size=(n_edges, 3)), dims=('nEdges', 'nVertLevels')
+    )
+    cells = channel_mesh.cellsOnEdge.values - 1
+    interior = np.all(cells >= 0, axis=1)
+    flux = flux.where(xr.DataArray(interior, dims='nEdges'), 0.0)
+    transport = flux.values * channel_mesh.dvEdge.values[:, np.newaxis]
+    gain = np.zeros((channel_mesh.sizes['nCells'], 3))
+    for edge in np.flatnonzero(interior):
+        gain[cells[edge, 0]] -= transport[edge]
+        gain[cells[edge, 1]] += transport[edge]
+    area = channel_mesh.areaCell
+    duration = 3600.0
+    start = xr.ones_like(area) * xr.DataArray(
+        [10.0, 20.0, 30.0], dims='nVertLevels'
+    )
+    end = (
+        start
+        + duration * xr.DataArray(gain, dims=('nCells', 'nVertLevels')) / area
+    )
+    no_flux = xr.zeros_like(area) * xr.DataArray(
+        np.zeros(4), dims='nVertLevelsP1'
+    )
+    no_source = xr.zeros_like(start)
+    for value in np.unique(channel_mesh.xCell.values)[1:-1] + 1.0:
+        line = get_line_edges(channel_mesh, 'x', value)
+        low_side = channel_mesh.xCell < value
+        budget = compute_overturning_from_volume_budget(
+            low_side, area, start, end, duration, no_flux, no_source
+        )
+        layer_flux = compute_overturning_from_layer_flux(line, flux)
+        np.testing.assert_allclose(
+            budget.values, layer_flux.values, atol=1e-9 * DC
+        )
+
+
+def test_interface_elevations_of_uniform_layers(channel_mesh):
+    line = get_line_edges(channel_mesh, 'x', 3.5 * DC)
+    ssh = xr.zeros_like(channel_mesh.xCell) - 5.0
+    thickness = _uniform_thickness(channel_mesh, [10.0, 20.0])
+    elevation = compute_line_interface_elevations(line, ssh, thickness)
+    np.testing.assert_allclose(elevation.values, [-5.0, -15.0, -35.0])
+
+
+def test_overturning_is_interpolated_between_interface_elevations():
+    psi = xr.DataArray([[0.0, 2.0, 6.0]], dims=('x', 'nVertLevelsP1'))
+    elevation = xr.DataArray(
+        [[0.0, -10.0, -30.0]], dims=('x', 'nVertLevelsP1')
+    )
+    psi_z = interp_overturning_to_z(
+        psi, elevation, np.array([5.0, 0.0, -5.0, -20.0, -40.0])
+    )
+    assert psi_z.dims == ('x', 'nZInterfaces')
+    np.testing.assert_allclose(psi_z.values, [[np.nan, 0.0, 1.0, 4.0, np.nan]])

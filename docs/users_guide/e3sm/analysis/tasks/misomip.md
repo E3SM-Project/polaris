@@ -86,6 +86,20 @@ For each run, from its monthly means:
   at $y = 40$ km and $x = 520$ km against $x$ and $y$, the overturning
   streamfunction, and the melt rate in bins of draft.
 
+The overturning streamfunction comes from the volume budget west of each
+line of constant $x$, where the run writes the monthly mean of
+`vertAleTransportTop` and snapshots of layer thickness at each month's
+start, as cases set up by the MISOMIP case configuration now do.  It is on
+the layer interfaces, drawn at each interface's mean elevation along the
+line, which under the ice shelf, where the interfaces tilt across the
+line, is an approximation.  Where the monthly means also hold
+`normalLayerThicknessFlux`, the step compares the two each month in the
+time series' `overturningMethodDifference`, warns where they differ by
+more than `overturning_method_tolerance` of the strength, and plots the
+overturning from that flux in bins of elevation as well.  A run without
+these inputs gets the overturning from its monthly means of velocity and
+thickness, which streaks where columns wet and dry within a month.
+
 The color ranges of maps and sections are in
 `[misomip_analysis_color_ranges]`, as `minimum, maximum`.  Temperature,
 draft and bathymetry have fixed ranges by default, the same in every run,
@@ -273,7 +287,8 @@ makes a conservative map from the run's mesh to the grid, and a
 with the protocol's variables.  Fields under the ice are averaged over the
 floating area in each grid cell and the others over its ocean area.  The
 overturning streamfunction is computed across each of the grid's lines of
-constant $x$, and the sections take the nearest cell to each point of the
+constant $x$, from the volume budget interpolated in $z$ where the run has
+its inputs, and the sections take the nearest cell to each point of the
 grid.  The tasks don't plot these files.
 
 ## Publishing

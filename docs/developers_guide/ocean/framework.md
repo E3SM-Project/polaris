@@ -1131,6 +1131,20 @@ layer's transport over bins of a given height by the fraction of the layer
 each overlaps, then accumulates it from the top.  The bins span all of the
 layers, so the stream function at the bottom is the line's total transport.
 
+Where monthly means of velocity and thickness would miss the transport of
+columns that wet and dry,
+{py:func}`polaris.ocean.overturning.compute_overturning_from_volume_budget()`
+gives the overturning on layer interfaces from the volume budget of the
+region on a line's low side: its change in thickness between snapshots,
+its sources and the mean vertical transport through its interfaces.
+{py:func}`polaris.ocean.overturning.compute_overturning_from_layer_flux()`
+gives the same from the thickness flux each layer carries across the
+line's edges, which checks it.
+{py:func}`polaris.ocean.overturning.compute_line_interface_elevations()`
+gives each interface's mean elevation along the line, and
+{py:func}`polaris.ocean.overturning.interp_overturning_to_z()` interpolates
+the overturning from there to fixed elevations.
+
 (dev-ocean-analysis)=
 
 ## Analysis of completed simulations

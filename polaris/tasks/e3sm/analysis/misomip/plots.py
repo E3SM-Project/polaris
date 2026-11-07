@@ -579,10 +579,69 @@ class RunPlots(ProductStep):
             )
 
     def _plot_overturning(self, ds_mean, months):
-        """Plot the overturning streamfunction in x and z"""
-        osf = ds_mean.overturningStreamfunction
-        plot = 'overturning_streamfunction.png'
-        data = 'overturning_streamfunction.nc'
+        """Plot the overturning streamfunction in x and z: from the volume
+        budget on layer interfaces where the run has its inputs, and from
+        the layer thickness flux in bins of elevation where the run writes
+        it"""
+        if 'overturningStreamfunctionLayers' in ds_mean:
+            osf = ds_mean.overturningStreamfunctionLayers
+            elevation = ds_mean.overturningInterfaceElevation
+            # lines with no water, without interfaces, are left out
+            has_water = np.isfinite(elevation).all(dim='nVertLevelsP1')
+            shown = osf.where(has_water, drop=True)
+            shown_elevation = elevation.where(has_water, drop=True)
+            x = shown.x.broadcast_like(shown).transpose('nVertLevelsP1', 'x')
+            self._plot_overturning_field(
+                x.values,
+                shown_elevation.transpose('nVertLevelsP1', 'x').values,
+                shown.transpose('nVertLevelsP1', 'x'),
+                xr.Dataset(
+                    dict(
+                        overturningStreamfunctionLayers=osf,
+                        overturningInterfaceElevation=elevation,
+                        overturningStreamfunction=(
+                            ds_mean.overturningStreamfunction
+                        ),
+                    )
+                ),
+                'overturning_streamfunction',
+                f'Overturning streamfunction from the volume budget, '
+                f'{months},\n{self.label}, on layer interfaces at their '
+                f'mean elevation along each line',
+                'Overturning streamfunction',
+            )
+        else:
+            osf = ds_mean.overturningStreamfunction
+            self._plot_overturning_field(
+                osf.x.values,
+                osf.zInterface.values,
+                osf,
+                osf.to_dataset(),
+                'overturning_streamfunction',
+                f'Overturning streamfunction, {months}, {self.label},\n'
+                f'from the monthly means of velocity and thickness',
+                'Overturning streamfunction',
+            )
+        if 'overturningStreamfunctionLayerFlux' in ds_mean:
+            osf = ds_mean.overturningStreamfunctionLayerFlux
+            self._plot_overturning_field(
+                osf.x.values,
+                osf.zInterface.values,
+                osf,
+                osf.to_dataset(),
+                'overturning_streamfunction_layer_flux',
+                f'Overturning streamfunction from the layer thickness flux, '
+                f'{months},\n{self.label}, in bins of elevation',
+                'Overturning streamfunction from the layer thickness flux',
+            )
+
+    def _plot_overturning_field(
+        self, x, z, osf, ds_data, stem, title, product_title
+    ):
+        """Plot one overturning streamfunction and describe it as a
+        product"""
+        plot = f'{stem}.png'
+        data = f'{stem}.nc'
         vmin, vmax = get_color_range(
             self.config, 'overturningStreamfunction', osf
         )
@@ -590,8 +649,8 @@ class RunPlots(ProductStep):
             fig = Figure(figsize=(10.0, 4.0))
             ax = fig.add_subplot(111)
             mesh = ax.pcolormesh(
-                osf.x.values,
-                osf.zInterface.values,
+                x,
+                z,
                 osf.values,
                 cmap='cmo.curl',
                 vmin=vmin,
@@ -600,17 +659,17 @@ class RunPlots(ProductStep):
             )
             ax.set_xlabel('x (km)')
             ax.set_ylabel('z (m)')
-            ax.set_title(f'Overturning streamfunction, {months}, {self.label}')
+            ax.set_title(title)
             cbar = fig.colorbar(mesh, ax=ax)
             cbar.set_label('Sv')
             fig.savefig(plot, bbox_inches='tight')
-        write_netcdf(osf.to_dataset(), data)
+        write_netcdf(ds_data, data)
         self.add_product(
             plot=plot,
             data=data,
             group=self.kind,
             gallery='circulation',
-            title='Overturning streamfunction',
+            title=product_title,
         )
 
     def _plot_melt_by_draft(self, ds_mean, months):

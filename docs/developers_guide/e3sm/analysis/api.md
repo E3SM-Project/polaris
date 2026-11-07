@@ -31,6 +31,9 @@
    diagnostics.read_initial_condition
    diagnostics.compute_daily_volume_budget
    diagnostics.isomip_mesh
+   diagnostics.read_layer_thickness_snapshots
+   diagnostics.compute_budget_overturning
+   diagnostics.get_budget_lines
    plots.RunPlots
    plots.RunPlots.run
    plots.get_map_mask

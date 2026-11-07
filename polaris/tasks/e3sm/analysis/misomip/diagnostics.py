@@ -30,14 +30,19 @@ from polaris.ocean.ice_shelf.diagnostics import (
     get_open_ocean_mask,
 )
 from polaris.ocean.overturning import (
+    compute_line_interface_elevations,
     compute_line_interfaces,
     compute_line_transport,
+    compute_overturning_from_layer_flux,
+    compute_overturning_from_volume_budget,
     compute_overturning_in_z,
     get_line_edges,
+    interp_overturning_to_z,
 )
 from polaris.tasks.e3sm.analysis.misomip.runs import (
     DAILY_MEANS_STREAM,
     DAILY_STREAM,
+    SNAPSHOT_STREAM,
     get_mean_months,
 )
 
@@ -50,6 +55,7 @@ DAILY_EXCHANGE_FILENAME = 'daily_exchange.nc'
 DAILY_VOLUME_FILENAME = 'daily_volume.nc'
 INIT_FILENAME = 'init.nc'
 MESH_FILENAME = 'mesh.nc'
+MONTHLY_OVERTURNING_FILENAME = 'monthly_overturning.nc'
 LANDICE_FILENAME = 'landice.nc'
 LANDICE_INIT_FILENAME = 'landice_init.nc'
 
@@ -178,6 +184,17 @@ class RunDiagnostics(Step):
         self.daily_mean_filenames = self._add_daily_inputs(
             daily_means, 'daily_means', first, last
         )
+        try:
+            snapshots = run.find_stream_files(SNAPSHOT_STREAM)
+        except ValueError:
+            # the run's streams file has no snapshots of layer thickness
+            snapshots = []
+        self.snapshot_filenames = self._add_snapshot_inputs(
+            snapshots, first, last
+        )
+        # only a run that starts from its own initial condition has that
+        # condition's layer thickness at its first month's start
+        self.starts_from_initial_condition = configured_run.continues is None
         if self.daily_mean_filenames:
             self.add_output_file(filename=DAILY_EXCHANGE_FILENAME)
         self.has_daily_volume = bool(
@@ -227,6 +244,24 @@ class RunDiagnostics(Step):
             ):
                 filename = os.path.join(
                     subdir, os.path.basename(stream_file.path)
+                )
+                self.add_input_file(filename=filename, target=stream_file.path)
+                filenames.append(filename)
+        return filenames
+
+    def _add_snapshot_inputs(self, stream_files, first, last):
+        """Link the snapshots of layer thickness at the start of each month
+        of the monthly means and at the end of the last"""
+        end = (last.year + last.month // 12, last.month % 12 + 1)
+        filenames = []
+        for stream_file in stream_files:
+            if (
+                (first.year, first.month)
+                <= (stream_file.year, stream_file.month)
+                <= end
+            ):
+                filename = os.path.join(
+                    'snapshots', os.path.basename(stream_file.path)
                 )
                 self.add_input_file(filename=filename, target=stream_file.path)
                 filenames.append(filename)
@@ -308,6 +343,16 @@ class RunDiagnostics(Step):
             bottom_slab=section.getfloat('bottom_slab_thickness'),
         )
         ds_series = xr.merge([ds_series, strengths])
+        ds_osf = self._budget_overturning(ds, ds_init, section)
+        ds_series = _add_budget_strengths(
+            ds_series,
+            ds_osf,
+            ds_init,
+            geometry,
+            [_start_date(ds, index) for index in range(ds.sizes['Time'])],
+            self.logger,
+            section,
+        )
         ds_series['openOceanSshOffset'] = (
             ds_series.openOceanSshResidual
             - ds_series.openOceanBottomGeostrophicSsh
@@ -333,6 +378,9 @@ class RunDiagnostics(Step):
             dz=section.getfloat('overturning_dz'),
             min_thickness=self.min_thickness,
         )
+        ds_mean = _add_budget_mean(
+            ds_mean, ds_osf, ds, ds_end, ds_init, count, section
+        )
         ds_mean.attrs['first_month'] = _start_date(ds_end, 0)
         ds_mean.attrs['last_month'] = _start_date(ds_end, -1)
         ds_mean.attrs['month_count'] = count
@@ -357,6 +405,30 @@ class RunDiagnostics(Step):
         if self.landice_filenames:
             section_y = section.getfloat('section_y')
             write_netcdf(self._landice(section_y), LANDICE_FILENAME)
+
+    def _budget_overturning(self, ds, ds_init, section):
+        """The monthly overturning on layer interfaces from the volume
+        budget, if the run wrote its inputs, written for the protocol's
+        fields too"""
+        if not self.snapshot_filenames:
+            return None
+        self.logger.info('computing the overturning from the volume budget')
+        x_lines = get_budget_lines(
+            ds_init,
+            section.getfloat('overturning_dx'),
+            section.getfloat('restoring_x'),
+        )
+        ds_osf = compute_budget_overturning(
+            ds,
+            ds_init,
+            read_layer_thickness_snapshots(self.snapshot_filenames),
+            x_lines,
+            self.ref_density,
+            initial_day=0.0 if self.starts_from_initial_condition else None,
+        )
+        if ds_osf is not None:
+            write_netcdf(_add_time(ds_osf, ds), MONTHLY_OVERTURNING_FILENAME)
+        return ds_osf
 
     def _landice(self, section_y):
         """
@@ -744,6 +816,194 @@ def _melt_and_frazil(ds_means, area, ref_density):
     else:
         source = 'freshwater flux'
     return sum(terms), source
+
+
+def read_layer_thickness_snapshots(filenames):
+    """
+    Read the ocean's snapshots of layer thickness
+
+    Parameters
+    ----------
+    filenames : list of str
+        The snapshot files
+
+    Returns
+    -------
+    snapshots : dict of float to xarray.DataArray
+        The layer thickness (m) at each snapshot, by days since 0001-01-01
+    """
+    snapshots = dict()
+    for filename in filenames:
+        with xr.open_dataset(filename, decode_times=False) as ds:
+            days = np.atleast_1d(xtime_to_days(ds.xtime.values))
+            for index, day in enumerate(days):
+                snapshots[round(float(day), 6)] = ds.layerThickness.isel(
+                    Time=index
+                ).load()
+    return snapshots
+
+
+def compute_budget_overturning(
+    ds, ds_init, snapshots, x_lines, ref_density, initial_day=None
+):
+    """
+    Compute each month's overturning streamfunction on layer interfaces
+    across lines of constant x from the volume budget of the region west of
+    each line, and, where the monthly means hold the layer thickness flux,
+    from that flux as a check
+
+    Parameters
+    ----------
+    ds : xarray.Dataset
+        The monthly means, without their prefix, with
+        ``vertAleTransportTop``, ``landIceFreshwaterFlux``, ``ssh`` and
+        ``layerThickness`` and, if the run writes them,
+        ``frazilLayerThicknessTendency`` and ``normalLayerThicknessFlux``
+
+    ds_init : xarray.Dataset
+        The initial condition, with the mesh
+
+    snapshots : dict of float to xarray.DataArray
+        The layer thickness at the months' starts and ends, from
+        :py:func:`read_layer_thickness_snapshots`
+
+    x_lines : numpy.ndarray
+        The lines' x (m) in the protocol's coordinates, west of the
+        restoring region, whose thickness the tidal forcing sets
+
+    ref_density : float
+        The density (kg m-3) that turns the melt flux into a thickness
+
+    initial_day : float, optional
+        The day of the run's initial condition, whose layer thickness
+        stands in for a missing snapshot at that day
+
+    Returns
+    -------
+    ds_osf : xarray.Dataset or None
+        ``overturningBudget`` (Sv), from the volume budget, and
+        ``interfaceElevation`` (m), the interfaces' mean elevation along
+        each line, and with the flux, ``overturningLayerFlux`` (Sv), on
+        ``Time``, ``x`` (km) and ``nVertLevelsP1``, with NaN in months
+        without the inputs; ``None`` if no month has them
+    """
+    if 'vertAleTransportTop' not in ds:
+        return None
+    ds_mesh = isomip_mesh(ds_init)
+    lines = [get_line_edges(ds_mesh, 'x', x_line) for x_line in x_lines]
+    has_flux = 'normalLayerThicknessFlux' in ds
+    top = ds_init.minLevelCell - 1
+    levels = xr.DataArray(
+        np.arange(ds.sizes['nVertLevels']), dims='nVertLevels'
+    )
+    count = ds.sizes['Time']
+    n_interfaces = ds.sizes['nVertLevels'] + 1
+    shape = (count, len(x_lines), n_interfaces)
+    budget = np.full(shape, np.nan)
+    layer_flux = np.full(shape, np.nan)
+    elevation = np.full(shape, np.nan)
+    found = False
+    for t_index in range(count):
+        month = ds.isel(Time=t_index)
+        start = _day_of(month.xtime_startMonthly)
+        end = _day_of(month.xtime_endMonthly)
+        thickness_start = snapshots.get(start)
+        if thickness_start is None and initial_day is not None:
+            if abs(start - initial_day) < 1e-6:
+                thickness_start = ds_init.layerThickness
+        thickness_end = snapshots.get(end)
+        if thickness_start is None or thickness_end is None:
+            continue
+        found = True
+        source = xr.where(
+            levels == top,
+            _without_fill(month.landIceFreshwaterFlux) / ref_density,
+            0.0,
+        )
+        if 'frazilLayerThicknessTendency' in month:
+            source = source + _without_fill(month.frazilLayerThicknessTendency)
+        vert = _without_fill(month.vertAleTransportTop)
+        for i_x, (x_line, line) in enumerate(zip(x_lines, lines, strict=True)):
+            if line.sizes['nLineEdges'] == 0:
+                continue
+            budget[t_index, i_x] = 1e-6 * (
+                compute_overturning_from_volume_budget(
+                    ds_mesh.xCell < x_line,
+                    ds_init.areaCell,
+                    thickness_start,
+                    thickness_end,
+                    86400.0 * (end - start),
+                    vert,
+                    source,
+                ).values
+            )
+            elevation[t_index, i_x] = compute_line_interface_elevations(
+                line, month.ssh, month.layerThickness
+            ).values
+            if has_flux:
+                layer_flux[t_index, i_x] = 1e-6 * (
+                    compute_overturning_from_layer_flux(
+                        line, _without_fill(month.normalLayerThicknessFlux)
+                    ).values
+                )
+    if not found:
+        return None
+    dims = ('Time', 'x', 'nVertLevelsP1')
+    ds_osf = xr.Dataset()
+    ds_osf['overturningBudget'] = (dims, budget)
+    ds_osf.overturningBudget.attrs = dict(
+        long_name=(
+            'overturning streamfunction on layer interfaces, from the '
+            'volume budget west of each line'
+        ),
+        units='Sv',
+    )
+    ds_osf['interfaceElevation'] = (dims, elevation)
+    ds_osf.interfaceElevation.attrs = dict(
+        long_name='mean elevation of each layer interface along the line',
+        units='m',
+    )
+    if has_flux:
+        ds_osf['overturningLayerFlux'] = (dims, layer_flux)
+        ds_osf.overturningLayerFlux.attrs = dict(
+            long_name=(
+                'overturning streamfunction on layer interfaces, from the '
+                'layer thickness flux across each line'
+            ),
+            units='Sv',
+        )
+    ds_osf.coords['x'] = ('x', 1e-3 * np.asarray(x_lines))
+    ds_osf.x.attrs = dict(long_name='x', units='km')
+    return ds_osf
+
+
+def get_budget_lines(ds_init, dx, restoring_x):
+    """
+    The x (m) of the lines across which the overturning comes from the
+    volume budget: every ``dx`` across the domain, west of the restoring
+    region, whose thickness the tidal forcing sets
+
+    Parameters
+    ----------
+    ds_init : xarray.Dataset
+        The initial condition, with the mesh
+
+    dx : float
+        The spacing (m) of the lines
+
+    restoring_x : float
+        The x (m) from which the region is restored
+
+    Returns
+    -------
+    x_lines : numpy.ndarray
+        The lines' x (m)
+    """
+    x_cell = ds_init.xIsomipCell.values
+    x_lines = dx * np.arange(
+        np.floor(x_cell.min() / dx) + 1, np.ceil(x_cell.max() / dx)
+    )
+    return x_lines[x_lines <= restoring_x]
 
 
 def _has_tidal_forcing(run):
@@ -1177,10 +1437,12 @@ def _cell_mean_of_vertices(ds_init, field_vertex):
     return values.where(valid).mean(dim='maxEdges')
 
 
-def _overturning(ds, ds_init, dx, dz):
+def _overturning(ds, ds_init, dx, dz, layer_flux=None):
     """
     The overturning streamfunction (Sv) across lines of constant x, in the
-    protocol's coordinates, on bins of elevation shared by every line
+    protocol's coordinates, on bins of elevation shared by every line, from
+    the means of velocity and thickness, or from a mean layer thickness
+    flux (m2 s-1) on edges where given
     """
     ds_mesh = isomip_mesh(ds_init)
     x_min = float(ds_mesh.xCell.min())
@@ -1194,9 +1456,16 @@ def _overturning(ds, ds_init, dx, dz):
         line = get_line_edges(ds_mesh, 'x', x_line)
         if line.sizes['nLineEdges'] == 0:
             continue
-        transport = compute_line_transport(
-            line, ds.normalVelocity, ds.layerThickness
-        )
+        if layer_flux is None:
+            transport = compute_line_transport(
+                line, ds.normalVelocity, ds.layerThickness
+            )
+        else:
+            transport = (
+                layer_flux.isel(nEdges=line.edgeIndex)
+                * line.sign
+                * line.dvEdge
+            )
         z_top, z_bottom = compute_line_interfaces(
             line, ds.ssh, ds.layerThickness
         )
@@ -1263,3 +1532,154 @@ def _add_time(ds_out, ds):
         long_name='time since the start of year 1', units='years'
     )
     return ds_out
+
+
+def _without_fill(field):
+    """A monthly mean with the fill value of invalid layers set to zero"""
+    return field.where(np.abs(field) < 1e30, 0.0)
+
+
+def _add_budget_strengths(
+    ds_series, ds_osf, ds_init, geometry, dates, logger, section
+):
+    """
+    Take the overturning's strength from the volume budget in the months it
+    has, keeping the one from the monthly means apart, and compare the
+    budget with the layer thickness flux where the run writes it
+    """
+    ds_series['overturningStrengthFromMeans'] = ds_series.overturningStrength
+    ds_series.overturningStrengthFromMeans.attrs = dict(
+        long_name=(
+            'range of the overturning streamfunction under the ice, from the '
+            'monthly means of velocity and thickness'
+        ),
+        units='Sv',
+    )
+    if ds_osf is None:
+        ds_series.overturningStrength.attrs['method'] = (
+            'monthly means of velocity and thickness'
+        )
+        return ds_series
+    floating = geometry['landIceFloatingFraction'] > 0.0
+    strength = ds_series.overturningStrength.values.copy()
+    for t_index in range(ds_osf.sizes['Time']):
+        budget = ds_osf.overturningBudget.isel(Time=t_index)
+        if not np.any(np.isfinite(budget.values)):
+            continue
+        floating_month = floating
+        if 'Time' in floating.dims:
+            floating_month = floating.isel(Time=t_index)
+        under_ice = budget.x <= _ice_front_x(ds_init, floating_month)
+        strength[t_index] = _range_where(budget, under_ice)
+    ds_series['overturningStrength'] = ('Time', strength)
+    ds_series.overturningStrength.attrs = dict(
+        long_name='range of the overturning streamfunction under the ice',
+        units='Sv',
+        method=(
+            'volume budget, in the months with its inputs, and the monthly '
+            'means of velocity and thickness otherwise'
+        ),
+    )
+    if 'overturningLayerFlux' in ds_osf:
+        difference = np.abs(
+            ds_osf.overturningBudget - ds_osf.overturningLayerFlux
+        ).max(dim=['x', 'nVertLevelsP1'])
+        ds_series['overturningMethodDifference'] = (
+            'Time',
+            difference.values,
+        )
+        ds_series.overturningMethodDifference.attrs = dict(
+            long_name=(
+                'largest difference between the overturning from the volume '
+                'budget and from the layer thickness flux'
+            ),
+            units='Sv',
+        )
+        tolerance = section.getfloat('overturning_method_tolerance')
+        relative = difference.values / np.where(strength > 0.0, strength, 1.0)
+        for date, value, share in zip(
+            dates, difference.values, relative, strict=True
+        ):
+            message = (
+                f'overturning month {date}: methods differ by at most '
+                f'{value:.3g} Sv, {share:.2%} of the strength'
+            )
+            if share > tolerance:
+                logger.warning(f'WARNING: {message}')
+            else:
+                logger.info(message)
+    return ds_series
+
+
+def _add_budget_mean(ds_mean, ds_osf, ds, ds_end, ds_init, count, section):
+    """
+    Add the overturning from the volume budget over the months of the time
+    mean, on layer interfaces and interpolated to the elevations of the
+    streamfunction from the monthly means, which it replaces; and, where
+    the run writes the layer thickness flux, the streamfunction from that
+    flux in bins of elevation
+    """
+    from_means = ds_mean.overturningStreamfunction
+    ds_mean['overturningStreamfunction'].attrs['method'] = (
+        'monthly means of velocity and thickness'
+    )
+    if ds_osf is None:
+        return ds_mean
+    ds_osf_end = ds_osf.isel(Time=slice(-count, None))
+    days = 86400.0 * (
+        xtime_to_days(ds_end.xtime_endMonthly.values)
+        - xtime_to_days(ds_end.xtime_startMonthly.values)
+    )
+    budget = ds_osf_end.overturningBudget
+    # a month without the snapshots has no budget on any line
+    if not np.all(np.any(np.isfinite(budget.values), axis=(1, 2))):
+        return ds_mean
+    weights = xr.DataArray(days / days.sum(), dims='Time')
+    layers = (budget * weights).sum(dim='Time', skipna=False)
+    elevation = (ds_osf_end.interfaceElevation * weights).sum(
+        dim='Time', skipna=False
+    )
+    ds_mean['overturningStreamfunctionFromMeans'] = from_means
+    ds_mean['overturningStreamfunctionLayers'] = layers
+    ds_mean.overturningStreamfunctionLayers.attrs = dict(
+        budget.attrs, method='volume budget'
+    )
+    ds_mean['overturningInterfaceElevation'] = elevation
+    ds_mean.overturningInterfaceElevation.attrs = dict(
+        ds_osf.interfaceElevation.attrs
+    )
+    in_z = interp_overturning_to_z(
+        layers, elevation, from_means.zInterface.values
+    ).transpose('nZInterfaces', 'x')
+    in_z = in_z.reindex(x=from_means.x.values)
+    ds_mean['overturningStreamfunction'] = (
+        ('nZInterfaces', 'x'),
+        in_z.values,
+    )
+    ds_mean.overturningStreamfunction.attrs = dict(
+        long_name='overturning streamfunction',
+        units='Sv',
+        method=(
+            'volume budget, interpolated in z from the mean elevations of '
+            'the layer interfaces along each line'
+        ),
+    )
+    if 'normalLayerThicknessFlux' in ds_end:
+        flux = _without_fill(ds_end.normalLayerThicknessFlux).mean(dim='Time')
+        ds_mean['overturningStreamfunctionLayerFlux'] = _overturning(
+            ds_end.mean(dim='Time').expand_dims('Time'),
+            ds_init,
+            section.getfloat('overturning_dx'),
+            section.getfloat('overturning_dz'),
+            layer_flux=flux,
+        ).isel(Time=0)
+        ds_mean.overturningStreamfunctionLayerFlux.attrs['method'] = (
+            'layer thickness flux, in bins of elevation'
+        )
+    return ds_mean
+
+
+def _day_of(xtime):
+    """The day since 0001-01-01 of one date, rounded to a millionth"""
+    days = np.atleast_1d(xtime_to_days(np.atleast_1d(xtime.values)))
+    return round(float(days[0]), 6)
