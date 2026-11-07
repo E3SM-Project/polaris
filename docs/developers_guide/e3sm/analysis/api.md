@@ -33,6 +33,12 @@
    diagnostics.isomip_mesh
    plots.RunPlots
    plots.RunPlots.run
+   plots.get_map_mask
+   plots.get_range_mask
+   plots.get_hatched_cells
+   plots.get_color_range
+   plots.get_color_norm
+   plots.plot_section
    comparison.RunComparison
    comparison.RunComparison.run
    conservation.CouplerConservation
@@ -49,7 +55,9 @@
    ice_sheet.IceSheetComparison
    ice_sheet.IceSheetComparison.setup
    ice_sheet.IceSheetComparison.run
+   ice_sheet.read_landice_history
    ice_sheet.read_landice_stats
+   ice_sheet.get_lines_range
    published.PublishedComparison
    published.PublishedComparison.run
    yung2026.Yung2026

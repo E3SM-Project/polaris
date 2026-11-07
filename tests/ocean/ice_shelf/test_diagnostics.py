@@ -10,6 +10,7 @@ from polaris.ocean.ice_shelf.diagnostics import (
     compute_melt_rate_by_draft,
     compute_open_ocean_ssh_diagnostics,
     compute_thin_film_diagnostics,
+    get_film_columns,
 )
 
 #: Four cells: fully floating, half floating, grounded and open ocean
@@ -171,6 +172,20 @@ def test_a_thin_film_is_dry_under_grounded_ice_only():
 
     assert float(ds_diag.dryAreaUnderGroundedIce) == 3.0e6
     assert float(ds_diag.openOceanMeanSsh) == pytest.approx(0.1)
+
+
+def test_the_film_is_under_grounded_ice_or_dry():
+    """The grounded cell holds the film, and so does a floating cell whose
+    column is under twice the minimum thickness of its layers"""
+    ssh = xr.DataArray([-300.0, -199.999, -49.0, 0.1], dims='nCells')
+    bottom_depth = xr.DataArray([500.0, 200.0, 50.0, 500.0], dims='nCells')
+    levels = xr.DataArray([10, 10, 2, 10], dims='nCells')
+
+    film = get_film_columns(
+        ssh, bottom_depth, levels, LAND_ICE, FLOATING, 1.0e-3
+    )
+
+    np.testing.assert_array_equal(film.values, [False, True, True, False])
 
 
 def test_open_ocean_ssh_is_compared_with_the_height_density_implies():

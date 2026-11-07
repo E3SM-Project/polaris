@@ -26,6 +26,8 @@ from polaris.ocean.ice_shelf.diagnostics import (
     compute_open_ocean_ssh_diagnostics,
     compute_thermal_driving,
     compute_thin_film_diagnostics,
+    compute_wet_time_mean,
+    get_film_columns,
     get_open_ocean_mask,
 )
 from polaris.ocean.overturning import (
@@ -54,6 +56,29 @@ LANDICE_INIT_FILENAME = 'landice_init.nc'
 
 #: MALI's history stream
 LANDICE_STREAM = 'output'
+
+#: The fields of the ocean's state whose means over several months take
+#: only the months each column is wet, each with the field that weights
+#: them, or ``None`` to weight the months equally.  Fluxes, such as melt and
+#: the transports, keep their means over all months.
+WET_MEAN_WEIGHTS = {
+    'temperature': 'layerThickness',
+    'salinity': 'layerThickness',
+    'velocityZonal': 'layerThickness',
+    'velocityMeridional': 'layerThickness',
+    'temperatureBottom': 'layerThicknessBottom',
+    'salinityBottom': 'layerThicknessBottom',
+    'layerThickness': None,
+    'layerThicknessBottom': None,
+    'ssh': None,
+    'landIceBoundaryLayerTemperature': None,
+    'landIceBoundaryLayerSalinity': None,
+    'landIceInterfaceTemperature': None,
+    'landIceInterfaceSalinity': None,
+    'landIceFrictionVelocity': None,
+    'thermalDriving': None,
+    'halineDriving': None,
+}
 
 #: The fields of the daily global statistics kept for comparisons
 DAILY_FIELDS = [
@@ -294,6 +319,7 @@ class RunDiagnostics(Step):
         ds = ds.load()
         ds = _add_bottom_values(ds, ds_init)
         geometry = _geometry(ds, ds_init)
+        ds = _add_wet_columns(ds, ds_init, geometry, self.min_thickness)
 
         ds_series = _time_series(
             ds,
@@ -339,6 +365,7 @@ class RunDiagnostics(Step):
             draft_bin_width=section.getfloat('draft_bin_width'),
             dx=section.getfloat('overturning_dx'),
             dz=section.getfloat('overturning_dz'),
+            min_thickness=self.min_thickness,
         )
         ds_mean.attrs['first_month'] = _start_date(ds_end, 0)
         ds_mean.attrs['last_month'] = _start_date(ds_end, -1)
@@ -1022,6 +1049,52 @@ def isomip_mesh(ds_init):
     return ds_mesh
 
 
+def compute_time_means(ds):
+    """
+    Compute the means of monthly fields over several months
+
+    The ocean's state, each field in :py:data:`WET_MEAN_WEIGHTS`, is
+    averaged over the months its column is wet, weighted by the thickness
+    of its layer for a field on layers.  A column that is wet in no month
+    holds only the thin film and keeps its plain mean.  Other fields, such
+    as fluxes and transports, are averaged over all months.
+
+    Parameters
+    ----------
+    ds : xarray.Dataset
+        Monthly fields with a ``Time`` dimension and ``wetColumn``, whether
+        each column is wet in each month
+
+    Returns
+    -------
+    ds_mean : xarray.Dataset
+        The means, with ``filmColumn``, the columns wet in no month, and
+        ``partlyWetColumn``, those wet in only some months
+    """
+    wet = ds.wetColumn > 0
+    ds_mean = ds.drop_vars('wetColumn').mean(dim='Time')
+    for name, weight in WET_MEAN_WEIGHTS.items():
+        if name in ds:
+            ds_mean[name] = compute_wet_time_mean(
+                ds[name], wet, None if weight is None else ds[weight]
+            )
+    count = wet.sum(dim='Time')
+    ds_mean['filmColumn'] = (count == 0).astype(np.int8)
+    ds_mean.filmColumn.attrs = dict(
+        long_name=(
+            'columns under grounded ice, or thinner than twice the minimum '
+            'thickness of each of their active layers, in every month'
+        )
+    )
+    ds_mean['partlyWetColumn'] = np.logical_and(
+        count > 0, count < ds.sizes['Time']
+    ).astype(np.int8)
+    ds_mean.partlyWetColumn.attrs = dict(
+        long_name='columns wet in only some months, whose means take those'
+    )
+    return ds_mean
+
+
 def _open_without_time(filename):
     """Open a file, dropping a Time dimension of length one"""
     ds = xr.open_dataset(filename, decode_times=False)
@@ -1054,10 +1127,31 @@ def _geometry(ds, ds_init):
 
 
 def _add_bottom_values(ds, ds_init):
-    """Add the temperature and salinity in each column's bottom layer"""
+    """Add the temperature, salinity and thickness of each column's bottom
+    layer"""
     bottom = ds_init.maxLevelCell - 1
-    for name in ['temperature', 'salinity']:
+    for name in ['temperature', 'salinity', 'layerThickness']:
         ds[f'{name}Bottom'] = ds[name].isel(nVertLevels=bottom)
+    return ds
+
+
+def _add_wet_columns(ds, ds_init, geometry, min_thickness):
+    """Add whether each column is wet, rather than holding only the thin
+    film, in each month"""
+    level_count = ds_init.maxLevelCell - ds_init.minLevelCell + 1
+    film = get_film_columns(
+        ds.ssh,
+        ds_init.bottomDepth,
+        level_count,
+        geometry['landIceFraction'],
+        geometry['landIceFloatingFraction'],
+        min_thickness,
+    )
+    ds['wetColumn'] = np.logical_not(film).astype(np.int8)
+    ds.wetColumn.attrs = dict(
+        long_name='whether the column is wet, rather than holding only the '
+        'thin film'
+    )
     return ds
 
 
@@ -1163,6 +1257,8 @@ def _streamfunction_strengths(
     bsf_range = []
     osf_range = []
     gyre = []
+    gyre_max = []
+    gyre_min = []
     bottom_height = []
     for t_index in range(ds.sizes['Time']):
         ds_month = ds.isel(Time=slice(t_index, t_index + 1))
@@ -1179,6 +1275,8 @@ def _streamfunction_strengths(
         )
         bsf_range.append(_range_where(bsf_cell, floating_month))
         gyre.append(_extremum_where(bsf_cell, open_month))
+        gyre_max.append(float(bsf_cell.where(open_month).max()))
+        gyre_min.append(float(bsf_cell.where(open_month).min()))
         height = _bottom_geostrophic_height(
             ds_init, ds_month.isel(Time=0), seafloor, bottom_slab
         )
@@ -1193,6 +1291,8 @@ def _streamfunction_strengths(
     ds_strength['barotropicStrength'] = ('Time', np.array(bsf_range))
     ds_strength['overturningStrength'] = ('Time', np.array(osf_range))
     ds_strength['openOceanGyreStrength'] = ('Time', np.array(gyre))
+    ds_strength['openOceanGyreMax'] = ('Time', np.array(gyre_max))
+    ds_strength['openOceanGyreMin'] = ('Time', np.array(gyre_min))
     ds_strength['openOceanBottomGeostrophicSsh'] = (
         'Time',
         np.array(bottom_height),
@@ -1212,6 +1312,14 @@ def _streamfunction_strengths(
         ),
         units='Sv',
     )
+    ds_strength.openOceanGyreMax.attrs = dict(
+        long_name='the largest barotropic streamfunction in the open ocean',
+        units='Sv',
+    )
+    ds_strength.openOceanGyreMin.attrs = dict(
+        long_name='the smallest barotropic streamfunction in the open ocean',
+        units='Sv',
+    )
     ds_strength.openOceanBottomGeostrophicSsh.attrs = dict(
         long_name=(
             "the open ocean's mean geostrophic height of the flow above the "
@@ -1223,11 +1331,23 @@ def _streamfunction_strengths(
 
 
 def _time_mean(ds, ds_init, geometry, draft_bin_width, dx, dz):
-    """Compute the time means of maps and sections over the given months"""
-    ds_mean = ds.mean(dim='Time')
+    """
+    Compute the time means of maps and sections over the given months: the
+    ocean's state over the months each column is wet, the fluxes and
+    transports over all months
+    """
+    # the plain means, for the transports
+    ds_all = ds.mean(dim='Time')
+    ds_mean = compute_time_means(ds)
     floating_fraction = geometry['landIceFloatingFraction']
     if 'Time' in floating_fraction.dims:
         floating_fraction = floating_fraction.mean(dim='Time')
+    land_ice_fraction = geometry['landIceFraction']
+    if 'Time' in land_ice_fraction.dims:
+        land_ice_fraction = land_ice_fraction.mean(dim='Time')
+    draft = geometry['landIceDraft']
+    if 'Time' in draft.dims:
+        draft = draft.mean(dim='Time')
 
     ds_out = xr.Dataset()
     ds_out['meltRate'] = compute_melt_rate(ds_mean.landIceFreshwaterFlux)
@@ -1244,16 +1364,31 @@ def _time_mean(ds, ds_init, geometry, draft_bin_width, dx, dz):
     ]:
         ds_out[name] = ds_mean[name]
     ds_out['landIceFloatingFraction'] = floating_fraction
+    ds_out['landIceFraction'] = land_ice_fraction
+    ds_out['filmColumn'] = ds_mean.filmColumn
+    ds_out['partlyWetColumn'] = ds_mean.partlyWetColumn
+    top = ds_init.minLevelCell - 1
+    for name, velocity in [
+        ('uBoundaryLayer', 'velocityZonal'),
+        ('vBoundaryLayer', 'velocityMeridional'),
+    ]:
+        ds_out[name] = ds_mean[velocity].isel(nVertLevels=top)
+        ds_out[name].attrs = dict(
+            long_name=f'{velocity} in the top layer', units='m s-1'
+        )
+    ds_out['iceDraft'] = draft
+    ds_out.iceDraft.attrs = dict(long_name='ice draft', units='m')
+    ds_out['bathymetry'] = -ds_init.bottomDepth
+    ds_out.bathymetry.attrs = dict(
+        long_name='elevation of the seafloor', units='m'
+    )
     ds_out['barotropicStreamfunction'] = _barotropic_streamfunction(
-        ds_init, ds_mean
+        ds_init, ds_all
     )
     ds_out['overturningStreamfunction'] = _overturning(
-        ds_mean.expand_dims('Time'), ds_init, dx, dz
+        ds_all.expand_dims('Time'), ds_init, dx, dz
     ).isel(Time=0)
 
-    draft = geometry['landIceDraft']
-    if 'Time' in draft.dims:
-        draft = draft.mean(dim='Time')
     ds_bins = compute_melt_rate_by_draft(
         ds_init.areaCell,
         ds_mean.landIceFreshwaterFlux,
@@ -1276,9 +1411,13 @@ def _monthly_maps(ds):
         'ssh',
         'temperatureBottom',
         'salinityBottom',
+        'layerThicknessBottom',
     ]:
         ds_maps[name] = ds[name]
-    return ds_maps.astype('float32')
+    ds_maps = ds_maps.astype('float32')
+    # whether each column is wet, for means over several months
+    ds_maps['wetColumn'] = ds.wetColumn
+    return ds_maps
 
 
 def _barotropic_streamfunction(ds_init, ds_month):

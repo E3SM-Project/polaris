@@ -27,6 +27,8 @@ def plot_horiz_field(  # noqa: C901
     cmap_set_over=None,
     cmap_scale='linear',
     cmap_title=None,
+    norm=None,
+    cbar_ticks=None,
     figsize=None,
     vert_dim='nVertLevels',
     field_mask=None,
@@ -90,6 +92,14 @@ def plot_horiz_field(  # noqa: C901
 
     cmap_scale : {'log', 'linear'}, optional
         Whether the colormap is logarithmic or linear
+
+    norm : matplotlib.colors.Normalize, optional
+        A norm that maps values to colors, such as a
+        ``matplotlib.colors.BoundaryNorm`` for uneven bins, in place of
+        ``vmin``, ``vmax`` and ``cmap_scale``
+
+    cbar_ticks : list of float, optional
+        The color bar's ticks
 
     cmap_title : str, optional
         Title for color bar
@@ -185,7 +195,11 @@ def plot_horiz_field(  # noqa: C901
             pcolor_kwargs['edgecolor'] = 'black'
             pcolor_kwargs['linewidth'] = 0.25
 
-        if cmap_scale == 'log':
+        if norm is not None:
+            pcolor_kwargs['norm'] = norm
+            pcolor_kwargs.pop('vmin', None)
+            pcolor_kwargs.pop('vmax', None)
+        elif cmap_scale == 'log':
             pcolor_kwargs['norm'] = LogNorm(vmin=vmin, vmax=vmax, clip=False)
             pcolor_kwargs.pop('vmin', None)
             pcolor_kwargs.pop('vmax', None)
@@ -234,7 +248,9 @@ def plot_horiz_field(  # noqa: C901
         ax.xaxis.set_major_formatter(lambda x, pos: f'{x / 1e3:g}')
         ax.yaxis.set_major_formatter(lambda x, pos: f'{x / 1e3:g}')
 
-        cbar = fig.colorbar(collection, extend='both', shrink=0.7, ax=ax)
+        cbar = fig.colorbar(
+            collection, extend='both', shrink=0.7, ax=ax, ticks=cbar_ticks
+        )
         if cmap_title is not None:
             cbar.set_label(cmap_title)
 
@@ -329,6 +345,8 @@ def plot_horiz_comparison(
     cmap=None,
     cmap_title=None,
     cmap_scale='linear',
+    norm=None,
+    cbar_ticks=None,
     field_masks=None,
     include_difference=True,
     diff_cmap='cmo.balance',
@@ -366,6 +384,13 @@ def plot_horiz_comparison(
 
     cmap_scale : {'linear', 'log'}, optional
         The scale of the fields' color map
+
+    norm : matplotlib.colors.Normalize, optional
+        A norm shared by the fields' panels, in place of ``vmin``, ``vmax``
+        and ``cmap_scale``
+
+    cbar_ticks : list of float, optional
+        The ticks of the fields' color bars
 
     field_masks : list of xarray.DataArray, optional
         Where each field is valid
@@ -417,6 +442,8 @@ def plot_horiz_comparison(
                 cmap=cmap,
                 cmap_scale=cmap_scale,
                 cmap_title=cmap_title,
+                norm=norm,
+                cbar_ticks=cbar_ticks,
                 field_mask=mask,
                 descriptor=descriptor,
             )

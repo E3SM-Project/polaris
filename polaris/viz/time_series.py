@@ -54,6 +54,7 @@ def plot_time_series(
     ensemble_label='ensemble range',
     figsize=(8.0, 4.0),
     xlim=None,
+    ylim=None,
     legend_outside=False,
 ):
     """
@@ -90,6 +91,9 @@ def plot_time_series(
 
     xlim : tuple of float, optional
         The limits of the x axis
+
+    ylim : tuple of float, optional
+        The limits of the y axis, from the lines and the ensemble by default
 
     legend_outside : bool, optional
         Whether to place the legend to the right of the axes, so it hides no
@@ -135,6 +139,11 @@ def plot_time_series(
         ax.grid(True, alpha=0.3)
         if xlim is not None:
             ax.set_xlim(xlim)
+        if ylim is not None:
+            ax.set_ylim(ylim)
+        # values such as a volume of 36625 km3 read in full, not as an
+        # offset from it
+        ax.ticklabel_format(axis='y', useOffset=False)
         fig.savefig(out_filename, bbox_inches='tight')
 
 
