@@ -784,3 +784,13 @@ Rejected:
   enters the other at different depths, and the interior exchanges do not
   cancel at a fixed level. In Ocean1 it broke the field into bands of
   alternating sign.
+
+Open: the line along the ice front, where the draft steps from about
+−180 m to 0 over two partly floating cells, shows a narrow dipole in
+$\psi$, 0.10–0.16 Sv, 40–110 m deep, in the 2 km Ocean0 and IceOcean1r
+runs. It is in the exact flux, not from the method: finer placements of
+the flux in depth, by each edge's two cells' interfaces or by its upwind
+cell's, change it by −22% to +40%. Whether it is physical or a model error
+at the steep step in draft, such as in the pressure gradient, is open.
+From the second month on, it changes the overturning's strength by at most
+2%.
