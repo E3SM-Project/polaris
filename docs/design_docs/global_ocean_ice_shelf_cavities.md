@@ -63,6 +63,13 @@ Recommended: option 1.  The choice affects
 [Thin columns are a wet film](#requirement-thin-columns-are-a-wet-film) and
 its implementation.
 
+### Pressure gradient at film edges
+
+`realistic_global` runs MPAS-Ocean with `Jacobian_from_TS`, as E3SM does.
+ISOMIP+ uses `pressure_and_zmid`, and `Jacobian_from_TS` is known to
+misbehave next to thin films.  The first runs keep `Jacobian_from_TS`; a
+switch is one config option if the film edges need it.
+
 ### Thin films without a cull
 
 Treating every too-thin column as film, under both conventions, is the
