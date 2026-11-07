@@ -5,6 +5,7 @@ import xarray as xr
 from polaris.config import PolarisConfigParser
 from polaris.tasks.e3sm.analysis.misomip.ice_sheet import get_lines_range
 from polaris.tasks.e3sm.analysis.misomip.plots import (
+    get_color_norm,
     get_color_range,
     get_map_mask,
     get_range_mask,
@@ -106,6 +107,28 @@ def test_a_blank_range_of_a_velocity_is_centered_on_zero():
 
 def test_no_config_and_no_field_leave_the_range_to_the_plot():
     assert get_color_range(_config(), 'meltRate') == (None, None)
+
+
+def test_salinity_s_uneven_bins_serve_its_maps_and_sections():
+    """The bottom salinity uses salinity's bins, coarse where the film is
+    fresh and fine in the cavity's range"""
+    config = _config(
+        salinity_bounds='0.0, 30.0, 34.0, 34.5, 34.8',
+        salinity_ticks='0.0, 34.0, 34.8',
+    )
+    for name in ['salinity', 'salinityBottom']:
+        norm, ticks = get_color_norm(config, name, 'viridis')
+        np.testing.assert_array_equal(
+            norm.boundaries, [0.0, 30.0, 34.0, 34.5, 34.8]
+        )
+        assert norm.extend == 'both'
+        assert ticks == [0.0, 34.0, 34.8]
+
+
+def test_without_bounds_a_field_has_no_norm():
+    config = _config(temperature_bounds='')
+    assert get_color_norm(config, 'temperature', 'viridis') == (None, None)
+    assert get_color_norm(config, 'meltRate', 'viridis') == (None, None)
 
 
 def test_the_runs_set_the_y_range_not_the_ensemble():

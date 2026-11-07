@@ -15,6 +15,7 @@ from polaris.tasks.e3sm.analysis.misomip.diagnostics import (
 from polaris.tasks.e3sm.analysis.misomip.plots import (
     MAPS,
     TIME_SERIES,
+    get_color_norm,
     get_color_range,
     get_map_mask,
     get_range_mask,
@@ -232,6 +233,7 @@ class RunComparison(ProductStep):
             ]
             vmin = min(low for low, _ in ranges)
             vmax = max(high for _, high in ranges)
+            norm, ticks = get_color_norm(self.config, name, cmap)
             stem = f'{name}_comparison'
             plot = f'{stem}.png'
             data = f'{stem}.nc'
@@ -244,6 +246,8 @@ class RunComparison(ProductStep):
                 cmap_title=units,
                 vmin=vmin,
                 vmax=vmax,
+                norm=norm,
+                cbar_ticks=ticks,
                 field_masks=None if mask is None else [mask, mask],
                 boundaries=[floating],
                 suptitle=f'{title}, mean of {months}',

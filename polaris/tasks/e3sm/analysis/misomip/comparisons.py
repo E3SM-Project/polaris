@@ -20,6 +20,7 @@ from polaris.tasks.e3sm.analysis.misomip.plots import (
     MAPS,
     SYMMETRIC_FIELDS,
     TIME_SERIES,
+    get_color_norm,
     get_color_range,
     get_map_mask,
     get_range_mask,
@@ -172,6 +173,7 @@ class SeriesComparison(ProductStep):
             if any(mask is not None for mask in shown):
                 masks = shown
             vmin, vmax = _shared_range(self.config, name, fields, counted)
+            norm, ticks = get_color_norm(self.config, name, cmap)
             stem = f'{name}_maps'
             plot = f'{stem}.png'
             data = f'{stem}.nc'
@@ -185,6 +187,8 @@ class SeriesComparison(ProductStep):
                 field_masks=masks,
                 vmin=vmin,
                 vmax=vmax,
+                norm=norm,
+                cbar_ticks=ticks,
                 include_difference=False,
                 boundaries=floating,
                 suptitle=title,

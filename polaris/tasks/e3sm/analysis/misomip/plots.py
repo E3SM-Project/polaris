@@ -1,6 +1,8 @@
+import matplotlib
 import numpy as np
 import xarray as xr
 from matplotlib.collections import QuadMesh
+from matplotlib.colors import BoundaryNorm
 from matplotlib.figure import Figure
 from mpas_tools.io import write_netcdf
 from mpas_tools.ocean.viz.transect import compute_transect, plot_transect
@@ -491,6 +493,7 @@ class RunPlots(ProductStep):
             mask = get_map_mask(ds_mean, where)
             counted = get_range_mask(ds_mean, mask)
         vmin, vmax = get_color_range(self.config, name, field, counted)
+        norm, ticks = get_color_norm(self.config, name, cmap)
         plot = f'{name}_map.png'
         data = f'{name}_map.nc'
         with mplstyle_context():
@@ -506,6 +509,8 @@ class RunPlots(ProductStep):
                 descriptor=descriptor,
                 vmin=vmin,
                 vmax=vmax,
+                norm=norm,
+                cbar_ticks=ticks,
             )
             plot_mask_boundary(ax, ds_mesh, floating, linewidth=0.75)
             ax.set_title(f'{title}, {self.label}')
@@ -547,6 +552,7 @@ class RunPlots(ProductStep):
             data = f'{stem}.nc'
             field = ds_mean[name]
             vmin, vmax = get_color_range(self.config, name, field, counted)
+            norm, ticks = get_color_norm(self.config, name, cmap)
             plot_section(
                 ds_transect,
                 field,
@@ -558,6 +564,8 @@ class RunPlots(ProductStep):
                 vmax=vmax,
                 start=start,
                 distance_label=distance_label,
+                norm=norm,
+                ticks=ticks,
             )
             ds_data = ds_transect.copy()
             ds_data[name] = ds_mean[name]
@@ -813,6 +821,44 @@ def get_color_range(config, name, field=None, counted=None):
     return vmin, vmax
 
 
+def get_color_norm(config, name, cmap):
+    """
+    Get the norm of a field whose colors are in uneven bins, as salinity's
+    are, so the fresh film and the cavity both show
+
+    Parameters
+    ----------
+    config : polaris.config.PolarisConfigParser
+        The config options, with ``[misomip_analysis_color_ranges]``
+
+    name : str
+        The field's variable name
+
+    cmap : str
+        The colormap, whose number of colors the bins share
+
+    Returns
+    -------
+    norm : matplotlib.colors.BoundaryNorm or None
+        The norm, or ``None`` if the field's ``_bounds`` option is blank or
+        absent
+
+    ticks : list of float or None
+        The color bar's ticks, from the ``_ticks`` option
+    """
+    section = 'misomip_analysis_color_ranges'
+    option = RANGE_OPTIONS.get(name)
+    if option is None or not _has_value(config, section, f'{option}_bounds'):
+        return None, None
+    bounds = config.getlist(section, f'{option}_bounds', dtype=float)
+    ticks = None
+    if _has_value(config, section, f'{option}_ticks'):
+        ticks = config.getlist(section, f'{option}_ticks', dtype=float)
+    colors = matplotlib.colormaps[cmap].N
+    norm = BoundaryNorm(bounds, ncolors=colors, extend='both')
+    return norm, ticks
+
+
 def plot_section(
     ds_transect,
     field,
@@ -824,6 +870,8 @@ def plot_section(
     vmax,
     start,
     distance_label,
+    norm=None,
+    ticks=None,
 ):
     """
     Plot a section along a line of constant x or y, against the position
@@ -858,6 +906,12 @@ def plot_section(
 
     distance_label : str
         The label of the horizontal axis
+
+    norm : matplotlib.colors.Normalize, optional
+        A norm mapping values to colors, in place of ``vmin`` and ``vmax``
+
+    ticks : list of float, optional
+        The color bar's ticks
     """
     ds_plot = ds_transect.copy()
     ds_plot['dNode'] = ds_transect.dNode + start
@@ -875,7 +929,19 @@ def plot_section(
         mesh = next(
             child for child in ax.collections if isinstance(child, QuadMesh)
         )
-        fig.colorbar(mesh, ax=ax, extend='both', shrink=0.7, label=units)
+        if norm is not None:
+            mesh.set_norm(norm)
+        fig.colorbar(
+            mesh, ax=ax, extend='both', shrink=0.7, label=units, ticks=ticks
+        )
         ax.set_xlabel(distance_label)
         ax.set_title(title)
         fig.savefig(out_filename, bbox_inches='tight', pad_inches=0.2)
+
+
+def _has_value(config, section, option):
+    """Whether a config option is present and not blank"""
+    return (
+        config.has_option(section, option)
+        and config.get(section, option).strip() != ''
+    )
