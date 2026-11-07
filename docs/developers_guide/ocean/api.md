@@ -746,6 +746,20 @@
    models.replace_steps
 ```
 
+### realistic_global.cavities
+
+```{eval-rst}
+.. currentmodule:: polaris.tasks.ocean.realistic_global.cavities
+
+.. autosummary::
+   :toctree: generated/
+
+   check_cavities_supported
+   copy_antarctic_boundary_convention
+   get_antarctic_boundary_convention
+   has_ice_shelf_cavities
+```
+
 ### realistic_global.mesh_configs
 
 ```{eval-rst}

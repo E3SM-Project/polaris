@@ -10,6 +10,9 @@ from polaris.ocean.init_state import (
     layer_thickness_from_geom_interfaces,
 )
 from polaris.ocean.model import OceanIOStep
+from polaris.tasks.ocean.realistic_global.cavities import (
+    check_cavities_supported,
+)
 
 
 class InitialStateStep(OceanIOStep):
@@ -87,6 +90,7 @@ class InitialStateStep(OceanIOStep):
         """
         Declare input and output files based on the configured ocean model.
         """
+        check_cavities_supported(self.config)
         super().setup()
         self.add_input_file(
             filename='pstar_init.nc',

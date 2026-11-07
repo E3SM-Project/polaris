@@ -4,6 +4,10 @@ from typing import Any, Dict, List, Tuple
 
 from polaris.config import PolarisConfigParser
 from polaris.step import Step
+from polaris.tasks.e3sm.init.topo.cull.steps import get_cull_topo_steps
+from polaris.tasks.ocean.realistic_global.cavities import (
+    copy_antarctic_boundary_convention,
+)
 from polaris.tasks.ocean.realistic_global.forward.forward import Forward
 from polaris.tasks.ocean.realistic_global.forward.initial_condition import (
     StepInitialCondition,
@@ -256,10 +260,16 @@ def get_dynamic_adjustment_config(
 
 def _build_config(filepath: str, mesh_name: str) -> PolarisConfigParser:
     """
-    Build the dynamic-adjustment config, with the per-mesh overrides last.
+    Build the dynamic-adjustment config, with the per-mesh overrides last
+    and the Antarctic boundary convention copied from the cull step's
+    config, which determines whether the ocean has ice-shelf cavities.
     """
     config = PolarisConfigParser(filepath=filepath)
     config.add_from_package(FORWARD_CONFIG_PACKAGE, FORWARD_CONFIG_FILENAME)
     config.add_from_package(CONFIG_PACKAGE, CONFIG_FILENAME)
     add_realistic_global_mesh_config(config=config, mesh_name=mesh_name)
+    _, cull_config = get_cull_topo_steps(
+        mesh_name=mesh_name, include_viz=False
+    )
+    copy_antarctic_boundary_convention(config, cull_config)
     return config
