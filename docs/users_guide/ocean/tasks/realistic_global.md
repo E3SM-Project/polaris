@@ -1796,9 +1796,15 @@ temperature_max = 35.0
 # condition can only come from the numerics, as in a tracer update that is not
 # monotone in a thin partial bottom cell.  The coldest water in the WOA23
 # initial conditions is about -2.12 deg C on every unified mesh, and healthy
-# MPAS-Ocean adjustments stay above it.  None of these meshes has ice-shelf
-# cavities, where water below this bound is real; revisit it if one gains them.
+# MPAS-Ocean adjustments stay above it.  With ice-shelf cavities,
+# cavity_temperature_min applies instead.
 temperature_min = -2.5
+
+# The minimum allowed temperature (deg C) when the ocean has ice-shelf
+# cavities, in place of temperature_min.  A thin film of fresh water starts at
+# its freezing point, which falls with the land-ice pressure to about -3.1 deg C
+# under the thickest Antarctic ice.
+cavity_temperature_min = -3.5
 
 # Maximum allowed salinity reached during any stage, on the same terms: practical
 # salinity (PSU) for MPAS-Ocean and absolute salinity (g/kg) for Omega, about
