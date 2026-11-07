@@ -1808,7 +1808,7 @@ Rejected:
 - the overturning from monthly-mean velocity and thickness alone, which is
   wrong where columns wet and dry.
 
-### D34: Stage E starts over with two fixes for film openings
+### D34: Stage E starts over with a fix for film openings
 
 Date last modified: 2026/11/07
 
@@ -1828,26 +1828,21 @@ every momentum term at that edge showed three steps:
   advection of momentum, divided by the film's thin layer, grew each
   surge into spikes of a few time steps.
 
-Two fixes go into FAnSSIE: inflow into a film under land ice opens
-gradually as its layers fill, and the vertical advection uses the edge's
-mean thickness. Each alone turns this opening into a gentle filling, with
-speeds of 4–5 m/s, and the ocean's volume budget closes with either. Every
-stage E run then starts over on one executable that has both and the edge
-flux of [D33](#decisions): IceOcean1r and Ocean0–2 from their beginnings,
-then the rest in D33's order. The vertical-advection fix is in FAnSSIE. The
-gradual inflow follows once Polaris's wetting and drying tasks thin and
-thicken the ice more gently: at their 10% in 12 hours, it set off a
-domain-wide surge in RK4, a rate the coupled runs never reach.
+The vertical advection of momentum in FAnSSIE now uses the edge's mean
+thickness, which turns this opening into a gentle filling at about 5 m/s;
+the ocean's volume budget closes with it. Every stage E run starts over on
+one executable that has it and the edge flux of [D33](#decisions):
+IceOcean1r and Ocean0–2 from their beginnings, then the rest in D33's
+order. The dam itself remains.
 
 ```{admonition} Rationale
 Films open next to deep columns more often as the grounding line retreats,
 and year 6 already had a smaller opening. The years already run are about
 2.5% of the stage's computation, so starting over costs about a day and
-gives each run one model version. The gradual inflow removes the dam's
-sudden break; the edge-mean thickness removes the amplifier at any film
-edge, including openings without a dam. The vertical-advection fix changes
-melt by up to 4% over six months and, without the gradual inflow, raises
-the largest speeds slightly in short thin-film tests.
+gives each run one model version. The edge-mean thickness removes the
+amplifier at any film edge, including openings without a dam. It changes
+melt by up to 4% over six months and raises the largest speeds slightly in
+short thin-film tests.
 ```
 
 Rejected:
@@ -1860,4 +1855,9 @@ Rejected:
 - counting an edge at rest as open in the drying limit, which lets every
   dry film with a higher neighbor fill and made the peaks worse;
 - resetting the barotropic velocity on edges without water, which does
-  not stop the break.
+  not stop the break;
+- letting inflow into a film under land ice open gradually as its layers
+  fill, which builds a dam of its own wherever the ice changes: a film
+  that must take on meters of water fills only to its layers' ramp and
+  then floods, as in Polaris's RK4 wetting task, however gently its ice
+  is thinned.
