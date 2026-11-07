@@ -44,6 +44,10 @@ DAILY_STREAM = 'globalStatsOutput'
 #: The ocean's stream of daily means, which a run may write
 DAILY_MEANS_STREAM = 'timeSeriesStatsDailyOutput'
 
+#: The ocean's stream of layer thickness at the start of each month, which a
+#: run may write
+SNAPSHOT_STREAM = 'layerThicknessSnapshotOutput'
+
 
 class ConfiguredRun(NamedTuple):
     """

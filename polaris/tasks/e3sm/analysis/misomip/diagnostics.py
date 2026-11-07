@@ -33,12 +33,13 @@ from polaris.ocean.ice_shelf.diagnostics import (
 from polaris.ocean.overturning import (
     compute_line_interfaces,
     compute_line_transport,
-    compute_overturning_in_z,
+    compute_overturning_from_edge_transport,
     get_line_edges,
 )
 from polaris.tasks.e3sm.analysis.misomip.runs import (
     DAILY_MEANS_STREAM,
     DAILY_STREAM,
+    SNAPSHOT_STREAM,
     get_mean_months,
 )
 
@@ -49,6 +50,8 @@ MONTHLY_MAPS_FILENAME = 'monthly_maps.nc'
 DAILY_FILENAME = 'daily.nc'
 DAILY_EXCHANGE_FILENAME = 'daily_exchange.nc'
 DAILY_VOLUME_FILENAME = 'daily_volume.nc'
+MONTHLY_VOLUME_FILENAME = 'monthly_volume.nc'
+TIDAL_MASK_FILENAME = 'tidal_forcing_mask.nc'
 INIT_FILENAME = 'init.nc'
 MESH_FILENAME = 'mesh.nc'
 LANDICE_FILENAME = 'landice.nc'
@@ -225,6 +228,14 @@ class RunDiagnostics(Step):
                     .strip()
                     .strip('\'"')
                 )
+        self.snapshot_filenames = self._add_snapshot_inputs(run, first, last)
+        self.has_monthly_volume = bool(self.snapshot_filenames)
+        if self.has_monthly_volume:
+            self.add_input_file(
+                filename=TIDAL_MASK_FILENAME,
+                target=run.input_filename('tidal_forcing_mask'),
+            )
+            self.add_output_file(filename=MONTHLY_VOLUME_FILENAME)
         self.min_thickness = _fortran_float(
             run.namelist_option('config_drying_min_cell_height')
         )
@@ -260,6 +271,36 @@ class RunDiagnostics(Step):
             ):
                 filename = os.path.join(
                     subdir, os.path.basename(stream_file.path)
+                )
+                self.add_input_file(filename=filename, target=stream_file.path)
+                filenames.append(filename)
+        return filenames
+
+    def _add_snapshot_inputs(self, run, first, last):
+        """Link the snapshots of layer thickness at the start of each month
+        of the monthly means and of the month after, if the run has tidal
+        forcing and wrote them"""
+        if not _has_tidal_forcing(run):
+            return []
+        try:
+            stream_files = run.find_stream_files(SNAPSHOT_STREAM)
+        except ValueError:
+            # the run's streams file has no snapshots
+            return []
+        after = (
+            (last.year, last.month + 1)
+            if last.month < 12
+            else (last.year + 1, 1)
+        )
+        filenames = []
+        for stream_file in stream_files:
+            if (
+                (first.year, first.month)
+                <= (stream_file.year, stream_file.month)
+                <= after
+            ):
+                filename = os.path.join(
+                    'snapshots', os.path.basename(stream_file.path)
                 )
                 self.add_input_file(filename=filename, target=stream_file.path)
                 filenames.append(filename)
@@ -365,7 +406,6 @@ class RunDiagnostics(Step):
             draft_bin_width=section.getfloat('draft_bin_width'),
             dx=section.getfloat('overturning_dx'),
             dz=section.getfloat('overturning_dz'),
-            min_thickness=self.min_thickness,
         )
         ds_mean.attrs['first_month'] = _start_date(ds_end, 0)
         ds_mean.attrs['last_month'] = _start_date(ds_end, -1)
@@ -386,6 +426,11 @@ class RunDiagnostics(Step):
             write_netcdf(
                 self._daily_volume(ds_init),
                 DAILY_VOLUME_FILENAME,
+            )
+
+        if self.has_monthly_volume:
+            write_netcdf(
+                self._monthly_volume(ds, ds_init), MONTHLY_VOLUME_FILENAME
             )
 
         if self.landice_filenames:
@@ -1304,6 +1349,11 @@ def _streamfunction_strengths(
     ds_strength.overturningStrength.attrs = dict(
         long_name='range of the overturning streamfunction under the ice',
         units='Sv',
+        method=(
+            'normalLayerThicknessFlux'
+            if 'normalLayerThicknessFlux' in ds
+            else 'monthly means of velocity and thickness'
+        ),
     )
     ds_strength.openOceanGyreStrength.attrs = dict(
         long_name=(
@@ -1465,7 +1515,10 @@ def _cell_mean_of_vertices(ds_init, field_vertex):
 def _overturning(ds, ds_init, dx, dz):
     """
     The overturning streamfunction (Sv) across lines of constant x, in the
-    protocol's coordinates, on bins of elevation shared by every line
+    protocol's coordinates, at elevations shared by every line, integrated
+    up from the seafloor: from the mean layer thickness flux across each
+    edge where the means hold it, and otherwise from the means of velocity
+    and thickness
     """
     ds_mesh = isomip_mesh(ds_init)
     x_min = float(ds_mesh.xCell.min())
@@ -1473,20 +1526,30 @@ def _overturning(ds, ds_init, dx, dz):
     x_lines = dx * np.arange(np.floor(x_min / dx) + 1, np.ceil(x_max / dx))
     top = dz * np.ceil(max(float(ds.ssh.max()), 0.0) / dz)
     bottom = -dz * np.ceil(float(ds_init.bottomDepth.max()) / dz)
+    z = top - dz * np.arange(int(round((top - bottom) / dz)) + 1)
+    thickness = _with_nan(ds.layerThickness)
+    has_flux = 'normalLayerThicknessFlux' in ds
+    if has_flux:
+        layer_flux = _without_fill(ds.normalLayerThicknessFlux)
 
     columns = []
     for x_line in x_lines:
         line = get_line_edges(ds_mesh, 'x', x_line)
         if line.sizes['nLineEdges'] == 0:
             continue
-        transport = compute_line_transport(
-            line, ds.normalVelocity, ds.layerThickness
-        )
-        z_top, z_bottom = compute_line_interfaces(
-            line, ds.ssh, ds.layerThickness
-        )
-        osf = compute_overturning_in_z(
-            transport, z_top, z_bottom, dz, top=top, bottom=bottom
+        if has_flux:
+            transport = (
+                layer_flux.isel(nEdges=line.edgeIndex)
+                * line.sign
+                * line.dvEdge
+            )
+        else:
+            transport = compute_line_transport(
+                line, ds.normalVelocity, thickness.fillna(0.0)
+            )
+        z_top, z_bottom = compute_line_interfaces(line, ds.ssh, thickness)
+        osf = compute_overturning_from_edge_transport(
+            transport, z_top, z_bottom, z
         )
         # elevations above the water or below it on this line are not ocean
         wet = z_top > z_bottom
@@ -1503,7 +1566,16 @@ def _overturning(ds, ds_init, dx, dz):
     overturning = 1e-6 * xr.concat(columns, dim='x')
     overturning = overturning.transpose('Time', 'nZInterfaces', 'x')
     overturning.attrs = dict(
-        long_name='overturning streamfunction', units='Sv'
+        long_name=(
+            'overturning streamfunction, minus the transport toward '
+            'increasing x below each elevation'
+        ),
+        units='Sv',
+        method=(
+            'normalLayerThicknessFlux'
+            if has_flux
+            else 'monthly means of velocity and thickness'
+        ),
     )
     overturning.x.attrs = dict(long_name='x', units='km')
     overturning.zInterface.attrs = dict(long_name='elevation', units='m')
@@ -1542,9 +1614,19 @@ def _add_time(ds_out, ds):
     for t_index in range(ds.sizes['Time']):
         date = _start_date(ds, t_index)
         year, month = int(date[:4]), int(date[5:7])
-        years.append(year - 1 + (month - 0.5) / 12.0)
+        years.append(year + (month - 0.5) / 12.0)
     ds_out = ds_out.assign_coords(time=('Time', np.array(years)))
     ds_out.time.attrs = dict(
-        long_name='time since the start of year 1', units='years'
+        long_name='model year at the middle of the month', units='years'
     )
     return ds_out
+
+
+def _without_fill(field):
+    """A monthly mean with the fill value of invalid layers set to zero"""
+    return field.where(np.abs(field) < 1e30, 0.0)
+
+
+def _with_nan(field):
+    """A monthly mean with the fill value of invalid layers set to NaN"""
+    return field.where(np.abs(field) < 1e30)

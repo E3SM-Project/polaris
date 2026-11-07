@@ -175,33 +175,29 @@ et al. (2026), in 20 m bins of draft.
 
 - The barotropic streamfunction is `mpas_tools`', with the outer boundary
   at zero.
-- The overturning streamfunction across lines of constant $x$ comes from
-  the volume budget of the region west of each line ([D12](#decisions)),
-  where the run writes the monthly mean of `vertAleTransportTop` and
-  snapshots of layer thickness at each month's start. Above interface $k$,
-  $\psi_k = \sum_{j<k} (S_j - \Delta V_j / \Delta t) + F_k - F_0$, where
-  $\Delta V_j$ is layer $j$'s change in volume west of the line over the
-  month, $S_j$ the volume melt (in the top layer) and frazil add to it each
-  second, and $F_k$ the upward flux through interface $k$. The lines stop
-  west of the restoring region, whose thickness the tidal forcing sets.
-  A month's first snapshot is the initial condition at a run's start.
-- $\psi_k$ is drawn at each interface's mean elevation along the line,
-  weighted by column thickness so the film counts little. Under the ice
-  shelf the interfaces tilt across a line, so the mean elevation is an
-  approximation there. Comparisons on fixed elevations, such as the
-  protocol's fields, interpolate $\psi_k$ in $z$ between those elevations.
-- Where the monthly means also hold `normalLayerThicknessFlux`, the
-  thickness flux each layer carries across each edge in the time step,
-  its sum along each line on each interface checks the budget. The largest
-  difference each month is a diagnostic, and the step warns where it
-  exceeds `overturning_method_tolerance` of the strength. That flux spread
-  over fixed bins of $z$ by overlap is a second plot.
-- Output with neither keeps the overturning from the monthly means of
-  velocity and thickness, spread over fixed bins of $z$ by overlap. Their
-  product differs a little from the mean transport, and much at an edge
-  whose column wets and dries within the month, which streaks the
-  overturning there. Runs from cases that predate these streams have only
-  this.
+- The overturning streamfunction $\psi(x, z)$ is minus the vertical flux
+  through each fixed level $z$ summed over the cells west of a line of
+  constant $x$, which is minus the transport across the line below $z$
+  ([D12](#decisions)). This is the protocol's sign, with the zonally
+  integrated velocity $-\partial \psi / \partial z$ (Asay-Davis et al.
+  2016, Sect. 3.3), and the sign of the COM models' fields. It is computed from the monthly mean of
+  `normalLayerThicknessFlux`, the thickness flux each layer carries
+  across each edge in each time step, on the edges whose two cells
+  straddle the line. For each edge, the flux times the edge's length is
+  integrated up from the seafloor to each level: the layers below in full
+  and the part of the layer the level falls in, by the edge's own
+  interface heights. Summed along the line with the edges' signs, this
+  equals the sum over the region's cells, since each interior face's
+  integral to $z$ is shared by its two cells and cancels. That holds
+  exactly on any MPAS mesh, by the discrete divergence theorem, whatever
+  the tilt of the layers. Its only approximations are the flux spread
+  evenly through each edge's layer and the monthly-mean interface heights
+  of the layer each level falls in.
+- Output without the flux takes the transport on each edge from the
+  monthly means of velocity and thickness instead. Their product differs a
+  little from the mean transport, and much at an edge whose column wets
+  and dries within the month, which streaks the overturning there. Runs
+  from cases that predate the flux have only this.
 - Each streamfunction's strength is its range under the ice. The
   barotropic streamfunction uses the monthly means of velocity and
   thickness.
