@@ -1130,7 +1130,11 @@ sea-surface height, and
 integrates each edge's transport up from the seafloor to each elevation,
 the layers below in full and the part of the layer the elevation falls in,
 by the edge's own interface heights, and sums over the edges with their
-signs.  The edges may be any set that bounds a region, with signs toward
+signs.  The stream function is minus this transport below each elevation,
+so the transport per unit height is $-\partial \psi / \partial z$, as the
+MISOMIP protocol defines it, and, where the net transport is zero, it is
+the transport above each elevation, the usual sign of an Atlantic
+overturning.  The edges may be any set that bounds a region, with signs toward
 its outside: the transport out of the region below each elevation equals
 the vertical flux through that level summed over the region's cells, since
 each interior face's integral is shared by its two cells and cancels.  This

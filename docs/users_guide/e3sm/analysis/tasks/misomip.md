@@ -86,8 +86,10 @@ For each run, from its monthly means:
   at $y = 40$ km and $x = 520$ km against $x$ and $y$, the overturning
   streamfunction, and the melt rate in bins of draft.
 
-The overturning streamfunction is the transport across each line of
-constant $x$ below each elevation, integrated up from the seafloor.  Where
+The overturning streamfunction is minus the transport across each line
+of constant $x$ below each elevation, integrated up from the seafloor, so
+that the transport per unit height is $-\partial \psi / \partial z$, as
+the protocol defines it.  Where
 the run writes the monthly mean of `normalLayerThicknessFlux`, as cases
 set up by the MISOMIP case configuration with that option on do, it comes
 from that flux on the line's edges, each integrated to each elevation by

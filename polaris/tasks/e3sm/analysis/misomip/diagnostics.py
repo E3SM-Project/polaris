@@ -1237,8 +1237,8 @@ def _overturning(ds, ds_init, dx, dz):
     overturning = overturning.transpose('Time', 'nZInterfaces', 'x')
     overturning.attrs = dict(
         long_name=(
-            'overturning streamfunction, the transport toward increasing x '
-            'below each elevation'
+            'overturning streamfunction, minus the transport toward '
+            'increasing x below each elevation'
         ),
         units='Sv',
         method=(

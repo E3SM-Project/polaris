@@ -268,8 +268,9 @@ def test_layers_missing_have_no_thickness(channel_mesh):
 
 def test_a_layer_s_transport_is_integrated_up_to_each_elevation():
     """One edge with two layers: 1 m3 s-1 from 0 to -10 m and 2 m3 s-1 from
-    -10 to -30 m.  Below each elevation, the full layers and the part of
-    the layer it falls in"""
+    -10 to -30 m.  The stream function is minus the transport below each
+    elevation, the full layers and the part of the layer it falls in, so
+    the transport per unit height is minus its derivative in z"""
     dims = ('nLineEdges', 'nVertLevels')
     transport = xr.DataArray([[1.0, 2.0]], dims=dims)
     z_top = xr.DataArray([[0.0, -10.0]], dims=dims)
@@ -280,7 +281,9 @@ def test_a_layer_s_transport_is_integrated_up_to_each_elevation():
         transport, z_top, z_bottom, z
     )
 
-    np.testing.assert_allclose(psi.values, [3.0, 3.0, 2.5, 2.0, 1.0, 0.0, 0.0])
+    np.testing.assert_allclose(
+        psi.values, [-3.0, -3.0, -2.5, -2.0, -1.0, 0.0, 0.0]
+    )
     np.testing.assert_allclose(psi.zInterface.values, z)
 
 
@@ -355,4 +358,6 @@ def test_the_integral_keeps_time():
         transport, z_top, z_bottom, np.array([0.0, -5.0, -10.0])
     )
     assert psi.dims == ('Time', 'nZInterfaces')
-    np.testing.assert_allclose(psi.values, [[1.0, 0.5, 0.0], [2.0, 1.0, 0.0]])
+    np.testing.assert_allclose(
+        psi.values, [[-1.0, -0.5, 0.0], [-2.0, -1.0, 0.0]]
+    )

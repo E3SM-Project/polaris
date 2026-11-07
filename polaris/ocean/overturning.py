@@ -378,22 +378,26 @@ def compute_overturning_from_edge_transport(
     elevation: the layers below it in full and the part of the layer it
     falls in, by the fraction of that layer's height below it, with the
     edge's own interface heights.  Summed over the edges with their signs,
+    the stream function is minus that transport,
 
     .. math::
 
-        \psi(z) = \sum_e \sum_k T_{e,k}\, f_{e,k}(z),\quad
+        \psi(z) = -\sum_e \sum_k T_{e,k}\, f_{e,k}(z),\quad
         f_{e,k}(z) = \min\left(1, \max\left(0,
         \frac{z - z^{bot}_{e,k}}{z^{top}_{e,k} - z^{bot}_{e,k}}\right)
         \right),
 
-    which is the transport out of the region below :math:`z`.  It equals
-    the vertical flux through the level :math:`z` summed over the region's
-    cells: each interior face's integral to :math:`z` is shared by its two
-    cells with opposite signs, so only the boundary's remain.  That holds on
-    any mesh, whatever the tilt of the layers.  The approximations are the
-    flux spread evenly through each edge's layer and, for a mean over a
-    period, the mean interface heights of the layer each elevation falls
-    in.
+    so that the transport per unit height is :math:`-\partial \psi /
+    \partial z`, as the MISOMIP protocol defines its overturning stream
+    function (Asay-Davis et al. 2016).  Where the net transport is zero,
+    :math:`\psi` is the transport out of the region above :math:`z`, as an
+    Atlantic overturning is usually shown.  The sum is the vertical flux
+    through the level :math:`z` summed over the region's cells: each
+    interior face's integral to :math:`z` is shared by its two cells with
+    opposite signs, so only the boundary's remain.  That holds on any mesh,
+    whatever the tilt of the layers.  The approximations are the flux
+    spread evenly through each edge's layer and, for a mean over a period,
+    the mean interface heights of the layer each elevation falls in.
 
     The edges are any set that bounds a region, with signs toward its
     outside.  For a line of constant x or y on a planar mesh,
@@ -429,7 +433,8 @@ def compute_overturning_from_edge_transport(
     overturning : xarray.DataArray
         The overturning stream function (m3 s-1) on ``nZInterfaces``, with
         the coordinate ``zInterface`` (m), and the transport's other
-        dimensions
+        dimensions: zero at the seafloor and minus the transport out of the
+        region below each elevation
     """
     z = np.asarray(z, dtype=float)
     other_dims = [
@@ -446,7 +451,7 @@ def compute_overturning_from_edge_transport(
             np.clip((z - bottom_values[..., np.newaxis]) / height, 0.0, 1.0),
             0.0,
         )
-    values = np.sum(
+    values = -np.sum(
         transport_values[..., np.newaxis] * fraction, axis=(-3, -2)
     )
     overturning = xr.DataArray(
