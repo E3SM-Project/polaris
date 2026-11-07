@@ -203,9 +203,10 @@ run's namelist. The open-ocean SSH is its mean where there is no land ice.
 
 - Maps and sections draw the film: columns under grounded ice and dry
   columns, whose water keeps the initial condition's.
-- Temperature, salinity, draft and bathymetry have fixed color ranges
-  ([D11](#decisions)). The other fields take theirs from the data shown,
-  less the film, centered on zero for velocities and the overturning.
+- Temperature, draft and bathymetry have fixed color ranges, and salinity
+  fixed, uneven bins ([D11](#decisions)). The other fields take their
+  ranges from the data shown, less the film, centered on zero for
+  velocities and the overturning.
 - Maps show melt and its drivers, the top layer's velocity under the ice
   (the protocol's boundary-layer velocity), the bottom temperature and
   salinity, SSH where there is no land ice, the draft, the bathymetry and
@@ -709,16 +710,19 @@ Date last modified: 2026/11/07
 
 Contributors: Xylar Asay-Davis, Claude
 
-Temperature, salinity, draft and bathymetry are drawn in fixed ranges,
+Temperature, draft and bathymetry are drawn in fixed ranges,
 `[misomip_analysis_color_ranges]`, the same in every run, experiment and
-resolution, as in Asay-Davis et al. (2016). Any other field's range can be
-fixed there too.
+resolution, as in Asay-Davis et al. (2016). Salinity is drawn in one set of
+fixed, uneven bins: coarse from 0 to 33.5 PSU, where the film's fresh
+water falls, and 0.1 PSU wide from 33.5 to 34.8 PSU, over the cavity and
+the open ocean. Any other field's range or bins can be fixed there too.
 
 > Rationale: ranges from each plot's data gave Ocean1's temperature
 > −2.0 to 0.9 °C on one section and −1.95 to −1.45 °C on the other, and
 > the film's fresh water stretched salinity to 0–35 PSU. The film is still
-> drawn, below the salinity range, since its properties are part of what
-> the runs test. Melt and its
+> drawn, in salinity's coarse bins, since its properties are part of what
+> the runs test. A linear range over the cavity's salinity would show the
+> film only as the bottom color. Melt and its
 > drivers vary several times over between experiments, so one range would wash
 > out the colder ones.
 
