@@ -93,6 +93,16 @@ Contributors: Xylar Asay-Davis, Claude
 The MOC on Omega and the MISOMIP overturning on MPAS-Ocean shall come from
 the same computation, given each model's transport and layer interfaces.
 
+### Requirement: The MOC analysis is practical on the largest meshes
+
+Date last modified: 2026/11/08
+
+Contributors: Xylar Asay-Davis, Claude
+
+On the largest E3SM ocean meshes, the cost of the MOC analysis shall be
+dominated by reading the monthly means it needs, each read once per
+simulation.
+
 ### Requirement: Coupled runs write what the analysis needs
 
 Date last modified: 2026/11/08
@@ -166,17 +176,19 @@ f_{e,k}(z) = \min\left(1, \max\left(0,
 \frac{z - z_{bot}(e, k)}{z_{top}(e, k) - z_{bot}(e, k)}\right)\right).
 $$
 
-The double sum, without the minus sign, is the core MISOMIP uses, with lines
-of constant $x$ in place of latitudes. Elevations above or below all the
+This is the core MISOMIP uses, minus sign included, with lines of constant
+$x$ in place of latitudes. Elevations above or below all the
 water on the edges of $E_r(\phi)$ are not ocean and are masked.
 
 > **Rationale.** The edges of $E_r(\phi)$ separate the basin's cells south of
 > $\phi$ from those north of it, so their sum is the northward transport
 > across $\phi$ within the basin. The factor $f$ counts each layer below $z$
 > in full and the layer $z$ falls in by the fraction of its height below $z$.
-> The minus sign gives the convention of Omega's in-situ MOC and of
-> MPAS-Analysis: $\Psi$ is minus the northward transport below $z$, so a
-> positive AMOC means northward flow above its maximum. By the discrete
+> The minus sign makes $\Psi$ minus the northward transport below $z$, so
+> the transport per unit height is $-\partial \Psi / \partial z$. That is
+> the MISOMIP protocol's definition (Asay-Davis et al., 2016) and the
+> convention of Omega's in-situ MOC and of MPAS-Analysis. A positive AMOC
+> means northward flow above its maximum. By the discrete
 > divergence theorem, the sum also equals the vertical flux through $z$ over
 > the basin's cells south of $\phi$. Each interior edge's integral to $z$ is
 > shared by its two cells with opposite signs, so it cancels however much the
@@ -226,6 +238,24 @@ the deepest sea floor, rounded down, as in the MISOMIP analysis.
 > flux between two columns leaves one and enters the other at different
 > depths. Summing each layer first and giving the sum one mean depth squeezes
 > the streamfunction into the line's mean column.
+
+### Algorithm Design: The MOC analysis is practical on the largest meshes
+
+Date last modified: 2026/11/08
+
+Contributors: Xylar Asay-Davis, Claude
+
+For each edge, the sum over $k$ in $\Psi$ is the edge's running transport
+from the sea floor, interpolated linearly to $z$ between the edge's
+interfaces. The running sum is known at the interfaces, and it is linear
+within each layer because the flux is spread evenly over it. Computed that
+way, an edge costs its layers plus the elevations, not their product.
+
+> **Rationale.** The core as MISOMIP has it forms $f_{e,k}(z)$ for every edge,
+> layer and elevation at once. That suits a few lines on a planar mesh. On a
+> large global mesh, one line can cross tens of thousands of edges. With 80
+> layers and 120 elevations, the array is over a gigabyte per line, and each
+> month has hundreds of lines per basin.
 
 ### Algorithm Design: Coupled runs write what the analysis needs
 
@@ -335,6 +365,21 @@ Contributors: Xylar Asay-Davis, Claude
 - `[ocean_analysis_moc]` holds `dlat = 0.5`, `min_lat = -90` and
   `max_lat = 90` for the lines, and `dz = 50` (m) for the elevations.
 
+### Implementation: The MOC analysis is practical on the largest meshes
+
+Date last modified: 2026/11/08
+
+Contributors: Xylar Asay-Davis, Claude
+
+- `compute_overturning_from_edge_transport()` gains the running-sum form
+  above, which MISOMIP then also uses.
+- `MocSeries` finds the edges of every line and basin once, from the mesh and
+  masks. Each month it reads only those edges and the cells they join.
+- `MocSeries` computes months in parallel across its cores. Each month is
+  independent until the months are combined.
+- The `Accumulator` cache means each month is read once per simulation,
+  whatever ranges later analyses cover.
+
 ### Implementation: Coupled runs write what the analysis needs
 
 Date last modified: 2026/11/08
@@ -394,6 +439,8 @@ In dependency order:
 4. Polaris: the mask step and the `Moc` step for every basin, which fixes
    polaris#926. This needs item 3 in the Omega submodule.
 5. Polaris: the AMOC time series.
+6. Polaris: time `MocSeries` on a year of output from a large mesh. The result
+   says how soon Omega's in-situ version (D7) is needed.
 
 ## Decisions
 
@@ -414,8 +461,7 @@ and mask files staged for coupled runs. It also kept a sign error in the
 southern-boundary term
 ([Omega#672](https://github.com/E3SM-Project/Omega/issues/672)). The
 algorithm would have existed in both Omega and Polaris. An in-situ version
-can still come later through the expression language, from the same
-definition.
+of this design's method is deferred rather than set aside (D7).
 
 ### D2: Transport across latitude lines, at fixed elevations
 
@@ -464,6 +510,31 @@ continuity equation uses, rebuilt from mass-weighted means.
 Set aside: a volume transport, from a monthly mean of the geometric thickness
 flux. Omega would write one more field the size of `NormalVelocity` for it.
 The two differ by the ratio of density to $\rho_0$, a few percent.
+
+### D7: Omega's in-situ version of the method is deferred
+
+Xylar, 2026/11/08. Omega will compute the same $\Psi_r$ in situ for the
+largest meshes, likely soon after Polaris's version works. Polaris's version
+stays the reference. The `Moc` and AMOC steps will read Omega's output when a
+simulation wrote it, and compute their own otherwise. Comparing the two on
+one run then tests Omega's version.
+
+The in-situ version needs:
+
+- the basin masks in Omega, with the dynamic input streams and `Select`
+  operator of the earlier draft (D1);
+- general operators for edge interfaces, the running transport at fixed
+  elevations, and a sum over the edges crossing each line;
+- a reproducible global sum of lines × elevations × basins each sampled
+  step.
+
+It needs no southern transects. It uses each step's own interfaces, so it is
+more accurate than Polaris's version, and it does not depend on Omega#687. It
+is a natural thing to build through the expression language when that is
+ready.
+
+Set aside for now: building both versions at once. Polaris's version is
+needed for MISOMIP anyway, and it covers the meshes most analysis runs on.
 
 ## Testing
 
@@ -518,6 +589,18 @@ Contributors: Xylar Asay-Davis, Claude
 
 The MISOMIP tests from polaris#939 keep passing. They exercise the shared
 core.
+
+### Testing and Validation: The MOC analysis is practical on the largest meshes
+
+Date last modified: 2026/11/08
+
+Contributors: Xylar Asay-Davis, Claude
+
+- A unit test checks that the running-sum form matches the form with
+  $f_{e,k}(z)$ on random layers and transports.
+- `MocSeries` is timed on a year of output from a large mesh, with the time
+  spent reading reported separately. The timing is reported, not tested
+  against a limit.
 
 ### Testing and Validation: Coupled runs write what the analysis needs
 
