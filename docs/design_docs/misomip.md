@@ -1831,7 +1831,7 @@ every momentum term at that edge showed three steps:
 Two fixes go into FAnSSIE: inflow into a film under land ice opens
 gradually as its layers fill, and the vertical advection uses the edge's
 mean thickness. Each alone turns this opening into a gentle filling, with
-speeds near 4 m/s, and the ocean's volume budget closes with either. Every
+speeds of 4–5 m/s, and the ocean's volume budget closes with either. Every
 stage E run then starts over on one executable that has both and the edge
 flux of [D33](#decisions): IceOcean1r and Ocean0–2 from their beginnings,
 then the rest in D33's order.
