@@ -8,8 +8,14 @@ from polaris.tasks.ocean.realistic_global.cavities import (
     get_antarctic_boundary_convention,
     has_ice_shelf_cavities,
 )
+from polaris.tasks.ocean.realistic_global.dynamic_adjustment.ssh_adjustment import (  # noqa: E501
+    RealisticSshAdjustment,
+)
 from polaris.tasks.ocean.realistic_global.dynamic_adjustment.steps import (
     get_realistic_dynamic_adjustment_steps,
+)
+from polaris.tasks.ocean.realistic_global.dynamic_adjustment.task import (
+    RealisticGlobalDynamicAdjustment,
 )
 
 
@@ -71,4 +77,42 @@ def test_adjustment_config_carries_the_convention():
     )
     assert config.get('spherical_mesh', 'antarctic_boundary_convention') == (
         'calving_front'
+    )
+
+
+def _ssh_steps(task):
+    return [name for name in task.steps if name.startswith('ssh_')]
+
+
+def test_cavities_add_ssh_adjustment_before_the_first_stage():
+    task = RealisticGlobalDynamicAdjustment(
+        component=Ocean(), mesh_name='qu240km'
+    )
+    assert not task.cavities
+    assert _ssh_steps(task) == []
+
+    task.config.set(
+        'spherical_mesh',
+        'antarctic_boundary_convention',
+        'bedrock_zero',
+        user=True,
+    )
+    task.configure()
+
+    assert task.cavities
+    iterations = task.config.getint('ssh_adjustment', 'iterations')
+    names = _ssh_steps(task)
+    assert len(names) == 2 * iterations
+    last_adjust = task.steps[f'ssh_adjust_{iterations - 1}']
+    assert isinstance(last_adjust, RealisticSshAdjustment)
+
+    # the first stage starts from the last adjusted state
+    first = task.steps[task.stages[0].name]
+    assert first.init_condition.init_target == (
+        f'{last_adjust.path}/output.nc'
+    )
+    # and each SSH forward run from the adjustment before it
+    second_forward = task.steps['ssh_forward_1']
+    assert second_forward.init_condition.init_target == (
+        f'{task.steps["ssh_adjust_0"].path}/output.nc'
     )

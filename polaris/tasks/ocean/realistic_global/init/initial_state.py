@@ -170,7 +170,7 @@ def _add_cavity_fields(ds, config):
     z-star coordinate targets with its minimum layer thickness, and mark the
     cells under land ice for SSH adjustment
     """
-    section = config['realistic_global_init']
+    section = config['realistic_global_cavities']
     ds = apply_min_max_layer_thickness(
         ds,
         min_thickness=section.getfloat('thin_film_layer_thickness'),

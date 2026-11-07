@@ -511,6 +511,9 @@ def test_filling_holes_settles_the_thin_film_layers():
     config.add_from_package(
         'polaris.tasks.ocean.realistic_global.init', 'init.cfg'
     )
+    config.add_from_package(
+        'polaris.tasks.ocean.realistic_global', 'cavities.cfg'
+    )
     step = _StubPStarInitStep(hole_persists=False, config=config)
     geom_z_bot = xr.DataArray([-300.0, -300.0, -300.0], dims='nCells')
     # the middle cell is under grounded ice

@@ -155,7 +155,7 @@ class RealisticPStarInitStep(PStarInitStep):
                 land_ice_thickness=ds_topo.ice_thickness,
                 modify_mask=ds_topo.landIceMask,
                 land_ice_density=self.config.getfloat(
-                    'realistic_global_init', 'land_ice_density'
+                    'realistic_global_cavities', 'land_ice_density'
                 ),
             )
 
@@ -376,7 +376,7 @@ class RealisticPStarInitStep(PStarInitStep):
         if land_ice_pressure is None:
             return self.run_pstar_init(ds_mesh, geom_z_bot)
 
-        section = self.config['realistic_global_init']
+        section = self.config['realistic_global_cavities']
         surface_pressure, ssh, thin_film_mask = compute_land_ice_load(
             land_ice_pressure=land_ice_pressure,
             geom_z_bot=geom_z_bot,

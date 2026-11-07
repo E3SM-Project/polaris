@@ -1,3 +1,4 @@
+import dataclasses
 import os
 from functools import partial
 from typing import Any, Dict, List, Tuple
@@ -7,6 +8,7 @@ from polaris.step import Step
 from polaris.tasks.e3sm.init.topo.cull.steps import get_cull_topo_steps
 from polaris.tasks.ocean.realistic_global.cavities import (
     copy_antarctic_boundary_convention,
+    has_ice_shelf_cavities,
 )
 from polaris.tasks.ocean.realistic_global.forward.forward import Forward
 from polaris.tasks.ocean.realistic_global.forward.initial_condition import (
@@ -29,6 +31,7 @@ from polaris.tasks.ocean.realistic_global.models import (
 )
 
 from .schedule import load_schedule_stages
+from .ssh_adjustment import RealisticSshAdjustment
 from .summary import Summary
 from .validate import StageCheck
 from .viz import VizDynamicAdjustmentStep
@@ -128,6 +131,20 @@ def get_realistic_dynamic_adjustment_steps(
 
     stages = load_schedule_stages(mesh_name, config)
 
+    init_target = f'{init_step.path}/init.nc'
+    if has_ice_shelf_cavities(config):
+        init_target = _add_ssh_adjustment_steps(
+            component=component,
+            base_subdir=base_subdir,
+            config=config,
+            init_step=init_step,
+            forcing_step=forcing_step,
+            min_res=min_res,
+            approx_cell_count=approx_cell_count,
+            first_stage=stages[0],
+            steps=steps,
+        )
+
     previous = None
     previous_check = None
     for stage in stages:
@@ -142,6 +159,7 @@ def get_realistic_dynamic_adjustment_steps(
                 min_res=min_res,
                 approx_cell_count=approx_cell_count,
                 forcing_step=forcing_step,
+                init_target=init_target,
             ),
             stage=stage,
             # only the final stage's state is compared with a baseline
@@ -223,6 +241,78 @@ def adjustment_subdir(mesh_name: str) -> str:
     return f'spherical/realistic_global/{mesh_name}/dynamic_adjustment'
 
 
+def _add_ssh_adjustment_steps(
+    component: Any,
+    base_subdir: str,
+    config: PolarisConfigParser,
+    init_step: Step,
+    forcing_step: Step,
+    min_res: float,
+    approx_cell_count: Any,
+    first_stage: ForwardStage,
+    steps: Dict[str, Step],
+) -> str:
+    """
+    Add the forward runs and adjustments of SSH under land ice that come
+    before the dynamic adjustment, and return the adjusted initial state.
+
+    Each forward run is the first stage, shortened to the
+    ``[ssh_adjustment] run_duration`` and without a restart.  It starts
+    from the initial state, or from the previous adjustment, and the
+    adjustment that follows it sets the SSH under land ice to where the run
+    left it.
+    """
+    section = config['ssh_adjustment']
+    iterations = section.getint('iterations')
+    run_duration = section.get('run_duration').strip()
+
+    init_target = f'{init_step.path}/init.nc'
+    for iteration in range(iterations):
+        name = f'ssh_forward_{iteration}'
+        stage = dataclasses.replace(
+            first_stage,
+            name=name,
+            run_duration=run_duration,
+            output_interval=run_duration,
+            restart_interval=run_duration,
+            stats_interval=run_duration,
+            output_density=True,
+            do_restart=False,
+            restart_in=None,
+            restart_out=None,
+        )
+        forward_step = component.get_or_create_shared_step(
+            step_cls=Forward,
+            subdir=os.path.join(base_subdir, 'ssh_adjustment', name),
+            config=config,
+            config_filename=CONFIG_FILENAME,
+            name=name,
+            init_condition=StepInitialCondition(
+                init_step,
+                min_res=min_res,
+                approx_cell_count=approx_cell_count,
+                forcing_step=forcing_step,
+                init_target=init_target,
+            ),
+            stage=stage,
+        )
+        steps[forward_step.name] = forward_step
+
+        name = f'ssh_adjust_{iteration}'
+        adjust_step = component.get_or_create_shared_step(
+            step_cls=RealisticSshAdjustment,
+            subdir=os.path.join(base_subdir, 'ssh_adjustment', name),
+            config=config,
+            config_filename=CONFIG_FILENAME,
+            mesh_filename=f'{init_step.path}/mesh.nc',
+            forward=forward_step,
+            name=name,
+        )
+        steps[adjust_step.name] = adjust_step
+        init_target = f'{adjust_step.path}/output.nc'
+    return init_target
+
+
 def get_dynamic_adjustment_config(
     component: Any, mesh_name: str, model: str
 ) -> PolarisConfigParser:
@@ -267,6 +357,9 @@ def _build_config(filepath: str, mesh_name: str) -> PolarisConfigParser:
     config = PolarisConfigParser(filepath=filepath)
     config.add_from_package(FORWARD_CONFIG_PACKAGE, FORWARD_CONFIG_FILENAME)
     config.add_from_package(CONFIG_PACKAGE, CONFIG_FILENAME)
+    config.add_from_package(
+        'polaris.tasks.ocean.realistic_global', 'cavities.cfg'
+    )
     add_realistic_global_mesh_config(config=config, mesh_name=mesh_name)
     _, cull_config = get_cull_topo_steps(
         mesh_name=mesh_name, include_viz=False
