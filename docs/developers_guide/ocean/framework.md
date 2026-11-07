@@ -1126,24 +1126,24 @@ follow the draft,
 {py:func}`polaris.ocean.overturning.compute_line_interfaces()` gives the top
 and bottom of each layer on the line's edges, stacked down from the
 sea-surface height, and
-{py:func}`polaris.ocean.overturning.compute_overturning_in_z()` spreads each
-layer's transport over bins of a given height by the fraction of the layer
-each overlaps, then accumulates it from the top.  The bins span all of the
-layers, so the stream function at the bottom is the line's total transport.
-
-Where monthly means of velocity and thickness would miss the transport of
-columns that wet and dry,
-{py:func}`polaris.ocean.overturning.compute_overturning_from_volume_budget()`
-gives the overturning on layer interfaces from the volume budget of the
-region on a line's low side: its change in thickness between snapshots,
-its sources and the mean vertical transport through its interfaces.
-{py:func}`polaris.ocean.overturning.compute_overturning_from_layer_flux()`
-gives the same from the thickness flux each layer carries across the
-line's edges, which checks it.
-{py:func}`polaris.ocean.overturning.compute_line_interface_elevations()`
-gives each interface's mean elevation along the line, and
-{py:func}`polaris.ocean.overturning.interp_overturning_to_z()` interpolates
-the overturning from there to fixed elevations.
+{py:func}`polaris.ocean.overturning.compute_overturning_from_edge_transport()`
+integrates each edge's transport up from the seafloor to each elevation,
+the layers below in full and the part of the layer the elevation falls in,
+by the edge's own interface heights, and sums over the edges with their
+signs.  The edges may be any set that bounds a region, with signs toward
+its outside: the transport out of the region below each elevation equals
+the vertical flux through that level summed over the region's cells, since
+each interior face's integral is shared by its two cells and cancels.  This
+holds on any mesh, however the layers tilt.  For an exact mean over a
+period, pass the mean of the layer thickness flux the model applies, such
+as MPAS-Ocean's `normalLayerThicknessFlux`, times each edge's length and
+sign, rather than the product of mean velocity and mean thickness.  On a
+planar mesh, {py:func}`polaris.ocean.overturning.get_line_edges()` gives
+the edges across a line of constant x or y.  For a latitude within a basin
+on the sphere, the edges whose two cells are both in the basin and on either
+side of the latitude give the transport across it directly; a transect
+along the basin's southern boundary is needed only to sum vertical fluxes
+over the region instead.
 
 (dev-ocean-analysis)=
 

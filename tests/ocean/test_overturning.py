@@ -6,16 +6,12 @@ from mpas_tools.planar_hex import make_planar_hex_mesh
 from polaris.mesh.vector import compute_edge_normal_vec
 from polaris.ocean.overturning import (
     bin_line_transport,
-    compute_line_interface_elevations,
     compute_line_interfaces,
     compute_line_transport,
     compute_overturning,
-    compute_overturning_from_layer_flux,
-    compute_overturning_from_volume_budget,
-    compute_overturning_in_z,
+    compute_overturning_from_edge_transport,
     get_line_edges,
     interp_cell_to_line_edges,
-    interp_overturning_to_z,
 )
 
 DC = 1000.0
@@ -239,29 +235,6 @@ def test_unknown_coordinate_is_an_error(periodic_mesh):
         get_line_edges(periodic_mesh, 'z', 0.0)  # type: ignore[arg-type]
 
 
-def test_overturning_in_z_spreads_layers_by_overlap():
-    """Two edges of two layers each, in 5 m bins.  The first edge's layers
-    span 0 to -7 and -7 to -20 m, the second's -1 to -6 m and a layer of
-    zero thickness.  Each bin gets the part of each layer it overlaps, and
-    the stream function at the bottom is the total transport."""
-    transport = xr.DataArray(
-        [[7.0, 13.0], [5.0, 0.0]], dims=('nLineEdges', 'nVertLevels')
-    )
-    z_top = xr.DataArray(
-        [[0.0, -7.0], [-1.0, -6.0]], dims=('nLineEdges', 'nVertLevels')
-    )
-    z_bottom = xr.DataArray(
-        [[-7.0, -20.0], [-6.0, -6.0]], dims=('nLineEdges', 'nVertLevels')
-    )
-
-    overturning = compute_overturning_in_z(transport, z_top, z_bottom, dz=5.0)
-
-    np.testing.assert_allclose(
-        overturning.zInterface, [0.0, -5.0, -10.0, -15.0, -20.0]
-    )
-    np.testing.assert_allclose(overturning, [0.0, 9.0, 15.0, 20.0, 25.0])
-
-
 def test_line_interfaces_stack_down_from_the_ssh(channel_mesh):
     """Layers stack down from the sea surface, which is the draft under ice,
     and edges take the mean of their two cells."""
@@ -278,157 +251,108 @@ def test_line_interfaces_stack_down_from_the_ssh(channel_mesh):
     np.testing.assert_allclose(z_bottom.isel(nLineEdges=0), [-110.0, -130.0])
 
 
-def test_overturning_in_z_keeps_time_and_fixed_bins():
-    """A Time dimension is kept, and bins given explicitly extend past the
-    layers with no transport in them."""
-    transport = xr.DataArray(
-        [[[7.0, 13.0]], [[14.0, 26.0]]],
-        dims=('Time', 'nLineEdges', 'nVertLevels'),
-    )
-    z_top = xr.DataArray([[0.0, -7.0]], dims=('nLineEdges', 'nVertLevels'))
-    z_bottom = xr.DataArray(
-        [[-7.0, -20.0]], dims=('nLineEdges', 'nVertLevels')
-    )
-
-    overturning = compute_overturning_in_z(
-        transport, z_top, z_bottom, dz=10.0, top=10.0, bottom=-30.0
-    )
-
-    assert overturning.dims == ('Time', 'nZInterfaces')
-    np.testing.assert_allclose(
-        overturning.isel(Time=1), [0.0, 0.0, 2 * 10.0, 2 * 20.0, 2 * 20.0]
-    )
-
-
-def test_bins_that_do_not_span_the_layers_raise():
-    transport = xr.DataArray([[1.0]], dims=('nLineEdges', 'nVertLevels'))
-    z_top = xr.DataArray([[0.0]], dims=('nLineEdges', 'nVertLevels'))
-    z_bottom = xr.DataArray([[-20.0]], dims=('nLineEdges', 'nVertLevels'))
-
-    with pytest.raises(ValueError, match='do not span'):
-        compute_overturning_in_z(
-            transport, z_top, z_bottom, dz=5.0, top=0.0, bottom=-10.0
-        )
-
-
-def test_volume_budget_gives_the_layer_transports():
-    """One cell on the low side, whose two layers lose t0 and t1 across
-    the line, exchange w1 through their shared interface and gain melt s0
-    in the top layer"""
-    area = xr.DataArray([2.0e6], dims='nCells')
-    low_side = xr.DataArray([True], dims='nCells')
-    t0, t1, w1, s0, duration = 3.0e3, -1.0e3, 2.0e-5, 1.0e-6, 86400.0
-    rates = np.array([s0 - t0 / 2.0e6 + w1, -t1 / 2.0e6 - w1])
-    start = xr.DataArray([[100.0, 200.0]], dims=('nCells', 'nVertLevels'))
-    end = start + duration * xr.DataArray(rates, dims='nVertLevels')
-    vert = xr.DataArray([[0.0, w1, 0.0]], dims=('nCells', 'nVertLevelsP1'))
-    source = xr.DataArray([[s0, 0.0]], dims=('nCells', 'nVertLevels'))
-
-    psi = compute_overturning_from_volume_budget(
-        low_side, area, start, end, duration, vert, source
-    )
-
-    np.testing.assert_allclose(psi.values, [0.0, t0, t0 + t1], atol=1e-6)
-
-
-def test_volume_budget_and_layer_flux_agree_exactly(channel_mesh):
-    """Any layer flux across the edges changes the thicknesses so that the
-    region on a line's low side accounts for what crosses the line"""
-    rng = np.random.default_rng(seed=7)
-    n_edges = channel_mesh.sizes['nEdges']
-    flux = xr.DataArray(
-        rng.normal(size=(n_edges, 3)), dims=('nEdges', 'nVertLevels')
-    )
-    cells = channel_mesh.cellsOnEdge.values - 1
-    interior = np.all(cells >= 0, axis=1)
-    flux = flux.where(xr.DataArray(interior, dims='nEdges'), 0.0)
-    transport = flux.values * channel_mesh.dvEdge.values[:, np.newaxis]
-    gain = np.zeros((channel_mesh.sizes['nCells'], 3))
-    for edge in np.flatnonzero(interior):
-        gain[cells[edge, 0]] -= transport[edge]
-        gain[cells[edge, 1]] += transport[edge]
-    area = channel_mesh.areaCell
-    duration = 3600.0
-    start = xr.ones_like(area) * xr.DataArray(
-        [10.0, 20.0, 30.0], dims='nVertLevels'
-    )
-    end = (
-        start
-        + duration * xr.DataArray(gain, dims=('nCells', 'nVertLevels')) / area
-    )
-    no_flux = xr.zeros_like(area) * xr.DataArray(
-        np.zeros(4), dims='nVertLevelsP1'
-    )
-    no_source = xr.zeros_like(start)
-    for value in np.unique(channel_mesh.xCell.values)[1:-1] + 1.0:
-        line = get_line_edges(channel_mesh, 'x', value)
-        low_side = channel_mesh.xCell < value
-        budget = compute_overturning_from_volume_budget(
-            low_side, area, start, end, duration, no_flux, no_source
-        )
-        layer_flux = compute_overturning_from_layer_flux(line, flux)
-        np.testing.assert_allclose(
-            budget.values, layer_flux.values, atol=1e-9 * DC
-        )
-
-
-def test_interface_elevations_of_uniform_layers(channel_mesh):
-    line = get_line_edges(channel_mesh, 'x', 3.5 * DC)
-    ssh = xr.zeros_like(channel_mesh.xCell) - 5.0
-    thickness = _uniform_thickness(channel_mesh, [10.0, 20.0])
-    elevation = compute_line_interface_elevations(line, ssh, thickness)
-    np.testing.assert_allclose(elevation.values, [-5.0, -15.0, -35.0])
-
-
-def test_interface_elevations_descend_with_layers_missing(channel_mesh):
+def test_layers_missing_have_no_thickness(channel_mesh):
     # E3SM's monthly means have NaN in layers outside a cell's valid range,
-    # as above the top layer under an ice shelf; the mean elevation of each
-    # interface must still descend
+    # as above the top layer under an ice shelf
     line = get_line_edges(channel_mesh, 'x', 3.5 * DC)
-    shelf = channel_mesh.yCell.values < np.median(channel_mesh.yCell.values)
-    ssh = xr.DataArray(np.where(shelf, -50.0, 0.0), dims='nCells')
-    # thin columns under deep ice beside shallow open ones, so that leaving
-    # out each interface's missing edges would make the means cross
-    thickness = np.where(
-        shelf[:, np.newaxis],
-        [[np.nan, 5.0, 5.0]],
-        [[10.0, 20.0, np.nan]],
+    ssh = xr.zeros_like(channel_mesh.xCell) - 50.0
+    thickness = xr.ones_like(channel_mesh.xCell) * xr.DataArray(
+        [np.nan, 5.0, 5.0], dims='nVertLevels'
     )
-    elevation = compute_line_interface_elevations(
-        line,
-        ssh,
-        xr.DataArray(thickness, dims=('nCells', 'nVertLevels')),
-    )
-    assert np.all(np.isfinite(elevation.values))
-    assert np.all(np.diff(elevation.values) <= 0.0)
-
-
-def test_overturning_is_interpolated_between_interface_elevations():
-    psi = xr.DataArray([[0.0, 2.0, 6.0]], dims=('x', 'nVertLevelsP1'))
-    elevation = xr.DataArray(
-        [[0.0, -10.0, -30.0]], dims=('x', 'nVertLevelsP1')
-    )
-    psi_z = interp_overturning_to_z(
-        psi, elevation, np.array([5.0, 0.0, -5.0, -20.0, -40.0])
-    )
-    assert psi_z.dims == ('x', 'nZInterfaces')
-    np.testing.assert_allclose(psi_z.values, [[np.nan, 0.0, 1.0, 4.0, np.nan]])
-
-
-def test_interpolation_keeps_the_lines_coordinate():
-    # the time mean of the budget's overturning is reindexed by x onto the
-    # lines of the streamfunction from the monthly means
-    psi = xr.DataArray(
-        [[0.0, 2.0], [0.0, 3.0]],
-        dims=('x', 'nVertLevelsP1'),
-        coords={'x': ('x', [1.0, 2.0])},
-    )
-    elevation = xr.DataArray(
-        [[0.0, -10.0], [0.0, -10.0]], dims=('x', 'nVertLevelsP1')
-    )
-    psi_z = interp_overturning_to_z(psi, elevation, np.array([0.0, -5.0]))
-    np.testing.assert_allclose(psi_z.x.values, [1.0, 2.0])
-    reindexed = psi_z.reindex(x=[1.0, 2.0, 3.0])
+    z_top, z_bottom = compute_line_interfaces(line, ssh, thickness)
+    np.testing.assert_allclose(z_top.isel(nLineEdges=0), [-50.0, -50.0, -55.0])
     np.testing.assert_allclose(
-        reindexed.isel(nZInterfaces=1).values, [1.0, 1.5, np.nan]
+        z_bottom.isel(nLineEdges=0), [-50.0, -55.0, -60.0]
     )
+
+
+def test_a_layer_s_transport_is_integrated_up_to_each_elevation():
+    """One edge with two layers: 1 m3 s-1 from 0 to -10 m and 2 m3 s-1 from
+    -10 to -30 m.  Below each elevation, the full layers and the part of
+    the layer it falls in"""
+    dims = ('nLineEdges', 'nVertLevels')
+    transport = xr.DataArray([[1.0, 2.0]], dims=dims)
+    z_top = xr.DataArray([[0.0, -10.0]], dims=dims)
+    z_bottom = xr.DataArray([[-10.0, -30.0]], dims=dims)
+    z = np.array([5.0, 0.0, -5.0, -10.0, -20.0, -30.0, -40.0])
+
+    psi = compute_overturning_from_edge_transport(
+        transport, z_top, z_bottom, z
+    )
+
+    np.testing.assert_allclose(psi.values, [3.0, 3.0, 2.5, 2.0, 1.0, 0.0, 0.0])
+    np.testing.assert_allclose(psi.zInterface.values, z)
+
+
+def test_the_boundary_equals_the_sum_over_the_region_s_cells(channel_mesh):
+    """With tilted layers, each cell's face integrals to each elevation,
+    summed over the cells west of a line, leave only the line's edges: each
+    interior face's integral is shared by its two cells"""
+    rng = np.random.default_rng(seed=11)
+    n_cells = channel_mesh.sizes['nCells']
+    cells = channel_mesh.cellsOnEdge.values - 1
+    interior = np.flatnonzero(np.all(cells >= 0, axis=1))
+    # layers that tilt from cell to cell, under an ssh that does too
+    ssh = xr.DataArray(rng.uniform(-40.0, 0.0, n_cells), dims='nCells')
+    thickness = xr.DataArray(
+        rng.uniform(5.0, 30.0, (n_cells, 3)), dims=('nCells', 'nVertLevels')
+    )
+    flux = xr.DataArray(
+        rng.normal(size=(channel_mesh.sizes['nEdges'], 3)),
+        dims=('nEdges', 'nVertLevels'),
+    )
+    z = -5.0 * np.arange(30)
+
+    # every interior face, from its first cell to its second
+    faces = xr.Dataset(
+        dict(
+            edgeIndex=('nLineEdges', interior),
+            cellsOnLineEdge=(('nLineEdges', 'TWO'), cells[interior]),
+            sign=('nLineEdges', np.ones(len(interior))),
+            dvEdge=('nLineEdges', channel_mesh.dvEdge.values[interior]),
+        )
+    )
+    face_transport = (
+        flux.isel(nEdges=faces.edgeIndex) * faces.sign * faces.dvEdge
+    )
+    face_top, face_bottom = compute_line_interfaces(faces, ssh, thickness)
+    face_integral = compute_overturning_from_edge_transport(
+        face_transport.expand_dims(face=1).transpose(
+            'nLineEdges', 'face', 'nVertLevels'
+        ),
+        face_top.expand_dims(face=1).transpose(
+            'nLineEdges', 'face', 'nVertLevels'
+        ),
+        face_bottom.expand_dims(face=1).transpose(
+            'nLineEdges', 'face', 'nVertLevels'
+        ),
+        z,
+        edge_dim='face',
+    ).values
+
+    for value in np.unique(channel_mesh.xCell.values)[1:-1] + 1.0:
+        west = channel_mesh.xCell.values < value
+        region = np.zeros(len(z))
+        for index, (first, second) in enumerate(cells[interior]):
+            # out of the first cell, into the second
+            region += west[first] * face_integral[index]
+            region -= west[second] * face_integral[index]
+        line = get_line_edges(channel_mesh, 'x', value)
+        transport = flux.isel(nEdges=line.edgeIndex) * line.sign * line.dvEdge
+        z_top, z_bottom = compute_line_interfaces(line, ssh, thickness)
+        boundary = compute_overturning_from_edge_transport(
+            transport, z_top, z_bottom, z
+        )
+        np.testing.assert_allclose(boundary.values, region, atol=1e-9 * DC)
+
+
+def test_the_integral_keeps_time():
+    dims = ('Time', 'nLineEdges', 'nVertLevels')
+    transport = xr.DataArray([[[1.0]], [[2.0]]], dims=dims)
+    z_top = xr.DataArray([[0.0]], dims=('nLineEdges', 'nVertLevels'))
+    z_bottom = xr.DataArray([[-10.0]], dims=('nLineEdges', 'nVertLevels'))
+    psi = compute_overturning_from_edge_transport(
+        transport, z_top, z_bottom, np.array([0.0, -5.0, -10.0])
+    )
+    assert psi.dims == ('Time', 'nZInterfaces')
+    np.testing.assert_allclose(psi.values, [[1.0, 0.5, 0.0], [2.0, 1.0, 0.0]])

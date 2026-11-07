@@ -1324,11 +1324,7 @@
    compute_overturning
    bin_line_transport
    compute_line_interfaces
-   compute_overturning_in_z
-   compute_overturning_from_volume_budget
-   compute_overturning_from_layer_flux
-   compute_line_interface_elevations
-   interp_overturning_to_z
+   compute_overturning_from_edge_transport
 ```
 
 ### Surface pressure

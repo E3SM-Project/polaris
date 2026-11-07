@@ -20,18 +20,15 @@ from polaris.ocean.ice_shelf.diagnostics import (
 from polaris.ocean.overturning import (
     compute_line_interfaces,
     compute_line_transport,
-    compute_overturning_in_z,
+    compute_overturning_from_edge_transport,
     get_line_edges,
-    interp_overturning_to_z,
 )
 from polaris.remap import MappingFileStep
 from polaris.tasks.e3sm.analysis.misomip.diagnostics import (
     TIME_SERIES_FILENAME,
     add_geometry_inputs,
-    compute_budget_overturning,
     isomip_mesh,
     read_initial_condition,
-    read_layer_thickness_snapshots,
 )
 from polaris.tasks.e3sm.init.misomip.projection import get_lat_lon
 from polaris.tasks.e3sm.init.misomip.scrip import write_scrip
@@ -155,54 +152,14 @@ class ProtocolFields(Step):
             work_dir_target=f'{diagnostics.path}/{TIME_SERIES_FILENAME}',
         )
         self.monthly_filenames = list(diagnostics.monthly_filenames)
-        self.snapshot_filenames = list(diagnostics.snapshot_filenames)
-        for filename in self.monthly_filenames + self.snapshot_filenames:
+        for filename in self.monthly_filenames:
             self.add_input_file(
                 filename=filename,
                 work_dir_target=f'{diagnostics.path}/{filename}',
             )
-        self.ref_density = diagnostics.ref_density
-        self.starts_from_initial_condition = (
-            diagnostics.starts_from_initial_condition
-        )
         self.add_dependency(diagnostics)
         self.add_dependency(map_step)
         self.add_output_file(filename=self.output_filename)
-
-    def _overturning(self, ds_mesh, ds_init, ds):
-        """The overturning streamfunction (m3 s-1) on the protocol's grid:
-        from the volume budget, interpolated in z from the mean elevations
-        of the layer interfaces along each line, in the months the run has
-        its inputs, and from the monthly means of velocity and thickness
-        otherwise"""
-        result = _overturning(ds_mesh, ds)
-        if not self.snapshot_filenames:
-            return result
-        restoring_x = self.config.getfloat('misomip_analysis', 'restoring_x')
-        x_lines = PROTOCOL_X[PROTOCOL_X <= restoring_x]
-        ds_osf = compute_budget_overturning(
-            ds,
-            ds_init,
-            read_layer_thickness_snapshots(self.snapshot_filenames),
-            x_lines,
-            self.ref_density,
-            initial_day=0.0 if self.starts_from_initial_condition else None,
-        )
-        if ds_osf is None:
-            return result
-        values = result.filled(np.nan)
-        for t_index in range(ds_osf.sizes['Time']):
-            budget = ds_osf.overturningBudget.isel(Time=t_index)
-            if not np.any(np.isfinite(budget.values)):
-                continue
-            in_z = interp_overturning_to_z(
-                budget,
-                ds_osf.interfaceElevation.isel(Time=t_index),
-                PROTOCOL_Z,
-            ).transpose('nZInterfaces', 'x')
-            values[t_index] = np.nan
-            values[t_index, :, : len(x_lines)] = 1e6 * in_z.values
-        return np.ma.masked_invalid(values)
 
     @property
     def output_filename(self):
@@ -288,8 +245,8 @@ class ProtocolFields(Step):
             out.variables['barotropicStreamfunction'][t_index] = _remap(
                 mapping, bsf[t_index], ocean.values
             )
-        out.variables['overturningStreamfunction'][:] = self._overturning(
-            ds_mesh, ds_init, ds
+        out.variables['overturningStreamfunction'][:] = _overturning(
+            ds_mesh, ds
         )
         for axis, name_suffix in [('x', 'XZ'), ('y', 'YZ')]:
             sections = _sections(ds_mesh, ds_init, ds, axis)
@@ -475,30 +432,42 @@ def _barotropic_streamfunction(ds_init, ds):
 
 
 def _overturning(ds_mesh, ds):
-    """The overturning streamfunction (m3 s-1) on the protocol's grid"""
+    """The overturning streamfunction (m3 s-1) on the protocol's grid,
+    integrated up from the seafloor: from the mean layer thickness flux
+    across each edge where the means hold it, and otherwise from the means
+    of velocity and thickness"""
     top = 0.0
     bottom = -PROTOCOL_DZ * len(PROTOCOL_Z)
+    z = top - PROTOCOL_DZ * np.arange(len(PROTOCOL_Z) + 1)
     count = ds.sizes['Time']
     result = np.full((count, len(PROTOCOL_Z), len(PROTOCOL_X)), np.nan)
+    thickness = ds.layerThickness.where(np.abs(ds.layerThickness) < 1e30)
+    has_flux = 'normalLayerThicknessFlux' in ds
+    if has_flux:
+        flux = ds.normalLayerThicknessFlux
+        flux = flux.where(np.abs(flux) < 1e30, 0.0)
     for i_x, x_line in enumerate(PROTOCOL_X):
         line = get_line_edges(ds_mesh, 'x', x_line)
         if line.sizes['nLineEdges'] == 0:
             continue
-        transport = compute_line_transport(
-            line, ds.normalVelocity, ds.layerThickness
-        )
-        z_top, z_bottom = compute_line_interfaces(
-            line, ds.ssh, ds.layerThickness
-        )
+        if has_flux:
+            transport = (
+                flux.isel(nEdges=line.edgeIndex) * line.sign * line.dvEdge
+            )
+        else:
+            transport = compute_line_transport(
+                line, ds.normalVelocity, thickness.fillna(0.0)
+            )
+        z_top, z_bottom = compute_line_interfaces(line, ds.ssh, thickness)
         # the grid spans the domain, from z = 0 to its floor at 720 m, which
         # SSH and the layers pass only by a few cm and by round-off, so their
-        # transport goes in the top and bottom bins
-        z_top = z_top.clip(max=top)
-        z_bottom = z_bottom.clip(min=bottom)
-        osf = compute_overturning_in_z(
-            transport, z_top, z_bottom, PROTOCOL_DZ, top=top, bottom=bottom
+        # transport goes in the top and bottom cells
+        z_top = z_top.clip(min=bottom, max=top)
+        z_bottom = z_bottom.clip(min=bottom, max=top)
+        osf = compute_overturning_from_edge_transport(
+            transport, z_top, z_bottom, z
         )
-        interfaces = osf.values
+        interfaces = osf.transpose('Time', 'nZInterfaces').values
         result[:, :, i_x] = 0.5 * (interfaces[:, :-1] + interfaces[:, 1:])
     return np.ma.masked_invalid(result)
 

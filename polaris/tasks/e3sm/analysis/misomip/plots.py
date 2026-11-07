@@ -579,61 +579,22 @@ class RunPlots(ProductStep):
             )
 
     def _plot_overturning(self, ds_mean, months):
-        """Plot the overturning streamfunction in x and z: from the volume
-        budget on layer interfaces where the run has its inputs, and from
-        the layer thickness flux in bins of elevation where the run writes
-        it"""
-        if 'overturningStreamfunctionLayers' in ds_mean:
-            osf = ds_mean.overturningStreamfunctionLayers
-            elevation = ds_mean.overturningInterfaceElevation
-            # lines with no water, without interfaces, are left out
-            has_water = np.isfinite(elevation).all(dim='nVertLevelsP1')
-            shown = osf.where(has_water, drop=True)
-            shown_elevation = elevation.where(has_water, drop=True)
-            x = shown.x.broadcast_like(shown).transpose('nVertLevelsP1', 'x')
-            self._plot_overturning_field(
-                x.values,
-                shown_elevation.transpose('nVertLevelsP1', 'x').values,
-                shown.transpose('nVertLevelsP1', 'x'),
-                xr.Dataset(
-                    dict(
-                        overturningStreamfunctionLayers=osf,
-                        overturningInterfaceElevation=elevation,
-                        overturningStreamfunction=(
-                            ds_mean.overturningStreamfunction
-                        ),
-                    )
-                ),
-                'overturning_streamfunction',
-                f'Overturning streamfunction from the volume budget, '
-                f'{months},\n{self.label}, on layer interfaces at their '
-                f'mean elevation along each line',
-                'Overturning streamfunction',
-            )
+        """Plot the overturning streamfunction in x and z"""
+        osf = ds_mean.overturningStreamfunction
+        if osf.attrs.get('method') == 'normalLayerThicknessFlux':
+            source = 'the layer thickness flux'
         else:
-            osf = ds_mean.overturningStreamfunction
-            self._plot_overturning_field(
-                osf.x.values,
-                osf.zInterface.values,
-                osf,
-                osf.to_dataset(),
-                'overturning_streamfunction',
-                f'Overturning streamfunction, {months}, {self.label},\n'
-                f'from the monthly means of velocity and thickness',
-                'Overturning streamfunction',
-            )
-        if 'overturningStreamfunctionLayerFlux' in ds_mean:
-            osf = ds_mean.overturningStreamfunctionLayerFlux
-            self._plot_overturning_field(
-                osf.x.values,
-                osf.zInterface.values,
-                osf,
-                osf.to_dataset(),
-                'overturning_streamfunction_layer_flux',
-                f'Overturning streamfunction from the layer thickness flux, '
-                f'{months},\n{self.label}, in bins of elevation',
-                'Overturning streamfunction from the layer thickness flux',
-            )
+            source = 'the monthly means of velocity and thickness'
+        self._plot_overturning_field(
+            osf.x.values,
+            osf.zInterface.values,
+            osf,
+            osf.to_dataset(),
+            'overturning_streamfunction',
+            f'Overturning streamfunction, {months}, {self.label},\n'
+            f'from {source}, integrated up from the seafloor',
+            'Overturning streamfunction',
+        )
 
     def _plot_overturning_field(
         self, x, z, osf, ds_data, stem, title, product_title
