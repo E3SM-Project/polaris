@@ -5,6 +5,11 @@ mpas-ocean:
     config_use_land_ice_pressure: true
   land_ice_fluxes:
     config_land_ice_flux_mode: {{ land_ice_flux_mode }}
+  pressure_gradient:
+    # Jacobian_from_TS drives spurious flow at the edge of a fresh thin film,
+    # so its pressure gradient blends toward the two-term form where a layer
+    # leaves either cell's water column, as for E3SM physics in ISOMIP+
+    config_jacobian_limit_to_water_column: true
   ALE_vertical_grid:
     # keep every layer at least as thick as wetting and drying needs, while
     # the resting thicknesses stay z-star, so thin columns have uniform
