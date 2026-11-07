@@ -366,7 +366,8 @@ the mean sea-surface height in the open ocean.
 
 # Thickness (m) of each active layer of the thin film under grounded ice,
 # where MPAS-Ocean caps the land-ice pressure.  This must match
-# config_drying_min_cell_height in physics.yaml.
+# config_drying_min_cell_height in polaris.ocean.ice_shelf's
+# wetting_drying.yaml.
 thin_film_layer_thickness = 5e-2
 ```
 

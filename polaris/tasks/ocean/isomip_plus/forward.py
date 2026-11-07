@@ -3,6 +3,7 @@ import os
 import numpy as np
 from mpas_tools.io import open_dataset
 
+from polaris.ocean.ice_shelf import add_wetting_drying_yaml_files
 from polaris.ocean.model import OceanModelStep, get_time_interval_string
 from polaris.tasks.ocean.isomip_plus.cell_count import estimate_cell_count
 from polaris.tasks.ocean.isomip_plus.xtime import get_record_times
@@ -212,16 +213,13 @@ class Forward(OceanModelStep):
             'forward.yaml',
             template_replacements=replacements,
         )
-        if time_integrator == 'split_explicit':
-            self.add_yaml_file(
-                'polaris.tasks.ocean.isomip_plus', 'split_explicit.yaml'
-            )
+        add_wetting_drying_yaml_files(
+            self,
+            thin_film=self.thin_film,
+            split_explicit=(time_integrator == 'split_explicit'),
+        )
 
         if self.thin_film:
-            self.add_yaml_file(
-                'polaris.tasks.ocean.isomip_plus',
-                'thin_film_wetting_drying.yaml',
-            )
             self.add_yaml_file(
                 'polaris.tasks.ocean.isomip_plus',
                 'thin_film.yaml',

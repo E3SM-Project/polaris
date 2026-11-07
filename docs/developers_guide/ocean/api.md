@@ -1216,6 +1216,7 @@
    SshForward.compute_cell_count
    SshForward.dynamic_model_config
 
+   add_wetting_drying_yaml_files
    compute_freezing_temperature
    compute_land_ice_draft_from_pressure
    compute_land_ice_pressure_from_draft

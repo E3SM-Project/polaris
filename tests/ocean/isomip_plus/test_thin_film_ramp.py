@@ -14,15 +14,15 @@ THIN_FILM_EXPERIMENTS = ['inception', 'wetting', 'drying']
 def _ramp(filename):
     yaml = PolarisYaml.read(
         filename=filename,
-        package='polaris.tasks.ocean.isomip_plus',
+        package='polaris.ocean.ice_shelf',
         model='mpas-ocean',
     )
     return yaml.configs['wetting_drying']['config_zero_drying_velocity_ramp']
 
 
 def test_ramp_only_with_a_thin_film():
-    # every ISOMIP+ task uses physics.yaml, which keeps the ramp off
-    assert _ramp('physics.yaml') is False
+    # every ISOMIP+ task uses wetting_drying.yaml, which keeps the ramp off
+    assert _ramp('wetting_drying.yaml') is False
     assert _ramp('thin_film_wetting_drying.yaml') is True
 
 

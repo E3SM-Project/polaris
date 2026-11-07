@@ -28,7 +28,7 @@ experiments it applies to. A variant adds a level to the task path,
 and time steps of both SSH adjustment and the forward run, which
 {py:class}`polaris.tasks.ocean.isomip_plus.forward.Forward` reads from the
 `isomip_plus_forward` section. When its time integrator is `split_explicit`,
-`Forward` also adds `split_explicit.yaml`, which turns on
+`Forward` also adds the shared `split_explicit.yaml`, which turns on
 `config_split_pv_coriolis`. SSH adjustment, a shared step, leaves it off.
 
 `RESTART_TASKS` maps a variant to the experiments that also have a
@@ -113,9 +113,12 @@ which turns on the equation of state from the config options. The
 {py:class}`polaris.ocean.ice_shelf.ssh_adjustment.SshAdjustment` steps
 adjust SSH and leave the land-ice pressure from `init` unchanged. The model
 physics is in `physics.yaml`, which the SSH-adjustment and forward runs share.
-It uses RK4 time integration with wetting and drying, following Compass's
-thin-film tests, and sets the ISOMIP+ top drag coefficient. Tasks with a thin
-film use {py:class}`polaris.tasks.ocean.isomip_plus.ssh_forward.ThinFilmSshForward`
+It uses RK4 time integration, following Compass's thin-film tests, and sets the
+ISOMIP+ top drag coefficient. Both runs add the shared wetting and drying
+options with
+{py:func}`polaris.ocean.ice_shelf.add_wetting_drying_yaml_files()`. Tasks with
+a thin film use
+{py:class}`polaris.tasks.ocean.isomip_plus.ssh_forward.ThinFilmSshForward`
 instead, which, like their forward run, also adds
 `thin_film_wetting_drying.yaml`. It ramps velocities down in thin columns
 (`config_zero_drying_velocity_ramp`), which keeps wetting and drying at the

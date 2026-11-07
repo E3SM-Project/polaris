@@ -1,3 +1,4 @@
+from polaris.ocean.ice_shelf import add_wetting_drying_yaml_files
 from polaris.ocean.ice_shelf.ssh_forward import (
     SshForward as IceShelfSshForward,
 )
@@ -7,8 +8,16 @@ from polaris.tasks.ocean.isomip_plus.cell_count import estimate_cell_count
 class SshForward(IceShelfSshForward):
     """
     A step for performing forward ocean component runs as part of ssh
-    adjustment for ISOMIP+ tasks, with the ISOMIP+ equation of state
+    adjustment for ISOMIP+ tasks, with the ISOMIP+ equation of state and the
+    same wetting and drying options as their forward runs
+
+    Attributes
+    ----------
+    thin_film : bool
+        Whether there is a thin film under grounded ice
     """
+
+    thin_film = False
 
     def __init__(self, **kwargs):
         """
@@ -35,18 +44,10 @@ class SshForward(IceShelfSshForward):
         """
         return estimate_cell_count(self.config, self.min_resolution)
 
-
-class ThinFilmSshForward(SshForward):
-    """
-    A step for performing forward ocean component runs as part of ssh
-    adjustment for ISOMIP+ tasks with a thin film under grounded ice, with
-    the same wetting and drying options as their forward runs
-    """
-
     def dynamic_model_config(self, at_setup):
         """
-        Add the thin film's wetting and drying options after the other model
-        config options
+        Add the wetting and drying options after the other model config
+        options
 
         Parameters
         ----------
@@ -55,6 +56,13 @@ class ThinFilmSshForward(SshForward):
             opposed to at runtime
         """
         super().dynamic_model_config(at_setup)
-        self.add_yaml_file(
-            'polaris.tasks.ocean.isomip_plus', 'thin_film_wetting_drying.yaml'
-        )
+        add_wetting_drying_yaml_files(self, thin_film=self.thin_film)
+
+
+class ThinFilmSshForward(SshForward):
+    """
+    A step for performing forward ocean component runs as part of ssh
+    adjustment for ISOMIP+ tasks with a thin film under grounded ice
+    """
+
+    thin_film = True

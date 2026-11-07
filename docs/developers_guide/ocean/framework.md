@@ -829,6 +829,16 @@ uses the formulation of the ocean model.  For MPAS-Ocean, the coefficients are
 in the `ice_shelf_freeze` config section and match the MPAS-Ocean defaults.
 Omega uses TEOS-10 for its freezing temperature, which is not yet supported.
 
+{py:func}`polaris.ocean.ice_shelf.add_wetting_drying_yaml_files()` adds the
+MPAS-Ocean wetting and drying options that every ice-shelf task with wetting
+and drying shares, so that their SSH adjustment and forward runs treat thin
+columns the same way. `wetting_drying.yaml` turns on wetting and drying with a
+5 cm minimum layer thickness. With a thin film under grounded ice,
+`thin_film_wetting_drying.yaml` also ramps velocities down in thin columns.
+With the `split_explicit` time integrator, `split_explicit.yaml` splits the
+potential-vorticity form of the Coriolis term between the barotropic and
+baroclinic modes.
+
 (dev-ocean-framework-vertical)=
 
 ## Vertical coordinate
