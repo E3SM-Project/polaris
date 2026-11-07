@@ -181,15 +181,16 @@ class SshAdjustment(Step):
                 delta_ssh_logged = delta_ssh
             i_cell = np.abs(delta_ssh_logged).argmax().values
 
-            ds_cell = ds_final.isel(nCells=i_cell)
+            # the mesh has the cell coordinates, which the forward output
+            # need not
             ds_mesh = ds_mesh.isel(nCells=i_cell)
             delta_ssh_max = delta_ssh.isel(nCells=i_cell).values
 
             if on_a_sphere:
                 coords = (
                     f'lon/lat: '
-                    f'{np.rad2deg(ds_cell.lonCell.values):f} '
-                    f'{np.rad2deg(ds_cell.latCell.values):f}'
+                    f'{np.rad2deg(ds_mesh.lonCell.values):f} '
+                    f'{np.rad2deg(ds_mesh.latCell.values):f}'
                 )
             else:
                 coords = (
