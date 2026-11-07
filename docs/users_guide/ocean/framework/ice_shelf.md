@@ -21,6 +21,8 @@ forward step(s) of the task.
 
 The following config options are used by SSH adjustment steps. The defaults are
 shown here, but may be changed in a task's local config file.
+`time_integrator` sets MPAS-Ocean's `config_time_integrator` and selects
+which of the time steps per km applies.
 
 ```cfg
 # Options related to ssh adjustment steps
@@ -41,15 +43,15 @@ mask_variable = adjustSSHMask
 # Whether to adjust land ice pressure or SSH
 adjust_variable = landIcePressure
 
-# Time integration scheme
-time_integrator = split_explicit
+# Time integration scheme: split_explicit_ab2, split_explicit or RK4
+time_integrator = split_explicit_ab2
 
 # Time step in seconds as a function of resolution
-rk4_dt_per_km = 6
+rk4_dt_per_km = 1.5
 
 # Time step in seconds as a function of resolution
-split_dt_per_km = 6
+split_dt_per_km = 30
 
 # Time step in seconds as a function of resolution
-btr_dt_per_km = 1
+btr_dt_per_km = 1.5
 ```

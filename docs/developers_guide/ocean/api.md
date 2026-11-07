@@ -54,7 +54,6 @@
    accumulate.stamp_difference
 
    analysis_step.AnalysisStep
-   analysis_step.AnalysisStep.runtime_setup
    analysis_step.AnalysisStep.add_product
    analysis_step.AnalysisStep.get_sim_files
    analysis_step.AnalysisStep.add_sim_input_file
@@ -99,8 +98,6 @@
    ncclimo.find_climatology_file
 
    publish.Publish
-   publish.Publish.run
-   publish.Publish.output_path
 
    sim_files.SimFile
    sim_files.AnalysisStream
@@ -416,6 +413,90 @@
 
    viz.Viz
    viz.Viz.run
+```
+
+### isomip_plus
+
+```{eval-rst}
+.. currentmodule:: polaris.tasks.ocean.isomip_plus
+
+.. autosummary::
+   :toctree: generated/
+
+   add_isomip_plus_tasks
+   get_isomip_plus_mesh_steps
+
+   IsomipPlusTest
+
+   cell_count.estimate_cell_count
+
+   forward.Forward
+   forward.Forward.compute_cell_count
+   forward.Forward.dynamic_model_config
+   forward.Forward.get_forcing_interval
+
+   init.Init
+   init.Init.setup
+   init.Init.get_mesh_target
+   init.Init.read_topography
+   init.Init.run
+
+   mesh.CullMesh
+   mesh.CullMesh.run
+   mesh.PlanarMesh
+   mesh.PlanarMesh.run
+   mesh.xy.add_isomip_plus_xy
+
+   physics.get_physics_replacements
+   physics.add_com_physics_yaml
+
+   projection.get_projection_string
+   projection.get_projections
+
+   ssh_forward.SshForward
+   ssh_forward.SshForward.compute_cell_count
+   ssh_forward.SshForward.dynamic_model_config
+   ssh_forward.ThinFilmSshForward
+   ssh_forward.ThinFilmSshForward.dynamic_model_config
+
+   topo.TopoMap
+   topo.TopoMap.run
+   topo.TopoRemap
+   topo.TopoRemap.run
+   topo.TopoScale
+   topo.TopoScale.run
+   topo.calving.calve_thin_ice
+
+   validate.Validate
+   validate.Validate.run
+
+   viz.Viz
+   viz.Viz.run
+
+   xtime.get_record_times
+```
+
+### misomip
+
+```{eval-rst}
+.. currentmodule:: polaris.tasks.ocean.misomip
+
+.. autosummary::
+   :toctree: generated/
+
+   get_misomip_ocean_steps
+
+   MisomipInit
+   MisomipInit.get_mesh_target
+   MisomipInit.read_topography
+
+   MisomipForward
+   MisomipForward.get_forcing_interval
+   MisomipForward.dynamic_model_config
+
+   topo.get_smoothing_distance
+   topo.MisomipTopoMap
+   topo.MisomipTopoMap.runtime_setup
 ```
 
 ### inertial_gravity_wave
@@ -1096,6 +1177,7 @@
 
    IceShelfTask
    IceShelfTask.setup_ssh_adjustment_steps
+   get_ssh_adjustment_steps
 
    SshAdjustment
    SshAdjustment.run
@@ -1103,6 +1185,22 @@
    SshForward
    SshForward.compute_cell_count
    SshForward.dynamic_model_config
+
+   compute_flux_sent_to_land_ice
+   compute_freezing_temperature
+   compute_grounding_line_band_diagnostics
+   compute_haline_driving
+   compute_land_ice_draft_from_pressure
+   compute_land_ice_pressure_from_draft
+   compute_land_ice_pressure_from_thickness
+   compute_melt_diagnostics
+   compute_melt_rate
+   compute_melt_rate_by_draft
+   compute_open_ocean_ssh_diagnostics
+   compute_thermal_driving
+   compute_thin_film_diagnostics
+   get_film_columns
+   get_open_ocean_mask
 ```
 
 ### Ocean Model
@@ -1225,6 +1323,12 @@
    compute_line_transport
    compute_overturning
    bin_line_transport
+   compute_line_interfaces
+   compute_overturning_in_z
+   compute_overturning_from_volume_budget
+   compute_overturning_from_layer_flux
+   compute_line_interface_elevations
+   interp_overturning_to_z
 ```
 
 ### Surface pressure

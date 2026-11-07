@@ -12,7 +12,9 @@ documentation.
 :maxdepth: 1
 :titlesonly: true
 
+e3sm/analysis/api
 e3sm/init/api
+landice/api
 mesh/api
 ocean/api
 seaice/api
@@ -269,6 +271,32 @@ seaice/api
    publish
    published_basename
    write_merged_manifest
+```
+
+#### analysis.product_step
+
+```{eval-rst}
+.. currentmodule:: polaris.analysis.product_step
+
+.. autosummary::
+   :toctree: generated/
+
+   ProductStep
+   ProductStep.runtime_setup
+   ProductStep.add_product
+```
+
+#### analysis.publish_step
+
+```{eval-rst}
+.. currentmodule:: polaris.analysis.publish_step
+
+.. autosummary::
+   :toctree: generated/
+
+   PublishStep
+   PublishStep.run
+   PublishStep.output_path
 ```
 
 #### analysis.thumbnail
@@ -653,6 +681,12 @@ seaice/api
 .. autosummary::
    :toctree: generated/
 
+   mali.build_mali
+   mali.environment_has_albany
+   mali.get_mali_build_albany
+   mali.get_mali_source_dir
+   mali.make_build_script
+   mpas_framework.get_framework_check
    mpas_ocean.build_mpas_ocean
    mpas_ocean.make_build_script
    omega.build_omega
@@ -672,6 +706,7 @@ seaice/api
    area_for_field
    cell_mask_to_edge_mask
    time_index_from_xtime
+   rename_time_series_stats
 ```
 
 ### parallel
@@ -725,7 +760,11 @@ seaice/api
    :toctree: generated/
 
    MappingFileStep
+   MappingFileStep.src_from_scrip
+   MappingFileStep.dst_from_scrip
    MappingFileStep.runtime_setup
+   ScripFileDescriptor
+   ScripFileDescriptor.to_scrip
 ```
 
 ### resolution
@@ -749,6 +788,10 @@ seaice/api
    :toctree: generated/
 
    read
+   read_file
+   get_stream
+   find_stream_files
+   StreamFile
    write
    update_defaults
    update_tree
@@ -783,6 +826,26 @@ seaice/api
    plot_global_lat_lon_field
    plot_global_mpas_field
    plot_lat_elevation_field
+```
+
+```{eval-rst}
+.. currentmodule:: polaris.viz.planar
+
+.. autosummary::
+   :toctree: generated/
+
+   plot_horiz_comparison
+   plot_mask_boundary
+```
+
+```{eval-rst}
+.. currentmodule:: polaris.viz.time_series
+
+.. autosummary::
+   :toctree: generated/
+
+   Series
+   plot_time_series
 ```
 
 ### yaml

@@ -2,6 +2,10 @@ from polaris.e3sm.init.topo import (
     CUBED_SPHERE_RESOLUTIONS,
     LAT_LON_RESOLUTIONS,
 )
+from polaris.tasks.e3sm.init.component_inputs import (
+    add_component_inputs_tasks,
+)
+from polaris.tasks.e3sm.init.misomip import add_misomip_tasks
 from polaris.tasks.e3sm.init.topo.combine import (
     CubedSphereCombineTask,
     LatLonCombineTask,
@@ -31,3 +35,7 @@ def add_e3sm_init_tasks(component):
     add_remap_topo_tasks(component=component)
 
     add_cull_topo_tasks(component=component)
+
+    add_component_inputs_tasks(component=component)
+
+    add_misomip_tasks(component=component)

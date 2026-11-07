@@ -113,6 +113,13 @@ destination.  Expect for lon-lat grids, you will need to provide a name for
 the mesh or grid, typically describing its resolution and perhaps its extent
 and the region covered.
 
+A mesh whose cell polygons are already in a SCRIP file can be used instead,
+through the step's own
+{py:meth}`polaris.remap.MappingFileStep.src_from_scrip()` and
+{py:meth}`polaris.remap.MappingFileStep.dst_from_scrip()`.  The step copies
+the file where the mapping tool reads it, so the map is built from exactly
+the polygons in the file, for example ones trimmed to a domain's walls.
+
 In nearly all situations, creating the mapping file is only one step in the
 workflow. After that, the mapping file will be used to remap data between
 the meshes or grids.  Steps that want to do this remapping need to have

@@ -1,0 +1,473 @@
+import os
+
+import pytest
+
+from polaris import Component
+from polaris.tasks.e3sm.analysis.misomip import add_misomip_analysis_tasks
+from tests.e3sm.analysis.test_case import _write_case
+
+MESH = 'misomip-o4km-li1km'
+TASK = f'{MESH}/misomip/ocean0'
+
+STREAMS = """<streams>
+<stream name="timeSeriesStatsMonthlyOutput"
+        type="output"
+        filename_template="{prefix}timeSeriesStatsMonthly.$Y-$M-$D.nc"
+        output_interval="00-01-00_00:00:00">
+</stream>
+<stream name="globalStatsOutput"
+        type="output"
+        filename_template="{prefix}globalStats.$Y-$M-$D.nc"
+        output_interval="00-00-01_00:00:00">
+</stream>
+</streams>
+"""
+
+NAMELIST = """&wetting_drying
+    config_drying_min_cell_height = 1.0d-3
+/
+&coupling
+    config_glc_ice_shelf_coupling_min_floating_fraction = 1.0e-3
+/
+&ocean_constants
+    config_density0 = 1026.0
+/
+"""
+
+
+def _write_run(run_dir, prefix, months, namelist):
+    os.makedirs(run_dir, exist_ok=True)
+    with open(os.path.join(run_dir, 'streams.ocean'), 'w') as out:
+        out.write(STREAMS.format(prefix=prefix))
+    with open(os.path.join(run_dir, namelist), 'w') as out:
+        out.write(NAMELIST)
+    for month in months:
+        for stream in ['timeSeriesStatsMonthly', 'globalStats']:
+            name = f'{prefix}{stream}.0001-{month:02d}-01.nc'
+            with open(os.path.join(run_dir, name), 'w'):
+                pass
+
+
+def _standalone_run(tmp_path, months):
+    work_dir = str(tmp_path / 'forward')
+    _write_run(work_dir, 'mpaso.hist.am.', months, 'namelist.ocean')
+    with open(os.path.join(work_dir, 'init.nc'), 'w'):
+        pass
+    return work_dir
+
+
+def _e3sm_case(tmp_path, months, budgets):
+    case_dir = str(tmp_path / 'case')
+    run_dir = str(tmp_path / 'run')
+    _write_case(
+        case_dir,
+        {
+            'env_run.xml': {
+                'CASE': 'case',
+                'RUNDIR': run_dir,
+                'DOUT_S_ROOT': str(tmp_path / 'archive'),
+                'MPASO_IC_FILE': str(tmp_path / 'ic.nc'),
+                'BUDGETS': budgets,
+            }
+        },
+    )
+    _write_run(run_dir, 'case.mpaso.hist.am.', months, 'mpaso_in')
+    with open(os.path.join(run_dir, 'cpl.log.1.gz'), 'w'):
+        pass
+    return case_dir
+
+
+def _configure(tmp_path, e3sm_case=None, standalone=None):
+    component = Component(name='e3sm/analysis')
+    add_misomip_analysis_tasks(component)
+    task = component.tasks[TASK]
+    section = f'misomip_analysis_{MESH}'
+    if e3sm_case is not None:
+        task.config.set(section, 'ocean0_e3sm_case', e3sm_case, user=True)
+    if standalone is not None:
+        task.config.set(section, 'ocean0_standalone', standalone, user=True)
+    task.configure()
+    return task
+
+
+def test_each_run_gets_steps_named_for_its_months(tmp_path):
+    """Both runs give diagnostics and plots, a comparison, the conservation
+    of the run with budgets, and the publish step that depends on the
+    steps that make products."""
+    task = _configure(
+        tmp_path,
+        e3sm_case=_e3sm_case(tmp_path, months=[1, 2], budgets='TRUE'),
+        standalone=_standalone_run(tmp_path, months=[1]),
+    )
+
+    assert sorted(step.subdir for step in task.steps.values()) == [
+        f'{TASK}/comparison_0001-01_0001-02_0001-01_0001-01',
+        f'{TASK}/e3sm/conservation_0001-01_0001-02',
+        f'{TASK}/e3sm/diagnostics_0001-01_0001-02',
+        f'{TASK}/e3sm/performance_0001-01_0001-02',
+        f'{TASK}/e3sm/plots_0001-01_0001-02',
+        f'{TASK}/publish',
+        f'{TASK}/published_0001-01_0001-02_0001-01_0001-01',
+        f'{TASK}/standalone/diagnostics_0001-01_0001-01',
+        f'{TASK}/standalone/plots_0001-01_0001-01',
+        'misomip/yung2026/ocean0',
+    ]
+    diagnostics = task.steps[
+        f'{TASK}/e3sm/diagnostics_0001-01_0001-02'.replace('/', '_')
+    ]
+    assert diagnostics.min_thickness == 1.0e-3
+    assert len(diagnostics.monthly_filenames) == 2
+    assert len(diagnostics.daily_filenames) == 2
+    publish = task.steps['publish']
+    prefix = TASK.replace('/', '_')
+    assert sorted(publish.dependencies) == [
+        f'{prefix}_comparison_0001-01_0001-02_0001-01_0001-01',
+        f'{prefix}_e3sm_conservation_0001-01_0001-02',
+        f'{prefix}_e3sm_performance_0001-01_0001-02',
+        f'{prefix}_e3sm_plots_0001-01_0001-02',
+        f'{prefix}_published_0001-01_0001-02_0001-01_0001-01',
+        f'{prefix}_standalone_plots_0001-01_0001-01',
+    ]
+    # setup gives each step its task's config
+    publish.config = task.config
+    publish.base_work_dir = str(tmp_path / 'work')
+    assert publish.output_path() == str(
+        tmp_path / 'work' / 'analysis_output' / MESH / 'ocean0'
+    )
+
+
+def test_a_case_without_budgets_has_no_conservation_step(tmp_path):
+    task = _configure(
+        tmp_path, e3sm_case=_e3sm_case(tmp_path, months=[1], budgets='FALSE')
+    )
+
+    assert sorted(_short_names(task)) == [
+        'e3sm_diagnostics',
+        'e3sm_plots',
+        'performance',
+        'publish',
+        'published',
+        'yung2026_ocean0',
+    ]
+
+
+def test_a_task_without_runs_fails_at_setup(tmp_path):
+    """Every task sharing the config is configured, so configuring one
+    without runs is not an error; setting it up is."""
+    task = _configure(tmp_path)
+
+    assert list(task.steps) == ['publish']
+    with pytest.raises(ValueError, match='ocean0_e3sm_case or'):
+        task.steps['publish'].setup()
+
+
+def test_runs_over_the_same_months_get_distinct_steps(tmp_path):
+    """The first comparison of E3SM with a standalone run covers the same
+    month in both."""
+    task = _configure(
+        tmp_path,
+        e3sm_case=_e3sm_case(tmp_path, months=[1], budgets='FALSE'),
+        standalone=_standalone_run(tmp_path, months=[1]),
+    )
+
+    assert sorted(_short_names(task)) == [
+        'comparison',
+        'e3sm_diagnostics',
+        'e3sm_plots',
+        'performance',
+        'publish',
+        'published',
+        'standalone_diagnostics',
+        'standalone_plots',
+        'yung2026_ocean0',
+    ]
+
+
+def test_tasks_sharing_the_config_have_distinct_names():
+    """Each task's steps to run are kept in a config section named for the
+    task, so two tasks of one experiment on different meshes must not
+    share a name."""
+    component = Component(name='e3sm/analysis')
+    add_misomip_analysis_tasks(component)
+
+    names = [task.name for task in component.tasks.values()]
+    assert len(set(names)) == len(names)
+
+
+def test_only_ocean0_to_ocean2_are_compared_with_published_results(tmp_path):
+    """Ocean3 and Ocean4 have no published results to compare with."""
+    component = Component(name='e3sm/analysis')
+    add_misomip_analysis_tasks(component)
+    task = component.tasks[f'{MESH}/misomip/ocean3']
+    task.config.set(
+        f'misomip_analysis_{MESH}',
+        'ocean3_standalone',
+        _standalone_run(tmp_path, months=[1]),
+        user=True,
+    )
+    task.configure()
+
+    assert sorted(_short_names(task)) == [
+        'publish',
+        'standalone_diagnostics',
+        'standalone_plots',
+    ]
+
+
+def _short_names(task):
+    """Step names, with the diagnostics' long names shortened to their kind"""
+    names = []
+    for name in task.steps:
+        for kind in ['e3sm', 'standalone']:
+            if f'_{kind}_diagnostics_' in name:
+                name = f'{kind}_diagnostics'
+        names.append(name)
+    return names
+
+
+def test_experiments_are_compared_one_kind_at_a_time(tmp_path):
+    """Two experiments with standalone runs and one with an E3SM run give
+    one comparison, of the standalone runs."""
+    component = Component(name='e3sm/analysis')
+    add_misomip_analysis_tasks(component)
+    task = component.tasks[f'{MESH}/misomip/experiments']
+    section = f'misomip_analysis_{MESH}'
+    for experiment in ['ocean0', 'ocean1']:
+        task.config.set(
+            section,
+            f'{experiment}_standalone',
+            _standalone_run(tmp_path / experiment, months=[1]),
+            user=True,
+        )
+    task.config.set(
+        section,
+        'ocean0_e3sm_case',
+        _e3sm_case(tmp_path, months=[1], budgets='FALSE'),
+        user=True,
+    )
+    task.configure()
+
+    comparisons = [
+        step for name, step in task.steps.items() if 'comparison' in name
+    ]
+    assert len(comparisons) == 1
+    assert comparisons[0].kind == 'standalone'
+    assert comparisons[0].labels == [
+        'standalone ocean0, 4km',
+        'standalone ocean1, 4km',
+    ]
+    assert comparisons[0].include_maps is False
+
+
+def test_protocol_fields_are_written_only_on_request(tmp_path):
+    component = Component(name='e3sm/analysis')
+    add_misomip_analysis_tasks(component)
+    task = component.tasks[f'{MESH}/misomip/ocean3']
+    task.config.set(
+        f'misomip_analysis_{MESH}',
+        'ocean3_standalone',
+        _standalone_run(tmp_path, months=[1]),
+        user=True,
+    )
+    task.configure()
+    assert not any('protocol' in name for name in task.steps)
+
+    task.config.set(
+        'misomip_analysis', 'write_protocol_fields', 'True', user=True
+    )
+    task.configure()
+    assert sorted(
+        step.subdir for name, step in task.steps.items() if 'protocol' in name
+    ) == [
+        f'{MESH}/misomip/ocean3/standalone/protocol_fields_0001-01_0001-01',
+        f'{MESH}/misomip/ocean3/standalone/protocol_map',
+    ]
+
+
+LANDICE_STREAMS = """<streams>
+<stream name="output"
+        type="output"
+        filename_template="{prefix}hist.$Y-$M-$D_$S.nc"
+        output_interval="0000-00-10_00:00:00">
+</stream>
+<stream name="globalStatsOutput"
+        type="output"
+        filename_template="{prefix}hist.am.globalStats.$Y-$M-$D.nc"
+        output_interval="0000_00:00:01">
+</stream>
+</streams>
+"""
+
+LANDICE_NAMELIST = """&physical_parameters
+    config_ice_density = 918.0
+    config_ocean_density = 1028.0
+/
+"""
+
+
+def _coupled_case(tmp_path, name, months):
+    """An E3SM case of a coupled experiment, in which MALI writes history
+    and global statistics"""
+    case_dir = str(tmp_path / f'{name}_case')
+    run_dir = str(tmp_path / f'{name}_run')
+    _write_case(
+        case_dir,
+        {
+            'env_run.xml': {
+                'CASE': name,
+                'RUNDIR': run_dir,
+                'DOUT_S_ROOT': str(tmp_path / f'{name}_archive'),
+                'MPASO_IC_FILE': str(tmp_path / f'{name}_ocean_ic.nc'),
+                'MALI_IC_FILE': str(tmp_path / f'{name}_mali_ic.nc'),
+                'BUDGETS': 'TRUE',
+                'RUN_TYPE': 'startup',
+                'RUN_STARTDATE': '0001-01-01',
+                'START_TOD': '0',
+                'NCPL_BASE_PERIOD': 'day',
+                'GLC_NCPL': '1',
+            }
+        },
+    )
+    _write_run(run_dir, f'{name}.mpaso.hist.am.', months, 'mpaso_in')
+    with open(os.path.join(run_dir, 'cpl.log.1.gz'), 'w'):
+        pass
+    prefix = f'{name}.mali.'
+    with open(os.path.join(run_dir, 'streams.landice'), 'w') as out:
+        out.write(LANDICE_STREAMS.format(prefix=prefix))
+    with open(os.path.join(run_dir, 'mali_in'), 'w') as out:
+        out.write(LANDICE_NAMELIST)
+    for month in months:
+        for stream in ['hist', 'hist.am.globalStats']:
+            suffix = '_00000' if stream == 'hist' else ''
+            filename = f'{prefix}{stream}.0001-{month:02d}-01{suffix}.nc'
+            with open(os.path.join(run_dir, filename), 'w'):
+                pass
+    return case_dir
+
+
+def _coupled_task(tmp_path, experiment, cases):
+    component = Component(name='e3sm/analysis')
+    add_misomip_analysis_tasks(component)
+    task = component.tasks[f'{MESH}/misomip/{experiment}']
+    for name, case_dir in cases.items():
+        task.config.set(
+            f'misomip_analysis_{MESH}',
+            f'{name}_e3sm_case',
+            case_dir,
+            user=True,
+        )
+    task.configure()
+    return task
+
+
+def test_a_coupled_run_compares_both_models_melt_and_ice_sheet(tmp_path):
+    """IceOcean1r's E3SM run gets the comparison of the melt the ocean sends
+    with what MALI applies, and of its ice sheet with MISMIP+, but no
+    comparison with Yung et al. (2026)."""
+    task = _coupled_task(
+        tmp_path,
+        'iceocean1r',
+        {'iceocean1r': _coupled_case(tmp_path, 'iceocean1r', [1, 2])},
+    )
+
+    assert sorted(_short_names(task)) == [
+        'conservation',
+        'e3sm_diagnostics',
+        'e3sm_plots',
+        'ice_sheet_comparison',
+        'model_exchange',
+        'performance',
+        'publish',
+    ]
+    exchange = next(
+        step for step in task.steps.values() if step.name == 'model_exchange'
+    )
+    assert exchange.interval == 1.0
+    assert exchange.start == 0.0
+    assert len(exchange.stats_filenames) == 2
+
+
+def test_the_ice_sheet_is_compared_over_the_months_analyzed(tmp_path):
+    """MALI has run a month further than the ocean's monthly means, which
+    set the period, so its statistics of that month are left out"""
+    case_dir = _coupled_case(tmp_path, 'iceocean1r', [1, 2])
+    run_dir = str(tmp_path / 'iceocean1r_run')
+    later = 'iceocean1r.mali.hist.am.globalStats.0001-03-01.nc'
+    with open(os.path.join(run_dir, later), 'w'):
+        pass
+
+    task = _coupled_task(tmp_path, 'iceocean1r', {'iceocean1r': case_dir})
+
+    ice_sheet = next(
+        step
+        for step in task.steps.values()
+        if step.name == 'ice_sheet_comparison'
+    )
+    assert [
+        os.path.basename(filename) for filename in ice_sheet.stats_filenames
+    ] == [
+        'iceocean1r.mali.hist.am.globalStats.0001-01-01.nc',
+        'iceocean1r.mali.hist.am.globalStats.0001-02-01.nc',
+    ]
+    assert ice_sheet.period_end == 59.0
+
+
+def test_iceocean1ra_reads_iceocean1r_s_initial_conditions(tmp_path):
+    """IceOcean1ra continues from IceOcean1r's restart, so it needs
+    IceOcean1r's run for its meshes and MALI's bed."""
+    iceocean1ra = _coupled_case(tmp_path, 'iceocean1ra', [1])
+    with pytest.raises(ValueError, match='set iceocean1r_e3sm_case'):
+        _coupled_task(tmp_path, 'iceocean1ra', {'iceocean1ra': iceocean1ra})
+
+    task = _coupled_task(
+        tmp_path,
+        'iceocean1ra',
+        {
+            'iceocean1r': _coupled_case(tmp_path, 'iceocean1r', [1]),
+            'iceocean1ra': iceocean1ra,
+        },
+    )
+
+    diagnostics = next(
+        step
+        for step in task.steps.values()
+        if step.name.endswith('_e3sm_diagnostics_0001-01_0001-01')
+    )
+    targets = {
+        entry['filename']: entry['target'] for entry in diagnostics.input_data
+    }
+    assert targets['init.nc'] == str(tmp_path / 'iceocean1r_ocean_ic.nc')
+    assert targets['landice_init.nc'] == str(
+        tmp_path / 'iceocean1r_mali_ic.nc'
+    )
+
+
+def test_the_coupled_run_s_mali_is_the_primary_ice_sheet_reference(tmp_path):
+    """The standalone run with the coupled run's MALI comes first, as the
+    primary reference, and runs with another MALI version follow it."""
+    task = _coupled_task(
+        tmp_path,
+        'iceocean1r',
+        {'iceocean1r': _coupled_case(tmp_path, 'iceocean1r', [1])},
+    )
+    section = 'misomip_analysis_mismip_plus'
+    for option in ['forward', 'coupled_mali_monthly_forward']:
+        task.config.set(
+            section, f'ice1r_{option}', str(tmp_path / option), user=True
+        )
+    step = next(
+        step
+        for step in task.steps.values()
+        if step.name == 'ice_sheet_comparison'
+    )
+    step.config = task.config
+    step.setup()
+
+    assert step.references == [
+        (
+            "MALI Ice1r, coupled run's MALI, monthly-forced steps",
+            'coupled_mali_monthly_forward_',
+            True,
+        ),
+        ('MALI Ice1r, other MALI version', 'forward_', False),
+    ]

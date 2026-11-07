@@ -1,0 +1,1228 @@
+# MISOMIP Inputs for E3SM
+
+Creation date: 2026/10/30
+
+Contributors:
+
+- Xylar Asay-Davis
+- Claude
+
+## Summary
+
+E3SM will run the ISOMIP+ experiments Ocean0–4 and the MISOMIP1
+experiments IceOcean1r and IceOcean1ra, with MPAS-Ocean coupled to MALI
+([Asay-Davis et al. 2016](https://doi.org/10.5194/gmd-9-2471-2016)).
+Section and equation numbers in this design refer to that protocol. In
+Ocean0–2, the ice-shelf geometry is fixed. In Ocean3 and Ocean4, it
+evolves for 100 years as the protocol prescribes, and MALI replays it in
+data mode: MALI reads its thickness from a file instead of evolving it. In
+IceOcean1r and IceOcean1ra, MALI evolves from the MISMIP+ steady state.
+
+This design covers the inputs those E3SM runs read:
+
+- **Meshes and maps.** Shared steps in `e3sm/init` give the ocean's
+  planar 4 and 2 km meshes and MALI's 1 km mesh latitude and longitude
+  from one projection. They write SCRIP files and the maps between the two
+  models that E3SM's coupler reads.
+- **E3SM inputs.** Tasks `e3sm/init/<mesh_name>/misomip/<experiment>`
+  build MALI's initial conditions and data-mode files, MPAS-Ocean's
+  initial conditions, graph partitions for both models and each
+  experiment's case configuration. They stage the files in a tree laid out
+  like E3SM's inputdata.
+
+The work reuses three parts of Polaris rather than copying them:
+
+- the ISOMIP+ tasks ([ISOMIP+ design](isomip_plus.md)): the ocean meshes,
+  geometry, initial condition, thin film, outflow, SSH adjustment and
+  E3SM physics. Their
+  [Planned Extensions](isomip_plus.md#planned-extensions) list what
+  Ocean3–4 and MISOMIP1 in E3SM need from Polaris, which this design
+  provides;
+- the MISMIP+ tasks ([MISMIP+ design](mismip_plus.md)): MALI's mesh,
+  steady state, namelist and Albany input;
+- the component-input tasks
+  ([component-inputs design](e3sm_init_component_inputs.md)): the
+  staging, partitioning and path helpers in `polaris/e3sm/init/`.
+
+The E3SM runs use FAnSSIE, the E3SM development branch for
+ocean–ice-sheet coupling that Polaris has as the `e3sm_submodules/FAnSSIE`
+submodule. E3SM itself needs changes to run these cases: an ocean without
+an atmosphere, the ocean's coupler areas from the map, namelists for
+wetting and drying, input files named by case variables, and a switch that
+keeps MALI's calving runoff out of the ocean. A separate design covers
+these E3SM changes.
+
+No E3SM configuration has run a planar ocean. The first E3SM run will be
+4 km Ocean0 with MALI's geometry fixed, using this design's meshes, maps
+and Ocean0 initial conditions. Details that only that run can settle are
+marked *(first E3SM run)*. None of them blocks this design
+([What the first E3SM run settles](#what-the-first-e3sm-run-settles)).
+
+Success means:
+
+- for each ocean resolution, SCRIP files and the coupler's maps for the
+  pair of meshes, with map areas within $4\times10^{-5}$ of model areas;
+- for each experiment, initial conditions for both models, MALI's
+  data-mode file for Ocean3–4, partitions and a case configuration, staged
+  at inputdata-style paths;
+- ocean land-ice fields that equal the coupler's map applied to MALI's
+  initial export, normalized as MPAS-Ocean's import does;
+- a standalone MPAS-Ocean run from the same inputs.
+
+## Requirements
+
+### Requirement: Both meshes share one geographic frame
+
+Date last modified: 2026/10/30
+
+Contributors: Xylar Asay-Davis, Claude
+
+The ocean's and MALI's meshes take latitude and longitude from one
+projection of the protocol's coordinates. Areas on the sphere and planar
+model areas agree to $4\times10^{-5}$.
+
+### Requirement: The coupler can map fields between the models
+
+Date last modified: 2026/10/30
+
+Contributors: Xylar Asay-Davis, Claude
+
+For each pair of meshes, Polaris provides SCRIP files and the maps E3SM's
+coupler uses for ice-shelf coupling between MPAS-Ocean and MALI.
+
+### Requirement: MALI starts each experiment from the protocol's geometry
+
+Date last modified: 2026/10/30
+
+Contributors: Xylar Asay-Davis, Claude
+
+MALI's initial condition for Ocean0–4 holds the protocol's input geometry,
+calved as the protocol prescribes. For IceOcean1r, it is the MISMIP+
+steady state. Each includes latitude and longitude.
+
+### Requirement: MALI replays the geometry of Ocean3 and Ocean4
+
+Date last modified: 2026/10/30
+
+Contributors: Xylar Asay-Davis, Claude
+
+In data mode, MALI's geometry follows the protocol's Ocean3 or Ocean4
+geometry, interpolated in time and calved as the protocol prescribes.
+
+### Requirement: The ocean starts from MALI's geometry
+
+Date last modified: 2026/10/30
+
+Contributors: Xylar Asay-Davis, Claude
+
+In E3SM, MPAS-Ocean takes its land-ice pressure and fractions from MALI
+through the coupler. Its initial condition holds what the coupler delivers
+from MALI's initial geometry, so the first import changes nothing. The
+initial condition has a thin film under grounded ice, the experiment's
+profiles, restoring and outflow, and an SSH in balance with the land-ice
+pressure. It sets `sphere_radius` to E3SM's radius.
+
+```{admonition} Rationale
+Separate remaps of the input geometry for each model would disagree at
+grounding lines. Going through the coupler's map makes the first import
+a no-op for any MALI mesh.
+```
+
+### Requirement: Both models can be decomposed at the planned task counts
+
+Date last modified: 2026/10/30
+
+Contributors: Xylar Asay-Davis, Claude
+
+Polaris partitions both meshes for every task count the E3SM cases plan to
+use.
+
+### Requirement: Each experiment has a case configuration
+
+Date last modified: 2026/11/01
+
+Contributors: Xylar Asay-Davis, Claude
+
+A grid file and a user-mods directory configure an E3SM case for each
+experiment. Its physics and options come from the same configuration as
+the standalone MPAS-Ocean and MALI runs.
+
+### Requirement: A case's layout suits the machine
+
+Date last modified: 2026/11/01
+
+Contributors: Xylar Asay-Davis, Claude
+
+A case runs close to a goal number of cells per task, on whole nodes with
+no idle cores, and never with more cells per task than a maximum or fewer
+than a minimum. A machine too small for the maximum is an error.
+
+### Requirement: The inputs are staged as on inputdata
+
+Date last modified: 2026/10/30
+
+Contributors: Xylar Asay-Davis, Claude
+
+The files are staged in a tree laid out like E3SM's inputdata. Copying
+them there is a separate, manual step.
+
+### Requirement: A standalone ocean run shares the inputs
+
+Date last modified: 2026/10/30
+
+Contributors: Xylar Asay-Davis, Claude
+
+For Ocean0–4, Polaris can run MPAS-Ocean alone from the E3SM initial
+condition, with the same physics and land-ice geometry, so E3SM's ocean
+can be compared with it.
+
+## Algorithm Design
+
+### Algorithm Design: Both meshes share one geographic frame
+
+Date last modified: 2026/10/30
+
+Contributors: Xylar Asay-Davis, Claude
+
+Both meshes are planar in the protocol's coordinates:
+
+- the ocean's is the ISOMIP+ tasks' shared mesh, which covers the ISOMIP+
+  box. Every experiment keeps all of its cells, with a thin film under
+  grounded ice, as the ISOMIP+ wetting and drying tasks do;
+- MALI's is the MISMIP+ tasks' uniform 1 km mesh ([D1](#decisions)).
+
+```{admonition} Rationale
+The grounding line moves in Ocean3–4 and IceOcean1r, so grounded cells
+must be active from the start. With the same cells in Ocean0–2, every
+experiment at a resolution uses one set of maps.
+```
+
+Latitude and longitude come from one transverse Mercator projection on a
+sphere of E3SM's radius ([D2](#decisions)):
+
+```none
++proj=tmerc +R=6371220 +lat_0=-75 +lon_0=0 +k_0=1
++x_0=-40000 +y_0=560000 +axis=nwu +units=m
+```
+
+The ISOMIP+ box's center, $x = 560$ km and $y = 40$ km, lies at 75°S on
+the central meridian, which runs along $x$. As in the protocol (Sect.
+3.1.1), $x$ points north and $y$ west. Planar lengths along $x$ equal the
+sphere's on the centerline and exceed them by 2 × 10⁻⁵ at the walls.
+
+Each SCRIP file takes its cell polygons from the vertices. MALI's cells on
+$y = 0$ and $y = 80$ km are trimmed to the domain, so their map areas equal
+their halved model areas
+([MISMIP+ design](mismip_plus.md#algorithm-design)). MALI's gutter cells
+and all ocean cells stay whole. No cell is masked.
+
+*(first E3SM run)* If E3SM cannot run a planar ocean, a step maps the
+ocean mesh onto the sphere with this projection, before the SCRIP file is
+written. Lengths change by less than $2\times10^{-5}$, and nothing
+downstream changes.
+
+### Algorithm Design: The coupler can map fields between the models
+
+Date last modified: 2026/11/04
+
+Contributors: Xylar Asay-Davis, Claude
+
+With ice-shelf coupling on, FAnSSIE's MCT coupler reads these maps
+between the ocean (ocn) and MALI (glc):
+
+| Coupler variable          | What the coupler maps with it             | Method       |
+|---------------------------|-------------------------------------------|--------------|
+| `GLC2OCN_FMAPNAME`        | MALI's fluxes and the floating fraction that normalizes the melt sent to MALI | conservative |
+| `GLC2OCN_SHELF_SMAPNAME`  | MALI's geometry: the below-sea-level mask, pressure and ice masks | conservative, smoothed |
+| `GLC2OCN_SMAPNAME`        | MALI's other states                       | conservative |
+| `OCN2GLC_SHELF_FMAPNAME`  | melt flux                                 | conservative |
+| `OCN2GLC_SHELF_SMAPNAME`  | interface temperature and its weight      | conservative |
+
+`GLC2OCN_SHELF_SMAPNAME` is the map $R$ that carries MALI's geometry to
+the ocean: a conservative map onto ocean cells inflated by one cell width
+([D4](#decisions)). `GLC2OCN_FMAPNAME` and `GLC2OCN_SMAPNAME` are the
+conservative map without inflation. `GLC2OCN_SHELF_SMAPNAME` is a case
+variable of the E3SM changes, not a map between a pair of grids, so
+`shell_commands` sets it. Its default maps the geometry with
+`GLC2OCN_FMAPNAME`, so other configurations do not change. With ice-shelf coupling,
+`GLC2OCN_ICE_RMAPNAME` is not read, and `OCN2GLC_TF_SMAPNAME` is read only
+with thermal-forcing coupling, which these runs leave off. Neither is
+built.
+
+Polaris makes no runoff map. The E3SM changes keep MALI's calving and
+face-melt runoff out of the ocean, and MALI has no other runoff here. The
+coupler still reads `GLC2OCN_LIQ_RMAPNAME` at initialization, so the
+design of the E3SM changes settles what E3SM needs in its place.
+
+```{admonition} Rationale
+The coupler maps the ocean's interface temperature without normalizing,
+and MALI divides by the remapped weight. A conservative map makes that an
+area-weighted mean, as for the fluxes. E3SM's realistic grids use bilinear
+state maps; either works with the division.
+```
+
+*(first E3SM run)* Whether E3SM needs the unused maps, and which method
+the state maps take.
+
+### Algorithm Design: MALI starts each experiment from the protocol's geometry
+
+Date last modified: 2026/10/30
+
+Contributors: Xylar Asay-Davis, Claude
+
+Every initial condition starts from the MISMIP+ tasks' cached steady
+state, which holds every field MALI needs, and keeps its bed (Eqs. 1–4).
+
+For Ocean0–4, the thickness is replaced where the protocol's input covers
+MALI's mesh, $x \ge 320$ km:
+
+| Experiment | Input                         |
+|------------|-------------------------------|
+| Ocean0, 1  | Ocean1                        |
+| Ocean2     | Ocean2                        |
+| Ocean3     | Ocean3, first record          |
+| Ocean4     | Ocean4, first record          |
+
+1. The input thickness, upper surface minus lower surface, is remapped
+   conservatively from the input's 1 km grid to MALI's cells, with both
+   described by the projection above.
+2. It is calved on MALI's cells ([D3](#decisions)). Ice that floats by
+   MALI's flotation test, with densities 918 and 1028 kg m⁻³, and is
+   thinner than 100 m is removed, as is ice beyond $x = 640$ km.
+
+Upstream of $x = 320$ km, MALI keeps its steady state ([D1](#decisions)).
+
+For IceOcean1r, the initial condition is the steady state, with its time
+set to the start of the run, as in the MISMIP+ experiments. IceOcean1ra
+continues from IceOcean1r's E3SM restart and needs no initial condition.
+
+Latitude and longitude of cells, edges and vertices come from the
+projection. MALI needs no `sphere_radius`: in E3SM, its coupler areas
+already divide its planar areas by the square of E3SM's radius.
+
+### Algorithm Design: MALI replays the geometry of Ocean3 and Ocean4
+
+Date last modified: 2026/10/30
+
+Contributors: Xylar Asay-Davis, Claude
+
+All 101 yearly records are remapped as above, without calving. Records are
+written at the start of each month of years 1 to 101, 1,201 in all, in
+E3SM's no-leap calendar. Each holds the thickness interpolated linearly in
+time between the yearly records around it, and then calved. Upstream of
+$x = 320$ km, every record holds the steady state's thickness.
+
+```{admonition} Rationale
+The protocol interpolates the yearly geometry linearly in time and calves
+after interpolating (Sects. 3.1.2 and 3.2.4). MALI's data mode steps from
+record to record without interpolating, so yearly records would move the
+geometry in yearly jumps.
+```
+
+The files hold thickness only, which is all MALI's data mode reads. The
+first record equals the initial condition. Each file is about 0.6 GB.
+
+### Algorithm Design: The ocean starts from MALI's geometry
+
+Date last modified: 2026/11/04
+
+Contributors: Xylar Asay-Davis, Claude
+
+1. **MALI's export.** From MALI's initial thickness $H$ and bed, Polaris
+   computes what MALI exports to the coupler: the below-sea-level mask
+   $m$, the pressure $m \rho_i g H$, and $m \phi_f$ and $m \phi_g$ from
+   MALI's floating and grounded masks. It uses E3SM's gravity,
+   9.80616 m s⁻², not the 9.80665 m s⁻² of Polaris's constants. In data
+   mode, it does so for every record.
+2. **Through the map.** $R$ is applied to each, and the result is
+   normalized as MPAS-Ocean's import does: $p = R(m \rho_i g H)/R(m)$,
+   with floating and land-ice fractions $R(m\phi_f)/R(m)$ and
+   $R(m(\phi_f + \phi_g))/R(m)$, each capped at 1. All three are zero
+   where $R(m) = 0$, and where the land-ice fraction is at or below
+   $10^{-3}$, which MPAS-Ocean's import leaves open ocean.
+3. **Geometry and state.** The ISOMIP+ initial condition is built with
+   these fields in place of its remapped input geometry. The draft follows
+   from the pressure with $\rho_{sw} = 1028$ kg m⁻³ and E3SM's gravity.
+   Where it is at or below the bed, the cell holds the ISOMIP+ tasks' thin
+   film: fresh water, $10^{-3}$ m thick per active layer, the column at
+   which MPAS-Ocean caps the land-ice pressure. The bed is the protocol's,
+   remapped onto the same inflated ocean cells as $R$ ([D4](#decisions)).
+   Partial bottom cells leave no bottom layer thinner than a tenth of a
+   layer, and the film is set on the bed they leave by raising the SSH.
+   The profiles, restoring
+   and outflow through the restoring region are the ISOMIP+ tasks'.
+4. **Frame.** The projection's latitude and longitude replace the ISOMIP+
+   tasks', and the global attribute `sphere_radius` is 6,371,220 m.
+   `fCell` is the ISOMIP+ tasks' constant $f = -1.409\times10^{-4}$ s⁻¹,
+   so it does not depend on latitude.
+5. **SSH adjustment.** The ISOMIP+ SSH adjustment runs with standalone
+   MPAS-Ocean, RK4 and the thin-film settings, holding the pressure fixed.
+   Its output, with the mesh in the same file, is the initial condition
+   E3SM reads.
+
+| Experiment  | Initial profiles | Restoring | Geometry from MALI        |
+|-------------|------------------|-----------|---------------------------|
+| Ocean0      | WARM             | WARM      | static, Ocean1 input      |
+| Ocean1      | COLD             | WARM      | static, Ocean1 input      |
+| Ocean2      | WARM             | COLD      | static, Ocean2 input      |
+| Ocean3      | WARM             | WARM      | data mode, first record   |
+| Ocean4      | COLD             | COLD      | data mode, first record   |
+| IceOcean1r  | COLD             | WARM      | steady state              |
+| IceOcean1ra | from IceOcean1r  | COLD      | from IceOcean1r           |
+
+IceOcean1ra gets only a restoring file.
+
+*(first E3SM run)* Steps 1 and 2 reproduce code in FAnSSIE's MALI coupling
+interface and MPAS-Ocean's import. The first coupling step checks that
+they match.
+
+### Algorithm Design: Both models can be decomposed at the planned task counts
+
+Date last modified: 2026/11/01
+
+Contributors: Xylar Asay-Davis, Claude
+
+Each model's graph is partitioned with `gpmetis` into the core counts that
+`get_core_list()` gives between bounds on cells per core. The bounds are
+config options, and also each case's limits on cells per task
+([D9](#decisions)).
+
+### Algorithm Design: Each experiment has a case configuration
+
+Date last modified: 2026/11/07
+
+Contributors: Xylar Asay-Davis, Claude
+
+Each experiment's case configuration holds:
+
+- **a user-mods directory** with:
+  - a grid file, `config_grids.xml`, which CIME uses in place of E3SM's.
+    It holds E3SM's grid defaults, a model grid for the pair of meshes,
+    the two grids' domains and the maps above, but no runoff maps. The
+    other components' grids are null. Experiments of a pair hold the same
+    file;
+  - `user_nl_mpaso`: the options of the standalone run with the case's
+    time integrator, RK4 or split-explicit ([D11](#decisions)): the
+    ISOMIP+ tasks' E3SM physics, wetting and drying, and outflow. Every option
+    whose E3SM default differs from the standalone value is written.
+    Where MALI's geometry changes, in data mode and with a prognostic
+    MALI, the ocean ramps the land-ice pressure over each of MALI's
+    coupling intervals (`config_glc_ice_shelf_coupling_ramp_land_ice_pressure`),
+    an interval E3SM sets from the case's coupling;
+  - `user_nl_mali`: the MISMIP+ tasks' MALI options, read from their
+    files, with `config_always_compute_fem_grid = .false.`;
+  - for IceOcean1r and IceOcean1ra, MALI's Albany input, the MISMIP+
+    tasks' file, and the MISMIP+ tasks' MALI options with those of their
+    Ice1r run, less the melt under floating ice, which E3SM takes from the
+    ocean. Where E3SM's MALI defaults differ from MALI's own, which the
+    MISMIP+ tasks run with, MALI's are written: no thermal solver, tracer
+    advection, ISMIP6 or face melt, or regional statistics, and MALI's
+    calving defaults. The rest keep E3SM's values for coupling, run
+    control or output;
+  - `shell_commands` with the XML changes: the case variables that name
+    the initial conditions, the ocean's interior restoring and tidal mask,
+    the data-mode file and partitions, the smoothed map
+    (`GLC2OCN_SHELF_SMAPNAME`), the time of the data-mode file's
+    first record, from which MALI counts its months, for a prognostic MALI
+    no ocean thermal forcing (`GLC_NZOC=0`), since the melt comes through
+    ice-shelf coupling, MALI's runoff to the ocean turned off, the coupler's budgets turned on, the coupling
+    intervals, the first job's length, yearly restarts and the number of
+    jobs ([D12](#decisions));
+- **a README** with the compset by long name, which sets MALI's mode
+  (static, data or prognostic);
+- **`create_case.sh`**, which creates a case with the MCT driver, the
+  compset, the model grid and the user-mods directory, sets its layout,
+  and sets it up and builds it ([D8](#decisions)). It first adds the
+  case's output to the streams files E3SM writes ([D10](#decisions)): the
+  ocean's daily melt means and monitoring; the monthly mean of
+  `vertAleTransportTop` and snapshots of `layerThickness` at each month's
+  start, from which the overturning streamfunction is exact where columns
+  wet and dry; and, for IceOcean1r and IceOcean1ra, MALI's monthly
+  history, with thickness, `bedTopography` and the mesh variables the
+  MISMIP+ diagnostics need, and daily melt.
+  It sets up the first job and makes `next_segment.sh` set up each later
+  one ([D12](#decisions)). IceOcean1ra is a branch run from an IceOcean1r
+  case's restarts on a date the person gives, whose ice must have no
+  ice-free holes behind the calving front, since MALI restores the front
+  to the extent of the ice it starts from.
+  It takes the E3SM checkout, the case directory, and optionally the
+  project, output root, compiler and task counts. The machine is the one
+  Polaris was set up on, and the compiler defaults to Polaris's. It
+  stops if the checkout lacks the E3SM changes for idealized ice-shelf
+  cases, if the case's machine is not Polaris's, or if no partition is
+  staged for a task count. The person submits the case.
+
+```{admonition} Rationale
+By default, MALI rebuilds Albany's finite-element grid at every velocity
+solve, and each rebuild leaks memory, so a long prognostic run grows and
+slows.
+```
+
+IceOcean1r and IceOcean1ra take Ice1r's calving: thin floating ice and
+icebergs are calved, and the calving front is restored to the initial
+extent without preventing its retreat. The calving mask stays on.
+
+The case variables, the runoff option and the compsets are those of the
+E3SM changes for idealized ice-shelf cases.
+
+The coupling intervals are config options, set to E3SM's defaults: the
+ocean every 30 minutes and MALI daily. The step stops if the ocean's
+interval is not a whole number of its time steps, or MALI's not a whole
+number of the ocean's.
+
+Every component runs on the same tasks, MALI on them in turn, with 1
+thread a task. The task count comes from a goal number of cells per task
+and bounds on it for each model, and from the machine Polaris runs on
+([D9](#decisions)):
+
+1. **Target, minimum and maximum.** The ocean's cells over its goal give
+   the target tasks, rounded, and at least 1. Its cells over its maximum
+   cells per task, rounded up, give the minimum tasks, and over its
+   minimum cells per task, rounded down, the maximum tasks. When MALI is
+   prognostic, its cells and its own three values give a second set, and
+   the more restrictive applies: the smaller target, the larger minimum
+   and the smaller maximum. In MALI's static and data modes, only the
+   ocean's set applies.
+2. **Tasks per node** are the machine's cores per node, or its MPI tasks
+   per node if fewer.
+3. **On a batch system**, nodes are the target over tasks per node,
+   rounded, and at least 1, then raised until the tasks reach the
+   minimum. The tasks fill the nodes, up to the maximum.
+4. **On a single node**, the tasks are the target, or the node's tasks if
+   fewer.
+5. **The partitions** then set the count: the most tasks at or below it
+   that both meshes are partitioned for.
+6. **Fewer than the minimum** is an error.
+
+The step's log and the README give the goals and bounds, the target,
+minimum and maximum, tasks per node, nodes and tasks. `create_case.sh`
+uses them by default. `-o` and `-g` choose other counts for the ocean and
+MALI, which must lie between the minimum and maximum and be partitioned. A
+case on a machine other than the one the layout was chosen for is an
+error, whose message names both machines and says to set up the task on
+the case's machine. The case's layout comes from a PE file beside the
+script, in place of MPAS-Ocean's, with the tasks per node.
+*(prognostic E3SM runs)* MALI's goal, and whether its bounds hold.
+
+### Algorithm Design: The inputs are staged as on inputdata
+
+Date last modified: 2026/10/31
+
+Contributors: Xylar Asay-Davis, Claude
+
+```none
+assembled_files/
+    README
+    inputdata/
+        ocn/mpas-o/<ocn grid>/
+            mpaso.<ocn grid>.<experiment>.<date>.nc
+            mpaso.<ocn grid>.<experiment>_forcing.<date>.nc
+            <ocn grid>.scrip.<date>.nc
+            partitions/mpas-o.graph.info.<date>.part.<n>
+        glc/mpasli/<glc grid>/
+            <glc grid>.<experiment>.<date>.nc
+            <glc grid>.<experiment>_datamode.<date>.nc
+            <glc grid>.scrip.<date>.nc
+            mpasli.graph.info.<date>.part.<n>
+        cpl/gridmaps/<ocn grid>/map_<ocn grid>_to_<glc grid>_<method>.<date>.nc
+        cpl/gridmaps/<glc grid>/map_<glc grid>_to_<ocn grid>_<method>.<date>.nc
+    case_config/<experiment>/
+        README
+        create_case.sh
+        pes.xml
+        user_mods/
+```
+
+Initial conditions carry the experiment in their names, since each
+experiment has its own. The realistic component inputs have one set per
+mesh. `case_config/` is not inputdata.
+
+### Algorithm Design: A standalone ocean run shares the inputs
+
+Date last modified: 2026/11/05
+
+Contributors: Xylar Asay-Davis, Claude
+
+A forward run starts from the E3SM initial condition, with the same
+physics, wetting and drying, outflow and RK4. A second forward run, from
+the same initial condition, uses the ISOMIP+ split-explicit settings
+([D11](#decisions)). For Ocean3–4, its land-ice
+forcing is every data-mode record through $R$, from step 2 above. Its
+length is a config option, one month by default, for comparison with the
+first E3SM run. IceOcean1r's run, with MALI's geometry fixed, is set up
+but not run by default: its namelist is the one both IceOcean cases share.
+It writes E3SM's monthly means, less the fields it does not compute, and
+for Ocean3–4 the land-ice pressure, fractions and draft.
+
+MPAS-Ocean interpolates land-ice forcing in time, while MALI's data mode
+steps from record to record. Comparisons of E3SM's Ocean3–4 with the
+standalone runs treat this as a known difference.
+
+## Implementation
+
+### Implementation: Both meshes share one geographic frame
+
+Date last modified: 2026/10/30
+
+Contributors: Xylar Asay-Davis, Claude
+
+`<mesh_name>` names a pair of meshes, as the unified meshes' names do:
+`misomip-o4km-li1km` and `misomip-o2km-li1km`. Shared steps of the
+`e3sm/init` component:
+
+```none
+e3sm/init/<mesh_name>/ocean_mesh            lat/lon, SCRIP, graph
+e3sm/init/<mesh_name>/landice_mesh          lat/lon, SCRIP
+e3sm/init/<mesh_name>/maps/<map>            one step per map
+e3sm/init/<mesh_name>/ocean_partitions
+e3sm/init/<mesh_name>/landice_partitions
+e3sm/init/<mesh_name>/misomip/<experiment>  tasks
+```
+
+The projection string and helpers are in
+`polaris/tasks/e3sm/init/misomip/projection.py`. `ocean_mesh` keeps
+`xIsomipCell` and `yIsomipCell`, which the ISOMIP+ restoring reads and
+which the ISOMIP+ tasks compute from their own projection. SCRIP files
+come from `mpas_tools`' `scrip_from_mpas()`, followed by the trimming of
+MALI's wall cells.
+
+The ocean mesh is the ISOMIP+ tasks' `topo/cull_mesh` output and MALI's is
+the MISMIP+ tasks' `mesh/planar/mismip_plus/1km/mesh`, through public
+accessors (see
+[Changes to the ISOMIP+ and MISMIP+ tasks](#implementation)).
+
+### Implementation: The coupler can map fields between the models
+
+Date last modified: 2026/11/04
+
+Contributors: Xylar Asay-Davis, Claude
+
+Each map is a `GlcOceanMapStep`, from `polaris.e3sm.init`, with the tool
+in `[mapping] map_tool`. The conservative maps read the two SCRIP files.
+The smoothed map reads MALI's SCRIP file and the ocean's mesh, whose cells
+pyremap inflates by `get_smoothing_distance()`, the distance the bed is
+smoothed over. The component-input tasks' `scrip.py` and
+`maps.py` do not apply: the first restamps SCRIP files the cull step
+wrote, and the second builds index maps, not coupler maps. Map filenames
+follow E3SM's `map_<src>_to_<dst>_<method>.<date>.nc`.
+
+### Implementation: MALI starts each experiment from the protocol's geometry
+
+Date last modified: 2026/10/30
+
+Contributors: Xylar Asay-Davis, Claude
+
+One `landice_init` step per experiment, with the remapping as a
+`MappingFileStep` from the input grid to MALI's mesh, shared by the
+experiments of a pair. MALI's flotation test and the calving are functions
+in `polaris/tasks/e3sm/init/misomip/`, so they can be unit tested.
+
+### Implementation: MALI replays the geometry of Ocean3 and Ocean4
+
+Date last modified: 2026/10/30
+
+Contributors: Xylar Asay-Davis, Claude
+
+A `landice_data` step in the Ocean3 and Ocean4 tasks, writing records one
+at a time.
+
+### Implementation: The ocean starts from MALI's geometry
+
+Date last modified: 2026/11/04
+
+Contributors: Xylar Asay-Davis, Claude
+
+Steps 1 and 2 are an `e3sm/init` step, `land_ice_on_ocean`, that writes
+the fields on the ocean's mesh for every record. Steps 3–5 run MPAS-Ocean
+or build its inputs, so they are shared steps of the `ocean` component
+with an ocean config ([D5](#decisions)):
+
+```none
+ocean/planar/misomip/<mesh_name>/topo/...            smoothed bed
+ocean/planar/misomip/<mesh_name>/<experiment>/init
+ocean/planar/misomip/<mesh_name>/<experiment>/ssh_adjustment/...
+ocean/planar/misomip/<mesh_name>/<experiment>/forward
+```
+
+Their code is in `polaris/tasks/ocean/misomip/`, which imports from
+`polaris/tasks/ocean/isomip_plus/` and nothing from `e3sm`:
+
+- `init` subclasses the ISOMIP+ `Init`, reading the mesh from
+  `ocean_mesh` and the land-ice fields from `land_ice_on_ocean`;
+- the bed comes from `MisomipTopoMap`, a subclass of the ISOMIP+ `TopoMap`
+  that inflates the ocean cells by `get_smoothing_distance()`, one ocean
+  cell, and from the ISOMIP+ `TopoRemap`, at the paths above;
+- the SSH adjustment uses the ISOMIP+ `ThinFilmSshForward`, with the
+  thin-film tasks' wetting and drying options, through a function in
+  `polaris/ocean/ice_shelf/` that creates the steps in a given component.
+  `IceShelfTask.setup_ssh_adjustment_steps()` calls it;
+- `compute_land_ice_draft_from_pressure()` and its siblings take an
+  optional gravity.
+
+### Implementation: Both models can be decomposed at the planned task counts
+
+Date last modified: 2026/10/30
+
+Contributors: Xylar Asay-Davis, Claude
+
+Two `GraphPartitionStep`s from `polaris/e3sm/init/graph_partition.py`,
+unchanged, with config sections `[misomip_ocean_partitions]` and
+`[misomip_landice_partitions]`.
+
+### Implementation: Each experiment has a case configuration
+
+Date last modified: 2026/11/01
+
+Contributors: Xylar Asay-Davis, Claude
+
+A `case_config` step per experiment writes the user-mods directory and
+README. `user_nl_mpaso` comes from the namelist the standalone forward step
+renders: the options whose values differ from MPAS-Ocean's defaults, less
+those E3SM sets itself (run times, I/O, partitions and the analysis
+members' output), plus a list of options whose E3SM defaults differ, with
+the standalone values. The analysis members are on or off as in the
+standalone run, which has only `globalStats` and `timeSeriesStatsMonthly`
+on. E3SM's others cost a fixed time at every step, and MISOMIP reads
+none of them. A case can read the staged files from a directory other than
+inputdata, for a run before they are copied there. The directory's config
+option may name the experiment, since each experiment has its own
+assembly. `create_case.sh` and `pes.xml` are
+rendered from templates, with the task counts `get_core_list()` gives for
+each mesh's partition bounds.
+
+Each model's goal and bounds are in its partitions' section of
+`misomip.cfg`, `[misomip_ocean_partitions]` and
+`[misomip_landice_partitions]`: a new `goal_cells_per_core`, and the
+existing `max_cells_per_core` and `min_cells_per_core`. With 1 thread a
+task, a core is a task. One setting serves every pair of meshes. The
+ocean's goal is 100 cells per task, with bounds of 40 and 2000, from
+scaling series of 4 km and 2 km Ocean0 cases on Chrysalis. MALI's come
+from prognostic cases. The machine's
+cores and MPI tasks per node, and whether it is a batch system, come from
+the component's parallel system, which mache builds from `[parallel]`.
+The machine's name and the compiler are `[build] machine` and
+`[build] compiler`, which `polaris setup` sets. A function of these, with
+no machine's values in the code, chooses the tasks. Without a machine
+name, as on a laptop, the script leaves the machine to CIME and skips the
+check.
+
+```{admonition} Rationale
+The namelist includes everything the standalone step sets, from YAML files
+and from config options, such as the equation of state, so the list of
+YAML files is not repeated.
+```
+
+### Implementation: The inputs are staged as on inputdata
+
+Date last modified: 2026/10/30
+
+Contributors: Xylar Asay-Davis, Claude
+
+A subclass of `AssembleStep` per experiment. `polaris/e3sm/init/inputdata.py`
+gains `landice_dir(grid)` and `gridmaps_dir(grid)`, which any workflow
+would stage the same way. MISOMIP's own path functions are in
+`polaris/tasks/e3sm/init/misomip/names.py`, built on `ocean_dir()` and
+`landice_dir()`. An `ocean_initial_condition` step merges the mesh into
+the SSH adjustment's output, which holds only the state. Copying to
+inputdata uses
+`polaris/e3sm/init/sync_to_inputdata.sh`, by hand.
+
+### Implementation: A standalone ocean run shares the inputs
+
+Date last modified: 2026/10/30
+
+Contributors: Xylar Asay-Davis, Claude
+
+`forward` subclasses the ISOMIP+ `Forward`. The Ocean0–4 tasks include it
+with `run_by_default=False`.
+
+### Implementation: Changes to the ISOMIP+ and MISMIP+ tasks
+
+Date last modified: 2026/10/30
+
+Contributors: Xylar Asay-Davis, Claude
+
+- **ISOMIP+ shared steps:** a public `get_isomip_plus_mesh_steps(resolution)`
+  in `polaris/tasks/ocean/isomip_plus/` returns the shared mesh and
+  topography steps and their config. It creates them with
+  `get_or_create_shared_config()` and `get_or_create_shared_step()`, as
+  `get_mismip_plus_mesh_steps()` does, so the ISOMIP+ tasks and
+  `e3sm/init` share one instance. The private `_get_shared_steps()`
+  constructs steps directly, so calling it twice raises "A different step
+  has already been added".
+- **ISOMIP+ `Init`:** public methods for the mesh file and for the
+  land-ice fields, which a subclass overrides. `_compute_geometry()` stays
+  as it is otherwise.
+- **MISMIP+, optional:** the namelist, Albany input and MALI options move
+  from `polaris/tasks/landice/mismip_plus/` to
+  `polaris/landice/mismip_plus/`.
+
+## Testing
+
+### Testing and Validation: Both meshes share one geographic frame
+
+Date last modified: 2026/10/30
+
+Contributors: Xylar Asay-Davis, Claude
+
+Unit tests: the projection's center, orientation and scale at the walls.
+In a run: map areas against model areas, to $4\times10^{-5}$, and MALI's
+wall-cell map areas against their halved model areas.
+
+### Testing and Validation: The coupler can map fields between the models
+
+Date last modified: 2026/10/30
+
+Contributors: Xylar Asay-Davis, Claude
+
+In a run: the conservative maps conserve a constant field's integral to
+round-off. The first E3SM run checks the rest.
+
+### Testing and Validation: MALI starts each experiment from the protocol's geometry
+
+Date last modified: 2026/10/30
+
+Contributors: Xylar Asay-Davis, Claude
+
+Unit tests: MALI's flotation test and the calving. In a run: the
+grounding line and ice volume against the input's, with the MISMIP+
+diagnostics.
+
+### Testing and Validation: MALI replays the geometry of Ocean3 and Ocean4
+
+Date last modified: 2026/10/30
+
+Contributors: Xylar Asay-Davis, Claude
+
+Unit tests: record times, interpolation weights and calving on a small
+synthetic input. In a run: the first record equals the initial condition.
+
+### Testing and Validation: The ocean starts from MALI's geometry
+
+Date last modified: 2026/10/30
+
+Contributors: Xylar Asay-Davis, Claude
+
+Unit tests: the normalization on a synthetic export and map. In a run: the
+land-ice fields, recomputed from the staged map and MALI file, equal the
+initial condition's to round-off, and SSH adjustment converges as in the
+ISOMIP+ thin-film tasks. The first E3SM run checks them against E3SM's
+first coupling step.
+
+### Testing and Validation: Both models can be decomposed at the planned task counts
+
+Date last modified: 2026/10/30
+
+Contributors: Xylar Asay-Davis, Claude
+
+The planned counts are among the partitions.
+
+### Testing and Validation: Each experiment has a case configuration
+
+Date last modified: 2026/11/07
+
+Contributors: Xylar Asay-Davis, Claude
+
+Unit tests: the user-mods options match the standalone namelist, the
+list of options whose E3SM defaults differ matches E3SM's defaults, the
+coupling intervals divide evenly, and `create_case.sh` passes `bash -n`.
+The task count follows the rule for a batch system and a single node,
+including a count the partitions do not cover and a machine below the
+minimum, and MALI's goal and bounds apply only when MALI is prognostic.
+`edit_streams.py` edits synthetic streams files as above, including the
+snapshot stream named and written like the monthly means in double
+precision, stops without a stream or Registry field it needs and refuses a
+linked SourceMods.
+`next_segment.sh` sets up each job of a fake case from the restart
+pointer, keeps a lowered `RESUBMIT`, stops on a date that starts no job and
+can be skipped. For IceOcean1r and IceOcean1ra, `user_nl_mali`
+names each option once and accounts for every MALI option whose E3SM
+default differs from MALI's, and IceOcean1ra's script branches from the
+restarts and names IceOcean1r's initial conditions. The namelist E3SM
+builds for IceOcean1r differs from the standalone Ice1r run's only in
+coupling, run control, output and options E3SM's MALI namelist
+definition lacks, whose MALI defaults equal Ice1r's.
+A 5-day Ocean0 case at 4 km on Chrysalis runs on 1 node and is bit for
+bit with the same case before the change.
+
+The E3SM runs of each experiment, from cases `create_case.sh` creates,
+test the cases themselves.
+
+### Testing and Validation: The inputs are staged as on inputdata
+
+Date last modified: 2026/10/30
+
+Contributors: Xylar Asay-Davis, Claude
+
+Unit tests of the path functions, and a setup test that fails without
+grid names.
+
+### Testing and Validation: A standalone ocean run shares the inputs
+
+Date last modified: 2026/10/30
+
+Contributors: Xylar Asay-Davis, Claude
+
+A month of 4 km Ocean0 runs to completion. No task joins a suite; the
+tasks take tens of minutes to hours on a node.
+
+## What the first E3SM run settles
+
+Date last modified: 2026/10/30
+
+Contributors: Xylar Asay-Davis, Claude
+
+- whether E3SM runs a planar ocean, or needs the ocean mesh mapped onto
+  the sphere;
+- which maps E3SM needs, and the state maps' method;
+- whether Polaris's copy of MALI's export and MPAS-Ocean's import matches
+  E3SM at the first coupling step;
+- whether E3SM's MPAS-Ocean reads `fCell` from the initial condition
+  rather than computing it from `latCell`;
+- the case configuration's details and MALI's layouts.
+
+None blocks this design. Each changes which maps are built or what the
+case configuration holds, not the steps or the layout. A spherical ocean
+adds one step before the SCRIP file. The implementation starts with the
+meshes, maps and initial conditions, which the first E3SM run uses. The
+case configuration follows that run and the E3SM changes.
+
+## Decisions
+
+### D1: Every experiment uses the MISMIP+ 1 km MALI mesh, extended
+
+Date last modified: 2026/11/05
+
+Contributors: Xylar Asay-Davis, Claude
+
+MALI's mesh is the MISMIP+ 1 km mesh extended in $x$ to 660 km, 20 km past
+the calving front, plus its two-cell gutter. Its first cells are the
+MISMIP+ mesh's, at the same positions. The MISMIP+ steady state is copied
+onto it by position, and its ice where the calving mask is 1, beyond the
+protocol's calving front, is removed, so the initial condition puts no
+ice on the ocean past the front. The cells beyond the MISMIP+
+mesh take the MISMIP+ initial fields: no ice, a calving mask of 1 and the
+analytic bed. The calving front stays at $x = 640$ km.
+
+Ocean0–4 use the mesh IceOcean1r uses. It covers all of the ISOMIP+ box's
+ice. Upstream of the protocol's input, $x < 320$ km, MALI keeps its
+steady state, which no ocean cell sees.
+
+```{admonition} Rationale
+One MALI mesh means one set of SCRIP files and maps per ocean resolution.
+The E3SM runs of Ocean0–4 then test the maps that IceOcean1r and
+IceOcean1ra use.
+
+The ocean normalizes MALI's geometry by the mapped below-sea-level
+fraction. Where MALI's mesh ends at the calving front, an ocean cell
+beyond it is only partly covered, and the normalization raises its ice to
+full pressure, as at a side wall. Ice-free MALI cells past the front let
+the pressure taper across it. The copy by position needs no new spin-up.
+```
+
+Rejected:
+
+- a MALI mesh of the ISOMIP+ box. It would need its own mesh step, SCRIP
+  files and maps, and its maps would not be the ones IceOcean1r uses;
+- the MISMIP+ mesh, which ends at the calving front;
+- a mesh to the ocean's 800 km.
+
+### D2: The projection is centered on the ISOMIP+ box
+
+Date last modified: 2026/10/30
+
+Contributors: Xylar Asay-Davis, Claude
+
+A transverse Mercator projection puts the box's center at 75°S, the
+protocol's latitude, on the central meridian. `+axis=nwu` maps the
+protocol's north-pointing $x$ and west-pointing $y$ without a rotation in
+code. The `e3sm/init` steps apply it and leave the ISOMIP+ tasks' meshes
+alone.
+
+Rejected: the ISOMIP+ tasks' polar stereographic projection, which puts
+the box at 65–69°S and scales lengths by 1.016 to 1.032; and switching the
+ISOMIP+ tasks to this projection, which would change their baselines for
+no benefit to the standalone runs.
+
+### D3: Calving follows remapping, on MALI's cells
+
+Date last modified: 2026/10/30
+
+Contributors: Xylar Asay-Davis, Claude
+
+The 100 m criterion is applied to MALI's thickness after remapping, and in
+data mode after interpolation in time, as the protocol orders (Sect.
+3.1.2).
+
+Rejected: calving the input grid before remapping, as the ISOMIP+ tasks do
+for the ocean. MALI would then hold thin ice from cells that straddle the
+calving front.
+
+### D4: The geometry is smoothed onto the ocean
+
+Date last modified: 2026/11/04
+
+Contributors: Xylar Asay-Davis, Claude
+
+MALI's geometry reaches the ocean through $R$, a conservative map onto
+ocean cells inflated by one cell width: 4 km at 4 km, 2 km at 2 km. The
+initial condition and the coupler use the same map. The ocean's bed, the
+protocol's, is remapped onto the same inflated cells. Fluxes keep the
+conservative map without inflation.
+
+```{admonition} Rationale
+Unsmoothed, the draft and bed step by up to 140 m between cells at the
+grounding line at 4 km, beside columns a few meters thick. Smoothing both
+surfaces leaves no step over 100 m next to the film. The grounding line
+retreats 0.4 km net. The first import still changes nothing, since the
+initial condition's land-ice fields come from the map the coupler uses.
+```
+
+*Effect:* the ocean follows MALI ([D1](#decisions)) through the smoothed
+map. Smoothing needs the E3SM changes to map MALI's geometry with
+`GLC2OCN_SHELF_SMAPNAME`.
+
+Rejected:
+
+- no smoothing, the earlier design, for the steps above;
+- smoothing only the draft, since the largest steps at the grounding line
+  come from the bed;
+- smoothing in the initial condition only, since the first import would
+  then differ from it;
+- MALI's bed through $R$, since MALI's mesh ends at $x = 662$ km and the
+  ocean's runs to 800 km.
+
+### D5: Ocean steps belong to the ocean component
+
+Date last modified: 2026/10/30
+
+Contributors: Xylar Asay-Davis, Claude
+
+The ocean's initial condition, SSH adjustment and forward run are shared
+steps of the `ocean` component, which the `e3sm/init` tasks include, as
+the component-input tasks include the global ocean's dynamic adjustment.
+
+```{admonition} Rationale
+Polaris assigns a model per component, and `e3sm/init` has none. A step
+from another component must be shared, with a config of its own
+component.
+```
+
+### D6: Partition counts come from bounds
+
+Date last modified: 2026/11/01
+
+Contributors: Xylar Asay-Davis, Claude
+
+The partition steps are `GraphPartitionStep`, unchanged, with bounds on
+cells per core. The same bounds limit each case's cells per task
+([D9](#decisions)), so the partitions cover every count a case may use.
+The meshes are small, so the extra partitions cost little.
+
+Rejected: a list of task counts, which would need a subclass.
+
+### D7: E3SM grid names follow the unified meshes' pattern
+
+Date last modified: 2026/10/30
+
+Contributors: Xylar Asay-Davis, Claude
+
+| `<mesh_name>`        | Ocean grid     | MALI grid       | Model grid           |
+|----------------------|----------------|-----------------|----------------------|
+| `misomip-o4km-li1km` | `misomip-o4km` | `misomip-li1km` | `misomip-o4km-li1km` |
+| `misomip-o2km-li1km` | `misomip-o2km` | `misomip-li1km` | `misomip-o2km-li1km` |
+
+The names are config options for each pair of meshes, as the
+component-input tasks' short names are. Each pair's config file sets them,
+and setup fails without them.
+
+```{admonition} Rationale
+The ocean, MALI and model grids share one pattern, that of E3SM's unified
+meshes (`u02-oi30`, `u02-lr10`) and Polaris's mesh names. MALI's existing
+grids all start with `mpas.`, but MALI needs no prefix.
+```
+
+Rejected: `oMISOMIP4km` with `mpas.misomip1km`, which share a stem but keep
+the two components' older patterns; and `isomip-plus-o4km` with
+`mismip-plus-li1km`, which name each mesh's protocol but make the model
+grid's name long.
+
+### D8: A script creates each case
+
+Date last modified: 2026/10/31
+
+Contributors: Xylar Asay-Davis, Claude
+
+Polaris writes `create_case.sh` beside each user-mods directory and does
+not run CIME itself.
+
+```{admonition} Rationale
+Creating a case needs the E3SM checkout, machine, project and CIME's
+environment, which belong to the person running E3SM. A script still
+closes the gap to a built case, with a layout that matches the staged
+partitions.
+```
+
+Rejected: a Polaris step that creates and builds the case, which ties the
+tasks to an E3SM checkout and CIME's environment; and the bare
+`create_newcase` command alone, which leaves the layout and partitions
+for the person to match.
+
+### D9: The layout comes from cells per task and the machine
+
+Date last modified: 2026/11/01
+
+Contributors: Xylar Asay-Davis, Claude
+
+The task count is chosen as Polaris chooses an ocean step's: from a goal
+number of cells per task and bounds on it, and the machine's facts from
+mache. The bounds are the partitions' ([D6](#decisions)). Each model has
+its own goal and bounds. MALI's apply only when it is prognostic, and
+then the more restrictive of the two models' counts applies. On a batch
+system, the tasks fill whole nodes, up to the maximum. The count is the
+most partitioned tasks at or below the rule's. The layout is for the
+machine Polaris ran on.
+
+```{admonition} Rationale
+MPAS-Ocean's default layouts assume 2 threads a task on some machines, so
+a case of 1-thread tasks left half of each node idle. In the 4 km series,
+from 2 to 128 tasks, doubling the tasks sped a case by 1.5 to 1.7 times
+above about 170 cells per task, and by about 1.25 times below it, down to
+21 cells per task. At 2 km, doubling sped a case by 1.57 times from 172 to
+86 cells per task and by 1.43 times from 86 to 43, so the goal is lower
+than the 4 km knee. Memory was 1.3 GB a task at 1379 cells. A whole node is
+charged whether or not its cores are used, so filling it costs nothing
+while each added task still speeds the run. The minimum cells per task
+keeps the tasks above where added tasks would stop doing so. Cells per
+task carry over between resolutions, so the 2 km cases need no values of
+their own. The ocean takes nearly all of a case's time when MALI is static
+or replays its geometry. A prognostic MALI, with Albany, may limit the
+tasks through its memory or its scaling. `get_core_list()` includes 1 to
+20 whole nodes of each E3SM node size, so the partitions usually hold the
+rule's count. Otherwise, or if the mesh is too small for a whole node,
+some cores are idle, and the log says so.
+```
+
+Rejected: the most tasks both meshes are partitioned for, which ignores
+the machine; the machine's tasks per node as a literal, which holds for
+one machine; task counts for each pair of meshes, which need values for
+each resolution; the target alone on a node it does not fill, which
+leaves cores idle that would speed the run; and bounds for the case
+apart from the partitions', which repeat them.
+
+### D10: Cases patch the streams E3SM writes
+
+Date last modified: 2026/11/06
+
+Contributors: Xylar Asay-Davis, Claude
+
+`create_case.sh` runs `./preview_namelists` after `case.setup`, then
+`edit_streams.py`. The script edits `streams.ocean` from the run
+directory into two files in the case directory, with and without daily
+means of 3D fields, from which each job takes one ([D12](#decisions)).
+With a prognostic MALI, it also copies `streams.landice` into the case's
+SourceMods and edits it:
+
+- the ocean's daily means hold only `landIceFreshwaterFlux`,
+  `frazilIceFreshwaterFlux`, `landIceFreshwaterFluxNotSentToGlc` and
+  `landIceHeatFlux`, and `user_nl_mpaso` turns them on, sampled every time
+  step rather than hourly, as E3SM's monthly means already are;
+- in the first year of every run and the last year of a 100-year run, the
+  daily means add `normalVelocity`, `layerThickness`, `activeTracers` and
+  `frazilLayerThicknessTendency`;
+- the ocean's monthly means add `landIceFreshwaterFluxNotSentToGlc`;
+- the ocean's custom time series holds the daily maximum of
+  `kineticEnergyCell`, checked every time step, and its global statistics
+  are hourly;
+- with a prognostic MALI, MALI's history is monthly, with the MISMIP+
+  tasks' output fields, the mesh, and `avgFloatingBMBFlux`, and a daily
+  MALI stream holds `floatingBasalMassBal` and
+  `floatingBasalMassBalApplied`.
+
+The script stops, writing nothing, if E3SM's streams lack a stream it
+edits or the case's E3SM Registry files a field it adds.
+
+```{admonition} Rationale
+The melt MALI applies must be checked against the melt the ocean sends,
+day by day, only when MALI is prognostic. The ocean's daily melt and
+monitoring serve every experiment. E3SM writes each streams file from the
+case name, the initial condition and the I/O type, so the edited file
+starts from the one E3SM wrote for the case. E3SM's daily ocean list
+holds full-depth velocities and tendencies, too much to write every day
+for 100 years: at 2 km, the daily 3D fields take about 4 GB a model year.
+The first and last years cover the adjustment from rest and the state the
+runs end in. The daily maximum of the kinetic energy and the hourly global
+statistics catch short bursts of velocity that daily means smooth out.
+```
+
+Rejected: complete streams files written by Polaris, which would repeat
+E3SM's builders and drift from them; time windows of the daily means,
+which would apply to the 2D fields as well, since one analysis member
+holds them all. The script stops if SourceMods is a link, as in a keepexe
+clone, which shares it with the case it was cloned from.
+
+### D11: Each experiment has an RK4 and a split-explicit case
+
+Date last modified: 2026/11/05
+
+Contributors: Xylar Asay-Davis, Claude
+
+Each experiment has two case configurations, which read the same staged
+files. RK4's takes its namelist from the RK4 forward run. Split-explicit's
+takes it from a second forward run with the options of the ISOMIP+
+split-explicit tasks: their time steps, two outer iterations and the split
+form of the Coriolis term. The SSH adjustment, which both runs start from,
+keeps RK4. The split-explicit README names the E3SM change that FAnSSIE
+does not have yet. No option turns it on, so `create_case.sh` cannot check
+for it.
+
+```{admonition} Rationale
+The full-length runs use split-explicit, and short RK4 runs remain the
+reference to compare them with. A shared initial condition keeps the
+comparison to the time integrator alone.
+```
+
+Rejected: split-explicit variant tasks, as ISOMIP+ has, which would stage
+the same files twice; a config option choosing the integrator, which the
+shared forward step would apply to every task that uses it.
+
+### D12: A script sets up each job of a case
+
+Date last modified: 2026/11/06
+
+Contributors: Xylar Asay-Davis, Claude
+
+A case runs in jobs of up to 4 years for the 100-year experiments and 1
+year for Ocean0–2, with restarts every year. A job ends at the first year
+of every run and starts the last year of a 100-year run, so a 100-year
+run takes jobs of 1 year, 24 of 4 years, 2 years and 1 year.
+`create_case.sh` makes `next_segment.sh` CIME's `POSTRUN_SCRIPT`. After
+each job, before CIME resubmits the case, the script:
+
+- takes the months run so far from the coupler's restart pointer and the
+  case's start, `RUN_STARTDATE` or a branch run's `RUN_REFDATE`;
+- sets the next job's `STOP_N` and copies the ocean's streams file with or
+  without the daily 3D fields ([D10](#decisions)) into SourceMods;
+- lowers `RESUBMIT` to the jobs left, never raising it;
+- logs each change in `next_segment.log` in the case directory;
+- exits with an error, which stops the chain, if it cannot tell the date,
+  finds a date that does not start a job or cannot copy the file;
+- then runs `postrun.local` in the case directory, if there is one.
+
+A file `next_segment.skip` in the case directory makes the script change
+nothing. Each job requests the wall-clock time of
+`[misomip_case_config] job_wall_time`, by default the machine's. A case
+needs FAnSSIE at `5eb5f0385b` or later, in which MALI
+rebuilds Albany's finite-element grid only when its masks change.
+
+```{admonition} Rationale
+At about 5.3 simulated years a day on 256 tasks at 2 km, 4 years take
+about 18 hours, within a 2-day limit. Working from the date, not a count
+of jobs, makes a rerun or a manual resubmit set up the right job. CIME
+runs one `POSTRUN_SCRIPT`, so `postrun.local` keeps room for a case's own.
+```
+
+Rejected: a README recipe for changing the streams and job length by hand
+at the first and last years, which a 100-year chain of jobs would wait on;
+jobs of the same length, with daily 3D fields in whole first and last
+jobs, which would write 3 more years of them at each end.

@@ -314,3 +314,401 @@ def bin_line_transport(
     ds_binned.coords['binLower'] = ('nBins', bins[:-1])
     ds_binned.coords['binUpper'] = ('nBins', bins[1:])
     return ds_binned
+
+
+def compute_line_interfaces(
+    line: xr.Dataset,
+    ssh: xr.DataArray,
+    layer_thickness: xr.DataArray,
+    vert_dim: str = 'nVertLevels',
+) -> tuple[xr.DataArray, xr.DataArray]:
+    """
+    Compute the elevations of the top and bottom of each layer on the edges
+    of a line
+
+    The layers stack down from the sea-surface height, which is the ice
+    draft under an ice shelf.  Each edge takes the mean of its two cells, as
+    the thickness in :py:func:`compute_line_transport` does.  Layers outside
+    a cell's valid range must have zero thickness.
+
+    Parameters
+    ----------
+    line : xarray.Dataset
+        A line from :py:func:`get_line_edges`
+
+    ssh : xarray.DataArray
+        The sea-surface height (m) with dimension ``nCells``
+
+    layer_thickness : xarray.DataArray
+        The layer thickness (m) with dimensions ``nCells`` and ``vert_dim``
+
+    vert_dim : str, optional
+        The vertical dimension, indexed from the top
+
+    Returns
+    -------
+    z_top, z_bottom : xarray.DataArray
+        The elevation (m) of the top and bottom of each layer, with
+        ``nCells`` replaced by ``nLineEdges``
+    """
+    z_bottom = ssh - layer_thickness.cumsum(dim=vert_dim)
+    z_top = z_bottom + layer_thickness
+    return (
+        interp_cell_to_line_edges(line, z_top),
+        interp_cell_to_line_edges(line, z_bottom),
+    )
+
+
+def compute_overturning_in_z(
+    transport: xr.DataArray,
+    z_top: xr.DataArray,
+    z_bottom: xr.DataArray,
+    dz: float,
+    vert_dim: str = 'nVertLevels',
+    top: float | None = None,
+    bottom: float | None = None,
+) -> xr.DataArray:
+    """
+    Compute the overturning stream function at fixed elevations
+
+    Each layer's transport is spread over bins of height ``dz`` by the
+    fraction of the layer each bin overlaps, summed along the line, and
+    accumulated from the top.  By default the bins span the layers, so all
+    of the transport is counted; a ``top`` and ``bottom`` that span them too
+    put several lines on the same elevations.
+
+    Parameters
+    ----------
+    transport : xarray.DataArray
+        Transport from :py:func:`compute_line_transport`, with dimensions
+        ``nLineEdges`` and ``vert_dim``
+
+    z_top, z_bottom : xarray.DataArray
+        The elevations (m) of the top and bottom of each layer, from
+        :py:func:`compute_line_interfaces`
+
+    dz : float
+        The height (m) of the bins
+
+    vert_dim : str, optional
+        The vertical dimension, indexed from the top
+
+    top, bottom : float, optional
+        The elevations (m) of the top of the first bin and the bottom of the
+        last, multiples of ``dz`` that must span the layers.  By default,
+        the nearest multiples of ``dz`` beyond the layers.
+
+    Returns
+    -------
+    overturning : xarray.DataArray
+        The overturning stream function (m3 s-1) on the dimension
+        ``nZInterfaces``, with the coordinate ``zInterface`` (m), descending
+        from the top
+    """
+    other_dims = [
+        dim for dim in transport.dims if dim not in (vert_dim, 'nLineEdges')
+    ]
+    dims = other_dims + ['nLineEdges', vert_dim]
+    transport_values = transport.transpose(*dims).values
+    top_values = z_top.broadcast_like(transport).transpose(*dims).values
+    bottom_values = z_bottom.broadcast_like(transport).transpose(*dims).values
+
+    if top is None:
+        top = dz * np.ceil(np.nanmax(top_values) / dz)
+    if bottom is None:
+        bottom = dz * np.floor(np.nanmin(bottom_values) / dz)
+    if np.nanmax(top_values) > top or np.nanmin(bottom_values) < bottom:
+        raise ValueError(
+            f'The bins from {top} to {bottom} m do not span the layers.'
+        )
+    count = int(round((top - bottom) / dz))
+    edges = top - dz * np.arange(count + 1)
+
+    # the overlap of each layer with each bin, on a last dimension of bins
+    upper = np.minimum(top_values[..., np.newaxis], edges[:-1])
+    lower = np.maximum(bottom_values[..., np.newaxis], edges[1:])
+    thickness = (top_values - bottom_values)[..., np.newaxis]
+    with np.errstate(invalid='ignore', divide='ignore'):
+        fraction = np.where(
+            thickness > 0.0, np.clip(upper - lower, 0.0, None) / thickness, 0.0
+        )
+    binned = np.nansum(
+        transport_values[..., np.newaxis] * fraction, axis=(-3, -2)
+    )
+    cumulative = np.cumsum(binned, axis=-1)
+    surface = np.zeros(cumulative.shape[:-1] + (1,))
+    values = np.concatenate([surface, cumulative], axis=-1)
+
+    overturning = xr.DataArray(
+        values,
+        dims=other_dims + ['nZInterfaces'],
+        coords={'zInterface': ('nZInterfaces', edges)},
+    )
+    for dim in other_dims:
+        if dim in transport.coords:
+            overturning.coords[dim] = transport.coords[dim]
+    overturning.attrs = dict(
+        long_name='overturning stream function', units='m3 s-1'
+    )
+    return overturning
+
+
+def compute_overturning_from_volume_budget(
+    low_side: xr.DataArray,
+    area_cell: xr.DataArray,
+    thickness_start: xr.DataArray,
+    thickness_end: xr.DataArray,
+    duration: float,
+    vert_transport_top: xr.DataArray,
+    thickness_source: xr.DataArray,
+    vert_dim: str = 'nVertLevels',
+    interface_dim: str = 'nVertLevelsP1',
+) -> xr.DataArray:
+    """
+    Compute the overturning stream function across a line on each layer
+    interface from the volume budget of the region on the line's low side
+
+    Over a period, the water each layer of the region gains, less what
+    sources add to it, is what crosses the line in that layer and what
+    flows through the layer's interfaces.  So the transport across the line
+    above interface ``k``, toward the line's high side, is
+
+    .. math::
+
+        \\psi_k = \\sum_{j<k} \\left(S_j - \\frac{\\Delta V_j}{\\Delta t}
+        \\right) + F_k - F_0,
+
+    where :math:`\\Delta V_j` is layer ``j``'s change in volume in the
+    region, :math:`S_j` the volume its sources add each second and
+    :math:`F_k` the upward volume flux through interface ``k``.  With the
+    mean vertical transport over the period and the thicknesses at its
+    start and end, the result is the period's mean transport, which the
+    product of mean velocity and mean thickness is not where columns wet
+    and dry.  The region must hold no cells whose thickness is set
+    directly, as tidal forcing does.
+
+    Parameters
+    ----------
+    low_side : xarray.DataArray
+        Whether each cell is on the low side of the line, below its
+        coordinate, as the cells of :py:func:`get_line_edges` are split
+
+    area_cell : xarray.DataArray
+        The area of each cell (m2)
+
+    thickness_start, thickness_end : xarray.DataArray
+        The layer thickness (m) at the period's start and end, with
+        dimensions ``nCells`` and ``vert_dim``
+
+    duration : float
+        The length of the period (s)
+
+    vert_transport_top : xarray.DataArray
+        The mean upward volume flux per unit area (m s-1) through each
+        layer's top interface, such as MPAS-Ocean's
+        ``vertAleTransportTop``, with dimensions ``nCells`` and
+        ``interface_dim``
+
+    thickness_source : xarray.DataArray
+        The mean thickness (m s-1) that sources add to each layer, such as
+        melt in the top layer and frazil, with dimensions ``nCells`` and
+        ``vert_dim``
+
+    vert_dim : str, optional
+        The dimension of layers, indexed from the top
+
+    interface_dim : str, optional
+        The dimension of interfaces, one more than layers
+
+    Returns
+    -------
+    overturning : xarray.DataArray
+        The overturning stream function (m3 s-1) on ``interface_dim``,
+        zero at the top
+    """
+    weights = area_cell.where(low_side, 0.0)
+    gain = (thickness_end - thickness_start) / duration
+    net = ((thickness_source - gain) * weights).sum(dim='nCells')
+    flux = (vert_transport_top * weights).sum(dim='nCells')
+    layers = net.transpose(..., vert_dim).values
+    above = np.concatenate(
+        [np.zeros(layers.shape[:-1] + (1,)), np.cumsum(layers, axis=-1)],
+        axis=-1,
+    )
+    flux_values = flux.transpose(..., interface_dim).values
+    values = above + flux_values - flux_values[..., :1]
+    other_dims = [dim for dim in net.dims if dim != vert_dim]
+    overturning = xr.DataArray(values, dims=other_dims + [interface_dim])
+    overturning.attrs = dict(
+        long_name='overturning stream function on layer interfaces',
+        units='m3 s-1',
+    )
+    return overturning
+
+
+def compute_overturning_from_layer_flux(
+    line: xr.Dataset,
+    layer_thickness_flux: xr.DataArray,
+    vert_dim: str = 'nVertLevels',
+    interface_dim: str = 'nVertLevelsP1',
+) -> xr.DataArray:
+    """
+    Compute the overturning stream function across a line on each layer
+    interface from the thickness flux each layer carries across each edge
+
+    Parameters
+    ----------
+    line : xarray.Dataset
+        A line from :py:func:`get_line_edges`
+
+    layer_thickness_flux : xarray.DataArray
+        The thickness flux per unit edge length (m2 s-1) of each layer
+        across each edge, from the edge's first cell to its second, such as
+        a mean of MPAS-Ocean's ``normalLayerThicknessFlux``, with
+        dimensions ``nEdges`` and ``vert_dim``
+
+    vert_dim : str, optional
+        The dimension of layers, indexed from the top
+
+    interface_dim : str, optional
+        The dimension of interfaces, one more than layers
+
+    Returns
+    -------
+    overturning : xarray.DataArray
+        The overturning stream function (m3 s-1) on ``interface_dim``,
+        zero at the top
+    """
+    transport = (
+        layer_thickness_flux.isel(nEdges=line.edgeIndex)
+        * line.sign
+        * line.dvEdge
+    ).sum(dim='nLineEdges')
+    layers = transport.transpose(..., vert_dim).values
+    values = np.concatenate(
+        [np.zeros(layers.shape[:-1] + (1,)), np.cumsum(layers, axis=-1)],
+        axis=-1,
+    )
+    other_dims = [dim for dim in transport.dims if dim != vert_dim]
+    overturning = xr.DataArray(values, dims=other_dims + [interface_dim])
+    overturning.attrs = dict(
+        long_name='overturning stream function on layer interfaces',
+        units='m3 s-1',
+    )
+    return overturning
+
+
+def compute_line_interface_elevations(
+    line: xr.Dataset,
+    ssh: xr.DataArray,
+    layer_thickness: xr.DataArray,
+    vert_dim: str = 'nVertLevels',
+    interface_dim: str = 'nVertLevelsP1',
+) -> xr.DataArray:
+    """
+    Compute the mean elevation of each layer interface along a line
+
+    Each edge counts by its length along the line times its column's
+    thickness, so edges that hold only a thin film, as under grounded ice,
+    count little.  Where the interfaces tilt across the line, as under an
+    ice shelf whose draft varies along it, the mean is an approximation of
+    where each interface lies.
+
+    Parameters
+    ----------
+    line : xarray.Dataset
+        A line from :py:func:`get_line_edges`
+
+    ssh : xarray.DataArray
+        The sea-surface height (m) with dimension ``nCells``
+
+    layer_thickness : xarray.DataArray
+        The layer thickness (m) with dimensions ``nCells`` and ``vert_dim``
+
+    vert_dim : str, optional
+        The dimension of layers, indexed from the top
+
+    interface_dim : str, optional
+        The dimension of interfaces, one more than layers
+
+    Returns
+    -------
+    elevation : xarray.DataArray
+        The mean elevation (m) of each interface on ``interface_dim``
+    """
+    z_top, z_bottom = compute_line_interfaces(
+        line, ssh, layer_thickness, vert_dim=vert_dim
+    )
+    interfaces = xr.concat(
+        [z_top, z_bottom.isel({vert_dim: slice(-1, None)})], dim=vert_dim
+    ).rename({vert_dim: interface_dim})
+    column = (z_top - z_bottom).sum(dim=vert_dim)
+    weights = line.weight * column
+    elevation = (interfaces * weights).sum(dim='nLineEdges') / weights.sum(
+        dim='nLineEdges'
+    )
+    elevation.attrs = dict(
+        long_name='mean elevation of each layer interface along the line',
+        units='m',
+    )
+    return elevation
+
+
+def interp_overturning_to_z(
+    overturning: xr.DataArray,
+    elevation: xr.DataArray,
+    z: np.ndarray,
+    interface_dim: str = 'nVertLevelsP1',
+) -> xr.DataArray:
+    """
+    Interpolate an overturning stream function on layer interfaces to fixed
+    elevations, linearly between the interfaces' elevations
+
+    Parameters
+    ----------
+    overturning : xarray.DataArray
+        The stream function on ``interface_dim``, as from
+        :py:func:`compute_overturning_from_volume_budget`
+
+    elevation : xarray.DataArray
+        The interfaces' elevations (m) on ``interface_dim``, descending,
+        as from :py:func:`compute_line_interface_elevations`
+
+    z : numpy.ndarray
+        The elevations (m) to interpolate to
+
+    interface_dim : str, optional
+        The dimension of interfaces
+
+    Returns
+    -------
+    overturning_z : xarray.DataArray
+        The stream function on ``nZInterfaces``, with the coordinate
+        ``zInterface`` (m), and NaN above the top interface and below the
+        bottom one
+    """
+    psi = overturning.transpose(..., interface_dim).values
+    heights = elevation.transpose(..., interface_dim).values
+    other_dims = [dim for dim in overturning.dims if dim != interface_dim]
+    psi_2d = psi.reshape(-1, psi.shape[-1])
+    heights_2d = np.broadcast_to(heights, psi.shape).reshape(psi_2d.shape)
+    values = np.full((psi_2d.shape[0], len(z)), np.nan)
+    for index in range(psi_2d.shape[0]):
+        valid = np.isfinite(heights_2d[index])
+        if not np.any(valid):
+            continue
+        order = np.argsort(heights_2d[index][valid])
+        values[index] = np.interp(
+            z,
+            heights_2d[index][valid][order],
+            psi_2d[index][valid][order],
+            left=np.nan,
+            right=np.nan,
+        )
+    overturning_z = xr.DataArray(
+        values.reshape(psi.shape[:-1] + (len(z),)),
+        dims=other_dims + ['nZInterfaces'],
+        coords={'zInterface': ('nZInterfaces', np.asarray(z))},
+    )
+    overturning_z.attrs = dict(overturning.attrs)
+    return overturning_z

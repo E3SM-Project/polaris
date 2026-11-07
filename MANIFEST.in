@@ -7,6 +7,7 @@ recursive-include polaris *.csv
 recursive-include polaris *.geojson
 recursive-include polaris *.json
 recursive-include polaris *.mplstyle
+recursive-include polaris *.sh
 recursive-include polaris *.template
 recursive-include polaris *.txt
 recursive-include polaris *.yaml
