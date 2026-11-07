@@ -175,10 +175,12 @@ et al. (2026), in 20 m bins of draft.
 
 - The barotropic streamfunction is `mpas_tools`', with the outer boundary
   at zero.
-- The overturning streamfunction $\psi(x, z)$ is the vertical flux
+- The overturning streamfunction $\psi(x, z)$ is minus the vertical flux
   through each fixed level $z$ summed over the cells west of a line of
-  constant $x$, which is the transport across the line below $z$
-  ([D12](#decisions)). It is computed from the monthly mean of
+  constant $x$, which is minus the transport across the line below $z$
+  ([D12](#decisions)). This is the protocol's sign, with the zonally
+  integrated velocity $-\partial \psi / \partial z$ (Asay-Davis et al.
+  2016, Sect. 3.3), and the sign of the COM models' fields. It is computed from the monthly mean of
   `normalLayerThicknessFlux`, the thickness flux each layer carries
   across each edge in each time step, on the edges whose two cells
   straddle the line. For each edge, the flux times the edge's length is
