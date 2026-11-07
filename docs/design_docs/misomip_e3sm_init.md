@@ -435,9 +435,9 @@ Each experiment's case configuration holds:
   and sets it up and builds it ([D8](#decisions)). It first adds the
   case's output to the streams files E3SM writes ([D10](#decisions)): the
   ocean's daily melt means and monitoring; the monthly mean of
-  `vertVelocityTop` and `normalLayerThicknessFlux`, for an overturning
-  streamfunction in height that is right where columns wet and dry, and
-  snapshots of `layerThickness` at each month's start; and, for IceOcean1r and IceOcean1ra, MALI's monthly
+  `normalLayerThicknessFlux`, for an overturning streamfunction in height
+  that is right where columns wet and dry, and snapshots of
+  `layerThickness` at each month's start; and, for IceOcean1r and IceOcean1ra, MALI's monthly
   history, with thickness, `bedTopography` and the mesh variables the
   MISMIP+ diagnostics need, and daily melt.
   It sets up the first job and makes `next_segment.sh` set up each later
@@ -1130,11 +1130,10 @@ SourceMods and edits it:
 - in the first year of every run, the last year of a 100-year run and all
   three years of Ocean0, the daily means add `normalVelocity`,
   `layerThickness`, `activeTracers` and `frazilLayerThicknessTendency`;
-- the ocean's monthly means add `landIceFreshwaterFluxNotSentToGlc`,
-  `vertVelocityTop`, for an overturning streamfunction in height, and
-  `normalLayerThicknessFlux`, which `user_nl_mpaso` turns on, as a check
-  on it, and a stream holds snapshots of `layerThickness` at each month's
-  start;
+- the ocean's monthly means add `landIceFreshwaterFluxNotSentToGlc` and
+  `normalLayerThicknessFlux`, which `user_nl_mpaso` turns on, for an
+  overturning streamfunction in height, and a stream holds snapshots of
+  `layerThickness` at each month's start;
 - the ocean's custom time series holds the daily maximum of
   `kineticEnergyCell`, checked every time step, and its global statistics
   are hourly;
