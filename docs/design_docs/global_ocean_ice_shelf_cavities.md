@@ -273,9 +273,7 @@ and `realistic_global`.  With cavities on, the `realistic_global` forward
 and SSH-adjustment runs add those options, implicit top drag and a
 per-stage land-ice flux mode.
 With cavities, `[realistic_global_forward] mpaso_cavity_time_integrator`,
-`split_explicit` by default, replaces `split_explicit_ab2`, and
-`cavity_pressure_gradient_type`, `pressure_and_zmid` by default, replaces
-`pressure_gradient_type`.  Implicit top drag needs MPAS-Ocean's constant
+`split_explicit` by default, replaces `split_explicit_ab2`,.  Implicit top drag needs MPAS-Ocean's constant
 bottom drag, so it applies only in undamped stages.
 
 ### Implementation: Four base meshes match the unified meshes' ocean resolutions
@@ -361,9 +359,5 @@ A unit test of the Omega error.
   columns were considered.  The first would stay uniform as a column
   thickened after grounding-line retreat, the second is tens of metres
   under thick ice, and the third changes `maxLevelCell` as the ice moves.
-- **`pressure_and_zmid`, not `Jacobian_from_TS`, with cavities.**  E3SM runs
-  `Jacobian_from_TS`, but on qu240km it blew up within hours at the Ross
-  Ice Shelf front next to a thin film, where `pressure_and_zmid`, which
-  ISOMIP+ uses, ran stably.
 - **Split-explicit, not `split_explicit_ab2`.**  Only `split_explicit` and
   `RK4` have wetting and drying.
