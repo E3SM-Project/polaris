@@ -202,6 +202,7 @@ class MisomipAnalysisTask(Task):
                             case=case,
                             diagnostics=diagnostics['e3sm'],
                             experiment=self.experiment,
+                            period=runs['e3sm'].period,
                         )
                     )
         publish = MisomipPublish(

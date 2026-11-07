@@ -1,6 +1,12 @@
+import re
+
+import matplotlib
 import numpy as np
 import xarray as xr
+from matplotlib.collections import PolyCollection, QuadMesh
+from matplotlib.colors import BoundaryNorm
 from matplotlib.figure import Figure
+from matplotlib.patches import Patch
 from mpas_tools.io import write_netcdf
 from mpas_tools.ocean.viz.transect import compute_transect, plot_transect
 
@@ -14,6 +20,7 @@ from polaris.tasks.e3sm.analysis.misomip.diagnostics import (
     SECONDS_PER_YEAR,
     TIME_MEAN_FILENAME,
     TIME_SERIES_FILENAME,
+    WET_MEAN_WEIGHTS,
     add_geometry_inputs,
     isomip_mesh,
     read_initial_condition,
@@ -103,9 +110,12 @@ TIME_SERIES: list[tuple[str, str, str, str, list[tuple]]] = [
     (
         'circulation',
         'open_ocean_gyre_strength',
-        'Strongest gyre in the open ocean',
+        'Gyres in the open ocean',
         'barotropic streamfunction (Sv)',
-        [('openOceanGyreStrength', 1.0, None)],
+        [
+            ('openOceanGyreMax', 1.0, 'largest'),
+            ('openOceanGyreMin', 1.0, 'smallest'),
+        ],
     ),
     (
         'water_masses',
@@ -159,8 +169,9 @@ TIME_SERIES: list[tuple[str, str, str, str, list[tuple]]] = [
 ]
 
 #: The maps of time means plotted for each run: the gallery, the variable,
-#: the title, the scale, the color bar's label, the colormap, and whether
-#: the field is only valid under floating ice
+#: the title, the scale, the color bar's label, the colormap, and where the
+#: field is shown: ``floating`` under floating ice, ``open`` where there is
+#: no land ice or ``all``
 MAPS = [
     (
         'melt',
@@ -169,7 +180,7 @@ MAPS = [
         SECONDS_PER_YEAR,
         'm yr$^{-1}$',
         'cmo.amp',
-        True,
+        'floating',
     ),
     (
         'melt',
@@ -178,7 +189,7 @@ MAPS = [
         1.0,
         r'$^\circ$C',
         'cmo.thermal',
-        True,
+        'floating',
     ),
     (
         'melt',
@@ -187,7 +198,7 @@ MAPS = [
         1.0,
         'PSU',
         'cmo.haline',
-        True,
+        'floating',
     ),
     (
         'melt',
@@ -196,7 +207,25 @@ MAPS = [
         1.0,
         'm s$^{-1}$',
         'cmo.speed',
-        True,
+        'floating',
+    ),
+    (
+        'circulation',
+        'uBoundaryLayer',
+        'Velocity in x in the top layer under the ice',
+        1.0,
+        'm s$^{-1}$',
+        'cmo.balance',
+        'floating',
+    ),
+    (
+        'circulation',
+        'vBoundaryLayer',
+        'Velocity in y in the top layer under the ice',
+        1.0,
+        'm s$^{-1}$',
+        'cmo.balance',
+        'floating',
     ),
     (
         'circulation',
@@ -205,7 +234,7 @@ MAPS = [
         1.0,
         'Sv',
         'cmo.curl',
-        False,
+        'all',
     ),
     (
         'water_masses',
@@ -214,7 +243,7 @@ MAPS = [
         1.0,
         r'$^\circ$C',
         'cmo.thermal',
-        False,
+        'all',
     ),
     (
         'water_masses',
@@ -223,18 +252,64 @@ MAPS = [
         1.0,
         'PSU',
         'cmo.haline',
-        False,
+        'all',
     ),
     (
-        'thin_film',
+        'sea_surface_height',
         'ssh',
-        'Sea-surface height',
+        'Sea-surface height where there is no land ice',
         1.0,
         'm',
         'cmo.deep_r',
-        False,
+        'open',
+    ),
+    (
+        'geometry',
+        'iceDraft',
+        'Ice draft',
+        1.0,
+        'm',
+        'cmo.deep_r',
+        'all',
+    ),
+    (
+        'geometry',
+        'bathymetry',
+        'Bathymetry',
+        1.0,
+        'm',
+        'cmo.deep_r',
+        'all',
     ),
 ]
+
+#: The option in ``[misomip_analysis_color_ranges]`` for each field plotted
+#: in maps and sections
+RANGE_OPTIONS = {
+    'meltRate': 'melt_rate',
+    'thermalDriving': 'thermal_driving',
+    'halineDriving': 'haline_driving',
+    'landIceFrictionVelocity': 'friction_velocity',
+    'uBoundaryLayer': 'boundary_layer_velocity',
+    'vBoundaryLayer': 'boundary_layer_velocity',
+    'barotropicStreamfunction': 'barotropic_streamfunction',
+    'overturningStreamfunction': 'overturning_streamfunction',
+    'temperature': 'temperature',
+    'temperatureBottom': 'temperature',
+    'salinity': 'salinity',
+    'salinityBottom': 'salinity',
+    'ssh': 'ssh',
+    'iceDraft': 'ice_draft',
+    'bathymetry': 'bathymetry',
+}
+
+#: The fields whose color range, when it comes from the data, is centered
+#: on zero
+SYMMETRIC_FIELDS = {
+    'uBoundaryLayer',
+    'vBoundaryLayer',
+    'overturningStreamfunction',
+}
 
 #: The time series of the ice sheet: the variable, the file's stem, the
 #: title, the y label and the scale
@@ -262,6 +337,19 @@ LANDICE_SERIES = [
         1e-3,
     ),
 ]
+
+#: The maps and sections of the ocean's state, whose time means take only
+#: the months each column is wet
+WET_MEAN_FIELDS = set(WET_MEAN_WEIGHTS) | {'uBoundaryLayer', 'vBoundaryLayer'}
+
+#: The legend entry and caption of the columns wet in only some months
+HATCH_LABEL = 'hatched: wet in only some months'
+
+#: The hatching of the columns wet in only some months, dense and outlined
+#: so that a single small cell shows it
+HATCH = '//////'
+HATCH_COLOR = 'black'
+HATCH_LINEWIDTH = 0.8
 
 #: The sections plotted: the variable, the title, the color bar's label and
 #: the colormap
@@ -351,7 +439,7 @@ class RunPlots(ProductStep):
 
         floating = ds_mean.landIceFloatingFraction > 0.0
         descriptor = None
-        for gallery, name, title, scale, units, cmap, under_ice in MAPS:
+        for gallery, name, title, scale, units, cmap, where in MAPS:
             descriptor = self._plot_map(
                 ds_mesh,
                 ds_mean,
@@ -363,7 +451,7 @@ class RunPlots(ProductStep):
                 scale,
                 units,
                 cmap,
-                under_ice,
+                where,
             )
 
         section = self.config['misomip_analysis']
@@ -389,7 +477,7 @@ class RunPlots(ProductStep):
         for name, scale, line_label in variables:
             if name not in ds_series:
                 continue
-            values = scale * ds_series[name]
+            values = scale_with_units(ds_series[name], scale, ylabel)
             ds_data[name] = values
             series.append(
                 Series(
@@ -426,12 +514,20 @@ class RunPlots(ProductStep):
         scale,
         units,
         cmap,
-        under_ice,
+        where,
     ):
         """Plot a map of a time mean and describe it as a product"""
-        field = scale * ds_mean[name]
+        field = scale_with_units(ds_mean[name], scale, units)
         field.name = name
-        mask = floating if under_ice and 'nCells' in field.dims else None
+        mask = None
+        counted = None
+        hatched = None
+        if 'nCells' in field.dims:
+            mask = get_map_mask(ds_mean, where)
+            counted = get_range_mask(ds_mean, mask)
+            hatched = get_hatched_cells(ds_mean, name, mask)
+        vmin, vmax = get_color_range(self.config, name, field, counted)
+        norm, ticks = get_color_norm(self.config, name, cmap)
         plot = f'{name}_map.png'
         data = f'{name}_map.nc'
         with mplstyle_context():
@@ -445,11 +541,21 @@ class RunPlots(ProductStep):
                 cmap_title=units,
                 field_mask=mask,
                 descriptor=descriptor,
+                vmin=vmin,
+                vmax=vmax,
+                norm=norm,
+                cbar_ticks=ticks,
             )
             plot_mask_boundary(ax, ds_mesh, floating, linewidth=0.75)
+            if hatched is not None:
+                _hatch_cells(ax, ds_mesh, hatched)
             ax.set_title(f'{title}, {self.label}')
             fig.savefig(plot, bbox_inches='tight', pad_inches=0.2)
-        write_netcdf(field.to_dataset(), data)
+        ds_data = field.to_dataset()
+        if hatched is not None:
+            ds_data['partlyWetColumn'] = ds_mean.partlyWetColumn
+            title = f'{title}; {HATCH_LABEL}'
+        write_netcdf(ds_data, data)
         self.add_product(
             plot=plot, data=data, group=self.kind, gallery=gallery, title=title
         )
@@ -461,10 +567,14 @@ class RunPlots(ProductStep):
             x = [float(ds_mesh.xCell.min()), float(ds_mesh.xCell.max())]
             y = [value, value]
             where = f'y = {1e-3 * value:g} km'
+            start = x[0]
+            distance_label = 'x (km)'
         else:
             y = [float(ds_mesh.yCell.min()), float(ds_mesh.yCell.max())]
             x = [value, value]
             where = f'x = {1e-3 * value:g} km'
+            start = y[0]
+            distance_label = 'y (km)'
         ds_transect = compute_transect(
             x=xr.DataArray(x, dims=('nPoints',)),
             y=xr.DataArray(y, dims=('nPoints',)),
@@ -475,28 +585,43 @@ class RunPlots(ProductStep):
             max_level_cell=ds_init.maxLevelCell - 1,
             spherical=False,
         )
+        counted = get_range_mask(ds_mean)
         for name, title, units, cmap in SECTION_FIELDS:
             stem = f'{name}_section_{axis}'
             plot = f'{stem}.png'
             data = f'{stem}.nc'
-            plot_transect(
-                ds_transect=ds_transect,
-                mpas_field=ds_mean[name],
+            field = ds_mean[name]
+            vmin, vmax = get_color_range(self.config, name, field, counted)
+            norm, ticks = get_color_norm(self.config, name, cmap)
+            hatched = get_hatched_cells(ds_mean, name)
+            any_hatched = plot_section(
+                ds_transect,
+                field,
+                plot,
                 title=f'{title} at {where}, {months}, {self.label}',
-                out_filename=plot,
-                colorbar_label=units,
+                units=units,
                 cmap=cmap,
-                figsize=(10.0, 4.0),
+                vmin=vmin,
+                vmax=vmax,
+                start=start,
+                distance_label=distance_label,
+                norm=norm,
+                ticks=ticks,
+                hatched=hatched,
             )
             ds_data = ds_transect.copy()
             ds_data[name] = ds_mean[name]
+            caption = f'{title} at {where}'
+            if any_hatched:
+                ds_data['partlyWetColumn'] = ds_mean.partlyWetColumn
+                caption = f'{caption}; {HATCH_LABEL}'
             write_netcdf(ds_data, data)
             self.add_product(
                 plot=plot,
                 data=data,
                 group=self.kind,
                 gallery='water_masses',
-                title=f'{title} at {where}',
+                title=caption,
             )
 
     def _plot_overturning(self, ds_mean, months):
@@ -504,8 +629,9 @@ class RunPlots(ProductStep):
         osf = ds_mean.overturningStreamfunction
         plot = 'overturning_streamfunction.png'
         data = 'overturning_streamfunction.nc'
-        limit = float(np.nanmax(np.abs(osf.values)))
-        limit = limit if limit > 0.0 else 1.0
+        vmin, vmax = get_color_range(
+            self.config, 'overturningStreamfunction', osf
+        )
         with mplstyle_context():
             fig = Figure(figsize=(10.0, 4.0))
             ax = fig.add_subplot(111)
@@ -514,8 +640,8 @@ class RunPlots(ProductStep):
                 osf.zInterface.values,
                 osf.values,
                 cmap='cmo.curl',
-                vmin=-limit,
-                vmax=limit,
+                vmin=vmin,
+                vmax=vmax,
                 shading='nearest',
             )
             ax.set_xlabel('x (km)')
@@ -567,7 +693,7 @@ class RunPlots(ProductStep):
         grounding line over time"""
         years = days_to_model_year(ds_landice.daysSince0001.values)
         for name, stem, title, ylabel, scale in LANDICE_SERIES:
-            values = scale * ds_landice[name]
+            values = scale_with_units(ds_landice[name], scale, ylabel)
             plot = f'{stem}.png'
             data = f'{stem}.nc'
             plot_time_series(
@@ -636,3 +762,387 @@ class RunPlots(ProductStep):
             gallery='ice_sheet',
             title="The ocean's floating fraction and MALI's grounding line",
         )
+
+
+def scale_with_units(field, scale, label):
+    """
+    Scale a field into the units it is plotted in, and give it those units
+
+    Parameters
+    ----------
+    field : xarray.DataArray
+        The field
+
+    scale : float
+        The factor from the field's units to the plot's
+
+    label : str
+        The plot's units, or an axis label ending with them in parentheses,
+        such as ``'melt flux (Gt yr$^{-1}$)'``, with LaTeX exponents
+
+    Returns
+    -------
+    scaled : xarray.DataArray
+        The scaled field, with the plot's ``units`` if the scale is not 1
+    """
+    scaled = scale * field
+    scaled.attrs = dict(field.attrs)
+    if scale != 1.0:
+        scaled.attrs['units'] = get_label_units(label)
+    return scaled
+
+
+def get_label_units(label):
+    """
+    Get the units of a plot's label, in the style of netCDF attributes
+
+    Parameters
+    ----------
+    label : str
+        The units, or an axis label ending with them in parentheses, such
+        as ``'melt flux (Gt yr$^{-1}$)'``, with LaTeX exponents
+
+    Returns
+    -------
+    units : str
+        The units, such as ``'Gt yr-1'``
+    """
+    match = re.search(r'\(([^()]*)\)\s*$', label)
+    units = match.group(1) if match else label
+    units = units.replace(r'^\circ', 'deg')
+    units = re.sub(r'\^\{?(-?\d+)\}?', r'\1', units)
+    return units.replace('$', '').strip()
+
+
+def get_map_mask(ds, where):
+    """
+    Get where a map shows its field
+
+    Parameters
+    ----------
+    ds : xarray.Dataset
+        A dataset with ``landIceFraction`` and ``landIceFloatingFraction``
+
+    where : {'floating', 'open', 'all'}
+        Under floating ice, where there is no land ice, or everywhere
+
+    Returns
+    -------
+    mask : xarray.DataArray or None
+        Where the field is shown, or ``None`` to show it everywhere
+    """
+    if where == 'all':
+        return None
+    if where == 'floating':
+        return ds.landIceFloatingFraction > 0.0
+    if where == 'open':
+        return ds.landIceFraction == 0.0
+    raise ValueError(f'Unexpected place to show a field: {where}')
+
+
+def get_range_mask(ds, mask=None):
+    """
+    Get the cells whose values count toward a color range taken from the
+    data: those shown, less the columns that hold only the thin film
+
+    The film keeps the initial condition's water, so its values would set
+    the range of the cavity's.  It is still drawn.
+
+    Parameters
+    ----------
+    ds : xarray.Dataset
+        A dataset with ``landIceFraction`` and ``landIceFloatingFraction``
+        and, from a time mean, ``filmColumn``.  Without ``filmColumn``, the
+        film is the columns under grounded ice.
+
+    mask : xarray.DataArray, optional
+        Where the field is shown, everywhere by default
+
+    Returns
+    -------
+    counted : xarray.DataArray
+        The cells whose values set the range
+    """
+    if 'filmColumn' in ds:
+        film = ds.filmColumn > 0
+    else:
+        film = np.logical_and(
+            ds.landIceFraction > 0.0, ds.landIceFloatingFraction == 0.0
+        )
+    counted = np.logical_not(film)
+    if mask is not None:
+        counted = np.logical_and(counted, mask)
+    return counted
+
+
+def get_hatched_cells(ds, name, mask=None):
+    """
+    Get the cells hatched in a time mean's map or section: those wet in
+    only some of its months, in a field of the ocean's state, whose mean
+    takes only those months
+
+    Parameters
+    ----------
+    ds : xarray.Dataset
+        A time mean with ``partlyWetColumn``
+
+    name : str
+        The field
+
+    mask : xarray.DataArray, optional
+        Where the field is shown, everywhere by default
+
+    Returns
+    -------
+    hatched : xarray.DataArray or None
+        The cells to hatch, or ``None`` if there are none
+    """
+    if name not in WET_MEAN_FIELDS or 'partlyWetColumn' not in ds:
+        return None
+    hatched = ds.partlyWetColumn > 0
+    if mask is not None:
+        hatched = np.logical_and(hatched, mask)
+    if not bool(hatched.any()):
+        return None
+    return hatched
+
+
+def get_color_range(config, name, field=None, counted=None):
+    """
+    Get the color range of a field's map or section
+
+    Parameters
+    ----------
+    config : polaris.config.PolarisConfigParser
+        The config options, with ``[misomip_analysis_color_ranges]``
+
+    name : str
+        The field's variable name
+
+    field : xarray.DataArray, optional
+        The field, whose range is used when the config option is blank
+
+    counted : xarray.DataArray, optional
+        The cells whose values count toward the range, every cell by
+        default
+
+    Returns
+    -------
+    vmin, vmax : float or None
+        The range, or ``None`` if neither the config nor a field gives one
+    """
+    section = 'misomip_analysis_color_ranges'
+    option = RANGE_OPTIONS.get(name)
+    value = ''
+    if option is not None and config.has_option(section, option):
+        value = config.get(section, option).strip()
+    if value:
+        vmin, vmax = (float(bound) for bound in value.split(','))
+        return vmin, vmax
+    if field is None:
+        return None, None
+    values = field if counted is None else field.where(counted)
+    vmin = float(np.nanmin(values.values))
+    vmax = float(np.nanmax(values.values))
+    if name in SYMMETRIC_FIELDS:
+        limit = max(abs(vmin), abs(vmax))
+        limit = limit if limit > 0.0 else 1.0
+        vmin, vmax = -limit, limit
+    return vmin, vmax
+
+
+def get_color_norm(config, name, cmap):
+    """
+    Get the norm of a field whose colors are in uneven bins, as salinity's
+    are, so the fresh film and the cavity both show
+
+    Parameters
+    ----------
+    config : polaris.config.PolarisConfigParser
+        The config options, with ``[misomip_analysis_color_ranges]``
+
+    name : str
+        The field's variable name
+
+    cmap : str
+        The colormap, whose number of colors the bins share
+
+    Returns
+    -------
+    norm : matplotlib.colors.BoundaryNorm or None
+        The norm, or ``None`` if the field's ``_bounds`` option is blank or
+        absent
+
+    ticks : list of float or None
+        The color bar's ticks, from the ``_ticks`` option
+    """
+    section = 'misomip_analysis_color_ranges'
+    option = RANGE_OPTIONS.get(name)
+    if option is None or not _has_value(config, section, f'{option}_bounds'):
+        return None, None
+    bounds = config.getlist(section, f'{option}_bounds', dtype=float)
+    ticks = None
+    if _has_value(config, section, f'{option}_ticks'):
+        ticks = config.getlist(section, f'{option}_ticks', dtype=float)
+    colors = matplotlib.colormaps[cmap].N
+    norm = BoundaryNorm(bounds, ncolors=colors, extend='both')
+    return norm, ticks
+
+
+def plot_section(
+    ds_transect,
+    field,
+    out_filename,
+    title,
+    units,
+    cmap,
+    vmin,
+    vmax,
+    start,
+    distance_label,
+    norm=None,
+    ticks=None,
+    hatched=None,
+):
+    """
+    Plot a section along a line of constant x or y, against the position
+    along it
+
+    Parameters
+    ----------
+    ds_transect : xarray.Dataset
+        The transect from ``mpas_tools.ocean.viz.transect.compute_transect``
+
+    field : xarray.DataArray
+        The field on cells and layers
+
+    out_filename : str
+        The image file to write
+
+    title : str
+        The title
+
+    units : str
+        The color bar's label
+
+    cmap : str
+        The colormap
+
+    vmin, vmax : float or None
+        The color range, from the data if ``None``
+
+    start : float
+        The x or y (m) of the transect's start, from which ``dNode``
+        measures distance
+
+    distance_label : str
+        The label of the horizontal axis
+
+    norm : matplotlib.colors.Normalize, optional
+        A norm mapping values to colors, in place of ``vmin`` and ``vmax``
+
+    ticks : list of float, optional
+        The color bar's ticks
+
+    hatched : xarray.DataArray, optional
+        The cells whose columns are hatched
+
+    Returns
+    -------
+    any_hatched : bool
+        Whether the section crosses any of the hatched cells
+    """
+    ds_plot = ds_transect.copy()
+    ds_plot['dNode'] = ds_transect.dNode + start
+    with mplstyle_context():
+        fig = Figure(figsize=(10.0, 4.0))
+        ax = fig.add_subplot(111)
+        plot_transect(
+            ds_transect=ds_plot,
+            mpas_field=field,
+            ax=ax,
+            cmap=cmap,
+            vmin=vmin,
+            vmax=vmax,
+        )
+        mesh = next(
+            child for child in ax.collections if isinstance(child, QuadMesh)
+        )
+        if norm is not None:
+            mesh.set_norm(norm)
+        fig.colorbar(
+            mesh, ax=ax, extend='both', shrink=0.7, label=units, ticks=ticks
+        )
+        any_hatched = hatched is not None and _hatch_columns(
+            ax, ds_plot, hatched
+        )
+        ax.set_xlabel(distance_label)
+        ax.set_title(title)
+        fig.savefig(out_filename, bbox_inches='tight', pad_inches=0.2)
+    return any_hatched
+
+
+def _hatch_cells(ax, ds_mesh, hatched):
+    """Hatch cells on a map, with a legend entry"""
+    cells = np.flatnonzero(hatched.values)
+    vertices = ds_mesh.verticesOnCell.values[cells] - 1
+    counts = ds_mesh.nEdgesOnCell.values[cells]
+    x_vertex = ds_mesh.xVertex.values
+    y_vertex = ds_mesh.yVertex.values
+    polygons = [
+        np.stack([x_vertex[cell[:count]], y_vertex[cell[:count]]], axis=1)
+        for cell, count in zip(vertices, counts, strict=True)
+    ]
+    ax.add_collection(
+        PolyCollection(
+            polygons,
+            facecolor='none',
+            edgecolor=HATCH_COLOR,
+            linewidth=HATCH_LINEWIDTH,
+            hatch=HATCH,
+        )
+    )
+    _add_hatch_legend(ax)
+
+
+def _hatch_columns(ax, ds_transect, hatched):
+    """Hatch the columns of a section's cells, with a legend entry, and
+    return whether there were any"""
+    cells = ds_transect.horizCellIndices.values
+    # segment i runs from node i to node i + 1
+    distance = 1e-3 * ds_transect.dNode.values
+    flags = hatched.values
+    segments = np.flatnonzero((cells >= 0) & flags[np.maximum(cells, 0)])
+    for segment in segments:
+        ax.axvspan(
+            distance[segment],
+            distance[segment + 1],
+            facecolor='none',
+            edgecolor=HATCH_COLOR,
+            linewidth=0.0,
+            hatch=HATCH,
+        )
+    if len(segments) == 0:
+        return False
+    _add_hatch_legend(ax)
+    return True
+
+
+def _add_hatch_legend(ax):
+    """Add the legend entry of the hatched columns"""
+    handle = Patch(
+        facecolor='none',
+        edgecolor=HATCH_COLOR,
+        linewidth=HATCH_LINEWIDTH,
+        hatch=HATCH,
+        label=HATCH_LABEL,
+    )
+    ax.legend(handles=[handle], loc='lower right', fontsize='small')
+
+
+def _has_value(config, section, option):
+    """Whether a config option is present and not blank"""
+    return (
+        config.has_option(section, option)
+        and config.get(section, option).strip() != ''
+    )

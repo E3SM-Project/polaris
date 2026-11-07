@@ -13,6 +13,7 @@ from polaris.tasks.e3sm.analysis.misomip.diagnostics import (
     isomip_mesh,
     read_initial_condition,
 )
+from polaris.tasks.e3sm.analysis.misomip.plots import scale_with_units
 from polaris.tasks.e3sm.analysis.misomip.yung2026 import YUNG2026_FILENAME
 from polaris.viz import mplstyle_context, plot_horiz_field
 from polaris.viz.time_series import Series, plot_time_series
@@ -150,7 +151,7 @@ class PublishedComparison(ProductStep):
         for name, stem, title, ylabel, scale in SERIES:
             self._plot_series(ds_pub, series, name, stem, title, ylabel, scale)
         self._plot_melt_by_draft(ds_pub, means)
-        self._plot_strengths(ds_pub, series)
+        self._plot_strengths(ds_pub, series, means)
         self._plot_melt_maps(ds_pub, means)
 
     def _plot_series(self, ds_pub, series, name, stem, title, ylabel, scale):
@@ -173,9 +174,9 @@ class PublishedComparison(ProductStep):
             else:
                 ensemble.append(Series(time, values, model))
         ds_data = xr.Dataset()
-        ds_data['published'] = scale * ds_pub[name]
+        ds_data['published'] = scale_with_units(ds_pub[name], scale, ylabel)
         for kind in self.kinds:
-            values = scale * series[kind][name]
+            values = scale_with_units(series[kind][name], scale, ylabel)
             ds_data[kind] = values.rename({'Time': f'{kind}_Time'})
             lines.append(
                 Series(
@@ -242,17 +243,22 @@ class PublishedComparison(ProductStep):
                     linewidth=2.0,
                     label=LABELS[kind],
                 )
-            ax.set_xlabel('melt rate (m yr$^{-1}$)')
+            ax.set_xlabel('melt rate, water equivalent (m yr$^{-1}$)')
             ax.set_ylabel('draft (m)')
-            ax.set_title('Melt rate by draft, other COM models in grey')
+            ax.set_title(
+                'Melt rate by draft, other COM models in grey\n'
+                + _periods(ds_pub, means, self.experiment, separator='\n')
+            )
             ax.legend(loc='lower right')
             ax.grid(True, alpha=0.3)
             fig.savefig(plot, bbox_inches='tight')
         ds_data = xr.Dataset()
-        ds_data['published'] = SECONDS_PER_YEAR * ds_pub.meltRateByDraft
+        ds_data['published'] = scale_with_units(
+            ds_pub.meltRateByDraft, SECONDS_PER_YEAR, MELT_RATE_UNITS
+        )
         for kind in self.kinds:
-            ds_data[kind] = (
-                SECONDS_PER_YEAR * means[kind].meltRateByDraft
+            ds_data[kind] = scale_with_units(
+                means[kind].meltRateByDraft, SECONDS_PER_YEAR, MELT_RATE_UNITS
             ).rename({'nDraftBins': f'{kind}_nDraftBins'})
         write_netcdf(ds_data, data)
         self.add_product(
@@ -263,7 +269,7 @@ class PublishedComparison(ProductStep):
             title='Melt rate by draft',
         )
 
-    def _plot_strengths(self, ds_pub, series):
+    def _plot_strengths(self, ds_pub, series, means):
         """Plot the streamfunctions' strengths against the mean melt rate,
         as Yung et al. (2026) do"""
         plot = 'streamfunction_strengths.png'
@@ -309,7 +315,8 @@ class PublishedComparison(ProductStep):
                 ax.grid(True, alpha=0.3)
                 ax.legend(loc='best', fontsize='small')
             fig.suptitle(
-                f'Circulation and melt, mean of the last {count} months'
+                'Circulation and melt, '
+                f'{_periods(ds_pub, means, self.experiment)}'
             )
             fig.savefig(plot, bbox_inches='tight')
         ds_data = xr.Dataset()
@@ -337,9 +344,15 @@ class PublishedComparison(ProductStep):
         data = 'melt_rate_maps.nc'
         ds_init = read_initial_condition()
         ds_mesh = isomip_mesh(ds_init)
-        ensemble = SECONDS_PER_YEAR * ds_pub.meltRate.mean(dim='nModels')
+        ensemble = scale_with_units(
+            ds_pub.meltRate.mean(dim='nModels'),
+            SECONDS_PER_YEAR,
+            MELT_RATE_UNITS,
+        )
         fields = {
-            kind: SECONDS_PER_YEAR * means[kind].meltRate
+            kind: scale_with_units(
+                means[kind].meltRate, SECONDS_PER_YEAR, MELT_RATE_UNITS
+            )
             for kind in self.kinds
         }
         vmax = max(
@@ -367,8 +380,13 @@ class PublishedComparison(ProductStep):
             ax.xaxis.set_major_formatter(lambda value, pos: f'{value / 1e3:g}')
             ax.yaxis.set_major_formatter(lambda value, pos: f'{value / 1e3:g}')
             ax.set_ylabel('y (km)')
-            ax.set_title('Mean of the COM models (Yung et al. 2026)')
-            fig.colorbar(mesh, ax=ax, shrink=0.7).set_label('m yr$^{-1}$')
+            ax.set_title(
+                'Mean of the COM models (Yung et al. 2026), '
+                f'{_com_period(ds_pub, self.experiment)}'
+            )
+            fig.colorbar(mesh, ax=ax, shrink=0.7).set_label(
+                'melt rate, water equivalent (m yr$^{-1}$)'
+            )
             floating = ds_init.landIceFloatingFraction > 0.0
             descriptor = None
             for index, kind in enumerate(self.kinds):
@@ -384,8 +402,8 @@ class PublishedComparison(ProductStep):
                     field_mask=floating,
                     descriptor=descriptor,
                 )
-                ax.set_title(LABELS[kind])
-            fig.suptitle('Time-mean melt rate')
+                ax.set_title(f'{LABELS[kind]}, {_run_period(means[kind])}')
+            fig.suptitle('Time-mean melt rate, water equivalent')
             fig.savefig(plot, bbox_inches='tight', pad_inches=0.2)
         ds_data = xr.Dataset()
         ds_data['publishedMeanMeltRate'] = ensemble
@@ -407,3 +425,25 @@ def _model_names(ds_pub):
         name.decode() if isinstance(name, bytes) else str(name)
         for name in ds_pub.model.values
     ]
+
+
+def _run_period(ds_mean):
+    """The months a run's time means cover"""
+    return f'{ds_mean.attrs["first_month"]} to {ds_mean.attrs["last_month"]}'
+
+
+def _com_period(ds_pub, experiment):
+    """The months the COM models' time means cover"""
+    count = int(ds_pub.attrs['mean_months'])
+    years = NOMINAL_YEARS[experiment]
+    return f'last {count} months of {years:g}-year runs'
+
+
+def _periods(ds_pub, means, experiment, separator='; '):
+    """The months that the runs' and the COM models' time means cover"""
+    periods = [
+        f'{LABELS[kind]} {_run_period(ds_mean)}'
+        for kind, ds_mean in means.items()
+    ]
+    periods.append(f'COM models {_com_period(ds_pub, experiment)}')
+    return separator.join(periods)
