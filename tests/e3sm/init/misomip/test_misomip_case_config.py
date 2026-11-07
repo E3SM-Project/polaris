@@ -35,6 +35,7 @@ from polaris.tasks.e3sm.init.misomip.case_config import (
     MISMIP_PLUS_STANDALONE_OPTIONS,
     MONITORING_OPTIONS,
     MONTHLY_OCEAN_FIELDS,
+    OVERTURNING_OPTIONS,
     RAMP_OPTION,
     RUN_MONTHS,
     SNAPSHOT_INTERVAL,
@@ -313,7 +314,8 @@ def test_shell_commands_static_mali_has_no_data_mode_file():
         f"./xmlchange 'MPASO_IC_FILE=/short/inputdata/ocn/mpas-o/"
         f"misomip-o4km/mpaso.misomip-o4km.ocean0.{DATE}.nc'"
     ) in text.splitlines()
-    assert './xmlchange RESUBMIT=0' in text.splitlines()
+    # three one-year jobs
+    assert './xmlchange RESUBMIT=2' in text.splitlines()
 
 
 @pytest.mark.parametrize('experiment', list(RUN_MONTHS))
@@ -788,6 +790,9 @@ def test_user_nl_mpaso_turns_on_the_daily_means_once():
     # the daily maximum, checked every time step
     for option, value in MONITORING_OPTIONS.items():
         assert _options(text)[option] == value
+    # the thickness flux for the overturning streamfunction
+    for option, value in OVERTURNING_OPTIONS.items():
+        assert _options(text)[option] == value
 
 
 def test_user_nl_mali_prognostic_takes_the_mismip_plus_options():
@@ -1181,7 +1186,7 @@ def test_mali_e3sm_default_options_are_those_that_differ():
 @pytest.mark.parametrize(
     'experiment, months_per_job, months, daily_3d',
     [
-        ('ocean0', 12, [12], [True]),
+        ('ocean0', 12, [12] * 3, [True] * 3),
         ('ocean1', 12, [12] * 20, [True] + [False] * 19),
         (
             'iceocean1r',

@@ -35,9 +35,11 @@ CASE_CONFIG_SECTION = 'misomip_case_config'
 #: E3SM's inputdata directory, as a case variable that CIME expands
 DIN_LOC_ROOT = '$DIN_LOC_ROOT'
 
-#: The length of each experiment in months, as the protocols prescribe
+#: The length of each experiment in months, as the protocols prescribe,
+#: except Ocean0, which runs three years rather than one because at 2 km it
+#: settles only in its third year
 RUN_MONTHS = {
-    'ocean0': 12,
+    'ocean0': 36,
     'ocean1': 240,
     'ocean2': 240,
     'ocean3': 1200,
@@ -59,8 +61,8 @@ RESTART_MONTHS = 12
 DAILY_3D_MONTHS = 12
 
 #: The length in months of a run short enough to have daily means of 3D
-#: fields throughout
-DAILY_3D_WHOLE_RUN_MONTHS = 24
+#: fields throughout, which includes Ocean0
+DAILY_3D_WHOLE_RUN_MONTHS = 36
 
 #: A segment of a run: the months run before it, its months and whether the
 #: ocean writes daily means of 3D fields
@@ -285,11 +287,21 @@ OCEAN_VAR_ARRAYS = ['activeTracers']
 #: sent to MALI, and the vertical transport through each layer's top
 #: interface, whose monthly mean is exact where the product of the monthly
 #: means of velocity and thickness is not, from which the overturning
-#: streamfunction follows with the snapshots of the layer thickness
+#: streamfunction follows with the snapshots of the layer thickness, and
+#: the thickness flux the time integrator applies across each edge, whose
+#: monthly mean gives the transport exactly, a check on the other
 MONTHLY_OCEAN_FIELDS = [
     'landIceFreshwaterFluxNotSentToGlc',
     'vertAleTransportTop',
+    'normalLayerThicknessFlux',
 ]
+
+#: MPAS-Ocean options of every case for its overturning streamfunction:
+#: computing the thickness flux the time integrator applies, which is off
+#: by default
+OVERTURNING_OPTIONS = {
+    'config_compute_normal_layer_thickness_flux': '.true.',
+}
 
 #: The stream of snapshots of the ocean's layer thickness at the start of
 #: each month, whose change over a month is the volume each layer gains,
@@ -1185,8 +1197,8 @@ def get_user_nl_mpaso(
     less those E3SM sets itself, those E3SM would otherwise give a
     different value, whether each analysis member is on, and the options
     only an E3SM case has, which turn on the daily means, of
-    :py:data:`DAILY_OCEAN_FIELDS` sampled every time step, and the
-    :py:data:`MONITORING_OPTIONS`
+    :py:data:`DAILY_OCEAN_FIELDS` sampled every time step, the
+    :py:data:`MONITORING_OPTIONS` and the :py:data:`OVERTURNING_OPTIONS`
 
     Parameters
     ----------
@@ -1229,6 +1241,7 @@ def get_user_nl_mpaso(
     e3sm_only[DAILY_SWITCH] = '.true.'
     e3sm_only[DAILY_COMPUTE_INTERVAL] = "'dt'"
     e3sm_only.update(MONITORING_OPTIONS)
+    e3sm_only.update(OVERTURNING_OPTIONS)
     if ramp_land_ice_pressure:
         e3sm_only[RAMP_OPTION] = '.true.'
 

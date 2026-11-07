@@ -310,12 +310,15 @@ case's SourceMods:
 - the ocean's daily means of `landIceFreshwaterFlux`,
   `frazilIceFreshwaterFlux`, `landIceFreshwaterFluxNotSentToGlc` and
   `landIceHeatFlux`, sampled every time step, in place of E3SM's daily
-  list and hourly samples, and `landIceFreshwaterFluxNotSentToGlc` and
-  `vertAleTransportTop` in the monthly means;
+  list and hourly samples, and `landIceFreshwaterFluxNotSentToGlc`,
+  `vertAleTransportTop` and `normalLayerThicknessFlux` (the thickness flux
+  the time integrator applies, which `user_nl_mpaso` turns on) in the
+  monthly means;
 - snapshots of the ocean's `layerThickness` at the start of each month,
   in `<case>.mpaso.hist.am.layerThicknessSnapshot.$Y-$M-$D.nc`, one a
   month, which with `vertAleTransportTop` give an overturning
-  streamfunction that is exact where columns wet and dry;
+  streamfunction that is exact where columns wet and dry, checked against
+  one from `normalLayerThicknessFlux`;
 - in one of the ocean's files, also the daily means of `normalVelocity`,
   `layerThickness`, `activeTracers` and `frazilLayerThicknessTendency`;
 - the ocean's daily maximum of `kineticEnergyCell`, checked every time
@@ -331,9 +334,10 @@ silently drop them.  A keepexe clone shares its SourceMods with the case it
 was cloned from, so the script also stops if SourceMods is a link.
 
 A case runs in jobs of up to 4 years for the 100-year experiments, and of
-1 year for `ocean0` to `ocean2`, with restarts every year.  The ocean's
-daily means hold the 3D fields in the first year of every run and the
-last year of a 100-year run, and a job runs less than 4 years where it
+1 year for `ocean0` to `ocean2`, with restarts every year.  `ocean0` runs
+3 years rather than the protocol's 1.  The ocean's daily means hold the
+3D fields in the first year of every run, the last year of a 100-year run
+and all of `ocean0`, and a job runs less than 4 years where it
 must end or start at those years: a 100-year run takes jobs of 1 year, 24
 of 4 years, 2 years and 1 year.  `create_case.sh` copies `next_segment.sh`
 into the case directory, runs it once to set up the first job, and makes
