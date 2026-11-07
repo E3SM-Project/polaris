@@ -279,6 +279,8 @@ def _get_init_config(
         config = PolarisConfigParser(filepath=filepath)
         # provides [mapping] map_tool, used by MappingFileStep
         config.add_from_package('polaris.remap', 'mapping.cfg')
+        # the freezing point of thin-film water under land ice
+        config.add_from_package('polaris.ocean.ice_shelf', 'freeze.cfg')
         config.add_from_package(
             'polaris.tasks.ocean.realistic_global.init',
             config_filename,

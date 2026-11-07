@@ -1,16 +1,25 @@
 import logging
 
+import gsw
 import numpy as np
 import pytest
 import xarray as xr
 
-from polaris.ocean.vertical.ztilde import RhoSw
+from polaris.config import PolarisConfigParser
+from polaris.ocean.vertical.ztilde import Gravity, RhoSw
 from polaris.tasks.ocean.realistic_global.init.pstar_init import (
     RealisticPStarInitStep,
     _clamp_geom_z_bot,
     _fill_tracer_columns,
     _geom_z_bot_from_topo,
+    add_land_ice_fields,
+    compute_land_ice_load,
+    estimate_level_count,
+    fill_thin_film_tracers,
 )
+
+DRAFT_DENSITY = 1028.0
+FILM_LAYER_THICKNESS = 0.05
 
 
 def _sat_column(factor=1.0, nlevels=4, thickness=100.0, ncells=1):
@@ -316,7 +325,7 @@ def test_filling_holes_raises_if_holes_remain():
     """Holes that survive every pass are an error, not a warning."""
     step = _StubPStarInitStep(hole_persists=True)
 
-    with pytest.raises(ValueError, match='Bathymetry holes remain'):
+    with pytest.raises(ValueError, match='Bathymetry holes'):
         step._run_pstar_init_filling_holes(
             _line_mesh(),
             xr.DataArray([-300.0, -500.0, -300.0], dims='nCells'),
@@ -331,10 +340,13 @@ class _StubPStarInitStep(RealisticPStarInitStep):
     Interfaces are every 100 m, so level k's bottom is at -100 k.
     """
 
-    def __init__(self, hole_persists):
+    def __init__(self, hole_persists, config=None):
         self.logger = logging.getLogger('test')
         self.hole_persists = hole_persists
         self.geom_z_bots = []
+        self.sea_surface_heights = []
+        self.config = config
+        self._thin_film = None
 
     def run_pstar_init(
         self,
@@ -344,6 +356,7 @@ class _StubPStarInitStep(RealisticPStarInitStep):
         sea_surface_height=None,
     ):
         self.geom_z_bots.append(geom_z_bot)
+        self.sea_surface_heights.append(sea_surface_height)
         filled = float(geom_z_bot.values[1]) > -301.0
         if filled and not self.hole_persists:
             max_level_cell = [3, 3, 3]
@@ -353,6 +366,7 @@ class _StubPStarInitStep(RealisticPStarInitStep):
         return xr.Dataset(
             data_vars={
                 'maxLevelCell': (['nCells'], np.array(max_level_cell)),
+                'minLevelCell': (['nCells'], np.ones(3, dtype=int)),
                 'GeomZInterface': (
                     ['Time', 'nCells', 'nVertLevelsP1'],
                     geom_z_interface,
@@ -372,3 +386,142 @@ def _line_mesh():
             'nEdgesOnCell': (['nCells'], np.array([1, 2, 1])),
         }
     )
+
+
+# --- ice-shelf cavities ---
+
+
+def test_estimate_level_count():
+    interfaces = np.array([0.0, 10.0, 30.0, 60.0, 100.0])
+    count = estimate_level_count(
+        interfaces=interfaces,
+        bottom_depth=np.array([5.0, 35.0, 1000.0]),
+        min_vert_levels=2,
+    )
+    # at least the minimum, and at most every level
+    assert count.tolist() == [2, 3, 4]
+
+
+def _load(pressure, bottom_depth, level_count):
+    return compute_land_ice_load(
+        land_ice_pressure=xr.DataArray(pressure, dims='nCells'),
+        geom_z_bot=xr.DataArray(-np.asarray(bottom_depth), dims='nCells'),
+        level_count=np.asarray(level_count),
+        thin_film_layer_thickness=FILM_LAYER_THICKNESS,
+        draft_density=DRAFT_DENSITY,
+    )
+
+
+def test_land_ice_load_floats_light_ice():
+    # 400 m of draft over a 1000 m bed floats
+    pressure = DRAFT_DENSITY * Gravity * 400.0
+    surface_pressure, ssh, film = _load(
+        [0.0, pressure], [1000.0] * 2, [40] * 2
+    )
+    assert surface_pressure.values == pytest.approx([0.0, pressure])
+    assert ssh.values == pytest.approx([0.0, -400.0])
+    assert not film.values.any()
+
+
+def test_land_ice_load_caps_heavy_ice_on_a_thin_film():
+    # grounded ice, and floating ice that leaves too thin a column, are both
+    # capped at the pressure under which they float on the thin film
+    bottom_depth = np.array([300.0, 300.0])
+    level_count = np.array([30, 30])
+    heavy = DRAFT_DENSITY * Gravity * 2000.0
+    nearly = DRAFT_DENSITY * Gravity * 299.0
+    surface_pressure, ssh, film = _load(
+        [heavy, nearly], bottom_depth, level_count
+    )
+    film_thickness = FILM_LAYER_THICKNESS * level_count
+    assert ssh.values == pytest.approx(-bottom_depth + film_thickness)
+    assert surface_pressure.values == pytest.approx(
+        DRAFT_DENSITY * Gravity * (bottom_depth - film_thickness)
+    )
+    assert film.values.all()
+
+
+def _freeze_config():
+    config = PolarisConfigParser()
+    config.add_from_package('polaris.ocean.ice_shelf', 'freeze.cfg')
+    config.set('ocean', 'model', 'mpas-ocean')
+    return config
+
+
+def test_thin_film_tracers_are_fresh_at_the_freezing_point():
+    ct = xr.DataArray(
+        np.array([[[1.0, 2.0, np.nan], [1.0, 2.0, 3.0]]]),
+        dims=('Time', 'nCells', 'nVertLevels'),
+        attrs={'units': 'degC'},
+    )
+    sa = xr.full_like(ct, 34.0).where(ct.notnull())
+    film = xr.DataArray([1, 0], dims='nCells')
+    pressure = xr.DataArray([2.0e7, 0.0], dims='nCells')
+    config = _freeze_config()
+
+    ct_out, sa_out = fill_thin_film_tracers(config, ct, sa, film, pressure)
+
+    freezing_pt = 6.22e-2 - 7.43e-8 * 2.0e7
+    expected_ct = gsw.CT_from_pt(0.0, freezing_pt)
+    assert ct_out.values[0, 0, :2] == pytest.approx([expected_ct] * 2)
+    assert sa_out.values[0, 0, :2] == pytest.approx([0.0, 0.0])
+    # below the seafloor stays undefined, and other columns are unchanged
+    assert np.isnan(ct_out.values[0, 0, 2])
+    assert ct_out.values[0, 1].tolist() == [1.0, 2.0, 3.0]
+    assert sa_out.values[0, 1].tolist() == [34.0] * 3
+    assert ct_out.dims == ct.dims
+    assert ct_out.attrs == ct.attrs
+
+
+def test_land_ice_fields():
+    ds_topo = xr.Dataset(
+        {
+            'landIceMask': ('nCells', [0, 1, 1]),
+            'ice_frac': ('nCells', [0.2, 1.0, 1.0]),
+            'grounded_frac': ('nCells', [0.0, 0.25, 1.0]),
+        }
+    )
+    ds_out = xr.Dataset({'ssh': (('Time', 'nCells'), [[0.0, -500.0, -9.0]])})
+    pressure = xr.DataArray([0.0, 5.0e6, 2.0e7], dims='nCells')
+    thin_film = xr.Dataset({'thinFilmMask': ('nCells', [0, 0, 1])})
+
+    ds_out = add_land_ice_fields(ds_out, ds_topo, pressure, thin_film)
+
+    assert ds_out.landIceMask.values.tolist() == [[0, 1, 1]]
+    # ice outside the land-ice mask is not land ice
+    assert ds_out.landIceFraction.values.tolist() == [[0.0, 1.0, 1.0]]
+    assert ds_out.landIceFloatingFraction.values[0] == pytest.approx(
+        [0.0, 0.75, 0.0]
+    )
+    assert ds_out.landIceFloatingMask.values.tolist() == [[0, 1, 0]]
+    # the full pressure, which MPAS-Ocean caps itself
+    assert ds_out.landIcePressure.values.tolist() == [[0.0, 5.0e6, 2.0e7]]
+    assert ds_out.landIceDraft.values.tolist() == [[0.0, -500.0, -9.0]]
+    assert ds_out.thinFilmMask.values.tolist() == [[0, 0, 1]]
+    for name in ['landIcePressure', 'landIceDraft']:
+        assert ds_out[name].dims == ('Time', 'nCells')
+
+
+def test_filling_holes_settles_the_thin_film_layers():
+    """
+    With cavities, the solve is repeated until the thin film's layers agree
+    with the layers the solve gives.
+    """
+    config = PolarisConfigParser()
+    config.add_from_package(
+        'polaris.tasks.ocean.realistic_global.init', 'init.cfg'
+    )
+    step = _StubPStarInitStep(hole_persists=False, config=config)
+    geom_z_bot = xr.DataArray([-300.0, -300.0, -300.0], dims='nCells')
+    # the middle cell is under grounded ice
+    pressure = xr.DataArray([0.0, 3.0e7, 0.0], dims='nCells')
+
+    step._run_pstar_init_filling_holes(_line_mesh(), geom_z_bot, pressure)
+
+    # the first solve's film takes its layers from the reference grid, and
+    # the next one's from the 3 layers the stub gives
+    assert len(step.sea_surface_heights) == 2
+    ssh = step.sea_surface_heights[-1]
+    assert ssh.values == pytest.approx([0.0, -300.0 + 3 * 0.05, 0.0])
+    assert step._thin_film is not None
+    assert step._thin_film.thinFilmMask.values.tolist() == [0, 1, 0]
