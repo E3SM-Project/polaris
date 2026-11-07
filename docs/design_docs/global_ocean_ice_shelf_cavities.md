@@ -40,29 +40,6 @@ needs MPAS-Ocean from FAnSSIE with split-explicit wetting and drying.
 
 ## Open Questions
 
-### Layers in thin columns
-
-MPAS-Ocean's wetting and drying requires every active layer to stay at
-least `config_drying_min_cell_height` (5 cm) thick.  Its z-star coordinate
-squashes a column in proportion to `restingThickness`.  On the strongly
-non-uniform `realistic_global` grids, a thin column's top layers then fall
-far below the minimum.  For example, a 3.5 m film under 70 layers of the
-`80layerE3SMv1` grid has a top layer of a few millimetres.  ISOMIP+ avoids
-this with a nearly uniform grid.
-
-Options:
-
-1. In columns where proportional layers would be thinner than the minimum,
-   make the layers uniform: equal resting and initial thicknesses.  z-star
-   then keeps them uniform.
-2. Raise the film until its thinnest proportional layer reaches the minimum.
-   On `80layerE3SMv1` that is tens of metres under thick ice.
-3. Use fewer active layers (a smaller `maxLevelCell`) in thin columns.
-
-Recommended: option 1.  The choice affects
-[Thin columns are a wet film](#requirement-thin-columns-are-a-wet-film) and
-its implementation.
-
 ### Pressure gradient at film edges
 
 `realistic_global` runs MPAS-Ocean with `Jacobian_from_TS`, as E3SM does.
@@ -168,8 +145,19 @@ $$
 Cells where $\eta > \eta_0$ form the film and are marked with
 `thinFilmMask`.  Their load exceeds what the column supports, which
 MPAS-Ocean's grounded-pressure cap handles.  Film water starts with zero
-salinity at the freezing point.  How the film's layers are laid out is open:
-see [Layers in thin columns](#layers-in-thin-columns).
+salinity at the freezing point.
+
+MPAS-Ocean's wetting and drying requires every layer to stay at least
+$h_{min}$ thick, but its z-star coordinate squashes a column in proportion
+to `restingThickness`.  On the non-uniform `realistic_global` grids, a thin
+column's top layers would fall far below $h_{min}$.  The resting thickness
+therefore stays z-star, and MPAS-Ocean's minimum-thickness ALE adjustment
+keeps every layer at least $h_{min}$ thick: layers below it are raised and
+the difference is taken from the others.  A film column, $N h_{min}$
+thick, then has uniform layers.  A thicker column's layers return to z-star
+as the minimum stops binding, which a retreating grounding line needs.  The
+initial layer thicknesses are the same adjusted z-star thicknesses, so the
+model's first step does not move them.
 
 ### Algorithm Design: The SSH is adjusted to the land-ice load before the dynamic adjustment
 
@@ -235,6 +223,14 @@ where $H$ is `bottomDepth`.  Columns with $\eta = 0$ are unchanged.
 column.
 
 ### Implementation: Thin columns are a wet film
+
+`restingThickness` is the p-star layer thickness scaled by
+$H/(H + \eta)$.  The initial `layerThickness` applies the adjustment of
+MPAS-Ocean's `ocn_ALE_thickness()` with `config_min_thickness` to the
+z-star target.  The forward and SSH-adjustment runs set
+`config_use_min_max_thickness` with `config_min_thickness` equal to
+`config_drying_min_cell_height`.  Tracers keep their layer index where the
+adjustment moves the interfaces.
 
 The film layer thickness is a `[realistic_global_init]
 thin_film_layer_thickness` option, named as in ISOMIP+, which must match
@@ -341,5 +337,10 @@ A unit test of the Omega error.
 - **MPAS-Ocean comes from FAnSSIE, not E3SM-Project.**  FAnSSIE renames the
   land-ice flux modes and adds the grounded-pressure cap and wetting and
   drying.  ISOMIP+, MISOMIP and `ice_shelf_2d` already use its form.
+- **Thin columns keep z-star resting thicknesses.**  Uniform resting
+  thicknesses in thin columns, a thicker film, and fewer layers in thin
+  columns were considered.  The first would stay uniform as a column
+  thickened after grounding-line retreat, the second is tens of metres
+  under thick ice, and the third changes `maxLevelCell` as the ice moves.
 - **Split-explicit, not `split_explicit_ab2`.**  Only `split_explicit` and
   `RK4` have wetting and drying.
