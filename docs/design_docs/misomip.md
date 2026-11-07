@@ -1834,7 +1834,10 @@ mean thickness. Each alone turns this opening into a gentle filling, with
 speeds of 4–5 m/s, and the ocean's volume budget closes with either. Every
 stage E run then starts over on one executable that has both and the edge
 flux of [D33](#decisions): IceOcean1r and Ocean0–2 from their beginnings,
-then the rest in D33's order.
+then the rest in D33's order. The vertical-advection fix is in FAnSSIE. The
+gradual inflow follows once Polaris's wetting and drying tasks thin and
+thicken the ice more gently: at their 10% in 12 hours, it set off a
+domain-wide surge in RK4, a rate the coupled runs never reach.
 
 ```{admonition} Rationale
 Films open next to deep columns more often as the grounding line retreats,
