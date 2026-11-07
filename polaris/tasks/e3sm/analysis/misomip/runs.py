@@ -44,6 +44,11 @@ DAILY_STREAM = 'globalStatsOutput'
 #: The ocean's stream of daily means, which a run may write
 DAILY_MEANS_STREAM = 'timeSeriesStatsDailyOutput'
 
+#: The ocean's snapshots of layer thickness at each month's start, which with
+#: the monthly mean of ``vertAleTransportTop`` give the overturning
+#: streamfunction from the volume budget
+SNAPSHOT_STREAM = 'layerThicknessSnapshotOutput'
+
 
 class ConfiguredRun(NamedTuple):
     """

@@ -22,13 +22,16 @@ from polaris.ocean.overturning import (
     compute_line_transport,
     compute_overturning_in_z,
     get_line_edges,
+    interp_overturning_to_z,
 )
 from polaris.remap import MappingFileStep
 from polaris.tasks.e3sm.analysis.misomip.diagnostics import (
     TIME_SERIES_FILENAME,
     add_geometry_inputs,
+    compute_budget_overturning,
     isomip_mesh,
     read_initial_condition,
+    read_layer_thickness_snapshots,
 )
 from polaris.tasks.e3sm.init.misomip.projection import get_lat_lon
 from polaris.tasks.e3sm.init.misomip.scrip import write_scrip
@@ -152,14 +155,54 @@ class ProtocolFields(Step):
             work_dir_target=f'{diagnostics.path}/{TIME_SERIES_FILENAME}',
         )
         self.monthly_filenames = list(diagnostics.monthly_filenames)
-        for filename in self.monthly_filenames:
+        self.snapshot_filenames = list(diagnostics.snapshot_filenames)
+        for filename in self.monthly_filenames + self.snapshot_filenames:
             self.add_input_file(
                 filename=filename,
                 work_dir_target=f'{diagnostics.path}/{filename}',
             )
+        self.ref_density = diagnostics.ref_density
+        self.starts_from_initial_condition = (
+            diagnostics.starts_from_initial_condition
+        )
         self.add_dependency(diagnostics)
         self.add_dependency(map_step)
         self.add_output_file(filename=self.output_filename)
+
+    def _overturning(self, ds_mesh, ds_init, ds):
+        """The overturning streamfunction (m3 s-1) on the protocol's grid:
+        from the volume budget, interpolated in z from the mean elevations
+        of the layer interfaces along each line, in the months the run has
+        its inputs, and from the monthly means of velocity and thickness
+        otherwise"""
+        result = _overturning(ds_mesh, ds)
+        if not self.snapshot_filenames:
+            return result
+        restoring_x = self.config.getfloat('misomip_analysis', 'restoring_x')
+        x_lines = PROTOCOL_X[PROTOCOL_X <= restoring_x]
+        ds_osf = compute_budget_overturning(
+            ds,
+            ds_init,
+            read_layer_thickness_snapshots(self.snapshot_filenames),
+            x_lines,
+            self.ref_density,
+            initial_day=0.0 if self.starts_from_initial_condition else None,
+        )
+        if ds_osf is None:
+            return result
+        values = result.filled(np.nan)
+        for t_index in range(ds_osf.sizes['Time']):
+            budget = ds_osf.overturningBudget.isel(Time=t_index)
+            if not np.any(np.isfinite(budget.values)):
+                continue
+            in_z = interp_overturning_to_z(
+                budget,
+                ds_osf.interfaceElevation.isel(Time=t_index),
+                PROTOCOL_Z,
+            ).transpose('nZInterfaces', 'x')
+            values[t_index] = np.nan
+            values[t_index, :, : len(x_lines)] = 1e6 * in_z.values
+        return np.ma.masked_invalid(values)
 
     @property
     def output_filename(self):
@@ -245,8 +288,8 @@ class ProtocolFields(Step):
             out.variables['barotropicStreamfunction'][t_index] = _remap(
                 mapping, bsf[t_index], ocean.values
             )
-        out.variables['overturningStreamfunction'][:] = _overturning(
-            ds_mesh, ds
+        out.variables['overturningStreamfunction'][:] = self._overturning(
+            ds_mesh, ds_init, ds
         )
         for axis, name_suffix in [('x', 'XZ'), ('y', 'YZ')]:
             sections = _sections(ds_mesh, ds_init, ds, axis)
