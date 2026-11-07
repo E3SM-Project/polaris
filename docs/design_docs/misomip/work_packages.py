@@ -17,7 +17,7 @@ import sys
 import matplotlib.pyplot as plt
 from matplotlib.patches import Circle, FancyBboxPatch
 
-STATUS_DATE = '2026-11-06'
+STATUS_DATE = '2026-11-07'
 
 SURFACE = '#fcfcfb'
 INK = '#0b0b0b'
@@ -47,7 +47,7 @@ ROWS = [
      'drafting', 4,
      ''),
     ('WP3', 'Landice component: MALI + Albany in Polaris',
-     'polaris #871; E3SM-O-D #151 merged', 'draft', 0, ''),
+     'polaris #871; E3SM-O-D #151, #183 merged', 'draft', 0, ''),
     ('WP4', 'MISMIP+ spin-up with MALI',
      'polaris #922; 1 km spin-up converged; front restored',
      'draft', 0, ''),
