@@ -129,23 +129,29 @@ $$
 $$
 
 the draft of ice floating with that load, from the same reference density
-ISOMIP+ uses.  The p-star initialization
-([pstar_init](pstar_init.md)) takes $p_{li}$ as its surface pressure and
-$\eta$ as its prescribed SSH, and balances each column with the TEOS-10
-equation of state.
+ISOMIP+ uses.  The p-star initialization ([pstar_init](pstar_init.md))
+balances each column with the TEOS-10 equation of state, with the load
+MPAS-Ocean will apply as its surface pressure and $\eta$ as its prescribed
+SSH.
 
 ### Algorithm Design: Thin columns are a wet film
 
-With $N$ active layers and minimum layer thickness $h_{min}$:
+MPAS-Ocean caps the land-ice pressure at the load under which the ice would
+float on a film of $N$ active layers, each at the wetting-and-drying
+minimum $h_{min}$:
 
 $$
-\eta = \max\left(\eta_0, z_b + N h_{min}\right)
+p = \min\left(p_{li}, \rho_{sw} g \left(H - N h_{min}\right)\right),
+\qquad \eta = -\frac{p}{\rho_{sw} g}
 $$
 
-Cells where $\eta > \eta_0$ form the film and are marked with
-`thinFilmMask`.  Their load exceeds what the column supports, which
-MPAS-Ocean's grounded-pressure cap handles.  Film water starts with zero
-salinity at the freezing point.
+Where the cap binds, $\eta = z_b + N h_{min}$: the column is a film,
+marked with `thinFilmMask`, whether the ice is grounded or floating.  The
+p-star solve takes $p$ as its surface pressure, so film columns get their
+layers from the bed depth, as in z-star.  $N$ comes from the solve, so the
+solve is repeated until the film and its layers agree.  Film water starts
+with zero salinity at the freezing point.  `landIcePressure` is the full
+$p_{li}$, which MPAS-Ocean caps itself.
 
 MPAS-Ocean's wetting and drying requires every layer to stay at least
 $h_{min}$ thick, but its z-star coordinate squashes a column in proportion
@@ -164,8 +170,12 @@ model's first step does not move them.
 The SSH adjustment iterates the following, as in ISOMIP+:
 
 1. Run MPAS-Ocean briefly with the land-ice pressure and no fluxes.
-2. Take its final SSH, holding the pressure fixed.
-3. Rebuild the initial condition with that SSH.
+2. Take its final SSH under land ice, holding the pressure fixed.
+3. Place the layers for that SSH as MPAS-Ocean's z-star coordinate does,
+   with its minimum layer thickness, keeping the tracers.
+
+The adjustment matches the initial state to MPAS-Ocean rather than to the
+p-star balance, whose equation of state MPAS-Ocean does not share.
 
 ### Algorithm Design: There is no surface forcing under land ice
 
@@ -207,8 +217,11 @@ initial state writes `landIcePressure`, `landIceDraft`, `landIceMask`,
 `landIceFraction`, `landIceFloatingMask` and `landIceFloatingFraction`.  The
 floating fields come from the grounded fraction.
 
-MPAS-Ocean's z-star requires `restingThickness` to sum to `bottomDepth`,
-the thickness at zero SSH.  The initial state therefore writes
+MPAS-Ocean's z-star requires `restingThickness` to sum to `bottomDepth`:
+it is the thickness at zero SSH, not at rest under the ice.  The z-star
+target is `restingThickness` stretched by $(H + \eta)/H$ using the actual
+SSH, as in E3SM's cavity initial conditions.  The initial state therefore
+writes
 
 $$
 h_{rest,k} = h_k \frac{H}{H + \eta}
@@ -218,9 +231,11 @@ where $H$ is `bottomDepth`.  Columns with $\eta = 0$ are unchanged.
 
 ### Implementation: The sea surface follows the land-ice load
 
-`RealisticPStarInitStep.run()` passes the land-ice pressure and $\eta$ to
-`run_pstar_init()`.  The depth clamp and the hole filling work on the loaded
-column.
+`compute_land_ice_load()` gives the capped load, $\eta$ and the film mask
+from the layer count, which `estimate_level_count()` takes from the
+reference grid for the first solve.  `RealisticPStarInitStep` repeats
+`run_pstar_init()` with them, together with the existing hole filling,
+until neither the holes nor the film's layer counts change.
 
 ### Implementation: Thin columns are a wet film
 
@@ -232,17 +247,25 @@ z-star target.  The forward and SSH-adjustment runs set
 `config_drying_min_cell_height`.  Tracers keep their layer index where the
 adjustment moves the interfaces.
 
-The film layer thickness is a `[realistic_global_init]
-thin_film_layer_thickness` option, named as in ISOMIP+, which must match
-`config_drying_min_cell_height`.  The freezing point comes from
-`polaris.ocean.ice_shelf.compute_freezing_temperature()`.
+The film layer thickness, the maximum-thickness factor and the land-ice and
+draft densities are options in `[realistic_global_cavities]`
+(`cavities.cfg`), which both the init and dynamic-adjustment configs
+include.  The first two must match `config_drying_min_cell_height` and
+`config_max_thickness_factor`.  The film's freezing point comes from
+`polaris.ocean.ice_shelf.compute_freezing_temperature()`, converted to
+conservative temperature.
 
 ### Implementation: The SSH is adjusted to the land-ice load before the dynamic adjustment
 
-Shared steps after `initial_state` alternate an SSH forward, with the shared
-wetting-and-drying options, and a step that reruns the p-star initialization
-at the new SSH.  The dynamic adjustment's first stage starts from the last
-one.  `[ssh_adjustment]` sets the iteration count and run length.
+With cavities on, the dynamic-adjustment steps begin with
+`[ssh_adjustment] iterations` pairs of shared steps.  The first of each is a
+`realistic_global` `Forward` running the first stage's physics and time
+steps for `run_duration`.  The second is `RealisticSshAdjustment`, the shared
+`SshAdjustment` in its SSH mode, overriding its layer update with
+`apply_min_max_layer_thickness()`.  `StepInitialCondition` takes an
+`init_target`, so each run starts from the previous adjustment and the
+first stage from the last.  Cavities are known only once a user's config
+is applied, so the task rebuilds its steps in `configure()`.
 
 ### Implementation: There is no surface forcing under land ice
 
@@ -269,8 +292,8 @@ keeps them in sync, are removed.
 
 ### Implementation: Unsupported combinations fail at setup
 
-The `realistic_global` init and dynamic-adjustment tasks raise an error in
-`configure()` when cavities are on and `[ocean] model` is `omega`.
+`InitialStateStep.setup()` raises an error when cavities are on and
+`[ocean] model` is `omega`.
 
 ## Testing
 
