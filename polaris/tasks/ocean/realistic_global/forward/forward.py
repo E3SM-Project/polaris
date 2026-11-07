@@ -465,6 +465,10 @@ def add_land_ice_yaml_files(step, stage, time_integrator):
     forward step: the land-ice pressure, the stage's land-ice flux mode, top
     drag, and wetting and drying with a thin film.
 
+    MPAS-Ocean allows implicit top drag only with its constant implicit
+    bottom drag, not with the Rayleigh damping of a damped stage, so only an
+    undamped stage has top drag.
+
     The film is the same under every cavity convention: it fills any column
     that the land-ice load would leave thinner than the wetting-and-drying
     minimum, whether the ice above it is grounded or floating.
@@ -487,6 +491,11 @@ def add_land_ice_yaml_files(step, stage, time_integrator):
             land_ice_flux_mode=stage.land_ice_flux_mode
         ),
     )
+    if stage.damping is None:
+        step.add_yaml_file(
+            'polaris.tasks.ocean.realistic_global.forward',
+            'land_ice_top_drag.yaml',
+        )
     add_wetting_drying_yaml_files(
         step,
         thin_film=True,

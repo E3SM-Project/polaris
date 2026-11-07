@@ -1614,3 +1614,14 @@ def test_land_ice_yaml_files(time_integrator, split_yaml):
     assert 'wetting_drying.yaml' in names
     assert 'thin_film_wetting_drying.yaml' in names
     assert ('split_explicit.yaml' in names) == split_yaml
+
+
+@pytest.mark.parametrize('damping, top_drag', [(None, True), (1.0e-4, False)])
+def test_top_drag_only_without_damping(damping, top_drag):
+    # MPAS-Ocean's implicit top drag needs constant bottom drag, which the
+    # Rayleigh damping of a damped stage replaces
+    step = _YamlRecorder()
+    stage = dataclasses.replace(ForwardStage(), damping=damping)
+    add_land_ice_yaml_files(step, stage, 'split_explicit')
+    names = [name for name, _ in step.yaml_files]
+    assert ('land_ice_top_drag.yaml' in names) == top_drag

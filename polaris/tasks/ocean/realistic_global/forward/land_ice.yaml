@@ -13,7 +13,3 @@ mpas-ocean:
     config_use_min_max_thickness: true
     config_min_thickness: 5.0e-2
     config_max_thickness_factor: 6.0
-  bottom_drag:
-    # drag at the ice-ocean interface, with the ISOMIP+ top drag coefficient
-    config_use_implicit_top_drag: true
-    config_implicit_top_drag_coeff: 2.5e-3

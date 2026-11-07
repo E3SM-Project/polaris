@@ -1,0 +1,8 @@
+# Drag at the ice-ocean interface, with the ISOMIP+ top drag coefficient.
+# MPAS-Ocean allows implicit top drag only with the constant implicit bottom
+# drag type, so a stage with Rayleigh damping (constant_and_rayleigh) leaves it
+# off.
+mpas-ocean:
+  bottom_drag:
+    config_use_implicit_top_drag: true
+    config_implicit_top_drag_coeff: 2.5e-3
