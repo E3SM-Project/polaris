@@ -973,6 +973,7 @@
    pstar_init.RealisticPStarInitStep.run
    pstar_init.RealisticPStarInitStep.init_tracers
    pstar_init.estimate_level_count
+   pstar_init.shorten_loaded_columns
    pstar_init.compute_land_ice_load
    pstar_init.fill_thin_film_tracers
    pstar_init.add_land_ice_fields

@@ -318,6 +318,7 @@ class RealisticPStarInitStep(PStarInitStep):
             n_filled = int(is_filled.sum())
 
             n_relayered = 0
+            n_moved = 0
             if land_ice_pressure is not None:
                 min_level_cell = ds_out.minLevelCell.values
                 new_level_count = max_level_cell - min_level_cell + 1
@@ -328,7 +329,19 @@ class RealisticPStarInitStep(PStarInitStep):
                 )
                 level_count = new_level_count
 
-            if n_filled == 0 and n_relayered == 0:
+                # the p-star solve moves the seafloor to where a partial
+                # bottom cell is representable.  Under a load, the sea
+                # surface does not move with it, so the load and SSH must be
+                # computed again from the seafloor the column actually has.
+                moved = _loaded_columns_with_moved_seafloor(ds_out, geom_z_bot)
+                n_moved = int(moved.sum())
+                geom_z_bot = xr.where(
+                    xr.DataArray(moved, dims=['nCells']),
+                    -_squeeze_time(ds_out.bottomDepth),
+                    geom_z_bot,
+                )
+
+            if n_filled == 0 and n_relayered == 0 and n_moved == 0:
                 if outer > 0:
                     self.logger.info(
                         f'No bathymetry holes remain and the thin film is '
@@ -342,6 +355,21 @@ class RealisticPStarInitStep(PStarInitStep):
                 Time=0,
                 nVertLevelsP1=xr.DataArray(filled, dims='nCells'),
             )
+            if land_ice_pressure is not None and n_filled > 0:
+                # under land ice, the layers are squashed, so their bottom
+                # interface is not where the column must end to lose them
+                new_geom_z_bot = xr.where(
+                    _squeeze_time(ds_out.SurfacePressure) > 0.0,
+                    shorten_loaded_columns(
+                        geom_z_bot=geom_z_bot,
+                        bottom_pressure=_squeeze_time(ds_out.BottomPressure),
+                        spec_vol=_squeeze_time(ds_out.SpecVol),
+                        max_level_cell=max_level_cell,
+                        interfaces=generate_1d_grid(config=self.config),
+                        filled=filled,
+                    ),
+                    new_geom_z_bot,
+                )
             geom_z_bot = xr.where(
                 xr.DataArray(is_filled, dims=['nCells']),
                 new_geom_z_bot,
@@ -352,8 +380,9 @@ class RealisticPStarInitStep(PStarInitStep):
 
             self.logger.info(
                 f'Bathymetry-hole pass {outer}: capping {n_filled} holes at '
-                f'the deepest ocean neighbor and updating the thin film in '
-                f'{n_relayered} cells, then re-running p-star init.'
+                f'the deepest ocean neighbor, updating the thin film in '
+                f'{n_relayered} cells and the land-ice load in {n_moved} '
+                f'cells whose seafloor moved, then re-running p-star init.'
             )
             ds_out = self._run_pstar_init_with_load(
                 ds_mesh, geom_z_bot, land_ice_pressure, level_count
@@ -482,6 +511,79 @@ class RealisticPStarInitStep(PStarInitStep):
                 self._thin_film.landIcePressure,
             )
         return ct, sa
+
+
+def shorten_loaded_columns(
+    geom_z_bot, bottom_pressure, spec_vol, max_level_cell, interfaces, filled
+):
+    """
+    Raise the seafloor of columns under a surface load so that their deepest
+    layer becomes ``filled``.
+
+    A column's layers come from its bottom pressure, which counts the load,
+    while its layers are squashed under the load, so the bottom interface of
+    layer ``filled`` lies far above where the column must end.  Instead, the
+    column is shortened by the pseudo-depth of its bottom pressure below the
+    reference depth of that interface, less 1% of the layer, converted to a
+    geometric length with the specific volume of the deepest layer.
+
+    Parameters
+    ----------
+    geom_z_bot : xarray.DataArray
+        The geometric height (m, negative) of the seafloor, with dimension
+        ``nCells``
+
+    bottom_pressure : xarray.DataArray
+        The bottom pressure (Pa) of each column, with dimension ``nCells``
+
+    spec_vol : xarray.DataArray
+        The specific volume (m3 kg-1), with dimensions ``nCells`` and
+        ``nVertLevels``
+
+    max_level_cell : numpy.ndarray
+        The 1-based deepest layer of each column
+
+    interfaces : numpy.ndarray
+        The reference depths (m, positive down) of the layer interfaces
+
+    filled : numpy.ndarray
+        The 1-based deepest layer each column should have
+
+    Returns
+    -------
+    xarray.DataArray
+        The raised seafloor height
+    """
+    interfaces = np.asarray(interfaces)
+    filled = np.asarray(filled)
+    target = interfaces[filled] - 0.01 * (
+        interfaces[filled] - interfaces[filled - 1]
+    )
+    pseudo_bottom = bottom_pressure.values / (RhoSw * Gravity)
+    excess = np.maximum(pseudo_bottom - target, 0.0)
+    cells = np.arange(len(filled))
+    bottom_spec_vol = spec_vol.values[cells, np.asarray(max_level_cell) - 1]
+    raised = geom_z_bot.values + excess * RhoSw * bottom_spec_vol
+    return xr.DataArray(raised, dims=geom_z_bot.dims)
+
+
+def _loaded_columns_with_moved_seafloor(ds_out, geom_z_bot, tolerance=1e-6):
+    """
+    Find the columns under a surface load whose seafloor the p-star solve
+    left more than ``tolerance`` (m) from its target
+    """
+    loaded = _squeeze_time(ds_out.SurfacePressure).values > 0.0
+    bottom_depth = _squeeze_time(ds_out.bottomDepth).values
+    return loaded & (np.abs(bottom_depth + geom_z_bot.values) > tolerance)
+
+
+def _squeeze_time(da):
+    """
+    Drop the ``Time`` dimension of a data array, if it has one
+    """
+    if 'Time' in da.dims:
+        da = da.isel(Time=0)
+    return da
 
 
 def estimate_level_count(interfaces, bottom_depth, min_vert_levels):

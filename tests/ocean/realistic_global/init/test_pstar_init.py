@@ -16,6 +16,7 @@ from polaris.tasks.ocean.realistic_global.init.pstar_init import (
     compute_land_ice_load,
     estimate_level_count,
     fill_thin_film_tracers,
+    shorten_loaded_columns,
 )
 
 DRAFT_DENSITY = 1028.0
@@ -367,6 +368,14 @@ class _StubPStarInitStep(RealisticPStarInitStep):
             data_vars={
                 'maxLevelCell': (['nCells'], np.array(max_level_cell)),
                 'minLevelCell': (['nCells'], np.ones(3, dtype=int)),
+                'SurfacePressure': (
+                    ['nCells'],
+                    np.zeros(3)
+                    if surface_pressure is None
+                    else np.asarray(surface_pressure),
+                ),
+                # the stub's seafloor is always representable
+                'bottomDepth': (['nCells'], -np.asarray(geom_z_bot)),
                 'GeomZInterface': (
                     ['Time', 'nCells', 'nVertLevelsP1'],
                     geom_z_interface,
@@ -528,3 +537,23 @@ def test_filling_holes_settles_the_thin_film_layers():
     assert ssh.values == pytest.approx([0.0, -300.0 + 3 * 0.05, 0.0])
     assert step._thin_film is not None
     assert step._thin_film.thinFilmMask.values.tolist() == [0, 1, 0]
+
+
+def test_shorten_loaded_columns_removes_the_full_reference_layers():
+    interfaces = np.array([0.0, 100.0, 200.0, 300.0])
+    spec_vol = xr.DataArray(
+        np.full((1, 3), 1.0 / RhoSw), dims=('nCells', 'nVertLevels')
+    )
+    # a column whose bottom pressure reaches 250 m of pseudo-depth, with 3
+    # layers, is to keep only 2
+    bottom_pressure = xr.DataArray([RhoSw * Gravity * 250.0], dims='nCells')
+    raised = shorten_loaded_columns(
+        geom_z_bot=xr.DataArray([-120.0], dims='nCells'),
+        bottom_pressure=bottom_pressure,
+        spec_vol=spec_vol,
+        max_level_cell=np.array([3]),
+        interfaces=interfaces,
+        filled=np.array([2]),
+    )
+    # 50 m of pseudo-depth below the 200 m interface, plus 1 m of margin
+    assert raised.values == pytest.approx([-120.0 + 51.0])
