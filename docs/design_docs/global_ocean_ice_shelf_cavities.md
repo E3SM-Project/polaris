@@ -236,8 +236,8 @@ thin_film_layer_thickness` option, named as in ISOMIP+, which must match
 
 ### Implementation: The SSH is adjusted to the land-ice load before the dynamic adjustment
 
-Shared steps after `initial_state` alternate a thin-film SSH forward from
-`polaris.ocean.ice_shelf` with a step that reruns the p-star initialization
+Shared steps after `initial_state` alternate an SSH forward, with the shared
+wetting-and-drying options, and a step that reruns the p-star initialization
 at the new SSH.  The dynamic adjustment's first stage starts from the last
 one.  `[ssh_adjustment]` sets the iteration count and run length.
 
@@ -248,10 +248,11 @@ stress there.
 
 ### Implementation: Forward runs carry the land-ice load, with melting optional
 
-ISOMIP+'s thin-film wetting-and-drying options and its thin-film SSH forward
-move to `polaris.ocean.ice_shelf`, used by both ISOMIP+ and
-`realistic_global`.  With cavities on, the `realistic_global` forward
-adds those options, implicit top drag and a per-stage land-ice flux mode.
+ISOMIP+'s wetting-and-drying options move to `polaris.ocean.ice_shelf`,
+with `add_wetting_drying_yaml_files()` to add them, used by both ISOMIP+
+and `realistic_global`.  With cavities on, the `realistic_global` forward
+and SSH-adjustment runs add those options, implicit top drag and a
+per-stage land-ice flux mode.
 A new `[realistic_global_forward] mpaso_cavity_time_integrator` option,
 `split_explicit` by default, replaces `mpaso_time_integrator`.
 
