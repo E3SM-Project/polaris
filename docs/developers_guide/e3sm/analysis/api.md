@@ -30,9 +30,13 @@
    diagnostics.RunDiagnostics.run
    diagnostics.read_initial_condition
    diagnostics.compute_daily_volume_budget
+   diagnostics.compute_monthly_volume_budget
    diagnostics.isomip_mesh
+   diagnostics.compute_time_means
    plots.RunPlots
    plots.RunPlots.run
+   plots.scale_with_units
+   plots.get_label_units
    plots.get_map_mask
    plots.get_range_mask
    plots.get_hatched_cells

@@ -362,90 +362,102 @@ def compute_line_interfaces(
     )
 
 
-def compute_overturning_in_z(
+def compute_overturning_from_edge_transport(
     transport: xr.DataArray,
     z_top: xr.DataArray,
     z_bottom: xr.DataArray,
-    dz: float,
+    z: np.ndarray,
+    edge_dim: str = 'nLineEdges',
     vert_dim: str = 'nVertLevels',
-    top: float | None = None,
-    bottom: float | None = None,
 ) -> xr.DataArray:
-    """
-    Compute the overturning stream function at fixed elevations
+    r"""
+    Compute the overturning stream function at fixed elevations from the
+    transport each layer carries across the edges that bound a region
 
-    Each layer's transport is spread over bins of height ``dz`` by the
-    fraction of the layer each bin overlaps, summed along the line, and
-    accumulated from the top.  By default the bins span the layers, so all
-    of the transport is counted; a ``top`` and ``bottom`` that span them too
-    put several lines on the same elevations.
+    For each edge, the transport is integrated up from the seafloor to each
+    elevation: the layers below it in full and the part of the layer it
+    falls in, by the fraction of that layer's height below it, with the
+    edge's own interface heights.  Summed over the edges with their signs,
+    the stream function is minus that transport,
+
+    .. math::
+
+        \psi(z) = -\sum_e \sum_k T_{e,k}\, f_{e,k}(z),\quad
+        f_{e,k}(z) = \min\left(1, \max\left(0,
+        \frac{z - z^{bot}_{e,k}}{z^{top}_{e,k} - z^{bot}_{e,k}}\right)
+        \right),
+
+    so that the transport per unit height is :math:`-\partial \psi /
+    \partial z`, as the MISOMIP protocol defines its overturning stream
+    function (Asay-Davis et al. 2016).  Where the net transport is zero,
+    :math:`\psi` is the transport out of the region above :math:`z`, as an
+    Atlantic overturning is usually shown.  The sum is the vertical flux
+    through the level :math:`z` summed over the region's cells: each
+    interior face's integral to :math:`z` is shared by its two cells with
+    opposite signs, so only the boundary's remain.  That holds on any mesh,
+    whatever the tilt of the layers.  The approximations are the flux
+    spread evenly through each edge's layer and, for a mean over a period,
+    the mean interface heights of the layer each elevation falls in.
+
+    The edges are any set that bounds a region, with signs toward its
+    outside.  For a line of constant x or y on a planar mesh,
+    :py:func:`get_line_edges` gives them, with the low side as the region.
+    For a latitude within a basin on the sphere, the edges whose two cells
+    are both in the basin and on either side of the latitude give the
+    transport across it directly; a transect along the basin's southern
+    boundary is needed only to sum vertical fluxes over the region instead.
 
     Parameters
     ----------
     transport : xarray.DataArray
-        Transport from :py:func:`compute_line_transport`, with dimensions
-        ``nLineEdges`` and ``vert_dim``
+        The transport (m3 s-1) of each layer across each edge, out of the
+        region, with dimensions ``edge_dim`` and ``vert_dim``, as from
+        :py:func:`compute_line_transport` or a layer thickness flux times
+        each edge's length and sign
 
     z_top, z_bottom : xarray.DataArray
-        The elevations (m) of the top and bottom of each layer, from
-        :py:func:`compute_line_interfaces`
+        The elevations (m) of the top and bottom of each layer on each edge,
+        as from :py:func:`compute_line_interfaces`
 
-    dz : float
-        The height (m) of the bins
+    z : numpy.ndarray
+        The elevations (m)
+
+    edge_dim : str, optional
+        The dimension of edges
 
     vert_dim : str, optional
-        The vertical dimension, indexed from the top
-
-    top, bottom : float, optional
-        The elevations (m) of the top of the first bin and the bottom of the
-        last, multiples of ``dz`` that must span the layers.  By default,
-        the nearest multiples of ``dz`` beyond the layers.
+        The dimension of layers
 
     Returns
     -------
     overturning : xarray.DataArray
-        The overturning stream function (m3 s-1) on the dimension
-        ``nZInterfaces``, with the coordinate ``zInterface`` (m), descending
-        from the top
+        The overturning stream function (m3 s-1) on ``nZInterfaces``, with
+        the coordinate ``zInterface`` (m), and the transport's other
+        dimensions: zero at the seafloor and minus the transport out of the
+        region below each elevation
     """
+    z = np.asarray(z, dtype=float)
     other_dims = [
-        dim for dim in transport.dims if dim not in (vert_dim, 'nLineEdges')
+        dim for dim in transport.dims if dim not in (edge_dim, vert_dim)
     ]
-    dims = other_dims + ['nLineEdges', vert_dim]
-    transport_values = transport.transpose(*dims).values
+    dims = other_dims + [edge_dim, vert_dim]
+    transport_values = np.nan_to_num(transport.transpose(*dims).values)
     top_values = z_top.broadcast_like(transport).transpose(*dims).values
     bottom_values = z_bottom.broadcast_like(transport).transpose(*dims).values
-
-    if top is None:
-        top = dz * np.ceil(np.nanmax(top_values) / dz)
-    if bottom is None:
-        bottom = dz * np.floor(np.nanmin(bottom_values) / dz)
-    if np.nanmax(top_values) > top or np.nanmin(bottom_values) < bottom:
-        raise ValueError(
-            f'The bins from {top} to {bottom} m do not span the layers.'
-        )
-    count = int(round((top - bottom) / dz))
-    edges = top - dz * np.arange(count + 1)
-
-    # the overlap of each layer with each bin, on a last dimension of bins
-    upper = np.minimum(top_values[..., np.newaxis], edges[:-1])
-    lower = np.maximum(bottom_values[..., np.newaxis], edges[1:])
-    thickness = (top_values - bottom_values)[..., np.newaxis]
+    height = (top_values - bottom_values)[..., np.newaxis]
     with np.errstate(invalid='ignore', divide='ignore'):
         fraction = np.where(
-            thickness > 0.0, np.clip(upper - lower, 0.0, None) / thickness, 0.0
+            height > 0.0,
+            np.clip((z - bottom_values[..., np.newaxis]) / height, 0.0, 1.0),
+            0.0,
         )
-    binned = np.nansum(
+    values = -np.sum(
         transport_values[..., np.newaxis] * fraction, axis=(-3, -2)
     )
-    cumulative = np.cumsum(binned, axis=-1)
-    surface = np.zeros(cumulative.shape[:-1] + (1,))
-    values = np.concatenate([surface, cumulative], axis=-1)
-
     overturning = xr.DataArray(
         values,
         dims=other_dims + ['nZInterfaces'],
-        coords={'zInterface': ('nZInterfaces', edges)},
+        coords={'zInterface': ('nZInterfaces', z)},
     )
     for dim in other_dims:
         if dim in transport.coords:

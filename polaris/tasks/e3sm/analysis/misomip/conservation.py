@@ -18,6 +18,7 @@ from polaris.e3sm.analysis.calendar import (
 from polaris.e3sm.analysis.performance import select_segment_logs
 from polaris.tasks.e3sm.analysis.misomip.diagnostics import (
     DAILY_VOLUME_FILENAME,
+    MONTHLY_VOLUME_FILENAME,
     TIME_SERIES_FILENAME,
 )
 from polaris.viz.time_series import Series, plot_time_series
@@ -344,10 +345,18 @@ class OceanVolumeBudget(ProductStep):
             ntasks=1,
             cpus_per_task=1,
         )
-        self.add_input_file(
-            filename=DAILY_VOLUME_FILENAME,
-            work_dir_target=f'{diagnostics.path}/{DAILY_VOLUME_FILENAME}',
-        )
+        if diagnostics.has_daily_volume:
+            self.add_input_file(
+                filename=DAILY_VOLUME_FILENAME,
+                work_dir_target=f'{diagnostics.path}/{DAILY_VOLUME_FILENAME}',
+            )
+        if diagnostics.has_monthly_volume:
+            self.add_input_file(
+                filename=MONTHLY_VOLUME_FILENAME,
+                work_dir_target=(
+                    f'{diagnostics.path}/{MONTHLY_VOLUME_FILENAME}'
+                ),
+            )
         self.add_dependency(diagnostics)
 
     def run(self):
@@ -356,6 +365,10 @@ class OceanVolumeBudget(ProductStep):
         and summed over the run, and the monthly budget outside the tidally
         forced cells
         """
+        if os.path.exists(MONTHLY_VOLUME_FILENAME):
+            self._plot_monthly()
+        if not os.path.exists(DAILY_VOLUME_FILENAME):
+            return
         ds = xr.open_dataset(DAILY_VOLUME_FILENAME, decode_times=False)
         time = days_to_model_year(ds.dayEnd.values)
         change = ds.volumeChange.values
@@ -411,6 +424,65 @@ class OceanVolumeBudget(ProductStep):
                 ds,
                 names,
             )
+
+    def _plot_monthly(self):
+        """
+        Plot the monthly budget of the cells outside the tidally forced ones,
+        summed from the start
+        """
+        ds = xr.open_dataset(MONTHLY_VOLUME_FILENAME, decode_times=False)
+        names = ['volumeChange', 'meltAndFrazilVolume', 'outflow']
+        if not all(name in ds for name in names):
+            self.logger.info(
+                'The monthly volume budget lacks a term, so it is not plotted.'
+            )
+            return
+        change = ds.volumeChange.values
+        surface = ds.meltAndFrazilVolume.values
+        inflow = -ds.outflow.values
+        rest = change - surface - inflow
+        terms = [
+            ('volume change', change, '-'),
+            ('melt + frazil', surface, '-'),
+            ('transport in from the forced cells', inflow, '-'),
+            ('the rest', rest, ':'),
+        ]
+        valid = np.all([np.isfinite(values) for _, values, _ in terms], axis=0)
+        if not np.any(valid):
+            self.logger.info('No month has the volume at both of its ends.')
+            return
+        time = days_to_model_year(ds.monthEnd.values)
+        total = [
+            Series(
+                time[valid],
+                VOLUME_SCALE * np.cumsum(values[valid]),
+                label,
+                linestyle=linestyle,
+            )
+            for label, values, linestyle in terms
+        ]
+        self._plot(
+            total,
+            'interior_volume_budget_total',
+            'Volume budget outside the tidally forced cells, summed from '
+            'the start',
+            'volume (km$^3$)',
+            ds,
+            names,
+            bounds=['monthStart', 'monthEnd'],
+            xlabel=MODEL_YEAR_LABEL,
+        )
+        index = int(np.nanargmax(np.where(valid, np.abs(rest), np.nan)))
+        self.logger.info(
+            f'Over the {np.count_nonzero(valid)} months with the volume at '
+            f'both ends: volume change {change[valid].sum():.4g} m3, melt + '
+            f'frazil {surface[valid].sum():.4g} m3, transport in '
+            f'{inflow[valid].sum():.4g} m3, the rest '
+            f'{rest[valid].sum():.4g} m3.  The largest rest is '
+            f'{rest[index]:.4g} m3 in the month ending '
+            f'{ds.monthEnd.values[index]:g} (days since 0001-01-01), when '
+            f'melt and frazil added {surface[index]:.4g} m3.'
+        )
 
     def _plot_terms(self, time, terms, stem, title, ds, names):
         """

@@ -20,7 +20,7 @@ from polaris.ocean.ice_shelf.diagnostics import (
 from polaris.ocean.overturning import (
     compute_line_interfaces,
     compute_line_transport,
-    compute_overturning_in_z,
+    compute_overturning_from_edge_transport,
     get_line_edges,
 )
 from polaris.remap import MappingFileStep
@@ -432,30 +432,42 @@ def _barotropic_streamfunction(ds_init, ds):
 
 
 def _overturning(ds_mesh, ds):
-    """The overturning streamfunction (m3 s-1) on the protocol's grid"""
+    """The overturning streamfunction (m3 s-1) on the protocol's grid,
+    integrated up from the seafloor: from the mean layer thickness flux
+    across each edge where the means hold it, and otherwise from the means
+    of velocity and thickness"""
     top = 0.0
     bottom = -PROTOCOL_DZ * len(PROTOCOL_Z)
+    z = top - PROTOCOL_DZ * np.arange(len(PROTOCOL_Z) + 1)
     count = ds.sizes['Time']
     result = np.full((count, len(PROTOCOL_Z), len(PROTOCOL_X)), np.nan)
+    thickness = ds.layerThickness.where(np.abs(ds.layerThickness) < 1e30)
+    has_flux = 'normalLayerThicknessFlux' in ds
+    if has_flux:
+        flux = ds.normalLayerThicknessFlux
+        flux = flux.where(np.abs(flux) < 1e30, 0.0)
     for i_x, x_line in enumerate(PROTOCOL_X):
         line = get_line_edges(ds_mesh, 'x', x_line)
         if line.sizes['nLineEdges'] == 0:
             continue
-        transport = compute_line_transport(
-            line, ds.normalVelocity, ds.layerThickness
-        )
-        z_top, z_bottom = compute_line_interfaces(
-            line, ds.ssh, ds.layerThickness
-        )
+        if has_flux:
+            transport = (
+                flux.isel(nEdges=line.edgeIndex) * line.sign * line.dvEdge
+            )
+        else:
+            transport = compute_line_transport(
+                line, ds.normalVelocity, thickness.fillna(0.0)
+            )
+        z_top, z_bottom = compute_line_interfaces(line, ds.ssh, thickness)
         # the grid spans the domain, from z = 0 to its floor at 720 m, which
         # SSH and the layers pass only by a few cm and by round-off, so their
-        # transport goes in the top and bottom bins
-        z_top = z_top.clip(max=top)
-        z_bottom = z_bottom.clip(min=bottom)
-        osf = compute_overturning_in_z(
-            transport, z_top, z_bottom, PROTOCOL_DZ, top=top, bottom=bottom
+        # transport goes in the top and bottom cells
+        z_top = z_top.clip(min=bottom, max=top)
+        z_bottom = z_bottom.clip(min=bottom, max=top)
+        osf = compute_overturning_from_edge_transport(
+            transport, z_top, z_bottom, z
         )
-        interfaces = osf.values
+        interfaces = osf.transpose('Time', 'nZInterfaces').values
         result[:, :, i_x] = 0.5 * (interfaces[:, :-1] + interfaces[:, 1:])
     return np.ma.masked_invalid(result)
 

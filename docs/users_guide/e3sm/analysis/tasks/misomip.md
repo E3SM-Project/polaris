@@ -94,6 +94,27 @@ For each run, from its monthly means:
   at $y = 40$ km and $x = 520$ km against $x$ and $y$, the overturning
   streamfunction, and the melt rate in bins of draft.
 
+The overturning streamfunction is minus the transport across each line
+of constant $x$ below each elevation, integrated up from the seafloor, so
+that the transport per unit height is $-\partial \psi / \partial z$, as
+the protocol defines it.  Where
+the run writes the monthly mean of `normalLayerThicknessFlux`, as cases
+set up by the MISOMIP case configuration with that option on do, it comes
+from that flux on the line's edges, each integrated to each elevation by
+its own layers' heights.  This is exact but for the flux's spread within
+each layer.  A run without the flux gets the transport from its monthly
+means of velocity and thickness, which streaks where columns wet and dry
+within a month.
+
+In the 2 km Ocean0 and IceOcean1r runs, the line along the ice front,
+where the draft steps from about −180 m to 0 over two partly floating
+cells, shows a narrow dipole in the overturning, 0.10–0.16 Sv, 40–110 m
+deep.  It is in the exact flux, not from the method: finer placements of
+the flux in depth change it by −22% to +40%.  Whether it is physical or a
+model error at the steep step in draft, such as in the pressure gradient,
+is open.  From the second month on, it changes the overturning's strength
+by at most 2%.
+
 The color ranges of maps and sections are in
 `[misomip_analysis_color_ranges]`, as `minimum, maximum`.  Temperature,
 draft and bathymetry have fixed ranges by default, the same in every run,
@@ -300,8 +321,8 @@ makes a conservative map from the run's mesh to the grid, and a
 with the protocol's variables.  Fields under the ice are averaged over the
 floating area in each grid cell and the others over its ocean area.  The
 overturning streamfunction is computed across each of the grid's lines of
-constant $x$, and the sections take the nearest cell to each point of the
-grid.  The tasks don't plot these files.
+constant $x$, in the same way as above, and the sections take the nearest
+cell to each point of the grid.  The tasks don't plot these files.
 
 ## Publishing
 
