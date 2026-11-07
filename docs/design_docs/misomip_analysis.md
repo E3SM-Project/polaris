@@ -155,7 +155,7 @@ protocol's tuning does (Sect. 3.2.1), and its last 12 otherwise.
 
 ### Algorithm Design: The runs are diagnosed
 
-Date last modified: 2026/11/01
+Date last modified: 2026/11/07
 
 Contributors: Xylar Asay-Davis, Claude
 
@@ -181,11 +181,14 @@ et al. (2026), in 20 m bins of draft.
   fixed bins of $z$ by overlap.
 - Each streamfunction's strength is its range under the ice. Both use
   monthly means of velocity and thickness, whose product differs a little
-  from the mean transport.
+  from the mean transport, and much at an edge whose column wets and dries
+  within the month, which can streak the overturning there.
 - The open ocean is the region between the ice front and the restoring
   region, $x \ge 790$ km, leaving out the strips along the side walls
   west of the ice front. The strongest gyre there is the barotropic
-  streamfunction of largest magnitude, with its sign.
+  streamfunction of largest magnitude, with its sign. Its largest and
+  smallest values are plotted, since the strongest gyre's sign flips when
+  the two gyres trade places.
 - Sections along $y = 40$ km and $x = 520$ km use `mpas_tools`' transects,
   drawn with the draft and bed; top and bottom values use
   `polaris.ocean.vertical`.
@@ -195,6 +198,19 @@ et al. (2026), in 20 m bins of draft.
 **Thin film.** The dry area is the area under grounded ice whose column is
 within twice the minimum thickness of its active layers, read from the
 run's namelist. The open-ocean SSH is its mean where there is no land ice.
+
+**Maps and sections.**
+
+- Maps and sections draw the film: columns under grounded ice and dry
+  columns, whose water keeps the initial condition's.
+- Temperature, salinity, draft and bathymetry have fixed color ranges
+  ([D11](#decisions)). The other fields take theirs from the data shown,
+  less the film, centered on zero for velocities and the overturning.
+- Maps show melt and its drivers, the top layer's velocity under the ice
+  (the protocol's boundary-layer velocity), the bottom temperature and
+  salinity, SSH where there is no land ice, the draft, the bathymetry and
+  the barotropic streamfunction.
+- Sections are drawn against $x$ or $y$ in the protocol's coordinates.
 
 **Open-ocean SSH.** With no difference in pressure at the seafloor from
 the restoring region, a column's SSH relative to the restoring region's
@@ -311,7 +327,7 @@ Contributors: Xylar Asay-Davis, Claude
 
 ### Algorithm Design: Runs are compared with published results
 
-Date last modified: 2026/11/01
+Date last modified: 2026/11/07
 
 Contributors: Xylar Asay-Davis, Claude
 
@@ -321,7 +337,8 @@ temperature and salinity series are plotted over the ensemble's range, with
 each model as a thin line and MPAS-Ocean's 2019 entry marked. Maps of melt
 and its drivers, melt against draft and the streamfunctions' strengths are
 shown beside the ensemble's. Runs without the COM physics, including every
-E3SM run, are labeled as such.
+E3SM run, are labeled as such. Time means name the months they cover: the
+runs' last months, and each COM submission's last months.
 
 **Cornford et al. (2020).** The grounding line on the centerline, volume
 above flotation and grounded area of IceOcean1r and IceOcean1ra are
@@ -685,3 +702,24 @@ Rejected: the transport out of the forced cells from the daily means of
 velocity and thickness. In the coupled IceOcean1r runs, the net inflow is
 about 2e-5 of the flow across those cells' edges each way, and the
 product of daily means misses it by about ten times its size.
+
+### D11: Water masses and geometry have fixed color ranges
+
+Date last modified: 2026/11/07
+
+Contributors: Xylar Asay-Davis, Claude
+
+Temperature, salinity, draft and bathymetry are drawn in fixed ranges,
+`[misomip_analysis_color_ranges]`, the same in every run, experiment and
+resolution, as in Asay-Davis et al. (2016). Any other field's range can be
+fixed there too.
+
+> Rationale: ranges from each plot's data gave Ocean1's temperature
+> −2.0 to 0.9 °C on one section and −1.95 to −1.45 °C on the other, and
+> the film's fresh water stretched salinity to 0–35 PSU. The film is still
+> drawn, below the salinity range, since its properties are part of what
+> the runs test. Melt and its
+> drivers vary several times over between experiments, so one range would wash
+> out the colder ones.
+
+Rejected: ranges from the data alone, which make plots incomparable.
