@@ -45,8 +45,11 @@ def _sat_column(factor=1.0, nlevels=4, thickness=100.0, ncells=1):
     return spec_vol, pseudo, mask
 
 
-def _make_topo_ds(base_elevations):
-    """Return a minimal topo dataset with base_elevation (negative, m)."""
+def _make_topo_ds(base_elevations, ocean_base_elevations):
+    """
+    Return a minimal topo dataset with the base elevation (m) over the whole
+    cell and over its ocean part
+    """
     return xr.Dataset(
         data_vars={
             'base_elevation': (
@@ -54,16 +57,29 @@ def _make_topo_ds(base_elevations):
                 np.array(base_elevations, dtype=float),
                 {'long_name': 'base elevation', 'units': 'm'},
             ),
+            'ocean_masked_base_elevation': (
+                ['nCells'],
+                np.array(ocean_base_elevations, dtype=float),
+                {'long_name': 'base elevation', 'units': 'm'},
+            ),
         }
     )
 
 
-def test_geom_z_bot_from_topo_passthrough():
-    ds_topo = _make_topo_ds([-100.0, -500.0, -4000.0])
+def test_geom_z_bot_from_topo_without_ocean_is_sea_level():
+    ds_topo = _make_topo_ds([-100.0, 1400.0], [-100.0, np.nan])
+    geom_z_bot = _geom_z_bot_from_topo(ds_topo)
+    assert geom_z_bot.values == pytest.approx([-100.0, 0.0])
+
+
+def test_geom_z_bot_from_topo_is_the_ocean_mean():
+    # the last cell holds land, so its mean over the whole cell is above sea
+    # level, but its ocean part is not
+    ds_topo = _make_topo_ds([-100.0, -500.0, 180.0], [-100.0, -500.0, -40.0])
     geom_z_bot = _geom_z_bot_from_topo(ds_topo)
 
     assert geom_z_bot.dims == ('nCells',)
-    assert geom_z_bot.values == pytest.approx([-100.0, -500.0, -4000.0])
+    assert geom_z_bot.values == pytest.approx([-100.0, -500.0, -40.0])
     assert geom_z_bot.attrs['units'] == 'm'
 
 
@@ -486,8 +502,8 @@ def test_land_ice_fields():
     ds_topo = xr.Dataset(
         {
             'landIceMask': ('nCells', [0, 1, 1]),
-            'ice_frac': ('nCells', [0.2, 1.0, 1.0]),
-            'grounded_frac': ('nCells', [0.0, 0.25, 1.0]),
+            'ocean_masked_ice_frac': ('nCells', [0.2, 1.0, 1.0]),
+            'ocean_masked_grounded_frac': ('nCells', [0.0, 0.25, 1.0]),
         }
     )
     ds_out = xr.Dataset({'ssh': (('Time', 'nCells'), [[0.0, -500.0, -9.0]])})

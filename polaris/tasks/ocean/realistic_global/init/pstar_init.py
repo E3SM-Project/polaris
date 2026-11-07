@@ -54,7 +54,7 @@ class RealisticPStarInitStep(PStarInitStep):
 
     cull_topo_step : polaris.Step
         Upstream step that produces ``topography_culled.nc`` with
-        ``base_elevation`` on the culled mesh cells.
+        ``ocean_masked_base_elevation`` on the culled mesh cells.
 
     _woa23_ds : xarray.Dataset or None
         Lazily loaded WOA23 dataset; set in :py:meth:`run` before the
@@ -152,7 +152,9 @@ class RealisticPStarInitStep(PStarInitStep):
         land_ice_pressure = None
         if has_ice_shelf_cavities(self.config):
             land_ice_pressure = compute_land_ice_pressure_from_thickness(
-                land_ice_thickness=ds_topo.ice_thickness,
+                land_ice_thickness=ds_topo.ocean_masked_ice_thickness.fillna(
+                    0.0
+                ),
                 modify_mask=ds_topo.landIceMask,
                 land_ice_density=self.config.getfloat(
                     'realistic_global_cavities', 'land_ice_density'
@@ -742,8 +744,10 @@ def add_land_ice_fields(ds_out, ds_topo, land_ice_pressure, thin_film):
         The p-star initial condition, with ``ssh``
 
     ds_topo : xarray.Dataset
-        The culled topography, with ``landIceMask``, ``ice_frac`` and
-        ``grounded_frac``
+        The culled topography, with ``landIceMask``, and
+        ``ocean_masked_ice_frac`` and ``ocean_masked_grounded_frac``, the
+        fractions of the ocean part of each cell under land ice and under
+        grounded ice
 
     land_ice_pressure : xarray.DataArray
         The full pressure (Pa) of the land ice, before MPAS-Ocean caps it
@@ -757,10 +761,12 @@ def add_land_ice_fields(ds_out, ds_topo, land_ice_pressure, thin_film):
         The initial condition with the land-ice fields added
     """
     land_ice_mask = ds_topo.landIceMask == 1
-    land_ice_fraction = ds_topo.ice_frac.where(land_ice_mask, 0.0)
-    floating_fraction = np.maximum(
-        ds_topo.ice_frac - ds_topo.grounded_frac, 0.0
-    ).where(land_ice_mask, 0.0)
+    ice_frac = ds_topo.ocean_masked_ice_frac
+    grounded_frac = ds_topo.ocean_masked_grounded_frac
+    land_ice_fraction = ice_frac.where(land_ice_mask, 0.0)
+    floating_fraction = np.maximum(ice_frac - grounded_frac, 0.0).where(
+        land_ice_mask, 0.0
+    )
     floating_mask = land_ice_mask & (floating_fraction > 0.0)
 
     ssh = ds_out.ssh
@@ -866,19 +872,27 @@ def _geom_z_bot_from_topo(ds_topo):
     Extract the geometric seafloor height (negative, in meters) from the
     culled topography dataset.
 
+    The seafloor is the mean base elevation over the ocean part of each cell,
+    ``ocean_masked_base_elevation``, which is below sea level.  The mean over
+    the whole cell would include any land in the cell, and can be above sea
+    level where the cell holds steep land or ice-covered topography.  A cell
+    the cull keeps with no ocean in it at all, such as one in a critical
+    passage, has no such mean and takes sea level, which
+    :py:meth:`RealisticPStarInitStep._clamp_to_representable_depth` then
+    deepens to the minimum depth.
+
     Parameters
     ----------
     ds_topo : xarray.Dataset
-        Culled topography dataset containing ``base_elevation``.
-        ``base_elevation`` is negative for ocean cells (elevation below
-        sea level), so no sign flip is needed.
+        Culled topography dataset containing ``ocean_masked_base_elevation``,
+        which is negative (below sea level), so no sign flip is needed.
 
     Returns
     -------
     xarray.DataArray
         Geometric seafloor height with dimension ``nCells`` (negative).
     """
-    geom_z_bot = ds_topo['base_elevation']
+    geom_z_bot = ds_topo['ocean_masked_base_elevation'].fillna(0.0)
     geom_z_bot.attrs['long_name'] = 'seafloor geometric height'
     geom_z_bot.attrs['units'] = 'm'
     return geom_z_bot
