@@ -19,15 +19,32 @@ have different owners:
 
 Options specific to the ocean belong here, not in the mesh component.
 
-Most meshes have no config file here at all; they simply use the defaults from
-the task's own config file.
+A simple base mesh with the same ocean resolution as a unified mesh -- its
+unified twin, listed in ``UNIFIED_TWINS`` -- shares the twin's config file, and
+the twin's dynamic-adjustment schedule, so the two are configured in one place.
+A base mesh's own config file, if it has one, is added after its twin's.
+
+Most other meshes have no config file here at all; they simply use the
+defaults from the task's own config file.
 """
 
 import importlib.resources as imp_res
+from types import MappingProxyType
 
 from polaris.config import PolarisConfigParser
 
 MESH_CONFIG_PACKAGE = 'polaris.tasks.ocean.realistic_global.mesh_configs'
+
+#: The unified mesh whose ocean resolution each simple base mesh shares
+UNIFIED_TWINS = MappingProxyType(
+    {
+        'icos240km': 'u-oi240-lr240',
+        'qu240km': 'u-oi240-lr240',
+        'qu30km': 'u-oi30-lr10',
+        'so12to30km': 'u-oi-so12to30-lr10',
+        'rrs6to18km': 'u-oi6to18-lr12p5',
+    }
+)
 
 
 def add_realistic_global_mesh_config(config, mesh_name):
@@ -36,8 +53,9 @@ def add_realistic_global_mesh_config(config, mesh_name):
     any exist.
 
     This must be called *after* the task's own config file has been added, so
-    that the per-mesh options take precedence.  If the mesh has no config file
-    in this package, the call is a no-op.
+    that the per-mesh options take precedence.  The config file of the mesh's
+    unified twin, if it has one, is added first, then the mesh's own.  If
+    neither has a config file in this package, the call is a no-op.
 
     Parameters
     ----------
@@ -52,12 +70,10 @@ def add_realistic_global_mesh_config(config, mesh_name):
     bool
         Whether a config file was found and added for this mesh.
     """
-    config_filename = _get_mesh_config_filename(mesh_name)
-    if config_filename is None:
-        return False
-
-    config.add_from_package(MESH_CONFIG_PACKAGE, config_filename)
-    return True
+    config_filenames = _get_mesh_config_filenames(mesh_name)
+    for config_filename in config_filenames:
+        config.add_from_package(MESH_CONFIG_PACKAGE, config_filename)
+    return len(config_filenames) > 0
 
 
 def get_realistic_global_mesh_config(mesh_name):
@@ -78,16 +94,31 @@ def get_realistic_global_mesh_config(mesh_name):
     Returns
     -------
     polaris.config.PolarisConfigParser or None
-        The per-mesh config, or ``None`` if this mesh has no config file.
+        The per-mesh config, or ``None`` if neither this mesh nor its unified
+        twin has a config file.
     """
-    config_filename = _get_mesh_config_filename(mesh_name)
-    if config_filename is None:
-        return None
-
     config = PolarisConfigParser()
-    config.add_from_package(MESH_CONFIG_PACKAGE, config_filename)
+    if not add_realistic_global_mesh_config(config, mesh_name):
+        return None
     config.combine()
     return config
+
+
+def get_unified_twin(mesh_name):
+    """
+    Get the unified mesh whose ocean resolution a simple base mesh shares.
+
+    Parameters
+    ----------
+    mesh_name : str
+        The name of the MPAS mesh.
+
+    Returns
+    -------
+    str or None
+        The name of the unified twin, or ``None`` if the mesh has none.
+    """
+    return UNIFIED_TWINS.get(mesh_name)
 
 
 def get_mesh_config_names():
@@ -108,12 +139,15 @@ def get_mesh_config_names():
     return tuple(sorted(mesh_names))
 
 
-def _get_mesh_config_filename(mesh_name):
+def _get_mesh_config_filenames(mesh_name):
     """
-    Get the config filename for one mesh, or ``None`` if it does not exist.
+    Get the config filenames for one mesh that exist in this package: its
+    unified twin's first, then its own.
     """
-    config_filename = f'{mesh_name}.cfg'
     package_files = imp_res.files(MESH_CONFIG_PACKAGE)
-    if not package_files.joinpath(config_filename).is_file():
-        return None
-    return config_filename
+    mesh_names = [get_unified_twin(mesh_name), mesh_name]
+    return [
+        f'{name}.cfg'
+        for name in mesh_names
+        if name is not None and package_files.joinpath(f'{name}.cfg').is_file()
+    ]

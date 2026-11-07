@@ -570,6 +570,18 @@ the task's own config file, so they override the defaults.  Most meshes have
 no file there at all and simply use the defaults; you can still override any
 option for a single mesh in your own user config file.
 
+A base mesh with the same ocean resolution as a unified mesh shares that
+unified mesh's file and its dynamic-adjustment schedule:
+
+| base mesh                 | unified twin         |
+|---------------------------|----------------------|
+| `qu240km`, `icos240km`    | `u-oi240-lr240`      |
+| `qu30km`                  | `u-oi30-lr10`        |
+| `so12to30km`              | `u-oi-so12to30-lr10` |
+| `rrs6to18km`              | `u-oi6to18-lr12p5`   |
+
+A base mesh's own file, if it had one, would be added after its twin's.
+
 These are separate from the per-mesh files in `polaris/mesh/spherical/unified`.
 The two are joined by the mesh name but have different owners: the mesh
 component describes the mesh itself (resolutions, river networks, sizing
@@ -579,8 +591,8 @@ does on that mesh.  An option specific to the ocean belongs in
 
 Currently:
 
-- `qu240km`, `icos240km` and `u-oi240-lr240` replace the default 80-layer
-  vertical grid with a cheap 16-level `tanh_dz` grid with a 3000 m bottom
+- `u-oi240-lr240`, and so `qu240km` and `icos240km`, replace the default
+  80-layer vertical grid with a cheap 16-level `tanh_dz` grid with a 3000 m bottom
   depth.  The shallow ocean is deliberate: these coarse meshes exist for fast
   smoke-testing of E3SM, Omega and MPAS-Ocean rather than for physically
   realistic simulations.
@@ -588,17 +600,18 @@ Currently:
   of the ocean + sea-ice culled mesh that the ocean model actually runs.  It is
   used to size MPI task counts and is smaller than the full mesh, which
   includes land and river-channel refinement that is culled away first.
-- All five unified meshes, plus `qu240km` and `icos240km`, set the
+- All five unified meshes, and so their base-mesh twins, set the
   resolution-dependent forward-run options described under
   [forward](#ocean-realistic-global-forward): the horizontal mixing
   coefficients, how mixing is scaled across the mesh, which eddy
   parameterizations are active and, where the default scaling is not
-  appropriate, the time step.  The three 240 km meshes are qualitatively the
-  same mesh and share the same values.
+  appropriate, the time step.
 
 For example, `u-oi240-lr240.cfg` contains:
 
 ```cfg
+# Shared with the qu240km and icos240km base meshes, which have the same
+# ocean resolution
 # Ocean-specific properties of this mesh
 [realistic_global_mesh]
 
@@ -1404,12 +1417,14 @@ polaris setup -t ocean/spherical/realistic_global/<mesh>/dynamic_adjustment ...
 Each stage is a forward run that restarts from the previous stage, with its own
 run duration, time step, output/restart cadence, and (typically decreasing)
 Rayleigh damping.  The stages are read from a schedule YAML: a mesh-specific
-`<mesh_name>.yaml` when the mesh has one, and otherwise `default.yaml`.  Polaris
+`<mesh_name>.yaml` when the mesh has one, then the schedule of its unified twin
+(see {ref}`ocean-realistic-global-mesh-configs`), and otherwise
+`default.yaml`.  Polaris
 ships schedules for all five unified meshes — `u-oi240-lr240`, `u-oi30-lr10`,
 `u-oi6to18-lr12p5`, `u-oi6to18-lr25` and `u-oi-so12to30-lr10` (the last four
 ported from Compass' `ec30to60`, `rrs6to18` (twice) and `so12to30`).
 `default.yaml` is what the
-base meshes such as `icos240km` and `qu240km` fall back to; it is only two
+base meshes without a twin, such as `icos120km`, fall back to; it is only two
 stages, which is a quick check that a mesh runs rather than an adjustment worth
 keeping.  The final stage, `simulation`, writes the relaxed restart, and its
 `output.nc` is compared against a baseline when one is provided.

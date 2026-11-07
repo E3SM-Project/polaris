@@ -29,6 +29,7 @@ from ruamel.yaml import YAML
 from polaris.config import PolarisConfigParser
 from polaris.mpas.time import duration_to_seconds
 from polaris.tasks.ocean.realistic_global.forward.stage import ForwardStage
+from polaris.tasks.ocean.realistic_global.mesh_configs import get_unified_twin
 
 PACKAGE = 'polaris.tasks.ocean.realistic_global.dynamic_adjustment'
 DEFAULT_SCHEDULE = 'default.yaml'
@@ -71,7 +72,8 @@ def load_schedule_stages(
     ----------
     mesh_name : str
         The MPAS mesh name.  A ``<mesh_name>.yaml`` schedule in the package is
-        used when present; otherwise the shared ``default.yaml`` is used.
+        used when present, then the schedule of the mesh's unified twin;
+        otherwise the shared ``default.yaml`` is used.
 
     config : polaris.config.PolarisConfigParser
         The task config.  Each stage starts from its
@@ -259,10 +261,13 @@ def _read_schedule_text(mesh_name: str, config: PolarisConfigParser) -> str:
                 return schedule_file.read()
 
     package_files = imp_res.files(PACKAGE)
-    filename = f'{mesh_name}.yaml'
-    if not package_files.joinpath(filename).is_file():
-        filename = DEFAULT_SCHEDULE
-    return package_files.joinpath(filename).read_text()
+    for name in [mesh_name, get_unified_twin(mesh_name)]:
+        if name is None:
+            continue
+        filename = f'{name}.yaml'
+        if package_files.joinpath(filename).is_file():
+            return package_files.joinpath(filename).read_text()
+    return package_files.joinpath(DEFAULT_SCHEDULE).read_text()
 
 
 def _check_keys(options: Dict[str, Any], where: str) -> None:

@@ -6,14 +6,19 @@ from polaris.mesh.spherical.unified import UNIFIED_MESH_NAMES
 from polaris.tasks.ocean.realistic_global.forward import ForwardStage
 from polaris.tasks.ocean.realistic_global.forward.tasks import CACHED_MESHES
 from polaris.tasks.ocean.realistic_global.mesh_configs import (
+    UNIFIED_TWINS,
     add_realistic_global_mesh_config,
     get_mesh_config_names,
     get_realistic_global_mesh_config,
 )
+from polaris.tasks.ocean.realistic_global.mesh_configs import (
+    configs as mesh_configs_module,
+)
 from polaris.tasks.ocean.realistic_global.mesh_info import min_res_for_mesh
 
-# meshes that override the default vertical grid with a cheap, coarse one
-COARSE_MESH_NAMES = ('qu240km', 'icos240km', 'u-oi240-lr240')
+# a mesh whose own config file overrides the default vertical grid with a
+# cheap, coarse one
+COARSE_MESH_NAMES = ('u-oi240-lr240',)
 
 
 def _get_init_config(mesh_name):
@@ -116,7 +121,7 @@ def _get_forward_stage(mesh_name):
     'mesh_name',
     [
         mesh_name
-        for mesh_name in get_mesh_config_names()
+        for mesh_name in get_mesh_config_names() + tuple(UNIFIED_TWINS)
         if mesh_name not in CACHED_MESHES
         and _get_forward_stage(mesh_name).hmix_ref_cell_width is not None
     ],
@@ -136,11 +141,36 @@ def test_stated_references_are_the_finest_cells(mesh_name):
     assert stage.hmix_ref_cell_width == min_res_for_mesh(mesh_name) * 1.0e3
 
 
-@pytest.mark.parametrize('mesh_name', COARSE_MESH_NAMES)
-def test_coarse_meshes_share_forward_settings(mesh_name):
+@pytest.mark.parametrize('mesh_name', sorted(UNIFIED_TWINS))
+def test_base_mesh_shares_its_twins_config(mesh_name):
     """
-    The three 240 km meshes are qualitatively the same mesh and are configured
-    by hand in three separate files, so they must not drift apart.
+    A base mesh with no config file of its own is configured exactly like its
+    unified twin.
     """
-    stage = _get_forward_stage(mesh_name)
-    assert stage == _get_forward_stage('u-oi240-lr240')
+    twin = UNIFIED_TWINS[mesh_name]
+    assert _get_forward_stage(mesh_name) == _get_forward_stage(twin)
+    assert dict(_get_init_config(mesh_name)['vertical_grid']) == dict(
+        _get_init_config(twin)['vertical_grid']
+    )
+
+
+def test_own_config_comes_after_the_twins(monkeypatch):
+    """
+    A mesh's own config file takes precedence over its twin's, and its twin's
+    options fill in the rest.
+    """
+    monkeypatch.setattr(
+        mesh_configs_module,
+        'UNIFIED_TWINS',
+        {'u-oi30-lr10': 'u-oi240-lr240'},
+    )
+    own = get_realistic_global_mesh_config('u-oi30-lr10')
+    twin = get_realistic_global_mesh_config('u-oi240-lr240')
+    config = _get_init_config('u-oi30-lr10')
+    for section in twin.sections():
+        for option in twin.options(section):
+            if own.has_option(section, option):
+                expected = own.get(section, option)
+            else:
+                expected = twin.get(section, option)
+            assert config.get(section, option) == expected, option

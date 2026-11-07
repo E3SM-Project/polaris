@@ -1,3 +1,5 @@
+# Shared with the qu240km and icos240km base meshes, which have the same
+# ocean resolution
 # Dynamic-adjustment schedule for the u-oi240-lr240 unified mesh (~240 km).
 #
 # This is the cheapest mesh with a realistic initial condition, so it is the one

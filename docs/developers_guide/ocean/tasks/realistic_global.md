@@ -481,8 +481,10 @@ that model's.
 ### schedule parsing
 
 {py:func}`polaris.tasks.ocean.realistic_global.dynamic_adjustment.schedule.load_schedule_stages`
-reads a schedule YAML (the per-mesh `<mesh_name>.yaml` or `default.yaml`, or a
-file named by the `schedule` config option) and returns a list of
+reads a schedule YAML (the per-mesh `<mesh_name>.yaml`, that of the mesh's
+unified twin from
+{py:func}`polaris.tasks.ocean.realistic_global.mesh_configs.get_unified_twin`,
+or `default.yaml`, or a file named by the `schedule` config option) and returns a list of
 {py:class}`polaris.tasks.ocean.realistic_global.forward.stage.ForwardStage`
 objects.
 

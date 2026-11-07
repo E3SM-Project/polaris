@@ -64,9 +64,12 @@ def test_estimate_ocean_cell_count_uses_culled_option():
 
 
 def test_estimate_ocean_cell_count_falls_back_to_full():
-    """Base meshes have no culled option, so fall back to the full estimate."""
-    assert estimate_ocean_cell_count('icos240km') == estimate_cell_count(
-        'icos240km'
+    """
+    Base meshes without a unified twin have no culled option, so fall back to
+    the full estimate.
+    """
+    assert estimate_ocean_cell_count('icos120km') == estimate_cell_count(
+        'icos120km'
     )
 
 
@@ -102,10 +105,10 @@ def test_estimate_ocean_cell_count_given_config_without_option():
     A config with no culled count still falls back to the full-mesh estimate.
     """
     config = PolarisConfigParser()
-    add_realistic_global_mesh_config(config, 'icos240km')
+    add_realistic_global_mesh_config(config, 'icos120km')
     assert estimate_ocean_cell_count(
-        'icos240km', config=config
-    ) == estimate_cell_count('icos240km')
+        'icos120km', config=config
+    ) == estimate_cell_count('icos120km')
 
 
 # -----------------------------------------------------------------------

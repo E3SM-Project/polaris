@@ -1,3 +1,4 @@
+# Shared with the so12to30km base mesh, which has the same ocean resolution
 # Dynamic-adjustment schedule for the u-oi-so12to30-lr10 unified mesh
 # (Southern Ocean 12-30 km).  Ported from Compass' so12to30 schedule.  The
 # restart interval varies by stage, so it is set per stage rather than shared.
