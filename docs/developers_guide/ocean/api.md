@@ -859,6 +859,7 @@
    forward.Forward.get_stats_filename
    forward.Forward.compute_cell_count
    forward.Forward.dynamic_model_config
+   forward.add_land_ice_yaml_files
 
    stage.ForwardStage
    stage.ForwardStage.from_config
@@ -945,6 +946,7 @@
    cull_topo.CullTopoStep
    cull_topo.CullTopoStep.setup
    cull_topo.CullTopoStep.run
+   cull_topo.cull_topography
 
    lat_lon_map.LatLonMapStep
    lat_lon_map.LatLonMapStep.setup
@@ -970,6 +972,10 @@
    pstar_init.RealisticPStarInitStep.setup
    pstar_init.RealisticPStarInitStep.run
    pstar_init.RealisticPStarInitStep.init_tracers
+   pstar_init.estimate_level_count
+   pstar_init.compute_land_ice_load
+   pstar_init.fill_thin_film_tracers
+   pstar_init.add_land_ice_fields
 
    initial_state.InitialStateStep
    initial_state.InitialStateStep.setup
@@ -978,6 +984,7 @@
    forcing.ForcingStep
    forcing.ForcingStep.setup
    forcing.ForcingStep.run
+   forcing.mask_wind_stress_under_land_ice
 
    viz.VizInitStep
    viz.VizInitStep.setup
@@ -1000,6 +1007,9 @@
    steps.get_realistic_dynamic_adjustment_steps
    steps.get_dynamic_adjustment_config
    steps.adjustment_subdir
+
+   ssh_adjustment.RealisticSshAdjustment
+   ssh_adjustment.RealisticSshAdjustment.update_layer_thickness
 
    schedule.load_schedule_stages
    schedule.excluded_days_in_stage
@@ -1226,6 +1236,7 @@
 
    SshAdjustment
    SshAdjustment.run
+   SshAdjustment.update_layer_thickness
 
    SshForward
    SshForward.compute_cell_count
@@ -1331,6 +1342,7 @@
    :toctree: generated/
 
    layer_thickness_from_geom_interfaces
+   apply_min_max_layer_thickness
    add_quiescent_normal_velocity
    add_density_from_specvol
    pressure_for_tracer_conversion

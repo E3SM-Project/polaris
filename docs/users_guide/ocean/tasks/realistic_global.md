@@ -117,6 +117,45 @@ antarctic_dataset = bedmachinev4
 The WOA23 initial condition is then extrapolated using BedMachine's ocean
 mask, too.
 
+(ocean-realistic-global-cavities)=
+
+## ice-shelf cavities
+
+By default, the ocean ends at the Antarctic calving front.  A user config file
+can extend it under Antarctic land ice:
+
+```cfg
+[spherical_mesh]
+# the ocean under floating ice
+antarctic_boundary_convention = grounding_line
+# or under all ice whose bed is below sea level, with a thin film under
+# grounded ice
+# antarctic_boundary_convention = bedrock_zero
+```
+
+This applies to the `init` and `dynamic_adjustment` tasks on any base or
+unified mesh, and their work directories are the same as without cavities, so
+use a separate work directory for each convention.  Ice-shelf cavities are
+supported for MPAS-Ocean only.
+
+Under the ice, the treatment follows the ISOMIP+ tasks.  The land-ice pressure
+comes from the ice thickness and does not change.  The sea-surface height
+starts at the draft of ice floating with that pressure.  A column the ice would
+leave too thin, under grounded or floating ice, is a thin film of fresh water
+at its freezing point, 5 cm in each layer.  The wind stress is zero under land
+ice.  The dynamic adjustment begins with SSH adjustment: `[ssh_adjustment]
+iterations` short runs, each followed by setting the SSH under land ice to
+where the run left it.
+
+The forward runs need wetting and drying, so MPAS-Ocean runs its
+`split_explicit` integrator in place of `split_explicit_ab2`
+(`mpaso_cavity_time_integrator`), and must be built from FAnSSIE with
+split-explicit wetting and drying, or set `mpaso_time_integrator = RK4`.  The
+land-ice flux mode is `off` throughout the adjustment.  To try melting, set
+`land_ice_flux_mode = active` in a continuation of the `simulation` stage.  The
+options for cavities themselves are in the `[realistic_global_cavities]`
+section.
+
 (ocean-realistic-global-woa23)=
 
 ## woa23

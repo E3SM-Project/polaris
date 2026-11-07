@@ -537,6 +537,31 @@ the user config is merged, following the
 user's setup-time `schedule` override or edited stage options take effect.  The
 step graph is therefore fixed at setup, not run time.
 
+### ice-shelf cavities
+
+{py:mod}`polaris.tasks.ocean.realistic_global.cavities` reports whether the
+`[spherical_mesh] antarctic_boundary_convention` gives the ocean ice-shelf
+cavities.  The design is in the `global_ocean_ice_shelf_cavities` design
+document.  With cavities, the init chain carries the land-ice mask onto the
+culled mesh, loads the p-star columns with the land-ice pressure MPAS-Ocean
+applies
+({py:func}`polaris.tasks.ocean.realistic_global.init.pstar_init.compute_land_ice_load`),
+and writes the land-ice fields and the thin-film mask.  `layerThickness` is set
+by {py:func}`polaris.ocean.init_state.apply_min_max_layer_thickness`, the
+z-star target with MPAS-Ocean's minimum layer thickness, while
+`restingThickness` is the thickness at zero SSH, as MPAS-Ocean's z-star
+coordinate requires.
+
+Cavities also add SSH adjustment to the dynamic adjustment: pairs of a short
+`Forward` with the first stage's settings and a
+{py:class}`polaris.tasks.ocean.realistic_global.dynamic_adjustment.ssh_adjustment.RealisticSshAdjustment`,
+the first stage starting from the last adjusted state through
+`StepInitialCondition`'s `init_target`.  Since cavities are only known once a
+user's config is merged, `configure()` rebuilds the steps when they are on,
+alongside a changed schedule.  The forward runs add `land_ice.yaml` and the
+shared wetting and drying options with
+{py:func}`polaris.tasks.ocean.realistic_global.forward.forward.add_land_ice_yaml_files`.
+
 ### diagnostics and validation
 
 The
