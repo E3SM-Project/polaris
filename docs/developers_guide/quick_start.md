@@ -116,6 +116,11 @@ For workflows that need custom machine config files, see {ref}`config-files`.
 
 : path to the Spack checkout used for deployment
 
+`--with-albany`
+
+: include Albany and Trilinos, which MALI's first-order velocity solver
+  needs, in the Spack library environment (see {ref}`dev-landice-albany`)
+
 `--recreate`
 
 : recreate deployment artifacts if they already exist
@@ -262,9 +267,9 @@ scratch.  This takes just a little extra time.
 
 ## Creating/updating only the polaris environment
 
-For some workflows (e.g. for MALI development with the Albany library when the
-MALI build environment has been created outside of `polaris`, for example,
-on an unsupported machine), you may only want to create the pixi environment
+For some workflows (e.g. for MALI development with an Albany library built
+outside of `polaris` on a machine where Polaris cannot deploy Albany), you
+may only want to create the pixi environment
 and not build SCORPIO, ESMF or include any system modules or environment
 variables in your activation script. In such cases, run:
 
@@ -322,12 +327,13 @@ be safe.
 
 ## Building E3SM components
 
-There are 4 E3SM submodules within the polaris repository, but the MALI-Dev
-submodule is not yet used.  The FAnSSIE submodule is only for ocean–ice-sheet
-coupling work (see {ref}`dev-ocean-fanssie`).
+There are 4 E3SM submodules within the polaris repository:
+`E3SM-Project` for MPAS-Ocean, `Omega` for Omega and `MALI-Dev` for MALI.
+The FAnSSIE submodule is only for ocean–ice-sheet coupling work (see
+{ref}`dev-ocean-fanssie`).
 
-For MPAS-Ocean and Omega, the recommended workflow is to let Polaris build
-the component automatically during `polaris setup` or `polaris suite`.
+For MPAS-Ocean, Omega and MALI, the recommended workflow is to let Polaris
+build the component automatically during `polaris setup` or `polaris suite`.
 Polaris checks whether a complete build already exists at the
 `component_path` location and, if so, reuses it without rebuilding.  If the
 component executable and required files are not found there, Polaris builds
@@ -434,6 +440,20 @@ After a manual build, point `polaris setup` or `polaris suite` to the build
 location using `-p` or `-f` as shown above.  When an existing build path is
 provided, MPAS-Ocean is usually detected automatically; otherwise, provide
 `--model mpas-ocean`.
+
+(dev-mali-build)=
+
+### MALI
+
+Polaris builds MALI automatically during setup of tasks that run it, placing
+the build in `${WORKDIR}/landice_build` by default.  The build has Albany
+when the environment was deployed with `--with-albany`.  See
+{ref}`dev-landice-build` and {ref}`dev-landice-albany`.
+
+```bash
+source ./load_<env_name>_<machine>_<compiler>_<mpi>.sh
+polaris suite -c landice -t mali_pr -m $MACHINE -w $WORKDIR
+```
 
 (dev-omega-build)=
 
