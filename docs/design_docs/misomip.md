@@ -1765,7 +1765,15 @@ variability rather than a fixed threshold. Jobs run several model years
 each ([D20](#decisions)). Daily output keeps the two-dimensional fields and
 the daily speed maximum throughout; daily three-dimensional fields are
 written for every year of Ocean0, the first year of the other runs and the
-last year of the 100-year runs, and monthly means otherwise.
+last year of the 100-year runs, and monthly means otherwise. For the
+overturning streamfunction, the monthly means add the vertical transport
+through each layer interface, and a snapshot stream writes the layer
+thicknesses at each month boundary. A per-layer edge transport, a new
+MPAS-Ocean diagnostic, joins the monthly means in the runs that have not
+started. The analysis computes the streamfunction both ways, checks that
+they agree to a tolerance, and plots the one from vertical transport.
+Running cases gain the new streams at their next job, and keep their
+executable to the end.
 
 ```{admonition} Rationale
 IceOcean1r and IceOcean1ra form the longest chain, since IceOcean1ra
@@ -1778,7 +1786,13 @@ about 38 days and 6,600 node-hours. Ocean0 melts less than the ISOMIP+
 models with the protocol's common settings, so it may take more than two
 years to settle, and each extra year costs only about four hours. Daily
 three-dimensional output for all of stage E's roughly 440 model years would
-be several terabytes.
+be several terabytes. MPAS-Ocean's monthly means are plain averages of
+samples, so a monthly-mean velocity times a monthly-mean thickness gives a
+false transport where a column wets and dries within the month. The
+vertical transport is a flux per unit area, so its monthly mean is exact,
+and it has given the cleaner streamfunction. The edge transport is an
+independent check. Changing the executable partway through a run would
+risk a run for a diagnostic.
 ```
 
 Rejected:
@@ -1788,4 +1802,7 @@ Rejected:
 - Ocean1–4 all at once on one node each, which would take as long as the
   IceOcean1 chain and leave no margin;
 - a fixed length for Ocean0 longer than the protocol's year, which may run
-  longer than needed.
+  longer than needed;
+- the overturning from monthly-mean velocity and thickness alone, which is
+  wrong where columns wet and dry;
+- switching running cases to an executable with the edge transport.
