@@ -1131,7 +1131,8 @@ SourceMods and edits it:
   three years of Ocean0, the daily means add `normalVelocity`,
   `layerThickness`, `activeTracers` and `frazilLayerThicknessTendency`;
 - the ocean's monthly means add `landIceFreshwaterFluxNotSentToGlc`,
-  `vertAleTransportTop` and `normalLayerThicknessFlux`, which
+  `vertAleTransportTop`, `vertVelocityTop`, for an overturning
+  streamfunction in height, and `normalLayerThicknessFlux`, which
   `user_nl_mpaso` turns on, and a stream holds snapshots of
   `layerThickness` at each month's start, for an overturning
   streamfunction that is exact where columns wet and dry;
