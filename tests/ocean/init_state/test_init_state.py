@@ -57,6 +57,35 @@ def test_layer_thickness_from_geom_interfaces():
     assert ds.layerThickness.attrs['long_name'] == 'layer thickness'
 
 
+def test_resting_thickness_is_at_zero_ssh():
+    """
+    Under a depressed sea surface, the resting thicknesses sum to the bottom
+    depth, as MPAS-Ocean's z-star coordinate requires.
+    """
+    ds = _make_geom_ds()
+    # the first column is depressed by 10 m, as under land ice
+    ds['GeomZInterface'] = ds.GeomZInterface.copy(
+        data=np.array(
+            [[[-10.0, -20.0, -30.0, -40.0], [0.0, -10.0, -25.0, -25.0]]]
+        )
+    )
+    ds['ssh'] = (('Time', 'nCells'), np.array([[-10.0, 0.0]]))
+    ds['bottomDepth'] = ('nCells', np.array([40.0, 25.0]))
+    ds = layer_thickness_from_geom_interfaces(ds)
+
+    assert_allclose(
+        ds.layerThickness.values,
+        np.array([[[10.0, 10.0, 10.0], [10.0, 15.0, 0.0]]]),
+    )
+    assert_allclose(
+        ds.restingThickness.values,
+        np.array([[[40.0 / 3.0, 40.0 / 3.0, 40.0 / 3.0], [10.0, 15.0, 0.0]]]),
+    )
+    assert_allclose(ds.restingThickness.sum('nVertLevels'), [[40.0, 25.0]])
+    # the column at zero ssh is unchanged, to the bit
+    assert (ds.restingThickness[:, 1] == ds.layerThickness[:, 1]).all()
+
+
 def test_layer_thickness_does_not_inherit_geom_attrs():
     """The thicknesses say only what they mean.
 
