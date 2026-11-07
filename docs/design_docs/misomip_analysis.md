@@ -185,6 +185,8 @@ et al. (2026), in 20 m bins of draft.
   second, and $F_k$ the upward flux through interface $k$. The lines stop
   west of the restoring region, whose thickness the tidal forcing sets.
   A month's first snapshot is the initial condition at a run's start.
+  A month that starts at a restart records its start one time step late,
+  so each end of a month takes the snapshot within half a day of it.
 - $\psi_k$ is drawn at each interface's mean elevation along the line,
   weighted by column thickness so the film counts little. Under the ice
   shelf the interfaces tilt across a line, so the mean elevation is an

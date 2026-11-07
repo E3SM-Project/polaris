@@ -120,6 +120,26 @@ def test_the_initial_condition_stands_in_for_the_first_snapshot(ds_init):
     )
 
 
+def test_a_month_starting_at_a_restart_uses_the_boundary_snapshot(ds_init):
+    # the first sample after a restart is the first time step, so the month
+    # records its start one step after the snapshot at the boundary
+    rng = np.random.default_rng(seed=3)
+    ds, start, end = _month(ds_init, rng, start='0001-01-01_00:01:00')
+    x_lines = np.array([3.5 * DC])
+    snapshots = {0.0: start, 31.0: end}
+
+    ds_osf = compute_budget_overturning(
+        ds, ds_init, snapshots, x_lines, 1026.0
+    )
+
+    assert ds_osf is not None
+    np.testing.assert_allclose(
+        ds_osf.overturningBudget.values,
+        ds_osf.overturningLayerFlux.values,
+        atol=1e-12,
+    )
+
+
 def test_without_the_vertical_transport_there_is_no_budget(ds_init):
     rng = np.random.default_rng(seed=3)
     ds, start, end = _month(ds_init, rng)

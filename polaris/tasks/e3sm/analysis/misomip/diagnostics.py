@@ -818,6 +818,12 @@ def _melt_and_frazil(ds_means, area, ref_density):
     return sum(terms), source
 
 
+#: How far (days) a month's recorded start or end may be from the snapshot
+#: of layer thickness that stands for it: a month that starts at a restart
+#: records its start one time step late
+SNAPSHOT_TOLERANCE_DAYS = 0.5
+
+
 def read_layer_thickness_snapshots(filenames):
     """
     Read the ocean's snapshots of layer thickness
@@ -905,13 +911,23 @@ def compute_budget_overturning(
     found = False
     for t_index in range(count):
         month = ds.isel(Time=t_index)
-        start = _day_of(month.xtime_startMonthly)
-        end = _day_of(month.xtime_endMonthly)
-        thickness_start = snapshots.get(start)
-        if thickness_start is None and initial_day is not None:
-            if abs(start - initial_day) < 1e-6:
-                thickness_start = ds_init.layerThickness
-        thickness_end = snapshots.get(end)
+        # a month that starts at a restart records its start one time step
+        # late, since its first sample is the first step, so each end of the
+        # month takes the snapshot nearest to it
+        start, thickness_start = _nearest_snapshot(
+            snapshots, _day_of(month.xtime_startMonthly)
+        )
+        if (
+            thickness_start is None
+            and initial_day is not None
+            and abs(_day_of(month.xtime_startMonthly) - initial_day)
+            < SNAPSHOT_TOLERANCE_DAYS
+        ):
+            start = initial_day
+            thickness_start = ds_init.layerThickness
+        end, thickness_end = _nearest_snapshot(
+            snapshots, _day_of(month.xtime_endMonthly)
+        )
         if thickness_start is None or thickness_end is None:
             continue
         found = True
@@ -1677,6 +1693,19 @@ def _add_budget_mean(ds_mean, ds_osf, ds, ds_end, ds_init, count, section):
             'layer thickness flux, in bins of elevation'
         )
     return ds_mean
+
+
+def _nearest_snapshot(snapshots, day):
+    """
+    The day and layer thickness of the snapshot nearest to a day, if one is
+    within :py:data:`SNAPSHOT_TOLERANCE_DAYS`, or ``(None, None)``
+    """
+    if not snapshots:
+        return None, None
+    nearest = min(snapshots, key=lambda key: abs(key - day))
+    if abs(nearest - day) >= SNAPSHOT_TOLERANCE_DAYS:
+        return None, None
+    return nearest, snapshots[nearest]
 
 
 def _day_of(xtime):
