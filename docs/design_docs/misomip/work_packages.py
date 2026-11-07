@@ -43,7 +43,7 @@ ROWS = [
     ('WP1', 'Standalone ISOMIP+ Ocean0–2 and thin-film tasks',
      'polaris #826 (partial bottom cells), #844', 'review', 0, ''),
     ('WP2', 'Split-explicit wetting and drying with a thin film',
-     "E3SM-O-D #176, #180 merged; #175 awaits review; film-edge vadv fix in test",
+     "E3SM-O-D #176, #180, #185 merged; #175 awaits review; film inflow ramp",
      'drafting', 4,
      ''),
     ('WP3', 'Landice component: MALI + Albany in Polaris',

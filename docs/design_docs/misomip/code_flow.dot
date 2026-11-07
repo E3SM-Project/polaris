@@ -51,7 +51,8 @@ digraph fanssie {
     d176 [label=<<b>#176, #180</b>  split-explicit Coriolis in RK4's PV-flux form<br/>(option, default off, settable in E3SM's namelists;<br/>also proposed against master as #177)<br/><font color="#52514e">merged into FAnSSIE</font>>, fillcolor="#e3fcef"];
     d178 [label=<<b>#178, #179, #181, #182</b>  MALI skips inactive thermal-forcing fields;<br/>glc's ice-shelf geometry on its own (smoothed) map;<br/>the ocean ramps glc's land-ice pressure;<br/>MALI-Dev #211, cherry-picked<br/><font color="#52514e">merged into FAnSSIE</font>>, fillcolor="#e3fcef"];
     d184 [label=<<b>#184</b>  the thickness flux the integrator applies,<br/>for exact mean transports (option, default off)<br/><font color="#52514e">merged into FAnSSIE</font>>, fillcolor="#e3fcef"];
-    dvadv [label=<<b>vadv fix</b>  edge-mean thickness in momentum's<br/>vertical advection at film edges<br/><font color="#52514e">branch tested · PR after the 2 km rerun</font>>, fillcolor="#ffffff"];
+    dvadv [label=<<b>#185</b>  edge-mean thickness in momentum's<br/>vertical advection at film edges<br/><font color="#52514e">merged into FAnSSIE</font>>, fillcolor="#e3fcef"];
+    dramp [label=<<b>film inflow ramp</b>  inflow into films under land ice<br/>opens gradually as they fill<br/><font color="#52514e">branch tested · PR after gentler wetting tests</font>>, fillcolor="#ffffff"];
     d151 [label=<<b>#151, #183</b>  merge MALI-Dev's develop (Oct 9, Nov 7)<br/><font color="#52514e">merged into FAnSSIE</font>>, fillcolor="#e3fcef"];
     d158 [label=<<b>#158–#163</b>  ocean without an atmosphere; wetting and drying<br/>and tidal forcing in E3SM; kept floating fraction;<br/>MPAS-Ocean inputs named by case variables;<br/>an option that keeps glc runoff out of the ocean;<br/>conserved fluxes under ice shelves<br/><font color="#52514e">merged into FAnSSIE</font>>, fillcolor="#e3fcef"];
     d164 [label=<<b>#164–#167</b>  grounded-ice pressure cap in one threaded loop;<br/>one ocean density from pressure to depth;<br/>land-ice mask follows the ice fraction;<br/>land-ice geometry in monthly means<br/><font color="#52514e">merged into FAnSSIE</font>>, fillcolor="#e3fcef"];
@@ -110,7 +111,8 @@ digraph fanssie {
   d176 -> fanssie;
   d178 -> fanssie;
   d184 -> fanssie;
-  dvadv -> fanssie [style=dashed];
+  dvadv -> fanssie;
+  dramp -> fanssie [style=dashed];
   malidev -> d151 [constraint=false];
   d151 -> fanssie;
 
