@@ -389,7 +389,7 @@ config options, and also each case's limits on cells per task
 
 ### Algorithm Design: Each experiment has a case configuration
 
-Date last modified: 2026/11/05
+Date last modified: 2026/11/07
 
 Contributors: Xylar Asay-Davis, Claude
 
@@ -434,9 +434,12 @@ Each experiment's case configuration holds:
   compset, the model grid and the user-mods directory, sets its layout,
   and sets it up and builds it ([D8](#decisions)). It first adds the
   case's output to the streams files E3SM writes ([D10](#decisions)): the
-  ocean's daily melt means and monitoring, and, for IceOcean1r and
-  IceOcean1ra, MALI's monthly history, with thickness, `bedTopography`
-  and the mesh variables the MISMIP+ diagnostics need, and daily melt.
+  ocean's daily melt means and monitoring; the monthly mean of
+  `vertAleTransportTop` and snapshots of `layerThickness` at each month's
+  start, from which the overturning streamfunction is exact where columns
+  wet and dry; and, for IceOcean1r and IceOcean1ra, MALI's monthly
+  history, with thickness, `bedTopography` and the mesh variables the
+  MISMIP+ diagnostics need, and daily melt.
   It sets up the first job and makes `next_segment.sh` set up each later
   one ([D12](#decisions)). IceOcean1ra is a branch run from an IceOcean1r
   case's restarts on a date the person gives, whose ice must have no
@@ -816,7 +819,7 @@ The planned counts are among the partitions.
 
 ### Testing and Validation: Each experiment has a case configuration
 
-Date last modified: 2026/11/04
+Date last modified: 2026/11/07
 
 Contributors: Xylar Asay-Davis, Claude
 
@@ -826,8 +829,10 @@ coupling intervals divide evenly, and `create_case.sh` passes `bash -n`.
 The task count follows the rule for a batch system and a single node,
 including a count the partitions do not cover and a machine below the
 minimum, and MALI's goal and bounds apply only when MALI is prognostic.
-`edit_streams.py` edits synthetic streams files as above, stops without a
-stream or Registry field it needs and refuses a linked SourceMods.
+`edit_streams.py` edits synthetic streams files as above, including the
+snapshot stream named and written like the monthly means in double
+precision, stops without a stream or Registry field it needs and refuses a
+linked SourceMods.
 `next_segment.sh` sets up each job of a fake case from the restart
 pointer, keeps a lowered `RESUBMIT`, stops on a date that starts no job and
 can be skipped. For IceOcean1r and IceOcean1ra, `user_nl_mali`
