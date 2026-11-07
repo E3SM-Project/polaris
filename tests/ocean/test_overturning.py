@@ -390,3 +390,22 @@ def test_overturning_is_interpolated_between_interface_elevations():
     )
     assert psi_z.dims == ('x', 'nZInterfaces')
     np.testing.assert_allclose(psi_z.values, [[np.nan, 0.0, 1.0, 4.0, np.nan]])
+
+
+def test_interpolation_keeps_the_lines_coordinate():
+    # the time mean of the budget's overturning is reindexed by x onto the
+    # lines of the streamfunction from the monthly means
+    psi = xr.DataArray(
+        [[0.0, 2.0], [0.0, 3.0]],
+        dims=('x', 'nVertLevelsP1'),
+        coords={'x': ('x', [1.0, 2.0])},
+    )
+    elevation = xr.DataArray(
+        [[0.0, -10.0], [0.0, -10.0]], dims=('x', 'nVertLevelsP1')
+    )
+    psi_z = interp_overturning_to_z(psi, elevation, np.array([0.0, -5.0]))
+    np.testing.assert_allclose(psi_z.x.values, [1.0, 2.0])
+    reindexed = psi_z.reindex(x=[1.0, 2.0, 3.0])
+    np.testing.assert_allclose(
+        reindexed.isel(nZInterfaces=1).values, [1.0, 1.5, np.nan]
+    )

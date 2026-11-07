@@ -1667,7 +1667,11 @@ def _add_budget_mean(ds_mean, ds_osf, ds, ds_end, ds_init, count, section):
     in_z = interp_overturning_to_z(
         layers, elevation, from_means.zInterface.values
     ).transpose('nZInterfaces', 'x')
-    in_z = in_z.reindex(x=from_means.x.values)
+    # the budget's lines stop west of the restoring region, so the lines
+    # beyond them are NaN
+    in_z = in_z.reindex(
+        x=from_means.x.values, method='nearest', tolerance=1e-6
+    )
     ds_mean['overturningStreamfunction'] = (
         ('nZInterfaces', 'x'),
         in_z.values,

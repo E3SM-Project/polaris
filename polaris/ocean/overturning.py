@@ -684,8 +684,8 @@ def interp_overturning_to_z(
     -------
     overturning_z : xarray.DataArray
         The stream function on ``nZInterfaces``, with the coordinate
-        ``zInterface`` (m), and NaN above the top interface and below the
-        bottom one
+        ``zInterface`` (m) and the coordinates of its other dimensions, and
+        NaN above the top interface and below the bottom one
     """
     psi = overturning.transpose(..., interface_dim).values
     heights = elevation.transpose(..., interface_dim).values
@@ -705,10 +705,16 @@ def interp_overturning_to_z(
             left=np.nan,
             right=np.nan,
         )
+    coords = {
+        name: coord
+        for name, coord in overturning.coords.items()
+        if set(coord.dims) <= set(other_dims)
+    }
+    coords['zInterface'] = ('nZInterfaces', np.asarray(z))
     overturning_z = xr.DataArray(
         values.reshape(psi.shape[:-1] + (len(z),)),
         dims=other_dims + ['nZInterfaces'],
-        coords={'zInterface': ('nZInterfaces', np.asarray(z))},
+        coords=coords,
     )
     overturning_z.attrs = dict(overturning.attrs)
     return overturning_z
