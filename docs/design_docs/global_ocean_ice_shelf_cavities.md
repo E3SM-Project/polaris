@@ -205,9 +205,9 @@ the cull config does.
 
 ### Implementation: The ocean and sea ice share one domain
 
-`CullMaskStep` runs `bedrock_zero` through its masks and consistency checks.
-The parts that assume all land ice in the ocean floats are fixed.
-`CullTopoStep` carries the land-ice mask onto the culled ocean mesh.
+`CullMaskStep` already builds its masks and checks their consistency under
+`bedrock_zero`, so it is unchanged.  `CullTopoStep` carries the land-ice
+mask onto the culled ocean mesh.
 
 ### Implementation: The land-ice load is fixed by the ice thickness
 
