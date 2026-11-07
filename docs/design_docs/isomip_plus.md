@@ -56,8 +56,8 @@ Omega does not yet support ice-shelf cavities, so it is out of scope.
 | `ocean1`    | Ocean1                 | culled         | init, SSH adj., forward, viz |
 | `ocean2`    | Ocean2                 | culled         | init, SSH adj., forward, viz |
 | `inception` | Ocean1 × 0, 1, 1       | thin film      | init, SSH adj., forward, viz |
-| `wetting`   | Ocean1 × 1, 0.95, 0.9  | thin film      | init, SSH adj., forward, viz |
-| `drying`    | Ocean1 × 1, 1.05, 1.1  | thin film      | init, SSH adj., forward, viz |
+| `wetting`   | Ocean1 × 1, 0.99, 0.98 | thin film      | init, SSH adj., forward, viz |
+| `drying`    | Ocean1 × 1, 1.01, 1.02 | thin film      | init, SSH adj., forward, viz |
 
 The existing `ocean3` and `ocean4` tasks, which only remap their
 geometry, are removed ([D8](#decisions)). All other tasks keep the
@@ -1084,7 +1084,7 @@ two ways of removing water.
 
 The domain is closed. Without an outflow, the water that the ice
 displaces in the wetting and drying tasks raises sea level
-everywhere: by about 10 m per 5 % step of the Ocean1 load, and by
+everywhere: by about 2 m per 1 % step of the Ocean1 load, and by
 about 210 m for the whole load. The rise lifts the ice, which works
 against the change in load. In `inception`, nearly all the ice
 would float. An open ocean would carry the water away. A
@@ -1113,22 +1113,24 @@ as the ice grounds. In `inception`, the open-ocean SSH rose to about
   flow through the calving front is about three times what it
   would be in a closed basin.
 
-### D15: The wetting and drying loads follow Compass's thin-film runs
+### D15: The wetting and drying loads change by 1 % and then 2 %
 
-Date last modified: 2026/10/07
+Date last modified: 2026/11/07
 
 Contributors: Xylar Asay-Davis, Claude
 
-`drying` thickens the Ocean1 ice by 5 % and then 10 %, and `wetting`
-thins it by the same amounts, as Compass's thin-film runs do
+`drying` thickens the Ocean1 ice by 1 % and then 2 %, and `wetting`
+thins it by the same amounts, in two 6-hour steps. The first version of
+this design doubled or removed the ice, and the second used the 5 % and
+10 % of Compass's thin-film runs
 ([MPAS-Dev/compass#896](https://github.com/MPAS-Dev/compass/pull/896)).
-The first version of this design doubled or removed the ice.
 `inception` still grows the ice from nothing.
 
 ```{admonition} Rationale
-These are the loads Carolyn Begeman settled on for Compass's thin-film
-runs with RK4. Each step moves the domain-wide SSH by about 10 m rather
-than about 210 m.
+At 5 % and 10 % in 12 hours, the load changes far faster than in
+coupled runs, and the films' response is dominated by that forcing. At
+1 % and 2 %, `wetting` at 4 km still wets about 15 film cells in
+12 hours with RK4, and each step moves the domain-wide SSH by about 2 m.
 ```
 
 ### D16: The land-ice forcing has no draft
