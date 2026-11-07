@@ -1,6 +1,7 @@
 import json
 
 import pr_test_report as report
+from pr_test_rows import Row
 
 
 def test_summarize_suite_without_baseline(tmp_path):
@@ -113,3 +114,48 @@ def test_compare_with_baseline_task_failed_in_baseline(tmp_path):
     assert comparison.bit_for_bit == ['a']
     assert comparison.differ == {'c': ['temp']}
     assert comparison.failed_in_baseline == ['b']
+
+
+def test_format_bit_for_bit_names_each_task_once():
+    mpaso = Row('chrysalis', 'gnu', 'openmpi', model='mpas-ocean')
+    omega_gnu = Row('chrysalis', 'gnu', 'openmpi', model='omega')
+    omega_intel = Row('chrysalis', 'intel', 'openmpi', model='omega')
+    skipped = Row('chrysalis', 'oneapi', 'openmpi', model='omega')
+    mesh = {'mesh/a': ['xCell', 'yCell'], 'mesh/b': ['xCell']}
+    rows = [
+        (
+            mpaso,
+            report.BaselineComparison(
+                'mpaso_pr', differ={**mesh, 'overflow': ['temperature']}
+            ),
+            '',
+        ),
+        (
+            omega_gnu,
+            report.BaselineComparison(
+                'omega_pr', differ={**mesh, 'qu240': ['salinity']}
+            ),
+            '',
+        ),
+        (
+            omega_intel,
+            report.BaselineComparison(
+                'omega_pr', differ={**mesh, 'qu240': ['salinity']}
+            ),
+            '',
+        ),
+        (skipped, None, 'it was not run: the queue is down'),
+    ]
+
+    text = report.format_bit_for_bit(rows)
+
+    assert '**4 tasks differ from the baseline:**\n\n' in text
+    assert '- `mesh/a`, `mesh/b`: on every row compared\n' in text
+    assert '- `overflow`: on chrysalis, gnu, openmpi (MPAS-Ocean)\n' in text
+    assert '- `qu240`: on every Omega row compared\n' in text
+    assert (
+        '1 row was not compared:\n\n- chrysalis, oneapi, openmpi (Omega), '
+        'because it was not run: the queue is down.'
+    ) in text
+    assert 'xCell' not in text
+    assert text.count('mesh/a') == 1

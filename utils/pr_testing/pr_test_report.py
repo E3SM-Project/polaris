@@ -11,7 +11,7 @@ from dataclasses import dataclass, field
 from typing import Any, Dict, List, Optional, Sequence, Tuple
 
 import pr_test_github as github
-from pr_test_rows import Row
+from pr_test_rows import MODEL_LABELS, Row
 
 #: version 2 lists a machine's rows in one marker; version 1 had one row
 MARKER_SCHEMA = 2
@@ -153,8 +153,13 @@ def format_bit_for_bit(
     rows: Sequence[Tuple[Row, Optional[BaselineComparison], str]],
 ) -> str:
     """
-    A section that says plainly whether each row is bit-for-bit with the
-    baseline, keeping tasks that did not run apart
+    A section that says plainly which tasks differ from the baseline, and
+    on which rows, keeping tasks that did not run and rows that were not
+    compared apart
+
+    Each task is named once, with the rows it differs on, and tasks that
+    differ on the same rows share a line.  Which variables differ, and by
+    how much, is in each row's collapsed block.
 
     Parameters
     ----------
@@ -167,71 +172,60 @@ def format_bit_for_bit(
     text : str
         The section
     """
-    compared = [comparison for _, comparison, _ in rows if comparison]
-    differ = sum(len(comparison.differ) for comparison in compared)
-    did_not_run = sum(len(comparison.did_not_run) for comparison in compared)
-    failed_in_baseline = sum(
-        len(comparison.failed_in_baseline) for comparison in compared
+    compared = [(row, comparison) for row, comparison, _ in rows if comparison]
+    compared_rows = [row for row, _ in compared]
+    differ = _rows_by_task(compared, lambda c: list(c.differ))
+    did_not_run = _rows_by_task(compared, lambda c: c.did_not_run)
+    failed_in_baseline = _rows_by_task(
+        compared, lambda c: c.failed_in_baseline
     )
-    lines = ['### Bit-for-bit with the baseline', '']
+    paragraphs = []
     if not compared:
-        lines.append('Nothing was compared with a baseline.')
-    elif differ == 0:
-        identical = sum(len(comparison.bit_for_bit) for comparison in compared)
-        lines.append(
-            f'Every task compared with the baseline is bit-for-bit '
-            f'({_count(identical, "task")}).'
+        paragraphs.append('Nothing was compared with a baseline.')
+    elif not differ:
+        identical = len(
+            {
+                task
+                for _, comparison in compared
+                for task in comparison.bit_for_bit
+            }
+        )
+        paragraphs.append(
+            f'Every task compared is bit-for-bit with the baseline '
+            f'({_count(identical, "task")}, on '
+            f'{_count(len(compared), "row")}).'
         )
     else:
-        rows_differing = sum(1 for comparison in compared if comparison.differ)
-        lines.append(
-            f'**Not bit-for-bit: {_count(differ, "task")}, on '
-            f'{_count(rows_differing, "row")}.**'
+        verb = 'differs' if len(differ) == 1 else 'differ'
+        paragraphs.append(
+            f'**{_count(len(differ), "task")} {verb} from the baseline:**\n\n'
+            + _list_tasks(differ, compared_rows, len(rows))
         )
     if did_not_run:
-        lines.append(
-            f'{_count(did_not_run, "task")} did not run, so '
-            f'{"it has" if did_not_run == 1 else "they have"} no bit-for-bit '
-            f'result either way.'
+        they = 'it has' if len(did_not_run) == 1 else 'they have'
+        paragraphs.append(
+            f'{_count(len(did_not_run), "task")} did not run, so {they} '
+            f'nothing to compare:\n\n'
+            + _list_tasks(did_not_run, compared_rows, len(rows))
         )
     if failed_in_baseline:
-        lines.append(
-            f'{_count(failed_in_baseline, "task")} failed in the baseline, '
-            f'so {"it has" if failed_in_baseline == 1 else "they have"} '
-            f'nothing to compare with.'
+        paragraphs.append(
+            f'{_count(len(failed_in_baseline), "task")} failed in the '
+            f'baseline, so there is nothing to compare with:\n\n'
+            + _list_tasks(failed_in_baseline, compared_rows, len(rows))
         )
-    lines.append('')
-    for row, comparison, reason in rows:
-        if comparison is None:
-            lines.append(f'- {row.label}: not compared, because {reason}.')
-            continue
-        ran = (
-            len(comparison.bit_for_bit)
-            + len(comparison.differ)
-            + len(comparison.not_compared)
-            + len(comparison.failed_in_baseline)
+    not_compared = [
+        f'- {row.label}, because {reason}.'
+        for row, comparison, reason in rows
+        if comparison is None
+    ]
+    if not_compared:
+        verb = 'was' if len(not_compared) == 1 else 'were'
+        paragraphs.append(
+            f'{_count(len(not_compared), "row")} {verb} not compared:\n\n'
+            + '\n'.join(not_compared)
         )
-        lines.append(
-            f'- {row.label}, `{comparison.suite}`: '
-            f'{len(comparison.bit_for_bit)} of {ran} tasks that ran are '
-            f'bit-for-bit.'
-        )
-        for task, variables in comparison.differ.items():
-            changed = ', '.join(f'`{variable}`' for variable in variables)
-            lines.append(
-                f'  - Not bit-for-bit: `{task}` '
-                f'({changed or "see the task log"})'
-            )
-        for task in comparison.did_not_run:
-            lines.append(f'  - Did not run: `{task}`')
-        for task in comparison.failed_in_baseline:
-            lines.append(f'  - Failed in the baseline: `{task}`')
-        if comparison.not_compared:
-            lines.append(
-                f'  - Compares nothing with the baseline: '
-                f'{_count(len(comparison.not_compared), "task")}'
-            )
-    return '\n'.join(lines)
+    return '### Differences from the baseline\n\n' + '\n\n'.join(paragraphs)
 
 
 def make_marker(prefix: str, **contents: Any) -> str:
@@ -655,3 +649,53 @@ def _is_nonzero(norm):
 def _count(number, noun):
     """A count with its noun, such as ``1 task`` or ``3 tasks``"""
     return f'{number} {noun}' if number == 1 else f'{number} {noun}s'
+
+
+def _list_tasks(by_task, compared_rows, row_count):
+    """A line for each set of rows, with the tasks given for them"""
+    lines = []
+    for tasks, task_rows in _group_by_rows(by_task):
+        names = ', '.join(f'`{task}`' for task in tasks)
+        where = _name_rows(task_rows, compared_rows, row_count)
+        lines.append(f'- {names}: on {where}')
+    return '\n'.join(lines)
+
+
+def _rows_by_task(compared, get_tasks):
+    """
+    Each task that ``get_tasks`` gives for a row's comparison, in the order
+    first seen, with the rows it was given for
+    """
+    by_task: Dict[str, List[Row]] = {}
+    for row, comparison in compared:
+        for task in get_tasks(comparison):
+            by_task.setdefault(task, []).append(row)
+    return by_task
+
+
+def _group_by_rows(by_task):
+    """The tasks that share the same rows, in the order first seen"""
+    groups: Dict[Tuple[str, ...], Tuple[List[str], List[Row]]] = {}
+    for task, task_rows in by_task.items():
+        key = tuple(row.name for row in task_rows)
+        groups.setdefault(key, ([], task_rows))[0].append(task)
+    return list(groups.values())
+
+
+def _name_rows(task_rows, compared_rows, row_count):
+    """
+    The rows, as ``every row``, ``every Omega row`` or their labels, out
+    of the rows that were compared, adding ``compared`` when there are
+    rows that were not
+    """
+    suffix = '' if len(compared_rows) == row_count else ' compared'
+    names = {row.name for row in task_rows}
+    if len(compared_rows) > 1 and names == {row.name for row in compared_rows}:
+        return f'every row{suffix}'
+    models = {row.model for row in compared_rows}
+    model = task_rows[0].model
+    if len(models) > 1 and model is not None:
+        of_model = {row.name for row in compared_rows if row.model == model}
+        if len(of_model) > 1 and names == of_model:
+            return f'every {MODEL_LABELS[model]} row{suffix}'
+    return '; '.join(row.label for row in task_rows)

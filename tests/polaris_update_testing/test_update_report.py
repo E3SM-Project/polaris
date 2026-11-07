@@ -68,16 +68,12 @@ def test_report(finished):
         'of 50 passed | not compared |'
     ) in text
     assert (
-        '### Bit-for-bit with the baseline\n\nEvery task compared with the '
-        'baseline is bit-for-bit (6 tasks).'
+        '### Differences from the baseline\n\nEvery task compared is '
+        'bit-for-bit with the baseline (3 tasks, on 2 rows).'
     ) in text
     assert (
-        '- chrysalis, intel, openmpi (Omega): not compared, because it was '
-        'not run: the intel queue is down.'
-    ) in text
-    assert (
-        '- chrysalis, gnu, openmpi (MPAS-Ocean), `mpaso_pr`: 3 of 3 tasks '
-        'that ran are bit-for-bit.'
+        '1 row was not compared:\n\n- chrysalis, intel, openmpi (Omega), '
+        'because it was not run: the intel queue is down.'
     ) in text
     block = text.split('<summary>chrysalis, gnu, openmpi (Omega)</summary>')
     assert SUITE_MD['omega_pr'].strip() in block[1]
@@ -169,15 +165,18 @@ def test_report_not_bit_for_bit(finished):
 
     text, _ = _report(fixture, manifest, not_run='down')
 
-    assert '**Not bit-for-bit: 1 task, on 1 row.**' in text
     assert (
-        '1 task did not run, so it has no bit-for-bit result either way.'
+        '**1 task differs from the baseline:**\n\n- `ocean/task0`: on '
+        'chrysalis, gnu, openmpi (Omega)\n'
     ) in text
     assert (
-        '  - Not bit-for-bit: `ocean/task0` (`layerThickness`, '
-        '`normalVelocity`)'
+        '1 task did not run, so it has nothing to compare:\n\n'
+        '- `ocean/task1`: on chrysalis, gnu, openmpi (Omega)\n'
     ) in text
-    assert '  - Did not run: `ocean/task1`' in text
+    # the variables that differ are left to the row's collapsed block
+    section = text.split('### Differences from the baseline')[1]
+    section = section.split('| Row |')[0]
+    assert 'normalVelocity' not in section
     marker = pr_test_report.parse_marker(text, MARKER_PREFIX)
     assert marker is not None
     omega = [
