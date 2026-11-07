@@ -329,7 +329,9 @@ def compute_line_interfaces(
     The layers stack down from the sea-surface height, which is the ice
     draft under an ice shelf.  Each edge takes the mean of its two cells, as
     the thickness in :py:func:`compute_line_transport` does.  Layers outside
-    a cell's valid range must have zero thickness.
+    a cell's valid range, NaN in E3SM's monthly means, count as zero
+    thickness, so their interfaces collapse onto the nearest valid one and
+    every edge has every interface.
 
     Parameters
     ----------
@@ -351,6 +353,7 @@ def compute_line_interfaces(
         The elevation (m) of the top and bottom of each layer, with
         ``nCells`` replaced by ``nLineEdges``
     """
+    layer_thickness = layer_thickness.fillna(0.0)
     z_bottom = ssh - layer_thickness.cumsum(dim=vert_dim)
     z_top = z_bottom + layer_thickness
     return (

@@ -380,6 +380,29 @@ def test_interface_elevations_of_uniform_layers(channel_mesh):
     np.testing.assert_allclose(elevation.values, [-5.0, -15.0, -35.0])
 
 
+def test_interface_elevations_descend_with_layers_missing(channel_mesh):
+    # E3SM's monthly means have NaN in layers outside a cell's valid range,
+    # as above the top layer under an ice shelf; the mean elevation of each
+    # interface must still descend
+    line = get_line_edges(channel_mesh, 'x', 3.5 * DC)
+    shelf = channel_mesh.yCell.values < np.median(channel_mesh.yCell.values)
+    ssh = xr.DataArray(np.where(shelf, -50.0, 0.0), dims='nCells')
+    # thin columns under deep ice beside shallow open ones, so that leaving
+    # out each interface's missing edges would make the means cross
+    thickness = np.where(
+        shelf[:, np.newaxis],
+        [[np.nan, 5.0, 5.0]],
+        [[10.0, 20.0, np.nan]],
+    )
+    elevation = compute_line_interface_elevations(
+        line,
+        ssh,
+        xr.DataArray(thickness, dims=('nCells', 'nVertLevels')),
+    )
+    assert np.all(np.isfinite(elevation.values))
+    assert np.all(np.diff(elevation.values) <= 0.0)
+
+
 def test_overturning_is_interpolated_between_interface_elevations():
     psi = xr.DataArray([[0.0, 2.0, 6.0]], dims=('x', 'nVertLevelsP1'))
     elevation = xr.DataArray(
