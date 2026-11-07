@@ -35,6 +35,12 @@ OCEAN_STREAMS = {
 # Fields added to the ocean's monthly means
 MONTHLY_OCEAN_FIELDS = {{ monthly_ocean_fields }}
 
+# The stream of snapshots of the ocean's layer thickness at the start of
+# each month, beside the monthly means, its fields, and its interval
+SNAPSHOT_STREAM = '{{ snapshot_stream }}'
+SNAPSHOT_OCEAN_FIELDS = {{ snapshot_ocean_fields }}
+SNAPSHOT_INTERVAL = '{{ snapshot_interval }}'
+
 # The ocean's daily maxima, in place of E3SM's list for the custom time
 # series, and the interval of its output
 DAILY_MAX_OCEAN_FIELDS = {{ daily_max_ocean_fields }}
@@ -70,6 +76,7 @@ def main():
         + DAILY_OCEAN_FIELDS
         + DAILY_3D_OCEAN_FIELDS
         + MONTHLY_OCEAN_FIELDS
+        + SNAPSHOT_OCEAN_FIELDS
         + DAILY_MAX_OCEAN_FIELDS,
     )
 {%- if edit_landice %}
@@ -134,6 +141,7 @@ def edit_ocean(in_filename, daily_3d):
     monthly = get_stream(root, 'timeSeriesStatsMonthlyOutput')
     for name in MONTHLY_OCEAN_FIELDS:
         add_var(monthly, name)
+    add_snapshot_stream(root, monthly)
     custom = get_stream(root, 'timeSeriesStatsCustomOutput')
     custom.set('output_interval', DAILY_MAX_INTERVAL)
     for child in list(custom):
@@ -173,6 +181,36 @@ def edit_landice(in_filename):
         add_var(daily, name)
     return tree
 {%- endif %}
+
+
+def add_snapshot_stream(root, monthly):
+    """
+    Add a stream of instantaneous layer thickness at each month's start, in
+    files named like the monthly means', one a month, in double precision
+    """
+    template = monthly.get('filename_template')
+    if '.timeSeriesStatsMonthly.' not in template:
+        sys.exit(f'Unexpected name of the monthly means files: {template}')
+    for stream in root:
+        if stream.get('name') == SNAPSHOT_STREAM:
+            root.remove(stream)
+    attributes = {
+        'name': SNAPSHOT_STREAM,
+        'type': 'output',
+        'precision': 'double',
+        'filename_template': template.replace(
+            '.timeSeriesStatsMonthly.', '.layerThicknessSnapshot.'
+        ),
+        'filename_interval': SNAPSHOT_INTERVAL,
+        'output_interval': SNAPSHOT_INTERVAL,
+        'clobber_mode': 'truncate',
+    }
+    for name in ['io_type', 'reference_time', 'runtime_format']:
+        if name in monthly.attrib:
+            attributes[name] = monthly.get(name)
+    snapshots = ET.SubElement(root, 'stream', attributes)
+    for name in ['xtime'] + SNAPSHOT_OCEAN_FIELDS:
+        add_var(snapshots, name)
 
 
 def get_stream(root, name):

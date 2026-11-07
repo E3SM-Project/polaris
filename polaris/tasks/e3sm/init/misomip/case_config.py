@@ -281,10 +281,22 @@ DAILY_3D_OCEAN_FIELDS = [
 OCEAN_VAR_ARRAYS = ['activeTracers']
 
 #: Fields added to the ocean's monthly means in every case, which already
-#: hold the layer thickness and its frazil tendency
+#: hold the layer thickness and its frazil tendency: the part of the melt not
+#: sent to MALI, and the vertical transport through each layer's top
+#: interface, whose monthly mean is exact where the product of the monthly
+#: means of velocity and thickness is not, from which the overturning
+#: streamfunction follows with the snapshots of the layer thickness
 MONTHLY_OCEAN_FIELDS = [
     'landIceFreshwaterFluxNotSentToGlc',
+    'vertAleTransportTop',
 ]
+
+#: The stream of snapshots of the ocean's layer thickness at the start of
+#: each month, whose change over a month is the volume each layer gains,
+#: the fields in it, and its interval
+SNAPSHOT_STREAM = 'layerThicknessSnapshotOutput'
+SNAPSHOT_OCEAN_FIELDS = ['layerThickness']
+SNAPSHOT_INTERVAL = '00-01-00_00:00:00'
 
 #: MPAS-Ocean options of every case that monitor the ocean: the global
 #: statistics, written hourly by the streams edit, and the daily maximum of
@@ -1621,6 +1633,9 @@ def get_edit_streams_script(experiment):
         ocean_var_arrays=repr(OCEAN_VAR_ARRAYS),
         streams_dir=OCEAN_STREAMS_DIR,
         monthly_ocean_fields=repr(MONTHLY_OCEAN_FIELDS),
+        snapshot_stream=SNAPSHOT_STREAM,
+        snapshot_ocean_fields=repr(SNAPSHOT_OCEAN_FIELDS),
+        snapshot_interval=SNAPSHOT_INTERVAL,
         daily_max_ocean_fields=repr(DAILY_MAX_OCEAN_FIELDS),
         global_stats_interval=GLOBAL_STATS_INTERVAL,
         daily_max_interval=DAILY_MAX_INTERVAL,

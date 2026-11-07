@@ -37,6 +37,9 @@ from polaris.tasks.e3sm.init.misomip.case_config import (
     MONTHLY_OCEAN_FIELDS,
     RAMP_OPTION,
     RUN_MONTHS,
+    SNAPSHOT_INTERVAL,
+    SNAPSHOT_OCEAN_FIELDS,
+    SNAPSHOT_STREAM,
     SPLIT_EXPLICIT_PENDING,
     CaseConfigStep,
     check_time_integrator,
@@ -830,6 +833,8 @@ def _write_streams(rundir):
     <var name="normalVelocity"/>
 </stream>
 <stream name="timeSeriesStatsMonthlyOutput" type="output"
+        precision="single" io_type="pnetcdf,cdf5"
+        reference_time="01-01-01_00:00:00"
         filename_template="case.mpaso.hist.am.timeSeriesStatsMonthly.nc">
     <var name="landIceFreshwaterFlux"/>
 </stream>
@@ -869,6 +874,7 @@ def _write_registries(srcroot, missing):
             + DAILY_OCEAN_FIELDS
             + DAILY_3D_OCEAN_FIELDS
             + MONTHLY_OCEAN_FIELDS
+            + SNAPSHOT_OCEAN_FIELDS
             + DAILY_MAX_OCEAN_FIELDS
         ),
         'mpas-albany-landice': (
@@ -987,6 +993,23 @@ def test_edit_streams_script(tmp_path):
         assert _vars(streams['timeSeriesStatsMonthlyOutput']) == (
             ['landIceFreshwaterFlux'] + MONTHLY_OCEAN_FIELDS
         )
+        # snapshots of the layer thickness at each month's start, named and
+        # written like the monthly means but in double precision
+        snapshots = streams[SNAPSHOT_STREAM]
+        assert _vars(snapshots) == ['xtime'] + SNAPSHOT_OCEAN_FIELDS
+        assert snapshots.attrib == {
+            'name': SNAPSHOT_STREAM,
+            'type': 'output',
+            'precision': 'double',
+            'filename_template': (
+                'case.mpaso.hist.am.layerThicknessSnapshot.nc'
+            ),
+            'filename_interval': SNAPSHOT_INTERVAL,
+            'output_interval': SNAPSHOT_INTERVAL,
+            'clobber_mode': 'truncate',
+            'io_type': 'pnetcdf,cdf5',
+            'reference_time': '01-01-01_00:00:00',
+        }
         # the daily maxima, and hourly global statistics
         custom = streams['timeSeriesStatsCustomOutput']
         assert _vars(custom) == ['xtime'] + DAILY_MAX_OCEAN_FIELDS

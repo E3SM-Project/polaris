@@ -310,8 +310,12 @@ case's SourceMods:
 - the ocean's daily means of `landIceFreshwaterFlux`,
   `frazilIceFreshwaterFlux`, `landIceFreshwaterFluxNotSentToGlc` and
   `landIceHeatFlux`, sampled every time step, in place of E3SM's daily
-  list and hourly samples, and `landIceFreshwaterFluxNotSentToGlc` in the
-  monthly means;
+  list and hourly samples, and `landIceFreshwaterFluxNotSentToGlc` and
+  `vertAleTransportTop` in the monthly means;
+- snapshots of the ocean's `layerThickness` at the start of each month,
+  in `<case>.mpaso.hist.am.layerThicknessSnapshot.$Y-$M-$D.nc`, one a
+  month, which with `vertAleTransportTop` give an overturning
+  streamfunction that is exact where columns wet and dry;
 - in one of the ocean's files, also the daily means of `normalVelocity`,
   `layerThickness`, `activeTracers` and `frazilLayerThicknessTendency`;
 - the ocean's daily maximum of `kineticEnergyCell`, checked every time
