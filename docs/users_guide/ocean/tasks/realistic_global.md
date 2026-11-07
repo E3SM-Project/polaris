@@ -1075,6 +1075,11 @@ eos_type = teos-10
 mpaso_time_integrator = split_explicit_ab2
 omega_time_integrator = split_explicit
 
+# The MPAS-Ocean time integrator that replaces split_explicit_ab2 when the
+# ocean has ice-shelf cavities.  Cavities need wetting and drying, which
+# MPAS-Ocean supports in split_explicit and RK4 but not in split_explicit_ab2.
+mpaso_cavity_time_integrator = split_explicit
+
 # Run duration as an MPAS-style duration string (DDDD_HH:MM:SS)
 run_duration = 0001_00:00:00
 
@@ -1202,6 +1207,12 @@ pressure_gradient_type = Jacobian_from_TS
 # standalone runs have no sea ice or ice-shelf cavities for the frazil to go
 # to.
 use_frazil_ice_formation = False
+
+# MPAS-Ocean's land-ice flux mode when the ocean has ice-shelf cavities:
+# 'off' applies the land-ice pressure without melting, and 'active' also
+# computes the melt fluxes.  A dynamic-adjustment schedule may set it per
+# stage.  Ignored without cavities.
+land_ice_flux_mode = off
 
 # Whether to write density to the 3-D output stream.  MPAS-Ocean only; Omega
 # writes specific volume through its Eos group instead.  On by default, since

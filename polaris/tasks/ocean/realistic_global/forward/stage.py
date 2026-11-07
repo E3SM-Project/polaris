@@ -10,6 +10,9 @@ from polaris.mpas.time import (
     duration_to_seconds,
     get_time_interval_string,
 )
+from polaris.tasks.ocean.realistic_global.cavities import (
+    has_ice_shelf_cavities,
+)
 
 # Map from the neutral (MPAS-Ocean) time-integrator names to the Omega names.
 # Only integrators with an Omega equivalent appear here; a neutral name that is
@@ -101,7 +104,9 @@ class ForwardStage:
         ``GlobalStats`` snapshot period alike.
 
     mpaso_time_integrator : str
-        The time integrator to use for MPAS-Ocean.
+        The time integrator to use for MPAS-Ocean.  With ice-shelf cavities,
+        ``split_explicit_ab2``, which has no wetting and drying, is replaced
+        by the ``mpaso_cavity_time_integrator`` config option.
 
     omega_time_integrator : str
         The time integrator to use for Omega, in neutral (MPAS-Ocean) naming;
@@ -194,6 +199,11 @@ class ForwardStage:
     use_frazil_ice_formation : bool
         Whether to form frazil ice.
 
+    land_ice_flux_mode : str
+        MPAS-Ocean's land-ice flux mode when the ocean has ice-shelf cavities:
+        ``'off'`` applies the land-ice pressure without melting, and
+        ``'active'`` also computes the melt fluxes.
+
     output_density : bool
         Whether to write ``density`` to the 3-D output stream.  It is there so
         that MPAS-Ocean and Omega can be compared on the same fields, and it is
@@ -254,6 +264,7 @@ class ForwardStage:
     use_submesoscale: bool = False
     pressure_gradient_type: Optional[str] = None
     use_frazil_ice_formation: bool = False
+    land_ice_flux_mode: str = 'off'
     output_density: bool = True
     do_restart: bool = False
     start_time: str = '0001-01-01_00:00:00'
@@ -290,15 +301,23 @@ class ForwardStage:
         restart_interval = _opt_str(config, section, 'restart_interval')
         if restart_interval is None:
             restart_interval = run_duration
+        mpaso_time_integrator = config.get(
+            section, 'mpaso_time_integrator'
+        ).strip()
+        if (
+            has_ice_shelf_cavities(config)
+            and mpaso_time_integrator == 'split_explicit_ab2'
+        ):
+            mpaso_time_integrator = config.get(
+                section, 'mpaso_cavity_time_integrator'
+            ).strip()
         return cls(
             name=name,
             run_duration=run_duration,
             output_interval=config.get(section, 'output_interval').strip(),
             restart_interval=restart_interval,
             stats_interval=config.get(section, 'stats_interval').strip(),
-            mpaso_time_integrator=config.get(
-                section, 'mpaso_time_integrator'
-            ).strip(),
+            mpaso_time_integrator=mpaso_time_integrator,
             omega_time_integrator=config.get(
                 section, 'omega_time_integrator'
             ).strip(),
@@ -332,6 +351,9 @@ class ForwardStage:
             use_frazil_ice_formation=config.getboolean(
                 section, 'use_frazil_ice_formation'
             ),
+            land_ice_flux_mode=config.get(
+                section, 'land_ice_flux_mode'
+            ).strip(),
             output_density=config.getboolean(section, 'output_density'),
             start_time=config.get(section, 'start_time').strip(),
         )

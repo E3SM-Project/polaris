@@ -22,6 +22,9 @@ from polaris.tasks.ocean.realistic_global.forward import (
     StatsAnalysis,
     StepInitialCondition,
 )
+from polaris.tasks.ocean.realistic_global.forward.forward import (
+    add_land_ice_yaml_files,
+)
 from polaris.tasks.ocean.realistic_global.forward.stage import (
     omega_median_cell_width,
 )
@@ -59,6 +62,8 @@ def _forward_config(**overrides):
         use_submesoscale='True',
         pressure_gradient_type='Jacobian_from_TS',
         use_frazil_ice_formation='False',
+        land_ice_flux_mode='off',
+        mpaso_cavity_time_integrator='split_explicit',
         output_density='True',
         start_time='0001-01-01_00:00:00',
     )
@@ -1540,3 +1545,72 @@ def test_restart_streams_yaml_requests_omegas_restart_read():
     )
     # the restart is read once, at initialization, not on a cadence
     assert restart['input_interval'] == 'initial_only'
+
+
+# --- ice-shelf cavities ---
+
+
+def _cavity_config(convention, **overrides):
+    config = _forward_config(**overrides)
+    config.add_section('spherical_mesh')
+    config.set('spherical_mesh', 'antarctic_boundary_convention', convention)
+    return config
+
+
+@pytest.mark.parametrize('convention', ['grounding_line', 'bedrock_zero'])
+def test_cavities_replace_split_explicit_ab2(convention):
+    # split_explicit_ab2 has no wetting and drying
+    stage = ForwardStage.from_config(_cavity_config(convention))
+    assert stage.mpaso_time_integrator == 'split_explicit'
+
+
+def test_cavities_keep_rk4():
+    stage = ForwardStage.from_config(
+        _cavity_config('bedrock_zero', mpaso_time_integrator='RK4')
+    )
+    assert stage.mpaso_time_integrator == 'RK4'
+
+
+def test_no_cavities_keep_split_explicit_ab2():
+    stage = ForwardStage.from_config(_cavity_config('calving_front'))
+    assert stage.mpaso_time_integrator == 'split_explicit_ab2'
+
+
+@pytest.mark.parametrize('mode', ['off', 'active'])
+def test_land_ice_yaml_sets_the_flux_mode(mode):
+    yaml = PolarisYaml.read(
+        filename='land_ice.yaml',
+        package='polaris.tasks.ocean.realistic_global.forward',
+        replacements=dict(land_ice_flux_mode=mode),
+        model='mpas-ocean',
+    )
+    assert yaml.configs['land_ice']['config_use_land_ice_pressure'] is True
+    assert yaml.configs['land_ice_fluxes']['config_land_ice_flux_mode'] == (
+        mode
+    )
+
+
+class _YamlRecorder:
+    """Records the yaml files added to a model step."""
+
+    def __init__(self):
+        self.yaml_files = []
+
+    def add_yaml_file(self, package, yaml, template_replacements=None):
+        self.yaml_files.append((yaml, template_replacements))
+
+
+@pytest.mark.parametrize(
+    'time_integrator, split_yaml',
+    [('split_explicit', True), ('RK4', False)],
+)
+def test_land_ice_yaml_files(time_integrator, split_yaml):
+    step = _YamlRecorder()
+    stage = dataclasses.replace(ForwardStage(), land_ice_flux_mode='active')
+    add_land_ice_yaml_files(step, stage, time_integrator)
+    names = [name for name, _ in step.yaml_files]
+    assert names[0] == 'land_ice.yaml'
+    assert step.yaml_files[0][1] == dict(land_ice_flux_mode='active')
+    assert 'wetting_drying.yaml' in names
+    assert 'thin_film_wetting_drying.yaml' in names
+    assert ('split_explicit.yaml' in names) == split_yaml

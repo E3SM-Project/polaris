@@ -4,7 +4,11 @@ from typing import List, Optional
 import numpy as np
 
 from polaris.mpas.time import duration_to_seconds
+from polaris.ocean.ice_shelf import add_wetting_drying_yaml_files
 from polaris.ocean.model import OceanModelStep
+from polaris.tasks.ocean.realistic_global.cavities import (
+    has_ice_shelf_cavities,
+)
 from polaris.tasks.ocean.realistic_global.forward.initial_condition import (
     InitialCondition,
 )
@@ -382,6 +386,10 @@ class Forward(OceanModelStep):
                 options=stage.mpaso_physics_options(),
                 config_model='mpas-ocean',
             )
+            if has_ice_shelf_cavities(config):
+                add_land_ice_yaml_files(
+                    self, stage, replacements['time_integrator']
+                )
             options = stage.bottom_drag_options()
             if options:
                 self.add_model_config_options(
@@ -449,6 +457,41 @@ class Forward(OceanModelStep):
             float(edge_widths.min()),
             float(edge_widths.max()),
         )
+
+
+def add_land_ice_yaml_files(step, stage, time_integrator):
+    """
+    Add the MPAS-Ocean options for an ocean with ice-shelf cavities to a
+    forward step: the land-ice pressure, the stage's land-ice flux mode, top
+    drag, and wetting and drying with a thin film.
+
+    The film is the same under every cavity convention: it fills any column
+    that the land-ice load would leave thinner than the wetting-and-drying
+    minimum, whether the ice above it is grounded or floating.
+
+    Parameters
+    ----------
+    step : polaris.ModelStep
+        The forward step
+
+    stage : polaris.tasks.ocean.realistic_global.forward.stage.ForwardStage
+        The stage the step runs, which supplies the land-ice flux mode
+
+    time_integrator : str
+        The MPAS-Ocean time integrator the step uses
+    """
+    step.add_yaml_file(
+        'polaris.tasks.ocean.realistic_global.forward',
+        'land_ice.yaml',
+        template_replacements=dict(
+            land_ice_flux_mode=stage.land_ice_flux_mode
+        ),
+    )
+    add_wetting_drying_yaml_files(
+        step,
+        thin_film=True,
+        split_explicit=(time_integrator == 'split_explicit'),
+    )
 
 
 def _log_hmix_scaling(logger, model, stage, mesh_widths, options):

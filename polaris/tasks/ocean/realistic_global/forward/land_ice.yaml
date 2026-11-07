@@ -1,0 +1,11 @@
+# MPAS-Ocean options for a realistic global ocean with ice-shelf cavities,
+# following the ISOMIP+ tasks
+mpas-ocean:
+  land_ice:
+    config_use_land_ice_pressure: true
+  land_ice_fluxes:
+    config_land_ice_flux_mode: {{ land_ice_flux_mode }}
+  bottom_drag:
+    # drag at the ice-ocean interface, with the ISOMIP+ top drag coefficient
+    config_use_implicit_top_drag: true
+    config_implicit_top_drag_coeff: 2.5e-3
