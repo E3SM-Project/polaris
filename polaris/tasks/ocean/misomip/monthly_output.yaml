@@ -1,0 +1,88 @@
+mpas-ocean:
+  # E3SM's monthly means, so the standalone and E3SM runs write the same
+  # files
+  AM_timeSeriesStatsMonthly:
+    config_AM_timeSeriesStatsMonthly_enable: true
+    config_AM_timeSeriesStatsMonthly_compute_on_startup: false
+    config_AM_timeSeriesStatsMonthly_write_on_startup: false
+    config_AM_timeSeriesStatsMonthly_compute_interval: dt
+    config_AM_timeSeriesStatsMonthly_output_stream: timeSeriesStatsMonthlyOutput
+    config_AM_timeSeriesStatsMonthly_restart_stream: none
+    config_AM_timeSeriesStatsMonthly_operation: avg
+    config_AM_timeSeriesStatsMonthly_reference_times: initial_time
+    config_AM_timeSeriesStatsMonthly_duration_intervals: repeat_interval
+    config_AM_timeSeriesStatsMonthly_repeat_intervals: reset_interval
+    config_AM_timeSeriesStatsMonthly_reset_intervals: 00-01-00_00:00:00
+    config_AM_timeSeriesStatsMonthly_backward_output_offset: 00-01-00_00:00:00
+  streams:
+    timeSeriesStatsMonthlyOutput:
+      type: output
+      precision: single
+      useMissingValMask: 'true'
+      filename_template: timeSeriesStatsMonthly.$Y-$M-$D.nc
+      filename_interval: 00-01-00_00:00:00
+      reference_time: 01-01-01_00:00:00
+      output_interval: 00-01-00_00:00:00
+      clobber_mode: truncate
+      packages: timeSeriesStatsMonthlyAMPKG
+      runtime_format: single_file
+      # E3SM's contents, less what the standalone run doesn't compute, with
+      # the planar velocity components
+      contents:
+      - daysSinceStartOfSim
+      - ssh
+      - tracers
+      - velocityZonal
+      - velocityMeridional
+      - velocityX
+      - velocityY
+      - layerThickness
+      - density
+      - potentialDensity
+      - normalVelocity
+      - vertVelocityTop
+      - frazilLayerThicknessTendency
+      - minGlobalStats
+      - maxGlobalStats
+      - sumGlobalStats
+      - rmsGlobalStats
+      - avgGlobalStats
+      - vertSumMinGlobalStats
+      - vertSumMaxGlobalStats
+      - areaCellGlobal
+      - areaEdgeGlobal
+      - areaTriangleGlobal
+      - volumeCellGlobal
+      - volumeEdgeGlobal
+      - CFLNumberGlobal
+      - normalMLEvelocity
+      - vertMLEBolusVelocityTop
+      - tracersSurfaceFlux
+      - frazilTemperatureTendency
+      - activeTracersTend
+      - activeTracerHorizontalAdvectionTendency
+      - activeTracerVerticalAdvectionTendency
+      - activeTracerVertMixTendency
+      - activeTracerHorMixTendency
+      - activeTracerSurfaceFluxTendency
+      - temperatureShortWaveTendency
+      - activeTracerNonLocalTendency
+      - vertDiffTopOfCell
+      - vertViscTopOfCell
+      - boundaryLayerDepth
+      - surfaceBuoyancyForcing
+      - landIceFreshwaterFlux
+      - landIceFreshwaterFluxTotal
+      - frazilIceFreshwaterFlux
+      - landIceHeatFlux
+      - heatFluxToLandIce
+      - landIceFrictionVelocity
+      - landIceBoundaryLayerTracers
+      - landIceInterfaceTracers
+{%- if data_mode %}
+      # MALI's geometry changes, so its monthly means as the ocean saw it
+      - landIcePressure
+      - landIceFraction
+      - landIceFloatingFraction
+      - landIceDraftForSsh
+{%- endif %}

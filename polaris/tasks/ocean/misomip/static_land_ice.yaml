@@ -1,0 +1,5 @@
+mpas-ocean:
+  time_varying_forcing:
+    # MALI's geometry is fixed, so the land-ice fields stay as they are in
+    # the initial condition
+    config_use_time_varying_land_ice_forcing: false

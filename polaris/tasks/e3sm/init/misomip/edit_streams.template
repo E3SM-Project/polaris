@@ -1,0 +1,241 @@
+#!/usr/bin/env python3
+"""
+Add a MISOMIP case's output to the streams files E3SM wrote for it.  The
+ocean's streams file, with and without daily means of 3D fields, goes in
+{{ streams_dir }}/ in the case directory, from which next_segment.sh copies
+one into the case's SourceMods for each job.  With a prognostic MALI,
+MALI's goes in the case's SourceMods.  E3SM reads a streams file in
+SourceMods in place of writing its own.  Run it from the case directory
+after ./preview_namelists has written the streams files to the run
+directory.  It stops, rather than leaving anything out, if E3SM's streams
+lack a stream it edits or E3SM's Registry a field it adds.  Written by
+Polaris.
+"""
+
+import os
+import re
+import subprocess
+import sys
+import xml.etree.ElementTree as ET
+
+# The ocean's daily means, in place of E3SM's daily list, and the 3D fields
+# added to them in some jobs, among which the variable arrays
+DAILY_OCEAN_FIELDS = {{ daily_ocean_fields }}
+DAILY_3D_OCEAN_FIELDS = {{ daily_3d_ocean_fields }}
+OCEAN_VAR_ARRAYS = {{ ocean_var_arrays }}
+
+# Where the ocean's streams files go, and their names, without and with the
+# daily 3D fields
+STREAMS_DIR = '{{ streams_dir }}'
+OCEAN_STREAMS = {
+    False: 'streams.ocean.without_daily_3d',
+    True: 'streams.ocean.with_daily_3d',
+}
+
+# Fields added to the ocean's monthly means
+MONTHLY_OCEAN_FIELDS = {{ monthly_ocean_fields }}
+
+# The stream of snapshots of the ocean's layer thickness at the start of
+# each month, beside the monthly means, its fields, and its interval
+SNAPSHOT_STREAM = '{{ snapshot_stream }}'
+SNAPSHOT_OCEAN_FIELDS = {{ snapshot_ocean_fields }}
+SNAPSHOT_INTERVAL = '{{ snapshot_interval }}'
+
+# The ocean's daily maxima, in place of E3SM's list for the custom time
+# series, and the interval of its output
+DAILY_MAX_OCEAN_FIELDS = {{ daily_max_ocean_fields }}
+DAILY_MAX_INTERVAL = '{{ daily_max_interval }}'
+
+# The interval of the ocean's global statistics
+GLOBAL_STATS_INTERVAL = '{{ global_stats_interval }}'
+
+{%- if edit_landice %}
+
+# The interval of MALI's history, and the fields added to it
+MALI_HISTORY_INTERVAL = '{{ mali_history_interval }}'
+MALI_HISTORY_FIELDS = {{ mali_history_fields }}
+
+# MALI's daily output
+MALI_DAILY_FIELDS = {{ mali_daily_fields }}
+{%- endif %}
+
+
+def main():
+    if os.path.islink('SourceMods'):
+        sys.exit(
+            'SourceMods is a link, as in a keepexe clone, so editing it '
+            'would change the streams of every case that shares it.  '
+            'Replace the link with a copy first.'
+        )
+    rundir = xmlquery('RUNDIR')
+    srcroot = xmlquery('SRCROOT')
+    check_registry(
+        srcroot,
+        'mpas-ocean',
+        ['xtime']
+        + DAILY_OCEAN_FIELDS
+        + DAILY_3D_OCEAN_FIELDS
+        + MONTHLY_OCEAN_FIELDS
+        + SNAPSHOT_OCEAN_FIELDS
+        + DAILY_MAX_OCEAN_FIELDS,
+    )
+{%- if edit_landice %}
+    check_registry(
+        srcroot,
+        'mpas-albany-landice',
+        MALI_HISTORY_FIELDS + ['xtime'] + MALI_DAILY_FIELDS,
+    )
+{%- endif %}
+    # every file is edited before any is written
+    ocean = {
+        daily_3d: edit_ocean(os.path.join(rundir, 'streams.ocean'), daily_3d)
+        for daily_3d in OCEAN_STREAMS
+    }
+{%- if edit_landice %}
+    landice = edit_landice(os.path.join(rundir, 'streams.landice'))
+{%- endif %}
+    for daily_3d, filename in OCEAN_STREAMS.items():
+        write(ocean[daily_3d], os.path.join(STREAMS_DIR, filename))
+{%- if edit_landice %}
+    write(landice, os.path.join('SourceMods', 'src.mali', 'streams.landice'))
+{%- endif %}
+
+
+def xmlquery(variable):
+    return subprocess.check_output(
+        ['./xmlquery', '--value', variable], text=True
+    ).strip()
+
+
+def check_registry(srcroot, component, names):
+    """
+    Stop if a field is not defined in a component's Registry files
+    """
+    src = os.path.join(srcroot, 'components', component, 'src')
+    definition = re.compile(r'<var(?:_array)?\s+name="(\w+)"[^>]*\btype=')
+    defined = set()
+    for dirpath, _, filenames in os.walk(src):
+        for filename in filenames:
+            if filename.startswith('Registry') and filename.endswith('.xml'):
+                with open(os.path.join(dirpath, filename)) as registry:
+                    defined.update(definition.findall(registry.read()))
+    missing = sorted(set(names) - defined)
+    if missing:
+        sys.exit(
+            f'{", ".join(missing)} not defined in the Registry files in '
+            f'{src}.'
+        )
+
+
+def edit_ocean(in_filename, daily_3d):
+    tree = ET.parse(in_filename)
+    root = tree.getroot()
+    daily = get_stream(root, 'timeSeriesStatsDailyOutput')
+    for child in list(daily):
+        daily.remove(child)
+    names = ['xtime'] + DAILY_OCEAN_FIELDS
+    if daily_3d:
+        names = names + DAILY_3D_OCEAN_FIELDS
+    for name in names:
+        add_var(daily, name)
+    monthly = get_stream(root, 'timeSeriesStatsMonthlyOutput')
+    for name in MONTHLY_OCEAN_FIELDS:
+        add_var(monthly, name)
+    add_snapshot_stream(root, monthly)
+    custom = get_stream(root, 'timeSeriesStatsCustomOutput')
+    custom.set('output_interval', DAILY_MAX_INTERVAL)
+    for child in list(custom):
+        custom.remove(child)
+    for name in ['xtime'] + DAILY_MAX_OCEAN_FIELDS:
+        add_var(custom, name)
+    global_stats = get_stream(root, 'globalStatsOutput')
+    global_stats.set('output_interval', GLOBAL_STATS_INTERVAL)
+    return tree
+{%- if edit_landice %}
+
+
+def edit_landice(in_filename):
+    tree = ET.parse(in_filename)
+    root = tree.getroot()
+    output = get_stream(root, 'output')
+    output.set('output_interval', MALI_HISTORY_INTERVAL)
+    for name in MALI_HISTORY_FIELDS:
+        add_var(output, name)
+    template = output.get('filename_template')
+    if '.mali.hist.' not in template:
+        sys.exit(f'Unexpected name of MALI history files: {template}')
+    attributes = {
+        'name': 'dailyOutput',
+        'type': 'output',
+        'filename_template': template.replace(
+            '.mali.hist.', '.mali.hist.daily.'
+        ),
+        'filename_interval': '0000-01-00_00:00:00',
+        'clobber_mode': 'truncate',
+        'output_interval': '0000-00-01_00:00:00',
+    }
+    if 'io_type' in output.attrib:
+        attributes['io_type'] = output.get('io_type')
+    daily = ET.SubElement(root, 'stream', attributes)
+    for name in ['xtime'] + MALI_DAILY_FIELDS:
+        add_var(daily, name)
+    return tree
+{%- endif %}
+
+
+def add_snapshot_stream(root, monthly):
+    """
+    Add a stream of instantaneous layer thickness at each month's start, in
+    files named like the monthly means', one a month, in double precision
+    """
+    template = monthly.get('filename_template')
+    if '.timeSeriesStatsMonthly.' not in template:
+        sys.exit(f'Unexpected name of the monthly means files: {template}')
+    for stream in root:
+        if stream.get('name') == SNAPSHOT_STREAM:
+            root.remove(stream)
+    attributes = {
+        'name': SNAPSHOT_STREAM,
+        'type': 'output',
+        'precision': 'double',
+        'filename_template': template.replace(
+            '.timeSeriesStatsMonthly.', '.layerThicknessSnapshot.'
+        ),
+        'filename_interval': SNAPSHOT_INTERVAL,
+        'output_interval': SNAPSHOT_INTERVAL,
+        'clobber_mode': 'truncate',
+    }
+    for name in ['io_type', 'reference_time', 'runtime_format']:
+        if name in monthly.attrib:
+            attributes[name] = monthly.get(name)
+    snapshots = ET.SubElement(root, 'stream', attributes)
+    for name in ['xtime'] + SNAPSHOT_OCEAN_FIELDS:
+        add_var(snapshots, name)
+
+
+def get_stream(root, name):
+    for stream in root:
+        if stream.get('name') == name:
+            return stream
+    sys.exit(f'No stream {name} in the streams file E3SM wrote.')
+
+
+def add_var(stream, name):
+    tag = 'var_array' if name in OCEAN_VAR_ARRAYS else 'var'
+    for child in stream:
+        if child.tag == tag and child.get('name') == name:
+            return
+    ET.SubElement(stream, tag, {'name': name})
+
+
+def write(tree, filename):
+    os.makedirs(os.path.dirname(filename), exist_ok=True)
+    if os.path.islink(filename):
+        os.remove(filename)
+    ET.indent(tree)
+    tree.write(filename, encoding='unicode')
+    print(f'Wrote {filename}')
+
+
+if __name__ == '__main__':
+    main()

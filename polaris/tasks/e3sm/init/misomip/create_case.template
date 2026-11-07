@@ -1,0 +1,191 @@
+#!/bin/bash
+# Create, set up and build an E3SM case for MISOMIP {{ experiment }} on
+# {{ model_grid }}, with MALI in {{ mode }} mode.  Submit it yourself, with
+# ./case.submit in the case directory.
+
+set -e
+
+usage="usage: $0 -e <E3SM checkout> -c <case directory>
+{%- if source %}
+           -R <{{ source }} case directory> -d <restart date, YYYY-MM-DD>
+{%- endif %}
+           [-p <project>] [-C <compiler>] [-r <output root>]
+           [-o <ocean tasks>] [-g <MALI tasks>]"
+
+# An E3SM checkout at FAnSSIE's {{ e3sm_commit }} or later
+e3sm=
+# The case directory, whose name is the case's
+case_dir=
+# The machine the layout is for, blank if Polaris has no name for it
+machine={{ machine }}
+# Blank for CIME's defaults.  The output root holds the case's build and
+# run directories.
+project=
+output_root=
+# The compiler Polaris was set up with
+compiler={{ compiler }}
+# The tasks of the ocean and of MALI, each between the fewest and most the
+# meshes allow and a count its mesh is partitioned for
+ocean_tasks={{ tasks }}
+landice_tasks={{ tasks }}
+min_tasks={{ min_tasks }}
+max_tasks={{ max_tasks }}
+ocean_counts="{{ ocean_counts }}"
+landice_counts="{{ landice_counts }}"
+{%- if source %}
+# The {{ source }} case this one branches from, and the date of the restart
+# it starts from
+source_case_dir=
+restart_date=
+{%- endif %}
+
+while getopts "e:c:{% if source %}R:d:{% endif %}p:C:r:o:g:h" option; do
+    case $option in
+        e) e3sm=$OPTARG ;;
+        c) case_dir=$OPTARG ;;
+{%- if source %}
+        R) source_case_dir=$OPTARG ;;
+        d) restart_date=$OPTARG ;;
+{%- endif %}
+        p) project=$OPTARG ;;
+        C) compiler=$OPTARG ;;
+        r) output_root=$OPTARG ;;
+        o) ocean_tasks=$OPTARG ;;
+        g) landice_tasks=$OPTARG ;;
+        h) echo "$usage"; exit 0 ;;
+        *) echo "$usage" >&2; exit 1 ;;
+    esac
+done
+
+if [ -z "$e3sm" ] || [ -z "$case_dir" ]; then
+    echo "$usage" >&2
+    exit 1
+fi
+{%- if source %}
+if [ -z "$source_case_dir" ] || [ -z "$restart_date" ]; then
+    echo "$usage" >&2
+    exit 1
+fi
+source_case_dir="$(cd "$source_case_dir" && pwd)"
+source_case="$(basename "$source_case_dir")"
+source_run_dir="$(cd "$source_case_dir" && ./xmlquery --value RUNDIR)"
+restarts=("$source_case.cpl.r.$restart_date-00000.nc"
+          "$source_case.mpaso.rst.${restart_date}_00000.nc"
+          "$source_case.mali.rst.${restart_date}_00000.nc")
+for restart in "${restarts[@]}"; do
+    if [ ! -f "$source_run_dir/$restart" ]; then
+        echo "The restart $source_run_dir/$restart is missing." >&2
+        exit 1
+    fi
+done
+{%- endif %}
+
+check_tasks () {
+    if [ "$2" -lt "$min_tasks" ] || [ "$2" -gt "$max_tasks" ]; then
+        echo "$2 tasks for $1 lie outside the $min_tasks to $max_tasks" \
+            "the meshes allow." >&2
+        exit 1
+    fi
+    case " $3 " in
+        *" $2 "*) ;;
+        *) echo "No partition of $1's mesh is for $2 tasks.  Choose one" \
+               "of: $3" >&2
+           exit 1 ;;
+    esac
+}
+check_tasks "the ocean" "$ocean_tasks" "$ocean_counts"
+check_tasks "MALI" "$landice_tasks" "$landice_counts"
+
+if ! git -C "$e3sm" merge-base --is-ancestor {{ e3sm_commit }} HEAD \
+        2> /dev/null; then
+    echo "$e3sm is not at FAnSSIE's {{ e3sm_commit }} or later." >&2
+    exit 1
+fi
+
+if [ -n "$machine" ]; then
+    current=$("$e3sm/cime/scripts/query_config" --machines current \
+        2> /dev/null | awk '/\(current\)/ {print $1; exit}')
+    if [ -z "$current" ]; then
+        echo "CIME's query_config did not name this machine." >&2
+        exit 1
+    fi
+    if [ "$current" != "$machine" ]; then
+        echo "This layout was chosen on $machine, not $current.  Set up" \
+            "the task on $current." >&2
+        exit 1
+    fi
+fi
+
+here="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+# The layout in pes.xml has 1 thread a task and the layout's tasks per node
+args=(--case "$case_dir" --driver mct
+      --compset {{ compset }}
+      --res {{ model_grid }}
+      --user-mods-dirs "$here/user_mods"
+      --pesfile "$here/pes.xml"
+      --compiler "$compiler")
+if [ -n "$machine" ]; then
+    args+=(--machine "$machine")
+fi
+if [ -n "$project" ]; then
+    args+=(--project "$project")
+fi
+if [ -n "$output_root" ]; then
+    args+=(--output-root "$output_root")
+fi
+"$e3sm/cime/scripts/create_newcase" "${args[@]}"
+
+cd "$case_dir"
+
+# Every component on the ocean's tasks, except MALI, which runs on the same
+# tasks in turn
+./xmlchange "NTASKS=$ocean_tasks,NTHRDS=1,ROOTPE=0"
+./xmlchange "NTASKS_GLC=$landice_tasks"
+
+for check in "MPASO_DECOMP_FILE_PREFIX $ocean_tasks" \
+        "MALI_DECOMP_FILE_PREFIX $landice_tasks"; do
+    read -r variable tasks <<< "$check"
+    partition="$(./xmlquery --value "$variable")$tasks"
+    if [ ! -f "$partition" ]; then
+        echo "The partition $partition is missing." >&2
+        exit 1
+    fi
+done
+
+./case.setup
+{%- if source %}
+
+# A branch run from the {{ source }} case's restarts, which the case's run
+# directory needs before its namelists are built.  The coupler finds its
+# restart through rpointer.drv.
+run_dir="$(./xmlquery --value RUNDIR)"
+mkdir -p "$run_dir"
+for restart in "${restarts[@]}"; do
+    cp "$source_run_dir/$restart" "$run_dir/"
+done
+echo "${restarts[0]}" > "$run_dir/rpointer.drv"
+./xmlchange "RUN_TYPE=branch,RUN_REFCASE=$source_case"
+./xmlchange "RUN_REFDATE=$restart_date,RUN_REFTOD=00000,GET_REFCASE=FALSE"
+{%- endif %}
+
+{%- if mode == 'prognostic' %}
+
+# The ocean's daily means and monitoring, and MALI's monthly history and
+# daily melt, added to the streams files E3SM writes
+{%- else %}
+
+# The ocean's daily means and monitoring, added to the streams files E3SM
+# writes
+{%- endif %}
+./preview_namelists
+python3 "$here/{{ edit_streams }}"
+
+# The first job's months and streams file.  CIME runs the script after each
+# job to set up the next.
+cp "$here/{{ next_segment }}" .
+"./{{ next_segment }}" "$PWD" --start
+./xmlchange "POSTRUN_SCRIPT=$PWD/{{ next_segment }}"
+./case.build
+
+echo "Submit the case with: cd $case_dir && ./case.submit"
