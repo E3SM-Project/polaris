@@ -88,11 +88,14 @@ For each run, from its monthly means:
 
 The color ranges of maps and sections are in
 `[misomip_analysis_color_ranges]`, as `minimum, maximum`.  Temperature,
-salinity, draft and bathymetry have fixed ranges by default, the same in
-every run, experiment and resolution, so their plots compare.  A blank
-range comes from each plot's data, leaving out the thin film: the columns
-under grounded ice and the dry columns, whose water keeps the initial
-condition's salinity.  The film is still drawn.
+draft and bathymetry have fixed ranges by default, the same in every run,
+experiment and resolution, so their plots compare.  Salinity has fixed,
+uneven bins instead (`salinity_bounds`, with `salinity_ticks`): coarse
+up to 33.5 PSU, where the thin film's fresh water falls, and 0.1 PSU wide
+above, over the cavity and the open ocean.  A blank range comes from each
+plot's data, leaving out the film: the columns under grounded ice and the
+dry columns, whose water keeps the initial condition's salinity.  The film
+is still drawn.
 
 The time means are over the last 6 months of Ocean0, as the protocol's
 tuning does, and the last 12 months of the other experiments, or all of a

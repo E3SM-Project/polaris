@@ -36,6 +36,7 @@
    plots.get_map_mask
    plots.get_range_mask
    plots.get_color_range
+   plots.get_color_norm
    plots.plot_section
    comparison.RunComparison
    comparison.RunComparison.run
