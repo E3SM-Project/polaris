@@ -1,0 +1,46 @@
+# Analysis output for the steps of the analysis_output restart task, added
+# over the yaml of the realistic_global restart task's steps.  Every group
+# averages over the same period, which the task's restart splits, and each
+# group samples differently, so that the restart is checked against each way
+# a reduction can accumulate:
+#   MonthlyAverages  every time step, the default
+#   MOC              at the sampling interval moc_sampling_interval, whose
+#                    sample times do not include the restart time
+#   GlobalStats      at the sampling interval stats_sampling_interval, whose
+#                    sample times include the restart time
+Omega:
+  Analysis:
+    GlobalStats:
+      # The forward step's snapshots, plus a reduction.  The reduction is
+      # written to global_stats_<period>TimeStats, one file for the run, since
+      # the forward step's Filename has no time template.
+      Fields: [NormalVelocity, PseudoThickness, Temperature, Salinity,
+               KineticEnergyCell, SshCell]
+      ReductionPeriod: ["{{ period }}"]
+      SamplingInterval: "{{ stats_sampling_interval }}"
+    MonthlyAverages:
+      Enable: true
+      # The same fields as the 1_year task's monthly means
+      Fields: [Temperature, Salinity, PseudoThickness, SpecVol, GeomZMid,
+               GeomZInterface, SshCell, NormalVelocity, KineticEnergyCell]
+      ReductionPeriod: ["{{ period }}"]
+      SamplingInterval: "dt"
+      # One file per period, named for the instant the period ends
+      Filename: means.$Y-$M-$D.nc
+      Stream:
+        FileFreq: {{ file_freq_days }}
+        FileFreqUnits: days
+    MOC:
+      Enable: true
+      NumBins: {{ moc_num_bins }}
+      MinLat: -90.0
+      MaxLat: 90.0
+      Regions: [Global]
+      Transects: []
+      ReductionPeriod: ["{{ period }}"]
+      SnapshotPeriod: []
+      SamplingInterval: "{{ moc_sampling_interval }}"
+      Filename: moc.$Y-$M-$D.nc
+      Stream:
+        FileFreq: {{ file_freq_days }}
+        FileFreqUnits: days
