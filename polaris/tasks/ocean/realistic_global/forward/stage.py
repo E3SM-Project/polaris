@@ -194,8 +194,7 @@ class ForwardStage:
         The MPAS-Ocean horizontal pressure gradient formulation; ``None``
         leaves the Registry default of ``pressure_and_zmid``, which is the
         ordinary counterpart to Omega's ``Centered``.  ``Jacobian_from_TS`` is
-        how E3SM runs and has no Omega equivalent.  With ice-shelf cavities,
-        it comes from the ``cavity_pressure_gradient_type`` config option.
+        how E3SM runs and has no Omega equivalent.
 
     use_frazil_ice_formation : bool
         Whether to form frazil ice.
@@ -305,17 +304,13 @@ class ForwardStage:
         mpaso_time_integrator = config.get(
             section, 'mpaso_time_integrator'
         ).strip()
-        pressure_gradient_type = _opt_str(
-            config, section, 'pressure_gradient_type'
-        )
-        if has_ice_shelf_cavities(config):
-            if mpaso_time_integrator == 'split_explicit_ab2':
-                mpaso_time_integrator = config.get(
-                    section, 'mpaso_cavity_time_integrator'
-                ).strip()
-            pressure_gradient_type = _opt_str(
-                config, section, 'cavity_pressure_gradient_type'
-            )
+        if (
+            has_ice_shelf_cavities(config)
+            and mpaso_time_integrator == 'split_explicit_ab2'
+        ):
+            mpaso_time_integrator = config.get(
+                section, 'mpaso_cavity_time_integrator'
+            ).strip()
         return cls(
             name=name,
             run_duration=run_duration,
@@ -350,7 +345,9 @@ class ForwardStage:
             use_Redi=config.getboolean(section, 'use_Redi'),
             use_KPP=config.getboolean(section, 'use_KPP'),
             use_submesoscale=config.getboolean(section, 'use_submesoscale'),
-            pressure_gradient_type=pressure_gradient_type,
+            pressure_gradient_type=_opt_str(
+                config, section, 'pressure_gradient_type'
+            ),
             use_frazil_ice_formation=config.getboolean(
                 section, 'use_frazil_ice_formation'
             ),
