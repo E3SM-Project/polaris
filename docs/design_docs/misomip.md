@@ -1808,37 +1808,53 @@ Rejected:
 - the overturning from monthly-mean velocity and thickness alone, which is
   wrong where columns wet and dry.
 
-### D34: Stage E starts over on an executable with a film-edge fix
+### D34: Stage E starts over with two fixes for film openings
 
 Date last modified: 2026/11/07
 
 Contributors: Xylar Asay-Davis, Claude
 
-In year 5 of IceOcean1r at 2 km, the velocity on one edge between a film
-cell and a 54 m column ran away to 73 m/s and took about 15 hours to
-recover. MPAS-Ocean's vertical advection of momentum divides an edge's
-vertical velocity by the layer thickness on the film side, about 0.05 m.
-Using the edge-mean thickness there stops the runaway in a channel test,
-in RK4 and split-explicit, and leaves runs without wetting and drying bit
-for bit. Once a rerun of that year confirms the fix at 2 km, it goes into
-FAnSSIE, and every stage E run starts over on one executable that has it
-and the edge flux of [D33](#decisions): IceOcean1r and Ocean0–2 from their
-beginnings, then the rest in D33's order.
+In year 5 of IceOcean1r at 2 km, the velocity on one edge next to a film
+cell reached 25–73 m/s and took about 15 hours to settle. A rerun with
+every momentum term at that edge showed three steps:
+
+- a film cell under ice just heavier than flotation counted as dry, and
+  the drying limit closed its edges at rest as well as those flowing out,
+  so no water entered while the head across it grew;
+- the load ramp of [D31](#decisions) brought the ice to flotation between
+  coupling steps, and the film opened fully in one time step, taking in
+  the barotropic velocity its closed edges had kept;
+- on the edge between the film and the deep column, the vertical
+  advection of momentum, divided by the film's thin layer, grew each
+  surge into spikes of a few time steps.
+
+Two fixes go into FAnSSIE: inflow into a film under land ice opens
+gradually as its layers fill, and the vertical advection uses the edge's
+mean thickness. Each alone turns this opening into a gentle filling, with
+speeds near 4 m/s, and the ocean's volume budget closes with either. Every
+stage E run then starts over on one executable that has both and the edge
+flux of [D33](#decisions): IceOcean1r and Ocean0–2 from their beginnings,
+then the rest in D33's order.
 
 ```{admonition} Rationale
-The years already run are about 2.5% of the stage's computation, so
-starting over costs about a day and gives each run one model version,
-without the year-5 runaway. Film cells next to deep columns grow more
-common as the grounding line retreats, and Ocean0–2's spikes in a corner
-of the cavity occur at the same kind of edge. The fix is not a speed
-limit: in short thin-film tests it raises the largest speeds slightly.
+Films open next to deep columns more often as the grounding line retreats,
+and year 6 already had a smaller opening. The years already run are about
+2.5% of the stage's computation, so starting over costs about a day and
+gives each run one model version. The gradual inflow removes the dam's
+sudden break; the edge-mean thickness removes the amplifier at any film
+edge, including openings without a dam. The vertical-advection fix changes
+melt by up to 4% over six months and, without the gradual inflow, raises
+the largest speeds slightly in short thin-film tests.
 ```
 
 Rejected:
 
-- continuing the running cases, which keeps the year-5 runaway;
+- continuing the running cases, which keeps the year-5 jet;
 - switching each run to the fixed executable at its next job, which mixes
   two model versions in one run;
 - restarting IceOcean1r from year 5, which saves about a day but also
   mixes versions;
-- a change to the drying limiter, which works as designed here.
+- counting an edge at rest as open in the drying limit, which lets every
+  dry film with a higher neighbor fill and made the peaks worse;
+- resetting the barotropic velocity on edges without water, which does
+  not stop the break.
