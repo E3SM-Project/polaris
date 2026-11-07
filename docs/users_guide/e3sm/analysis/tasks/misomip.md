@@ -98,6 +98,15 @@ each layer.  A run without the flux gets the transport from its monthly
 means of velocity and thickness, which streaks where columns wet and dry
 within a month.
 
+In the 2 km Ocean0 and IceOcean1r runs, the line along the ice front,
+where the draft steps from about −180 m to 0 over two partly floating
+cells, shows a narrow dipole in the overturning, 0.10–0.16 Sv, 40–110 m
+deep.  It is in the exact flux, not from the method: finer placements of
+the flux in depth change it by −22% to +40%.  Whether it is physical or a
+model error at the steep step in draft, such as in the pressure gradient,
+is open.  From the second month on, it changes the overturning's strength
+by at most 2%.
+
 The color ranges of maps and sections are in
 `[misomip_analysis_color_ranges]`, as `minimum, maximum`.  Temperature,
 draft and bathymetry have fixed ranges by default, the same in every run,
