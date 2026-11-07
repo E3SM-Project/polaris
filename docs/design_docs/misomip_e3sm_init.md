@@ -435,9 +435,9 @@ Each experiment's case configuration holds:
   and sets it up and builds it ([D8](#decisions)). It first adds the
   case's output to the streams files E3SM writes ([D10](#decisions)): the
   ocean's daily melt means and monitoring; the monthly mean of
-  `vertAleTransportTop` and snapshots of `layerThickness` at each month's
-  start, from which the overturning streamfunction is exact where columns
-  wet and dry; and, for IceOcean1r and IceOcean1ra, MALI's monthly
+  `vertAleTransportTop` and `normalLayerThicknessFlux` and snapshots of
+  `layerThickness` at each month's start, from which the overturning
+  streamfunction is exact where columns wet and dry; and, for IceOcean1r and IceOcean1ra, MALI's monthly
   history, with thickness, `bedTopography` and the mesh variables the
   MISMIP+ diagnostics need, and daily melt.
   It sets up the first job and makes `next_segment.sh` set up each later
@@ -1112,7 +1112,7 @@ apart from the partitions', which repeat them.
 
 ### D10: Cases patch the streams E3SM writes
 
-Date last modified: 2026/11/06
+Date last modified: 2026/11/07
 
 Contributors: Xylar Asay-Davis, Claude
 
@@ -1127,10 +1127,14 @@ SourceMods and edits it:
   `frazilIceFreshwaterFlux`, `landIceFreshwaterFluxNotSentToGlc` and
   `landIceHeatFlux`, and `user_nl_mpaso` turns them on, sampled every time
   step rather than hourly, as E3SM's monthly means already are;
-- in the first year of every run and the last year of a 100-year run, the
-  daily means add `normalVelocity`, `layerThickness`, `activeTracers` and
-  `frazilLayerThicknessTendency`;
-- the ocean's monthly means add `landIceFreshwaterFluxNotSentToGlc`;
+- in the first year of every run, the last year of a 100-year run and all
+  three years of Ocean0, the daily means add `normalVelocity`,
+  `layerThickness`, `activeTracers` and `frazilLayerThicknessTendency`;
+- the ocean's monthly means add `landIceFreshwaterFluxNotSentToGlc`,
+  `vertAleTransportTop` and `normalLayerThicknessFlux`, which
+  `user_nl_mpaso` turns on, and a stream holds snapshots of
+  `layerThickness` at each month's start, for an overturning
+  streamfunction that is exact where columns wet and dry;
 - the ocean's custom time series holds the daily maximum of
   `kineticEnergyCell`, checked every time step, and its global statistics
   are hourly;
@@ -1188,12 +1192,13 @@ shared forward step would apply to every task that uses it.
 
 ### D12: A script sets up each job of a case
 
-Date last modified: 2026/11/06
+Date last modified: 2026/11/07
 
 Contributors: Xylar Asay-Davis, Claude
 
 A case runs in jobs of up to 4 years for the 100-year experiments and 1
-year for Ocean0–2, with restarts every year. A job ends at the first year
+year for Ocean0–2, with restarts every year. Ocean0 runs 3 years, not the
+protocol's 1, since at 2 km it settles only in its third year. A job ends at the first year
 of every run and starts the last year of a 100-year run, so a 100-year
 run takes jobs of 1 year, 24 of 4 years, 2 years and 1 year.
 `create_case.sh` makes `next_segment.sh` CIME's `POSTRUN_SCRIPT`. After
