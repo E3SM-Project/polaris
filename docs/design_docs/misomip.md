@@ -1331,7 +1331,7 @@ FAnSSIE.
 
 ### D20: MALI rebuilds Albany's grid only when its masks change
 
-Date last modified: 2026/11/06
+Date last modified: 2026/11/07
 
 Contributors: Xylar Asay-Davis, Claude
 
@@ -1346,8 +1346,9 @@ runs to short segments. Data-mode MALI never calls the velocity solver.
 MALI's change
 ([MALI-Dev/E3SM#211](https://github.com/MALI-Dev/E3SM/pull/211)), which
 rebuilds the grid only when the masks change and makes `.false.` the
-default, is cherry-picked onto FAnSSIE ahead of MALI-Dev's review, so
-that the long runs can use segments of several years. Changes to Trilinos
+default, was cherry-picked onto FAnSSIE ahead of MALI-Dev's review, so
+that the long runs can use segments of several years. It has since merged
+into MALI-Dev's `develop`, and FAnSSIE now has the merged change. Changes to Trilinos
 ([trilinos/Trilinos#15877](https://github.com/trilinos/Trilinos/pull/15877),
 in Trilinos's `develop`) and Albany
 ([sandialabs/Albany#1237](https://github.com/sandialabs/Albany/pull/1237))
@@ -1364,7 +1365,11 @@ and the Trilinos change to 14.1 minutes. In a 4-month coupled IceOcean1r
 job, MALI's finalize took 232 s without the change and 0.14 s with it:
 MALI rebuilt its grid once in 366 solves, and memory stayed flat. With
 queue waits of hours, one-month segments are impractical: 100 years at
-2 km would take 1,200 jobs.
+2 km would take 1,200 jobs. At 2 km, cells at the restored calving front
+change MALI's masks every day or two
+([MALI-Dev/E3SM#221](https://github.com/MALI-Dev/E3SM/issues/221)), so
+IceOcean1r's grid was rebuilt 513 times in years 2–5. Even then, a 4-year
+job's finalize took 461 s, under 1% of the job.
 ```
 
 Rejected: waiting for MALI-Dev's `develop` to bring the change, which
@@ -1750,7 +1755,7 @@ Rejected:
 
 ### D33: Stage E runs in two slots of four nodes
 
-Date last modified: 2026/11/06
+Date last modified: 2026/11/07
 
 Contributors: Xylar Asay-Davis, Claude
 
@@ -1759,21 +1764,17 @@ drying, on at most eight nodes in two slots of four. One slot runs
 IceOcean1r and then IceOcean1ra on four nodes each, about 38 days. The
 other runs Ocean0 on four nodes, then Ocean1 and Ocean2 side by side on
 two nodes each, then Ocean3 and Ocean4 the same way, about 31 days. Ocean0
-runs a year at a time, up to three, while its analysis finds that melt and
-the cavity's water masses have not yet settled, judged against their
-variability rather than a fixed threshold. Jobs run several model years
+runs three years. Jobs run several model years
 each ([D20](#decisions)). Daily output keeps the two-dimensional fields and
 the daily speed maximum throughout; daily three-dimensional fields are
 written for every year of Ocean0, the first year of the other runs and the
 last year of the 100-year runs, and monthly means otherwise. For the
 overturning streamfunction, the monthly means add the vertical transport
 through each layer interface, and a snapshot stream writes the layer
-thicknesses at each month boundary. A per-layer edge transport, a new
-MPAS-Ocean diagnostic, joins the monthly means in the runs that have not
-started. The analysis computes the streamfunction both ways, checks that
+thicknesses at each month boundary. The thickness flux the integrator
+applies at each edge, a new MPAS-Ocean diagnostic, joins the monthly
+means. The analysis computes the streamfunction both ways, checks that
 they agree to a tolerance, and plots the one from vertical transport.
-Running cases gain the new streams at their next job, and keep their
-executable to the end.
 
 ```{admonition} Rationale
 IceOcean1r and IceOcean1ra form the longest chain, since IceOcean1ra
@@ -1783,16 +1784,17 @@ about 1.4 times as fast as two, so the ocean-only experiments finish sooner
 and cheaper in pairs on two nodes: about 31 days and 120 node-days, against
 43 days and 170 node-days one at a time on four. The whole stage then takes
 about 38 days and 6,600 node-hours. Ocean0 melts less than the ISOMIP+
-models with the protocol's common settings, so it may take more than two
-years to settle, and each extra year costs only about four hours. Daily
+models with the protocol's common settings. Run a year at a time, it
+settled only in its third year, and each year costs only about four hours.
+Daily
 three-dimensional output for all of stage E's roughly 440 model years would
 be several terabytes. MPAS-Ocean's monthly means are plain averages of
 samples, so a monthly-mean velocity times a monthly-mean thickness gives a
 false transport where a column wets and dries within the month. The
-vertical transport is a flux per unit area, so its monthly mean is exact,
-and it has given the cleaner streamfunction. The edge transport is an
-independent check. Changing the executable partway through a run would
-risk a run for a diagnostic.
+vertical transport is a flux per unit area, so its monthly mean gives the
+streamfunction to within 0.1% in a 2 km test, and it has given the cleaner
+streamfunction. The edge flux closes each column's volume budget exactly
+and is the independent check.
 ```
 
 Rejected:
@@ -1801,8 +1803,42 @@ Rejected:
   IceOcean1 chain;
 - Ocean1–4 all at once on one node each, which would take as long as the
   IceOcean1 chain and leave no margin;
-- a fixed length for Ocean0 longer than the protocol's year, which may run
-  longer than needed;
+- deciding Ocean0's length a year at a time again, when its first run
+  needed three years;
 - the overturning from monthly-mean velocity and thickness alone, which is
-  wrong where columns wet and dry;
-- switching running cases to an executable with the edge transport.
+  wrong where columns wet and dry.
+
+### D34: Stage E starts over on an executable with a film-edge fix
+
+Date last modified: 2026/11/07
+
+Contributors: Xylar Asay-Davis, Claude
+
+In year 5 of IceOcean1r at 2 km, the velocity on one edge between a film
+cell and a 54 m column ran away to 73 m/s and took about 15 hours to
+recover. MPAS-Ocean's vertical advection of momentum divides an edge's
+vertical velocity by the layer thickness on the film side, about 0.05 m.
+Using the edge-mean thickness there stops the runaway in a channel test,
+in RK4 and split-explicit, and leaves runs without wetting and drying bit
+for bit. Once a rerun of that year confirms the fix at 2 km, it goes into
+FAnSSIE, and every stage E run starts over on one executable that has it
+and the edge flux of [D33](#decisions): IceOcean1r and Ocean0–2 from their
+beginnings, then the rest in D33's order.
+
+```{admonition} Rationale
+The years already run are about 2.5% of the stage's computation, so
+starting over costs about a day and gives each run one model version,
+without the year-5 runaway. Film cells next to deep columns grow more
+common as the grounding line retreats, and Ocean0–2's spikes in a corner
+of the cavity occur at the same kind of edge. The fix is not a speed
+limit: in short thin-film tests it raises the largest speeds slightly.
+```
+
+Rejected:
+
+- continuing the running cases, which keeps the year-5 runaway;
+- switching each run to the fixed executable at its next job, which mixes
+  two model versions in one run;
+- restarting IceOcean1r from year 5, which saves about a day but also
+  mixes versions;
+- a change to the drying limiter, which works as designed here.
