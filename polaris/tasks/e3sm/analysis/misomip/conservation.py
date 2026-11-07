@@ -196,8 +196,15 @@ class CouplerConservation(ProductStep):
         values = scale * ds.budget.sel(row=row)
         dates = [str(date) for date in ds.date.values]
         time = _end_years(dates)
+        # a marker at each value shows a series of a few annual values
+        marker = 'o' if period == 'annual' else None
         lines = [
-            Series(time, values.sel(component=component).values, label)
+            Series(
+                time,
+                values.sel(component=component).values,
+                label,
+                marker=marker,
+            )
             for component, label in [
                 ('ocn', 'ocean'),
                 ('glc', 'glc'),

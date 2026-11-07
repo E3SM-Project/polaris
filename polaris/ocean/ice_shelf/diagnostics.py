@@ -275,8 +275,7 @@ def compute_thin_film_diagnostics(
     ds_diag : xarray.Dataset
         ``dryAreaUnderGroundedIce`` (m2) and ``openOceanMeanSsh`` (m)
     """
-    column_thickness = ssh + bottom_depth
-    dry = column_thickness < 2.0 * min_thickness * level_count
+    dry = _dry_columns(ssh, bottom_depth, level_count, min_thickness)
     grounded = np.logical_and(
         land_ice_fraction > 0.0, floating_fraction == 0.0
     )
@@ -416,6 +415,56 @@ def compute_open_ocean_ssh_diagnostics(
         units='m',
     )
     return ds_diag
+
+
+def get_film_columns(
+    ssh,
+    bottom_depth,
+    level_count,
+    land_ice_fraction,
+    floating_fraction,
+    min_thickness,
+):
+    """
+    Find the columns that hold only the thin film of wetting and drying:
+    those under grounded ice and those that are dry
+
+    A column is dry if it is less than twice the minimum thickness of each
+    of its active layers.  The water in the film keeps the salinity and
+    temperature of the initial condition, far from the cavity's, so color
+    ranges taken from the data leave these columns out.
+
+    Parameters
+    ----------
+    ssh : xarray.DataArray
+        The sea-surface height (m)
+
+    bottom_depth : xarray.DataArray
+        The depth of the seafloor (m, positive down)
+
+    level_count : xarray.DataArray
+        The number of active layers in each column
+
+    land_ice_fraction : xarray.DataArray
+        ``landIceFraction``
+
+    floating_fraction : xarray.DataArray
+        ``landIceFloatingFraction``
+
+    min_thickness : float
+        The minimum thickness (m) of a layer, the namelist option
+        ``config_drying_min_cell_height``
+
+    Returns
+    -------
+    film : xarray.DataArray
+        Whether each column holds only the film
+    """
+    dry = _dry_columns(ssh, bottom_depth, level_count, min_thickness)
+    grounded = np.logical_and(
+        land_ice_fraction > 0.0, floating_fraction == 0.0
+    )
+    return np.logical_or(dry, grounded)
 
 
 def get_open_ocean_mask(x_cell, land_ice_fraction, restoring_x):
@@ -664,3 +713,10 @@ def _area_sum(field, area_cell):
 def _weighted_mean(field, weights):
     """Average a field over the cells with the given weights"""
     return (field * weights).sum(dim='nCells') / weights.sum(dim='nCells')
+
+
+def _dry_columns(ssh, bottom_depth, level_count, min_thickness):
+    """Whether each column is less than twice the minimum thickness of each
+    of its active layers"""
+    column_thickness = ssh + bottom_depth
+    return column_thickness < 2.0 * min_thickness * level_count

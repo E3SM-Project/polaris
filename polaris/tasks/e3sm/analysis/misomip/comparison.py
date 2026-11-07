@@ -12,7 +12,13 @@ from polaris.tasks.e3sm.analysis.misomip.diagnostics import (
     isomip_mesh,
     read_initial_condition,
 )
-from polaris.tasks.e3sm.analysis.misomip.plots import MAPS, TIME_SERIES
+from polaris.tasks.e3sm.analysis.misomip.plots import (
+    MAPS,
+    TIME_SERIES,
+    get_color_range,
+    get_map_mask,
+    get_range_mask,
+)
 from polaris.viz.planar import plot_horiz_comparison
 from polaris.viz.time_series import Series, plot_time_series
 
@@ -211,11 +217,21 @@ class RunComparison(ProductStep):
         area = ds_init.areaCell
         floating = ds_init.landIceFloatingFraction > 0.0
         rows = []
-        for _gallery, name, title, scale, units, cmap, under_ice in MAPS:
+        for _gallery, name, title, scale, units, cmap, where in MAPS:
             if name not in means['e3sm']:
                 continue
             fields = [scale * means[kind][name] for kind in KINDS]
-            mask = floating if under_ice else None
+            mask = None
+            counted = None
+            if 'nCells' in fields[0].dims:
+                mask = get_map_mask(ds_init, where)
+                counted = get_range_mask(ds_init, mask)
+            ranges = [
+                get_color_range(self.config, name, field, counted)
+                for field in fields
+            ]
+            vmin = min(low for low, _ in ranges)
+            vmax = max(high for _, high in ranges)
             stem = f'{name}_comparison'
             plot = f'{stem}.png'
             data = f'{stem}.nc'
@@ -226,6 +242,8 @@ class RunComparison(ProductStep):
                 plot,
                 cmap=cmap,
                 cmap_title=units,
+                vmin=vmin,
+                vmax=vmax,
                 field_masks=None if mask is None else [mask, mask],
                 boundaries=[floating],
                 suptitle=f'{title}, mean of {months}',

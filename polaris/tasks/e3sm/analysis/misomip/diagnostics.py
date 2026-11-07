@@ -26,6 +26,7 @@ from polaris.ocean.ice_shelf.diagnostics import (
     compute_open_ocean_ssh_diagnostics,
     compute_thermal_driving,
     compute_thin_film_diagnostics,
+    get_film_columns,
     get_open_ocean_mask,
 )
 from polaris.ocean.overturning import (
@@ -330,6 +331,7 @@ class RunDiagnostics(Step):
             draft_bin_width=section.getfloat('draft_bin_width'),
             dx=section.getfloat('overturning_dx'),
             dz=section.getfloat('overturning_dz'),
+            min_thickness=self.min_thickness,
         )
         ds_mean.attrs['first_month'] = _start_date(ds_end, 0)
         ds_mean.attrs['last_month'] = _start_date(ds_end, -1)
@@ -967,6 +969,8 @@ def _streamfunction_strengths(
     bsf_range = []
     osf_range = []
     gyre = []
+    gyre_max = []
+    gyre_min = []
     bottom_height = []
     for t_index in range(ds.sizes['Time']):
         ds_month = ds.isel(Time=slice(t_index, t_index + 1))
@@ -983,6 +987,8 @@ def _streamfunction_strengths(
         )
         bsf_range.append(_range_where(bsf_cell, floating_month))
         gyre.append(_extremum_where(bsf_cell, open_month))
+        gyre_max.append(float(bsf_cell.where(open_month).max()))
+        gyre_min.append(float(bsf_cell.where(open_month).min()))
         height = _bottom_geostrophic_height(
             ds_init, ds_month.isel(Time=0), seafloor, bottom_slab
         )
@@ -997,6 +1003,8 @@ def _streamfunction_strengths(
     ds_strength['barotropicStrength'] = ('Time', np.array(bsf_range))
     ds_strength['overturningStrength'] = ('Time', np.array(osf_range))
     ds_strength['openOceanGyreStrength'] = ('Time', np.array(gyre))
+    ds_strength['openOceanGyreMax'] = ('Time', np.array(gyre_max))
+    ds_strength['openOceanGyreMin'] = ('Time', np.array(gyre_min))
     ds_strength['openOceanBottomGeostrophicSsh'] = (
         'Time',
         np.array(bottom_height),
@@ -1016,6 +1024,14 @@ def _streamfunction_strengths(
         ),
         units='Sv',
     )
+    ds_strength.openOceanGyreMax.attrs = dict(
+        long_name='the largest barotropic streamfunction in the open ocean',
+        units='Sv',
+    )
+    ds_strength.openOceanGyreMin.attrs = dict(
+        long_name='the smallest barotropic streamfunction in the open ocean',
+        units='Sv',
+    )
     ds_strength.openOceanBottomGeostrophicSsh.attrs = dict(
         long_name=(
             "the open ocean's mean geostrophic height of the flow above the "
@@ -1026,12 +1042,18 @@ def _streamfunction_strengths(
     return ds_strength
 
 
-def _time_mean(ds, ds_init, geometry, draft_bin_width, dx, dz):
+def _time_mean(ds, ds_init, geometry, draft_bin_width, dx, dz, min_thickness):
     """Compute the time means of maps and sections over the given months"""
     ds_mean = ds.mean(dim='Time')
     floating_fraction = geometry['landIceFloatingFraction']
     if 'Time' in floating_fraction.dims:
         floating_fraction = floating_fraction.mean(dim='Time')
+    land_ice_fraction = geometry['landIceFraction']
+    if 'Time' in land_ice_fraction.dims:
+        land_ice_fraction = land_ice_fraction.mean(dim='Time')
+    draft = geometry['landIceDraft']
+    if 'Time' in draft.dims:
+        draft = draft.mean(dim='Time')
 
     ds_out = xr.Dataset()
     ds_out['meltRate'] = compute_melt_rate(ds_mean.landIceFreshwaterFlux)
@@ -1048,6 +1070,37 @@ def _time_mean(ds, ds_init, geometry, draft_bin_width, dx, dz):
     ]:
         ds_out[name] = ds_mean[name]
     ds_out['landIceFloatingFraction'] = floating_fraction
+    ds_out['landIceFraction'] = land_ice_fraction
+    level_count = ds_init.maxLevelCell - ds_init.minLevelCell + 1
+    ds_out['filmColumn'] = get_film_columns(
+        ds_mean.ssh,
+        ds_init.bottomDepth,
+        level_count,
+        land_ice_fraction,
+        floating_fraction,
+        min_thickness,
+    ).astype(np.int8)
+    ds_out.filmColumn.attrs = dict(
+        long_name=(
+            'columns under grounded ice, or thinner than twice the minimum '
+            'thickness of each of their active layers'
+        )
+    )
+    top = ds_init.minLevelCell - 1
+    for name, velocity in [
+        ('uBoundaryLayer', 'velocityZonal'),
+        ('vBoundaryLayer', 'velocityMeridional'),
+    ]:
+        ds_out[name] = ds_mean[velocity].isel(nVertLevels=top)
+        ds_out[name].attrs = dict(
+            long_name=f'{velocity} in the top layer', units='m s-1'
+        )
+    ds_out['iceDraft'] = draft
+    ds_out.iceDraft.attrs = dict(long_name='ice draft', units='m')
+    ds_out['bathymetry'] = -ds_init.bottomDepth
+    ds_out.bathymetry.attrs = dict(
+        long_name='elevation of the seafloor', units='m'
+    )
     ds_out['barotropicStreamfunction'] = _barotropic_streamfunction(
         ds_init, ds_mean
     )
@@ -1055,9 +1108,6 @@ def _time_mean(ds, ds_init, geometry, draft_bin_width, dx, dz):
         ds_mean.expand_dims('Time'), ds_init, dx, dz
     ).isel(Time=0)
 
-    draft = geometry['landIceDraft']
-    if 'Time' in draft.dims:
-        draft = draft.mean(dim='Time')
     ds_bins = compute_melt_rate_by_draft(
         ds_init.areaCell,
         ds_mean.landIceFreshwaterFlux,

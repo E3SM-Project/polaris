@@ -5,7 +5,7 @@ import xarray as xr
 from mpas_tools.io import write_netcdf
 
 from polaris.analysis.product_step import ProductStep
-from polaris.e3sm.analysis.calendar import xtime_to_days
+from polaris.e3sm.analysis.calendar import month_start_days, xtime_to_days
 from polaris.e3sm.analysis.runs import E3smRun
 from polaris.landice.diagnostics import (
     grounding_line_on_row,
@@ -114,7 +114,9 @@ class IceSheetComparison(ProductStep):
         The y (m) of the centerline
     """
 
-    def __init__(self, component, subdir, case, diagnostics, experiment):
+    def __init__(
+        self, component, subdir, case, diagnostics, experiment, period
+    ):
         """
         Create the step
 
@@ -136,6 +138,10 @@ class IceSheetComparison(ProductStep):
         experiment : str
             The coupled experiment, a key of
             :py:data:`MISMIP_PLUS_EXPERIMENTS`
+
+        period : tuple of float
+            The days since 0001-01-01 at the start and end of the months
+            analyzed.  MALI's statistics after the end are left out.
         """
         super().__init__(
             component=component,
@@ -153,8 +159,12 @@ class IceSheetComparison(ProductStep):
         )
         self.add_dependency(diagnostics)
         landice = E3smRun(case.case_dir, 'mali')
+        self.period_end = period[1]
         self.stats_filenames = []
         for stream_file in landice.find_stream_files(LANDICE_STATS_STREAM):
+            start = month_start_days(stream_file.year, stream_file.month)
+            if start >= self.period_end:
+                continue
             filename = os.path.join(
                 'landice_stats', os.path.basename(stream_file.path)
             )
@@ -215,9 +225,12 @@ class IceSheetComparison(ProductStep):
         """
         Plot the comparisons
         """
-        coupled_stats = _stats_series(
-            read_landice_stats(self.stats_filenames), self.start
+        ds_stats = read_landice_stats(self.stats_filenames)
+        # a file at the end of the period can hold a later record
+        ds_stats = ds_stats.isel(
+            Time=np.nonzero(ds_stats.days.values <= self.period_end)[0]
         )
+        coupled_stats = _stats_series(ds_stats, self.start)
         # the times are days, not dates to decode
         ds_landice = xr.open_dataset(
             LANDICE_FILENAME, decode_times=False, decode_timedelta=False
@@ -341,6 +354,7 @@ class IceSheetComparison(ProductStep):
             ensemble=ensemble,
             ensemble_label='Cornford et al. (2020) range',
             xlim=(0.0, end_year),
+            ylim=get_lines_range(lines, end_year),
             legend_outside=True,
         )
         ds = xr.Dataset()
@@ -415,6 +429,46 @@ def read_landice_stats(filenames):
     ds = xr.concat(datasets, dim='Time')
     _, unique = np.unique(ds.days.values, return_index=True)
     return ds.isel(Time=unique)
+
+
+def get_lines_range(lines, end_year, margin=0.1):
+    """
+    Get a y range that shows the runs' lines, not the published ensemble's
+    spread, which can be much wider
+
+    Parameters
+    ----------
+    lines : list of polaris.viz.time_series.Series
+        The runs' lines
+
+    end_year : float
+        The end of the x axis (years); later values are left out
+
+    margin : float, optional
+        The fraction of the lines' range added above and below
+
+    Returns
+    -------
+    ylim : tuple of float or None
+        The range, or ``None`` if the lines have no values
+    """
+    chunks = []
+    for line in lines:
+        time = np.asarray(line.time)
+        line_values = np.asarray(line.values)
+        within = np.logical_and(np.isfinite(line_values), time <= end_year)
+        chunks.append(line_values[within])
+    if not chunks:
+        return None
+    values = np.concatenate(chunks)
+    if len(values) == 0:
+        return None
+    lower = float(values.min())
+    upper = float(values.max())
+    pad = margin * (upper - lower)
+    if pad == 0.0:
+        pad = margin * max(abs(upper), 1.0)
+    return lower - pad, upper + pad
 
 
 def _stats_series(ds, start):

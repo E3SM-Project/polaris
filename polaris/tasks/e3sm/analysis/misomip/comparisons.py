@@ -3,6 +3,7 @@ Tasks that compare the runs of several MISOMIP experiments on one mesh, or
 of one experiment on several meshes
 """
 
+import numpy as np
 import xarray as xr
 from mpas_tools.io import write_netcdf
 
@@ -15,7 +16,14 @@ from polaris.tasks.e3sm.analysis.misomip.diagnostics import (
     isomip_mesh,
     read_initial_condition,
 )
-from polaris.tasks.e3sm.analysis.misomip.plots import MAPS, TIME_SERIES
+from polaris.tasks.e3sm.analysis.misomip.plots import (
+    MAPS,
+    SYMMETRIC_FIELDS,
+    TIME_SERIES,
+    get_color_range,
+    get_map_mask,
+    get_range_mask,
+)
 from polaris.tasks.e3sm.analysis.misomip.publish import MisomipPublish
 from polaris.tasks.e3sm.analysis.misomip.runs import (
     EXPERIMENTS,
@@ -147,14 +155,23 @@ class SeriesComparison(ProductStep):
             meshes.append(isomip_mesh(ds_init))
             means.append(xr.open_dataset(f'run{index}_{TIME_MEAN_FILENAME}'))
             floating.append(ds_init.landIceFloatingFraction > 0.0)
-        for gallery, name, title, scale, units, cmap, under_ice in MAPS:
+        for gallery, name, title, scale, units, cmap, where in MAPS:
             fields = [scale * ds_mean[name] for ds_mean in means]
+            on_cells = ['nCells' in field.dims for field in fields]
+            shown = [
+                get_map_mask(ds_mean, where) if cells else None
+                for ds_mean, cells in zip(means, on_cells, strict=True)
+            ]
+            counted = [
+                get_range_mask(ds_mean, mask) if cells else None
+                for ds_mean, mask, cells in zip(
+                    means, shown, on_cells, strict=True
+                )
+            ]
             masks = None
-            if under_ice:
-                masks = [
-                    mask if 'nCells' in field.dims else None
-                    for mask, field in zip(floating, fields, strict=True)
-                ]
+            if any(mask is not None for mask in shown):
+                masks = shown
+            vmin, vmax = _shared_range(self.config, name, fields, counted)
             stem = f'{name}_maps'
             plot = f'{stem}.png'
             data = f'{stem}.nc'
@@ -166,6 +183,8 @@ class SeriesComparison(ProductStep):
                 cmap=cmap,
                 cmap_title=units,
                 field_masks=masks,
+                vmin=vmin,
+                vmax=vmax,
                 include_difference=False,
                 boundaries=floating,
                 suptitle=title,
@@ -339,3 +358,22 @@ def _setup_comparison_steps(
             missing=missing,
         )
     )
+
+
+def _shared_range(config, name, fields, counted):
+    """The color range of a field's maps side by side: the configured
+    range, or the range of every run's field where it counts"""
+    vmin, vmax = get_color_range(config, name)
+    if vmin is not None:
+        return vmin, vmax
+    chunks = []
+    for field, cells in zip(fields, counted, strict=True):
+        shown = field if cells is None else field.where(cells)
+        chunks.append(shown.values.ravel())
+    values = np.concatenate(chunks)
+    vmin = float(np.nanmin(values))
+    vmax = float(np.nanmax(values))
+    if name in SYMMETRIC_FIELDS:
+        limit = max(abs(vmin), abs(vmax))
+        vmin, vmax = -limit, limit
+    return vmin, vmax
