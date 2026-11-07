@@ -33,6 +33,10 @@ TRACER_ATTRS = {
 }
 
 
+#: The southernmost latitude (degrees) of GSW's absolute salinity anomaly atlas
+GSW_MIN_LATITUDE = -86.0
+
+
 def compute_specvol(
     sa: xr.DataArray | float,
     ct: xr.DataArray | float,
@@ -372,7 +376,9 @@ def convert_tracer_pair(
     # Pa -> dbar  (1 dbar = 1e4 Pa)
     p_dbar = pressure_b.to_numpy() / 1.0e4
     lon_np = lon_b.to_numpy()
-    lat_np = lat_b.to_numpy()
+    # GSW's atlas of the absolute salinity anomaly ends at 86 S, so a location
+    # farther south, under the Antarctic ice sheet, takes the anomaly there
+    lat_np = np.maximum(lat_b.to_numpy(), GSW_MIN_LATITUDE)
 
     valid = np.isfinite(temp_in) & np.isfinite(salin_in)
     temp_out = np.full(temp_in.shape, np.nan)
@@ -381,12 +387,12 @@ def convert_tracer_pair(
     if target == 'mpas-ocean':
         # CT, SA -> PT, SP
         temp_out[valid] = gsw.pt_from_CT(salin_in[valid], temp_in[valid])
-        salin_out[valid] = _sp_from_sa(
+        salin_out[valid] = gsw.SP_from_SA(
             salin_in[valid], p_dbar[valid], lon_np[valid], lat_np[valid]
         )
     else:
         # PT, SP -> CT, SA
-        salin_out[valid] = _sa_from_sp(
+        salin_out[valid] = gsw.SA_from_SP(
             salin_in[valid], p_dbar[valid], lon_np[valid], lat_np[valid]
         )
         temp_out[valid] = gsw.CT_from_pt(salin_out[valid], temp_in[valid])
@@ -405,31 +411,6 @@ def convert_tracer_pair(
     )
 
     return temperature_out, salinity_out
-
-
-def _sp_from_sa(sa, p_dbar, lon, lat):
-    """
-    Practical salinity from absolute salinity, taking the absolute salinity
-    anomaly as zero where GSW's atlas of it has no data, as under the
-    Antarctic ice sheet poleward of about 86 S
-    """
-    sp = gsw.SP_from_SA(sa, p_dbar, lon, lat)
-    outside_atlas = np.isnan(sp)
-    if np.any(outside_atlas):
-        sp[outside_atlas] = gsw.SP_from_SR(sa[outside_atlas])
-    return sp
-
-
-def _sa_from_sp(sp, p_dbar, lon, lat):
-    """
-    Absolute salinity from practical salinity, taking the absolute salinity
-    anomaly as zero where GSW's atlas of it has no data
-    """
-    sa = gsw.SA_from_SP(sp, p_dbar, lon, lat)
-    outside_atlas = np.isnan(sa)
-    if np.any(outside_atlas):
-        sa[outside_atlas] = gsw.SR_from_SP(sp[outside_atlas])
-    return sa
 
 
 def _as_data_array(value: xr.DataArray | np.ndarray | float) -> xr.DataArray:

@@ -537,7 +537,7 @@ def test_compute_density_raises_without_a_location():
 )
 def test_convert_tracers_outside_the_anomaly_atlas(source, target):
     # GSW has no absolute salinity anomaly under the Antarctic ice sheet near
-    # the pole, so the conversion there takes the anomaly as zero
+    # the pole, so the conversion there takes the anomaly at 86 S
     ds = _make_tracer_ds()
     lon = np.array([4.6, 180.0])
     lat = np.array([-89.5, 30.0])
@@ -553,9 +553,10 @@ def test_convert_tracers_outside_the_anomaly_atlas(source, target):
     )
 
     salinity = ds.salinity.values[0, 0, 0]
+    p_dbar = ds.pressure.values[0, 0, 0] / 1e4
     if target == 'mpas-ocean':
-        expected = gsw.SP_from_SR(salinity)
+        expected = gsw.SP_from_SA(salinity, p_dbar, lon[0], -86.0)
     else:
-        expected = gsw.SR_from_SP(salinity)
+        expected = gsw.SA_from_SP(salinity, p_dbar, lon[0], -86.0)
     assert_allclose(ds_out.salinity.values[0, 0, 0], expected)
     assert np.all(np.isfinite(ds_out.temperature.values[0, 0]))
