@@ -314,7 +314,7 @@ not yet support.
 
 These tasks scale the pressure of the Ocean1 geometry in time by the factors
 in the `isomip_plus_scaling` section. `inception` grows an ice shelf from
-open ocean over 4 days. `wetting` thins the ice by 5 % and then 10 %, and
+open ocean over 4 days. `wetting` thins the ice by 1 % and then 2 %, and
 `drying` thickens it by the same amounts, in two 6-hour steps. The fractions
 of floating and grounded ice are not scaled, so the area subject to melting
 stays fixed.
@@ -360,17 +360,19 @@ inception_dates = 0001-01-01_00:00:00, 0001-01-05_00:00:00, 0001-01-09_00:00:00
 # scaling at each date
 inception_scales = 0.0, 1.0, 1.0
 
-# "drying" reference dates: the ice thickens in two 6-hour steps
+# "drying" reference dates: the ice thickens by 1 % and then 2 %, in two
+# 6-hour steps
 drying_dates = 0001-01-01_00:00:00, 0001-01-01_06:00:00, 0001-01-01_12:00:00,
                0001-01-01_18:00:00
 # scaling at each date
-drying_scales = 1.0, 1.05, 1.1, 1.1
+drying_scales = 1.0, 1.01, 1.02, 1.02
 
-# "wetting" reference dates: the ice thins in two 6-hour steps
+# "wetting" reference dates: the ice thins by 1 % and then 2 %, in two
+# 6-hour steps
 wetting_dates = 0001-01-01_00:00:00, 0001-01-01_06:00:00, 0001-01-01_12:00:00,
                 0001-01-01_18:00:00
 # scaling at each date
-wetting_scales = 1.0, 0.95, 0.9, 0.9
+wetting_scales = 1.0, 0.99, 0.98, 0.98
 ```
 
 The records must be evenly spaced, since MPAS-Ocean finds them by their
