@@ -530,3 +530,32 @@ def test_compute_density_raises_without_a_location():
             pressure=1.0e6,
             tracer_convention='mpas-ocean',
         )
+
+
+@pytest.mark.parametrize(
+    'source, target', [('teos-10', 'mpas-ocean'), ('mpas-ocean', 'teos-10')]
+)
+def test_convert_tracers_outside_the_anomaly_atlas(source, target):
+    # GSW has no absolute salinity anomaly under the Antarctic ice sheet near
+    # the pole, so the conversion there takes the anomaly as zero
+    ds = _make_tracer_ds()
+    lon = np.array([4.6, 180.0])
+    lat = np.array([-89.5, 30.0])
+    assert np.isnan(gsw.SAAR(100.0, lon[0], lat[0]))
+
+    ds_out = convert_tracers(
+        ds,
+        source=source,
+        target=target,
+        pressure=ds.pressure,
+        lon=lon,
+        lat=lat,
+    )
+
+    salinity = ds.salinity.values[0, 0, 0]
+    if target == 'mpas-ocean':
+        expected = gsw.SP_from_SR(salinity)
+    else:
+        expected = gsw.SR_from_SP(salinity)
+    assert_allclose(ds_out.salinity.values[0, 0, 0], expected)
+    assert np.all(np.isfinite(ds_out.temperature.values[0, 0]))
