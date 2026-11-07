@@ -107,12 +107,16 @@ class SshAdjustment(Step):
         ds_init = ds_init.isel(Time=0)
         ds_final = ds_final.isel(Time=-1)
 
-        on_a_sphere = is_spherical(ds_out)
+        on_a_sphere = is_spherical(ds_mesh)
 
+        # the vertical coordinate may be in the output, the mesh or, for a
+        # task that keeps the horizontal mesh separate, the initial state
         if 'minLevelCell' in ds_final:
             min_level_cell = ds_final.minLevelCell - 1
-        else:
+        elif 'minLevelCell' in ds_mesh:
             min_level_cell = ds_mesh.minLevelCell - 1
+        else:
+            min_level_cell = ds_init.minLevelCell - 1
 
         init_ssh = ds_init.ssh
         top_density = ds_final.density.isel(nVertLevels=min_level_cell)
@@ -142,7 +146,7 @@ class SshAdjustment(Step):
             ds_out['landIceDraft'] = ds_out.ssh
             # we also need to stretch layerThickness to be compatible with
             # the new SSH
-            update_layer_thickness(config, ds_out)
+            self.update_layer_thickness(ds_out)
             land_ice_pressure = ds_init.landIcePressure
         else:
             # Moving the SSH up or down by deltaSSH would change the
@@ -206,6 +210,23 @@ class SshAdjustment(Step):
                 log_file.write(f'{accel_string}\n')
 
         logger.info('   - Complete\n')
+
+    def update_layer_thickness(self, ds):
+        """
+        Update the layer thicknesses in ``ds`` to match its adjusted SSH.
+
+        By default, this uses
+        :py:func:`polaris.ocean.vertical.update_layer_thickness` with the
+        step's config.  A task whose vertical coordinate that function does
+        not support can override it.
+
+        Parameters
+        ----------
+        ds : xarray.Dataset
+            The adjusted initial state, with the new ``ssh``, modified in
+            place
+        """
+        update_layer_thickness(self.config, ds)
 
 
 def _solve_for_ssh_change(ds_mesh, ds_init, ds_output, mask):
