@@ -8,10 +8,10 @@ import json
 import os
 import re
 from dataclasses import dataclass, field
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Dict, List, Optional, Sequence, Tuple
 
 import pr_test_github as github
-from pr_test_rows import Row
+from pr_test_rows import MODEL_LABELS, Row
 
 #: version 2 lists a machine's rows in one marker; version 1 had one row
 MARKER_SCHEMA = 2
@@ -65,6 +65,171 @@ class RowResult:
     cells: List[str]
     details: Optional[str] = None
     marker: Dict[str, Any] = field(default_factory=dict)
+
+
+@dataclass
+class BaselineComparison:
+    """
+    How a suite's tasks compare with the baseline.  A baseline comparison
+    in Polaris passes only if the variables are bit-for-bit.
+
+    Attributes
+    ----------
+    suite : str
+        The suite
+
+    bit_for_bit : list of str
+        The tasks whose compared variables are bit-for-bit
+
+    differ : dict of str to list of str
+        The tasks that are not bit-for-bit, with the variables that differ
+
+    did_not_run : list of str
+        The tasks that failed to run or never ran, which have no
+        bit-for-bit result either way
+
+    not_compared : list of str
+        The tasks that ran but compare no variables with the baseline
+
+    failed_in_baseline : list of str
+        The tasks that ran but could not be compared, because they failed
+        in the baseline
+    """
+
+    suite: str
+    bit_for_bit: List[str] = field(default_factory=list)
+    differ: Dict[str, List[str]] = field(default_factory=dict)
+    did_not_run: List[str] = field(default_factory=list)
+    not_compared: List[str] = field(default_factory=list)
+    failed_in_baseline: List[str] = field(default_factory=list)
+
+
+def compare_with_baseline(
+    work_dir: str, suite: str, baseline_work_dir: Optional[str] = None
+) -> BaselineComparison:
+    """
+    Read how a suite's tasks compare with the baseline from its results
+
+    Parameters
+    ----------
+    work_dir : str
+        The suite's work directory
+
+    suite : str
+        The suite
+
+    baseline_work_dir : str, optional
+        The baseline's work directory, whose failed tasks have nothing to
+        compare with
+
+    Returns
+    -------
+    comparison : pr_test_report.BaselineComparison
+        The comparison
+    """
+    path = os.path.join(work_dir, f'{suite}_results.json')
+    with open(path, 'r', encoding='utf-8') as f:
+        results = json.load(f)
+    failed_in_baseline = _failed_tasks(baseline_work_dir, suite)
+    comparison = BaselineComparison(suite)
+    for task in results.get('tasks', []):
+        name = task['path']
+        if task.get('execution') != 'pass':
+            comparison.did_not_run.append(name)
+        elif task.get('baseline') == 'fail':
+            variables = _differing_variables(task)
+            if variables or name not in failed_in_baseline:
+                comparison.differ[name] = variables
+            else:
+                comparison.failed_in_baseline.append(name)
+        elif task.get('baseline') == 'pass':
+            comparison.bit_for_bit.append(name)
+        else:
+            comparison.not_compared.append(name)
+    return comparison
+
+
+def format_bit_for_bit(
+    rows: Sequence[Tuple[Row, Optional[BaselineComparison], str]],
+) -> str:
+    """
+    A section that says plainly which tasks differ from the baseline, and
+    on which rows, keeping tasks that did not run and rows that were not
+    compared apart
+
+    Each task is named once, with the rows it differs on, and tasks that
+    differ on the same rows share a line.  Which variables differ, and by
+    how much, is in each row's collapsed block.
+
+    Parameters
+    ----------
+    rows : list of tuple
+        Each row, its comparison with the baseline, or ``None`` if it was
+        not compared, and why not
+
+    Returns
+    -------
+    text : str
+        The section
+    """
+    compared = [(row, comparison) for row, comparison, _ in rows if comparison]
+    compared_rows = [row for row, _ in compared]
+    differ = _rows_by_task(compared, lambda c: list(c.differ))
+    did_not_run = _rows_by_task(compared, lambda c: c.did_not_run)
+    failed_in_baseline = _rows_by_task(
+        compared, lambda c: c.failed_in_baseline
+    )
+    paragraphs = []
+    if not compared:
+        paragraphs.append('Nothing was compared with a baseline.')
+    elif not differ:
+        identical = len(
+            {
+                task
+                for _, comparison in compared
+                for task in comparison.bit_for_bit
+            }
+        )
+        paragraphs.append(
+            f'Every task compared is bit-for-bit with the baseline '
+            f'({_count(identical, "task")}, on '
+            f'{_count(len(compared), "row")}).'
+        )
+    else:
+        verb = 'differs' if len(differ) == 1 else 'differ'
+        paragraphs.append(
+            f'**{_count(len(differ), "task")} {verb} from the baseline:**\n\n'
+            + _list_tasks(differ, compared_rows, len(rows))
+        )
+    if did_not_run:
+        they = 'it has' if len(did_not_run) == 1 else 'they have'
+        paragraphs.append(
+            f'{_count(len(did_not_run), "task")} did not run, so {they} '
+            f'nothing to compare:\n\n'
+            + _list_tasks(did_not_run, compared_rows, len(rows))
+        )
+    if failed_in_baseline:
+        paragraphs.append(
+            f'{_count(len(failed_in_baseline), "task")} failed in the '
+            f'baseline, so there is nothing to compare with:\n\n'
+            + _list_tasks(failed_in_baseline, compared_rows, len(rows))
+        )
+    by_reason: Dict[str, List[Row]] = {}
+    for row, comparison, reason in rows:
+        if comparison is None:
+            by_reason.setdefault(reason, []).append(row)
+    if by_reason:
+        count = sum(len(reason_rows) for reason_rows in by_reason.values())
+        verb = 'was' if count == 1 else 'were'
+        paragraphs.append(
+            f'{_count(count, "row")} {verb} not compared:\n\n'
+            + '\n'.join(
+                f'- {"; ".join(row.label for row in reason_rows)}, because '
+                f'{reason}.'
+                for reason, reason_rows in by_reason.items()
+            )
+        )
+    return '### Differences from the baseline\n\n' + '\n\n'.join(paragraphs)
 
 
 def make_marker(prefix: str, **contents: Any) -> str:
@@ -399,12 +564,7 @@ def summarize_suite(
         execution = task.get('execution')
         baseline = task.get('baseline')
         if baseline == 'fail' and task['path'] in failed_in_baseline:
-            diffs_by_variable = (task.get('baseline_diffs') or {}).values()
-            if not any(
-                _is_nonzero(norm)
-                for norms in diffs_by_variable
-                for norm in norms.values()
-            ):
+            if not _differing_variables(task):
                 baseline = None
                 not_compared += 1
         if baseline == 'fail':
@@ -473,6 +633,16 @@ def _failed_tasks(work_dir: Optional[str], suite: str) -> List[str]:
     ]
 
 
+def _differing_variables(task: Dict[str, Any]) -> List[str]:
+    """The variables with a nonzero difference from the baseline"""
+    diffs = task.get('baseline_diffs') or {}
+    return sorted(
+        variable
+        for variable, norms in diffs.items()
+        if any(_is_nonzero(norm) for norm in norms.values())
+    )
+
+
 def _is_nonzero(norm):
     """Whether a difference norm, which may be NaN or infinite, is nonzero"""
     if isinstance(norm, str):
@@ -483,3 +653,53 @@ def _is_nonzero(norm):
 def _count(number, noun):
     """A count with its noun, such as ``1 task`` or ``3 tasks``"""
     return f'{number} {noun}' if number == 1 else f'{number} {noun}s'
+
+
+def _list_tasks(by_task, compared_rows, row_count):
+    """A line for each set of rows, with the tasks given for them"""
+    lines = []
+    for tasks, task_rows in _group_by_rows(by_task):
+        names = ', '.join(f'`{task}`' for task in tasks)
+        where = _name_rows(task_rows, compared_rows, row_count)
+        lines.append(f'- {names}: on {where}')
+    return '\n'.join(lines)
+
+
+def _rows_by_task(compared, get_tasks):
+    """
+    Each task that ``get_tasks`` gives for a row's comparison, in the order
+    first seen, with the rows it was given for
+    """
+    by_task: Dict[str, List[Row]] = {}
+    for row, comparison in compared:
+        for task in get_tasks(comparison):
+            by_task.setdefault(task, []).append(row)
+    return by_task
+
+
+def _group_by_rows(by_task):
+    """The tasks that share the same rows, in the order first seen"""
+    groups: Dict[Tuple[str, ...], Tuple[List[str], List[Row]]] = {}
+    for task, task_rows in by_task.items():
+        key = tuple(row.name for row in task_rows)
+        groups.setdefault(key, ([], task_rows))[0].append(task)
+    return list(groups.values())
+
+
+def _name_rows(task_rows, compared_rows, row_count):
+    """
+    The rows, as ``every row``, ``every Omega row`` or their labels, out
+    of the rows that were compared, adding ``compared`` when there are
+    rows that were not
+    """
+    suffix = '' if len(compared_rows) == row_count else ' compared'
+    names = {row.name for row in task_rows}
+    if len(compared_rows) > 1 and names == {row.name for row in compared_rows}:
+        return f'every row{suffix}'
+    models = {row.model for row in compared_rows}
+    model = task_rows[0].model
+    if len(models) > 1 and model is not None:
+        of_model = {row.name for row in compared_rows if row.model == model}
+        if len(of_model) > 1 and names == of_model:
+            return f'every {MODEL_LABELS[model]} row{suffix}'
+    return '; '.join(row.label for row in task_rows)

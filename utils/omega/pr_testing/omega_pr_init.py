@@ -218,7 +218,10 @@ def initiate(
         os.path.join(work_dir, 'test'),
         test_start,
         test_merges
-        + [(number, heads[number], 'for testing') for number in merge_prs],
+        + [
+            (number, heads[number], 'into the test commit')
+            for number in merge_prs
+        ],
     )
     baseline_commit = baseline_start
     if baseline_merge_prs:
@@ -227,7 +230,7 @@ def initiate(
             os.path.join(work_dir, 'baseline'),
             baseline_start,
             [
-                (number, heads[number], 'for testing')
+                (number, heads[number], 'into the baseline commit')
                 for number in baseline_merge_prs
             ],
         )
@@ -558,7 +561,8 @@ def _make_merges(repo, worktree, start, merges):
         git_tools.remove_worktree(repo, worktree)
     git_tools.add_worktree(repo, start, worktree)
     for number, sha, where in merges:
-        message = f'Test merge of {UPSTREAM}#{number} ({sha[:10]}) {where}'
+        # no PR number: GitHub would list the commit on the PR
+        message = f'Test merge of {sha[:10]} {where}'
         conflicts = git_tools.merge(worktree, sha, message)
         if conflicts is not None:
             raise InitError(
@@ -579,7 +583,7 @@ def _commit_manifest(repo, worktree, manifest):
             '--quiet',
             '--no-verify',
             '-m',
-            f'Add the manifest for testing {UPSTREAM}#{manifest.pull_request}',
+            'Add the manifest for this test branch',
             '-m',
             'Temporary.  Testers build the parent of this commit.',
         ],
