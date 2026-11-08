@@ -1,0 +1,177 @@
+#!/bin/bash
+# Set up the next job of a MISOMIP {{ experiment }} case: how many months it
+# runs and whether the ocean's daily means hold 3D fields.  CIME runs this
+# script after each job, as the case's POSTRUN_SCRIPT, with the case
+# directory as its argument, before it resubmits the case.  create_case.sh
+# runs it once with --start before the first job.  Written by Polaris.
+#
+# The months run so far come from the coupler's restart pointer and the
+# case's start, not from a count of jobs, so a rerun or a manual resubmit
+# gets the right job.  Each change is logged in next_segment.log in the case
+# directory.  The script exits with an error, which stops the chain, if it
+# cannot tell the date, finds a date that does not start a segment or cannot
+# copy the streams file.  With a file next_segment.skip in the case
+# directory, it changes nothing.  After its own work, it runs postrun.local
+# in the case directory, if there is one, with the case directory as its
+# argument.
+
+set -euo pipefail
+
+if [ $# -lt 1 ] || [ $# -gt 2 ] || { [ $# -eq 2 ] && [ "$2" != --start ]; }
+then
+    echo "usage: $0 <case directory> [--start]" >&2
+    exit 1
+fi
+case_dir="$(cd "$1" && pwd)"
+start=false
+if [ $# -eq 2 ]; then
+    start=true
+fi
+
+# The months of the run, and the months run before each segment, its months
+# and whether the ocean's daily means hold 3D fields in it
+run_months={{ run_months }}
+segment_starts=({{ segment_starts }})
+segment_months=({{ segment_months }})
+segment_daily_3d=({{ segment_daily_3d }})
+
+streams_dir="$case_dir/{{ streams_dir }}"
+target="$case_dir/SourceMods/src.mpaso/streams.ocean"
+log="$case_dir/next_segment.log"
+
+cd "$case_dir"
+
+say () {
+    echo "$(date '+%Y-%m-%d %H:%M:%S') $*" | tee -a "$log"
+}
+
+fail () {
+    say "ERROR: $*" >&2
+    exit 1
+}
+
+# months since the start of year 0 of a date YYYY-MM-01
+to_months () {
+    if [[ ! $1 =~ ^([0-9]+)-([0-9]{2})-01$ ]]; then
+        return 1
+    fi
+    echo $(( 10#${BASH_REMATCH[1]} * 12 + 10#${BASH_REMATCH[2]} - 1 ))
+}
+
+run_postrun_local () {
+    if [ "$start" = true ]; then
+        return
+    fi
+    local postrun="$case_dir/postrun.local"
+    if [ -e "$postrun" ]; then
+        if [ ! -x "$postrun" ]; then
+            fail "$postrun is not executable."
+        fi
+        say "Running $postrun"
+        "$postrun" "$case_dir"
+    fi
+}
+
+if [ -e "$case_dir/next_segment.skip" ]; then
+    say "next_segment.skip is present, so nothing is changed."
+    run_postrun_local
+    exit 0
+fi
+
+run_type="$(./xmlquery --value RUN_TYPE)"
+case $run_type in
+    startup) start_date="$(./xmlquery --value RUN_STARTDATE)" ;;
+    branch) start_date="$(./xmlquery --value RUN_REFDATE)" ;;
+    *) fail "The case's RUN_TYPE is $run_type, not startup or branch." ;;
+esac
+start_month=$(to_months "$start_date") \
+    || fail "The case starts on $start_date, not the first of a month."
+
+if [ "$start" = true ]; then
+    done_months=0
+else
+    pointer="$(./xmlquery --value RUNDIR)/rpointer.drv"
+    if [ ! -f "$pointer" ]; then
+        fail "There is no restart pointer $pointer."
+    fi
+    # The coupler pads the file name with spaces.
+    restart="$(head -n 1 "$pointer" | tr -d "[:space:]")"
+    if [[ ! $restart =~ \.cpl\.r\.([0-9]+-[0-9]{2}-[0-9]{2})-00000\.nc$ ]]
+    then
+        fail "No date at midnight in the restart pointer: $restart"
+    fi
+    restart_date=${BASH_REMATCH[1]}
+    restart_month=$(to_months "$restart_date") \
+        || fail "The restart $restart is not on the first of a month."
+    done_months=$(( restart_month - start_month ))
+fi
+
+resubmit="$(./xmlquery --value RESUBMIT)"
+if [ "$done_months" -eq "$run_months" ]; then
+    say "All $run_months months are run."
+    if [ "$resubmit" -ne 0 ]; then
+        ./xmlchange RESUBMIT=0
+        say "RESUBMIT: $resubmit -> 0"
+    fi
+    run_postrun_local
+    exit 0
+fi
+
+index=-1
+for i in "${!segment_starts[@]}"; do
+    if [ "${segment_starts[$i]}" -eq "$done_months" ]; then
+        index=$i
+    fi
+done
+if [ "$index" -lt 0 ]; then
+    fail "$done_months months are run, which does not start a segment of" \
+        "this case: ${segment_starts[*]} months."
+fi
+count={{ segment_count }}
+months=${segment_months[$index]}
+
+# a job resubmits while RESUBMIT is above 0, and each resubmission lowers it
+# by 1.  The first job is submitted by hand.
+if [ "$start" = true ]; then
+    jobs_left=$(( count - index - 1 ))
+else
+    jobs_left=$(( count - index ))
+fi
+if [ "$resubmit" -gt "$jobs_left" ]; then
+    ./xmlchange "RESUBMIT=$jobs_left"
+    say "RESUBMIT: $resubmit -> $jobs_left"
+fi
+
+stop_option="$(./xmlquery --value STOP_OPTION)"
+if [ "$stop_option" != nmonths ]; then
+    fail "STOP_OPTION is $stop_option, not nmonths."
+fi
+stop_n="$(./xmlquery --value STOP_N)"
+if [ "$stop_n" != "$months" ]; then
+    ./xmlchange "STOP_N=$months"
+    say "STOP_N: $stop_n -> $months"
+fi
+
+if [ "${segment_daily_3d[$index]}" = 1 ]; then
+    variant=with_daily_3d
+else
+    variant=without_daily_3d
+fi
+source="$streams_dir/streams.ocean.$variant"
+if [ -L "$case_dir/SourceMods" ]; then
+    fail "SourceMods is a link, as in a keepexe clone, so changing it would" \
+        "change the streams of every case that shares it.  Replace the" \
+        "link with a copy first."
+fi
+if [ ! -f "$source" ]; then
+    fail "There is no streams file $source."
+fi
+if ! cmp -s "$source" "$target"; then
+    mkdir -p "$(dirname "$target")" || fail "Cannot make $(dirname "$target")."
+    cp "$source" "$target" || fail "Cannot copy $source to $target."
+    say "streams.ocean: $variant"
+fi
+
+say "$done_months of $run_months months are run.  Job $(( index + 1 )) of" \
+    "$count runs $months months, $variant."
+run_postrun_local

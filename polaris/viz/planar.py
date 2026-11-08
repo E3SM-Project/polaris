@@ -4,6 +4,7 @@ import cmocean  # noqa: F401
 import matplotlib
 import mosaic
 import numpy as np
+from matplotlib.collections import LineCollection
 from matplotlib.colors import LogNorm
 from matplotlib.figure import Figure
 
@@ -26,6 +27,8 @@ def plot_horiz_field(  # noqa: C901
     cmap_set_over=None,
     cmap_scale='linear',
     cmap_title=None,
+    norm=None,
+    cbar_ticks=None,
     figsize=None,
     vert_dim='nVertLevels',
     field_mask=None,
@@ -89,6 +92,14 @@ def plot_horiz_field(  # noqa: C901
 
     cmap_scale : {'log', 'linear'}, optional
         Whether the colormap is logarithmic or linear
+
+    norm : matplotlib.colors.Normalize, optional
+        A norm that maps values to colors, such as a
+        ``matplotlib.colors.BoundaryNorm`` for uneven bins, in place of
+        ``vmin``, ``vmax`` and ``cmap_scale``
+
+    cbar_ticks : list of float, optional
+        The color bar's ticks
 
     cmap_title : str, optional
         Title for color bar
@@ -184,7 +195,11 @@ def plot_horiz_field(  # noqa: C901
             pcolor_kwargs['edgecolor'] = 'black'
             pcolor_kwargs['linewidth'] = 0.25
 
-        if cmap_scale == 'log':
+        if norm is not None:
+            pcolor_kwargs['norm'] = norm
+            pcolor_kwargs.pop('vmin', None)
+            pcolor_kwargs.pop('vmax', None)
+        elif cmap_scale == 'log':
             pcolor_kwargs['norm'] = LogNorm(vmin=vmin, vmax=vmax, clip=False)
             pcolor_kwargs.pop('vmin', None)
             pcolor_kwargs.pop('vmax', None)
@@ -233,7 +248,9 @@ def plot_horiz_field(  # noqa: C901
         ax.xaxis.set_major_formatter(lambda x, pos: f'{x / 1e3:g}')
         ax.yaxis.set_major_formatter(lambda x, pos: f'{x / 1e3:g}')
 
-        cbar = fig.colorbar(collection, extend='both', shrink=0.7, ax=ax)
+        cbar = fig.colorbar(
+            collection, extend='both', shrink=0.7, ax=ax, ticks=cbar_ticks
+        )
         if cmap_title is not None:
             cbar.set_label(cmap_title)
 
@@ -265,3 +282,200 @@ def plot_horiz_field(  # noqa: C901
             fig.savefig(out_file_name, bbox_inches='tight', pad_inches=0.2)
 
         return descriptor
+
+
+def plot_mask_boundary(
+    ax, ds_mesh, cell_mask, color='black', linewidth=1.0, label=None
+):
+    """
+    Draw the boundary between cells inside and outside a mask, such as a
+    grounding line or an ice front, along the edges between them
+
+    Parameters
+    ----------
+    ax : matplotlib.axes.Axes
+        The axes to draw on
+
+    ds_mesh : xarray.Dataset
+        A planar mesh with ``cellsOnEdge``, ``verticesOnEdge``, ``xVertex``
+        and ``yVertex``
+
+    cell_mask : xarray.DataArray
+        A ``bool`` mask on cells
+
+    color : str, optional
+        The line's color
+
+    linewidth : float, optional
+        The line's width
+
+    label : str, optional
+        The legend entry for the line
+    """
+    cells = ds_mesh.cellsOnEdge.values - 1
+    mask = np.asarray(cell_mask.values, dtype=bool)
+    interior = np.all(cells >= 0, axis=1)
+    on_boundary = np.zeros(cells.shape[0], dtype=bool)
+    on_boundary[interior] = (
+        mask[cells[interior, 0]] != mask[cells[interior, 1]]
+    )
+    vertices = ds_mesh.verticesOnEdge.values[on_boundary] - 1
+    x_vertex = ds_mesh.xVertex.values
+    y_vertex = ds_mesh.yVertex.values
+    segments = np.stack(
+        [
+            np.stack([x_vertex[vertices[:, 0]], y_vertex[vertices[:, 0]]], 1),
+            np.stack([x_vertex[vertices[:, 1]], y_vertex[vertices[:, 1]]], 1),
+        ],
+        axis=1,
+    )
+    collection = LineCollection(
+        list(segments), colors=color, linewidths=linewidth, label=label
+    )
+    ax.add_collection(collection)
+
+
+def plot_horiz_comparison(
+    ds_meshes,
+    fields,
+    titles,
+    out_file_name,
+    vmin=None,
+    vmax=None,
+    cmap=None,
+    cmap_title=None,
+    cmap_scale='linear',
+    norm=None,
+    cbar_ticks=None,
+    field_masks=None,
+    include_difference=True,
+    diff_cmap='cmo.balance',
+    boundaries=None,
+    suptitle=None,
+    panel_size=(8.0, 2.0),
+):
+    """
+    Plot fields from two or more runs in stacked panels with one color
+    scale, and their difference if they share a mesh
+
+    Parameters
+    ----------
+    ds_meshes : list of xarray.Dataset
+        The planar mesh of each field.  Fields on different meshes, such as
+        two resolutions, are drawn side by side without a difference.
+
+    fields : list of xarray.DataArray
+        The fields, on cells or vertices
+
+    titles : list of str
+        The title of each panel
+
+    out_file_name : str
+        The image file to write
+
+    vmin, vmax : float, optional
+        The color range of the fields, by default the range of all of them
+
+    cmap : str, optional
+        The color map of the fields
+
+    cmap_title : str, optional
+        The label of the color bars, with units
+
+    cmap_scale : {'linear', 'log'}, optional
+        The scale of the fields' color map
+
+    norm : matplotlib.colors.Normalize, optional
+        A norm shared by the fields' panels, in place of ``vmin``, ``vmax``
+        and ``cmap_scale``
+
+    cbar_ticks : list of float, optional
+        The ticks of the fields' color bars
+
+    field_masks : list of xarray.DataArray, optional
+        Where each field is valid
+
+    include_difference : bool, optional
+        Whether to add a panel with the second field less the first, which
+        needs the first two fields on the same mesh
+
+    diff_cmap : str, optional
+        The color map of the difference, centered on zero
+
+    boundaries : list of xarray.DataArray, optional
+        Cell masks whose boundaries are drawn in every panel of the same
+        mesh, such as the floating ice
+
+    suptitle : str, optional
+        A title over all the panels
+
+    panel_size : tuple of float, optional
+        The width and height of each panel in inches
+    """
+    if field_masks is None:
+        field_masks = [None] * len(fields)
+    if vmin is None:
+        vmin = min(float(field.min()) for field in fields)
+    if vmax is None:
+        vmax = max(float(field.max()) for field in fields)
+    panels = list(zip(ds_meshes, fields, titles, field_masks, strict=True))
+    same_mesh = ds_meshes[0] is ds_meshes[1] if len(ds_meshes) > 1 else False
+    difference = None
+    if include_difference and same_mesh:
+        difference = fields[1] - fields[0]
+
+    count = len(panels) + (difference is not None)
+    with mplstyle_context():
+        fig = Figure(figsize=(panel_size[0], panel_size[1] * count))
+        axes = [fig.add_subplot(count, 1, index + 1) for index in range(count)]
+        descriptors: dict = dict()
+        for ax, (ds_mesh, field, title, mask) in zip(
+            axes, panels, strict=False
+        ):
+            descriptor = descriptors.get(id(ds_mesh))
+            descriptors[id(ds_mesh)] = plot_horiz_field(
+                ds_mesh,
+                field,
+                ax=ax,
+                vmin=vmin,
+                vmax=vmax,
+                cmap=cmap,
+                cmap_scale=cmap_scale,
+                cmap_title=cmap_title,
+                norm=norm,
+                cbar_ticks=cbar_ticks,
+                field_mask=mask,
+                descriptor=descriptor,
+            )
+            ax.set_title(title)
+            _draw_boundaries(ax, ds_mesh, boundaries)
+        if difference is not None:
+            limit = float(np.nanmax(np.abs(difference.values)))
+            limit = limit if limit > 0.0 else 1.0
+            ax = axes[-1]
+            mask = field_masks[0]
+            plot_horiz_field(
+                ds_meshes[0],
+                difference,
+                ax=ax,
+                vmin=-limit,
+                vmax=limit,
+                cmap=diff_cmap,
+                cmap_title=cmap_title,
+                field_mask=mask,
+                descriptor=descriptors[id(ds_meshes[0])],
+            )
+            ax.set_title(f'{titles[1]} minus {titles[0]}')
+            _draw_boundaries(ax, ds_meshes[0], boundaries)
+        if suptitle is not None:
+            fig.suptitle(suptitle)
+        fig.savefig(out_file_name, bbox_inches='tight', pad_inches=0.2)
+
+
+def _draw_boundaries(ax, ds_mesh, boundaries):
+    """Draw the boundaries of masks on the panel's mesh"""
+    if boundaries is None:
+        return
+    for mask in boundaries:
+        if mask.sizes['nCells'] == ds_mesh.sizes['nCells']:
+            plot_mask_boundary(ax, ds_mesh, mask, linewidth=0.75)

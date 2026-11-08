@@ -6,8 +6,10 @@ from mpas_tools.planar_hex import make_planar_hex_mesh
 from polaris.mesh.vector import compute_edge_normal_vec
 from polaris.ocean.overturning import (
     bin_line_transport,
+    compute_line_interfaces,
     compute_line_transport,
     compute_overturning,
+    compute_overturning_from_edge_transport,
     get_line_edges,
     interp_cell_to_line_edges,
 )
@@ -231,3 +233,131 @@ def test_bins_must_increase(periodic_mesh):
 def test_unknown_coordinate_is_an_error(periodic_mesh):
     with pytest.raises(ValueError, match='Unexpected line coordinate'):
         get_line_edges(periodic_mesh, 'z', 0.0)  # type: ignore[arg-type]
+
+
+def test_line_interfaces_stack_down_from_the_ssh(channel_mesh):
+    """Layers stack down from the sea surface, which is the draft under ice,
+    and edges take the mean of their two cells."""
+    line = get_line_edges(channel_mesh, 'x', float(channel_mesh.xCell.mean()))
+    n_cells = channel_mesh.sizes['nCells']
+    ssh = xr.DataArray(-100.0 * np.ones(n_cells), dims='nCells')
+    thickness = xr.DataArray(
+        np.tile([10.0, 20.0], (n_cells, 1)), dims=('nCells', 'nVertLevels')
+    )
+
+    z_top, z_bottom = compute_line_interfaces(line, ssh, thickness)
+
+    np.testing.assert_allclose(z_top.isel(nLineEdges=0), [-100.0, -110.0])
+    np.testing.assert_allclose(z_bottom.isel(nLineEdges=0), [-110.0, -130.0])
+
+
+def test_layers_missing_have_no_thickness(channel_mesh):
+    # E3SM's monthly means have NaN in layers outside a cell's valid range,
+    # as above the top layer under an ice shelf
+    line = get_line_edges(channel_mesh, 'x', 3.5 * DC)
+    ssh = xr.zeros_like(channel_mesh.xCell) - 50.0
+    thickness = xr.ones_like(channel_mesh.xCell) * xr.DataArray(
+        [np.nan, 5.0, 5.0], dims='nVertLevels'
+    )
+    z_top, z_bottom = compute_line_interfaces(line, ssh, thickness)
+    np.testing.assert_allclose(z_top.isel(nLineEdges=0), [-50.0, -50.0, -55.0])
+    np.testing.assert_allclose(
+        z_bottom.isel(nLineEdges=0), [-50.0, -55.0, -60.0]
+    )
+
+
+def test_a_layer_s_transport_is_integrated_up_to_each_elevation():
+    """One edge with two layers: 1 m3 s-1 from 0 to -10 m and 2 m3 s-1 from
+    -10 to -30 m.  The stream function is minus the transport below each
+    elevation, the full layers and the part of the layer it falls in, so
+    the transport per unit height is minus its derivative in z"""
+    dims = ('nLineEdges', 'nVertLevels')
+    transport = xr.DataArray([[1.0, 2.0]], dims=dims)
+    z_top = xr.DataArray([[0.0, -10.0]], dims=dims)
+    z_bottom = xr.DataArray([[-10.0, -30.0]], dims=dims)
+    z = np.array([5.0, 0.0, -5.0, -10.0, -20.0, -30.0, -40.0])
+
+    psi = compute_overturning_from_edge_transport(
+        transport, z_top, z_bottom, z
+    )
+
+    np.testing.assert_allclose(
+        psi.values, [-3.0, -3.0, -2.5, -2.0, -1.0, 0.0, 0.0]
+    )
+    np.testing.assert_allclose(psi.zInterface.values, z)
+
+
+def test_the_boundary_equals_the_sum_over_the_region_s_cells(channel_mesh):
+    """With tilted layers, each cell's face integrals to each elevation,
+    summed over the cells west of a line, leave only the line's edges: each
+    interior face's integral is shared by its two cells"""
+    rng = np.random.default_rng(seed=11)
+    n_cells = channel_mesh.sizes['nCells']
+    cells = channel_mesh.cellsOnEdge.values - 1
+    interior = np.flatnonzero(np.all(cells >= 0, axis=1))
+    # layers that tilt from cell to cell, under an ssh that does too
+    ssh = xr.DataArray(rng.uniform(-40.0, 0.0, n_cells), dims='nCells')
+    thickness = xr.DataArray(
+        rng.uniform(5.0, 30.0, (n_cells, 3)), dims=('nCells', 'nVertLevels')
+    )
+    flux = xr.DataArray(
+        rng.normal(size=(channel_mesh.sizes['nEdges'], 3)),
+        dims=('nEdges', 'nVertLevels'),
+    )
+    z = -5.0 * np.arange(30)
+
+    # every interior face, from its first cell to its second
+    faces = xr.Dataset(
+        dict(
+            edgeIndex=('nLineEdges', interior),
+            cellsOnLineEdge=(('nLineEdges', 'TWO'), cells[interior]),
+            sign=('nLineEdges', np.ones(len(interior))),
+            dvEdge=('nLineEdges', channel_mesh.dvEdge.values[interior]),
+        )
+    )
+    face_transport = (
+        flux.isel(nEdges=faces.edgeIndex) * faces.sign * faces.dvEdge
+    )
+    face_top, face_bottom = compute_line_interfaces(faces, ssh, thickness)
+    face_integral = compute_overturning_from_edge_transport(
+        face_transport.expand_dims(face=1).transpose(
+            'nLineEdges', 'face', 'nVertLevels'
+        ),
+        face_top.expand_dims(face=1).transpose(
+            'nLineEdges', 'face', 'nVertLevels'
+        ),
+        face_bottom.expand_dims(face=1).transpose(
+            'nLineEdges', 'face', 'nVertLevels'
+        ),
+        z,
+        edge_dim='face',
+    ).values
+
+    for value in np.unique(channel_mesh.xCell.values)[1:-1] + 1.0:
+        west = channel_mesh.xCell.values < value
+        region = np.zeros(len(z))
+        for index, (first, second) in enumerate(cells[interior]):
+            # out of the first cell, into the second
+            region += west[first] * face_integral[index]
+            region -= west[second] * face_integral[index]
+        line = get_line_edges(channel_mesh, 'x', value)
+        transport = flux.isel(nEdges=line.edgeIndex) * line.sign * line.dvEdge
+        z_top, z_bottom = compute_line_interfaces(line, ssh, thickness)
+        boundary = compute_overturning_from_edge_transport(
+            transport, z_top, z_bottom, z
+        )
+        np.testing.assert_allclose(boundary.values, region, atol=1e-9 * DC)
+
+
+def test_the_integral_keeps_time():
+    dims = ('Time', 'nLineEdges', 'nVertLevels')
+    transport = xr.DataArray([[[1.0]], [[2.0]]], dims=dims)
+    z_top = xr.DataArray([[0.0]], dims=('nLineEdges', 'nVertLevels'))
+    z_bottom = xr.DataArray([[-10.0]], dims=('nLineEdges', 'nVertLevels'))
+    psi = compute_overturning_from_edge_transport(
+        transport, z_top, z_bottom, np.array([0.0, -5.0, -10.0])
+    )
+    assert psi.dims == ('Time', 'nZInterfaces')
+    np.testing.assert_allclose(
+        psi.values, [[-1.0, -0.5, 0.0], [-2.0, -1.0, 0.0]]
+    )

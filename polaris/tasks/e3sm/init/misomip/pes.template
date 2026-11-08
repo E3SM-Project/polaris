@@ -1,0 +1,26 @@
+<?xml version="1.0"?>
+<config_pes>
+  <grid name="any">
+    <mach name="any">
+      <pes compset="any" pesize="any">
+        <comment>MISOMIP: {{ tasks }} tasks of 1 thread, {{ tasks_per_node }} a node, MALI on them in turn</comment>
+        <MAX_MPITASKS_PER_NODE>{{ tasks_per_node }}</MAX_MPITASKS_PER_NODE>
+        <ntasks>
+{%- for component in components %}
+          <ntasks_{{ component }}>{{ tasks }}</ntasks_{{ component }}>
+{%- endfor %}
+        </ntasks>
+        <nthrds>
+{%- for component in components %}
+          <nthrds_{{ component }}>1</nthrds_{{ component }}>
+{%- endfor %}
+        </nthrds>
+        <rootpe>
+{%- for component in components %}
+          <rootpe_{{ component }}>0</rootpe_{{ component }}>
+{%- endfor %}
+        </rootpe>
+      </pes>
+    </mach>
+  </grid>
+</config_pes>

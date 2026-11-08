@@ -104,6 +104,24 @@ plot_horiz_field(ds_mesh, ds['normalVelocity'], 'plots/normalVelocity.png',
 ...
 ```
 
+{py:func}`polaris.viz.planar.plot_horiz_comparison()` stacks fields from two
+or more runs in panels with one color scale.  If the first two share a mesh
+(the same dataset object), a last panel shows their difference on a scale
+centered on zero.  Fields on different meshes, such as two resolutions, are
+drawn without a difference.  {py:func}`polaris.viz.planar.plot_mask_boundary()`
+draws the boundary of a cell mask along the edges between cells inside and
+outside it, such as a grounding line or an ice front.
+
+(dev-visualization-time-series)=
+
+## time series
+
+{py:func}`polaris.viz.time_series.plot_time_series()` plots a list of
+{py:class}`polaris.viz.time_series.Series` as lines.  Members of an ensemble,
+passed as `ensemble`, are drawn as thin grey lines over the range between
+their minimum and maximum at each time, for comparing runs with published
+results.
+
 (dev-visualization-global)=
 
 ## global lat/lon plots

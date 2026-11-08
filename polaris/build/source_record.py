@@ -1,9 +1,14 @@
 import os
 from typing import Any, Dict, Optional
 
-# the records that polaris/build/build_omega.template and
-# polaris/build/build_mpas_ocean.template write into the build directory
-SOURCE_RECORD_FILENAMES = ('omega_source.txt', 'mpas_ocean_source.txt')
+# the records that polaris/build/build_omega.template,
+# polaris/build/build_mpas_ocean.template and polaris/build/build_mali.template
+# write into the build directory
+SOURCE_RECORD_FILENAMES = (
+    'omega_source.txt',
+    'mpas_ocean_source.txt',
+    'mali_source.txt',
+)
 
 
 def read_source_record(build_dir: Optional[str]) -> Optional[Dict[str, Any]]:
@@ -17,16 +22,17 @@ def read_source_record(build_dir: Optional[str]) -> Optional[Dict[str, Any]]:
     Parameters
     ----------
     build_dir : str, optional
-        The build directory of Omega or MPAS-Ocean
+        The build directory of Omega, MPAS-Ocean or MALI
 
     Returns
     -------
     record : dict, optional
         The record, with the source tree's path (``source``), its full hash
         (``hash``), the output of ``git describe`` (``describe``), whether
-        the build started from an empty build directory (``clean_build``)
-        and its last five first-parent commits (``log``), or ``None`` if the
-        build directory has no record
+        the build started from an empty build directory (``clean_build``),
+        whether a MALI build has Albany (``albany``, ``None`` for other
+        models) and its last five first-parent commits (``log``), or ``None``
+        if the build directory has no record
     """
     if not build_dir:
         return None
@@ -45,6 +51,7 @@ def _parse_source_record(path: str) -> Optional[Dict[str, Any]]:
         'hash': None,
         'describe': None,
         'clean_build': False,
+        'albany': None,
         'log': [],
     }
     try:
@@ -68,6 +75,8 @@ def _parse_source_record(path: str) -> Optional[Dict[str, Any]]:
             in_log = True
         elif key == 'clean_build':
             record['clean_build'] = value == 'true'
+        elif key == 'albany':
+            record['albany'] = value == 'true'
         elif key in record:
             record[key] = value or None
 

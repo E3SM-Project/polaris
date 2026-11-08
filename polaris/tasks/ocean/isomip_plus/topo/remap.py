@@ -3,7 +3,8 @@ import xarray as xr
 from mpas_tools.io import open_dataset, write_netcdf
 
 from polaris import Step
-from polaris.constants import get_constant
+from polaris.ocean.ice_shelf import compute_land_ice_pressure_from_thickness
+from polaris.tasks.ocean.isomip_plus.topo.calving import calve_thin_ice
 
 
 class TopoRemap(Step):
@@ -13,7 +14,7 @@ class TopoRemap(Step):
 
     """
 
-    def __init__(self, component, name, subdir, config, topo_map, experiment):
+    def __init__(self, component, name, subdir, topo_map, experiment):
         """
         Create the step
 
@@ -28,9 +29,6 @@ class TopoRemap(Step):
         subdir : str
             The subdirectory in the test case's work directory for the step
 
-        config : polaris.config.PolarisConfigParser
-            A shared config parser
-
         topo_map : polaris.tasks.ocean.isomip_plus.topo_map.TopoMap
             The step for creating a mapping files, also used to remap data
             from the MPAS mesh to a lon-lat grid
@@ -39,8 +37,6 @@ class TopoRemap(Step):
             The ISOMIP+ experiment
         """
         super().__init__(component=component, name=name, subdir=subdir)
-
-        self.set_shared_config(config, link='isomip_plus_topo.cfg')
 
         geom_filenames = dict(
             ocean1='Ocean1_input_geom_v1.01.nc',
@@ -70,25 +66,33 @@ class TopoRemap(Step):
         self._renormalize()
 
     def _preprocess(self):
-        ice_density = self.config.getfloat('isomip_plus', 'ice_density')
+        config = self.config
+        ice_density = config.getfloat('isomip_plus_topo', 'ice_density')
+        min_ice_thickness = config.getfloat(
+            'isomip_plus_topo', 'min_ice_thickness'
+        )
 
         with xr.open_dataset('topography.nc') as ds_in:
             if 't' in ds_in.dims:
                 ds_in = ds_in.chunk({'t': 1})
+            ds_in = calve_thin_ice(ds_in, min_ice_thickness)
             ds_in['iceThickness'] = ds_in.upperSurface - ds_in.lowerSurface
             ds_in.iceThickness.attrs['description'] = 'ice thickness'
             ds_in.iceThickness.attrs['units'] = 'm'
 
-            gravity = get_constant('standard_acceleration_of_gravity')
             ds_in['landIcePressure'] = (
-                ice_density * gravity * ds_in.iceThickness
+                compute_land_ice_pressure_from_thickness(
+                    land_ice_thickness=ds_in.iceThickness,
+                    modify_mask=ds_in.iceThickness > 0.0,
+                    land_ice_density=ice_density,
+                )
             )
-            ds_in.iceThickness.attrs['description'] = (
+            ds_in.landIcePressure.attrs['description'] = (
                 'pressure at the ice base'
             )
-            ds_in.iceThickness.attrs['units'] = 'Pa'
+            ds_in.landIcePressure.attrs['units'] = 'Pa'
 
-            ds_in.drop_vars(['upperSurface'])
+            ds_in = ds_in.drop_vars(['upperSurface'])
             ds_in = ds_in.rename(
                 {
                     'floatingMask': 'landIceFloatingFraction',
@@ -143,12 +147,15 @@ class TopoRemap(Step):
         with open_dataset('topography_rename.nc') as ds_out:
             if 'Time' in ds_out.dims:
                 ds_out = ds_out.chunk({'Time': 1})
-            # renormalize all variables by ocean_frac
+            # renormalize all variables but ocean_frac itself, which the
+            # mesh cull compares with min_ocean_fraction
             ocean_frac = ds_out.oceanFraction
+            mask = ocean_frac > 0.0
             for var in ds_out:
+                if var == 'oceanFraction':
+                    continue
                 if 'nCells' in ds_out[var].dims:
                     attrs = ds_out[var].attrs
-                    mask = ocean_frac > 0.0
                     ds_out[var] = (ds_out[var] / ocean_frac).where(mask)
                     ds_out[var].attrs = attrs
 

@@ -795,7 +795,55 @@ sets up `ssh_forward` and `ssh_adjustment` steps from the classes
 The `ssh_adjustment` section of the config file sets the parameters for these
 steps, as described in {ref}`ocean-ssh-adjustment`. It returns the last
 `ssh_adjustment` step, which is typically used as the
-initial state for subsequent forward steps.
+initial state for subsequent forward steps.  It gets the steps from
+{py:func}`polaris.ocean.ice_shelf.get_ssh_adjustment_steps()`, which creates
+them as shared steps of a given ocean component.  Tasks in another
+component, such as `e3sm/init`, can call it directly and add the steps
+themselves.
+
+The module also provides helpers for computing the land-ice pressure from ice
+thickness ({py:func}`polaris.ocean.ice_shelf.compute_land_ice_pressure_from_thickness()`)
+or ice draft ({py:func}`polaris.ocean.ice_shelf.compute_land_ice_pressure_from_draft()`),
+the draft of floating ice from its pressure
+({py:func}`polaris.ocean.ice_shelf.compute_land_ice_draft_from_pressure()`),
+and the freezing temperature in an ice-shelf cavity
+({py:func}`polaris.ocean.ice_shelf.compute_freezing_temperature()`), which
+uses the formulation of the ocean model.  For MPAS-Ocean, the coefficients are
+in the `ice_shelf_freeze` config section and match the MPAS-Ocean defaults.
+Omega uses TEOS-10 for its freezing temperature, which is not yet supported.
+
+For analysis, {py:func}`polaris.ocean.ice_shelf.compute_melt_diagnostics()`
+gives the total melt flux and the means of the melt rate, thermal and
+haline driving and friction velocity over the floating ice base, the
+mean melt rate below a given draft and, where the output has frazil, the
+total freshwater flux from frazil formed under the ice shelf, apart from
+the melt flux.
+{py:func}`polaris.ocean.ice_shelf.compute_melt_rate_by_draft()` gives the
+mean melt rate in bins of draft, and
+{py:func}`polaris.ocean.ice_shelf.compute_thin_film_diagnostics()` the area
+of dry columns under grounded ice and the open ocean's mean sea-surface
+height.  {py:func}`polaris.ocean.ice_shelf.get_film_columns()` finds the
+columns that hold only the thin film, under grounded ice or dry, whose
+water keeps the initial condition's.  In a coupled run,
+{py:func}`polaris.ocean.ice_shelf.compute_grounding_line_band_diagnostics()`
+gives the land-ice model's floating area in cells the ocean holds at the
+thin film, next to the grounding line, and estimates the melt missed there
+from the melt rate per floating area of the nearest melting cell, and
+{py:func}`polaris.ocean.ice_shelf.compute_flux_sent_to_land_ice()` gives
+the net flux the ocean sends the land-ice model: its melt less the frazil
+under the land ice, less what it keeps where the land-ice model floats less
+than the coupling's minimum.
+{py:func}`polaris.ocean.ice_shelf.compute_open_ocean_ssh_diagnostics()`
+compares the open ocean's sea-surface height, relative to the restoring
+region's, with the height its density implies with no difference in
+pressure at the seafloor, and gives the residual.  The open ocean it
+averages over lies between the ice front and the restoring region
+({py:func}`polaris.ocean.ice_shelf.get_open_ocean_mask()`), leaving out
+the strips along the side walls.  Means over the ice base are weighted by each cell's floating area,
+since a partly floating cell melts only over its floating fraction.  The
+functions take MPAS-Ocean's names with or without a `Time` dimension;
+monthly means are renamed first with
+{py:func}`polaris.mpas.rename_time_series_stats()`.
 
 (dev-ocean-framework-vertical)=
 
@@ -1073,6 +1121,34 @@ the transport and thickness on each edge into tracer classes, for
 overturning in density coordinates.  The mixed-layer eddies tasks
 ({ref}`dev-ocean-mixed-layer-eddies`) use these for their eddy overturning.
 
+For overturning at fixed elevations, as in an ice-shelf cavity where layers
+follow the draft,
+{py:func}`polaris.ocean.overturning.compute_line_interfaces()` gives the top
+and bottom of each layer on the line's edges, stacked down from the
+sea-surface height, and
+{py:func}`polaris.ocean.overturning.compute_overturning_from_edge_transport()`
+integrates each edge's transport up from the seafloor to each elevation,
+the layers below in full and the part of the layer the elevation falls in,
+by the edge's own interface heights, and sums over the edges with their
+signs.  The stream function is minus this transport below each elevation,
+so the transport per unit height is $-\partial \psi / \partial z$, as the
+MISOMIP protocol defines it, and, where the net transport is zero, it is
+the transport above each elevation, the usual sign of an Atlantic
+overturning.  The edges may be any set that bounds a region, with signs toward
+its outside: the transport out of the region below each elevation equals
+the vertical flux through that level summed over the region's cells, since
+each interior face's integral is shared by its two cells and cancels.  This
+holds on any mesh, however the layers tilt.  For an exact mean over a
+period, pass the mean of the layer thickness flux the model applies, such
+as MPAS-Ocean's `normalLayerThicknessFlux`, times each edge's length and
+sign, rather than the product of mean velocity and mean thickness.  On a
+planar mesh, {py:func}`polaris.ocean.overturning.get_line_edges()` gives
+the edges across a line of constant x or y.  For a latitude within a basin
+on the sphere, the edges whose two cells are both in the basin and on either
+side of the latitude give the transport across it directly; a transect
+along the basin's southern boundary is needed only to sum vertical fluxes
+over the region instead.
+
 (dev-ocean-analysis)=
 
 ## Analysis of completed simulations
@@ -1317,20 +1393,26 @@ instead.
 
 ### Publishing what the steps made
 
-Publication is three pieces, none of which knows anything about the ocean, so
-all three live in the component-neutral `polaris.analysis` package beside
-`polaris.viz` rather than under `polaris.tasks.ocean.analysis`:
+Publication is four pieces, none of which knows anything about the ocean, so
+all four live in the component-neutral `polaris.analysis` package beside
+`polaris.viz` rather than under `polaris.tasks.ocean.analysis`, and any
+component's tasks can use them:
 
+- the **product step**, {py:class}`polaris.analysis.product_step.ProductStep`,
+  which `AnalysisStep` derives from, and whose
+  {py:meth}`polaris.analysis.product_step.ProductStep.add_product()` a
+  plotting step calls once per product;
 - the **manifest writer**, {py:class}`polaris.analysis.manifest.Manifest`,
-  which a plotting step reaches through
-  {py:meth}`polaris.tasks.ocean.analysis.analysis_step.AnalysisStep.add_product()`
-  once per product;
+  which `add_product()` fills in;
 - the **collector**, {py:func}`polaris.analysis.publish.publish`, which merges
   the fragments, copies each product into the staging tree and renders its
   thumbnail;
-- the **site generator**,
-  {py:func}`polaris.analysis.site.generate_site`, which renders the gallery
-  from the merged manifest.
+- the **publish step**, {py:class}`polaris.analysis.publish_step.PublishStep`,
+  which runs the collector and the site generator,
+  {py:func}`polaris.analysis.site.generate_site`, and reads its options from
+  one config section.  The ocean analysis's
+  {py:class}`polaris.tasks.ocean.analysis.publish.Publish` is a
+  `PublishStep` with its options in `[ocean_analysis]`.
 
 A step describes what it made as it makes it, and writes no fragment itself:
 
@@ -1345,12 +1427,12 @@ self.add_product(
 )
 ```
 
-`AnalysisStep` writes it.  `runtime_setup()` leaves an empty fragment before
+`ProductStep` writes it.  `runtime_setup()` leaves an empty fragment before
 `run()` is called and each `add_product()` writes it again, so a step that
-makes products always has a current one on disk.  The range of years the step
-covers is added to the facets unless the call passes its own, since every
-product of a step covers the step's range and that range is what keeps the
-published names of two analyses of one simulation apart.
+makes products always has a current one on disk.  `AnalysisStep` adds the
+range of years the step covers to the facets unless the call passes its own,
+since every product of a step covers the step's range and that range is what
+keeps the published names of two analyses of one simulation apart.
 
 Three rules keep the fragment from growing into a format that needs a
 specification.  A step fills in the facets and nothing else --- the published
@@ -1361,8 +1443,7 @@ later, which is what makes adding a facet cheap.  And products keep the order
 they were added in, so a gallery reads ANN, DJF, MAM, JJA, SON because that is
 the order the step plotted them in, with no sort key anywhere.
 
-{py:class}`polaris.tasks.ocean.analysis.publish.Publish` is the one step that
-knows how results are presented, and everything about presentation can change
+The publish step is the one step that knows how results are presented, and everything about presentation can change
 without a plotting step changing.  Two things about it are easy to get wrong:
 
 - **It never looks for its inputs.**  Walking the work directory for anything

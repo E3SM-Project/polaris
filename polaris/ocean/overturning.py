@@ -314,3 +314,155 @@ def bin_line_transport(
     ds_binned.coords['binLower'] = ('nBins', bins[:-1])
     ds_binned.coords['binUpper'] = ('nBins', bins[1:])
     return ds_binned
+
+
+def compute_line_interfaces(
+    line: xr.Dataset,
+    ssh: xr.DataArray,
+    layer_thickness: xr.DataArray,
+    vert_dim: str = 'nVertLevels',
+) -> tuple[xr.DataArray, xr.DataArray]:
+    """
+    Compute the elevations of the top and bottom of each layer on the edges
+    of a line
+
+    The layers stack down from the sea-surface height, which is the ice
+    draft under an ice shelf.  Each edge takes the mean of its two cells, as
+    the thickness in :py:func:`compute_line_transport` does.  Layers outside
+    a cell's valid range, NaN in E3SM's monthly means, count as zero
+    thickness, so their interfaces collapse onto the nearest valid one and
+    every edge has every interface.
+
+    Parameters
+    ----------
+    line : xarray.Dataset
+        A line from :py:func:`get_line_edges`
+
+    ssh : xarray.DataArray
+        The sea-surface height (m) with dimension ``nCells``
+
+    layer_thickness : xarray.DataArray
+        The layer thickness (m) with dimensions ``nCells`` and ``vert_dim``
+
+    vert_dim : str, optional
+        The vertical dimension, indexed from the top
+
+    Returns
+    -------
+    z_top, z_bottom : xarray.DataArray
+        The elevation (m) of the top and bottom of each layer, with
+        ``nCells`` replaced by ``nLineEdges``
+    """
+    layer_thickness = layer_thickness.fillna(0.0)
+    z_bottom = ssh - layer_thickness.cumsum(dim=vert_dim)
+    z_top = z_bottom + layer_thickness
+    return (
+        interp_cell_to_line_edges(line, z_top),
+        interp_cell_to_line_edges(line, z_bottom),
+    )
+
+
+def compute_overturning_from_edge_transport(
+    transport: xr.DataArray,
+    z_top: xr.DataArray,
+    z_bottom: xr.DataArray,
+    z: np.ndarray,
+    edge_dim: str = 'nLineEdges',
+    vert_dim: str = 'nVertLevels',
+) -> xr.DataArray:
+    r"""
+    Compute the overturning stream function at fixed elevations from the
+    transport each layer carries across the edges that bound a region
+
+    For each edge, the transport is integrated up from the seafloor to each
+    elevation: the layers below it in full and the part of the layer it
+    falls in, by the fraction of that layer's height below it, with the
+    edge's own interface heights.  Summed over the edges with their signs,
+    the stream function is minus that transport,
+
+    .. math::
+
+        \psi(z) = -\sum_e \sum_k T_{e,k}\, f_{e,k}(z),\quad
+        f_{e,k}(z) = \min\left(1, \max\left(0,
+        \frac{z - z^{bot}_{e,k}}{z^{top}_{e,k} - z^{bot}_{e,k}}\right)
+        \right),
+
+    so that the transport per unit height is :math:`-\partial \psi /
+    \partial z`, as the MISOMIP protocol defines its overturning stream
+    function (Asay-Davis et al. 2016).  Where the net transport is zero,
+    :math:`\psi` is the transport out of the region above :math:`z`, as an
+    Atlantic overturning is usually shown.  The sum is the vertical flux
+    through the level :math:`z` summed over the region's cells: each
+    interior face's integral to :math:`z` is shared by its two cells with
+    opposite signs, so only the boundary's remain.  That holds on any mesh,
+    whatever the tilt of the layers.  The approximations are the flux
+    spread evenly through each edge's layer and, for a mean over a period,
+    the mean interface heights of the layer each elevation falls in.
+
+    The edges are any set that bounds a region, with signs toward its
+    outside.  For a line of constant x or y on a planar mesh,
+    :py:func:`get_line_edges` gives them, with the low side as the region.
+    For a latitude within a basin on the sphere, the edges whose two cells
+    are both in the basin and on either side of the latitude give the
+    transport across it directly; a transect along the basin's southern
+    boundary is needed only to sum vertical fluxes over the region instead.
+
+    Parameters
+    ----------
+    transport : xarray.DataArray
+        The transport (m3 s-1) of each layer across each edge, out of the
+        region, with dimensions ``edge_dim`` and ``vert_dim``, as from
+        :py:func:`compute_line_transport` or a layer thickness flux times
+        each edge's length and sign
+
+    z_top, z_bottom : xarray.DataArray
+        The elevations (m) of the top and bottom of each layer on each edge,
+        as from :py:func:`compute_line_interfaces`
+
+    z : numpy.ndarray
+        The elevations (m)
+
+    edge_dim : str, optional
+        The dimension of edges
+
+    vert_dim : str, optional
+        The dimension of layers
+
+    Returns
+    -------
+    overturning : xarray.DataArray
+        The overturning stream function (m3 s-1) on ``nZInterfaces``, with
+        the coordinate ``zInterface`` (m), and the transport's other
+        dimensions: zero at the seafloor and minus the transport out of the
+        region below each elevation
+    """
+    z = np.asarray(z, dtype=float)
+    other_dims = [
+        dim for dim in transport.dims if dim not in (edge_dim, vert_dim)
+    ]
+    dims = other_dims + [edge_dim, vert_dim]
+    transport_values = np.nan_to_num(transport.transpose(*dims).values)
+    top_values = z_top.broadcast_like(transport).transpose(*dims).values
+    bottom_values = z_bottom.broadcast_like(transport).transpose(*dims).values
+    height = (top_values - bottom_values)[..., np.newaxis]
+    with np.errstate(invalid='ignore', divide='ignore'):
+        fraction = np.where(
+            height > 0.0,
+            np.clip((z - bottom_values[..., np.newaxis]) / height, 0.0, 1.0),
+            0.0,
+        )
+    values = -np.sum(
+        transport_values[..., np.newaxis] * fraction, axis=(-3, -2)
+    )
+    overturning = xr.DataArray(
+        values,
+        dims=other_dims + ['nZInterfaces'],
+        coords={'zInterface': ('nZInterfaces', z)},
+    )
+    for dim in other_dims:
+        if dim in transport.coords:
+            overturning.coords[dim] = transport.coords[dim]
+    overturning.attrs = dict(
+        long_name='overturning stream function', units='m3 s-1'
+    )
+    return overturning

@@ -1,0 +1,97 @@
+<?xml version="1.0"?>
+
+<!-- A grid file for an E3SM case of the MISOMIP experiments, written by
+     Polaris.  CIME uses it in place of E3SM's, so it holds E3SM's
+     model_grid_defaults and required_gridmaps and only the grids, domains
+     and maps of one pair of meshes. -->
+
+<grid_data version="2.0">
+
+  <grids>
+    <model_grid_defaults>
+      <grid name="atm"    compset="SATM">null</grid>
+      <grid name="lnd"    compset="SLND">null</grid>
+      <grid name="ocnice" compset="SOCN">null</grid>
+      <grid name="rof"    compset="SROF">null</grid>
+      <grid name="rof"    compset="DWAV">rx1</grid>
+      <grid name="rof"    compset="RTM">r05</grid>
+      <grid name="rof"    compset="MOSART">r05</grid>
+      <grid name="rof"    compset="DROF">rx1</grid>
+      <grid name="rof"    compset="DROF%CPLHIST">r05</grid>
+      <grid name="rof"    compset="XROF">r05</grid>
+      <grid name="glc"    compset="SGLC">null</grid>
+      <grid name="wav"    compset="SWAV">null</grid>
+      <grid name="wav"    compset="DWAV">null</grid>
+      <grid name="wav"    compset="XWAV">null</grid>
+      <grid name="iac"    compset="SIAC">null</grid>
+    </model_grid_defaults>
+
+    <model_grid alias="{{ model_grid }}">
+      <grid name="atm">null</grid>
+      <grid name="lnd">null</grid>
+      <grid name="ocnice">{{ ocean_grid }}</grid>
+      <grid name="rof">null</grid>
+      <grid name="glc">{{ landice_grid }}</grid>
+      <grid name="wav">null</grid>
+      <mask>{{ ocean_grid }}</mask>
+    </model_grid>
+  </grids>
+
+  <domains>
+    <domain name="null">
+      <nx>0</nx>
+      <ny>0</ny>
+      <desc>null is no grid: </desc>
+    </domain>
+
+    <domain name="{{ ocean_grid }}">
+      <nx>{{ ocean_cells }}</nx>
+      <ny>1</ny>
+      <desc>{{ ocean_grid }} is a planar MPAS-Ocean mesh of the ISOMIP+ domain</desc>
+    </domain>
+
+    <domain name="{{ landice_grid }}">
+      <nx>{{ landice_cells }}</nx>
+      <ny>1</ny>
+      <desc>{{ landice_grid }} is a planar MALI mesh of the MISMIP+ domain</desc>
+    </domain>
+  </domains>
+
+  <required_gridmaps>
+    <required_gridmap grid1="atm_grid" grid2="ocn_grid">ATM2OCN_FMAPNAME</required_gridmap>
+    <required_gridmap grid1="atm_grid" grid2="ocn_grid">ATM2OCN_SMAPNAME</required_gridmap>
+    <required_gridmap grid1="atm_grid" grid2="ocn_grid">ATM2OCN_VMAPNAME</required_gridmap>
+    <required_gridmap grid1="atm_grid" grid2="ocn_grid">OCN2ATM_FMAPNAME</required_gridmap>
+    <required_gridmap grid1="atm_grid" grid2="ocn_grid">OCN2ATM_SMAPNAME</required_gridmap>
+    <required_gridmap grid1="atm_grid" grid2="lnd_grid">ATM2LND_FMAPNAME</required_gridmap>
+    <required_gridmap grid1="atm_grid" grid2="lnd_grid">ATM2LND_SMAPNAME</required_gridmap>
+    <required_gridmap grid1="atm_grid" grid2="lnd_grid">LND2ATM_FMAPNAME</required_gridmap>
+    <required_gridmap grid1="atm_grid" grid2="lnd_grid">LND2ATM_SMAPNAME</required_gridmap>
+    <required_gridmap grid1="atm_grid" grid2="rof_grid" compset="_MOSART">ATM2ROF_FMAPNAME</required_gridmap>
+    <required_gridmap grid1="atm_grid" grid2="rof_grid" compset="_MOSART">ATM2ROF_SMAPNAME</required_gridmap>
+    <required_gridmap grid1="atm_grid" grid2="wav_grid">ATM2WAV_SMAPNAME</required_gridmap>
+    <required_gridmap grid1="atm_grid" grid2="wav_grid">WAV2ATM_SMAPNAME</required_gridmap>
+    <required_gridmap grid1="ocn_grid" grid2="wav_grid">OCN2WAV_SMAPNAME</required_gridmap>
+    <required_gridmap grid1="ocn_grid" grid2="wav_grid">WAV2OCN_SMAPNAME</required_gridmap>
+    <required_gridmap grid1="ocn_grid" grid2="wav_grid">WAV2OCN_FMAPNAME</required_gridmap>
+    <required_gridmap grid1="ocn_grid" grid2="wav_grid">ICE2WAV_SMAPNAME</required_gridmap>
+    <required_gridmap grid1="ocn_grid" grid2="wav_grid">WAV2ICE_SMAPNAME</required_gridmap>
+    <required_gridmap grid1="ocn_grid" grid2="rof_grid">ROF2OCN_LIQ_RMAPNAME</required_gridmap>
+    <required_gridmap grid1="ocn_grid" grid2="rof_grid">ROF2OCN_ICE_RMAPNAME</required_gridmap>
+    <required_gridmap grid1="lnd_grid" grid2="rof_grid">LND2ROF_FMAPNAME</required_gridmap>
+    <required_gridmap grid1="lnd_grid" grid2="rof_grid">ROF2LND_FMAPNAME</required_gridmap>
+    <required_gridmap grid1="atm_grid" grid2="iac_grid">IAC2ATM_FMAPNAME</required_gridmap>
+    <required_gridmap grid1="atm_grid" grid2="iac_grid">ATM2IAC_SMAPNAME</required_gridmap>
+  </required_gridmaps>
+
+  <!-- no runoff maps: the case turns off MALI's runoff to the ocean -->
+  <gridmaps>
+    <gridmap glc_grid="{{ landice_grid }}" ocn_grid="{{ ocean_grid }}">
+      <map name="OCN2GLC_SHELF_FMAPNAME">{{ ocn_to_glc }}</map>
+      <map name="OCN2GLC_SHELF_SMAPNAME">{{ ocn_to_glc }}</map>
+      <map name="GLC2OCN_FMAPNAME">{{ glc_to_ocn }}</map>
+      <map name="GLC2OCN_SMAPNAME">{{ glc_to_ocn }}</map>
+    </gridmap>
+  </gridmaps>
+
+</grid_data>
