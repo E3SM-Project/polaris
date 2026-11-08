@@ -1,0 +1,6 @@
+﻿polaris.ocean.model.OceanIOStep.add\_output\_files\_for\_ocean\_model\_input
+============================================================================
+
+.. currentmodule:: polaris.ocean.model
+
+.. automethod:: OceanIOStep.add_output_files_for_ocean_model_input

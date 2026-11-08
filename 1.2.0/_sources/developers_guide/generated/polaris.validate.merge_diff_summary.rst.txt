@@ -1,0 +1,6 @@
+﻿polaris.validate.merge\_diff\_summary
+=====================================
+
+.. currentmodule:: polaris.validate
+
+.. autofunction:: merge_diff_summary

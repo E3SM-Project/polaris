@@ -1,0 +1,6 @@
+﻿polaris.Step.add\_output\_file
+==============================
+
+.. currentmodule:: polaris
+
+.. automethod:: Step.add_output_file

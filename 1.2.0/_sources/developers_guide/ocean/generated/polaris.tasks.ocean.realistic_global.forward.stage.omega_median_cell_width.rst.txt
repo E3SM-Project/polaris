@@ -1,0 +1,6 @@
+﻿polaris.tasks.ocean.realistic\_global.forward.stage.omega\_median\_cell\_width
+==============================================================================
+
+.. currentmodule:: polaris.tasks.ocean.realistic_global.forward.stage
+
+.. autofunction:: omega_median_cell_width

@@ -1,0 +1,2170 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>realistic_global</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=6efca38a"></script>
+      <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script type="module">import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11.12.1/dist/mermaid.esm.min.mjs";
+
+
+
+
+
+const initStyles = () => {
+    const defaultStyle = document.createElement('style');
+    defaultStyle.textContent = "pre.mermaid {\n    /* Same as .mermaid-container > pre */\n    display: block;\n    width: 100%;\n}\n\npre.mermaid > svg {\n    /* Same as .mermaid-container > pre > svg */\n    height: 500px;\n    width: 100%;\n    max-width: 100% !important;\n}";
+    document.head.appendChild(defaultStyle);
+
+    const fullscreenStyle = document.createElement('style');
+    fullscreenStyle.textContent = ".mermaid-container {\n    position: relative;\n    display: flex;\n    flex-direction: row;\n    width: 100%;\n}\n\n.mermaid-container > pre {\n    display: block;\n    width: 100%;\n}\n\n.mermaid-container > pre > svg {\n    height: 500px;\n    width: 100%;\n    max-width: 100% !important;\n}\n\n.mermaid-fullscreen-btn {\n    position: absolute;\n    width: 28px;\n    height: 28px;\n    background: rgba(255, 255, 255, 0.95);\n    border: 1px solid rgba(0, 0, 0, 0.3);\n    border-radius: 4px;\n    cursor: pointer;\n    display: flex;\n    align-items: center;\n    justify-content: center;\n    transition: all 0.2s;\n    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);\n    font-size: 14px;\n    line-height: 1;\n    padding: 0;\n    color: #333;\n}\n\n.mermaid-fullscreen-btn:hover {\n    opacity: 100% !important;\n    background: rgba(255, 255, 255, 1);\n    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.3);\n    transform: scale(1.1);\n}\n\n.mermaid-fullscreen-btn.dark-theme {\n    background: rgba(50, 50, 50, 0.95);\n    border: 1px solid rgba(255, 255, 255, 0.3);\n    color: #e0e0e0;\n}\n\n.mermaid-fullscreen-btn.dark-theme:hover {\n    background: rgba(60, 60, 60, 1);\n    box-shadow: 0 3px 10px rgba(255, 255, 255, 0.2);\n}\n\n.mermaid-fullscreen-modal {\n    display: none;\n    position: fixed !important;\n    top: 0 !important;\n    left: 0 !important;\n    width: 95vw;\n    height: 100vh;\n    background: rgba(255, 255, 255, 0.98);\n    z-index: 9999;\n    padding: 20px;\n    overflow: auto;\n}\n\n.mermaid-fullscreen-modal.dark-theme {\n    background: rgba(0, 0, 0, 0.98);\n}\n\n.mermaid-fullscreen-modal.active {\n    display: flex;\n    align-items: center;\n    justify-content: center;\n}\n\n.mermaid-container-fullscreen {\n    position: relative;\n    width: 95vw;\n    height: 90vh;\n    max-width: 95vw;\n    max-height: 90vh;\n    background: white;\n    border-radius: 8px;\n    padding: 20px;\n    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);\n    overflow: auto;\n    display: flex;\n    align-items: center;\n    justify-content: center;\n}\n\n.mermaid-container-fullscreen.dark-theme {\n    background: #1a1a1a;\n    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.8);\n}\n\n.mermaid-container-fullscreen pre.mermaid {\n    width: 100%;\n    height: 100%;\n    display: flex;\n    align-items: center;\n    justify-content: center;\n}\n\n.mermaid-container-fullscreen .mermaid svg {\n    height: 100% !important;\n    width: 100% !important;\n    cursor: grab;\n}\n\n.mermaid-fullscreen-close {\n    position: fixed !important;\n    top: 20px !important;\n    right: 20px !important;\n    width: 40px;\n    height: 40px;\n    background: rgba(255, 255, 255, 0.95);\n    border: 1px solid rgba(0, 0, 0, 0.2);\n    border-radius: 50%;\n    cursor: pointer;\n    z-index: 10000;\n    display: flex;\n    align-items: center;\n    justify-content: center;\n    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);\n    transition: all 0.2s;\n    font-size: 24px;\n    line-height: 1;\n    color: #333;\n}\n\n.mermaid-fullscreen-close:hover {\n    background: white;\n    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);\n    transform: scale(1.1);\n}\n\n.mermaid-fullscreen-close.dark-theme {\n    background: rgba(50, 50, 50, 0.95);\n    border: 1px solid rgba(255, 255, 255, 0.2);\n    color: #e0e0e0;\n}\n\n.mermaid-fullscreen-close.dark-theme:hover {\n    background: rgba(60, 60, 60, 1);\n    box-shadow: 0 6px 16px rgba(255, 255, 255, 0.2);\n}\n\n.mermaid-fullscreen-modal .mermaid-fullscreen-btn {\n    display: none !important;\n}";
+    document.head.appendChild(fullscreenStyle);
+}
+
+// Detect if page has dark background
+const isDarkTheme = () => {
+    // We use a set of heuristics:
+    // 1. Check for common dark mode classes or attributes
+    // 2. Check computed background color brightness
+    if (document.documentElement.classList.contains('dark') ||
+        document.documentElement.getAttribute('data-theme') === 'dark' ||
+        document.body.classList.contains('dark') ||
+        document.body.getAttribute('data-theme') === 'dark') {
+        // console.log("Dark theme detected via class/attribute");
+        return true;
+    }
+    if (document.documentElement.classList.contains('light') ||
+        document.documentElement.getAttribute('data-theme') === 'light' ||
+        document.body.classList.contains('light') ||
+        document.body.getAttribute('data-theme') === 'light') {
+        // console.log("Light theme detected via class/attribute");
+        return false;
+    }
+    if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        // console.log("Dark theme detected via prefers-color-scheme");
+        return true;
+    }
+    const bgColor = window.getComputedStyle(document.body).backgroundColor;
+    const match = bgColor.match(/rgb\((\d+),\s*(\d+),\s*(\d+)/);
+    if (match) {
+        const r = parseInt(match[1]);
+        const g = parseInt(match[2]);
+        const b = parseInt(match[3]);
+        const brightness = (r * 299 + g * 587 + b * 114) / 1000;
+        // console.log("Background color brightness:", brightness);
+        return brightness < 128;
+    }
+    // console.log("No dark or light theme detected, defaulting to light theme");
+    return false;
+};
+
+let darkTheme = isDarkTheme();
+let modal = null;
+let modalContent = null;
+let previousScrollOffset = [window.scrollX, window.scrollY];
+let _lazyObserver = null;
+let _renderQueue = Promise.resolve();
+let closeModal = () => {};
+
+document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && modal?.classList.contains('active')) {
+        closeModal();
+    }
+});
+
+// Apply d3 zoom to each SVG. Idempotent: an SVG already wrapped is skipped,
+// so this is safe to call both for the initial batch and for diagrams that
+// render lazily once they become visible.
+const addZoomToSvgs = (svgs) => {
+    svgs.each(function() {
+        if (this.getAttribute('data-zoom-applied') === 'true') return;
+        var svg = d3.select(this);
+        svg.html("<g class='wrapper'>" + svg.html() + "</g>");
+        var inner = svg.select("g");
+        var zoom = d3.zoom().on("zoom", function(event) {
+            inner.attr("transform", event.transform);
+        });
+        svg.call(zoom);
+        this.setAttribute('data-zoom-applied', 'true');
+    });
+};
+
+const runMermaid = async (rerun) => {
+    console.log("Running mermaid diagrams, rerun =", rerun);
+    // clear all existing mermaid charts
+    let all_mermaids = document.querySelectorAll(".mermaid");
+
+    if (rerun) {
+        // Disconnect any previous lazy rendering observer
+        if (_lazyObserver) {
+            _lazyObserver.disconnect();
+            _lazyObserver = null;
+        }
+
+        all_mermaids.forEach((el) => {
+            el.removeAttribute('data-mermaid-deferred');
+            el.removeAttribute('data-mermaid-render-failed');
+            if(!el.hasAttribute("data-original-code")) {
+                // store original code
+                // console.log(`Storing original code for first run: `, el.innerHTML);
+                el.setAttribute('data-original-code', el.innerHTML);
+            }
+            if(el.getAttribute("data-processed") === "true") {
+                // remove and restore original
+                el.removeAttribute("data-processed");
+                // console.log(`Restoring original code for re-run: `, el.getAttribute('data-original-code'));
+                el.innerHTML = el.getAttribute('data-original-code');
+            } else {
+                // store original code
+                // console.log(`Storing original code for re-run: `, el.innerHTML);
+                el.setAttribute('data-original-code', el.innerHTML);
+            }
+        });
+
+        // Separate visible and hidden elements. Mermaid's layout engine measures
+        // text dimensions via the DOM, which fails for elements hidden by a parent
+        // (e.g., Reveal.js non-active slides, sphinx-design unopened tabs),
+        // producing broken SVGs. Render visible elements now, defer hidden ones.
+        const visible = [];
+        const hidden = [];
+        all_mermaids.forEach((el) => {
+            // offsetParent is null for display:none ancestors.
+            // getClientRects().length > 0 catches position:fixed elements
+            // (which also have null offsetParent but are still visible).
+            if (el.offsetParent !== null || el.getClientRects().length > 0) {
+                visible.push(el);
+            } else {
+                hidden.push(el);
+                el.setAttribute('data-mermaid-deferred', 'true');
+            }
+        });
+
+        if (visible.length > 0) {
+            try {
+                await mermaid.run({ nodes: visible });
+            } catch (e) {
+                console.error("Mermaid rendering failed:", e);
+            }
+        }
+
+        // Lazily render hidden elements when they become visible.
+        // Uses a promise chain (_renderQueue) to serialize rendering,
+        // since IntersectionObserver may report multiple entries at once
+        // and mermaid.run() is not safe to call concurrently.
+        if (hidden.length > 0) {
+            if (typeof IntersectionObserver === 'undefined') {
+                console.warn("IntersectionObserver not available; hidden mermaid diagrams will not render.");
+            } else {
+                _renderQueue = Promise.resolve();
+                _lazyObserver = new IntersectionObserver((entries) => {
+                    for (const entry of entries) {
+                        if (entry.isIntersecting && entry.target.getAttribute("data-processed") !== "true") {
+                            _lazyObserver.unobserve(entry.target);
+                            const el = entry.target;
+                            _renderQueue = _renderQueue.then(async () => {
+                                try {
+                                    await mermaid.run({ nodes: [el] });
+                                    el.removeAttribute('data-mermaid-deferred');
+                                    // Apply zoom to the now-rendered diagram, matching
+                                    // the decoration visible diagrams receive.
+                                    if (false) {
+                                        addZoomToSvgs(d3.selectAll("").select(function() {
+                                            return this.querySelector("svg");
+                                        }));
+                                    }
+                                } catch (e) {
+                                    console.error("Mermaid deferred rendering failed:", e);
+                                    el.removeAttribute('data-mermaid-deferred');
+                                    el.setAttribute('data-mermaid-render-failed', 'true');
+                                }
+                            });
+                        }
+                    }
+                });
+                hidden.forEach((el) => _lazyObserver.observe(el));
+            }
+        }
+    }
+
+    all_mermaids = document.querySelectorAll(".mermaid");
+    // Exclude deferred (hidden) and render-failed elements from completion checks
+    const mermaids_active = document.querySelectorAll(".mermaid:not([data-mermaid-deferred]):not([data-mermaid-render-failed])");
+    const mermaids_processed = document.querySelectorAll(".mermaid:not([data-mermaid-deferred]):not([data-mermaid-render-failed])[data-processed='true']");
+
+    if (false) {
+        const mermaids_to_add_zoom = 0 === -1 ? mermaids_active.length : 0;
+        if(mermaids_to_add_zoom > 0) {
+            var svgs = d3.selectAll("").select(function() {
+                return this.querySelector("svg");
+            });
+            // Wait until every active (visible) diagram has rendered. Deferred
+            // diagrams are excluded, so a fixed d3_node_count that counts a
+            // hidden diagram no longer loops forever waiting for its SVG.
+            if(mermaids_active.length !== mermaids_processed.length) {
+                setTimeout(() => runMermaid(false), 200);
+                return;
+            }
+            addZoomToSvgs(svgs);
+        }
+    } else if(mermaids_active.length !== mermaids_processed.length) {
+        // Wait for mermaid to process all diagrams
+        setTimeout(() => runMermaid(false), 200);
+        return;
+    }
+
+    // Stop here if not adding fullscreen capability
+    if (!true) return;
+
+    if (modal !== null ) {
+        // Destroy existing modal
+        modal.remove();
+        modal = null;
+        modalContent = null;
+    }
+
+    modal = document.createElement('div');
+    modal.className = 'mermaid-fullscreen-modal' + (darkTheme ? ' dark-theme' : '');
+    modal.setAttribute('role', 'dialog');
+    modal.setAttribute('aria-modal', 'true');
+    modal.setAttribute('aria-label', 'Fullscreen diagram viewer');
+    modal.innerHTML = `
+        <button class="mermaid-fullscreen-close${darkTheme ? ' dark-theme' : ''}" aria-label="Close fullscreen">✕</button>
+        <div class="mermaid-container-fullscreen${darkTheme ? ' dark-theme' : ''}"></div>
+    `;
+    document.body.appendChild(modal);
+
+    modalContent = modal.querySelector('.mermaid-container-fullscreen');
+    const closeBtn = modal.querySelector('.mermaid-fullscreen-close');
+
+    closeModal = () => {
+        modal.classList.remove('active');
+        modalContent.innerHTML = '';
+        document.body.style.overflow = ''
+        window.scrollTo({left: previousScrollOffset[0], top: previousScrollOffset[1], behavior: 'instant'});
+    };
+
+    closeBtn.addEventListener('click', closeModal);
+    modal.addEventListener('click', (e) => {
+        if (e.target === modal) closeModal();
+    });
+    document.querySelectorAll('.mermaid').forEach((mermaidDiv) => {
+        if (mermaidDiv.parentNode.classList.contains('mermaid-container') ||
+            mermaidDiv.closest('.mermaid-fullscreen-modal')) {
+            // Already processed, adjust button class if needed
+            const existingBtn = mermaidDiv.parentNode.querySelector('.mermaid-fullscreen-btn');
+            if (existingBtn) {
+                existingBtn.className = 'mermaid-fullscreen-btn' + (darkTheme ? ' dark-theme' : '');
+            }
+            return;
+        }
+
+        const container = document.createElement('div');
+        container.className = 'mermaid-container';
+        mermaidDiv.parentNode.insertBefore(container, mermaidDiv);
+        container.appendChild(mermaidDiv);
+
+        const fullscreenBtn = document.createElement('button');
+        fullscreenBtn.className = 'mermaid-fullscreen-btn' + (darkTheme ? ' dark-theme' : '');
+        fullscreenBtn.setAttribute('aria-label', 'View diagram in fullscreen');
+        fullscreenBtn.textContent = "\u26f6";
+        fullscreenBtn.style.opacity = "50%";
+
+        // Calculate dynamic position based on diagram's margin and padding
+        const diagramStyle = window.getComputedStyle(mermaidDiv);
+        const marginTop = parseFloat(diagramStyle.marginTop) || 0;
+        const marginRight = parseFloat(diagramStyle.marginRight) || 0;
+        const paddingTop = parseFloat(diagramStyle.paddingTop) || 0;
+        const paddingRight = parseFloat(diagramStyle.paddingRight) || 0;
+        fullscreenBtn.style.top = `${marginTop + paddingTop + 4}px`;
+        fullscreenBtn.style.right = `${marginRight + paddingRight + 4}px`;
+
+        fullscreenBtn.addEventListener('click', () => {
+            previousScrollOffset = [window.scrollX, window.scrollY];
+            const clone = mermaidDiv.cloneNode(true);
+            modalContent.innerHTML = '';
+            modalContent.appendChild(clone);
+
+            const svg = clone.querySelector('svg');
+            if (svg) {
+                svg.removeAttribute('width');
+                svg.removeAttribute('height');
+                svg.style.width = '100%';
+                svg.style.height = 'auto';
+                svg.style.maxWidth = '100%';
+                svg.style.display = 'block';
+
+                if (false) {
+                    setTimeout(() => {
+                        const g = svg.querySelector('g');
+                        if (g) {
+                            var svgD3 = d3.select(svg);
+                            svgD3.html("<g class='wrapper'>" + svgD3.html() + "</g>");
+                            var inner = svgD3.select("g");
+                            var zoom = d3.zoom().on("zoom", function(event) {
+                                inner.attr("transform", event.transform);
+                            });
+                            svgD3.call(zoom);
+                        }
+                    }, 100);
+                }
+            }
+
+            modal.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        });
+        container.appendChild(fullscreenBtn);
+    });
+};
+
+
+
+const load = async () => {
+    initStyles();
+
+
+    await runMermaid(true);
+
+    const reRunIfThemeChanges = async () => {
+        const newDarkTheme = isDarkTheme();
+        if (newDarkTheme !== darkTheme) {
+            darkTheme = newDarkTheme;
+            console.log("Theme change detected, re-running mermaid with", darkTheme ? "dark" : "default", "theme");
+            await mermaid.initialize(
+                {...{"startOnLoad": false},
+                ...{ darkMode: darkTheme, theme: darkTheme ? "dark" : "default" },
+                }
+            );
+            await runMermaid(true);
+        }
+    };
+
+    // Update theme classes when theme changes
+    const themeObserver = new MutationObserver(reRunIfThemeChanges);
+    themeObserver.observe(document.documentElement, {
+        attributes: true,
+        attributeFilter: ['class', 'style', 'data-theme']
+    });
+    themeObserver.observe(document.body, {
+        attributes: true,
+        attributeFilter: ['class', 'style', 'data-theme']
+    });
+};
+
+
+
+
+
+console.log("Initializing mermaid with", darkTheme ? "dark" : "default", "theme");
+mermaid.initialize(
+    {...{"startOnLoad": false},
+    ...{ darkMode: darkTheme, theme: darkTheme ? "dark" : "default" },
+    }
+);
+
+window.addEventListener("load", load);
+window.runMermaid = runMermaid;</script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+    <link rel="next" title="horizontal pressure gradient" href="horiz_press_grad.html" />
+    <link rel="prev" title="geostrophic" href="geostrophic.html" />
+    <link href="../../../_static/style.css" rel="stylesheet" type="text/css">
+
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            Polaris
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">User's guide</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../quick_start.html">Quick Start for Users</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tasks.html">Tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../config_files.html">Config Files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../suites.html">Suites</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../mesh/index.html">Mesh component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../e3sm/init/index.html">E3SM Initial Condition Component</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../index.html">Ocean component</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="index.html">Tasks</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="analysis.html">analysis</a></li>
+<li class="toctree-l3"><a class="reference internal" href="baroclinic_channel.html">baroclinic channel</a></li>
+<li class="toctree-l3"><a class="reference internal" href="barotropic_channel.html">barotropic channel</a></li>
+<li class="toctree-l3"><a class="reference internal" href="barotropic_gyre.html">barotropic gyre</a></li>
+<li class="toctree-l3"><a class="reference internal" href="correlated_tracers_2d.html">correlated tracers 2-d</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cosine_bell.html">cosine bell</a></li>
+<li class="toctree-l3"><a class="reference internal" href="customizable_viz.html">customizable viz</a></li>
+<li class="toctree-l3"><a class="reference internal" href="external_gravity_wave.html">external gravity wave</a></li>
+<li class="toctree-l3"><a class="reference internal" href="feature_masks.html">Feature Masks</a></li>
+<li class="toctree-l3"><a class="reference internal" href="geostrophic.html">geostrophic</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">realistic_global</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#supported-models">supported models</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#woa23">woa23</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#jra55">jra55</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#init">init</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#restart">restart</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#forward-and-cached-forward">forward and cached_forward</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#analysis-output">analysis_output</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#dynamic-adjustment">dynamic_adjustment</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="horiz_press_grad.html">horizontal pressure gradient</a></li>
+<li class="toctree-l3"><a class="reference internal" href="divergent_2d.html">divergent 2-d</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ice_shelf_2d.html">ice shelf 2d</a></li>
+<li class="toctree-l3"><a class="reference internal" href="inertial_gravity_wave.html">inertial gravity wave</a></li>
+<li class="toctree-l3"><a class="reference internal" href="internal_wave.html">internal wave</a></li>
+<li class="toctree-l3"><a class="reference internal" href="manufactured_solution.html">manufactured solution</a></li>
+<li class="toctree-l3"><a class="reference internal" href="merry_go_round.html">merry-go-round</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mixed_layer_eddies.html">mixed layer eddies</a></li>
+<li class="toctree-l3"><a class="reference internal" href="nondivergent_2d.html">nondivergent 2-d</a></li>
+<li class="toctree-l3"><a class="reference internal" href="overflow.html">overflow</a></li>
+<li class="toctree-l3"><a class="reference internal" href="rotation_2d.html">rotation 2-d</a></li>
+<li class="toctree-l3"><a class="reference internal" href="seamount.html">seamount</a></li>
+<li class="toctree-l3"><a class="reference internal" href="single_column.html">single column</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../framework/index.html">Framework</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../suites.html">Suites</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../suites.html#nightly-suite">nightly suite</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../suites.html#omega-pr-suite">omega_pr suite</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../seaice/index.html">Sea ice component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../machines/index.html">Machines</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Developer's guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/quick_start.html">Quick Start for Developers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/command_line.html">Command-line interface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/organization/index.html">Organization of Tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/e3sm/init/index.html">E3SM initial condition (e3sm/init) component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/mesh/index.html">Mesh component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/ocean/index.html">Ocean component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/seaice/index.html">Sea ice component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/framework/index.html">Framework</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/machines/index.html">Machines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/benchmarking.html">Benchmarking a branch against a baseline</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/omega_pr_testing.html">Testing an Omega pull request</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/troubleshooting.html">Troubleshooting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/docs.html">Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/building_docs.html">Building the Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/building_docs.html#previewing-the-documentation">Previewing the Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/conda_vs_spack.html">How Conda and Spack Work Together in Polaris</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/updating_conda.html">Updating Deployment Dependencies</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/updating_spack/index.html">Updating Shared Spack Environments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/api.html">API reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../design_docs/index.html">Design Documents</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorials/dev_add_category_of_tasks/index.html">Developer Tutorial: Adding a New Category of Tasks</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Glossary</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../glossary.html">Glossary</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">Polaris</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Ocean component</a></li>
+          <li class="breadcrumb-item"><a href="index.html">Tasks</a></li>
+      <li class="breadcrumb-item active">realistic_global</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../../_sources/users_guide/ocean/tasks/realistic_global.md.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section class="tex2jax_ignore mathjax_ignore" id="realistic-global">
+<span id="ocean-realistic-global"></span><h1>realistic_global<a class="headerlink" href="#realistic-global" title="Link to this heading"></a></h1>
+<p>The <code class="docutils literal notranslate"><span class="pre">realistic_global</span></code> task group contains tasks that use realistic global
+ocean meshes, bathymetry and forcing. It currently contains seven kinds of
+tasks:</p>
+<ul class="simple">
+<li><p><a class="reference internal" href="#ocean-realistic-global-woa23"><span class="std std-ref">woa23</span></a>, a mesh-independent preprocessing task
+that builds a reusable World Ocean Atlas 2023 (WOA23) hydrography product on
+the native 0.25-degree latitude-longitude grid.</p></li>
+<li><p><a class="reference internal" href="#ocean-realistic-global-jra55"><span class="std std-ref">jra55</span></a>, a mesh-independent preprocessing task
+that builds a reusable wind-stress product on the native JRA55-do TL319 grid.</p></li>
+<li><p><a class="reference internal" href="#ocean-realistic-global-init"><span class="std std-ref">init</span></a>, which creates mesh-specific ocean initial
+conditions from that hydrography and forcing together with the culled mesh
+from <code class="docutils literal notranslate"><span class="pre">e3sm/init</span></code>.</p></li>
+<li><p><a class="reference internal" href="#ocean-realistic-global-forward"><span class="std std-ref">forward and cached_forward</span></a>, short forward runs on a mesh and
+initial condition the <code class="docutils literal notranslate"><span class="pre">init</span></code> workflow above builds.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">cached_forward</span></code>, the same short runs from an E3SM initial condition cached
+in the Polaris input database, a temporary task described in the same
+section.</p></li>
+<li><p><a class="reference internal" href="#ocean-realistic-global-analysis-output"><span class="std std-ref">analysis_output</span></a>, one-year Omega runs from
+either source of initial condition, writing what the <a class="reference internal" href="analysis.html#ocean-analysis"><span class="std std-ref">analysis</span></a>
+tasks read.</p></li>
+<li><p><a class="reference internal" href="#ocean-realistic-global-restart"><span class="std std-ref">restart</span></a>, a short run continued from a restart,
+checking that it matches the uninterrupted run, history output included.</p></li>
+</ul>
+<p>The arrows show where each kind of task gets its inputs:</p>
+<pre  class="mermaid">
+        flowchart LR
+    woa23 --&gt; init
+    jra55 --&gt; init
+    e3sm_init[&quot;e3sm/init&quot;] --&gt; init
+    init --&gt; forward
+    init --&gt; analysis_output
+    database[(&quot;Polaris input database&quot;)] --&gt; cached_forward
+    database --&gt; analysis_output
+    database --&gt; restart
+    </pre><section id="supported-models">
+<h2>supported models<a class="headerlink" href="#supported-models" title="Link to this heading"></a></h2>
+<p>The <code class="docutils literal notranslate"><span class="pre">woa23</span></code> and <code class="docutils literal notranslate"><span class="pre">jra55</span></code> tasks are model-independent and do not require either
+MPAS-Ocean or Omega to be built.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">init</span></code> and forward tasks support both MPAS-Ocean and Omega.  The
+<code class="docutils literal notranslate"><span class="pre">analysis_output</span></code> tasks support only Omega, since the analysis reads only
+Omega output.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">restart</span></code> task supports Omega only.  It is a regression test for the way
+Omega writes its history time axis across a restart, and MPAS-Ocean stamps its
+output with <code class="docutils literal notranslate"><span class="pre">xtime</span></code> rather than an elapsed time measured from the start of the
+clock, so the failure it looks for cannot arise there.</p>
+</section>
+<section id="woa23">
+<span id="ocean-realistic-global-woa23"></span><h2>woa23<a class="headerlink" href="#woa23" title="Link to this heading"></a></h2>
+<p>This task is the Polaris port of the legacy Compass
+<code class="docutils literal notranslate"><span class="pre">utility/extrap_woa</span></code> workflow. It combines January and annual WOA23
+climatologies, uses a cached <code class="docutils literal notranslate"><span class="pre">e3sm/init</span></code> combined-topography product on the
+WOA grid to define the ocean mask used during preprocessing, and then fills
+missing temperature and salinity values through staged horizontal and vertical
+extrapolation.</p>
+<p>The task can be set up with:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>polaris<span class="w"> </span>setup<span class="w"> </span>-t<span class="w"> </span>ocean/spherical/realistic_global/hydrography/woa23<span class="w"> </span>...
+</pre></div>
+</div>
+<section id="description">
+<h3>description<a class="headerlink" href="#description" title="Link to this heading"></a></h3>
+<p>The task is organized into inspectable steps:</p>
+<ol class="arabic simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">combine_topo</span></code> from the <code class="docutils literal notranslate"><span class="pre">e3sm/init</span></code> component is used to combine topography
+GEBCO and Bedmap3 datasets on the WOA23 0.25-degree latitude-longitude grid.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">combine</span></code> creates <code class="docutils literal notranslate"><span class="pre">woa_combined.nc</span></code> by combining January and annual WOA23
+in-situ temperature and practical-salinity fields, then deriving
+conservative temperature and absolute salinity.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">extrapolate</span></code> creates the final
+<code class="docutils literal notranslate"><span class="pre">woa23_decav_0.25_jan_extrap.nc</span></code> product.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">viz</span></code> produces horizontal maps and vertical sections of the extrapolated
+product.  This step is not run by default.</p></li>
+</ol>
+<p>This layout is intended to match Polaris shared-step conventions so the WOA23
+preprocessing pipeline can later be reused by mesh-dependent
+<code class="docutils literal notranslate"><span class="pre">realistic_global</span></code> initialization tasks.</p>
+</section>
+<section id="mesh">
+<h3>mesh<a class="headerlink" href="#mesh" title="Link to this heading"></a></h3>
+<p>N/A. This task operates on the native WOA23 latitude-longitude grid rather
+than an MPAS mesh.</p>
+</section>
+<section id="vertical-grid">
+<h3>vertical grid<a class="headerlink" href="#vertical-grid" title="Link to this heading"></a></h3>
+<p>N/A. The task preserves the standard WOA23 depth levels.</p>
+</section>
+<section id="initial-conditions">
+<h3>initial conditions<a class="headerlink" href="#initial-conditions" title="Link to this heading"></a></h3>
+<p>The source fields come from the WOA23 January and annual climatologies in the
+Polaris input database.</p>
+</section>
+<section id="forcing">
+<h3>forcing<a class="headerlink" href="#forcing" title="Link to this heading"></a></h3>
+<p>N/A.</p>
+</section>
+<section id="time-step-and-run-duration">
+<h3>time step and run duration<a class="headerlink" href="#time-step-and-run-duration" title="Link to this heading"></a></h3>
+<p>N/A.</p>
+</section>
+<section id="config-options">
+<h3>config options<a class="headerlink" href="#config-options" title="Link to this heading"></a></h3>
+<div class="highlight-cfg notranslate"><div class="highlight"><pre><span></span><span class="c1"># Options related to generating a reusable WOA23 hydrography product</span>
+<span class="k">[woa23]</span>
+
+<span class="c1"># the minimum weight sum needed to mark a new cell valid in horizontal</span>
+<span class="c1"># extrapolation</span>
+<span class="na">extrap_threshold</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">0.01</span>
+
+<span class="c1"># target depths for horizontal plots of the extrapolated product (m)</span>
+<span class="na">horizontal_plot_depths</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">0.0, 200.0, 400.0, 600.0, 800.0</span>
+
+<span class="c1"># maximum depth to include in section plots (m)</span>
+<span class="na">section_max_depth</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">2000.0</span>
+
+<span class="c1"># endpoints of a transect through Filchner Trough and into the Filchner</span>
+<span class="c1"># ice-shelf cavity</span>
+<span class="na">filchner_start_lon</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">-46.0</span>
+<span class="na">filchner_start_lat</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">-71.5</span>
+<span class="na">filchner_end_lon</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">-38.5</span>
+<span class="na">filchner_end_lat</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">-81.2</span>
+
+<span class="c1"># endpoints of a transect through the Ross Ice Shelf cavity</span>
+<span class="na">ross_start_lon</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">176.0</span>
+<span class="na">ross_start_lat</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">-72.0</span>
+<span class="na">ross_end_lon</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">-171.0</span>
+<span class="na">ross_end_lat</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">-84.0</span>
+</pre></div>
+</div>
+<p>The <code class="docutils literal notranslate"><span class="pre">viz</span></code> step is further controlled by the <code class="docutils literal notranslate"><span class="pre">[woa23_viz_temperature]</span></code>,
+<code class="docutils literal notranslate"><span class="pre">[woa23_viz_salinity]</span></code>, <code class="docutils literal notranslate"><span class="pre">[woa23_viz_section_temperature]</span></code> and
+<code class="docutils literal notranslate"><span class="pre">[woa23_viz_section_salinity]</span></code> sections, each of which supports the standard
+Polaris colormap options described in <a class="reference internal" href="../../../developers_guide/framework/visualization.html#dev-visualization-global"><span class="std std-ref">global lat/lon plots</span></a>.</p>
+</section>
+<section id="cores">
+<h3>cores<a class="headerlink" href="#cores" title="Link to this heading"></a></h3>
+<p>The local <code class="docutils literal notranslate"><span class="pre">combine</span></code> and <code class="docutils literal notranslate"><span class="pre">extrapolate</span></code> steps run serially. The
+<code class="docutils literal notranslate"><span class="pre">combine_topo</span></code> step is intended to use the cached <code class="docutils literal notranslate"><span class="pre">e3sm/init</span></code> output because
+regenerating the combined topography product is substantially more expensive.</p>
+</section>
+</section>
+<section id="jra55">
+<span id="ocean-realistic-global-jra55"></span><h2>jra55<a class="headerlink" href="#jra55" title="Link to this heading"></a></h2>
+<p>This task builds a time-invariant global wind-stress product from JRA55-do
+10-m winds.  Its purpose is narrow: standalone runs need a realistic,
+constant-in-time momentum input so that dynamic adjustment can spin down fast
+waves against a physically sensible circulation.  It is not intended as a
+climate forcing product, and it does not include surface restoring, thermal or
+freshwater fluxes, or any time variation.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>polaris<span class="w"> </span>setup<span class="w"> </span>-t<span class="w"> </span>ocean/spherical/realistic_global/forcing/jra55<span class="w"> </span>...
+</pre></div>
+</div>
+<p>The source is JRA55-do v1.5.0 (<code class="docutils literal notranslate"><span class="pre">MRI-JRA55-do-1-5-0</span></code>), variables <code class="docutils literal notranslate"><span class="pre">uas</span></code> and
+<code class="docutils literal notranslate"><span class="pre">vas</span></code>: 10-m winds on the TL319 Gaussian grid, 3-hourly, distributed as
+input4MIPs on ESGF.  E3SM forces ocean-only (G-case) runs with JRA55, so the
+adjusted state is adjusted against something close to what a coupled run will
+apply.  The default time window is January 1958, the first month of the record
+and of an interannually forced G-case.</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>Running the <code class="docutils literal notranslate"><span class="pre">stress</span></code> step downloads about 3.5 GiB of raw reanalysis into the
+<code class="docutils literal notranslate"><span class="pre">initial_condition_database</span></code>.  The derived product is in the Polaris cache
+database, so this happens only when you run this task to regenerate it, and
+users of the <code class="docutils literal notranslate"><span class="pre">init</span></code> task get the few-MB product from the Polaris server
+instead.</p>
+</div>
+<p>The stress is computed at every 3-hourly step and then time-averaged, rather
+than computing the stress of the time-mean wind.  Averaging the wind first
+discards the gust contribution and underestimates the stress in the storm
+tracks, which is why the 3-hourly data is needed at all.  The bulk formula is
+the Large and Yeager (2004, 2009) neutral 10-m drag law; the stability
+correction, the ocean-current-relative wind and any sea-ice drag distinction
+are deliberately omitted as second-order for this purpose.</p>
+<section id="id1">
+<h3>description<a class="headerlink" href="#id1" title="Link to this heading"></a></h3>
+<p>The task contains two steps:</p>
+<ol class="arabic simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">stress</span></code> downloads the raw winds and writes <code class="docutils literal notranslate"><span class="pre">jra55_stress.nc</span></code> on the native
+TL319 grid.  It is cached by default, but this task always runs it.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">viz</span></code> plots global maps of the stress components and magnitude, plus a
+zonal-mean <code class="docutils literal notranslate"><span class="pre">taux</span></code> curve.  It runs by default in this task, but is left out
+when the wind-stress steps are pulled into other workflows as shared
+dependencies, so the plots are not regenerated for every mesh.</p></li>
+</ol>
+<p>The zonal-mean curve is the diagnostic worth looking at.  For the default
+January window it peaks near +0.12 N m^-2 around 50S in the Southern Ocean
+westerlies, with a trade-wind minimum near -0.06 N m^-2.  Do not compare those
+against published <em>annual-mean</em> stress climatologies, which are considerably
+stronger in the Southern Ocean – the Compass NCEP 1958-2000 annual mean peaks
+at +0.19 N m^-2 – because the Southern Ocean westerlies are weaker in austral
+summer.  Compare like with like, or expect a January product to look weak.</p>
+</section>
+<section id="id2">
+<h3>mesh<a class="headerlink" href="#id2" title="Link to this heading"></a></h3>
+<p>N/A. This task operates on the native JRA55-do TL319 grid rather than an MPAS
+mesh.</p>
+</section>
+<section id="id3">
+<h3>vertical grid<a class="headerlink" href="#id3" title="Link to this heading"></a></h3>
+<p>N/A.</p>
+</section>
+<section id="id4">
+<h3>initial conditions<a class="headerlink" href="#id4" title="Link to this heading"></a></h3>
+<p>N/A.</p>
+</section>
+<section id="id5">
+<h3>forcing<a class="headerlink" href="#id5" title="Link to this heading"></a></h3>
+<p>N/A. This task produces wind stress for the <code class="docutils literal notranslate"><span class="pre">init</span></code> task rather than applying
+any forcing itself.</p>
+</section>
+<section id="id6">
+<h3>time step and run duration<a class="headerlink" href="#id6" title="Link to this heading"></a></h3>
+<p>N/A.</p>
+</section>
+<section id="id7">
+<h3>config options<a class="headerlink" href="#id7" title="Link to this heading"></a></h3>
+<div class="highlight-cfg notranslate"><div class="highlight"><pre><span></span><span class="c1"># Options related to generating a reusable JRA55-do wind-stress product</span>
+<span class="k">[jra55]</span>
+
+<span class="c1"># the input4MIPs source and version of the JRA55-do dataset</span>
+<span class="na">source_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">MRI-JRA55-do-1-5-0</span>
+<span class="na">version</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">v20200916</span>
+
+<span class="c1"># the ESGF data node and root path used to download the raw winds.  The</span>
+<span class="c1"># retired esgf-node.llnl.gov and esgf-node.ornl.gov paths no longer work.</span>
+<span class="na">base_url</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">https://esgf.ceda.ac.uk/thredds/fileServer/esg_cmip6/input4MIPs/CMIP6/OMIP/MRI</span>
+
+<span class="c1"># the year and month to average.  January 1958 is the first month of the</span>
+<span class="c1"># JRA55-do record and of an interannually forced E3SM G-case.</span>
+<span class="na">year</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">1958</span>
+<span class="na">month</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">1</span>
+
+<span class="c1"># air density used in the bulk formula (kg m^-3)</span>
+<span class="na">rho_air</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">1.22</span>
+
+<span class="c1"># wind speeds below this value (m s^-1) are clamped before evaluating the</span>
+<span class="c1"># drag law, whose 2.70/U term would otherwise diverge</span>
+<span class="na">min_wind_speed</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">0.5</span>
+
+<span class="c1"># number of time slices to process at once when averaging the stress</span>
+<span class="na">time_chunk_size</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">24</span>
+</pre></div>
+</div>
+<p>The <code class="docutils literal notranslate"><span class="pre">viz</span></code> step is further controlled by the <code class="docutils literal notranslate"><span class="pre">[jra55_viz_taux]</span></code>,
+<code class="docutils literal notranslate"><span class="pre">[jra55_viz_tauy]</span></code> and <code class="docutils literal notranslate"><span class="pre">[jra55_viz_tau_mag]</span></code> sections, each of which supports
+the standard Polaris colormap options described in
+<a class="reference internal" href="../../../developers_guide/framework/visualization.html#dev-visualization-global"><span class="std std-ref">global lat/lon plots</span></a>.</p>
+</section>
+<section id="id8">
+<h3>cores<a class="headerlink" href="#id8" title="Link to this heading"></a></h3>
+<p>Both steps run serially.</p>
+</section>
+</section>
+<section id="init">
+<span id="ocean-realistic-global-init"></span><h2>init<a class="headerlink" href="#init" title="Link to this heading"></a></h2>
+<p>The <code class="docutils literal notranslate"><span class="pre">init</span></code> task creates a mesh-specific ocean initial condition (and, for
+Omega, a vertical-coordinate file) from the WOA23 hydrography and the culled
+mesh from <code class="docutils literal notranslate"><span class="pre">e3sm/init</span></code>, together with a surface forcing file from the JRA55-do
+wind stress.  There is one task for each base and unified mesh:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>polaris<span class="w"> </span>setup<span class="w"> </span>-t<span class="w"> </span>ocean/spherical/realistic_global/&lt;mesh_name&gt;/init<span class="w"> </span>...
+</pre></div>
+</div>
+<p>The target model, MPAS-Ocean or Omega, is set by the <code class="docutils literal notranslate"><span class="pre">[ocean]</span> <span class="pre">model</span></code> config
+option, which <code class="docutils literal notranslate"><span class="pre">polaris</span> <span class="pre">setup</span></code> takes from <code class="docutils literal notranslate"><span class="pre">--model</span></code> or detects from the build
+given with <code class="docutils literal notranslate"><span class="pre">-p</span></code>.</p>
+<section id="id9">
+<h3>description<a class="headerlink" href="#id9" title="Link to this heading"></a></h3>
+<p>The task runs the <code class="docutils literal notranslate"><span class="pre">e3sm/init</span></code> steps that build and cull the mesh and remap
+its topography (see <a class="reference internal" href="../../e3sm/init/tasks/topo.html#e3sm-init-topo-tasks"><span class="std std-ref">Topography Tasks</span></a>), the steps of the <code class="docutils literal notranslate"><span class="pre">woa23</span></code>
+and <code class="docutils literal notranslate"><span class="pre">jra55</span></code> tasks, which read their products from the cache, and then these
+steps of its own:</p>
+<ol class="arabic simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">cull_topo</span></code> moves the remapped topography from the base mesh onto the
+culled ocean mesh.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">woa23_map</span></code> and <code class="docutils literal notranslate"><span class="pre">remap_woa23</span></code> remap the WOA23 conservative temperature and
+absolute salinity to the culled mesh.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">jra55_map</span></code> and <code class="docutils literal notranslate"><span class="pre">remap_jra55</span></code> remap the JRA55-do wind stress to the culled
+mesh.  The step fails if the mapping leaves any cell uncovered.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">pstar_init</span></code> builds the p-star vertical coordinate together with the
+temperature and salinity on it, since each depends on the other through
+the equation of state.  It also fits the bathymetry to the depths the
+vertical grid can represent and fills isolated bathymetry holes.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">initial_state</span></code> writes <code class="docutils literal notranslate"><span class="pre">mesh.nc</span></code>, <code class="docutils literal notranslate"><span class="pre">init.nc</span></code> and, for Omega,
+<code class="docutils literal notranslate"><span class="pre">vert_coord.nc</span></code>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">forcing</span></code> writes <code class="docutils literal notranslate"><span class="pre">forcing.nc</span></code> with the wind stress on the mesh.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">viz</span></code> writes sanity-check plots and ParaView exports for the initial
+condition and vertical coordinate: an <code class="docutils literal notranslate"><span class="pre">initial_state_summary.png</span></code> figure of
+histograms, a <code class="docutils literal notranslate"><span class="pre">vertical_coordinate.png</span></code> structure figure, global maps of
+temperature and salinity at several depths (plus surface and seafloor) and
+of topography and column diagnostics, vertical transects across the major
+ocean basins, and <code class="docutils literal notranslate"><span class="pre">xdmf/</span></code> subdirectories for ParaView.  For Omega, native
+surface/bottom pressure maps and a TEOS-10 in-situ density
+(stratification) check are also produced.  Global maps of the on-mesh wind
+stress components and magnitude are also written, which is where remapping
+artifacts would show up.</p></li>
+</ol>
+<p>On large meshes, <code class="docutils literal notranslate"><span class="pre">viz</span></code> is the most expensive step: it took 33 minutes of a
+run of about 1.8 hours on <code class="docutils literal notranslate"><span class="pre">u-oi6to18-lr12p5</span></code>.  It runs only in this task;
+other workflows that reuse the init steps leave it out.</p>
+</section>
+<section id="id10">
+<h3>mesh<a class="headerlink" href="#id10" title="Link to this heading"></a></h3>
+<p>Any of the base meshes (<a class="reference internal" href="../../mesh/tasks/base_mesh.html#mesh-base-mesh-task"><span class="std std-ref">Base Mesh Tasks</span></a>) or unified meshes
+(<a class="reference internal" href="../../mesh/tasks/unified/base_mesh.html#users-mesh-unified-base-mesh"><span class="std std-ref">Unified base-mesh tasks</span></a>), culled to the ocean and sea-ice domain
+by <code class="docutils literal notranslate"><span class="pre">e3sm/init</span></code>.</p>
+</section>
+<section id="id11">
+<h3>vertical grid<a class="headerlink" href="#id11" title="Link to this heading"></a></h3>
+<p>The default is the 80-layer E3SMv1 reference grid with the p-star coordinate
+(see <a class="reference internal" href="../framework/vertical.html#ocean-p-star"><span class="std std-ref">p-star</span></a>) and partial bottom cells.  The 240 km meshes use a
+cheaper 16-level grid instead (see <a class="reference internal" href="#ocean-realistic-global-mesh-configs"><span class="std std-ref">per-mesh config options</span></a>).</p>
+<div class="highlight-cfg notranslate"><div class="highlight"><pre><span></span><span class="c1"># Options related to the vertical grid</span>
+<span class="k">[vertical_grid]</span>
+
+<span class="c1"># the type of vertical grid</span>
+<span class="na">grid_type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">80layerE3SMv1</span>
+
+<span class="c1"># the type of vertical coordinate</span>
+<span class="na">coord_type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">p-star</span>
+
+<span class="c1"># Whether to use "partial" or "full", or "None" to not alter the topography</span>
+<span class="na">partial_cell_type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">partial</span>
+
+<span class="c1"># the minimum fraction of a layer for partial cells</span>
+<span class="na">min_pc_fraction</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">0.1</span>
+
+<span class="c1"># Minimum number of vertical levels a valid column must contain (3 is the</span>
+<span class="c1"># practical minimum for baroclinic dynamics).  Also sets the minimum depth</span>
+<span class="c1"># clamp together with min_bottom_depth.</span>
+<span class="na">min_vert_levels</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">3</span>
+
+<span class="c1"># Minimum geometric water-column depth (m); cells shallower than this (or than</span>
+<span class="c1"># the depth needed for min_vert_levels layers) are clamped to it.</span>
+<span class="na">min_bottom_depth</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">10.0</span>
+</pre></div>
+</div>
+<p>Columns deeper than the reference grid can represent are made shallower to
+fit it.</p>
+</section>
+<section id="id12">
+<h3>initial conditions<a class="headerlink" href="#id12" title="Link to this heading"></a></h3>
+<p>Temperature and salinity come from the extrapolated WOA23 January
+climatology built by the <a class="reference internal" href="#ocean-realistic-global-woa23"><span class="std std-ref">woa23</span></a> task.  They are
+conservative temperature and absolute salinity for Omega, and potential
+temperature and practical salinity for MPAS-Ocean.  The ocean starts at rest,
+with the sea surface at zero height.  Ice-shelf cavities are not supported.</p>
+</section>
+<section id="id13">
+<h3>forcing<a class="headerlink" href="#id13" title="Link to this heading"></a></h3>
+<p><code class="docutils literal notranslate"><span class="pre">forcing.nc</span></code> holds constant-in-time wind stress from the
+<a class="reference internal" href="#ocean-realistic-global-jra55"><span class="std std-ref">jra55</span></a> task: <code class="docutils literal notranslate"><span class="pre">SfcStressZonal</span></code> and
+<code class="docutils literal notranslate"><span class="pre">SfcStressMeridional</span></code> for Omega, <code class="docutils literal notranslate"><span class="pre">windStressZonal</span></code> and <code class="docutils literal notranslate"><span class="pre">windStressMeridional</span></code>
+for MPAS-Ocean.  Both models take zonal and meridional components at cell
+centers and project onto edges themselves.  Surface restoring and the thermal
+and freshwater fluxes are future work.  The settings that switch the forcing on
+in the model are described under <a class="reference internal" href="#ocean-realistic-global-forward">forward</a>.</p>
+</section>
+<section id="id14">
+<h3>time step and run duration<a class="headerlink" href="#id14" title="Link to this heading"></a></h3>
+<p>N/A. This task does not run the ocean model.</p>
+</section>
+<section id="id15">
+<h3>config options<a class="headerlink" href="#id15" title="Link to this heading"></a></h3>
+<div class="highlight-cfg notranslate"><div class="highlight"><pre><span></span><span class="k">[realistic_global_init]</span>
+<span class="c1"># Approximate number of MPAS cells to target per MPI task when building</span>
+<span class="c1"># the WOA23 and JRA55-do remapping weights with mbtempest / ESMF.  Building</span>
+<span class="c1"># weights is a purely horizontal, geometric problem with no vertical</span>
+<span class="c1"># structure, so these counts are much larger than the ~200 cells per core</span>
+<span class="c1"># used to size forward runs.</span>
+<span class="na">remap_cells_per_task</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">10000</span>
+
+<span class="c1"># Rough maximum cells per task, used to compute the minimum task count</span>
+<span class="c1"># (min_tasks).  This is a rule of thumb, not a hard limit: the task count is</span>
+<span class="c1"># rounded to the nearest whole number, so a task may get somewhat more cells.</span>
+<span class="na">remap_min_cells_per_task</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">50000</span>
+
+
+<span class="c1"># Options related the ocean component</span>
+<span class="k">[ocean]</span>
+
+<span class="c1"># Equation of state type, defaults to mpas-ocean default</span>
+<span class="na">eos_type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">teos-10</span>
+
+
+<span class="c1"># Options related to the Coriolis force</span>
+<span class="k">[coriolis]</span>
+
+<span class="c1"># Coriolis type for a realistic global (Earth-rotation) mesh, giving</span>
+<span class="c1"># f = 2 * omega * sin(latitude)</span>
+<span class="na">type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">spherical</span>
+
+
+<span class="c1"># Options for the realistic global init visualization step</span>
+<span class="k">[realistic_global_init_viz]</span>
+
+<span class="c1"># Projection for the global maps, must be supported by polaris.viz</span>
+<span class="na">projection</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">Robinson</span>
+
+<span class="c1"># Longitude of the center of the global maps</span>
+<span class="na">central_longitude</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">200.</span>
+
+<span class="c1"># Depths (m below the surface) at which to plot global temperature/salinity</span>
+<span class="c1"># maps.  One vertical level is selected per depth; its actual depth may vary.</span>
+<span class="na">depths</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">0, 100, 500, 1000, 2000, 4000</span>
+
+<span class="c1"># the type of norm used in the colormaps (set per-variable at run time)</span>
+<span class="na">norm_type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">linear</span>
+
+<span class="c1"># additional arguments to provide to the colormap norm (set at run time)</span>
+<span class="na">norm_args</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">{}</span>
+
+
+<span class="c1"># Vertical transects to plot, crossing relevant ocean basins.  Each named</span>
+<span class="c1"># transect is a list of an even number (&gt;= 4) of values giving alternating</span>
+<span class="c1"># lon, lat waypoints in degrees (a straight line uses two waypoints; a zonal</span>
+<span class="c1"># circumnavigation needs intermediate waypoints).</span>
+<span class="k">[realistic_global_init_viz_transects]</span>
+
+<span class="c1"># comma-separated list of transects to plot (each defined as an option below)</span>
+<span class="na">transects</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">atlantic_meridional, pacific_meridional, indian_meridional,</span>
+<span class="w">    </span><span class="na">southern_ocean_zonal</span>
+
+<span class="c1"># Atlantic meridional section near 30 W</span>
+<span class="na">atlantic_meridional</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">-30.0, -60.0, -30.0, 65.0</span>
+
+<span class="c1"># Pacific meridional section near 150 W</span>
+<span class="na">pacific_meridional</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">-150.0, -60.0, -150.0, 60.0</span>
+
+<span class="c1"># Indian meridional section near 80 E</span>
+<span class="na">indian_meridional</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">80.0, -60.0, 80.0, 25.0</span>
+
+<span class="c1"># Southern Ocean zonal section near 60 S (waypoints around the globe)</span>
+<span class="na">southern_ocean_zonal</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">-180.0, -60.0, -90.0, -60.0, 0.0, -60.0, 90.0, -60.0,</span>
+<span class="w">    </span><span class="na">180.0, -60.0</span>
+</pre></div>
+</div>
+<p>The mapping steps use the <code class="docutils literal notranslate"><span class="pre">map_tool</span></code> option in the <code class="docutils literal notranslate"><span class="pre">[mapping]</span></code> section,
+<code class="docutils literal notranslate"><span class="pre">moab</span></code> by default.  The colormap and its limits for each <code class="docutils literal notranslate"><span class="pre">viz</span></code> plot are set at
+run time from the variable and the range of its data, so the
+<code class="docutils literal notranslate"><span class="pre">[realistic_global_init_viz]</span></code> colormap options are not meant to be edited.</p>
+</section>
+<section id="per-mesh-config-options">
+<span id="ocean-realistic-global-mesh-configs"></span><h3>per-mesh config options<a class="headerlink" href="#per-mesh-config-options" title="Link to this heading"></a></h3>
+<p>Some config options need to differ from one mesh to the next.  These live in
+one optional file per mesh, <code class="docutils literal notranslate"><span class="pre">&lt;mesh_name&gt;.cfg</span></code>, under
+<code class="docutils literal notranslate"><span class="pre">polaris/tasks/ocean/realistic_global/mesh_configs</span></code>.  When a
+<code class="docutils literal notranslate"><span class="pre">realistic_global</span></code> task is set up, the options for its mesh are added <em>after</em>
+the task’s own config file, so they override the defaults.  Most meshes have
+no file there at all and simply use the defaults; you can still override any
+option for a single mesh in your own user config file.</p>
+<p>These are separate from the per-mesh files in <code class="docutils literal notranslate"><span class="pre">polaris/mesh/spherical/unified</span></code>.
+The two are joined by the mesh name but have different owners: the mesh
+component describes the mesh itself (resolutions, river networks, sizing
+fields, total cell count), while the ocean component describes what the ocean
+does on that mesh.  An option specific to the ocean belongs in
+<code class="docutils literal notranslate"><span class="pre">mesh_configs</span></code>, not in the mesh component.</p>
+<p>Currently:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">qu240km</span></code>, <code class="docutils literal notranslate"><span class="pre">icos240km</span></code> and <code class="docutils literal notranslate"><span class="pre">u-oi240-lr240</span></code> replace the default 80-layer
+vertical grid with a cheap 16-level <code class="docutils literal notranslate"><span class="pre">tanh_dz</span></code> grid with a 3000 m bottom
+depth.  The shallow ocean is deliberate: these coarse meshes exist for fast
+smoke-testing of E3SM, Omega and MPAS-Ocean rather than for physically
+realistic simulations.</p></li>
+<li><p>All five unified meshes set <code class="docutils literal notranslate"><span class="pre">culled_ocean_cell_count</span></code>, the approximate size
+of the ocean + sea-ice culled mesh that the ocean model actually runs.  It is
+used to size MPI task counts and is smaller than the full mesh, which
+includes land and river-channel refinement that is culled away first.</p></li>
+<li><p>All five unified meshes, plus <code class="docutils literal notranslate"><span class="pre">qu240km</span></code> and <code class="docutils literal notranslate"><span class="pre">icos240km</span></code>, set the
+resolution-dependent forward-run options described under
+<a class="reference internal" href="#ocean-realistic-global-forward">forward</a>: the horizontal mixing
+coefficients, how mixing is scaled across the mesh, which eddy
+parameterizations are active and, where the default scaling is not
+appropriate, the time step.  The three 240 km meshes are qualitatively the
+same mesh and share the same values.</p></li>
+</ul>
+<p>For example, <code class="docutils literal notranslate"><span class="pre">u-oi240-lr240.cfg</span></code> contains:</p>
+<div class="highlight-cfg notranslate"><div class="highlight"><pre><span></span><span class="c1"># Ocean-specific properties of this mesh</span>
+<span class="k">[realistic_global_mesh]</span>
+
+<span class="c1"># Approximate cell count of the ocean + sea-ice culled mesh that the ocean</span>
+<span class="c1"># model actually runs, used to size ocean MPI task counts (ntasks/min_tasks).</span>
+<span class="na">culled_ocean_cell_count</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">7500</span>
+
+
+<span class="c1"># Options related to the vertical grid</span>
+<span class="k">[vertical_grid]</span>
+
+<span class="c1"># the type of vertical grid</span>
+<span class="na">grid_type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">tanh_dz</span>
+
+<span class="c1"># Number of vertical levels</span>
+<span class="na">vert_levels</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">16</span>
+
+<span class="c1"># Depth of the bottom of the ocean</span>
+<span class="na">bottom_depth</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">3000.0</span>
+
+<span class="c1"># The minimum layer thickness</span>
+<span class="na">min_layer_thickness</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">3.0</span>
+
+<span class="c1"># The maximum layer thickness</span>
+<span class="na">max_layer_thickness</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">500.0</span>
+</pre></div>
+</div>
+<p>Options the per-mesh file does not set (<code class="docutils literal notranslate"><span class="pre">coord_type</span></code>, <code class="docutils literal notranslate"><span class="pre">min_vert_levels</span></code>,
+<code class="docutils literal notranslate"><span class="pre">min_bottom_depth</span></code>, and so on) are inherited from the task’s config file as
+usual.</p>
+</section>
+<section id="id16">
+<h3>cores<a class="headerlink" href="#id16" title="Link to this heading"></a></h3>
+<p><code class="docutils literal notranslate"><span class="pre">woa23_map</span></code> and <code class="docutils literal notranslate"><span class="pre">jra55_map</span></code> run on MPI tasks sized from the mesh’s ocean-culled
+cell count: one task per <code class="docutils literal notranslate"><span class="pre">remap_cells_per_task</span></code> cells, and no fewer than one
+per <code class="docutils literal notranslate"><span class="pre">remap_min_cells_per_task</span></code> cells.  Both are rounded to the nearest whole
+task, so they are rules of thumb rather than hard limits.  The other steps of
+this task run serially.</p>
+</section>
+</section>
+<section id="restart">
+<span id="ocean-realistic-global-restart"></span><h2>restart<a class="headerlink" href="#restart" title="Link to this heading"></a></h2>
+<p>This task checks that a run continued from a restart reproduces the
+uninterrupted run, history output included.  It is shaped like the ERS
+(exact restart) test that CIME runs on E3SM cases, so that Omega’s restarts are
+tested here the way they will be tested once Omega runs in E3SM.</p>
+<p>It is also a regression test for
+<a class="reference external" href="https://github.com/E3SM-Project/Omega/issues/482">Omega #482</a>, where a run
+continued from a restart silently overwrote the history frames written before
+the restart instead of appending to them, leaving a file that was well formed
+and simply missing the earlier half of the run.</p>
+<p>It can be set up with:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>polaris<span class="w"> </span>setup<span class="w"> </span>-t<span class="w"> </span>ocean/spherical/realistic_global/e3sm-qu240/restart<span class="w"> </span>...
+</pre></div>
+</div>
+<section id="id17">
+<h3>description<a class="headerlink" href="#id17" title="Link to this heading"></a></h3>
+<p>The task contains three steps:</p>
+<ol class="arabic simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">full_run</span></code> covers the whole four-hour period in one go and writes a restart
+two hours in.  Besides its history, <code class="docutils literal notranslate"><span class="pre">output.nc</span></code>, it writes the same history
+up to the restart to <code class="docutils literal notranslate"><span class="pre">output_before_restart.nc</span></code>: what a run that stopped at
+the restart would have left behind.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">restart_run</span></code> continues from that restart and covers the last two hours,
+appending its history frames to a copy of <code class="docutils literal notranslate"><span class="pre">output_before_restart.nc</span></code>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">validate</span></code> compares the history of <code class="docutils literal notranslate"><span class="pre">restart_run</span></code> with the history of
+<code class="docutils literal notranslate"><span class="pre">full_run</span></code>.</p></li>
+</ol>
+<p>As in CIME’s ERS test, the restart is written partway through the full run
+rather than by a separate, shorter run.  Each run writes its restarts into a
+directory of its own under the task’s <code class="docutils literal notranslate"><span class="pre">restarts</span></code> directory, and <code class="docutils literal notranslate"><span class="pre">restart_run</span></code>
+reads the full run’s restart at two hours by name.  Starting <code class="docutils literal notranslate"><span class="pre">restart_run</span></code> from
+a copy of the history up to the restart means it finds on disk what a
+continuing run would find: a history file that already holds the earlier
+frames and has to be appended to.</p>
+<p><code class="docutils literal notranslate"><span class="pre">validate</span></code> checks three things.  The history up to the restart has to hold
+fewer frames than the full run’s, or the restart run would have had nothing to
+append to and the next check would pass without testing anything.  The time
+axis of <code class="docutils literal notranslate"><span class="pre">restart_run</span></code>’s history then has to hold every frame of the whole
+period, in increasing order, which is what #482 broke.  Finally, the state has
+to match the uninterrupted run, which is the usual exact-restart check.</p>
+</section>
+<section id="id18">
+<h3>mesh<a class="headerlink" href="#id18" title="Link to this heading"></a></h3>
+<p>E3SM’s quasi-uniform 240-km mesh, <code class="docutils literal notranslate"><span class="pre">e3sm-qu240</span></code>, downloaded from the Polaris
+input database, as for the <code class="docutils literal notranslate"><span class="pre">cached_forward</span></code> tasks.</p>
+</section>
+<section id="id19">
+<h3>vertical grid<a class="headerlink" href="#id19" title="Link to this heading"></a></h3>
+<p>The vertical grid is the one supplied with the cached initial condition.</p>
+</section>
+<section id="id20">
+<h3>initial conditions<a class="headerlink" href="#id20" title="Link to this heading"></a></h3>
+<p>A cached TEOS-10 Omega initial condition from the <code class="docutils literal notranslate"><span class="pre">realistic_global</span></code> section
+of the Polaris input database, which supplies the mesh, vertical coordinate
+and initial state.</p>
+</section>
+<section id="id21">
+<h3>forcing<a class="headerlink" href="#id21" title="Link to this heading"></a></h3>
+<p>As for the <code class="docutils literal notranslate"><span class="pre">cached_forward</span></code> tasks: zonal and meridional wind stress from the
+initial-condition file, applied through bulk wind stress.</p>
+</section>
+<section id="id22">
+<h3>time step and run duration<a class="headerlink" href="#id22" title="Link to this heading"></a></h3>
+<p>Both runs are <code class="docutils literal notranslate"><span class="pre">split_explicit</span></code> <code class="docutils literal notranslate"><span class="pre">cached_forward</span></code> runs on <code class="docutils literal notranslate"><span class="pre">e3sm-qu240</span></code>,
+configured by the same <code class="docutils literal notranslate"><span class="pre">[realistic_global_forward]</span></code> options, including the
+per-mesh ones: a 1-hour baroclinic and a 3-minute barotropic time step, and a
+biharmonic momentum viscosity of 1.0e15 m^4/s at 240 km.  The full run covers
+four hours and the restart run the last two, with a history frame every hour,
+so each half of the period has two frames and the whole period has four.  The
+period is short on purpose: the task is about how the model restarts and writes
+its history across a restart, not about the circulation, and it is meant to be
+cheap enough for the pull-request suite.</p>
+</section>
+<section id="id23">
+<h3>config options<a class="headerlink" href="#id23" title="Link to this heading"></a></h3>
+<p>The task reads the <code class="docutils literal notranslate"><span class="pre">[realistic_global_forward]</span></code> options described under
+<a class="reference internal" href="#ocean-realistic-global-forward"><span class="std std-ref">forward and cached_forward</span></a>, including the per-mesh ones for
+<code class="docutils literal notranslate"><span class="pre">e3sm-qu240</span></code>.  The run durations and history interval are fixed by the task, so
+its own config file sets only the equation of state:</p>
+<div class="highlight-cfg notranslate"><div class="highlight"><pre><span></span><span class="k">[ocean]</span>
+
+<span class="c1"># Equation of state type</span>
+<span class="na">eos_type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">teos-10</span>
+</pre></div>
+</div>
+</section>
+<section id="id24">
+<h3>cores<a class="headerlink" href="#id24" title="Link to this heading"></a></h3>
+<p>The number of cores used by each forward step is determined algorithmically
+from the number of cells in the mesh.  The <code class="docutils literal notranslate"><span class="pre">validate</span></code> step runs serially.</p>
+</section>
+</section>
+<section id="forward-and-cached-forward">
+<span id="ocean-realistic-global-forward"></span><h2>forward and cached_forward<a class="headerlink" href="#forward-and-cached-forward" title="Link to this heading"></a></h2>
+<p>A forward run of the ocean model selected by the <code class="docutils literal notranslate"><span class="pre">[ocean]</span> <span class="pre">model</span></code> config option
+(MPAS-Ocean or Omega), starting from a <code class="docutils literal notranslate"><span class="pre">realistic_global</span></code> initial condition.
+The <code class="docutils literal notranslate"><span class="pre">short</span></code> step is a brief run: it checks that the model runs stably on the
+mesh and initial condition, not that the simulation is physically interesting.
+Two further steps, <code class="docutils literal notranslate"><span class="pre">global_stats</span></code> and <code class="docutils literal notranslate"><span class="pre">viz</span></code>, plot the run’s statistics and its
+state; neither is run by default.</p>
+<p>The two tasks are built from the same steps and run the same physics; they
+differ only in where the initial condition comes from.</p>
+<p>Each comes in two variants, which differ only in the time integrator.  The
+<code class="docutils literal notranslate"><span class="pre">split_explicit</span></code> variant uses the default split time stepping in both models.
+The <code class="docutils literal notranslate"><span class="pre">rk4</span></code> variant adds <code class="docutils literal notranslate"><span class="pre">rk4.cfg</span></code>, which runs RK4 in both models, for
+occasional testing:</p>
+<div class="highlight-cfg notranslate"><div class="highlight"><pre><span></span><span class="k">[realistic_global_forward]</span>
+
+<span class="na">mpaso_time_integrator</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">RK4</span>
+<span class="na">omega_time_integrator</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">RK4</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">forward</span></code> runs on a mesh and initial condition that
+<a class="reference internal" href="#ocean-realistic-global-init"><span class="std std-ref">init</span></a> builds, and can be set up for any mesh
+Polaris knows how to build:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>polaris<span class="w"> </span>setup<span class="w"> </span>-t<span class="w"> </span>ocean/spherical/realistic_global/qu240km/forward/split_explicit<span class="w"> </span>...
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">cached_forward</span></code> downloads a ready-made initial condition instead, so it runs
+without the WOA23 remapping and topography culling the <code class="docutils literal notranslate"><span class="pre">init</span></code> chain does
+first.  It is defined for the two meshes whose initial conditions have been
+staged:</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>mesh</p></th>
+<th class="head"><p>cells</p></th>
+<th class="head"><p>split time steps</p></th>
+<th class="head"><p>RK4 time step</p></th>
+<th class="head"><p>run duration</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">e3sm-qu240</span></code></p></td>
+<td><p>7,153</p></td>
+<td><p>1 h, 3 min</p></td>
+<td><p>10 min</p></td>
+<td><p>5 days</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">e3sm-ec30to60e2r2</span></code></p></td>
+<td><p>236,853</p></td>
+<td><p>30 min, 1 min</p></td>
+<td><p>45 s</p></td>
+<td><p>1 day</p></td>
+</tr>
+</tbody>
+</table>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>polaris<span class="w"> </span>setup<span class="w"> </span>-t<span class="w"> </span>ocean/spherical/realistic_global/e3sm-qu240/cached_forward/rk4<span class="w"> </span>...
+</pre></div>
+</div>
+<p>Both <code class="docutils literal notranslate"><span class="pre">e3sm-qu240</span></code> <code class="docutils literal notranslate"><span class="pre">cached_forward</span></code> variants are in the <code class="docutils literal notranslate"><span class="pre">omega_pr</span></code> suite, and the
+<code class="docutils literal notranslate"><span class="pre">split_explicit</span></code> one is in <code class="docutils literal notranslate"><span class="pre">mpaso_pr</span></code>.</p>
+<section id="physics-and-comparing-with-omega">
+<span id="ocean-realistic-global-forward-purposes"></span><h3>physics, and comparing with Omega<a class="headerlink" href="#physics-and-comparing-with-omega" title="Link to this heading"></a></h3>
+<p><code class="docutils literal notranslate"><span class="pre">forward</span></code> and <code class="docutils literal notranslate"><span class="pre">cached_forward</span></code> run the same physics, as close to production as
+each model allows.  For MPAS-Ocean, that is E3SM’s: Gent-McWilliams, Redi, KPP,
+the submesoscale parameterization and the <code class="docutils literal notranslate"><span class="pre">Jacobian_from_TS</span></code> pressure gradient,
+with the resolution-dependent mixing each mesh needs.  Omega runs what it has
+of these, which today is KPP and the submesoscale parameterization, so the two
+models do not run the same physics.</p>
+<p>To compare them, turn off the MPAS-Ocean physics Omega lacks with the options
+in <code class="docutils literal notranslate"><span class="pre">compare_with_omega.cfg</span></code>, in the forward package.  Add them to the user
+config file passed to <code class="docutils literal notranslate"><span class="pre">polaris</span> <span class="pre">setup</span> <span class="pre">-f</span></code> (or pass the file itself), or set them
+in a step’s <code class="docutils literal notranslate"><span class="pre">forward.cfg</span></code> before running it, since the run reads its options
+again then.  Polaris never applies this file on its own:</p>
+<div class="highlight-cfg notranslate"><div class="highlight"><pre><span></span><span class="c1"># A reference for comparing MPAS-Ocean with Omega.  Polaris never reads this</span>
+<span class="c1"># file on its own.  Forward runs are as close to production as each model</span>
+<span class="c1"># allows, so MPAS-Ocean runs physics that Omega does not have.  To compare the</span>
+<span class="c1"># two models, add these options to the user config file passed to</span>
+<span class="c1"># "polaris setup -f" (or pass this file itself), or set them in a step's</span>
+<span class="c1"># forward.cfg before running it.</span>
+<span class="c1">#</span>
+<span class="c1"># The list describes what Omega lacks today and should shrink as Omega gains</span>
+<span class="c1"># capabilities.</span>
+<span class="k">[realistic_global_forward]</span>
+
+<span class="c1"># Omega has no Gent-McWilliams or Redi, and is not expected to gain them</span>
+<span class="na">use_GM</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">False</span>
+<span class="na">use_Redi</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">False</span>
+
+<span class="c1"># the ordinary counterpart to Omega's Centered pressure gradient, rather than</span>
+<span class="c1"># Jacobian_from_TS</span>
+<span class="na">pressure_gradient_type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">pressure_and_zmid</span>
+</pre></div>
+</div>
+<p>Both cached meshes scale their coefficients with cell width like every other
+mesh, but use more momentum viscosity than E3SM to reduce grid-scale noise in
+Omega’s velocity: on <code class="docutils literal notranslate"><span class="pre">e3sm-qu240</span></code>, a biharmonic viscosity of 1.0e15 m^4/s at
+240 km rather than E3SM’s 2.0e14, and on <code class="docutils literal notranslate"><span class="pre">e3sm-ec30to60e2r2</span></code>, E3SM’s
+biharmonic viscosity rescaled to the mesh’s median cell width with a harmonic
+one of 1.0e4 m^2/s rather than E3SM’s 1.0e3.  With E3SM’s values, one-year
+Omega runs checkerboard the divergence along coasts and, on
+<code class="docutils literal notranslate"><span class="pre">e3sm-ec30to60e2r2</span></code>, the Gulf Stream.  These values are provisional until the
+fix to Omega’s pressure-gradient errors over bathymetry.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p><code class="docutils literal notranslate"><span class="pre">cached_forward</span></code> is temporary.  Its initial conditions are E3SM’s, for E3SM’s
+QU240 and EC30to60E2r2 meshes (<code class="docutils literal notranslate"><span class="pre">e3sm-qu240</span></code> and <code class="docutils literal notranslate"><span class="pre">e3sm-ec30to60e2r2</span></code> here),
+converted for Omega.  They let Omega run realistic global configurations, and be compared with MPAS-Ocean, before
+Polaris could build its own initial conditions.  Now that it can, these tasks
+will be removed.</p>
+</div>
+</section>
+<section id="surface-forcing">
+<h3>surface forcing<a class="headerlink" href="#surface-forcing" title="Link to this heading"></a></h3>
+<p>The run is forced by time-invariant JRA55-do wind stress — written by the init
+workflow’s <a class="reference internal" href="#ocean-realistic-global-init"><code class="docutils literal notranslate"><span class="pre">forcing</span></code> step</a> for <code class="docutils literal notranslate"><span class="pre">forward</span></code>, and
+carried inside the cached initial-condition file for <code class="docutils literal notranslate"><span class="pre">cached_forward</span></code>.  Wind
+stress is the only forcing: there is no surface restoring and there are no thermal or
+freshwater fluxes, so the tracers spin down from the initial condition while
+the momentum input holds up a circulation.</p>
+<p><code class="docutils literal notranslate"><span class="pre">forcing.yaml</span></code> turns it on with <code class="docutils literal notranslate"><span class="pre">config_use_bulk_wind_stress</span></code>, which
+<code class="docutils literal notranslate"><span class="pre">mpaso_to_omega.yaml</span></code> translates to Omega’s <code class="docutils literal notranslate"><span class="pre">SfcStressForcingTendencyEnable</span></code>.
+Both models default it to off, and it is set for every realistic global forward
+run: there is no config option to run without wind forcing.</p>
+<p><code class="docutils literal notranslate"><span class="pre">forcing.yaml</span></code> also sets <code class="docutils literal notranslate"><span class="pre">config_bulk_wind_stress_interp_isotropic</span></code> for
+MPAS-Ocean, on every forward run.  Both models take the stress at cell centres
+and project it onto edges themselves, but not the same way by default:
+MPAS-Ocean uses the two cells adjacent to an edge, and Omega uses four.  This
+is set because four is what E3SM runs with today, so it is the E3SM-like
+choice for the unified meshes; it also happens to be Omega’s only option, so
+the two models end up applying the same momentum without anything further
+being said.  The isotropic form is slightly less accurate and Omega may not
+keep it, so this is worth revisiting when that is decided.</p>
+<p>Where the wind stress comes from is a separate question, answered by the
+forward step’s initial condition.  When it stages a forcing file of its own — as
+the init workflow does — <code class="docutils literal notranslate"><span class="pre">forcing_streams.yaml</span></code> points each model’s input stream
+at the file named by the <code class="docutils literal notranslate"><span class="pre">[ocean_staged_files]</span> <span class="pre">forcing_filename</span></code> config option
+(<code class="docutils literal notranslate"><span class="pre">forcing.nc</span></code> by default).  A cached initial condition carries the stress
+inside the initial-condition file, so the same streams are pointed there
+instead.  For MPAS-Ocean that is a <code class="docutils literal notranslate"><span class="pre">forcing</span></code> stream holding
+just the two wind-stress variables, rather than the Registry’s <code class="docutils literal notranslate"><span class="pre">forcing_data</span></code>
+stream, which would also demand the sea-ice and atmospheric pressures and the
+tracer restoring fields.</p>
+</section>
+<section id="output">
+<h3>output<a class="headerlink" href="#output" title="Link to this heading"></a></h3>
+<p>The run writes <code class="docutils literal notranslate"><span class="pre">output.nc</span></code> at <code class="docutils literal notranslate"><span class="pre">output_interval</span></code> and a restart at
+<code class="docutils literal notranslate"><span class="pre">restart_interval</span></code>.</p>
+<p><code class="docutils literal notranslate"><span class="pre">output.nc</span></code> holds more than the prognostic state.  For MPAS-Ocean it is the
+tracers, velocity, layer thickness, kinetic energy and relative vorticity; for
+Omega it is the <code class="docutils literal notranslate"><span class="pre">State</span></code>, <code class="docutils literal notranslate"><span class="pre">Tracers</span></code>, <code class="docutils literal notranslate"><span class="pre">AuxiliaryState</span></code>, <code class="docutils literal notranslate"><span class="pre">SshCell</span></code> and <code class="docutils literal notranslate"><span class="pre">Eos</span></code>
+groups, which add the vorticity, divergence and del2 terms, the free surface
+and the specific volume and buoyancy frequency.  The extra fields cost file
+size and are worth it: without them a run that goes wrong can be seen to have
+gone wrong but not diagnosed, and these runs exist partly to be compared
+against each other.</p>
+<p>It also writes a time series of the global minimum, maximum, mean and RMS of
+the state variables, plus the global CFL number for MPAS-Ocean.  This is the
+cheapest way to see a run going wrong before it NaNs, which matters most for
+the longer spin-ups that build on this task.  MPAS-Ocean produces it through
+the <code class="docutils literal notranslate"><span class="pre">globalStats</span></code> analysis member, in <code class="docutils literal notranslate"><span class="pre">global_stats.nc</span></code>, and Omega through its
+<code class="docutils literal notranslate"><span class="pre">GlobalStats</span></code> analysis group, in <code class="docutils literal notranslate"><span class="pre">global_stats_1DayInstants</span></code> at the default
+<code class="docutils literal notranslate"><span class="pre">stats_interval</span></code> — Omega treats the configured file name as a prefix and
+appends the period and the kind of output, with no <code class="docutils literal notranslate"><span class="pre">.nc</span></code> extension.</p>
+<p>The two files hold much the same quantities under different variable names,
+which Polaris builds from the field and the statistic rather than mapping one
+by one.  One difference is not just a name: MPAS-Ocean’s <code class="docutils literal notranslate"><span class="pre">rms*</span></code> is a root mean
+square while Omega’s <code class="docutils literal notranslate"><span class="pre">SpatialStdDev</span></code> is a standard deviation, so the
+<code class="docutils literal notranslate"><span class="pre">global_stats</span></code> step converts the former before plotting it.  Which fields it
+plots is set by <code class="docutils literal notranslate"><span class="pre">[realistic_global_forward_stats]</span> <span class="pre">fields</span></code>; left empty, as it is
+by default, the step plots every field the run wrote statistics for.</p>
+<p>Omega samples the statistics instantaneously rather than averaging them over
+the period, because those are the names the readers build: Omega names a
+time-averaged quantity <code class="docutils literal notranslate"><span class="pre">&lt;name&gt;_TimeMean&lt;period&gt;</span></code> and an instantaneous one
+plainly <code class="docutils literal notranslate"><span class="pre">&lt;name&gt;</span></code>.  Averaging would also constrain <code class="docutils literal notranslate"><span class="pre">restart_interval</span></code>, since
+Omega aborts unless the restart interval is a whole multiple of an averaging
+period; instantaneous sampling carries no such constraint.  MPAS-Ocean writes
+an instantaneous sample too, so the two are comparable.</p>
+<p>MPAS-Ocean additionally writes the temperature-threshold mixed-layer depth at
+<code class="docutils literal notranslate"><span class="pre">output_interval</span></code>, through the <code class="docutils literal notranslate"><span class="pre">mixedLayerDepths</span></code> analysis member, in
+<code class="docutils literal notranslate"><span class="pre">mixed_layer_depths.nc</span></code>.  It is the standard first look at whether the surface
+boundary layer is behaving.  Omega has no equivalent analysis member, so this
+file is written only for MPAS-Ocean.</p>
+</section>
+<section id="physics-options">
+<h3>physics options<a class="headerlink" href="#physics-options" title="Link to this heading"></a></h3>
+<p>The horizontal mixing coefficients, the eddy parameterizations and the way
+mixing is scaled across a variable-resolution mesh all depend on the mesh, so
+they are config options rather than fixed values, and most meshes override them
+in their <a class="reference internal" href="#ocean-realistic-global-mesh-configs">per-mesh config file</a>.  The
+defaults follow how these meshes are configured in E3SM; see
+<a class="reference internal" href="#ocean-realistic-global-forward-purposes"><span class="std std-ref">physics, and comparing with Omega</span></a> for turning off what Omega lacks
+to compare the two models.</p>
+<p>A coefficient and its on/off switch are a single option: leaving <code class="docutils literal notranslate"><span class="pre">mom_del2</span></code>
+blank turns harmonic momentum mixing off, and giving it a value turns it on with
+that coefficient.  This matters more than it might seem — the model defaults
+leave horizontal mixing off entirely, and a global run without it grows
+grid-scale noise until it produces NaNs.</p>
+<p><code class="docutils literal notranslate"><span class="pre">hmix_scaling</span></code> chooses how the coefficients are scaled across the mesh.  The
+default, <code class="docutils literal notranslate"><span class="pre">ref_cell_width</span></code>, makes them apply at <code class="docutils literal notranslate"><span class="pre">hmix_ref_cell_width</span></code> and scale
+from there — as <code class="docutils literal notranslate"><span class="pre">cellWidth</span></code> for the <code class="docutils literal notranslate"><span class="pre">del2</span></code> coefficients and as <code class="docutils literal notranslate"><span class="pre">cellWidth**3</span></code>
+for the <code class="docutils literal notranslate"><span class="pre">del4</span></code> ones — in both models.  <code class="docutils literal notranslate"><span class="pre">none</span></code> uses them as given.</p>
+<p>A blank <code class="docutils literal notranslate"><span class="pre">hmix_ref_cell_width</span></code>, the default, is the mesh’s median cell width,
+computed from the cell areas as Omega computes it.  That is Omega’s own
+reference, and it makes the coefficients mean much the same thing on two meshes
+of the same nominal resolution.  The median comes from the mesh when the forward
+step runs, and the step’s log reports it with the coefficients.</p>
+<p>A mesh whose coefficients come from E3SM states its finest resolution instead,
+because E3SM’s per-grid <code class="docutils literal notranslate"><span class="pre">mom_del2</span></code> and <code class="docutils literal notranslate"><span class="pre">mom_del4</span></code> values are referenced to that:
+the <code class="docutils literal notranslate"><span class="pre">u-oi6to18</span></code> meshes pair <code class="docutils literal notranslate"><span class="pre">RRSwISC6to18E3r5</span></code>’s <code class="docutils literal notranslate"><span class="pre">3.2e09</span></code> with 6 km,
+<code class="docutils literal notranslate"><span class="pre">u-oi-so12to30-lr10</span></code> pairs <code class="docutils literal notranslate"><span class="pre">SOwISC12to30E3r3</span></code>’s <code class="docutils literal notranslate"><span class="pre">1.18e10</span></code> with 12 km, and the
+three 240 km meshes take <code class="docutils literal notranslate"><span class="pre">oQU240</span></code>’s <code class="docutils literal notranslate"><span class="pre">2.0e14</span></code> with 240 km.  Omega has no
+reference width of its own to set, so when one is stated, Polaris converts the
+coefficients it gives Omega — <code class="docutils literal notranslate"><span class="pre">del2</span></code> by the ratio of the median to the
+reference, <code class="docutils literal notranslate"><span class="pre">del4</span></code> by its cube — and both models run the same mixing at every
+cell width.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>MPAS-Ocean spells this as two nested flags, and <code class="docutils literal notranslate"><span class="pre">ref_cell_width</span></code> sets <strong>both</strong>:
+<code class="docutils literal notranslate"><span class="pre">config_hmix_use_ref_cell_width</span></code> is read only inside
+<code class="docutils literal notranslate"><span class="pre">if</span> <span class="pre">(config_hmix_scaleWithMesh)</span></code>.  Setting the first without the second reads as
+a request for width-based scaling and silently gets none at all.</p>
+<p>MPAS-Ocean’s third combination — <code class="docutils literal notranslate"><span class="pre">scaleWithMesh</span></code> with <code class="docutils literal notranslate"><span class="pre">use_ref_cell_width</span></code>
+false — scales by the legacy <code class="docutils literal notranslate"><span class="pre">meshDensity</span></code> field instead.  Polaris does not
+offer it, and it should not be used: <strong><code class="docutils literal notranslate"><span class="pre">meshDensity</span></code> is meaningless on E3SM v4
+meshes</strong>, which write it as uniformly 1.0, so that branch applies no scaling
+either.</p>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">mom_del4_div_factor</span></code> scales the divergence part of the biharmonic momentum
+operator alone, leaving its rotational part at <code class="docutils literal notranslate"><span class="pre">mom_del4</span></code>.  Blank leaves the
+model default of 1.0, the true biharmonic.  Raising it damps the divergent
+grid-scale mode — the one carrying C-grid checkerboard and gravity-wave noise —
+without blurring the resolved eddy field, which is why E3SM uses 10 on its
+eddying <code class="docutils literal notranslate"><span class="pre">RRSwISC6to18E3r5</span></code> mesh and nowhere else.  It reaches Omega as
+<code class="docutils literal notranslate"><span class="pre">DivFactor</span></code>.</p>
+<p>Some settings are not config options because they should not vary: they are
+pinned in <code class="docutils literal notranslate"><span class="pre">forward.yaml</span></code> purely so that MPAS-Ocean and Omega agree: horizontal
+tracer advection order 3, implicit constant bottom drag with a coefficient of
+1e-3, the CVMix convection, shear-mixing and KPP parameters, and the
+submesoscale parameters.  Where the two models’ own defaults differ, the
+MPAS-Ocean default wins, so KPP’s Langmuir turbulence, on by default in Omega,
+is off.  The submesoscale parameters are the exception: they are E3SM’s, which
+Omega’s defaults match, so the efficiency <code class="docutils literal notranslate"><span class="pre">Ce</span></code> is 0.08 rather than the
+MPAS-Ocean Registry default of 0.06.  The rest already match both models, and
+stating them is what keeps them from drifting apart.</p>
+<p>Gent-McWilliams (<code class="docutils literal notranslate"><span class="pre">use_GM</span></code>), Redi (<code class="docutils literal notranslate"><span class="pre">use_Redi</span></code>), the Leith closure
+(<code class="docutils literal notranslate"><span class="pre">use_Leith_del2</span></code>), frazil ice (<code class="docutils literal notranslate"><span class="pre">use_frazil_ice_formation</span></code>) and the
+pressure-gradient formulation (<code class="docutils literal notranslate"><span class="pre">pressure_gradient_type</span></code>) are applied only for
+MPAS-Ocean.  Polaris has no Omega counterpart for any of them, and Omega is not
+expected to gain GM or Redi.  The KPP boundary layer (<code class="docutils literal notranslate"><span class="pre">use_KPP</span></code>) and the
+submesoscale eddy parameterization (<code class="docutils literal notranslate"><span class="pre">use_submesoscale</span></code>) apply to both models.</p>
+<p>They are config options rather than fixed values so that a run comparing
+MPAS-Ocean with Omega can turn off what Omega lacks; see
+<a class="reference internal" href="#ocean-realistic-global-forward-purposes"><span class="std std-ref">physics, and comparing with Omega</span></a>.  The defaults are E3SM’s.
+Several of them are off by default in MPAS-Ocean itself, so leaving them alone
+would not have given E3SM’s configuration either.</p>
+<p>Blank <code class="docutils literal notranslate"><span class="pre">pressure_gradient_type</span></code> leaves the MPAS-Ocean Registry default of
+<code class="docutils literal notranslate"><span class="pre">pressure_and_zmid</span></code>, the ordinary counterpart to Omega’s <code class="docutils literal notranslate"><span class="pre">Centered</span></code>;
+<code class="docutils literal notranslate"><span class="pre">Jacobian_from_TS</span></code> is how E3SM runs and has no Omega equivalent.</p>
+<p><code class="docutils literal notranslate"><span class="pre">config_Redi_min_layers_diag_terms</span></code> is pinned to 0 in <code class="docutils literal notranslate"><span class="pre">forward.yaml</span></code> rather
+than being an option — the Registry default of 6 skips the Redi diagnostic
+terms in the top six layers, and Compass computes them everywhere.  It has an
+effect only where Redi is on.</p>
+</section>
+<section id="time-integrator">
+<h3>time integrator<a class="headerlink" href="#time-integrator" title="Link to this heading"></a></h3>
+<p>The time integrator is the one setting chosen per model rather than shared:
+<code class="docutils literal notranslate"><span class="pre">mpaso_time_integrator</span></code> defaults to <code class="docutils literal notranslate"><span class="pre">split_explicit_ab2</span></code> and
+<code class="docutils literal notranslate"><span class="pre">omega_time_integrator</span></code> to <code class="docutils literal notranslate"><span class="pre">split_explicit</span></code> (translated to
+<code class="docutils literal notranslate"><span class="pre">SplitExplicitRK2</span></code>).  Split time stepping is what makes the month-long
+spin-ups that build on this workflow affordable.  Omega also supports <code class="docutils literal notranslate"><span class="pre">RK4</span></code>
+(translated to <code class="docutils literal notranslate"><span class="pre">RungeKutta4</span></code>), but not <code class="docutils literal notranslate"><span class="pre">split_explicit_ab2</span></code>.  The <code class="docutils literal notranslate"><span class="pre">rk4</span></code>
+variant of each task sets both options to <code class="docutils literal notranslate"><span class="pre">RK4</span></code>.  Both options use neutral
+(MPAS-Ocean) naming, and an <code class="docutils literal notranslate"><span class="pre">omega_time_integrator</span></code> that Omega does not
+support is an error at run time rather than at setup, so the option can still
+be changed after setting a task up.</p>
+</section>
+<section id="id25">
+<h3>time step and run duration<a class="headerlink" href="#id25" title="Link to this heading"></a></h3>
+<p>The time step is derived from the mesh’s minimum resolution: <code class="docutils literal notranslate"><span class="pre">dt_per_km</span></code> gives
+the baroclinic step and <code class="docutils literal notranslate"><span class="pre">btr_dt_per_km</span></code> the barotropic subcycling step, each in
+seconds per kilometer.  Setting <code class="docutils literal notranslate"><span class="pre">dt</span></code> or <code class="docutils literal notranslate"><span class="pre">btr_dt</span></code> overrides the derived value.
+Meshes whose stable time step does not follow the default scaling set
+<code class="docutils literal notranslate"><span class="pre">dt_per_km</span></code> and <code class="docutils literal notranslate"><span class="pre">btr_dt_per_km</span></code> in their per-mesh config file.</p>
+<p>The time step follows from the integrator.  A split integrator advances on the
+long baroclinic step and subcycles the barotropic mode on the short one; a
+non-split integrator such as <code class="docutils literal notranslate"><span class="pre">RK4</span></code> has no subcycling and so must advance on the
+short barotropic step, <code class="docutils literal notranslate"><span class="pre">btr_dt_per_km</span></code> times the minimum resolution.  Setting
+<code class="docutils literal notranslate"><span class="pre">rk4_dt</span></code> overrides that.  It is separate from <code class="docutils literal notranslate"><span class="pre">dt</span></code> so that a mesh config can
+give a time step for each variant, as the cached meshes’ configs do.</p>
+</section>
+<section id="id26">
+<h3>config options<a class="headerlink" href="#id26" title="Link to this heading"></a></h3>
+<div class="highlight-cfg notranslate"><div class="highlight"><pre><span></span><span class="c1"># Options related to the ocean component</span>
+<span class="k">[ocean]</span>
+
+<span class="c1"># The equation of state.  The whole realistic_global family is TEOS-10, and it</span>
+<span class="c1"># is stated here as well as in the init package's init.cfg so that a forward</span>
+<span class="c1"># task is self-contained: a run from a cached initial condition never sets the</span>
+<span class="c1"># init workflow's config up at all, and still has to name the equation of</span>
+<span class="c1"># state to find the right file in the database.</span>
+<span class="na">eos_type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">teos-10</span>
+
+
+<span class="c1"># Options for realistic global ocean forward runs</span>
+<span class="k">[realistic_global_forward]</span>
+
+<span class="c1"># The time integrator, chosen separately for each ocean model because the two</span>
+<span class="c1"># models do not support the same integrators.  Both are given in neutral</span>
+<span class="c1"># (MPAS-Ocean) naming; the Omega one is translated to the Omega name.</span>
+<span class="c1">#</span>
+<span class="c1"># Both models default to split time stepping, which is far cheaper than RK4</span>
+<span class="c1"># for the long spin-ups this workflow feeds into: 'split_explicit_ab2' for</span>
+<span class="c1"># MPAS-Ocean and 'split_explicit' (translated to 'SplitExplicitRK2') for Omega.</span>
+<span class="c1"># Omega also supports 'RK4' (translated to 'RungeKutta4'), and anything else</span>
+<span class="c1"># raises an error at run time.  The rk4 variant of each forward task sets both</span>
+<span class="c1"># to 'RK4'.</span>
+<span class="c1">#</span>
+<span class="c1"># The time step follows from this choice (see dt_per_km, btr_dt_per_km and</span>
+<span class="c1"># rk4_dt).</span>
+<span class="na">mpaso_time_integrator</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">split_explicit_ab2</span>
+<span class="na">omega_time_integrator</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">split_explicit</span>
+
+<span class="c1"># Run duration as an MPAS-style duration string (DDDD_HH:MM:SS)</span>
+<span class="na">run_duration</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">0001_00:00:00</span>
+
+<span class="c1"># Interval between writes to the output stream (DDDD_HH:MM:SS).  MPAS-Ocean</span>
+<span class="c1"># also writes on startup; Omega cannot, so an Omega run shorter than this</span>
+<span class="c1"># interval writes its final state instead.</span>
+<span class="na">output_interval</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">0001_00:00:00</span>
+
+<span class="c1"># Interval between writes to the restart stream (DDDD_HH:MM:SS); leave blank to</span>
+<span class="c1"># default to run_duration (a single restart at the end of the run)</span>
+<span class="na">restart_interval</span><span class="w"> </span><span class="o">=</span>
+
+<span class="c1"># Interval between writes of the global statistics (DDDD_HH:MM:SS).  These are</span>
+<span class="c1"># a handful of scalars, so they are written far more often than the 3-D output</span>
+<span class="c1"># and are what makes an excursion within a run visible.  Drives MPAS-Ocean's</span>
+<span class="c1"># globalStatsOutput stream and Omega's GlobalStats snapshot period alike; for</span>
+<span class="c1"># Omega it must be a whole number of seconds.</span>
+<span class="na">stats_interval</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">0001_00:00:00</span>
+
+<span class="c1"># Baroclinic time step per km of the mesh minimum resolution (s/km).  Only used</span>
+<span class="c1"># for split time stepping (split_explicit_ab2, or split_explicit for Omega).</span>
+<span class="na">dt_per_km</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">30.0</span>
+
+<span class="c1"># Barotropic time step per km of the mesh minimum resolution (s/km).  Used as</span>
+<span class="c1"># config_btr_dt for split time stepping, and as the single time step for</span>
+<span class="c1"># non-split integrators such as RK4 and Omega's RungeKutta4.</span>
+<span class="na">btr_dt_per_km</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">1.5</span>
+
+<span class="c1"># Explicit baroclinic/barotropic time steps for split time stepping</span>
+<span class="c1"># (DDDD_HH:MM:SS) that override the *_per_km values when set; leave blank to</span>
+<span class="c1"># derive from *_per_km and the mesh minimum resolution</span>
+<span class="na">dt</span><span class="w"> </span><span class="o">=</span>
+<span class="na">btr_dt</span><span class="w"> </span><span class="o">=</span>
+
+<span class="c1"># Explicit time step for non-split integrators such as RK4 (DDDD_HH:MM:SS)</span>
+<span class="c1"># that overrides btr_dt_per_km when set.  It is separate from dt so that a mesh</span>
+<span class="c1"># config can give a time step for each kind of integrator.</span>
+<span class="na">rk4_dt</span><span class="w"> </span><span class="o">=</span>
+
+<span class="c1"># Rayleigh damping coefficient (1/s); leave blank for no Rayleigh damping.</span>
+<span class="c1"># Applied in every layer by both models: through MPAS-Ocean's</span>
+<span class="c1"># constant_and_rayleigh bottom drag and Omega's RayleighDamping.  For Omega, a</span>
+<span class="c1"># non-blank value needs a build with RayleighDamping.</span>
+<span class="na">damping</span><span class="w"> </span><span class="o">=</span>
+
+<span class="c1"># Horizontal mixing coefficients.  A blank value turns the corresponding term</span>
+<span class="c1"># off; a number turns it on with that coefficient.  These are usually set per</span>
+<span class="c1"># mesh, since the right values depend on the resolution.</span>
+<span class="c1">#   mom_del2, mom_del4: harmonic and biharmonic momentum viscosity (m^2/s,</span>
+<span class="c1">#     m^4/s)</span>
+<span class="c1">#   tracer_del2, tracer_del4: harmonic and biharmonic tracer diffusivity</span>
+<span class="c1">#     (m^2/s, m^4/s)</span>
+<span class="na">mom_del2</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">1.0e3</span>
+<span class="na">mom_del4</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">1.2e11</span>
+<span class="na">tracer_del2</span><span class="w"> </span><span class="o">=</span>
+<span class="na">tracer_del4</span><span class="w"> </span><span class="o">=</span>
+
+<span class="c1"># A factor applied to the divergence part of the biharmonic momentum operator</span>
+<span class="c1"># alone, leaving its rotational part at mom_del4.  Blank leaves the model</span>
+<span class="c1"># default of 1.0, which is the true biharmonic.  Raising it damps the divergent</span>
+<span class="c1"># grid-scale mode -- the one that carries C-grid checkerboard and gravity-wave</span>
+<span class="c1"># noise -- without blurring the resolved eddy field, which is why E3SM uses 10</span>
+<span class="c1"># on its eddying RRSwISC6to18E3r5 mesh and nowhere else.</span>
+<span class="na">mom_del4_div_factor</span><span class="w"> </span><span class="o">=</span>
+
+<span class="c1"># Whether to use the Leith closure for harmonic momentum mixing</span>
+<span class="na">use_Leith_del2</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">False</span>
+
+<span class="c1"># How horizontal mixing coefficients are scaled across the mesh.  One of:</span>
+<span class="c1">#   none            - the coefficients above are used as given</span>
+<span class="c1">#   ref_cell_width  - the coefficients above apply at hmix_ref_cell_width, and</span>
+<span class="c1">#                     scale as cellWidth for del2 and cellWidth**3 for del4</span>
+<span class="c1"># ref_cell_width is the default, as it is in E3SM; on a mesh whose cells are</span>
+<span class="c1"># all near the reference width the two are equivalent.  Omega scales from the</span>
+<span class="c1"># mesh's median cell width rather than from a reference width, so for Omega the</span>
+<span class="c1"># coefficients are converted at run time to give the same mixing as MPAS-Ocean.</span>
+<span class="c1">#</span>
+<span class="c1"># MPAS-Ocean spells this as two nested flags, and ref_cell_width sets *both*:</span>
+<span class="c1"># config_hmix_use_ref_cell_width is read only when config_hmix_scaleWithMesh is</span>
+<span class="c1"># true.  Setting only the former reads as a request for width-based scaling and</span>
+<span class="c1"># silently gets none.</span>
+<span class="c1">#</span>
+<span class="c1"># MPAS-Ocean's third combination -- scaleWithMesh with use_ref_cell_width false</span>
+<span class="c1"># -- scales by the legacy meshDensity field instead, and is deliberately not</span>
+<span class="c1"># offered here.  E3SM v4 meshes, including every mesh Polaris builds, write</span>
+<span class="c1"># meshDensity as uniformly 1.0, so that path silently applies no scaling at</span>
+<span class="c1"># all.  Do not use it, and do not add a Polaris option for it.</span>
+<span class="na">hmix_scaling</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">ref_cell_width</span>
+
+<span class="c1"># The reference cell width (m), used only when hmix_scaling = ref_cell_width:</span>
+<span class="c1"># the width at which the coefficients above apply.  Blank uses the mesh's</span>
+<span class="c1"># median cell width, computed from the cell areas as Omega does, so that the</span>
+<span class="c1"># coefficients mean the same thing on any two meshes of the same nominal</span>
+<span class="c1"># resolution.  A mesh whose coefficients come from E3SM sets it to its finest</span>
+<span class="c1"># resolution, since that is what E3SM's per-grid values are referenced to.</span>
+<span class="na">hmix_ref_cell_width</span><span class="w"> </span><span class="o">=</span>
+
+<span class="c1"># Whether to use the Gent-McWilliams eddy transport parameterization, and the</span>
+<span class="c1"># closure and constant kappa (m^2/s) it uses.  Leave the closure and kappa blank</span>
+<span class="c1"># to use the model defaults.  MPAS-Ocean only; Omega has no GM.</span>
+<span class="na">use_GM</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">True</span>
+<span class="na">GM_closure</span><span class="w"> </span><span class="o">=</span>
+<span class="na">GM_constant_kappa</span><span class="w"> </span><span class="o">=</span>
+
+<span class="c1"># Whether to use Redi isopycnal mixing.  MPAS-Ocean only; Omega has no Redi.</span>
+<span class="na">use_Redi</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">True</span>
+
+<span class="c1"># Whether to use the CVMix KPP boundary-layer scheme, in both models.  Omega</span>
+<span class="c1"># turns it on by default, so it is stated for Omega too.</span>
+<span class="na">use_KPP</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">True</span>
+
+<span class="c1"># Whether to use the submesoscale eddy parameterization, in both models.  On</span>
+<span class="c1"># as in E3SM and in the Compass global_ocean tests; both models' defaults are</span>
+<span class="c1"># off.  Its parameters are E3SM's, fixed in forward.yaml.</span>
+<span class="na">use_submesoscale</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">True</span>
+
+<span class="c1"># The MPAS-Ocean horizontal pressure gradient formulation.  Leave blank for the</span>
+<span class="c1"># Registry default of pressure_and_zmid, which is the ordinary counterpart to</span>
+<span class="c1"># Omega's Centered.  Jacobian_from_TS is how E3SM runs and has no Omega</span>
+<span class="c1"># equivalent.</span>
+<span class="na">pressure_gradient_type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">Jacobian_from_TS</span>
+
+<span class="c1"># Whether to form frazil ice.  MPAS-Ocean only: Omega's frazil is off by</span>
+<span class="c1"># default, and Polaris does not turn it on.  Off, unlike in E3SM, because these</span>
+<span class="c1"># standalone runs have no sea ice or ice-shelf cavities for the frazil to go</span>
+<span class="c1"># to.</span>
+<span class="na">use_frazil_ice_formation</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">False</span>
+
+<span class="c1"># Whether to write density to the 3-D output stream.  MPAS-Ocean only; Omega</span>
+<span class="c1"># writes specific volume through its Eos group instead.  On by default, since</span>
+<span class="c1"># it is part of what makes the two models comparable on the same fields and a</span>
+<span class="c1"># short run can afford it.  It is the only field in that stream with a switch</span>
+<span class="c1"># of its own, because it is 3-D and is roughly 13% of the output volume, which</span>
+<span class="c1"># starts to matter once a workflow writes the stream many times over.</span>
+<span class="na">output_density</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">True</span>
+
+<span class="c1"># Simulation start time (config_start_time)</span>
+<span class="na">start_time</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">0001-01-01_00:00:00</span>
+
+
+<span class="c1"># options for the plots of the global statistics a forward run wrote</span>
+<span class="k">[realistic_global_forward_stats]</span>
+
+<span class="c1"># The fields to plot global statistics for, using MPAS-Ocean (Polaris</span>
+<span class="c1"># standard) names.  Leave this empty, as it is by default, to plot every</span>
+<span class="c1"># field the run wrote statistics for, which is what the models' own default</span>
+<span class="c1"># lists give.  A field the run did not write is skipped with a message, not</span>
+<span class="c1"># an error.</span>
+<span class="na">fields</span><span class="w"> </span><span class="o">=</span>
+</pre></div>
+</div>
+</section>
+<section id="id27">
+<h3>mesh<a class="headerlink" href="#id27" title="Link to this heading"></a></h3>
+<p><code class="docutils literal notranslate"><span class="pre">forward</span></code> runs on a mesh built by <a class="reference internal" href="#ocean-realistic-global-init"><span class="std std-ref">init</span></a>, so the
+mesh is whichever one the task is registered for.  <code class="docutils literal notranslate"><span class="pre">cached_forward</span></code> runs on the
+standard E3SM mesh that comes with its cached initial condition: the
+quasi-uniform 240-km <code class="docutils literal notranslate"><span class="pre">e3sm-qu240</span></code>, or the eddy-closure <code class="docutils literal notranslate"><span class="pre">e3sm-ec30to60e2r2</span></code>, which
+varies from 30 km to 60 km.</p>
+</section>
+<section id="id28">
+<h3>vertical grid<a class="headerlink" href="#id28" title="Link to this heading"></a></h3>
+<p>For <code class="docutils literal notranslate"><span class="pre">forward</span></code>, the vertical grid is the one the <code class="docutils literal notranslate"><span class="pre">init</span></code> workflow built, set by
+the <code class="docutils literal notranslate"><span class="pre">[vertical_grid]</span></code> section of the mesh’s
+<a class="reference internal" href="#ocean-realistic-global-mesh-configs">per-mesh config file</a>.  For
+<code class="docutils literal notranslate"><span class="pre">cached_forward</span></code> it arrives with the cached initial condition, so those meshes
+have no <code class="docutils literal notranslate"><span class="pre">[vertical_grid]</span></code> section at all.</p>
+</section>
+<section id="id29">
+<h3>initial conditions<a class="headerlink" href="#id29" title="Link to this heading"></a></h3>
+<p>For <code class="docutils literal notranslate"><span class="pre">forward</span></code>, the mesh, vertical coordinate, initial state and wind-stress
+forcing are the outputs of the <code class="docutils literal notranslate"><span class="pre">init</span></code> workflow’s steps, which the task runs
+first.</p>
+<p>For <code class="docutils literal notranslate"><span class="pre">cached_forward</span></code>, a single model-specific file from the <code class="docutils literal notranslate"><span class="pre">realistic_global</span></code>
+section of the Polaris input database supplies all of them.  MPAS-Ocean reads a
+<code class="docutils literal notranslate"><span class="pre">zerovel</span></code> (zero initial velocity) file along with a prebuilt graph partition
+file; Omega reads a TEOS-10 file converted from it, and partitions internally.</p>
+</section>
+<section id="id30">
+<h3>cores<a class="headerlink" href="#id30" title="Link to this heading"></a></h3>
+<p>The number of cores used by the <code class="docutils literal notranslate"><span class="pre">short</span></code> step is determined algorithmically from
+the number of cells in the mesh — read from the mesh file once it exists, and
+estimated from the mesh definition before that.  The <code class="docutils literal notranslate"><span class="pre">global_stats</span></code> and <code class="docutils literal notranslate"><span class="pre">viz</span></code>
+steps run serially.</p>
+</section>
+</section>
+<section id="analysis-output">
+<span id="ocean-realistic-global-analysis-output"></span><h2>analysis_output<a class="headerlink" href="#analysis-output" title="Link to this heading"></a></h2>
+<p>The <code class="docutils literal notranslate"><span class="pre">1_year</span></code> task runs Omega for a year with its <code class="docutils literal notranslate"><span class="pre">MonthlyAverages</span></code> and <code class="docutils literal notranslate"><span class="pre">MOC</span></code>
+analysis groups on, writing what the <a class="reference internal" href="analysis.html#ocean-analysis"><span class="std std-ref">analysis</span></a> tasks read.  It is
+meant to become a cached step for regression testing the <code class="docutils literal notranslate"><span class="pre">omega_analysis</span></code>
+suite.  It is defined for every mesh that has a <code class="docutils literal notranslate"><span class="pre">forward</span></code> or <code class="docutils literal notranslate"><span class="pre">cached_forward</span></code>
+task, and runs from the same initial condition: on the two cached meshes, the
+one in the Polaris input database, and on the others, the one the <code class="docutils literal notranslate"><span class="pre">init</span></code> steps
+build, which are part of the task.  For example:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>polaris<span class="w"> </span>setup<span class="w"> </span>-t<span class="w"> </span>ocean/spherical/realistic_global/e3sm-qu240/analysis_output/1_year<span class="w"> </span>...
+polaris<span class="w"> </span>setup<span class="w"> </span>-t<span class="w"> </span>ocean/spherical/realistic_global/u-oi30-lr10/analysis_output/1_year<span class="w"> </span>...
+</pre></div>
+</div>
+<p>The tasks are in no suite.  The <code class="docutils literal notranslate"><span class="pre">e3sm-qu240</span></code> year takes about 8 minutes on a
+Chrysalis node, and the <code class="docutils literal notranslate"><span class="pre">e3sm-ec30to60e2r2</span></code> year about 50 minutes on 6 nodes,
+writing about 40 GB.</p>
+<section id="id31">
+<h3>description<a class="headerlink" href="#id31" title="Link to this heading"></a></h3>
+<p>The task contains two steps:</p>
+<ol class="arabic simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">forward</span></code> is a <code class="docutils literal notranslate"><span class="pre">split_explicit</span></code> <code class="docutils literal notranslate"><span class="pre">forward</span></code> or <code class="docutils literal notranslate"><span class="pre">cached_forward</span></code> run (see
+<a class="reference internal" href="#ocean-realistic-global-forward"><span class="std std-ref">forward and cached_forward</span></a>) a year long, with monthly output
+added.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">global_stats</span></code> plots time series of the daily global statistics, as in
+those tasks.  This step is not run by default.</p></li>
+</ol>
+<p>On meshes without a cached initial condition, the shared <code class="docutils literal notranslate"><span class="pre">init</span></code> steps come
+first, as in the <code class="docutils literal notranslate"><span class="pre">forward</span></code> tasks.</p>
+<p>The run writes, in the <code class="docutils literal notranslate"><span class="pre">forward</span></code> step’s work directory:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">monthly_means_1MonthTimeStats.&lt;year&gt;-&lt;month&gt;.nc</span></code>, the monthly means from
+the <code class="docutils literal notranslate"><span class="pre">MonthlyAverages</span></code> group of conservative temperature, absolute salinity,
+pseudo-thickness, specific volume, the layer-midpoint and interface
+elevations, sea surface height, normal velocity and kinetic energy;</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">moc_1MonthTimeStats.&lt;year&gt;-&lt;month&gt;.nc</span></code>, the monthly-mean global overturning
+streamfunction from the <code class="docutils literal notranslate"><span class="pre">MOC</span></code> group, in <code class="docutils literal notranslate"><span class="pre">moc_num_bins</span></code> latitude bins:
+Omega’s default of 180, or 60 on the 240-km meshes;</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">global_stats_1DayInstants</span></code>, daily global statistics of the state, kinetic
+energy and sea surface height;</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">output/ocn.hist.&lt;year&gt;-&lt;month&gt;.nc</span></code>, a monthly snapshot of the same fields as
+the monthly means, taken at the instant each mean is finalized, as a check
+on the means.</p></li>
+</ul>
+<p>Omega names a time-mean file for the instant it was finalized, the start of
+the following month, so the twelve files covering year 1 are named <code class="docutils literal notranslate"><span class="pre">0001-02</span></code>
+through <code class="docutils literal notranslate"><span class="pre">0002-01</span></code>.  The analysis accounts for this; see <a class="reference internal" href="analysis.html#ocean-analysis"><span class="std std-ref">analysis</span></a>.
+Every monthly file is declared as an output of the <code class="docutils literal notranslate"><span class="pre">forward</span></code> step, so a month
+that was not written fails the step.</p>
+<p>To analyze the run, point the <code class="docutils literal notranslate"><span class="pre">omega_analysis</span></code> suite at the <code class="docutils literal notranslate"><span class="pre">omega.yml</span></code> in the
+<code class="docutils literal notranslate"><span class="pre">forward</span></code> step’s work directory:</p>
+<div class="highlight-cfg notranslate"><div class="highlight"><pre><span></span><span class="k">[ocean_analysis]</span>
+
+<span class="na">omega_config_filename</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&lt;work_dir&gt;/ocean/spherical/realistic_global/&lt;mesh&gt;/analysis_output/1_year/forward/omega.yml</span>
+
+<span class="k">[ocean_analysis_climatology]</span>
+
+<span class="na">start_year</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">1</span>
+<span class="na">end_year</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">1</span>
+
+<span class="k">[ocean_analysis_time_series]</span>
+
+<span class="na">start_year</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">1</span>
+<span class="na">end_year</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">1</span>
+</pre></div>
+</div>
+</section>
+<section id="mesh-vertical-grid-initial-conditions-and-forcing">
+<h3>mesh, vertical grid, initial conditions and forcing<a class="headerlink" href="#mesh-vertical-grid-initial-conditions-and-forcing" title="Link to this heading"></a></h3>
+<p>As for the <code class="docutils literal notranslate"><span class="pre">forward</span></code> or <code class="docutils literal notranslate"><span class="pre">cached_forward</span></code> task on the same mesh; see
+<a class="reference internal" href="#ocean-realistic-global-forward"><span class="std std-ref">forward and cached_forward</span></a>.</p>
+</section>
+<section id="id32">
+<h3>time step and run duration<a class="headerlink" href="#id32" title="Link to this heading"></a></h3>
+<p>The run uses the mesh’s split time steps and momentum viscosities, given in
+<a class="reference internal" href="#ocean-realistic-global-forward"><span class="std std-ref">forward and cached_forward</span></a>.  It lasts 365 days from <code class="docutils literal notranslate"><span class="pre">0001-01-01</span></code>,
+one year on the No Leap calendar.  The history stream and restarts are written
+monthly, because Omega requires the restart interval to be a multiple of every
+averaging period.  These are runs for testing the analysis, not
+scientifically valid simulations.</p>
+</section>
+<section id="id33">
+<h3>config options<a class="headerlink" href="#id33" title="Link to this heading"></a></h3>
+<p>The task reads the <code class="docutils literal notranslate"><span class="pre">[realistic_global_forward]</span></code> options described under
+<a class="reference internal" href="#ocean-realistic-global-forward"><span class="std std-ref">forward and cached_forward</span></a>, including the per-mesh ones.  Its own
+defaults come before the per-mesh options:</p>
+<div class="highlight-cfg notranslate"><div class="highlight"><pre><span></span><span class="c1"># Default options for the one-year analysis_output runs, added before the</span>
+<span class="c1"># per-mesh options so that a mesh can override them</span>
+<span class="k">[analysis_output]</span>
+
+<span class="c1"># The number of latitude bins of the overturning streamfunction: Omega's</span>
+<span class="c1"># default of one degree.  Meshes coarser than about a degree set fewer.</span>
+<span class="na">moc_num_bins</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">180</span>
+</pre></div>
+</div>
+<p>and it overrides the run duration after them:</p>
+<div class="highlight-cfg notranslate"><div class="highlight"><pre><span></span><span class="c1"># Options for the one-year analysis_output runs, added after the per-mesh</span>
+<span class="c1"># options so that they take precedence</span>
+<span class="k">[realistic_global_forward]</span>
+
+<span class="c1"># One year on the No Leap calendar.  Omega's TimeInterval parser understands</span>
+<span class="c1"># only DDDD_HH:MM:SS, so the duration is given in days.  The history and</span>
+<span class="c1"># restart streams are monthly, which is set in monthly_output.yaml rather than</span>
+<span class="c1"># here, since months are not all the same length.</span>
+<span class="na">run_duration</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">0365_00:00:00</span>
+</pre></div>
+</div>
+<p>The 240-km meshes’ config files set fewer MOC latitude bins, here for
+<code class="docutils literal notranslate"><span class="pre">e3sm-qu240</span></code>:</p>
+<div class="highlight-cfg notranslate"><div class="highlight"><pre><span></span><span class="c1"># Options for the one-year analysis_output run on this mesh</span>
+<span class="k">[analysis_output]</span>
+
+<span class="c1"># The number of latitude bins of the overturning streamfunction: three</span>
+<span class="c1"># degrees, since Omega's default of one degree is finer than the mesh</span>
+<span class="na">moc_num_bins</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">60</span>
+</pre></div>
+</div>
+</section>
+<section id="id34">
+<h3>cores<a class="headerlink" href="#id34" title="Link to this heading"></a></h3>
+<p>The number of cores used by the <code class="docutils literal notranslate"><span class="pre">forward</span></code> step is determined algorithmically
+from the number of cells in the mesh.  The <code class="docutils literal notranslate"><span class="pre">global_stats</span></code> step runs serially.</p>
+</section>
+</section>
+<section id="dynamic-adjustment">
+<span id="ocean-realistic-global-dynamic-adjustment"></span><h2>dynamic_adjustment<a class="headerlink" href="#dynamic-adjustment" title="Link to this heading"></a></h2>
+<p>The <code class="docutils literal notranslate"><span class="pre">dynamic_adjustment</span></code> task runs a sequence of short forward stages that
+dissipate the fast waves introduced by the initial condition, producing a
+relaxed restart suitable for a longer production run.  One
+<code class="docutils literal notranslate"><span class="pre">realistic_global_dynamic_adjustment</span></code> task is registered per MPAS mesh; the
+target model (MPAS-Ocean or Omega) is set by the <code class="docutils literal notranslate"><span class="pre">[ocean]</span> <span class="pre">model</span></code> config
+option.</p>
+<p>The task can be set up with:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>polaris<span class="w"> </span>setup<span class="w"> </span>-t<span class="w"> </span>ocean/spherical/realistic_global/&lt;mesh&gt;/dynamic_adjustment<span class="w"> </span>...
+</pre></div>
+</div>
+<section id="id35">
+<h3>description<a class="headerlink" href="#id35" title="Link to this heading"></a></h3>
+<p>Each stage is a forward run that restarts from the previous stage, with its own
+run duration, time step, output/restart cadence, and (typically decreasing)
+Rayleigh damping.  The stages are read from a schedule YAML: a mesh-specific
+<code class="docutils literal notranslate"><span class="pre">&lt;mesh_name&gt;.yaml</span></code> when the mesh has one, and otherwise <code class="docutils literal notranslate"><span class="pre">default.yaml</span></code>.  Polaris
+ships schedules for all five unified meshes — <code class="docutils literal notranslate"><span class="pre">u-oi240-lr240</span></code>, <code class="docutils literal notranslate"><span class="pre">u-oi30-lr10</span></code>,
+<code class="docutils literal notranslate"><span class="pre">u-oi6to18-lr12p5</span></code>, <code class="docutils literal notranslate"><span class="pre">u-oi6to18-lr25</span></code> and <code class="docutils literal notranslate"><span class="pre">u-oi-so12to30-lr10</span></code> (the last four
+ported from Compass’ <code class="docutils literal notranslate"><span class="pre">ec30to60</span></code>, <code class="docutils literal notranslate"><span class="pre">rrs6to18</span></code> (twice) and <code class="docutils literal notranslate"><span class="pre">so12to30</span></code>).
+<code class="docutils literal notranslate"><span class="pre">default.yaml</span></code> is what the
+base meshes such as <code class="docutils literal notranslate"><span class="pre">icos240km</span></code> and <code class="docutils literal notranslate"><span class="pre">qu240km</span></code> fall back to; it is only two
+stages, which is a quick check that a mesh runs rather than an adjustment worth
+keeping.  The final stage, <code class="docutils literal notranslate"><span class="pre">simulation</span></code>, writes the relaxed restart, and its
+<code class="docutils literal notranslate"><span class="pre">output.nc</span></code> is compared against a baseline when one is provided.</p>
+<p>The ported schedules, and <code class="docutils literal notranslate"><span class="pre">default.yaml</span></code> (Compass’ <code class="docutils literal notranslate"><span class="pre">qu240</span></code>), keep Compass’
+stage durations, time steps and damping unchanged; they have not been retuned
+for Polaris.  They were found by trial and error: where a stage crashed, its
+time step was shortened or its damping increased.  Omega runs the same
+schedules, which have worked for it as they are, without a separate tuning.
+<code class="docutils literal notranslate"><span class="pre">u-oi240-lr240</span></code> has no Compass counterpart; it uses the time steps of Compass’
+<code class="docutils literal notranslate"><span class="pre">qu240</span></code> schedule, which are also what <code class="docutils literal notranslate"><span class="pre">dt_per_km</span></code> and <code class="docutils literal notranslate"><span class="pre">btr_dt_per_km</span></code> give at
+240 km, with the three-stage damping ramp of <code class="docutils literal notranslate"><span class="pre">ec30to60</span></code>.</p>
+<p>The number and settings of the stages come from the schedule, so a user can
+retune them by editing the checked-in YAML or by pointing the <code class="docutils literal notranslate"><span class="pre">schedule</span></code> config
+option at an alternate file before setup.  Because the Polaris step graph is
+fixed at setup, changing the schedule requires re-running <code class="docutils literal notranslate"><span class="pre">polaris</span> <span class="pre">setup</span></code>.</p>
+</section>
+<section id="schedule-format">
+<h3>schedule format<a class="headerlink" href="#schedule-format" title="Link to this heading"></a></h3>
+<p>A stage is a <a class="reference internal" href="#ocean-realistic-global-forward"><code class="docutils literal notranslate"><span class="pre">forward</span></code> run</a>, so it starts from
+the <code class="docutils literal notranslate"><span class="pre">[realistic_global_forward]</span></code> config options for the mesh — including the
+<a class="reference internal" href="#ocean-realistic-global-mesh-configs">per-mesh overrides</a> — and the schedule
+supplies only what varies from stage to stage.  The horizontal mixing
+coefficients, the eddy parameterizations and the time integrators are therefore
+the same as they would be for a <code class="docutils literal notranslate"><span class="pre">forward</span></code> run on that mesh, and are not repeated
+in the schedule.</p>
+<p>A schedule has a <code class="docutils literal notranslate"><span class="pre">shared</span></code> block of per-stage defaults and an ordered <code class="docutils literal notranslate"><span class="pre">stages</span></code>
+block:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">dynamic_adjustment</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">shared</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">output_interval</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">10_00:00:00</span>
+<span class="w">    </span><span class="nt">restart_interval</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">10_00:00:00</span>
+<span class="w">    </span><span class="nt">start_time</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0001-01-01_00:00:00</span>
+<span class="w">  </span><span class="nt">stages</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">damped_adjustment_1</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">run_duration</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">10_00:00:00</span>
+<span class="w">      </span><span class="nt">dt</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">00:15:00</span>
+<span class="w">      </span><span class="nt">btr_dt</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">00:00:30</span>
+<span class="w">      </span><span class="nt">damping</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1.0e-4</span>
+<span class="w">    </span><span class="nt">simulation</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">run_duration</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">10_00:00:00</span>
+<span class="w">      </span><span class="nt">dt</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">00:30:00</span>
+<span class="w">      </span><span class="nt">btr_dt</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">00:01:00</span>
+<span class="w">      </span><span class="c1"># damping omitted =&gt; the config default, which is no Rayleigh damping</span>
+</pre></div>
+</div>
+<p>Every key in a schedule must be a setting that <code class="docutils literal notranslate"><span class="pre">ForwardStage</span></code> recognizes, which
+is to say a <code class="docutils literal notranslate"><span class="pre">[realistic_global_forward]</span></code> config option, and it overrides that
+option for that stage.  An unknown or misspelled key is an error at setup rather
+than being ignored in favor of the config value, so a schedule cannot silently
+stop taking effect when an option is renamed.  Each stage must specify
+<code class="docutils literal notranslate"><span class="pre">run_duration</span></code>, because it determines when each stage starts and stops.  Other
+settings may be omitted and then come from the <code class="docutils literal notranslate"><span class="pre">shared</span></code> block or, failing that,
+from config.  The exception is <code class="docutils literal notranslate"><span class="pre">restart_interval</span></code>, which defaults to the stage’s
+own <code class="docutils literal notranslate"><span class="pre">run_duration</span></code>, because each stage has to write the restart the next one
+starts from.  Time steps may instead be given per km of mesh minimum resolution
+with <code class="docutils literal notranslate"><span class="pre">dt_per_km</span></code> / <code class="docutils literal notranslate"><span class="pre">btr_dt_per_km</span></code>.</p>
+<p>Two intervals are checked at setup, because a bad value would otherwise only
+show up after the model has run.  A <code class="docutils literal notranslate"><span class="pre">restart_interval</span></code> must put the stage’s stop
+time on MPAS-Ocean’s restart alarm, which is measured from a fixed reference of
+<code class="docutils literal notranslate"><span class="pre">0001-01-01_00:00:00</span></code> and not from where the stage starts — otherwise the
+restart the next stage reads is never written.  And a <code class="docutils literal notranslate"><span class="pre">stats_interval</span></code> must be
+no longer than the stage, or the statistics file holds only the record written
+when the stage starts.  <code class="docutils literal notranslate"><span class="pre">output_interval</span></code> is not checked: an interval longer than the stage is
+a legitimate way to say “no 3-D output during the damped stages”, which is what
+the ported Compass schedules do.  Such a stage still writes one record: its
+initial state for MPAS-Ocean, and its final state for Omega, which cannot write
+on startup.</p>
+<p><code class="docutils literal notranslate"><span class="pre">start_time</span></code> belongs in the <code class="docutils literal notranslate"><span class="pre">shared</span></code> block: it is where the chain begins, and
+each stage’s own start time follows from the durations before it.  The remaining
+restart settings (<code class="docutils literal notranslate"><span class="pre">do_restart</span></code>, <code class="docutils literal notranslate"><span class="pre">restart_in</span></code>, <code class="docutils literal notranslate"><span class="pre">restart_out</span></code>) are set by Polaris
+to link the stages together and cannot be set by a schedule.</p>
+<p>Rayleigh damping runs the other way round from the other options: it is off in
+config (<code class="docutils literal notranslate"><span class="pre">damping</span></code> is blank) and turned on per stage by the schedule, so the
+<code class="docutils literal notranslate"><span class="pre">simulation</span></code> stage gets an undamped run simply by omitting <code class="docutils literal notranslate"><span class="pre">damping</span></code>.</p>
+<p>The boundary layer, the submesoscale parameterization and the pressure gradient
+are stage-settable on the same terms as everything else, which is worth saying
+because the shipped schedules never touch them: <code class="docutils literal notranslate"><span class="pre">use_KPP</span></code>, <code class="docutils literal notranslate"><span class="pre">use_submesoscale</span></code>
+and <code class="docutils literal notranslate"><span class="pre">pressure_gradient_type</span></code> are <code class="docutils literal notranslate"><span class="pre">[realistic_global_forward]</span></code> options, so a
+schedule may vary them from stage to stage.  All three default to what E3SM
+runs, and a stage that says nothing keeps that.  Varying them is a real thing to
+want — <code class="docutils literal notranslate"><span class="pre">use_KPP:</span> <span class="pre">false</span></code> for the earliest, most heavily damped stages, say, where
+the boundary-layer scheme is mixing a surface layer that the damping is still
+holding down — but no shipped schedule does, so treat it as untried rather than
+merely unused.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p><code class="docutils literal notranslate"><span class="pre">use_KPP</span></code> and <code class="docutils literal notranslate"><span class="pre">use_submesoscale</span></code> apply to both models.  <code class="docutils literal notranslate"><span class="pre">pressure_gradient_type</span></code>
+has no Omega counterpart, so a schedule that sets it is describing an
+MPAS-Ocean run.  It does not raise for Omega; it is simply not translated, and
+an Omega run proceeds without it.</p>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p><code class="docutils literal notranslate"><span class="pre">damping</span></code> applies to both models: MPAS-Ocean’s <code class="docutils literal notranslate"><span class="pre">constant_and_rayleigh</span></code> bottom
+drag and Omega’s <code class="docutils literal notranslate"><span class="pre">RayleighDamping</span></code> both damp the velocity in every layer.</p>
+</div>
+</section>
+<section id="restart-chaining">
+<h3>restart chaining<a class="headerlink" href="#restart-chaining" title="Link to this heading"></a></h3>
+<p>The stages share a <code class="docutils literal notranslate"><span class="pre">restarts</span></code> directory beside them in the task work directory.
+Each stage writes <code class="docutils literal notranslate"><span class="pre">restarts/rst.&lt;timestamp&gt;.nc</span></code> at the end of its run and
+declares it as an output; the next stage declares the same file as an input and
+starts from it, so a break in the chain is caught before the model launches.</p>
+<p>For MPAS-Ocean the restart stream is both an input and an output stream, so one
+<code class="docutils literal notranslate"><span class="pre">filename_template</span></code> serves both directions: a restarting stage sets
+<code class="docutils literal notranslate"><span class="pre">config_do_restart</span></code> and <code class="docutils literal notranslate"><span class="pre">config_start_time</span></code> to its predecessor’s timestamp and
+the template resolves to that file.  There is no restart-pointer file.</p>
+<p>Omega reads a restart through a separate <code class="docutils literal notranslate"><span class="pre">RestartRead</span></code> stream, which
+<code class="docutils literal notranslate"><span class="pre">restart_streams.yaml</span></code> supplies, and finds it through a pointer file.  Each
+stage writes its restart and pointer into a directory under <code class="docutils literal notranslate"><span class="pre">restarts</span></code> named for
+its restart time, and a restarting stage reads its predecessor’s.  The restart
+files are declared as step inputs and outputs for both models.</p>
+</section>
+<section id="diagnostics-and-validation">
+<h3>diagnostics and validation<a class="headerlink" href="#diagnostics-and-validation" title="Link to this heading"></a></h3>
+<p>A final <code class="docutils literal notranslate"><span class="pre">summary</span></code> step summarizes the sequence, and a <code class="docutils literal notranslate"><span class="pre">viz</span></code> step plots the
+underlying time series.</p>
+<p>The summary is <code class="docutils literal notranslate"><span class="pre">dynamic_adjustment_stats.csv</span></code>, one row per stage, and the same
+table is written to the step’s log.  It is the quickest way to see whether the
+damping ramp and the stage durations were chosen well: kinetic energy should be
+falling and flattening from stage to stage, the volume-weighted mean tracers
+should not be moving at all, and nothing should be approaching a blow-up.
+Columns ending <code class="docutils literal notranslate"><span class="pre">_in_stage</span></code> are the extreme reached at any point during the
+stage; the rest are end-of-stage values.</p>
+<p>The two <code class="docutils literal notranslate"><span class="pre">mean_*_change_per_day</span></code> columns are a conservation check rather than a
+sign of settling.  These runs are forced by wind alone, with no surface fluxes,
+so the volume-weighted mean temperature and salinity are conserved and both
+columns should be zero to within round-off — <code class="docutils literal notranslate"><span class="pre">u-oi30-lr10</span></code> reaches
+-4e-17 °C/day and <code class="docutils literal notranslate"><span class="pre">u-oi6to18-lr12p5</span></code> -5e-14 °C/day.  A value larger than that
+means tracer was lost or gained, which says nothing about whether the fast
+waves have been damped out.</p>
+<p>The numbers come from each stage’s global-statistics file wherever the model
+reports them.  The model computes these over the whole domain every
+<code class="docutils literal notranslate"><span class="pre">stats_interval</span></code>, so an extreme in the middle of a stage shows up, which it
+would not in a field written only at the end of the stage.  <code class="docutils literal notranslate"><span class="pre">stats_interval</span></code> is
+separate from <code class="docutils literal notranslate"><span class="pre">output_interval</span></code>, which controls the 3-D output: the statistics
+are a handful of numbers, so they can be written far more often than the 3-D
+fields without making the output much larger.  Quantities the model does not
+report in the statistics file are computed from <code class="docutils literal notranslate"><span class="pre">output.nc</span></code> instead, but only
+for maxima and minima, which are the same however they are computed.  A
+volume-weighted mean is not, so <code class="docutils literal notranslate"><span class="pre">kinetic_energy_mean</span></code> and <code class="docutils literal notranslate"><span class="pre">kinetic_energy_total</span></code>
+are left blank rather than replaced with an unweighted mean.</p>
+<p>Omega’s <code class="docutils literal notranslate"><span class="pre">GlobalStats</span></code> covers temperature, salinity, layer thickness, normal
+velocity and kinetic energy but has no CFL number or volume-weighted sums, so
+<code class="docutils literal notranslate"><span class="pre">kinetic_energy_total</span></code>, <code class="docutils literal notranslate"><span class="pre">ocean_volume</span></code> and <code class="docutils literal notranslate"><span class="pre">cfl_max_in_stage</span></code> are blank for an
+Omega run.  A blank means “this model does not report it”, not that something
+went wrong; the log says which source each metric came from.</p>
+<p>In place of the CFL number, an Omega run fills <code class="docutils literal notranslate"><span class="pre">cfl_estimate_max_in_stage</span></code>
+with a conservative estimate: the larger magnitude of the minimum and maximum
+normal velocity, times the stage’s baroclinic time step, divided by the
+smallest cell spacing on the mesh.  The fastest flow and the smallest cell
+need not be in the same place, so this is an upper bound rather than Omega’s
+CFL number, and it is reported for inspection, not checked against <code class="docutils literal notranslate"><span class="pre">cfl_max</span></code>.</p>
+<p>There are four checks, all per stage, run in a <code class="docutils literal notranslate"><span class="pre">&lt;stage&gt;_check</span></code> step
+immediately after that stage.  The next stage does not start until the check has
+passed, so a stage that is already out of bounds stops the sequence instead of
+using up the rest of the job:</p>
+<ul class="simple">
+<li><p>the maximum temperature in the stage must stay below <code class="docutils literal notranslate"><span class="pre">temperature_max</span></code>;</p></li>
+<li><p>the minimum temperature must stay above <code class="docutils literal notranslate"><span class="pre">temperature_min</span></code>, which catches water
+colder than the initial condition that only the numerics could have produced,
+such as a tracer overshoot in a thin bottom cell that does not blow up;</p></li>
+<li><p>the maximum salinity must stay below <code class="docutils literal notranslate"><span class="pre">salinity_max</span></code>;</p></li>
+<li><p>the maximum CFL number must stay below <code class="docutils literal notranslate"><span class="pre">cfl_max</span></code>, which is what catches a
+stage whose time step is too long for the flow it produced.</p></li>
+</ul>
+<p>All four report <em>when</em> the extreme occurred as well as how large it was, which
+is usually most of the diagnosis.  A NaN or infinite value fails any of them.</p>
+<p>They deliberately ignore the sample written before a stage’s first time step.
+For the first stage that sample is the initial condition, which dynamic
+adjustment did not produce; for every later stage it is the previous stage’s
+final state, which that stage’s own check already covered.  So nothing goes
+unexamined, and each stage is judged on what it did rather than on what it was
+handed.  The <code class="docutils literal notranslate"><span class="pre">viz</span></code> figure still plots the full series, so an inherited extreme
+remains visible there.</p>
+<p>The two tracer checks ignore a further <code class="docutils literal notranslate"><span class="pre">startup_exclusion_duration</span></code> at the
+beginning of the sequence, over which the initial condition’s artifacts are
+still mixing away.  That window is measured from the start of the <em>sequence</em>,
+not of each stage, so it covers only the stages it actually reaches — a window
+measured from each stage would instead stop looking just after every damping
+change, which is where a schedule that steps the damping down too fast would
+show itself.  For the same reason the CFL check does not get the window at all:
+the opening hours are exactly where a time step that is too long shows up.</p>
+<p>This matters in practice.  NOAA’s January WOA23 analysis contains one bad grid
+cell off Sumatra, reaching 36.9 °C at 70 m.  It is a known source-data problem
+that cannot be filtered without discarding real hydrography, and how much of it
+survives into the initial condition depends on the mesh: a single cell at
+33.46 °C on <code class="docutils literal notranslate"><span class="pre">u-oi30-lr10</span></code>, but 35.94 °C on <code class="docutils literal notranslate"><span class="pre">u-oi6to18-lr12p5</span></code> and 36.11 °C on
+<code class="docutils literal notranslate"><span class="pre">u-oi6to18-lr25</span></code>, which average the bad source cell far less.  It also erodes
+far more slowly there — about 34.3 °C after six hours, and by extrapolation
+more than a day to fall below 33 — so it is still present when the second and
+third stages begin.  A second source artifact in the Red Sea does the same for
+salinity, and erodes more slowly still: it is a ~25-cell blob at 1150 m, where
+there is almost no flow, and it settles near 42.1 PSU for the rest of the
+adjustment.</p>
+<p>The two tracer thresholds are therefore blow-up detectors rather than
+plausibility bounds, and they are set above the artifacts rather than above the
+physics.  A real blow-up produces hundreds of degrees or NaN, not a fraction of
+a degree over, so there is ample room between the two: the warmest genuine water
+these runs reach is about 32 °C, and nothing in the <code class="docutils literal notranslate"><span class="pre">u-oi6to18</span></code> initial
+conditions is above 42 PSU outside the Red Sea artifact.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">summary</span></code> step applies no checks.  It collects the per-stage diagnostics,
+writes <code class="docutils literal notranslate"><span class="pre">dynamic_adjustment_stats.csv</span></code> and logs the table.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>There used to be a fourth check there, on whether the mean kinetic energy was
+settling stage over stage.  It was rewritten three times — comparing kinetic
+energy levels, then the fractional change from stage to stage, then that change
+per unit time — and <strong>every</strong> revision was forced by a healthy run failing it.</p>
+<p>The reason is that the quantity is not comparable across stages.  A schedule’s
+stages differ in length (0.25 to 18 days on <code class="docutils literal notranslate"><span class="pre">u-oi6to18-lr12p5</span></code>), so a longer
+stage changes more for no interesting reason; the final stage switches the
+Rayleigh damping off, so its kinetic energy rises by design; and a stage where
+the energy happens to dip makes the <em>next</em> ordinary rise look like an
+acceleration.  Three samples cannot separate those from a run that is genuinely
+running away.</p>
+<p>Whether an adjustment has settled is now read from the diagnostics table and
+the <code class="docutils literal notranslate"><span class="pre">viz</span></code> figure, which show the whole series.  The checks that remain are
+bounds on quantities with real failure modes behind them.  Please do not
+re-add an automated settling criterion without evidence that it survives
+schedules whose stages differ in length and damping.</p>
+</div>
+<p>Each check is skipped, with a log line, when the configured model does not
+report the quantity: Omega’s <code class="docutils literal notranslate"><span class="pre">GlobalStats</span></code> has no CFL number.</p>
+<p>One caveat the thresholds cannot express: Omega’s temperature is conservative
+temperature where MPAS-Ocean’s is potential temperature, and its salinity is
+absolute salinity where MPAS-Ocean’s is practical salinity, so the bounds are
+not literally on the same quantities in the two models.  Against these
+thresholds the difference is immaterial.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">viz</span></code> step writes <code class="docutils literal notranslate"><span class="pre">dynamic_adjustment_stats.png</span></code> from the same statistics,
+plotting kinetic energy (maximum, mean and domain-integrated), maximum normal
+velocity, CFL number, tracer extremes, mean tracer change and minimum layer
+thickness on one continuous axis, with the stage boundaries marked and each
+stage labelled with its damping.  The labels read upwards, abbreviated to
+<code class="docutils literal notranslate"><span class="pre">d1</span></code>, <code class="docutils literal notranslate"><span class="pre">d2</span></code> and so on with <code class="docutils literal notranslate"><span class="pre">sim</span></code> for the final undamped stage, and a label
+climbs to a second or third row where its stage is too narrow to hold one —
+<code class="docutils literal notranslate"><span class="pre">u-oi6to18-lr12p5</span></code> opens with two 6-hour stages on a 30-day axis.  A summary row cannot distinguish a quantity
+that was flat through a stage from one that spiked and recovered, and those
+call for different changes to the schedule; the figure can.  Reading it against
+the damping labels is usually the fastest way to tell a response to the ramp
+from a trend that would have happened anyway.  For Omega, the CFL panel shows
+the conservative estimate described above, labelled as an upper bound.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">viz</span></code> step also writes <code class="docutils literal notranslate"><span class="pre">dynamic_adjustment_tracer_change.png</span></code>, which shows
+how far the adjustment moved the ocean from its initial condition: histograms
+of the change in temperature and in salinity, cell by cell and layer by layer,
+from the initial state to the last record of the final stage.  Each cell is
+weighted by its initial volume, so the histograms are probability densities
+over the ocean’s volume, drawn on a logarithmic axis so the rare large changes
+show.  Each model is compared in its own convention (potential temperature and
+practical salinity for MPAS-Ocean, conservative temperature and absolute
+salinity for Omega).  The volume-weighted mean and RMS change, the change that
+99% of the volume stays within and the largest change are printed on the
+figure and in the step’s log.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">viz</span></code> step belongs to the standalone task.  If the stages are later reused
+as shared steps by a longer spin-up workflow, a figure describing a completed
+adjustment is not what that workflow is asking about.</p>
+</section>
+<section id="id36">
+<h3>config options<a class="headerlink" href="#id36" title="Link to this heading"></a></h3>
+<div class="highlight-cfg notranslate"><div class="highlight"><pre><span></span><span class="c1"># Options for realistic global ocean dynamic-adjustment runs</span>
+<span class="k">[realistic_global_dynamic_adjustment]</span>
+
+<span class="c1"># Path to an alternate schedule YAML that overrides the built-in per-mesh</span>
+<span class="c1"># schedule; leave blank to use the checked-in schedule for the mesh</span>
+<span class="na">schedule</span><span class="w"> </span><span class="o">=</span>
+
+<span class="c1"># Maximum allowed temperature (deg C) reached during any stage; exceeding it is</span>
+<span class="c1"># treated as numerical blow-up.  Neither the sample written before a stage's</span>
+<span class="c1"># first time step nor the startup window below is checked, so this bounds what</span>
+<span class="c1"># the stage did rather than the state it started from.</span>
+<span class="c1"># Set above the WOA23 warm artifact off Sumatra rather than at a physical</span>
+<span class="c1"># bound.  On the u-oi6to18 meshes that cell starts at 35.9 to 36.1 deg C and</span>
+<span class="c1"># erodes far more slowly than it does at 30 km -- 34.3 after six hours, and by</span>
+<span class="c1"># extrapolation more than a day to fall below 33 -- so a bound at 33 would fail</span>
+<span class="c1"># the first three stages of a healthy run.</span>
+<span class="na">temperature_max</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">35.0</span>
+
+<span class="c1"># Minimum allowed temperature (deg C) reached during any stage, on the same</span>
+<span class="c1"># terms as temperature_max.  A detector for numerical problems rather than a</span>
+<span class="c1"># physical bound: with no surface heat loss, water colder than the initial</span>
+<span class="c1"># condition can only come from the numerics, as in a tracer update that is not</span>
+<span class="c1"># monotone in a thin partial bottom cell.  The coldest water in the WOA23</span>
+<span class="c1"># initial conditions is about -2.12 deg C on every unified mesh, and healthy</span>
+<span class="c1"># MPAS-Ocean adjustments stay above it.  None of these meshes has ice-shelf</span>
+<span class="c1"># cavities, where water below this bound is real; revisit it if one gains them.</span>
+<span class="na">temperature_min</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">-2.5</span>
+
+<span class="c1"># Maximum allowed salinity reached during any stage, on the same terms: practical</span>
+<span class="c1"># salinity (PSU) for MPAS-Ocean and absolute salinity (g/kg) for Omega, about</span>
+<span class="c1"># 0.5% higher.  A blow-up detector rather than a plausibility bound: the WOA23</span>
+<span class="c1"># source data carries a Red Sea artifact that reaches 44.1 to 44.5 PSU (44.7</span>
+<span class="c1"># g/kg) in the u-oi6to18 initial conditions.  In MPAS-Ocean it settles near 42.1</span>
+<span class="c1"># within a few hours, but Omega erodes it far more slowly, since it is a</span>
+<span class="c1"># ~25-cell blob at 1150 m where there is almost no flow to erode it.  Nothing</span>
+<span class="c1"># else in those initial conditions is above 42, and a real blow-up produces far</span>
+<span class="c1"># more than 45.</span>
+<span class="na">salinity_max</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">45.0</span>
+
+<span class="c1"># A window at the start of the adjustment, in addition to each stage's first</span>
+<span class="c1"># sample, over which the tracer extremes are not checked, as an MPAS duration</span>
+<span class="c1"># string.  It is measured from the start of the sequence rather than of each</span>
+<span class="c1"># stage, because what it skips belongs to the initial condition: the WOA23</span>
+<span class="c1"># artifacts need a couple of hours of mixing at 6-18 km before they fall back</span>
+<span class="c1"># to the values they then hold for the rest of the run.  A per-stage window</span>
+<span class="c1"># would instead stop looking just after every damping change, which is where a</span>
+<span class="c1"># schedule that steps the damping down too fast would show itself.</span>
+<span class="c1"># The CFL number is deliberately still checked inside this window, for the same</span>
+<span class="c1"># reason: the opening hours are where a time step that is too long shows up.</span>
+<span class="na">startup_exclusion_duration</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">00_02:00:00</span>
+
+<span class="c1"># Maximum allowed CFL number at any point in any stage.  MPAS-Ocean is not</span>
+<span class="c1"># usually pushed much past 0.1; the AB2 split-explicit integrator these</span>
+<span class="c1"># schedules use tolerates more, so this is set at 0.2 as a loose upper bound</span>
+<span class="c1"># rather than a tuned value.  Worth revisiting against experience.</span>
+<span class="c1"># MPAS-Ocean only: Omega's GlobalStats reports no CFL number.</span>
+<span class="na">cfl_max</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">0.2</span>
+
+
+<span class="c1"># Forward-run options overridden for the dynamic-adjustment stages.  A stage is</span>
+<span class="c1"># a forward run, so it starts from [realistic_global_forward]; this section is</span>
+<span class="c1"># applied on top of it, and a per-mesh config file can still override this in</span>
+<span class="c1"># turn.</span>
+<span class="k">[realistic_global_forward]</span>
+
+<span class="c1"># Don't write density.  It is in the forward output stream so that MPAS-Ocean</span>
+<span class="c1"># and Omega can be compared on the same fields, which is not what a dynamic</span>
+<span class="c1"># adjustment is for, and it is 3-D: about 13% of the output volume, or 2.4 GB</span>
+<span class="c1"># per stage on u-oi6to18-lr12p5, written eight times over.  ssh stays, being</span>
+<span class="c1"># 2-D and nearly free.  Nothing here reads density -- the checks and the</span>
+<span class="c1"># summary come from the global statistics, and the stratification questions</span>
+<span class="c1"># density would answer are asked of the initial condition, not of a stage.</span>
+<span class="na">output_density</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">False</span>
+</pre></div>
+</div>
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="geostrophic.html" class="btn btn-neutral float-left" title="geostrophic" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="horiz_press_grad.html" class="btn btn-neutral float-right" title="horizontal pressure gradient" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2026, Energy Exascale Earth System Model Project.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+   
+
+  <!-- Meta tags for JS to use -->
+  <meta name="doc-version" content="1.2.0">
+  <meta name="doc-site-root" content="../../../">
+
+  <!-- Create version switcher container -->
+  <script>
+    const sidebar = document.querySelector('.wy-side-nav-search');
+    if (sidebar) {
+      const versionDiv = document.createElement('div');
+      versionDiv.id = 'version-switcher';
+      versionDiv.style.marginTop = '1em';
+      sidebar.appendChild(versionDiv);
+    }
+  </script>
+
+  <!-- Load version-switcher.js using the correct relative path -->
+  <script src="../../../../shared/version-switcher.js"></script>
+
+
+</body>
+</html>

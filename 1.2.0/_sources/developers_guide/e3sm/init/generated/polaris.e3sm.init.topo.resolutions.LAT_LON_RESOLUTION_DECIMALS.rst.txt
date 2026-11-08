@@ -1,0 +1,6 @@
+﻿polaris.e3sm.init.topo.resolutions.LAT\_LON\_RESOLUTION\_DECIMALS
+=================================================================
+
+.. currentmodule:: polaris.e3sm.init.topo.resolutions
+
+.. autodata:: LAT_LON_RESOLUTION_DECIMALS

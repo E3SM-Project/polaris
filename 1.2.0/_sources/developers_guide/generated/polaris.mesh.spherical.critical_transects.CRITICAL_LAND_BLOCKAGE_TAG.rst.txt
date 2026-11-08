@@ -1,0 +1,6 @@
+﻿polaris.mesh.spherical.critical\_transects.CRITICAL\_LAND\_BLOCKAGE\_TAG
+========================================================================
+
+.. currentmodule:: polaris.mesh.spherical.critical_transects
+
+.. autodata:: CRITICAL_LAND_BLOCKAGE_TAG

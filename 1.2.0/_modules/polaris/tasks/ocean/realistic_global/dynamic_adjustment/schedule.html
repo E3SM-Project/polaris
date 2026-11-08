@@ -1,0 +1,941 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>polaris.tasks.ocean.realistic_global.dynamic_adjustment.schedule</title>
+      <link rel="stylesheet" type="text/css" href="../../../../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../../../../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../../../../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../../../../_static/documentation_options.js?v=6efca38a"></script>
+      <script src="../../../../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script type="module">import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11.12.1/dist/mermaid.esm.min.mjs";
+
+
+
+
+
+const initStyles = () => {
+    const defaultStyle = document.createElement('style');
+    defaultStyle.textContent = "pre.mermaid {\n    /* Same as .mermaid-container > pre */\n    display: block;\n    width: 100%;\n}\n\npre.mermaid > svg {\n    /* Same as .mermaid-container > pre > svg */\n    height: 500px;\n    width: 100%;\n    max-width: 100% !important;\n}";
+    document.head.appendChild(defaultStyle);
+
+    const fullscreenStyle = document.createElement('style');
+    fullscreenStyle.textContent = ".mermaid-container {\n    position: relative;\n    display: flex;\n    flex-direction: row;\n    width: 100%;\n}\n\n.mermaid-container > pre {\n    display: block;\n    width: 100%;\n}\n\n.mermaid-container > pre > svg {\n    height: 500px;\n    width: 100%;\n    max-width: 100% !important;\n}\n\n.mermaid-fullscreen-btn {\n    position: absolute;\n    width: 28px;\n    height: 28px;\n    background: rgba(255, 255, 255, 0.95);\n    border: 1px solid rgba(0, 0, 0, 0.3);\n    border-radius: 4px;\n    cursor: pointer;\n    display: flex;\n    align-items: center;\n    justify-content: center;\n    transition: all 0.2s;\n    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);\n    font-size: 14px;\n    line-height: 1;\n    padding: 0;\n    color: #333;\n}\n\n.mermaid-fullscreen-btn:hover {\n    opacity: 100% !important;\n    background: rgba(255, 255, 255, 1);\n    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.3);\n    transform: scale(1.1);\n}\n\n.mermaid-fullscreen-btn.dark-theme {\n    background: rgba(50, 50, 50, 0.95);\n    border: 1px solid rgba(255, 255, 255, 0.3);\n    color: #e0e0e0;\n}\n\n.mermaid-fullscreen-btn.dark-theme:hover {\n    background: rgba(60, 60, 60, 1);\n    box-shadow: 0 3px 10px rgba(255, 255, 255, 0.2);\n}\n\n.mermaid-fullscreen-modal {\n    display: none;\n    position: fixed !important;\n    top: 0 !important;\n    left: 0 !important;\n    width: 95vw;\n    height: 100vh;\n    background: rgba(255, 255, 255, 0.98);\n    z-index: 9999;\n    padding: 20px;\n    overflow: auto;\n}\n\n.mermaid-fullscreen-modal.dark-theme {\n    background: rgba(0, 0, 0, 0.98);\n}\n\n.mermaid-fullscreen-modal.active {\n    display: flex;\n    align-items: center;\n    justify-content: center;\n}\n\n.mermaid-container-fullscreen {\n    position: relative;\n    width: 95vw;\n    height: 90vh;\n    max-width: 95vw;\n    max-height: 90vh;\n    background: white;\n    border-radius: 8px;\n    padding: 20px;\n    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);\n    overflow: auto;\n    display: flex;\n    align-items: center;\n    justify-content: center;\n}\n\n.mermaid-container-fullscreen.dark-theme {\n    background: #1a1a1a;\n    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.8);\n}\n\n.mermaid-container-fullscreen pre.mermaid {\n    width: 100%;\n    height: 100%;\n    display: flex;\n    align-items: center;\n    justify-content: center;\n}\n\n.mermaid-container-fullscreen .mermaid svg {\n    height: 100% !important;\n    width: 100% !important;\n    cursor: grab;\n}\n\n.mermaid-fullscreen-close {\n    position: fixed !important;\n    top: 20px !important;\n    right: 20px !important;\n    width: 40px;\n    height: 40px;\n    background: rgba(255, 255, 255, 0.95);\n    border: 1px solid rgba(0, 0, 0, 0.2);\n    border-radius: 50%;\n    cursor: pointer;\n    z-index: 10000;\n    display: flex;\n    align-items: center;\n    justify-content: center;\n    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);\n    transition: all 0.2s;\n    font-size: 24px;\n    line-height: 1;\n    color: #333;\n}\n\n.mermaid-fullscreen-close:hover {\n    background: white;\n    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);\n    transform: scale(1.1);\n}\n\n.mermaid-fullscreen-close.dark-theme {\n    background: rgba(50, 50, 50, 0.95);\n    border: 1px solid rgba(255, 255, 255, 0.2);\n    color: #e0e0e0;\n}\n\n.mermaid-fullscreen-close.dark-theme:hover {\n    background: rgba(60, 60, 60, 1);\n    box-shadow: 0 6px 16px rgba(255, 255, 255, 0.2);\n}\n\n.mermaid-fullscreen-modal .mermaid-fullscreen-btn {\n    display: none !important;\n}";
+    document.head.appendChild(fullscreenStyle);
+}
+
+// Detect if page has dark background
+const isDarkTheme = () => {
+    // We use a set of heuristics:
+    // 1. Check for common dark mode classes or attributes
+    // 2. Check computed background color brightness
+    if (document.documentElement.classList.contains('dark') ||
+        document.documentElement.getAttribute('data-theme') === 'dark' ||
+        document.body.classList.contains('dark') ||
+        document.body.getAttribute('data-theme') === 'dark') {
+        // console.log("Dark theme detected via class/attribute");
+        return true;
+    }
+    if (document.documentElement.classList.contains('light') ||
+        document.documentElement.getAttribute('data-theme') === 'light' ||
+        document.body.classList.contains('light') ||
+        document.body.getAttribute('data-theme') === 'light') {
+        // console.log("Light theme detected via class/attribute");
+        return false;
+    }
+    if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        // console.log("Dark theme detected via prefers-color-scheme");
+        return true;
+    }
+    const bgColor = window.getComputedStyle(document.body).backgroundColor;
+    const match = bgColor.match(/rgb\((\d+),\s*(\d+),\s*(\d+)/);
+    if (match) {
+        const r = parseInt(match[1]);
+        const g = parseInt(match[2]);
+        const b = parseInt(match[3]);
+        const brightness = (r * 299 + g * 587 + b * 114) / 1000;
+        // console.log("Background color brightness:", brightness);
+        return brightness < 128;
+    }
+    // console.log("No dark or light theme detected, defaulting to light theme");
+    return false;
+};
+
+let darkTheme = isDarkTheme();
+let modal = null;
+let modalContent = null;
+let previousScrollOffset = [window.scrollX, window.scrollY];
+let _lazyObserver = null;
+let _renderQueue = Promise.resolve();
+let closeModal = () => {};
+
+document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && modal?.classList.contains('active')) {
+        closeModal();
+    }
+});
+
+// Apply d3 zoom to each SVG. Idempotent: an SVG already wrapped is skipped,
+// so this is safe to call both for the initial batch and for diagrams that
+// render lazily once they become visible.
+const addZoomToSvgs = (svgs) => {
+    svgs.each(function() {
+        if (this.getAttribute('data-zoom-applied') === 'true') return;
+        var svg = d3.select(this);
+        svg.html("<g class='wrapper'>" + svg.html() + "</g>");
+        var inner = svg.select("g");
+        var zoom = d3.zoom().on("zoom", function(event) {
+            inner.attr("transform", event.transform);
+        });
+        svg.call(zoom);
+        this.setAttribute('data-zoom-applied', 'true');
+    });
+};
+
+const runMermaid = async (rerun) => {
+    console.log("Running mermaid diagrams, rerun =", rerun);
+    // clear all existing mermaid charts
+    let all_mermaids = document.querySelectorAll(".mermaid");
+
+    if (rerun) {
+        // Disconnect any previous lazy rendering observer
+        if (_lazyObserver) {
+            _lazyObserver.disconnect();
+            _lazyObserver = null;
+        }
+
+        all_mermaids.forEach((el) => {
+            el.removeAttribute('data-mermaid-deferred');
+            el.removeAttribute('data-mermaid-render-failed');
+            if(!el.hasAttribute("data-original-code")) {
+                // store original code
+                // console.log(`Storing original code for first run: `, el.innerHTML);
+                el.setAttribute('data-original-code', el.innerHTML);
+            }
+            if(el.getAttribute("data-processed") === "true") {
+                // remove and restore original
+                el.removeAttribute("data-processed");
+                // console.log(`Restoring original code for re-run: `, el.getAttribute('data-original-code'));
+                el.innerHTML = el.getAttribute('data-original-code');
+            } else {
+                // store original code
+                // console.log(`Storing original code for re-run: `, el.innerHTML);
+                el.setAttribute('data-original-code', el.innerHTML);
+            }
+        });
+
+        // Separate visible and hidden elements. Mermaid's layout engine measures
+        // text dimensions via the DOM, which fails for elements hidden by a parent
+        // (e.g., Reveal.js non-active slides, sphinx-design unopened tabs),
+        // producing broken SVGs. Render visible elements now, defer hidden ones.
+        const visible = [];
+        const hidden = [];
+        all_mermaids.forEach((el) => {
+            // offsetParent is null for display:none ancestors.
+            // getClientRects().length > 0 catches position:fixed elements
+            // (which also have null offsetParent but are still visible).
+            if (el.offsetParent !== null || el.getClientRects().length > 0) {
+                visible.push(el);
+            } else {
+                hidden.push(el);
+                el.setAttribute('data-mermaid-deferred', 'true');
+            }
+        });
+
+        if (visible.length > 0) {
+            try {
+                await mermaid.run({ nodes: visible });
+            } catch (e) {
+                console.error("Mermaid rendering failed:", e);
+            }
+        }
+
+        // Lazily render hidden elements when they become visible.
+        // Uses a promise chain (_renderQueue) to serialize rendering,
+        // since IntersectionObserver may report multiple entries at once
+        // and mermaid.run() is not safe to call concurrently.
+        if (hidden.length > 0) {
+            if (typeof IntersectionObserver === 'undefined') {
+                console.warn("IntersectionObserver not available; hidden mermaid diagrams will not render.");
+            } else {
+                _renderQueue = Promise.resolve();
+                _lazyObserver = new IntersectionObserver((entries) => {
+                    for (const entry of entries) {
+                        if (entry.isIntersecting && entry.target.getAttribute("data-processed") !== "true") {
+                            _lazyObserver.unobserve(entry.target);
+                            const el = entry.target;
+                            _renderQueue = _renderQueue.then(async () => {
+                                try {
+                                    await mermaid.run({ nodes: [el] });
+                                    el.removeAttribute('data-mermaid-deferred');
+                                    // Apply zoom to the now-rendered diagram, matching
+                                    // the decoration visible diagrams receive.
+                                    if (false) {
+                                        addZoomToSvgs(d3.selectAll("").select(function() {
+                                            return this.querySelector("svg");
+                                        }));
+                                    }
+                                } catch (e) {
+                                    console.error("Mermaid deferred rendering failed:", e);
+                                    el.removeAttribute('data-mermaid-deferred');
+                                    el.setAttribute('data-mermaid-render-failed', 'true');
+                                }
+                            });
+                        }
+                    }
+                });
+                hidden.forEach((el) => _lazyObserver.observe(el));
+            }
+        }
+    }
+
+    all_mermaids = document.querySelectorAll(".mermaid");
+    // Exclude deferred (hidden) and render-failed elements from completion checks
+    const mermaids_active = document.querySelectorAll(".mermaid:not([data-mermaid-deferred]):not([data-mermaid-render-failed])");
+    const mermaids_processed = document.querySelectorAll(".mermaid:not([data-mermaid-deferred]):not([data-mermaid-render-failed])[data-processed='true']");
+
+    if (false) {
+        const mermaids_to_add_zoom = 0 === -1 ? mermaids_active.length : 0;
+        if(mermaids_to_add_zoom > 0) {
+            var svgs = d3.selectAll("").select(function() {
+                return this.querySelector("svg");
+            });
+            // Wait until every active (visible) diagram has rendered. Deferred
+            // diagrams are excluded, so a fixed d3_node_count that counts a
+            // hidden diagram no longer loops forever waiting for its SVG.
+            if(mermaids_active.length !== mermaids_processed.length) {
+                setTimeout(() => runMermaid(false), 200);
+                return;
+            }
+            addZoomToSvgs(svgs);
+        }
+    } else if(mermaids_active.length !== mermaids_processed.length) {
+        // Wait for mermaid to process all diagrams
+        setTimeout(() => runMermaid(false), 200);
+        return;
+    }
+
+    // Stop here if not adding fullscreen capability
+    if (!true) return;
+
+    if (modal !== null ) {
+        // Destroy existing modal
+        modal.remove();
+        modal = null;
+        modalContent = null;
+    }
+
+    modal = document.createElement('div');
+    modal.className = 'mermaid-fullscreen-modal' + (darkTheme ? ' dark-theme' : '');
+    modal.setAttribute('role', 'dialog');
+    modal.setAttribute('aria-modal', 'true');
+    modal.setAttribute('aria-label', 'Fullscreen diagram viewer');
+    modal.innerHTML = `
+        <button class="mermaid-fullscreen-close${darkTheme ? ' dark-theme' : ''}" aria-label="Close fullscreen">✕</button>
+        <div class="mermaid-container-fullscreen${darkTheme ? ' dark-theme' : ''}"></div>
+    `;
+    document.body.appendChild(modal);
+
+    modalContent = modal.querySelector('.mermaid-container-fullscreen');
+    const closeBtn = modal.querySelector('.mermaid-fullscreen-close');
+
+    closeModal = () => {
+        modal.classList.remove('active');
+        modalContent.innerHTML = '';
+        document.body.style.overflow = ''
+        window.scrollTo({left: previousScrollOffset[0], top: previousScrollOffset[1], behavior: 'instant'});
+    };
+
+    closeBtn.addEventListener('click', closeModal);
+    modal.addEventListener('click', (e) => {
+        if (e.target === modal) closeModal();
+    });
+    document.querySelectorAll('.mermaid').forEach((mermaidDiv) => {
+        if (mermaidDiv.parentNode.classList.contains('mermaid-container') ||
+            mermaidDiv.closest('.mermaid-fullscreen-modal')) {
+            // Already processed, adjust button class if needed
+            const existingBtn = mermaidDiv.parentNode.querySelector('.mermaid-fullscreen-btn');
+            if (existingBtn) {
+                existingBtn.className = 'mermaid-fullscreen-btn' + (darkTheme ? ' dark-theme' : '');
+            }
+            return;
+        }
+
+        const container = document.createElement('div');
+        container.className = 'mermaid-container';
+        mermaidDiv.parentNode.insertBefore(container, mermaidDiv);
+        container.appendChild(mermaidDiv);
+
+        const fullscreenBtn = document.createElement('button');
+        fullscreenBtn.className = 'mermaid-fullscreen-btn' + (darkTheme ? ' dark-theme' : '');
+        fullscreenBtn.setAttribute('aria-label', 'View diagram in fullscreen');
+        fullscreenBtn.textContent = "\u26f6";
+        fullscreenBtn.style.opacity = "50%";
+
+        // Calculate dynamic position based on diagram's margin and padding
+        const diagramStyle = window.getComputedStyle(mermaidDiv);
+        const marginTop = parseFloat(diagramStyle.marginTop) || 0;
+        const marginRight = parseFloat(diagramStyle.marginRight) || 0;
+        const paddingTop = parseFloat(diagramStyle.paddingTop) || 0;
+        const paddingRight = parseFloat(diagramStyle.paddingRight) || 0;
+        fullscreenBtn.style.top = `${marginTop + paddingTop + 4}px`;
+        fullscreenBtn.style.right = `${marginRight + paddingRight + 4}px`;
+
+        fullscreenBtn.addEventListener('click', () => {
+            previousScrollOffset = [window.scrollX, window.scrollY];
+            const clone = mermaidDiv.cloneNode(true);
+            modalContent.innerHTML = '';
+            modalContent.appendChild(clone);
+
+            const svg = clone.querySelector('svg');
+            if (svg) {
+                svg.removeAttribute('width');
+                svg.removeAttribute('height');
+                svg.style.width = '100%';
+                svg.style.height = 'auto';
+                svg.style.maxWidth = '100%';
+                svg.style.display = 'block';
+
+                if (false) {
+                    setTimeout(() => {
+                        const g = svg.querySelector('g');
+                        if (g) {
+                            var svgD3 = d3.select(svg);
+                            svgD3.html("<g class='wrapper'>" + svgD3.html() + "</g>");
+                            var inner = svgD3.select("g");
+                            var zoom = d3.zoom().on("zoom", function(event) {
+                                inner.attr("transform", event.transform);
+                            });
+                            svgD3.call(zoom);
+                        }
+                    }, 100);
+                }
+            }
+
+            modal.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        });
+        container.appendChild(fullscreenBtn);
+    });
+};
+
+
+
+const load = async () => {
+    initStyles();
+
+
+    await runMermaid(true);
+
+    const reRunIfThemeChanges = async () => {
+        const newDarkTheme = isDarkTheme();
+        if (newDarkTheme !== darkTheme) {
+            darkTheme = newDarkTheme;
+            console.log("Theme change detected, re-running mermaid with", darkTheme ? "dark" : "default", "theme");
+            await mermaid.initialize(
+                {...{"startOnLoad": false},
+                ...{ darkMode: darkTheme, theme: darkTheme ? "dark" : "default" },
+                }
+            );
+            await runMermaid(true);
+        }
+    };
+
+    // Update theme classes when theme changes
+    const themeObserver = new MutationObserver(reRunIfThemeChanges);
+    themeObserver.observe(document.documentElement, {
+        attributes: true,
+        attributeFilter: ['class', 'style', 'data-theme']
+    });
+    themeObserver.observe(document.body, {
+        attributes: true,
+        attributeFilter: ['class', 'style', 'data-theme']
+    });
+};
+
+
+
+
+
+console.log("Initializing mermaid with", darkTheme ? "dark" : "default", "theme");
+mermaid.initialize(
+    {...{"startOnLoad": false},
+    ...{ darkMode: darkTheme, theme: darkTheme ? "dark" : "default" },
+    }
+);
+
+window.addEventListener("load", load);
+window.runMermaid = runMermaid;</script>
+    <script src="../../../../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../../../search.html" />
+    <link href="../../../../../../_static/style.css" rel="stylesheet" type="text/css">
+
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../../../../index.html" class="icon icon-home">
+            Polaris
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">User's guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../users_guide/quick_start.html">Quick Start for Users</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../users_guide/tasks.html">Tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../users_guide/config_files.html">Config Files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../users_guide/suites.html">Suites</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../users_guide/mesh/index.html">Mesh component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../users_guide/e3sm/init/index.html">E3SM Initial Condition Component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../users_guide/ocean/index.html">Ocean component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../users_guide/seaice/index.html">Sea ice component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../users_guide/machines/index.html">Machines</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Developer's guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../developers_guide/quick_start.html">Quick Start for Developers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../developers_guide/overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../developers_guide/command_line.html">Command-line interface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../developers_guide/organization/index.html">Organization of Tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../developers_guide/e3sm/init/index.html">E3SM initial condition (e3sm/init) component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../developers_guide/mesh/index.html">Mesh component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../developers_guide/ocean/index.html">Ocean component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../developers_guide/seaice/index.html">Sea ice component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../developers_guide/framework/index.html">Framework</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../developers_guide/machines/index.html">Machines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../developers_guide/benchmarking.html">Benchmarking a branch against a baseline</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../developers_guide/omega_pr_testing.html">Testing an Omega pull request</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../developers_guide/troubleshooting.html">Troubleshooting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../developers_guide/docs.html">Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../developers_guide/building_docs.html">Building the Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../developers_guide/building_docs.html#previewing-the-documentation">Previewing the Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../developers_guide/conda_vs_spack.html">How Conda and Spack Work Together in Polaris</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../developers_guide/updating_conda.html">Updating Deployment Dependencies</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../developers_guide/updating_spack/index.html">Updating Shared Spack Environments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../developers_guide/api.html">API reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../design_docs/index.html">Design Documents</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../tutorials/dev_add_category_of_tasks/index.html">Developer Tutorial: Adding a New Category of Tasks</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Glossary</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../glossary.html">Glossary</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../../../index.html">Polaris</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../../../../index.html">Module code</a></li>
+          <li class="breadcrumb-item"><a href="../../../ocean.html">polaris.tasks.ocean</a></li>
+          <li class="breadcrumb-item"><a href="../../realistic_global.html">polaris.tasks.ocean.realistic_global</a></li>
+      <li class="breadcrumb-item active">polaris.tasks.ocean.realistic_global.dynamic_adjustment.schedule</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for polaris.tasks.ocean.realistic_global.dynamic_adjustment.schedule</h1><div class="highlight"><pre>
+<span></span><span class="sd">"""</span>
+<span class="sd">Parse a dynamic-adjustment schedule YAML into a chain of</span>
+<span class="sd">:py:class:`~polaris.tasks.ocean.realistic_global.forward.stage.ForwardStage`</span>
+<span class="sd">objects.</span>
+
+<span class="sd">A stage is a forward run, so it starts from the ``[realistic_global_forward]``</span>
+<span class="sd">config options -- including any per-mesh overrides -- and the schedule supplies</span>
+<span class="sd">only what varies from stage to stage: the run duration, the time steps and</span>
+<span class="sd">the Rayleigh damping.  The schedule is therefore a delta on the forward config</span>
+<span class="sd">rather than a second configuration system, and options added to</span>
+<span class="sd">``ForwardStage`` upstream reach the adjustment stages without any change here.</span>
+
+<span class="sd">A schedule has a small ``shared`` block of per-stage defaults plus an ordered</span>
+<span class="sd">``stages`` mapping.  Every key in either block must name a ``ForwardStage``</span>
+<span class="sd">field, so a stale or misspelled key fails at setup rather than silently</span>
+<span class="sd">reverting to a default; the fields the restart chain owns (``start_time``,</span>
+<span class="sd">``do_restart``, ``restart_in``, ``restart_out``) are set here instead, from the</span>
+<span class="sd">cumulative durations.</span>
+<span class="sd">"""</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">dataclasses</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">datetime</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">importlib.resources</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">imp_res</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">typing</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">ruamel.yaml</span><span class="w"> </span><span class="kn">import</span> <span class="n">YAML</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.config</span><span class="w"> </span><span class="kn">import</span> <span class="n">PolarisConfigParser</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.mpas.time</span><span class="w"> </span><span class="kn">import</span> <span class="n">duration_to_seconds</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.tasks.ocean.realistic_global.forward.stage</span><span class="w"> </span><span class="kn">import</span> <span class="n">ForwardStage</span>
+
+<span class="n">PACKAGE</span> <span class="o">=</span> <span class="s1">'polaris.tasks.ocean.realistic_global.dynamic_adjustment'</span>
+<span class="n">DEFAULT_SCHEDULE</span> <span class="o">=</span> <span class="s1">'default.yaml'</span>
+<span class="n">SECTION</span> <span class="o">=</span> <span class="s1">'realistic_global_dynamic_adjustment'</span>
+<span class="n">FORWARD_SECTION</span> <span class="o">=</span> <span class="s1">'realistic_global_forward'</span>
+
+<span class="c1"># MPAS-Ocean fires an output alarm at ``reference_time + n * interval``, and</span>
+<span class="c1"># the restart stream's reference time is fixed at this value by the Registry</span>
+<span class="c1"># (``Registry.xml``, the immutable ``restart`` stream).  It does not follow a</span>
+<span class="c1"># stage's start time, so a stage's stop has to land on the alarm measured from</span>
+<span class="c1"># here, not from where the stage began.</span>
+<span class="n">RESTART_REFERENCE_TIME</span> <span class="o">=</span> <span class="s1">'0001-01-01_00:00:00'</span>
+
+<span class="c1"># ForwardStage fields the restart chain owns, which a schedule may not set.</span>
+<span class="c1"># ``start_time`` is the exception: it is accepted in the ``shared`` block as</span>
+<span class="c1"># the origin of the chain, and each stage's own start time follows from it.</span>
+<span class="n">_CHAIN_FIELDS</span> <span class="o">=</span> <span class="nb">frozenset</span><span class="p">(</span>
+    <span class="p">{</span><span class="s1">'name'</span><span class="p">,</span> <span class="s1">'do_restart'</span><span class="p">,</span> <span class="s1">'restart_in'</span><span class="p">,</span> <span class="s1">'restart_out'</span><span class="p">,</span> <span class="s1">'start_time'</span><span class="p">}</span>
+<span class="p">)</span>
+
+<span class="c1"># The fields a schedule may set, in ForwardStage declaration order.</span>
+<span class="n">SCHEDULE_FIELDS</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span>
+    <span class="n">field</span><span class="o">.</span><span class="n">name</span>
+    <span class="k">for</span> <span class="n">field</span> <span class="ow">in</span> <span class="n">dataclasses</span><span class="o">.</span><span class="n">fields</span><span class="p">(</span><span class="n">ForwardStage</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">field</span><span class="o">.</span><span class="n">name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">_CHAIN_FIELDS</span>
+<span class="p">)</span>
+
+<span class="n">_TRUE_VALUES</span> <span class="o">=</span> <span class="nb">frozenset</span><span class="p">({</span><span class="s1">'true'</span><span class="p">,</span> <span class="s1">'yes'</span><span class="p">,</span> <span class="s1">'on'</span><span class="p">,</span> <span class="s1">'1'</span><span class="p">})</span>
+<span class="n">_FALSE_VALUES</span> <span class="o">=</span> <span class="nb">frozenset</span><span class="p">({</span><span class="s1">'false'</span><span class="p">,</span> <span class="s1">'no'</span><span class="p">,</span> <span class="s1">'off'</span><span class="p">,</span> <span class="s1">'0'</span><span class="p">})</span>
+
+
+<div class="viewcode-block" id="load_schedule_stages">
+<a class="viewcode-back" href="../../../../../../developers_guide/ocean/generated/polaris.tasks.ocean.realistic_global.dynamic_adjustment.schedule.load_schedule_stages.html#polaris.tasks.ocean.realistic_global.dynamic_adjustment.schedule.load_schedule_stages">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">load_schedule_stages</span><span class="p">(</span>
+    <span class="n">mesh_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">config</span><span class="p">:</span> <span class="n">PolarisConfigParser</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">ForwardStage</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Build the ordered list of restart-chained stages for a mesh.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    mesh_name : str</span>
+<span class="sd">        The MPAS mesh name.  A ``&lt;mesh_name&gt;.yaml`` schedule in the package is</span>
+<span class="sd">        used when present; otherwise the shared ``default.yaml`` is used.</span>
+
+<span class="sd">    config : polaris.config.PolarisConfigParser</span>
+<span class="sd">        The task config.  Each stage starts from its</span>
+<span class="sd">        ``[realistic_global_forward]`` options, and a</span>
+<span class="sd">        ``[realistic_global_dynamic_adjustment] schedule`` path overrides the</span>
+<span class="sd">        built-in schedule.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    list of ForwardStage</span>
+<span class="sd">        One stage per entry in the schedule's ``stages`` block, with</span>
+<span class="sd">        ``do_restart``, ``start_time``, ``restart_in`` and ``restart_out`` set</span>
+<span class="sd">        so the stages form a restart chain.</span>
+<span class="sd">    """</span>
+    <span class="n">options</span> <span class="o">=</span> <span class="n">_load_schedule</span><span class="p">(</span><span class="n">mesh_name</span><span class="p">,</span> <span class="n">config</span><span class="p">)</span>
+    <span class="n">shared</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">options</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'shared'</span><span class="p">,</span> <span class="p">{}))</span>
+    <span class="n">stages_dict</span> <span class="o">=</span> <span class="n">options</span><span class="p">[</span><span class="s1">'stages'</span><span class="p">]</span>
+
+    <span class="c1"># every stage is a forward run on this mesh; the schedule only says how</span>
+    <span class="c1"># each one differs</span>
+    <span class="n">base</span> <span class="o">=</span> <span class="n">ForwardStage</span><span class="o">.</span><span class="n">from_config</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">section</span><span class="o">=</span><span class="n">FORWARD_SECTION</span><span class="p">)</span>
+
+    <span class="n">stages</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">ForwardStage</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">start_time</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">shared</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">'start_time'</span><span class="p">,</span> <span class="s1">'0001-01-01_00:00:00'</span><span class="p">))</span>
+    <span class="n">_check_keys</span><span class="p">(</span><span class="n">shared</span><span class="p">,</span> <span class="s1">'the shared block'</span><span class="p">)</span>
+    <span class="n">restart_in</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">do_restart</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">stage_options</span> <span class="ow">in</span> <span class="n">stages_dict</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="n">merged</span> <span class="o">=</span> <span class="n">_merge</span><span class="p">(</span><span class="n">shared</span><span class="p">,</span> <span class="n">stage_options</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span>
+        <span class="n">run_duration</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">merged</span><span class="p">[</span><span class="s1">'run_duration'</span><span class="p">])</span>
+        <span class="n">stop</span> <span class="o">=</span> <span class="n">_advance</span><span class="p">(</span><span class="n">start_time</span><span class="p">,</span> <span class="n">run_duration</span><span class="p">)</span>
+        <span class="n">stop_colons</span> <span class="o">=</span> <span class="n">_format_time</span><span class="p">(</span><span class="n">stop</span><span class="p">,</span> <span class="s1">':'</span><span class="p">)</span>
+        <span class="n">restart_out</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">'restarts/rst.</span><span class="si">{</span><span class="n">_format_time</span><span class="p">(</span><span class="n">stop</span><span class="p">,</span><span class="w"> </span><span class="s2">"."</span><span class="p">)</span><span class="si">}</span><span class="s1">.nc'</span>
+        <span class="n">stage</span> <span class="o">=</span> <span class="n">_build_stage</span><span class="p">(</span>
+            <span class="n">base</span><span class="o">=</span><span class="n">base</span><span class="p">,</span>
+            <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span>
+            <span class="n">merged</span><span class="o">=</span><span class="n">merged</span><span class="p">,</span>
+            <span class="n">run_duration</span><span class="o">=</span><span class="n">run_duration</span><span class="p">,</span>
+            <span class="n">start_time</span><span class="o">=</span><span class="n">start_time</span><span class="p">,</span>
+            <span class="n">do_restart</span><span class="o">=</span><span class="n">do_restart</span><span class="p">,</span>
+            <span class="n">restart_in</span><span class="o">=</span><span class="n">restart_in</span><span class="p">,</span>
+            <span class="n">restart_out</span><span class="o">=</span><span class="n">restart_out</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">_check_stage_writes_its_records</span><span class="p">(</span><span class="n">stage</span><span class="p">,</span> <span class="n">stop</span><span class="p">)</span>
+        <span class="n">stages</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">stage</span><span class="p">)</span>
+        <span class="n">start_time</span> <span class="o">=</span> <span class="n">stop_colons</span>
+        <span class="n">restart_in</span> <span class="o">=</span> <span class="n">restart_out</span>
+        <span class="n">do_restart</span> <span class="o">=</span> <span class="kc">True</span>
+
+    <span class="k">return</span> <span class="n">stages</span></div>
+
+
+
+<div class="viewcode-block" id="excluded_days_in_stage">
+<a class="viewcode-back" href="../../../../../../developers_guide/ocean/generated/polaris.tasks.ocean.realistic_global.dynamic_adjustment.schedule.excluded_days_in_stage.html#polaris.tasks.ocean.realistic_global.dynamic_adjustment.schedule.excluded_days_in_stage">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">excluded_days_in_stage</span><span class="p">(</span>
+    <span class="n">stage</span><span class="p">:</span> <span class="n">ForwardStage</span><span class="p">,</span>
+    <span class="n">sequence_start</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">exclusion_duration</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    How much of a stage falls inside the startup window of the sequence.</span>
+
+<span class="sd">    The window over which the tracer extremes are not judged is measured from</span>
+<span class="sd">    the start of the *sequence* rather than of each stage, because what it</span>
+<span class="sd">    exists to skip belongs to the initial condition: the WOA23 source data</span>
+<span class="sd">    carries a warm artifact off Sumatra and a salty one in the Red Sea, and on</span>
+<span class="sd">    the finer meshes they need a couple of hours of mixing before they fall</span>
+<span class="sd">    back to the values they then hold for the rest of the run.  A window</span>
+<span class="sd">    measured from each stage would instead stop looking just after every</span>
+<span class="sd">    damping change, which is where a schedule that steps the damping down too</span>
+<span class="sd">    fast would show itself.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    stage : polaris.tasks.ocean.realistic_global.forward.stage.ForwardStage</span>
+<span class="sd">        The stage in question.</span>
+
+<span class="sd">    sequence_start : str</span>
+<span class="sd">        The start time of the first stage, in MPAS ``YYYY-MM-DD_HH:MM:SS``</span>
+<span class="sd">        form.</span>
+
+<span class="sd">    exclusion_duration : str</span>
+<span class="sd">        The length of the window, as an MPAS duration string.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    float</span>
+<span class="sd">        The number of days *into this stage* that lie within the window, and so</span>
+<span class="sd">        0.0 for a stage beginning at or after the end of it.  Expressed</span>
+<span class="sd">        relative to the stage because that is how a stage's own statistics</span>
+<span class="sd">        measure time, whether or not the model restarted its clock.</span>
+<span class="sd">    """</span>
+    <span class="n">window_days</span> <span class="o">=</span> <span class="n">duration_to_seconds</span><span class="p">(</span><span class="n">exclusion_duration</span><span class="p">)</span> <span class="o">/</span> <span class="mf">86400.0</span>
+    <span class="k">if</span> <span class="n">window_days</span> <span class="o">&lt;=</span> <span class="mf">0.0</span><span class="p">:</span>
+        <span class="k">return</span> <span class="mf">0.0</span>
+    <span class="n">offset</span> <span class="o">=</span> <span class="n">_parse_time</span><span class="p">(</span><span class="n">stage</span><span class="o">.</span><span class="n">start_time</span><span class="p">)</span> <span class="o">-</span> <span class="n">_parse_time</span><span class="p">(</span><span class="n">sequence_start</span><span class="p">)</span>
+    <span class="k">return</span> <span class="nb">max</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">window_days</span> <span class="o">-</span> <span class="n">offset</span><span class="o">.</span><span class="n">total_seconds</span><span class="p">()</span> <span class="o">/</span> <span class="mf">86400.0</span><span class="p">)</span></div>
+
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_check_stage_writes_its_records</span><span class="p">(</span>
+    <span class="n">stage</span><span class="p">:</span> <span class="n">ForwardStage</span><span class="p">,</span> <span class="n">stop</span><span class="p">:</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Raise unless the stage will actually write the records the chain needs.</span>
+
+<span class="sd">    Two ways a schedule can look reasonable and produce nothing usable:</span>
+
+<span class="sd">    * a ``restart_interval`` that does not put the stage's stop time on the</span>
+<span class="sd">      restart alarm.  The stage declares ``restarts/rst.&lt;stop&gt;.nc`` as its</span>
+<span class="sd">      output and the next stage reads it, so a miss is not a missing diagnostic</span>
+<span class="sd">      but a broken chain -- discovered only after the model has already run.</span>
+<span class="sd">      The alarm is measured from the stream's fixed reference time, so it is</span>
+<span class="sd">      the elapsed time from there, not the stage's duration, that has to</span>
+<span class="sd">      divide.</span>
+<span class="sd">    * a ``stats_interval`` longer than the stage, which leaves the statistics</span>
+<span class="sd">      with only the record written at startup, so the diagnostics summary</span>
+<span class="sd">      reports the state the stage began from as its end-of-stage value.</span>
+
+<span class="sd">    ``output_interval`` is deliberately not checked.  An interval longer than</span>
+<span class="sd">    the stage is a legitimate way to say "do not write 3-D fields during the</span>
+<span class="sd">    damped stages", which is what the ported Compass schedules do, and now that</span>
+<span class="sd">    the diagnostics come from the statistics nothing depends on ``output.nc``</span>
+<span class="sd">    having a final record.</span>
+<span class="sd">    """</span>
+    <span class="n">restart_seconds</span> <span class="o">=</span> <span class="n">_interval_seconds</span><span class="p">(</span><span class="n">stage</span><span class="p">,</span> <span class="s1">'restart_interval'</span><span class="p">)</span>
+    <span class="n">elapsed</span> <span class="o">=</span> <span class="p">(</span><span class="n">stop</span> <span class="o">-</span> <span class="n">_parse_time</span><span class="p">(</span><span class="n">RESTART_REFERENCE_TIME</span><span class="p">))</span><span class="o">.</span><span class="n">total_seconds</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">elapsed</span> <span class="o">%</span> <span class="n">restart_seconds</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s1">'Stage </span><span class="si">{</span><span class="n">stage</span><span class="o">.</span><span class="n">name</span><span class="si">!r}</span><span class="s1"> ends at </span><span class="si">{</span><span class="n">_format_time</span><span class="p">(</span><span class="n">stop</span><span class="p">,</span><span class="w"> </span><span class="s2">":"</span><span class="p">)</span><span class="si">}</span><span class="s1">, '</span>
+            <span class="sa">f</span><span class="s1">'which is '</span>
+            <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">elapsed</span><span class="si">:</span><span class="s1">g</span><span class="si">}</span><span class="s1"> s after the restart reference time '</span>
+            <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">RESTART_REFERENCE_TIME</span><span class="si">}</span><span class="s1"> and not a whole number of its '</span>
+            <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">stage</span><span class="o">.</span><span class="n">restart_interval</span><span class="si">!r}</span><span class="s1"> restart intervals, so MPAS-Ocean '</span>
+            <span class="sa">f</span><span class="s1">'would never write the restart the next stage reads.  Choose a '</span>
+            <span class="sa">f</span><span class="s1">'restart_interval that divides </span><span class="si">{</span><span class="n">elapsed</span><span class="si">:</span><span class="s1">g</span><span class="si">}</span><span class="s1"> s, or change the run '</span>
+            <span class="sa">f</span><span class="s1">'durations before this stage.'</span>
+        <span class="p">)</span>
+
+    <span class="n">duration</span> <span class="o">=</span> <span class="n">_interval_seconds</span><span class="p">(</span><span class="n">stage</span><span class="p">,</span> <span class="s1">'run_duration'</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">_interval_seconds</span><span class="p">(</span><span class="n">stage</span><span class="p">,</span> <span class="s1">'stats_interval'</span><span class="p">)</span> <span class="o">&gt;</span> <span class="n">duration</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s1">'Stage </span><span class="si">{</span><span class="n">stage</span><span class="o">.</span><span class="n">name</span><span class="si">!r}</span><span class="s1"> has stats_interval '</span>
+            <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">stage</span><span class="o">.</span><span class="n">stats_interval</span><span class="si">!r}</span><span class="s1">, which is longer than its run_duration '</span>
+            <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">stage</span><span class="o">.</span><span class="n">run_duration</span><span class="si">!r}</span><span class="s1">, so the statistics would hold only the '</span>
+            <span class="sa">f</span><span class="s1">'record written at startup and the diagnostics summary would '</span>
+            <span class="sa">f</span><span class="s2">"report the stage's starting state as its end-of-stage value."</span>
+        <span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_interval_seconds</span><span class="p">(</span><span class="n">stage</span><span class="p">:</span> <span class="n">ForwardStage</span><span class="p">,</span> <span class="n">option</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""The number of seconds in one of a stage's duration options."""</span>
+    <span class="n">seconds</span> <span class="o">=</span> <span class="n">duration_to_seconds</span><span class="p">(</span><span class="nb">getattr</span><span class="p">(</span><span class="n">stage</span><span class="p">,</span> <span class="n">option</span><span class="p">))</span>
+    <span class="k">if</span> <span class="n">seconds</span> <span class="o">&lt;=</span> <span class="mf">0.0</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s1">'Stage </span><span class="si">{</span><span class="n">stage</span><span class="o">.</span><span class="n">name</span><span class="si">!r}</span><span class="s1"> has a non-positive </span><span class="si">{</span><span class="n">option</span><span class="si">}</span><span class="s1"> '</span>
+            <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="nb">getattr</span><span class="p">(</span><span class="n">stage</span><span class="p">,</span><span class="w"> </span><span class="n">option</span><span class="p">)</span><span class="si">!r}</span><span class="s1">.'</span>
+        <span class="p">)</span>
+    <span class="k">return</span> <span class="n">seconds</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_load_schedule</span><span class="p">(</span>
+    <span class="n">mesh_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">config</span><span class="p">:</span> <span class="n">PolarisConfigParser</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">"""Read and validate the schedule mapping for a mesh."""</span>
+    <span class="n">text</span> <span class="o">=</span> <span class="n">_read_schedule_text</span><span class="p">(</span><span class="n">mesh_name</span><span class="p">,</span> <span class="n">config</span><span class="p">)</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="n">YAML</span><span class="p">(</span><span class="n">typ</span><span class="o">=</span><span class="s1">'rt'</span><span class="p">)</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="nb">dict</span><span class="p">)</span> <span class="ow">or</span> <span class="s1">'dynamic_adjustment'</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">data</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="s1">'A dynamic-adjustment schedule must start with '</span>
+            <span class="s1">'"dynamic_adjustment:".'</span>
+        <span class="p">)</span>
+    <span class="n">options</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s1">'dynamic_adjustment'</span><span class="p">]</span>
+    <span class="k">if</span> <span class="s1">'stages'</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">options</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">options</span><span class="p">[</span><span class="s1">'stages'</span><span class="p">]:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="s1">'A dynamic-adjustment schedule must have a non-empty "stages:" '</span>
+            <span class="s1">'block.'</span>
+        <span class="p">)</span>
+    <span class="k">return</span> <span class="n">options</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_read_schedule_text</span><span class="p">(</span><span class="n">mesh_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">config</span><span class="p">:</span> <span class="n">PolarisConfigParser</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""The schedule YAML text, honoring a config path override."""</span>
+    <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">has_option</span><span class="p">(</span><span class="n">SECTION</span><span class="p">,</span> <span class="s1">'schedule'</span><span class="p">):</span>
+        <span class="n">override</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">SECTION</span><span class="p">,</span> <span class="s1">'schedule'</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">override</span><span class="p">:</span>
+            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">override</span><span class="p">)</span> <span class="k">as</span> <span class="n">schedule_file</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">schedule_file</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+
+    <span class="n">package_files</span> <span class="o">=</span> <span class="n">imp_res</span><span class="o">.</span><span class="n">files</span><span class="p">(</span><span class="n">PACKAGE</span><span class="p">)</span>
+    <span class="n">filename</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">mesh_name</span><span class="si">}</span><span class="s1">.yaml'</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">package_files</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span><span class="o">.</span><span class="n">is_file</span><span class="p">():</span>
+        <span class="n">filename</span> <span class="o">=</span> <span class="n">DEFAULT_SCHEDULE</span>
+    <span class="k">return</span> <span class="n">package_files</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span><span class="o">.</span><span class="n">read_text</span><span class="p">()</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_check_keys</span><span class="p">(</span><span class="n">options</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">],</span> <span class="n">where</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Raise if any key does not name a ForwardStage field a schedule may set.</span>
+
+<span class="sd">    A schedule that names a field which has been renamed or removed upstream</span>
+<span class="sd">    would otherwise fall back to the config value without saying so, which is</span>
+<span class="sd">    how the old ``time_integrator`` key went unnoticed when it was split in</span>
+<span class="sd">    two.</span>
+<span class="sd">    """</span>
+    <span class="n">unknown</span> <span class="o">=</span> <span class="p">[</span><span class="n">key</span> <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">options</span> <span class="k">if</span> <span class="n">key</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">SCHEDULE_FIELDS</span><span class="p">]</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">unknown</span><span class="p">:</span>
+        <span class="k">return</span>
+    <span class="n">valid</span> <span class="o">=</span> <span class="s1">', '</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">SCHEDULE_FIELDS</span><span class="p">)</span>
+    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+        <span class="sa">f</span><span class="s1">'Unknown option(s) </span><span class="si">{</span><span class="s2">", "</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="n">unknown</span><span class="p">))</span><span class="si">!s}</span><span class="s1"> in </span><span class="si">{</span><span class="n">where</span><span class="si">}</span><span class="s1"> of the '</span>
+        <span class="sa">f</span><span class="s1">'dynamic-adjustment schedule.  A schedule option must name a forward '</span>
+        <span class="sa">f</span><span class="s1">'run setting: </span><span class="si">{</span><span class="n">valid</span><span class="si">}</span><span class="s1">.'</span>
+    <span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_merge</span><span class="p">(</span>
+    <span class="n">shared</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">],</span> <span class="n">stage_options</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">"""Merge the shared defaults with one stage's options."""</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">stage_options</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s1">'Stage </span><span class="si">{</span><span class="n">name</span><span class="si">!r}</span><span class="s1"> in the dynamic-adjustment schedule must be a '</span>
+            <span class="sa">f</span><span class="s1">'mapping of options.'</span>
+        <span class="p">)</span>
+    <span class="n">_check_keys</span><span class="p">(</span><span class="nb">dict</span><span class="p">(</span><span class="n">stage_options</span><span class="p">),</span> <span class="sa">f</span><span class="s1">'stage </span><span class="si">{</span><span class="n">name</span><span class="si">!r}</span><span class="s1">'</span><span class="p">)</span>
+    <span class="n">merged</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">shared</span><span class="p">)</span>
+    <span class="n">merged</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">stage_options</span><span class="p">)</span>
+    <span class="c1"># the run duration drives the chain arithmetic, so it cannot come from</span>
+    <span class="c1"># config; every other option falls back to [realistic_global_forward]</span>
+    <span class="k">if</span> <span class="s1">'run_duration'</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">merged</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s1">'Stage </span><span class="si">{</span><span class="n">name</span><span class="si">!r}</span><span class="s1"> in the dynamic-adjustment schedule is missing '</span>
+            <span class="sa">f</span><span class="s2">"required option 'run_duration'."</span>
+        <span class="p">)</span>
+    <span class="k">return</span> <span class="n">merged</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_build_stage</span><span class="p">(</span>
+    <span class="n">base</span><span class="p">:</span> <span class="n">ForwardStage</span><span class="p">,</span>
+    <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">merged</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">],</span>
+    <span class="n">run_duration</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">start_time</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">do_restart</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span>
+    <span class="n">restart_in</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
+    <span class="n">restart_out</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ForwardStage</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Apply one merged stage mapping to ``base`` as a set of overrides.</span>
+
+<span class="sd">    Every field the stage does not mention keeps its ``base`` value, which came</span>
+<span class="sd">    from ``[realistic_global_forward]`` and the per-mesh config.</span>
+<span class="sd">    """</span>
+    <span class="n">overrides</span> <span class="o">=</span> <span class="p">{</span><span class="n">key</span><span class="p">:</span> <span class="n">_coerce</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">key</span><span class="p">)</span> <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">merged</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
+    <span class="c1"># a time step the stage gives per km replaces an explicit one from the</span>
+    <span class="c1"># config, which would otherwise take precedence over it</span>
+    <span class="k">if</span> <span class="s1">'dt_per_km'</span> <span class="ow">in</span> <span class="n">overrides</span><span class="p">:</span>
+        <span class="n">overrides</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">'dt'</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+    <span class="k">if</span> <span class="s1">'btr_dt_per_km'</span> <span class="ow">in</span> <span class="n">overrides</span><span class="p">:</span>
+        <span class="n">overrides</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">'btr_dt'</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="n">overrides</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">'rk4_dt'</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+    <span class="c1"># a stage writes the restart the next stage reads, so it has to write one</span>
+    <span class="c1"># at the end of its own run rather than at the config's cadence</span>
+    <span class="n">overrides</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">'restart_interval'</span><span class="p">,</span> <span class="n">run_duration</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">dataclasses</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span>
+        <span class="n">base</span><span class="p">,</span>
+        <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span>
+        <span class="n">do_restart</span><span class="o">=</span><span class="n">do_restart</span><span class="p">,</span>
+        <span class="n">start_time</span><span class="o">=</span><span class="n">start_time</span><span class="p">,</span>
+        <span class="n">restart_in</span><span class="o">=</span><span class="n">restart_in</span><span class="p">,</span>
+        <span class="n">restart_out</span><span class="o">=</span><span class="n">restart_out</span><span class="p">,</span>
+        <span class="o">**</span><span class="n">overrides</span><span class="p">,</span>
+    <span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_coerce</span><span class="p">(</span><span class="n">value</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="n">key</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Convert one YAML schedule value to the type of the ForwardStage field it</span>
+<span class="sd">    sets, so that ``1.0e-4`` and ``'1.0e-4'`` mean the same thing and a blank</span>
+<span class="sd">    value clears an optional field.</span>
+<span class="sd">    """</span>
+    <span class="n">hint</span> <span class="o">=</span> <span class="n">_field_hints</span><span class="p">()[</span><span class="n">key</span><span class="p">]</span>
+    <span class="n">args</span> <span class="o">=</span> <span class="n">typing</span><span class="o">.</span><span class="n">get_args</span><span class="p">(</span><span class="n">hint</span><span class="p">)</span>
+    <span class="n">optional</span> <span class="o">=</span> <span class="nb">type</span><span class="p">(</span><span class="kc">None</span><span class="p">)</span> <span class="ow">in</span> <span class="n">args</span>
+    <span class="n">target</span> <span class="o">=</span> <span class="nb">next</span><span class="p">((</span><span class="n">arg</span> <span class="k">for</span> <span class="n">arg</span> <span class="ow">in</span> <span class="n">args</span> <span class="k">if</span> <span class="n">arg</span> <span class="ow">is</span> <span class="ow">not</span> <span class="nb">type</span><span class="p">(</span><span class="kc">None</span><span class="p">)),</span> <span class="n">hint</span><span class="p">)</span>
+    <span class="n">text</span> <span class="o">=</span> <span class="s1">''</span> <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="nb">str</span><span class="p">(</span><span class="n">value</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">optional</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">text</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">None</span>
+    <span class="k">if</span> <span class="n">target</span> <span class="ow">is</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">_as_bool</span><span class="p">(</span><span class="n">text</span><span class="p">,</span> <span class="n">key</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">target</span> <span class="ow">is</span> <span class="nb">float</span><span class="p">:</span>
+        <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">text</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_as_bool</span><span class="p">(</span><span class="n">text</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">key</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""A boolean schedule value, however YAML happened to render it."""</span>
+    <span class="n">lowered</span> <span class="o">=</span> <span class="n">text</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">lowered</span> <span class="ow">in</span> <span class="n">_TRUE_VALUES</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">True</span>
+    <span class="k">if</span> <span class="n">lowered</span> <span class="ow">in</span> <span class="n">_FALSE_VALUES</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">False</span>
+    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+        <span class="sa">f</span><span class="s1">'Option </span><span class="si">{</span><span class="n">key</span><span class="si">!r}</span><span class="s1"> in the dynamic-adjustment schedule must be a '</span>
+        <span class="sa">f</span><span class="s1">'boolean, not </span><span class="si">{</span><span class="n">text</span><span class="si">!r}</span><span class="s1">.'</span>
+    <span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_field_hints</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">"""The resolved type hints of the ForwardStage fields, computed once."""</span>
+    <span class="k">global</span> <span class="n">_FIELD_HINTS</span>
+    <span class="k">if</span> <span class="n">_FIELD_HINTS</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">_FIELD_HINTS</span> <span class="o">=</span> <span class="n">typing</span><span class="o">.</span><span class="n">get_type_hints</span><span class="p">(</span><span class="n">ForwardStage</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">_FIELD_HINTS</span>
+
+
+<span class="n">_FIELD_HINTS</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_advance</span><span class="p">(</span><span class="n">start_time</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">run_duration</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""The datetime ``start_time`` + ``run_duration``."""</span>
+    <span class="n">seconds</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="nb">round</span><span class="p">(</span><span class="n">duration_to_seconds</span><span class="p">(</span><span class="n">run_duration</span><span class="p">)))</span>
+    <span class="k">return</span> <span class="n">_parse_time</span><span class="p">(</span><span class="n">start_time</span><span class="p">)</span> <span class="o">+</span> <span class="n">datetime</span><span class="o">.</span><span class="n">timedelta</span><span class="p">(</span><span class="n">seconds</span><span class="o">=</span><span class="n">seconds</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_parse_time</span><span class="p">(</span><span class="n">when</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Parse an MPAS-style ``YYYY-MM-DD_HH:MM:SS`` time."""</span>
+    <span class="k">return</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">strptime</span><span class="p">(</span><span class="n">when</span><span class="p">,</span> <span class="s1">'%Y-%m-</span><span class="si">%d</span><span class="s1">_%H:%M:%S'</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_format_time</span><span class="p">(</span><span class="n">when</span><span class="p">:</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="p">,</span> <span class="n">time_sep</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Format a datetime as ``YYYY-MM-DD_HH&lt;sep&gt;MM&lt;sep&gt;SS`` with a four-digit</span>
+<span class="sd">    year, using ``:`` for config times and ``.`` for restart filenames.</span>
+<span class="sd">    """</span>
+    <span class="k">return</span> <span class="p">(</span>
+        <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">when</span><span class="o">.</span><span class="n">year</span><span class="si">:</span><span class="s1">04d</span><span class="si">}</span><span class="s1">-</span><span class="si">{</span><span class="n">when</span><span class="o">.</span><span class="n">month</span><span class="si">:</span><span class="s1">02d</span><span class="si">}</span><span class="s1">-</span><span class="si">{</span><span class="n">when</span><span class="o">.</span><span class="n">day</span><span class="si">:</span><span class="s1">02d</span><span class="si">}</span><span class="s1">_'</span>
+        <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">when</span><span class="o">.</span><span class="n">hour</span><span class="si">:</span><span class="s1">02d</span><span class="si">}{</span><span class="n">time_sep</span><span class="si">}{</span><span class="n">when</span><span class="o">.</span><span class="n">minute</span><span class="si">:</span><span class="s1">02d</span><span class="si">}{</span><span class="n">time_sep</span><span class="si">}</span><span class="s1">'</span>
+        <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">when</span><span class="o">.</span><span class="n">second</span><span class="si">:</span><span class="s1">02d</span><span class="si">}</span><span class="s1">'</span>
+    <span class="p">)</span>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2026, Energy Exascale Earth System Model Project.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+   
+
+  <!-- Meta tags for JS to use -->
+  <meta name="doc-version" content="1.2.0">
+  <meta name="doc-site-root" content="../../../../../../">
+
+  <!-- Create version switcher container -->
+  <script>
+    const sidebar = document.querySelector('.wy-side-nav-search');
+    if (sidebar) {
+      const versionDiv = document.createElement('div');
+      versionDiv.id = 'version-switcher';
+      versionDiv.style.marginTop = '1em';
+      sidebar.appendChild(versionDiv);
+    }
+  </script>
+
+  <!-- Load version-switcher.js using the correct relative path -->
+  <script src="../../../../../../../shared/version-switcher.js"></script>
+
+
+</body>
+</html>

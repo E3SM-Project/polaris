@@ -1,0 +1,6 @@
+﻿polaris.tasks.ocean.realistic\_global.mesh\_info.estimate\_ocean\_cell\_count
+=============================================================================
+
+.. currentmodule:: polaris.tasks.ocean.realistic_global.mesh_info
+
+.. autofunction:: estimate_ocean_cell_count

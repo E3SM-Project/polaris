@@ -1,0 +1,6 @@
+﻿polaris.baselines.check\_baseline
+=================================
+
+.. currentmodule:: polaris.baselines
+
+.. autofunction:: check_baseline

@@ -1,0 +1,1263 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>polaris.tasks.ocean.horiz_press_grad.init</title>
+      <link rel="stylesheet" type="text/css" href="../../../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../../../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../../../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../../../_static/documentation_options.js?v=6efca38a"></script>
+      <script src="../../../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script type="module">import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11.12.1/dist/mermaid.esm.min.mjs";
+
+
+
+
+
+const initStyles = () => {
+    const defaultStyle = document.createElement('style');
+    defaultStyle.textContent = "pre.mermaid {\n    /* Same as .mermaid-container > pre */\n    display: block;\n    width: 100%;\n}\n\npre.mermaid > svg {\n    /* Same as .mermaid-container > pre > svg */\n    height: 500px;\n    width: 100%;\n    max-width: 100% !important;\n}";
+    document.head.appendChild(defaultStyle);
+
+    const fullscreenStyle = document.createElement('style');
+    fullscreenStyle.textContent = ".mermaid-container {\n    position: relative;\n    display: flex;\n    flex-direction: row;\n    width: 100%;\n}\n\n.mermaid-container > pre {\n    display: block;\n    width: 100%;\n}\n\n.mermaid-container > pre > svg {\n    height: 500px;\n    width: 100%;\n    max-width: 100% !important;\n}\n\n.mermaid-fullscreen-btn {\n    position: absolute;\n    width: 28px;\n    height: 28px;\n    background: rgba(255, 255, 255, 0.95);\n    border: 1px solid rgba(0, 0, 0, 0.3);\n    border-radius: 4px;\n    cursor: pointer;\n    display: flex;\n    align-items: center;\n    justify-content: center;\n    transition: all 0.2s;\n    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);\n    font-size: 14px;\n    line-height: 1;\n    padding: 0;\n    color: #333;\n}\n\n.mermaid-fullscreen-btn:hover {\n    opacity: 100% !important;\n    background: rgba(255, 255, 255, 1);\n    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.3);\n    transform: scale(1.1);\n}\n\n.mermaid-fullscreen-btn.dark-theme {\n    background: rgba(50, 50, 50, 0.95);\n    border: 1px solid rgba(255, 255, 255, 0.3);\n    color: #e0e0e0;\n}\n\n.mermaid-fullscreen-btn.dark-theme:hover {\n    background: rgba(60, 60, 60, 1);\n    box-shadow: 0 3px 10px rgba(255, 255, 255, 0.2);\n}\n\n.mermaid-fullscreen-modal {\n    display: none;\n    position: fixed !important;\n    top: 0 !important;\n    left: 0 !important;\n    width: 95vw;\n    height: 100vh;\n    background: rgba(255, 255, 255, 0.98);\n    z-index: 9999;\n    padding: 20px;\n    overflow: auto;\n}\n\n.mermaid-fullscreen-modal.dark-theme {\n    background: rgba(0, 0, 0, 0.98);\n}\n\n.mermaid-fullscreen-modal.active {\n    display: flex;\n    align-items: center;\n    justify-content: center;\n}\n\n.mermaid-container-fullscreen {\n    position: relative;\n    width: 95vw;\n    height: 90vh;\n    max-width: 95vw;\n    max-height: 90vh;\n    background: white;\n    border-radius: 8px;\n    padding: 20px;\n    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);\n    overflow: auto;\n    display: flex;\n    align-items: center;\n    justify-content: center;\n}\n\n.mermaid-container-fullscreen.dark-theme {\n    background: #1a1a1a;\n    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.8);\n}\n\n.mermaid-container-fullscreen pre.mermaid {\n    width: 100%;\n    height: 100%;\n    display: flex;\n    align-items: center;\n    justify-content: center;\n}\n\n.mermaid-container-fullscreen .mermaid svg {\n    height: 100% !important;\n    width: 100% !important;\n    cursor: grab;\n}\n\n.mermaid-fullscreen-close {\n    position: fixed !important;\n    top: 20px !important;\n    right: 20px !important;\n    width: 40px;\n    height: 40px;\n    background: rgba(255, 255, 255, 0.95);\n    border: 1px solid rgba(0, 0, 0, 0.2);\n    border-radius: 50%;\n    cursor: pointer;\n    z-index: 10000;\n    display: flex;\n    align-items: center;\n    justify-content: center;\n    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);\n    transition: all 0.2s;\n    font-size: 24px;\n    line-height: 1;\n    color: #333;\n}\n\n.mermaid-fullscreen-close:hover {\n    background: white;\n    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);\n    transform: scale(1.1);\n}\n\n.mermaid-fullscreen-close.dark-theme {\n    background: rgba(50, 50, 50, 0.95);\n    border: 1px solid rgba(255, 255, 255, 0.2);\n    color: #e0e0e0;\n}\n\n.mermaid-fullscreen-close.dark-theme:hover {\n    background: rgba(60, 60, 60, 1);\n    box-shadow: 0 6px 16px rgba(255, 255, 255, 0.2);\n}\n\n.mermaid-fullscreen-modal .mermaid-fullscreen-btn {\n    display: none !important;\n}";
+    document.head.appendChild(fullscreenStyle);
+}
+
+// Detect if page has dark background
+const isDarkTheme = () => {
+    // We use a set of heuristics:
+    // 1. Check for common dark mode classes or attributes
+    // 2. Check computed background color brightness
+    if (document.documentElement.classList.contains('dark') ||
+        document.documentElement.getAttribute('data-theme') === 'dark' ||
+        document.body.classList.contains('dark') ||
+        document.body.getAttribute('data-theme') === 'dark') {
+        // console.log("Dark theme detected via class/attribute");
+        return true;
+    }
+    if (document.documentElement.classList.contains('light') ||
+        document.documentElement.getAttribute('data-theme') === 'light' ||
+        document.body.classList.contains('light') ||
+        document.body.getAttribute('data-theme') === 'light') {
+        // console.log("Light theme detected via class/attribute");
+        return false;
+    }
+    if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        // console.log("Dark theme detected via prefers-color-scheme");
+        return true;
+    }
+    const bgColor = window.getComputedStyle(document.body).backgroundColor;
+    const match = bgColor.match(/rgb\((\d+),\s*(\d+),\s*(\d+)/);
+    if (match) {
+        const r = parseInt(match[1]);
+        const g = parseInt(match[2]);
+        const b = parseInt(match[3]);
+        const brightness = (r * 299 + g * 587 + b * 114) / 1000;
+        // console.log("Background color brightness:", brightness);
+        return brightness < 128;
+    }
+    // console.log("No dark or light theme detected, defaulting to light theme");
+    return false;
+};
+
+let darkTheme = isDarkTheme();
+let modal = null;
+let modalContent = null;
+let previousScrollOffset = [window.scrollX, window.scrollY];
+let _lazyObserver = null;
+let _renderQueue = Promise.resolve();
+let closeModal = () => {};
+
+document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && modal?.classList.contains('active')) {
+        closeModal();
+    }
+});
+
+// Apply d3 zoom to each SVG. Idempotent: an SVG already wrapped is skipped,
+// so this is safe to call both for the initial batch and for diagrams that
+// render lazily once they become visible.
+const addZoomToSvgs = (svgs) => {
+    svgs.each(function() {
+        if (this.getAttribute('data-zoom-applied') === 'true') return;
+        var svg = d3.select(this);
+        svg.html("<g class='wrapper'>" + svg.html() + "</g>");
+        var inner = svg.select("g");
+        var zoom = d3.zoom().on("zoom", function(event) {
+            inner.attr("transform", event.transform);
+        });
+        svg.call(zoom);
+        this.setAttribute('data-zoom-applied', 'true');
+    });
+};
+
+const runMermaid = async (rerun) => {
+    console.log("Running mermaid diagrams, rerun =", rerun);
+    // clear all existing mermaid charts
+    let all_mermaids = document.querySelectorAll(".mermaid");
+
+    if (rerun) {
+        // Disconnect any previous lazy rendering observer
+        if (_lazyObserver) {
+            _lazyObserver.disconnect();
+            _lazyObserver = null;
+        }
+
+        all_mermaids.forEach((el) => {
+            el.removeAttribute('data-mermaid-deferred');
+            el.removeAttribute('data-mermaid-render-failed');
+            if(!el.hasAttribute("data-original-code")) {
+                // store original code
+                // console.log(`Storing original code for first run: `, el.innerHTML);
+                el.setAttribute('data-original-code', el.innerHTML);
+            }
+            if(el.getAttribute("data-processed") === "true") {
+                // remove and restore original
+                el.removeAttribute("data-processed");
+                // console.log(`Restoring original code for re-run: `, el.getAttribute('data-original-code'));
+                el.innerHTML = el.getAttribute('data-original-code');
+            } else {
+                // store original code
+                // console.log(`Storing original code for re-run: `, el.innerHTML);
+                el.setAttribute('data-original-code', el.innerHTML);
+            }
+        });
+
+        // Separate visible and hidden elements. Mermaid's layout engine measures
+        // text dimensions via the DOM, which fails for elements hidden by a parent
+        // (e.g., Reveal.js non-active slides, sphinx-design unopened tabs),
+        // producing broken SVGs. Render visible elements now, defer hidden ones.
+        const visible = [];
+        const hidden = [];
+        all_mermaids.forEach((el) => {
+            // offsetParent is null for display:none ancestors.
+            // getClientRects().length > 0 catches position:fixed elements
+            // (which also have null offsetParent but are still visible).
+            if (el.offsetParent !== null || el.getClientRects().length > 0) {
+                visible.push(el);
+            } else {
+                hidden.push(el);
+                el.setAttribute('data-mermaid-deferred', 'true');
+            }
+        });
+
+        if (visible.length > 0) {
+            try {
+                await mermaid.run({ nodes: visible });
+            } catch (e) {
+                console.error("Mermaid rendering failed:", e);
+            }
+        }
+
+        // Lazily render hidden elements when they become visible.
+        // Uses a promise chain (_renderQueue) to serialize rendering,
+        // since IntersectionObserver may report multiple entries at once
+        // and mermaid.run() is not safe to call concurrently.
+        if (hidden.length > 0) {
+            if (typeof IntersectionObserver === 'undefined') {
+                console.warn("IntersectionObserver not available; hidden mermaid diagrams will not render.");
+            } else {
+                _renderQueue = Promise.resolve();
+                _lazyObserver = new IntersectionObserver((entries) => {
+                    for (const entry of entries) {
+                        if (entry.isIntersecting && entry.target.getAttribute("data-processed") !== "true") {
+                            _lazyObserver.unobserve(entry.target);
+                            const el = entry.target;
+                            _renderQueue = _renderQueue.then(async () => {
+                                try {
+                                    await mermaid.run({ nodes: [el] });
+                                    el.removeAttribute('data-mermaid-deferred');
+                                    // Apply zoom to the now-rendered diagram, matching
+                                    // the decoration visible diagrams receive.
+                                    if (false) {
+                                        addZoomToSvgs(d3.selectAll("").select(function() {
+                                            return this.querySelector("svg");
+                                        }));
+                                    }
+                                } catch (e) {
+                                    console.error("Mermaid deferred rendering failed:", e);
+                                    el.removeAttribute('data-mermaid-deferred');
+                                    el.setAttribute('data-mermaid-render-failed', 'true');
+                                }
+                            });
+                        }
+                    }
+                });
+                hidden.forEach((el) => _lazyObserver.observe(el));
+            }
+        }
+    }
+
+    all_mermaids = document.querySelectorAll(".mermaid");
+    // Exclude deferred (hidden) and render-failed elements from completion checks
+    const mermaids_active = document.querySelectorAll(".mermaid:not([data-mermaid-deferred]):not([data-mermaid-render-failed])");
+    const mermaids_processed = document.querySelectorAll(".mermaid:not([data-mermaid-deferred]):not([data-mermaid-render-failed])[data-processed='true']");
+
+    if (false) {
+        const mermaids_to_add_zoom = 0 === -1 ? mermaids_active.length : 0;
+        if(mermaids_to_add_zoom > 0) {
+            var svgs = d3.selectAll("").select(function() {
+                return this.querySelector("svg");
+            });
+            // Wait until every active (visible) diagram has rendered. Deferred
+            // diagrams are excluded, so a fixed d3_node_count that counts a
+            // hidden diagram no longer loops forever waiting for its SVG.
+            if(mermaids_active.length !== mermaids_processed.length) {
+                setTimeout(() => runMermaid(false), 200);
+                return;
+            }
+            addZoomToSvgs(svgs);
+        }
+    } else if(mermaids_active.length !== mermaids_processed.length) {
+        // Wait for mermaid to process all diagrams
+        setTimeout(() => runMermaid(false), 200);
+        return;
+    }
+
+    // Stop here if not adding fullscreen capability
+    if (!true) return;
+
+    if (modal !== null ) {
+        // Destroy existing modal
+        modal.remove();
+        modal = null;
+        modalContent = null;
+    }
+
+    modal = document.createElement('div');
+    modal.className = 'mermaid-fullscreen-modal' + (darkTheme ? ' dark-theme' : '');
+    modal.setAttribute('role', 'dialog');
+    modal.setAttribute('aria-modal', 'true');
+    modal.setAttribute('aria-label', 'Fullscreen diagram viewer');
+    modal.innerHTML = `
+        <button class="mermaid-fullscreen-close${darkTheme ? ' dark-theme' : ''}" aria-label="Close fullscreen">✕</button>
+        <div class="mermaid-container-fullscreen${darkTheme ? ' dark-theme' : ''}"></div>
+    `;
+    document.body.appendChild(modal);
+
+    modalContent = modal.querySelector('.mermaid-container-fullscreen');
+    const closeBtn = modal.querySelector('.mermaid-fullscreen-close');
+
+    closeModal = () => {
+        modal.classList.remove('active');
+        modalContent.innerHTML = '';
+        document.body.style.overflow = ''
+        window.scrollTo({left: previousScrollOffset[0], top: previousScrollOffset[1], behavior: 'instant'});
+    };
+
+    closeBtn.addEventListener('click', closeModal);
+    modal.addEventListener('click', (e) => {
+        if (e.target === modal) closeModal();
+    });
+    document.querySelectorAll('.mermaid').forEach((mermaidDiv) => {
+        if (mermaidDiv.parentNode.classList.contains('mermaid-container') ||
+            mermaidDiv.closest('.mermaid-fullscreen-modal')) {
+            // Already processed, adjust button class if needed
+            const existingBtn = mermaidDiv.parentNode.querySelector('.mermaid-fullscreen-btn');
+            if (existingBtn) {
+                existingBtn.className = 'mermaid-fullscreen-btn' + (darkTheme ? ' dark-theme' : '');
+            }
+            return;
+        }
+
+        const container = document.createElement('div');
+        container.className = 'mermaid-container';
+        mermaidDiv.parentNode.insertBefore(container, mermaidDiv);
+        container.appendChild(mermaidDiv);
+
+        const fullscreenBtn = document.createElement('button');
+        fullscreenBtn.className = 'mermaid-fullscreen-btn' + (darkTheme ? ' dark-theme' : '');
+        fullscreenBtn.setAttribute('aria-label', 'View diagram in fullscreen');
+        fullscreenBtn.textContent = "\u26f6";
+        fullscreenBtn.style.opacity = "50%";
+
+        // Calculate dynamic position based on diagram's margin and padding
+        const diagramStyle = window.getComputedStyle(mermaidDiv);
+        const marginTop = parseFloat(diagramStyle.marginTop) || 0;
+        const marginRight = parseFloat(diagramStyle.marginRight) || 0;
+        const paddingTop = parseFloat(diagramStyle.paddingTop) || 0;
+        const paddingRight = parseFloat(diagramStyle.paddingRight) || 0;
+        fullscreenBtn.style.top = `${marginTop + paddingTop + 4}px`;
+        fullscreenBtn.style.right = `${marginRight + paddingRight + 4}px`;
+
+        fullscreenBtn.addEventListener('click', () => {
+            previousScrollOffset = [window.scrollX, window.scrollY];
+            const clone = mermaidDiv.cloneNode(true);
+            modalContent.innerHTML = '';
+            modalContent.appendChild(clone);
+
+            const svg = clone.querySelector('svg');
+            if (svg) {
+                svg.removeAttribute('width');
+                svg.removeAttribute('height');
+                svg.style.width = '100%';
+                svg.style.height = 'auto';
+                svg.style.maxWidth = '100%';
+                svg.style.display = 'block';
+
+                if (false) {
+                    setTimeout(() => {
+                        const g = svg.querySelector('g');
+                        if (g) {
+                            var svgD3 = d3.select(svg);
+                            svgD3.html("<g class='wrapper'>" + svgD3.html() + "</g>");
+                            var inner = svgD3.select("g");
+                            var zoom = d3.zoom().on("zoom", function(event) {
+                                inner.attr("transform", event.transform);
+                            });
+                            svgD3.call(zoom);
+                        }
+                    }, 100);
+                }
+            }
+
+            modal.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        });
+        container.appendChild(fullscreenBtn);
+    });
+};
+
+
+
+const load = async () => {
+    initStyles();
+
+
+    await runMermaid(true);
+
+    const reRunIfThemeChanges = async () => {
+        const newDarkTheme = isDarkTheme();
+        if (newDarkTheme !== darkTheme) {
+            darkTheme = newDarkTheme;
+            console.log("Theme change detected, re-running mermaid with", darkTheme ? "dark" : "default", "theme");
+            await mermaid.initialize(
+                {...{"startOnLoad": false},
+                ...{ darkMode: darkTheme, theme: darkTheme ? "dark" : "default" },
+                }
+            );
+            await runMermaid(true);
+        }
+    };
+
+    // Update theme classes when theme changes
+    const themeObserver = new MutationObserver(reRunIfThemeChanges);
+    themeObserver.observe(document.documentElement, {
+        attributes: true,
+        attributeFilter: ['class', 'style', 'data-theme']
+    });
+    themeObserver.observe(document.body, {
+        attributes: true,
+        attributeFilter: ['class', 'style', 'data-theme']
+    });
+};
+
+
+
+
+
+console.log("Initializing mermaid with", darkTheme ? "dark" : "default", "theme");
+mermaid.initialize(
+    {...{"startOnLoad": false},
+    ...{ darkMode: darkTheme, theme: darkTheme ? "dark" : "default" },
+    }
+);
+
+window.addEventListener("load", load);
+window.runMermaid = runMermaid;</script>
+    <script src="../../../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../../search.html" />
+    <link href="../../../../../_static/style.css" rel="stylesheet" type="text/css">
+
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../../../index.html" class="icon icon-home">
+            Polaris
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">User's guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../users_guide/quick_start.html">Quick Start for Users</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../users_guide/tasks.html">Tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../users_guide/config_files.html">Config Files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../users_guide/suites.html">Suites</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../users_guide/mesh/index.html">Mesh component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../users_guide/e3sm/init/index.html">E3SM Initial Condition Component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../users_guide/ocean/index.html">Ocean component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../users_guide/seaice/index.html">Sea ice component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../users_guide/machines/index.html">Machines</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Developer's guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../developers_guide/quick_start.html">Quick Start for Developers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../developers_guide/overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../developers_guide/command_line.html">Command-line interface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../developers_guide/organization/index.html">Organization of Tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../developers_guide/e3sm/init/index.html">E3SM initial condition (e3sm/init) component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../developers_guide/mesh/index.html">Mesh component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../developers_guide/ocean/index.html">Ocean component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../developers_guide/seaice/index.html">Sea ice component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../developers_guide/framework/index.html">Framework</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../developers_guide/machines/index.html">Machines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../developers_guide/benchmarking.html">Benchmarking a branch against a baseline</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../developers_guide/omega_pr_testing.html">Testing an Omega pull request</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../developers_guide/troubleshooting.html">Troubleshooting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../developers_guide/docs.html">Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../developers_guide/building_docs.html">Building the Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../developers_guide/building_docs.html#previewing-the-documentation">Previewing the Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../developers_guide/conda_vs_spack.html">How Conda and Spack Work Together in Polaris</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../developers_guide/updating_conda.html">Updating Deployment Dependencies</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../developers_guide/updating_spack/index.html">Updating Shared Spack Environments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../developers_guide/api.html">API reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../design_docs/index.html">Design Documents</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../tutorials/dev_add_category_of_tasks/index.html">Developer Tutorial: Adding a New Category of Tasks</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Glossary</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../glossary.html">Glossary</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../../index.html">Polaris</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../../../index.html">Module code</a></li>
+          <li class="breadcrumb-item"><a href="../../ocean.html">polaris.tasks.ocean</a></li>
+          <li class="breadcrumb-item"><a href="../horiz_press_grad.html">polaris.tasks.ocean.horiz_press_grad</a></li>
+      <li class="breadcrumb-item active">polaris.tasks.ocean.horiz_press_grad.init</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for polaris.tasks.ocean.horiz_press_grad.init</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">xarray</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">xr</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mpas_tools.mesh.conversion</span><span class="w"> </span><span class="kn">import</span> <span class="n">convert</span><span class="p">,</span> <span class="n">cull</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mpas_tools.planar_hex</span><span class="w"> </span><span class="kn">import</span> <span class="n">make_planar_hex_mesh</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.attrs</span><span class="w"> </span><span class="kn">import</span> <span class="n">set_attrs</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.coriolis</span><span class="w"> </span><span class="kn">import</span> <span class="n">add_coriolis_to_dataset</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.ocean.init_state</span><span class="w"> </span><span class="kn">import</span> <span class="n">add_density_from_specvol</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.ocean.model</span><span class="w"> </span><span class="kn">import</span> <span class="n">OceanIOStep</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.ocean.vertical.pstar</span><span class="w"> </span><span class="kn">import</span> <span class="n">init_pstar_vertical_coord</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.ocean.vertical.pstar_init</span><span class="w"> </span><span class="kn">import</span> <span class="n">PStarInitStep</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.ocean.vertical.ztilde</span><span class="w"> </span><span class="kn">import</span> <span class="n">Gravity</span><span class="p">,</span> <span class="n">RhoSw</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.resolution</span><span class="w"> </span><span class="kn">import</span> <span class="n">resolution_to_string</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.tasks.ocean.horiz_press_grad.column</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">get_array_from_mid_grad</span><span class="p">,</span>
+    <span class="n">get_pchip_layer_mean</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.tasks.ocean.horiz_press_grad.finite_volume</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">finite_volume_hpga</span><span class="p">,</span>
+<span class="p">)</span>
+
+
+<div class="viewcode-block" id="Init">
+<a class="viewcode-back" href="../../../../../developers_guide/ocean/generated/polaris.tasks.ocean.horiz_press_grad.init.Init.html#polaris.tasks.ocean.horiz_press_grad.init.Init">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">Init</span><span class="p">(</span><span class="n">PStarInitStep</span><span class="p">,</span> <span class="n">OceanIOStep</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    A step for creating a mesh and initial condition for two column</span>
+<span class="sd">    test cases</span>
+
+<span class="sd">    Attributes</span>
+<span class="sd">    ----------</span>
+<span class="sd">    horiz_res : float</span>
+<span class="sd">        The horizontal resolution in km</span>
+
+<span class="sd">    vert_res : float</span>
+<span class="sd">        The vertical resolution in m</span>
+
+<span class="sd">    tilt_option : str or None</span>
+<span class="sd">        The name of a ``horiz_press_grad`` config option to override with</span>
+<span class="sd">        ``tilt`` before building the columns, or ``None`` to leave the</span>
+<span class="sd">        configuration alone.</span>
+
+<span class="sd">    tilt : float or None</span>
+<span class="sd">        The value to give ``tilt_option`` in m/km.</span>
+
+<span class="sd">    x : numpy.ndarray</span>
+<span class="sd">        The x-coordinates of the two columns in km, used by</span>
+<span class="sd">        :py:meth:`init_tracers` and :py:meth:`_build_pstar_coord_ds`.</span>
+<span class="sd">    """</span>
+
+<div class="viewcode-block" id="Init.__init__">
+<a class="viewcode-back" href="../../../../../developers_guide/ocean/generated/polaris.tasks.ocean.horiz_press_grad.init.Init.html#polaris.tasks.ocean.horiz_press_grad.init.Init.__init__">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">component</span><span class="p">,</span>
+        <span class="n">horiz_res</span><span class="p">,</span>
+        <span class="n">vert_res</span><span class="p">,</span>
+        <span class="n">indir</span><span class="p">,</span>
+        <span class="n">subdir_suffix</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">tilt_option</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">tilt</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">        Create the step</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        component : polaris.Component</span>
+<span class="sd">            The component the step belongs to</span>
+
+<span class="sd">        horiz_res : float</span>
+<span class="sd">            The horizontal resolution in km</span>
+
+<span class="sd">        vert_res : float</span>
+<span class="sd">            The vertical resolution in m</span>
+
+<span class="sd">        indir : str</span>
+<span class="sd">            The subdirectory that the task belongs to, that this step will</span>
+<span class="sd">            go into a subdirectory of</span>
+
+<span class="sd">        subdir_suffix : str, optional</span>
+<span class="sd">            A suffix used in place of the horizontal resolution in the step</span>
+<span class="sd">            name, for sweeps that repeat a horizontal resolution</span>
+
+<span class="sd">        tilt_option : str, optional</span>
+<span class="sd">            The name of a ``horiz_press_grad`` config option to override with</span>
+<span class="sd">            ``tilt`` before building the columns</span>
+
+<span class="sd">        tilt : float, optional</span>
+<span class="sd">            The value to give ``tilt_option`` in m/km</span>
+<span class="sd">        """</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">horiz_res</span> <span class="o">=</span> <span class="n">horiz_res</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">vert_res</span> <span class="o">=</span> <span class="n">vert_res</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">tilt_option</span> <span class="o">=</span> <span class="n">tilt_option</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">tilt</span> <span class="o">=</span> <span class="n">tilt</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([])</span>
+        <span class="k">if</span> <span class="n">subdir_suffix</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">name</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">'init_</span><span class="si">{</span><span class="n">resolution_to_string</span><span class="p">(</span><span class="n">horiz_res</span><span class="p">)</span><span class="si">}</span><span class="s1">'</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">name</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">'init_</span><span class="si">{</span><span class="n">subdir_suffix</span><span class="si">}</span><span class="s1">'</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">indir</span><span class="o">=</span><span class="n">indir</span><span class="p">)</span></div>
+
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">setup</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">setup</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_output_files_for_ocean_model_input</span><span class="p">(</span>
+            <span class="n">horiz_mesh_filename</span><span class="o">=</span><span class="s1">'culled_mesh.nc'</span><span class="p">,</span>
+        <span class="p">)</span>
+
+<div class="viewcode-block" id="Init.run">
+<a class="viewcode-back" href="../../../../../developers_guide/ocean/generated/polaris.tasks.ocean.horiz_press_grad.init.Init.run.html#polaris.tasks.ocean.horiz_press_grad.init.Init.run">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">        Run this step of the test case</span>
+<span class="sd">        """</span>
+        <span class="n">logger</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">logger</span>
+        <span class="n">config</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span>
+        <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'ocean'</span><span class="p">,</span> <span class="s1">'model'</span><span class="p">)</span> <span class="o">!=</span> <span class="s1">'omega'</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s1">'The horiz_press_grad test case is only supported for the '</span>
+                <span class="s1">'Omega ocean model.'</span>
+            <span class="p">)</span>
+
+        <span class="n">horiz_res</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">horiz_res</span>
+
+        <span class="n">nx</span> <span class="o">=</span> <span class="mi">2</span>
+        <span class="n">ny</span> <span class="o">=</span> <span class="mi">2</span>
+        <span class="n">dc</span> <span class="o">=</span> <span class="mf">1e3</span> <span class="o">*</span> <span class="n">horiz_res</span>
+        <span class="n">ds_mesh</span> <span class="o">=</span> <span class="n">make_planar_hex_mesh</span><span class="p">(</span>
+            <span class="n">nx</span><span class="o">=</span><span class="n">nx</span><span class="p">,</span> <span class="n">ny</span><span class="o">=</span><span class="n">ny</span><span class="p">,</span> <span class="n">dc</span><span class="o">=</span><span class="n">dc</span><span class="p">,</span> <span class="n">nonperiodic_x</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">nonperiodic_y</span><span class="o">=</span><span class="kc">True</span>
+        <span class="p">)</span>
+
+        <span class="c1"># cull one more row of cells so we're only left with 2</span>
+        <span class="n">cull_cell</span> <span class="o">=</span> <span class="n">ds_mesh</span><span class="o">.</span><span class="n">cullCell</span><span class="o">.</span><span class="n">values</span>
+        <span class="n">ncells</span> <span class="o">=</span> <span class="n">ds_mesh</span><span class="o">.</span><span class="n">sizes</span><span class="p">[</span><span class="s1">'nCells'</span><span class="p">]</span>
+        <span class="c1"># remove the last 2 rows in y</span>
+        <span class="n">cull_cell</span><span class="p">[</span><span class="n">ncells</span> <span class="o">-</span> <span class="mi">2</span> <span class="o">*</span> <span class="p">(</span><span class="n">nx</span> <span class="o">+</span> <span class="mi">2</span><span class="p">)</span> <span class="p">:</span> <span class="n">ncells</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="n">ds_mesh</span><span class="p">[</span><span class="s1">'cullCell'</span><span class="p">]</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">cull_cell</span><span class="p">,</span> <span class="n">dims</span><span class="o">=</span><span class="p">[</span><span class="s1">'nCells'</span><span class="p">])</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">write_model_dataset</span><span class="p">(</span><span class="n">ds_mesh</span><span class="p">,</span> <span class="s1">'base_mesh.nc'</span><span class="p">,</span> <span class="n">config</span><span class="p">)</span>
+        <span class="n">ds_mesh</span> <span class="o">=</span> <span class="n">cull</span><span class="p">(</span><span class="n">ds_mesh</span><span class="p">,</span> <span class="n">logger</span><span class="o">=</span><span class="n">logger</span><span class="p">)</span>
+        <span class="n">ds_mesh</span> <span class="o">=</span> <span class="n">convert</span><span class="p">(</span>
+            <span class="n">ds_mesh</span><span class="p">,</span> <span class="n">graphInfoFileName</span><span class="o">=</span><span class="s1">'culled_graph.info'</span><span class="p">,</span> <span class="n">logger</span><span class="o">=</span><span class="n">logger</span>
+        <span class="p">)</span>
+        <span class="n">ds_mesh</span> <span class="o">=</span> <span class="n">add_coriolis_to_dataset</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">ds_mesh</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">write_horiz_mesh_dataset</span><span class="p">(</span><span class="n">ds_mesh</span><span class="p">,</span> <span class="s1">'culled_mesh.nc'</span><span class="p">,</span> <span class="n">config</span><span class="p">)</span>
+
+        <span class="n">ncells</span> <span class="o">=</span> <span class="n">ds_mesh</span><span class="o">.</span><span class="n">sizes</span><span class="p">[</span><span class="s1">'nCells'</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">ncells</span> <span class="o">!=</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s1">'The two-column test case requires a mesh with exactly '</span>
+                <span class="sa">f</span><span class="s1">'2 cells, but the culled mesh has '</span>
+                <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">ncells</span><span class="si">}</span><span class="s1"> cells.'</span>
+            <span class="p">)</span>
+
+        <span class="n">ds</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">build_column_state</span><span class="p">(</span><span class="n">ds_mesh</span><span class="p">)</span>
+
+        <span class="n">nvertlevels</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">sizes</span><span class="p">[</span><span class="s1">'nVertLevels'</span><span class="p">]</span>
+        <span class="n">nedges</span> <span class="o">=</span> <span class="n">ds_mesh</span><span class="o">.</span><span class="n">sizes</span><span class="p">[</span><span class="s1">'nEdges'</span><span class="p">]</span>
+
+        <span class="n">ds</span><span class="p">[</span><span class="s1">'normalVelocity'</span><span class="p">]</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">(</span>
+            <span class="n">data</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="mi">1</span><span class="p">,</span> <span class="n">nedges</span><span class="p">,</span> <span class="n">nvertlevels</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">),</span>
+            <span class="n">dims</span><span class="o">=</span><span class="p">[</span><span class="s1">'Time'</span><span class="p">,</span> <span class="s1">'nEdges'</span><span class="p">,</span> <span class="s1">'nVertLevels'</span><span class="p">],</span>
+            <span class="n">attrs</span><span class="o">=</span><span class="p">{</span>
+                <span class="s1">'long_name'</span><span class="p">:</span> <span class="s1">'normal velocity'</span><span class="p">,</span>
+                <span class="s1">'units'</span><span class="p">:</span> <span class="s1">'m s-1'</span><span class="p">,</span>
+            <span class="p">},</span>
+        <span class="p">)</span>
+        <span class="n">ds</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">'nx'</span><span class="p">]</span> <span class="o">=</span> <span class="n">nx</span>
+        <span class="n">ds</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">'ny'</span><span class="p">]</span> <span class="o">=</span> <span class="n">ny</span>
+        <span class="n">ds</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">'dc'</span><span class="p">]</span> <span class="o">=</span> <span class="n">dc</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">write_vert_coord_dataset</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="s1">'vert_coord.nc'</span><span class="p">,</span> <span class="n">config</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">write_initial_state_dataset</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="s1">'init.nc'</span><span class="p">,</span> <span class="n">config</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Init.build_column_state">
+<a class="viewcode-back" href="../../../../../developers_guide/ocean/generated/polaris.tasks.ocean.horiz_press_grad.init.Init.build_column_state.html#polaris.tasks.ocean.horiz_press_grad.init.Init.build_column_state">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">build_column_state</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ds_mesh</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">        Build the two-column state on ``ds_mesh``: the p-star vertical</span>
+<span class="sd">        coordinate, the tracers, specific volume, pressure, geometric height,</span>
+<span class="sd">        and the diagnostic Montgomery potential and HPGA.</span>
+
+<span class="sd">        :py:meth:`run` calls this once the mesh exists.  It is separate from</span>
+<span class="sd">        :py:meth:`run` so that unit tests can build the same state from a</span>
+<span class="sd">        minimal two-cell mesh dataset, without mesh generation or file I/O.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        ds_mesh : xarray.Dataset</span>
+<span class="sd">            The horizontal mesh, which must have exactly 2 cells.  Only the</span>
+<span class="sd">            ``nCells`` dimension is required, so a stub dataset is enough for</span>
+<span class="sd">            testing.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        ds : xarray.Dataset</span>
+<span class="sd">            The two-column state.</span>
+<span class="sd">        """</span>
+        <span class="n">logger</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">logger</span>
+        <span class="n">config</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span>
+        <span class="n">horiz_res</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">horiz_res</span>
+        <span class="n">vert_res</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">vert_res</span>
+        <span class="n">dx</span> <span class="o">=</span> <span class="mf">1e3</span> <span class="o">*</span> <span class="n">horiz_res</span>
+
+        <span class="c1"># a tilt sweep overrides one config option per step, in the same way</span>
+        <span class="c1"># vert_levels is set from the vertical resolution below</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">tilt_option</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">config</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s1">'horiz_press_grad'</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">tilt_option</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">tilt</span><span class="p">))</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s1">'Setting horiz_press_grad:</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">tilt_option</span><span class="si">}</span><span class="s1"> = </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">tilt</span><span class="si">}</span><span class="s1">'</span>
+            <span class="p">)</span>
+
+        <span class="n">hpg_section</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s1">'horiz_press_grad'</span><span class="p">]</span>
+        <span class="n">z_tilde_bot_mid</span> <span class="o">=</span> <span class="n">hpg_section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">'z_tilde_bot_mid'</span><span class="p">)</span>
+
+        <span class="k">assert</span> <span class="n">z_tilde_bot_mid</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> <span class="p">(</span>
+            <span class="s1">'The "z_tilde_bot_mid" configuration option must be set in the '</span>
+            <span class="s1">'"horiz_press_grad" section.'</span>
+        <span class="p">)</span>
+
+        <span class="c1"># it needs to be an error if the full water column can't be evenly</span>
+        <span class="c1"># divided by the resolution, because the later analysis will fail</span>
+        <span class="k">if</span> <span class="p">(</span><span class="o">-</span><span class="n">z_tilde_bot_mid</span> <span class="o">/</span> <span class="n">vert_res</span><span class="p">)</span> <span class="o">%</span> <span class="mi">1</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s1">'The "z_tilde_bot_mid" value must be an integer multiple of '</span>
+                <span class="s1">'the vertical resolution to ensure that the vertical grid can '</span>
+                <span class="s1">'be evenly divided into layers. Currently, z_tilde_bot_mid = '</span>
+                <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">z_tilde_bot_mid</span><span class="si">}</span><span class="s1"> and vert_res = </span><span class="si">{</span><span class="n">vert_res</span><span class="si">}</span><span class="s1">, which results '</span>
+                <span class="sa">f</span><span class="s1">'in </span><span class="si">{</span><span class="o">-</span><span class="n">z_tilde_bot_mid</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">vert_res</span><span class="si">}</span><span class="s1"> layers.'</span>
+            <span class="p">)</span>
+        <span class="n">vert_levels</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="o">-</span><span class="n">z_tilde_bot_mid</span> <span class="o">/</span> <span class="n">vert_res</span><span class="p">)</span>
+
+        <span class="n">config</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s1">'vertical_grid'</span><span class="p">,</span> <span class="s1">'vert_levels'</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">vert_levels</span><span class="p">))</span>
+
+        <span class="n">x</span> <span class="o">=</span> <span class="n">horiz_res</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="o">-</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
+        <span class="c1"># Store x so init_tracers and _build_pstar_coord_ds can access it</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">x</span> <span class="o">=</span> <span class="n">x</span>
+        <span class="n">geom_z_bot</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_geom_z_bot</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="n">surface_pressure</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_surface_pressure</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="c1"># geom_ssh is an optional override; when it is not configured the</span>
+        <span class="c1"># base class defaults the sea-surface height to the resting</span>
+        <span class="c1"># surface-pressure depression -surface_pressure / (RhoSw * Gravity).</span>
+        <span class="n">geom_ssh</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_geom_ssh</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+
+        <span class="c1"># Delegate the p-star iterative initialization to the base class.</span>
+        <span class="c1"># surface_pressure drives the surface gauge pressure;</span>
+        <span class="c1"># sea_surface_height (when given) drives the target water-column</span>
+        <span class="c1"># thickness.</span>
+        <span class="n">ds</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">run_pstar_init</span><span class="p">(</span>
+            <span class="n">ds_mesh</span><span class="o">=</span><span class="n">ds_mesh</span><span class="p">,</span>
+            <span class="n">geom_z_bot</span><span class="o">=</span><span class="n">geom_z_bot</span><span class="p">,</span>
+            <span class="n">surface_pressure</span><span class="o">=</span><span class="n">surface_pressure</span><span class="p">,</span>
+            <span class="n">sea_surface_height</span><span class="o">=</span><span class="n">geom_ssh</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_check_reference_grid_head_room</span><span class="p">(</span><span class="n">ds</span><span class="o">=</span><span class="n">ds</span><span class="p">,</span> <span class="n">x</span><span class="o">=</span><span class="n">x</span><span class="p">)</span>
+
+        <span class="c1"># The requested bathymetry, kept alongside the achieved bottomDepth so</span>
+        <span class="c1"># analysis can tell whether the vertical-grid construction moved the</span>
+        <span class="c1"># sea floor (partial-cell snapping does).  bottomDepth itself is a</span>
+        <span class="c1"># vert-coord variable and is written to vert_coord.nc, not init.nc.</span>
+        <span class="n">ds</span><span class="p">[</span><span class="s1">'bottomDepthRequested'</span><span class="p">]</span> <span class="o">=</span> <span class="o">-</span><span class="n">geom_z_bot</span>
+        <span class="n">ds</span><span class="o">.</span><span class="n">bottomDepthRequested</span><span class="o">.</span><span class="n">attrs</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">'long_name'</span><span class="p">:</span> <span class="s1">'requested seafloor geometric depth'</span><span class="p">,</span>
+            <span class="s1">'units'</span><span class="p">:</span> <span class="s1">'m'</span><span class="p">,</span>
+        <span class="p">}</span>
+
+        <span class="n">ds</span> <span class="o">=</span> <span class="n">add_density_from_specvol</span><span class="p">(</span><span class="n">ds</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_compute_montgomery_and_hpga</span><span class="p">(</span><span class="n">ds</span><span class="o">=</span><span class="n">ds</span><span class="p">,</span> <span class="n">dx</span><span class="o">=</span><span class="n">dx</span><span class="p">,</span> <span class="n">p_mid</span><span class="o">=</span><span class="n">ds</span><span class="o">.</span><span class="n">pressure</span><span class="p">)</span>
+
+        <span class="c1"># The finite-volume scheme, written alongside the centered one rather</span>
+        <span class="c1"># than in place of it: HPGA keeps its name, its meaning and its values,</span>
+        <span class="c1"># so the four gradient variants and the resting-state sweeps are</span>
+        <span class="c1"># unaffected and their recorded baselines stay valid.  Which of the two</span>
+        <span class="c1"># an analysis step compares against is set by the scheme its forward</span>
+        <span class="c1"># step ran.</span>
+        <span class="c1">#</span>
+        <span class="c1"># quadrature_points is the same option that fills in Omega's</span>
+        <span class="c1"># PressureGrad:QuadraturePoints, so the two sides integrate with one</span>
+        <span class="c1"># rule.  Reading it here rather than defaulting is what keeps</span>
+        <span class="c1"># omega_vs_polaris_rms_threshold a check on Omega's arithmetic instead</span>
+        <span class="c1"># of a measure of the gap between two quadratures.</span>
+        <span class="n">quadrature_points</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getint</span><span class="p">(</span>
+            <span class="s1">'horiz_press_grad'</span><span class="p">,</span> <span class="s1">'quadrature_points'</span>
+        <span class="p">)</span>
+        <span class="n">ds</span><span class="p">[</span><span class="s1">'HPGAFiniteVolume'</span><span class="p">]</span> <span class="o">=</span> <span class="n">finite_volume_hpga</span><span class="p">(</span>
+            <span class="n">ds</span><span class="o">=</span><span class="n">ds</span><span class="p">,</span> <span class="n">dx</span><span class="o">=</span><span class="n">dx</span><span class="p">,</span> <span class="n">order</span><span class="o">=</span><span class="n">quadrature_points</span>
+        <span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">ds</span></div>
+
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">init_tracers</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">ds</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">,</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">        Compute layer-mean conservative temperature and absolute salinity from</span>
+<span class="sd">        the piecewise pseudo-height profiles defined in the configuration.</span>
+<span class="sd">        """</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_interpolate_t_s</span><span class="p">(</span>
+            <span class="n">ds</span><span class="o">=</span><span class="n">ds</span><span class="p">,</span> <span class="n">z_tilde_interface</span><span class="o">=</span><span class="n">ds</span><span class="o">.</span><span class="n">ZTildeInterface</span><span class="p">,</span> <span class="n">x</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">x</span>
+        <span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_build_pstar_coord_ds</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">ds_mesh</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">,</span>
+        <span class="n">bottom_pressure</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">,</span>
+        <span class="n">surface_pressure</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">        Build the p-star coordinate per cell, allowing each column to have a</span>
+<span class="sd">        different reference pseudo-depth set by ``z_tilde_bot`` in config.</span>
+<span class="sd">        """</span>
+        <span class="n">config</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">x</span>
+
+        <span class="n">z_tilde_bot</span> <span class="o">=</span> <span class="n">get_array_from_mid_grad</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="s1">'z_tilde_bot'</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span>
+
+        <span class="n">ds</span> <span class="o">=</span> <span class="n">ds_mesh</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="n">ds</span><span class="p">[</span><span class="s1">'BottomPressure'</span><span class="p">]</span> <span class="o">=</span> <span class="n">bottom_pressure</span>
+        <span class="n">set_attrs</span><span class="p">(</span>
+            <span class="n">ds</span><span class="o">.</span><span class="n">BottomPressure</span><span class="p">,</span>
+            <span class="n">long_name</span><span class="o">=</span><span class="s1">'seafloor gauge pressure'</span><span class="p">,</span>
+            <span class="n">units</span><span class="o">=</span><span class="s1">'Pa'</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="k">if</span> <span class="n">surface_pressure</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">surface_pressure</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">bottom_pressure</span><span class="p">)</span>
+        <span class="n">ds</span><span class="p">[</span><span class="s1">'SurfacePressure'</span><span class="p">]</span> <span class="o">=</span> <span class="n">surface_pressure</span>
+        <span class="n">set_attrs</span><span class="p">(</span>
+            <span class="n">ds</span><span class="o">.</span><span class="n">SurfacePressure</span><span class="p">,</span>
+            <span class="n">long_name</span><span class="o">=</span><span class="s1">'sea surface gauge pressure'</span><span class="p">,</span>
+            <span class="n">units</span><span class="o">=</span><span class="s1">'Pa'</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="n">ds_list</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">icell</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">ds</span><span class="o">.</span><span class="n">sizes</span><span class="p">[</span><span class="s1">'nCells'</span><span class="p">]):</span>
+            <span class="n">pseudo_bottom_depth</span> <span class="o">=</span> <span class="o">-</span><span class="n">z_tilde_bot</span><span class="p">[</span><span class="n">icell</span><span class="p">]</span>
+            <span class="n">ds_cell</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span><span class="n">nCells</span><span class="o">=</span><span class="nb">slice</span><span class="p">(</span><span class="n">icell</span><span class="p">,</span> <span class="n">icell</span> <span class="o">+</span> <span class="mi">1</span><span class="p">))</span>
+            <span class="n">local_config</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+            <span class="n">local_config</span><span class="o">.</span><span class="n">set</span><span class="p">(</span>
+                <span class="s1">'vertical_grid'</span><span class="p">,</span> <span class="s1">'bottom_depth'</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">pseudo_bottom_depth</span><span class="p">)</span>
+            <span class="p">)</span>
+            <span class="n">init_pstar_vertical_coord</span><span class="p">(</span><span class="n">local_config</span><span class="p">,</span> <span class="n">ds_cell</span><span class="p">)</span>
+            <span class="n">cell_vars</span> <span class="o">=</span> <span class="p">[</span>
+                <span class="n">var</span>
+                <span class="k">for</span> <span class="n">var</span> <span class="ow">in</span> <span class="n">ds_cell</span><span class="o">.</span><span class="n">data_vars</span>
+                <span class="k">if</span> <span class="s1">'nCells'</span> <span class="ow">in</span> <span class="n">ds_cell</span><span class="p">[</span><span class="n">var</span><span class="p">]</span><span class="o">.</span><span class="n">dims</span>
+            <span class="p">]</span>
+            <span class="n">ds_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ds_cell</span><span class="p">[</span><span class="n">cell_vars</span><span class="p">])</span>
+
+        <span class="n">ds_cell_vars</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">ds_list</span><span class="p">,</span> <span class="n">dim</span><span class="o">=</span><span class="s1">'nCells'</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">var</span> <span class="ow">in</span> <span class="n">ds_cell_vars</span><span class="o">.</span><span class="n">data_vars</span><span class="p">:</span>
+            <span class="n">attrs</span> <span class="o">=</span> <span class="n">ds_cell_vars</span><span class="p">[</span><span class="n">var</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span>
+            <span class="n">ds</span><span class="p">[</span><span class="n">var</span><span class="p">]</span> <span class="o">=</span> <span class="n">ds_cell_vars</span><span class="p">[</span><span class="n">var</span><span class="p">]</span>
+            <span class="n">ds</span><span class="p">[</span><span class="n">var</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span> <span class="o">=</span> <span class="n">attrs</span>
+
+        <span class="c1"># vertCoordMovementWeights is a vertical-only variable; the per-cell</span>
+        <span class="c1"># loop above only copies cell variables back, so add it here.</span>
+        <span class="n">ds</span><span class="p">[</span><span class="s1">'vertCoordMovementWeights'</span><span class="p">]</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">(</span>
+            <span class="n">data</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="n">ds</span><span class="o">.</span><span class="n">sizes</span><span class="p">[</span><span class="s1">'nVertLevels'</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">),</span>
+            <span class="n">dims</span><span class="o">=</span><span class="p">[</span><span class="s1">'nVertLevels'</span><span class="p">],</span>
+            <span class="n">attrs</span><span class="o">=</span><span class="p">{</span>
+                <span class="s1">'long_name'</span><span class="p">:</span> <span class="s1">'vertical coordinate movement weights'</span><span class="p">,</span>
+                <span class="s1">'units'</span><span class="p">:</span> <span class="s1">'1'</span><span class="p">,</span>
+            <span class="p">},</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="n">ds</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_compute_montgomery_and_hpga</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">ds</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">,</span>
+        <span class="n">dx</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+        <span class="n">p_mid</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Compute Montgomery potential and a 2-column HPGA.</span>
+
+<span class="sd">        This mimics the way Omega will compute the horizontal pressure</span>
+<span class="sd">        gradient: simple finite differences between the two columns.</span>
+
+<span class="sd">        The along-column HPGA is computed as:</span>
+
+<span class="sd">            HPGA = dM/dx - p_edge * d(alpha)/dx</span>
+
+<span class="sd">        where M is the Montgomery potential, alpha is the specific volume,</span>
+<span class="sd">        and p_edge is the pressure averaged between the two columns.</span>
+
+<span class="sd">        Outputs are added to ``ds``:</span>
+<span class="sd">        - MontgomeryMid (Time, nCells, nVertLevels)</span>
+<span class="sd">        - MontgomeryInter (Time, nCells, nVertLevels, nbnds)</span>
+<span class="sd">        - HPGAMid (Time, nVertLevels)</span>
+<span class="sd">        - HPGAInter (Time, nVertLevels, nbnds)</span>
+<span class="sd">        """</span>
+
+        <span class="k">if</span> <span class="n">ds</span><span class="o">.</span><span class="n">sizes</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'nCells'</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s1">'The two-column HPGA computation requires exactly 2 cells.'</span>
+            <span class="p">)</span>
+        <span class="k">if</span> <span class="n">dx</span> <span class="o">==</span> <span class="mf">0.0</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">'dx must be non-zero for finite differences.'</span><span class="p">)</span>
+
+        <span class="c1"># Midpoint quantities (alpha is layerwise constant)</span>
+        <span class="n">alpha_mid</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">SpecVol</span>
+
+        <span class="c1"># Interface quantities: Omega treats alpha as constant within each</span>
+        <span class="c1"># layer, so interface values are represented as bounds for each layer</span>
+        <span class="c1"># (top and bottom), with discontinuities permitted between layers.</span>
+        <span class="n">z_tilde_top</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">ZTildeInterface</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span>
+            <span class="n">nVertLevelsP1</span><span class="o">=</span><span class="nb">slice</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+        <span class="p">)</span><span class="o">.</span><span class="n">rename</span><span class="p">({</span><span class="s1">'nVertLevelsP1'</span><span class="p">:</span> <span class="s1">'nVertLevels'</span><span class="p">})</span>
+        <span class="n">z_tilde_bot</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">ZTildeInterface</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span>
+            <span class="n">nVertLevelsP1</span><span class="o">=</span><span class="nb">slice</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="p">)</span><span class="o">.</span><span class="n">rename</span><span class="p">({</span><span class="s1">'nVertLevelsP1'</span><span class="p">:</span> <span class="s1">'nVertLevels'</span><span class="p">})</span>
+        <span class="n">z_top</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">GeomZInterface</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span><span class="n">nVertLevelsP1</span><span class="o">=</span><span class="nb">slice</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">))</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span>
+            <span class="p">{</span><span class="s1">'nVertLevelsP1'</span><span class="p">:</span> <span class="s1">'nVertLevels'</span><span class="p">}</span>
+        <span class="p">)</span>
+        <span class="n">z_bot</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">GeomZInterface</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span><span class="n">nVertLevelsP1</span><span class="o">=</span><span class="nb">slice</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="kc">None</span><span class="p">))</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span>
+            <span class="p">{</span><span class="s1">'nVertLevelsP1'</span><span class="p">:</span> <span class="s1">'nVertLevels'</span><span class="p">}</span>
+        <span class="p">)</span>
+
+        <span class="n">z_tilde_bnds</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">z_tilde_top</span><span class="p">,</span> <span class="n">z_tilde_bot</span><span class="p">],</span> <span class="n">dim</span><span class="o">=</span><span class="s1">'nbnds'</span><span class="p">)</span>
+        <span class="n">z_bnds</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">z_top</span><span class="p">,</span> <span class="n">z_bot</span><span class="p">],</span> <span class="n">dim</span><span class="o">=</span><span class="s1">'nbnds'</span><span class="p">)</span>
+        <span class="c1"># put nbnds last for readability/consistency</span>
+        <span class="n">z_tilde_bnds</span> <span class="o">=</span> <span class="n">z_tilde_bnds</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span>
+            <span class="s1">'Time'</span><span class="p">,</span> <span class="s1">'nCells'</span><span class="p">,</span> <span class="s1">'nVertLevels'</span><span class="p">,</span> <span class="s1">'nbnds'</span>
+        <span class="p">)</span>
+        <span class="n">z_bnds</span> <span class="o">=</span> <span class="n">z_bnds</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="s1">'Time'</span><span class="p">,</span> <span class="s1">'nCells'</span><span class="p">,</span> <span class="s1">'nVertLevels'</span><span class="p">,</span> <span class="s1">'nbnds'</span><span class="p">)</span>
+
+        <span class="n">alpha_bnds</span> <span class="o">=</span> <span class="n">alpha_mid</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span><span class="n">nbnds</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span>
+            <span class="s1">'Time'</span><span class="p">,</span> <span class="s1">'nCells'</span><span class="p">,</span> <span class="s1">'nVertLevels'</span><span class="p">,</span> <span class="s1">'nbnds'</span>
+        <span class="p">)</span>
+        <span class="c1"># Montgomery: M = alpha * p + g * z, with p = -rho0 * g * z_tilde</span>
+        <span class="n">montgomery_inter</span> <span class="o">=</span> <span class="n">Gravity</span> <span class="o">*</span> <span class="p">(</span>
+            <span class="n">z_bnds</span> <span class="o">-</span> <span class="n">RhoSw</span> <span class="o">*</span> <span class="n">alpha_bnds</span> <span class="o">*</span> <span class="n">z_tilde_bnds</span>
+        <span class="p">)</span>
+        <span class="n">montgomery_inter</span> <span class="o">=</span> <span class="n">montgomery_inter</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span>
+            <span class="s1">'Time'</span><span class="p">,</span> <span class="s1">'nCells'</span><span class="p">,</span> <span class="s1">'nVertLevels'</span><span class="p">,</span> <span class="s1">'nbnds'</span>
+        <span class="p">)</span>
+
+        <span class="c1"># Omega convention: Montgomery potential at midpoints is the mean of</span>
+        <span class="c1"># the two adjacent interface values.</span>
+        <span class="n">montgomery_mid</span> <span class="o">=</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="p">(</span>
+            <span class="n">montgomery_inter</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span><span class="n">nbnds</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span> <span class="o">+</span> <span class="n">montgomery_inter</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span><span class="n">nbnds</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="p">)</span>
+
+        <span class="c1"># 2-column finite differences across the pair</span>
+        <span class="n">dM_dx_mid</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">montgomery_mid</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span><span class="n">nCells</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span> <span class="o">-</span> <span class="n">montgomery_mid</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span><span class="n">nCells</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="p">)</span> <span class="o">/</span> <span class="n">dx</span>
+        <span class="n">dalpha_dx_mid</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">alpha_mid</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span><span class="n">nCells</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span> <span class="o">-</span> <span class="n">alpha_mid</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span><span class="n">nCells</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="p">)</span> <span class="o">/</span> <span class="n">dx</span>
+
+        <span class="n">dsa_dx_mid</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">ds</span><span class="o">.</span><span class="n">salinity</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span><span class="n">nCells</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span> <span class="o">-</span> <span class="n">ds</span><span class="o">.</span><span class="n">salinity</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span><span class="n">nCells</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="p">)</span> <span class="o">/</span> <span class="n">dx</span>
+
+        <span class="c1"># Gauge pressure (positive downward), averaged to the edge between</span>
+        <span class="c1"># columns</span>
+        <span class="n">p_edge_mid</span> <span class="o">=</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="p">(</span><span class="n">p_mid</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span><span class="n">nCells</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span> <span class="o">+</span> <span class="n">p_mid</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span><span class="n">nCells</span><span class="o">=</span><span class="mi">1</span><span class="p">))</span>
+
+        <span class="n">hpga_mid</span> <span class="o">=</span> <span class="o">-</span><span class="n">dM_dx_mid</span> <span class="o">+</span> <span class="n">p_edge_mid</span> <span class="o">*</span> <span class="n">dalpha_dx_mid</span>
+
+        <span class="n">ds</span><span class="p">[</span><span class="s1">'MontgomeryMid'</span><span class="p">]</span> <span class="o">=</span> <span class="n">montgomery_mid</span>
+        <span class="n">ds</span><span class="o">.</span><span class="n">MontgomeryMid</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">'long_name'</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="s1">'Montgomery potential at layer midpoints'</span>
+        <span class="p">)</span>
+        <span class="n">ds</span><span class="o">.</span><span class="n">MontgomeryMid</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">'units'</span><span class="p">]</span> <span class="o">=</span> <span class="s1">'m2 s-2'</span>
+
+        <span class="n">ds</span><span class="p">[</span><span class="s1">'MontgomeryInter'</span><span class="p">]</span> <span class="o">=</span> <span class="n">montgomery_inter</span>
+        <span class="n">ds</span><span class="o">.</span><span class="n">MontgomeryInter</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">'long_name'</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="s1">'Montgomery potential at layer interfaces (bounds)'</span>
+        <span class="p">)</span>
+        <span class="n">ds</span><span class="o">.</span><span class="n">MontgomeryInter</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">'units'</span><span class="p">]</span> <span class="o">=</span> <span class="s1">'m2 s-2'</span>
+        <span class="c1"># expand_dims() adds nbnds as an index coordinate with no attributes</span>
+        <span class="n">ds</span><span class="o">.</span><span class="n">nbnds</span><span class="o">.</span><span class="n">attrs</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">'long_name'</span><span class="p">:</span> <span class="s1">'index of the upper (0) and lower (1) interface'</span><span class="p">,</span>
+            <span class="s1">'units'</span><span class="p">:</span> <span class="s1">'1'</span><span class="p">,</span>
+        <span class="p">}</span>
+
+        <span class="n">ds</span><span class="p">[</span><span class="s1">'HPGA'</span><span class="p">]</span> <span class="o">=</span> <span class="n">hpga_mid</span>
+        <span class="n">ds</span><span class="o">.</span><span class="n">HPGA</span><span class="o">.</span><span class="n">attrs</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">'long_name'</span><span class="p">:</span> <span class="p">(</span>
+                <span class="s1">'along-layer pressure gradient acceleration at layer midpoints'</span>
+            <span class="p">),</span>
+            <span class="s1">'units'</span><span class="p">:</span> <span class="s1">'m s-2'</span><span class="p">,</span>
+        <span class="p">}</span>
+
+        <span class="n">ds</span><span class="p">[</span><span class="s1">'dMdxMid'</span><span class="p">]</span> <span class="o">=</span> <span class="n">dM_dx_mid</span>
+        <span class="n">ds</span><span class="o">.</span><span class="n">dMdxMid</span><span class="o">.</span><span class="n">attrs</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">'long_name'</span><span class="p">:</span> <span class="s1">'Gradient of Montgomery potential at layer midpoints'</span><span class="p">,</span>
+            <span class="s1">'units'</span><span class="p">:</span> <span class="s1">'m s-2'</span><span class="p">,</span>
+        <span class="p">}</span>
+
+        <span class="n">ds</span><span class="p">[</span><span class="s1">'PEdgeMid'</span><span class="p">]</span> <span class="o">=</span> <span class="n">p_edge_mid</span>
+        <span class="n">ds</span><span class="o">.</span><span class="n">PEdgeMid</span><span class="o">.</span><span class="n">attrs</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">'long_name'</span><span class="p">:</span> <span class="p">(</span>
+                <span class="s1">'Gauge pressure at horizontal edge and layer midpoints'</span>
+            <span class="p">),</span>
+            <span class="s1">'units'</span><span class="p">:</span> <span class="s1">'Pa'</span><span class="p">,</span>
+        <span class="p">}</span>
+
+        <span class="n">ds</span><span class="p">[</span><span class="s1">'dalphadxMid'</span><span class="p">]</span> <span class="o">=</span> <span class="n">dalpha_dx_mid</span>
+        <span class="n">ds</span><span class="o">.</span><span class="n">dalphadxMid</span><span class="o">.</span><span class="n">attrs</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">'long_name'</span><span class="p">:</span> <span class="s1">'Gradient of specific volume at layer midpoints'</span><span class="p">,</span>
+            <span class="s1">'units'</span><span class="p">:</span> <span class="s1">'m2 kg-1'</span><span class="p">,</span>
+        <span class="p">}</span>
+
+        <span class="n">ds</span><span class="p">[</span><span class="s1">'dSAdxMid'</span><span class="p">]</span> <span class="o">=</span> <span class="n">dsa_dx_mid</span>
+        <span class="n">ds</span><span class="o">.</span><span class="n">dSAdxMid</span><span class="o">.</span><span class="n">attrs</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">'long_name'</span><span class="p">:</span> <span class="s1">'Gradient of absolute salinity at layer midpoints'</span><span class="p">,</span>
+            <span class="s1">'units'</span><span class="p">:</span> <span class="s1">'g kg-1 m-1'</span><span class="p">,</span>
+        <span class="p">}</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_check_reference_grid_head_room</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">ds</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">        Verify that each column's reference pseudo-grid extends below its</span>
+<span class="sd">        converged pseudo-bottom depth.</span>
+
+<span class="sd">        The p-star iteration converges to a pseudo-bottom depth somewhat</span>
+<span class="sd">        greater than the geometric water-column thickness, because in-situ</span>
+<span class="sd">        density exceeds ``RhoSw`` at depth.  When a tilt makes one column's</span>
+<span class="sd">        ``z_tilde_bot`` shallower than that, the reference grid cannot span</span>
+<span class="sd">        the water column, the iteration diverges, and the resulting HPGA is</span>
+<span class="sd">        meaningless (order 1 m s-2 rather than the order 1e-5 m s-2 the test</span>
+<span class="sd">        measures).  Fail with a clear message rather than reporting nonsense.</span>
+<span class="sd">        """</span>
+        <span class="n">z_tilde_bot</span> <span class="o">=</span> <span class="n">get_array_from_mid_grad</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">,</span> <span class="s1">'z_tilde_bot'</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span>
+        <span class="n">pseudo_bottom_depth</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">ds</span><span class="o">.</span><span class="n">BottomPressure</span> <span class="o">/</span> <span class="p">(</span><span class="n">RhoSw</span> <span class="o">*</span> <span class="n">Gravity</span><span class="p">)</span>
+        <span class="p">)</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">ravel</span><span class="p">()</span>
+
+        <span class="n">head_room</span> <span class="o">=</span> <span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">z_tilde_bot</span><span class="p">)</span> <span class="o">-</span> <span class="n">pseudo_bottom_depth</span>
+        <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">head_room</span> <span class="o">&gt;</span> <span class="mf">0.0</span><span class="p">):</span>
+            <span class="k">return</span>
+
+        <span class="n">details</span> <span class="o">=</span> <span class="s1">'; '</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s1">'column </span><span class="si">{</span><span class="n">icell</span><span class="si">}</span><span class="s1">: |z_tilde_bot| = </span><span class="si">{</span><span class="o">-</span><span class="n">z_tilde_bot</span><span class="p">[</span><span class="n">icell</span><span class="p">]</span><span class="si">:</span><span class="s1">.3f</span><span class="si">}</span><span class="s1"> m, '</span>
+            <span class="sa">f</span><span class="s1">'pseudo-bottom depth = </span><span class="si">{</span><span class="n">pseudo_bottom_depth</span><span class="p">[</span><span class="n">icell</span><span class="p">]</span><span class="si">:</span><span class="s1">.3f</span><span class="si">}</span><span class="s1"> m, '</span>
+            <span class="sa">f</span><span class="s1">'head room = </span><span class="si">{</span><span class="n">head_room</span><span class="p">[</span><span class="n">icell</span><span class="p">]</span><span class="si">:</span><span class="s1">.3f</span><span class="si">}</span><span class="s1"> m'</span>
+            <span class="k">for</span> <span class="n">icell</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">head_room</span><span class="p">))</span>
+        <span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="s1">'The p-star reference grid does not extend below the converged '</span>
+            <span class="s1">'pseudo-bottom depth in every column, so the vertical coordinate '</span>
+            <span class="s1">'cannot span the water column. Deepen "z_tilde_bot_mid", make '</span>
+            <span class="s1">'"geom_z_bot_mid" shallower, or reduce the tilt. '</span> <span class="o">+</span> <span class="n">details</span>
+        <span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_get_geom_z_bot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">        Get the geometric sea floor height for each column from the</span>
+<span class="sd">        configuration.</span>
+<span class="sd">        """</span>
+        <span class="n">geom_z_bot</span> <span class="o">=</span> <span class="n">get_array_from_mid_grad</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">,</span> <span class="s1">'geom_z_bot'</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">(</span>
+            <span class="n">data</span><span class="o">=</span><span class="n">geom_z_bot</span><span class="p">,</span>
+            <span class="n">dims</span><span class="o">=</span><span class="p">[</span><span class="s1">'nCells'</span><span class="p">],</span>
+            <span class="n">attrs</span><span class="o">=</span><span class="p">{</span>
+                <span class="s1">'long_name'</span><span class="p">:</span> <span class="s1">'seafloor geometric height'</span><span class="p">,</span>
+                <span class="s1">'units'</span><span class="p">:</span> <span class="s1">'m'</span><span class="p">,</span>
+            <span class="p">},</span>
+        <span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_get_geom_ssh</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">        Get the optional geometric sea surface height override for each column</span>
+<span class="sd">        from the configuration. Returns ``None`` when ``geom_ssh_mid`` /</span>
+<span class="sd">        ``geom_ssh_grad`` are not set, in which case the base class defaults</span>
+<span class="sd">        the sea-surface height to the resting surface-pressure depression.</span>
+<span class="sd">        """</span>
+        <span class="n">config</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span>
+            <span class="n">config</span><span class="o">.</span><span class="n">has_option</span><span class="p">(</span><span class="s1">'horiz_press_grad'</span><span class="p">,</span> <span class="s1">'geom_ssh_mid'</span><span class="p">)</span>
+            <span class="ow">and</span> <span class="n">config</span><span class="o">.</span><span class="n">has_option</span><span class="p">(</span><span class="s1">'horiz_press_grad'</span><span class="p">,</span> <span class="s1">'geom_ssh_grad'</span><span class="p">)</span>
+        <span class="p">):</span>
+            <span class="k">return</span> <span class="kc">None</span>
+        <span class="n">geom_ssh</span> <span class="o">=</span> <span class="n">get_array_from_mid_grad</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="s1">'geom_ssh'</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">(</span>
+            <span class="n">data</span><span class="o">=</span><span class="n">geom_ssh</span><span class="p">,</span>
+            <span class="n">dims</span><span class="o">=</span><span class="p">[</span><span class="s1">'nCells'</span><span class="p">],</span>
+            <span class="n">attrs</span><span class="o">=</span><span class="p">{</span>
+                <span class="s1">'long_name'</span><span class="p">:</span> <span class="s1">'sea surface geometric height'</span><span class="p">,</span>
+                <span class="s1">'units'</span><span class="p">:</span> <span class="s1">'m'</span><span class="p">,</span>
+            <span class="p">},</span>
+        <span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_get_surface_pressure</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">        Get the sea-surface gauge pressure for each column from the</span>
+<span class="sd">        configuration. Defaults to zero when ``surface_pressure_mid`` /</span>
+<span class="sd">        ``surface_pressure_grad`` are not set.</span>
+<span class="sd">        """</span>
+        <span class="n">config</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span>
+            <span class="n">config</span><span class="o">.</span><span class="n">has_option</span><span class="p">(</span><span class="s1">'horiz_press_grad'</span><span class="p">,</span> <span class="s1">'surface_pressure_mid'</span><span class="p">)</span>
+            <span class="ow">and</span> <span class="n">config</span><span class="o">.</span><span class="n">has_option</span><span class="p">(</span><span class="s1">'horiz_press_grad'</span><span class="p">,</span> <span class="s1">'surface_pressure_grad'</span><span class="p">)</span>
+        <span class="p">):</span>
+            <span class="n">surface_pressure</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">surface_pressure</span> <span class="o">=</span> <span class="n">get_array_from_mid_grad</span><span class="p">(</span>
+                <span class="n">config</span><span class="p">,</span> <span class="s1">'surface_pressure'</span><span class="p">,</span> <span class="n">x</span>
+            <span class="p">)</span>
+        <span class="k">return</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">(</span>
+            <span class="n">data</span><span class="o">=</span><span class="n">surface_pressure</span><span class="p">,</span>
+            <span class="n">dims</span><span class="o">=</span><span class="p">[</span><span class="s1">'nCells'</span><span class="p">],</span>
+            <span class="n">attrs</span><span class="o">=</span><span class="p">{</span>
+                <span class="s1">'long_name'</span><span class="p">:</span> <span class="s1">'sea surface gauge pressure'</span><span class="p">,</span>
+                <span class="s1">'units'</span><span class="p">:</span> <span class="s1">'Pa'</span><span class="p">,</span>
+            <span class="p">},</span>
+        <span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_get_z_tilde_t_s_nodes</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">        Get the z-tilde, temperature and salinity node values from the</span>
+<span class="sd">        configuration.</span>
+<span class="sd">        """</span>
+        <span class="n">config</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span>
+        <span class="n">z_tilde_node</span> <span class="o">=</span> <span class="n">get_array_from_mid_grad</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="s1">'z_tilde'</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span>
+        <span class="n">t_node</span> <span class="o">=</span> <span class="n">get_array_from_mid_grad</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="s1">'temperature'</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span>
+        <span class="n">s_node</span> <span class="o">=</span> <span class="n">get_array_from_mid_grad</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="s1">'salinity'</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="p">(</span>
+            <span class="n">z_tilde_node</span><span class="o">.</span><span class="n">shape</span> <span class="o">!=</span> <span class="n">t_node</span><span class="o">.</span><span class="n">shape</span>
+            <span class="ow">or</span> <span class="n">z_tilde_node</span><span class="o">.</span><span class="n">shape</span> <span class="o">!=</span> <span class="n">s_node</span><span class="o">.</span><span class="n">shape</span>
+        <span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s1">'The number of z_tilde, temperature and salinity '</span>
+                <span class="s1">'points must be the same in each column.'</span>
+            <span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">z_tilde_node</span><span class="p">,</span> <span class="n">t_node</span><span class="p">,</span> <span class="n">s_node</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_interpolate_t_s</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">ds</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">,</span>
+        <span class="n">z_tilde_interface</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">,</span>
+        <span class="n">x</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">,</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">        Average temperature and salinity over each p-star layer, using the</span>
+<span class="sd">        piecewise pseudo-height profiles from configuration.</span>
+
+<span class="sd">        Omega's prognostic temperature and salinity are layer means, and the</span>
+<span class="sd">        higher-order pressure gradient reconstructs them as mean-preserving</span>
+<span class="sd">        polynomials in pressure, so the initial condition supplies layer means</span>
+<span class="sd">        rather than samples at layer midpoints.  The two coincide exactly for a</span>
+<span class="sd">        profile that is linear in pressure and differ at O(h^2) otherwise, so</span>
+<span class="sd">        the choice does not affect a configuration in the scheme's exact set</span>
+<span class="sd">        but does affect the residual measured off it.</span>
+<span class="sd">        """</span>
+        <span class="n">z_tilde_node</span><span class="p">,</span> <span class="n">t_node</span><span class="p">,</span> <span class="n">s_node</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_z_tilde_t_s_nodes</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+
+        <span class="n">ncells</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">sizes</span><span class="p">[</span><span class="s1">'nCells'</span><span class="p">]</span>
+        <span class="n">nvertlevels</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">sizes</span><span class="p">[</span><span class="s1">'nVertLevels'</span><span class="p">]</span>
+
+        <span class="n">temperature_np</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="mi">1</span><span class="p">,</span> <span class="n">ncells</span><span class="p">,</span> <span class="n">nvertlevels</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
+        <span class="n">salinity_np</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="mi">1</span><span class="p">,</span> <span class="n">ncells</span><span class="p">,</span> <span class="n">nvertlevels</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">z_tilde_node</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">!=</span> <span class="n">ncells</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s1">'The number of z_tilde columns provided must match the '</span>
+                <span class="s1">'number of mesh columns.'</span>
+            <span class="p">)</span>
+        <span class="k">if</span> <span class="n">t_node</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">!=</span> <span class="n">ncells</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s1">'The number of temperature columns provided must match the '</span>
+                <span class="s1">'number of mesh columns.'</span>
+            <span class="p">)</span>
+        <span class="k">if</span> <span class="n">s_node</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">!=</span> <span class="n">ncells</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s1">'The number of salinity columns provided must match the '</span>
+                <span class="s1">'number of mesh columns.'</span>
+            <span class="p">)</span>
+
+        <span class="n">z_tilde_top</span> <span class="o">=</span> <span class="n">z_tilde_interface</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span>
+            <span class="n">Time</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">nVertLevelsP1</span><span class="o">=</span><span class="nb">slice</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+        <span class="p">)</span><span class="o">.</span><span class="n">values</span>
+        <span class="n">z_tilde_bot</span> <span class="o">=</span> <span class="n">z_tilde_interface</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span>
+            <span class="n">Time</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">nVertLevelsP1</span><span class="o">=</span><span class="nb">slice</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="p">)</span><span class="o">.</span><span class="n">values</span>
+
+        <span class="k">for</span> <span class="n">icell</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">ncells</span><span class="p">):</span>
+            <span class="n">z_tilde</span> <span class="o">=</span> <span class="n">z_tilde_node</span><span class="p">[</span><span class="n">icell</span><span class="p">,</span> <span class="p">:]</span>
+            <span class="n">temperatures</span> <span class="o">=</span> <span class="n">t_node</span><span class="p">[</span><span class="n">icell</span><span class="p">,</span> <span class="p">:]</span>
+            <span class="n">salinities</span> <span class="o">=</span> <span class="n">s_node</span><span class="p">[</span><span class="n">icell</span><span class="p">,</span> <span class="p">:]</span>
+
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">z_tilde</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="s1">'At least two z_tilde points are required to '</span>
+                    <span class="s1">'define piecewise linear initial conditions.'</span>
+                <span class="p">)</span>
+
+            <span class="n">t_mean</span> <span class="o">=</span> <span class="n">get_pchip_layer_mean</span><span class="p">(</span>
+                <span class="n">z_tilde_nodes</span><span class="o">=</span><span class="n">z_tilde</span><span class="p">,</span>
+                <span class="n">values_nodes</span><span class="o">=</span><span class="n">temperatures</span><span class="p">,</span>
+                <span class="n">name</span><span class="o">=</span><span class="s1">'temperature'</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="n">s_mean</span> <span class="o">=</span> <span class="n">get_pchip_layer_mean</span><span class="p">(</span>
+                <span class="n">z_tilde_nodes</span><span class="o">=</span><span class="n">z_tilde</span><span class="p">,</span>
+                <span class="n">values_nodes</span><span class="o">=</span><span class="n">salinities</span><span class="p">,</span>
+                <span class="n">name</span><span class="o">=</span><span class="s1">'salinity'</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="n">top</span> <span class="o">=</span> <span class="n">z_tilde_top</span><span class="p">[</span><span class="n">icell</span><span class="p">,</span> <span class="p">:]</span>
+            <span class="n">bot</span> <span class="o">=</span> <span class="n">z_tilde_bot</span><span class="p">[</span><span class="n">icell</span><span class="p">,</span> <span class="p">:]</span>
+            <span class="c1"># a layer is valid only where both of its interfaces are</span>
+            <span class="n">valid</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">logical_and</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">top</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">bot</span><span class="p">))</span>
+            <span class="n">temperature_np</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="n">icell</span><span class="p">,</span> <span class="p">:]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+            <span class="n">salinity_np</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="n">icell</span><span class="p">,</span> <span class="p">:]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+            <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">valid</span><span class="p">):</span>
+                <span class="n">temperature_np</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="n">icell</span><span class="p">,</span> <span class="n">valid</span><span class="p">]</span> <span class="o">=</span> <span class="n">t_mean</span><span class="p">(</span>
+                    <span class="n">top</span><span class="p">[</span><span class="n">valid</span><span class="p">],</span> <span class="n">bot</span><span class="p">[</span><span class="n">valid</span><span class="p">]</span>
+                <span class="p">)</span>
+                <span class="n">salinity_np</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="n">icell</span><span class="p">,</span> <span class="n">valid</span><span class="p">]</span> <span class="o">=</span> <span class="n">s_mean</span><span class="p">(</span><span class="n">top</span><span class="p">[</span><span class="n">valid</span><span class="p">],</span> <span class="n">bot</span><span class="p">[</span><span class="n">valid</span><span class="p">])</span>
+
+        <span class="n">temperature</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">(</span>
+            <span class="n">data</span><span class="o">=</span><span class="n">temperature_np</span><span class="p">,</span>
+            <span class="n">dims</span><span class="o">=</span><span class="p">[</span><span class="s1">'Time'</span><span class="p">,</span> <span class="s1">'nCells'</span><span class="p">,</span> <span class="s1">'nVertLevels'</span><span class="p">],</span>
+            <span class="n">attrs</span><span class="o">=</span><span class="p">{</span>
+                <span class="s1">'long_name'</span><span class="p">:</span> <span class="s1">'conservative temperature'</span><span class="p">,</span>
+                <span class="s1">'units'</span><span class="p">:</span> <span class="s1">'degC'</span><span class="p">,</span>
+            <span class="p">},</span>
+        <span class="p">)</span>
+        <span class="n">salinity</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">(</span>
+            <span class="n">data</span><span class="o">=</span><span class="n">salinity_np</span><span class="p">,</span>
+            <span class="n">dims</span><span class="o">=</span><span class="p">[</span><span class="s1">'Time'</span><span class="p">,</span> <span class="s1">'nCells'</span><span class="p">,</span> <span class="s1">'nVertLevels'</span><span class="p">],</span>
+            <span class="n">attrs</span><span class="o">=</span><span class="p">{</span>
+                <span class="s1">'long_name'</span><span class="p">:</span> <span class="s1">'absolute salinity'</span><span class="p">,</span>
+                <span class="s1">'units'</span><span class="p">:</span> <span class="s1">'g kg-1'</span><span class="p">,</span>
+            <span class="p">},</span>
+        <span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">temperature</span><span class="p">,</span> <span class="n">salinity</span></div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2026, Energy Exascale Earth System Model Project.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+   
+
+  <!-- Meta tags for JS to use -->
+  <meta name="doc-version" content="1.2.0">
+  <meta name="doc-site-root" content="../../../../../">
+
+  <!-- Create version switcher container -->
+  <script>
+    const sidebar = document.querySelector('.wy-side-nav-search');
+    if (sidebar) {
+      const versionDiv = document.createElement('div');
+      versionDiv.id = 'version-switcher';
+      versionDiv.style.marginTop = '1em';
+      sidebar.appendChild(versionDiv);
+    }
+  </script>
+
+  <!-- Load version-switcher.js using the correct relative path -->
+  <script src="../../../../../../shared/version-switcher.js"></script>
+
+
+</body>
+</html>

@@ -1,0 +1,6 @@
+﻿polaris.tasks.ocean.add\_tasks.add\_ocean\_tasks
+================================================
+
+.. currentmodule:: polaris.tasks.ocean.add_tasks
+
+.. autofunction:: add_ocean_tasks

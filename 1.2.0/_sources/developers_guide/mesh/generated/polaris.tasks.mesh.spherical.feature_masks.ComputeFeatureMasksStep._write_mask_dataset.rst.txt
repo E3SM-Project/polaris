@@ -1,0 +1,6 @@
+﻿polaris.tasks.mesh.spherical.feature\_masks.ComputeFeatureMasksStep.\_write\_mask\_dataset
+==========================================================================================
+
+.. currentmodule:: polaris.tasks.mesh.spherical.feature_masks
+
+.. automethod:: ComputeFeatureMasksStep._write_mask_dataset

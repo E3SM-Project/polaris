@@ -1,0 +1,6 @@
+﻿polaris.mesh.vector.get\_coordinate\_matrix
+===========================================
+
+.. currentmodule:: polaris.mesh.vector
+
+.. autofunction:: get_coordinate_matrix

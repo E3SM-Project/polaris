@@ -1,0 +1,48 @@
+﻿polaris.tasks.ocean.realistic\_global.dynamic\_adjustment.viz.VizDynamicAdjustmentStep
+======================================================================================
+
+.. currentmodule:: polaris.tasks.ocean.realistic_global.dynamic_adjustment.viz
+
+.. autoclass:: VizDynamicAdjustmentStep
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~VizDynamicAdjustmentStep.__init__
+      ~VizDynamicAdjustmentStep.add_cf_check
+      ~VizDynamicAdjustmentStep.add_dependency
+      ~VizDynamicAdjustmentStep.add_input_file
+      ~VizDynamicAdjustmentStep.add_output_file
+      ~VizDynamicAdjustmentStep.add_property_check
+      ~VizDynamicAdjustmentStep.check_cf
+      ~VizDynamicAdjustmentStep.check_properties
+      ~VizDynamicAdjustmentStep.constrain_resources
+      ~VizDynamicAdjustmentStep.process_inputs_and_outputs
+      ~VizDynamicAdjustmentStep.run
+      ~VizDynamicAdjustmentStep.runtime_setup
+      ~VizDynamicAdjustmentStep.set_resources
+      ~VizDynamicAdjustmentStep.set_shared_config
+      ~VizDynamicAdjustmentStep.setup
+      ~VizDynamicAdjustmentStep.validate_baselines
+      ~VizDynamicAdjustmentStep.work_path
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~VizDynamicAdjustmentStep.cores
+      ~VizDynamicAdjustmentStep.gpus
+      ~VizDynamicAdjustmentStep.may_span_nodes
+      ~VizDynamicAdjustmentStep.min_cores
+      ~VizDynamicAdjustmentStep.min_gpus
+   
+   

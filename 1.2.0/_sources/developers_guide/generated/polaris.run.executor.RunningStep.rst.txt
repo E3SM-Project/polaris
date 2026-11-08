@@ -1,0 +1,30 @@
+﻿polaris.run.executor.RunningStep
+================================
+
+.. currentmodule:: polaris.run.executor
+
+.. autoclass:: RunningStep
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~RunningStep.__init__
+      ~RunningStep.kill
+      ~RunningStep.work_seconds
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~RunningStep.pid
+   
+   

@@ -1,0 +1,6 @@
+﻿polaris.streams.update\_tree
+============================
+
+.. currentmodule:: polaris.streams
+
+.. autofunction:: update_tree

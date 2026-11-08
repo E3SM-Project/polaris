@@ -1,0 +1,6 @@
+﻿polaris.coriolis.add\_spherical\_coriolis
+=========================================
+
+.. currentmodule:: polaris.coriolis
+
+.. autofunction:: add_spherical_coriolis

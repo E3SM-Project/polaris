@@ -1,0 +1,26 @@
+﻿polaris.tasks.mesh.spherical.unified.coastline.LatLonCoastlineTask
+==================================================================
+
+.. currentmodule:: polaris.tasks.mesh.spherical.unified.coastline
+
+.. autoclass:: LatLonCoastlineTask
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~LatLonCoastlineTask.__init__
+      ~LatLonCoastlineTask.add_step
+      ~LatLonCoastlineTask.configure
+      ~LatLonCoastlineTask.remove_step
+      ~LatLonCoastlineTask.set_shared_config
+   
+   
+
+   
+   
+   

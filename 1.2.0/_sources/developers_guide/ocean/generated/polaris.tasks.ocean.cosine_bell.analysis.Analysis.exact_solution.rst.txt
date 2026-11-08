@@ -1,0 +1,6 @@
+﻿polaris.tasks.ocean.cosine\_bell.analysis.Analysis.exact\_solution
+==================================================================
+
+.. currentmodule:: polaris.tasks.ocean.cosine_bell.analysis
+
+.. automethod:: Analysis.exact_solution

@@ -1,0 +1,6 @@
+﻿polaris.cf\_check.check\_cf\_compliance
+=======================================
+
+.. currentmodule:: polaris.cf_check
+
+.. autofunction:: check_cf_compliance

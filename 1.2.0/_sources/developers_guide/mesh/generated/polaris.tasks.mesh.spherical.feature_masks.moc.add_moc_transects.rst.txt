@@ -1,0 +1,6 @@
+﻿polaris.tasks.mesh.spherical.feature\_masks.moc.add\_moc\_transects
+===================================================================
+
+.. currentmodule:: polaris.tasks.mesh.spherical.feature_masks.moc
+
+.. autofunction:: add_moc_transects

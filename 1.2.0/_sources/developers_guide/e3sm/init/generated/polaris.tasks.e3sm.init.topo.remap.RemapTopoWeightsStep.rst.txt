@@ -1,0 +1,48 @@
+﻿polaris.tasks.e3sm.init.topo.remap.RemapTopoWeightsStep
+=======================================================
+
+.. currentmodule:: polaris.tasks.e3sm.init.topo.remap
+
+.. autoclass:: RemapTopoWeightsStep
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~RemapTopoWeightsStep.__init__
+      ~RemapTopoWeightsStep.add_cf_check
+      ~RemapTopoWeightsStep.add_dependency
+      ~RemapTopoWeightsStep.add_input_file
+      ~RemapTopoWeightsStep.add_output_file
+      ~RemapTopoWeightsStep.add_property_check
+      ~RemapTopoWeightsStep.check_cf
+      ~RemapTopoWeightsStep.check_properties
+      ~RemapTopoWeightsStep.constrain_resources
+      ~RemapTopoWeightsStep.process_inputs_and_outputs
+      ~RemapTopoWeightsStep.run
+      ~RemapTopoWeightsStep.runtime_setup
+      ~RemapTopoWeightsStep.set_resources
+      ~RemapTopoWeightsStep.set_shared_config
+      ~RemapTopoWeightsStep.setup
+      ~RemapTopoWeightsStep.validate_baselines
+      ~RemapTopoWeightsStep.work_path
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~RemapTopoWeightsStep.cores
+      ~RemapTopoWeightsStep.gpus
+      ~RemapTopoWeightsStep.may_span_nodes
+      ~RemapTopoWeightsStep.min_cores
+      ~RemapTopoWeightsStep.min_gpus
+   
+   

@@ -1,0 +1,6 @@
+﻿polaris.ocean.eos.teos10.compute\_specvol
+=========================================
+
+.. currentmodule:: polaris.ocean.eos.teos10
+
+.. autofunction:: compute_specvol

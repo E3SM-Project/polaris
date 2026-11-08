@@ -1,0 +1,6 @@
+﻿polaris.tasks.ocean.realistic\_global.init.steps.get\_realistic\_init\_steps
+============================================================================
+
+.. currentmodule:: polaris.tasks.ocean.realistic_global.init.steps
+
+.. autofunction:: get_realistic_init_steps

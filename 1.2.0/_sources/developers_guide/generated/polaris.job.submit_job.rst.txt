@@ -1,0 +1,6 @@
+﻿polaris.job.submit\_job
+=======================
+
+.. currentmodule:: polaris.job
+
+.. autofunction:: submit_job

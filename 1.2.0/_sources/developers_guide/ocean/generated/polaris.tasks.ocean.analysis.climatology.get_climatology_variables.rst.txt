@@ -1,0 +1,6 @@
+﻿polaris.tasks.ocean.analysis.climatology.get\_climatology\_variables
+====================================================================
+
+.. currentmodule:: polaris.tasks.ocean.analysis.climatology
+
+.. autofunction:: get_climatology_variables

@@ -1,0 +1,6 @@
+﻿polaris.tasks.e3sm.init.topo.cull.consistency.check\_critical\_passages
+=======================================================================
+
+.. currentmodule:: polaris.tasks.e3sm.init.topo.cull.consistency
+
+.. autofunction:: check_critical_passages

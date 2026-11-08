@@ -1,0 +1,6 @@
+﻿polaris.validate.compare\_variables
+===================================
+
+.. currentmodule:: polaris.validate
+
+.. autofunction:: compare_variables

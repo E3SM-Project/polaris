@@ -1,0 +1,6 @@
+﻿polaris.run.unpickle\_suite
+===========================
+
+.. currentmodule:: polaris.run
+
+.. autofunction:: unpickle_suite

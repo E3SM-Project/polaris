@@ -1,0 +1,6 @@
+﻿polaris.ocean.heat\_content.heat\_content
+=========================================
+
+.. currentmodule:: polaris.ocean.heat_content
+
+.. autofunction:: heat_content

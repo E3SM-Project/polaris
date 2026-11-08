@@ -1,0 +1,6 @@
+﻿polaris.run.events.read\_events
+===============================
+
+.. currentmodule:: polaris.run.events
+
+.. autofunction:: read_events

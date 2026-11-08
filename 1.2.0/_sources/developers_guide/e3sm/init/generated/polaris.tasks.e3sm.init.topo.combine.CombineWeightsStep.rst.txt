@@ -1,0 +1,48 @@
+﻿polaris.tasks.e3sm.init.topo.combine.CombineWeightsStep
+=======================================================
+
+.. currentmodule:: polaris.tasks.e3sm.init.topo.combine
+
+.. autoclass:: CombineWeightsStep
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~CombineWeightsStep.__init__
+      ~CombineWeightsStep.add_cf_check
+      ~CombineWeightsStep.add_dependency
+      ~CombineWeightsStep.add_input_file
+      ~CombineWeightsStep.add_output_file
+      ~CombineWeightsStep.add_property_check
+      ~CombineWeightsStep.check_cf
+      ~CombineWeightsStep.check_properties
+      ~CombineWeightsStep.constrain_resources
+      ~CombineWeightsStep.process_inputs_and_outputs
+      ~CombineWeightsStep.run
+      ~CombineWeightsStep.runtime_setup
+      ~CombineWeightsStep.set_resources
+      ~CombineWeightsStep.set_shared_config
+      ~CombineWeightsStep.setup
+      ~CombineWeightsStep.validate_baselines
+      ~CombineWeightsStep.work_path
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~CombineWeightsStep.cores
+      ~CombineWeightsStep.gpus
+      ~CombineWeightsStep.may_span_nodes
+      ~CombineWeightsStep.min_cores
+      ~CombineWeightsStep.min_gpus
+   
+   

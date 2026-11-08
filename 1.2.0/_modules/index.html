@@ -1,0 +1,901 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Overview: module code</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=6efca38a"></script>
+      <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script type="module">import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11.12.1/dist/mermaid.esm.min.mjs";
+
+
+
+
+
+const initStyles = () => {
+    const defaultStyle = document.createElement('style');
+    defaultStyle.textContent = "pre.mermaid {\n    /* Same as .mermaid-container > pre */\n    display: block;\n    width: 100%;\n}\n\npre.mermaid > svg {\n    /* Same as .mermaid-container > pre > svg */\n    height: 500px;\n    width: 100%;\n    max-width: 100% !important;\n}";
+    document.head.appendChild(defaultStyle);
+
+    const fullscreenStyle = document.createElement('style');
+    fullscreenStyle.textContent = ".mermaid-container {\n    position: relative;\n    display: flex;\n    flex-direction: row;\n    width: 100%;\n}\n\n.mermaid-container > pre {\n    display: block;\n    width: 100%;\n}\n\n.mermaid-container > pre > svg {\n    height: 500px;\n    width: 100%;\n    max-width: 100% !important;\n}\n\n.mermaid-fullscreen-btn {\n    position: absolute;\n    width: 28px;\n    height: 28px;\n    background: rgba(255, 255, 255, 0.95);\n    border: 1px solid rgba(0, 0, 0, 0.3);\n    border-radius: 4px;\n    cursor: pointer;\n    display: flex;\n    align-items: center;\n    justify-content: center;\n    transition: all 0.2s;\n    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);\n    font-size: 14px;\n    line-height: 1;\n    padding: 0;\n    color: #333;\n}\n\n.mermaid-fullscreen-btn:hover {\n    opacity: 100% !important;\n    background: rgba(255, 255, 255, 1);\n    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.3);\n    transform: scale(1.1);\n}\n\n.mermaid-fullscreen-btn.dark-theme {\n    background: rgba(50, 50, 50, 0.95);\n    border: 1px solid rgba(255, 255, 255, 0.3);\n    color: #e0e0e0;\n}\n\n.mermaid-fullscreen-btn.dark-theme:hover {\n    background: rgba(60, 60, 60, 1);\n    box-shadow: 0 3px 10px rgba(255, 255, 255, 0.2);\n}\n\n.mermaid-fullscreen-modal {\n    display: none;\n    position: fixed !important;\n    top: 0 !important;\n    left: 0 !important;\n    width: 95vw;\n    height: 100vh;\n    background: rgba(255, 255, 255, 0.98);\n    z-index: 9999;\n    padding: 20px;\n    overflow: auto;\n}\n\n.mermaid-fullscreen-modal.dark-theme {\n    background: rgba(0, 0, 0, 0.98);\n}\n\n.mermaid-fullscreen-modal.active {\n    display: flex;\n    align-items: center;\n    justify-content: center;\n}\n\n.mermaid-container-fullscreen {\n    position: relative;\n    width: 95vw;\n    height: 90vh;\n    max-width: 95vw;\n    max-height: 90vh;\n    background: white;\n    border-radius: 8px;\n    padding: 20px;\n    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);\n    overflow: auto;\n    display: flex;\n    align-items: center;\n    justify-content: center;\n}\n\n.mermaid-container-fullscreen.dark-theme {\n    background: #1a1a1a;\n    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.8);\n}\n\n.mermaid-container-fullscreen pre.mermaid {\n    width: 100%;\n    height: 100%;\n    display: flex;\n    align-items: center;\n    justify-content: center;\n}\n\n.mermaid-container-fullscreen .mermaid svg {\n    height: 100% !important;\n    width: 100% !important;\n    cursor: grab;\n}\n\n.mermaid-fullscreen-close {\n    position: fixed !important;\n    top: 20px !important;\n    right: 20px !important;\n    width: 40px;\n    height: 40px;\n    background: rgba(255, 255, 255, 0.95);\n    border: 1px solid rgba(0, 0, 0, 0.2);\n    border-radius: 50%;\n    cursor: pointer;\n    z-index: 10000;\n    display: flex;\n    align-items: center;\n    justify-content: center;\n    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);\n    transition: all 0.2s;\n    font-size: 24px;\n    line-height: 1;\n    color: #333;\n}\n\n.mermaid-fullscreen-close:hover {\n    background: white;\n    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);\n    transform: scale(1.1);\n}\n\n.mermaid-fullscreen-close.dark-theme {\n    background: rgba(50, 50, 50, 0.95);\n    border: 1px solid rgba(255, 255, 255, 0.2);\n    color: #e0e0e0;\n}\n\n.mermaid-fullscreen-close.dark-theme:hover {\n    background: rgba(60, 60, 60, 1);\n    box-shadow: 0 6px 16px rgba(255, 255, 255, 0.2);\n}\n\n.mermaid-fullscreen-modal .mermaid-fullscreen-btn {\n    display: none !important;\n}";
+    document.head.appendChild(fullscreenStyle);
+}
+
+// Detect if page has dark background
+const isDarkTheme = () => {
+    // We use a set of heuristics:
+    // 1. Check for common dark mode classes or attributes
+    // 2. Check computed background color brightness
+    if (document.documentElement.classList.contains('dark') ||
+        document.documentElement.getAttribute('data-theme') === 'dark' ||
+        document.body.classList.contains('dark') ||
+        document.body.getAttribute('data-theme') === 'dark') {
+        // console.log("Dark theme detected via class/attribute");
+        return true;
+    }
+    if (document.documentElement.classList.contains('light') ||
+        document.documentElement.getAttribute('data-theme') === 'light' ||
+        document.body.classList.contains('light') ||
+        document.body.getAttribute('data-theme') === 'light') {
+        // console.log("Light theme detected via class/attribute");
+        return false;
+    }
+    if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        // console.log("Dark theme detected via prefers-color-scheme");
+        return true;
+    }
+    const bgColor = window.getComputedStyle(document.body).backgroundColor;
+    const match = bgColor.match(/rgb\((\d+),\s*(\d+),\s*(\d+)/);
+    if (match) {
+        const r = parseInt(match[1]);
+        const g = parseInt(match[2]);
+        const b = parseInt(match[3]);
+        const brightness = (r * 299 + g * 587 + b * 114) / 1000;
+        // console.log("Background color brightness:", brightness);
+        return brightness < 128;
+    }
+    // console.log("No dark or light theme detected, defaulting to light theme");
+    return false;
+};
+
+let darkTheme = isDarkTheme();
+let modal = null;
+let modalContent = null;
+let previousScrollOffset = [window.scrollX, window.scrollY];
+let _lazyObserver = null;
+let _renderQueue = Promise.resolve();
+let closeModal = () => {};
+
+document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && modal?.classList.contains('active')) {
+        closeModal();
+    }
+});
+
+// Apply d3 zoom to each SVG. Idempotent: an SVG already wrapped is skipped,
+// so this is safe to call both for the initial batch and for diagrams that
+// render lazily once they become visible.
+const addZoomToSvgs = (svgs) => {
+    svgs.each(function() {
+        if (this.getAttribute('data-zoom-applied') === 'true') return;
+        var svg = d3.select(this);
+        svg.html("<g class='wrapper'>" + svg.html() + "</g>");
+        var inner = svg.select("g");
+        var zoom = d3.zoom().on("zoom", function(event) {
+            inner.attr("transform", event.transform);
+        });
+        svg.call(zoom);
+        this.setAttribute('data-zoom-applied', 'true');
+    });
+};
+
+const runMermaid = async (rerun) => {
+    console.log("Running mermaid diagrams, rerun =", rerun);
+    // clear all existing mermaid charts
+    let all_mermaids = document.querySelectorAll(".mermaid");
+
+    if (rerun) {
+        // Disconnect any previous lazy rendering observer
+        if (_lazyObserver) {
+            _lazyObserver.disconnect();
+            _lazyObserver = null;
+        }
+
+        all_mermaids.forEach((el) => {
+            el.removeAttribute('data-mermaid-deferred');
+            el.removeAttribute('data-mermaid-render-failed');
+            if(!el.hasAttribute("data-original-code")) {
+                // store original code
+                // console.log(`Storing original code for first run: `, el.innerHTML);
+                el.setAttribute('data-original-code', el.innerHTML);
+            }
+            if(el.getAttribute("data-processed") === "true") {
+                // remove and restore original
+                el.removeAttribute("data-processed");
+                // console.log(`Restoring original code for re-run: `, el.getAttribute('data-original-code'));
+                el.innerHTML = el.getAttribute('data-original-code');
+            } else {
+                // store original code
+                // console.log(`Storing original code for re-run: `, el.innerHTML);
+                el.setAttribute('data-original-code', el.innerHTML);
+            }
+        });
+
+        // Separate visible and hidden elements. Mermaid's layout engine measures
+        // text dimensions via the DOM, which fails for elements hidden by a parent
+        // (e.g., Reveal.js non-active slides, sphinx-design unopened tabs),
+        // producing broken SVGs. Render visible elements now, defer hidden ones.
+        const visible = [];
+        const hidden = [];
+        all_mermaids.forEach((el) => {
+            // offsetParent is null for display:none ancestors.
+            // getClientRects().length > 0 catches position:fixed elements
+            // (which also have null offsetParent but are still visible).
+            if (el.offsetParent !== null || el.getClientRects().length > 0) {
+                visible.push(el);
+            } else {
+                hidden.push(el);
+                el.setAttribute('data-mermaid-deferred', 'true');
+            }
+        });
+
+        if (visible.length > 0) {
+            try {
+                await mermaid.run({ nodes: visible });
+            } catch (e) {
+                console.error("Mermaid rendering failed:", e);
+            }
+        }
+
+        // Lazily render hidden elements when they become visible.
+        // Uses a promise chain (_renderQueue) to serialize rendering,
+        // since IntersectionObserver may report multiple entries at once
+        // and mermaid.run() is not safe to call concurrently.
+        if (hidden.length > 0) {
+            if (typeof IntersectionObserver === 'undefined') {
+                console.warn("IntersectionObserver not available; hidden mermaid diagrams will not render.");
+            } else {
+                _renderQueue = Promise.resolve();
+                _lazyObserver = new IntersectionObserver((entries) => {
+                    for (const entry of entries) {
+                        if (entry.isIntersecting && entry.target.getAttribute("data-processed") !== "true") {
+                            _lazyObserver.unobserve(entry.target);
+                            const el = entry.target;
+                            _renderQueue = _renderQueue.then(async () => {
+                                try {
+                                    await mermaid.run({ nodes: [el] });
+                                    el.removeAttribute('data-mermaid-deferred');
+                                    // Apply zoom to the now-rendered diagram, matching
+                                    // the decoration visible diagrams receive.
+                                    if (false) {
+                                        addZoomToSvgs(d3.selectAll("").select(function() {
+                                            return this.querySelector("svg");
+                                        }));
+                                    }
+                                } catch (e) {
+                                    console.error("Mermaid deferred rendering failed:", e);
+                                    el.removeAttribute('data-mermaid-deferred');
+                                    el.setAttribute('data-mermaid-render-failed', 'true');
+                                }
+                            });
+                        }
+                    }
+                });
+                hidden.forEach((el) => _lazyObserver.observe(el));
+            }
+        }
+    }
+
+    all_mermaids = document.querySelectorAll(".mermaid");
+    // Exclude deferred (hidden) and render-failed elements from completion checks
+    const mermaids_active = document.querySelectorAll(".mermaid:not([data-mermaid-deferred]):not([data-mermaid-render-failed])");
+    const mermaids_processed = document.querySelectorAll(".mermaid:not([data-mermaid-deferred]):not([data-mermaid-render-failed])[data-processed='true']");
+
+    if (false) {
+        const mermaids_to_add_zoom = 0 === -1 ? mermaids_active.length : 0;
+        if(mermaids_to_add_zoom > 0) {
+            var svgs = d3.selectAll("").select(function() {
+                return this.querySelector("svg");
+            });
+            // Wait until every active (visible) diagram has rendered. Deferred
+            // diagrams are excluded, so a fixed d3_node_count that counts a
+            // hidden diagram no longer loops forever waiting for its SVG.
+            if(mermaids_active.length !== mermaids_processed.length) {
+                setTimeout(() => runMermaid(false), 200);
+                return;
+            }
+            addZoomToSvgs(svgs);
+        }
+    } else if(mermaids_active.length !== mermaids_processed.length) {
+        // Wait for mermaid to process all diagrams
+        setTimeout(() => runMermaid(false), 200);
+        return;
+    }
+
+    // Stop here if not adding fullscreen capability
+    if (!true) return;
+
+    if (modal !== null ) {
+        // Destroy existing modal
+        modal.remove();
+        modal = null;
+        modalContent = null;
+    }
+
+    modal = document.createElement('div');
+    modal.className = 'mermaid-fullscreen-modal' + (darkTheme ? ' dark-theme' : '');
+    modal.setAttribute('role', 'dialog');
+    modal.setAttribute('aria-modal', 'true');
+    modal.setAttribute('aria-label', 'Fullscreen diagram viewer');
+    modal.innerHTML = `
+        <button class="mermaid-fullscreen-close${darkTheme ? ' dark-theme' : ''}" aria-label="Close fullscreen">✕</button>
+        <div class="mermaid-container-fullscreen${darkTheme ? ' dark-theme' : ''}"></div>
+    `;
+    document.body.appendChild(modal);
+
+    modalContent = modal.querySelector('.mermaid-container-fullscreen');
+    const closeBtn = modal.querySelector('.mermaid-fullscreen-close');
+
+    closeModal = () => {
+        modal.classList.remove('active');
+        modalContent.innerHTML = '';
+        document.body.style.overflow = ''
+        window.scrollTo({left: previousScrollOffset[0], top: previousScrollOffset[1], behavior: 'instant'});
+    };
+
+    closeBtn.addEventListener('click', closeModal);
+    modal.addEventListener('click', (e) => {
+        if (e.target === modal) closeModal();
+    });
+    document.querySelectorAll('.mermaid').forEach((mermaidDiv) => {
+        if (mermaidDiv.parentNode.classList.contains('mermaid-container') ||
+            mermaidDiv.closest('.mermaid-fullscreen-modal')) {
+            // Already processed, adjust button class if needed
+            const existingBtn = mermaidDiv.parentNode.querySelector('.mermaid-fullscreen-btn');
+            if (existingBtn) {
+                existingBtn.className = 'mermaid-fullscreen-btn' + (darkTheme ? ' dark-theme' : '');
+            }
+            return;
+        }
+
+        const container = document.createElement('div');
+        container.className = 'mermaid-container';
+        mermaidDiv.parentNode.insertBefore(container, mermaidDiv);
+        container.appendChild(mermaidDiv);
+
+        const fullscreenBtn = document.createElement('button');
+        fullscreenBtn.className = 'mermaid-fullscreen-btn' + (darkTheme ? ' dark-theme' : '');
+        fullscreenBtn.setAttribute('aria-label', 'View diagram in fullscreen');
+        fullscreenBtn.textContent = "\u26f6";
+        fullscreenBtn.style.opacity = "50%";
+
+        // Calculate dynamic position based on diagram's margin and padding
+        const diagramStyle = window.getComputedStyle(mermaidDiv);
+        const marginTop = parseFloat(diagramStyle.marginTop) || 0;
+        const marginRight = parseFloat(diagramStyle.marginRight) || 0;
+        const paddingTop = parseFloat(diagramStyle.paddingTop) || 0;
+        const paddingRight = parseFloat(diagramStyle.paddingRight) || 0;
+        fullscreenBtn.style.top = `${marginTop + paddingTop + 4}px`;
+        fullscreenBtn.style.right = `${marginRight + paddingRight + 4}px`;
+
+        fullscreenBtn.addEventListener('click', () => {
+            previousScrollOffset = [window.scrollX, window.scrollY];
+            const clone = mermaidDiv.cloneNode(true);
+            modalContent.innerHTML = '';
+            modalContent.appendChild(clone);
+
+            const svg = clone.querySelector('svg');
+            if (svg) {
+                svg.removeAttribute('width');
+                svg.removeAttribute('height');
+                svg.style.width = '100%';
+                svg.style.height = 'auto';
+                svg.style.maxWidth = '100%';
+                svg.style.display = 'block';
+
+                if (false) {
+                    setTimeout(() => {
+                        const g = svg.querySelector('g');
+                        if (g) {
+                            var svgD3 = d3.select(svg);
+                            svgD3.html("<g class='wrapper'>" + svgD3.html() + "</g>");
+                            var inner = svgD3.select("g");
+                            var zoom = d3.zoom().on("zoom", function(event) {
+                                inner.attr("transform", event.transform);
+                            });
+                            svgD3.call(zoom);
+                        }
+                    }, 100);
+                }
+            }
+
+            modal.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        });
+        container.appendChild(fullscreenBtn);
+    });
+};
+
+
+
+const load = async () => {
+    initStyles();
+
+
+    await runMermaid(true);
+
+    const reRunIfThemeChanges = async () => {
+        const newDarkTheme = isDarkTheme();
+        if (newDarkTheme !== darkTheme) {
+            darkTheme = newDarkTheme;
+            console.log("Theme change detected, re-running mermaid with", darkTheme ? "dark" : "default", "theme");
+            await mermaid.initialize(
+                {...{"startOnLoad": false},
+                ...{ darkMode: darkTheme, theme: darkTheme ? "dark" : "default" },
+                }
+            );
+            await runMermaid(true);
+        }
+    };
+
+    // Update theme classes when theme changes
+    const themeObserver = new MutationObserver(reRunIfThemeChanges);
+    themeObserver.observe(document.documentElement, {
+        attributes: true,
+        attributeFilter: ['class', 'style', 'data-theme']
+    });
+    themeObserver.observe(document.body, {
+        attributes: true,
+        attributeFilter: ['class', 'style', 'data-theme']
+    });
+};
+
+
+
+
+
+console.log("Initializing mermaid with", darkTheme ? "dark" : "default", "theme");
+mermaid.initialize(
+    {...{"startOnLoad": false},
+    ...{ darkMode: darkTheme, theme: darkTheme ? "dark" : "default" },
+    }
+);
+
+window.addEventListener("load", load);
+window.runMermaid = runMermaid;</script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link href="../_static/style.css" rel="stylesheet" type="text/css">
+
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            Polaris
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">User's guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../users_guide/quick_start.html">Quick Start for Users</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../users_guide/tasks.html">Tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../users_guide/config_files.html">Config Files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../users_guide/suites.html">Suites</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../users_guide/mesh/index.html">Mesh component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../users_guide/e3sm/init/index.html">E3SM Initial Condition Component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../users_guide/ocean/index.html">Ocean component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../users_guide/seaice/index.html">Sea ice component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../users_guide/machines/index.html">Machines</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Developer's guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/quick_start.html">Quick Start for Developers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/command_line.html">Command-line interface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/organization/index.html">Organization of Tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/e3sm/init/index.html">E3SM initial condition (e3sm/init) component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/mesh/index.html">Mesh component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/ocean/index.html">Ocean component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/seaice/index.html">Sea ice component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/framework/index.html">Framework</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/machines/index.html">Machines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/benchmarking.html">Benchmarking a branch against a baseline</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/omega_pr_testing.html">Testing an Omega pull request</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/troubleshooting.html">Troubleshooting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/docs.html">Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/building_docs.html">Building the Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/building_docs.html#previewing-the-documentation">Previewing the Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/conda_vs_spack.html">How Conda and Spack Work Together in Polaris</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/updating_conda.html">Updating Deployment Dependencies</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/updating_spack/index.html">Updating Shared Spack Environments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/api.html">API reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../design_docs/index.html">Design Documents</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials/dev_add_category_of_tasks/index.html">Developer Tutorial: Adding a New Category of Tasks</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Glossary</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../glossary.html">Glossary</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Polaris</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Overview: module code</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>All modules for which code is available</h1>
+<ul><li><a href="polaris/__main__.html">polaris.__main__</a></li>
+<li><a href="polaris/analysis/manifest.html">polaris.analysis.manifest</a></li>
+<li><a href="polaris/analysis/publish.html">polaris.analysis.publish</a></li>
+<li><a href="polaris/analysis/site.html">polaris.analysis.site</a></li>
+<li><a href="polaris/analysis/thumbnail.html">polaris.analysis.thumbnail</a></li>
+<li><a href="polaris/analysis/units.html">polaris.analysis.units</a></li>
+<li><a href="polaris/attrs.html">polaris.attrs</a></li>
+<li><a href="polaris/baselines.html">polaris.baselines</a></li>
+<li><a href="polaris/build/mpas_ocean.html">polaris.build.mpas_ocean</a></li>
+<li><a href="polaris/build/omega.html">polaris.build.omega</a></li>
+<li><a href="polaris/build/source_record.html">polaris.build.source_record</a></li>
+<li><a href="polaris/cache.html">polaris.cache</a></li>
+<li><a href="polaris/cf.html">polaris.cf</a></li>
+<li><a href="polaris/cf_check.html">polaris.cf_check</a></li>
+<li><a href="polaris/component.html">polaris.component</a></li>
+<li><a href="polaris/component_graph.html">polaris.component_graph</a></li>
+<li><a href="polaris/config.html">polaris.config</a></li>
+<li><a href="polaris/constants.html">polaris.constants</a></li>
+<ul><li><a href="polaris/constants/pcd.html">polaris.constants.pcd</a></li>
+</ul><li><a href="polaris/coriolis.html">polaris.coriolis</a></li>
+<li><a href="polaris/e3sm/init/topo/resolutions.html">polaris.e3sm.init.topo.resolutions</a></li>
+<li><a href="polaris/io.html">polaris.io</a></li>
+<li><a href="polaris/job.html">polaris.job</a></li>
+<li><a href="polaris/list.html">polaris.list</a></li>
+<li><a href="polaris/logging.html">polaris.logging</a></li>
+<li><a href="polaris/mesh/attrs.html">polaris.mesh.attrs</a></li>
+<li><a href="polaris/mesh/base.html">polaris.mesh.base</a></li>
+<ul><li><a href="polaris/mesh/base/rrs.html">polaris.mesh.base.rrs</a></li>
+<li><a href="polaris/mesh/base/so.html">polaris.mesh.base.so</a></li>
+<ul><li><a href="polaris/mesh/base/so/background.html">polaris.mesh.base.so.background</a></li>
+</ul></ul><li><a href="polaris/mesh/connectivity.html">polaris.mesh.connectivity</a></li>
+<li><a href="polaris/mesh/info.html">polaris.mesh.info</a></li>
+<li><a href="polaris/mesh/planar.html">polaris.mesh.planar</a></li>
+<li><a href="polaris/mesh/reconstruct.html">polaris.mesh.reconstruct</a></li>
+<li><a href="polaris/mesh/spherical.html">polaris.mesh.spherical</a></li>
+<ul><li><a href="polaris/mesh/spherical/coastline.html">polaris.mesh.spherical.coastline</a></li>
+<li><a href="polaris/mesh/spherical/critical_transects.html">polaris.mesh.spherical.critical_transects</a></li>
+<li><a href="polaris/mesh/spherical/quality.html">polaris.mesh.spherical.quality</a></li>
+<li><a href="polaris/mesh/spherical/unified/base_mesh.html">polaris.mesh.spherical.unified.base_mesh</a></li>
+<li><a href="polaris/mesh/spherical/unified/configs.html">polaris.mesh.spherical.unified.configs</a></li>
+<li><a href="polaris/mesh/spherical/unified/effective_ocean.html">polaris.mesh.spherical.unified.effective_ocean</a></li>
+<li><a href="polaris/mesh/spherical/unified/families.html">polaris.mesh.spherical.unified.families</a></li>
+<ul><li><a href="polaris/mesh/spherical/unified/families/default.html">polaris.mesh.spherical.unified.families.default</a></li>
+<li><a href="polaris/mesh/spherical/unified/families/so_region.html">polaris.mesh.spherical.unified.families.so_region</a></li>
+</ul><li><a href="polaris/mesh/spherical/unified/river/distance.html">polaris.mesh.spherical.unified.river.distance</a></li>
+<li><a href="polaris/mesh/spherical/unified/river/geojson.html">polaris.mesh.spherical.unified.river.geojson</a></li>
+</ul><li><a href="polaris/mesh/vector.html">polaris.mesh.vector</a></li>
+<li><a href="polaris/model_step.html">polaris.model_step</a></li>
+<li><a href="polaris/mpas/area.html">polaris.mpas.area</a></li>
+<li><a href="polaris/mpas/mask.html">polaris.mpas.mask</a></li>
+<li><a href="polaris/mpas/time.html">polaris.mpas.time</a></li>
+<li><a href="polaris/namelist.html">polaris.namelist</a></li>
+<li><a href="polaris/ocean/analysis_plots.html">polaris.ocean.analysis_plots</a></li>
+<li><a href="polaris/ocean/conservation.html">polaris.ocean.conservation</a></li>
+<li><a href="polaris/ocean/convergence.html">polaris.ocean.convergence</a></li>
+<ul><li><a href="polaris/ocean/convergence/analysis.html">polaris.ocean.convergence.analysis</a></li>
+<li><a href="polaris/ocean/convergence/forward.html">polaris.ocean.convergence.forward</a></li>
+<li><a href="polaris/ocean/convergence/spherical/forward.html">polaris.ocean.convergence.spherical.forward</a></li>
+</ul><li><a href="polaris/ocean/eos.html">polaris.ocean.eos</a></li>
+<ul><li><a href="polaris/ocean/eos/constant.html">polaris.ocean.eos.constant</a></li>
+<li><a href="polaris/ocean/eos/linear.html">polaris.ocean.eos.linear</a></li>
+<li><a href="polaris/ocean/eos/teos10.html">polaris.ocean.eos.teos10</a></li>
+</ul><li><a href="polaris/ocean/global_stats_names.html">polaris.ocean.global_stats_names</a></li>
+<li><a href="polaris/ocean/heat_content.html">polaris.ocean.heat_content</a></li>
+<li><a href="polaris/ocean/ice_shelf.html">polaris.ocean.ice_shelf</a></li>
+<ul><li><a href="polaris/ocean/ice_shelf/ssh_adjustment.html">polaris.ocean.ice_shelf.ssh_adjustment</a></li>
+<li><a href="polaris/ocean/ice_shelf/ssh_forward.html">polaris.ocean.ice_shelf.ssh_forward</a></li>
+</ul><li><a href="polaris/ocean/init_state/density.html">polaris.ocean.init_state.density</a></li>
+<li><a href="polaris/ocean/init_state/pressure.html">polaris.ocean.init_state.pressure</a></li>
+<li><a href="polaris/ocean/init_state/thickness.html">polaris.ocean.init_state.thickness</a></li>
+<li><a href="polaris/ocean/init_state/velocity.html">polaris.ocean.init_state.velocity</a></li>
+<li><a href="polaris/ocean/model/layer_mass.html">polaris.ocean.model.layer_mass</a></li>
+<li><a href="polaris/ocean/model/ocean_io_step.html">polaris.ocean.model.ocean_io_step</a></li>
+<li><a href="polaris/ocean/model/ocean_model_files_mixin.html">polaris.ocean.model.ocean_model_files_mixin</a></li>
+<li><a href="polaris/ocean/model/ocean_model_step.html">polaris.ocean.model.ocean_model_step</a></li>
+<li><a href="polaris/ocean/model/time.html">polaris.ocean.model.time</a></li>
+<li><a href="polaris/ocean/overturning.html">polaris.ocean.overturning</a></li>
+<li><a href="polaris/ocean/rpe.html">polaris.ocean.rpe</a></li>
+<li><a href="polaris/ocean/surface_pressure.html">polaris.ocean.surface_pressure</a></li>
+<li><a href="polaris/ocean/vertical.html">polaris.ocean.vertical</a></li>
+<ul><li><a href="polaris/ocean/vertical/bathymetry_holes.html">polaris.ocean.vertical.bathymetry_holes</a></li>
+<li><a href="polaris/ocean/vertical/diagnostics.html">polaris.ocean.vertical.diagnostics</a></li>
+<li><a href="polaris/ocean/vertical/elevation.html">polaris.ocean.vertical.elevation</a></li>
+<li><a href="polaris/ocean/vertical/grid_1d.html">polaris.ocean.vertical.grid_1d</a></li>
+<li><a href="polaris/ocean/vertical/partial_cells.html">polaris.ocean.vertical.partial_cells</a></li>
+<li><a href="polaris/ocean/vertical/pstar.html">polaris.ocean.vertical.pstar</a></li>
+<li><a href="polaris/ocean/vertical/pstar_init.html">polaris.ocean.vertical.pstar_init</a></li>
+<li><a href="polaris/ocean/vertical/sigma.html">polaris.ocean.vertical.sigma</a></li>
+<li><a href="polaris/ocean/vertical/zlevel.html">polaris.ocean.vertical.zlevel</a></li>
+<li><a href="polaris/ocean/vertical/zstar.html">polaris.ocean.vertical.zstar</a></li>
+<li><a href="polaris/ocean/vertical/ztilde.html">polaris.ocean.vertical.ztilde</a></li>
+</ul><li><a href="polaris/parallel.html">polaris.parallel</a></li>
+<li><a href="polaris/provenance.html">polaris.provenance</a></li>
+<li><a href="polaris/remap/mapping_file_step.html">polaris.remap.mapping_file_step</a></li>
+<li><a href="polaris/resolution.html">polaris.resolution</a></li>
+<li><a href="polaris/run.html">polaris.run</a></li>
+<ul><li><a href="polaris/run/allocation.html">polaris.run.allocation</a></li>
+<li><a href="polaris/run/confinement.html">polaris.run.confinement</a></li>
+<li><a href="polaris/run/events.html">polaris.run.events</a></li>
+<li><a href="polaris/run/executor.html">polaris.run.executor</a></li>
+<li><a href="polaris/run/graph.html">polaris.run.graph</a></li>
+<li><a href="polaris/run/lifecycle.html">polaris.run.lifecycle</a></li>
+<li><a href="polaris/run/memory.html">polaris.run.memory</a></li>
+<li><a href="polaris/run/parallel.html">polaris.run.parallel</a></li>
+<li><a href="polaris/run/pool.html">polaris.run.pool</a></li>
+<li><a href="polaris/run/results.html">polaris.run.results</a></li>
+<li><a href="polaris/run/serial.html">polaris.run.serial</a></li>
+<li><a href="polaris/run/topology.html">polaris.run.topology</a></li>
+</ul><li><a href="polaris/setup.html">polaris.setup</a></li>
+<li><a href="polaris/step.html">polaris.step</a></li>
+<li><a href="polaris/streams.html">polaris.streams</a></li>
+<li><a href="polaris/suite.html">polaris.suite</a></li>
+<li><a href="polaris/task.html">polaris.task</a></li>
+<li><a href="polaris/tasks/e3sm/init/add_tasks.html">polaris.tasks.e3sm.init.add_tasks</a></li>
+<li><a href="polaris/tasks/e3sm/init/topo/combine/prepare.html">polaris.tasks.e3sm.init.topo.combine.prepare</a></li>
+<li><a href="polaris/tasks/e3sm/init/topo/combine/step.html">polaris.tasks.e3sm.init.topo.combine.step</a></li>
+<li><a href="polaris/tasks/e3sm/init/topo/combine/steps.html">polaris.tasks.e3sm.init.topo.combine.steps</a></li>
+<li><a href="polaris/tasks/e3sm/init/topo/combine/task.html">polaris.tasks.e3sm.init.topo.combine.task</a></li>
+<li><a href="polaris/tasks/e3sm/init/topo/combine/viz.html">polaris.tasks.e3sm.init.topo.combine.viz</a></li>
+<li><a href="polaris/tasks/e3sm/init/topo/combine/weights.html">polaris.tasks.e3sm.init.topo.combine.weights</a></li>
+<li><a href="polaris/tasks/e3sm/init/topo/cull/consistency.html">polaris.tasks.e3sm.init.topo.cull.consistency</a></li>
+<li><a href="polaris/tasks/e3sm/init/topo/cull/cull.html">polaris.tasks.e3sm.init.topo.cull.cull</a></li>
+<li><a href="polaris/tasks/e3sm/init/topo/cull/dc_edge_diagnostics.html">polaris.tasks.e3sm.init.topo.cull.dc_edge_diagnostics</a></li>
+<li><a href="polaris/tasks/e3sm/init/topo/cull/land_locked.html">polaris.tasks.e3sm.init.topo.cull.land_locked</a></li>
+<li><a href="polaris/tasks/e3sm/init/topo/cull/mask.html">polaris.tasks.e3sm.init.topo.cull.mask</a></li>
+<li><a href="polaris/tasks/e3sm/init/topo/cull/steps.html">polaris.tasks.e3sm.init.topo.cull.steps</a></li>
+<li><a href="polaris/tasks/e3sm/init/topo/cull/task.html">polaris.tasks.e3sm.init.topo.cull.task</a></li>
+<li><a href="polaris/tasks/e3sm/init/topo/cull/tasks.html">polaris.tasks.e3sm.init.topo.cull.tasks</a></li>
+<li><a href="polaris/tasks/e3sm/init/topo/remap/mask.html">polaris.tasks.e3sm.init.topo.remap.mask</a></li>
+<li><a href="polaris/tasks/e3sm/init/topo/remap/prepare.html">polaris.tasks.e3sm.init.topo.remap.prepare</a></li>
+<li><a href="polaris/tasks/e3sm/init/topo/remap/remap.html">polaris.tasks.e3sm.init.topo.remap.remap</a></li>
+<li><a href="polaris/tasks/e3sm/init/topo/remap/steps.html">polaris.tasks.e3sm.init.topo.remap.steps</a></li>
+<li><a href="polaris/tasks/e3sm/init/topo/remap/task.html">polaris.tasks.e3sm.init.topo.remap.task</a></li>
+<li><a href="polaris/tasks/e3sm/init/topo/remap/tasks.html">polaris.tasks.e3sm.init.topo.remap.tasks</a></li>
+<li><a href="polaris/tasks/e3sm/init/topo/remap/viz.html">polaris.tasks.e3sm.init.topo.remap.viz</a></li>
+<li><a href="polaris/tasks/e3sm/init/topo/remap/weights.html">polaris.tasks.e3sm.init.topo.remap.weights</a></li>
+<li><a href="polaris/tasks/mesh/add_tasks.html">polaris.tasks.mesh.add_tasks</a></li>
+<li><a href="polaris/tasks/mesh/base.html">polaris.tasks.mesh.base</a></li>
+<li><a href="polaris/tasks/mesh/spherical/feature_masks/compute.html">polaris.tasks.mesh.spherical.feature_masks.compute</a></li>
+<li><a href="polaris/tasks/mesh/spherical/feature_masks/moc.html">polaris.tasks.mesh.spherical.feature_masks.moc</a></li>
+<li><a href="polaris/tasks/mesh/spherical/feature_masks/steps.html">polaris.tasks.mesh.spherical.feature_masks.steps</a></li>
+<li><a href="polaris/tasks/mesh/spherical/feature_masks/task.html">polaris.tasks.mesh.spherical.feature_masks.task</a></li>
+<li><a href="polaris/tasks/mesh/spherical/feature_masks/tasks.html">polaris.tasks.mesh.spherical.feature_masks.tasks</a></li>
+<li><a href="polaris/tasks/mesh/spherical/unified/base_mesh/steps.html">polaris.tasks.mesh.spherical.unified.base_mesh.steps</a></li>
+<li><a href="polaris/tasks/mesh/spherical/unified/base_mesh/task.html">polaris.tasks.mesh.spherical.unified.base_mesh.task</a></li>
+<li><a href="polaris/tasks/mesh/spherical/unified/base_mesh/tasks.html">polaris.tasks.mesh.spherical.unified.base_mesh.tasks</a></li>
+<li><a href="polaris/tasks/mesh/spherical/unified/base_mesh/viz.html">polaris.tasks.mesh.spherical.unified.base_mesh.viz</a></li>
+<li><a href="polaris/tasks/mesh/spherical/unified/coastline/compute.html">polaris.tasks.mesh.spherical.unified.coastline.compute</a></li>
+<li><a href="polaris/tasks/mesh/spherical/unified/coastline/remap.html">polaris.tasks.mesh.spherical.unified.coastline.remap</a></li>
+<li><a href="polaris/tasks/mesh/spherical/unified/coastline/steps.html">polaris.tasks.mesh.spherical.unified.coastline.steps</a></li>
+<li><a href="polaris/tasks/mesh/spherical/unified/coastline/task.html">polaris.tasks.mesh.spherical.unified.coastline.task</a></li>
+<li><a href="polaris/tasks/mesh/spherical/unified/coastline/tasks.html">polaris.tasks.mesh.spherical.unified.coastline.tasks</a></li>
+<li><a href="polaris/tasks/mesh/spherical/unified/coastline/viz.html">polaris.tasks.mesh.spherical.unified.coastline.viz</a></li>
+<li><a href="polaris/tasks/mesh/spherical/unified/river/clip.html">polaris.tasks.mesh.spherical.unified.river.clip</a></li>
+<li><a href="polaris/tasks/mesh/spherical/unified/river/rasterize.html">polaris.tasks.mesh.spherical.unified.river.rasterize</a></li>
+<li><a href="polaris/tasks/mesh/spherical/unified/river/simplify.html">polaris.tasks.mesh.spherical.unified.river.simplify</a></li>
+<li><a href="polaris/tasks/mesh/spherical/unified/river/steps.html">polaris.tasks.mesh.spherical.unified.river.steps</a></li>
+<li><a href="polaris/tasks/mesh/spherical/unified/river/task.html">polaris.tasks.mesh.spherical.unified.river.task</a></li>
+<li><a href="polaris/tasks/mesh/spherical/unified/river/tasks.html">polaris.tasks.mesh.spherical.unified.river.tasks</a></li>
+<li><a href="polaris/tasks/mesh/spherical/unified/river/viz.html">polaris.tasks.mesh.spherical.unified.river.viz</a></li>
+<li><a href="polaris/tasks/mesh/spherical/unified/sizing_field/build.html">polaris.tasks.mesh.spherical.unified.sizing_field.build</a></li>
+<li><a href="polaris/tasks/mesh/spherical/unified/sizing_field/configs.html">polaris.tasks.mesh.spherical.unified.sizing_field.configs</a></li>
+<li><a href="polaris/tasks/mesh/spherical/unified/sizing_field/steps.html">polaris.tasks.mesh.spherical.unified.sizing_field.steps</a></li>
+<li><a href="polaris/tasks/mesh/spherical/unified/sizing_field/task.html">polaris.tasks.mesh.spherical.unified.sizing_field.task</a></li>
+<li><a href="polaris/tasks/mesh/spherical/unified/sizing_field/tasks.html">polaris.tasks.mesh.spherical.unified.sizing_field.tasks</a></li>
+<li><a href="polaris/tasks/mesh/spherical/unified/sizing_field/viz.html">polaris.tasks.mesh.spherical.unified.sizing_field.viz</a></li>
+<li><a href="polaris/tasks/ocean.html">polaris.tasks.ocean</a></li>
+<ul><li><a href="polaris/tasks/ocean/add_tasks.html">polaris.tasks.ocean.add_tasks</a></li>
+<li><a href="polaris/tasks/ocean/analysis.html">polaris.tasks.ocean.analysis</a></li>
+<ul><li><a href="polaris/tasks/ocean/analysis/accumulate.html">polaris.tasks.ocean.analysis.accumulate</a></li>
+<li><a href="polaris/tasks/ocean/analysis/analysis_step.html">polaris.tasks.ocean.analysis.analysis_step</a></li>
+<li><a href="polaris/tasks/ocean/analysis/climatology.html">polaris.tasks.ocean.analysis.climatology</a></li>
+<li><a href="polaris/tasks/ocean/analysis/climatology_maps.html">polaris.tasks.ocean.analysis.climatology_maps</a></li>
+<li><a href="polaris/tasks/ocean/analysis/config_sections.html">polaris.tasks.ocean.analysis.config_sections</a></li>
+<li><a href="polaris/tasks/ocean/analysis/global_stats.html">polaris.tasks.ocean.analysis.global_stats</a></li>
+<li><a href="polaris/tasks/ocean/analysis/heat_content_config.html">polaris.tasks.ocean.analysis.heat_content_config</a></li>
+<li><a href="polaris/tasks/ocean/analysis/heat_content_series.html">polaris.tasks.ocean.analysis.heat_content_series</a></li>
+<li><a href="polaris/tasks/ocean/analysis/moc.html">polaris.tasks.ocean.analysis.moc</a></li>
+<li><a href="polaris/tasks/ocean/analysis/ncclimo.html">polaris.tasks.ocean.analysis.ncclimo</a></li>
+<li><a href="polaris/tasks/ocean/analysis/publish.html">polaris.tasks.ocean.analysis.publish</a></li>
+<li><a href="polaris/tasks/ocean/analysis/sim_files.html">polaris.tasks.ocean.analysis.sim_files</a></li>
+</ul><li><a href="polaris/tasks/ocean/baroclinic_channel.html">polaris.tasks.ocean.baroclinic_channel</a></li>
+<ul><li><a href="polaris/tasks/ocean/baroclinic_channel/decomp.html">polaris.tasks.ocean.baroclinic_channel.decomp</a></li>
+<li><a href="polaris/tasks/ocean/baroclinic_channel/default.html">polaris.tasks.ocean.baroclinic_channel.default</a></li>
+<li><a href="polaris/tasks/ocean/baroclinic_channel/forward.html">polaris.tasks.ocean.baroclinic_channel.forward</a></li>
+<li><a href="polaris/tasks/ocean/baroclinic_channel/init.html">polaris.tasks.ocean.baroclinic_channel.init</a></li>
+<li><a href="polaris/tasks/ocean/baroclinic_channel/restart.html">polaris.tasks.ocean.baroclinic_channel.restart</a></li>
+<li><a href="polaris/tasks/ocean/baroclinic_channel/rpe.html">polaris.tasks.ocean.baroclinic_channel.rpe</a></li>
+<ul><li><a href="polaris/tasks/ocean/baroclinic_channel/rpe/analysis.html">polaris.tasks.ocean.baroclinic_channel.rpe.analysis</a></li>
+</ul><li><a href="polaris/tasks/ocean/baroclinic_channel/threads.html">polaris.tasks.ocean.baroclinic_channel.threads</a></li>
+<li><a href="polaris/tasks/ocean/baroclinic_channel/validate.html">polaris.tasks.ocean.baroclinic_channel.validate</a></li>
+<li><a href="polaris/tasks/ocean/baroclinic_channel/viz.html">polaris.tasks.ocean.baroclinic_channel.viz</a></li>
+</ul><li><a href="polaris/tasks/ocean/barotropic_channel.html">polaris.tasks.ocean.barotropic_channel</a></li>
+<ul><li><a href="polaris/tasks/ocean/barotropic_channel/default.html">polaris.tasks.ocean.barotropic_channel.default</a></li>
+<li><a href="polaris/tasks/ocean/barotropic_channel/forward.html">polaris.tasks.ocean.barotropic_channel.forward</a></li>
+<li><a href="polaris/tasks/ocean/barotropic_channel/init.html">polaris.tasks.ocean.barotropic_channel.init</a></li>
+<li><a href="polaris/tasks/ocean/barotropic_channel/short.html">polaris.tasks.ocean.barotropic_channel.short</a></li>
+<li><a href="polaris/tasks/ocean/barotropic_channel/viz.html">polaris.tasks.ocean.barotropic_channel.viz</a></li>
+</ul><li><a href="polaris/tasks/ocean/barotropic_gyre.html">polaris.tasks.ocean.barotropic_gyre</a></li>
+<ul><li><a href="polaris/tasks/ocean/barotropic_gyre/analysis.html">polaris.tasks.ocean.barotropic_gyre.analysis</a></li>
+<li><a href="polaris/tasks/ocean/barotropic_gyre/forward.html">polaris.tasks.ocean.barotropic_gyre.forward</a></li>
+<li><a href="polaris/tasks/ocean/barotropic_gyre/init.html">polaris.tasks.ocean.barotropic_gyre.init</a></li>
+</ul><li><a href="polaris/tasks/ocean/cosine_bell.html">polaris.tasks.ocean.cosine_bell</a></li>
+<ul><li><a href="polaris/tasks/ocean/cosine_bell/analysis.html">polaris.tasks.ocean.cosine_bell.analysis</a></li>
+<li><a href="polaris/tasks/ocean/cosine_bell/decomp.html">polaris.tasks.ocean.cosine_bell.decomp</a></li>
+<li><a href="polaris/tasks/ocean/cosine_bell/forward.html">polaris.tasks.ocean.cosine_bell.forward</a></li>
+<li><a href="polaris/tasks/ocean/cosine_bell/init.html">polaris.tasks.ocean.cosine_bell.init</a></li>
+<li><a href="polaris/tasks/ocean/cosine_bell/restart.html">polaris.tasks.ocean.cosine_bell.restart</a></li>
+<ul><li><a href="polaris/tasks/ocean/cosine_bell/restart/restart_step.html">polaris.tasks.ocean.cosine_bell.restart.restart_step</a></li>
+</ul><li><a href="polaris/tasks/ocean/cosine_bell/validate.html">polaris.tasks.ocean.cosine_bell.validate</a></li>
+<li><a href="polaris/tasks/ocean/cosine_bell/viz.html">polaris.tasks.ocean.cosine_bell.viz</a></li>
+</ul><li><a href="polaris/tasks/ocean/customizable_viz.html">polaris.tasks.ocean.customizable_viz</a></li>
+<ul><li><a href="polaris/tasks/ocean/customizable_viz/viz_horiz_field.html">polaris.tasks.ocean.customizable_viz.viz_horiz_field</a></li>
+<li><a href="polaris/tasks/ocean/customizable_viz/viz_transect.html">polaris.tasks.ocean.customizable_viz.viz_transect</a></li>
+</ul><li><a href="polaris/tasks/ocean/feature_masks/compute.html">polaris.tasks.ocean.feature_masks.compute</a></li>
+<li><a href="polaris/tasks/ocean/feature_masks/task.html">polaris.tasks.ocean.feature_masks.task</a></li>
+<li><a href="polaris/tasks/ocean/feature_masks/tasks.html">polaris.tasks.ocean.feature_masks.tasks</a></li>
+<li><a href="polaris/tasks/ocean/geostrophic.html">polaris.tasks.ocean.geostrophic</a></li>
+<ul><li><a href="polaris/tasks/ocean/geostrophic/analysis.html">polaris.tasks.ocean.geostrophic.analysis</a></li>
+<li><a href="polaris/tasks/ocean/geostrophic/forward.html">polaris.tasks.ocean.geostrophic.forward</a></li>
+<li><a href="polaris/tasks/ocean/geostrophic/init.html">polaris.tasks.ocean.geostrophic.init</a></li>
+<li><a href="polaris/tasks/ocean/geostrophic/viz.html">polaris.tasks.ocean.geostrophic.viz</a></li>
+</ul><li><a href="polaris/tasks/ocean/horiz_press_grad.html">polaris.tasks.ocean.horiz_press_grad</a></li>
+<ul><li><a href="polaris/tasks/ocean/horiz_press_grad/analysis.html">polaris.tasks.ocean.horiz_press_grad.analysis</a></li>
+<li><a href="polaris/tasks/ocean/horiz_press_grad/column.html">polaris.tasks.ocean.horiz_press_grad.column</a></li>
+<li><a href="polaris/tasks/ocean/horiz_press_grad/edge.html">polaris.tasks.ocean.horiz_press_grad.edge</a></li>
+<li><a href="polaris/tasks/ocean/horiz_press_grad/eos_expansion.html">polaris.tasks.ocean.horiz_press_grad.eos_expansion</a></li>
+<li><a href="polaris/tasks/ocean/horiz_press_grad/finite_volume.html">polaris.tasks.ocean.horiz_press_grad.finite_volume</a></li>
+<li><a href="polaris/tasks/ocean/horiz_press_grad/forward.html">polaris.tasks.ocean.horiz_press_grad.forward</a></li>
+<li><a href="polaris/tasks/ocean/horiz_press_grad/init.html">polaris.tasks.ocean.horiz_press_grad.init</a></li>
+<li><a href="polaris/tasks/ocean/horiz_press_grad/metrics.html">polaris.tasks.ocean.horiz_press_grad.metrics</a></li>
+<li><a href="polaris/tasks/ocean/horiz_press_grad/reconstruction.html">polaris.tasks.ocean.horiz_press_grad.reconstruction</a></li>
+<li><a href="polaris/tasks/ocean/horiz_press_grad/reference.html">polaris.tasks.ocean.horiz_press_grad.reference</a></li>
+<li><a href="polaris/tasks/ocean/horiz_press_grad/resting_analysis.html">polaris.tasks.ocean.horiz_press_grad.resting_analysis</a></li>
+<li><a href="polaris/tasks/ocean/horiz_press_grad/resting_state_task.html">polaris.tasks.ocean.horiz_press_grad.resting_state_task</a></li>
+<li><a href="polaris/tasks/ocean/horiz_press_grad/task.html">polaris.tasks.ocean.horiz_press_grad.task</a></li>
+</ul><li><a href="polaris/tasks/ocean/ice_shelf_2d.html">polaris.tasks.ocean.ice_shelf_2d</a></li>
+<ul><li><a href="polaris/tasks/ocean/ice_shelf_2d/default.html">polaris.tasks.ocean.ice_shelf_2d.default</a></li>
+<li><a href="polaris/tasks/ocean/ice_shelf_2d/forward.html">polaris.tasks.ocean.ice_shelf_2d.forward</a></li>
+<li><a href="polaris/tasks/ocean/ice_shelf_2d/init.html">polaris.tasks.ocean.ice_shelf_2d.init</a></li>
+<li><a href="polaris/tasks/ocean/ice_shelf_2d/validate.html">polaris.tasks.ocean.ice_shelf_2d.validate</a></li>
+<li><a href="polaris/tasks/ocean/ice_shelf_2d/viz.html">polaris.tasks.ocean.ice_shelf_2d.viz</a></li>
+</ul><li><a href="polaris/tasks/ocean/inertial_gravity_wave.html">polaris.tasks.ocean.inertial_gravity_wave</a></li>
+<ul><li><a href="polaris/tasks/ocean/inertial_gravity_wave/analysis.html">polaris.tasks.ocean.inertial_gravity_wave.analysis</a></li>
+<li><a href="polaris/tasks/ocean/inertial_gravity_wave/exact_solution.html">polaris.tasks.ocean.inertial_gravity_wave.exact_solution</a></li>
+<li><a href="polaris/tasks/ocean/inertial_gravity_wave/forward.html">polaris.tasks.ocean.inertial_gravity_wave.forward</a></li>
+<li><a href="polaris/tasks/ocean/inertial_gravity_wave/init.html">polaris.tasks.ocean.inertial_gravity_wave.init</a></li>
+<li><a href="polaris/tasks/ocean/inertial_gravity_wave/viz.html">polaris.tasks.ocean.inertial_gravity_wave.viz</a></li>
+</ul><li><a href="polaris/tasks/ocean/internal_wave.html">polaris.tasks.ocean.internal_wave</a></li>
+<ul><li><a href="polaris/tasks/ocean/internal_wave/default.html">polaris.tasks.ocean.internal_wave.default</a></li>
+<li><a href="polaris/tasks/ocean/internal_wave/forward.html">polaris.tasks.ocean.internal_wave.forward</a></li>
+<li><a href="polaris/tasks/ocean/internal_wave/init.html">polaris.tasks.ocean.internal_wave.init</a></li>
+<li><a href="polaris/tasks/ocean/internal_wave/rpe.html">polaris.tasks.ocean.internal_wave.rpe</a></li>
+<ul><li><a href="polaris/tasks/ocean/internal_wave/rpe/analysis.html">polaris.tasks.ocean.internal_wave.rpe.analysis</a></li>
+</ul><li><a href="polaris/tasks/ocean/internal_wave/viz.html">polaris.tasks.ocean.internal_wave.viz</a></li>
+</ul><li><a href="polaris/tasks/ocean/manufactured_solution.html">polaris.tasks.ocean.manufactured_solution</a></li>
+<ul><li><a href="polaris/tasks/ocean/manufactured_solution/analysis.html">polaris.tasks.ocean.manufactured_solution.analysis</a></li>
+<li><a href="polaris/tasks/ocean/manufactured_solution/exact_solution.html">polaris.tasks.ocean.manufactured_solution.exact_solution</a></li>
+<li><a href="polaris/tasks/ocean/manufactured_solution/forward.html">polaris.tasks.ocean.manufactured_solution.forward</a></li>
+<li><a href="polaris/tasks/ocean/manufactured_solution/init.html">polaris.tasks.ocean.manufactured_solution.init</a></li>
+<li><a href="polaris/tasks/ocean/manufactured_solution/viz.html">polaris.tasks.ocean.manufactured_solution.viz</a></li>
+</ul><li><a href="polaris/tasks/ocean/merry_go_round.html">polaris.tasks.ocean.merry_go_round</a></li>
+<ul><li><a href="polaris/tasks/ocean/merry_go_round/analysis.html">polaris.tasks.ocean.merry_go_round.analysis</a></li>
+<li><a href="polaris/tasks/ocean/merry_go_round/default.html">polaris.tasks.ocean.merry_go_round.default</a></li>
+<ul><li><a href="polaris/tasks/ocean/merry_go_round/default/viz.html">polaris.tasks.ocean.merry_go_round.default.viz</a></li>
+</ul><li><a href="polaris/tasks/ocean/merry_go_round/forward.html">polaris.tasks.ocean.merry_go_round.forward</a></li>
+<li><a href="polaris/tasks/ocean/merry_go_round/init.html">polaris.tasks.ocean.merry_go_round.init</a></li>
+<li><a href="polaris/tasks/ocean/merry_go_round/viz.html">polaris.tasks.ocean.merry_go_round.viz</a></li>
+</ul><li><a href="polaris/tasks/ocean/mixed_layer_eddies.html">polaris.tasks.ocean.mixed_layer_eddies</a></li>
+<ul><li><a href="polaris/tasks/ocean/mixed_layer_eddies/coarse.html">polaris.tasks.ocean.mixed_layer_eddies.coarse</a></li>
+<ul><li><a href="polaris/tasks/ocean/mixed_layer_eddies/coarse/verify.html">polaris.tasks.ocean.mixed_layer_eddies.coarse.verify</a></li>
+</ul><li><a href="polaris/tasks/ocean/mixed_layer_eddies/comparison.html">polaris.tasks.ocean.mixed_layer_eddies.comparison</a></li>
+<ul><li><a href="polaris/tasks/ocean/mixed_layer_eddies/comparison/analysis.html">polaris.tasks.ocean.mixed_layer_eddies.comparison.analysis</a></li>
+</ul><li><a href="polaris/tasks/ocean/mixed_layer_eddies/diagnostics.html">polaris.tasks.ocean.mixed_layer_eddies.diagnostics</a></li>
+<li><a href="polaris/tasks/ocean/mixed_layer_eddies/flux.html">polaris.tasks.ocean.mixed_layer_eddies.flux</a></li>
+<li><a href="polaris/tasks/ocean/mixed_layer_eddies/forward.html">polaris.tasks.ocean.mixed_layer_eddies.forward</a></li>
+<li><a href="polaris/tasks/ocean/mixed_layer_eddies/init.html">polaris.tasks.ocean.mixed_layer_eddies.init</a></li>
+<li><a href="polaris/tasks/ocean/mixed_layer_eddies/resolved.html">polaris.tasks.ocean.mixed_layer_eddies.resolved</a></li>
+<ul><li><a href="polaris/tasks/ocean/mixed_layer_eddies/resolved/analysis.html">polaris.tasks.ocean.mixed_layer_eddies.resolved.analysis</a></li>
+</ul><li><a href="polaris/tasks/ocean/mixed_layer_eddies/viz.html">polaris.tasks.ocean.mixed_layer_eddies.viz</a></li>
+</ul><li><a href="polaris/tasks/ocean/overflow.html">polaris.tasks.ocean.overflow</a></li>
+<ul><li><a href="polaris/tasks/ocean/overflow/forward.html">polaris.tasks.ocean.overflow.forward</a></li>
+<li><a href="polaris/tasks/ocean/overflow/init.html">polaris.tasks.ocean.overflow.init</a></li>
+<li><a href="polaris/tasks/ocean/overflow/init_utils.html">polaris.tasks.ocean.overflow.init_utils</a></li>
+<li><a href="polaris/tasks/ocean/overflow/pstar_init.html">polaris.tasks.ocean.overflow.pstar_init</a></li>
+<li><a href="polaris/tasks/ocean/overflow/rpe.html">polaris.tasks.ocean.overflow.rpe</a></li>
+<ul><li><a href="polaris/tasks/ocean/overflow/rpe/analysis.html">polaris.tasks.ocean.overflow.rpe.analysis</a></li>
+</ul><li><a href="polaris/tasks/ocean/overflow/smoke_test.html">polaris.tasks.ocean.overflow.smoke_test</a></li>
+<li><a href="polaris/tasks/ocean/overflow/viz.html">polaris.tasks.ocean.overflow.viz</a></li>
+</ul><li><a href="polaris/tasks/ocean/realistic_global.html">polaris.tasks.ocean.realistic_global</a></li>
+<ul><li><a href="polaris/tasks/ocean/realistic_global/analysis_output/forward.html">polaris.tasks.ocean.realistic_global.analysis_output.forward</a></li>
+<li><a href="polaris/tasks/ocean/realistic_global/analysis_output/task.html">polaris.tasks.ocean.realistic_global.analysis_output.task</a></li>
+<li><a href="polaris/tasks/ocean/realistic_global/dynamic_adjustment/checks.html">polaris.tasks.ocean.realistic_global.dynamic_adjustment.checks</a></li>
+<li><a href="polaris/tasks/ocean/realistic_global/dynamic_adjustment/schedule.html">polaris.tasks.ocean.realistic_global.dynamic_adjustment.schedule</a></li>
+<li><a href="polaris/tasks/ocean/realistic_global/dynamic_adjustment/steps.html">polaris.tasks.ocean.realistic_global.dynamic_adjustment.steps</a></li>
+<li><a href="polaris/tasks/ocean/realistic_global/dynamic_adjustment/summary.html">polaris.tasks.ocean.realistic_global.dynamic_adjustment.summary</a></li>
+<li><a href="polaris/tasks/ocean/realistic_global/dynamic_adjustment/task.html">polaris.tasks.ocean.realistic_global.dynamic_adjustment.task</a></li>
+<li><a href="polaris/tasks/ocean/realistic_global/dynamic_adjustment/tasks.html">polaris.tasks.ocean.realistic_global.dynamic_adjustment.tasks</a></li>
+<li><a href="polaris/tasks/ocean/realistic_global/dynamic_adjustment/validate.html">polaris.tasks.ocean.realistic_global.dynamic_adjustment.validate</a></li>
+<li><a href="polaris/tasks/ocean/realistic_global/dynamic_adjustment/viz.html">polaris.tasks.ocean.realistic_global.dynamic_adjustment.viz</a></li>
+<li><a href="polaris/tasks/ocean/realistic_global/forcing/jra55/steps.html">polaris.tasks.ocean.realistic_global.forcing.jra55.steps</a></li>
+<li><a href="polaris/tasks/ocean/realistic_global/forcing/jra55/stress.html">polaris.tasks.ocean.realistic_global.forcing.jra55.stress</a></li>
+<li><a href="polaris/tasks/ocean/realistic_global/forcing/jra55/task.html">polaris.tasks.ocean.realistic_global.forcing.jra55.task</a></li>
+<li><a href="polaris/tasks/ocean/realistic_global/forcing/jra55/viz.html">polaris.tasks.ocean.realistic_global.forcing.jra55.viz</a></li>
+<li><a href="polaris/tasks/ocean/realistic_global/forward/forward.html">polaris.tasks.ocean.realistic_global.forward.forward</a></li>
+<li><a href="polaris/tasks/ocean/realistic_global/forward/initial_condition.html">polaris.tasks.ocean.realistic_global.forward.initial_condition</a></li>
+<li><a href="polaris/tasks/ocean/realistic_global/forward/stage.html">polaris.tasks.ocean.realistic_global.forward.stage</a></li>
+<li><a href="polaris/tasks/ocean/realistic_global/forward/stats_analysis.html">polaris.tasks.ocean.realistic_global.forward.stats_analysis</a></li>
+<li><a href="polaris/tasks/ocean/realistic_global/forward/task.html">polaris.tasks.ocean.realistic_global.forward.task</a></li>
+<li><a href="polaris/tasks/ocean/realistic_global/forward/tasks.html">polaris.tasks.ocean.realistic_global.forward.tasks</a></li>
+<li><a href="polaris/tasks/ocean/realistic_global/forward/viz.html">polaris.tasks.ocean.realistic_global.forward.viz</a></li>
+<li><a href="polaris/tasks/ocean/realistic_global/hydrography/woa23/combine.html">polaris.tasks.ocean.realistic_global.hydrography.woa23.combine</a></li>
+<li><a href="polaris/tasks/ocean/realistic_global/hydrography/woa23/extrapolate.html">polaris.tasks.ocean.realistic_global.hydrography.woa23.extrapolate</a></li>
+<li><a href="polaris/tasks/ocean/realistic_global/hydrography/woa23/steps.html">polaris.tasks.ocean.realistic_global.hydrography.woa23.steps</a></li>
+<li><a href="polaris/tasks/ocean/realistic_global/hydrography/woa23/task.html">polaris.tasks.ocean.realistic_global.hydrography.woa23.task</a></li>
+<li><a href="polaris/tasks/ocean/realistic_global/hydrography/woa23/viz.html">polaris.tasks.ocean.realistic_global.hydrography.woa23.viz</a></li>
+<li><a href="polaris/tasks/ocean/realistic_global/init/cull_topo.html">polaris.tasks.ocean.realistic_global.init.cull_topo</a></li>
+<li><a href="polaris/tasks/ocean/realistic_global/init/forcing.html">polaris.tasks.ocean.realistic_global.init.forcing</a></li>
+<li><a href="polaris/tasks/ocean/realistic_global/init/initial_state.html">polaris.tasks.ocean.realistic_global.init.initial_state</a></li>
+<li><a href="polaris/tasks/ocean/realistic_global/init/jra55_map.html">polaris.tasks.ocean.realistic_global.init.jra55_map</a></li>
+<li><a href="polaris/tasks/ocean/realistic_global/init/lat_lon_map.html">polaris.tasks.ocean.realistic_global.init.lat_lon_map</a></li>
+<li><a href="polaris/tasks/ocean/realistic_global/init/pstar_init.html">polaris.tasks.ocean.realistic_global.init.pstar_init</a></li>
+<li><a href="polaris/tasks/ocean/realistic_global/init/remap_jra55.html">polaris.tasks.ocean.realistic_global.init.remap_jra55</a></li>
+<li><a href="polaris/tasks/ocean/realistic_global/init/remap_woa23.html">polaris.tasks.ocean.realistic_global.init.remap_woa23</a></li>
+<li><a href="polaris/tasks/ocean/realistic_global/init/steps.html">polaris.tasks.ocean.realistic_global.init.steps</a></li>
+<li><a href="polaris/tasks/ocean/realistic_global/init/task.html">polaris.tasks.ocean.realistic_global.init.task</a></li>
+<li><a href="polaris/tasks/ocean/realistic_global/init/tasks.html">polaris.tasks.ocean.realistic_global.init.tasks</a></li>
+<li><a href="polaris/tasks/ocean/realistic_global/init/viz.html">polaris.tasks.ocean.realistic_global.init.viz</a></li>
+<li><a href="polaris/tasks/ocean/realistic_global/init/woa23_map.html">polaris.tasks.ocean.realistic_global.init.woa23_map</a></li>
+<li><a href="polaris/tasks/ocean/realistic_global/mesh_configs/configs.html">polaris.tasks.ocean.realistic_global.mesh_configs.configs</a></li>
+<li><a href="polaris/tasks/ocean/realistic_global/mesh_info.html">polaris.tasks.ocean.realistic_global.mesh_info</a></li>
+<li><a href="polaris/tasks/ocean/realistic_global/restart.html">polaris.tasks.ocean.realistic_global.restart</a></li>
+<ul><li><a href="polaris/tasks/ocean/realistic_global/restart/restart_step.html">polaris.tasks.ocean.realistic_global.restart.restart_step</a></li>
+<li><a href="polaris/tasks/ocean/realistic_global/restart/validate.html">polaris.tasks.ocean.realistic_global.restart.validate</a></li>
+</ul></ul><li><a href="polaris/tasks/ocean/seamount.html">polaris.tasks.ocean.seamount</a></li>
+<ul><li><a href="polaris/tasks/ocean/seamount/analysis.html">polaris.tasks.ocean.seamount.analysis</a></li>
+<li><a href="polaris/tasks/ocean/seamount/default.html">polaris.tasks.ocean.seamount.default</a></li>
+<li><a href="polaris/tasks/ocean/seamount/forward.html">polaris.tasks.ocean.seamount.forward</a></li>
+<li><a href="polaris/tasks/ocean/seamount/init.html">polaris.tasks.ocean.seamount.init</a></li>
+<li><a href="polaris/tasks/ocean/seamount/init_utils.html">polaris.tasks.ocean.seamount.init_utils</a></li>
+<li><a href="polaris/tasks/ocean/seamount/short.html">polaris.tasks.ocean.seamount.short</a></li>
+<li><a href="polaris/tasks/ocean/seamount/viz.html">polaris.tasks.ocean.seamount.viz</a></li>
+</ul><li><a href="polaris/tasks/ocean/single_column.html">polaris.tasks.ocean.single_column</a></li>
+<ul><li><a href="polaris/tasks/ocean/single_column/ekman.html">polaris.tasks.ocean.single_column.ekman</a></li>
+<ul><li><a href="polaris/tasks/ocean/single_column/ekman/analysis.html">polaris.tasks.ocean.single_column.ekman.analysis</a></li>
+</ul><li><a href="polaris/tasks/ocean/single_column/forward.html">polaris.tasks.ocean.single_column.forward</a></li>
+<li><a href="polaris/tasks/ocean/single_column/ideal_age.html">polaris.tasks.ocean.single_column.ideal_age</a></li>
+<li><a href="polaris/tasks/ocean/single_column/inertial.html">polaris.tasks.ocean.single_column.inertial</a></li>
+<ul><li><a href="polaris/tasks/ocean/single_column/inertial/analysis.html">polaris.tasks.ocean.single_column.inertial.analysis</a></li>
+</ul><li><a href="polaris/tasks/ocean/single_column/init.html">polaris.tasks.ocean.single_column.init</a></li>
+<li><a href="polaris/tasks/ocean/single_column/shortwave_pen.html">polaris.tasks.ocean.single_column.shortwave_pen</a></li>
+<ul><li><a href="polaris/tasks/ocean/single_column/shortwave_pen/analysis.html">polaris.tasks.ocean.single_column.shortwave_pen.analysis</a></li>
+<li><a href="polaris/tasks/ocean/single_column/shortwave_pen/extinction.html">polaris.tasks.ocean.single_column.shortwave_pen.extinction</a></li>
+<li><a href="polaris/tasks/ocean/single_column/shortwave_pen/forward.html">polaris.tasks.ocean.single_column.shortwave_pen.forward</a></li>
+<li><a href="polaris/tasks/ocean/single_column/shortwave_pen/viz.html">polaris.tasks.ocean.single_column.shortwave_pen.viz</a></li>
+</ul><li><a href="polaris/tasks/ocean/single_column/thermo.html">polaris.tasks.ocean.single_column.thermo</a></li>
+<ul><li><a href="polaris/tasks/ocean/single_column/thermo/analysis.html">polaris.tasks.ocean.single_column.thermo.analysis</a></li>
+<li><a href="polaris/tasks/ocean/single_column/thermo/conservation_summary.html">polaris.tasks.ocean.single_column.thermo.conservation_summary</a></li>
+</ul><li><a href="polaris/tasks/ocean/single_column/viz.html">polaris.tasks.ocean.single_column.viz</a></li>
+<li><a href="polaris/tasks/ocean/single_column/vmix.html">polaris.tasks.ocean.single_column.vmix</a></li>
+</ul><li><a href="polaris/tasks/ocean/sphere_transport.html">polaris.tasks.ocean.sphere_transport</a></li>
+<ul><li><a href="polaris/tasks/ocean/sphere_transport/analysis.html">polaris.tasks.ocean.sphere_transport.analysis</a></li>
+<li><a href="polaris/tasks/ocean/sphere_transport/filament_analysis.html">polaris.tasks.ocean.sphere_transport.filament_analysis</a></li>
+<li><a href="polaris/tasks/ocean/sphere_transport/forward.html">polaris.tasks.ocean.sphere_transport.forward</a></li>
+<li><a href="polaris/tasks/ocean/sphere_transport/init.html">polaris.tasks.ocean.sphere_transport.init</a></li>
+<li><a href="polaris/tasks/ocean/sphere_transport/mixing_analysis.html">polaris.tasks.ocean.sphere_transport.mixing_analysis</a></li>
+<li><a href="polaris/tasks/ocean/sphere_transport/viz.html">polaris.tasks.ocean.sphere_transport.viz</a></li>
+</ul></ul><li><a href="polaris/tasks/seaice/add_tasks.html">polaris.tasks.seaice.add_tasks</a></li>
+<li><a href="polaris/tasks/seaice/single_column.html">polaris.tasks.seaice.single_column</a></li>
+<ul><li><a href="polaris/tasks/seaice/single_column/exact_restart.html">polaris.tasks.seaice.single_column.exact_restart</a></li>
+<ul><li><a href="polaris/tasks/seaice/single_column/exact_restart/validate.html">polaris.tasks.seaice.single_column.exact_restart.validate</a></li>
+</ul><li><a href="polaris/tasks/seaice/single_column/forward.html">polaris.tasks.seaice.single_column.forward</a></li>
+<li><a href="polaris/tasks/seaice/single_column/standard_physics.html">polaris.tasks.seaice.single_column.standard_physics</a></li>
+<ul><li><a href="polaris/tasks/seaice/single_column/standard_physics/viz.html">polaris.tasks.seaice.single_column.standard_physics.viz</a></li>
+</ul></ul><li><a href="polaris/validate.html">polaris.validate</a></li>
+<li><a href="polaris/viz/helper.html">polaris.viz.helper</a></li>
+<li><a href="polaris/viz/lat_elevation.html">polaris.viz.lat_elevation</a></li>
+<li><a href="polaris/viz/planar.html">polaris.viz.planar</a></li>
+<li><a href="polaris/viz/spherical.html">polaris.viz.spherical</a></li>
+<li><a href="polaris/viz/style.html">polaris.viz.style</a></li>
+<li><a href="polaris/yaml.html">polaris.yaml</a></li>
+</ul>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2026, Energy Exascale Earth System Model Project.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+   
+
+  <!-- Meta tags for JS to use -->
+  <meta name="doc-version" content="1.2.0">
+  <meta name="doc-site-root" content="../">
+
+  <!-- Create version switcher container -->
+  <script>
+    const sidebar = document.querySelector('.wy-side-nav-search');
+    if (sidebar) {
+      const versionDiv = document.createElement('div');
+      versionDiv.id = 'version-switcher';
+      versionDiv.style.marginTop = '1em';
+      sidebar.appendChild(versionDiv);
+    }
+  </script>
+
+  <!-- Load version-switcher.js using the correct relative path -->
+  <script src="../../shared/version-switcher.js"></script>
+
+
+</body>
+</html>

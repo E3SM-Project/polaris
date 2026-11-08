@@ -1,0 +1,856 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>analysis</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=6efca38a"></script>
+      <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script>window.MathJax = {"options": {"processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+      <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-mml-chtml.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+    <link rel="next" title="baroclinic channel" href="baroclinic_channel.html" />
+    <link rel="prev" title="Tasks" href="index.html" />
+    <link href="../../../_static/style.css" rel="stylesheet" type="text/css">
+
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            Polaris
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">User's guide</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../quick_start.html">Quick Start for Users</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tasks.html">Tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../config_files.html">Config Files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../suites.html">Suites</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../mesh/index.html">Mesh component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../e3sm/init/index.html">E3SM Initial Condition Component</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../index.html">Ocean component</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="index.html">Tasks</a><ul class="current">
+<li class="toctree-l3 current"><a class="current reference internal" href="#">analysis</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#supported-models">supported models</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pointing-the-analysis-at-a-simulation">pointing the analysis at a simulation</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#running-the-analysis">running the analysis</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#where-the-results-go">where the results go</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#the-published-gallery">the published gallery</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#analyzing-the-same-simulation-more-than-once">analyzing the same simulation more than once</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#products">products</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#troubleshooting">troubleshooting</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="baroclinic_channel.html">baroclinic channel</a></li>
+<li class="toctree-l3"><a class="reference internal" href="barotropic_channel.html">barotropic channel</a></li>
+<li class="toctree-l3"><a class="reference internal" href="barotropic_gyre.html">barotropic gyre</a></li>
+<li class="toctree-l3"><a class="reference internal" href="correlated_tracers_2d.html">correlated tracers 2-d</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cosine_bell.html">cosine bell</a></li>
+<li class="toctree-l3"><a class="reference internal" href="customizable_viz.html">customizable viz</a></li>
+<li class="toctree-l3"><a class="reference internal" href="external_gravity_wave.html">external gravity wave</a></li>
+<li class="toctree-l3"><a class="reference internal" href="feature_masks.html">Feature Masks</a></li>
+<li class="toctree-l3"><a class="reference internal" href="geostrophic.html">geostrophic</a></li>
+<li class="toctree-l3"><a class="reference internal" href="realistic_global.html">realistic_global</a></li>
+<li class="toctree-l3"><a class="reference internal" href="horiz_press_grad.html">horizontal pressure gradient</a></li>
+<li class="toctree-l3"><a class="reference internal" href="divergent_2d.html">divergent 2-d</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ice_shelf_2d.html">ice shelf 2d</a></li>
+<li class="toctree-l3"><a class="reference internal" href="inertial_gravity_wave.html">inertial gravity wave</a></li>
+<li class="toctree-l3"><a class="reference internal" href="internal_wave.html">internal wave</a></li>
+<li class="toctree-l3"><a class="reference internal" href="manufactured_solution.html">manufactured solution</a></li>
+<li class="toctree-l3"><a class="reference internal" href="merry_go_round.html">merry-go-round</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mixed_layer_eddies.html">mixed layer eddies</a></li>
+<li class="toctree-l3"><a class="reference internal" href="nondivergent_2d.html">nondivergent 2-d</a></li>
+<li class="toctree-l3"><a class="reference internal" href="overflow.html">overflow</a></li>
+<li class="toctree-l3"><a class="reference internal" href="rotation_2d.html">rotation 2-d</a></li>
+<li class="toctree-l3"><a class="reference internal" href="seamount.html">seamount</a></li>
+<li class="toctree-l3"><a class="reference internal" href="single_column.html">single column</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../framework/index.html">Framework</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../suites.html">Suites</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../suites.html#nightly-suite">nightly suite</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../suites.html#omega-pr-suite">omega_pr suite</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../seaice/index.html">Sea ice component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../machines/index.html">Machines</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Developer's guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/quick_start.html">Quick Start for Developers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/command_line.html">Command-line interface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/organization/index.html">Organization of Tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/e3sm/init/index.html">E3SM initial condition (e3sm/init) component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/mesh/index.html">Mesh component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/ocean/index.html">Ocean component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/seaice/index.html">Sea ice component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/framework/index.html">Framework</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/machines/index.html">Machines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/benchmarking.html">Benchmarking a branch against a baseline</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/omega_pr_testing.html">Testing an Omega pull request</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/troubleshooting.html">Troubleshooting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/docs.html">Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/building_docs.html">Building the Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/building_docs.html#previewing-the-documentation">Previewing the Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/conda_vs_spack.html">How Conda and Spack Work Together in Polaris</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/updating_conda.html">Updating Deployment Dependencies</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/updating_spack/index.html">Updating Shared Spack Environments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/api.html">API reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../design_docs/index.html">Design Documents</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorials/dev_add_category_of_tasks/index.html">Developer Tutorial: Adding a New Category of Tasks</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Glossary</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../glossary.html">Glossary</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">Polaris</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Ocean component</a></li>
+          <li class="breadcrumb-item"><a href="index.html">Tasks</a></li>
+      <li class="breadcrumb-item active">analysis</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../../_sources/users_guide/ocean/tasks/analysis.md.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section class="tex2jax_ignore mathjax_ignore" id="analysis">
+<span id="ocean-analysis"></span><h1>analysis<a class="headerlink" href="#analysis" title="Link to this heading"></a></h1>
+<p>The <code class="docutils literal notranslate"><span class="pre">analysis</span></code> task group analyzes a simulation that has <strong>already been run</strong>,
+rather than running one.  Its tasks are pointed at a completed Omega
+simulation through a config file and produce plots and the netCDF data behind
+them.</p>
+<p>This makes it unlike the other pages in this section.  There is no mesh, no
+vertical grid, no initial condition, no forcing and no time step to describe,
+because no model is run: everything the analysis needs it reads from the
+simulation’s own output.</p>
+<p>Analysis products are added over time; <a class="reference internal" href="#ocean-analysis-products"><span class="std std-ref">products</span></a> lists
+what is available so far.</p>
+<section id="supported-models">
+<span id="ocean-analysis-supported-models"></span><h2>supported models<a class="headerlink" href="#supported-models" title="Link to this heading"></a></h2>
+<p><strong>Omega only.</strong>  The analysis locates a simulation’s output by reading the
+simulation’s own Omega configuration file, which is also how it learns the
+mesh, the vertical coordinate and the output streams.  MPAS-Ocean describes
+its output with namelists and streams files instead, and reading those would
+require a translator into the same form, which does not exist.  A setup with
+<code class="docutils literal notranslate"><span class="pre">[ocean]</span> <span class="pre">model</span></code> set to <code class="docutils literal notranslate"><span class="pre">mpas-ocean</span></code> reports that rather than failing later.</p>
+<p>Neither an Omega nor an MPAS-Ocean build is needed, since no model is run.</p>
+</section>
+<section id="pointing-the-analysis-at-a-simulation">
+<span id="ocean-analysis-config"></span><h2>pointing the analysis at a simulation<a class="headerlink" href="#pointing-the-analysis-at-a-simulation" title="Link to this heading"></a></h2>
+<p>The user supplies a config file describing the simulation to analyze.  In the
+common case it needs three things: where the simulation is, and the two ranges
+of simulation years to analyze.</p>
+<div class="highlight-cfg notranslate"><div class="highlight"><pre><span></span><span class="k">[ocean_analysis]</span>
+
+<span class="c1"># the simulation's own Omega configuration file</span>
+<span class="na">omega_config_filename</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">/path/to/run/omega.yml</span>
+
+<span class="c1"># a short name used in plot titles and file names</span>
+<span class="na">simulation_name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">my_run</span>
+
+
+<span class="k">[ocean_analysis_climatology]</span>
+
+<span class="c1"># the first and last year of the climatology, inclusive</span>
+<span class="na">start_year</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">21</span>
+<span class="na">end_year</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">40</span>
+
+
+<span class="k">[ocean_analysis_time_series]</span>
+
+<span class="c1"># the first and last year of the time series, inclusive</span>
+<span class="na">start_year</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">1</span>
+<span class="na">end_year</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">60</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">omega_config_filename</span></code> is <strong>required</strong> and is the only description of where
+the simulation’s output lives.  Polaris reads the mesh, the vertical
+coordinate and the output streams from it, so none of them have to be restated
+by hand.  An Omega run always writes this file; it is in the run directory.</p>
+<p>The two year ranges are independent.  The climatology range governs the
+map-view products and the MOC; the time-series range governs the global
+statistics and ocean heat content time series.  Changing one does not disturb
+the other.</p>
+<p>A few further options in <code class="docutils literal notranslate"><span class="pre">[ocean_analysis]</span></code> are worth knowing about, though
+most simulations need none of them:</p>
+<dl class="simple myst">
+<dt><code class="docutils literal notranslate"><span class="pre">simulation_path</span></code></dt><dd><p>The directory that relative file names in the Omega configuration are
+resolved against.  Defaults to the directory containing that file, which is
+the run directory.  Set it if the output has moved since the run.</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">mesh_filename</span></code>, <code class="docutils literal notranslate"><span class="pre">vert_coord_filename</span></code></dt><dd><p>The horizontal mesh and vertical-coordinate files, absolute or relative to
+<code class="docutils literal notranslate"><span class="pre">simulation_path</span></code>.  Each defaults to the file the Omega configuration names.
+Set one if it has moved.</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">output_path</span></code></dt><dd><p>Where plots are published for browsing.  Defaults to
+<code class="docutils literal notranslate"><span class="pre">&lt;work_dir&gt;/analysis_output</span></code>.  Point it somewhere web-servable to share the
+results.</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">copy_netcdf</span></code></dt><dd><p>Whether to publish the netCDF file behind each plot alongside it.  Defaults
+to <code class="docutils literal notranslate"><span class="pre">False</span></code>, since on a large mesh these files can be most of the size of the
+analysis.</p>
+</dd>
+</dl>
+<p>The remaining sections — <code class="docutils literal notranslate"><span class="pre">[ocean_analysis_climatology]</span></code>,
+<code class="docutils literal notranslate"><span class="pre">[ocean_analysis_ohc]</span></code>, <code class="docutils literal notranslate"><span class="pre">[ocean_analysis_time_series]</span></code> and
+<code class="docutils literal notranslate"><span class="pre">[ocean_analysis_moc]</span></code> — describe what each product computes and plots.  See
+the comments in <code class="docutils literal notranslate"><span class="pre">polaris/tasks/ocean/analysis/analysis.cfg</span></code> for the full list
+with its defaults.</p>
+</section>
+<section id="running-the-analysis">
+<h2>running the analysis<a class="headerlink" href="#running-the-analysis" title="Link to this heading"></a></h2>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>polaris<span class="w"> </span>suite<span class="w"> </span>-c<span class="w"> </span>ocean<span class="w"> </span>-t<span class="w"> </span>omega_analysis<span class="w"> </span>-w<span class="w"> </span>&lt;work_dir&gt;<span class="w"> </span>-f<span class="w"> </span>analysis.cfg<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--model<span class="w"> </span>omega
+polaris<span class="w"> </span>serial
+</pre></div>
+</div>
+<p>Two things about that command differ from most Polaris suites:</p>
+<ul class="simple">
+<li><p><strong><code class="docutils literal notranslate"><span class="pre">--model</span> <span class="pre">omega</span></code> is required</strong> (or <code class="docutils literal notranslate"><span class="pre">model</span> <span class="pre">=</span> <span class="pre">omega</span></code> in an <code class="docutils literal notranslate"><span class="pre">[ocean]</span></code> section
+of the config file).  Polaris normally detects the model by finding a build,
+and there is no build here.</p></li>
+<li><p><strong>No <code class="docutils literal notranslate"><span class="pre">-p</span></code>/<code class="docutils literal notranslate"><span class="pre">--component_path</span></code></strong>, for the same reason.</p></li>
+</ul>
+<p>The suite can be run on the machine where the simulation output lives, without
+copying that output.</p>
+<p>To run a single product rather than the whole suite, set up that task on its
+own:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>polaris<span class="w"> </span>setup<span class="w"> </span>-t<span class="w"> </span>ocean/analysis/global_stats<span class="w"> </span>-w<span class="w"> </span>&lt;work_dir&gt;<span class="w"> </span>-f<span class="w"> </span>analysis.cfg<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--model<span class="w"> </span>omega
+</pre></div>
+</div>
+</section>
+<section id="where-the-results-go">
+<h2>where the results go<a class="headerlink" href="#where-the-results-go" title="Link to this heading"></a></h2>
+<p>Two directory trees, with two audiences.</p>
+<p>The <strong>work directory</strong> is built for predictability and for finding a step’s
+log, not for browsing.  It follows one rule, <code class="docutils literal notranslate"><span class="pre">&lt;product&gt;/&lt;period&gt;</span></code>, with a
+third level only for the one product that is chunked by field group:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>ocean/analysis/
+├── climatology/0021-0040/                (shared: ncclimo)
+├── climatology_maps/0021-0040/
+│   ├── temperature/ salinity/ velocity/
+│   ├── ssh/ mixed_layer_depth/
+│   └── heat_content/
+├── heat_content_series/0001-0060/
+├── global_stats/0001-0060/
+└── moc/0021-0040/
+</pre></div>
+</div>
+<p>The range in each path is the zero-padded first and last year, matching the
+convention <code class="docutils literal notranslate"><span class="pre">ncclimo</span></code> uses in its own file names.</p>
+<p>The <strong>staging tree</strong> under <code class="docutils literal notranslate"><span class="pre">output_path</span></code> is where results are published for
+browsing.  It is shallow, with descriptive file names that carry the product,
+the field, the season, the vertical reduction and the range, so that it is
+easy to archive, to serve and to search:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>&lt;output_path&gt;/
+├── index.html                                      (the gallery groups)
+├── manifest.json                                   (what was published)
+├── galleries/
+│   └── climatology_maps_temperature_0021-0040.html
+├── plots/
+│   ├── climatology_maps_temperature_ANN_-100m_0021-0040.png
+│   └── climatology_maps_temperature_ANN_-100m_0021-0040.nc  (if copy_netcdf)
+└── thumbnails/
+    └── climatology_maps_temperature_ANN_-100m_0021-0040.jpg
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">output_path</span></code> defaults to <code class="docutils literal notranslate"><span class="pre">analysis_output</span></code> at the root of the work
+directory.  Point it somewhere a web server can reach if the results are to be
+shared.</p>
+<p>The plots, and the netCDF files if <code class="docutils literal notranslate"><span class="pre">copy_netcdf</span></code> is set, are <strong>copies</strong> of
+the files in the step that made them, so a web server can serve the staging
+tree without being able to read the work directory.  Running <code class="docutils literal notranslate"><span class="pre">publish</span></code> again
+copies only what has changed.  The netCDF files stay in the work directory
+either way.</p>
+</section>
+<section id="the-published-gallery">
+<span id="ocean-analysis-gallery"></span><h2>the published gallery<a class="headerlink" href="#the-published-gallery" title="Link to this heading"></a></h2>
+<p>The suite’s last step, <code class="docutils literal notranslate"><span class="pre">publish</span></code>, collects what every other step made,
+publishes it into the staging tree, renders a thumbnail for each plot and
+generates a static gallery over the result.  Open <code class="docutils literal notranslate"><span class="pre">index.html</span></code> in a browser,
+from the filesystem or over a web server; there is nothing to build and no
+JavaScript, and the pages look the same either way.</p>
+<p>The landing page shows each <strong>gallery group</strong> — a product for one range of
+years, such as “Climatology maps, years 0021-0040” — with one thumbnail per
+gallery within it.  A gallery page shows every plot in that gallery, in the
+order the step made them, and clicking a thumbnail opens the full image, with
+its netCDF file linked beside it if <code class="docutils literal notranslate"><span class="pre">copy_netcdf</span></code> is set.  Every page carries
+the simulation name, the ranges and the Polaris provenance, so a page found
+later can be traced back to what produced it.</p>
+<p>Four config options control what a page costs to load, which matters on a
+portal that throttles:</p>
+<div class="highlight-cfg notranslate"><div class="highlight"><pre><span></span><span class="k">[ocean_analysis]</span>
+
+<span class="c1"># the box, in displayed pixels, each thumbnail is scaled to fit inside</span>
+<span class="na">thumbnail_size</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">320, 240</span>
+
+<span class="c1"># image pixels per displayed pixel, so a thumbnail is sharp on a</span>
+<span class="c1"># high-resolution display; need not be whole, and 2 is about three times</span>
+<span class="c1"># the bytes of 1</span>
+<span class="na">thumbnail_scale</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">2.0</span>
+
+<span class="c1"># jpeg or webp; webp is a third to a half smaller at the same quality</span>
+<span class="na">thumbnail_format</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">jpeg</span>
+
+<span class="c1"># 1 to 100; above about 80 the bytes grow quickly and it looks no better</span>
+<span class="na">thumbnail_quality</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">75</span>
+</pre></div>
+</div>
+<p>Reducing <code class="docutils literal notranslate"><span class="pre">thumbnail_size</span></code>, then <code class="docutils literal notranslate"><span class="pre">thumbnail_scale</span></code>, is the first thing to try
+if gallery pages are slow to appear.  Thumbnails are the only images a page
+fetches, they are tens to a hundred times smaller than the plots they stand
+for, and a browser fetches only the ones that have been scrolled to.</p>
+<p>Publishing again is cheap and safe.  A thumbnail is regenerated only when it
+is missing or older than its plot, so adding one product to an analysis costs
+one thumbnail rather than all of them, and results from different ranges
+coexist because the range is in every published name.</p>
+<p>A step that ran but made no products publishes nothing, and that is not an
+error: every step that publishes leaves a manifest, with nothing in it when it
+made nothing, and the gallery simply has nothing from that step in it.  The
+<code class="docutils literal notranslate"><span class="pre">publish</span></code> step’s log names those steps, since the gallery cannot.  A step that has not run at all is
+different.  <code class="docutils literal notranslate"><span class="pre">publish</span></code> declares every step’s manifest as an input and every
+such step as a dependency, so Polaris refuses to run it and names what is
+missing.</p>
+</section>
+<section id="analyzing-the-same-simulation-more-than-once">
+<h2>analyzing the same simulation more than once<a class="headerlink" href="#analyzing-the-same-simulation-more-than-once" title="Link to this heading"></a></h2>
+<p>Every product lives at a directory named for the range it covers, and that is
+what makes re-analysis behave sensibly:</p>
+<ul class="simple">
+<li><p><strong>A new range recomputes.</strong>  It creates steps in directories that have never
+run, so they run.  Nothing has to be deleted and no flag has to be passed.</p></li>
+<li><p><strong>An unchanged range recomputes nothing.</strong>  Those directories are already
+complete.</p></li>
+<li><p><strong>An earlier range’s results survive.</strong>  Two ranges never share a directory,
+so analyzing years 21–40 leaves the results for years 1–20 in place.  This
+also makes it impossible to get a plot labelled with one range whose
+contents came from another.</p></li>
+<li><p><strong>An overlapping range inherits rather than recomputes.</strong>  The products that
+reduce the simulation month by month – ocean heat content so far – cache
+each month they reduce, and a later range reads the months an earlier one
+already did instead of reading those monthly means again.  Extending a
+twenty-year series to forty therefore costs twenty years, and re-running a
+sub-range of one already analyzed costs nothing.</p></li>
+</ul>
+<section id="what-may-be-inherited-and-what-may-not">
+<span id="ocean-analysis-inheritance"></span><h3>what may be inherited, and what may not<a class="headerlink" href="#what-may-be-inherited-and-what-may-not" title="Link to this heading"></a></h3>
+<p>Inheriting numbers that were computed from something else is the one way this
+could go quietly wrong, so what a cache has to agree with before it is used is
+deliberately narrow:</p>
+<ul class="simple">
+<li><p>Only directories of <strong>the same product</strong> in <strong>the same work directory</strong> are
+looked at – sibling ranges of that product, and nothing else.</p></li>
+<li><p>Only steps that <strong>finished</strong> are, so a cache left behind by an interrupted
+run is not picked up.  The exception is the step’s own directory: a run that
+was interrupted picks up where it left off when it is re-run.</p></li>
+<li><p>Only caches carrying the same <strong>provenance stamp</strong> are: the simulation’s
+Omega configuration and output directory, the mesh, the config options and
+constants that decide the numbers – the elevation ranges and the specific
+heat capacity for heat content – and a version number for the code that
+computed them.
+The path says nothing about which simulation was analyzed, so the stamp is
+what keeps a work directory pointed at a second simulation from mixing the
+two.</p></li>
+</ul>
+<p>Every run says in its log how many months it inherited and from where, and
+names any candidate it turned down together with the entry of the stamp that
+differs.  The stamp is also written into the cache and into the product beside
+it, so <code class="docutils literal notranslate"><span class="pre">ncdump</span> <span class="pre">-h</span></code> on a result says what it came from.</p>
+<p>Setting <code class="docutils literal notranslate"><span class="pre">reuse_previous</span> <span class="pre">=</span> <span class="pre">False</span></code> in <code class="docutils literal notranslate"><span class="pre">[ocean_analysis]</span></code> turns inheritance off
+and recomputes everything from the monthly means, for anyone who wants
+determinism rather than discovery.</p>
+<p>Re-running <code class="docutils literal notranslate"><span class="pre">polaris</span> <span class="pre">setup</span></code> rewrites the suite pickle at the root of the work
+directory, so the range most recently set up is the one <code class="docutils literal notranslate"><span class="pre">polaris</span> <span class="pre">serial</span></code> will
+run.  Step directories from earlier ranges are untouched, so returning to an
+earlier range means re-running setup with that range’s config.</p>
+<p>Analyzing many ranges accumulates step directories and intermediate files,
+which is what makes re-analyzing an earlier range nearly free.  It is worth
+knowing about on a filesystem with a quota; the climatology files dominate.</p>
+</section>
+</section>
+<section id="products">
+<span id="ocean-analysis-products"></span><h2>products<a class="headerlink" href="#products" title="Link to this heading"></a></h2>
+<p>The suite is being built up product by product.  What exists so far:</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>task</p></th>
+<th class="head"><p>product</p></th>
+<th class="head"><p>status</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">climatology_maps</span></code></p></td>
+<td><p>map-view climatologies and maps of the change in ocean heat content, one step per field group</p></td>
+<td><p><a class="reference internal" href="#ocean-analysis-climatology-maps"><span class="std std-ref">available</span></a></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">global_stats</span></code></p></td>
+<td><p>time series of the simulation’s global statistics</p></td>
+<td><p><a class="reference internal" href="#ocean-analysis-global-stats"><span class="std std-ref">available</span></a></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">heat_content_series</span></code></p></td>
+<td><p>time series of globally integrated ocean heat content</p></td>
+<td><p><a class="reference internal" href="#ocean-analysis-heat-content-series"><span class="std std-ref">available</span></a></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">moc</span></code></p></td>
+<td><p>latitude-elevation plot of the meridional overturning circulation</p></td>
+<td><p><a class="reference internal" href="#ocean-analysis-moc"><span class="std std-ref">available</span></a></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">publish</span></code></p></td>
+<td><p>the staging tree and the <a class="reference internal" href="#ocean-analysis-gallery"><span class="std std-ref">gallery</span></a> over it</p></td>
+<td><p>implemented</p></td>
+</tr>
+</tbody>
+</table>
+<p>In the case of a simulation without MOC output, the step reports that no MOC
+output was written and produces nothing, rather than failing the suite.</p>
+<section id="climatology-maps">
+<span id="ocean-analysis-climatology-maps"></span><h3>climatology maps<a class="headerlink" href="#climatology-maps" title="Link to this heading"></a></h3>
+<p>The <code class="docutils literal notranslate"><span class="pre">climatology_maps</span></code> task computes a climatology of the simulation’s
+monthly-mean output and plots global maps from it, on the native MPAS mesh.
+Nothing is remapped anywhere in the analysis.</p>
+<p>It has a <strong>shared climatology step</strong> and then <strong>one step per field group</strong>.
+The climatology runs once for a range of years no matter how many field
+groups read it, and the groups are <code class="docutils literal notranslate"><span class="pre">temperature</span></code>, <code class="docutils literal notranslate"><span class="pre">salinity</span></code>, <code class="docutils literal notranslate"><span class="pre">velocity</span></code>,
+<code class="docutils literal notranslate"><span class="pre">ssh</span></code>, <code class="docutils literal notranslate"><span class="pre">mixed_layer_depth</span></code> and <code class="docutils literal notranslate"><span class="pre">heat_content</span></code>.  A group is the unit of work
+so that adding a field costs that field and not the others.</p>
+<section id="the-climatology">
+<h4>the climatology<a class="headerlink" href="#the-climatology" title="Link to this heading"></a></h4>
+<p>The climatology is computed with <code class="docutils literal notranslate"><span class="pre">ncclimo</span></code> from the NCO package, which is what
+the rest of the E3SM post-processing workflow uses, so that these
+climatologies are comparable with the ones zppy produces.  It writes the
+twelve monthly climatologies and one file per season in <code class="docutils literal notranslate"><span class="pre">seasons</span></code>, into
+<code class="docutils literal notranslate"><span class="pre">ocean/analysis/climatology/&lt;range&gt;/</span></code>.</p>
+<p>Two conventions are worth knowing:</p>
+<ul class="simple">
+<li><p>Seasons are weighted by the length of each month in the simulation’s own
+calendar, and the annual mean is the same weighting over all twelve months.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">DJF</span></code> takes its December from the same calendar year as its January and
+February, so every year in the range contributes exactly one December and
+no data from outside the range are needed.  This is what MPAS-Analysis
+does.</p></li>
+</ul>
+<p>The monthly means are the output of Omega’s <code class="docutils literal notranslate"><span class="pre">MonthlyAverages</span></code> analysis
+group, which has to be enabled in the simulation with the fields the analysis
+reads in its <code class="docutils literal notranslate"><span class="pre">Fields</span></code> list.  Omega names each field of a monthly mean for the
+field and the period, <code class="docutils literal notranslate"><span class="pre">Temperature_TimeMean1Month</span></code>, and names each file for
+the month after the one it averages; the climatology strips the suffix and
+takes the file named <code class="docutils literal notranslate"><span class="pre">0001-02</span></code> as January of year 1.  Each file’s time bounds
+are checked against the month it is taken to cover, and one that does not
+match stops the step with an error.</p>
+<p>Only the variables the analysis needs are averaged, so the cost scales with
+what is being plotted rather than with the size of the monthly means.  A
+variable the simulation did not write is reported in the step’s log and left
+out.</p>
+</section>
+<section id="the-maps">
+<h4>the maps<a class="headerlink" href="#the-maps" title="Link to this heading"></a></h4>
+<p>Each field group’s step writes, for every combination of season, field and
+vertical reduction it was asked for, a PNG and a netCDF file with the same
+base name holding exactly what was plotted:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>temperature_ANN_top.png     temperature_ANN_top.nc
+temperature_DJF_bottom.png  temperature_DJF_bottom.nc
+ssh_ANN.png                 ssh_ANN.nc
+</pre></div>
+</div>
+<p>A field with no vertical dimension, such as <code class="docutils literal notranslate"><span class="pre">ssh</span></code>, is already a map, so its
+files carry no reduction label.  The netCDF files carry the simulation name,
+the field, the season, the vertical reduction and the range of years as
+global attributes, so a plot cannot be mistaken for a different one.</p>
+</section>
+<section id="the-config-options-that-govern-it">
+<h4>the config options that govern it<a class="headerlink" href="#the-config-options-that-govern-it" title="Link to this heading"></a></h4>
+<p>All of these are in <code class="docutils literal notranslate"><span class="pre">[ocean_analysis_climatology]</span></code>:</p>
+<dl class="simple myst">
+<dt><code class="docutils literal notranslate"><span class="pre">start_year</span></code>, <code class="docutils literal notranslate"><span class="pre">end_year</span></code></dt><dd><p>The range of years the climatology covers.  It is also the directory the
+results land in, so a different range recomputes rather than overwriting.</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">seasons</span></code></dt><dd><p>The seasons to compute, beyond the twelve monthly climatologies, which are
+always computed.</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">plot_seasons</span></code></dt><dd><p>The seasons to plot, which may include the monthly climatologies as <code class="docutils literal notranslate"><span class="pre">JAN</span></code>
+through <code class="docutils literal notranslate"><span class="pre">DEC</span></code>.  Every season here has to be one the climatology computed.</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">fields</span></code></dt><dd><p>The fields to map, using MPAS-Ocean names whatever model produced the
+output.  This is what decides which field group steps exist.</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">elevations</span></code></dt><dd><p>How to reduce a field with a vertical dimension to a map.  <code class="docutils literal notranslate"><span class="pre">top</span></code> and
+<code class="docutils literal notranslate"><span class="pre">bottom</span></code> are the topmost and bottommost valid layer of each column, so they
+respect ice-shelf cavities and partial bottom cells; <code class="docutils literal notranslate"><span class="pre">k&lt;index&gt;</span></code> is a fixed,
+zero-based vertical index, masked in columns where it falls outside the
+valid range; and a number is an elevation in m, positive up, so <code class="docutils literal notranslate"><span class="pre">-100.0</span></code> is
+100 m below the sea surface.</p>
+</dd>
+</dl>
+<p>An elevation is interpolated linearly between the midpoints of the two layers
+it falls between, using the layer elevations the simulation wrote.  Because
+the input is a climatology, a <code class="docutils literal notranslate"><span class="pre">-100.0</span></code> map is a map on the climatological-mean
+position of the -100 m surface rather than the time mean of maps on its
+instantaneous position; the two differ only where the seasonal cycle in layer
+thickness is large.</p>
+<p>Two ends of a column are worth knowing about.  Above the midpoint of its
+topmost layer the topmost value is used rather than the map being masked,
+which is what makes <code class="docutils literal notranslate"><span class="pre">0.0</span></code> and <code class="docutils literal notranslate"><span class="pre">-5.0</span></code> mean what a near-surface map is asked
+for; likewise below the midpoint of the bottommost layer, down to the
+seafloor.  Below the seafloor the map is masked, so a column with partial
+bottom cells ending at -97 m is blank at <code class="docutils literal notranslate"><span class="pre">-100.0</span></code> while <code class="docutils literal notranslate"><span class="pre">k9</span></code> still has a value
+in it.</p>
+<p>The colors come from one config section per field, so the color map and its
+range can be set for each field independently.  A section is named for its
+field with the field name in lower case with underscores, so <code class="docutils literal notranslate"><span class="pre">velocityZonal</span></code>
+is configured by <code class="docutils literal notranslate"><span class="pre">[ocean_analysis_map_velocity_zonal]</span></code>.</p>
+<p>Omega does not write <code class="docutils literal notranslate"><span class="pre">velocityZonal</span></code> and <code class="docutils literal notranslate"><span class="pre">velocityMeridional</span></code> yet, so Polaris
+reconstructs them at cell centers from the climatology of <code class="docutils literal notranslate"><span class="pre">normalVelocity</span></code>,
+using the least-squares weights in the simulation’s mesh file (see
+<a class="reference internal" href="../../../developers_guide/mesh/framework/reconstruct.html#dev-mesh-reconstruct"><span class="std std-ref">Vector Reconstruction</span></a>).  Reconstruction is linear, so this is exactly
+the climatology of the reconstructed velocity.  It needs <code class="docutils literal notranslate"><span class="pre">NormalVelocity</span></code> in
+the simulation’s <code class="docutils literal notranslate"><span class="pre">MonthlyAverages</span></code> group; a simulation that writes the
+components themselves has those plotted instead.</p>
+</section>
+<section id="ocean-heat-content">
+<span id="ocean-analysis-heat-content-maps"></span><h4>ocean heat content<a class="headerlink" href="#ocean-heat-content" title="Link to this heading"></a></h4>
+<p>The <code class="docutils literal notranslate"><span class="pre">heat_content</span></code> field group is the one group that derives its field rather
+than reading it.  It is always present, whatever <code class="docutils literal notranslate"><span class="pre">fields</span></code> asks for, since it
+is a diagnostic Polaris computes rather than a variable a simulation writes.</p>
+<p>What it maps is the <strong>change</strong> in heat content from the first monthly mean of
+the range, <code class="docutils literal notranslate"><span class="pre">heat_content_anomaly</span></code>, since a map of heat content itself mostly
+shows how deep each column is.  Each season’s heat content comes from the
+climatology and the first month’s from that monthly mean, computed the same
+way, and the map is the difference.  The first monthly mean stands in for the
+initial condition, so a seasonal map carries the difference between that
+season and the first month as well as any drift.</p>
+<p>Heat content per unit area is a <strong>mass</strong>-weighted integral of conservative
+temperature: the specific heat capacity times the sum over layers of
+temperature weighted by each layer’s mass per unit area.  That mass comes
+from the model’s own mass-like thickness – <code class="docutils literal notranslate"><span class="pre">PseudoThickness</span></code> for Omega,
+<code class="docutils literal notranslate"><span class="pre">layerThickness</span></code> for MPAS-Ocean – times the reference density that defines
+Omega’s pseudo-height.  Weighting by mass rather than by a geometric
+thickness is what removes the in-situ-versus-reference density error of a few
+tenths of a percent that MPAS-Analysis’s formulation carries.</p>
+<p>The ranges to integrate over are given by <code class="docutils literal notranslate"><span class="pre">elevation_ranges</span></code> in
+<code class="docutils literal notranslate"><span class="pre">[ocean_analysis_ohc]</span></code>, written <code class="docutils literal notranslate"><span class="pre">&lt;top&gt;:&lt;bottom&gt;</span></code> in m, positive up:</p>
+<div class="highlight-cfg notranslate"><div class="highlight"><pre><span></span><span class="k">[ocean_analysis_ohc]</span>
+<span class="na">elevation_ranges</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">top:-700.0, -700.0:-2000.0, -2000.0:bottom, top:bottom</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">top</span></code> is the free surface of each column and <code class="docutils literal notranslate"><span class="pre">bottom</span></code> is its seafloor, so
+<code class="docutils literal notranslate"><span class="pre">top:bottom</span></code> is the whole column.  These are geometric elevations, matching
+the convention MPAS-Analysis and the observational products use; the integral
+itself is still mass-weighted.  Writing the upper bound as <code class="docutils literal notranslate"><span class="pre">top</span></code> rather than
+as <code class="docutils literal notranslate"><span class="pre">0.0</span></code> matters: <code class="docutils literal notranslate"><span class="pre">0.0</span></code> would exclude the water between the resting sea
+surface and the free surface, and a different amount of it in every column and
+every season.</p>
+<p>A range boundary usually falls inside a layer rather than on an interface,
+and the geometry enters there and nowhere else: the layer is weighted by the
+fraction of its thickness that the range covers, and that fraction is applied
+to its mass.  A layer lying wholly within the range therefore contributes its
+whole mass whatever the geometry says, and a range that reaches below the
+seafloor is truncated there.  A column with no water in the range at all –
+one shallower than 2000 m, for the <code class="docutils literal notranslate"><span class="pre">-2000.0:bottom</span></code> band – is masked rather
+than plotted as zero.</p>
+<p>The specific heat capacity is the one in Polaris’s Physical Constants
+Dictionary, which is the one the rest of E3SM uses.  Like the reference
+density, it is not a config option.</p>
+<p>Output names follow the rest of the maps, with the range in place of the
+elevation, for example <code class="docutils literal notranslate"><span class="pre">heat_content_anomaly_ANN_top_to_bottom.png</span></code>.  The
+netCDF is written in J m-2, which is the unit the quantity means, and carries
+the range and the month it is a change from as attributes, so a plot cannot be
+mistaken for a different one.  The plot is drawn in GJ m-2 with a diverging
+colormap, set in <code class="docutils literal notranslate"><span class="pre">[ocean_analysis_map_heat_content_anomaly]</span></code>.</p>
+</section>
+<section id="what-is-not-there-yet">
+<h4>what is not there yet<a class="headerlink" href="#what-is-not-there-yet" title="Link to this heading"></a></h4>
+<p><strong><code class="docutils literal notranslate"><span class="pre">mixedLayerDepth</span></code></strong> is in the config file’s field list but is a diagnostic
+Omega does not compute yet, so its maps are reported as skipped in the step’s
+log rather than silently dropped.</p>
+</section>
+</section>
+<section id="global-statistics-time-series">
+<span id="ocean-analysis-global-stats"></span><h3>global statistics time series<a class="headerlink" href="#global-statistics-time-series" title="Link to this heading"></a></h3>
+<p>Omega’s <code class="docutils literal notranslate"><span class="pre">GlobalStats</span></code> analysis group reduces each field it is given to a
+handful of numbers per output time — the global mean, minimum, maximum and
+standard deviation.  The <code class="docutils literal notranslate"><span class="pre">global_stats</span></code> task plots those against time, which
+is the cheapest look at whether a simulation is drifting.</p>
+<p>For each field it produces two files in
+<code class="docutils literal notranslate"><span class="pre">ocean/analysis/global_stats/&lt;range&gt;/</span></code>:</p>
+<dl class="simple myst">
+<dt><code class="docutils literal notranslate"><span class="pre">&lt;field&gt;.png</span></code></dt><dd><p>Two panels sharing a time axis in simulation years.  The upper one shows
+the statistics themselves, with the standard deviation as a shaded envelope
+around the mean.  The lower one shows the change in each statistic since
+the beginning of the series, since drift is usually what the reader is
+looking for and it is easy to miss at the scale of the absolute values.</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">&lt;field&gt;.nc</span></code></dt><dd><p>Exactly the data that were plotted — one variable per statistic, the time
+axis in simulation years, and the field, the statistics, the simulation
+name and the year range as global attributes.  It is there so the numbers
+can be inspected, compared against another tool, or re-plotted without
+re-reading the simulation.</p>
+</dd>
+</dl>
+<p>Two options in <code class="docutils literal notranslate"><span class="pre">[ocean_analysis_time_series]</span></code> govern it, alongside the
+<code class="docutils literal notranslate"><span class="pre">start_year</span></code> and <code class="docutils literal notranslate"><span class="pre">end_year</span></code> that every time series shares:</p>
+<dl class="simple myst">
+<dt><code class="docutils literal notranslate"><span class="pre">fields</span></code></dt><dd><p>The fields to plot, using MPAS-Ocean (Polaris standard) names.  Leave it
+empty to plot every field the simulation wrote statistics for.</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">stats</span></code></dt><dd><p>The statistics to plot for each field: any of <code class="docutils literal notranslate"><span class="pre">mean</span></code>, <code class="docutils literal notranslate"><span class="pre">min</span></code>, <code class="docutils literal notranslate"><span class="pre">max</span></code> and
+<code class="docutils literal notranslate"><span class="pre">std</span></code>.</p>
+</dd>
+</dl>
+<p><strong>A field or statistic the simulation did not write is skipped with a message
+in the step’s log, not treated as an error.</strong>  The defaults describe what we
+would like to see, and any given simulation will have written some subset of
+it — which is no more under the user’s control than it is under ours.  A
+field with no surviving statistics is dropped entirely.  Only a file with
+<em>none</em> of the requested variables stops the step, since that usually means
+the year range does not overlap the simulation rather than that a variable is
+missing.</p>
+<p>Omega can write these statistics either as snapshots or as time means over a
+period it is configured with, and it names the variables differently in the
+two cases.  Polaris reads the simulation’s Omega configuration to find out
+which it wrote, so this needs no option of its own.</p>
+</section>
+<section id="ocean-heat-content-time-series">
+<span id="ocean-analysis-heat-content-series"></span><h3>ocean heat content time series<a class="headerlink" href="#ocean-heat-content-time-series" title="Link to this heading"></a></h3>
+<p>The <code class="docutils literal notranslate"><span class="pre">heat_content_series</span></code> task reduces every month of the simulation to the
+globally integrated ocean heat content of each elevation range and plots the
+series.  Heat content drift is what a long coupled simulation is judged on.</p>
+<p>The integral is the same mass-weighted one the maps take, over the same ranges
+from <code class="docutils literal notranslate"><span class="pre">[ocean_analysis_ohc]</span></code>, described under
+<a class="reference internal" href="#ocean-analysis-heat-content-maps"><span class="std std-ref">ocean heat content</span></a>; the difference is that it is taken
+from the monthly means themselves rather than from a climatology.  Averaging
+over the range is exactly what a drift curve must not do, so the climatology
+is no use here.</p>
+<p>The range of years is <code class="docutils literal notranslate"><span class="pre">start_year</span></code> and <code class="docutils literal notranslate"><span class="pre">end_year</span></code> in
+<code class="docutils literal notranslate"><span class="pre">[ocean_analysis_time_series]</span></code>, the same range the global statistics use:</p>
+<div class="highlight-cfg notranslate"><div class="highlight"><pre><span></span><span class="k">[ocean_analysis_time_series]</span>
+<span class="na">start_year</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">1</span>
+<span class="na">end_year</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">60</span>
+</pre></div>
+</div>
+<p>Three files land in the step’s directory:</p>
+<dl class="simple myst">
+<dt><code class="docutils literal notranslate"><span class="pre">heat_content.png</span></code></dt><dd><p>two panels sharing a time axis – the heat content of each range in
+<span class="math notranslate nohighlight">\(10^{22}\)</span> J, which the deep ocean dominates, and its anomaly from the first
+month of the range, which is where a drift of a few tenths of a percent is
+visible at all.</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">heat_content.nc</span></code></dt><dd><p>the same series in J, with the year and the month of each value, and the
+range and the options it was computed under as attributes.</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">ocean_heat_content_cache.nc</span></code></dt><dd><p>the reduced months, which is what a later range inherits; see
+<a class="reference internal" href="#ocean-analysis-inheritance"><span class="std std-ref">what may be inherited, and what may not</span></a>.</p>
+</dd>
+</dl>
+<p>Only <code class="docutils literal notranslate"><span class="pre">temperature</span></code>, the model’s mass-like thickness and, when a range has a
+bound inside the column, <code class="docutils literal notranslate"><span class="pre">GeomZInterface</span></code> are read from each month, and only
+one month is held at a time, so the memory this step needs does not grow with
+the length of the record.  A first run over several decades at high
+resolution is the expensive one, and every run after it is nearly free.</p>
+</section>
+<section id="meridional-overturning-circulation">
+<span id="ocean-analysis-moc"></span><h3>meridional overturning circulation<a class="headerlink" href="#meridional-overturning-circulation" title="Link to this heading"></a></h3>
+<p>The <code class="docutils literal notranslate"><span class="pre">moc</span></code> task plots the annual climatology of the global meridional
+overturning streamfunction against latitude and elevation over the climatology
+years.</p>
+<p><strong>Polaris does not compute the MOC.</strong>  Getting the streamfunction right needs
+the full three-dimensional velocity at every time step, not a monthly mean of
+it, which is why Omega computes it in situ; Polaris computes the climatology
+of what Omega wrote and plots it.  The vertical axis is Omega’s too: the streamfunction lives on
+layer interfaces, whose elevation moves, and Omega reports the mean elevation
+of each interface over the same period alongside the streamfunction.  Polaris
+does not reconstruct it, since an axis averaged over a different period would
+quietly disagree with the diagnostic it labels.  How Omega computes both is
+described in the
+<a class="reference external" href="https://docs.e3sm.org/Omega/Omega/userGuide/Analysis.html#moc">MOC section</a>
+of Omega’s User’s Guide.</p>
+<p>Only the <strong>global</strong> streamfunction is plotted.  Omega’s MOC group can compute
+the streamfunction for named regions, and regional overturning — the
+Atlantic MOC in particular — comes with the rest of the regional analysis
+later.</p>
+<p>The simulation has to have run with the <code class="docutils literal notranslate"><span class="pre">MOC</span></code> analysis group turned on:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">Omega</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">Analysis</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">MOC</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">Enable</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">      </span><span class="nt">NumBins</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">180</span>
+<span class="w">      </span><span class="nt">Regions</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">Global</span><span class="p p-Indicator">]</span>
+<span class="w">      </span><span class="nt">ReductionPeriod</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">1Month</span><span class="p p-Indicator">]</span>
+<span class="w">      </span><span class="nt">Filename</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">moc.$Y-$M.nc</span>
+</pre></div>
+</div>
+<p>Polaris reads the group from the simulation’s Omega configuration, so nothing
+about it is restated in the Polaris config file.  The group has to write
+monthly means to one file per month, as above: the climatology is computed
+from them with <code class="docutils literal notranslate"><span class="pre">ncclimo</span></code>, the same way and with the same weighting by the
+length of each month as the climatology the
+<a class="reference internal" href="#ocean-analysis-climatology-maps"><span class="std std-ref">maps</span></a> are made from.  MOC output of any other kind is reported, with what
+the group would need to write instead, and nothing is plotted.</p>
+<p>Two files land in <code class="docutils literal notranslate"><span class="pre">ocean/analysis/moc/&lt;range&gt;/</span></code>:</p>
+<dl class="simple myst">
+<dt><code class="docutils literal notranslate"><span class="pre">global.png</span></code></dt><dd><p>The streamfunction in Sv as filled contours with contour lines over them,
+on a diverging color map centered on zero.  The color bar marks the value
+of each contour line.  Elevation is on the vertical
+axis, positive up, so the sea surface is at the top without the axis being
+inverted.</p>
+<p>Polaris preserves Omega’s streamfunction sign convention.  Omega computes
+the global streamfunction by accumulating upward-positive vertical volume
+flux from south to north, taking zero at the southern boundary.  With
+latitude increasing to the right and elevation increasing upward, positive
+streamfunction corresponds to clockwise overturning and negative
+streamfunction to counterclockwise overturning.  For an isolated positive
+cell, the upper branch flows northward and the lower branch southward.</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">global.nc</span></code></dt><dd><p>The streamfunction that was plotted, with the latitude of each bin center
+and the elevation of each interface, and the year range, the reduction
+period and the files it came from as attributes.</p>
+</dd>
+</dl>
+<p>Two options in <code class="docutils literal notranslate"><span class="pre">[ocean_analysis_moc]</span></code> govern the plot, alongside the color map
+options every plot has:</p>
+<dl class="simple myst">
+<dt><code class="docutils literal notranslate"><span class="pre">contour_interval</span></code></dt><dd><p>The spacing of the contour lines, in Sv.</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">max_streamfunction</span></code></dt><dd><p>The maximum absolute value of the color map, in Sv, which is symmetric about
+zero.  The default is the largest value the streamfunction reaches.  Setting
+it brings out a weak circulation that a strong one would otherwise flatten,
+and costs nothing: the contour lines are drawn over the whole range whatever
+the color map is clipped to.</p>
+</dd>
+</dl>
+<p>The range of years is <code class="docutils literal notranslate"><span class="pre">start_year</span></code> and <code class="docutils literal notranslate"><span class="pre">end_year</span></code> in
+<code class="docutils literal notranslate"><span class="pre">[ocean_analysis_climatology]</span></code> — the same range the maps use, since both are
+averages over the climatology period rather than time series.</p>
+<p><strong>A simulation that wrote no MOC output, or wrote it before the axes were
+attached to the stream, is reported rather than failed.</strong>  Omega attaches the
+latitude bin boundaries and the interface elevations to every MOC output
+stream, but that came later than the streamfunction itself, so a file with one
+and not the other will be met.  The step names the field that is missing and
+what would have written it, and produces nothing.</p>
+</section>
+</section>
+<section id="troubleshooting">
+<h2>troubleshooting<a class="headerlink" href="#troubleshooting" title="Link to this heading"></a></h2>
+<p><strong><code class="docutils literal notranslate"><span class="pre">The</span> <span class="pre">data</span> <span class="pre">set</span> <span class="pre">has</span> <span class="pre">no</span> <span class="pre">zMid,</span> <span class="pre">GeomZInterface</span></code>.</strong>  The simulation did not write
+the elevation of its layers, which every map at an elevation is a position
+in.  Polaris cannot reconstruct it: geometric thickness is derived from
+pseudo-thickness through specific volume, and the monthly mean of that
+product is not the product of the monthly means.  A run without it is out of
+spec rather than merely configured without a field.</p>
+<p><strong><code class="docutils literal notranslate"><span class="pre">The</span> <span class="pre">mesh</span> <span class="pre">has</span> <span class="pre">no</span> <span class="pre">ReconStencilCell,</span> <span class="pre">ReconWeightsCell</span></code>.</strong>  The velocity
+components are reconstructed with least-squares weights that every Omega mesh
+Polaris builds carries.  A mesh made elsewhere needs them added with
+<a class="reference internal" href="../../../developers_guide/ocean/utils/add_reconstruction_weights.html#dev-ocean-add-reconstruction-weights"><span class="std std-ref">add_reconstruction_weights</span></a>.</p>
+<p><strong><code class="docutils literal notranslate"><span class="pre">invalid</span> <span class="pre">interpolation</span> <span class="pre">syntax</span></code></strong> while reading the config file.  Polaris
+config files use extended interpolation, so a bare <code class="docutils literal notranslate"><span class="pre">$</span></code> in a value is an error.
+File-name templates containing <code class="docutils literal notranslate"><span class="pre">$Y</span></code> and <code class="docutils literal notranslate"><span class="pre">$M</span></code> belong in the simulation’s Omega
+configuration, not in a Polaris config file, and there is no option that takes
+one.</p>
+<p><strong>Missing input files at setup.</strong>  The analysis checks that every file it will
+read exists before anything runs, and reports the years and months that are
+absent together with the Omega stream that named them.  The usual cause is a
+year range that reaches beyond the simulation.</p>
+<p><strong><code class="docutils literal notranslate"><span class="pre">Could</span> <span class="pre">not</span> <span class="pre">detect</span> <span class="pre">ocean</span> <span class="pre">model</span></code>.</strong>  <code class="docutils literal notranslate"><span class="pre">--model</span> <span class="pre">omega</span></code> was not passed and there
+is no <code class="docutils literal notranslate"><span class="pre">[ocean]</span> <span class="pre">model</span></code> option in the config file.</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="index.html" class="btn btn-neutral float-left" title="Tasks" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="baroclinic_channel.html" class="btn btn-neutral float-right" title="baroclinic channel" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2026, Energy Exascale Earth System Model Project.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+   
+
+  <!-- Meta tags for JS to use -->
+  <meta name="doc-version" content="1.2.0">
+  <meta name="doc-site-root" content="../../../">
+
+  <!-- Create version switcher container -->
+  <script>
+    const sidebar = document.querySelector('.wy-side-nav-search');
+    if (sidebar) {
+      const versionDiv = document.createElement('div');
+      versionDiv.id = 'version-switcher';
+      versionDiv.style.marginTop = '1em';
+      sidebar.appendChild(versionDiv);
+    }
+  </script>
+
+  <!-- Load version-switcher.js using the correct relative path -->
+  <script src="../../../../shared/version-switcher.js"></script>
+
+
+</body>
+</html>

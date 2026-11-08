@@ -1,0 +1,26 @@
+﻿polaris.tasks.ocean.horiz\_press\_grad.task.HorizPressGradTask
+==============================================================
+
+.. currentmodule:: polaris.tasks.ocean.horiz_press_grad.task
+
+.. autoclass:: HorizPressGradTask
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~HorizPressGradTask.__init__
+      ~HorizPressGradTask.add_step
+      ~HorizPressGradTask.configure
+      ~HorizPressGradTask.remove_step
+      ~HorizPressGradTask.set_shared_config
+   
+   
+
+   
+   
+   

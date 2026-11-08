@@ -1,0 +1,6 @@
+﻿polaris.tasks.ocean.analysis.climatology\_maps.get\_field\_groups
+=================================================================
+
+.. currentmodule:: polaris.tasks.ocean.analysis.climatology_maps
+
+.. autofunction:: get_field_groups

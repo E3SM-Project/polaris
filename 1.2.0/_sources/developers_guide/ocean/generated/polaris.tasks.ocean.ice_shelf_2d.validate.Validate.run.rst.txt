@@ -1,0 +1,6 @@
+﻿polaris.tasks.ocean.ice\_shelf\_2d.validate.Validate.run
+========================================================
+
+.. currentmodule:: polaris.tasks.ocean.ice_shelf_2d.validate
+
+.. automethod:: Validate.run

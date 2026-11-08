@@ -1,0 +1,6 @@
+﻿polaris.tasks.mesh.spherical.feature\_masks.ComputeFeatureMasksStep.constrain\_resources
+========================================================================================
+
+.. currentmodule:: polaris.tasks.mesh.spherical.feature_masks
+
+.. automethod:: ComputeFeatureMasksStep.constrain_resources

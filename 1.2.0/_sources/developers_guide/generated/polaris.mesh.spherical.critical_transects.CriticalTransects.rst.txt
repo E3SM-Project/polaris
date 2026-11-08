@@ -1,0 +1,29 @@
+﻿polaris.mesh.spherical.critical\_transects.CriticalTransects
+============================================================
+
+.. currentmodule:: polaris.mesh.spherical.critical_transects
+
+.. autoclass:: CriticalTransects
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~CriticalTransects.__init__
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~CriticalTransects.land_blockages
+      ~CriticalTransects.passages
+   
+   

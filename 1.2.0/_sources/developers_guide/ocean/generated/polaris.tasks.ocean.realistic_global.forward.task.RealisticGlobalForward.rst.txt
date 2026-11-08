@@ -1,0 +1,26 @@
+﻿polaris.tasks.ocean.realistic\_global.forward.task.RealisticGlobalForward
+=========================================================================
+
+.. currentmodule:: polaris.tasks.ocean.realistic_global.forward.task
+
+.. autoclass:: RealisticGlobalForward
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~RealisticGlobalForward.__init__
+      ~RealisticGlobalForward.add_step
+      ~RealisticGlobalForward.configure
+      ~RealisticGlobalForward.remove_step
+      ~RealisticGlobalForward.set_shared_config
+   
+   
+
+   
+   
+   

@@ -1,0 +1,6 @@
+﻿polaris.build.source\_record.read\_source\_record
+=================================================
+
+.. currentmodule:: polaris.build.source_record
+
+.. autofunction:: read_source_record

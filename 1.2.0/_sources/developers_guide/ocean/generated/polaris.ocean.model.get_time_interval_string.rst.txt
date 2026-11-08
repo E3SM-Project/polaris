@@ -1,0 +1,6 @@
+﻿polaris.ocean.model.get\_time\_interval\_string
+===============================================
+
+.. currentmodule:: polaris.ocean.model
+
+.. autofunction:: get_time_interval_string

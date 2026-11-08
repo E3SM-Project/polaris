@@ -1,0 +1,6 @@
+﻿polaris.cf.drop\_inherited\_attrs
+=================================
+
+.. currentmodule:: polaris.cf
+
+.. autofunction:: drop_inherited_attrs

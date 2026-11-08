@@ -1,0 +1,6 @@
+﻿polaris.mesh.base.get\_base\_mesh\_step\_names
+==============================================
+
+.. currentmodule:: polaris.mesh.base
+
+.. autofunction:: get_base_mesh_step_names

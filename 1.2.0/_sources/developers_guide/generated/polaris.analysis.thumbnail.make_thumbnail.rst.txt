@@ -1,0 +1,6 @@
+﻿polaris.analysis.thumbnail.make\_thumbnail
+==========================================
+
+.. currentmodule:: polaris.analysis.thumbnail
+
+.. autofunction:: make_thumbnail

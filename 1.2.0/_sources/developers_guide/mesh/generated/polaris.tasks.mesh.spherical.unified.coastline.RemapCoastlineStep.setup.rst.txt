@@ -1,0 +1,6 @@
+﻿polaris.tasks.mesh.spherical.unified.coastline.RemapCoastlineStep.setup
+=======================================================================
+
+.. currentmodule:: polaris.tasks.mesh.spherical.unified.coastline
+
+.. automethod:: RemapCoastlineStep.setup

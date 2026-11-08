@@ -1,0 +1,6 @@
+﻿polaris.ocean.analysis\_plots.plot\_global\_stats
+=================================================
+
+.. currentmodule:: polaris.ocean.analysis_plots
+
+.. autofunction:: plot_global_stats

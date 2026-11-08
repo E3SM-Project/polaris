@@ -1,0 +1,6 @@
+﻿polaris.Component.configure
+===========================
+
+.. currentmodule:: polaris
+
+.. automethod:: Component.configure

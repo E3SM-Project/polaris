@@ -1,0 +1,6 @@
+﻿polaris.run.setup\_config
+=========================
+
+.. currentmodule:: polaris.run
+
+.. autofunction:: setup_config

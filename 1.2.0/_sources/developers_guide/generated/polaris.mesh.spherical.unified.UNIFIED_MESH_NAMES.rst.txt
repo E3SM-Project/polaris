@@ -1,0 +1,6 @@
+﻿polaris.mesh.spherical.unified.UNIFIED\_MESH\_NAMES
+===================================================
+
+.. currentmodule:: polaris.mesh.spherical.unified
+
+.. autodata:: UNIFIED_MESH_NAMES

@@ -1,0 +1,6 @@
+﻿polaris.mesh.spherical.coastline.signed\_distance\_from\_ocean\_mask
+====================================================================
+
+.. currentmodule:: polaris.mesh.spherical.coastline
+
+.. autofunction:: signed_distance_from_ocean_mask

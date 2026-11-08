@@ -1,0 +1,6 @@
+﻿polaris.suite.setup\_suite
+==========================
+
+.. currentmodule:: polaris.suite
+
+.. autofunction:: setup_suite

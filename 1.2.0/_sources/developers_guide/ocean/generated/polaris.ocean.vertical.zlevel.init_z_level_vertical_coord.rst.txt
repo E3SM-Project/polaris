@@ -1,0 +1,6 @@
+﻿polaris.ocean.vertical.zlevel.init\_z\_level\_vertical\_coord
+=============================================================
+
+.. currentmodule:: polaris.ocean.vertical.zlevel
+
+.. autofunction:: init_z_level_vertical_coord

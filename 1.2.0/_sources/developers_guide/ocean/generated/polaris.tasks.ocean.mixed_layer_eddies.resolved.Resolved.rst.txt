@@ -1,0 +1,26 @@
+﻿polaris.tasks.ocean.mixed\_layer\_eddies.resolved.Resolved
+==========================================================
+
+.. currentmodule:: polaris.tasks.ocean.mixed_layer_eddies.resolved
+
+.. autoclass:: Resolved
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~Resolved.__init__
+      ~Resolved.add_step
+      ~Resolved.configure
+      ~Resolved.remove_step
+      ~Resolved.set_shared_config
+   
+   
+
+   
+   
+   

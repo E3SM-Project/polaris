@@ -1,0 +1,6 @@
+﻿polaris.tasks.ocean.seamount.init\_utils.compute\_target\_density
+=================================================================
+
+.. currentmodule:: polaris.tasks.ocean.seamount.init_utils
+
+.. autofunction:: compute_target_density

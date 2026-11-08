@@ -1,0 +1,26 @@
+﻿polaris.tasks.ocean.realistic\_global.restart.Restart
+=====================================================
+
+.. currentmodule:: polaris.tasks.ocean.realistic_global.restart
+
+.. autoclass:: Restart
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~Restart.__init__
+      ~Restart.add_step
+      ~Restart.configure
+      ~Restart.remove_step
+      ~Restart.set_shared_config
+   
+   
+
+   
+   
+   

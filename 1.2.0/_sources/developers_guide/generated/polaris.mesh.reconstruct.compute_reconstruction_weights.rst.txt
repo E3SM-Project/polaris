@@ -1,0 +1,6 @@
+﻿polaris.mesh.reconstruct.compute\_reconstruction\_weights
+=========================================================
+
+.. currentmodule:: polaris.mesh.reconstruct
+
+.. autofunction:: compute_reconstruction_weights

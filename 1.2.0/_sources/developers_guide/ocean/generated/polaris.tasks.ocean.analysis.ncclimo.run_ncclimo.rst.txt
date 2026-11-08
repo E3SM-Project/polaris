@@ -1,0 +1,6 @@
+﻿polaris.tasks.ocean.analysis.ncclimo.run\_ncclimo
+=================================================
+
+.. currentmodule:: polaris.tasks.ocean.analysis.ncclimo
+
+.. autofunction:: run_ncclimo

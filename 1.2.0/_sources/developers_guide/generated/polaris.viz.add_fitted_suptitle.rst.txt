@@ -1,0 +1,6 @@
+﻿polaris.viz.add\_fitted\_suptitle
+=================================
+
+.. currentmodule:: polaris.viz
+
+.. autofunction:: add_fitted_suptitle

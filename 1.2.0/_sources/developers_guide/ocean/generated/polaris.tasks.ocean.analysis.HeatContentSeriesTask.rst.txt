@@ -1,0 +1,27 @@
+﻿polaris.tasks.ocean.analysis.HeatContentSeriesTask
+==================================================
+
+.. currentmodule:: polaris.tasks.ocean.analysis
+
+.. autoclass:: HeatContentSeriesTask
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~HeatContentSeriesTask.__init__
+      ~HeatContentSeriesTask.add_step
+      ~HeatContentSeriesTask.configure
+      ~HeatContentSeriesTask.remove_step
+      ~HeatContentSeriesTask.set_shared_config
+      ~HeatContentSeriesTask.year_range
+   
+   
+
+   
+   
+   

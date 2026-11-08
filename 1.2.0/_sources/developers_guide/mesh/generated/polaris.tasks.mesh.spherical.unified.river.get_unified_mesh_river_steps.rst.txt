@@ -1,0 +1,6 @@
+﻿polaris.tasks.mesh.spherical.unified.river.get\_unified\_mesh\_river\_steps
+===========================================================================
+
+.. currentmodule:: polaris.tasks.mesh.spherical.unified.river
+
+.. autofunction:: get_unified_mesh_river_steps

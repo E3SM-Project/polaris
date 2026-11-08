@@ -1,0 +1,6 @@
+﻿polaris.run.serial.run\_single\_step
+====================================
+
+.. currentmodule:: polaris.run.serial
+
+.. autofunction:: run_single_step

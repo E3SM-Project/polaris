@@ -1,0 +1,6 @@
+﻿polaris.tasks.ocean.realistic\_global.dynamic\_adjustment.checks.check\_cfl\_max
+================================================================================
+
+.. currentmodule:: polaris.tasks.ocean.realistic_global.dynamic_adjustment.checks
+
+.. autofunction:: check_cfl_max

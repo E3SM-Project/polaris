@@ -1,0 +1,6 @@
+﻿polaris.baselines.find\_build\_log
+==================================
+
+.. currentmodule:: polaris.baselines
+
+.. autofunction:: find_build_log

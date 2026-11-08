@@ -1,0 +1,6 @@
+﻿polaris.mesh.reconstruct.get\_reconstruction\_validate\_vars
+============================================================
+
+.. currentmodule:: polaris.mesh.reconstruct
+
+.. autofunction:: get_reconstruction_validate_vars

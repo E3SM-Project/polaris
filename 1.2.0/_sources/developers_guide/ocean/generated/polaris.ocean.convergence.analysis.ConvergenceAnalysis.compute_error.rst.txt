@@ -1,0 +1,6 @@
+﻿polaris.ocean.convergence.analysis.ConvergenceAnalysis.compute\_error
+=====================================================================
+
+.. currentmodule:: polaris.ocean.convergence.analysis
+
+.. automethod:: ConvergenceAnalysis.compute_error

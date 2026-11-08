@@ -1,0 +1,32 @@
+﻿polaris.tasks.ocean.analysis.sim\_files.AnalysisStream
+======================================================
+
+.. currentmodule:: polaris.tasks.ocean.analysis.sim_files
+
+.. autoclass:: AnalysisStream
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~AnalysisStream.__init__
+      ~AnalysisStream.count
+      ~AnalysisStream.index
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~AnalysisStream.filename
+      ~AnalysisStream.is_reduction
+      ~AnalysisStream.period
+   
+   

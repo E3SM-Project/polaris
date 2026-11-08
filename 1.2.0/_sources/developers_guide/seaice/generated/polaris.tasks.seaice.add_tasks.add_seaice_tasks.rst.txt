@@ -1,0 +1,6 @@
+﻿polaris.tasks.seaice.add\_tasks.add\_seaice\_tasks
+==================================================
+
+.. currentmodule:: polaris.tasks.seaice.add_tasks
+
+.. autofunction:: add_seaice_tasks

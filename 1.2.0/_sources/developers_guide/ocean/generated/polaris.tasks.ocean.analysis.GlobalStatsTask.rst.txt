@@ -1,0 +1,27 @@
+﻿polaris.tasks.ocean.analysis.GlobalStatsTask
+============================================
+
+.. currentmodule:: polaris.tasks.ocean.analysis
+
+.. autoclass:: GlobalStatsTask
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~GlobalStatsTask.__init__
+      ~GlobalStatsTask.add_step
+      ~GlobalStatsTask.configure
+      ~GlobalStatsTask.remove_step
+      ~GlobalStatsTask.set_shared_config
+      ~GlobalStatsTask.year_range
+   
+   
+
+   
+   
+   

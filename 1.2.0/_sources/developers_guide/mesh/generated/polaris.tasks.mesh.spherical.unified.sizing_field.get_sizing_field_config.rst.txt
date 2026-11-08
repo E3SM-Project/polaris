@@ -1,0 +1,6 @@
+﻿polaris.tasks.mesh.spherical.unified.sizing\_field.get\_sizing\_field\_config
+=============================================================================
+
+.. currentmodule:: polaris.tasks.mesh.spherical.unified.sizing_field
+
+.. autofunction:: get_sizing_field_config

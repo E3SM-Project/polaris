@@ -1,0 +1,32 @@
+﻿polaris.run.pool.Reservation
+============================
+
+.. currentmodule:: polaris.run.pool
+
+.. autoclass:: Reservation
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~Reservation.__init__
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~Reservation.step_path
+      ~Reservation.placement
+      ~Reservation.cores
+      ~Reservation.gpus
+      ~Reservation.memory
+   
+   

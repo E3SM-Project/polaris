@@ -1,0 +1,6 @@
+﻿polaris.tasks.ocean.realistic\_global.forward.stage.ForwardStage.omega\_hmix\_ratio
+===================================================================================
+
+.. currentmodule:: polaris.tasks.ocean.realistic_global.forward.stage
+
+.. automethod:: ForwardStage.omega_hmix_ratio

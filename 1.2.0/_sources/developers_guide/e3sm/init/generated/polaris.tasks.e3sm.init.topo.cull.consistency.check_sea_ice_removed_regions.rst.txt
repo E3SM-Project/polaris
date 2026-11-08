@@ -1,0 +1,6 @@
+﻿polaris.tasks.e3sm.init.topo.cull.consistency.check\_sea\_ice\_removed\_regions
+===============================================================================
+
+.. currentmodule:: polaris.tasks.e3sm.init.topo.cull.consistency
+
+.. autofunction:: check_sea_ice_removed_regions

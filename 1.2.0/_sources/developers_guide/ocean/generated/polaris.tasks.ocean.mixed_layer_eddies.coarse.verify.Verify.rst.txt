@@ -1,0 +1,71 @@
+﻿polaris.tasks.ocean.mixed\_layer\_eddies.coarse.verify.Verify
+=============================================================
+
+.. currentmodule:: polaris.tasks.ocean.mixed_layer_eddies.coarse.verify
+
+.. autoclass:: Verify
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~Verify.__init__
+      ~Verify.add_cf_check
+      ~Verify.add_dependency
+      ~Verify.add_forcing_input_file
+      ~Verify.add_horiz_mesh_input_file
+      ~Verify.add_init_input_file
+      ~Verify.add_input_file
+      ~Verify.add_output_file
+      ~Verify.add_output_files_for_ocean_model_input
+      ~Verify.add_produced_file
+      ~Verify.add_property_check
+      ~Verify.add_vert_coord_input_file
+      ~Verify.check_cf
+      ~Verify.check_properties
+      ~Verify.constrain_resources
+      ~Verify.get_forcing_filename
+      ~Verify.get_horiz_mesh_filename
+      ~Verify.get_init_filename
+      ~Verify.get_vert_coord_filename
+      ~Verify.map_from_native_model_vars
+      ~Verify.map_to_native_model_vars
+      ~Verify.open_model_dataset
+      ~Verify.open_vert_coord_dataset
+      ~Verify.process_inputs_and_outputs
+      ~Verify.run
+      ~Verify.runtime_setup
+      ~Verify.set_resources
+      ~Verify.set_shared_config
+      ~Verify.setup
+      ~Verify.validate_baselines
+      ~Verify.work_path
+      ~Verify.write_forcing_dataset
+      ~Verify.write_horiz_mesh_dataset
+      ~Verify.write_initial_state_dataset
+      ~Verify.write_model_dataset
+      ~Verify.write_vert_coord_dataset
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~Verify.cores
+      ~Verify.gpus
+      ~Verify.may_span_nodes
+      ~Verify.min_cores
+      ~Verify.min_gpus
+      ~Verify.component
+      ~Verify.config
+      ~Verify.input_data
+      ~Verify.logger
+   
+   

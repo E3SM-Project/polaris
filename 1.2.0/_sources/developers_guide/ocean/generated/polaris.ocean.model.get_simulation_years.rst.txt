@@ -1,0 +1,6 @@
+﻿polaris.ocean.model.get\_simulation\_years
+==========================================
+
+.. currentmodule:: polaris.ocean.model
+
+.. autofunction:: get_simulation_years

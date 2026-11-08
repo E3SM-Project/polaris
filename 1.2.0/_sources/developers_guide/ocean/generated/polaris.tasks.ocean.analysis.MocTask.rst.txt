@@ -1,0 +1,27 @@
+﻿polaris.tasks.ocean.analysis.MocTask
+====================================
+
+.. currentmodule:: polaris.tasks.ocean.analysis
+
+.. autoclass:: MocTask
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~MocTask.__init__
+      ~MocTask.add_step
+      ~MocTask.configure
+      ~MocTask.remove_step
+      ~MocTask.set_shared_config
+      ~MocTask.year_range
+   
+   
+
+   
+   
+   

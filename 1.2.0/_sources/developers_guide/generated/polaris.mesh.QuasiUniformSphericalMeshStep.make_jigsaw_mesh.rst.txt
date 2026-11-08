@@ -1,0 +1,6 @@
+﻿polaris.mesh.QuasiUniformSphericalMeshStep.make\_jigsaw\_mesh
+=============================================================
+
+.. currentmodule:: polaris.mesh
+
+.. automethod:: QuasiUniformSphericalMeshStep.make_jigsaw_mesh

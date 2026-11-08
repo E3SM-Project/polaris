@@ -1,0 +1,6 @@
+﻿polaris.Component.run\_parallel\_command
+========================================
+
+.. currentmodule:: polaris
+
+.. automethod:: Component.run_parallel_command

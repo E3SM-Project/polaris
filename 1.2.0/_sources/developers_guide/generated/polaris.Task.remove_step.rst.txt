@@ -1,0 +1,6 @@
+﻿polaris.Task.remove\_step
+=========================
+
+.. currentmodule:: polaris
+
+.. automethod:: Task.remove_step

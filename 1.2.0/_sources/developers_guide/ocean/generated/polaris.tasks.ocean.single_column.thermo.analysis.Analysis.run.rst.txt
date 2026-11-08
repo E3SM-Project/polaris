@@ -1,0 +1,6 @@
+﻿polaris.tasks.ocean.single\_column.thermo.analysis.Analysis.run
+===============================================================
+
+.. currentmodule:: polaris.tasks.ocean.single_column.thermo.analysis
+
+.. automethod:: Analysis.run

@@ -1,0 +1,6 @@
+﻿polaris.tasks.mesh.spherical.unified.coastline.get\_unified\_mesh\_coastline\_steps
+===================================================================================
+
+.. currentmodule:: polaris.tasks.mesh.spherical.unified.coastline
+
+.. autofunction:: get_unified_mesh_coastline_steps

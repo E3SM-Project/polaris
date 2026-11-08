@@ -1,0 +1,6 @@
+﻿polaris.tasks.ocean.baroclinic\_channel.add\_baroclinic\_channel\_tasks
+=======================================================================
+
+.. currentmodule:: polaris.tasks.ocean.baroclinic_channel
+
+.. autofunction:: add_baroclinic_channel_tasks

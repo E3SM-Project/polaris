@@ -1,0 +1,6 @@
+﻿polaris.ocean.vertical.elevation.is\_whole\_column
+==================================================
+
+.. currentmodule:: polaris.ocean.vertical.elevation
+
+.. autofunction:: is_whole_column

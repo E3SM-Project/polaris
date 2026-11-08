@@ -1,0 +1,76 @@
+﻿polaris.tasks.ocean.realistic\_global.analysis\_output.AnalysisOutputForward
+============================================================================
+
+.. currentmodule:: polaris.tasks.ocean.realistic_global.analysis_output
+
+.. autoclass:: AnalysisOutputForward
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~AnalysisOutputForward.__init__
+      ~AnalysisOutputForward.add_cf_check
+      ~AnalysisOutputForward.add_dependency
+      ~AnalysisOutputForward.add_forcing_input_file
+      ~AnalysisOutputForward.add_horiz_mesh_input_file
+      ~AnalysisOutputForward.add_init_input_file
+      ~AnalysisOutputForward.add_input_file
+      ~AnalysisOutputForward.add_model_config_options
+      ~AnalysisOutputForward.add_namelist_file
+      ~AnalysisOutputForward.add_output_file
+      ~AnalysisOutputForward.add_property_check
+      ~AnalysisOutputForward.add_streams_file
+      ~AnalysisOutputForward.add_vert_coord_input_file
+      ~AnalysisOutputForward.add_yaml_file
+      ~AnalysisOutputForward.check_cf
+      ~AnalysisOutputForward.check_properties
+      ~AnalysisOutputForward.compute_cell_count
+      ~AnalysisOutputForward.constrain_resources
+      ~AnalysisOutputForward.dynamic_model_config
+      ~AnalysisOutputForward.get_forcing_filename
+      ~AnalysisOutputForward.get_horiz_mesh_filename
+      ~AnalysisOutputForward.get_init_filename
+      ~AnalysisOutputForward.get_vert_coord_filename
+      ~AnalysisOutputForward.map_yaml_configs
+      ~AnalysisOutputForward.map_yaml_options
+      ~AnalysisOutputForward.map_yaml_streams
+      ~AnalysisOutputForward.map_yaml_to_namelist
+      ~AnalysisOutputForward.open_model_dataset
+      ~AnalysisOutputForward.partition
+      ~AnalysisOutputForward.process_inputs_and_outputs
+      ~AnalysisOutputForward.run
+      ~AnalysisOutputForward.runtime_setup
+      ~AnalysisOutputForward.set_model_resources
+      ~AnalysisOutputForward.set_resources
+      ~AnalysisOutputForward.set_shared_config
+      ~AnalysisOutputForward.setup
+      ~AnalysisOutputForward.update_io_tasks_config
+      ~AnalysisOutputForward.update_namelist_eos
+      ~AnalysisOutputForward.update_namelist_pio
+      ~AnalysisOutputForward.validate_baselines
+      ~AnalysisOutputForward.work_path
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~AnalysisOutputForward.cores
+      ~AnalysisOutputForward.gpus
+      ~AnalysisOutputForward.may_span_nodes
+      ~AnalysisOutputForward.min_cores
+      ~AnalysisOutputForward.min_gpus
+      ~AnalysisOutputForward.component
+      ~AnalysisOutputForward.config
+      ~AnalysisOutputForward.input_data
+      ~AnalysisOutputForward.logger
+   
+   

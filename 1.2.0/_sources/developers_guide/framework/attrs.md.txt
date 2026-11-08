@@ -1,0 +1,103 @@
+(dev-attrs)=
+
+# Variable attributes
+
+Fields Polaris writes to a NetCDF file should say what they are: a
+`long_name`, and `units` where the quantity has a meaningful unit.  Getting
+that right takes a little care, because a variable computed from another one
+does not start out with a blank slate.
+
+(dev-attrs-inheritance)=
+
+## xarray propagates attributes
+
+xarray keeps `attrs` through binary arithmetic, comparisons, `where()`,
+`zeros_like()` and NumPy ufuncs such as `np.maximum`:
+
+```python
+>>> bottom_pressure.attrs
+{'long_name': 'seafloor pressure', 'units': 'Pa'}
+>>> (bottom_pressure / (rho0 * gravity)).attrs
+{'long_name': 'seafloor pressure', 'units': 'Pa'}
+>>> xr.zeros_like(bottom_pressure).astype(int).attrs
+{'long_name': 'seafloor pressure', 'units': 'Pa'}
+```
+
+A depth in meters and a one-based level index both come out of that claiming
+to be a pressure in Pascals.  Older versions of xarray dropped attributes in
+arithmetic, so code written against that behaviour changed meaning silently on
+upgrade.
+
+Setting individual keys is not enough to undo it:
+
+```python
+# leaves any other attribute the parent had, such as a stale
+# ``cell_measures`` or a non-standard ``unit``
+ds.bottomDepth.attrs['long_name'] = 'seafloor geometric depth'
+ds.bottomDepth.attrs['units'] = 'm'
+```
+
+Nor is `xr.set_options(keep_attrs=False)`: it suppresses propagation through
+arithmetic and comparisons, but `zeros_like()` and `where()` keep attributes
+regardless.
+
+(dev-attrs-set-attrs)=
+
+## Use `set_attrs()`
+
+{py:func}`polaris.attrs.set_attrs()` replaces a variable's attributes
+wholesale, so a field carries exactly what it is given and nothing it
+inherited:
+
+```python
+from polaris.attrs import set_attrs
+
+# in place, on a variable already in a dataset
+ds['maxLevelCell'] = max_level_cell + 1
+set_attrs(
+    ds.maxLevelCell,
+    long_name='Index to the last active ocean cell in each column.',
+)
+
+# inline, on an expression
+ds['bottomDepth'] = set_attrs(
+    -geom_z_bot, long_name='seafloor geometric depth', units='m'
+)
+```
+
+Both patterns work: `set_attrs()` modifies the array in place and returns it.
+`ds[name]` shares the underlying `Variable`, so labelling `ds.maxLevelCell`
+reaches the dataset; and `ds[name] = da` copies the attributes, so two dataset
+variables built from one array can still describe themselves differently.
+
+Leave `units` out for quantities that have no meaningful unit — a one-based
+level index, a boolean mask — rather than inventing one.  Anything else, such
+as a `note` or a `standard_name`, can be passed as an extra keyword argument.
+
+(dev-attrs-cf)=
+
+## CF conventions
+
+A step that writes a netCDF file with xarray or `write_netcdf()` should pass
+the dataset through {py:func}`polaris.cf.add_cf_conventions()` first.  It
+adds `CF-1.8` to the `Conventions` attribute, keeping any other convention
+listed, such as the `MPAS` entry from the MPAS-Tools mesh tools.  The meshes
+that MPAS-Tools makes already have CF metadata; for mesh variables copied into
+another dataset, {py:func}`polaris.mesh.attrs.add_mesh_var_attrs()` fills in
+`units`, `long_name` and `standard_name` from the MPAS-Tools table.  Both
+leave what a variable already has alone.  The ocean component's
+write methods do both for you (see {ref}`dev-ocean-framework-cf-metadata`).
+
+A file remapped with `ncremap`, or cut down to a few of its source's
+variables, keeps attributes such as `bounds`, `cell_measures` and
+`grid_mapping` that name variables it no longer has, and the CF checker
+reports each as an error.  {py:func}`polaris.cf.drop_dangling_references()`
+drops them.  {py:func}`polaris.cf.add_lat_lon_attrs()` labels the `lat`
+and `lon` coordinates of a regular latitude-longitude grid.
+
+To have the file checked after the step runs, opt it in with
+{py:meth}`polaris.Step.add_cf_check()` (see {ref}`dev-cf-check`).
+
+A units string must be one udunits parses: the plain CF form (`m s-1`, `N
+m-2`, `radians`), with `1` for a dimensionless quantity, never `unitless`,
+`dimensionless` or `PSU`.

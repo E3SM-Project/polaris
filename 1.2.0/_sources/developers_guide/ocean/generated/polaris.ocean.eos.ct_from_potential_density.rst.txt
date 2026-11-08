@@ -1,0 +1,6 @@
+﻿polaris.ocean.eos.ct\_from\_potential\_density
+==============================================
+
+.. currentmodule:: polaris.ocean.eos
+
+.. autofunction:: ct_from_potential_density

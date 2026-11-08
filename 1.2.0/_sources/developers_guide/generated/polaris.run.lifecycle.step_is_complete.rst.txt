@@ -1,0 +1,6 @@
+﻿polaris.run.lifecycle.step\_is\_complete
+========================================
+
+.. currentmodule:: polaris.run.lifecycle
+
+.. autofunction:: step_is_complete

@@ -1,0 +1,6 @@
+﻿polaris.ocean.overturning.compute\_line\_transport
+==================================================
+
+.. currentmodule:: polaris.ocean.overturning
+
+.. autofunction:: compute_line_transport

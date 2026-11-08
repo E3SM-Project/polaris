@@ -1,0 +1,26 @@
+﻿polaris.tasks.ocean.horiz\_press\_grad.reference.ReferenceColumn
+================================================================
+
+.. currentmodule:: polaris.tasks.ocean.horiz_press_grad.reference
+
+.. autoclass:: ReferenceColumn
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~ReferenceColumn.__init__
+      ~ReferenceColumn.dalpha_dx
+      ~ReferenceColumn.hpga
+      ~ReferenceColumn.layer_mean_hpga
+      ~ReferenceColumn.specvol
+   
+   
+
+   
+   
+   

@@ -1,0 +1,6 @@
+﻿polaris.ocean.model.OceanIOStep.process\_inputs\_and\_outputs
+=============================================================
+
+.. currentmodule:: polaris.ocean.model
+
+.. automethod:: OceanIOStep.process_inputs_and_outputs

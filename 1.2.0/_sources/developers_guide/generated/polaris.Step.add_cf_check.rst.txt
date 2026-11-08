@@ -1,0 +1,6 @@
+﻿polaris.Step.add\_cf\_check
+===========================
+
+.. currentmodule:: polaris
+
+.. automethod:: Step.add_cf_check

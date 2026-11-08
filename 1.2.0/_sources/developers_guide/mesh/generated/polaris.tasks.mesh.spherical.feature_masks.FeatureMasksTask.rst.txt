@@ -1,0 +1,26 @@
+﻿polaris.tasks.mesh.spherical.feature\_masks.FeatureMasksTask
+============================================================
+
+.. currentmodule:: polaris.tasks.mesh.spherical.feature_masks
+
+.. autoclass:: FeatureMasksTask
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~FeatureMasksTask.__init__
+      ~FeatureMasksTask.add_step
+      ~FeatureMasksTask.configure
+      ~FeatureMasksTask.remove_step
+      ~FeatureMasksTask.set_shared_config
+   
+   
+
+   
+   
+   

@@ -1,0 +1,6 @@
+﻿polaris.mesh.info.is\_planar
+============================
+
+.. currentmodule:: polaris.mesh.info
+
+.. autofunction:: is_planar

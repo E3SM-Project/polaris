@@ -1,0 +1,6 @@
+﻿polaris.mesh.spherical.quality.check\_cell\_polygon\_quality
+============================================================
+
+.. currentmodule:: polaris.mesh.spherical.quality
+
+.. autofunction:: check_cell_polygon_quality

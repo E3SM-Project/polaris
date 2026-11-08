@@ -1,0 +1,6 @@
+﻿polaris.ocean.vertical.elevation.range\_bound\_label
+====================================================
+
+.. currentmodule:: polaris.ocean.vertical.elevation
+
+.. autofunction:: range_bound_label

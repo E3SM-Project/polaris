@@ -1,0 +1,6 @@
+﻿polaris.tasks.mesh.spherical.feature\_masks.moc.moc\_masks\_filename
+====================================================================
+
+.. currentmodule:: polaris.tasks.mesh.spherical.feature_masks.moc
+
+.. autofunction:: moc_masks_filename

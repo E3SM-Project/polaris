@@ -1,0 +1,6 @@
+﻿polaris.mesh.reconstruct.add\_reconstruction\_weights\_to\_dataset
+==================================================================
+
+.. currentmodule:: polaris.mesh.reconstruct
+
+.. autofunction:: add_reconstruction_weights_to_dataset

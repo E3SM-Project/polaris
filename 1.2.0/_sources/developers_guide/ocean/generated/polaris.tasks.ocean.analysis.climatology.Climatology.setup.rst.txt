@@ -1,0 +1,6 @@
+﻿polaris.tasks.ocean.analysis.climatology.Climatology.setup
+==========================================================
+
+.. currentmodule:: polaris.tasks.ocean.analysis.climatology
+
+.. automethod:: Climatology.setup

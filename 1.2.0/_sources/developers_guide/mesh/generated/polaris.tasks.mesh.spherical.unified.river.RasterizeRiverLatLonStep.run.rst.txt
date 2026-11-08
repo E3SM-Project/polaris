@@ -1,0 +1,6 @@
+﻿polaris.tasks.mesh.spherical.unified.river.RasterizeRiverLatLonStep.run
+=======================================================================
+
+.. currentmodule:: polaris.tasks.mesh.spherical.unified.river
+
+.. automethod:: RasterizeRiverLatLonStep.run

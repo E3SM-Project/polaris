@@ -1,0 +1,6 @@
+﻿polaris.tasks.ocean.barotropic\_gyre.forward.Forward.setup
+==========================================================
+
+.. currentmodule:: polaris.tasks.ocean.barotropic_gyre.forward
+
+.. automethod:: Forward.setup

@@ -1,0 +1,6 @@
+﻿polaris.mesh.spherical.unified.effective\_ocean.flood\_fill\_from\_seeds
+========================================================================
+
+.. currentmodule:: polaris.mesh.spherical.unified.effective_ocean
+
+.. autofunction:: flood_fill_from_seeds

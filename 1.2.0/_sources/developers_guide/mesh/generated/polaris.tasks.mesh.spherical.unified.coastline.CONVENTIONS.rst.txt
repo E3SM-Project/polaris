@@ -1,0 +1,6 @@
+﻿polaris.tasks.mesh.spherical.unified.coastline.CONVENTIONS
+==========================================================
+
+.. currentmodule:: polaris.tasks.mesh.spherical.unified.coastline
+
+.. autodata:: CONVENTIONS

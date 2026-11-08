@@ -1,0 +1,6 @@
+﻿polaris.tasks.ocean.horiz\_press\_grad.resting\_analysis.RestingAnalysis.run
+============================================================================
+
+.. currentmodule:: polaris.tasks.ocean.horiz_press_grad.resting_analysis
+
+.. automethod:: RestingAnalysis.run

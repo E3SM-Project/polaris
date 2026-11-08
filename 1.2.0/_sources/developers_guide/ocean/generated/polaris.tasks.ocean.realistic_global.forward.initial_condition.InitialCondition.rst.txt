@@ -1,0 +1,32 @@
+﻿polaris.tasks.ocean.realistic\_global.forward.initial\_condition.InitialCondition
+=================================================================================
+
+.. currentmodule:: polaris.tasks.ocean.realistic_global.forward.initial_condition
+
+.. autoclass:: InitialCondition
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~InitialCondition.__init__
+      ~InitialCondition.add_input_files
+      ~InitialCondition.get_forcing_filename
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~InitialCondition.graph_target
+      ~InitialCondition.min_res
+      ~InitialCondition.approx_cell_count
+   
+   

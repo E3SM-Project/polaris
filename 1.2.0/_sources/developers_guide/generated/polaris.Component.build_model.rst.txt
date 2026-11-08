@@ -1,0 +1,6 @@
+﻿polaris.Component.build\_model
+==============================
+
+.. currentmodule:: polaris
+
+.. automethod:: Component.build_model

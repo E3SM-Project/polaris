@@ -1,0 +1,6 @@
+﻿polaris.Component.get\_or\_create\_shared\_step
+===============================================
+
+.. currentmodule:: polaris
+
+.. automethod:: Component.get_or_create_shared_step

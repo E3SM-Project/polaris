@@ -1,0 +1,6 @@
+﻿polaris.tasks.ocean.analysis.global\_stats.GlobalStatsTimeSeries.setup
+======================================================================
+
+.. currentmodule:: polaris.tasks.ocean.analysis.global_stats
+
+.. automethod:: GlobalStatsTimeSeries.setup

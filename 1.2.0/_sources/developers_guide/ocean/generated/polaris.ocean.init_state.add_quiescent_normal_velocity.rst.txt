@@ -1,0 +1,6 @@
+﻿polaris.ocean.init\_state.add\_quiescent\_normal\_velocity
+==========================================================
+
+.. currentmodule:: polaris.ocean.init_state
+
+.. autofunction:: add_quiescent_normal_velocity
