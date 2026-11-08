@@ -425,6 +425,7 @@ window.runMermaid = runMermaid;</script>
 <li class="toctree-l1"><a class="reference internal" href="../../../../developers_guide/machines/index.html">Machines</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../developers_guide/benchmarking.html">Benchmarking a branch against a baseline</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../developers_guide/omega_pr_testing.html">Testing an Omega pull request</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../developers_guide/polaris_update_testing.html">Testing a Polaris version update</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../developers_guide/troubleshooting.html">Troubleshooting</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../developers_guide/docs.html">Documentation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../developers_guide/building_docs.html">Building the Documentation</a></li>
@@ -473,12 +474,13 @@ window.runMermaid = runMermaid;</script>
 <span></span><span class="kn">import</span><span class="w"> </span><span class="nn">xarray</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">xr</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">polaris.config</span><span class="w"> </span><span class="kn">import</span> <span class="n">PolarisConfigParser</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.constants</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_constant</span>
 
 <span class="c1"># Linear salinity dependence of the freezing temperature (degC/PSU) and the</span>
 <span class="c1"># absolute-to-practical salinity conversion (g/kg per PSU), matching the</span>
 <span class="c1"># LinearEos branch of Omega's Eos::calcCtFreezing()</span>
 <span class="n">FREEZING_SALINITY_COEFF</span> <span class="o">=</span> <span class="o">-</span><span class="mf">0.054</span>
-<span class="n">PSU_TO_GPKG</span> <span class="o">=</span> <span class="mf">35.16504</span> <span class="o">/</span> <span class="mf">35.0</span>
+<span class="n">PSU_TO_GPKG</span> <span class="o">=</span> <span class="n">get_constant</span><span class="p">(</span><span class="s1">'reference_salinity_per_practical_salinity_teos10'</span><span class="p">)</span>
 
 
 <div class="viewcode-block" id="compute_linear_density">

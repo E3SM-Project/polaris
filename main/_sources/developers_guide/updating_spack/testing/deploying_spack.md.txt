@@ -17,6 +17,9 @@ infrastructure. The process is typically:
 
 1. **Update configuration files**:
    - Set the target version in `polaris/version.py`
+   - If moving to a new `mache`, regenerate `deploy.py` and
+     `deploy/cli_spec.json` and update its pin (see
+     [Updating Polaris to a new mache](updating_mache.md#updating-polaris-to-a-new-mache))
     - Update package pins in `deploy/pins.cfg`
     - Update Spack specs in `deploy/spack.yaml.j2` if package specs changed
    - Update machine configs in `polaris/machines/` as needed
@@ -72,7 +75,8 @@ infrastructure. The process is typically:
 - `--mpi <mpi(s)>`: Specify MPI library/libraries.
 - `--recreate`: Recreate environments even if they exist.
 - `--mache-fork` and `--mache-branch`: Use a specific fork/branch of `mache`
-  (for co-development/testing).
+  (for co-development/testing; see
+  [Testing an unreleased mache](updating_mache.md#testing-an-unreleased-mache)).
 
 See `./deploy.py --help` for the full list.
 

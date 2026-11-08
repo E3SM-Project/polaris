@@ -70,6 +70,7 @@
 <li class="toctree-l1"><a class="reference internal" href="machines/index.html">Machines</a></li>
 <li class="toctree-l1"><a class="reference internal" href="benchmarking.html">Benchmarking a branch against a baseline</a></li>
 <li class="toctree-l1"><a class="reference internal" href="omega_pr_testing.html">Testing an Omega pull request</a></li>
+<li class="toctree-l1"><a class="reference internal" href="polaris_update_testing.html">Testing a Polaris version update</a></li>
 <li class="toctree-l1"><a class="reference internal" href="troubleshooting.html">Troubleshooting</a></li>
 <li class="toctree-l1"><a class="reference internal" href="docs.html">Documentation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="building_docs.html">Building the Documentation</a></li>
@@ -133,6 +134,10 @@ configuration, not through the old standalone conda setup workflow.</p>
 <li><p><code class="docutils literal notranslate"><span class="pre">deploy/config.yaml.j2</span></code> for deployment options and defaults</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">deploy/pins.cfg</span></code> for pinned mache/python versions used by <code class="docutils literal notranslate"><span class="pre">deploy.py</span></code></p></li>
 </ul>
+<p><code class="docutils literal notranslate"><span class="pre">deploy.py</span></code> and <code class="docutils literal notranslate"><span class="pre">deploy/cli_spec.json</span></code> belong to <code class="docutils literal notranslate"><span class="pre">mache</span></code>.  Don’t edit them
+by hand.  To move to a new <code class="docutils literal notranslate"><span class="pre">mache</span></code>, regenerate them and update the pin, as
+described in
+<a class="reference internal" href="updating_spack/testing/updating_mache.html#updating-polaris-to-a-new-mache"><span class="std std-ref">Updating Polaris to a new mache</span></a>.</p>
 <p>For background on how these files are rendered and used, see:</p>
 <ul class="simple">
 <li><p><a class="reference external" href="https://docs.e3sm.org/mache/main/users_guide/deploy.html">mache deploy user guide</a></p></li>

@@ -425,6 +425,7 @@ window.runMermaid = runMermaid;</script>
 <li class="toctree-l1"><a class="reference internal" href="../../developers_guide/machines/index.html">Machines</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../developers_guide/benchmarking.html">Benchmarking a branch against a baseline</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../developers_guide/omega_pr_testing.html">Testing an Omega pull request</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../developers_guide/polaris_update_testing.html">Testing a Polaris version update</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../developers_guide/troubleshooting.html">Troubleshooting</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../developers_guide/docs.html">Documentation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../developers_guide/building_docs.html">Building the Documentation</a></li>
@@ -511,8 +512,9 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">    compiler : str</span>
 <span class="sd">        The compiler the component was built with</span>
 
-<span class="sd">    build_type : str</span>
-<span class="sd">        The build type of the component, ``Release`` or ``Debug``</span>
+<span class="sd">    build_type : str, optional</span>
+<span class="sd">        The build type of the component, ``Release`` or ``Debug``, or</span>
+<span class="sd">        ``None`` for MPAS-Ocean, whose provenance has none</span>
 
 <span class="sd">    component_hash : str</span>
 <span class="sd">        The full hash of the component commit that was built</span>
@@ -526,7 +528,7 @@ window.runMermaid = runMermaid;</script>
 
     <span class="n">machine</span><span class="p">:</span> <span class="nb">str</span>
     <span class="n">compiler</span><span class="p">:</span> <span class="nb">str</span>
-    <span class="n">build_type</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">build_type</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>
     <span class="n">component_hash</span><span class="p">:</span> <span class="nb">str</span>
     <span class="n">polaris_hash</span><span class="p">:</span> <span class="nb">str</span>
     <span class="n">suite</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">'omega_pr'</span></div>

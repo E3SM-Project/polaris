@@ -70,6 +70,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../machines/index.html">Machines</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../benchmarking.html">Benchmarking a branch against a baseline</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../omega_pr_testing.html">Testing an Omega pull request</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../polaris_update_testing.html">Testing a Polaris version update</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../troubleshooting.html">Troubleshooting</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../docs.html">Documentation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../building_docs.html">Building the Documentation</a></li>
@@ -142,6 +143,10 @@
 running the required test suite(s) for each supported machine, compiler, and
 MPI variant. This ensures that core E3SM components build and run correctly in
 the new environment.</p>
+<p>The utility in <code class="docutils literal notranslate"><span class="pre">utils/polaris_update_testing</span></code> deploys the environments, runs
+these suites on every supported row and reports the results on the pull
+request (see <a class="reference internal" href="../../polaris_update_testing.html#dev-polaris-update-testing"><span class="std std-ref">Testing a Polaris version update</span></a>).  The steps below are what
+it does, for running them by hand.</p>
 <hr class="docutils" />
 <section id="mpas-ocean-running-the-pr-suite">
 <h2>MPAS-Ocean: Running the <code class="docutils literal notranslate"><span class="pre">pr</span></code> Suite<a class="headerlink" href="#mpas-ocean-running-the-pr-suite" title="Link to this heading"></a></h2>

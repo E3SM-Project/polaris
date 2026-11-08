@@ -425,6 +425,7 @@ window.runMermaid = runMermaid;</script>
 <li class="toctree-l1"><a class="reference internal" href="../../../../../../developers_guide/machines/index.html">Machines</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../../../developers_guide/benchmarking.html">Benchmarking a branch against a baseline</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../../../developers_guide/omega_pr_testing.html">Testing an Omega pull request</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../developers_guide/polaris_update_testing.html">Testing a Polaris version update</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../../../developers_guide/troubleshooting.html">Troubleshooting</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../../../developers_guide/docs.html">Documentation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../../../developers_guide/building_docs.html">Building the Documentation</a></li>
@@ -478,11 +479,9 @@ window.runMermaid = runMermaid;</script>
 <span class="kn">from</span><span class="w"> </span><span class="nn">polaris.constants</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_constant</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">polaris.ocean.model</span><span class="w"> </span><span class="kn">import</span> <span class="n">OceanIOStep</span><span class="p">,</span> <span class="n">get_time_since_start</span>
 
-<span class="c1"># Omega hard-codes the TEOS-10 reference specific heat of seawater in</span>
-<span class="c1"># GlobalConstants.h (Cp0Sw = 1 / HFluxFac / RhoSw).  This differs from the PCD</span>
-<span class="c1"># value ``seawater_specific_heat_capacity_reference`` so it is reproduced here</span>
-<span class="c1"># to keep the heat budget consistent with what the model actually integrates.</span>
-<span class="n">CP0_SW</span> <span class="o">=</span> <span class="mf">3991.86795711963</span>
+<span class="c1"># The TEOS-10 specific heat of seawater that Omega uses for its heat budget</span>
+<span class="c1"># (Cp0Sw = 1 / HFluxFac / RhoSw in GlobalConstants.h)</span>
+<span class="n">CP0_SW</span> <span class="o">=</span> <span class="n">get_constant</span><span class="p">(</span><span class="s1">'seawater_specific_heat_capacity_teos10'</span><span class="p">)</span>
 
 <span class="c1"># Freshwater/mass fluxes that Omega adds to the (pseudo-)thickness equation in</span>
 <span class="c1"># ``SfcThicknessForcingOnCell`` (TendencyTerms.h).  ``seaIceSalinityFlux`` also</span>

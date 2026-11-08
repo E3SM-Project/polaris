@@ -70,6 +70,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../machines/index.html">Machines</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../benchmarking.html">Benchmarking a branch against a baseline</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../omega_pr_testing.html">Testing an Omega pull request</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../polaris_update_testing.html">Testing a Polaris version update</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../troubleshooting.html">Troubleshooting</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../docs.html">Documentation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../building_docs.html">Building the Documentation</a></li>
@@ -86,6 +87,8 @@
 <li class="toctree-l4"><a class="reference internal" href="#repo-location">Repo Location</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#when-to-update-mache">When to Update <code class="docutils literal notranslate"><span class="pre">mache</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#key-tasks">Key Tasks</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#updating-polaris-to-a-new-mache">Updating Polaris to a new mache</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#testing-an-unreleased-mache">Testing an unreleased mache</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#best-practices">Best Practices</a></li>
 </ul>
 </li>
@@ -221,9 +224,96 @@ the <code class="docutils literal notranslate"><span class="pre">dev</span></cod
 the <code class="docutils literal notranslate"><span class="pre">main</span></code> branch)</p></li>
 <li><p>Merge once CI passes</p></li>
 </ul>
-<p>Afterward, update any references to the RC version in the Polaris repo to
-point to the final release.</p>
+<p>Afterward, update Polaris to the final release, as described below.</p>
 </section>
+</section>
+<hr class="docutils" />
+<section id="updating-polaris-to-a-new-mache">
+<h2>Updating Polaris to a new mache<a class="headerlink" href="#updating-polaris-to-a-new-mache" title="Link to this heading"></a></h2>
+<p>Polaris pins one version of <code class="docutils literal notranslate"><span class="pre">mache</span></code> in <code class="docutils literal notranslate"><span class="pre">deploy/pins.cfg</span></code>.  Two of
+Polaris’ files belong to <code class="docutils literal notranslate"><span class="pre">mache</span></code> and must match that version: <code class="docutils literal notranslate"><span class="pre">deploy.py</span></code>
+and <code class="docutils literal notranslate"><span class="pre">deploy/cli_spec.json</span></code>.  Never edit them by hand.  Have the new
+<code class="docutils literal notranslate"><span class="pre">mache</span></code> regenerate them instead.  The steps work for a release on
+conda-forge, such as <code class="docutils literal notranslate"><span class="pre">5.3.0</span></code>, or a release candidate on the <code class="docutils literal notranslate"><span class="pre">mache_dev</span></code>
+label, such as <code class="docutils literal notranslate"><span class="pre">5.3.0rc1</span></code>.</p>
+<ol class="arabic">
+<li><p>From the root of your Polaris branch, make a bootstrap environment with
+the new <code class="docutils literal notranslate"><span class="pre">mache</span></code>:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>./deploy.py<span class="w"> </span>--bootstrap-only<span class="w"> </span>--mache-version<span class="w"> </span><span class="m">5</span>.3.0
+</pre></div>
+</div>
+<p>For an hour or more after a release is uploaded, this can fail with “No
+candidates were found for mache”.  Pixi finds packages through the
+channel’s sharded index, <code class="docutils literal notranslate"><span class="pre">noarch/repodata_shards.msgpack.zst</span></code> on
+<code class="docutils literal notranslate"><span class="pre">conda.anaconda.org/conda-forge</span></code>.  It sees the release only once that
+index has been rebuilt, even though anaconda.org already lists the
+package.  <code class="docutils literal notranslate"><span class="pre">pixi</span> <span class="pre">search</span> <span class="pre">-c</span> <span class="pre">conda-forge</span> <span class="pre">'mache==5.3.0'</span></code> finds it once the
+index has it.  Meanwhile, you can bootstrap from the release’s tag with
+<code class="docutils literal notranslate"><span class="pre">--mache-fork</span> <span class="pre">E3SM-Project/mache</span> <span class="pre">--mache-branch</span> <span class="pre">5.3.0</span></code> in place of
+<code class="docutils literal notranslate"><span class="pre">--mache-version</span></code>.</p>
+</li>
+<li><p>Follow the instructions it prints:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pixi<span class="w"> </span>shell<span class="w"> </span>-m<span class="w"> </span>deploy_tmp/bootstrap_pixi/pixi.toml
+mache<span class="w"> </span>deploy<span class="w"> </span>update<span class="w"> </span>--software<span class="w"> </span>polaris<span class="w"> </span>--mache-version<span class="w"> </span><span class="m">5</span>.3.0
+<span class="nb">exit</span>
+</pre></div>
+</div>
+<p>This replaces <code class="docutils literal notranslate"><span class="pre">deploy.py</span></code> and <code class="docutils literal notranslate"><span class="pre">deploy/cli_spec.json</span></code> with the versions
+from the new <code class="docutils literal notranslate"><span class="pre">mache</span></code>.</p>
+</li>
+<li><p>Set <code class="docutils literal notranslate"><span class="pre">mache</span></code> under <code class="docutils literal notranslate"><span class="pre">[pixi]</span></code> in <code class="docutils literal notranslate"><span class="pre">deploy/pins.cfg</span></code> to the new version.
+Until the pin and <code class="docutils literal notranslate"><span class="pre">meta.mache_version</span></code> in <code class="docutils literal notranslate"><span class="pre">deploy/cli_spec.json</span></code> name
+the same version, <code class="docutils literal notranslate"><span class="pre">./deploy.py</span></code> refuses to run.</p></li>
+<li><p>Update any other dependencies in <code class="docutils literal notranslate"><span class="pre">deploy/pins.cfg</span></code>, <code class="docutils literal notranslate"><span class="pre">deploy/pixi.toml.j2</span></code>
+and <code class="docutils literal notranslate"><span class="pre">deploy/spack.yaml.j2</span></code> (see <a class="reference internal" href="../../updating_conda.html#dev-updating-conda"><span class="std std-ref">Updating Deployment Dependencies</span></a> and
+<a class="reference internal" href="../updating_packages.html"><span class="std std-doc">Updating Spack Dependencies</span></a>).</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">mache</span> <span class="pre">deploy</span> <span class="pre">update</span></code> leaves Polaris’ own deployment files alone:
+<code class="docutils literal notranslate"><span class="pre">deploy/config.yaml.j2</span></code>, <code class="docutils literal notranslate"><span class="pre">deploy/pixi.toml.j2</span></code>, <code class="docutils literal notranslate"><span class="pre">deploy/spack.yaml.j2</span></code>,
+<code class="docutils literal notranslate"><span class="pre">deploy/hooks.py</span></code>, <code class="docutils literal notranslate"><span class="pre">deploy/load.sh</span></code> and <code class="docutils literal notranslate"><span class="pre">deploy/custom_cli_spec.json</span></code>.
+Read the release notes of every <code class="docutils literal notranslate"><span class="pre">mache</span></code> release since the old pin, and
+the descriptions of the PRs they list.  Look for:</p>
+<ul class="simple">
+<li><p>changes Polaris’ own deployment files need, such as a new Spack
+variant to request in <code class="docutils literal notranslate"><span class="pre">deploy/spack.yaml.j2</span></code>;</p></li>
+<li><p>changes to how hooks are called, or to what a hook may do, which
+<code class="docutils literal notranslate"><span class="pre">deploy/hooks.py</span></code> must follow;</p></li>
+<li><p>breaking changes that need the shared Spack environments rebuilt, such
+as a new compiler or module version in a machine’s Spack template.  A
+machine whose shared environments are not rebuilt under the new
+Polaris version breaks for everyone who loads them;</p></li>
+<li><p>caveats asking to keep a change out of a release, or out of Polaris,
+until something else happens, such as Omega or E3SM moving to a new
+module.  If such a change was released anyway, raise it in the
+version-update PR before deploying.</p></li>
+</ul>
+</li>
+<li><p>Review the diff, and commit the regenerated files and the new pins
+together.</p></li>
+</ol>
+</section>
+<hr class="docutils" />
+<section id="testing-an-unreleased-mache">
+<h2>Testing an unreleased mache<a class="headerlink" href="#testing-an-unreleased-mache" title="Link to this heading"></a></h2>
+<p>To deploy Polaris with a <code class="docutils literal notranslate"><span class="pre">mache</span></code> branch that has not been released yet,
+such as a <code class="docutils literal notranslate"><span class="pre">mache</span></code> PR that fixes a machine’s Spack template, pass its fork
+and branch to <code class="docutils literal notranslate"><span class="pre">./deploy.py</span></code>:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>./deploy.py<span class="w"> </span>--deploy-spack<span class="w"> </span>--spack-path<span class="w"> </span>&lt;test_spack_path&gt;<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--compiler<span class="w"> </span>&lt;compiler...&gt;<span class="w"> </span>--mpi<span class="w"> </span>&lt;mpi...&gt;<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--mache-fork<span class="w"> </span>&lt;org&gt;/mache<span class="w"> </span>--mache-branch<span class="w"> </span>&lt;branch&gt;
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">./deploy.py</span></code> then downloads the bootstrap script from the branch, clones
+it, and installs <code class="docutils literal notranslate"><span class="pre">mache</span></code> from the clone into the Polaris environment.  It
+skips the check that the pin matches <code class="docutils literal notranslate"><span class="pre">deploy/cli_spec.json</span></code>, so you can
+test a branch before updating Polaris to it.  If the branch changes
+<code class="docutils literal notranslate"><span class="pre">deploy.py</span></code> or <code class="docutils literal notranslate"><span class="pre">deploy/cli_spec.json</span></code>, regenerate them from the branch
+first, as above but with <code class="docutils literal notranslate"><span class="pre">--mache-fork</span></code> and <code class="docutils literal notranslate"><span class="pre">--mache-branch</span></code> in place of
+<code class="docutils literal notranslate"><span class="pre">--mache-version</span></code>.  Leave <code class="docutils literal notranslate"><span class="pre">--mache-version</span></code> off <code class="docutils literal notranslate"><span class="pre">mache</span> <span class="pre">deploy</span> <span class="pre">update</span></code> too,
+so it uses the version of the <code class="docutils literal notranslate"><span class="pre">mache</span></code> it was installed with.</p>
+<p>Use a <code class="docutils literal notranslate"><span class="pre">mache</span></code> branch only for test deployments.  Release <code class="docutils literal notranslate"><span class="pre">mache</span></code>, then
+update Polaris to the release as above, before deploying the shared Spack
+environments.  The Polaris version update testing utility takes the same
+flags (<a class="reference internal" href="../../polaris_update_testing.html#dev-polaris-update-testing"><span class="std std-ref">Testing a Polaris version update</span></a>).</p>
 </section>
 <hr class="docutils" />
 <section id="best-practices">

@@ -70,6 +70,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../machines/index.html">Machines</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../benchmarking.html">Benchmarking a branch against a baseline</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../omega_pr_testing.html">Testing an Omega pull request</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../polaris_update_testing.html">Testing a Polaris version update</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../troubleshooting.html">Troubleshooting</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../docs.html">Documentation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../building_docs.html">Building the Documentation</a></li>
@@ -149,14 +150,31 @@ behavior and templates, treat the mache docs as the source of truth:</p>
 <li><p><strong>Bump the Polaris version</strong></p>
 <p>Update <code class="docutils literal notranslate"><span class="pre">polaris/version.py</span></code> to the target version and commit that change.</p>
 </li>
+<li><p><strong>Update <code class="docutils literal notranslate"><span class="pre">mache</span></code>, if needed</strong></p>
+<p>To move to a new <code class="docutils literal notranslate"><span class="pre">mache</span></code>, regenerate <code class="docutils literal notranslate"><span class="pre">deploy.py</span></code> and
+<code class="docutils literal notranslate"><span class="pre">deploy/cli_spec.json</span></code> with <code class="docutils literal notranslate"><span class="pre">./deploy.py</span> <span class="pre">--bootstrap-only</span></code> and
+<code class="docutils literal notranslate"><span class="pre">mache</span> <span class="pre">deploy</span> <span class="pre">update</span></code>, then update the <code class="docutils literal notranslate"><span class="pre">mache</span></code> pin, as described in
+<a class="reference internal" href="testing/updating_mache.html#updating-polaris-to-a-new-mache"><span class="std std-ref">Updating Polaris to a new mache</span></a>.
+To test a <code class="docutils literal notranslate"><span class="pre">mache</span></code> branch that is not released yet, see
+<a class="reference internal" href="testing/updating_mache.html#testing-an-unreleased-mache"><span class="std std-ref">Testing an unreleased mache</span></a>.</p>
+</li>
 <li><p><strong>Update deployment inputs</strong></p>
 <ul class="simple">
 <li><p>Update pinned versions in <code class="docutils literal notranslate"><span class="pre">deploy/pins.cfg</span></code>:</p>
 <ul>
 <li><p><code class="docutils literal notranslate"><span class="pre">[spack]</span></code> for Spack-only pins</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">[all]</span></code> for pins shared by pixi and Spack</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">[all]</span></code> for pins shared by pixi and Spack.  These follow the
+versions that conda-forge builds against
+(conda-forge-pinning-feedstock), so leave them alone unless a pixi
+dependency needs a newer one.  For example, mpas_tools 2.2.1 is
+built against netcdf-fortran 4.6.4 and requires it.</p></li>
 </ul>
 </li>
+<li><p>If Spack needs a package version that the e3sm-spack-packages tag
+pinned by <code class="docutils literal notranslate"><span class="pre">mache</span></code> does not have, add it to
+<a class="reference external" href="https://github.com/E3SM-Project/e3sm-spack-packages">e3sm-spack-packages</a>,
+tag a release there, and pin that tag under <code class="docutils literal notranslate"><span class="pre">spack:</span> <span class="pre">pins:</span></code> in
+<code class="docutils literal notranslate"><span class="pre">deploy/config.yaml.j2</span></code>.  This needs no new <code class="docutils literal notranslate"><span class="pre">mache</span></code> release.</p></li>
 <li><p>Update Spack specs in <code class="docutils literal notranslate"><span class="pre">deploy/spack.yaml.j2</span></code> as needed</p></li>
 <li><p>Update deployment defaults/behavior in <code class="docutils literal notranslate"><span class="pre">deploy/config.yaml.j2</span></code> only if
 deployment logic or paths need to change</p></li>

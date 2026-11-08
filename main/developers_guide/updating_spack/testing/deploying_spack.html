@@ -70,6 +70,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../machines/index.html">Machines</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../benchmarking.html">Benchmarking a branch against a baseline</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../omega_pr_testing.html">Testing an Omega pull request</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../polaris_update_testing.html">Testing a Polaris version update</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../troubleshooting.html">Troubleshooting</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../docs.html">Documentation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../building_docs.html">Building the Documentation</a></li>
@@ -154,6 +155,9 @@ infrastructure. The process is typically:</p>
 <li><p><strong>Update configuration files</strong>:</p>
 <ul class="simple">
 <li><p>Set the target version in <code class="docutils literal notranslate"><span class="pre">polaris/version.py</span></code></p></li>
+<li><p>If moving to a new <code class="docutils literal notranslate"><span class="pre">mache</span></code>, regenerate <code class="docutils literal notranslate"><span class="pre">deploy.py</span></code> and
+<code class="docutils literal notranslate"><span class="pre">deploy/cli_spec.json</span></code> and update its pin (see
+<a class="reference internal" href="updating_mache.html#updating-polaris-to-a-new-mache"><span class="std std-ref">Updating Polaris to a new mache</span></a>)</p></li>
 <li><p>Update package pins in <code class="docutils literal notranslate"><span class="pre">deploy/pins.cfg</span></code></p></li>
 <li><p>Update Spack specs in <code class="docutils literal notranslate"><span class="pre">deploy/spack.yaml.j2</span></code> if package specs changed</p></li>
 <li><p>Update machine configs in <code class="docutils literal notranslate"><span class="pre">polaris/machines/</span></code> as needed</p></li>
@@ -210,7 +214,8 @@ settings consumed by <code class="docutils literal notranslate"><span class="pre
 <li><p><code class="docutils literal notranslate"><span class="pre">--mpi</span> <span class="pre">&lt;mpi(s)&gt;</span></code>: Specify MPI library/libraries.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">--recreate</span></code>: Recreate environments even if they exist.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">--mache-fork</span></code> and <code class="docutils literal notranslate"><span class="pre">--mache-branch</span></code>: Use a specific fork/branch of <code class="docutils literal notranslate"><span class="pre">mache</span></code>
-(for co-development/testing).</p></li>
+(for co-development/testing; see
+<a class="reference internal" href="updating_mache.html#testing-an-unreleased-mache"><span class="std std-ref">Testing an unreleased mache</span></a>).</p></li>
 </ul>
 <p>See <code class="docutils literal notranslate"><span class="pre">./deploy.py</span> <span class="pre">--help</span></code> for the full list.</p>
 <p>If needed, set Spack temporary build location with <code class="docutils literal notranslate"><span class="pre">spack.tmpdir</span></code> in

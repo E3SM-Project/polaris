@@ -115,6 +115,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/machines/index.html">Machines</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/benchmarking.html">Benchmarking a branch against a baseline</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/omega_pr_testing.html">Testing an Omega pull request</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/polaris_update_testing.html">Testing a Polaris version update</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/troubleshooting.html">Troubleshooting</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/docs.html">Documentation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/building_docs.html">Building the Documentation</a></li>
@@ -595,9 +596,10 @@ whole mass whatever the geometry says, and a range that reaches below the
 seafloor is truncated there.  A column with no water in the range at all –
 one shallower than 2000 m, for the <code class="docutils literal notranslate"><span class="pre">-2000.0:bottom</span></code> band – is masked rather
 than plotted as zero.</p>
-<p>The specific heat capacity is the one in Polaris’s Physical Constants
-Dictionary, which is the one the rest of E3SM uses.  Like the reference
-density, it is not a config option.</p>
+<p>The specific heat capacity is the TEOS-10 one that Omega uses with
+conservative temperature, <code class="docutils literal notranslate"><span class="pre">seawater_specific_heat_capacity_teos10</span></code> in Polaris’s
+Physical Constants Dictionary.  Like the reference density, it is not a config
+option.</p>
 <p>Output names follow the rest of the maps, with the range in place of the
 elevation, for example <code class="docutils literal notranslate"><span class="pre">heat_content_anomaly_ANN_top_to_bottom.png</span></code>.  The
 netCDF is written in J m-2, which is the unit the quantity means, and carries
