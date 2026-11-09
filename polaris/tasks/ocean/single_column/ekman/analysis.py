@@ -32,6 +32,10 @@ class Analysis(OceanIOStep):
         """
         super().__init__(component=component, name='analysis', indir=indir)
         self.forward = forward
+        self.add_init_input_file(work_dir_target=f'{forward.path}/init.nc')
+        self.add_vert_coord_input_file(
+            work_dir_target=f'{forward.path}/vert_coord.nc'
+        )
 
     def setup(self):
         self.add_input_file(
@@ -133,9 +137,28 @@ class Analysis(OceanIOStep):
             u_exact, v_exact = _exact_solution(
                 z_mid, nu, f, tau_x=tau_x / rho_0
             )
-            thickness = ds['layerThickness'].mean(dim='nCells').values
-            z_top = z_mid + 0.5 * thickness
-            z_bottom = z_mid - 0.5 * thickness
+            ds_vert = None
+            if 'GeomZInterface' not in ds:
+                filename = (
+                    self.get_vert_coord_filename()
+                    if config.get('ocean', 'model') == 'omega'
+                    else self.get_init_filename()
+                )
+                ds_vert = self.open_model_dataset(
+                    filename, config=config, decode_times=False
+                )
+            z_interface = (
+                vertical_coord_from_location(
+                    ds,
+                    'cell-interfaces',
+                    allow_reconstruct=True,
+                    ds_vert=ds_vert,
+                )
+                .mean(dim='nCells')
+                .values
+            )
+            z_top = z_interface[:-1]
+            z_bottom = z_interface[1:]
             z_max = bottom_depth / 3.0
             weights = np.maximum(
                 0.0, np.minimum(z_top, 0.0) - np.maximum(z_bottom, -z_max)

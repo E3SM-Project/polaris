@@ -75,6 +75,7 @@ Omega:
       - State
       - Forcing
       - GeomZMid
+      - GeomZInterface
       # Tracers supplies Temperature and Salinity, and Eos supplies the
       # SpecVol that layerThickness is derived from, as the baseline
       # comparison for this task requires.  Eos also lets the analysis step
