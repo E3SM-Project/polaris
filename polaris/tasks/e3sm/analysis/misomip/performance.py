@@ -18,8 +18,9 @@ from polaris.viz.style import mplstyle_context
 
 #: The parts of the ocean's and MALI's run times that their timers give: the
 #: label, the component, the timers added and the timers taken away.  A
-#: part whose timers a segment lacks is left out, and the rest of each
-#: component's run time is its remainder.
+#: part none of whose added timers a segment has is left out, a timer that
+#: never ran counts as no time, and the rest of each component's run time is
+#: its remainder.
 RUN_TIME_PARTS = [
     ('ocean: time integration', 'OCN', ['o:time integration'], []),
     (
@@ -463,11 +464,13 @@ def _run_time_parts(segment):
     for label, component, added, taken in RUN_TIME_PARTS:
         if component not in times:
             continue
-        if any(name not in segment.timers for name in added + taken):
+        if not any(name in segment.timers for name in added):
             continue
-        parts[label] = sum(segment.timers[name] for name in added) - sum(
-            segment.timers[name] for name in taken
-        )
+        # a timer that never ran in a segment took no time, as MALI's FEM
+        # grid build in a year whose masks never change
+        parts[label] = sum(
+            segment.timers.get(name, 0.0) for name in added
+        ) - sum(segment.timers.get(name, 0.0) for name in taken)
     for component, label in REMAINDERS.items():
         if component not in times:
             continue

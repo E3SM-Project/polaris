@@ -222,6 +222,19 @@ def test_run_time_parts_add_up_to_the_total(case):
     )
 
 
+def test_a_timer_that_never_ran_took_no_time(case):
+    case_dir, logs = case
+    summary, stats = find_timing_files(str(case_dir))[LID1]
+    segment = read_segment(summary, stats, logs[0])
+    timers = dict(segment.timers)
+    solve = timers['g:velocity solve']
+    del timers['g:velocity_solver_extrude_3d_grid']
+    parts = _run_time_parts(segment._replace(timers=timers))
+    assert 'MALI: FEM grid build' not in parts
+    assert parts['MALI: rest of velocity solve'] == solve
+    assert sum(parts.values()) == pytest.approx(4675.119)
+
+
 def test_without_timers_each_model_s_run_time_is_one_part(case):
     case_dir, logs = case
     summary, stats = find_timing_files(str(case_dir))[LID2]
