@@ -11,14 +11,22 @@ time.  Each call is serial, but a mesh needs hundreds of them, and on the
 finest unified mesh they add up to most of a day on one core.
 """
 
+from __future__ import annotations
+
 import multiprocessing
 import os
 import subprocess
 import time
 from concurrent.futures import ProcessPoolExecutor, as_completed
-from typing import NamedTuple
+from typing import TYPE_CHECKING, NamedTuple
 
-import numpy as np
+from polaris.lazy import lazy_module
+
+if TYPE_CHECKING:
+    import numpy as np
+else:
+    np = lazy_module('numpy')
+
 
 #: The file every ``gpmetis`` report is appended to.  There are hundreds of
 #: them, and in the step's log they would bury everything else.

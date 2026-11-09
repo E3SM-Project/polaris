@@ -1,5 +1,13 @@
-import numpy
-import xarray
+from typing import TYPE_CHECKING
+
+from polaris.lazy import lazy_module
+
+if TYPE_CHECKING:
+    import numpy
+    import xarray
+else:
+    numpy = lazy_module('numpy')
+    xarray = lazy_module('xarray')
 
 
 def alter_bottom_depth(config, bottomDepth, refBottomDepth, maxLevelCell):

@@ -1,6 +1,6 @@
-import numpy as np
-import xarray as xr
+from typing import TYPE_CHECKING
 
+from polaris.lazy import lazy_module
 from polaris.ocean.vertical.diagnostics import (
     compute_column_potential_energy as compute_column_potential_energy,
 )
@@ -25,6 +25,14 @@ from polaris.ocean.vertical.zstar import (
 from polaris.ocean.vertical.zstar import (
     update_z_star_layer_thickness as update_z_star_layer_thickness,
 )
+
+if TYPE_CHECKING:
+    import numpy as np
+    import xarray as xr
+else:
+    np = lazy_module('numpy')
+    xr = lazy_module('xarray')
+
 
 # fields that init_vertical_coord() computes from others
 _VERT_COORD_VARS = [

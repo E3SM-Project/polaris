@@ -1,9 +1,17 @@
-import matplotlib.pyplot as plt
-import numpy as np
+from typing import TYPE_CHECKING
 
 from polaris.constants import get_constant
+from polaris.lazy import lazy_module
 from polaris.ocean.eos import compute_ct_freezing
 from polaris.tasks.ocean.single_column.thermo.analysis import CP0_SW
+
+if TYPE_CHECKING:
+    import matplotlib.pyplot as plt
+    import numpy as np
+else:
+    plt = lazy_module('matplotlib.pyplot')
+    np = lazy_module('numpy')
+
 
 FRAZIL_RATE_UNITS = {
     'FrazilEnergyFlux': 'W m$^{-2}$',

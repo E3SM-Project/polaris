@@ -1,10 +1,18 @@
-import matplotlib.pyplot as plt
-import numpy as np
+from typing import TYPE_CHECKING
 
+from polaris.lazy import lazy_module
 from polaris.ocean.vertical.diagnostics import (
     location_for_field,
     vertical_coord_from_location,
 )
+
+if TYPE_CHECKING:
+    import matplotlib.pyplot as plt
+    import numpy as np
+else:
+    plt = lazy_module('matplotlib.pyplot')
+    np = lazy_module('numpy')
+
 
 MPAS_OCEAN_FRAZIL_TENDENCIES = {
     'frazilLayerThicknessTendency': 'm s$^{-1}$',

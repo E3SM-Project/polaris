@@ -1,10 +1,10 @@
-import importlib.resources as imp_res
+from __future__ import annotations
 
-import numpy as np
-import xarray as xr
-from ruamel.yaml import YAML
+import importlib.resources as imp_res
+from typing import TYPE_CHECKING
 
 from polaris.constants import get_constant
+from polaris.lazy import lazy_attr, lazy_module
 from polaris.ocean.eos import compute_density, compute_specvol
 from polaris.ocean.vertical.ztilde import (
     get_iter_count_for_eos,
@@ -12,6 +12,16 @@ from polaris.ocean.vertical.ztilde import (
     pressure_from_pseudothickness,
     pseudothickness_from_pressure,
 )
+
+if TYPE_CHECKING:
+    import numpy as np
+    import xarray as xr
+    from ruamel.yaml import YAML
+else:
+    np = lazy_module('numpy')
+    xr = lazy_module('xarray')
+    YAML = lazy_attr('ruamel.yaml', 'YAML')
+
 
 RhoSw = get_constant('seawater_density_reference')
 

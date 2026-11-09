@@ -1,22 +1,45 @@
 import configparser
+from typing import TYPE_CHECKING
 
-import cartopy
-import cmocean  # noqa: F401
-import matplotlib.colors as cols
-import matplotlib.path as mpath
-import mosaic
-import mosaic.utils as mosaic_utils
-import numpy as np
-import xarray as xr
-from cartopy.geodesic import Geodesic
-from matplotlib import colormaps
-from matplotlib.backends.backend_agg import FigureCanvasAgg
-from matplotlib.figure import Figure
-from mpas_tools.io import open_dataset
-from pyremap.descriptor.utility import interp_extrap_corner
-
+from polaris.lazy import lazy_attr, lazy_module, lazy_side_effect
 from polaris.viz.helper import add_fitted_suptitle, get_projection
 from polaris.viz.style import mplstyle_context
+
+if TYPE_CHECKING:
+    import cartopy
+    import cmocean  # noqa: F401
+    import matplotlib.colors as cols
+    import matplotlib.path as mpath
+    import mosaic
+    import mosaic.utils as mosaic_utils
+    import numpy as np
+    import xarray as xr
+    from cartopy.geodesic import Geodesic
+    from matplotlib import colormaps
+    from matplotlib.backends.backend_agg import FigureCanvasAgg
+    from matplotlib.figure import Figure
+    from mpas_tools.io import open_dataset
+    from pyremap.descriptor.utility import interp_extrap_corner
+else:
+    cartopy = lazy_module('cartopy')
+    lazy_side_effect('cmocean')
+    cols = lazy_module('matplotlib.colors')
+    mpath = lazy_module('matplotlib.path')
+    mosaic = lazy_module('mosaic')
+    mosaic_utils = lazy_module('mosaic.utils')
+    np = lazy_module('numpy')
+    xr = lazy_module('xarray')
+    Geodesic = lazy_attr('cartopy.geodesic', 'Geodesic')
+    colormaps = lazy_attr('matplotlib', 'colormaps')
+    FigureCanvasAgg = lazy_attr(
+        'matplotlib.backends.backend_agg', 'FigureCanvasAgg'
+    )
+    Figure = lazy_attr('matplotlib.figure', 'Figure')
+    open_dataset = lazy_attr('mpas_tools.io', 'open_dataset')
+    interp_extrap_corner = lazy_attr(
+        'pyremap.descriptor.utility', 'interp_extrap_corner'
+    )
+
 
 # the connectivity arrays mosaic remaps when it culls a mesh, mirroring
 # ``mosaic.descriptor.connectivity_arrays``

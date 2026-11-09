@@ -1,18 +1,18 @@
+from __future__ import annotations
+
 import logging
 import math
 import multiprocessing
 import os
 from collections import defaultdict
 from dataclasses import dataclass, replace
+from typing import TYPE_CHECKING
 
 import numpy as np
-import shapefile
-from shapely import line_merge, unary_union
-from shapely.geometry import LineString, box, mapping, shape
-from shapely.strtree import STRtree
 
 from polaris.archive import extract_zip_subdir
 from polaris.constants import get_constant
+from polaris.lazy import lazy_attr, lazy_module
 from polaris.mesh.spherical.unified.river.distance import (
     haversine_distance,
 )
@@ -20,6 +20,22 @@ from polaris.mesh.spherical.unified.river.geojson import (
     write_geojson,
 )
 from polaris.step import Step
+
+if TYPE_CHECKING:
+    import shapefile
+    from shapely import line_merge, unary_union
+    from shapely.geometry import LineString, box, mapping, shape
+    from shapely.strtree import STRtree
+else:
+    shapefile = lazy_module('shapefile')
+    line_merge = lazy_attr('shapely', 'line_merge')
+    unary_union = lazy_attr('shapely', 'unary_union')
+    LineString = lazy_attr('shapely.geometry', 'LineString')
+    box = lazy_attr('shapely.geometry', 'box')
+    mapping = lazy_attr('shapely.geometry', 'mapping')
+    shape = lazy_attr('shapely.geometry', 'shape')
+    STRtree = lazy_attr('shapely.strtree', 'STRtree')
+
 
 EARTH_RADIUS = get_constant('mean_radius')
 KM2_TO_M2 = 1.0e6

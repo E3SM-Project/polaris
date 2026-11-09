@@ -2,13 +2,22 @@
 CF metadata for the netCDF files Polaris writes
 """
 
+from __future__ import annotations
+
 import importlib.resources as imp_res
 import re
 from functools import lru_cache
-from typing import Dict, Iterable, Mapping
+from typing import TYPE_CHECKING, Dict, Iterable, Mapping
 
-import xarray as xr
-from ruamel.yaml import YAML
+from polaris.lazy import lazy_attr, lazy_module
+
+if TYPE_CHECKING:
+    import xarray as xr
+    from ruamel.yaml import YAML
+else:
+    xr = lazy_module('xarray')
+    YAML = lazy_attr('ruamel.yaml', 'YAML')
+
 
 #: The version of the CF conventions that Polaris writes.  It matches the
 #: version Omega writes and is the newest that the CF checker validates.

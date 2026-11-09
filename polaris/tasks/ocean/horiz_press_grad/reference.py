@@ -1,16 +1,21 @@
 from __future__ import annotations
 
-from typing import Callable
-
-import gsw
-import numpy as np
+from typing import TYPE_CHECKING, Callable
 
 from polaris.config import PolarisConfigParser
+from polaris.lazy import lazy_module
 from polaris.ocean.vertical.ztilde import Gravity, RhoSw
 from polaris.tasks.ocean.horiz_press_grad.column import (
     get_array_from_mid_grad,
     get_pchip_interpolator,
 )
+
+if TYPE_CHECKING:
+    import gsw
+    import numpy as np
+else:
+    gsw = lazy_module('gsw')
+    np = lazy_module('numpy')
 
 
 class ReferenceColumn:

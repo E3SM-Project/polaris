@@ -1,9 +1,5 @@
 import os
-
-import numpy as np
-import xarray as xr
-from mpas_tools.io import write_netcdf
-from mpas_tools.logging import check_call
+from typing import TYPE_CHECKING
 
 from polaris.e3sm.init.graph_partition import GraphPartitionStep
 from polaris.e3sm.init.partitions import (
@@ -13,9 +9,22 @@ from polaris.e3sm.init.partitions import (
     partitions_to_build,
     write_graph,
 )
+from polaris.lazy import lazy_attr, lazy_module
 from polaris.tasks.e3sm.init.component_inputs.seaice_partition_map import (
     CLIMATOLOGY_FILENAME,
 )
+
+if TYPE_CHECKING:
+    import numpy as np
+    import xarray as xr
+    from mpas_tools.io import write_netcdf
+    from mpas_tools.logging import check_call
+else:
+    np = lazy_module('numpy')
+    xr = lazy_module('xarray')
+    write_netcdf = lazy_attr('mpas_tools.io', 'write_netcdf')
+    check_call = lazy_attr('mpas_tools.logging', 'check_call')
+
 
 #: The base name the partition files carry.  As with the ocean partitions,
 #: the creation date is added when the files are staged, not here.

@@ -1,10 +1,18 @@
 import os
-
-from mpas_tools.io import open_dataset
-from mpas_tools.logging import check_call
-from pyremap import MpasCellMeshDescriptor
+from typing import TYPE_CHECKING
 
 from polaris import Step
+from polaris.lazy import lazy_attr
+
+if TYPE_CHECKING:
+    from mpas_tools.io import open_dataset
+    from mpas_tools.logging import check_call
+    from pyremap import MpasCellMeshDescriptor
+else:
+    open_dataset = lazy_attr('mpas_tools.io', 'open_dataset')
+    check_call = lazy_attr('mpas_tools.logging', 'check_call')
+    MpasCellMeshDescriptor = lazy_attr('pyremap', 'MpasCellMeshDescriptor')
+
 
 #: the SCRIP file for the MPAS mesh that the prepare step makes
 TARGET_SCRIP_FILENAME = 'target.scrip.nc'

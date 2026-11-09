@@ -2,7 +2,17 @@
 Helpers for setting metadata attributes on xarray variables.
 """
 
-import xarray as xr
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
+from polaris.lazy import lazy_module
+
+if TYPE_CHECKING:
+    import xarray as xr
+else:
+    xr = lazy_module('xarray')
+
 
 __all__ = ['set_attrs']
 

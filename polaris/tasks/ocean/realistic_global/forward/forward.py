@@ -1,8 +1,7 @@
 import os
-from typing import List, Optional
+from typing import TYPE_CHECKING, List, Optional
 
-import numpy as np
-
+from polaris.lazy import lazy_module
 from polaris.ocean.model import OceanModelStep
 from polaris.tasks.ocean.realistic_global.forward.initial_condition import (
     InitialCondition,
@@ -11,6 +10,11 @@ from polaris.tasks.ocean.realistic_global.forward.stage import (
     ForwardStage,
     omega_median_cell_width,
 )
+
+if TYPE_CHECKING:
+    import numpy as np
+else:
+    np = lazy_module('numpy')
 
 
 class Forward(OceanModelStep):

@@ -2,14 +2,7 @@ import os
 from math import isclose
 from typing import TYPE_CHECKING, TypeAlias, Union
 
-import cartopy.crs as ccrs
-import matplotlib.pyplot as plt
-import numpy as np
-import xarray as xr
-from matplotlib.colors import TwoSlopeNorm
-from matplotlib.lines import Line2D
-from pyremap.descriptor.utility import interp_extrap_corner
-
+from polaris.lazy import lazy_attr, lazy_module
 from polaris.mesh.spherical.critical_transects import (
     load_default_critical_transects,
 )
@@ -25,7 +18,25 @@ from polaris.tasks.mesh.spherical.unified.coastline.remap import (
 from polaris.viz import mplstyle_context
 
 if TYPE_CHECKING:
+    import cartopy.crs as ccrs
+    import matplotlib.pyplot as plt
+    import numpy as np
+    import xarray as xr
+    from matplotlib.colors import TwoSlopeNorm
+    from matplotlib.lines import Line2D
     from numpy.typing import NDArray
+    from pyremap.descriptor.utility import interp_extrap_corner
+else:
+    ccrs = lazy_module('cartopy.crs')
+    plt = lazy_module('matplotlib.pyplot')
+    np = lazy_module('numpy')
+    xr = lazy_module('xarray')
+    TwoSlopeNorm = lazy_attr('matplotlib.colors', 'TwoSlopeNorm')
+    Line2D = lazy_attr('matplotlib.lines', 'Line2D')
+    interp_extrap_corner = lazy_attr(
+        'pyremap.descriptor.utility', 'interp_extrap_corner'
+    )
+
 
 CoastlineStep: TypeAlias = Union[ComputeCoastlineStep, RemapCoastlineStep]
 

@@ -1,17 +1,24 @@
 import os
 import shutil
 from collections import OrderedDict
-from typing import Dict, List, Union
-
-import numpy as np
-from lxml import etree
-from mpas_tools.io import open_dataset
-from mpas_tools.logging import check_call
+from typing import TYPE_CHECKING, Dict, List, Union
 
 import polaris.namelist
 import polaris.streams
+from polaris.lazy import lazy_attr, lazy_module
 from polaris.step import Step
 from polaris.yaml import PolarisYaml, yaml_to_mpas_streams
+
+if TYPE_CHECKING:
+    import numpy as np
+    from lxml import etree
+    from mpas_tools.io import open_dataset
+    from mpas_tools.logging import check_call
+else:
+    np = lazy_module('numpy')
+    etree = lazy_attr('lxml', 'etree')
+    open_dataset = lazy_attr('mpas_tools.io', 'open_dataset')
+    check_call = lazy_attr('mpas_tools.logging', 'check_call')
 
 
 class ModelStep(Step):

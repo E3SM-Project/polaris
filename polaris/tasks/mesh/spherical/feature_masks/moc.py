@@ -1,8 +1,17 @@
-from mpas_tools.ocean.moc import add_moc_southern_boundary_transects
+from typing import TYPE_CHECKING
 
+from polaris.lazy import lazy_attr
 from polaris.tasks.mesh.spherical.feature_masks.compute import (
     get_feature_masks_filename,
 )
+
+if TYPE_CHECKING:
+    from mpas_tools.ocean.moc import add_moc_southern_boundary_transects
+else:
+    add_moc_southern_boundary_transects = lazy_attr(
+        'mpas_tools.ocean.moc', 'add_moc_southern_boundary_transects'
+    )
+
 
 #: The geometric_features aggregation these helpers apply to
 MOC_MASK_GROUP = 'MOC Basins'

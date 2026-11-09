@@ -1,4 +1,11 @@
-import numpy as np
+from typing import TYPE_CHECKING
+
+from polaris.lazy import lazy_module
+
+if TYPE_CHECKING:
+    import numpy as np
+else:
+    np = lazy_module('numpy')
 
 
 def check_cell_polygon_quality(

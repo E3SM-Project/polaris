@@ -15,9 +15,8 @@ from typing import (
     cast,
 )
 
-from ruamel.yaml import YAML
-
 from polaris.constants import get_constant
+from polaris.lazy import lazy_attr
 from polaris.model_step import ModelStep
 from polaris.ocean.conservation import (
     TRACERS_TO_CHECK,
@@ -34,10 +33,12 @@ from polaris.ocean.model.time import get_time_since_start
 from polaris.yaml import PolarisYaml
 
 if TYPE_CHECKING:
-    # Keep Ocean as a type-only import. Importing it at runtime pulls
-    # polaris.tasks.ocean back into polaris.ocean.model while that package is
-    # still importing these step classes, creating a circular import.
+    from ruamel.yaml import YAML
+
     from polaris.tasks.ocean import Ocean
+else:
+    YAML = lazy_attr('ruamel.yaml', 'YAML')
+
 
 OptionValue = Union[str, int, float, bool]
 MapSectionKey = Union[str, List[str]]

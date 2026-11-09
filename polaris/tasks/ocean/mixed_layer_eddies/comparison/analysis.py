@@ -1,6 +1,6 @@
-import matplotlib.pyplot as plt
-import numpy as np
+from typing import TYPE_CHECKING
 
+from polaris.lazy import lazy_module
 from polaris.ocean.model import OceanIOStep
 from polaris.tasks.ocean.mixed_layer_eddies.diagnostics import (
     compute_mixed_layer_n2,
@@ -17,6 +17,13 @@ from polaris.tasks.ocean.mixed_layer_eddies.resolved.analysis import (
 )
 from polaris.tasks.ocean.mixed_layer_eddies.viz import plot_surface_salinity
 from polaris.viz import mplstyle_context
+
+if TYPE_CHECKING:
+    import matplotlib.pyplot as plt
+    import numpy as np
+else:
+    plt = lazy_module('matplotlib.pyplot')
+    np = lazy_module('numpy')
 
 
 class Analysis(OceanIOStep):

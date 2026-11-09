@@ -1,8 +1,15 @@
-import cmocean  # noqa: F401
-from mpas_tools.io import open_dataset
+from typing import TYPE_CHECKING
 
 from polaris import Step
+from polaris.lazy import lazy_attr, lazy_side_effect
 from polaris.viz import plot_global_mpas_field
+
+if TYPE_CHECKING:
+    import cmocean  # noqa: F401
+    from mpas_tools.io import open_dataset
+else:
+    lazy_side_effect('cmocean')
+    open_dataset = lazy_attr('mpas_tools.io', 'open_dataset')
 
 
 class VizRemappedTopoStep(Step):

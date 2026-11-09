@@ -1,8 +1,15 @@
 import importlib.resources as imp_res
 from copy import deepcopy
+from typing import TYPE_CHECKING
 
-from jinja2 import Template
-from lxml import etree
+from polaris.lazy import lazy_attr
+
+if TYPE_CHECKING:
+    from jinja2 import Template
+    from lxml import etree
+else:
+    Template = lazy_attr('jinja2', 'Template')
+    etree = lazy_attr('lxml', 'etree')
 
 
 def read(package, streams_filename, tree=None, replacements=None):

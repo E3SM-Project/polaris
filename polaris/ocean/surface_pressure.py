@@ -1,7 +1,16 @@
-import numpy as np
-import xarray as xr
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
 
 from polaris.config import PolarisConfigParser
+from polaris.lazy import lazy_module
+
+if TYPE_CHECKING:
+    import numpy as np
+    import xarray as xr
+else:
+    np = lazy_module('numpy')
+    xr = lazy_module('xarray')
 
 
 def surface_pressure_from_config(

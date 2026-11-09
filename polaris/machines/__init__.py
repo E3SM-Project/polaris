@@ -2,10 +2,15 @@ import importlib.resources as imp_res
 import os as os
 import socket as socket
 import sys as sys
-
-from mache import discover_machine as mache_discover_machine
+from typing import TYPE_CHECKING
 
 from polaris.config import PolarisConfigParser as PolarisConfigParser
+from polaris.lazy import lazy_attr
+
+if TYPE_CHECKING:
+    from mache import discover_machine as mache_discover_machine
+else:
+    mache_discover_machine = lazy_attr('mache', 'discover_machine')
 
 
 def discover_machine(quiet=False):

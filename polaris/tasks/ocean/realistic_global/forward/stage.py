@@ -1,15 +1,20 @@
 import os
 from dataclasses import dataclass, replace
-from typing import Any, Dict, Optional, Tuple
-
-import numpy as np
+from typing import TYPE_CHECKING, Any, Dict, Optional, Tuple
 
 from polaris.config import PolarisConfigParser
+from polaris.lazy import lazy_module
 from polaris.mpas.time import (
     duration_to_omega_period,
     duration_to_seconds,
     get_time_interval_string,
 )
+
+if TYPE_CHECKING:
+    import numpy as np
+else:
+    np = lazy_module('numpy')
+
 
 # Map from the neutral (MPAS-Ocean) time-integrator names to the Omega names.
 # Only integrators with an Omega equivalent appear here; a neutral name that is

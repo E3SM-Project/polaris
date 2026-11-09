@@ -1,10 +1,19 @@
-import gsw
-import numpy as np
-import xarray as xr
-from mpas_tools.io import write_netcdf
+from typing import TYPE_CHECKING
 
 from polaris import Step
 from polaris.cf import add_cf_conventions, drop_dangling_references
+from polaris.lazy import lazy_attr, lazy_module
+
+if TYPE_CHECKING:
+    import gsw
+    import numpy as np
+    import xarray as xr
+    from mpas_tools.io import write_netcdf
+else:
+    gsw = lazy_module('gsw')
+    np = lazy_module('numpy')
+    xr = lazy_module('xarray')
+    write_netcdf = lazy_attr('mpas_tools.io', 'write_netcdf')
 
 
 class CombineStep(Step):

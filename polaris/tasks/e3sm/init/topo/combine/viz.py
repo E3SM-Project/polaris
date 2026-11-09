@@ -1,14 +1,26 @@
 import os
+from typing import TYPE_CHECKING
 
-import cmocean  # noqa: F401
-import matplotlib.pyplot as plt
-import numpy as np
-import pandas as pd
-import xarray as xr
-from mpl_toolkits.axes_grid1 import make_axes_locatable
-
+from polaris.lazy import lazy_attr, lazy_module, lazy_side_effect
 from polaris.step import Step
 from polaris.viz import plot_global_lat_lon_field, setup_colormap
+
+if TYPE_CHECKING:
+    import cmocean  # noqa: F401
+    import matplotlib.pyplot as plt
+    import numpy as np
+    import pandas as pd
+    import xarray as xr
+    from mpl_toolkits.axes_grid1 import make_axes_locatable
+else:
+    lazy_side_effect('cmocean')
+    plt = lazy_module('matplotlib.pyplot')
+    np = lazy_module('numpy')
+    pd = lazy_module('pandas')
+    xr = lazy_module('xarray')
+    make_axes_locatable = lazy_attr(
+        'mpl_toolkits.axes_grid1', 'make_axes_locatable'
+    )
 
 
 class VizCombinedStep(Step):

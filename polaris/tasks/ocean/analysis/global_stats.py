@@ -1,6 +1,7 @@
-import xarray as xr
+from typing import TYPE_CHECKING
 
 from polaris.analysis.units import units_to_mathtext
+from polaris.lazy import lazy_module
 from polaris.ocean.analysis_plots import plot_global_stats
 from polaris.ocean.global_stats_names import (
     STAT_DESCRIPTIONS,
@@ -9,6 +10,11 @@ from polaris.ocean.global_stats_names import (
 )
 from polaris.ocean.model.time import get_simulation_years
 from polaris.tasks.ocean.analysis.analysis_step import AnalysisStep
+
+if TYPE_CHECKING:
+    import xarray as xr
+else:
+    xr = lazy_module('xarray')
 
 
 class GlobalStatsTimeSeries(AnalysisStep):

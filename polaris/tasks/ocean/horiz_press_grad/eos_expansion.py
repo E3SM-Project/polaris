@@ -37,11 +37,22 @@ That is a limitation of the Python bindings and says nothing about Omega's call
 count; do not read this module as evidence about cost.
 """
 
-import gsw
-import numpy as np
-import xarray as xr
+from __future__ import annotations
 
+from typing import TYPE_CHECKING
+
+from polaris.lazy import lazy_module
 from polaris.tasks.ocean.horiz_press_grad.edge import edge_mean
+
+if TYPE_CHECKING:
+    import gsw
+    import numpy as np
+    import xarray as xr
+else:
+    gsw = lazy_module('gsw')
+    np = lazy_module('numpy')
+    xr = lazy_module('xarray')
+
 
 __all__ = [
     'specvol_coefficients',

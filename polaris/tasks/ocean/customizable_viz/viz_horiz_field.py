@@ -1,9 +1,7 @@
 import os
+from typing import TYPE_CHECKING
 
-import cmocean  # noqa: F401
-import numpy as np
-import xarray as xr
-
+from polaris.lazy import lazy_module, lazy_side_effect
 from polaris.ocean.model import OceanIOStep
 from polaris.ocean.vertical.diagnostics import (
     geom_thickness_from_ds,
@@ -14,6 +12,15 @@ from polaris.viz import (
     get_viz_defaults,
     plot_global_mpas_field,
 )
+
+if TYPE_CHECKING:
+    import cmocean  # noqa: F401
+    import numpy as np
+    import xarray as xr
+else:
+    lazy_side_effect('cmocean')
+    np = lazy_module('numpy')
+    xr = lazy_module('xarray')
 
 
 class VizHorizField(OceanIOStep):

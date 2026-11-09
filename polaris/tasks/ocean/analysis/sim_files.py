@@ -9,12 +9,18 @@ analysis step that reads simulation output.
 import os
 import re
 from glob import glob
-from typing import List, NamedTuple, Optional
+from typing import TYPE_CHECKING, List, NamedTuple, Optional
 
-import cftime
-import xarray as xr
-
+from polaris.lazy import lazy_module
 from polaris.yaml import PolarisYaml
+
+if TYPE_CHECKING:
+    import cftime
+    import xarray as xr
+else:
+    cftime = lazy_module('cftime')
+    xr = lazy_module('xarray')
+
 
 # The names Omega gives the analysis groups this module looks for.  They are
 # spelled exactly as Omega spells them, since the lookup is a plain dictionary

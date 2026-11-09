@@ -38,16 +38,22 @@ without applying the configured CFL threshold. The native CFL column remains
 blank for Omega because the model does not report it.
 """
 
+from __future__ import annotations
+
 import os
 from dataclasses import dataclass
-from typing import Any, Dict, List, Optional, Tuple
+from typing import TYPE_CHECKING, Any, Dict, List, Optional, Tuple
 
-import numpy as np
-
+from polaris.lazy import lazy_module
 from polaris.mpas.time import duration_to_seconds
 from polaris.ocean.global_stats_names import global_stats_var_names
 from polaris.ocean.model.time import get_time_since_start
 from polaris.tasks.ocean.realistic_global.forward.stage import ForwardStage
+
+if TYPE_CHECKING:
+    import numpy as np
+else:
+    np = lazy_module('numpy')
 
 
 @dataclass(frozen=True)

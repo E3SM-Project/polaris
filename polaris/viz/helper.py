@@ -1,7 +1,17 @@
 import textwrap
+from typing import TYPE_CHECKING
 
-import cartopy.crs as ccrs
-from matplotlib.backends.backend_agg import FigureCanvasAgg
+from polaris.lazy import lazy_attr, lazy_module
+
+if TYPE_CHECKING:
+    import cartopy.crs as ccrs
+    from matplotlib.backends.backend_agg import FigureCanvasAgg
+else:
+    ccrs = lazy_module('cartopy.crs')
+    FigureCanvasAgg = lazy_attr(
+        'matplotlib.backends.backend_agg', 'FigureCanvasAgg'
+    )
+
 
 # the cartopy.crs projections that get_projection() accepts by name
 projections = (

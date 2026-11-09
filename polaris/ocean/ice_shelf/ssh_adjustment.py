@@ -1,10 +1,18 @@
-import numpy as np
-from mpas_tools.io import open_dataset, write_netcdf
+from typing import TYPE_CHECKING
 
 from polaris import Step
 from polaris.constants import get_constant
+from polaris.lazy import lazy_attr, lazy_module
 from polaris.mesh.info import is_spherical
 from polaris.ocean.vertical import update_layer_thickness
+
+if TYPE_CHECKING:
+    import numpy as np
+    from mpas_tools.io import open_dataset, write_netcdf
+else:
+    np = lazy_module('numpy')
+    open_dataset = lazy_attr('mpas_tools.io', 'open_dataset')
+    write_netcdf = lazy_attr('mpas_tools.io', 'write_netcdf')
 
 
 class SshAdjustment(Step):

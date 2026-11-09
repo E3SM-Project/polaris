@@ -1,12 +1,19 @@
-import numpy
-import xarray
+from typing import TYPE_CHECKING
 
+from polaris.lazy import lazy_module
 from polaris.ocean.vertical.grid_1d import add_1d_grid
 from polaris.ocean.vertical.partial_cells import alter_bottom_depth
 from polaris.ocean.vertical.zlevel import (
     compute_min_max_level_cell,
     compute_z_level_layer_thickness,
 )
+
+if TYPE_CHECKING:
+    import numpy
+    import xarray
+else:
+    numpy = lazy_module('numpy')
+    xarray = lazy_module('xarray')
 
 
 def init_z_star_vertical_coord(config, ds):

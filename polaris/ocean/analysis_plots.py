@@ -8,10 +8,18 @@ months ago -- so the plotting is kept here, free of any dependence on
 selected.
 """
 
-import matplotlib.pyplot as plt
-import numpy as np
+from typing import TYPE_CHECKING
 
+from polaris.lazy import lazy_module
 from polaris.viz import mplstyle_context
+
+if TYPE_CHECKING:
+    import matplotlib.pyplot as plt
+    import numpy as np
+else:
+    plt = lazy_module('matplotlib.pyplot')
+    np = lazy_module('numpy')
+
 
 # the label each statistic is given in the legend and in the netCDF file
 # beside the plot, using the Polaris-standard spelling of the statistic

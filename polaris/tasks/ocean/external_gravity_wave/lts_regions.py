@@ -1,13 +1,24 @@
 import math
+from typing import TYPE_CHECKING
 
-import netCDF4 as nc
-import numpy as np
-from mpas_tools.io import open_dataset, write_netcdf
-from mpas_tools.viz.paraview_extractor import extract_vtk
-from shapely import distance
-from shapely.geometry import Point
-
+from polaris.lazy import lazy_attr, lazy_module
 from polaris.step import Step
+
+if TYPE_CHECKING:
+    import netCDF4 as nc
+    import numpy as np
+    from mpas_tools.io import open_dataset, write_netcdf
+    from mpas_tools.viz.paraview_extractor import extract_vtk
+    from shapely import distance
+    from shapely.geometry import Point
+else:
+    nc = lazy_module('netCDF4')
+    np = lazy_module('numpy')
+    open_dataset = lazy_attr('mpas_tools.io', 'open_dataset')
+    write_netcdf = lazy_attr('mpas_tools.io', 'write_netcdf')
+    extract_vtk = lazy_attr('mpas_tools.viz.paraview_extractor', 'extract_vtk')
+    distance = lazy_attr('shapely', 'distance')
+    Point = lazy_attr('shapely.geometry', 'Point')
 
 
 class LTSRegions(Step):

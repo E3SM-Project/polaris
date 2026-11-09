@@ -1,8 +1,19 @@
-from collections.abc import Sequence
+from __future__ import annotations
 
-import gsw
-import numpy as np
-import xarray as xr
+from collections.abc import Sequence
+from typing import TYPE_CHECKING
+
+from polaris.lazy import lazy_module
+
+if TYPE_CHECKING:
+    import gsw
+    import numpy as np
+    import xarray as xr
+else:
+    gsw = lazy_module('gsw')
+    np = lazy_module('numpy')
+    xr = lazy_module('xarray')
+
 
 #: The tracer conventions that :py:func:`convert_tracers()` understands
 TRACER_CONVENTIONS = ('teos-10', 'mpas-ocean')

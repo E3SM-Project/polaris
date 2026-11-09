@@ -1,10 +1,16 @@
 from dataclasses import dataclass
-from typing import Any, List, Optional, Union
-
-import netCDF4
-import numpy as np
+from typing import TYPE_CHECKING, Any, List, Optional, Union
 
 from polaris.e3sm.init.topo import format_lat_lon_resolution_name
+from polaris.lazy import lazy_module
+
+if TYPE_CHECKING:
+    import netCDF4
+    import numpy as np
+else:
+    netCDF4 = lazy_module('netCDF4')
+    np = lazy_module('numpy')
+
 
 # change these to update to the latest datasets
 ANTARCTIC = 'bedmap3'

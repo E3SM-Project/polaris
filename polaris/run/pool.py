@@ -37,12 +37,18 @@ Memory can then only ever remove a schedule that a measured declaration says
 would not have fit.
 """
 
+from __future__ import annotations
+
 from dataclasses import dataclass, field
-from typing import Dict, List, Optional, Tuple
+from typing import TYPE_CHECKING, Dict, List, Optional, Tuple
 
-from mache.parallel import ResourcePlacement
-
+from polaris.lazy import lazy_attr
 from polaris.run.allocation import NodeResources
+
+if TYPE_CHECKING:
+    from mache.parallel import ResourcePlacement
+else:
+    ResourcePlacement = lazy_attr('mache.parallel', 'ResourcePlacement')
 
 
 @dataclass

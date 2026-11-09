@@ -5,18 +5,30 @@ used by both the geometric-coordinate and p-star init steps, and the
 initial density, used by the geometric-coordinate init step.
 """
 
-import numpy as np
-import xarray as xr
-from mpas_tools.mesh.conversion import convert, cull
-from mpas_tools.planar_hex import make_planar_hex_mesh
+from typing import TYPE_CHECKING
 
 from polaris.coriolis import add_coriolis_to_dataset
+from polaris.lazy import lazy_attr, lazy_module
 from polaris.mesh.planar import compute_planar_hex_nx_ny
 from polaris.ocean.eos import compute_density
 from polaris.ocean.vertical.ztilde import (
     get_iter_count_for_eos,
     pressure_and_spec_vol_from_state_at_geom_height,
 )
+
+if TYPE_CHECKING:
+    import numpy as np
+    import xarray as xr
+    from mpas_tools.mesh.conversion import convert, cull
+    from mpas_tools.planar_hex import make_planar_hex_mesh
+else:
+    np = lazy_module('numpy')
+    xr = lazy_module('xarray')
+    convert = lazy_attr('mpas_tools.mesh.conversion', 'convert')
+    cull = lazy_attr('mpas_tools.mesh.conversion', 'cull')
+    make_planar_hex_mesh = lazy_attr(
+        'mpas_tools.planar_hex', 'make_planar_hex_mesh'
+    )
 
 
 def build_overflow_mesh(step):

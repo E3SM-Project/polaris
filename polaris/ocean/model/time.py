@@ -1,10 +1,18 @@
 import re
+from typing import TYPE_CHECKING
 
-import cftime
-import numpy as np
-import pandas as pd
-
+from polaris.lazy import lazy_module
 from polaris.mpas.time import time_since_start
+
+if TYPE_CHECKING:
+    import cftime
+    import numpy as np
+    import pandas as pd
+else:
+    cftime = lazy_module('cftime')
+    np = lazy_module('numpy')
+    pd = lazy_module('pandas')
+
 
 # seconds per unit, for converting the days computed below to other units
 _SECONDS_PER_UNIT = {

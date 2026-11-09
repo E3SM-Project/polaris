@@ -1,9 +1,15 @@
-from mpas_tools.io import open_dataset
+from typing import TYPE_CHECKING
 
+from polaris.lazy import lazy_attr
 from polaris.ocean.convergence.analysis import ConvergenceAnalysis
 from polaris.tasks.ocean.inertial_gravity_wave.exact_solution import (
     ExactSolution,
 )
+
+if TYPE_CHECKING:
+    from mpas_tools.io import open_dataset
+else:
+    open_dataset = lazy_attr('mpas_tools.io', 'open_dataset')
 
 
 class Analysis(ConvergenceAnalysis):

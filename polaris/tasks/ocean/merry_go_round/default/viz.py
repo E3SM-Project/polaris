@@ -1,13 +1,26 @@
-import cmocean  # noqa: F401
-import matplotlib.pyplot as plt
-import numpy as np
-import xarray as xr
-from mpas_tools.ocean.viz.transect import compute_transect, plot_transect
+from typing import TYPE_CHECKING
 
+from polaris.lazy import lazy_attr, lazy_module, lazy_side_effect
 from polaris.mpas import time_since_start
 from polaris.ocean.model import OceanIOStep
 from polaris.ocean.vertical.diagnostics import vert_velocity_top_from_ds
 from polaris.viz import mplstyle_context
+
+if TYPE_CHECKING:
+    import cmocean  # noqa: F401
+    import matplotlib.pyplot as plt
+    import numpy as np
+    import xarray as xr
+    from mpas_tools.ocean.viz.transect import compute_transect, plot_transect
+else:
+    lazy_side_effect('cmocean')
+    plt = lazy_module('matplotlib.pyplot')
+    np = lazy_module('numpy')
+    xr = lazy_module('xarray')
+    compute_transect = lazy_attr(
+        'mpas_tools.ocean.viz.transect', 'compute_transect'
+    )
+    plot_transect = lazy_attr('mpas_tools.ocean.viz.transect', 'plot_transect')
 
 
 class Viz(OceanIOStep):

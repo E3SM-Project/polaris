@@ -6,13 +6,11 @@ import sys
 import time
 from datetime import datetime, timedelta
 from functools import partial
-from typing import Dict, List, Optional, Tuple
-
-import mpas_tools.io as mpas_tools_io
-from mpas_tools.logging import LoggingContext
+from typing import TYPE_CHECKING, Dict, List, Optional, Tuple
 
 from polaris import Task
 from polaris.build.omega import detect_omega_build_type
+from polaris.lazy import lazy_attr, lazy_module
 from polaris.logging import log_function_call
 from polaris.parallel import set_parallel_systems
 from polaris.provenance import read as read_provenance
@@ -35,6 +33,14 @@ from polaris.run.memory import (
 from polaris.run.results import TaskResult, write_suite_results
 from polaris.validate import merge_diff_summary
 from polaris.version import __version__
+
+if TYPE_CHECKING:
+    import mpas_tools.io as mpas_tools_io
+    from mpas_tools.logging import LoggingContext
+else:
+    mpas_tools_io = lazy_module('mpas_tools.io')
+    LoggingContext = lazy_attr('mpas_tools.logging', 'LoggingContext')
+
 
 # ANSI fail text: https://stackoverflow.com/a/287944/7728169
 start_fail = '\033[91m'

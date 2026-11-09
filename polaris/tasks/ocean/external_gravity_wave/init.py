@@ -1,10 +1,18 @@
-import numpy as np
-import xarray as xr
-from mpas_tools.io import open_dataset
+from typing import TYPE_CHECKING
 
 from polaris.coriolis import add_coriolis_to_dataset
+from polaris.lazy import lazy_attr, lazy_module
 from polaris.ocean.model import OceanIOStep
 from polaris.ocean.vertical import init_vertical_coord
+
+if TYPE_CHECKING:
+    import numpy as np
+    import xarray as xr
+    from mpas_tools.io import open_dataset
+else:
+    np = lazy_module('numpy')
+    xr = lazy_module('xarray')
+    open_dataset = lazy_attr('mpas_tools.io', 'open_dataset')
 
 
 class Init(OceanIOStep):

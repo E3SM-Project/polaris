@@ -4,8 +4,15 @@ import os
 import warnings
 from collections.abc import Callable
 from importlib.resources import open_text
+from typing import TYPE_CHECKING
 
-from ruamel.yaml import YAML
+from polaris.lazy import lazy_attr
+
+if TYPE_CHECKING:
+    from ruamel.yaml import YAML
+else:
+    YAML = lazy_attr('ruamel.yaml', 'YAML')
+
 
 # the arithmetic that a PCD ``formula`` may use, as in the PCD's own
 # ``tools/generate_source.py``

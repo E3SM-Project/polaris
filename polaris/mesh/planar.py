@@ -1,4 +1,11 @@
-import numpy as np
+from typing import TYPE_CHECKING
+
+from polaris.lazy import lazy_module
+
+if TYPE_CHECKING:
+    import numpy as np
+else:
+    np = lazy_module('numpy')
 
 
 def compute_planar_hex_nx_ny(lx, ly, resolution):

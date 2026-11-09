@@ -1,13 +1,22 @@
-from typing import Any
-
-import netCDF4
-import numpy as np
-import xarray as xr
-from scipy import ndimage
-from scipy.spatial import cKDTree
+from typing import TYPE_CHECKING, Any
 
 from polaris.constants import get_constant
+from polaris.lazy import lazy_attr, lazy_module
 from polaris.mesh.spherical.critical_transects import CriticalTransects
+
+if TYPE_CHECKING:
+    import netCDF4
+    import numpy as np
+    import xarray as xr
+    from scipy import ndimage
+    from scipy.spatial import cKDTree
+else:
+    netCDF4 = lazy_module('netCDF4')
+    np = lazy_module('numpy')
+    xr = lazy_module('xarray')
+    ndimage = lazy_attr('scipy', 'ndimage')
+    cKDTree = lazy_attr('scipy.spatial', 'cKDTree')
+
 
 CONVENTIONS = ('calving_front', 'grounding_line', 'bedrock_zero')
 EARTH_RADIUS = get_constant('mean_radius')

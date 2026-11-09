@@ -3,16 +3,26 @@ import json
 import os
 import warnings
 from configparser import RawConfigParser
-
-from mache.parallel import ParallelSystem, get_parallel_system
-from mpas_tools.io import open_dataset, write_netcdf
-from mpas_tools.logging import check_call
+from typing import TYPE_CHECKING
 
 from polaris.config import PolarisConfigParser
+from polaris.lazy import lazy_attr
 from polaris.parallel import (
     get_memory_per_node,
     is_launching_step_command,
 )
+
+if TYPE_CHECKING:
+    from mache.parallel import ParallelSystem, get_parallel_system
+    from mpas_tools.io import open_dataset, write_netcdf
+    from mpas_tools.logging import check_call
+else:
+    ParallelSystem = lazy_attr('mache.parallel', 'ParallelSystem')
+    get_parallel_system = lazy_attr('mache.parallel', 'get_parallel_system')
+    open_dataset = lazy_attr('mpas_tools.io', 'open_dataset')
+    write_netcdf = lazy_attr('mpas_tools.io', 'write_netcdf')
+    check_call = lazy_attr('mpas_tools.logging', 'check_call')
+
 
 # attributes that describe how a component was set up rather than what a step
 # needs to run, so they are left out of pickles

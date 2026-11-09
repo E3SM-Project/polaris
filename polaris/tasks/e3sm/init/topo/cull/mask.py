@@ -1,19 +1,9 @@
 import os
-
-import mpas_tools.io as mpas_tools_io
-import numpy as np
-import xarray as xr
-from geometric_features import (
-    GeometricFeatures,
-    read_feature_collection,
-)
-from mpas_tools.io import open_dataset, write_netcdf
-from mpas_tools.logging import check_call
-from mpas_tools.mesh.mask import compute_mpas_flood_fill_mask
-from mpas_tools.ocean.coastline_alteration import widen_transect_edge_masks
+from typing import TYPE_CHECKING
 
 from polaris import Step
 from polaris.cf import add_cf_conventions, add_var_attrs
+from polaris.lazy import lazy_attr, lazy_module
 from polaris.mesh.connectivity import seed_mask_from_points
 from polaris.mesh.spherical.critical_transects import (
     load_default_critical_transects,
@@ -33,6 +23,34 @@ from polaris.tasks.e3sm.init.topo.cull.land_locked import (
     remove_land_locked_cells,
     remove_ocean_land_locked_cells,
 )
+
+if TYPE_CHECKING:
+    import mpas_tools.io as mpas_tools_io
+    import numpy as np
+    import xarray as xr
+    from geometric_features import GeometricFeatures, read_feature_collection
+    from mpas_tools.io import open_dataset, write_netcdf
+    from mpas_tools.logging import check_call
+    from mpas_tools.mesh.mask import compute_mpas_flood_fill_mask
+    from mpas_tools.ocean.coastline_alteration import widen_transect_edge_masks
+else:
+    mpas_tools_io = lazy_module('mpas_tools.io')
+    np = lazy_module('numpy')
+    xr = lazy_module('xarray')
+    GeometricFeatures = lazy_attr('geometric_features', 'GeometricFeatures')
+    read_feature_collection = lazy_attr(
+        'geometric_features', 'read_feature_collection'
+    )
+    open_dataset = lazy_attr('mpas_tools.io', 'open_dataset')
+    write_netcdf = lazy_attr('mpas_tools.io', 'write_netcdf')
+    check_call = lazy_attr('mpas_tools.logging', 'check_call')
+    compute_mpas_flood_fill_mask = lazy_attr(
+        'mpas_tools.mesh.mask', 'compute_mpas_flood_fill_mask'
+    )
+    widen_transect_edge_masks = lazy_attr(
+        'mpas_tools.ocean.coastline_alteration', 'widen_transect_edge_masks'
+    )
+
 
 #: variables in the cull-masks file to compare against a baseline
 CULL_MASKS_VALIDATE_VARS = [

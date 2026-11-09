@@ -2,9 +2,14 @@ import importlib.resources
 import os
 import shutil
 import subprocess
-from typing import Optional, Tuple
+from typing import TYPE_CHECKING, Optional, Tuple
 
-from jinja2 import Template
+from polaris.lazy import lazy_attr
+
+if TYPE_CHECKING:
+    from jinja2 import Template
+else:
+    Template = lazy_attr('jinja2', 'Template')
 
 
 def build_omega(

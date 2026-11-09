@@ -22,13 +22,18 @@ import dataclasses
 import datetime
 import importlib.resources as imp_res
 import typing
-from typing import Any, Dict, List, Optional
-
-from ruamel.yaml import YAML
+from typing import TYPE_CHECKING, Any, Dict, List, Optional
 
 from polaris.config import PolarisConfigParser
+from polaris.lazy import lazy_attr
 from polaris.mpas.time import duration_to_seconds
 from polaris.tasks.ocean.realistic_global.forward.stage import ForwardStage
+
+if TYPE_CHECKING:
+    from ruamel.yaml import YAML
+else:
+    YAML = lazy_attr('ruamel.yaml', 'YAML')
+
 
 PACKAGE = 'polaris.tasks.ocean.realistic_global.dynamic_adjustment'
 DEFAULT_SCHEDULE = 'default.yaml'

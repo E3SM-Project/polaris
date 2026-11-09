@@ -1,20 +1,9 @@
-import cartopy
-import cartopy.crs as ccrs
-import jigsawpy
-import numpy as np
-import xarray as xr
-from jigsawpy.savejig import savejig
-from matplotlib.figure import Figure
-from mpas_tools.io import open_dataset, write_netcdf
-from mpas_tools.logging import check_call
-from mpas_tools.mesh.creation.jigsaw_to_netcdf import jigsaw_to_netcdf
-from mpas_tools.ocean.inject_meshDensity import inject_spherical_meshDensity
-from mpas_tools.viz.colormaps import register_sci_viz_colormaps
-from mpas_tools.viz.paraview_extractor import extract_vtk
+from typing import TYPE_CHECKING
 
 from polaris import Step
 from polaris.cf import add_cf_conventions
 from polaris.constants import get_constant
+from polaris.lazy import lazy_attr, lazy_module
 from polaris.mesh.reconstruct import (
     compute_reconstruction_weights,
     get_reconstruction_validate_vars,
@@ -25,6 +14,44 @@ from polaris.mesh.validate import (
     MPAS_MESH_VALIDATE_VARS,
 )
 from polaris.model_step import make_graph_file
+
+if TYPE_CHECKING:
+    import cartopy
+    import cartopy.crs as ccrs
+    import jigsawpy
+    import numpy as np
+    import xarray as xr
+    from jigsawpy.savejig import savejig
+    from matplotlib.figure import Figure
+    from mpas_tools.io import open_dataset, write_netcdf
+    from mpas_tools.logging import check_call
+    from mpas_tools.mesh.creation.jigsaw_to_netcdf import jigsaw_to_netcdf
+    from mpas_tools.ocean.inject_meshDensity import (
+        inject_spherical_meshDensity,
+    )
+    from mpas_tools.viz.colormaps import register_sci_viz_colormaps
+    from mpas_tools.viz.paraview_extractor import extract_vtk
+else:
+    cartopy = lazy_module('cartopy')
+    ccrs = lazy_module('cartopy.crs')
+    jigsawpy = lazy_module('jigsawpy')
+    np = lazy_module('numpy')
+    xr = lazy_module('xarray')
+    savejig = lazy_attr('jigsawpy.savejig', 'savejig')
+    Figure = lazy_attr('matplotlib.figure', 'Figure')
+    open_dataset = lazy_attr('mpas_tools.io', 'open_dataset')
+    write_netcdf = lazy_attr('mpas_tools.io', 'write_netcdf')
+    check_call = lazy_attr('mpas_tools.logging', 'check_call')
+    jigsaw_to_netcdf = lazy_attr(
+        'mpas_tools.mesh.creation.jigsaw_to_netcdf', 'jigsaw_to_netcdf'
+    )
+    inject_spherical_meshDensity = lazy_attr(
+        'mpas_tools.ocean.inject_meshDensity', 'inject_spherical_meshDensity'
+    )
+    register_sci_viz_colormaps = lazy_attr(
+        'mpas_tools.viz.colormaps', 'register_sci_viz_colormaps'
+    )
+    extract_vtk = lazy_attr('mpas_tools.viz.paraview_extractor', 'extract_vtk')
 
 
 class SphericalBaseStep(Step):

@@ -1,6 +1,13 @@
 import os
+from typing import TYPE_CHECKING
 
-from PIL import Image
+from polaris.lazy import lazy_attr
+
+if TYPE_CHECKING:
+    from PIL import Image
+else:
+    Image = lazy_attr('PIL', 'Image')
+
 
 #: The subdirectory of the staging tree holding the thumbnails
 THUMBNAILS_DIRNAME = 'thumbnails'

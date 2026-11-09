@@ -1,6 +1,7 @@
-from geometric_features.aggregation import get_aggregator_by_name
+from typing import TYPE_CHECKING
 
 from polaris.e3sm.init.inputdata import get_creation_date
+from polaris.lazy import lazy_attr
 from polaris.tasks.e3sm.init.component_inputs.models import check_ocean_model
 from polaris.tasks.mesh.spherical.feature_masks.compute import (
     ComputeFeatureMasksStep,
@@ -10,6 +11,14 @@ from polaris.tasks.mesh.spherical.feature_masks.moc import (
     add_moc_transects,
     moc_masks_filename,
 )
+
+if TYPE_CHECKING:
+    from geometric_features.aggregation import get_aggregator_by_name
+else:
+    get_aggregator_by_name = lazy_attr(
+        'geometric_features.aggregation', 'get_aggregator_by_name'
+    )
+
 
 #: The culled mesh the masks are computed on: the full ocean domain, matching
 #: what the ocean initial condition is built from.

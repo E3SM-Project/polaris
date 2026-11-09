@@ -1,12 +1,17 @@
 import os
-
-from mpas_tools.logging import check_call
+from typing import TYPE_CHECKING
 
 from polaris import Step
+from polaris.lazy import lazy_attr
 from polaris.tasks.e3sm.init.component_inputs.names import (
     SCRIP_REGIONS,
     get_mesh_short_name,
 )
+
+if TYPE_CHECKING:
+    from mpas_tools.logging import check_call
+else:
+    check_call = lazy_attr('mpas_tools.logging', 'check_call')
 
 
 class ScripStep(Step):

@@ -31,12 +31,9 @@ import time
 from contextlib import contextmanager
 from datetime import datetime, timedelta
 from functools import partial
-from typing import Dict, Iterator, List, Optional
+from typing import TYPE_CHECKING, Dict, Iterator, List, Optional
 
-import mpas_tools.io as mpas_tools_io
-from mache.parallel import PlacementSupport
-from mpas_tools.logging import LoggingContext
-
+from polaris.lazy import lazy_attr, lazy_module
 from polaris.parallel import set_parallel_systems
 from polaris.run import setup_config, unpickle_suite
 from polaris.run.allocation import read_allocation
@@ -71,6 +68,15 @@ from polaris.run.serial import (
     success_str,
 )
 from polaris.validate import merge_diff_summary
+
+if TYPE_CHECKING:
+    import mpas_tools.io as mpas_tools_io
+    from mache.parallel import PlacementSupport
+    from mpas_tools.logging import LoggingContext
+else:
+    mpas_tools_io = lazy_module('mpas_tools.io')
+    PlacementSupport = lazy_attr('mache.parallel', 'PlacementSupport')
+    LoggingContext = lazy_attr('mpas_tools.logging', 'LoggingContext')
 
 
 def run_tasks(suite_name, quiet=False):

@@ -1,4 +1,11 @@
-import pyproj
+from typing import TYPE_CHECKING
+
+from polaris.lazy import lazy_module
+
+if TYPE_CHECKING:
+    import pyproj
+else:
+    pyproj = lazy_module('pyproj')
 
 
 def get_projection_string():

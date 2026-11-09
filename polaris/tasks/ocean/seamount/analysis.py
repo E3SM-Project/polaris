@@ -12,15 +12,25 @@ measure rather than in advance, and a threshold guessed before the first
 measurement is a guard that either cannot fail or fails for the wrong reason.
 """
 
-import cmocean  # noqa: F401
-import matplotlib.pyplot as plt
-import numpy as np
-import xarray as xr
+from typing import TYPE_CHECKING
 
+from polaris.lazy import lazy_module, lazy_side_effect
 from polaris.ocean.eos import compute_density
 from polaris.ocean.model import OceanIOStep, get_time_since_start
 from polaris.ocean.vertical.ztilde import Gravity, RhoSw
 from polaris.tasks.ocean.seamount.forward import forward_step_name
+
+if TYPE_CHECKING:
+    import cmocean  # noqa: F401
+    import matplotlib.pyplot as plt
+    import numpy as np
+    import xarray as xr
+else:
+    lazy_side_effect('cmocean')
+    plt = lazy_module('matplotlib.pyplot')
+    np = lazy_module('numpy')
+    xr = lazy_module('xarray')
+
 
 # The metrics written to metrics.csv, in order, with the column headings and
 # the units they are reported in

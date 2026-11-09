@@ -1,10 +1,16 @@
-import numpy as np
+from typing import TYPE_CHECKING
 
+from polaris.lazy import lazy_module
 from polaris.mesh.connectivity import (
     active_edge_masks,
     connected_to_seeds,
     transport_link_mask,
 )
+
+if TYPE_CHECKING:
+    import numpy as np
+else:
+    np = lazy_module('numpy')
 
 
 def remove_ocean_land_locked_cells(ds_mesh, ocean_mask, ocean_seed_mask):

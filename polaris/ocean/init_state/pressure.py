@@ -2,15 +2,22 @@
 Helpers for the pressure needed to convert between tracer conventions.
 """
 
-import logging
+from __future__ import annotations
 
-import xarray as xr
+import logging
+from typing import TYPE_CHECKING
 
 from polaris.config import PolarisConfigParser
+from polaris.lazy import lazy_module
 from polaris.ocean.vertical.ztilde import (
     get_iter_count_for_eos,
     pressure_and_spec_vol_from_state_at_geom_height,
 )
+
+if TYPE_CHECKING:
+    import xarray as xr
+else:
+    xr = lazy_module('xarray')
 
 
 def pressure_for_tracer_conversion(

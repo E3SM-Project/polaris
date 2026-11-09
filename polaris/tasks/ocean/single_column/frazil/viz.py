@@ -1,5 +1,6 @@
-import numpy as np
+from typing import TYPE_CHECKING
 
+from polaris.lazy import lazy_module
 from polaris.ocean.model import get_time_since_start
 from polaris.tasks.ocean.single_column.frazil.utils import (
     FRAZIL_RATE_UNITS,
@@ -7,6 +8,11 @@ from polaris.tasks.ocean.single_column.frazil.utils import (
 )
 from polaris.tasks.ocean.single_column.viz import Viz
 from polaris.viz import mplstyle_context
+
+if TYPE_CHECKING:
+    import numpy as np
+else:
+    np = lazy_module('numpy')
 
 
 class FrazilViz(Viz):

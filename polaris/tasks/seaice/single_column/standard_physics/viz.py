@@ -1,8 +1,15 @@
-from matplotlib.figure import Figure
-from mpas_tools.io import open_dataset
+from typing import TYPE_CHECKING
 
 from polaris import Step
+from polaris.lazy import lazy_attr
 from polaris.viz import mplstyle_context
+
+if TYPE_CHECKING:
+    from matplotlib.figure import Figure
+    from mpas_tools.io import open_dataset
+else:
+    Figure = lazy_attr('matplotlib.figure', 'Figure')
+    open_dataset = lazy_attr('mpas_tools.io', 'open_dataset')
 
 
 class Viz(Step):

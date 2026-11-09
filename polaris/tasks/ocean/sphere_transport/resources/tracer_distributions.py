@@ -1,6 +1,17 @@
-import numpy as np
-from mpas_tools.transects import lon_lat_to_cartesian
-from mpas_tools.vector import Vector
+from typing import TYPE_CHECKING
+
+from polaris.lazy import lazy_attr, lazy_module
+
+if TYPE_CHECKING:
+    import numpy as np
+    from mpas_tools.transects import lon_lat_to_cartesian
+    from mpas_tools.vector import Vector
+else:
+    np = lazy_module('numpy')
+    lon_lat_to_cartesian = lazy_attr(
+        'mpas_tools.transects', 'lon_lat_to_cartesian'
+    )
+    Vector = lazy_attr('mpas_tools.vector', 'Vector')
 
 
 def slotted_cylinders(lon, lat, r, b, c, sphere_radius):

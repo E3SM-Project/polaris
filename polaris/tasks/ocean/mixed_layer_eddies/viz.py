@@ -1,5 +1,13 @@
-import cmocean  # noqa: F401
-import mosaic
+from typing import TYPE_CHECKING
+
+from polaris.lazy import lazy_module, lazy_side_effect
+
+if TYPE_CHECKING:
+    import cmocean  # noqa: F401
+    import mosaic
+else:
+    lazy_side_effect('cmocean')
+    mosaic = lazy_module('mosaic')
 
 
 def plot_surface_salinity(ax, ds_mesh, ds, title, vmin, vmax):

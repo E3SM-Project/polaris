@@ -1,5 +1,6 @@
-import numpy as np
+from typing import TYPE_CHECKING
 
+from polaris.lazy import lazy_module
 from polaris.mesh.connectivity import (
     connected_to_seeds,
     count_active_edges,
@@ -7,6 +8,11 @@ from polaris.mesh.connectivity import (
     label_regions,
     transport_link_mask,
 )
+
+if TYPE_CHECKING:
+    import numpy as np
+else:
+    np = lazy_module('numpy')
 
 
 def check_cull_mask_consistency(

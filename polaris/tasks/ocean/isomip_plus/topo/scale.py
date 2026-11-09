@@ -1,10 +1,16 @@
 import os
-from typing import List
-
-import xarray as xr
-from mpas_tools.io import open_dataset, write_netcdf
+from typing import TYPE_CHECKING, List
 
 from polaris import Step
+from polaris.lazy import lazy_attr, lazy_module
+
+if TYPE_CHECKING:
+    import xarray as xr
+    from mpas_tools.io import open_dataset, write_netcdf
+else:
+    xr = lazy_module('xarray')
+    open_dataset = lazy_attr('mpas_tools.io', 'open_dataset')
+    write_netcdf = lazy_attr('mpas_tools.io', 'write_netcdf')
 
 
 class TopoScale(Step):

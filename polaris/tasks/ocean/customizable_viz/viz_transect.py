@@ -1,11 +1,7 @@
 import os
+from typing import TYPE_CHECKING
 
-import cmocean  # noqa: F401
-import numpy as np
-import xarray as xr
-from mpas_tools.io import write_netcdf
-from mpas_tools.ocean.viz.transect import compute_transect, plot_transect
-
+from polaris.lazy import lazy_attr, lazy_module, lazy_side_effect
 from polaris.ocean.model import OceanIOStep as OceanIOStep
 from polaris.ocean.vertical.diagnostics import (
     geom_thickness_from_ds,
@@ -15,6 +11,22 @@ from polaris.viz import (
     determine_time_variable,
     get_viz_defaults,
 )
+
+if TYPE_CHECKING:
+    import cmocean  # noqa: F401
+    import numpy as np
+    import xarray as xr
+    from mpas_tools.io import write_netcdf
+    from mpas_tools.ocean.viz.transect import compute_transect, plot_transect
+else:
+    lazy_side_effect('cmocean')
+    np = lazy_module('numpy')
+    xr = lazy_module('xarray')
+    write_netcdf = lazy_attr('mpas_tools.io', 'write_netcdf')
+    compute_transect = lazy_attr(
+        'mpas_tools.ocean.viz.transect', 'compute_transect'
+    )
+    plot_transect = lazy_attr('mpas_tools.ocean.viz.transect', 'plot_transect')
 
 
 class VizTransect(OceanIOStep):

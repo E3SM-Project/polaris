@@ -42,11 +42,17 @@ the same range lands on the same directory.
 import glob
 import os
 import re
+from typing import TYPE_CHECKING
 
-import xarray as xr
-
+from polaris.lazy import lazy_module
 from polaris.tasks.ocean.analysis.analysis_step import AnalysisStep
 from polaris.tasks.ocean.analysis.sim_files import check_month_covered
+
+if TYPE_CHECKING:
+    import xarray as xr
+else:
+    xr = lazy_module('xarray')
+
 
 # What Polaris writes in a step's work directory when the step finishes.  A
 # cache in a directory without it was left by a run that was interrupted.

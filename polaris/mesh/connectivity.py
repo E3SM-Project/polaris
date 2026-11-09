@@ -1,7 +1,19 @@
-import numpy as np
-from scipy.sparse import coo_matrix
-from scipy.sparse.csgraph import connected_components
-from scipy.spatial import cKDTree
+from typing import TYPE_CHECKING
+
+from polaris.lazy import lazy_attr, lazy_module
+
+if TYPE_CHECKING:
+    import numpy as np
+    from scipy.sparse import coo_matrix
+    from scipy.sparse.csgraph import connected_components
+    from scipy.spatial import cKDTree
+else:
+    np = lazy_module('numpy')
+    coo_matrix = lazy_attr('scipy.sparse', 'coo_matrix')
+    connected_components = lazy_attr(
+        'scipy.sparse.csgraph', 'connected_components'
+    )
+    cKDTree = lazy_attr('scipy.spatial', 'cKDTree')
 
 
 def active_edge_masks(ds_mesh, cell_mask):

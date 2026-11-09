@@ -1,7 +1,13 @@
-import numpy as np
+from typing import TYPE_CHECKING
 
+from polaris.lazy import lazy_module
 from polaris.mesh import QuasiUniformSphericalMeshStep
 from polaris.mesh.base.so.background import build_southern_ocean_background
+
+if TYPE_CHECKING:
+    import numpy as np
+else:
+    np = lazy_module('numpy')
 
 
 class SOBaseMesh(QuasiUniformSphericalMeshStep):

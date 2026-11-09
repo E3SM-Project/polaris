@@ -1,14 +1,24 @@
 import os
+from typing import TYPE_CHECKING
 
-import cartopy.crs as ccrs
-import cmocean  # noqa: F401
-import matplotlib.colors as mcolors
-import matplotlib.pyplot as plt
-import numpy as np
-import xarray as xr
-
+from polaris.lazy import lazy_module, lazy_side_effect
 from polaris.step import Step
 from polaris.viz import mplstyle_context
+
+if TYPE_CHECKING:
+    import cartopy.crs as ccrs
+    import cmocean  # noqa: F401
+    import matplotlib.colors as mcolors
+    import matplotlib.pyplot as plt
+    import numpy as np
+    import xarray as xr
+else:
+    ccrs = lazy_module('cartopy.crs')
+    lazy_side_effect('cmocean')
+    mcolors = lazy_module('matplotlib.colors')
+    plt = lazy_module('matplotlib.pyplot')
+    np = lazy_module('numpy')
+    xr = lazy_module('xarray')
 
 
 class VizSizingFieldStep(Step):

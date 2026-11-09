@@ -1,5 +1,13 @@
-import numpy as np
-from scipy.optimize import root_scalar
+from typing import TYPE_CHECKING
+
+from polaris.lazy import lazy_attr, lazy_module
+
+if TYPE_CHECKING:
+    import numpy as np
+    from scipy.optimize import root_scalar
+else:
+    np = lazy_module('numpy')
+    root_scalar = lazy_attr('scipy.optimize', 'root_scalar')
 
 
 def create_tanh_dz_grid(

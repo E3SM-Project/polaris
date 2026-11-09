@@ -4,10 +4,7 @@ import logging
 import os
 import shutil
 import warnings
-from typing import Dict
-
-from mache import MachineInfo
-from mache.permissions import update_permissions
+from typing import TYPE_CHECKING, Dict
 
 from polaris.cf_check import (
     add_cf_tables,
@@ -16,7 +13,15 @@ from polaris.cf_check import (
 )
 from polaris.config import PolarisConfigParser
 from polaris.io import download, symlink
+from polaris.lazy import lazy_attr
 from polaris.validate import compare_variables, merge_diff_summary
+
+if TYPE_CHECKING:
+    from mache import MachineInfo
+    from mache.permissions import update_permissions
+else:
+    MachineInfo = lazy_attr('mache', 'MachineInfo')
+    update_permissions = lazy_attr('mache.permissions', 'update_permissions')
 
 
 class Step:

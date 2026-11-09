@@ -1,9 +1,8 @@
 import os
-
-import numpy as np
-import xarray as xr
+from typing import TYPE_CHECKING
 
 from polaris.cf import add_cf_conventions, add_lat_lon_attrs
+from polaris.lazy import lazy_module
 from polaris.mesh.spherical.unified.river.distance import (
     haversine_distance,
 )
@@ -15,6 +14,14 @@ from polaris.tasks.mesh.spherical.unified.river.simplify import (
     EARTH_RADIUS,
     read_river_segments_from_feature_collection,
 )
+
+if TYPE_CHECKING:
+    import numpy as np
+    import xarray as xr
+else:
+    np = lazy_module('numpy')
+    xr = lazy_module('xarray')
+
 
 #: variables in a rasterized river-network file to compare against a baseline
 RIVER_NETWORK_VALIDATE_VARS = ['river_channel_mask']

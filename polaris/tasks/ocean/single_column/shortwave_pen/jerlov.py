@@ -19,7 +19,15 @@ common extinction coefficient, which is what
 :py:func:`omega_jerlov_equivalent` returns.
 """
 
-import numpy as np
+from typing import TYPE_CHECKING
+
+from polaris.lazy import lazy_module
+
+if TYPE_CHECKING:
+    import numpy as np
+else:
+    np = lazy_module('numpy')
+
 
 # Jerlov water type:      I     IA    IB    II    III
 JERLOV_WATER_TYPES = {

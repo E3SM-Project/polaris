@@ -1,10 +1,18 @@
-import math
-from typing import Callable
+from __future__ import annotations
 
-import numpy as np
-from scipy.interpolate import PchipInterpolator
+import math
+from typing import TYPE_CHECKING, Callable
 
 from polaris.config import PolarisConfigParser
+from polaris.lazy import lazy_attr, lazy_module
+
+if TYPE_CHECKING:
+    import numpy as np
+    from scipy.interpolate import PchipInterpolator
+else:
+    np = lazy_module('numpy')
+    PchipInterpolator = lazy_attr('scipy.interpolate', 'PchipInterpolator')
+
 
 # Abscissa offset of the two-point Gauss-Legendre rule on [-1, 1], which is
 # exact through cubics and therefore exact for a PCHIP piece.

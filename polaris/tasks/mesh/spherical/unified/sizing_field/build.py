@@ -1,10 +1,8 @@
 import os
-
-import numpy as np
-import xarray as xr
-from geometric_features import GeometricFeatures
+from typing import TYPE_CHECKING
 
 from polaris.cf import add_cf_conventions, add_lat_lon_attrs
+from polaris.lazy import lazy_attr, lazy_module
 from polaris.mesh.spherical.coastline import (
     rasterize_critical_transects,
     signed_distance_from_ocean_mask,
@@ -19,6 +17,16 @@ from polaris.mesh.spherical.unified.effective_ocean import (
 )
 from polaris.mesh.spherical.unified.resolutions import FINEST_RESOLUTION
 from polaris.step import Step
+
+if TYPE_CHECKING:
+    import numpy as np
+    import xarray as xr
+    from geometric_features import GeometricFeatures
+else:
+    np = lazy_module('numpy')
+    xr = lazy_module('xarray')
+    GeometricFeatures = lazy_attr('geometric_features', 'GeometricFeatures')
+
 
 #: variables always present in a sizing-field file that should be compared
 #: against a baseline

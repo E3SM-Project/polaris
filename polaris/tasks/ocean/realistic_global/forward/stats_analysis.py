@@ -1,6 +1,6 @@
-import numpy as np
-import xarray as xr
+from typing import TYPE_CHECKING
 
+from polaris.lazy import lazy_module
 from polaris.ocean.analysis_plots import plot_global_stats
 from polaris.ocean.global_stats_names import (
     discover_fields,
@@ -9,6 +9,13 @@ from polaris.ocean.global_stats_names import (
 from polaris.ocean.model import OceanIOStep
 from polaris.ocean.model.time import get_time_since_start
 from polaris.tasks.ocean.realistic_global.forward.stage import ForwardStage
+
+if TYPE_CHECKING:
+    import numpy as np
+    import xarray as xr
+else:
+    np = lazy_module('numpy')
+    xr = lazy_module('xarray')
 
 
 class StatsAnalysis(OceanIOStep):

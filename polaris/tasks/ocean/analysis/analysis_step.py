@@ -1,12 +1,18 @@
 import os
-
-import xarray as xr
+from typing import TYPE_CHECKING
 
 from polaris.analysis import Manifest
 from polaris.analysis.manifest import FRAGMENT_FILENAME
+from polaris.lazy import lazy_module
 from polaris.ocean.model import OceanIOStep
 from polaris.ocean.vertical.elevation import get_valid_level_range
 from polaris.tasks.ocean.analysis.sim_files import SimulationFiles
+
+if TYPE_CHECKING:
+    import xarray as xr
+else:
+    xr = lazy_module('xarray')
+
 
 # The local names the simulation's mesh and vertical coordinate are linked
 # into a step's work directory as.  Both are named here rather than in each

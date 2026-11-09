@@ -1,15 +1,22 @@
 import json as json
 from importlib import resources as resources
+from typing import TYPE_CHECKING
 
-import numpy as np
-from netCDF4 import Dataset as Dataset
-
+from polaris.lazy import lazy_attr, lazy_module
 from polaris.ocean.vertical.grid_1d.index_tanh_dz import (
     create_index_tanh_dz_grid as create_index_tanh_dz_grid,
 )
 from polaris.ocean.vertical.grid_1d.tanh_dz import (
     create_tanh_dz_grid as create_tanh_dz_grid,
 )
+
+if TYPE_CHECKING:
+    import numpy as np
+    from netCDF4 import Dataset as Dataset
+else:
+    np = lazy_module('numpy')
+    Dataset = lazy_attr('netCDF4', 'Dataset')
+
 
 # The 1D reference vertical coordinate variables added by ``add_1d_grid``.
 # Kept here as the single source of truth so that consumers that need to

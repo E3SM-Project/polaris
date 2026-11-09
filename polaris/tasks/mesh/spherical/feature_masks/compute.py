@@ -1,18 +1,37 @@
 import multiprocessing
 import os
+from typing import TYPE_CHECKING
 
-import mpas_tools.cime.constants as cime_constants
-import xarray as xr
-from geometric_features import GeometricFeatures
-from geometric_features.aggregation import get_aggregator_by_name
-from mpas_tools.io import write_netcdf
-from mpas_tools.mesh.mask import (
-    compute_mpas_region_masks,
-    compute_mpas_transect_masks,
-)
-from mpas_tools.parallel import create_pool
-
+from polaris.lazy import lazy_attr, lazy_module
 from polaris.step import Step
+
+if TYPE_CHECKING:
+    import mpas_tools.cime.constants as cime_constants
+    import xarray as xr
+    from geometric_features import GeometricFeatures
+    from geometric_features.aggregation import get_aggregator_by_name
+    from mpas_tools.io import write_netcdf
+    from mpas_tools.mesh.mask import (
+        compute_mpas_region_masks,
+        compute_mpas_transect_masks,
+    )
+    from mpas_tools.parallel import create_pool
+else:
+    cime_constants = lazy_module('mpas_tools.cime.constants')
+    xr = lazy_module('xarray')
+    GeometricFeatures = lazy_attr('geometric_features', 'GeometricFeatures')
+    get_aggregator_by_name = lazy_attr(
+        'geometric_features.aggregation', 'get_aggregator_by_name'
+    )
+    write_netcdf = lazy_attr('mpas_tools.io', 'write_netcdf')
+    compute_mpas_region_masks = lazy_attr(
+        'mpas_tools.mesh.mask', 'compute_mpas_region_masks'
+    )
+    compute_mpas_transect_masks = lazy_attr(
+        'mpas_tools.mesh.mask', 'compute_mpas_transect_masks'
+    )
+    create_pool = lazy_attr('mpas_tools.parallel', 'create_pool')
+
 
 VALID_MASK_TYPES = {'cell', 'edge', 'vertex'}
 

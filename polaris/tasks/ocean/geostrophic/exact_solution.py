@@ -1,7 +1,14 @@
-import numpy as np
-from mpas_tools.io import open_dataset
+from typing import TYPE_CHECKING
 
 from polaris.constants import get_constant
+from polaris.lazy import lazy_attr, lazy_module
+
+if TYPE_CHECKING:
+    import numpy as np
+    from mpas_tools.io import open_dataset
+else:
+    np = lazy_module('numpy')
+    open_dataset = lazy_attr('mpas_tools.io', 'open_dataset')
 
 
 def compute_exact_solution(alpha, vel_period, gh_0, mesh_filename):

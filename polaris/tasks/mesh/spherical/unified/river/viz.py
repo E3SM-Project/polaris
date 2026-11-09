@@ -1,21 +1,36 @@
 import os
-from typing import cast
+from typing import TYPE_CHECKING, cast
 
-import cartopy.crs as ccrs
-import matplotlib.colors as mcolors
-import matplotlib.pyplot as plt
-import numpy as np
-import xarray as xr
-from cartopy.mpl.geoaxes import GeoAxes
-from matplotlib.lines import Line2D
-from shapely.geometry import LineString, MultiLineString, box, shape
-
+from polaris.lazy import lazy_attr, lazy_module
 from polaris.mesh.spherical.unified.river.distance import (
     haversine_distance,
 )
 from polaris.mesh.spherical.unified.river.geojson import read_geojson
 from polaris.step import Step
 from polaris.viz import mplstyle_context
+
+if TYPE_CHECKING:
+    import cartopy.crs as ccrs
+    import matplotlib.colors as mcolors
+    import matplotlib.pyplot as plt
+    import numpy as np
+    import xarray as xr
+    from cartopy.mpl.geoaxes import GeoAxes
+    from matplotlib.lines import Line2D
+    from shapely.geometry import LineString, MultiLineString, box, shape
+else:
+    ccrs = lazy_module('cartopy.crs')
+    mcolors = lazy_module('matplotlib.colors')
+    plt = lazy_module('matplotlib.pyplot')
+    np = lazy_module('numpy')
+    xr = lazy_module('xarray')
+    GeoAxes = lazy_attr('cartopy.mpl.geoaxes', 'GeoAxes')
+    Line2D = lazy_attr('matplotlib.lines', 'Line2D')
+    LineString = lazy_attr('shapely.geometry', 'LineString')
+    MultiLineString = lazy_attr('shapely.geometry', 'MultiLineString')
+    box = lazy_attr('shapely.geometry', 'box')
+    shape = lazy_attr('shapely.geometry', 'shape')
+
 
 CONUS_EXTENT = (-128.0, -65.0, 22.0, 52.0)
 

@@ -15,12 +15,20 @@ background cell width everywhere the cull is likely to keep.
 """
 
 import math
-
-import numpy as np
-from scipy import ndimage
-from scipy.spatial import cKDTree
+from typing import TYPE_CHECKING
 
 from polaris.constants import get_constant
+from polaris.lazy import lazy_attr, lazy_module
+
+if TYPE_CHECKING:
+    import numpy as np
+    from scipy import ndimage
+    from scipy.spatial import cKDTree
+else:
+    np = lazy_module('numpy')
+    ndimage = lazy_attr('scipy', 'ndimage')
+    cKDTree = lazy_attr('scipy.spatial', 'cKDTree')
+
 
 EARTH_RADIUS = get_constant('mean_radius')
 KM_PER_DEG = math.pi / 180.0 * EARTH_RADIUS / 1e3
