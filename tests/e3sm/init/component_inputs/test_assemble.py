@@ -78,6 +78,24 @@ def test_each_target_stages_its_own_products(target):
     assert set(assemble.product_steps) == expected
 
 
+@pytest.mark.parametrize('target', ['ocean', 'seaice', 'all'])
+def test_assembly_waits_for_the_partition_steps(target):
+    """
+    The partitions cannot be declared as inputs, so without a dependency a
+    parallel run assembles while the partition steps are still running.
+    """
+    _reset_shared_components()
+    steps, _ = get_component_inputs_steps(mesh_name=MESH_NAME, target=target)
+    assemble = steps[f'assemble_{target}']
+
+    partition_keys = [
+        key for key in TARGET_PRODUCTS[target] if key.endswith('partition')
+    ]
+    assert partition_keys
+    for key in partition_keys:
+        assert assemble.dependencies[key] is steps[key]
+
+
 def test_an_unknown_target_is_rejected():
     _reset_shared_components()
     with pytest.raises(ValueError, match='land'):
@@ -216,6 +234,8 @@ def _run_assemble(
     # the declared inputs, as the step will look for them
     for entry in step.input_data:
         path = os.path.join(step.work_dir, entry['filename'])
+        # dependencies are declared as pickles in a subdirectory
+        os.makedirs(os.path.dirname(path), exist_ok=True)
         with open(path, 'w') as handle:
             handle.write(entry['filename'])
 

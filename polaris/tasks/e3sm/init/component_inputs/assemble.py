@@ -129,7 +129,10 @@ class ComponentInputsAssembleStep(AssembleStep):
             if key.endswith('graph_partition'):
                 # the partitions are named for core counts that follow from a
                 # cell count not known until the mesh exists, so they cannot
-                # be declared here; they are found at run time instead
+                # be declared here; they are found at run time instead.  With
+                # no input file to order the two, a parallel run needs the
+                # dependency, or it assembles before any partition exists.
+                self.add_dependency(step, name=key)
                 continue
             if key == 'ocean_moc_masks':
                 # this step declares its outputs in setup(), which has not run
