@@ -11,8 +11,8 @@ an E3SM run needs from one unified mesh.  See
 This package lives in `e3sm/init` and imports from `polaris.tasks.ocean`,
 while `polaris.tasks.ocean.realistic_global` imports from
 `polaris.tasks.e3sm.init.topo.cull`.  That is acyclic only in one direction,
-and it works because `polaris.tasks` fully imports
-`polaris.tasks.e3sm.init` before any `add_*_tasks` function runs.
+and as long as it stays acyclic, either package can be imported first, which
+a task group built on its own relies on.
 
 **Nothing under `polaris.tasks.ocean` may import this package.**  Reversing
 the direction is the kind of change a well-meaning refactor makes, and it

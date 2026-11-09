@@ -1,4 +1,5 @@
 import importlib.resources as imp_res
+import weakref
 from pathlib import Path
 
 import pytest
@@ -20,7 +21,9 @@ def _get_suite_files():
 def task_paths():
     """The paths of all registered tasks, without leaking them to tests."""
     with pytest.MonkeyPatch.context() as monkeypatch:
-        monkeypatch.setattr(polaris.tasks, '_tasks_added', False)
+        monkeypatch.setattr(
+            polaris.tasks, '_groups_added', weakref.WeakKeyDictionary()
+        )
         _clear_components()
         paths = {
             task.path

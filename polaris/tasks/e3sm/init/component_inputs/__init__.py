@@ -13,8 +13,8 @@ This package lives in ``e3sm/init`` and imports from
 :py:mod:`polaris.tasks.ocean`, while
 :py:mod:`polaris.tasks.ocean.realistic_global` imports from
 :py:mod:`polaris.tasks.e3sm.init.topo.cull`.  That is acyclic only in one
-direction, and it works because :py:mod:`polaris.tasks` fully imports
-:py:mod:`polaris.tasks.e3sm.init` before any ``add_*_tasks`` function runs.
+direction, and as long as it stays acyclic, either package can be imported
+first, which a task group built on its own relies on.
 
 **Nothing under** :py:mod:`polaris.tasks.ocean` **may import this package.**
 Reversing the direction is the kind of change a well-meaning refactor makes,
