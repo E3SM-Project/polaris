@@ -168,6 +168,9 @@ density, and specific volume.</p></li>
 <li><p>It zeros any numeric fields whose names contain <code class="docutils literal notranslate"><span class="pre">velocity</span></code>.</p></li>
 <li><p>It optionally adds idealized surface stress forcing or surface stress,
 net heat flux and surface freshwater forcing from a 20 year average of ERA5.</p></li>
+<li><p>It optionally interpolates satellite-derived red and blue band shortwave
+extinction coefficients onto the mesh and adds them to both the MPAS zero-velocity
+companion file and the converted Omega file.</p></li>
 <li><p>It renames dimensions and variables using
 <code class="docutils literal notranslate"><span class="pre">polaris/ocean/model/mpaso_to_omega.yaml</span></code>.</p></li>
 <li><p>It writes the converted Omega file with
@@ -252,12 +255,54 @@ variable names.  Figures are only produced on spherical meshes.  The temperature
 <span class="w">    </span>--forcing-scrip-file<span class="w"> </span>/path/to/era5_0.25deg_scrip.nc<span class="w"> </span><span class="se">\</span>
 </pre></div>
 </div>
+<p>When supplying local forcing data, provide both the forcing file and its SCRIP
+file. If neither is supplied, both are downloaded.</p>
 <p>The forcing file generation uses conservative remapping by default; if you wish to use another method add <code class="docutils literal notranslate"><span class="pre">--remap-method</span> <span class="pre">bilinear</span></code> to the command.</p>
+<section id="shortwave-extinction-coefficients">
+<h3>Shortwave Extinction Coefficients<a class="headerlink" href="#shortwave-extinction-coefficients" title="Link to this heading"></a></h3>
+<p>To include red-band and blue-band shortwave extinction coefficients
+(<code class="docutils literal notranslate"><span class="pre">ExtinctionCoeffRedCell</span></code> and <code class="docutils literal notranslate"><span class="pre">ExtinctionCoeffBlueCell</span></code>) in the converted MPAS companion
+file and Omega initial condition, add <code class="docutils literal notranslate"><span class="pre">--include-shortwave-extinction</span></code>:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>utils/omega/convert_mpaso_ic_to_omega.py<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--input-file<span class="w"> </span>/path/to/ocean.nc<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--output-file<span class="w"> </span>/path/to/ocean.omega.nc<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--eos-type<span class="w"> </span>teos10<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--include-shortwave-extinction
+</pre></div>
+</div>
+<p>On supported machines, the shortwave extinction data file
+(<code class="docutils literal notranslate"><span class="pre">shortwave_extinction_0.083x0.083_20261002.nc</span></code>) and its corresponding source
+SCRIP file (<code class="docutils literal notranslate"><span class="pre">shortwave_extinction_scrip_20261002.nc</span></code>) are automatically
+downloaded from the Polaris repository under <code class="docutils literal notranslate"><span class="pre">ocean/realistic_global/forcing</span></code>.
+On non-supported machines or to use custom inputs, supply local files:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>utils/omega/convert_mpaso_ic_to_omega.py<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--input-file<span class="w"> </span>/path/to/ocean.nc<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--output-file<span class="w"> </span>/path/to/ocean.omega.nc<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--eos-type<span class="w"> </span>teos10<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--include-shortwave-extinction<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--shortwave-file<span class="w"> </span>/path/to/shortwave_extinction.nc<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--shortwave-scrip-file<span class="w"> </span>/path/to/shortwave_extinction_scrip.nc
+</pre></div>
+</div>
+<p>When supplying local shortwave data, provide both the data file and its SCRIP
+file. If neither is supplied, both are downloaded.</p>
+<p>If you only need a standalone companion file containing <code class="docutils literal notranslate"><span class="pre">latCell</span></code>, <code class="docutils literal notranslate"><span class="pre">lonCell</span></code>,
+<code class="docutils literal notranslate"><span class="pre">ExtinctionCoeffRedCell</span></code>, and <code class="docutils literal notranslate"><span class="pre">ExtinctionCoeffBlueCell</span></code> for an MPAS mesh rather than
+converting an entire initial condition, use the companion utility
+<code class="docutils literal notranslate"><span class="pre">utils/omega/interp_shortwave_extinction_to_mpas.py</span></code>:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>utils/omega/interp_shortwave_extinction_to_mpas.py<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--mesh<span class="w"> </span>/path/to/mpas_mesh.nc<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--output-file<span class="w"> </span>/path/to/shortwave_extinction_on_mesh.nc
+</pre></div>
+</div>
+<p>For custom source data, provide both <code class="docutils literal notranslate"><span class="pre">--input-file</span></code> and <code class="docutils literal notranslate"><span class="pre">--src-scrip-file</span></code>;
+when neither is supplied, both are downloaded.</p>
 <p>The script appends an EOS suffix automatically unless it is already present:</p>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">teos10</span></code> produces <code class="docutils literal notranslate"><span class="pre">*.teos10eos.nc</span></code></p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">linear</span></code> produces <code class="docutils literal notranslate"><span class="pre">*.lineareos.nc</span></code></p></li>
 </ul>
+</section>
 </section>
 <section id="input-expectations">
 <h2>Input Expectations<a class="headerlink" href="#input-expectations" title="Link to this heading"></a></h2>
@@ -275,9 +320,11 @@ used for this integration.</p>
 <p>The converter can produce up to four artifacts:</p>
 <ul class="simple">
 <li><p>An MPAS-style file with zeroed velocity fields, written next to the input
-file with the suffix <code class="docutils literal notranslate"><span class="pre">.mpas.nc</span></code></p></li>
+file with the suffix <code class="docutils literal notranslate"><span class="pre">.mpas.nc</span></code> (optionally including <code class="docutils literal notranslate"><span class="pre">ExtinctionCoeffRedCell</span></code>
+and <code class="docutils literal notranslate"><span class="pre">ExtinctionCoeffBlueCell</span></code> when <code class="docutils literal notranslate"><span class="pre">--include-shortwave-extinction</span></code> is given)</p></li>
 <li><p>An Omega-formatted initial condition written next to the requested output
-path with an EOS-specific suffix</p></li>
+path with an EOS-specific suffix (optionally including <code class="docutils literal notranslate"><span class="pre">ExtinctionCoeffRedCell</span></code>
+and <code class="docutils literal notranslate"><span class="pre">ExtinctionCoeffBlueCell</span></code> mapped to dimension <code class="docutils literal notranslate"><span class="pre">NCells</span></code>)</p></li>
 <li><p>A temperature comparison figure named
 <code class="docutils literal notranslate"><span class="pre">&lt;output_stem&gt;_temperature_absolute_difference.png</span></code> when
 <code class="docutils literal notranslate"><span class="pre">--visualization</span></code> is enabled</p></li>
