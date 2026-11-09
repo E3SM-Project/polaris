@@ -326,7 +326,7 @@ def _fake_suite(calls):
         work_dir,
         baseline_work_dir=None,
         load_script=None,
-        parallel=False,
+        parallel=True,
     ):
         calls['suite'].append(
             {

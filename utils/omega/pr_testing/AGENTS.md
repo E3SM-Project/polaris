@@ -227,8 +227,9 @@ can be submitted the moment it is set up.
    omega_pr_test.py setup --fork <fork> --branch <branch> --submit
    ```
    Leave off `--submit` if you do not have permission yet; running `setup`
-   again with it later reuses the builds.  Add `--parallel` if the
-   requester asks for it, which runs the suites' steps at the same time.
+   again with it later reuses the builds.  The suites' steps run at the
+   same time with `polaris parallel`; add `--serial` only if the
+   requester asks for them to run one at a time.
    Each build typically takes about 5 minutes, and rarely more than 10.  `setup` checks that this Polaris
    checkout is clean, contains the manifest's Polaris commit and pins the
    same Omega; if not, stop and tell the requester.  It chains the PR suite

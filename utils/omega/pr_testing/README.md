@@ -36,8 +36,8 @@ its rows.  An agent on every machine also works, but is discouraged.
    `--coupled-tests` names) with `create_test --no-run`, in a clean shell
    with the machine's `load_latest_cime_env.sh` sourced.  It prints the
    jobs, or submits them with `--submit`.  The coupled tests run only on
-   the PR, since `ERS` and `PEM` tests compare a run with itself.  With `--parallel`, the PR suite, and a baseline it sets up,
-   run their steps at the same time with `polaris parallel`.
+   the PR, since `ERS` and `PEM` tests compare a run with itself.  The PR suite, and a baseline it sets up, run their steps at
+   the same time with `polaris parallel` unless `--serial` is given.
 4. **`report`** (each machine) writes one comment for the machine's rows:
    a table with a line for each row, generated from the results, and for
    each row a collapsed block with the files Polaris, CTest and CIME

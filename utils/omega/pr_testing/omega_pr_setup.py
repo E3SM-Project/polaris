@@ -39,7 +39,7 @@ def run_setup(
     baseline_dir: Optional[str] = None,
     baseline_load_script: Optional[str] = None,
     no_baseline: Optional[str] = None,
-    parallel: bool = False,
+    parallel: bool = True,
     coupled_tests: Optional[List[str]] = None,
     polaris_dir: str = POLARIS_DIR,
 ) -> SetupState:
@@ -75,7 +75,8 @@ def run_setup(
 
     parallel : bool, optional
         Whether the PR suite, and a baseline that is set up here, run their
-        steps at the same time with ``polaris parallel``
+        steps at the same time with ``polaris parallel`` rather than one
+        after another with ``polaris serial``
 
     coupled_tests : list of str, optional
         The coupled CIME tests to run, without the machine and compiler,

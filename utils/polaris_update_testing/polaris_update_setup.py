@@ -41,7 +41,7 @@ def run_setup(
     baseline_load_script: Optional[str] = None,
     no_baseline: Optional[str] = None,
     model: Optional[str] = None,
-    parallel: bool = False,
+    parallel: bool = True,
     polaris_dir: str = POLARIS_DIR,
 ) -> List[Tuple[SetupState, str]]:
     """
@@ -76,7 +76,8 @@ def run_setup(
 
     parallel : bool, optional
         Whether the PR suites, and baselines that are set up here, run
-        their steps at the same time with ``polaris parallel``
+        their steps at the same time with ``polaris parallel`` rather than one
+        after another with ``polaris serial``
 
     polaris_dir : str, optional
         The Polaris checkout the loaded environment runs
