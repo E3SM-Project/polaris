@@ -593,7 +593,7 @@ initial condition wearing the wrong one.
 Copying the tree into an inputdata directory is left to a person. The step
 symlinks in a `sync_to_inputdata.sh` script that rsyncs the tree with
 `--ignore-existing --copy-links` into a destination that must already exist,
-then sets directories to `775` and files to `664` on the paths the tree
+then sets directories to `2775` and files to `664` on the paths the tree
 contributes — not by walking a shared destination, which would touch files
 belonging to other meshes and other people.
 

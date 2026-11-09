@@ -11,9 +11,11 @@ meshes and initial conditions, and graph partitions for both models.
 The staged tree is a **subset** of what E3SM needs for a new mesh.  It does
 not include diagnostic mapping files or region masks, E3SM-to-CMIP maps,
 iceberg or ice-shelf melt climatologies, sea-surface salinity restoring,
-tidal mixing, or velocity-reconstruction coefficients.  Do not upload it to
-the inputdata server on its own.  The same warning is staged as a `README`
-alongside the files.
+tidal mixing, or velocity-reconstruction coefficients.  The remaining steps
+in adding a mesh to E3SM are outside the scope of Polaris.  Do not upload the
+tree to the inputdata server or try to add a new mesh to E3SM yourself.
+Contact an expert on the E3SM team, such as Jon Wolfe, instead.  The same
+warning is staged as a `README` alongside the files.
 ```
 
 ## Tasks
@@ -36,13 +38,21 @@ there is no need to set up any other task first.  The `ocean` and `all` tasks
 include the realistic-global initial condition and dynamic adjustment,
 because the ocean initial condition is the restart from the final adjustment
 stage, not the interpolated initial state.  The adjustment is a multi-hour
-model run on the finer meshes, and it needs an MPAS-Ocean build, given with
-`--ocean_path` (`-p` does not apply, since the `e3sm/init` component has no
-model of its own):
+model run on the finer meshes, and it needs MPAS-Ocean.  Either point
+`--ocean_path` at an existing build (`-p` does not apply, since the
+`e3sm/init` component has no model of its own):
 
 ```bash
 polaris setup -t e3sm/init/u-oi240-lr240/component_inputs/tasks/all \
     --ocean_path <path to MPAS-Ocean build> -w <work dir>
+```
+
+or give `--ocean_model mpas-ocean` and Polaris builds MPAS-Ocean from the
+`e3sm_submodules/E3SM-Project` submodule:
+
+```bash
+polaris setup -t e3sm/init/u-oi240-lr240/component_inputs/tasks/all \
+    --ocean_model mpas-ocean -w <work dir>
 ```
 
 The `seaice` task does **not** include the ocean steps.  Every sea-ice product
@@ -180,6 +190,9 @@ Its name carries two dates because they change independently:
 - `<date>` is the creation date of this mesh's file, in the trailing field
   where every other staged file carries it.
 
+For example, `u02-oi30-lr10.mocBasinsAndTransects20210623.20261109.nc` uses
+the `20210623` basins and was created on 9 November 2026.
+
 Both are also written into the file as the `mask_features_date`,
 `mask_features_source` and `creation_date` global attributes, so the
 provenance survives a copy or a rename.
@@ -264,6 +277,8 @@ Antarctic boundary convention, which have no cavities, and the staged files
 carry no land-ice fields.  MPAS-Ocean does not require them: the `landIce*`
 variables are gated on `landIcePressurePKG`, which is inactive when
 `config_land_ice_flux_mode` is `off`.
+
+We plan to add support for ice-shelf cavities soon.
 
 ## Omega
 

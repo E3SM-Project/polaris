@@ -15,8 +15,9 @@ things:
   * tidal mixing
   * the coefficients for velocity reconstruction
 
-Those come from separate workflows.  A mesh is not ready for the inputdata
-server until all of them have been produced and checked together.
+The remaining steps in adding a mesh to E3SM are outside the scope of
+Polaris.  Do not try to add a new mesh to E3SM yourself.  Contact an expert on
+the E3SM team, such as Jon Wolfe, instead.
 
 The layout under `inputdata/` mirrors where each file belongs in E3SM's
 inputdata tree, so files can be copied across once the full set exists.
