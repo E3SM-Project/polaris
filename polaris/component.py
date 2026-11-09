@@ -501,6 +501,9 @@ class Component:
             return self.steps[subdir]
         step = step_cls(component=self, subdir=subdir, **kwargs)
         step.set_shared_config(config, link=config_filename)
+        # a shared step may gain dependents in task groups that aren't built
+        # when this one is set up, so it always leaves the pickle they read
+        step.mark_as_dependency()
         self.add_step(step)
         return step
 
