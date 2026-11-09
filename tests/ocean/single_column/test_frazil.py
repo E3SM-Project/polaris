@@ -108,6 +108,24 @@ def test_invalid_freezing_temperature_offset(offset):
         _initial_tracers(task)
 
 
+@pytest.mark.parametrize('model', ['mpas-ocean', 'omega'])
+@pytest.mark.parametrize('case', ['freezing', 'melting', 'one_layer', 'short'])
+def test_conservation_summary_waits_for_forward_steps(model, case):
+    task = _make_task(model, case)
+    summary = task.conservation_summary
+    summary.setup()
+    targets = {
+        entry['work_dir_target']
+        for entry in summary.input_data
+        if entry['work_dir_target'] is not None
+    }
+    forward_steps = [
+        step for step in task.steps.values() if step.name.startswith('forward')
+    ]
+    assert forward_steps
+    assert targets == {f'{step.path}/output.nc' for step in forward_steps}
+
+
 def _make_task(model, case):
     component = Ocean()
     component.model = model

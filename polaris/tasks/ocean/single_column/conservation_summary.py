@@ -55,6 +55,19 @@ class ConservationSummary(Step):
         self.frazil_diagnostics = frazil_diagnostics
         self.add_output_file('conservation_summary.log')
 
+    def setup(self):
+        """
+        Make each forward step's output an input, so this step runs only
+        after all of the forward steps have finished
+        """
+        # Tasks remove forward steps in configure(), so the inputs are added
+        # here, after that, rather than in the constructor
+        for name, path in self.forward_steps.items():
+            self.add_input_file(
+                filename=f'{name}_output.nc',
+                work_dir_target=f'{path}/output.nc',
+            )
+
     def run(self):
         """
         Write a log file listing the conservation error for each forward step
