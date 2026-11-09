@@ -147,10 +147,21 @@ class SeaiceGraphPartitionStep(GraphPartitionStep):
             f'{len(remaining)} to build, {self.cpus_per_task} at a time'
             + (f', {done} already complete' if done else '')
         )
-        if not remaining:
+        if remaining:
+            self._build_partitions(remaining, ncells)
+        else:
             logger.info('Every partition is already built.')
-            return
 
+        # written even when nothing was built, so that turning the option on
+        # for a rerun produces the file
+        if config.getboolean('component_inputs', 'plot_seaice_partitions'):
+            _write_partition_diagnostics(cores, ncells)
+
+    def _build_partitions(self, cores, ncells):
+        """
+        Weight the mesh by the climatology, then build the given partitions.
+        """
+        logger = self.logger
         # the mapping file (and the path it was written to) comes from the
         # step that built it
         remapper = self.dependencies[MAP_DEPENDENCY].remapper
@@ -174,15 +185,12 @@ class SeaiceGraphPartitionStep(GraphPartitionStep):
 
         build_partitions(
             regions=_write_region_graphs(),
-            cores=remaining,
+            cores=cores,
             basename=GRAPH_BASENAME,
             ncells=ncells,
             process_count=self.cpus_per_task,
             logger=logger,
         )
-
-        if config.getboolean('component_inputs', 'plot_seaice_partitions'):
-            _write_partition_diagnostics(cores, ncells)
 
 
 def _write_region_graphs():

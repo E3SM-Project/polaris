@@ -8,7 +8,9 @@ from polaris.constants import get_constant
 from polaris.remap import MappingFileStep
 from polaris.tasks.e3sm.init import e3sm_init
 from polaris.tasks.e3sm.init.component_inputs.seaice_graph_partition import (
+    GRAPH_BASENAME,
     MAP_DEPENDENCY,
+    PLOT_FILENAME,
 )
 from polaris.tasks.e3sm.init.component_inputs.seaice_initial_condition import (
     SeaiceInitialConditionStep,
@@ -193,6 +195,43 @@ def test_the_mesh_is_carried_through_unchanged(tmp_path):
     ds_out = _run_seaice_initial_condition(ds, tmp_path)
     for var in ds.data_vars:
         np.testing.assert_array_equal(ds_out[var].values, ds[var].values)
+
+
+def test_a_rerun_with_every_partition_built_still_writes_the_plot(tmp_path):
+    """
+    Turning on ``plot_seaice_partitions`` for a rerun must produce the file,
+    even though there is nothing left to partition.
+    """
+    _reset_shared_components()
+    steps, config = get_component_inputs_steps(mesh_name=MESH_NAME)
+    step = steps['seaice_graph_partition']
+    config.set('component_inputs', 'max_cells_per_core', '20')
+    config.set('component_inputs', 'min_cells_per_core', '10')
+    config.set('component_inputs', 'plot_seaice_partitions', 'True')
+    step.config = config
+    step.logger = LOGGER
+    step._set_cpus_per_task()
+
+    ncells = 40
+    cores = step.get_core_counts(ncells)
+    xr.Dataset(coords={'nCells': np.arange(ncells)}).to_netcdf(
+        tmp_path / 'seaice_mesh.nc'
+    )
+    for ncores in cores:
+        lines = '' if ncores == 1 else '0\n' * ncells
+        (tmp_path / f'{GRAPH_BASENAME}.part.{ncores}').write_text(lines)
+
+    cwd = os.getcwd()
+    try:
+        os.chdir(tmp_path)
+        step.run()
+    finally:
+        os.chdir(cwd)
+
+    with xr.open_dataset(tmp_path / PLOT_FILENAME) as ds:
+        assert set(map(str, ds.data_vars)) == set(
+            f'partition_{ncores}' for ncores in cores
+        )
 
 
 def _mesh(lat, lon=None):
