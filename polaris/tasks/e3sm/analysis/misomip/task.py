@@ -111,7 +111,10 @@ class MisomipAnalysisTask(Task):
                     label=label,
                 )
             )
-            if diagnostics[kind].has_daily_volume:
+            if (
+                diagnostics[kind].has_daily_volume
+                or diagnostics[kind].has_monthly_volume
+            ):
                 products.append(
                     self._add_shared_step(
                         OceanVolumeBudget,

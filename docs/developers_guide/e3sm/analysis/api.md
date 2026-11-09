@@ -30,6 +30,7 @@
    diagnostics.RunDiagnostics.run
    diagnostics.read_initial_condition
    diagnostics.compute_daily_volume_budget
+   diagnostics.compute_monthly_volume_budget
    diagnostics.isomip_mesh
    plots.RunPlots
    plots.RunPlots.run

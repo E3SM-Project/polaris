@@ -13,6 +13,7 @@ from polaris.e3sm.analysis.budgets import (
 from polaris.e3sm.analysis.performance import select_segment_logs
 from polaris.tasks.e3sm.analysis.misomip.diagnostics import (
     DAILY_VOLUME_FILENAME,
+    MONTHLY_VOLUME_FILENAME,
     TIME_SERIES_FILENAME,
 )
 from polaris.viz.time_series import Series, plot_time_series
@@ -287,13 +288,17 @@ class CouplerConservation(ProductStep):
 
 class OceanVolumeBudget(ProductStep):
     """
-    A step that plots the ocean's daily volume budget
+    A step that plots the ocean's daily volume budget and, where the run
+    has the snapshots, the monthly budget of the cells outside the tidally
+    forced ones
 
     The ocean's volume changes by the melt and frazil under the ice and by
-    the transport in from the cells of the restoring region whose tidal
-    forcing holds their sea-surface height.  As the land ice on the ocean
-    grows heavier, the water it displaces leaves through those cells, so
-    that transport follows the change in the land-ice load.
+    the volume the tidal forcing adds in the cells of the restoring region
+    whose sea-surface height it holds.  As the land ice on the ocean grows
+    heavier, the water it displaces leaves through those cells, so that
+    volume follows the change in the land-ice load.  The cells outside the
+    forced ones change by their melt and frazil and by the transport out
+    to the forced cells, a budget that closes to round-off.
     """
 
     def __init__(self, component, subdir, diagnostics, kind):
@@ -321,17 +326,30 @@ class OceanVolumeBudget(ProductStep):
             ntasks=1,
             cpus_per_task=1,
         )
-        self.add_input_file(
-            filename=DAILY_VOLUME_FILENAME,
-            work_dir_target=f'{diagnostics.path}/{DAILY_VOLUME_FILENAME}',
-        )
+        if diagnostics.has_daily_volume:
+            self.add_input_file(
+                filename=DAILY_VOLUME_FILENAME,
+                work_dir_target=f'{diagnostics.path}/{DAILY_VOLUME_FILENAME}',
+            )
+        if diagnostics.has_monthly_volume:
+            self.add_input_file(
+                filename=MONTHLY_VOLUME_FILENAME,
+                work_dir_target=(
+                    f'{diagnostics.path}/{MONTHLY_VOLUME_FILENAME}'
+                ),
+            )
         self.add_dependency(diagnostics)
 
     def run(self):
         """
         Plot the budget and the volume beside the land-ice load, each day
-        and summed over the run
+        and summed over the run, and the monthly budget outside the tidally
+        forced cells
         """
+        if os.path.exists(MONTHLY_VOLUME_FILENAME):
+            self._plot_monthly()
+        if not os.path.exists(DAILY_VOLUME_FILENAME):
+            return
         ds = xr.open_dataset(DAILY_VOLUME_FILENAME, decode_times=False)
         time = ds.dayEnd.values / 365.0
         change = ds.volumeChange.values
@@ -353,11 +371,12 @@ class OceanVolumeBudget(ProductStep):
             terms.append(('the rest', rest, ':'))
             self._log_budget(ds, change, surface, label, inflow, rest)
         else:
-            # forcing that sets the thickness directly gives no daily term
-            # for the flow through the forced cells
+            # forcing that sets the thickness directly gives no daily term,
+            # but nothing else adds volume: the monthly budget outside the
+            # forced cells closes to round-off
             label = 'the rest'
             if ds.attrs.get('tidal_forcing_type', 'none') != 'none':
-                label = 'inflow through the forced cells, and anything else'
+                label = 'tidal forcing, in the forced cells'
             terms.append((label, change - surface, ':'))
         names = ['volumeChange', 'meltAndFrazilVolume', 'tidalForcingInflow']
         self._plot_terms(
@@ -386,6 +405,65 @@ class OceanVolumeBudget(ProductStep):
                 ds,
                 names,
             )
+
+    def _plot_monthly(self):
+        """
+        Plot the monthly budget of the cells outside the tidally forced ones,
+        summed from the start
+        """
+        ds = xr.open_dataset(MONTHLY_VOLUME_FILENAME, decode_times=False)
+        names = ['volumeChange', 'meltAndFrazilVolume', 'outflow']
+        if not all(name in ds for name in names):
+            self.logger.info(
+                'The monthly volume budget lacks a term, so it is not plotted.'
+            )
+            return
+        change = ds.volumeChange.values
+        surface = ds.meltAndFrazilVolume.values
+        inflow = -ds.outflow.values
+        rest = change - surface - inflow
+        terms = [
+            ('volume change', change, '-'),
+            ('melt + frazil', surface, '-'),
+            ('transport in from the forced cells', inflow, '-'),
+            ('the rest', rest, ':'),
+        ]
+        valid = np.all([np.isfinite(values) for _, values, _ in terms], axis=0)
+        if not np.any(valid):
+            self.logger.info('No month has the volume at both of its ends.')
+            return
+        time = ds.monthEnd.values / 365.0
+        total = [
+            Series(
+                time[valid],
+                VOLUME_SCALE * np.cumsum(values[valid]),
+                label,
+                linestyle=linestyle,
+            )
+            for label, values, linestyle in terms
+        ]
+        self._plot(
+            total,
+            'interior_volume_budget_total',
+            'Volume budget outside the tidally forced cells, summed from '
+            'the start',
+            'volume (km$^3$)',
+            ds,
+            names,
+            bounds=['monthStart', 'monthEnd'],
+            xlabel='end of the month (years)',
+        )
+        index = int(np.nanargmax(np.where(valid, np.abs(rest), np.nan)))
+        self.logger.info(
+            f'Over the {np.count_nonzero(valid)} months with the volume at '
+            f'both ends: volume change {change[valid].sum():.4g} m3, melt + '
+            f'frazil {surface[valid].sum():.4g} m3, transport in '
+            f'{inflow[valid].sum():.4g} m3, the rest '
+            f'{rest[valid].sum():.4g} m3.  The largest rest is '
+            f'{rest[index]:.4g} m3 in the month ending '
+            f'{ds.monthEnd.values[index]:g} (days since 0001-01-01), when '
+            f'melt and frazil added {surface[index]:.4g} m3.'
+        )
 
     def _plot_terms(self, time, terms, stem, title, ds, names):
         """
@@ -423,19 +501,29 @@ class OceanVolumeBudget(ProductStep):
             names,
         )
 
-    def _plot(self, lines, stem, title, ylabel, ds, names):
-        """Plot series and write the daily terms they come from"""
+    def _plot(
+        self,
+        lines,
+        stem,
+        title,
+        ylabel,
+        ds,
+        names,
+        bounds=('dayStart', 'dayEnd'),
+        xlabel='end of the day (years)',
+    ):
+        """Plot series and write the terms they come from"""
         plot = f'{stem}.png'
         data = f'{stem}.nc'
         plot_time_series(
             lines,
             plot,
             ylabel=ylabel,
-            xlabel='end of the day (years)',
+            xlabel=xlabel,
             title=title,
             legend_outside=True,
         )
-        names = ['dayStart', 'dayEnd'] + [name for name in names if name in ds]
+        names = list(bounds) + [name for name in names if name in ds]
         write_netcdf(ds[names], data)
         self.add_product(
             plot=plot,

@@ -5,6 +5,7 @@ import xarray as xr
 from polaris.constants import get_constant
 from polaris.tasks.e3sm.analysis.misomip.diagnostics import (
     compute_daily_volume_budget,
+    compute_monthly_volume_budget,
 )
 
 REF_DENSITY = 1026.0
@@ -232,3 +233,81 @@ def test_without_the_tendency_frazil_comes_from_its_flux():
         REF_DENSITY,
     )
     assert ds.meltAndFrazilVolume.frazil == 'freshwater flux'
+
+
+def _interior_mesh():
+    """Four cells, the last two tidally forced, and five edges: inside the
+    interior, out of it, into it, inside the forced cells and on the
+    boundary of the mesh"""
+    ds_mesh = xr.Dataset()
+    ds_mesh['areaCell'] = ('nCells', np.full(4, AREA))
+    ds_mesh['cellsOnEdge'] = (
+        ('nEdges', 'TWO'),
+        np.array([[1, 2], [2, 3], [4, 1], [3, 4], [1, 0]]),
+    )
+    ds_mesh['dvEdge'] = ('nEdges', np.array([1.0, 2.0, 3.0, 4.0, 5.0]))
+    interior = np.array([True, True, False, False])
+    return ds_mesh, interior
+
+
+def _monthly_means():
+    """January of year 2, with melt and frazil in every cell, a fill value
+    in an invalid layer, and a thickness flux on every edge"""
+    ds = xr.Dataset()
+    ds['xtime_startMonthly'] = ('Time', np.array(['0002-01-01_00:30:00']))
+    ds['landIceFreshwaterFlux'] = (
+        ('Time', 'nCells'),
+        np.array([[1.0e-5, 2.0e-5, 4.0e-5, 8.0e-5]]),
+    )
+    frazil = np.full((1, 4, 2), -1.0e-9)
+    frazil[0, 1, 1] = -1.0e34
+    ds['frazilLayerThicknessTendency'] = (
+        ('Time', 'nCells', 'nVertLevels'),
+        frazil,
+    )
+    flux = np.full((1, 5, 2), 0.5)
+    flux[0, 2, 1] = 1.0e34
+    ds['normalLayerThicknessFlux'] = (
+        ('Time', 'nEdges', 'nVertLevels'),
+        flux,
+    )
+    return ds
+
+
+JANUARY = 31.0 * 86400.0
+
+
+def test_the_outflow_counts_only_edges_shared_with_the_forced_cells():
+    ds_mesh, interior = _interior_mesh()
+    ds_volume = compute_monthly_volume_budget(
+        _monthly_means(),
+        np.array([365.0, 396.0]),
+        np.array([10.0, 13.0]),
+        ds_mesh,
+        interior,
+        REF_DENSITY,
+    )
+    # out across edge 1 (2 m wide, both layers) and in across edge 2
+    # (3 m wide, the valid layer only)
+    expected = JANUARY * (2.0 * 1.0 - 3.0 * 0.5)
+    assert ds_volume.outflow.values[0] == pytest.approx(expected)
+    assert ds_volume.volumeChange.values[0] == pytest.approx(3.0)
+    melt = (1.0e-5 + 2.0e-5) * AREA / REF_DENSITY
+    frazil = -3.0e-9 * AREA
+    assert ds_volume.meltAndFrazilVolume.values[0] == pytest.approx(
+        JANUARY * (melt + frazil)
+    )
+
+
+def test_a_month_without_the_volume_at_its_end_has_no_change():
+    ds_mesh, interior = _interior_mesh()
+    ds_volume = compute_monthly_volume_budget(
+        _monthly_means(),
+        np.array([365.0]),
+        np.array([10.0]),
+        ds_mesh,
+        interior,
+        REF_DENSITY,
+    )
+    assert np.isnan(ds_volume.volumeChange.values[0])
+    assert ds_volume.monthEnd.values[0] == 396.0
