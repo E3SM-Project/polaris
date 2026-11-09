@@ -1,4 +1,5 @@
 import ast
+import functools
 import operator
 import os
 import warnings
@@ -44,7 +45,8 @@ def get_constant(name):
     value: float or None
         The value of the constant or None if not found.
     """
-    return PCD_CONSTANTS.get(name, None)
+    _, constants = _get_pcd()
+    return constants.get(name, None)
 
 
 def get_pcd_version():
@@ -56,8 +58,9 @@ def get_pcd_version():
     version : str
         The PCD version.
     """
+    pcd_full, _ = _get_pcd()
     return str(
-        _get_version_from_pcd_dict(PCD_FULL, 'polaris.constants/pcd.yaml')
+        _get_version_from_pcd_dict(pcd_full, 'polaris.constants/pcd.yaml')
     )
 
 
@@ -120,6 +123,12 @@ def check_pcd_version_matches_branch(branch, model):
             f'{polaris_version} but branch {branch} has {branch_version}. '
             f'Please use matching PCD versions.'
         )
+
+
+@functools.cache
+def _get_pcd():
+    """The parsed PCD and its evaluated constants, read on first use"""
+    return _parse_pcd()
 
 
 def _parse_pcd():
@@ -246,4 +255,3 @@ def _get_version_from_pcd_dict(pcd_full, source):
 
 
 # parsed full dictionary and constants for quick lookup
-PCD_FULL, PCD_CONSTANTS = _parse_pcd()

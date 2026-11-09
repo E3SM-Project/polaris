@@ -3,13 +3,16 @@ import threading
 from contextlib import contextmanager
 from typing import TYPE_CHECKING, Any, cast
 
-from polaris.lazy import lazy_attr, lazy_module
+from polaris.lazy import lazy_attr, lazy_module, lazy_side_effect
 
 if TYPE_CHECKING:
+    # registers the cmocean colormaps (cmo.*) with matplotlib
+    import cmocean  # noqa: F401
     import matplotlib.pyplot as plt
     import matplotlib.style as mpl_style
     from mpas_tools.viz.colormaps import register_sci_viz_colormaps
 else:
+    lazy_side_effect('cmocean')
     plt = lazy_module('matplotlib.pyplot')
     mpl_style = lazy_module('matplotlib.style')
     register_sci_viz_colormaps = lazy_attr(
@@ -55,6 +58,9 @@ def _register_colormaps():
     """
     Add the scientific visualization colormaps to Matplotlib's registry, once
     per process
+
+    The cmocean colormaps are registered when cmocean is imported, which
+    the first use of a deferred name in this module does.
     """
     global _SCI_VIZ_COLORMAPS_REGISTERED
 

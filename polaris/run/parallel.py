@@ -33,7 +33,7 @@ from datetime import datetime, timedelta
 from functools import partial
 from typing import TYPE_CHECKING, Dict, Iterator, List, Optional
 
-from polaris.lazy import lazy_attr, lazy_module
+from polaris.lazy import lazy_attr, lazy_module, load_all
 from polaris.parallel import set_parallel_systems
 from polaris.run import setup_config, unpickle_suite
 from polaris.run.allocation import read_allocation
@@ -95,6 +95,9 @@ def run_tasks(suite_name, quiet=False):
         Whether step names are left out of the output as the run progresses
     """
     suite = unpickle_suite(suite_name)
+    # unpickling the steps imported their modules; import what those modules
+    # deferred now, once, rather than once in every forked step
+    load_all()
     task = next(iter(suite['tasks'].values()))
     component = task.component
     common_config = setup_config(task.base_work_dir, f'{component.name}.cfg')

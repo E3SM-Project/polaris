@@ -8,8 +8,6 @@ from collections import defaultdict
 from dataclasses import dataclass, replace
 from typing import TYPE_CHECKING
 
-import numpy as np
-
 from polaris.archive import extract_zip_subdir
 from polaris.constants import get_constant
 from polaris.lazy import lazy_attr, lazy_module
@@ -22,6 +20,7 @@ from polaris.mesh.spherical.unified.river.geojson import (
 from polaris.step import Step
 
 if TYPE_CHECKING:
+    import numpy as np
     import shapefile
     from shapely import line_merge, unary_union
     from shapely.geometry import LineString, box, mapping, shape
@@ -35,6 +34,7 @@ else:
     mapping = lazy_attr('shapely.geometry', 'mapping')
     shape = lazy_attr('shapely.geometry', 'shape')
     STRtree = lazy_attr('shapely.strtree', 'STRtree')
+    np = lazy_module('numpy')
 
 
 EARTH_RADIUS = get_constant('mean_radius')
@@ -833,7 +833,7 @@ def _get_optional_int_property(properties, keys):
     return int(value)
 
 
-def _get_float_property(properties, keys, default=np.nan):
+def _get_float_property(properties, keys, default=math.nan):
     """
     Read a float property using one of several candidate keys.
     """
@@ -853,7 +853,7 @@ def _get_str_property(properties, keys):
     return str(value)
 
 
-def _get_property(properties, keys, default=np.nan):
+def _get_property(properties, keys, default=math.nan):
     """
     Read one of several candidate properties from a mapping.
     """
