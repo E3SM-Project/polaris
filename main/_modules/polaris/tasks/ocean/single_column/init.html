@@ -563,66 +563,12 @@ window.runMermaid = runMermaid;</script>
         <span class="n">init_vertical_coord</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">ds</span><span class="p">)</span>
 
         <span class="n">section</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s1">'single_column'</span><span class="p">]</span>
-        <span class="n">surface_temperature</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">'surface_temperature'</span><span class="p">)</span>
-        <span class="n">temperature_gradient_mixed_layer</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span>
-            <span class="s1">'temperature_gradient_mixed_layer'</span>
-        <span class="p">)</span>
-        <span class="n">temperature_difference_across_mixed_layer</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span>
-            <span class="s1">'temperature_difference_across_mixed_layer'</span>
-        <span class="p">)</span>
-        <span class="n">temperature_gradient_interior</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span>
-            <span class="s1">'temperature_gradient_interior'</span>
-        <span class="p">)</span>
-        <span class="n">mixed_layer_depth_temperature</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span>
-            <span class="s1">'mixed_layer_depth_temperature'</span>
-        <span class="p">)</span>
-        <span class="n">surface_salinity</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">'surface_salinity'</span><span class="p">)</span>
-        <span class="n">salinity_gradient_mixed_layer</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span>
-            <span class="s1">'salinity_gradient_mixed_layer'</span>
-        <span class="p">)</span>
-        <span class="n">salinity_difference_across_mixed_layer</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span>
-            <span class="s1">'salinity_difference_across_mixed_layer'</span>
-        <span class="p">)</span>
-        <span class="n">salinity_gradient_interior</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span>
-            <span class="s1">'salinity_gradient_interior'</span>
-        <span class="p">)</span>
-        <span class="n">mixed_layer_depth_salinity</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span>
-            <span class="s1">'mixed_layer_depth_salinity'</span>
-        <span class="p">)</span>
         <span class="n">u</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">'zonal_velocity'</span><span class="p">)</span>
         <span class="n">v</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">'meridional_velocity'</span><span class="p">)</span>
 
-        <span class="n">z_mid</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">refZMid</span>
-
-        <span class="n">temperature_at_mixed_layer_depth</span> <span class="o">=</span> <span class="p">(</span>
-            <span class="n">surface_temperature</span> <span class="o">+</span> <span class="n">temperature_difference_across_mixed_layer</span>
+        <span class="n">temperature</span><span class="p">,</span> <span class="n">salinity</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_compute_temperature_salinity</span><span class="p">(</span>
+            <span class="n">config</span><span class="p">,</span> <span class="n">ds</span><span class="p">,</span> <span class="n">x_cell</span>
         <span class="p">)</span>
-        <span class="n">temperature_vert</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">where</span><span class="p">(</span>
-            <span class="n">z_mid</span> <span class="o">&gt;</span> <span class="o">-</span><span class="n">mixed_layer_depth_temperature</span><span class="p">,</span>
-            <span class="n">surface_temperature</span> <span class="o">+</span> <span class="n">temperature_gradient_mixed_layer</span> <span class="o">*</span> <span class="n">z_mid</span><span class="p">,</span>
-            <span class="n">temperature_at_mixed_layer_depth</span>
-            <span class="o">+</span> <span class="n">temperature_gradient_interior</span>
-            <span class="o">*</span> <span class="p">(</span><span class="n">z_mid</span> <span class="o">+</span> <span class="n">mixed_layer_depth_temperature</span><span class="p">),</span>
-        <span class="p">)</span>
-        <span class="n">temperature_vert</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">surface_temperature</span>
-        <span class="n">temperature</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">broadcast</span><span class="p">(</span><span class="n">temperature_vert</span><span class="p">,</span> <span class="n">x_cell</span><span class="p">)</span>
-        <span class="n">temperature</span> <span class="o">=</span> <span class="n">temperature</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="s1">'nCells'</span><span class="p">,</span> <span class="s1">'nVertLevels'</span><span class="p">)</span>
-        <span class="n">temperature</span> <span class="o">=</span> <span class="n">temperature</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="s1">'Time'</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
-
-        <span class="n">salinity_at_mixed_layer_depth</span> <span class="o">=</span> <span class="p">(</span>
-            <span class="n">surface_salinity</span> <span class="o">+</span> <span class="n">salinity_difference_across_mixed_layer</span>
-        <span class="p">)</span>
-        <span class="n">salinity_vert</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">where</span><span class="p">(</span>
-            <span class="n">z_mid</span> <span class="o">&gt;</span> <span class="o">-</span><span class="n">mixed_layer_depth_salinity</span><span class="p">,</span>
-            <span class="n">surface_salinity</span> <span class="o">+</span> <span class="n">salinity_gradient_mixed_layer</span> <span class="o">*</span> <span class="n">z_mid</span><span class="p">,</span>
-            <span class="n">salinity_at_mixed_layer_depth</span>
-            <span class="o">+</span> <span class="n">salinity_gradient_interior</span>
-            <span class="o">*</span> <span class="p">(</span><span class="n">z_mid</span> <span class="o">+</span> <span class="n">mixed_layer_depth_salinity</span><span class="p">),</span>
-        <span class="p">)</span>
-        <span class="n">salinity_vert</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">surface_salinity</span>
-        <span class="n">salinity</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">broadcast</span><span class="p">(</span><span class="n">salinity_vert</span><span class="p">,</span> <span class="n">x_cell</span><span class="p">)</span>
-        <span class="n">salinity</span> <span class="o">=</span> <span class="n">salinity</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="s1">'nCells'</span><span class="p">,</span> <span class="s1">'nVertLevels'</span><span class="p">)</span>
-        <span class="n">salinity</span> <span class="o">=</span> <span class="n">salinity</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="s1">'Time'</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
 
         <span class="n">angle_edge</span> <span class="o">=</span> <span class="n">ds_mesh</span><span class="o">.</span><span class="n">angleEdge</span><span class="o">.</span><span class="n">drop_attrs</span><span class="p">()</span>
         <span class="n">normal_velocity</span> <span class="o">=</span> <span class="n">u</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">angle_edge</span><span class="p">)</span> <span class="o">+</span> <span class="n">v</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">angle_edge</span><span class="p">)</span>
@@ -753,7 +699,97 @@ window.runMermaid = runMermaid;</script>
             <span class="n">ds_forcing</span><span class="p">[</span><span class="n">variable_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">forcing_value</span> <span class="o">*</span> <span class="n">forcing_array_surface</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">write_model_dataset</span><span class="p">(</span><span class="n">ds_forcing</span><span class="p">,</span> <span class="s1">'forcing.nc'</span><span class="p">,</span> <span class="n">config</span><span class="p">)</span></div>
-</div>
+
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_compute_temperature_salinity</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="p">,</span> <span class="n">ds</span><span class="p">,</span> <span class="n">x_cell</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">        Compute the initial temperature and salinity fields as functions of</span>
+<span class="sd">        depth, broadcast to all cells.  Subclasses may override this method</span>
+<span class="sd">        to define alternative profiles while reusing the rest of ``run()``.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        config : polaris.config.PolarisConfigParser</span>
+<span class="sd">            The config options for this task</span>
+
+<span class="sd">        ds : xarray.Dataset</span>
+<span class="sd">            The mesh dataset, including the vertical coordinate (``refZMid``)</span>
+
+<span class="sd">        x_cell : xarray.DataArray</span>
+<span class="sd">            A cell-based field used to broadcast 1D vertical profiles to all</span>
+<span class="sd">            cells</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        temperature : xarray.DataArray</span>
+<span class="sd">            The temperature field with dimensions ``(Time, nCells,</span>
+<span class="sd">            nVertLevels)``</span>
+
+<span class="sd">        salinity : xarray.DataArray</span>
+<span class="sd">            The salinity field with dimensions ``(Time, nCells,</span>
+<span class="sd">            nVertLevels)``</span>
+<span class="sd">        """</span>
+        <span class="n">section</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s1">'single_column'</span><span class="p">]</span>
+        <span class="n">surface_temperature</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">'surface_temperature'</span><span class="p">)</span>
+        <span class="n">temperature_gradient_mixed_layer</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span>
+            <span class="s1">'temperature_gradient_mixed_layer'</span>
+        <span class="p">)</span>
+        <span class="n">temperature_difference_across_mixed_layer</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span>
+            <span class="s1">'temperature_difference_across_mixed_layer'</span>
+        <span class="p">)</span>
+        <span class="n">temperature_gradient_interior</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span>
+            <span class="s1">'temperature_gradient_interior'</span>
+        <span class="p">)</span>
+        <span class="n">mixed_layer_depth_temperature</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span>
+            <span class="s1">'mixed_layer_depth_temperature'</span>
+        <span class="p">)</span>
+        <span class="n">surface_salinity</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">'surface_salinity'</span><span class="p">)</span>
+        <span class="n">salinity_gradient_mixed_layer</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span>
+            <span class="s1">'salinity_gradient_mixed_layer'</span>
+        <span class="p">)</span>
+        <span class="n">salinity_difference_across_mixed_layer</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span>
+            <span class="s1">'salinity_difference_across_mixed_layer'</span>
+        <span class="p">)</span>
+        <span class="n">salinity_gradient_interior</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span>
+            <span class="s1">'salinity_gradient_interior'</span>
+        <span class="p">)</span>
+        <span class="n">mixed_layer_depth_salinity</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span>
+            <span class="s1">'mixed_layer_depth_salinity'</span>
+        <span class="p">)</span>
+
+        <span class="n">z_mid</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">refZMid</span>
+
+        <span class="n">temperature_at_mixed_layer_depth</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">surface_temperature</span> <span class="o">+</span> <span class="n">temperature_difference_across_mixed_layer</span>
+        <span class="p">)</span>
+        <span class="n">temperature_vert</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">where</span><span class="p">(</span>
+            <span class="n">z_mid</span> <span class="o">&gt;</span> <span class="o">-</span><span class="n">mixed_layer_depth_temperature</span><span class="p">,</span>
+            <span class="n">surface_temperature</span> <span class="o">+</span> <span class="n">temperature_gradient_mixed_layer</span> <span class="o">*</span> <span class="n">z_mid</span><span class="p">,</span>
+            <span class="n">temperature_at_mixed_layer_depth</span>
+            <span class="o">+</span> <span class="n">temperature_gradient_interior</span>
+            <span class="o">*</span> <span class="p">(</span><span class="n">z_mid</span> <span class="o">+</span> <span class="n">mixed_layer_depth_temperature</span><span class="p">),</span>
+        <span class="p">)</span>
+        <span class="n">temperature_vert</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">surface_temperature</span>
+        <span class="n">temperature</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">broadcast</span><span class="p">(</span><span class="n">temperature_vert</span><span class="p">,</span> <span class="n">x_cell</span><span class="p">)</span>
+        <span class="n">temperature</span> <span class="o">=</span> <span class="n">temperature</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="s1">'nCells'</span><span class="p">,</span> <span class="s1">'nVertLevels'</span><span class="p">)</span>
+        <span class="n">temperature</span> <span class="o">=</span> <span class="n">temperature</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="s1">'Time'</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+
+        <span class="n">salinity_at_mixed_layer_depth</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">surface_salinity</span> <span class="o">+</span> <span class="n">salinity_difference_across_mixed_layer</span>
+        <span class="p">)</span>
+        <span class="n">salinity_vert</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">where</span><span class="p">(</span>
+            <span class="n">z_mid</span> <span class="o">&gt;</span> <span class="o">-</span><span class="n">mixed_layer_depth_salinity</span><span class="p">,</span>
+            <span class="n">surface_salinity</span> <span class="o">+</span> <span class="n">salinity_gradient_mixed_layer</span> <span class="o">*</span> <span class="n">z_mid</span><span class="p">,</span>
+            <span class="n">salinity_at_mixed_layer_depth</span>
+            <span class="o">+</span> <span class="n">salinity_gradient_interior</span>
+            <span class="o">*</span> <span class="p">(</span><span class="n">z_mid</span> <span class="o">+</span> <span class="n">mixed_layer_depth_salinity</span><span class="p">),</span>
+        <span class="p">)</span>
+        <span class="n">salinity_vert</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">surface_salinity</span>
+        <span class="n">salinity</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">broadcast</span><span class="p">(</span><span class="n">salinity_vert</span><span class="p">,</span> <span class="n">x_cell</span><span class="p">)</span>
+        <span class="n">salinity</span> <span class="o">=</span> <span class="n">salinity</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="s1">'nCells'</span><span class="p">,</span> <span class="s1">'nVertLevels'</span><span class="p">)</span>
+        <span class="n">salinity</span> <span class="o">=</span> <span class="n">salinity</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="s1">'Time'</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">temperature</span><span class="p">,</span> <span class="n">salinity</span></div>
 
 </pre></div>
 

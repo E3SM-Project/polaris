@@ -6,7 +6,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>polaris.tasks.ocean.single_column.thermo.conservation_summary.ConservationSummary.run</title>
+  <title>polaris.tasks.ocean.single_column.frazil.melting_short.FrazilMeltingShort.configure</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
 
@@ -19,8 +19,8 @@
     <script src="../../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
-    <link rel="next" title="polaris.tasks.ocean.single_column.thermo.analysis.Analysis" href="polaris.tasks.ocean.single_column.thermo.analysis.Analysis.html" />
-    <link rel="prev" title="polaris.tasks.ocean.single_column.thermo.conservation_summary.ConservationSummary" href="polaris.tasks.ocean.single_column.thermo.conservation_summary.ConservationSummary.html" />
+    <link rel="next" title="polaris.tasks.ocean.single_column.frazil.melting_short.viz.MeltingShortViz" href="polaris.tasks.ocean.single_column.frazil.melting_short.viz.MeltingShortViz.html" />
+    <link rel="prev" title="polaris.tasks.ocean.single_column.frazil.melting_short.FrazilMeltingShort" href="polaris.tasks.ocean.single_column.frazil.melting_short.FrazilMeltingShort.html" />
     <link href="../../../_static/style.css" rel="stylesheet" type="text/css">
 
 </head>
@@ -129,9 +129,9 @@
       <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
           <li class="breadcrumb-item"><a href="../../api.html">API reference</a></li>
           <li class="breadcrumb-item"><a href="../api.html">ocean</a></li>
-      <li class="breadcrumb-item active">polaris.tasks.ocean.single_column.thermo.conservation_summary.ConservationSummary.run</li>
+      <li class="breadcrumb-item active">polaris.tasks.ocean.single_column.frazil.melting_short.FrazilMeltingShort.configure</li>
       <li class="wy-breadcrumbs-aside">
-            <a href="../../../_sources/developers_guide/ocean/generated/polaris.tasks.ocean.single_column.thermo.conservation_summary.ConservationSummary.run.rst.txt" rel="nofollow"> View page source</a>
+            <a href="../../../_sources/developers_guide/ocean/generated/polaris.tasks.ocean.single_column.frazil.melting_short.FrazilMeltingShort.configure.rst.txt" rel="nofollow"> View page source</a>
       </li>
   </ul>
   <hr/>
@@ -139,12 +139,14 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="polaris-tasks-ocean-single-column-thermo-conservation-summary-conservationsummary-run">
-<h1>polaris.tasks.ocean.single_column.thermo.conservation_summary.ConservationSummary.run<a class="headerlink" href="#polaris-tasks-ocean-single-column-thermo-conservation-summary-conservationsummary-run" title="Link to this heading"></a></h1>
+  <section id="polaris-tasks-ocean-single-column-frazil-melting-short-frazilmeltingshort-configure">
+<h1>polaris.tasks.ocean.single_column.frazil.melting_short.FrazilMeltingShort.configure<a class="headerlink" href="#polaris-tasks-ocean-single-column-frazil-melting-short-frazilmeltingshort-configure" title="Link to this heading"></a></h1>
 <dl class="py method">
-<dt class="sig sig-object py" id="polaris.tasks.ocean.single_column.thermo.conservation_summary.ConservationSummary.run">
-<span class="sig-prename descclassname"><span class="pre">ConservationSummary.</span></span><span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/polaris/tasks/ocean/single_column/thermo/conservation_summary.html#ConservationSummary.run"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#polaris.tasks.ocean.single_column.thermo.conservation_summary.ConservationSummary.run" title="Link to this definition"></a></dt>
-<dd><p>Write a log file listing the conservation error for each forward step</p>
+<dt class="sig sig-object py" id="polaris.tasks.ocean.single_column.frazil.melting_short.FrazilMeltingShort.configure">
+<span class="sig-prename descclassname"><span class="pre">FrazilMeltingShort.</span></span><span class="sig-name descname"><span class="pre">configure</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/polaris/tasks/ocean/single_column/frazil/melting_short.html#FrazilMeltingShort.configure"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#polaris.tasks.ocean.single_column.frazil.melting_short.FrazilMeltingShort.configure" title="Link to this definition"></a></dt>
+<dd><p>Keep only the RK4 <code class="docutils literal notranslate"><span class="pre">'FixedProperty'</span></code> forward step if the ocean model
+is MPAS-Ocean, which supports neither the other time integrators nor
+the <code class="docutils literal notranslate"><span class="pre">'teos'</span></code> algorithm</p>
 </dd></dl>
 
 </section>
@@ -153,8 +155,8 @@
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="polaris.tasks.ocean.single_column.thermo.conservation_summary.ConservationSummary.html" class="btn btn-neutral float-left" title="polaris.tasks.ocean.single_column.thermo.conservation_summary.ConservationSummary" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="polaris.tasks.ocean.single_column.thermo.analysis.Analysis.html" class="btn btn-neutral float-right" title="polaris.tasks.ocean.single_column.thermo.analysis.Analysis" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="polaris.tasks.ocean.single_column.frazil.melting_short.FrazilMeltingShort.html" class="btn btn-neutral float-left" title="polaris.tasks.ocean.single_column.frazil.melting_short.FrazilMeltingShort" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="polaris.tasks.ocean.single_column.frazil.melting_short.viz.MeltingShortViz.html" class="btn btn-neutral float-right" title="polaris.tasks.ocean.single_column.frazil.melting_short.viz.MeltingShortViz" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>

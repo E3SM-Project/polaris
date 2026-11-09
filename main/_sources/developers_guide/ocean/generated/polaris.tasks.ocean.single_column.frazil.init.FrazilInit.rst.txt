@@ -1,0 +1,71 @@
+﻿polaris.tasks.ocean.single\_column.frazil.init.FrazilInit
+=========================================================
+
+.. currentmodule:: polaris.tasks.ocean.single_column.frazil.init
+
+.. autoclass:: FrazilInit
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~FrazilInit.__init__
+      ~FrazilInit.add_cf_check
+      ~FrazilInit.add_dependency
+      ~FrazilInit.add_forcing_input_file
+      ~FrazilInit.add_horiz_mesh_input_file
+      ~FrazilInit.add_init_input_file
+      ~FrazilInit.add_input_file
+      ~FrazilInit.add_output_file
+      ~FrazilInit.add_output_files_for_ocean_model_input
+      ~FrazilInit.add_produced_file
+      ~FrazilInit.add_property_check
+      ~FrazilInit.add_vert_coord_input_file
+      ~FrazilInit.check_cf
+      ~FrazilInit.check_properties
+      ~FrazilInit.constrain_resources
+      ~FrazilInit.get_forcing_filename
+      ~FrazilInit.get_horiz_mesh_filename
+      ~FrazilInit.get_init_filename
+      ~FrazilInit.get_vert_coord_filename
+      ~FrazilInit.map_from_native_model_vars
+      ~FrazilInit.map_to_native_model_vars
+      ~FrazilInit.open_model_dataset
+      ~FrazilInit.open_vert_coord_dataset
+      ~FrazilInit.process_inputs_and_outputs
+      ~FrazilInit.run
+      ~FrazilInit.runtime_setup
+      ~FrazilInit.set_resources
+      ~FrazilInit.set_shared_config
+      ~FrazilInit.setup
+      ~FrazilInit.validate_baselines
+      ~FrazilInit.work_path
+      ~FrazilInit.write_forcing_dataset
+      ~FrazilInit.write_horiz_mesh_dataset
+      ~FrazilInit.write_initial_state_dataset
+      ~FrazilInit.write_model_dataset
+      ~FrazilInit.write_vert_coord_dataset
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~FrazilInit.cores
+      ~FrazilInit.gpus
+      ~FrazilInit.may_span_nodes
+      ~FrazilInit.min_cores
+      ~FrazilInit.min_gpus
+      ~FrazilInit.component
+      ~FrazilInit.config
+      ~FrazilInit.input_data
+      ~FrazilInit.logger
+   
+   

@@ -1,6 +1,0 @@
-﻿polaris.tasks.ocean.single\_column.thermo.conservation\_summary.ConservationSummary.run
-=======================================================================================
-
-.. currentmodule:: polaris.tasks.ocean.single_column.thermo.conservation_summary
-
-.. automethod:: ConservationSummary.run

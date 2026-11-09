@@ -620,6 +620,36 @@ window.runMermaid = runMermaid;</script>
 
 
 
+<span class="k">def</span><span class="w"> </span><span class="nf">compute_energy_change</span><span class="p">(</span><span class="n">ds_mesh</span><span class="p">,</span> <span class="n">ds_start</span><span class="p">,</span> <span class="n">ds_end</span><span class="p">,</span> <span class="n">model</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""Integrate local heat-content changes without subtracting totals.</span>
+
+<span class="sd">    Factor the difference of thickness-temperature products before summing,</span>
+<span class="sd">    using extended precision to retain residuals below float64 total-energy</span>
+<span class="sd">    spacing. Each state must contain a single time slice.</span>
+<span class="sd">    """</span>
+    <span class="n">start</span> <span class="o">=</span> <span class="n">_reduce_dataset_time_dim</span><span class="p">(</span><span class="n">ds_start</span><span class="p">,</span> <span class="n">caller</span><span class="o">=</span><span class="s1">'compute_energy_change'</span><span class="p">)</span>
+    <span class="n">end</span> <span class="o">=</span> <span class="n">_reduce_dataset_time_dim</span><span class="p">(</span><span class="n">ds_end</span><span class="p">,</span> <span class="n">caller</span><span class="o">=</span><span class="s1">'compute_energy_change'</span><span class="p">)</span>
+    <span class="n">start</span> <span class="o">=</span> <span class="n">start</span><span class="o">.</span><span class="n">squeeze</span><span class="p">(</span>
+        <span class="n">dim</span><span class="o">=</span><span class="p">[</span><span class="n">dim</span> <span class="k">for</span> <span class="n">dim</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">'Time'</span><span class="p">,</span> <span class="s1">'time'</span><span class="p">]</span> <span class="k">if</span> <span class="n">dim</span> <span class="ow">in</span> <span class="n">start</span><span class="o">.</span><span class="n">dims</span><span class="p">],</span>
+        <span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">end</span> <span class="o">=</span> <span class="n">end</span><span class="o">.</span><span class="n">squeeze</span><span class="p">(</span>
+        <span class="n">dim</span><span class="o">=</span><span class="p">[</span><span class="n">dim</span> <span class="k">for</span> <span class="n">dim</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">'Time'</span><span class="p">,</span> <span class="s1">'time'</span><span class="p">]</span> <span class="k">if</span> <span class="n">dim</span> <span class="ow">in</span> <span class="n">end</span><span class="o">.</span><span class="n">dims</span><span class="p">],</span>
+        <span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">h_start</span> <span class="o">=</span> <span class="n">_get_mass_thickness</span><span class="p">(</span><span class="n">start</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">longdouble</span><span class="p">)</span>
+    <span class="n">h_end</span> <span class="o">=</span> <span class="n">_get_mass_thickness</span><span class="p">(</span><span class="n">end</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">longdouble</span><span class="p">)</span>
+    <span class="n">t_start</span> <span class="o">=</span> <span class="n">start</span><span class="o">.</span><span class="n">temperature</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">longdouble</span><span class="p">)</span>
+    <span class="n">t_end</span> <span class="o">=</span> <span class="n">end</span><span class="o">.</span><span class="n">temperature</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">longdouble</span><span class="p">)</span>
+    <span class="n">delta</span> <span class="o">=</span> <span class="n">h_end</span> <span class="o">*</span> <span class="p">(</span><span class="n">t_end</span> <span class="o">-</span> <span class="n">t_start</span><span class="p">)</span> <span class="o">+</span> <span class="n">t_start</span> <span class="o">*</span> <span class="p">(</span><span class="n">h_end</span> <span class="o">-</span> <span class="n">h_start</span><span class="p">)</span>
+    <span class="n">area</span> <span class="o">=</span> <span class="n">ds_mesh</span><span class="o">.</span><span class="n">areaCell</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">longdouble</span><span class="p">)</span>
+    <span class="k">return</span> <span class="p">(</span>
+        <span class="n">np</span><span class="o">.</span><span class="n">longdouble</span><span class="p">(</span><span class="n">rho_sw</span><span class="p">)</span>
+        <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">longdouble</span><span class="p">(</span><span class="n">cp_sw</span><span class="p">[</span><span class="n">model</span><span class="p">])</span>
+        <span class="o">*</span> <span class="p">(</span><span class="n">area</span> <span class="o">*</span> <span class="n">delta</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="s1">'nVertLevels'</span><span class="p">))</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="s1">'nCells'</span><span class="p">)</span>
+    <span class="p">)</span>
+
+
 <span class="k">def</span><span class="w"> </span><span class="nf">compute_total_tracer</span><span class="p">(</span><span class="n">ds_mesh</span><span class="p">,</span> <span class="n">ds</span><span class="p">,</span> <span class="n">tracer_name</span><span class="o">=</span><span class="s1">'tracer1'</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Compute the total tracer in an ocean model output file</span>
@@ -775,6 +805,89 @@ window.runMermaid = runMermaid;</script>
         <span class="p">)</span>
 
     <span class="k">return</span> <span class="n">total</span> <span class="o">*</span> <span class="n">dt</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">compute_frazil_fluxes</span><span class="p">(</span>
+    <span class="n">ds_mesh</span><span class="p">,</span> <span class="n">ds</span><span class="p">,</span> <span class="n">time_index_end</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span> <span class="n">model</span><span class="o">=</span><span class="s1">'omega'</span><span class="p">,</span> <span class="n">time_step</span><span class="o">=</span><span class="kc">None</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">"""Integrate frazil contributions to ocean mass, salt, and energy.</span>
+
+<span class="sd">    Omega supplies column fluxes, positive into the ocean. MPAS-Ocean</span>
+<span class="sd">    supplies tendencies of thickness, thickness-weighted salinity, and</span>
+<span class="sd">    thickness-weighted temperature. Its output must include every model</span>
+<span class="sd">    timestep from the start of the run; each tendency drives the timestep</span>
+<span class="sd">    ending at its output timestamp. An optional startup record has zero</span>
+<span class="sd">    weight. Return domain-integrated changes in kg, kg, and J.</span>
+
+<span class="sd">    ``time_step`` is required for MPAS-Ocean to detect missing records.</span>
+<span class="sd">    """</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">polaris.ocean.model.time</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_time_since_start</span>
+
+    <span class="k">if</span> <span class="n">model</span> <span class="o">==</span> <span class="s1">'omega'</span><span class="p">:</span>
+        <span class="n">fields</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">'mass'</span><span class="p">:</span> <span class="p">(</span><span class="s1">'FrazilMassFlux'</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">),</span>
+            <span class="s1">'salt'</span><span class="p">:</span> <span class="p">(</span><span class="s1">'FrazilSaltFlux'</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">),</span>
+            <span class="s1">'energy'</span><span class="p">:</span> <span class="p">(</span><span class="s1">'FrazilEnergyFlux'</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">),</span>
+        <span class="p">}</span>
+    <span class="k">elif</span> <span class="n">model</span> <span class="o">==</span> <span class="s1">'mpas-ocean'</span><span class="p">:</span>
+        <span class="n">fields</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">'mass'</span><span class="p">:</span> <span class="p">(</span><span class="s1">'frazilLayerThicknessTendency'</span><span class="p">,</span> <span class="n">rho_sw</span><span class="p">),</span>
+            <span class="s1">'salt'</span><span class="p">:</span> <span class="p">(</span><span class="s1">'frazilSalinityTendency'</span><span class="p">,</span> <span class="n">rho_sw</span> <span class="o">/</span> <span class="mf">1000.0</span><span class="p">),</span>
+            <span class="s1">'energy'</span><span class="p">:</span> <span class="p">(</span>
+                <span class="s1">'frazilTemperatureTendency'</span><span class="p">,</span>
+                <span class="n">rho_sw</span> <span class="o">*</span> <span class="n">cp_sw</span><span class="p">[</span><span class="n">model</span><span class="p">],</span>
+            <span class="p">),</span>
+        <span class="p">}</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s1">'Unsupported frazil model: </span><span class="si">{</span><span class="n">model</span><span class="si">}</span><span class="s1">'</span><span class="p">)</span>
+    <span class="n">missing</span> <span class="o">=</span> <span class="p">[</span><span class="n">field</span> <span class="k">for</span> <span class="n">field</span><span class="p">,</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">fields</span><span class="o">.</span><span class="n">values</span><span class="p">()</span> <span class="k">if</span> <span class="n">field</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">ds</span><span class="p">]</span>
+    <span class="k">if</span> <span class="n">missing</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">model</span><span class="si">}</span><span class="s1"> frazil fields are missing from output: '</span>
+            <span class="o">+</span> <span class="s1">', '</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">missing</span><span class="p">)</span>
+        <span class="p">)</span>
+
+    <span class="n">time</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">get_time_since_start</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="n">units</span><span class="o">=</span><span class="s1">'seconds'</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
+    <span class="n">end</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">time</span><span class="p">)</span> <span class="k">if</span> <span class="n">time_index_end</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span> <span class="k">else</span> <span class="n">time_index_end</span> <span class="o">+</span> <span class="mi">1</span>
+    <span class="n">time</span> <span class="o">=</span> <span class="n">time</span><span class="p">[:</span><span class="n">end</span><span class="p">]</span>
+    <span class="k">if</span> <span class="p">(</span>
+        <span class="n">time</span><span class="o">.</span><span class="n">size</span> <span class="o">==</span> <span class="mi">0</span>
+        <span class="ow">or</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">time</span><span class="p">))</span>
+        <span class="ow">or</span> <span class="n">time</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&lt;</span> <span class="mf">0.0</span>
+        <span class="ow">or</span> <span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">time</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="mf">0.0</span><span class="p">)</span>
+    <span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">'Frazil output times must be finite and increasing'</span><span class="p">)</span>
+    <span class="n">intervals</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">(([</span><span class="mf">0.0</span><span class="p">],</span> <span class="n">time</span><span class="p">)))</span>
+    <span class="k">if</span> <span class="n">model</span> <span class="o">==</span> <span class="s1">'mpas-ocean'</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">time_step</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">time_step</span><span class="p">)</span> <span class="ow">or</span> <span class="n">time_step</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">'MPAS-Ocean frazil requires a positive time_step'</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">allclose</span><span class="p">(</span><span class="n">intervals</span><span class="p">[</span><span class="mi">1</span><span class="p">:],</span> <span class="n">time_step</span><span class="p">,</span> <span class="n">rtol</span><span class="o">=</span><span class="mf">1.0e-10</span><span class="p">,</span> <span class="n">atol</span><span class="o">=</span><span class="mf">1.0e-8</span><span class="p">)</span>
+            <span class="ow">and</span> <span class="p">(</span>
+                <span class="n">np</span><span class="o">.</span><span class="n">isclose</span><span class="p">(</span><span class="n">intervals</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="mf">0.0</span><span class="p">,</span> <span class="n">rtol</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">atol</span><span class="o">=</span><span class="mf">1.0e-8</span><span class="p">)</span>
+                <span class="ow">or</span> <span class="n">np</span><span class="o">.</span><span class="n">isclose</span><span class="p">(</span>
+                    <span class="n">intervals</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">time_step</span><span class="p">,</span> <span class="n">rtol</span><span class="o">=</span><span class="mf">1.0e-10</span><span class="p">,</span> <span class="n">atol</span><span class="o">=</span><span class="mf">1.0e-8</span>
+                <span class="p">)</span>
+            <span class="p">)</span>
+        <span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s1">'MPAS-Ocean frazil output must include every timestep '</span>
+                <span class="s1">'from the start of the run'</span>
+            <span class="p">)</span>
+    <span class="n">ds</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span><span class="n">Time</span><span class="o">=</span><span class="nb">slice</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">end</span><span class="p">))</span>
+    <span class="n">totals</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">budget</span><span class="p">,</span> <span class="p">(</span><span class="n">field</span><span class="p">,</span> <span class="n">factor</span><span class="p">)</span> <span class="ow">in</span> <span class="n">fields</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="n">flux</span> <span class="o">=</span> <span class="n">ds</span><span class="p">[</span><span class="n">field</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">model</span> <span class="o">==</span> <span class="s1">'mpas-ocean'</span><span class="p">:</span>
+            <span class="n">active</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">layerThickness</span><span class="o">.</span><span class="n">notnull</span><span class="p">()</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">ds</span><span class="o">.</span><span class="n">layerThickness</span> <span class="o">&gt;</span> <span class="mf">0.0</span><span class="p">)</span>
+            <span class="n">flux</span> <span class="o">=</span> <span class="n">flux</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">active</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="s1">'nVertLevels'</span><span class="p">,</span> <span class="n">skipna</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="n">flux</span> <span class="o">=</span> <span class="p">(</span><span class="n">flux</span> <span class="o">*</span> <span class="n">ds_mesh</span><span class="o">.</span><span class="n">areaCell</span><span class="p">)</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="s1">'Time'</span><span class="p">,</span> <span class="s1">'nCells'</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">flux</span><span class="o">.</span><span class="n">values</span><span class="p">)):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s1">'Non-finite frazil contribution in </span><span class="si">{</span><span class="n">field</span><span class="si">}</span><span class="s1">'</span><span class="p">)</span>
+        <span class="n">totals</span><span class="p">[</span><span class="n">budget</span><span class="p">]</span> <span class="o">=</span> <span class="n">factor</span> <span class="o">*</span> <span class="nb">float</span><span class="p">(</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">flux</span><span class="o">.</span><span class="n">values</span> <span class="o">*</span> <span class="n">intervals</span><span class="p">[:,</span> <span class="kc">None</span><span class="p">])</span>
+        <span class="p">)</span>
+    <span class="k">return</span> <span class="n">totals</span>
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_compute_enthalpy_forcing</span><span class="p">(</span>

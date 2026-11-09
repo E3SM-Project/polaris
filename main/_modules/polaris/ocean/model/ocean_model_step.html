@@ -493,7 +493,9 @@ window.runMermaid = runMermaid;</script>
 <span class="kn">from</span><span class="w"> </span><span class="nn">polaris.model_step</span><span class="w"> </span><span class="kn">import</span> <span class="n">ModelStep</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">polaris.ocean.conservation</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">TRACERS_TO_CHECK</span><span class="p">,</span>
+    <span class="n">compute_energy_change</span><span class="p">,</span>
     <span class="n">compute_flux_forcing</span><span class="p">,</span>
+    <span class="n">compute_frazil_fluxes</span><span class="p">,</span>
     <span class="n">compute_total_energy</span><span class="p">,</span>
     <span class="n">compute_total_mass</span><span class="p">,</span>
     <span class="n">compute_total_salt</span><span class="p">,</span>
@@ -1211,6 +1213,22 @@ window.runMermaid = runMermaid;</script>
                         <span class="n">model</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'ocean'</span><span class="p">,</span> <span class="s1">'model'</span><span class="p">),</span>
                         <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span>
                     <span class="p">)</span>
+                    <span class="k">if</span> <span class="p">(</span>
+                        <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">'frazil_conservation'</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+                        <span class="ow">and</span> <span class="n">baseline</span> <span class="o">==</span> <span class="s1">'init'</span>
+                    <span class="p">):</span>
+                        <span class="n">model</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'ocean'</span><span class="p">,</span> <span class="s1">'model'</span><span class="p">)</span>
+                        <span class="n">expected_change</span> <span class="o">+=</span> <span class="n">compute_frazil_fluxes</span><span class="p">(</span>
+                            <span class="n">ds_mesh</span><span class="p">,</span>
+                            <span class="n">ds</span><span class="p">,</span>
+                            <span class="n">time_index_end</span><span class="o">=</span><span class="n">time_index_end</span><span class="p">,</span>
+                            <span class="n">model</span><span class="o">=</span><span class="n">model</span><span class="p">,</span>
+                            <span class="n">time_step</span><span class="o">=</span><span class="p">(</span>
+                                <span class="n">config</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">'single_column'</span><span class="p">,</span> <span class="s1">'time_step'</span><span class="p">)</span>
+                                <span class="k">if</span> <span class="n">model</span> <span class="o">==</span> <span class="s1">'mpas-ocean'</span>
+                                <span class="k">else</span> <span class="kc">None</span>
+                            <span class="p">),</span>
+                        <span class="p">)[</span><span class="n">output_property</span><span class="p">]</span>
 
                 <span class="n">relative_error</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_compute_rel_err</span><span class="p">(</span>
                     <span class="n">func</span><span class="p">,</span>
@@ -1237,7 +1255,7 @@ window.runMermaid = runMermaid;</script>
                 <span class="p">)</span>
                 <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
                     <span class="sa">f</span><span class="s1">'    </span><span class="si">{</span><span class="n">description</span><span class="si">}</span><span class="s1">: '</span>
-                    <span class="sa">f</span><span class="s1">'error=</span><span class="si">{</span><span class="n">relative_error</span><span class="si">:</span><span class="s1">.3e</span><span class="si">}</span><span class="s1"> tol=</span><span class="si">{</span><span class="n">tol</span><span class="si">:</span><span class="s1">.3e</span><span class="si">}</span><span class="s1"> [</span><span class="si">{</span><span class="n">status</span><span class="si">}</span><span class="s1">]'</span>
+                    <span class="sa">f</span><span class="s1">'error=</span><span class="si">{</span><span class="n">relative_error</span><span class="si">:</span><span class="s1">.6e</span><span class="si">}</span><span class="s1"> tol=</span><span class="si">{</span><span class="n">tol</span><span class="si">:</span><span class="s1">.3e</span><span class="si">}</span><span class="s1"> [</span><span class="si">{</span><span class="n">status</span><span class="si">}</span><span class="s1">]'</span>
                 <span class="p">)</span>
                 <span class="n">results</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
                     <span class="nb">dict</span><span class="p">(</span>
@@ -1284,8 +1302,8 @@ window.runMermaid = runMermaid;</script>
         <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
     <span class="p">):</span>
 <span class="w">        </span><span class="sd">"""</span>
-<span class="sd">        Compute the error in a budget, relative to the expected change if it</span>
-<span class="sd">        is nonzero and to the initial content otherwise</span>
+<span class="sd">        Compute a budget error normalized by the initial content, or by one</span>
+<span class="sd">        if the initial content is zero.</span>
 
 <span class="sd">        The initial value is taken from ``ds_init`` if it is provided, so that</span>
 <span class="sd">        the budget starts from the true initial condition rather than the</span>
@@ -1303,6 +1321,13 @@ window.runMermaid = runMermaid;</script>
         <span class="n">ds_end</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span><span class="n">Time</span><span class="o">=</span><span class="n">time_index_end</span><span class="p">)</span>
         <span class="n">final_val</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">func</span><span class="p">(</span><span class="n">ds_mesh</span><span class="p">,</span> <span class="n">ds_end</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span><span class="o">.</span><span class="n">values</span><span class="p">)</span>
         <span class="n">actual_change</span> <span class="o">=</span> <span class="n">final_val</span> <span class="o">-</span> <span class="n">init_val</span>
+        <span class="k">if</span> <span class="n">func</span> <span class="ow">is</span> <span class="n">compute_total_energy</span><span class="p">:</span>
+            <span class="n">actual_change</span> <span class="o">=</span> <span class="n">compute_energy_change</span><span class="p">(</span>
+                <span class="n">ds_mesh</span><span class="p">,</span>
+                <span class="n">ds_start</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span><span class="n">Time</span><span class="o">=</span><span class="n">time_index_start</span><span class="p">),</span>
+                <span class="n">ds_end</span><span class="p">,</span>
+                <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+            <span class="p">)</span><span class="o">.</span><span class="n">values</span>
         <span class="n">residual</span> <span class="o">=</span> <span class="n">actual_change</span> <span class="o">-</span> <span class="n">expected_change</span>
         <span class="k">if</span> <span class="n">init_val</span> <span class="o">!=</span> <span class="mf">0.0</span><span class="p">:</span>
             <span class="n">denom</span> <span class="o">=</span> <span class="nb">abs</span><span class="p">(</span><span class="n">init_val</span><span class="p">)</span>

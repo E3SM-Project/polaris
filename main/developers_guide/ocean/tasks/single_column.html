@@ -166,6 +166,8 @@ the vertical dynamics of the ocean model only. The test cases are:</p>
 <li><p>Comparing Omega’s penetrating-shortwave-radiation scheme against
 surface-absorbed shortwave heating</p></li>
 <li><p>Comparing penetrating-shortwave-radiation schemes across Jerlov water types</p></li>
+<li><p>Testing frazil ice formation under melting and freezing conditions for
+the <code class="docutils literal notranslate"><span class="pre">FixedProperty</span></code> and <code class="docutils literal notranslate"><span class="pre">teos</span></code> algorithms</p></li>
 </ul>
 <p>Here, we describe the tests and their shared framework.</p>
 <section id="framework">
@@ -494,6 +496,113 @@ a specific implementation feature, and distinguish its intended physical
 signature from an enforced validation threshold.</p>
 </section>
 </section>
+<section id="frazil">
+<h2>frazil<a class="headerlink" href="#frazil" title="Link to this heading"></a></h2>
+<p>The <a class="reference internal" href="../generated/polaris.tasks.ocean.single_column.frazil.Frazil.html#polaris.tasks.ocean.single_column.frazil.Frazil" title="polaris.tasks.ocean.single_column.frazil.Frazil"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.tasks.ocean.single_column.frazil.Frazil</span></code></a> class
+creates the full-column <code class="docutils literal notranslate"><span class="pre">melting</span></code>, <code class="docutils literal notranslate"><span class="pre">freezing</span></code> and <code class="docutils literal notranslate"><span class="pre">melting_depth_limit</span></code> tasks,
+each with a forward step per frazil algorithm (<code class="docutils literal notranslate"><span class="pre">FixedProperty</span></code> and
+<code class="docutils literal notranslate"><span class="pre">teos</span></code>). <code class="docutils literal notranslate"><span class="pre">melting</span></code> and <code class="docutils literal notranslate"><span class="pre">freezing</span></code> run for one day and have an optional
+visualization step from the single-column framework. The one-layer and
+<code class="docutils literal notranslate"><span class="pre">melting_short</span></code> tasks have their own classes, described below.</p>
+<p>The frazil-only <code class="docutils literal notranslate"><span class="pre">melting_depth_limit</span></code> variant and <code class="docutils literal notranslate"><span class="pre">melting_short/warm</span></code> run
+<a class="reference internal" href="../generated/polaris.tasks.ocean.single_column.frazil.MeltingAnalysis.html#polaris.tasks.ocean.single_column.frazil.MeltingAnalysis" title="polaris.tasks.ocean.single_column.frazil.MeltingAnalysis"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.tasks.ocean.single_column.frazil.MeltingAnalysis</span></code></a>
+by default. The former checks one-timestep temperature changes on both
+sides of the depth limit; the latter checks bottom-layer relaxation.
+Standard melting has no convergence assertion. Thresholds and suite
+coverage are described in <a class="reference internal" href="../../../users_guide/ocean/tasks/single_column.html#ocean-single-column"><span class="std std-ref">single column</span></a>.</p>
+<p>The melting case sets a linear salinity profile with depth and a vertical
+profile with warm water near the surface and colder water below, using the
+config options in <code class="docutils literal notranslate"><span class="pre">single_column_frazil</span></code> including
+<code class="docutils literal notranslate"><span class="pre">temperature_upper_melting</span></code>, <code class="docutils literal notranslate"><span class="pre">temperature_lower_melting</span></code>, and
+<code class="docutils literal notranslate"><span class="pre">transition_depth_melting</span></code>.  The freezing case uses a linear salinity profile
+and a negative surface latent heat flux, with <code class="docutils literal notranslate"><span class="pre">latent_heat_flux_freezing</span></code>
+set in the <code class="docutils literal notranslate"><span class="pre">single_column_forcing</span></code> section.  In both cases, the profile is built
+with <code class="docutils literal notranslate"><span class="pre">salinity_surface</span></code> and <code class="docutils literal notranslate"><span class="pre">dsdz</span></code>, while the frazil algorithm is selected by
+<code class="docutils literal notranslate"><span class="pre">frazil_type</span></code> in the forward step.</p>
+<p>Each case runs a forward step that writes the state and diagnostics needed to
+track frazil formation, while the shared <code class="docutils literal notranslate"><span class="pre">Viz</span></code> step plots the depth-dependent
+state and tendency fields.  The conservation summary step records aggregated
+frazil thickness and salinity for each algorithm variant.</p>
+<p>MPAS-Ocean conservation checks include the applied frazil thickness and
+thickness-weighted tracer tendencies, integrated over every timestep.
+The summary reports surface forcing, frazil contributions, and adjusted
+residuals for mass, salt, and energy. Missing tendency fields or skipped
+timesteps raise an error. This accounting is for standalone runs, not
+coupled runs. Omega retains its existing frazil-flux accounting for freezing.</p>
+<section id="one-layer">
+<h3>one_layer<a class="headerlink" href="#one-layer" title="Link to this heading"></a></h3>
+<p>The
+<a class="reference internal" href="../generated/polaris.tasks.ocean.single_column.frazil.one_layer.FrazilOneLayer.html#polaris.tasks.ocean.single_column.frazil.one_layer.FrazilOneLayer" title="polaris.tasks.ocean.single_column.frazil.one_layer.FrazilOneLayer"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.tasks.ocean.single_column.frazil.one_layer.FrazilOneLayer</span></code></a>
+class runs a single-layer, 10 m thick column initialized at the local
+freezing point for both frazil algorithms and four Omega time integrators:
+RK4, RungeKutta2, SplitExplicitRK2 and UnsplitRK2. MPAS-Ocean retains only the
+RK4 <code class="docutils literal notranslate"><span class="pre">FixedProperty</span></code> run. It reuses
+<a class="reference internal" href="../generated/polaris.tasks.ocean.single_column.frazil.init.FrazilInit.html#polaris.tasks.ocean.single_column.frazil.init.FrazilInit" title="polaris.tasks.ocean.single_column.frazil.init.FrazilInit"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.tasks.ocean.single_column.frazil.init.FrazilInit</span></code></a> with
+<code class="docutils literal notranslate"><span class="pre">at_freezing=True</span></code>, which sets temperature to the freezing point from the
+equation of state rather than to the uniform <code class="docutils literal notranslate"><span class="pre">temperature_freezing</span></code> value.
+Four tasks reuse this class: <code class="docutils literal notranslate"><span class="pre">freezing_1layer_baseline</span></code> uses <code class="docutils literal notranslate"><span class="pre">one_layer.cfg</span></code>
+alone, while the others add one config overlay after it. <code class="docutils literal notranslate"><span class="pre">cold.cfg</span></code> sets the
+surface latent heat flux to -3000 W/m<span class="math notranslate nohighlight">\(^2\)</span>, <code class="docutils literal notranslate"><span class="pre">fresh.cfg</span></code> sets
+<code class="docutils literal notranslate"><span class="pre">salinity_surface</span> <span class="pre">=</span> <span class="pre">2.0</span></code> and <code class="docutils literal notranslate"><span class="pre">dsdz</span> <span class="pre">=</span> <span class="pre">0.0</span></code>, and <code class="docutils literal notranslate"><span class="pre">thin.cfg</span></code> sets
+<code class="docutils literal notranslate"><span class="pre">bottom_depth</span> <span class="pre">=</span> <span class="pre">0.5</span></code> m with the same -3000 W/m<span class="math notranslate nohighlight">\(^2\)</span> flux. The init step
+recomputes the pressure-dependent freezing temperature for each task.</p>
+<p>The task’s <code class="docutils literal notranslate"><span class="pre">forward.yaml</span></code> disables every Omega tendency except
+<code class="docutils literal notranslate"><span class="pre">SfcTracerForcingTendencyEnable</span></code> and <code class="docutils literal notranslate"><span class="pre">FrazilTendencyEnable</span></code>, so the only terms
+acting on the column are the surface heat flux and frazil formation.  The run
+is exactly one day long, with output every time step, set through the
+<code class="docutils literal notranslate"><span class="pre">run_duration_steps</span></code> argument to the shared <code class="docutils literal notranslate"><span class="pre">Forward</span></code> step. Each run overrides
+the shared time integrator without affecting other single-column tasks.</p>
+<p>The
+<a class="reference internal" href="../generated/polaris.tasks.ocean.single_column.frazil.one_layer.viz.OneLayerViz.html#polaris.tasks.ocean.single_column.frazil.one_layer.viz.OneLayerViz" title="polaris.tasks.ocean.single_column.frazil.one_layer.viz.OneLayerViz"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.tasks.ocean.single_column.frazil.one_layer.viz.OneLayerViz</span></code></a>
+step writes three figures. <code class="docutils literal notranslate"><span class="pre">layer-evolution.png</span></code> shows top-layer temperature,
+salinity, thickness, and thickness-times-temperature over the full run and the
+first five time steps, with freezing-point curves and initial-state markers.
+It uses Omega pseudo-thickness for Omega and geometric layer thickness for
+MPAS-Ocean. For Omega, <code class="docutils literal notranslate"><span class="pre">frazil-fluxes.png</span></code> plots per-step frazil energy, mass,
+and salt rates, while <code class="docutils literal notranslate"><span class="pre">conservation-residuals.png</span></code> plots the corresponding
+top-layer budget residuals. These two frazil diagnostic plots are not produced
+for MPAS-Ocean because the history fields are Omega-specific.</p>
+<p>Both models include frazil contributions in their conservation checks and
+summary logs. MPAS-Ocean uses the applied tendencies rather than the
+accumulated ice mass to account for local-density effects and meltwater heat.</p>
+</section>
+<section id="melting-short">
+<h3>melting_short<a class="headerlink" href="#melting-short" title="Link to this heading"></a></h3>
+<p>The
+<a class="reference internal" href="../generated/polaris.tasks.ocean.single_column.frazil.melting_short.FrazilMeltingShort.html#polaris.tasks.ocean.single_column.frazil.melting_short.FrazilMeltingShort" title="polaris.tasks.ocean.single_column.frazil.melting_short.FrazilMeltingShort"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.tasks.ocean.single_column.frazil.melting_short.FrazilMeltingShort</span></code></a>
+class runs a two-layer column with a top layer over a supercooled bottom
+layer and no surface forcing, for both frazil algorithms and the same four
+Omega time integrators. MPAS-Ocean retains only the RK4 <code class="docutils literal notranslate"><span class="pre">FixedProperty</span></code> run.
+It reuses
+<a class="reference internal" href="../generated/polaris.tasks.ocean.single_column.frazil.init.FrazilInit.html#polaris.tasks.ocean.single_column.frazil.init.FrazilInit" title="polaris.tasks.ocean.single_column.frazil.init.FrazilInit"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.tasks.ocean.single_column.frazil.init.FrazilInit</span></code></a> with
+<code class="docutils literal notranslate"><span class="pre">case='melting_short'</span></code>, which sets temperature to
+<code class="docutils literal notranslate"><span class="pre">temperature_top_melting_short</span></code> above <code class="docutils literal notranslate"><span class="pre">transition_depth_melting_short</span></code> and to
+<code class="docutils literal notranslate"><span class="pre">supercooling_melting_short</span></code> degrees below the freezing point from the
+equation of state beneath it.</p>
+<p>Three tasks reuse this class, <code class="docutils literal notranslate"><span class="pre">melting_short/warm</span></code>, <code class="docutils literal notranslate"><span class="pre">melting_short/cold</span></code> and
+<code class="docutils literal notranslate"><span class="pre">melting_short/melt0.1h</span></code>, each adding one config overlay after
+<code class="docutils literal notranslate"><span class="pre">melting_short.cfg</span></code>. <code class="docutils literal notranslate"><span class="pre">warm.cfg</span></code> and <code class="docutils literal notranslate"><span class="pre">cold.cfg</span></code> set
+<code class="docutils literal notranslate"><span class="pre">temperature_top_melting_short</span></code> and <code class="docutils literal notranslate"><span class="pre">supercooling_melting_short</span></code> for that
+variant. <code class="docutils literal notranslate"><span class="pre">melt0.1h.cfg</span></code> also overrides <code class="docutils literal notranslate"><span class="pre">[vertical_grid]</span></code> to place a 1 m
+melting layer over a 10 m supercooled layer, sized so that the frazil melt
+mass limiter binds while formation stays below its own limit. Each task
+builds its own init step.</p>
+<p>The task’s <code class="docutils literal notranslate"><span class="pre">forward.yaml</span></code> disables every Omega tendency except
+<code class="docutils literal notranslate"><span class="pre">FrazilTendencyEnable</span></code>, and <code class="docutils literal notranslate"><span class="pre">melting_short.cfg</span></code> overrides <code class="docutils literal notranslate"><span class="pre">latent_heat_flux</span></code>
+to zero, so frazil is the only term acting on the column. The run duration is
+set by <code class="docutils literal notranslate"><span class="pre">RUN_DURATION_STEPS</span></code>, with output every time step.</p>
+<p>The
+<a class="reference internal" href="../generated/polaris.tasks.ocean.single_column.frazil.melting_short.viz.MeltingShortViz.html#polaris.tasks.ocean.single_column.frazil.melting_short.viz.MeltingShortViz" title="polaris.tasks.ocean.single_column.frazil.melting_short.viz.MeltingShortViz"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.tasks.ocean.single_column.frazil.melting_short.viz.MeltingShortViz</span></code></a>
+step writes the same three figures, reusing the diagnostic and frazil-plotting
+helpers from <code class="docutils literal notranslate"><span class="pre">OneLayerViz</span></code>. Here <code class="docutils literal notranslate"><span class="pre">layer-evolution.png</span></code> is a two-by-four grid
+with the top layer on the first row and the bottom layer on the second, and
+columns for temperature, thickness, salinity and thickness-times-temperature.
+Because frazil acts below the top layer, <code class="docutils literal notranslate"><span class="pre">conservation-residuals.png</span></code> is built
+from column-integrated state rates rather than from the top layer alone.</p>
+<p>Both models include frazil contributions in the mass, salt, and energy
+checks. MPAS-Ocean tendency output is required at every timestep.</p>
+</section>
+</section>
 <section id="thermo">
 <h2>thermo<a class="headerlink" href="#thermo" title="Link to this heading"></a></h2>
 <p>The <a class="reference internal" href="../generated/polaris.tasks.ocean.single_column.thermo.Thermo.html#polaris.tasks.ocean.single_column.thermo.Thermo" title="polaris.tasks.ocean.single_column.thermo.Thermo"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.tasks.ocean.single_column.thermo.Thermo</span></code></a> test performs
@@ -510,7 +619,7 @@ run.</p>
 <section id="conservation-summary">
 <h3>conservation_summary<a class="headerlink" href="#conservation-summary" title="Link to this heading"></a></h3>
 <p>The
-<a class="reference internal" href="../generated/polaris.tasks.ocean.single_column.thermo.conservation_summary.ConservationSummary.html#polaris.tasks.ocean.single_column.thermo.conservation_summary.ConservationSummary" title="polaris.tasks.ocean.single_column.thermo.conservation_summary.ConservationSummary"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.tasks.ocean.single_column.thermo.conservation_summary.ConservationSummary</span></code></a>
+<code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.tasks.ocean.single_column.thermo.conservation_summary.ConservationSummary</span></code>
 step gathers the conservation results from each forward step’s
 <code class="docutils literal notranslate"><span class="pre">property_check_results.json</span></code> and writes <code class="docutils literal notranslate"><span class="pre">conservation_summary.log</span></code>, which
 lists each forward step name along with its mass, salt and energy relative

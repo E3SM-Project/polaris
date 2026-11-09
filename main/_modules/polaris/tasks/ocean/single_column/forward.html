@@ -472,7 +472,10 @@ window.runMermaid = runMermaid;</script>
            <div itemprop="articleBody">
              
   <h1>Source code for polaris.tasks.ocean.single_column.forward</h1><div class="highlight"><pre>
-<span></span><span class="kn">from</span><span class="w"> </span><span class="nn">polaris.ocean.model</span><span class="w"> </span><span class="kn">import</span> <span class="n">OceanModelStep</span><span class="p">,</span> <span class="n">get_time_interval_string</span>
+<span></span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.constants</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_constant</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.ocean.model</span><span class="w"> </span><span class="kn">import</span> <span class="n">OceanModelStep</span><span class="p">,</span> <span class="n">get_time_interval_string</span>
 
 
 <div class="viewcode-block" id="Forward">
@@ -518,6 +521,9 @@ window.runMermaid = runMermaid;</script>
         <span class="n">use_theory_wave</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
         <span class="n">min_obl_under_sea_ice</span><span class="o">=</span><span class="mf">5.0</span><span class="p">,</span>
         <span class="n">enable_kpp</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">frazil_type</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">frazil_conservation</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">time_integrator</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
     <span class="p">):</span>
 <span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Create a new test case</span>
@@ -590,6 +596,17 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">            defaults to ``not enable_hadv`` to preserve prior behavior.</span>
 <span class="sd">            MPAS-Ocean has no equivalent option, so Coriolis there is</span>
 <span class="sd">            always governed solely by the ``[coriolis]`` config section.</span>
+
+<span class="sd">        frazil_type : str, optional</span>
+<span class="sd">            If provided, enables the frazil ice tendency and selects the</span>
+<span class="sd">            frazil algorithm to use in Omega, either ``'FixedProperty'`` or</span>
+<span class="sd">            ``'teos'``.  If ``None``, the frazil tendency is left disabled.</span>
+
+<span class="sd">        frazil_conservation : bool, optional</span>
+<span class="sd">            Whether to include frazil contributions in the conservation check.</span>
+
+<span class="sd">        time_integrator : str, optional</span>
+<span class="sd">            Override the single-column time integrator for this step.</span>
 <span class="sd">        """</span>
         <span class="k">if</span> <span class="n">disable_coriolis</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">disable_coriolis</span> <span class="o">=</span> <span class="ow">not</span> <span class="n">enable_hadv</span>
@@ -607,6 +624,8 @@ window.runMermaid = runMermaid;</script>
             <span class="n">name</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s1">_langmuir'</span>
         <span class="k">if</span> <span class="n">enable_kpp</span> <span class="ow">is</span> <span class="kc">False</span><span class="p">:</span>
             <span class="n">name</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s1">_no_kpp'</span>
+        <span class="k">if</span> <span class="n">time_integrator</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">name</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s1">_</span><span class="si">{</span><span class="n">time_integrator</span><span class="si">}</span><span class="s1">'</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
             <span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span>
             <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span>
@@ -616,6 +635,7 @@ window.runMermaid = runMermaid;</script>
             <span class="n">min_tasks</span><span class="o">=</span><span class="n">min_tasks</span><span class="p">,</span>
             <span class="n">openmp_threads</span><span class="o">=</span><span class="n">openmp_threads</span><span class="p">,</span>
             <span class="n">graph_target</span><span class="o">=</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">init</span><span class="o">.</span><span class="n">path</span><span class="si">}</span><span class="s1">/culled_graph.info'</span><span class="p">,</span>
+            <span class="n">update_eos</span><span class="o">=</span><span class="n">update_eos</span><span class="p">,</span>
         <span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">add_horiz_mesh_input_file</span><span class="p">(</span>
@@ -670,7 +690,10 @@ window.runMermaid = runMermaid;</script>
         <span class="bp">self</span><span class="o">.</span><span class="n">use_langmuir_circulation</span> <span class="o">=</span> <span class="n">use_langmuir_circulation</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">use_theory_wave</span> <span class="o">=</span> <span class="n">use_theory_wave</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">min_obl_under_sea_ice</span> <span class="o">=</span> <span class="n">min_obl_under_sea_ice</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">enable_kpp</span> <span class="o">=</span> <span class="n">enable_kpp</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">enable_kpp</span> <span class="o">=</span> <span class="n">enable_kpp</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">frazil_type</span> <span class="o">=</span> <span class="n">frazil_type</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">frazil_conservation</span> <span class="o">=</span> <span class="n">frazil_conservation</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">time_integrator</span> <span class="o">=</span> <span class="n">time_integrator</span></div>
 
 
     <span class="k">def</span><span class="w"> </span><span class="nf">setup</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -691,20 +714,37 @@ window.runMermaid = runMermaid;</script>
         <span class="n">config</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span>
         <span class="n">section</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s1">'single_column'</span><span class="p">]</span>
         <span class="n">time_step</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">'time_step'</span><span class="p">)</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">run_duration_steps</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">run_duration_steps</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">run_duration_steps</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">run_duration_steps</span>
+        <span class="k">if</span> <span class="n">run_duration_steps</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">section</span><span class="o">.</span><span class="n">has_option</span><span class="p">(</span>
+            <span class="s1">'run_duration_steps'</span>
+        <span class="p">):</span>
+            <span class="n">run_duration_steps</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getint</span><span class="p">(</span><span class="s1">'run_duration_steps'</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">run_duration_steps</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">run_duration_steps</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
                 <span class="c1"># run for a given number of time steps, with output every step</span>
-                <span class="n">duration_seconds</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">run_duration_steps</span> <span class="o">*</span> <span class="n">time_step</span>
+                <span class="n">duration_seconds</span> <span class="o">=</span> <span class="n">run_duration_steps</span> <span class="o">*</span> <span class="n">time_step</span>
                 <span class="n">output_interval_seconds</span> <span class="o">=</span> <span class="n">time_step</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
                     <span class="s1">'run_duration_steps must be &gt;0 but was '</span>
-                    <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">run_duration_steps</span><span class="si">}</span><span class="s1">'</span>
+                    <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">run_duration_steps</span><span class="si">}</span><span class="s1">'</span>
                 <span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">duration_seconds</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">'run_duration'</span><span class="p">)</span> <span class="o">*</span> <span class="mf">86400.0</span>
             <span class="n">output_interval_seconds</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">'output_interval'</span><span class="p">)</span>
         <span class="n">model</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'ocean'</span><span class="p">,</span> <span class="s1">'model'</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">frazil_conservation</span> <span class="ow">and</span> <span class="n">model</span> <span class="o">==</span> <span class="s1">'mpas-ocean'</span><span class="p">:</span>
+            <span class="n">output_interval_seconds</span> <span class="o">=</span> <span class="n">time_step</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">isclose</span><span class="p">(</span>
+                <span class="n">duration_seconds</span> <span class="o">/</span> <span class="n">time_step</span><span class="p">,</span>
+                <span class="nb">round</span><span class="p">(</span><span class="n">duration_seconds</span> <span class="o">/</span> <span class="n">time_step</span><span class="p">),</span>
+                <span class="n">rtol</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span>
+                <span class="n">atol</span><span class="o">=</span><span class="mf">1.0e-10</span><span class="p">,</span>
+            <span class="p">):</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="s1">'MPAS-Ocean frazil run duration must contain an integer '</span>
+                    <span class="s1">'number of timesteps'</span>
+                <span class="p">)</span>
         <span class="n">duration_str</span> <span class="o">=</span> <span class="n">get_time_interval_string</span><span class="p">(</span><span class="n">seconds</span><span class="o">=</span><span class="n">duration_seconds</span><span class="p">)</span>
         <span class="n">dt_str</span> <span class="o">=</span> <span class="n">get_time_interval_string</span><span class="p">(</span><span class="n">seconds</span><span class="o">=</span><span class="n">time_step</span><span class="p">)</span>
         <span class="c1"># 20 barotropic substeps per time step for the split-explicit stepper</span>
@@ -713,12 +753,21 @@ window.runMermaid = runMermaid;</script>
             <span class="n">seconds</span><span class="o">=</span><span class="n">output_interval_seconds</span>
         <span class="p">)</span>
 
-        <span class="n">time_integrator</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'time_integrator'</span><span class="p">)</span>
-        <span class="n">time_integrator_map</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span>
-            <span class="p">[(</span><span class="s1">'RK4'</span><span class="p">,</span> <span class="s1">'RungeKutta4'</span><span class="p">),</span> <span class="p">(</span><span class="s1">'split_explicit'</span><span class="p">,</span> <span class="s1">'SplitExplicitRK2'</span><span class="p">)]</span>
+        <span class="n">time_integrator</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">time_integrator</span> <span class="ow">or</span> <span class="n">section</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
+            <span class="s1">'time_integrator'</span>
         <span class="p">)</span>
+        <span class="n">time_integrator_map</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">'RK4'</span><span class="p">:</span> <span class="s1">'RungeKutta4'</span><span class="p">,</span>
+            <span class="s1">'Forward-Backward'</span><span class="p">:</span> <span class="s1">'Forward-Backward'</span><span class="p">,</span>
+            <span class="s1">'RungeKutta2'</span><span class="p">:</span> <span class="s1">'RungeKutta2'</span><span class="p">,</span>
+            <span class="s1">'SplitExplicitRK2'</span><span class="p">:</span> <span class="s1">'SplitExplicitRK2'</span><span class="p">,</span>
+            <span class="c1"># Note: this mapping should really be to SplitExplicitAB2, which</span>
+            <span class="c1"># is not yet implemented</span>
+            <span class="s1">'split_explicit'</span><span class="p">:</span> <span class="s1">'SplitExplicitRK2'</span><span class="p">,</span>
+            <span class="s1">'UnsplitRK2'</span><span class="p">:</span> <span class="s1">'UnsplitRK2'</span><span class="p">,</span>
+        <span class="p">}</span>
         <span class="k">if</span> <span class="n">model</span> <span class="o">==</span> <span class="s1">'omega'</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">time_integrator</span> <span class="ow">in</span> <span class="n">time_integrator_map</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">time_integrator</span> <span class="ow">in</span> <span class="n">time_integrator_map</span><span class="p">:</span>
                 <span class="n">time_integrator</span> <span class="o">=</span> <span class="n">time_integrator_map</span><span class="p">[</span><span class="n">time_integrator</span><span class="p">]</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="nb">print</span><span class="p">(</span>
@@ -738,29 +787,12 @@ window.runMermaid = runMermaid;</script>
                 <span class="n">time_integrator</span><span class="o">=</span><span class="n">time_integrator</span><span class="p">,</span>
             <span class="p">),</span>
         <span class="p">)</span>
-        <span class="n">template_replacements</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span>
-            <span class="n">output_interval</span><span class="o">=</span><span class="n">output_interval_str</span><span class="p">,</span>
-            <span class="n">output_freq</span><span class="o">=</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="nb">int</span><span class="p">(</span><span class="n">output_interval_seconds</span><span class="p">)</span><span class="si">}</span><span class="s1">'</span><span class="p">,</span>
-        <span class="p">)</span>
-        <span class="k">if</span> <span class="s1">'kpp_regimes'</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">task_package</span><span class="p">:</span>
-            <span class="n">template_replacements</span><span class="p">[</span><span class="s1">'match_technique'</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">match_technique</span> <span class="ow">or</span> <span class="s1">'SimpleShapes'</span>
-            <span class="p">)</span>
-            <span class="n">template_replacements</span><span class="p">[</span><span class="s1">'use_theory_wave'</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">use_theory_wave</span>
-            <span class="n">template_replacements</span><span class="p">[</span><span class="s1">'langmuir_mixing_opt'</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
-                <span class="s1">'LWF16'</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">use_langmuir_circulation</span> <span class="k">else</span> <span class="s1">'NONE'</span>
-            <span class="p">)</span>
-            <span class="n">template_replacements</span><span class="p">[</span><span class="s1">'langmuir_entrainment_opt'</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
-                <span class="s1">'LF17'</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">use_langmuir_circulation</span> <span class="k">else</span> <span class="s1">'NONE'</span>
-            <span class="p">)</span>
-            <span class="n">template_replacements</span><span class="p">[</span><span class="s1">'min_OBL_under_sea_ice'</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">min_obl_under_sea_ice</span>
-            <span class="p">)</span>
-
         <span class="bp">self</span><span class="o">.</span><span class="n">add_yaml_file</span><span class="p">(</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">task_package</span><span class="p">,</span>
             <span class="s1">'forward.yaml'</span><span class="p">,</span>
-            <span class="n">template_replacements</span><span class="o">=</span><span class="n">template_replacements</span><span class="p">,</span>
+            <span class="n">template_replacements</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_get_template_replacements</span><span class="p">(</span>
+                <span class="n">output_interval_str</span><span class="p">,</span> <span class="n">output_interval_seconds</span>
+            <span class="p">),</span>
         <span class="p">)</span>
 
         <span class="c1"># Preserve legacy mixing in non-KPP tests even when model defaults</span>
@@ -830,6 +862,22 @@ window.runMermaid = runMermaid;</script>
                 <span class="p">}</span>
             <span class="p">)</span>
 
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">frazil_type</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">model</span> <span class="o">==</span> <span class="s1">'omega'</span><span class="p">:</span>
+            <span class="n">omega_options</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
+                <span class="p">{</span>
+                    <span class="s1">'FrazilType'</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">frazil_type</span><span class="p">,</span>
+                <span class="p">}</span>
+            <span class="p">)</span>
+
+            <span class="c1"># Both Omega frazil algorithms require TEOS-10.</span>
+            <span class="n">eos_options</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_teos10_eos_replacements</span><span class="p">(</span>
+                <span class="n">eos_type</span><span class="o">=</span><span class="s1">'teos-10'</span><span class="p">,</span> <span class="n">model</span><span class="o">=</span><span class="n">model</span>
+            <span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">add_model_config_options</span><span class="p">(</span>
+                <span class="n">options</span><span class="o">=</span><span class="n">eos_options</span><span class="p">,</span>
+                <span class="n">config_model</span><span class="o">=</span><span class="s1">'ocean'</span><span class="p">,</span>
+            <span class="p">)</span>
+
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">constant_diff</span><span class="p">:</span>
             <span class="n">shared_options</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
                 <span class="p">{</span>
@@ -862,8 +910,47 @@ window.runMermaid = runMermaid;</script>
         <span class="bp">self</span><span class="o">.</span><span class="n">add_model_config_options</span><span class="p">(</span>
             <span class="n">options</span><span class="o">=</span><span class="n">omega_options</span><span class="p">,</span>
             <span class="n">config_model</span><span class="o">=</span><span class="s1">'Omega'</span><span class="p">,</span>
-        <span class="p">)</span></div>
-</div>
+        <span class="p">)</span>
+
+        <span class="k">if</span> <span class="p">(</span>
+            <span class="n">config</span><span class="o">.</span><span class="n">getint</span><span class="p">(</span><span class="s1">'vertical_grid'</span><span class="p">,</span> <span class="s1">'vert_levels'</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span>
+            <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">task_name</span> <span class="o">==</span> <span class="s1">'frazil_one_layer'</span>
+        <span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">add_yaml_file</span><span class="p">(</span><span class="s1">'polaris.ocean.config'</span><span class="p">,</span> <span class="s1">'single_layer.yaml'</span><span class="p">)</span></div>
+
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_get_template_replacements</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">output_interval_str</span><span class="p">,</span> <span class="n">output_interval_seconds</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Build the task-specific forward YAML template replacements."""</span>
+        <span class="n">replacements</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span>
+            <span class="n">output_interval</span><span class="o">=</span><span class="n">output_interval_str</span><span class="p">,</span>
+            <span class="n">output_freq</span><span class="o">=</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="nb">int</span><span class="p">(</span><span class="n">output_interval_seconds</span><span class="p">)</span><span class="si">}</span><span class="s1">'</span><span class="p">,</span>
+            <span class="n">RhoSw</span><span class="o">=</span><span class="n">get_constant</span><span class="p">(</span><span class="s1">'seawater_density_reference'</span><span class="p">),</span>
+            <span class="n">sea_ice_reference_salinity</span><span class="o">=</span><span class="n">get_constant</span><span class="p">(</span>
+                <span class="s1">'sea_ice_reference_salinity'</span>
+            <span class="p">),</span>
+            <span class="n">latent_heat_of_fusion</span><span class="o">=</span><span class="n">get_constant</span><span class="p">(</span>
+                <span class="s1">'latent_heat_of_fusion_reference'</span>
+            <span class="p">),</span>
+        <span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">task_name</span> <span class="ow">in</span> <span class="p">(</span><span class="s1">'frazil'</span><span class="p">,</span> <span class="s1">'frazil_melting_short'</span><span class="p">):</span>
+            <span class="n">replacements</span><span class="p">[</span><span class="s1">'frazil_maximum_depth'</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span>
+                <span class="s1">'single_column_frazil'</span><span class="p">,</span> <span class="s1">'maximum_depth'</span>
+            <span class="p">)</span>
+        <span class="k">if</span> <span class="s1">'kpp_regimes'</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">task_package</span><span class="p">:</span>
+            <span class="n">replacements</span><span class="p">[</span><span class="s1">'match_technique'</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">match_technique</span> <span class="ow">or</span> <span class="s1">'SimpleShapes'</span>
+            <span class="p">)</span>
+            <span class="n">replacements</span><span class="p">[</span><span class="s1">'use_theory_wave'</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">use_theory_wave</span>
+            <span class="n">replacements</span><span class="p">[</span><span class="s1">'langmuir_mixing_opt'</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="s1">'LWF16'</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">use_langmuir_circulation</span> <span class="k">else</span> <span class="s1">'NONE'</span>
+            <span class="p">)</span>
+            <span class="n">replacements</span><span class="p">[</span><span class="s1">'langmuir_entrainment_opt'</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="s1">'LF17'</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">use_langmuir_circulation</span> <span class="k">else</span> <span class="s1">'NONE'</span>
+            <span class="p">)</span>
+            <span class="n">replacements</span><span class="p">[</span><span class="s1">'min_OBL_under_sea_ice'</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">min_obl_under_sea_ice</span>
+        <span class="k">return</span> <span class="n">replacements</span></div>
 
 </pre></div>
 

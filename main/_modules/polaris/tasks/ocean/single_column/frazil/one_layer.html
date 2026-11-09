@@ -5,7 +5,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>polaris.tasks.ocean.single_column.thermo.conservation_summary</title>
+  <title>polaris.tasks.ocean.single_column.frazil.one_layer</title>
       <link rel="stylesheet" type="text/css" href="../../../../../../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../../../../../../_static/css/theme.css?v=9edc463e" />
 
@@ -462,8 +462,8 @@ window.runMermaid = runMermaid;</script>
           <li class="breadcrumb-item"><a href="../../../../../index.html">Module code</a></li>
           <li class="breadcrumb-item"><a href="../../../ocean.html">polaris.tasks.ocean</a></li>
           <li class="breadcrumb-item"><a href="../../single_column.html">polaris.tasks.ocean.single_column</a></li>
-          <li class="breadcrumb-item"><a href="../thermo.html">polaris.tasks.ocean.single_column.thermo</a></li>
-      <li class="breadcrumb-item active">polaris.tasks.ocean.single_column.thermo.conservation_summary</li>
+          <li class="breadcrumb-item"><a href="../frazil.html">polaris.tasks.ocean.single_column.frazil</a></li>
+      <li class="breadcrumb-item active">polaris.tasks.ocean.single_column.frazil.one_layer</li>
       <li class="wy-breadcrumbs-aside">
       </li>
   </ul>
@@ -472,131 +472,172 @@ window.runMermaid = runMermaid;</script>
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <h1>Source code for polaris.tasks.ocean.single_column.thermo.conservation_summary</h1><div class="highlight"><pre>
-<span></span><span class="kn">import</span><span class="w"> </span><span class="nn">json</span>
-<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+  <h1>Source code for polaris.tasks.ocean.single_column.frazil.one_layer</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span><span class="w"> </span><span class="nn">polaris</span><span class="w"> </span><span class="kn">import</span> <span class="n">Task</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.tasks.ocean.single_column.conservation_summary</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">ConservationSummary</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.tasks.ocean.single_column.forward</span><span class="w"> </span><span class="kn">import</span> <span class="n">Forward</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.tasks.ocean.single_column.frazil.init</span><span class="w"> </span><span class="kn">import</span> <span class="n">FrazilInit</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.tasks.ocean.single_column.frazil.one_layer.viz</span><span class="w"> </span><span class="kn">import</span> <span class="n">OneLayerViz</span>
 
-<span class="kn">from</span><span class="w"> </span><span class="nn">polaris</span><span class="w"> </span><span class="kn">import</span> <span class="n">Step</span>
+<span class="n">TIME_INTEGRATORS</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="s1">'RK4'</span><span class="p">,</span>
+    <span class="s1">'RungeKutta2'</span><span class="p">,</span>
+    <span class="s1">'SplitExplicitRK2'</span><span class="p">,</span>
+    <span class="s1">'UnsplitRK2'</span><span class="p">,</span>
+<span class="p">)</span>
 
-<span class="c1"># the conservation budgets summarized for each forward step, in the order</span>
-<span class="c1"># they appear in the summary log file</span>
-<span class="n">BUDGETS</span> <span class="o">=</span> <span class="p">[</span><span class="s1">'mass'</span><span class="p">,</span> <span class="s1">'salt'</span><span class="p">,</span> <span class="s1">'energy'</span><span class="p">]</span>
 
-
-<div class="viewcode-block" id="ConservationSummary">
-<a class="viewcode-back" href="../../../../../../developers_guide/ocean/generated/polaris.tasks.ocean.single_column.thermo.conservation_summary.ConservationSummary.html#polaris.tasks.ocean.single_column.thermo.conservation_summary.ConservationSummary">[docs]</a>
-<span class="k">class</span><span class="w"> </span><span class="nc">ConservationSummary</span><span class="p">(</span><span class="n">Step</span><span class="p">):</span>
+<div class="viewcode-block" id="FrazilOneLayer">
+<a class="viewcode-back" href="../../../../../../developers_guide/ocean/generated/polaris.tasks.ocean.single_column.frazil.one_layer.FrazilOneLayer.html#polaris.tasks.ocean.single_column.frazil.one_layer.FrazilOneLayer">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">FrazilOneLayer</span><span class="p">(</span><span class="n">Task</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">"""</span>
-<span class="sd">    A step that gathers the conservation errors from each of the ``thermo``</span>
-<span class="sd">    forward steps into a single log file listing the forward step name and</span>
-<span class="sd">    the mass, salt and energy errors.</span>
-
-<span class="sd">    Attributes</span>
-<span class="sd">    ----------</span>
-<span class="sd">    forward_steps : dict</span>
-<span class="sd">        A mapping from forward step name to the path of that step's work</span>
-<span class="sd">        directory relative to the base work directory</span>
+<span class="sd">    A single-layer single-column frazil test initialized at the local freezing</span>
+<span class="sd">    point. All tendencies are disabled except surface tracer forcing and</span>
+<span class="sd">    frazil. The change in top-layer heat content is set entirely by the applied</span>
+<span class="sd">    surface heat flux and by frazil formation.  Omega runs each of its time</span>
+<span class="sd">    integrators with both frazil algorithms (``'FixedProperty'`` and</span>
+<span class="sd">    ``'teos'``).  MPAS-Ocean retains only RK4 with ``'FixedProperty'``.</span>
 <span class="sd">    """</span>
 
-<div class="viewcode-block" id="ConservationSummary.__init__">
-<a class="viewcode-back" href="../../../../../../developers_guide/ocean/generated/polaris.tasks.ocean.single_column.thermo.conservation_summary.ConservationSummary.html#polaris.tasks.ocean.single_column.thermo.conservation_summary.ConservationSummary.__init__">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">component</span><span class="p">,</span> <span class="n">indir</span><span class="p">,</span> <span class="n">forward_steps</span><span class="p">):</span>
+<div class="viewcode-block" id="FrazilOneLayer.__init__">
+<a class="viewcode-back" href="../../../../../../developers_guide/ocean/generated/polaris.tasks.ocean.single_column.frazil.one_layer.FrazilOneLayer.html#polaris.tasks.ocean.single_column.frazil.one_layer.FrazilOneLayer.__init__">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">component</span><span class="p">,</span>
+        <span class="n">subdir</span><span class="p">,</span>
+        <span class="n">name</span><span class="o">=</span><span class="s1">'freezing_1layer_baseline'</span><span class="p">,</span>
+        <span class="n">variant_cfg</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="p">):</span>
 <span class="w">        </span><span class="sd">"""</span>
-<span class="sd">        Create the step</span>
+<span class="sd">        Create the test case</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        component : polaris.Component</span>
-<span class="sd">            The component the step belongs to</span>
+<span class="sd">        component : polaris.tasks.ocean.Ocean</span>
+<span class="sd">            The ocean component that this task belongs to</span>
 
-<span class="sd">        indir : str</span>
-<span class="sd">            The subdirectory that the task belongs to, that this step will</span>
-<span class="sd">            go into a subdirectory of</span>
+<span class="sd">        subdir : str</span>
+<span class="sd">            The directory the task is in</span>
 
-<span class="sd">        forward_steps : dict</span>
-<span class="sd">            A mapping from forward step name to the path of that step's work</span>
-<span class="sd">            directory relative to the base work directory</span>
+<span class="sd">        name : str, optional</span>
+<span class="sd">            The task name</span>
+
+<span class="sd">        variant_cfg : str, optional</span>
+<span class="sd">            A config overlay in this package for a variant of the test</span>
 <span class="sd">        """</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
-            <span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">'conservation_summary'</span><span class="p">,</span> <span class="n">indir</span><span class="o">=</span><span class="n">indir</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">subdir</span><span class="o">=</span><span class="n">subdir</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">add_from_package</span><span class="p">(</span>
+            <span class="s1">'polaris.tasks.ocean.single_column'</span><span class="p">,</span> <span class="s1">'single_column.cfg'</span>
         <span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">forward_steps</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">forward_steps</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">add_output_file</span><span class="p">(</span><span class="s1">'conservation_summary.log'</span><span class="p">)</span></div>
-
-
-<div class="viewcode-block" id="ConservationSummary.run">
-<a class="viewcode-back" href="../../../../../../developers_guide/ocean/generated/polaris.tasks.ocean.single_column.thermo.conservation_summary.ConservationSummary.run.html#polaris.tasks.ocean.single_column.thermo.conservation_summary.ConservationSummary.run">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">"""</span>
-<span class="sd">        Write a log file listing the conservation error for each forward step</span>
-<span class="sd">        """</span>
-        <span class="n">lines</span> <span class="o">=</span> <span class="p">[</span>
-            <span class="s1">'Conservation errors for each thermo forward step'</span><span class="p">,</span>
-            <span class="s1">''</span><span class="p">,</span>
-            <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="s2">"forward step"</span><span class="si">:</span><span class="s1">&lt;40s</span><span class="si">}{</span><span class="s2">"budget interval"</span><span class="si">:</span><span class="s1">&lt;32s</span><span class="si">}</span><span class="s1">'</span>
-            <span class="o">+</span> <span class="s1">''</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">budget</span><span class="si">}</span><span class="s2"> error"</span><span class="si">:</span><span class="s1">&lt;16s</span><span class="si">}</span><span class="s1">'</span> <span class="k">for</span> <span class="n">budget</span> <span class="ow">in</span> <span class="n">BUDGETS</span><span class="p">),</span>
-        <span class="p">]</span>
-        <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">path</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">forward_steps</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-            <span class="n">filename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">base_work_dir</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="s1">'property_check_results.json'</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">add_from_package</span><span class="p">(</span>
+            <span class="s1">'polaris.tasks.ocean.single_column.frazil'</span><span class="p">,</span> <span class="s1">'frazil.cfg'</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">add_from_package</span><span class="p">(</span>
+            <span class="s1">'polaris.tasks.ocean.single_column.frazil.one_layer'</span><span class="p">,</span>
+            <span class="s1">'one_layer.cfg'</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="k">if</span> <span class="n">variant_cfg</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">add_from_package</span><span class="p">(</span>
+                <span class="s1">'polaris.tasks.ocean.single_column.frazil.one_layer'</span><span class="p">,</span>
+                <span class="n">variant_cfg</span><span class="p">,</span>
             <span class="p">)</span>
-            <span class="n">errors</span> <span class="o">=</span> <span class="n">_read_errors</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
-            <span class="k">if</span> <span class="ow">not</span> <span class="n">errors</span><span class="p">:</span>
-                <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">name</span><span class="si">:</span><span class="s1">&lt;40s</span><span class="si">}{</span><span class="s2">"no results found"</span><span class="si">:</span><span class="s1">&lt;32s</span><span class="si">}</span><span class="s1">'</span><span class="p">)</span>
-                <span class="k">continue</span>
-            <span class="k">for</span> <span class="n">interval</span><span class="p">,</span> <span class="n">budget_errors</span> <span class="ow">in</span> <span class="n">errors</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-                <span class="n">error_strs</span> <span class="o">=</span> <span class="p">[]</span>
-                <span class="k">for</span> <span class="n">budget</span> <span class="ow">in</span> <span class="n">BUDGETS</span><span class="p">:</span>
-                    <span class="n">error</span> <span class="o">=</span> <span class="n">budget_errors</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">budget</span><span class="p">)</span>
-                    <span class="k">if</span> <span class="n">error</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-                        <span class="n">error_strs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="s2">"n/a"</span><span class="si">:</span><span class="s1">&lt;16s</span><span class="si">}</span><span class="s1">'</span><span class="p">)</span>
-                    <span class="k">else</span><span class="p">:</span>
-                        <span class="n">error_strs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">error</span><span class="si">:</span><span class="s1">&lt;16.6e</span><span class="si">}</span><span class="s1">'</span><span class="p">)</span>
-                <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-                    <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">name</span><span class="si">:</span><span class="s1">&lt;40s</span><span class="si">}{</span><span class="n">interval</span><span class="si">:</span><span class="s1">&lt;32s</span><span class="si">}</span><span class="s1">'</span> <span class="o">+</span> <span class="s1">''</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">error_strs</span><span class="p">)</span>
+        <span class="n">init_step</span> <span class="o">=</span> <span class="n">FrazilInit</span><span class="p">(</span>
+            <span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span>
+            <span class="n">subdir</span><span class="o">=</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">subdir</span><span class="si">}</span><span class="s1">/init'</span><span class="p">,</span>
+            <span class="n">case</span><span class="o">=</span><span class="s1">'freezing'</span><span class="p">,</span>
+            <span class="n">at_freezing</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_step</span><span class="p">(</span><span class="n">init_step</span><span class="p">)</span>
+
+        <span class="n">section</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s1">'single_column'</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">section</span><span class="o">.</span><span class="n">has_option</span><span class="p">(</span><span class="s1">'run_duration_steps'</span><span class="p">):</span>
+            <span class="n">run_duration_steps</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getint</span><span class="p">(</span><span class="s1">'run_duration_steps'</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">time_step</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">'time_step'</span><span class="p">)</span>
+            <span class="n">run_duration_steps</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="nb">round</span><span class="p">(</span><span class="mf">86400.0</span> <span class="o">/</span> <span class="n">time_step</span><span class="p">))</span>
+            <span class="k">if</span> <span class="n">run_duration_steps</span> <span class="o">*</span> <span class="n">time_step</span> <span class="o">!=</span> <span class="mf">86400.0</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="s1">'The frazil top-layer run must contain an integer '</span>
+                    <span class="s1">'number of time steps in one day'</span>
                 <span class="p">)</span>
 
-        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s1">'conservation_summary.log'</span><span class="p">,</span> <span class="s1">'w'</span><span class="p">)</span> <span class="k">as</span> <span class="n">handle</span><span class="p">:</span>
-            <span class="n">handle</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">'</span><span class="se">\n</span><span class="s1">'</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">lines</span><span class="p">)</span> <span class="o">+</span> <span class="s1">'</span><span class="se">\n</span><span class="s1">'</span><span class="p">)</span>
+        <span class="n">validate_vars</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="s1">'temperature'</span><span class="p">,</span>
+            <span class="s1">'salinity'</span><span class="p">,</span>
+            <span class="s1">'layerThickness'</span><span class="p">,</span>
+            <span class="s1">'normalVelocity'</span><span class="p">,</span>
+        <span class="p">]</span>
+        <span class="n">comparisons</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+        <span class="n">forward_steps</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_frazil_type_steps</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">time_integrator</span> <span class="ow">in</span> <span class="n">TIME_INTEGRATORS</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">frazil_type</span> <span class="ow">in</span> <span class="p">(</span><span class="s1">'FixedProperty'</span><span class="p">,</span> <span class="s1">'teos'</span><span class="p">):</span>
+                <span class="n">forward_step</span> <span class="o">=</span> <span class="n">Forward</span><span class="p">(</span>
+                    <span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span>
+                    <span class="n">init</span><span class="o">=</span><span class="n">init_step</span><span class="p">,</span>
+                    <span class="n">indir</span><span class="o">=</span><span class="n">subdir</span><span class="p">,</span>
+                    <span class="n">name</span><span class="o">=</span><span class="sa">f</span><span class="s1">'forward_</span><span class="si">{</span><span class="n">frazil_type</span><span class="si">}</span><span class="s1">'</span><span class="p">,</span>
+                    <span class="n">ntasks</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+                    <span class="n">min_tasks</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+                    <span class="n">openmp_threads</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+                    <span class="n">validate_vars</span><span class="o">=</span><span class="n">validate_vars</span><span class="p">,</span>
+                    <span class="n">task_name</span><span class="o">=</span><span class="s1">'frazil_one_layer'</span><span class="p">,</span>
+                    <span class="n">task_package</span><span class="o">=</span><span class="p">(</span>
+                        <span class="s1">'polaris.tasks.ocean.single_column.frazil.one_layer'</span>
+                    <span class="p">),</span>
+                    <span class="n">frazil_type</span><span class="o">=</span><span class="n">frazil_type</span><span class="p">,</span>
+                    <span class="n">run_duration_steps</span><span class="o">=</span><span class="n">run_duration_steps</span><span class="p">,</span>
+                    <span class="n">frazil_conservation</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                    <span class="n">time_integrator</span><span class="o">=</span><span class="n">time_integrator</span><span class="p">,</span>
+                <span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">add_step</span><span class="p">(</span><span class="n">forward_step</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_frazil_type_steps</span><span class="p">[</span><span class="n">time_integrator</span><span class="p">,</span> <span class="n">frazil_type</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+                    <span class="n">forward_step</span>
+                <span class="p">)</span>
+                <span class="n">comparisons</span><span class="p">[</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">time_integrator</span><span class="si">}</span><span class="s1"> </span><span class="si">{</span><span class="n">frazil_type</span><span class="si">}</span><span class="s1">'</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+                    <span class="sa">f</span><span class="s1">'../</span><span class="si">{</span><span class="n">forward_step</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s1">'</span>
+                <span class="p">)</span>
+                <span class="n">forward_steps</span><span class="p">[</span><span class="n">forward_step</span><span class="o">.</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">forward_step</span><span class="o">.</span><span class="n">path</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">conservation_summary</span> <span class="o">=</span> <span class="n">ConservationSummary</span><span class="p">(</span>
+            <span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span>
+            <span class="n">indir</span><span class="o">=</span><span class="n">subdir</span><span class="p">,</span>
+            <span class="n">forward_steps</span><span class="o">=</span><span class="n">forward_steps</span><span class="p">,</span>
+            <span class="n">frazil_diagnostics</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_step</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">conservation_summary</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">viz</span> <span class="o">=</span> <span class="n">OneLayerViz</span><span class="p">(</span>
+            <span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span>
+            <span class="n">indir</span><span class="o">=</span><span class="n">subdir</span><span class="p">,</span>
+            <span class="n">init</span><span class="o">=</span><span class="n">init_step</span><span class="p">,</span>
+            <span class="n">comparisons</span><span class="o">=</span><span class="n">comparisons</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_step</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">viz</span><span class="p">,</span> <span class="n">run_by_default</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span></div>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">'</span><span class="se">\n</span><span class="s1">'</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">lines</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="FrazilOneLayer.configure">
+<a class="viewcode-back" href="../../../../../../developers_guide/ocean/generated/polaris.tasks.ocean.single_column.frazil.one_layer.FrazilOneLayer.configure.html#polaris.tasks.ocean.single_column.frazil.one_layer.FrazilOneLayer.configure">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">configure</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">        Keep the original RK4 FixedProperty case for MPAS-Ocean.</span>
+<span class="sd">        """</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'ocean'</span><span class="p">,</span> <span class="s1">'model'</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">model</span> <span class="o">!=</span> <span class="s1">'mpas-ocean'</span><span class="p">:</span>
+            <span class="k">return</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">add_from_package</span><span class="p">(</span><span class="s1">'polaris.ocean.eos'</span><span class="p">,</span> <span class="s1">'linear.cfg'</span><span class="p">)</span>
+        <span class="k">for</span> <span class="p">(</span><span class="n">time_integrator</span><span class="p">,</span> <span class="n">frazil_type</span><span class="p">),</span> <span class="n">step</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_frazil_type_steps</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+        <span class="p">):</span>
+            <span class="k">if</span> <span class="p">(</span><span class="n">time_integrator</span><span class="p">,</span> <span class="n">frazil_type</span><span class="p">)</span> <span class="o">==</span> <span class="p">(</span><span class="s1">'RK4'</span><span class="p">,</span> <span class="s1">'FixedProperty'</span><span class="p">):</span>
+                <span class="k">continue</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">remove_step</span><span class="p">(</span><span class="n">step</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">conservation_summary</span><span class="o">.</span><span class="n">forward_steps</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">step</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">viz</span><span class="o">.</span><span class="n">comparisons</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">time_integrator</span><span class="si">}</span><span class="s1"> </span><span class="si">{</span><span class="n">frazil_type</span><span class="si">}</span><span class="s1">'</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+            <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">_frazil_type_steps</span><span class="p">[</span><span class="n">time_integrator</span><span class="p">,</span> <span class="n">frazil_type</span><span class="p">]</span></div>
 </div>
 
-
-
-<span class="k">def</span><span class="w"> </span><span class="nf">_read_errors</span><span class="p">(</span><span class="n">filename</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">"""</span>
-<span class="sd">    Read the relative error for each budget and each conservation interval</span>
-<span class="sd">    from a step's ``property_check_results.json``</span>
-
-<span class="sd">    Parameters</span>
-<span class="sd">    ----------</span>
-<span class="sd">    filename : str</span>
-<span class="sd">        The path to the results file</span>
-
-<span class="sd">    Returns</span>
-<span class="sd">    -------</span>
-<span class="sd">    errors : dict of dict</span>
-<span class="sd">        A mapping from a string describing the conservation interval to a</span>
-<span class="sd">        mapping from budget name to relative error</span>
-<span class="sd">    """</span>
-    <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">filename</span><span class="p">):</span>
-        <span class="k">return</span> <span class="p">{}</span>
-
-    <span class="k">try</span><span class="p">:</span>
-        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span> <span class="k">as</span> <span class="n">handle</span><span class="p">:</span>
-            <span class="n">results</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">handle</span><span class="p">)</span>
-    <span class="k">except</span> <span class="n">json</span><span class="o">.</span><span class="n">JSONDecodeError</span><span class="p">:</span>
-        <span class="c1"># the file is incomplete or corrupt, likely because the forward step</span>
-        <span class="c1"># was interrupted while writing it</span>
-        <span class="k">return</span> <span class="p">{}</span>
-
-    <span class="n">errors</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="p">{}</span>
-    <span class="k">for</span> <span class="n">result</span> <span class="ow">in</span> <span class="n">results</span><span class="p">:</span>
-        <span class="n">interval</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">result</span><span class="p">[</span><span class="s2">"baseline"</span><span class="p">]</span><span class="si">}</span><span class="s1"> to </span><span class="si">{</span><span class="n">result</span><span class="p">[</span><span class="s2">"time_index_end"</span><span class="p">]</span><span class="si">}</span><span class="s1">'</span>
-        <span class="n">errors</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="n">interval</span><span class="p">,</span> <span class="p">{})</span>
-        <span class="n">errors</span><span class="p">[</span><span class="n">interval</span><span class="p">][</span><span class="n">result</span><span class="p">[</span><span class="s1">'property'</span><span class="p">]]</span> <span class="o">=</span> <span class="n">result</span><span class="p">[</span><span class="s1">'relative_error'</span><span class="p">]</span>
-    <span class="k">return</span> <span class="n">errors</span>
 </pre></div>
 
            </div>

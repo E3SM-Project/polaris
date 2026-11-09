@@ -6,7 +6,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>polaris.tasks.ocean.single_column.thermo.conservation_summary.ConservationSummary</title>
+  <title>polaris.tasks.ocean.single_column.conservation_summary.ConservationSummary</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
 
@@ -19,8 +19,8 @@
     <script src="../../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
-    <link rel="next" title="polaris.tasks.ocean.single_column.thermo.conservation_summary.ConservationSummary.run" href="polaris.tasks.ocean.single_column.thermo.conservation_summary.ConservationSummary.run.html" />
-    <link rel="prev" title="polaris.tasks.ocean.single_column.thermo.Thermo" href="polaris.tasks.ocean.single_column.thermo.Thermo.html" />
+    <link rel="next" title="polaris.tasks.ocean.single_column.conservation_summary.ConservationSummary.run" href="polaris.tasks.ocean.single_column.conservation_summary.ConservationSummary.run.html" />
+    <link rel="prev" title="polaris.tasks.ocean.single_column.init.Init.run" href="polaris.tasks.ocean.single_column.init.Init.run.html" />
     <link href="../../../_static/style.css" rel="stylesheet" type="text/css">
 
 </head>
@@ -129,9 +129,9 @@
       <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
           <li class="breadcrumb-item"><a href="../../api.html">API reference</a></li>
           <li class="breadcrumb-item"><a href="../api.html">ocean</a></li>
-      <li class="breadcrumb-item active">polaris.tasks.ocean.single_column.thermo.conservation_summary.ConservationSummary</li>
+      <li class="breadcrumb-item active">polaris.tasks.ocean.single_column.conservation_summary.ConservationSummary</li>
       <li class="wy-breadcrumbs-aside">
-            <a href="../../../_sources/developers_guide/ocean/generated/polaris.tasks.ocean.single_column.thermo.conservation_summary.ConservationSummary.rst.txt" rel="nofollow"> View page source</a>
+            <a href="../../../_sources/developers_guide/ocean/generated/polaris.tasks.ocean.single_column.conservation_summary.ConservationSummary.rst.txt" rel="nofollow"> View page source</a>
       </li>
   </ul>
   <hr/>
@@ -139,12 +139,12 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="polaris-tasks-ocean-single-column-thermo-conservation-summary-conservationsummary">
-<h1>polaris.tasks.ocean.single_column.thermo.conservation_summary.ConservationSummary<a class="headerlink" href="#polaris-tasks-ocean-single-column-thermo-conservation-summary-conservationsummary" title="Link to this heading"></a></h1>
+  <section id="polaris-tasks-ocean-single-column-conservation-summary-conservationsummary">
+<h1>polaris.tasks.ocean.single_column.conservation_summary.ConservationSummary<a class="headerlink" href="#polaris-tasks-ocean-single-column-conservation-summary-conservationsummary" title="Link to this heading"></a></h1>
 <dl class="py class">
-<dt class="sig sig-object py" id="polaris.tasks.ocean.single_column.thermo.conservation_summary.ConservationSummary">
-<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">polaris.tasks.ocean.single_column.thermo.conservation_summary.</span></span><span class="sig-name descname"><span class="pre">ConservationSummary</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">component</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">indir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">forward_steps</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/polaris/tasks/ocean/single_column/thermo/conservation_summary.html#ConservationSummary"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#polaris.tasks.ocean.single_column.thermo.conservation_summary.ConservationSummary" title="Link to this definition"></a></dt>
-<dd><p>A step that gathers the conservation errors from each of the <code class="docutils literal notranslate"><span class="pre">thermo</span></code>
+<dt class="sig sig-object py" id="polaris.tasks.ocean.single_column.conservation_summary.ConservationSummary">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">polaris.tasks.ocean.single_column.conservation_summary.</span></span><span class="sig-name descname"><span class="pre">ConservationSummary</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">component</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">indir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">forward_steps</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frazil_diagnostics</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/polaris/tasks/ocean/single_column/conservation_summary.html#ConservationSummary"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#polaris.tasks.ocean.single_column.conservation_summary.ConservationSummary" title="Link to this definition"></a></dt>
+<dd><p>A step that gathers the conservation errors from each of a task’s
 forward steps into a single log file listing the forward step name and
 the mass, salt and energy errors.</p>
 <dl class="field-list simple">
@@ -154,8 +154,8 @@ directory relative to the base work directory</p>
 </dd>
 </dl>
 <dl class="py method">
-<dt class="sig sig-object py" id="polaris.tasks.ocean.single_column.thermo.conservation_summary.ConservationSummary.__init__">
-<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">component</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">indir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">forward_steps</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/polaris/tasks/ocean/single_column/thermo/conservation_summary.html#ConservationSummary.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#polaris.tasks.ocean.single_column.thermo.conservation_summary.ConservationSummary.__init__" title="Link to this definition"></a></dt>
+<dt class="sig sig-object py" id="polaris.tasks.ocean.single_column.conservation_summary.ConservationSummary.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">component</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">indir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">forward_steps</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frazil_diagnostics</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/polaris/tasks/ocean/single_column/conservation_summary.html#ConservationSummary.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#polaris.tasks.ocean.single_column.conservation_summary.ConservationSummary.__init__" title="Link to this definition"></a></dt>
 <dd><p>Create the step</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -173,7 +173,7 @@ directory relative to the base work directory</p></li>
 <p class="rubric">Methods</p>
 <table class="autosummary longtable docutils align-default">
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#polaris.tasks.ocean.single_column.thermo.conservation_summary.ConservationSummary.__init__" title="polaris.tasks.ocean.single_column.thermo.conservation_summary.ConservationSummary.__init__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code></a>(component, indir, forward_steps)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#polaris.tasks.ocean.single_column.conservation_summary.ConservationSummary.__init__" title="polaris.tasks.ocean.single_column.conservation_summary.ConservationSummary.__init__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code></a>(component, indir, forward_steps[, ...])</p></td>
 <td><p>Create the step</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_cf_check</span></code>([filename])</p></td>
@@ -203,7 +203,7 @@ directory relative to the base work directory</p></li>
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">process_inputs_and_outputs</span></code>()</p></td>
 <td><p>Process the inputs to and outputs from a step added with <a class="reference internal" href="../../generated/polaris.Step.add_input_file.html#polaris.Step.add_input_file" title="polaris.Step.add_input_file"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.Step.add_input_file()</span></code></a> and <a class="reference internal" href="../../generated/polaris.Step.add_output_file.html#polaris.Step.add_output_file" title="polaris.Step.add_output_file"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.Step.add_output_file()</span></code></a>.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="polaris.tasks.ocean.single_column.thermo.conservation_summary.ConservationSummary.run.html#polaris.tasks.ocean.single_column.thermo.conservation_summary.ConservationSummary.run" title="polaris.tasks.ocean.single_column.thermo.conservation_summary.ConservationSummary.run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">run</span></code></a>()</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="polaris.tasks.ocean.single_column.conservation_summary.ConservationSummary.run.html#polaris.tasks.ocean.single_column.conservation_summary.ConservationSummary.run" title="polaris.tasks.ocean.single_column.conservation_summary.ConservationSummary.run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">run</span></code></a>()</p></td>
 <td><p>Write a log file listing the conservation error for each forward step</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">runtime_setup</span></code>()</p></td>
@@ -254,8 +254,8 @@ directory relative to the base work directory</p></li>
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="polaris.tasks.ocean.single_column.thermo.Thermo.html" class="btn btn-neutral float-left" title="polaris.tasks.ocean.single_column.thermo.Thermo" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="polaris.tasks.ocean.single_column.thermo.conservation_summary.ConservationSummary.run.html" class="btn btn-neutral float-right" title="polaris.tasks.ocean.single_column.thermo.conservation_summary.ConservationSummary.run" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="polaris.tasks.ocean.single_column.init.Init.run.html" class="btn btn-neutral float-left" title="polaris.tasks.ocean.single_column.init.Init.run" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="polaris.tasks.ocean.single_column.conservation_summary.ConservationSummary.run.html" class="btn btn-neutral float-right" title="polaris.tasks.ocean.single_column.conservation_summary.ConservationSummary.run" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>

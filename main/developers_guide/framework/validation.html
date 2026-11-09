@@ -374,7 +374,11 @@ As an example:</p>
 <section id="conservation-checks">
 <h2>Conservation checks<a class="headerlink" href="#conservation-checks" title="Link to this heading"></a></h2>
 <p>Mass, salt, tracer and energy conservation checks are available for ocean
-model output.  A check fails if the relative error in the budget exceeds the
+model output. Energy changes are integrated from local changes in
+thickness and temperature using extended precision, rather than subtracting
+rounded global heat contents. This retains small nonzero residuals in the
+logged errors and <code class="docutils literal notranslate"><span class="pre">property_check_results.json</span></code>.</p>
+<p>A check fails if the relative error in the budget exceeds the
 tolerance given in <code class="docutils literal notranslate"><span class="pre">polaris/ocean/ocean.cfg</span></code>:</p>
 <div class="highlight-cfg notranslate"><div class="highlight"><pre><span></span><span class="c1"># Options related the ocean component</span>
 <span class="k">[ocean]</span>

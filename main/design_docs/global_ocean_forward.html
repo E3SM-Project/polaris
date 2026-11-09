@@ -803,7 +803,9 @@ del2/del4 options for momentum and tracers and the biharmonic divergence factor,
 <code class="docutils literal notranslate"><span class="pre">vert_mixing_options</span></code> the neutral KPP switch, <code class="docutils literal notranslate"><span class="pre">submesoscale_options</span></code> the neutral
 submesoscale switch, and <code class="docutils literal notranslate"><span class="pre">mpaso_physics_options</span></code> the MPAS-Ocean-only options —
 the Leith closure, horizontal-mixing scaling, Gent-McWilliams, Redi, the
-pressure-gradient formulation and frazil ice. <code class="docutils literal notranslate"><span class="pre">Forward.dynamic_model_config</span></code>
+pressure-gradient formulation. Frazil ice is shared through the neutral
+<code class="docutils literal notranslate"><span class="pre">forward.yaml</span></code> section using <code class="docutils literal notranslate"><span class="pre">use_frazil_ice_formation</span></code>.
+<code class="docutils literal notranslate"><span class="pre">Forward.dynamic_model_config</span></code>
 adds the first three with <code class="docutils literal notranslate"><span class="pre">config_model='ocean'</span></code>, so
 <code class="docutils literal notranslate"><span class="pre">OceanModelStep.map_yaml_options</span></code> translates them for Omega, and the fourth
 with <code class="docutils literal notranslate"><span class="pre">config_model='mpas-ocean'</span></code>. KPP and the submesoscale parameterization

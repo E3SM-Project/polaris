@@ -1,0 +1,71 @@
+﻿polaris.tasks.ocean.single\_column.frazil.one\_layer.viz.OneLayerViz
+====================================================================
+
+.. currentmodule:: polaris.tasks.ocean.single_column.frazil.one_layer.viz
+
+.. autoclass:: OneLayerViz
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~OneLayerViz.__init__
+      ~OneLayerViz.add_cf_check
+      ~OneLayerViz.add_dependency
+      ~OneLayerViz.add_forcing_input_file
+      ~OneLayerViz.add_horiz_mesh_input_file
+      ~OneLayerViz.add_init_input_file
+      ~OneLayerViz.add_input_file
+      ~OneLayerViz.add_output_file
+      ~OneLayerViz.add_output_files_for_ocean_model_input
+      ~OneLayerViz.add_produced_file
+      ~OneLayerViz.add_property_check
+      ~OneLayerViz.add_vert_coord_input_file
+      ~OneLayerViz.check_cf
+      ~OneLayerViz.check_properties
+      ~OneLayerViz.constrain_resources
+      ~OneLayerViz.get_forcing_filename
+      ~OneLayerViz.get_horiz_mesh_filename
+      ~OneLayerViz.get_init_filename
+      ~OneLayerViz.get_vert_coord_filename
+      ~OneLayerViz.map_from_native_model_vars
+      ~OneLayerViz.map_to_native_model_vars
+      ~OneLayerViz.open_model_dataset
+      ~OneLayerViz.open_vert_coord_dataset
+      ~OneLayerViz.process_inputs_and_outputs
+      ~OneLayerViz.run
+      ~OneLayerViz.runtime_setup
+      ~OneLayerViz.set_resources
+      ~OneLayerViz.set_shared_config
+      ~OneLayerViz.setup
+      ~OneLayerViz.validate_baselines
+      ~OneLayerViz.work_path
+      ~OneLayerViz.write_forcing_dataset
+      ~OneLayerViz.write_horiz_mesh_dataset
+      ~OneLayerViz.write_initial_state_dataset
+      ~OneLayerViz.write_model_dataset
+      ~OneLayerViz.write_vert_coord_dataset
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~OneLayerViz.cores
+      ~OneLayerViz.gpus
+      ~OneLayerViz.may_span_nodes
+      ~OneLayerViz.min_cores
+      ~OneLayerViz.min_gpus
+      ~OneLayerViz.component
+      ~OneLayerViz.config
+      ~OneLayerViz.input_data
+      ~OneLayerViz.logger
+   
+   

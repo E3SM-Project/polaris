@@ -1,7 +1,7 @@
-﻿polaris.tasks.ocean.single\_column.thermo.conservation\_summary.ConservationSummary
-===================================================================================
+﻿polaris.tasks.ocean.single\_column.conservation\_summary.ConservationSummary
+============================================================================
 
-.. currentmodule:: polaris.tasks.ocean.single_column.thermo.conservation_summary
+.. currentmodule:: polaris.tasks.ocean.single_column.conservation_summary
 
 .. autoclass:: ConservationSummary
 

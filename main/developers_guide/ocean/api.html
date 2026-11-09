@@ -932,6 +932,65 @@
 </tbody>
 </table>
 </section>
+<section id="frazil">
+<h3>frazil<a class="headerlink" href="#frazil" title="Link to this heading"></a></h3>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.single_column.frazil.Frazil.html#polaris.tasks.ocean.single_column.frazil.Frazil" title="polaris.tasks.ocean.single_column.frazil.Frazil"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Frazil</span></code></a>(component, subdir, case[, depth_limit])</p></td>
+<td><p>A single-column frazil test case that creates the mesh and initial condition for a given melting/freezing case, then performs a forward run for each frazil algorithm (<code class="docutils literal notranslate"><span class="pre">'FixedProperty'</span></code> and <code class="docutils literal notranslate"><span class="pre">'teos'</span></code>).</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.single_column.frazil.Frazil.configure.html#polaris.tasks.ocean.single_column.frazil.Frazil.configure" title="polaris.tasks.ocean.single_column.frazil.Frazil.configure"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Frazil.configure</span></code></a>()</p></td>
+<td><p>Remove the <code class="docutils literal notranslate"><span class="pre">teos</span></code> forward step, and the corresponding entries in the conservation summary and viz comparisons, if the ocean model is MPAS-Ocean, which only supports the <code class="docutils literal notranslate"><span class="pre">'FixedProperty'</span></code> algorithm</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.single_column.frazil.MeltingAnalysis.html#polaris.tasks.ocean.single_column.frazil.MeltingAnalysis" title="polaris.tasks.ocean.single_column.frazil.MeltingAnalysis"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MeltingAnalysis</span></code></a>(component, indir, init, ...)</p></td>
+<td><p>Check bottom-layer relaxation or frazil depth-limit enforcement.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.single_column.frazil.MeltingAnalysis.run.html#polaris.tasks.ocean.single_column.frazil.MeltingAnalysis.run" title="polaris.tasks.ocean.single_column.frazil.MeltingAnalysis.run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MeltingAnalysis.run</span></code></a>()</p></td>
+<td><p>Check isolated frazil warming or bottom-layer relaxation.</p></td>
+</tr>
+</tbody>
+</table>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.single_column.frazil.init.FrazilInit.html#polaris.tasks.ocean.single_column.frazil.init.FrazilInit" title="polaris.tasks.ocean.single_column.frazil.init.FrazilInit"><code class="xref py py-obj docutils literal notranslate"><span class="pre">frazil.init.FrazilInit</span></code></a>(component, subdir, case)</p></td>
+<td><p>A step for creating the mesh and initial condition for single-column frazil test cases</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.single_column.frazil.init.FrazilInit._compute_temperature_salinity.html#polaris.tasks.ocean.single_column.frazil.init.FrazilInit._compute_temperature_salinity" title="polaris.tasks.ocean.single_column.frazil.init.FrazilInit._compute_temperature_salinity"><code class="xref py py-obj docutils literal notranslate"><span class="pre">frazil.init.FrazilInit._compute_temperature_salinity</span></code></a>(...)</p></td>
+<td><p>Compute the melting or freezing initial temperature and salinity profiles.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.single_column.frazil.one_layer.FrazilOneLayer.html#polaris.tasks.ocean.single_column.frazil.one_layer.FrazilOneLayer" title="polaris.tasks.ocean.single_column.frazil.one_layer.FrazilOneLayer"><code class="xref py py-obj docutils literal notranslate"><span class="pre">frazil.one_layer.FrazilOneLayer</span></code></a>(component, ...)</p></td>
+<td><p>A single-layer single-column frazil test initialized at the local freezing point.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.single_column.frazil.one_layer.FrazilOneLayer.configure.html#polaris.tasks.ocean.single_column.frazil.one_layer.FrazilOneLayer.configure" title="polaris.tasks.ocean.single_column.frazil.one_layer.FrazilOneLayer.configure"><code class="xref py py-obj docutils literal notranslate"><span class="pre">frazil.one_layer.FrazilOneLayer.configure</span></code></a>()</p></td>
+<td><p>Keep the original RK4 FixedProperty case for MPAS-Ocean.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.single_column.frazil.one_layer.viz.OneLayerViz.html#polaris.tasks.ocean.single_column.frazil.one_layer.viz.OneLayerViz" title="polaris.tasks.ocean.single_column.frazil.one_layer.viz.OneLayerViz"><code class="xref py py-obj docutils literal notranslate"><span class="pre">frazil.one_layer.viz.OneLayerViz</span></code></a>(component, ...)</p></td>
+<td><p>A step for plotting the heat content of the top layer as a function of time for each of the frazil one-layer forward runs</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.single_column.frazil.one_layer.viz.OneLayerViz.run.html#polaris.tasks.ocean.single_column.frazil.one_layer.viz.OneLayerViz.run" title="polaris.tasks.ocean.single_column.frazil.one_layer.viz.OneLayerViz.run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">frazil.one_layer.viz.OneLayerViz.run</span></code></a>()</p></td>
+<td><p>Plot top-layer evolution, frazil fluxes, and budget residuals.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.single_column.frazil.melting_short.FrazilMeltingShort.html#polaris.tasks.ocean.single_column.frazil.melting_short.FrazilMeltingShort" title="polaris.tasks.ocean.single_column.frazil.melting_short.FrazilMeltingShort"><code class="xref py py-obj docutils literal notranslate"><span class="pre">frazil.melting_short.FrazilMeltingShort</span></code></a>(...)</p></td>
+<td><p>A two-layer single-column frazil test with a warm top layer over a supercooled bottom layer and no surface forcing.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.single_column.frazil.melting_short.FrazilMeltingShort.configure.html#polaris.tasks.ocean.single_column.frazil.melting_short.FrazilMeltingShort.configure" title="polaris.tasks.ocean.single_column.frazil.melting_short.FrazilMeltingShort.configure"><code class="xref py py-obj docutils literal notranslate"><span class="pre">frazil.melting_short.FrazilMeltingShort.configure</span></code></a>()</p></td>
+<td><p>Keep only the RK4 <code class="docutils literal notranslate"><span class="pre">'FixedProperty'</span></code> forward step if the ocean model is MPAS-Ocean, which supports neither the other time integrators nor the <code class="docutils literal notranslate"><span class="pre">'teos'</span></code> algorithm</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.single_column.frazil.melting_short.viz.MeltingShortViz.html#polaris.tasks.ocean.single_column.frazil.melting_short.viz.MeltingShortViz" title="polaris.tasks.ocean.single_column.frazil.melting_short.viz.MeltingShortViz"><code class="xref py py-obj docutils literal notranslate"><span class="pre">frazil.melting_short.viz.MeltingShortViz</span></code></a>(...)</p></td>
+<td><p>A step for plotting the evolution of both layers of the melting_short forward runs, along with the frazil fluxes and conservation residuals</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.single_column.frazil.melting_short.viz.MeltingShortViz.run.html#polaris.tasks.ocean.single_column.frazil.melting_short.viz.MeltingShortViz.run" title="polaris.tasks.ocean.single_column.frazil.melting_short.viz.MeltingShortViz.run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">frazil.melting_short.viz.MeltingShortViz.run</span></code></a>()</p></td>
+<td><p>Plot the two-layer evolution, frazil fluxes, and budget residuals.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.single_column.forward.Forward.html#polaris.tasks.ocean.single_column.forward.Forward" title="polaris.tasks.ocean.single_column.forward.Forward"><code class="xref py py-obj docutils literal notranslate"><span class="pre">forward.Forward</span></code></a>(component, init[, name, ...])</p></td>
+<td><p>A step for performing forward ocean component runs as part of single_column test cases.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.single_column.forward.Forward.dynamic_model_config.html#polaris.tasks.ocean.single_column.forward.Forward.dynamic_model_config" title="polaris.tasks.ocean.single_column.forward.Forward.dynamic_model_config"><code class="xref py py-obj docutils literal notranslate"><span class="pre">forward.Forward.dynamic_model_config</span></code></a>(at_setup)</p></td>
+<td><p>Add model config options, namelist, streams and yaml files using config options or template replacements that need to be set both during step setup and at runtime</p></td>
+</tr>
+</tbody>
+</table>
+</section>
 <section id="inertial-gravity-wave">
 <h3>inertial_gravity_wave<a class="headerlink" href="#inertial-gravity-wave" title="Link to this heading"></a></h3>
 <table class="autosummary longtable docutils align-default">
@@ -1897,14 +1956,14 @@
 <tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.single_column.init.Init.run.html#polaris.tasks.ocean.single_column.init.Init.run" title="polaris.tasks.ocean.single_column.init.Init.run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">init.Init.run</span></code></a>()</p></td>
 <td><p>Run this step of the test case</p></td>
 </tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.single_column.conservation_summary.ConservationSummary.html#polaris.tasks.ocean.single_column.conservation_summary.ConservationSummary" title="polaris.tasks.ocean.single_column.conservation_summary.ConservationSummary"><code class="xref py py-obj docutils literal notranslate"><span class="pre">conservation_summary.ConservationSummary</span></code></a>(...)</p></td>
+<td><p>A step that gathers the conservation errors from each of a task's forward steps into a single log file listing the forward step name and the mass, salt and energy errors.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.single_column.conservation_summary.ConservationSummary.run.html#polaris.tasks.ocean.single_column.conservation_summary.ConservationSummary.run" title="polaris.tasks.ocean.single_column.conservation_summary.ConservationSummary.run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">conservation_summary.ConservationSummary.run</span></code></a>()</p></td>
+<td><p>Write a log file listing the conservation error for each forward step</p></td>
+</tr>
 <tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.single_column.thermo.Thermo.html#polaris.tasks.ocean.single_column.thermo.Thermo" title="polaris.tasks.ocean.single_column.thermo.Thermo"><code class="xref py py-obj docutils literal notranslate"><span class="pre">thermo.Thermo</span></code></a>(component, indir)</p></td>
 <td><p>The Thermo single-column test case creates the mesh and initial condition, then performs several short forward runs corresponding to each supported surface thermodynamic forcing variable.</p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.single_column.thermo.conservation_summary.ConservationSummary.html#polaris.tasks.ocean.single_column.thermo.conservation_summary.ConservationSummary" title="polaris.tasks.ocean.single_column.thermo.conservation_summary.ConservationSummary"><code class="xref py py-obj docutils literal notranslate"><span class="pre">thermo.conservation_summary.ConservationSummary</span></code></a>(...)</p></td>
-<td><p>A step that gathers the conservation errors from each of the <code class="docutils literal notranslate"><span class="pre">thermo</span></code> forward steps into a single log file listing the forward step name and the mass, salt and energy errors.</p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.single_column.thermo.conservation_summary.ConservationSummary.run.html#polaris.tasks.ocean.single_column.thermo.conservation_summary.ConservationSummary.run" title="polaris.tasks.ocean.single_column.thermo.conservation_summary.ConservationSummary.run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">thermo.conservation_summary.ConservationSummary.run</span></code></a>()</p></td>
-<td><p>Write a log file listing the conservation error for each forward step</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.single_column.thermo.analysis.Analysis.html#polaris.tasks.ocean.single_column.thermo.analysis.Analysis" title="polaris.tasks.ocean.single_column.thermo.analysis.Analysis"><code class="xref py py-obj docutils literal notranslate"><span class="pre">thermo.analysis.Analysis</span></code></a>(component, indir, ...)</p></td>
 <td><p>A step that verifies conservation of mass, heat and salt for each of the <code class="docutils literal notranslate"><span class="pre">thermo</span></code> forward runs.</p></td>

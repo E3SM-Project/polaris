@@ -913,6 +913,9 @@ window.runMermaid = runMermaid;</script>
             <span class="n">time_integrator</span><span class="o">=</span><span class="n">time_integrator</span><span class="p">,</span>
             <span class="n">start_time</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">start_time</span><span class="p">,</span>
             <span class="n">do_restart</span><span class="o">=</span><span class="s1">'true'</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">do_restart</span> <span class="k">else</span> <span class="s1">'false'</span><span class="p">,</span>
+            <span class="n">use_frazil_ice_formation</span><span class="o">=</span><span class="p">(</span>
+                <span class="s1">'true'</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">use_frazil_ice_formation</span> <span class="k">else</span> <span class="s1">'false'</span>
+            <span class="p">),</span>
             <span class="c1"># a real bool, not the 'true'/'false' strings above: this one is</span>
             <span class="c1"># tested by a jinja {% if %} rather than substituted into the</span>
             <span class="c1"># text, and jinja counts the string 'false' as true</span>
@@ -1319,7 +1322,7 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">        Physics options that only MPAS-Ocean has.</span>
 
 <span class="sd">        The Leith closure, the horizontal-mixing scaling, Gent-McWilliams,</span>
-<span class="sd">        Redi, the pressure-gradient formulation and frazil ice have no Omega</span>
+<span class="sd">        Redi and the pressure-gradient formulation have no Omega</span>
 <span class="sd">        counterpart in ``mpaso_to_omega``, and GM and Redi are not expected to</span>
 <span class="sd">        gain one, so these are applied with ``config_model='mpas-ocean'``.</span>
 <span class="sd">        An option moves</span>
@@ -1342,7 +1345,6 @@ window.runMermaid = runMermaid;</script>
             <span class="s1">'config_use_Leith_del2'</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">use_Leith_del2</span><span class="p">,</span>
             <span class="s1">'config_use_GM'</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">use_GM</span><span class="p">,</span>
             <span class="s1">'config_use_Redi'</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">use_Redi</span><span class="p">,</span>
-            <span class="s1">'config_use_frazil_ice_formation'</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">use_frazil_ice_formation</span><span class="p">,</span>
         <span class="p">}</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">pressure_gradient_type</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">options</span><span class="p">[</span><span class="s1">'config_pressure_gradient_type'</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>

@@ -1,0 +1,26 @@
+﻿polaris.tasks.ocean.single\_column.frazil.one\_layer.FrazilOneLayer
+===================================================================
+
+.. currentmodule:: polaris.tasks.ocean.single_column.frazil.one_layer
+
+.. autoclass:: FrazilOneLayer
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~FrazilOneLayer.__init__
+      ~FrazilOneLayer.add_step
+      ~FrazilOneLayer.configure
+      ~FrazilOneLayer.remove_step
+      ~FrazilOneLayer.set_shared_config
+   
+   
+
+   
+   
+   

@@ -532,22 +532,33 @@ window.runMermaid = runMermaid;</script>
 
 <span class="k">def</span><span class="w"> </span><span class="nf">compute_linear_ct_freezing</span><span class="p">(</span>
     <span class="n">salinity</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span> <span class="o">|</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="n">model</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">'omega'</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span> <span class="o">|</span> <span class="nb">float</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Compute the freezing temperature of seawater for the linear equation of</span>
-<span class="sd">    state using a simple linear dependence on salinity.</span>
+<span class="sd">    state using the model's freezing relation. MPAS-Ocean uses its default</span>
+<span class="sd">    open-ocean mushy liquidus; Omega uses a linear salinity approximation.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
 <span class="sd">    salinity : float or xarray.DataArray</span>
 <span class="sd">        Salinity of the seawater (g/kg).</span>
 
+<span class="sd">    model : {'omega', 'mpas-ocean'}, optional</span>
+<span class="sd">        Model whose freezing relation to use. The MPAS-Ocean relation assumes</span>
+<span class="sd">        its default open-ocean coefficients, including az1_liq = -18.48.</span>
+
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
 <span class="sd">    ct_freezing : float or xarray.DataArray</span>
 <span class="sd">        The freezing temperature (degC) of the seawater.</span>
 <span class="sd">    """</span>
-    <span class="n">ct_freezing</span> <span class="o">=</span> <span class="n">FREEZING_SALINITY_COEFF</span> <span class="o">*</span> <span class="n">salinity</span> <span class="o">/</span> <span class="n">PSU_TO_GPKG</span>
+    <span class="k">if</span> <span class="n">model</span> <span class="o">==</span> <span class="s1">'mpas-ocean'</span><span class="p">:</span>
+        <span class="n">ct_freezing</span> <span class="o">=</span> <span class="n">salinity</span> <span class="o">/</span> <span class="p">(</span><span class="o">-</span><span class="mf">18.48</span> <span class="o">*</span> <span class="p">(</span><span class="mf">1.0</span> <span class="o">-</span> <span class="n">salinity</span> <span class="o">/</span> <span class="mf">1000.0</span><span class="p">))</span>
+    <span class="k">elif</span> <span class="n">model</span> <span class="o">==</span> <span class="s1">'omega'</span><span class="p">:</span>
+        <span class="n">ct_freezing</span> <span class="o">=</span> <span class="n">FREEZING_SALINITY_COEFF</span> <span class="o">*</span> <span class="n">salinity</span> <span class="o">/</span> <span class="n">PSU_TO_GPKG</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s1">'Unsupported model for linear freezing: </span><span class="si">{</span><span class="n">model</span><span class="si">}</span><span class="s1">'</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">ct_freezing</span>
 </pre></div>
 
