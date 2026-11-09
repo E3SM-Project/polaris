@@ -216,7 +216,7 @@ directory relative to the base work directory</p></li>
 <td><p>Replace the step's config parser with the shared config parser</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">setup</span></code>()</p></td>
-<td><p>Set up the task in the work directory, including downloading any dependencies.</p></td>
+<td><p>Make each forward step's output an input, so this step runs only after all of the forward steps have finished</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">validate_baselines</span></code>()</p></td>
 <td><p>Compare variables between output files in this step and in the same step from a baseline run if one was provided.</p></td>
