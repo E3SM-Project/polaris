@@ -1,6 +1,6 @@
 import os
 
-import mpas_tools.io
+import mpas_tools.io as mpas_tools_io
 import numpy as np
 import xarray as xr
 from geometric_features import (
@@ -398,8 +398,8 @@ class CullMaskStep(Step):
         latitude_threshold = section.getfloat('sea_ice_latitude_threshold')
 
         cores = self.cores
-        netcdf_format = mpas_tools.io.default_format
-        netcdf_engine = mpas_tools.io.default_engine
+        netcdf_format = mpas_tools_io.default_format
+        netcdf_engine = mpas_tools_io.default_engine
 
         gf = GeometricFeatures()
 

@@ -4,7 +4,7 @@ from contextlib import contextmanager
 from typing import Any, cast
 
 import matplotlib.pyplot as plt
-import matplotlib.style
+import matplotlib.style as mpl_style
 from mpas_tools.viz.colormaps import register_sci_viz_colormaps
 
 _COLORMAP_LOCK = threading.Lock()
@@ -35,7 +35,7 @@ def mplstyle_context(dpi=None):
     # rc_context is typed with a Literal of every rcParam name; 'savefig.dpi'
     # is one of them, but the key is built here rather than written inline
     with (
-        matplotlib.style.context(style_filename),
+        mpl_style.context(style_filename),
         plt.rc_context(cast(Any, overrides)),
     ):
         yield

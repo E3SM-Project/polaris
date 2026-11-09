@@ -33,7 +33,7 @@ from datetime import datetime, timedelta
 from functools import partial
 from typing import Dict, Iterator, List, Optional
 
-import mpas_tools.io
+import mpas_tools.io as mpas_tools_io
 from mache.parallel import PlacementSupport
 from mpas_tools.logging import LoggingContext
 
@@ -94,8 +94,8 @@ def run_tasks(suite_name, quiet=False):
     common_config = setup_config(task.base_work_dir, f'{component.name}.cfg')
     set_parallel_systems(suite['tasks'], common_config)
 
-    mpas_tools.io.default_format = common_config.get('io', 'format')
-    mpas_tools.io.default_engine = common_config.get('io', 'engine')
+    mpas_tools_io.default_format = common_config.get('io', 'format')
+    mpas_tools_io.default_engine = common_config.get('io', 'engine')
 
     work_dir = suite.get('work_dir', os.getcwd())
     with LoggingContext(suite_name) as logger:

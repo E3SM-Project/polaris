@@ -5,7 +5,7 @@ import cmocean  # noqa: F401
 import matplotlib.colors as cols
 import matplotlib.path as mpath
 import mosaic
-import mosaic.utils
+import mosaic.utils as mosaic_utils
 import numpy as np
 import xarray as xr
 from cartopy.geodesic import Geodesic
@@ -765,7 +765,7 @@ def _cull_mesh_to_cells(mesh_ds, cell_indices):
 
     cells_to_cull = np.ones(mesh_ds.sizes['nCells'], dtype=bool)
     cells_to_cull[cell_indices] = False
-    culled_ds = mosaic.utils.cull_mesh(culled_ds, cells_to_cull)
+    culled_ds = mosaic_utils.cull_mesh(culled_ds, cells_to_cull)
 
     for array_name in _CONNECTIVITY_ARRAYS:
         culled_ds[array_name] = culled_ds[array_name] + 1

@@ -1,10 +1,10 @@
 import multiprocessing
 import os
 
+import mpas_tools.cime.constants as cime_constants
 import xarray as xr
 from geometric_features import GeometricFeatures
 from geometric_features.aggregation import get_aggregator_by_name
-from mpas_tools.cime.constants import constants
 from mpas_tools.io import write_netcdf
 from mpas_tools.mesh.mask import (
     compute_mpas_region_masks,
@@ -439,7 +439,7 @@ def compute_feature_masks(
     return compute_mpas_transect_masks(
         dsMesh=ds_mesh,
         fcMask=fc_mask,
-        earthRadius=constants['SHR_CONST_REARTH'],
+        earthRadius=cime_constants.constants['SHR_CONST_REARTH'],
         maskTypes=mask_types,
         logger=logger,
         pool=pool,

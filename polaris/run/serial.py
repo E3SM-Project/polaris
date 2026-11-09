@@ -8,7 +8,7 @@ from datetime import datetime, timedelta
 from functools import partial
 from typing import Dict, List, Optional, Tuple
 
-import mpas_tools.io
+import mpas_tools.io as mpas_tools_io
 from mpas_tools.logging import LoggingContext
 
 from polaris import Task
@@ -232,8 +232,8 @@ def run_step_in_process(step, placement=None, quiet=False):
     set_parallel_systems({task.path: task}, config)
     available_resources = step.component.get_available_resources()
 
-    mpas_tools.io.default_format = config.get('io', 'format')
-    mpas_tools.io.default_engine = config.get('io', 'engine')
+    mpas_tools_io.default_format = config.get('io', 'format')
+    mpas_tools_io.default_engine = config.get('io', 'engine')
 
     # start logging to stdout/stderr
     logger_name = step.path.replace('/', '_')
@@ -433,8 +433,8 @@ def _log_and_run_task(
         config = setup_config(task.base_work_dir, task.config.filepath)
         task.config = config
 
-        mpas_tools.io.default_format = config.get('io', 'format')
-        mpas_tools.io.default_engine = config.get('io', 'engine')
+        mpas_tools_io.default_format = config.get('io', 'format')
+        mpas_tools_io.default_engine = config.get('io', 'engine')
 
         task.steps_to_run = _update_steps_to_run(
             task.name, steps_to_run, steps_to_skip, config, task.steps

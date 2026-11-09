@@ -1,8 +1,10 @@
+from math import pi
+
 import numpy as np
 import xarray as xr
 from mpas_tools.mesh.spherical import calc_vector_east_north
 from mpas_tools.transects import lon_lat_to_cartesian
-from numpy import cos, pi, sin
+from numpy import cos, sin
 
 from polaris.constants import get_constant
 

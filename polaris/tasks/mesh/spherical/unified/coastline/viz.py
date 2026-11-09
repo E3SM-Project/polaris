@@ -1,6 +1,6 @@
 import os
 from math import isclose
-from typing import TypeAlias, Union
+from typing import TYPE_CHECKING, TypeAlias, Union
 
 import cartopy.crs as ccrs
 import matplotlib.pyplot as plt
@@ -8,7 +8,6 @@ import numpy as np
 import xarray as xr
 from matplotlib.colors import TwoSlopeNorm
 from matplotlib.lines import Line2D
-from numpy.typing import NDArray
 from pyremap.descriptor.utility import interp_extrap_corner
 
 from polaris.mesh.spherical.critical_transects import (
@@ -24,6 +23,9 @@ from polaris.tasks.mesh.spherical.unified.coastline.remap import (
     RemapCoastlineStep,
 )
 from polaris.viz import mplstyle_context
+
+if TYPE_CHECKING:
+    from numpy.typing import NDArray
 
 CoastlineStep: TypeAlias = Union[ComputeCoastlineStep, RemapCoastlineStep]
 

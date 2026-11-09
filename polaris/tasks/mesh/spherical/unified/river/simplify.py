@@ -1,4 +1,5 @@
 import logging
+import math
 import multiprocessing
 import os
 from collections import defaultdict
@@ -22,7 +23,7 @@ from polaris.step import Step
 
 EARTH_RADIUS = get_constant('mean_radius')
 KM2_TO_M2 = 1.0e6
-_METERS_PER_DEGREE = np.pi / 180.0 * EARTH_RADIUS
+_METERS_PER_DEGREE = math.pi / 180.0 * EARTH_RADIUS
 
 # Module-level state shared with fork-based parallel workers.
 # Set by simplify_river_network_feature_collection before Pool creation.

@@ -1,3 +1,4 @@
+import math
 from typing import Callable
 
 import numpy as np
@@ -7,7 +8,7 @@ from polaris.config import PolarisConfigParser
 
 # Abscissa offset of the two-point Gauss-Legendre rule on [-1, 1], which is
 # exact through cubics and therefore exact for a PCHIP piece.
-_GAUSS_OFFSET = 1.0 / np.sqrt(3.0)
+_GAUSS_OFFSET = 1.0 / math.sqrt(3.0)
 
 
 def get_array_from_mid_grad(

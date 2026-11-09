@@ -14,6 +14,8 @@ hysteresis growth — so the sizing field can prescribe the full ocean
 background cell width everywhere the cull is likely to keep.
 """
 
+import math
+
 import numpy as np
 from scipy import ndimage
 from scipy.spatial import cKDTree
@@ -21,7 +23,7 @@ from scipy.spatial import cKDTree
 from polaris.constants import get_constant
 
 EARTH_RADIUS = get_constant('mean_radius')
-KM_PER_DEG = np.pi / 180.0 * EARTH_RADIUS / 1e3
+KM_PER_DEG = math.pi / 180.0 * EARTH_RADIUS / 1e3
 
 
 def build_effective_ocean_mask(
