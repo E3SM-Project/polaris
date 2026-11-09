@@ -108,6 +108,7 @@
    get_combine_topo_symlinks
    CubedSphereCombineTask
    LatLonCombineTask
+   add_combine_topo_tasks
    VizCombinedStep
    VizCombinedStep.setup
    VizCombinedStep.run

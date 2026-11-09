@@ -24,6 +24,7 @@ commands
 config
 coriolis
 logging
+imports
 io
 attrs
 mpas

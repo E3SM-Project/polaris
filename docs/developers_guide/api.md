@@ -118,6 +118,39 @@ seaice/api
 
 ```
 
+#### tasks
+
+```{eval-rst}
+.. currentmodule:: polaris.tasks
+
+.. autosummary::
+   :toctree: generated/
+
+   get_components
+   get_component_names
+   get_task_group_names
+   add_task_groups
+   ComponentEntry
+   TaskGroup
+   manifest.get_manifest
+   manifest.compute_key
+   manifest.build_task_entries
+```
+
+#### lazy
+
+```{eval-rst}
+.. currentmodule:: polaris.lazy
+
+.. autosummary::
+   :toctree: generated/
+
+   lazy_module
+   lazy_attr
+   lazy_side_effect
+   load_all
+```
+
 #### cache
 
 ```{eval-rst}
