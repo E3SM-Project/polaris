@@ -42,7 +42,12 @@ def _clean_environ(**overrides):
         name: value
         for name, value in os.environ.items()
         if name
-        not in ('OMP_NUM_THREADS', 'OPENBLAS_NUM_THREADS', 'MKL_NUM_THREADS')
+        not in (
+            'OMP_NUM_THREADS',
+            'OPENBLAS_NUM_THREADS',
+            'MKL_NUM_THREADS',
+            'NUMEXPR_NUM_THREADS',
+        )
     }
     environ.update(overrides)
     return environ
