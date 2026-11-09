@@ -136,6 +136,8 @@ from the options both models share in
 {py:meth}`~polaris.tasks.ocean.realistic_global.forward.stage.ForwardStage.vert_mixing_options`
 and
 {py:meth}`~polaris.tasks.ocean.realistic_global.forward.stage.ForwardStage.submesoscale_options`.
+Frazil ice is set in the neutral `forward.yaml` section from
+`use_frazil_ice_formation`, so both models honor it.
 An option belongs in the MPAS-Ocean-only bucket only while
 `mpaso_to_omega.yaml` has no Omega counterpart for it.  Once it has one, it
 has to move to a shared bucket: otherwise Omega never sees it and runs its own

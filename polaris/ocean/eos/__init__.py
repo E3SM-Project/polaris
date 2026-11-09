@@ -104,8 +104,9 @@ def compute_ct_freezing(
 ) -> xr.DataArray | float:
     """
     Compute the freezing temperature of seawater based on the equation of
-    state specified in the configuration, following Omega's
-    ``Eos::calcCtFreezing()``.
+    state specified in the configuration. For the linear EOS, the ocean
+    model selects MPAS-Ocean's default open-ocean mushy relation or Omega's
+    ``Eos::calcCtFreezing()`` approximation.
 
     Parameters
     ----------
@@ -147,7 +148,9 @@ def compute_ct_freezing(
     if eos_type == 'constant':
         ct_freezing = compute_constant_ct_freezing(salinity)
     elif eos_type == 'linear':
-        ct_freezing = compute_linear_ct_freezing(salinity)
+        ct_freezing = compute_linear_ct_freezing(
+            salinity, model=config.get('ocean', 'model', fallback='omega')
+        )
     elif eos_type == 'teos-10':
         if pressure is None:
             raise ValueError(

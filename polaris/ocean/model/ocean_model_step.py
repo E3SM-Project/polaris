@@ -21,7 +21,9 @@ from polaris.constants import get_constant
 from polaris.model_step import ModelStep
 from polaris.ocean.conservation import (
     TRACERS_TO_CHECK,
+    compute_energy_change,
     compute_flux_forcing,
+    compute_frazil_fluxes,
     compute_total_energy,
     compute_total_mass,
     compute_total_salt,
@@ -714,6 +716,22 @@ class OceanModelStep(OceanModelFilesMixin, ModelStep):
                         model=config.get('ocean', 'model'),
                         config=config,
                     )
+                    if (
+                        getattr(self, 'frazil_conservation', False)
+                        and baseline == 'init'
+                    ):
+                        model = config.get('ocean', 'model')
+                        expected_change += compute_frazil_fluxes(
+                            ds_mesh,
+                            ds,
+                            time_index_end=time_index_end,
+                            model=model,
+                            time_step=(
+                                config.getfloat('single_column', 'time_step')
+                                if model == 'mpas-ocean'
+                                else None
+                            ),
+                        )[output_property]
 
                 relative_error = self._compute_rel_err(
                     func,
@@ -740,7 +758,7 @@ class OceanModelStep(OceanModelFilesMixin, ModelStep):
                 )
                 logger.info(
                     f'    {description}: '
-                    f'error={relative_error:.3e} tol={tol:.3e} [{status}]'
+                    f'error={relative_error:.6e} tol={tol:.3e} [{status}]'
                 )
                 results.append(
                     dict(
@@ -786,8 +804,8 @@ class OceanModelStep(OceanModelFilesMixin, ModelStep):
         **kwargs,
     ):
         """
-        Compute the error in a budget, relative to the expected change if it
-        is nonzero and to the initial content otherwise
+        Compute a budget error normalized by the initial content, or by one
+        if the initial content is zero.
 
         The initial value is taken from ``ds_init`` if it is provided, so that
         the budget starts from the true initial condition rather than the
@@ -805,6 +823,13 @@ class OceanModelStep(OceanModelFilesMixin, ModelStep):
         ds_end = ds.isel(Time=time_index_end)
         final_val = float(func(ds_mesh, ds_end, **kwargs).values)
         actual_change = final_val - init_val
+        if func is compute_total_energy:
+            actual_change = compute_energy_change(
+                ds_mesh,
+                ds_start.isel(Time=time_index_start),
+                ds_end,
+                **kwargs,
+            ).values
         residual = actual_change - expected_change
         if init_val != 0.0:
             denom = abs(init_val)
