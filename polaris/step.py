@@ -1189,21 +1189,11 @@ class Step:
                 f'A different dependency has already been added as {name!r}.'
             )
         self.dependencies[name] = step
-        step.mark_as_dependency()
+        step.is_dependency = True
+        step.add_output_file('step_after_run.pickle')
         filename = f'dependencies/{name}_after_run.pickle'
         target = f'{step.path}/step_after_run.pickle'
         self.add_input_file(filename=filename, work_dir_target=target)
-
-    def mark_as_dependency(self):
-        """
-        Have this step pickle itself after it runs, so that steps that depend
-        on it can read its state, whether or not any of them has been
-        created yet
-        """
-        if self.is_dependency:
-            return
-        self.is_dependency = True
-        self.add_output_file('step_after_run.pickle')
 
     def check_properties(self):
         """

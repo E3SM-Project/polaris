@@ -1,6 +1,6 @@
 import pytest
 
-from polaris import Component
+from polaris import Component, Step
 from polaris.config import PolarisConfigParser
 from polaris.tasks.e3sm.init import e3sm_init
 from polaris.tasks.e3sm.init.topo.combine import get_lat_lon_topo_steps
@@ -70,6 +70,31 @@ def test_get_or_create_shared_config_rejects_a_mismatched_filepath():
             create=lambda: PolarisConfigParser(filepath='somewhere/else.cfg'),
         )
     assert FILEPATH not in component.configs
+
+
+def test_shared_steps_pickle_after_running_without_listing_the_pickle():
+    """
+    A shared step always writes the pickle its dependents read, since they may
+    be in task groups that weren't built when it was set up, but lists it as an
+    output only once a dependent asks for it, so that a cached shared step with
+    no dependents isn't expected to find the pickle in the cache
+    """
+    component = Component(name='component')
+    config = component.get_or_create_shared_config(filepath=FILEPATH)
+    shared = component.get_or_create_shared_step(
+        step_cls=Step,
+        subdir='shared/step',
+        config=config,
+        config_filename='thing.cfg',
+        name='shared',
+    )
+    assert shared.is_dependency
+    assert 'step_after_run.pickle' not in shared.outputs
+
+    dependent = Step(component=component, name='dependent')
+    dependent.add_dependency(shared)
+    dependent.add_dependency(shared)
+    assert shared.outputs.count('step_after_run.pickle') == 1
 
 
 @pytest.mark.parametrize(

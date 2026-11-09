@@ -502,8 +502,10 @@ class Component:
         step = step_cls(component=self, subdir=subdir, **kwargs)
         step.set_shared_config(config, link=config_filename)
         # a shared step may gain dependents in task groups that aren't built
-        # when this one is set up, so it always leaves the pickle they read
-        step.mark_as_dependency()
+        # when this one is set up, so it always leaves the pickle they read.
+        # Only a step with a dependent lists the pickle as an output, which
+        # a cached step must find in the cache.
+        step.is_dependency = True
         self.add_step(step)
         return step
 
