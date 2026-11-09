@@ -38,7 +38,13 @@ DEFERRED = [
 
 @pytest.mark.parametrize(
     'module',
-    ['polaris', 'polaris.__main__'],
+    [
+        'polaris',
+        'polaris.__main__',
+        'polaris.list',
+        'polaris.setup',
+        'polaris.suite',
+    ],
 )
 def test_importing_leaves_third_party_packages_unimported(module):
     imported = _imported_after(f'import {module}', DEFERRED)
@@ -46,6 +52,39 @@ def test_importing_leaves_third_party_packages_unimported(module):
         f'importing {module} imported {imported}; defer these with '
         f'polaris.lazy (see utils/defer_imports/defer_imports.py)'
     )
+
+
+def test_building_one_task_group_leaves_plotting_unimported():
+    """
+    Setting up a task builds only its task group, and that must not import
+    the packages that only plotting and mesh-masking steps use
+    """
+    statement = (
+        'from polaris.tasks import get_components; '
+        "get_components(task_groups={'ocean': ['baroclinic_channel']})"
+    )
+    plotting = ['matplotlib', 'cartopy', 'cmocean', 'networkx', 'igraph']
+    imported = _imported_after(statement, plotting + ['dask'])
+    assert imported == []
+
+
+def test_polaris_list_reads_the_manifest_without_building_tasks():
+    """With a fresh manifest, polaris list imports no task module"""
+    # make sure the manifest is fresh
+    _imported_after(
+        'from polaris.tasks.manifest import get_manifest; get_manifest()', []
+    )
+    statement = (
+        'import contextlib, io, sys\n'
+        "sys.argv = ['polaris', 'list']\n"
+        'from polaris.list import main\n'
+        'with contextlib.redirect_stdout(io.StringIO()):\n'
+        '    main()'
+    )
+    imported = _imported_after(
+        statement, ['polaris.tasks.ocean', 'polaris.tasks.mesh']
+    )
+    assert imported == []
 
 
 def _imported_after(statement, packages):
