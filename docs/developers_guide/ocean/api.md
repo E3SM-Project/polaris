@@ -290,6 +290,63 @@
    add_feature_mask_tasks
 ```
 
+### galewsky_jet
+
+```{eval-rst}
+.. currentmodule:: polaris.tasks.ocean.galewsky_jet
+
+.. autosummary::
+   :toctree: generated/
+
+   add_galewsky_jet_tasks
+
+   GalewskyJet
+   GalewskyJet.configure
+
+   initial_state.get_jet_params
+   initial_state.jet_velocity
+   initial_state.balanced_height
+   initial_state.streamfunction
+   initial_state.height_perturbation
+   initial_state.normal_velocity_from_streamfunction
+
+   diagnostics.relative_vorticity
+   diagnostics.divergence
+   diagnostics.global_l2
+   diagnostics.get_output_times
+   diagnostics.contour_levels
+   diagnostics.contour_lon_lat
+
+   init.Init
+   init.Init.setup
+   init.Init.run
+
+   forward.Forward
+   forward.Forward.dynamic_model_config
+
+   steady_state.SteadyStateAnalysis
+   steady_state.SteadyStateAnalysis.exact_solution
+   steady_state.SteadyStateAnalysis.get_output_field
+   steady_state.SteadyStateAnalysis.convergence_parameters
+
+   steady_state.SteadyStateViz
+   steady_state.SteadyStateViz.run
+
+   comparison.ComparisonAnalysis
+   comparison.ComparisonAnalysis.setup
+   comparison.ComparisonAnalysis.run
+   comparison.ComparisonAnalysis.compute_fields
+   comparison.ComparisonAnalysis.plot_resolution
+   comparison.ComparisonAnalysis.plot_all_resolutions
+   comparison.ComparisonAnalysis.table_row
+   comparison.ComparisonAnalysis.table1
+   comparison.ComparisonAnalysis.open_resolution
+
+   comparison.AdjustmentAnalysis
+   comparison.UnstableAnalysis
+   comparison.UnstableAnalysis.setup
+```
+
 ### geostrophic
 
 ```{eval-rst}
