@@ -96,15 +96,8 @@ class MocMasksStep(ComputeFeatureMasksStep):
         """
         Set up the step, failing early for a model that cannot be packaged.
         """
+        check_ocean_model()
         super().setup()
-        check_ocean_model(self.config)
-
-    def run(self):
-        """
-        Compute the masks, failing early for a model that cannot be packaged.
-        """
-        check_ocean_model(self.config)
-        super().run()
 
     def _set_output_filenames(self, mesh_name, mask_group):
         """

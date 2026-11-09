@@ -13,7 +13,6 @@ from polaris.e3sm.init.partitions import (
     partitions_to_build,
     write_graph,
 )
-from polaris.tasks.e3sm.init.component_inputs.models import check_seaice_model
 from polaris.tasks.e3sm.init.component_inputs.seaice_partition_map import (
     CLIMATOLOGY_FILENAME,
 )
@@ -131,18 +130,10 @@ class SeaiceGraphPartitionStep(GraphPartitionStep):
             ),
         )
 
-    def setup(self):
-        """
-        Refuse a model whose packaging is not supported, before anything runs.
-        """
-        super().setup()
-        check_seaice_model(self.config)
-
     def run(self):
         """
         Weight the mesh by the sea-ice climatology, then partition it.
         """
-        check_seaice_model(self.config)
         config = self.config
         logger = self.logger
 

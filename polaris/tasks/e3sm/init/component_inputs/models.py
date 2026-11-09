@@ -1,28 +1,26 @@
 """
-Which models the staged component inputs can be built for.
+Which ocean model the staged component inputs can be built for.
 
-The gate is built now, while only MPAS is supported, so that adding Omega
-fills a named gap rather than retrofitting model selection into steps that
-quietly assumed MPAS.
+The ocean initial condition is the restart of a dynamic adjustment, which runs
+whichever model the ocean component was set up with (``--ocean_model``, or
+detected from the build).  The staged files can only be for that same model,
+so the model is taken from the ocean component rather than from an option of
+this workflow's own, which could disagree with it.
+
+The gate is built now, while only MPAS-Ocean is supported, so that adding
+Omega fills a named gap rather than retrofitting model selection into steps
+that quietly assumed MPAS-Ocean.
 """
 
-from polaris.config import PolarisConfigParser
-
-#: The ocean models ``[component_inputs] ocean_model`` accepts.
-OCEAN_MODELS = ('mpas-ocean', 'omega')
-
-#: The sea-ice models ``[component_inputs] seaice_model`` accepts.
-SEAICE_MODELS = ('mpas-seaice', 'none')
+from polaris.tasks.ocean import ocean
 
 
-def check_ocean_model(config: PolarisConfigParser) -> str:
+def check_ocean_model() -> str:
     """
-    The configured ocean model, if its files can be staged.
+    The ocean model the dynamic adjustment runs, if its files can be staged.
 
-    Parameters
-    ----------
-    config : polaris.config.PolarisConfigParser
-        The config options for the component-input steps.
+    Only meaningful during setup, after the ocean component has been
+    configured.
 
     Returns
     -------
@@ -31,49 +29,23 @@ def check_ocean_model(config: PolarisConfigParser) -> str:
 
     Raises
     ------
-    ValueError
-        If the model is not one this workflow knows about.
-
     NotImplementedError
         If it is Omega, whose packaging is not supported yet.
+
+    ValueError
+        If the ocean component has no model or one this workflow does not
+        know about.
     """
-    model = config.get('component_inputs', 'ocean_model').strip()
-    if model not in OCEAN_MODELS:
-        raise ValueError(
-            f'Unknown [component_inputs] ocean_model {model!r}.  Expected one '
-            f'of {", ".join(OCEAN_MODELS)}.'
-        )
+    model = ocean.model
     if model == 'omega':
         raise NotImplementedError(
             'Staging component inputs for Omega is not supported yet.  Set '
-            '[component_inputs] ocean_model = mpas-ocean.'
+            'up with --ocean_model mpas-ocean, or point --ocean_path at an '
+            'MPAS-Ocean build.'
         )
-    return model
-
-
-def check_seaice_model(config: PolarisConfigParser) -> str:
-    """
-    The configured sea-ice model, if its files can be staged.
-
-    Parameters
-    ----------
-    config : polaris.config.PolarisConfigParser
-        The config options for the component-input steps.
-
-    Returns
-    -------
-    str
-        The sea-ice model, or ``'none'`` if no sea-ice files are wanted.
-
-    Raises
-    ------
-    ValueError
-        If the model is not one this workflow knows about.
-    """
-    model = config.get('component_inputs', 'seaice_model').strip()
-    if model not in SEAICE_MODELS:
+    if model != 'mpas-ocean':
         raise ValueError(
-            f'Unknown [component_inputs] seaice_model {model!r}.  Expected '
-            f'one of {", ".join(SEAICE_MODELS)}.'
+            f'Cannot stage component inputs for ocean model {model!r}.  '
+            f'Only mpas-ocean is supported.'
         )
     return model

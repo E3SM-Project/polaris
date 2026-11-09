@@ -103,10 +103,13 @@ without a work directory.
   every forward-map value is a valid base index and that no base index appears
   twice; a violation means a stale file from a different mesh, which would
   otherwise scatter into a plausible-looking wrong answer.
-- `models.py` — the ocean and sea-ice model gates.  They exist even though
-  only the MPAS models are supported, so that adding Omega means filling in
-  a gate that is already there rather than adding model selection to steps
-  that assumed MPAS.
+- `models.py` — the ocean model gate, which each ocean staging step calls at
+  the start of setup.  It reads the model the ocean component was configured
+  with, so the staged files always match the model the dynamic adjustment
+  ran.  It exists even though only MPAS-Ocean is supported, so that adding
+  Omega means filling in a gate that is already there rather than adding
+  model selection to steps that assumed MPAS-Ocean.  Sea ice needs no gate:
+  which task is set up decides whether sea-ice files are staged.
 
 ## The MOC masks borrow behavior without borrowing a component
 

@@ -85,15 +85,14 @@ class OceanMeshStep(Step):
         """
         Refuse a model whose packaging is not supported, before anything runs.
         """
+        check_ocean_model()
         super().setup()
-        check_ocean_model(self.config)
 
     def run(self):
         """
         Combine the horizontal mesh and the vertical coordinate.
         """
         super().run()
-        check_ocean_model(self.config)
 
         with xr.open_dataset('mesh.nc') as ds_mesh:
             ds_out = ds_mesh.load()

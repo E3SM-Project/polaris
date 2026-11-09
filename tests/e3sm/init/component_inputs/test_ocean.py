@@ -1,10 +1,7 @@
 import pytest
 
 from polaris.tasks.e3sm.init import e3sm_init
-from polaris.tasks.e3sm.init.component_inputs.models import (
-    check_ocean_model,
-    check_seaice_model,
-)
+from polaris.tasks.e3sm.init.component_inputs.models import check_ocean_model
 from polaris.tasks.e3sm.init.component_inputs.ocean_graph_partition import (
     GRAPH_BASENAME,
 )
@@ -103,42 +100,40 @@ def test_the_partition_names_carry_no_creation_date():
     assert GRAPH_BASENAME == 'mpas-o.graph.info'
 
 
-def test_omega_raises_rather_than_staging_something_wrong():
-    _reset_shared_components()
-    _, config = get_component_inputs_steps(mesh_name=MESH_NAME)
-
-    config.set('component_inputs', 'ocean_model', 'omega')
+def test_omega_raises_rather_than_staging_something_wrong(monkeypatch):
+    monkeypatch.setattr(ocean, 'model', 'omega')
     with pytest.raises(NotImplementedError, match='Omega'):
-        check_ocean_model(config)
+        check_ocean_model()
 
 
-def test_an_unknown_model_is_rejected():
+@pytest.mark.parametrize('model', ['hycom', None])
+def test_an_unknown_or_missing_model_is_rejected(monkeypatch, model):
+    monkeypatch.setattr(ocean, 'model', model)
+    with pytest.raises(ValueError, match=str(model)):
+        check_ocean_model()
+
+
+def test_the_model_comes_from_the_ocean_component(monkeypatch):
+    """
+    The initial condition is the restart of a run of whichever model the
+    ocean component was set up with, so that is the model staged for.
+    """
+    monkeypatch.setattr(ocean, 'model', 'mpas-ocean')
+    assert check_ocean_model() == 'mpas-ocean'
+
+
+def test_the_ocean_steps_refuse_omega_at_setup(monkeypatch):
     _reset_shared_components()
-    _, config = get_component_inputs_steps(mesh_name=MESH_NAME)
-
-    config.set('component_inputs', 'ocean_model', 'hycom')
-    with pytest.raises(ValueError, match='hycom'):
-        check_ocean_model(config)
-
-    config.set('component_inputs', 'ocean_model', 'mpas-ocean')
-    config.set('component_inputs', 'seaice_model', 'cice')
-    with pytest.raises(ValueError, match='cice'):
-        check_seaice_model(config)
-
-
-def test_the_default_models_are_the_supported_ones():
-    _reset_shared_components()
-    _, config = get_component_inputs_steps(mesh_name=MESH_NAME)
-    assert check_ocean_model(config) == 'mpas-ocean'
-    assert check_seaice_model(config) == 'mpas-seaice'
-
-
-def test_sea_ice_can_be_turned_off_without_touching_the_ocean():
-    _reset_shared_components()
-    _, config = get_component_inputs_steps(mesh_name=MESH_NAME)
-    config.set('component_inputs', 'seaice_model', 'none')
-    assert check_seaice_model(config) == 'none'
-    assert check_ocean_model(config) == 'mpas-ocean'
+    steps, _ = get_component_inputs_steps(mesh_name=MESH_NAME)
+    monkeypatch.setattr(ocean, 'model', 'omega')
+    for key in [
+        'ocean_mesh',
+        'ocean_initial_condition',
+        'ocean_graph_partition',
+        'ocean_moc_masks',
+    ]:
+        with pytest.raises(NotImplementedError, match='Omega'):
+            steps[key].setup()
 
 
 def _reset_shared_components():

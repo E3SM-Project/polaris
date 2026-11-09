@@ -59,12 +59,5 @@ class OceanGraphPartitionStep(GraphPartitionStep):
         """
         Refuse a model whose packaging is not supported, before anything runs.
         """
+        check_ocean_model()
         super().setup()
-        check_ocean_model(self.config)
-
-    def run(self):
-        """
-        Partition the ocean graph into each core count.
-        """
-        check_ocean_model(self.config)
-        super().run()

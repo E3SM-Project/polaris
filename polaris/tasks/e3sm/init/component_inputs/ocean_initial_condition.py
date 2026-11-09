@@ -91,15 +91,14 @@ class OceanInitialConditionStep(Step):
         """
         Refuse a model whose packaging is not supported, before anything runs.
         """
+        check_ocean_model()
         super().setup()
-        check_ocean_model(self.config)
 
     def run(self):
         """
         Stage the adjusted restart as the initial condition.
         """
         super().run()
-        check_ocean_model(self.config)
 
         with xr.open_dataset('restart.nc') as ds_in:
             ds_out = ds_in.load()

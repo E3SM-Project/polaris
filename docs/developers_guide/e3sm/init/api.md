@@ -290,5 +290,4 @@
    maps.base_to_culled_maps
 
    models.check_ocean_model
-   models.check_seaice_model
 ```

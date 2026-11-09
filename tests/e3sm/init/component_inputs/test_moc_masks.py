@@ -1,5 +1,4 @@
 import numpy as np
-import pytest
 import xarray as xr
 from geometric_features.aggregation import get_aggregator_by_name
 
@@ -189,22 +188,6 @@ def test_the_mask_file_records_where_it_came_from(tmp_path):
         assert ds.attrs['mask_features_date'] == step.features_date
         assert ds.attrs['creation_date'] == CREATION_DATE
         assert MOC_MASK_GROUP in ds.attrs['mask_features_source']
-
-
-def test_omega_raises_before_any_masks_are_built():
-    """
-    D9: the gate belongs on every product step, not only the ones that write
-    model files.
-    """
-    _reset_shared_components()
-    steps, config = get_component_inputs_steps(mesh_name=MESH_NAME)
-    step = steps['ocean_moc_masks']
-
-    config.set('component_inputs', 'ocean_model', 'omega')
-    step.config = config
-
-    with pytest.raises(NotImplementedError, match='Omega'):
-        step.run()
 
 
 def _reset_shared_components():

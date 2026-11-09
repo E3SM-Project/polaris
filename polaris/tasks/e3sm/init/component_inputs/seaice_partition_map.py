@@ -1,7 +1,6 @@
 import os
 
 from polaris.remap import MappingFileStep
-from polaris.tasks.e3sm.init.component_inputs.models import check_seaice_model
 from polaris.tasks.e3sm.init.component_inputs.names import get_mesh_short_name
 
 #: The QU60km sea-ice climatology the partitioning weights cells by.  The
@@ -85,7 +84,6 @@ class SeaicePartitionMapStep(MappingFileStep):
         Resolve what the mapping file is named after, before anything runs.
         """
         super().setup()
-        check_seaice_model(self.config)
         self.mesh_short_name = get_mesh_short_name(self.config)
 
     def runtime_setup(self):
@@ -93,7 +91,6 @@ class SeaicePartitionMapStep(MappingFileStep):
         Set up the source and destination grids, then the command that builds
         the QU60km-to-mesh mapping file.
         """
-        check_seaice_model(self.config)
         short_name = get_mesh_short_name(self.config)
 
         self.remapper.src_from_mpas(

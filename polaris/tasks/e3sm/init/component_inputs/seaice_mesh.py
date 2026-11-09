@@ -4,7 +4,6 @@ import xarray as xr
 from mpas_tools.io import write_netcdf
 
 from polaris import Step
-from polaris.tasks.e3sm.init.component_inputs.models import check_seaice_model
 
 
 class SeaiceMeshStep(Step):
@@ -57,19 +56,11 @@ class SeaiceMeshStep(Step):
         )
         self.add_output_file(filename='seaice_mesh.nc')
 
-    def setup(self):
-        """
-        Refuse a model whose packaging is not supported, before anything runs.
-        """
-        super().setup()
-        check_seaice_model(self.config)
-
     def run(self):
         """
         Stage the culled mesh as the sea-ice mesh.
         """
         super().run()
-        check_seaice_model(self.config)
 
         with xr.open_dataset('culled_ocean_mesh.nc') as ds_in:
             ds_out = ds_in.load()

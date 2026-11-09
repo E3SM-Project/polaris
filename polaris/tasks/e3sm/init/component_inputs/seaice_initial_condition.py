@@ -5,7 +5,6 @@ from mpas_tools.io import write_netcdf
 
 from polaris.coriolis import add_spherical_coriolis
 from polaris.step import Step
-from polaris.tasks.e3sm.init.component_inputs.models import check_seaice_model
 
 
 class SeaiceInitialConditionStep(Step):
@@ -63,19 +62,11 @@ class SeaiceInitialConditionStep(Step):
         )
         self.add_output_file(filename='seaice_initial_condition.nc')
 
-    def setup(self):
-        """
-        Refuse a model whose packaging is not supported, before anything runs.
-        """
-        super().setup()
-        check_seaice_model(self.config)
-
     def run(self):
         """
         Add the Coriolis parameter to the culled mesh.
         """
         super().run()
-        check_seaice_model(self.config)
 
         with xr.open_dataset('culled_ocean_mesh.nc') as ds_in:
             ds_out = ds_in.load()

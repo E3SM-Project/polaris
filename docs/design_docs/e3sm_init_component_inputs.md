@@ -820,7 +820,7 @@ matter of passing a flag rather than of changing the algorithm.
 
 ### Implementation: Model-specific packaging is gated by the selected component models
 
-Date last modified: 2026/08/05
+Date last modified: 2026/11/09
 
 Contributors: Xylar Asay-Davis, Codex, Claude
 
@@ -865,6 +865,15 @@ still built now, and an Omega selection should fail with a message saying the
 packaging is not yet implemented rather than silently producing MPAS-Ocean
 files. That way the branch that adds Omega support fills in a named gap instead
 of retrofitting model selection into steps that assumed MPAS.
+
+Neither model is a `[component_inputs]` option in the first branch. The ocean
+initial condition is the restart of a dynamic adjustment, which runs whichever
+model the ocean component was set up with (`--ocean_model`, or detected from
+the `--ocean_path` build), so the ocean staging steps check that model at setup
+rather than a second option that could disagree with it. Sea ice is selected by
+the task: the `ocean` task stages no sea-ice files. A `seaice_model = none`
+option could not do the same, because the steps it would remove already exist
+by the time config options are read.
 
 ### Implementation: The workflow produces E3SM-compatible staged outputs while retaining inspectable intermediate files
 
@@ -934,10 +943,10 @@ happen only in the assembly step.
 The `[component_inputs]` config section therefore carries `mesh_short_name`
 (no default; setup fails if unset), `creation_date` (filled in with today's
 date at setup and then recorded, so re-running does not silently rename files),
-`ocean_model`, `seaice_model`, the graph-partition core-count bounds
-`max_cells_per_core` and `min_cells_per_core`, the number of partitions to
-build at once, `partition_cpus_per_task` and `partition_min_cpus_per_task`,
-and `plot_seaice_partitions`.
+the graph-partition core-count bounds `max_cells_per_core` and
+`min_cells_per_core`, the number of partitions to build at once,
+`partition_cpus_per_task` and `partition_min_cpus_per_task`, and
+`plot_seaice_partitions`.
 
 `creation_date` is filled in only when blank, which protects a re-run but not a
 fresh setup: rebuilding the work directory's config stamps today's date. Pin

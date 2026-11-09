@@ -267,9 +267,10 @@ variables are gated on `landIcePressurePKG`, which is inactive when
 
 ## Omega
 
-Not supported yet.  Setting `[component_inputs] ocean_model = omega` raises
-at setup with a message saying so, rather than staging MPAS-Ocean files under
-an Omega name.
+Not supported yet.  The staged files are for whichever ocean model the
+dynamic adjustment runs, which is the one given with `--ocean_model` or
+detected from the `--ocean_path` build.  If that is Omega, setup stops with a
+message saying so, rather than staging Omega output under MPAS-Ocean names.
 
 (e3sm-init-component-inputs-config)=
 
@@ -291,12 +292,6 @@ mesh_short_name =
 # with today's date at setup if left blank, so that re-running a step does not
 # rename every staged file.
 creation_date =
-
-# The ocean model the staged files are for: mpas-ocean or omega
-ocean_model = mpas-ocean
-
-# The sea-ice model the staged files are for: mpas-seaice or none
-seaice_model = mpas-seaice
 
 # The approximate maximum number of cells per core, which sets the smallest
 # graph partition created
