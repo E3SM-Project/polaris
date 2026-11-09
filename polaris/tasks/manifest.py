@@ -19,6 +19,12 @@ import os
 import tempfile
 from typing import Any, Callable, Dict, List, Optional, Tuple
 
+from polaris.tasks import (
+    add_task_groups,
+    get_components,
+    get_task_group_names,
+)
+
 # change this when the manifest's contents change, so old ones are rebuilt
 MANIFEST_FORMAT = 1
 
@@ -101,14 +107,6 @@ def build_task_entries() -> List[Dict[str, Any]]:
     tasks : list of dict
         The manifest's entries, as returned by :py:func:`get_manifest`
     """
-    # deferred because building every task is what the manifest is there to
-    # avoid, and only a stale manifest needs it
-    from polaris.tasks import (
-        add_task_groups,
-        get_components,
-        get_task_group_names,
-    )
-
     components = get_components(add_tasks=False)
 
     # add the task groups one at a time to find out which task group adds
