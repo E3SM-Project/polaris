@@ -77,17 +77,35 @@ def test_load_all_imports_everything_deferred():
     out = _run(
         """
         import sys
-        from polaris.lazy import lazy_module, load_all
+        from polaris.lazy import lazy_module, lazy_side_effect, load_all
         mod = lazy_module('json.tool')
+        lazy_side_effect('xml.dom.minidom')
         load_all()
         print('json.tool' in sys.modules)
+        print('xml.dom.minidom' in sys.modules)
         """
     )
-    assert out == ['True']
+    assert out == ['True', 'True']
 
 
 def test_lazy_module_repr_names_the_module():
     assert repr(lazy_module('os.path')) == '<deferred os.path>'
+
+
+def test_side_effect_import_waits_for_a_deferred_name():
+    """A side-effect import runs when the module first uses a deferred name"""
+    out = _run(
+        """
+        import sys
+        from polaris.lazy import lazy_module, lazy_side_effect
+        lazy_side_effect('json.tool')
+        colorsys = lazy_module('colorsys')
+        print('json.tool' in sys.modules)
+        colorsys.rgb_to_hsv(0.0, 0.0, 0.0)
+        print('json.tool' in sys.modules)
+        """
+    )
+    assert out == ['False', 'True']
 
 
 def _run(code):
