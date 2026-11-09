@@ -43,6 +43,35 @@ def test_the_sync_script_copies_and_sets_permissions(tmp_path):
 @pytest.mark.skipif(
     shutil.which('rsync') is None, reason='rsync is not installed'
 )
+def test_the_sync_script_takes_a_relative_destination(tmp_path):
+    """
+    Relative to where the script is run from, not to the assembled tree the
+    script changes into before copying.
+    """
+    work_dir = tmp_path / 'assemble' / 'all'
+    staged_dir = work_dir / ASSEMBLED_FILES / 'inputdata' / 'ocn' / 'mpas-o'
+    staged_dir.mkdir(parents=True)
+
+    product = tmp_path / 'product.nc'
+    product.write_text('contents')
+    (staged_dir / 'staged.nc').symlink_to(product)
+
+    script = work_dir / SYNC_SCRIPT
+    script.symlink_to(_sync_script_source())
+
+    (tmp_path / 'inputdata').mkdir()
+    subprocess.run(
+        ['bash', str(script), 'inputdata'], check=True, cwd=tmp_path
+    )
+
+    copied = tmp_path / 'inputdata' / 'ocn' / 'mpas-o' / 'staged.nc'
+    assert copied.is_file() and not copied.is_symlink()
+    assert copied.read_text() == 'contents'
+
+
+@pytest.mark.skipif(
+    shutil.which('rsync') is None, reason='rsync is not installed'
+)
 def test_the_sync_script_dry_run_copies_nothing(tmp_path):
     """
     A dry run lists what would be synced and leaves the destination as it was.

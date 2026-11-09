@@ -45,6 +45,9 @@ if [ ! -d "${dest}" ]; then
     exit 1
 fi
 
+# made absolute here, because the copy below runs from another directory
+dest=$(cd "${dest}" && pwd)
+
 # BASH_SOURCE is the path as invoked, not the resolved target, so for the
 # symlink in the step's work directory this is that work directory -- where
 # assembled_files is -- whatever the current directory happens to be.
