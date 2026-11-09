@@ -312,15 +312,18 @@ estimate. A period that contains the initial start, or that MALI's steps
 do not yet cover, is reported apart.
 
 **Ocean volume.** The ocean's volume changes by the melt under the ice,
-by frazil, by the inflow through the cells whose tidal forcing holds their
-sea-surface height, and by a small rest. Water the ice shelf displaces as
-it grows heavier leaves through those cells, so the inflow follows the
-change in the ice's load. The daily change comes from the global
+by frazil and by the volume the tidal forcing adds in the cells whose
+sea-surface height it holds. Water the ice shelf displaces as it grows
+heavier leaves through those cells, so that volume follows the change in
+the ice's load. The daily change comes from the global
 statistics at each day's ends. The volume the tidal forcing adds is the
 daily mean of its thickness tendency, summed over the region, where the
 forcing is a thickness source and the ocean writes it. Forcing that sets
 the thickness directly leaves that tendency at zero, so the volume change
-less melt and frazil is then shown as the inflow and anything else (D10).
+less melt and frazil is then shown as the forcing's term. The cells outside
+the forced ones close their own budget each month, from snapshots of layer
+thickness and the mean thickness flux across their edges with the forced
+cells, which shows that nothing else adds volume (D10).
 Frazil's volume is the daily mean of its thickness tendency, summed over
 the layers. Its freshwater flux, used where the tendency is missing, is an
 approximation: it holds only the frazil under the land ice, and open-ocean
@@ -507,7 +510,10 @@ every time step, hold the melt it applies.
 The ocean's volume budget reads `volumeCellGlobal` from the daily global
 statistics and the daily means of melt, frazil's freshwater flux and
 thickness tendency, the tidal thickness tendency and land-ice pressure. The run's `config_tidal_forcing_type`
-decides whether the tendency is used.
+decides whether the tendency is used. The monthly budget outside the
+tidally forced cells reads the forcing's `tidalInputMask`, the snapshots
+of layer thickness and the monthly means of melt, frazil and
+`normalLayerThicknessFlux`.
 
 ### Implementation: Runs are compared with each other
 
@@ -577,7 +583,9 @@ Contributors: Xylar Asay-Davis, Claude
   the sum of the face integrals over the cells west of it.
 - On a small mesh, the volume budget uses the tidal tendency of a
   thickness source where it has it and no tidal term for direct forcing,
-  and its load change counts only days that follow each other.
+  and its load change counts only days that follow each other. The
+  monthly budget outside the forced cells counts only the edges they share
+  with the forced cells, each with its sign.
 - On the existing 4 km Ocean0 and Ocean3 runs, the monthly-mean melt
   flux matches the mean of the daily statistics, the overturning is near
   zero at the seafloor, and Ocean3's grounding line from MALI's history
@@ -711,17 +719,28 @@ The ocean analysis's manifest methods and `Publish` step move to
 built on the ocean analysis's copying of products into the gallery. This
 work builds on it.
 
-### D10: Direct tidal forcing has no inflow term
+### D10: The volume budget closes outside the tidally forced cells
 
-Date last modified: 2026/11/05
+Date last modified: 2026/11/09
 
 Contributors: Xylar Asay-Davis, Claude
 
-Under direct tidal forcing, the volume budget shows the volume change less
-melt and frazil as the inflow through the forced cells and anything else.
+Under direct tidal forcing, no output gives the volume the forcing adds,
+so the daily budget shows the volume change less melt and frazil as the
+tidal forcing's term. The cells outside the forced ones have a closed
+budget each month: their volume, from the monthly snapshots of layer
+thickness, changes by their melt and frazil and by the transport across
+the edges they share with the forced cells, from the monthly mean of
+`normalLayerThicknessFlux`. In the 2 km stage E runs it closes to within
+1e-4 of each month's melt, which also shows that the flux the overturning
+uses is the one the ocean applies.
 
-Rejected: the transport out of the forced cells from the daily means of
-velocity and thickness. In the coupled IceOcean1r runs, the net inflow is
+Rejected:
+
+- calling the daily rest the inflow through the forced cells and anything
+  else, which leaves open what else;
+- the transport out of the forced cells from the daily means of
+  velocity and thickness. In the coupled IceOcean1r runs, the net inflow is
 about 2e-5 of the flow across those cells' edges each way, and the
 product of daily means misses it by about ten times its size.
 
