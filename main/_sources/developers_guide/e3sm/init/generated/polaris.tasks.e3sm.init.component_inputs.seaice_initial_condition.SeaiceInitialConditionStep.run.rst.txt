@@ -1,0 +1,6 @@
+﻿polaris.tasks.e3sm.init.component\_inputs.seaice\_initial\_condition.SeaiceInitialConditionStep.run
+===================================================================================================
+
+.. currentmodule:: polaris.tasks.e3sm.init.component_inputs.seaice_initial_condition
+
+.. automethod:: SeaiceInitialConditionStep.run

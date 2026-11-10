@@ -1,0 +1,544 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Component Input Tasks</title>
+      <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../../_static/documentation_options.js?v=a8da1a53"></script>
+      <script src="../../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" />
+    <link rel="next" title="Suites" href="../suites.html" />
+    <link rel="prev" title="Topography Tasks" href="topo.html" />
+    <link href="../../../../_static/style.css" rel="stylesheet" type="text/css">
+
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../../index.html" class="icon icon-home">
+            Polaris
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">User's guide</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../../quick_start.html">Quick Start for Users</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tasks.html">Tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../config_files.html">Config Files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../suites.html">Suites</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../mesh/index.html">Mesh component</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../index.html">E3SM Initial Condition Component</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="index.html">Tasks</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="topo.html">Topography Tasks</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">Component Input Tasks</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#tasks">Tasks</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#mesh-short-names">Mesh short names</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#staged-layout">Staged layout</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#copying-into-inputdata">Copying into inputdata</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#graph-partitions">Graph partitions</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#ice-shelf-cavities">Ice-shelf cavities</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#omega">Omega</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#configuration-options">Configuration Options</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#running-on-a-login-node">Running on a login node</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../suites.html">Suites</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../ocean/index.html">Ocean component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../seaice/index.html">Sea ice component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../machines/index.html">Machines</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Developer's guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../developers_guide/quick_start.html">Quick Start for Developers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../developers_guide/overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../developers_guide/command_line.html">Command-line interface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../developers_guide/organization/index.html">Organization of Tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../developers_guide/e3sm/init/index.html">E3SM initial condition (e3sm/init) component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../developers_guide/mesh/index.html">Mesh component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../developers_guide/ocean/index.html">Ocean component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../developers_guide/seaice/index.html">Sea ice component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../developers_guide/framework/index.html">Framework</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../developers_guide/machines/index.html">Machines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../developers_guide/benchmarking.html">Benchmarking a branch against a baseline</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../developers_guide/omega_pr_testing.html">Testing an Omega pull request</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../developers_guide/polaris_update_testing.html">Testing a Polaris version update</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../developers_guide/troubleshooting.html">Troubleshooting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../developers_guide/docs.html">Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../developers_guide/building_docs.html">Building the Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../developers_guide/building_docs.html#previewing-the-documentation">Previewing the Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../developers_guide/conda_vs_spack.html">How Conda and Spack Work Together in Polaris</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../developers_guide/updating_conda.html">Updating Deployment Dependencies</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../developers_guide/updating_spack/index.html">Updating Shared Spack Environments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../developers_guide/api.html">API reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../design_docs/index.html">Design Documents</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../tutorials/dev_add_category_of_tasks/index.html">Developer Tutorial: Adding a New Category of Tasks</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Glossary</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../glossary.html">Glossary</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../index.html">Polaris</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">E3SM Initial Condition Component</a></li>
+          <li class="breadcrumb-item"><a href="index.html">Tasks</a></li>
+      <li class="breadcrumb-item active">Component Input Tasks</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../../../_sources/users_guide/e3sm/init/tasks/component_inputs.md.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section class="tex2jax_ignore mathjax_ignore" id="component-input-tasks">
+<span id="e3sm-init-component-inputs-tasks"></span><h1>Component Input Tasks<a class="headerlink" href="#component-input-tasks" title="Link to this heading"></a></h1>
+<p>The <code class="docutils literal notranslate"><span class="pre">e3sm/init</span></code> <code class="docutils literal notranslate"><span class="pre">component_inputs</span></code> tasks stage the files an E3SM run needs
+from a unified mesh: the base mesh with maps to the meshes culled from it,
+SCRIP descriptions of those culled meshes, the MPAS-Ocean and MPAS-Seaice
+meshes and initial conditions, and graph partitions for both models.</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>The staged tree is a <strong>subset</strong> of what E3SM needs for a new mesh.  It does
+not include diagnostic mapping files or region masks, E3SM-to-CMIP maps,
+iceberg or ice-shelf melt climatologies, sea-surface salinity restoring,
+tidal mixing, or velocity-reconstruction coefficients.  The remaining steps
+in adding a mesh to E3SM are outside the scope of Polaris.  Do not upload the
+tree to the inputdata server or try to add a new mesh to E3SM yourself.
+Contact an expert on the E3SM team, such as Jon Wolfe, instead.  The same
+warning is staged as a <code class="docutils literal notranslate"><span class="pre">README</span></code> alongside the files.</p>
+</div>
+<section id="tasks">
+<h2>Tasks<a class="headerlink" href="#tasks" title="Link to this heading"></a></h2>
+<p>Three tasks per unified mesh, which share most of their steps:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">e3sm/init/&lt;mesh&gt;/component_inputs/tasks/ocean</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">e3sm/init/&lt;mesh&gt;/component_inputs/tasks/seaice</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">e3sm/init/&lt;mesh&gt;/component_inputs/tasks/all</span></code></p></li>
+</ul>
+<p>For example, for <code class="docutils literal notranslate"><span class="pre">u-oi30-lr10</span></code>:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">e3sm/init/u-oi30-lr10/component_inputs/tasks/all</span></code></p></li>
+</ul>
+<p>The supported unified mesh names are those listed in
+<a class="reference internal" href="../../../mesh/tasks/unified/base_mesh.html#users-mesh-unified-base-mesh"><span class="std std-ref">Unified base-mesh tasks</span></a>.</p>
+<p>Each task includes every step it depends on, from the base mesh onward, so
+there is no need to set up any other task first.  The <code class="docutils literal notranslate"><span class="pre">ocean</span></code> and <code class="docutils literal notranslate"><span class="pre">all</span></code> tasks
+include the realistic-global initial condition and dynamic adjustment,
+because the ocean initial condition is the restart from the final adjustment
+stage, not the interpolated initial state.  The adjustment is a multi-hour
+model run on the finer meshes, and it needs MPAS-Ocean.  Either point
+<code class="docutils literal notranslate"><span class="pre">--ocean_path</span></code> at an existing build (<code class="docutils literal notranslate"><span class="pre">-p</span></code> does not apply, since the
+<code class="docutils literal notranslate"><span class="pre">e3sm/init</span></code> component has no model of its own):</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>polaris<span class="w"> </span>setup<span class="w"> </span>-t<span class="w"> </span>e3sm/init/u-oi240-lr240/component_inputs/tasks/all<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--ocean_path<span class="w"> </span>&lt;path<span class="w"> </span>to<span class="w"> </span>MPAS-Ocean<span class="w"> </span>build&gt;<span class="w"> </span>-w<span class="w"> </span>&lt;work<span class="w"> </span>dir&gt;
+</pre></div>
+</div>
+<p>or give <code class="docutils literal notranslate"><span class="pre">--ocean_model</span> <span class="pre">mpas-ocean</span></code> and Polaris builds MPAS-Ocean from the
+<code class="docutils literal notranslate"><span class="pre">e3sm_submodules/E3SM-Project</span></code> submodule:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>polaris<span class="w"> </span>setup<span class="w"> </span>-t<span class="w"> </span>e3sm/init/u-oi240-lr240/component_inputs/tasks/all<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--ocean_model<span class="w"> </span>mpas-ocean<span class="w"> </span>-w<span class="w"> </span>&lt;work<span class="w"> </span>dir&gt;
+</pre></div>
+</div>
+<p>The <code class="docutils literal notranslate"><span class="pre">seaice</span></code> task does <strong>not</strong> include the ocean steps.  Every sea-ice product
+is built from the culled mesh alone, so if you only need the sea-ice files,
+use that task rather than <code class="docutils literal notranslate"><span class="pre">all</span></code>.</p>
+</section>
+<section id="mesh-short-names">
+<h2>Mesh short names<a class="headerlink" href="#mesh-short-names" title="Link to this heading"></a></h2>
+<p>Each mesh needs an E3SM short name, which identifies a released mesh rather
+than saying how the mesh was built.  The unified mesh team assigns a unique
+two-digit ID when a mesh reaches E3SM’s master branch and the inputdata
+server:</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Polaris mesh name</p></th>
+<th class="head"><p>E3SM short name</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">u-oi30-lr10</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">u02-oi30-lr10</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">u-oi240-lr240</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">u03-oi240-lr240</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">u-oi6to18-lr12p5</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">u04-oi6to18-lr12p5</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">u-oi6to18-lr25</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">u05-oi6to18-lr25</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">u-oi-so12to30-lr10</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">uXX-oi-so12to30-lr10</span></code></p></td>
+</tr>
+</tbody>
+</table>
+<p>These are registered in each mesh’s config file, so the five unified meshes
+set up without any extra configuration.</p>
+<p><code class="docutils literal notranslate"><span class="pre">u-oi-so12to30-lr10</span></code> is not headed for E3SM and so has no assigned ID.  Its
+<code class="docutils literal notranslate"><span class="pre">uXX</span></code> placeholder is not a valid ID, which marks anything staged under it as a
+test product.</p>
+<p>A mesh with no registered short name fails at setup with a message naming the
+option to set.  There is no default and no autodetection: only a person can
+decide that a mesh has earned a short name.</p>
+</section>
+<section id="staged-layout">
+<h2>Staged layout<a class="headerlink" href="#staged-layout" title="Link to this heading"></a></h2>
+<p>With <code class="docutils literal notranslate"><span class="pre">&lt;short&gt;</span></code> the mesh short name (e.g. <code class="docutils literal notranslate"><span class="pre">u04-oi6to18-lr12p5</span></code>), <code class="docutils literal notranslate"><span class="pre">&lt;id&gt;</span></code> its
+leading ID (<code class="docutils literal notranslate"><span class="pre">u04</span></code>), <code class="docutils literal notranslate"><span class="pre">&lt;grid&gt;</span></code> E3SM’s name for its ocean and sea-ice grid, the
+short name without its land part (<code class="docutils literal notranslate"><span class="pre">u04-oi6to18</span></code>), and <code class="docutils literal notranslate"><span class="pre">&lt;date&gt;</span></code> the creation
+date, the tree under <code class="docutils literal notranslate"><span class="pre">assemble/&lt;target&gt;/assembled_files/</span></code> is:</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Product</p></th>
+<th class="head"><p>Staged path</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>base mesh + maps</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">inputdata/share/meshes/mpas/unified/&lt;id&gt;/&lt;short&gt;.base.&lt;date&gt;.nc</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p>SCRIP, per region</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">inputdata/share/meshes/mpas/unified/&lt;id&gt;/&lt;short&gt;.&lt;region&gt;.scrip.&lt;date&gt;.nc</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p>ocean SCRIP, again</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">inputdata/ocn/mpas-o/&lt;grid&gt;/&lt;short&gt;.scrip.&lt;date&gt;.nc</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p>no-cavities SCRIP, again</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">inputdata/ocn/mpas-o/&lt;grid&gt;/&lt;short&gt;.no_cavities.scrip.&lt;date&gt;.nc</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p>ocean mesh</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">inputdata/share/meshes/mpas/unified/&lt;id&gt;/&lt;short&gt;.ocean.&lt;date&gt;.nc</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p>land mesh</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">inputdata/share/meshes/mpas/unified/&lt;id&gt;/&lt;short&gt;.land.&lt;date&gt;.nc</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p>ocean IC</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">inputdata/ocn/mpas-o/&lt;grid&gt;/mpaso.&lt;grid&gt;.&lt;date&gt;.nc</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p>ocean graph</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">inputdata/ocn/mpas-o/&lt;grid&gt;/partitions/mpas-o.graph.info.&lt;date&gt;</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p>ocean partitions</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">inputdata/ocn/mpas-o/&lt;grid&gt;/partitions/mpas-o.graph.info.&lt;date&gt;.part.&lt;n&gt;</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p>MOC masks</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">inputdata/ocn/mpas-o/&lt;grid&gt;/&lt;short&gt;.mocBasinsAndTransects&lt;features_date&gt;.&lt;date&gt;.nc</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p>sea-ice IC</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">inputdata/ice/mpas-seaice/&lt;grid&gt;/mpassi.&lt;grid&gt;.&lt;date&gt;.nc</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p>sea-ice partitions</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">inputdata/ice/mpas-seaice/&lt;grid&gt;/partitions/mpas-seaice.graph.info.&lt;date&gt;.part.&lt;n&gt;</span></code></p></td>
+</tr>
+</tbody>
+</table>
+<p>These are the directories and names E3SM reads the files from.</p>
+<p>The three SCRIP regions are <code class="docutils literal notranslate"><span class="pre">ocean</span></code>, <code class="docutils literal notranslate"><span class="pre">ocean_no_cavities</span></code> and <code class="docutils literal notranslate"><span class="pre">land</span></code>, matching
+the meshes the cull step produces.</p>
+<p>The assembly step deletes <code class="docutils literal notranslate"><span class="pre">assembled_files/</span></code> and rebuilds it every time it
+runs, so the tree only holds the files from the latest assembly.  This matters
+because running <code class="docutils literal notranslate"><span class="pre">polaris</span> <span class="pre">setup</span></code> again in the same work directory sets
+<code class="docutils literal notranslate"><span class="pre">creation_date</span></code> to that day’s date (see
+<a class="reference internal" href="#e3sm-init-component-inputs-config"><span class="std std-ref">Configuration Options</span></a>).  Without the delete, files with the
+old date would remain in the tree alongside the new ones.</p>
+<p>The base mesh is filed under <code class="docutils literal notranslate"><span class="pre">share/meshes/mpas/unified/</span></code> rather than Compass’
+<code class="docutils literal notranslate"><span class="pre">share/meshes/mpas/ocean/</span></code>, because for a unified mesh it belongs to the
+ocean, sea-ice, land and river components equally. The culled ocean and land
+meshes sit beside it for the same reason: each describes a domain of the
+unified mesh rather than a file one component reads at run time, and E3SM does
+not look for a mesh under <code class="docutils literal notranslate"><span class="pre">ocn/mpas-o/</span></code>. The ocean mesh carries the vertical
+coordinate as well, which is what makes it an ocean mesh rather than a
+horizontal one.</p>
+<p>Each unified mesh gets its own subdirectory of <code class="docutils literal notranslate"><span class="pre">share/meshes/mpas/unified/</span></code>,
+named for its ID (<code class="docutils literal notranslate"><span class="pre">u04</span></code>).  One mesh puts six files there (a base mesh, three
+SCRIP descriptions and two culled meshes), and the subdirectory keeps them
+together so that one mesh’s files can be found, copied or removed as a group.
+The short name is still in every filename, so a file copied out of the tree
+still says which mesh it belongs to.</p>
+<p>The two ocean SCRIP files are staged twice: in the shared mesh directory under
+their full region names, and beside the ocean products, since developers look
+for them in both places.  Everything in <code class="docutils literal notranslate"><span class="pre">ocn/mpas-o/</span></code> belongs to the ocean, so
+the <code class="docutils literal notranslate"><span class="pre">ocean</span></code> in the region name is dropped there, giving
+<code class="docutils literal notranslate"><span class="pre">&lt;short&gt;.scrip.&lt;date&gt;.nc</span></code> and <code class="docutils literal notranslate"><span class="pre">&lt;short&gt;.no_cavities.scrip.&lt;date&gt;.nc</span></code>.  Both
+copies are links to the same file.  The land SCRIP file is not staged there.</p>
+<p>No sea-ice mesh is staged.  It is the culled ocean mesh under another name, so
+it would be a second copy of <code class="docutils literal notranslate"><span class="pre">&lt;short&gt;.ocean.&lt;date&gt;.nc</span></code>, and MPAS-Seaice reads
+its mesh from the initial condition anyway.  The step that builds it is still
+needed, because the partition steps read its output.</p>
+<p>No mesh is staged for <code class="docutils literal notranslate"><span class="pre">ocean_no_cavities</span></code>.  It is used to build mapping files,
+and on meshes culled with the <code class="docutils literal notranslate"><span class="pre">calving_front</span></code> convention, which all current
+unified meshes use, it is identical to the ocean mesh.  Its SCRIP description
+is still staged.</p>
+<section id="base-to-culled-index-maps">
+<h3>Base-to-culled index maps<a class="headerlink" href="#base-to-culled-index-maps" title="Link to this heading"></a></h3>
+<p>The staged base mesh carries nine integer fields alongside the mesh itself:</p>
+<p><code class="docutils literal notranslate"><span class="pre">mapBaseTo{Ocean,OceanNoCavities,Land}{Cell,Edge,Vertex}</span></code></p>
+<p>Each is dimensioned by the <strong>base</strong> mesh and gives the one-based index of
+that element on the named culled mesh, or zero if the element is not on it.
+The one-based convention matches <code class="docutils literal notranslate"><span class="pre">cellsOnCell</span></code> and the other MPAS index
+fields, and differs from the zero-based <code class="docutils literal notranslate"><span class="pre">mapCulledToBase*</span></code> the cull step
+writes, so each field’s <code class="docutils literal notranslate"><span class="pre">long_name</span></code> records which convention it follows.</p>
+<p>These exist because the MOAB coupler maps to and from the base mesh.</p>
+</section>
+<section id="moc-masks">
+<h3>MOC masks<a class="headerlink" href="#moc-masks" title="Link to this heading"></a></h3>
+<p>The MOC basin masks and their southern-boundary transects are a run-time input
+to MPAS-Ocean, not an analysis product. E3SM points two streams at this one
+file, <code class="docutils literal notranslate"><span class="pre">regionalMasksInput</span></code> and <code class="docutils literal notranslate"><span class="pre">transectMasksInput</span></code>, and two analysis members
+that are on by default read them: <code class="docutils literal notranslate"><span class="pre">mocStreamfunction</span></code>, which E3SM enables per
+mesh and has enabled for every mesh since <code class="docutils literal notranslate"><span class="pre">EC30to60E2r2</span></code>, and
+<code class="docutils literal notranslate"><span class="pre">meridionalHeatTransport</span></code>, which is enabled for every mesh.</p>
+<p>If the file is missing, neither member stops the run. <code class="docutils literal notranslate"><span class="pre">nRegions</span></code> and
+<code class="docutils literal notranslate"><span class="pre">nRegionGroups</span></code> fall back to 1, the MOC member logs that its region group was
+not found, and the run writes output computed for a meaningless region.
+Because nothing in a run reports the problem, this file is staged with the
+files a run needs rather than with the analysis products.</p>
+<p>Its name carries two dates because they change independently:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">&lt;features_date&gt;</span></code> is the version of the <code class="docutils literal notranslate"><span class="pre">geometric_features</span></code> aggregation the
+basins come from, upstream data shared by every mesh. It rides with the
+product name, as in the files already on the inputdata server
+(<code class="docutils literal notranslate"><span class="pre">oRRS18to6v3_mocBasinsAndTransects20210623.nc</span></code>).</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">&lt;date&gt;</span></code> is the creation date of this mesh’s file, in the trailing field
+where every other staged file carries it.</p></li>
+</ul>
+<p>For example, <code class="docutils literal notranslate"><span class="pre">u02-oi30-lr10.mocBasinsAndTransects20210623.20261109.nc</span></code> uses
+the <code class="docutils literal notranslate"><span class="pre">20210623</span></code> basins and was created on 9 November 2026.</p>
+<p>Both are also written into the file as the <code class="docutils literal notranslate"><span class="pre">mask_features_date</span></code>,
+<code class="docutils literal notranslate"><span class="pre">mask_features_source</span></code> and <code class="docutils literal notranslate"><span class="pre">creation_date</span></code> global attributes, so the
+provenance survives a copy or a rename.</p>
+<p>Only the <code class="docutils literal notranslate"><span class="pre">MOC</span> <span class="pre">Basins</span></code> group is built here.  The other mask groups are for
+MPAS-Analysis and post-processing, and these tasks do not produce them yet.</p>
+</section>
+</section>
+<section id="copying-into-inputdata">
+<h2>Copying into inputdata<a class="headerlink" href="#copying-into-inputdata" title="Link to this heading"></a></h2>
+<p>The assembly step builds the tree but never writes outside its own work
+directory. Copying into a shared inputdata directory is a decision a person
+makes, so the step symlinks a script in for you to run by hand from
+<code class="docutils literal notranslate"><span class="pre">component_inputs/assemble/&lt;target&gt;</span></code>:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">./</span><span class="n">sync_to_inputdata</span><span class="o">.</span><span class="n">sh</span> <span class="o">--</span><span class="n">dry</span><span class="o">-</span><span class="n">run</span> <span class="o">/</span><span class="n">lcrc</span><span class="o">/</span><span class="n">group</span><span class="o">/</span><span class="n">e3sm</span><span class="o">/</span><span class="n">data</span><span class="o">/</span><span class="n">inputdata</span>
+<span class="o">./</span><span class="n">sync_to_inputdata</span><span class="o">.</span><span class="n">sh</span> <span class="o">/</span><span class="n">lcrc</span><span class="o">/</span><span class="n">group</span><span class="o">/</span><span class="n">e3sm</span><span class="o">/</span><span class="n">data</span><span class="o">/</span><span class="n">inputdata</span>
+</pre></div>
+</div>
+<p>The first lists what would be copied without copying anything.</p>
+<p>The destination must already exist, so that a typo stops the copy instead of
+creating a second tree beside the real one.</p>
+<p>The script runs <code class="docutils literal notranslate"><span class="pre">rsync</span> <span class="pre">--ignore-existing</span> <span class="pre">--recursive</span> <span class="pre">--copy-links</span></code>, so the
+staged symlinks are copied as real files and anything already at the
+destination is left alone.  This means a staged file whose contents changed
+but whose name did not will not be updated.  Delete it from the destination
+first if you want it replaced.</p>
+<p>The script then sets directories to <code class="docutils literal notranslate"><span class="pre">2775</span></code> and files to <code class="docutils literal notranslate"><span class="pre">664</span></code> (user and group
+read and write, world read, and setgid directories, as elsewhere in
+inputdata), but only on the paths this tree adds.  The destination is shared
+and often very large, so changing permissions on all of it would touch files
+that belong to other meshes and other people.</p>
+</section>
+<section id="graph-partitions">
+<h2>Graph partitions<a class="headerlink" href="#graph-partitions" title="Link to this heading"></a></h2>
+<p>The partition steps build a list of likely core counts from the mesh’s cell
+count and two config options, and run <code class="docutils literal notranslate"><span class="pre">gpmetis</span></code> once for each count (once per
+region for sea ice, below).  The largest partition asked for is
+<code class="docutils literal notranslate"><span class="pre">ncells</span> <span class="pre">/</span> <span class="pre">min_cells_per_core</span></code>.</p>
+<p><code class="docutils literal notranslate"><span class="pre">gpmetis</span></code> fails above roughly 750,000 parts, so a mesh with more than about
+1.5 million ocean cells needs <code class="docutils literal notranslate"><span class="pre">min_cells_per_core</span></code> raised above the default
+of 2. Only the two <code class="docutils literal notranslate"><span class="pre">u-oi6to18</span></code> meshes are currently that large, and their
+configs set <code class="docutils literal notranslate"><span class="pre">min_cells_per_core</span> <span class="pre">=</span> <span class="pre">6</span></code>, following what Compass does for
+<code class="docutils literal notranslate"><span class="pre">rrs6to18</span></code>. A new mesh above that size needs the same treatment.</p>
+<p>The calls are independent, so both partition steps run up to
+<code class="docutils literal notranslate"><span class="pre">partition_cpus_per_task</span></code> of them at once on one node, the largest first.
+Each call is a serial process, so the steps run best with a whole compute node
+to themselves.  Lower <code class="docutils literal notranslate"><span class="pre">partition_cpus_per_task</span></code> if a node runs out of memory:
+the largest partitions of a 4-million-cell mesh need about 2 GB each.  The
+output of <code class="docutils literal notranslate"><span class="pre">gpmetis</span></code> goes to <code class="docutils literal notranslate"><span class="pre">gpmetis.log</span></code> in the step’s work directory, and the
+step’s own log gets one line per partition.</p>
+<p><code class="docutils literal notranslate"><span class="pre">gpmetis</span></code> must be the 64-bit build, which the Polaris load script provides
+from Spack. The 32-bit build in the pixi environment fails on the largest
+meshes, and the step’s error names it when that is the cause.</p>
+<p>The sea-ice partitions give every core a piece of the ice-covered region and
+a piece of the rest of the mesh, as MPAS-Tools’ <code class="docutils literal notranslate"><span class="pre">create_seaice_partitions</span></code>
+does. <code class="docutils literal notranslate"><span class="pre">prepare_seaice_partitions</span></code> decides which region each cell is in, and
+the step then builds each region’s graph from <code class="docutils literal notranslate"><span class="pre">cellsOnCell</span></code>. It does not call
+<code class="docutils literal notranslate"><span class="pre">create_seaice_partitions</span></code>, which culls a copy of the mesh for each region and
+took over two hours doing so on the finest mesh.</p>
+<p>Both partition steps resume. A rerun rebuilds only the partitions that are
+missing or unfinished, so a job that runs out of walltime costs the partitions
+it was in the middle of, not the ones it had already written. Each partition
+is written under another name and renamed once complete, so a kill cannot
+leave a truncated file under a partition’s own name. A file also counts as
+finished only when it has one line per cell, which catches any truncated
+partition an earlier run left.  Checking takes about a minute even for several
+hundred files on the finest mesh.</p>
+</section>
+<section id="ice-shelf-cavities">
+<h2>Ice-shelf cavities<a class="headerlink" href="#ice-shelf-cavities" title="Link to this heading"></a></h2>
+<p>Not supported.  These tasks are for meshes culled with the <code class="docutils literal notranslate"><span class="pre">calving_front</span></code>
+Antarctic boundary convention, which have no cavities, and the staged files
+carry no land-ice fields.  MPAS-Ocean does not require them: the <code class="docutils literal notranslate"><span class="pre">landIce*</span></code>
+variables are gated on <code class="docutils literal notranslate"><span class="pre">landIcePressurePKG</span></code>, which is inactive when
+<code class="docutils literal notranslate"><span class="pre">config_land_ice_flux_mode</span></code> is <code class="docutils literal notranslate"><span class="pre">off</span></code>.</p>
+<p>We plan to add support for ice-shelf cavities soon.</p>
+</section>
+<section id="omega">
+<h2>Omega<a class="headerlink" href="#omega" title="Link to this heading"></a></h2>
+<p>Not supported yet.  The staged files are for whichever ocean model the
+dynamic adjustment runs, which is the one given with <code class="docutils literal notranslate"><span class="pre">--ocean_model</span></code> or
+detected from the <code class="docutils literal notranslate"><span class="pre">--ocean_path</span></code> build.  If that is Omega, setup stops with a
+message saying so, rather than staging Omega output under MPAS-Ocean names.</p>
+</section>
+<section id="configuration-options">
+<span id="e3sm-init-component-inputs-config"></span><h2>Configuration Options<a class="headerlink" href="#configuration-options" title="Link to this heading"></a></h2>
+<p>These tasks create a shared config file in their work directories:</p>
+<div class="highlight-cfg notranslate"><div class="highlight"><pre><span></span><span class="c1"># Options related to staging the component input files for an E3SM run</span>
+<span class="k">[component_inputs]</span>
+
+<span class="c1"># The E3SM short name of the mesh, which identifies a released mesh rather</span>
+<span class="c1"># than saying how it was built.  There is no default: only a person can decide</span>
+<span class="c1"># that a mesh has earned one.  Unified meshes register</span>
+<span class="c1"># theirs as [unified_mesh] e3sm_short_name; setting this option overrides it.</span>
+<span class="na">mesh_short_name</span><span class="w"> </span><span class="o">=</span>
+
+<span class="c1"># The creation date the staged files are stamped with, as YYYYMMDD.  Filled in</span>
+<span class="c1"># with today's date at setup if left blank, so that re-running a step does not</span>
+<span class="c1"># rename every staged file.</span>
+<span class="na">creation_date</span><span class="w"> </span><span class="o">=</span>
+
+<span class="c1"># The approximate maximum number of cells per core, which sets the smallest</span>
+<span class="c1"># graph partition created</span>
+<span class="na">max_cells_per_core</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">30000</span>
+
+<span class="c1"># The approximate minimum number of cells per core, which sets the largest</span>
+<span class="c1"># graph partition created</span>
+<span class="na">min_cells_per_core</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">2</span>
+
+<span class="c1"># The number of graph partitions to build at once, if a node has that many</span>
+<span class="c1"># cores.  Each is a serial gpmetis process, and on a 4-million-cell mesh the</span>
+<span class="c1"># largest need about 2 GB each, so lower this if a node runs out of memory.</span>
+<span class="na">partition_cpus_per_task</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">128</span>
+
+<span class="c1"># The fewest cores the graph-partition steps can run with</span>
+<span class="na">partition_min_cpus_per_task</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">1</span>
+
+<span class="c1"># Whether to write every sea-ice partition to partition_diag.nc, for plotting</span>
+<span class="c1"># with seaice_mesh.nc</span>
+<span class="na">plot_seaice_partitions</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">False</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">creation_date</span></code> is filled in during setup, so it is saved in the work
+directory’s config file and rerunning a step keeps the same date.  Running
+<code class="docutils literal notranslate"><span class="pre">polaris</span> <span class="pre">setup</span></code> again in the same work directory, though, sets it to that
+day’s date unless you set it yourself in a user config file.</p>
+</section>
+<section id="running-on-a-login-node">
+<h2>Running on a login node<a class="headerlink" href="#running-on-a-login-node" title="Link to this heading"></a></h2>
+<p>Run these tasks on compute nodes.  They include the steps that build and cull
+the mesh and remap topography, and the <code class="docutils literal notranslate"><span class="pre">ocean</span></code> and <code class="docutils literal notranslate"><span class="pre">all</span></code> tasks also include
+the ocean initial condition and the dynamic-adjustment model runs.</p>
+<p>Of the steps that make the component inputs themselves, all but three only
+reorganize files that already exist.  The three exceptions are
+<code class="docutils literal notranslate"><span class="pre">seaice_partition_map</span></code>, which builds the remapping weights for the sea-ice
+partitions with MPI, and the two graph-partition steps, which run many
+<code class="docutils literal notranslate"><span class="pre">gpmetis</span></code> processes at once.  On a login node those are limited to its
+<code class="docutils literal notranslate"><span class="pre">login_cores</span></code>, which on the finest meshes stretches them to many hours.</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="topo.html" class="btn btn-neutral float-left" title="Topography Tasks" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../suites.html" class="btn btn-neutral float-right" title="Suites" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2026, Energy Exascale Earth System Model Project.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+   
+
+  <!-- Meta tags for JS to use -->
+  <meta name="doc-version" content="main">
+  <meta name="doc-site-root" content="../../../../">
+
+  <!-- Create version switcher container -->
+  <script>
+    const sidebar = document.querySelector('.wy-side-nav-search');
+    if (sidebar) {
+      const versionDiv = document.createElement('div');
+      versionDiv.id = 'version-switcher';
+      versionDiv.style.marginTop = '1em';
+      sidebar.appendChild(versionDiv);
+    }
+  </script>
+
+  <!-- Load version-switcher.js using the correct relative path -->
+  <script src="../../../../../shared/version-switcher.js"></script>
+
+
+</body>
+</html>

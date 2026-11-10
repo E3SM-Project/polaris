@@ -1,0 +1,6 @@
+﻿polaris.tasks.e3sm.init.component\_inputs.BaseMeshStep.setup
+============================================================
+
+.. currentmodule:: polaris.tasks.e3sm.init.component_inputs
+
+.. automethod:: BaseMeshStep.setup

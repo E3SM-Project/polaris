@@ -1,0 +1,6 @@
+﻿polaris.e3sm.init.assemble.SYNC\_SCRIPT
+=======================================
+
+.. currentmodule:: polaris.e3sm.init.assemble
+
+.. autodata:: SYNC_SCRIPT

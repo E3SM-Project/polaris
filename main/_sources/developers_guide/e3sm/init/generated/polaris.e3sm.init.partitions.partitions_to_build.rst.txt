@@ -1,0 +1,6 @@
+﻿polaris.e3sm.init.partitions.partitions\_to\_build
+==================================================
+
+.. currentmodule:: polaris.e3sm.init.partitions
+
+.. autofunction:: partitions_to_build

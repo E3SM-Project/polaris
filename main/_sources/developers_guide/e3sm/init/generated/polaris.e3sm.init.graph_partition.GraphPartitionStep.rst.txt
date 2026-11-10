@@ -1,0 +1,49 @@
+﻿polaris.e3sm.init.graph\_partition.GraphPartitionStep
+=====================================================
+
+.. currentmodule:: polaris.e3sm.init.graph_partition
+
+.. autoclass:: GraphPartitionStep
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~GraphPartitionStep.__init__
+      ~GraphPartitionStep.add_cf_check
+      ~GraphPartitionStep.add_dependency
+      ~GraphPartitionStep.add_input_file
+      ~GraphPartitionStep.add_output_file
+      ~GraphPartitionStep.add_property_check
+      ~GraphPartitionStep.check_cf
+      ~GraphPartitionStep.check_properties
+      ~GraphPartitionStep.constrain_resources
+      ~GraphPartitionStep.get_core_counts
+      ~GraphPartitionStep.process_inputs_and_outputs
+      ~GraphPartitionStep.run
+      ~GraphPartitionStep.runtime_setup
+      ~GraphPartitionStep.set_resources
+      ~GraphPartitionStep.set_shared_config
+      ~GraphPartitionStep.setup
+      ~GraphPartitionStep.validate_baselines
+      ~GraphPartitionStep.work_path
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~GraphPartitionStep.cores
+      ~GraphPartitionStep.gpus
+      ~GraphPartitionStep.may_span_nodes
+      ~GraphPartitionStep.min_cores
+      ~GraphPartitionStep.min_gpus
+   
+   

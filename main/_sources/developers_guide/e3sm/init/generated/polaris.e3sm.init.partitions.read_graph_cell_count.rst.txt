@@ -1,0 +1,6 @@
+﻿polaris.e3sm.init.partitions.read\_graph\_cell\_count
+=====================================================
+
+.. currentmodule:: polaris.e3sm.init.partitions
+
+.. autofunction:: read_graph_cell_count

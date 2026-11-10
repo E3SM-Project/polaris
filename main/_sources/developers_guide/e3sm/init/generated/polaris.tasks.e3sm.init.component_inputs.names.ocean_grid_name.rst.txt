@@ -1,0 +1,6 @@
+﻿polaris.tasks.e3sm.init.component\_inputs.names.ocean\_grid\_name
+=================================================================
+
+.. currentmodule:: polaris.tasks.e3sm.init.component_inputs.names
+
+.. autofunction:: ocean_grid_name

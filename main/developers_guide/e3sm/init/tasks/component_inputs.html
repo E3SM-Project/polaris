@@ -1,0 +1,375 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>component_inputs</title>
+      <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../../_static/documentation_options.js?v=a8da1a53"></script>
+      <script src="../../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" />
+    <link rel="next" title="Mesh component" href="../../../mesh/index.html" />
+    <link rel="prev" title="Culling MPAS Base Meshes to Land/River or Ocean/Sea Ice Regions" href="topo/cull.html" />
+    <link href="../../../../_static/style.css" rel="stylesheet" type="text/css">
+
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../../index.html" class="icon icon-home">
+            Polaris
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">User's guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../users_guide/quick_start.html">Quick Start for Users</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../users_guide/tasks.html">Tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../users_guide/config_files.html">Config Files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../users_guide/suites.html">Suites</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../users_guide/mesh/index.html">Mesh component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../users_guide/e3sm/init/index.html">E3SM Initial Condition Component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../users_guide/ocean/index.html">Ocean component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../users_guide/seaice/index.html">Sea ice component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../users_guide/machines/index.html">Machines</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Developer's guide</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../../quick_start.html">Quick Start for Developers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../command_line.html">Command-line interface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../organization/index.html">Organization of Tasks</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../index.html">E3SM initial condition (e3sm/init) component</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../framework.html">Framework</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="index.html">Tasks</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="index.html#component-input-tasks">Component Input Tasks</a></li>
+<li class="toctree-l3 current"><a class="reference internal" href="index.html#topography-tasks">Topography Tasks</a><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="topo/combine.html">Combine Steps and Tasks</a></li>
+<li class="toctree-l4"><a class="reference internal" href="topo/remap.html">Remapping Topography to MPAS Base Meshes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="topo/cull.html">Culling MPAS Base Meshes to Land/River or Ocean/Sea Ice Regions</a></li>
+<li class="toctree-l4 current"><a class="current reference internal" href="#">component_inputs</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../mesh/index.html">Mesh component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../ocean/index.html">Ocean component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../seaice/index.html">Sea ice component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../framework/index.html">Framework</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../machines/index.html">Machines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../benchmarking.html">Benchmarking a branch against a baseline</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../omega_pr_testing.html">Testing an Omega pull request</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../polaris_update_testing.html">Testing a Polaris version update</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../troubleshooting.html">Troubleshooting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../docs.html">Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../building_docs.html">Building the Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../building_docs.html#previewing-the-documentation">Previewing the Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../conda_vs_spack.html">How Conda and Spack Work Together in Polaris</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../updating_conda.html">Updating Deployment Dependencies</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../updating_spack/index.html">Updating Shared Spack Environments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../api.html">API reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../design_docs/index.html">Design Documents</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../tutorials/dev_add_category_of_tasks/index.html">Developer Tutorial: Adding a New Category of Tasks</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Glossary</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../glossary.html">Glossary</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../index.html">Polaris</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">E3SM initial condition (e3sm/init) component</a></li>
+          <li class="breadcrumb-item"><a href="index.html">Tasks</a></li>
+      <li class="breadcrumb-item active">component_inputs</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../../../_sources/developers_guide/e3sm/init/tasks/component_inputs.md.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section class="tex2jax_ignore mathjax_ignore" id="component-inputs">
+<span id="dev-e3sm-init-component-inputs"></span><h1>component_inputs<a class="headerlink" href="#component-inputs" title="Link to this heading"></a></h1>
+<p>The <code class="docutils literal notranslate"><span class="pre">polaris.tasks.e3sm.init.component_inputs</span></code> package stages the input files
+an E3SM run needs from one unified mesh.  See
+<a class="reference internal" href="../../../../users_guide/e3sm/init/tasks/component_inputs.html#e3sm-init-component-inputs-tasks"><span class="std std-ref">Component Input Tasks</span></a> for what it produces and how to run it.</p>
+<section id="import-direction">
+<h2>Import direction<a class="headerlink" href="#import-direction" title="Link to this heading"></a></h2>
+<p>This package lives in <code class="docutils literal notranslate"><span class="pre">e3sm/init</span></code> and imports from <code class="docutils literal notranslate"><span class="pre">polaris.tasks.ocean</span></code>,
+while <code class="docutils literal notranslate"><span class="pre">polaris.tasks.ocean.realistic_global</span></code> imports from
+<code class="docutils literal notranslate"><span class="pre">polaris.tasks.e3sm.init.topo.cull</span></code>.  That is acyclic only in one direction,
+and it works because <code class="docutils literal notranslate"><span class="pre">polaris.tasks</span></code> fully imports
+<code class="docutils literal notranslate"><span class="pre">polaris.tasks.e3sm.init</span></code> before any <code class="docutils literal notranslate"><span class="pre">add_*_tasks</span></code> function runs.</p>
+<p><strong>Nothing under <code class="docutils literal notranslate"><span class="pre">polaris.tasks.ocean</span></code> may import this package.</strong>  Reversing
+the direction is the kind of change a well-meaning refactor makes, and it
+fails as an import error that is hard to place.</p>
+</section>
+<section id="steps">
+<h2>Steps<a class="headerlink" href="#steps" title="Link to this heading"></a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">get_component_inputs_steps(mesh_name,</span> <span class="pre">target)</span></code> follows the same pattern as
+<code class="docutils literal notranslate"><span class="pre">get_cull_topo_steps</span></code> and <code class="docutils literal notranslate"><span class="pre">get_realistic_dynamic_adjustment_steps</span></code>: every step
+comes from <code class="docutils literal notranslate"><span class="pre">Component.get_or_create_shared_step</span></code>, so the three tasks that
+share most of these steps get the same instances.</p>
+<p>It builds <strong>only what <code class="docutils literal notranslate"><span class="pre">target</span></code> needs</strong>.  Asking for <code class="docutils literal notranslate"><span class="pre">seaice</span></code> does not create
+the dynamic-adjustment steps at all, so a sea-ice task never waits for a model
+run whose output it does not use.  Each task includes all the upstream steps
+it needs, from the base mesh onward, so it can be set up on its own.</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Step</p></th>
+<th class="head"><p>Reads</p></th>
+<th class="head"><p>Writes</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">BaseMeshStep</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">base_mesh.nc</span></code>, the three <code class="docutils literal notranslate"><span class="pre">*_map_culled_to_base.nc</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">base_mesh_with_maps.nc</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">ScripStep</span></code></p></td>
+<td><p>the cull step’s three SCRIP files</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">&lt;region&gt;.scrip.nc</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">OceanMeshStep</span></code></p></td>
+<td><p>the initial state’s <code class="docutils literal notranslate"><span class="pre">mesh.nc</span></code> and <code class="docutils literal notranslate"><span class="pre">init.nc</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">ocean_mesh.nc</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">OceanInitialConditionStep</span></code></p></td>
+<td><p>the final adjustment stage’s restart, once that stage’s check has passed</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">ocean_initial_condition.nc</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">OceanGraphPartitionStep</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">culled_ocean_graph.info</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">mpas-o.graph.info.part.*</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">MocMasksStep</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">culled_ocean_mesh.nc</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">&lt;mesh&gt;_mocBasinsAndTransects&lt;features_date&gt;.nc</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">SeaiceMeshStep</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">culled_ocean_mesh.nc</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">seaice_mesh.nc</span></code>, read by the partition steps rather than staged</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">SeaiceInitialConditionStep</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">culled_ocean_mesh.nc</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">seaice_initial_condition.nc</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">SeaicePartitionMapStep</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">seaice_mesh.nc</span></code>, QU60km climatology</p></td>
+<td><p>the QU60km-to-mesh mapping file</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">SeaiceGraphPartitionStep</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">seaice_mesh.nc</span></code>, QU60km climatology and ice-present mask, the mapping file</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">mpas-seaice.graph.info.part.*</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">ComponentInputsAssembleStep</span></code></p></td>
+<td><p>the above, plus the cull step’s <code class="docutils literal notranslate"><span class="pre">culled_land_mesh.nc</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">assembled_files/</span></code></p></td>
+</tr>
+</tbody>
+</table>
+<p>The sea-ice partitioning is two steps rather than one because building the
+remapping weights is an MPI job sized for the mapping tool, while using them
+is serial.  <code class="docutils literal notranslate"><span class="pre">SeaicePartitionMapStep</span></code> descends from
+<a class="reference internal" href="../../../generated/polaris.remap.MappingFileStep.html#polaris.remap.MappingFileStep" title="polaris.remap.MappingFileStep"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.remap.MappingFileStep</span></code></a>; <code class="docutils literal notranslate"><span class="pre">SeaiceGraphPartitionStep</span></code> depends
+on it and reads the weights off its remapper, since the mapping file’s path is
+not known until it has run.  This is the same division <code class="docutils literal notranslate"><span class="pre">realistic_global</span></code> uses
+between <code class="docutils literal notranslate"><span class="pre">Woa23MapStep</span></code> and <code class="docutils literal notranslate"><span class="pre">RemapWoa23Step</span></code>.</p>
+<p>Work directories are <code class="docutils literal notranslate"><span class="pre">e3sm/init/&lt;mesh&gt;/component_inputs/&lt;step_name&gt;</span></code>, and the
+tasks are at <code class="docutils literal notranslate"><span class="pre">e3sm/init/&lt;mesh&gt;/component_inputs/tasks/{ocean,seaice,all}</span></code>.
+Putting the tasks under <code class="docutils literal notranslate"><span class="pre">tasks/</span></code> keeps a task subdirectory from colliding with
+a step subdirectory, which is a real risk when three tasks share most of their
+steps.</p>
+<p>The land mesh has no step of its own.  Unlike the SCRIP files it carries no
+mesh name to restamp, and unlike the ocean mesh it needs no vertical
+coordinate, so there is nothing to compute between the cull step and the
+staged tree; <code class="docutils literal notranslate"><span class="pre">ComponentInputsAssembleStep</span></code> declares it directly.</p>
+</section>
+<section id="what-is-not-recomputed">
+<h2>What is not recomputed<a class="headerlink" href="#what-is-not-recomputed" title="Link to this heading"></a></h2>
+<p>The cull step already writes the SCRIP descriptions, the ocean graph and the
+culled-to-base index maps, and the initial-state step already writes every
+vertical-coordinate field.  Several steps that were computations in Compass
+are therefore staging or inversion here:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">BaseMeshStep</span></code> <strong>inverts</strong> the existing forward maps rather than
+recomputing them.  They came from a nearest-element query far more expensive
+than a scatter, and inverting is what guarantees the two directions agree.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">ScripStep</span></code> only restamps <code class="docutils literal notranslate"><span class="pre">mesh_name</span></code>, using <code class="docutils literal notranslate"><span class="pre">ncatted</span></code> rather than an
+xarray round-trip.  These are <code class="docutils literal notranslate"><span class="pre">NETCDF3_64BIT_DATA</span></code> files the cull step
+already found prohibitively slow to write directly.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">OceanMeshStep</span></code> selects rather than computes; only <code class="docutils literal notranslate"><span class="pre">zMid</span></code> and
+<code class="docutils literal notranslate"><span class="pre">refLayerThickness</span></code> are built here.</p></li>
+</ul>
+</section>
+<section id="what-comes-from-the-framework">
+<h2>What comes from the framework<a class="headerlink" href="#what-comes-from-the-framework" title="Link to this heading"></a></h2>
+<p>The graph partitioning, the general inputdata paths and the mechanics of
+building the staged tree are in <code class="docutils literal notranslate"><span class="pre">polaris.e3sm.init</span></code>, so other workflows that
+stage files for E3SM can use them (see <a class="reference internal" href="../framework.html#dev-e3sm-init-framework"><span class="std std-ref">Framework</span></a>).  Both
+partition steps descend from <code class="docutils literal notranslate"><span class="pre">GraphPartitionStep</span></code> and read their options from
+<code class="docutils literal notranslate"><span class="pre">[component_inputs]</span></code>; <code class="docutils literal notranslate"><span class="pre">ComponentInputsAssembleStep</span></code> descends from
+<code class="docutils literal notranslate"><span class="pre">AssembleStep</span></code> and supplies its own README.  What stays here is particular to
+unified meshes: their short names, the shared mesh directory, the SCRIP and
+culled-mesh regions, and which products each target stages.</p>
+</section>
+<section id="leaf-modules">
+<h2>Leaf modules<a class="headerlink" href="#leaf-modules" title="Link to this heading"></a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">names.py</span></code>, <code class="docutils literal notranslate"><span class="pre">maps.py</span></code> and <code class="docutils literal notranslate"><span class="pre">models.py</span></code> open no file and construct no step, so
+the naming rules, the index inversion and the model gate are all unit testable
+without a work directory.</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">names.py</span></code> — the staged paths that follow from a unified mesh’s short name,
+and <code class="docutils literal notranslate"><span class="pre">ocean_grid_name</span></code>, which gives E3SM’s name for the ocean and sea-ice
+grid that the framework’s paths take.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">maps.py</span></code> — <code class="docutils literal notranslate"><span class="pre">map_base_to_culled</span></code> and <code class="docutils literal notranslate"><span class="pre">base_to_culled_maps</span></code>.  Both check that
+every forward-map value is a valid base index and that no base index appears
+twice; a violation means a stale file from a different mesh, which would
+otherwise scatter into a plausible-looking wrong answer.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">models.py</span></code> — the ocean model gate, which each ocean staging step calls at
+the start of setup.  It reads the model the ocean component was configured
+with, so the staged files always match the model the dynamic adjustment
+ran.  It exists even though only MPAS-Ocean is supported, so that adding
+Omega means filling in a gate that is already there rather than adding
+model selection to steps that assumed MPAS-Ocean.  Sea ice needs no gate:
+which task is set up decides whether sea-ice files are staged.</p></li>
+</ul>
+</section>
+<section id="the-moc-masks-borrow-behavior-without-borrowing-a-component">
+<h2>The MOC masks borrow behavior without borrowing a component<a class="headerlink" href="#the-moc-masks-borrow-behavior-without-borrowing-a-component" title="Link to this heading"></a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">MocMasksStep</span></code> builds the one mask file MPAS-Ocean reads at run time.  The
+masks themselves come from the mesh component’s
+<a class="reference internal" href="../../../mesh/generated/polaris.tasks.mesh.spherical.feature_masks.ComputeFeatureMasksStep.html#polaris.tasks.mesh.spherical.feature_masks.ComputeFeatureMasksStep" title="polaris.tasks.mesh.spherical.feature_masks.compute.ComputeFeatureMasksStep"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.tasks.mesh.spherical.feature_masks.compute.ComputeFeatureMasksStep</span></code></a>,
+and the two MOC-specific pieces — the <code class="docutils literal notranslate"><span class="pre">mocBasinsAndTransects</span></code> filename and the
+southern-boundary transects appended to the masks — come from
+<code class="xref py py-mod docutils literal notranslate"><span class="pre">polaris.tasks.mesh.spherical.feature_masks.moc</span></code>, which the ocean
+feature-mask step uses as well.</p>
+<p>Subclassing the <em>ocean</em> feature-mask step would have been the obvious route
+and does not work.  That class inherits <code class="docutils literal notranslate"><span class="pre">OceanIOStep</span></code> to translate to and from
+Omega’s variable names, and <code class="docutils literal notranslate"><span class="pre">OceanIOStep.process_inputs_and_outputs</span></code> reads
+<code class="docutils literal notranslate"><span class="pre">[ocean]</span> <span class="pre">model</span></code>.  A step owned by <code class="docutils literal notranslate"><span class="pre">e3sm/init</span></code> has no <code class="docutils literal notranslate"><span class="pre">[ocean]</span></code> section — every
+config belongs to exactly one component — so setup fails with
+<code class="docutils literal notranslate"><span class="pre">NoSectionError</span></code>.  Overriding the two I/O hooks is not enough either, since
+<code class="docutils literal notranslate"><span class="pre">[ocean]</span> <span class="pre">model</span></code> is read in four places along that inheritance path.</p>
+<p>So the MOC-specific pieces live in a module that does not depend on the ocean
+model, where any component can call them.  This step and the ocean one then
+share them without <code class="docutils literal notranslate"><span class="pre">e3sm/init</span></code> depending on the ocean component.</p>
+</section>
+<section id="sea-ice-does-not-touch-the-ocean">
+<h2>Sea-ice does not touch the ocean<a class="headerlink" href="#sea-ice-does-not-touch-the-ocean" title="Link to this heading"></a></h2>
+<p>Compass copied <code class="docutils literal notranslate"><span class="pre">fCell</span></code>, <code class="docutils literal notranslate"><span class="pre">fEdge</span></code> and <code class="docutils literal notranslate"><span class="pre">fVertex</span></code> out of an ocean restart and
+partitioned that restart’s mesh.  Both are removed here: the Coriolis fields
+are computed from latitude with <code class="docutils literal notranslate"><span class="pre">add_spherical_coriolis</span></code>, and the partitioning
+reads <code class="docutils literal notranslate"><span class="pre">SeaiceMeshStep</span></code>’s output.</p>
+<p><code class="docutils literal notranslate"><span class="pre">add_spherical_coriolis</span></code> is called directly rather than through
+<code class="docutils literal notranslate"><span class="pre">add_coriolis_to_dataset</span></code>.  The latter reads <code class="docutils literal notranslate"><span class="pre">[coriolis]</span> <span class="pre">type</span></code>, a config
+section that has nothing to do with sea ice, and its default of <code class="docutils literal notranslate"><span class="pre">zero</span></code> would
+give the wrong Coriolis fields without any error.</p>
+</section>
+<section id="staging-happens-only-in-the-assembly-step">
+<h2>Staging happens only in the assembly step<a class="headerlink" href="#staging-happens-only-in-the-assembly-step" title="Link to this heading"></a></h2>
+<p>Product steps write only their own outputs; <code class="docutils literal notranslate"><span class="pre">ComponentInputsAssembleStep</span></code>
+declares those outputs as inputs and materializes the tree.  Compass scatters
+<code class="docutils literal notranslate"><span class="pre">symlink()</span></code> calls through the product steps, which is what makes its
+<code class="docutils literal notranslate"><span class="pre">assembled_files</span></code> tree hard to reason about.</p>
+<p>Graph partitions are the exception to declaring outputs: which core counts
+exist follows from a cell count that is not known until the graph file has
+been written, so they cannot be named at setup.  The assembly step lists what
+the partition step produced and raises if it produced nothing.</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="topo/cull.html" class="btn btn-neutral float-left" title="Culling MPAS Base Meshes to Land/River or Ocean/Sea Ice Regions" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../../../mesh/index.html" class="btn btn-neutral float-right" title="Mesh component" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2026, Energy Exascale Earth System Model Project.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+   
+
+  <!-- Meta tags for JS to use -->
+  <meta name="doc-version" content="main">
+  <meta name="doc-site-root" content="../../../../">
+
+  <!-- Create version switcher container -->
+  <script>
+    const sidebar = document.querySelector('.wy-side-nav-search');
+    if (sidebar) {
+      const versionDiv = document.createElement('div');
+      versionDiv.id = 'version-switcher';
+      versionDiv.style.marginTop = '1em';
+      sidebar.appendChild(versionDiv);
+    }
+  </script>
+
+  <!-- Load version-switcher.js using the correct relative path -->
+  <script src="../../../../../shared/version-switcher.js"></script>
+
+
+</body>
+</html>

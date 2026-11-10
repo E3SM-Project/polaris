@@ -1,0 +1,6 @@
+﻿polaris.e3sm.init.graph\_partition.GraphPartitionStep.get\_core\_counts
+=======================================================================
+
+.. currentmodule:: polaris.e3sm.init.graph_partition
+
+.. automethod:: GraphPartitionStep.get_core_counts

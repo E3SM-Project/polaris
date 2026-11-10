@@ -1,0 +1,48 @@
+﻿polaris.tasks.e3sm.init.component\_inputs.ocean\_mesh.OceanMeshStep
+===================================================================
+
+.. currentmodule:: polaris.tasks.e3sm.init.component_inputs.ocean_mesh
+
+.. autoclass:: OceanMeshStep
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~OceanMeshStep.__init__
+      ~OceanMeshStep.add_cf_check
+      ~OceanMeshStep.add_dependency
+      ~OceanMeshStep.add_input_file
+      ~OceanMeshStep.add_output_file
+      ~OceanMeshStep.add_property_check
+      ~OceanMeshStep.check_cf
+      ~OceanMeshStep.check_properties
+      ~OceanMeshStep.constrain_resources
+      ~OceanMeshStep.process_inputs_and_outputs
+      ~OceanMeshStep.run
+      ~OceanMeshStep.runtime_setup
+      ~OceanMeshStep.set_resources
+      ~OceanMeshStep.set_shared_config
+      ~OceanMeshStep.setup
+      ~OceanMeshStep.validate_baselines
+      ~OceanMeshStep.work_path
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~OceanMeshStep.cores
+      ~OceanMeshStep.gpus
+      ~OceanMeshStep.may_span_nodes
+      ~OceanMeshStep.min_cores
+      ~OceanMeshStep.min_gpus
+   
+   

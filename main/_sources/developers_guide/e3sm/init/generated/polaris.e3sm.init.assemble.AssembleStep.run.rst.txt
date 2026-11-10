@@ -1,0 +1,6 @@
+﻿polaris.e3sm.init.assemble.AssembleStep.run
+===========================================
+
+.. currentmodule:: polaris.e3sm.init.assemble
+
+.. automethod:: AssembleStep.run

@@ -1,0 +1,6 @@
+﻿polaris.tasks.e3sm.init.component\_inputs.moc\_masks.MESH\_FILENAME
+===================================================================
+
+.. currentmodule:: polaris.tasks.e3sm.init.component_inputs.moc_masks
+
+.. autodata:: MESH_FILENAME

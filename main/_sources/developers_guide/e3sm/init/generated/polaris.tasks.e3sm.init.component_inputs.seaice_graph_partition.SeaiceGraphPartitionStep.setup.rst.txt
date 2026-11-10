@@ -1,0 +1,6 @@
+﻿polaris.tasks.e3sm.init.component\_inputs.seaice\_graph\_partition.SeaiceGraphPartitionStep.setup
+=================================================================================================
+
+.. currentmodule:: polaris.tasks.e3sm.init.component_inputs.seaice_graph_partition
+
+.. automethod:: SeaiceGraphPartitionStep.setup

@@ -181,6 +181,100 @@
 </tbody>
 </table>
 </section>
+<section id="staging-e3sm-input-files">
+<h3>staging E3SM input files<a class="headerlink" href="#staging-e3sm-input-files" title="Link to this heading"></a></h3>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.e3sm.init.assemble.AssembleStep.html#polaris.e3sm.init.assemble.AssembleStep" title="polaris.e3sm.init.assemble.AssembleStep"><code class="xref py py-obj docutils literal notranslate"><span class="pre">assemble.AssembleStep</span></code></a>(component, name, ...)</p></td>
+<td><p>A base step for materializing a staged tree of E3SM input files.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.e3sm.init.assemble.AssembleStep.run.html#polaris.e3sm.init.assemble.AssembleStep.run" title="polaris.e3sm.init.assemble.AssembleStep.run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">assemble.AssembleStep.run</span></code></a>()</p></td>
+<td><p>Rebuild the staged tree from empty and stage the README.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.e3sm.init.assemble.AssembleStep.stage.html#polaris.e3sm.init.assemble.AssembleStep.stage" title="polaris.e3sm.init.assemble.AssembleStep.stage"><code class="xref py py-obj docutils literal notranslate"><span class="pre">assemble.AssembleStep.stage</span></code></a>(source, staged_path)</p></td>
+<td><p>Link one product into the assembled tree at its E3SM-facing path.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.e3sm.init.assemble.AssembleStep.stage_partitions.html#polaris.e3sm.init.assemble.AssembleStep.stage_partitions" title="polaris.e3sm.init.assemble.AssembleStep.stage_partitions"><code class="xref py py-obj docutils literal notranslate"><span class="pre">assemble.AssembleStep.stage_partitions</span></code></a>(step, ...)</p></td>
+<td><p>Link every partition the given step produced.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.e3sm.init.assemble.AssembleStep.step_dir.html#polaris.e3sm.init.assemble.AssembleStep.step_dir" title="polaris.e3sm.init.assemble.AssembleStep.step_dir"><code class="xref py py-obj docutils literal notranslate"><span class="pre">assemble.AssembleStep.step_dir</span></code></a>(step)</p></td>
+<td><p>The work directory of another step, found from this one's.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.e3sm.init.assemble.SYNC_SCRIPT.html#polaris.e3sm.init.assemble.SYNC_SCRIPT" title="polaris.e3sm.init.assemble.SYNC_SCRIPT"><code class="xref py py-obj docutils literal notranslate"><span class="pre">assemble.SYNC_SCRIPT</span></code></a></p></td>
+<td><p>A script symlinked into the step's work directory for copying the staged tree into an inputdata directory.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.e3sm.init.graph_partition.GraphPartitionStep.html#polaris.e3sm.init.graph_partition.GraphPartitionStep" title="polaris.e3sm.init.graph_partition.GraphPartitionStep"><code class="xref py py-obj docutils literal notranslate"><span class="pre">graph_partition.GraphPartitionStep</span></code></a>(...[, ...])</p></td>
+<td><p>A step for partitioning an MPAS graph into the core counts E3SM runs use.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.e3sm.init.graph_partition.GraphPartitionStep.setup.html#polaris.e3sm.init.graph_partition.GraphPartitionStep.setup" title="polaris.e3sm.init.graph_partition.GraphPartitionStep.setup"><code class="xref py py-obj docutils literal notranslate"><span class="pre">graph_partition.GraphPartitionStep.setup</span></code></a>()</p></td>
+<td><p>Take the number of partitions to build at once from the config.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.e3sm.init.graph_partition.GraphPartitionStep.constrain_resources.html#polaris.e3sm.init.graph_partition.GraphPartitionStep.constrain_resources" title="polaris.e3sm.init.graph_partition.GraphPartitionStep.constrain_resources"><code class="xref py py-obj docutils literal notranslate"><span class="pre">graph_partition.GraphPartitionStep.constrain_resources</span></code></a>(...)</p></td>
+<td><p>Take the number of partitions to build at once from the config.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.e3sm.init.graph_partition.GraphPartitionStep.run.html#polaris.e3sm.init.graph_partition.GraphPartitionStep.run" title="polaris.e3sm.init.graph_partition.GraphPartitionStep.run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">graph_partition.GraphPartitionStep.run</span></code></a>()</p></td>
+<td><p>Partition <code class="docutils literal notranslate"><span class="pre">graph.info</span></code> into each core count.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.e3sm.init.graph_partition.GraphPartitionStep.get_core_counts.html#polaris.e3sm.init.graph_partition.GraphPartitionStep.get_core_counts" title="polaris.e3sm.init.graph_partition.GraphPartitionStep.get_core_counts"><code class="xref py py-obj docutils literal notranslate"><span class="pre">graph_partition.GraphPartitionStep.get_core_counts</span></code></a>(ncells)</p></td>
+<td><p>The core counts to partition a mesh into, from the config's bounds.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.e3sm.init.inputdata.ASSEMBLED_FILES.html#polaris.e3sm.init.inputdata.ASSEMBLED_FILES" title="polaris.e3sm.init.inputdata.ASSEMBLED_FILES"><code class="xref py py-obj docutils literal notranslate"><span class="pre">inputdata.ASSEMBLED_FILES</span></code></a></p></td>
+<td><p>The directory an assembly step materializes, relative to its work directory.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.e3sm.init.inputdata.get_nonempty_option.html#polaris.e3sm.init.inputdata.get_nonempty_option" title="polaris.e3sm.init.inputdata.get_nonempty_option"><code class="xref py py-obj docutils literal notranslate"><span class="pre">inputdata.get_nonempty_option</span></code></a>(config, ...)</p></td>
+<td><p>The stripped value of a config option, or <code class="docutils literal notranslate"><span class="pre">None</span></code> if it is unset or blank.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.e3sm.init.inputdata.get_creation_date.html#polaris.e3sm.init.inputdata.get_creation_date" title="polaris.e3sm.init.inputdata.get_creation_date"><code class="xref py py-obj docutils literal notranslate"><span class="pre">inputdata.get_creation_date</span></code></a>(config, section)</p></td>
+<td><p>The creation date the staged files are stamped with, as <code class="docutils literal notranslate"><span class="pre">YYYYMMDD</span></code>.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.e3sm.init.inputdata.set_creation_date.html#polaris.e3sm.init.inputdata.set_creation_date" title="polaris.e3sm.init.inputdata.set_creation_date"><code class="xref py py-obj docutils literal notranslate"><span class="pre">inputdata.set_creation_date</span></code></a>(config, section)</p></td>
+<td><p>Set the creation date to today if it is not already set, and return it.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.e3sm.init.inputdata.ocean_dir.html#polaris.e3sm.init.inputdata.ocean_dir" title="polaris.e3sm.init.inputdata.ocean_dir"><code class="xref py py-obj docutils literal notranslate"><span class="pre">inputdata.ocean_dir</span></code></a>(grid)</p></td>
+<td><p>The MPAS-Ocean directory for a grid.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.e3sm.init.inputdata.seaice_dir.html#polaris.e3sm.init.inputdata.seaice_dir" title="polaris.e3sm.init.inputdata.seaice_dir"><code class="xref py py-obj docutils literal notranslate"><span class="pre">inputdata.seaice_dir</span></code></a>(grid)</p></td>
+<td><p>The MPAS-Seaice directory for a grid.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.e3sm.init.inputdata.ocean_initial_condition_path.html#polaris.e3sm.init.inputdata.ocean_initial_condition_path" title="polaris.e3sm.init.inputdata.ocean_initial_condition_path"><code class="xref py py-obj docutils literal notranslate"><span class="pre">inputdata.ocean_initial_condition_path</span></code></a>(grid, ...)</p></td>
+<td><p>Where the MPAS-Ocean initial condition for a grid is staged.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.e3sm.init.inputdata.ocean_graph_path.html#polaris.e3sm.init.inputdata.ocean_graph_path" title="polaris.e3sm.init.inputdata.ocean_graph_path"><code class="xref py py-obj docutils literal notranslate"><span class="pre">inputdata.ocean_graph_path</span></code></a>(grid, creation_date)</p></td>
+<td><p>Where the unpartitioned MPAS-Ocean graph is staged, beside its partitions.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.e3sm.init.inputdata.ocean_partition_path.html#polaris.e3sm.init.inputdata.ocean_partition_path" title="polaris.e3sm.init.inputdata.ocean_partition_path"><code class="xref py py-obj docutils literal notranslate"><span class="pre">inputdata.ocean_partition_path</span></code></a>(grid, ...)</p></td>
+<td><p>Where one MPAS-Ocean graph partition is staged.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.e3sm.init.inputdata.seaice_initial_condition_path.html#polaris.e3sm.init.inputdata.seaice_initial_condition_path" title="polaris.e3sm.init.inputdata.seaice_initial_condition_path"><code class="xref py py-obj docutils literal notranslate"><span class="pre">inputdata.seaice_initial_condition_path</span></code></a>(...)</p></td>
+<td><p>Where the MPAS-Seaice initial condition for a grid is staged.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.e3sm.init.inputdata.seaice_partition_path.html#polaris.e3sm.init.inputdata.seaice_partition_path" title="polaris.e3sm.init.inputdata.seaice_partition_path"><code class="xref py py-obj docutils literal notranslate"><span class="pre">inputdata.seaice_partition_path</span></code></a>(grid, ...)</p></td>
+<td><p>Where one MPAS-Seaice graph partition is staged.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.e3sm.init.partitions.get_core_list.html#polaris.e3sm.init.partitions.get_core_list" title="polaris.e3sm.init.partitions.get_core_list"><code class="xref py py-obj docutils literal notranslate"><span class="pre">partitions.get_core_list</span></code></a>(ncells[, ...])</p></td>
+<td><p>A fairly exhaustive list of core counts to partition a mesh into.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.e3sm.init.partitions.partitions_to_build.html#polaris.e3sm.init.partitions.partitions_to_build" title="polaris.e3sm.init.partitions.partitions_to_build"><code class="xref py py-obj docutils literal notranslate"><span class="pre">partitions.partitions_to_build</span></code></a>(cores, ...)</p></td>
+<td><p>The core counts from <code class="docutils literal notranslate"><span class="pre">cores</span></code> that still need a partition file.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.e3sm.init.partitions.read_graph_cell_count.html#polaris.e3sm.init.partitions.read_graph_cell_count" title="polaris.e3sm.init.partitions.read_graph_cell_count"><code class="xref py py-obj docutils literal notranslate"><span class="pre">partitions.read_graph_cell_count</span></code></a>(graph_filename)</p></td>
+<td><p>The number of cells a METIS graph file describes.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.e3sm.init.partitions.build_partitions.html#polaris.e3sm.init.partitions.build_partitions" title="polaris.e3sm.init.partitions.build_partitions"><code class="xref py py-obj docutils literal notranslate"><span class="pre">partitions.build_partitions</span></code></a>(regions, cores, ...)</p></td>
+<td><p>Write the partition file for each core count, several at a time.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.e3sm.init.partitions.RegionGraph.html#polaris.e3sm.init.partitions.RegionGraph" title="polaris.e3sm.init.partitions.RegionGraph"><code class="xref py py-obj docutils literal notranslate"><span class="pre">partitions.RegionGraph</span></code></a>(filename[, cells])</p></td>
+<td><p>A graph file to partition, and which of a mesh's cells it covers.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.e3sm.init.partitions.get_region_graph.html#polaris.e3sm.init.partitions.get_region_graph" title="polaris.e3sm.init.partitions.get_region_graph"><code class="xref py py-obj docutils literal notranslate"><span class="pre">partitions.get_region_graph</span></code></a>(cells_on_cell, ...)</p></td>
+<td><p>The graph of a region's cells, keeping only the edges between them.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.e3sm.init.partitions.write_graph.html#polaris.e3sm.init.partitions.write_graph" title="polaris.e3sm.init.partitions.write_graph"><code class="xref py py-obj docutils literal notranslate"><span class="pre">partitions.write_graph</span></code></a>(filename, xadj, adjncy)</p></td>
+<td><p>Write a graph in the format <code class="docutils literal notranslate"><span class="pre">gpmetis</span></code> reads.</p></td>
+</tr>
+</tbody>
+</table>
+</section>
 <section id="topo">
 <h3>topo<a class="headerlink" href="#topo" title="Link to this heading"></a></h3>
 <section id="combine">
@@ -392,6 +486,184 @@
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.e3sm.init.topo.cull.land_locked.remove_ocean_land_locked_cells.html#polaris.tasks.e3sm.init.topo.cull.land_locked.remove_ocean_land_locked_cells" title="polaris.tasks.e3sm.init.topo.cull.land_locked.remove_ocean_land_locked_cells"><code class="xref py py-obj docutils literal notranslate"><span class="pre">land_locked.remove_ocean_land_locked_cells</span></code></a>(...)</p></td>
 <td><p>Refine the ocean domain alone, removing the cells through which a C-grid cannot circulate and those that are not connected to the open ocean.</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+</section>
+<section id="component-inputs">
+<h3>component_inputs<a class="headerlink" href="#component-inputs" title="Link to this heading"></a></h3>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.e3sm.init.component_inputs.BaseMeshStep.html#polaris.tasks.e3sm.init.component_inputs.BaseMeshStep" title="polaris.tasks.e3sm.init.component_inputs.BaseMeshStep"><code class="xref py py-obj docutils literal notranslate"><span class="pre">BaseMeshStep</span></code></a>(component, subdir, ...[, name])</p></td>
+<td><p>A step for staging the base mesh with maps to the meshes culled from it.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.e3sm.init.component_inputs.BaseMeshStep.output_filename.html#polaris.tasks.e3sm.init.component_inputs.BaseMeshStep.output_filename" title="polaris.tasks.e3sm.init.component_inputs.BaseMeshStep.output_filename"><code class="xref py py-obj docutils literal notranslate"><span class="pre">BaseMeshStep.output_filename</span></code></a></p></td>
+<td><p>The file this step writes.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.e3sm.init.component_inputs.BaseMeshStep.setup.html#polaris.tasks.e3sm.init.component_inputs.BaseMeshStep.setup" title="polaris.tasks.e3sm.init.component_inputs.BaseMeshStep.setup"><code class="xref py py-obj docutils literal notranslate"><span class="pre">BaseMeshStep.setup</span></code></a>()</p></td>
+<td><p>Link the base mesh, whose filename is a config option of the step that built it.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.e3sm.init.component_inputs.BaseMeshStep.run.html#polaris.tasks.e3sm.init.component_inputs.BaseMeshStep.run" title="polaris.tasks.e3sm.init.component_inputs.BaseMeshStep.run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">BaseMeshStep.run</span></code></a>()</p></td>
+<td><p>Add the base-to-culled index maps to the base mesh and write it out.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.e3sm.init.component_inputs.ScripStep.html#polaris.tasks.e3sm.init.component_inputs.ScripStep" title="polaris.tasks.e3sm.init.component_inputs.ScripStep"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ScripStep</span></code></a>(component, subdir, cull_mesh_step)</p></td>
+<td><p>A step for staging the SCRIP descriptions of the culled meshes.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.e3sm.init.component_inputs.ScripStep.scrip_filename.html#polaris.tasks.e3sm.init.component_inputs.ScripStep.scrip_filename" title="polaris.tasks.e3sm.init.component_inputs.ScripStep.scrip_filename"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ScripStep.scrip_filename</span></code></a>(region)</p></td>
+<td><p>The file this step writes for one culled-mesh region.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.e3sm.init.component_inputs.ScripStep.setup.html#polaris.tasks.e3sm.init.component_inputs.ScripStep.setup" title="polaris.tasks.e3sm.init.component_inputs.ScripStep.setup"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ScripStep.setup</span></code></a>()</p></td>
+<td><p>Resolve the E3SM short name, so that a mesh with none assigned fails here rather than after the workflow has run.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.e3sm.init.component_inputs.ScripStep.run.html#polaris.tasks.e3sm.init.component_inputs.ScripStep.run" title="polaris.tasks.e3sm.init.component_inputs.ScripStep.run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ScripStep.run</span></code></a>()</p></td>
+<td><p>Restamp each SCRIP file with the E3SM mesh name.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.e3sm.init.component_inputs.ComponentInputsAssembleStep.html#polaris.tasks.e3sm.init.component_inputs.ComponentInputsAssembleStep" title="polaris.tasks.e3sm.init.component_inputs.ComponentInputsAssembleStep"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ComponentInputsAssembleStep</span></code></a>(component, ...)</p></td>
+<td><p>A step for materializing the staged tree of component input files.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.e3sm.init.component_inputs.ComponentInputsAssembleStep.run.html#polaris.tasks.e3sm.init.component_inputs.ComponentInputsAssembleStep.run" title="polaris.tasks.e3sm.init.component_inputs.ComponentInputsAssembleStep.run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ComponentInputsAssembleStep.run</span></code></a>()</p></td>
+<td><p>Build the staged tree, from empty.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.e3sm.init.component_inputs.ComponentInputsTask.html#polaris.tasks.e3sm.init.component_inputs.ComponentInputsTask" title="polaris.tasks.e3sm.init.component_inputs.ComponentInputsTask"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ComponentInputsTask</span></code></a>(component, mesh_name, target)</p></td>
+<td><p>A task for staging the E3SM component input files for one mesh.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.e3sm.init.component_inputs.ComponentInputsTask.configure.html#polaris.tasks.e3sm.init.component_inputs.ComponentInputsTask.configure" title="polaris.tasks.e3sm.init.component_inputs.ComponentInputsTask.configure"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ComponentInputsTask.configure</span></code></a>()</p></td>
+<td><p>Fill in the creation date so it lands in the work directory's config.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.e3sm.init.component_inputs.get_component_inputs_steps.html#polaris.tasks.e3sm.init.component_inputs.get_component_inputs_steps" title="polaris.tasks.e3sm.init.component_inputs.get_component_inputs_steps"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_component_inputs_steps</span></code></a>(mesh_name[, target])</p></td>
+<td><p>Get shared steps for staging E3SM component input files for one mesh.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.e3sm.init.component_inputs.add_component_inputs_tasks.html#polaris.tasks.e3sm.init.component_inputs.add_component_inputs_tasks" title="polaris.tasks.e3sm.init.component_inputs.add_component_inputs_tasks"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_component_inputs_tasks</span></code></a>(component)</p></td>
+<td><p>Add a task per unified mesh for staging E3SM component input files.</p></td>
+</tr>
+</tbody>
+</table>
+<section id="ocean-products">
+<h4>ocean products<a class="headerlink" href="#ocean-products" title="Link to this heading"></a></h4>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.e3sm.init.component_inputs.ocean_mesh.OceanMeshStep.html#polaris.tasks.e3sm.init.component_inputs.ocean_mesh.OceanMeshStep" title="polaris.tasks.e3sm.init.component_inputs.ocean_mesh.OceanMeshStep"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ocean_mesh.OceanMeshStep</span></code></a>(component, subdir, ...)</p></td>
+<td><p>A step for staging the MPAS-Ocean mesh file.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.e3sm.init.component_inputs.ocean_mesh.OceanMeshStep.setup.html#polaris.tasks.e3sm.init.component_inputs.ocean_mesh.OceanMeshStep.setup" title="polaris.tasks.e3sm.init.component_inputs.ocean_mesh.OceanMeshStep.setup"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ocean_mesh.OceanMeshStep.setup</span></code></a>()</p></td>
+<td><p>Refuse a model whose packaging is not supported, before anything runs.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.e3sm.init.component_inputs.ocean_mesh.OceanMeshStep.run.html#polaris.tasks.e3sm.init.component_inputs.ocean_mesh.OceanMeshStep.run" title="polaris.tasks.e3sm.init.component_inputs.ocean_mesh.OceanMeshStep.run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ocean_mesh.OceanMeshStep.run</span></code></a>()</p></td>
+<td><p>Combine the horizontal mesh and the vertical coordinate.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.e3sm.init.component_inputs.ocean_mesh.VERT_COORD_VARS.html#polaris.tasks.e3sm.init.component_inputs.ocean_mesh.VERT_COORD_VARS" title="polaris.tasks.e3sm.init.component_inputs.ocean_mesh.VERT_COORD_VARS"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ocean_mesh.VERT_COORD_VARS</span></code></a></p></td>
+<td><p>The vertical-coordinate fields the staged mesh carries, all of which the initial-state step already writes.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.e3sm.init.component_inputs.ocean_initial_condition.OceanInitialConditionStep.html#polaris.tasks.e3sm.init.component_inputs.ocean_initial_condition.OceanInitialConditionStep" title="polaris.tasks.e3sm.init.component_inputs.ocean_initial_condition.OceanInitialConditionStep"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ocean_initial_condition.OceanInitialConditionStep</span></code></a>(...)</p></td>
+<td><p>A step for staging the MPAS-Ocean initial condition.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.e3sm.init.component_inputs.ocean_initial_condition.OceanInitialConditionStep.setup.html#polaris.tasks.e3sm.init.component_inputs.ocean_initial_condition.OceanInitialConditionStep.setup" title="polaris.tasks.e3sm.init.component_inputs.ocean_initial_condition.OceanInitialConditionStep.setup"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ocean_initial_condition.OceanInitialConditionStep.setup</span></code></a>()</p></td>
+<td><p>Refuse a model whose packaging is not supported, before anything runs.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.e3sm.init.component_inputs.ocean_initial_condition.OceanInitialConditionStep.run.html#polaris.tasks.e3sm.init.component_inputs.ocean_initial_condition.OceanInitialConditionStep.run" title="polaris.tasks.e3sm.init.component_inputs.ocean_initial_condition.OceanInitialConditionStep.run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ocean_initial_condition.OceanInitialConditionStep.run</span></code></a>()</p></td>
+<td><p>Stage the adjusted restart as the initial condition.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.e3sm.init.component_inputs.ocean_graph_partition.OceanGraphPartitionStep.html#polaris.tasks.e3sm.init.component_inputs.ocean_graph_partition.OceanGraphPartitionStep" title="polaris.tasks.e3sm.init.component_inputs.ocean_graph_partition.OceanGraphPartitionStep"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ocean_graph_partition.OceanGraphPartitionStep</span></code></a>(...)</p></td>
+<td><p>A step for partitioning the ocean graph into the core counts E3SM runs use.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.e3sm.init.component_inputs.ocean_graph_partition.OceanGraphPartitionStep.setup.html#polaris.tasks.e3sm.init.component_inputs.ocean_graph_partition.OceanGraphPartitionStep.setup" title="polaris.tasks.e3sm.init.component_inputs.ocean_graph_partition.OceanGraphPartitionStep.setup"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ocean_graph_partition.OceanGraphPartitionStep.setup</span></code></a>()</p></td>
+<td><p>Refuse a model whose packaging is not supported, before anything runs.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.e3sm.init.component_inputs.ocean_graph_partition.OceanGraphPartitionStep.run.html#polaris.tasks.e3sm.init.component_inputs.ocean_graph_partition.OceanGraphPartitionStep.run" title="polaris.tasks.e3sm.init.component_inputs.ocean_graph_partition.OceanGraphPartitionStep.run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ocean_graph_partition.OceanGraphPartitionStep.run</span></code></a>()</p></td>
+<td><p>Partition <code class="docutils literal notranslate"><span class="pre">graph.info</span></code> into each core count.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.e3sm.init.component_inputs.moc_masks.MocMasksStep.html#polaris.tasks.e3sm.init.component_inputs.moc_masks.MocMasksStep" title="polaris.tasks.e3sm.init.component_inputs.moc_masks.MocMasksStep"><code class="xref py py-obj docutils literal notranslate"><span class="pre">moc_masks.MocMasksStep</span></code></a>(component, subdir, ...)</p></td>
+<td><p>A step for the MOC basin masks and southern-boundary transects that MPAS-Ocean reads at run time.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.e3sm.init.component_inputs.moc_masks.MocMasksStep.setup.html#polaris.tasks.e3sm.init.component_inputs.moc_masks.MocMasksStep.setup" title="polaris.tasks.e3sm.init.component_inputs.moc_masks.MocMasksStep.setup"><code class="xref py py-obj docutils literal notranslate"><span class="pre">moc_masks.MocMasksStep.setup</span></code></a>()</p></td>
+<td><p>Set up the step, failing early for a model that cannot be packaged.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.e3sm.init.component_inputs.moc_masks.MocMasksStep.run.html#polaris.tasks.e3sm.init.component_inputs.moc_masks.MocMasksStep.run" title="polaris.tasks.e3sm.init.component_inputs.moc_masks.MocMasksStep.run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">moc_masks.MocMasksStep.run</span></code></a>()</p></td>
+<td><p>Run the feature-mask step.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.e3sm.init.component_inputs.moc_masks.MESH_FILENAME.html#polaris.tasks.e3sm.init.component_inputs.moc_masks.MESH_FILENAME" title="polaris.tasks.e3sm.init.component_inputs.moc_masks.MESH_FILENAME"><code class="xref py py-obj docutils literal notranslate"><span class="pre">moc_masks.MESH_FILENAME</span></code></a></p></td>
+<td><p>the full ocean domain, matching what the ocean initial condition is built from.</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="sea-ice-products">
+<h4>sea-ice products<a class="headerlink" href="#sea-ice-products" title="Link to this heading"></a></h4>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.e3sm.init.component_inputs.seaice_mesh.SeaiceMeshStep.html#polaris.tasks.e3sm.init.component_inputs.seaice_mesh.SeaiceMeshStep" title="polaris.tasks.e3sm.init.component_inputs.seaice_mesh.SeaiceMeshStep"><code class="xref py py-obj docutils literal notranslate"><span class="pre">seaice_mesh.SeaiceMeshStep</span></code></a>(component, ...[, ...])</p></td>
+<td><p>A step for staging the MPAS-Seaice mesh file.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.e3sm.init.component_inputs.seaice_mesh.SeaiceMeshStep.setup.html#polaris.tasks.e3sm.init.component_inputs.seaice_mesh.SeaiceMeshStep.setup" title="polaris.tasks.e3sm.init.component_inputs.seaice_mesh.SeaiceMeshStep.setup"><code class="xref py py-obj docutils literal notranslate"><span class="pre">seaice_mesh.SeaiceMeshStep.setup</span></code></a>()</p></td>
+<td><p>Set up the task in the work directory, including downloading any dependencies.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.e3sm.init.component_inputs.seaice_mesh.SeaiceMeshStep.run.html#polaris.tasks.e3sm.init.component_inputs.seaice_mesh.SeaiceMeshStep.run" title="polaris.tasks.e3sm.init.component_inputs.seaice_mesh.SeaiceMeshStep.run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">seaice_mesh.SeaiceMeshStep.run</span></code></a>()</p></td>
+<td><p>Stage the culled mesh as the sea-ice mesh.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.e3sm.init.component_inputs.seaice_initial_condition.SeaiceInitialConditionStep.html#polaris.tasks.e3sm.init.component_inputs.seaice_initial_condition.SeaiceInitialConditionStep" title="polaris.tasks.e3sm.init.component_inputs.seaice_initial_condition.SeaiceInitialConditionStep"><code class="xref py py-obj docutils literal notranslate"><span class="pre">seaice_initial_condition.SeaiceInitialConditionStep</span></code></a>(...)</p></td>
+<td><p>A step for staging the MPAS-Seaice initial condition.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.e3sm.init.component_inputs.seaice_initial_condition.SeaiceInitialConditionStep.setup.html#polaris.tasks.e3sm.init.component_inputs.seaice_initial_condition.SeaiceInitialConditionStep.setup" title="polaris.tasks.e3sm.init.component_inputs.seaice_initial_condition.SeaiceInitialConditionStep.setup"><code class="xref py py-obj docutils literal notranslate"><span class="pre">seaice_initial_condition.SeaiceInitialConditionStep.setup</span></code></a>()</p></td>
+<td><p>Set up the task in the work directory, including downloading any dependencies.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.e3sm.init.component_inputs.seaice_initial_condition.SeaiceInitialConditionStep.run.html#polaris.tasks.e3sm.init.component_inputs.seaice_initial_condition.SeaiceInitialConditionStep.run" title="polaris.tasks.e3sm.init.component_inputs.seaice_initial_condition.SeaiceInitialConditionStep.run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">seaice_initial_condition.SeaiceInitialConditionStep.run</span></code></a>()</p></td>
+<td><p>Add the Coriolis parameter to the culled mesh.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.e3sm.init.component_inputs.seaice_partition_map.SeaicePartitionMapStep.html#polaris.tasks.e3sm.init.component_inputs.seaice_partition_map.SeaicePartitionMapStep" title="polaris.tasks.e3sm.init.component_inputs.seaice_partition_map.SeaicePartitionMapStep"><code class="xref py py-obj docutils literal notranslate"><span class="pre">seaice_partition_map.SeaicePartitionMapStep</span></code></a>(...)</p></td>
+<td><p>A step for building the bilinear mapping file from the QU60km sea-ice climatology to the sea-ice mesh.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.e3sm.init.component_inputs.seaice_partition_map.SeaicePartitionMapStep.setup.html#polaris.tasks.e3sm.init.component_inputs.seaice_partition_map.SeaicePartitionMapStep.setup" title="polaris.tasks.e3sm.init.component_inputs.seaice_partition_map.SeaicePartitionMapStep.setup"><code class="xref py py-obj docutils literal notranslate"><span class="pre">seaice_partition_map.SeaicePartitionMapStep.setup</span></code></a>()</p></td>
+<td><p>Resolve what the mapping file is named after, before anything runs.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.e3sm.init.component_inputs.seaice_partition_map.SeaicePartitionMapStep.runtime_setup.html#polaris.tasks.e3sm.init.component_inputs.seaice_partition_map.SeaicePartitionMapStep.runtime_setup" title="polaris.tasks.e3sm.init.component_inputs.seaice_partition_map.SeaicePartitionMapStep.runtime_setup"><code class="xref py py-obj docutils literal notranslate"><span class="pre">seaice_partition_map.SeaicePartitionMapStep.runtime_setup</span></code></a>()</p></td>
+<td><p>Set up the source and destination grids, then the command that builds the QU60km-to-mesh mapping file.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.e3sm.init.component_inputs.seaice_graph_partition.SeaiceGraphPartitionStep.html#polaris.tasks.e3sm.init.component_inputs.seaice_graph_partition.SeaiceGraphPartitionStep" title="polaris.tasks.e3sm.init.component_inputs.seaice_graph_partition.SeaiceGraphPartitionStep"><code class="xref py py-obj docutils literal notranslate"><span class="pre">seaice_graph_partition.SeaiceGraphPartitionStep</span></code></a>(...)</p></td>
+<td><p>A step for partitioning the sea-ice mesh.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.e3sm.init.component_inputs.seaice_graph_partition.SeaiceGraphPartitionStep.setup.html#polaris.tasks.e3sm.init.component_inputs.seaice_graph_partition.SeaiceGraphPartitionStep.setup" title="polaris.tasks.e3sm.init.component_inputs.seaice_graph_partition.SeaiceGraphPartitionStep.setup"><code class="xref py py-obj docutils literal notranslate"><span class="pre">seaice_graph_partition.SeaiceGraphPartitionStep.setup</span></code></a>()</p></td>
+<td><p>Take the number of partitions to build at once from the config.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.e3sm.init.component_inputs.seaice_graph_partition.SeaiceGraphPartitionStep.run.html#polaris.tasks.e3sm.init.component_inputs.seaice_graph_partition.SeaiceGraphPartitionStep.run" title="polaris.tasks.e3sm.init.component_inputs.seaice_graph_partition.SeaiceGraphPartitionStep.run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">seaice_graph_partition.SeaiceGraphPartitionStep.run</span></code></a>()</p></td>
+<td><p>Weight the mesh by the sea-ice climatology, then partition it.</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="leaf-modules">
+<h4>leaf modules<a class="headerlink" href="#leaf-modules" title="Link to this heading"></a></h4>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.e3sm.init.component_inputs.names.get_mesh_short_name.html#polaris.tasks.e3sm.init.component_inputs.names.get_mesh_short_name" title="polaris.tasks.e3sm.init.component_inputs.names.get_mesh_short_name"><code class="xref py py-obj docutils literal notranslate"><span class="pre">names.get_mesh_short_name</span></code></a>(config)</p></td>
+<td><p>The E3SM short name of the mesh the files are staged for.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.e3sm.init.component_inputs.names.ocean_grid_name.html#polaris.tasks.e3sm.init.component_inputs.names.ocean_grid_name" title="polaris.tasks.e3sm.init.component_inputs.names.ocean_grid_name"><code class="xref py py-obj docutils literal notranslate"><span class="pre">names.ocean_grid_name</span></code></a>(short_name)</p></td>
+<td><p>E3SM's name for the ocean and sea-ice grid of a mesh.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.e3sm.init.component_inputs.names.base_mesh_path.html#polaris.tasks.e3sm.init.component_inputs.names.base_mesh_path" title="polaris.tasks.e3sm.init.component_inputs.names.base_mesh_path"><code class="xref py py-obj docutils literal notranslate"><span class="pre">names.base_mesh_path</span></code></a>(short_name, creation_date)</p></td>
+<td><p>Where the base mesh, carrying the base-to-culled index maps, is staged.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.e3sm.init.component_inputs.names.scrip_path.html#polaris.tasks.e3sm.init.component_inputs.names.scrip_path" title="polaris.tasks.e3sm.init.component_inputs.names.scrip_path"><code class="xref py py-obj docutils literal notranslate"><span class="pre">names.scrip_path</span></code></a>(short_name, creation_date, ...)</p></td>
+<td><p>Where the SCRIP description of one culled mesh is staged.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.e3sm.init.component_inputs.names.ocean_scrip_path.html#polaris.tasks.e3sm.init.component_inputs.names.ocean_scrip_path" title="polaris.tasks.e3sm.init.component_inputs.names.ocean_scrip_path"><code class="xref py py-obj docutils literal notranslate"><span class="pre">names.ocean_scrip_path</span></code></a>(short_name, ...)</p></td>
+<td><p>Where a SCRIP description is staged beside the ocean products.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.e3sm.init.component_inputs.names.culled_mesh_path.html#polaris.tasks.e3sm.init.component_inputs.names.culled_mesh_path" title="polaris.tasks.e3sm.init.component_inputs.names.culled_mesh_path"><code class="xref py py-obj docutils literal notranslate"><span class="pre">names.culled_mesh_path</span></code></a>(short_name, ...)</p></td>
+<td><p>Where one culled mesh is staged.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.e3sm.init.component_inputs.names.ocean_moc_masks_path.html#polaris.tasks.e3sm.init.component_inputs.names.ocean_moc_masks_path" title="polaris.tasks.e3sm.init.component_inputs.names.ocean_moc_masks_path"><code class="xref py py-obj docutils literal notranslate"><span class="pre">names.ocean_moc_masks_path</span></code></a>(short_name, ...)</p></td>
+<td><p>Where the MOC basin masks and southern-boundary transects are staged.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.e3sm.init.component_inputs.maps.map_base_to_culled.html#polaris.tasks.e3sm.init.component_inputs.maps.map_base_to_culled" title="polaris.tasks.e3sm.init.component_inputs.maps.map_base_to_culled"><code class="xref py py-obj docutils literal notranslate"><span class="pre">maps.map_base_to_culled</span></code></a>(...)</p></td>
+<td><p>Invert one culled mesh's forward map into base-to-culled index fields.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.e3sm.init.component_inputs.maps.base_to_culled_maps.html#polaris.tasks.e3sm.init.component_inputs.maps.base_to_culled_maps" title="polaris.tasks.e3sm.init.component_inputs.maps.base_to_culled_maps"><code class="xref py py-obj docutils literal notranslate"><span class="pre">maps.base_to_culled_maps</span></code></a>(...)</p></td>
+<td><p>All nine base-to-culled index maps, one per culled mesh and element type.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.e3sm.init.component_inputs.models.check_ocean_model.html#polaris.tasks.e3sm.init.component_inputs.models.check_ocean_model" title="polaris.tasks.e3sm.init.component_inputs.models.check_ocean_model"><code class="xref py py-obj docutils literal notranslate"><span class="pre">models.check_ocean_model</span></code></a>()</p></td>
+<td><p>The ocean model the dynamic adjustment runs, if its files can be staged.</p></td>
 </tr>
 </tbody>
 </table>

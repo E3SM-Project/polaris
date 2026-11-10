@@ -1,0 +1,6 @@
+﻿polaris.tasks.e3sm.init.component\_inputs.ScripStep.scrip\_filename
+===================================================================
+
+.. currentmodule:: polaris.tasks.e3sm.init.component_inputs
+
+.. automethod:: ScripStep.scrip_filename

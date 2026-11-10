@@ -1,0 +1,6 @@
+﻿polaris.tasks.e3sm.init.component\_inputs.names.ocean\_moc\_masks\_path
+=======================================================================
+
+.. currentmodule:: polaris.tasks.e3sm.init.component_inputs.names
+
+.. autofunction:: ocean_moc_masks_path

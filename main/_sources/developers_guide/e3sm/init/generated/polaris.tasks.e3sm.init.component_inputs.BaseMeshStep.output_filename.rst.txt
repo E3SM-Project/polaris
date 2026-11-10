@@ -1,0 +1,6 @@
+﻿polaris.tasks.e3sm.init.component\_inputs.BaseMeshStep.output\_filename
+=======================================================================
+
+.. currentmodule:: polaris.tasks.e3sm.init.component_inputs
+
+.. autoproperty:: BaseMeshStep.output_filename

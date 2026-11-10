@@ -1,0 +1,6 @@
+﻿polaris.tasks.e3sm.init.component\_inputs.names.get\_mesh\_short\_name
+======================================================================
+
+.. currentmodule:: polaris.tasks.e3sm.init.component_inputs.names
+
+.. autofunction:: get_mesh_short_name

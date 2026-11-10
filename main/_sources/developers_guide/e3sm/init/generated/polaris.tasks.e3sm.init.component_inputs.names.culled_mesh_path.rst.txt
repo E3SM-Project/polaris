@@ -1,0 +1,6 @@
+﻿polaris.tasks.e3sm.init.component\_inputs.names.culled\_mesh\_path
+==================================================================
+
+.. currentmodule:: polaris.tasks.e3sm.init.component_inputs.names
+
+.. autofunction:: culled_mesh_path

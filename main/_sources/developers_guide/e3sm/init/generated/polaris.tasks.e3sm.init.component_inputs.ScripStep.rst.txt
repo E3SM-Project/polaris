@@ -1,0 +1,49 @@
+﻿polaris.tasks.e3sm.init.component\_inputs.ScripStep
+===================================================
+
+.. currentmodule:: polaris.tasks.e3sm.init.component_inputs
+
+.. autoclass:: ScripStep
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~ScripStep.__init__
+      ~ScripStep.add_cf_check
+      ~ScripStep.add_dependency
+      ~ScripStep.add_input_file
+      ~ScripStep.add_output_file
+      ~ScripStep.add_property_check
+      ~ScripStep.check_cf
+      ~ScripStep.check_properties
+      ~ScripStep.constrain_resources
+      ~ScripStep.process_inputs_and_outputs
+      ~ScripStep.run
+      ~ScripStep.runtime_setup
+      ~ScripStep.scrip_filename
+      ~ScripStep.set_resources
+      ~ScripStep.set_shared_config
+      ~ScripStep.setup
+      ~ScripStep.validate_baselines
+      ~ScripStep.work_path
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~ScripStep.cores
+      ~ScripStep.gpus
+      ~ScripStep.may_span_nodes
+      ~ScripStep.min_cores
+      ~ScripStep.min_gpus
+   
+   

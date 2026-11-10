@@ -1,0 +1,1007 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>polaris.e3sm.init.partitions</title>
+      <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../../_static/documentation_options.js?v=a8da1a53"></script>
+      <script src="../../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script type="module">import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11.12.1/dist/mermaid.esm.min.mjs";
+
+
+
+
+
+const initStyles = () => {
+    const defaultStyle = document.createElement('style');
+    defaultStyle.textContent = "pre.mermaid {\n    /* Same as .mermaid-container > pre */\n    display: block;\n    width: 100%;\n}\n\npre.mermaid > svg {\n    /* Same as .mermaid-container > pre > svg */\n    height: 500px;\n    width: 100%;\n    max-width: 100% !important;\n}";
+    document.head.appendChild(defaultStyle);
+
+    const fullscreenStyle = document.createElement('style');
+    fullscreenStyle.textContent = ".mermaid-container {\n    position: relative;\n    display: flex;\n    flex-direction: row;\n    width: 100%;\n}\n\n.mermaid-container > pre {\n    display: block;\n    width: 100%;\n}\n\n.mermaid-container > pre > svg {\n    height: 500px;\n    width: 100%;\n    max-width: 100% !important;\n}\n\n.mermaid-fullscreen-btn {\n    position: absolute;\n    width: 28px;\n    height: 28px;\n    background: rgba(255, 255, 255, 0.95);\n    border: 1px solid rgba(0, 0, 0, 0.3);\n    border-radius: 4px;\n    cursor: pointer;\n    display: flex;\n    align-items: center;\n    justify-content: center;\n    transition: all 0.2s;\n    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);\n    font-size: 14px;\n    line-height: 1;\n    padding: 0;\n    color: #333;\n}\n\n.mermaid-fullscreen-btn:hover {\n    opacity: 100% !important;\n    background: rgba(255, 255, 255, 1);\n    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.3);\n    transform: scale(1.1);\n}\n\n.mermaid-fullscreen-btn.dark-theme {\n    background: rgba(50, 50, 50, 0.95);\n    border: 1px solid rgba(255, 255, 255, 0.3);\n    color: #e0e0e0;\n}\n\n.mermaid-fullscreen-btn.dark-theme:hover {\n    background: rgba(60, 60, 60, 1);\n    box-shadow: 0 3px 10px rgba(255, 255, 255, 0.2);\n}\n\n.mermaid-fullscreen-modal {\n    display: none;\n    position: fixed !important;\n    top: 0 !important;\n    left: 0 !important;\n    width: 95vw;\n    height: 100vh;\n    background: rgba(255, 255, 255, 0.98);\n    z-index: 9999;\n    padding: 20px;\n    overflow: auto;\n}\n\n.mermaid-fullscreen-modal.dark-theme {\n    background: rgba(0, 0, 0, 0.98);\n}\n\n.mermaid-fullscreen-modal.active {\n    display: flex;\n    align-items: center;\n    justify-content: center;\n}\n\n.mermaid-container-fullscreen {\n    position: relative;\n    width: 95vw;\n    height: 90vh;\n    max-width: 95vw;\n    max-height: 90vh;\n    background: white;\n    border-radius: 8px;\n    padding: 20px;\n    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);\n    overflow: auto;\n    display: flex;\n    align-items: center;\n    justify-content: center;\n}\n\n.mermaid-container-fullscreen.dark-theme {\n    background: #1a1a1a;\n    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.8);\n}\n\n.mermaid-container-fullscreen pre.mermaid {\n    width: 100%;\n    height: 100%;\n    display: flex;\n    align-items: center;\n    justify-content: center;\n}\n\n.mermaid-container-fullscreen .mermaid svg {\n    height: 100% !important;\n    width: 100% !important;\n    cursor: grab;\n}\n\n.mermaid-fullscreen-close {\n    position: fixed !important;\n    top: 20px !important;\n    right: 20px !important;\n    width: 40px;\n    height: 40px;\n    background: rgba(255, 255, 255, 0.95);\n    border: 1px solid rgba(0, 0, 0, 0.2);\n    border-radius: 50%;\n    cursor: pointer;\n    z-index: 10000;\n    display: flex;\n    align-items: center;\n    justify-content: center;\n    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);\n    transition: all 0.2s;\n    font-size: 24px;\n    line-height: 1;\n    color: #333;\n}\n\n.mermaid-fullscreen-close:hover {\n    background: white;\n    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);\n    transform: scale(1.1);\n}\n\n.mermaid-fullscreen-close.dark-theme {\n    background: rgba(50, 50, 50, 0.95);\n    border: 1px solid rgba(255, 255, 255, 0.2);\n    color: #e0e0e0;\n}\n\n.mermaid-fullscreen-close.dark-theme:hover {\n    background: rgba(60, 60, 60, 1);\n    box-shadow: 0 6px 16px rgba(255, 255, 255, 0.2);\n}\n\n.mermaid-fullscreen-modal .mermaid-fullscreen-btn {\n    display: none !important;\n}";
+    document.head.appendChild(fullscreenStyle);
+}
+
+// Detect if page has dark background
+const isDarkTheme = () => {
+    // We use a set of heuristics:
+    // 1. Check for common dark mode classes or attributes
+    // 2. Check computed background color brightness
+    if (document.documentElement.classList.contains('dark') ||
+        document.documentElement.getAttribute('data-theme') === 'dark' ||
+        document.body.classList.contains('dark') ||
+        document.body.getAttribute('data-theme') === 'dark') {
+        // console.log("Dark theme detected via class/attribute");
+        return true;
+    }
+    if (document.documentElement.classList.contains('light') ||
+        document.documentElement.getAttribute('data-theme') === 'light' ||
+        document.body.classList.contains('light') ||
+        document.body.getAttribute('data-theme') === 'light') {
+        // console.log("Light theme detected via class/attribute");
+        return false;
+    }
+    if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        // console.log("Dark theme detected via prefers-color-scheme");
+        return true;
+    }
+    const bgColor = window.getComputedStyle(document.body).backgroundColor;
+    const match = bgColor.match(/rgb\((\d+),\s*(\d+),\s*(\d+)/);
+    if (match) {
+        const r = parseInt(match[1]);
+        const g = parseInt(match[2]);
+        const b = parseInt(match[3]);
+        const brightness = (r * 299 + g * 587 + b * 114) / 1000;
+        // console.log("Background color brightness:", brightness);
+        return brightness < 128;
+    }
+    // console.log("No dark or light theme detected, defaulting to light theme");
+    return false;
+};
+
+let darkTheme = isDarkTheme();
+let modal = null;
+let modalContent = null;
+let previousScrollOffset = [window.scrollX, window.scrollY];
+let _lazyObserver = null;
+let _renderQueue = Promise.resolve();
+let closeModal = () => {};
+
+document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && modal?.classList.contains('active')) {
+        closeModal();
+    }
+});
+
+// Apply d3 zoom to each SVG. Idempotent: an SVG already wrapped is skipped,
+// so this is safe to call both for the initial batch and for diagrams that
+// render lazily once they become visible.
+const addZoomToSvgs = (svgs) => {
+    svgs.each(function() {
+        if (this.getAttribute('data-zoom-applied') === 'true') return;
+        var svg = d3.select(this);
+        svg.html("<g class='wrapper'>" + svg.html() + "</g>");
+        var inner = svg.select("g");
+        var zoom = d3.zoom().on("zoom", function(event) {
+            inner.attr("transform", event.transform);
+        });
+        svg.call(zoom);
+        this.setAttribute('data-zoom-applied', 'true');
+    });
+};
+
+const runMermaid = async (rerun) => {
+    console.log("Running mermaid diagrams, rerun =", rerun);
+    // clear all existing mermaid charts
+    let all_mermaids = document.querySelectorAll(".mermaid");
+
+    if (rerun) {
+        // Disconnect any previous lazy rendering observer
+        if (_lazyObserver) {
+            _lazyObserver.disconnect();
+            _lazyObserver = null;
+        }
+
+        all_mermaids.forEach((el) => {
+            el.removeAttribute('data-mermaid-deferred');
+            el.removeAttribute('data-mermaid-render-failed');
+            if(!el.hasAttribute("data-original-code")) {
+                // store original code
+                // console.log(`Storing original code for first run: `, el.innerHTML);
+                el.setAttribute('data-original-code', el.innerHTML);
+            }
+            if(el.getAttribute("data-processed") === "true") {
+                // remove and restore original
+                el.removeAttribute("data-processed");
+                // console.log(`Restoring original code for re-run: `, el.getAttribute('data-original-code'));
+                el.innerHTML = el.getAttribute('data-original-code');
+            } else {
+                // store original code
+                // console.log(`Storing original code for re-run: `, el.innerHTML);
+                el.setAttribute('data-original-code', el.innerHTML);
+            }
+        });
+
+        // Separate visible and hidden elements. Mermaid's layout engine measures
+        // text dimensions via the DOM, which fails for elements hidden by a parent
+        // (e.g., Reveal.js non-active slides, sphinx-design unopened tabs),
+        // producing broken SVGs. Render visible elements now, defer hidden ones.
+        const visible = [];
+        const hidden = [];
+        all_mermaids.forEach((el) => {
+            // offsetParent is null for display:none ancestors.
+            // getClientRects().length > 0 catches position:fixed elements
+            // (which also have null offsetParent but are still visible).
+            if (el.offsetParent !== null || el.getClientRects().length > 0) {
+                visible.push(el);
+            } else {
+                hidden.push(el);
+                el.setAttribute('data-mermaid-deferred', 'true');
+            }
+        });
+
+        if (visible.length > 0) {
+            try {
+                await mermaid.run({ nodes: visible });
+            } catch (e) {
+                console.error("Mermaid rendering failed:", e);
+            }
+        }
+
+        // Lazily render hidden elements when they become visible.
+        // Uses a promise chain (_renderQueue) to serialize rendering,
+        // since IntersectionObserver may report multiple entries at once
+        // and mermaid.run() is not safe to call concurrently.
+        if (hidden.length > 0) {
+            if (typeof IntersectionObserver === 'undefined') {
+                console.warn("IntersectionObserver not available; hidden mermaid diagrams will not render.");
+            } else {
+                _renderQueue = Promise.resolve();
+                _lazyObserver = new IntersectionObserver((entries) => {
+                    for (const entry of entries) {
+                        if (entry.isIntersecting && entry.target.getAttribute("data-processed") !== "true") {
+                            _lazyObserver.unobserve(entry.target);
+                            const el = entry.target;
+                            _renderQueue = _renderQueue.then(async () => {
+                                try {
+                                    await mermaid.run({ nodes: [el] });
+                                    el.removeAttribute('data-mermaid-deferred');
+                                    // Apply zoom to the now-rendered diagram, matching
+                                    // the decoration visible diagrams receive.
+                                    if (false) {
+                                        addZoomToSvgs(d3.selectAll("").select(function() {
+                                            return this.querySelector("svg");
+                                        }));
+                                    }
+                                } catch (e) {
+                                    console.error("Mermaid deferred rendering failed:", e);
+                                    el.removeAttribute('data-mermaid-deferred');
+                                    el.setAttribute('data-mermaid-render-failed', 'true');
+                                }
+                            });
+                        }
+                    }
+                });
+                hidden.forEach((el) => _lazyObserver.observe(el));
+            }
+        }
+    }
+
+    all_mermaids = document.querySelectorAll(".mermaid");
+    // Exclude deferred (hidden) and render-failed elements from completion checks
+    const mermaids_active = document.querySelectorAll(".mermaid:not([data-mermaid-deferred]):not([data-mermaid-render-failed])");
+    const mermaids_processed = document.querySelectorAll(".mermaid:not([data-mermaid-deferred]):not([data-mermaid-render-failed])[data-processed='true']");
+
+    if (false) {
+        const mermaids_to_add_zoom = 0 === -1 ? mermaids_active.length : 0;
+        if(mermaids_to_add_zoom > 0) {
+            var svgs = d3.selectAll("").select(function() {
+                return this.querySelector("svg");
+            });
+            // Wait until every active (visible) diagram has rendered. Deferred
+            // diagrams are excluded, so a fixed d3_node_count that counts a
+            // hidden diagram no longer loops forever waiting for its SVG.
+            if(mermaids_active.length !== mermaids_processed.length) {
+                setTimeout(() => runMermaid(false), 200);
+                return;
+            }
+            addZoomToSvgs(svgs);
+        }
+    } else if(mermaids_active.length !== mermaids_processed.length) {
+        // Wait for mermaid to process all diagrams
+        setTimeout(() => runMermaid(false), 200);
+        return;
+    }
+
+    // Stop here if not adding fullscreen capability
+    if (!true) return;
+
+    if (modal !== null ) {
+        // Destroy existing modal
+        modal.remove();
+        modal = null;
+        modalContent = null;
+    }
+
+    modal = document.createElement('div');
+    modal.className = 'mermaid-fullscreen-modal' + (darkTheme ? ' dark-theme' : '');
+    modal.setAttribute('role', 'dialog');
+    modal.setAttribute('aria-modal', 'true');
+    modal.setAttribute('aria-label', 'Fullscreen diagram viewer');
+    modal.innerHTML = `
+        <button class="mermaid-fullscreen-close${darkTheme ? ' dark-theme' : ''}" aria-label="Close fullscreen">✕</button>
+        <div class="mermaid-container-fullscreen${darkTheme ? ' dark-theme' : ''}"></div>
+    `;
+    document.body.appendChild(modal);
+
+    modalContent = modal.querySelector('.mermaid-container-fullscreen');
+    const closeBtn = modal.querySelector('.mermaid-fullscreen-close');
+
+    closeModal = () => {
+        modal.classList.remove('active');
+        modalContent.innerHTML = '';
+        document.body.style.overflow = ''
+        window.scrollTo({left: previousScrollOffset[0], top: previousScrollOffset[1], behavior: 'instant'});
+    };
+
+    closeBtn.addEventListener('click', closeModal);
+    modal.addEventListener('click', (e) => {
+        if (e.target === modal) closeModal();
+    });
+    document.querySelectorAll('.mermaid').forEach((mermaidDiv) => {
+        if (mermaidDiv.parentNode.classList.contains('mermaid-container') ||
+            mermaidDiv.closest('.mermaid-fullscreen-modal')) {
+            // Already processed, adjust button class if needed
+            const existingBtn = mermaidDiv.parentNode.querySelector('.mermaid-fullscreen-btn');
+            if (existingBtn) {
+                existingBtn.className = 'mermaid-fullscreen-btn' + (darkTheme ? ' dark-theme' : '');
+            }
+            return;
+        }
+
+        const container = document.createElement('div');
+        container.className = 'mermaid-container';
+        mermaidDiv.parentNode.insertBefore(container, mermaidDiv);
+        container.appendChild(mermaidDiv);
+
+        const fullscreenBtn = document.createElement('button');
+        fullscreenBtn.className = 'mermaid-fullscreen-btn' + (darkTheme ? ' dark-theme' : '');
+        fullscreenBtn.setAttribute('aria-label', 'View diagram in fullscreen');
+        fullscreenBtn.textContent = "\u26f6";
+        fullscreenBtn.style.opacity = "50%";
+
+        // Calculate dynamic position based on diagram's margin and padding
+        const diagramStyle = window.getComputedStyle(mermaidDiv);
+        const marginTop = parseFloat(diagramStyle.marginTop) || 0;
+        const marginRight = parseFloat(diagramStyle.marginRight) || 0;
+        const paddingTop = parseFloat(diagramStyle.paddingTop) || 0;
+        const paddingRight = parseFloat(diagramStyle.paddingRight) || 0;
+        fullscreenBtn.style.top = `${marginTop + paddingTop + 4}px`;
+        fullscreenBtn.style.right = `${marginRight + paddingRight + 4}px`;
+
+        fullscreenBtn.addEventListener('click', () => {
+            previousScrollOffset = [window.scrollX, window.scrollY];
+            const clone = mermaidDiv.cloneNode(true);
+            modalContent.innerHTML = '';
+            modalContent.appendChild(clone);
+
+            const svg = clone.querySelector('svg');
+            if (svg) {
+                svg.removeAttribute('width');
+                svg.removeAttribute('height');
+                svg.style.width = '100%';
+                svg.style.height = 'auto';
+                svg.style.maxWidth = '100%';
+                svg.style.display = 'block';
+
+                if (false) {
+                    setTimeout(() => {
+                        const g = svg.querySelector('g');
+                        if (g) {
+                            var svgD3 = d3.select(svg);
+                            svgD3.html("<g class='wrapper'>" + svgD3.html() + "</g>");
+                            var inner = svgD3.select("g");
+                            var zoom = d3.zoom().on("zoom", function(event) {
+                                inner.attr("transform", event.transform);
+                            });
+                            svgD3.call(zoom);
+                        }
+                    }, 100);
+                }
+            }
+
+            modal.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        });
+        container.appendChild(fullscreenBtn);
+    });
+};
+
+
+
+const load = async () => {
+    initStyles();
+
+
+    await runMermaid(true);
+
+    const reRunIfThemeChanges = async () => {
+        const newDarkTheme = isDarkTheme();
+        if (newDarkTheme !== darkTheme) {
+            darkTheme = newDarkTheme;
+            console.log("Theme change detected, re-running mermaid with", darkTheme ? "dark" : "default", "theme");
+            await mermaid.initialize(
+                {...{"startOnLoad": false},
+                ...{ darkMode: darkTheme, theme: darkTheme ? "dark" : "default" },
+                }
+            );
+            await runMermaid(true);
+        }
+    };
+
+    // Update theme classes when theme changes
+    const themeObserver = new MutationObserver(reRunIfThemeChanges);
+    themeObserver.observe(document.documentElement, {
+        attributes: true,
+        attributeFilter: ['class', 'style', 'data-theme']
+    });
+    themeObserver.observe(document.body, {
+        attributes: true,
+        attributeFilter: ['class', 'style', 'data-theme']
+    });
+};
+
+
+
+
+
+console.log("Initializing mermaid with", darkTheme ? "dark" : "default", "theme");
+mermaid.initialize(
+    {...{"startOnLoad": false},
+    ...{ darkMode: darkTheme, theme: darkTheme ? "dark" : "default" },
+    }
+);
+
+window.addEventListener("load", load);
+window.runMermaid = runMermaid;</script>
+    <script src="../../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" />
+    <link href="../../../../_static/style.css" rel="stylesheet" type="text/css">
+
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../../index.html" class="icon icon-home">
+            Polaris
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">User's guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../users_guide/quick_start.html">Quick Start for Users</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../users_guide/tasks.html">Tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../users_guide/config_files.html">Config Files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../users_guide/suites.html">Suites</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../users_guide/mesh/index.html">Mesh component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../users_guide/e3sm/init/index.html">E3SM Initial Condition Component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../users_guide/ocean/index.html">Ocean component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../users_guide/seaice/index.html">Sea ice component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../users_guide/machines/index.html">Machines</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Developer's guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../developers_guide/quick_start.html">Quick Start for Developers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../developers_guide/overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../developers_guide/command_line.html">Command-line interface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../developers_guide/organization/index.html">Organization of Tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../developers_guide/e3sm/init/index.html">E3SM initial condition (e3sm/init) component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../developers_guide/mesh/index.html">Mesh component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../developers_guide/ocean/index.html">Ocean component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../developers_guide/seaice/index.html">Sea ice component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../developers_guide/framework/index.html">Framework</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../developers_guide/machines/index.html">Machines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../developers_guide/benchmarking.html">Benchmarking a branch against a baseline</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../developers_guide/omega_pr_testing.html">Testing an Omega pull request</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../developers_guide/polaris_update_testing.html">Testing a Polaris version update</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../developers_guide/troubleshooting.html">Troubleshooting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../developers_guide/docs.html">Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../developers_guide/building_docs.html">Building the Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../developers_guide/building_docs.html#previewing-the-documentation">Previewing the Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../developers_guide/conda_vs_spack.html">How Conda and Spack Work Together in Polaris</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../developers_guide/updating_conda.html">Updating Deployment Dependencies</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../developers_guide/updating_spack/index.html">Updating Shared Spack Environments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../developers_guide/api.html">API reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../design_docs/index.html">Design Documents</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../tutorials/dev_add_category_of_tasks/index.html">Developer Tutorial: Adding a New Category of Tasks</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Glossary</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../glossary.html">Glossary</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../index.html">Polaris</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">polaris.e3sm.init.partitions</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for polaris.e3sm.init.partitions</h1><div class="highlight"><pre>
+<span></span><span class="sd">"""</span>
+<span class="sd">Which core counts a mesh's graph gets partitioned into, which of them are</span>
+<span class="sd">still to build, and building them.</span>
+
+<span class="sd">:py:func:`get_core_list` is ported essentially verbatim from Compass'</span>
+<span class="sd">``files_for_e3sm/graph_partition.py``.  It is a pure function of a cell count</span>
+<span class="sd">and two bounds, so unlike in Compass it gets real unit tests.</span>
+
+<span class="sd">:py:func:`build_partitions` runs ``gpmetis`` once per core count, several at a</span>
+<span class="sd">time.  Each call is serial, but a mesh needs hundreds of them, and on the</span>
+<span class="sd">finest unified mesh they add up to most of a day on one core.</span>
+<span class="sd">"""</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">multiprocessing</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">subprocess</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">time</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">concurrent.futures</span><span class="w"> </span><span class="kn">import</span> <span class="n">ProcessPoolExecutor</span><span class="p">,</span> <span class="n">as_completed</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">NamedTuple</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+
+<span class="c1">#: The file every ``gpmetis`` report is appended to.  There are hundreds of</span>
+<span class="c1">#: them, and in the step's log they would bury everything else.</span>
+<span class="n">GPMETIS_LOG</span> <span class="o">=</span> <span class="s1">'gpmetis.log'</span>
+
+
+<div class="viewcode-block" id="RegionGraph">
+<a class="viewcode-back" href="../../../../developers_guide/e3sm/init/generated/polaris.e3sm.init.partitions.RegionGraph.html#polaris.e3sm.init.partitions.RegionGraph">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">RegionGraph</span><span class="p">(</span><span class="n">NamedTuple</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    A graph file to partition, and which of a mesh's cells it covers.</span>
+
+<span class="sd">    Attributes</span>
+<span class="sd">    ----------</span>
+<span class="sd">    filename : str</span>
+<span class="sd">        The graph file, in the format ``gpmetis`` reads.</span>
+
+<span class="sd">    cells : numpy.ndarray or None</span>
+<span class="sd">        The index in the full mesh of each vertex in the graph, or ``None`` if</span>
+<span class="sd">        the graph is the whole mesh.</span>
+<span class="sd">    """</span>
+
+    <span class="n">filename</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">cells</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span></div>
+
+
+
+<span class="c1">#: The regions a worker process partitions, set when it starts.</span>
+<span class="n">_worker_regions</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">RegionGraph</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+
+
+<div class="viewcode-block" id="get_core_list">
+<a class="viewcode-back" href="../../../../developers_guide/e3sm/init/generated/polaris.e3sm.init.partitions.get_core_list.html#polaris.e3sm.init.partitions.get_core_list">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_core_list</span><span class="p">(</span><span class="n">ncells</span><span class="p">,</span> <span class="n">max_cells_per_core</span><span class="o">=</span><span class="mi">30000</span><span class="p">,</span> <span class="n">min_cells_per_core</span><span class="o">=</span><span class="mi">2</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    A fairly exhaustive list of core counts to partition a mesh into.</span>
+
+<span class="sd">    The list is not every integer in range.  It keeps counts that factor well</span>
+<span class="sd">    for a decomposition, plus whole-node counts for the node sizes E3SM</span>
+<span class="sd">    machines actually have, plus a few counts that divide the ne30 atmosphere</span>
+<span class="sd">    mesh, since a run is usually laid out around those.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    ncells : int</span>
+<span class="sd">        The number of cells in the mesh.</span>
+
+<span class="sd">    max_cells_per_core : float, optional</span>
+<span class="sd">        The approximate maximum number of cells per core, which sets the</span>
+<span class="sd">        smallest partition created.</span>
+
+<span class="sd">    min_cells_per_core : float, optional</span>
+<span class="sd">        The approximate minimum number of cells per core, which sets the</span>
+<span class="sd">        largest partition created.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    numpy.ndarray</span>
+<span class="sd">        The core counts, in increasing order.</span>
+<span class="sd">    """</span>
+    <span class="n">min_graph_size</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="n">ncells</span> <span class="o">/</span> <span class="n">max_cells_per_core</span><span class="p">))</span>
+    <span class="n">max_graph_size</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">ncells</span> <span class="o">/</span> <span class="n">min_cells_per_core</span><span class="p">)</span>
+
+    <span class="n">node_sizes</span> <span class="o">=</span> <span class="p">[</span><span class="mi">16</span><span class="p">,</span> <span class="mi">24</span><span class="p">,</span> <span class="mi">30</span><span class="p">,</span> <span class="mi">32</span><span class="p">,</span> <span class="mi">36</span><span class="p">,</span> <span class="mi">44</span><span class="p">,</span> <span class="mi">52</span><span class="p">,</span> <span class="mi">56</span><span class="p">,</span> <span class="mi">64</span><span class="p">,</span> <span class="mi">84</span><span class="p">,</span> <span class="mi">96</span><span class="p">,</span> <span class="mi">112</span><span class="p">,</span> <span class="mi">128</span><span class="p">,</span> <span class="mi">256</span><span class="p">]</span>
+    <span class="n">max_nodes</span> <span class="o">=</span> <span class="mi">20</span>
+
+    <span class="n">special_core_counts</span> <span class="o">=</span> <span class="p">[</span><span class="mi">3</span><span class="p">,</span> <span class="mi">9</span><span class="p">,</span> <span class="mi">15</span><span class="p">,</span> <span class="mi">21</span><span class="p">,</span> <span class="mi">225</span><span class="p">,</span> <span class="mi">675</span><span class="p">,</span> <span class="mi">1350</span><span class="p">]</span>
+
+    <span class="n">max_nodes_approx</span> <span class="o">=</span> <span class="mi">100</span>
+    <span class="n">special_approx_cores</span> <span class="o">=</span> <span class="p">[</span><span class="mi">675</span><span class="p">,</span> <span class="mi">1350</span><span class="p">,</span> <span class="mi">2700</span><span class="p">,</span> <span class="mi">5400</span><span class="p">]</span>
+
+    <span class="n">cores</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">ncells</span> <span class="o">&lt;</span> <span class="n">max_cells_per_core</span><span class="p">:</span>
+        <span class="n">cores</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">candidate</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">min_graph_size</span><span class="p">,</span> <span class="n">max_graph_size</span><span class="p">):</span>
+        <span class="n">factors</span> <span class="o">=</span> <span class="n">_prime_factors</span><span class="p">(</span><span class="n">candidate</span><span class="p">)</span>
+        <span class="n">twos</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">count_nonzero</span><span class="p">(</span><span class="n">factors</span> <span class="o">==</span> <span class="mi">2</span><span class="p">)</span>
+        <span class="n">fives</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">count_nonzero</span><span class="p">(</span><span class="n">factors</span> <span class="o">==</span> <span class="mi">5</span><span class="p">)</span>
+        <span class="n">gt_five</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">count_nonzero</span><span class="p">(</span><span class="n">factors</span> <span class="o">&gt;</span> <span class="mi">5</span><span class="p">)</span>
+        <span class="n">big_factor</span> <span class="o">=</span> <span class="n">factors</span><span class="o">.</span><span class="n">max</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">twos</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">fives</span> <span class="o">&lt;=</span> <span class="n">twos</span> <span class="ow">and</span> <span class="n">gt_five</span> <span class="o">&lt;=</span> <span class="mi">1</span> <span class="ow">and</span> <span class="n">big_factor</span> <span class="o">&lt;=</span> <span class="mi">7</span><span class="p">:</span>
+            <span class="n">cores</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">candidate</span><span class="p">)</span>
+        <span class="c1"># small odd multiples of 3 and a few that correspond to divisors of</span>
+        <span class="c1"># the ne30 (30x30x6=5400) size</span>
+        <span class="k">elif</span> <span class="n">candidate</span> <span class="ow">in</span> <span class="n">special_core_counts</span><span class="p">:</span>
+            <span class="n">cores</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">candidate</span><span class="p">)</span>
+
+    <span class="c1"># add node counts from 1 to max_nodes even if they're weird primes</span>
+    <span class="k">for</span> <span class="n">node_size</span> <span class="ow">in</span> <span class="n">node_sizes</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">node_count</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">max_nodes</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
+            <span class="n">core_count</span> <span class="o">=</span> <span class="n">node_size</span> <span class="o">*</span> <span class="n">node_count</span>
+            <span class="k">if</span> <span class="n">min_graph_size</span> <span class="o">&lt;=</span> <span class="n">core_count</span> <span class="o">&lt;=</span> <span class="n">max_graph_size</span><span class="p">:</span>
+                <span class="n">cores</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">core_count</span><span class="p">)</span>
+
+    <span class="c1"># add even node counts if they are close to some especially desirable core</span>
+    <span class="c1"># counts for the ne30 atmosphere mesh (also used for MPAS-Seaice)</span>
+    <span class="k">for</span> <span class="n">node_size</span> <span class="ow">in</span> <span class="n">node_sizes</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">node_count</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">max_nodes_approx</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
+            <span class="n">core_count</span> <span class="o">=</span> <span class="n">node_size</span> <span class="o">*</span> <span class="n">node_count</span>
+            <span class="k">for</span> <span class="n">approx</span> <span class="ow">in</span> <span class="n">special_approx_cores</span><span class="p">:</span>
+                <span class="n">lower</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">approx</span> <span class="o">-</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">node_size</span><span class="p">,</span> <span class="n">min_graph_size</span><span class="p">)</span>
+                <span class="n">upper</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">approx</span> <span class="o">+</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">node_size</span><span class="p">,</span> <span class="n">max_graph_size</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">lower</span> <span class="o">&lt;=</span> <span class="n">core_count</span> <span class="o">&lt;=</span> <span class="n">upper</span><span class="p">:</span>
+                    <span class="n">cores</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">core_count</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="n">cores</span><span class="p">))</span></div>
+
+
+
+<div class="viewcode-block" id="read_graph_cell_count">
+<a class="viewcode-back" href="../../../../developers_guide/e3sm/init/generated/polaris.e3sm.init.partitions.read_graph_cell_count.html#polaris.e3sm.init.partitions.read_graph_cell_count">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">read_graph_cell_count</span><span class="p">(</span><span class="n">graph_filename</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    The number of cells a METIS graph file describes.</span>
+
+<span class="sd">    Read from the header rather than by counting lines, which overcounts by</span>
+<span class="sd">    the header itself.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    graph_filename : str</span>
+<span class="sd">        The path to the graph file.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    int</span>
+<span class="sd">        The number of cells (vertices) in the graph.</span>
+<span class="sd">    """</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">graph_filename</span><span class="p">)</span> <span class="k">as</span> <span class="n">graph_file</span><span class="p">:</span>
+        <span class="n">header</span> <span class="o">=</span> <span class="n">graph_file</span><span class="o">.</span><span class="n">readline</span><span class="p">()</span>
+    <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="n">header</span><span class="o">.</span><span class="n">split</span><span class="p">()[</span><span class="mi">0</span><span class="p">])</span></div>
+
+
+
+<div class="viewcode-block" id="partitions_to_build">
+<a class="viewcode-back" href="../../../../developers_guide/e3sm/init/generated/polaris.e3sm.init.partitions.partitions_to_build.html#polaris.e3sm.init.partitions.partitions_to_build">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">partitions_to_build</span><span class="p">(</span><span class="n">cores</span><span class="p">,</span> <span class="n">basename</span><span class="p">,</span> <span class="n">ncells</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    The core counts from ``cores`` that still need a partition file.</span>
+
+<span class="sd">    Partitioning a large mesh takes hours -- most of a day on the finest</span>
+<span class="sd">    unified mesh -- so a step that is interrupted has to be able to pick up</span>
+<span class="sd">    where it stopped rather than start over.</span>
+
+<span class="sd">    A file is only taken as finished when it has one line per cell, which is</span>
+<span class="sd">    what ``gpmetis`` writes.  Existence alone is not enough: a job killed at</span>
+<span class="sd">    its walltime leaves a partition truncated part-way through, and trusting</span>
+<span class="sd">    that would hand E3SM a partition covering some of the mesh.  The one-piece</span>
+<span class="sd">    partition is the exception, being deliberately empty.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    cores : iterable of int</span>
+<span class="sd">        The core counts the step means to partition into.</span>
+
+<span class="sd">    basename : str</span>
+<span class="sd">        The partition filenames without the ``.part.&lt;n&gt;`` suffix.</span>
+
+<span class="sd">    ncells : int</span>
+<span class="sd">        The number of cells each complete partition file describes.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    list of int</span>
+<span class="sd">        The core counts still to build, in the order given.</span>
+<span class="sd">    """</span>
+    <span class="k">return</span> <span class="p">[</span>
+        <span class="nb">int</span><span class="p">(</span><span class="n">ncores</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">ncores</span> <span class="ow">in</span> <span class="n">cores</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">_is_complete_partition</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">basename</span><span class="si">}</span><span class="s1">.part.</span><span class="si">{</span><span class="n">ncores</span><span class="si">}</span><span class="s1">'</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="n">ncores</span><span class="p">),</span> <span class="n">ncells</span>
+        <span class="p">)</span>
+    <span class="p">]</span></div>
+
+
+
+<div class="viewcode-block" id="build_partitions">
+<a class="viewcode-back" href="../../../../developers_guide/e3sm/init/generated/polaris.e3sm.init.partitions.build_partitions.html#polaris.e3sm.init.partitions.build_partitions">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">build_partitions</span><span class="p">(</span><span class="n">regions</span><span class="p">,</span> <span class="n">cores</span><span class="p">,</span> <span class="n">basename</span><span class="p">,</span> <span class="n">ncells</span><span class="p">,</span> <span class="n">process_count</span><span class="p">,</span> <span class="n">logger</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Write the partition file for each core count, several at a time.</span>
+
+<span class="sd">    Each region's graph is partitioned into ``n`` pieces on its own, and piece</span>
+<span class="sd">    ``i`` of every region goes to core ``i``, so every core gets a share of</span>
+<span class="sd">    every region.  With one region covering the whole mesh, that is a plain</span>
+<span class="sd">    partition of the mesh's graph.</span>
+
+<span class="sd">    Each partition is written under another name and renamed once it is</span>
+<span class="sd">    complete, so a job killed at its walltime cannot leave a truncated file</span>
+<span class="sd">    under the name E3SM reads.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    regions : list of RegionGraph</span>
+<span class="sd">        The graphs to partition, one per region.</span>
+
+<span class="sd">    cores : iterable of int</span>
+<span class="sd">        The core counts to build a partition file for.</span>
+
+<span class="sd">    basename : str</span>
+<span class="sd">        The partition filenames without the ``.part.&lt;n&gt;`` suffix.</span>
+
+<span class="sd">    ncells : int</span>
+<span class="sd">        The number of cells in the full mesh.</span>
+
+<span class="sd">    process_count : int</span>
+<span class="sd">        The most ``gpmetis`` processes to run at once.</span>
+
+<span class="sd">    logger : logging.Logger</span>
+<span class="sd">        The logger to report progress to.</span>
+<span class="sd">    """</span>
+    <span class="n">cores</span> <span class="o">=</span> <span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">ncores</span><span class="p">)</span> <span class="k">for</span> <span class="n">ncores</span> <span class="ow">in</span> <span class="n">cores</span><span class="p">]</span>
+    <span class="k">if</span> <span class="mi">1</span> <span class="ow">in</span> <span class="n">cores</span><span class="p">:</span>
+        <span class="c1"># gpmetis will not make a one-piece partition, and an empty file is</span>
+        <span class="c1"># what MPAS reads as "every cell on one task"</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">basename</span><span class="si">}</span><span class="s1">.part.1'</span><span class="p">,</span> <span class="s1">'w'</span><span class="p">):</span>
+            <span class="k">pass</span>
+        <span class="n">cores</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+
+    <span class="c1"># the largest partitions take longest, so starting them first keeps the</span>
+    <span class="c1"># last few from running on alone</span>
+    <span class="n">cores</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">reverse</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="n">results</span> <span class="o">=</span> <span class="n">_build_all</span><span class="p">(</span><span class="n">regions</span><span class="p">,</span> <span class="n">cores</span><span class="p">,</span> <span class="n">basename</span><span class="p">,</span> <span class="n">ncells</span><span class="p">,</span> <span class="n">process_count</span><span class="p">)</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">GPMETIS_LOG</span><span class="p">,</span> <span class="s1">'a'</span><span class="p">)</span> <span class="k">as</span> <span class="n">gpmetis_log</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">index</span><span class="p">,</span> <span class="p">(</span><span class="n">ncores</span><span class="p">,</span> <span class="n">elapsed</span><span class="p">,</span> <span class="n">reports</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">results</span><span class="p">):</span>
+            <span class="n">gpmetis_log</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">''</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">reports</span><span class="p">))</span>
+            <span class="n">gpmetis_log</span><span class="o">.</span><span class="n">flush</span><span class="p">()</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s1">'  </span><span class="si">{</span><span class="n">ncores</span><span class="si">}</span><span class="s1"> pieces in </span><span class="si">{</span><span class="n">elapsed</span><span class="si">:</span><span class="s1">.0f</span><span class="si">}</span><span class="s1"> s '</span>
+                <span class="sa">f</span><span class="s1">'(</span><span class="si">{</span><span class="n">index</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="si">}</span><span class="s1"> of </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">cores</span><span class="p">)</span><span class="si">}</span><span class="s1">)'</span>
+            <span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="get_region_graph">
+<a class="viewcode-back" href="../../../../developers_guide/e3sm/init/generated/polaris.e3sm.init.partitions.get_region_graph.html#polaris.e3sm.init.partitions.get_region_graph">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_region_graph</span><span class="p">(</span><span class="n">cells_on_cell</span><span class="p">,</span> <span class="n">n_edges_on_cell</span><span class="p">,</span> <span class="n">in_region</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    The graph of a region's cells, keeping only the edges between them.</span>
+
+<span class="sd">    This is the graph ``MpasCellCuller.x`` writes for a mesh culled to the</span>
+<span class="sd">    region, without culling the mesh: the cells keep their order, and so does</span>
+<span class="sd">    each cell's list of neighbors.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    cells_on_cell : numpy.ndarray</span>
+<span class="sd">        The mesh's one-based ``cellsOnCell``.</span>
+
+<span class="sd">    n_edges_on_cell : numpy.ndarray</span>
+<span class="sd">        The mesh's ``nEdgesOnCell``.</span>
+
+<span class="sd">    in_region : numpy.ndarray</span>
+<span class="sd">        Whether each cell is in the region.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    cells : numpy.ndarray</span>
+<span class="sd">        The index in the mesh of each cell in the region.</span>
+
+<span class="sd">    xadj : numpy.ndarray</span>
+<span class="sd">        Where each cell's neighbors start in ``adjncy``, with one more entry</span>
+<span class="sd">        than there are cells.</span>
+
+<span class="sd">    adjncy : numpy.ndarray</span>
+<span class="sd">        Each cell's neighbors in the region, by their zero-based index among</span>
+<span class="sd">        the region's cells.</span>
+<span class="sd">    """</span>
+    <span class="n">ncells</span><span class="p">,</span> <span class="n">max_edges</span> <span class="o">=</span> <span class="n">cells_on_cell</span><span class="o">.</span><span class="n">shape</span>
+    <span class="n">in_region</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">in_region</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">bool</span><span class="p">)</span>
+    <span class="n">cells</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">flatnonzero</span><span class="p">(</span><span class="n">in_region</span><span class="p">)</span>
+
+    <span class="n">neighbors</span> <span class="o">=</span> <span class="n">cells_on_cell</span><span class="p">[</span><span class="n">cells</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">int64</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span>
+    <span class="n">is_neighbor</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">max_edges</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">n_edges_on_cell</span><span class="p">[</span><span class="n">cells</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">]</span>
+    <span class="p">)</span> <span class="o">&amp;</span> <span class="p">((</span><span class="n">neighbors</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">neighbors</span> <span class="o">&lt;</span> <span class="n">ncells</span><span class="p">))</span>
+    <span class="n">is_neighbor</span><span class="p">[</span><span class="n">is_neighbor</span><span class="p">]</span> <span class="o">=</span> <span class="n">in_region</span><span class="p">[</span><span class="n">neighbors</span><span class="p">[</span><span class="n">is_neighbor</span><span class="p">]]</span>
+
+    <span class="n">region_index</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">full</span><span class="p">(</span><span class="n">ncells</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int64</span><span class="p">)</span>
+    <span class="n">region_index</span><span class="p">[</span><span class="n">cells</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">cells</span><span class="p">))</span>
+
+    <span class="n">xadj</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">cells</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int64</span><span class="p">)</span>
+    <span class="n">np</span><span class="o">.</span><span class="n">cumsum</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">count_nonzero</span><span class="p">(</span><span class="n">is_neighbor</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span> <span class="n">out</span><span class="o">=</span><span class="n">xadj</span><span class="p">[</span><span class="mi">1</span><span class="p">:])</span>
+    <span class="n">adjncy</span> <span class="o">=</span> <span class="n">region_index</span><span class="p">[</span><span class="n">neighbors</span><span class="p">[</span><span class="n">is_neighbor</span><span class="p">]]</span>
+    <span class="k">return</span> <span class="n">cells</span><span class="p">,</span> <span class="n">xadj</span><span class="p">,</span> <span class="n">adjncy</span></div>
+
+
+
+<div class="viewcode-block" id="write_graph">
+<a class="viewcode-back" href="../../../../developers_guide/e3sm/init/generated/polaris.e3sm.init.partitions.write_graph.html#polaris.e3sm.init.partitions.write_graph">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">write_graph</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">xadj</span><span class="p">,</span> <span class="n">adjncy</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Write a graph in the format ``gpmetis`` reads.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    filename : str</span>
+<span class="sd">        The file to write.</span>
+
+<span class="sd">    xadj : numpy.ndarray</span>
+<span class="sd">        Where each vertex's neighbors start in ``adjncy``, with one more entry</span>
+<span class="sd">        than there are vertices.</span>
+
+<span class="sd">    adjncy : numpy.ndarray</span>
+<span class="sd">        Each vertex's zero-based neighbors, one vertex after another.  Every</span>
+<span class="sd">        edge appears once from each end.</span>
+<span class="sd">    """</span>
+    <span class="n">bounds</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">xadj</span><span class="p">)</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+    <span class="n">neighbors</span> <span class="o">=</span> <span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">vertex</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="k">for</span> <span class="n">vertex</span> <span class="ow">in</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">adjncy</span><span class="p">)</span><span class="o">.</span><span class="n">tolist</span><span class="p">()]</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s1">'w'</span><span class="p">)</span> <span class="k">as</span> <span class="n">handle</span><span class="p">:</span>
+        <span class="n">handle</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">bounds</span><span class="p">)</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mi">1</span><span class="si">}</span><span class="s1"> </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">neighbors</span><span class="p">)</span><span class="w"> </span><span class="o">//</span><span class="w"> </span><span class="mi">2</span><span class="si">}</span><span class="se">\n</span><span class="s1">'</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">start</span><span class="p">,</span> <span class="n">end</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">bounds</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">bounds</span><span class="p">[</span><span class="mi">1</span><span class="p">:],</span> <span class="n">strict</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+            <span class="n">handle</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">' '</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">neighbors</span><span class="p">[</span><span class="n">start</span><span class="p">:</span><span class="n">end</span><span class="p">]))</span>
+            <span class="n">handle</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">'</span><span class="se">\n</span><span class="s1">'</span><span class="p">)</span></div>
+
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_build_all</span><span class="p">(</span><span class="n">regions</span><span class="p">,</span> <span class="n">cores</span><span class="p">,</span> <span class="n">basename</span><span class="p">,</span> <span class="n">ncells</span><span class="p">,</span> <span class="n">process_count</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    The result of building each partition, in the order they finish.</span>
+<span class="sd">    """</span>
+    <span class="k">if</span> <span class="n">process_count</span> <span class="o">&lt;=</span> <span class="mi">1</span> <span class="ow">or</span> <span class="nb">len</span><span class="p">(</span><span class="n">cores</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">ncores</span> <span class="ow">in</span> <span class="n">cores</span><span class="p">:</span>
+            <span class="k">yield</span> <span class="n">_build_partition</span><span class="p">(</span><span class="n">regions</span><span class="p">,</span> <span class="n">basename</span><span class="p">,</span> <span class="n">ncells</span><span class="p">,</span> <span class="n">ncores</span><span class="p">)</span>
+        <span class="k">return</span>
+
+    <span class="c1"># forkserver rather than fork, because the step's process may have threads</span>
+    <span class="c1"># by now.  The server imports this module once and the workers inherit</span>
+    <span class="c1"># it: importing it means importing every Polaris task, which in dozens of</span>
+    <span class="c1"># processes at once on a shared file system can take minutes.  (If the</span>
+    <span class="c1"># server is already running, the workers just import it themselves.)</span>
+    <span class="n">context</span> <span class="o">=</span> <span class="n">multiprocessing</span><span class="o">.</span><span class="n">get_context</span><span class="p">(</span><span class="s1">'forkserver'</span><span class="p">)</span>
+    <span class="n">context</span><span class="o">.</span><span class="n">set_forkserver_preload</span><span class="p">([</span><span class="s1">'__main__'</span><span class="p">,</span> <span class="vm">__name__</span><span class="p">])</span>
+
+    <span class="c1"># each worker is handed the regions once, rather than with every task,</span>
+    <span class="c1"># since the sea-ice regions carry a cell index for every cell in the mesh</span>
+    <span class="k">with</span> <span class="n">ProcessPoolExecutor</span><span class="p">(</span>
+        <span class="n">max_workers</span><span class="o">=</span><span class="nb">min</span><span class="p">(</span><span class="n">process_count</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">cores</span><span class="p">)),</span>
+        <span class="n">mp_context</span><span class="o">=</span><span class="n">context</span><span class="p">,</span>
+        <span class="n">initializer</span><span class="o">=</span><span class="n">_set_worker_regions</span><span class="p">,</span>
+        <span class="n">initargs</span><span class="o">=</span><span class="p">(</span><span class="n">regions</span><span class="p">,),</span>
+    <span class="p">)</span> <span class="k">as</span> <span class="n">executor</span><span class="p">:</span>
+        <span class="n">futures</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">executor</span><span class="o">.</span><span class="n">submit</span><span class="p">(</span><span class="n">_build_partition_in_worker</span><span class="p">,</span> <span class="n">basename</span><span class="p">,</span> <span class="n">ncells</span><span class="p">,</span> <span class="n">n</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">cores</span>
+        <span class="p">]</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">future</span> <span class="ow">in</span> <span class="n">as_completed</span><span class="p">(</span><span class="n">futures</span><span class="p">):</span>
+                <span class="k">yield</span> <span class="n">future</span><span class="o">.</span><span class="n">result</span><span class="p">()</span>
+        <span class="k">finally</span><span class="p">:</span>
+            <span class="c1"># after a failure, start nothing new; partitions already being</span>
+            <span class="c1"># built are left to finish, so a rerun has them</span>
+            <span class="k">for</span> <span class="n">future</span> <span class="ow">in</span> <span class="n">futures</span><span class="p">:</span>
+                <span class="n">future</span><span class="o">.</span><span class="n">cancel</span><span class="p">()</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_set_worker_regions</span><span class="p">(</span><span class="n">regions</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Hand a worker process the regions it partitions.</span>
+<span class="sd">    """</span>
+    <span class="k">global</span> <span class="n">_worker_regions</span>
+    <span class="n">_worker_regions</span> <span class="o">=</span> <span class="n">regions</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_build_partition_in_worker</span><span class="p">(</span><span class="n">basename</span><span class="p">,</span> <span class="n">ncells</span><span class="p">,</span> <span class="n">ncores</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Build one partition file in a worker process.</span>
+<span class="sd">    """</span>
+    <span class="k">return</span> <span class="n">_build_partition</span><span class="p">(</span><span class="n">_worker_regions</span><span class="p">,</span> <span class="n">basename</span><span class="p">,</span> <span class="n">ncells</span><span class="p">,</span> <span class="n">ncores</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_build_partition</span><span class="p">(</span><span class="n">regions</span><span class="p">,</span> <span class="n">basename</span><span class="p">,</span> <span class="n">ncells</span><span class="p">,</span> <span class="n">ncores</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Build the partition file for one core count.</span>
+<span class="sd">    """</span>
+    <span class="n">start</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">monotonic</span><span class="p">()</span>
+    <span class="n">reports</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">partition</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">ncells</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int64</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">region</span> <span class="ow">in</span> <span class="n">regions</span><span class="p">:</span>
+        <span class="n">pieces</span><span class="p">,</span> <span class="n">report</span> <span class="o">=</span> <span class="n">_run_gpmetis</span><span class="p">(</span><span class="n">region</span><span class="o">.</span><span class="n">filename</span><span class="p">,</span> <span class="n">ncores</span><span class="p">)</span>
+        <span class="n">reports</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">report</span><span class="p">)</span>
+        <span class="n">cells</span> <span class="o">=</span> <span class="nb">slice</span><span class="p">(</span><span class="kc">None</span><span class="p">)</span> <span class="k">if</span> <span class="n">region</span><span class="o">.</span><span class="n">cells</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">region</span><span class="o">.</span><span class="n">cells</span>
+        <span class="n">partition</span><span class="p">[</span><span class="n">cells</span><span class="p">]</span> <span class="o">=</span> <span class="n">pieces</span>
+
+    <span class="n">incomplete</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">basename</span><span class="si">}</span><span class="s1">.incomplete.</span><span class="si">{</span><span class="n">ncores</span><span class="si">}</span><span class="s1">'</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">incomplete</span><span class="p">,</span> <span class="s1">'w'</span><span class="p">)</span> <span class="k">as</span> <span class="n">handle</span><span class="p">:</span>
+        <span class="n">handle</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">'</span><span class="se">\n</span><span class="s1">'</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">partition</span><span class="o">.</span><span class="n">tolist</span><span class="p">())))</span>
+        <span class="n">handle</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">'</span><span class="se">\n</span><span class="s1">'</span><span class="p">)</span>
+    <span class="n">os</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">incomplete</span><span class="p">,</span> <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">basename</span><span class="si">}</span><span class="s1">.part.</span><span class="si">{</span><span class="n">ncores</span><span class="si">}</span><span class="s1">'</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">ncores</span><span class="p">,</span> <span class="n">time</span><span class="o">.</span><span class="n">monotonic</span><span class="p">()</span> <span class="o">-</span> <span class="n">start</span><span class="p">,</span> <span class="n">reports</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_run_gpmetis</span><span class="p">(</span><span class="n">graph_filename</span><span class="p">,</span> <span class="n">ncores</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Partition a graph file, returning each vertex's piece and what gpmetis</span>
+<span class="sd">    printed.</span>
+<span class="sd">    """</span>
+    <span class="c1"># gpmetis names its output after its input.  A file left by a killed run</span>
+    <span class="c1"># must not be read as this run's.</span>
+    <span class="n">filename</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">graph_filename</span><span class="si">}</span><span class="s1">.part.</span><span class="si">{</span><span class="n">ncores</span><span class="si">}</span><span class="s1">'</span>
+    <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">filename</span><span class="p">):</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
+
+    <span class="n">args</span> <span class="o">=</span> <span class="p">[</span><span class="s1">'gpmetis'</span><span class="p">,</span> <span class="n">graph_filename</span><span class="p">,</span> <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">ncores</span><span class="si">}</span><span class="s1">'</span><span class="p">]</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">capture_output</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">report</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">'$ </span><span class="si">{</span><span class="s2">" "</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">args</span><span class="p">)</span><span class="si">}</span><span class="se">\n</span><span class="si">{</span><span class="n">result</span><span class="o">.</span><span class="n">stdout</span><span class="si">}{</span><span class="n">result</span><span class="o">.</span><span class="n">stderr</span><span class="si">}</span><span class="se">\n</span><span class="s1">'</span>
+    <span class="k">if</span> <span class="n">result</span><span class="o">.</span><span class="n">returncode</span> <span class="o">!=</span> <span class="mi">0</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">filename</span><span class="p">):</span>
+        <span class="n">message</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="sa">f</span><span class="s1">'gpmetis did not partition </span><span class="si">{</span><span class="n">graph_filename</span><span class="si">}</span><span class="s1"> into </span><span class="si">{</span><span class="n">ncores</span><span class="si">}</span><span class="s1"> '</span>
+            <span class="sa">f</span><span class="s1">'pieces:</span><span class="se">\n</span><span class="si">{</span><span class="n">report</span><span class="si">}</span><span class="s1">'</span>
+        <span class="p">)</span>
+        <span class="k">if</span> <span class="s1">'idx_t: 32bits'</span> <span class="ow">in</span> <span class="n">result</span><span class="o">.</span><span class="n">stdout</span><span class="p">:</span>
+            <span class="n">message</span> <span class="o">+=</span> <span class="p">(</span>
+                <span class="s1">'This gpmetis is a 32-bit build, which fails on the largest '</span>
+                <span class="s1">'meshes.  The 64-bit build comes from Spack, through the '</span>
+                <span class="s1">'Polaris load script.</span><span class="se">\n</span><span class="s1">'</span>
+            <span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="n">message</span><span class="p">)</span>
+
+    <span class="n">pieces</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">loadtxt</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int64</span><span class="p">,</span> <span class="n">ndmin</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">pieces</span><span class="p">,</span> <span class="n">report</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_is_complete_partition</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">ncores</span><span class="p">,</span> <span class="n">ncells</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Whether a partition file is finished, rather than merely present.</span>
+<span class="sd">    """</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">filename</span><span class="p">):</span>
+        <span class="k">return</span> <span class="kc">False</span>
+    <span class="k">if</span> <span class="n">ncores</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="c1"># written empty on purpose: MPAS reads that as "every cell on one</span>
+        <span class="c1"># task", so there are no lines to count</span>
+        <span class="k">return</span> <span class="kc">True</span>
+    <span class="k">return</span> <span class="n">_count_lines</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span> <span class="o">==</span> <span class="n">ncells</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_count_lines</span><span class="p">(</span><span class="n">filename</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Count the lines in a file, in binary chunks so that a partition file with</span>
+<span class="sd">    millions of lines costs milliseconds.</span>
+<span class="sd">    """</span>
+    <span class="n">count</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s1">'rb'</span><span class="p">)</span> <span class="k">as</span> <span class="n">handle</span><span class="p">:</span>
+        <span class="k">while</span> <span class="n">chunk</span> <span class="o">:=</span> <span class="n">handle</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="mi">1024</span> <span class="o">*</span> <span class="mi">1024</span><span class="p">):</span>
+            <span class="n">count</span> <span class="o">+=</span> <span class="n">chunk</span><span class="o">.</span><span class="n">count</span><span class="p">(</span><span class="sa">b</span><span class="s1">'</span><span class="se">\n</span><span class="s1">'</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">count</span>
+
+
+<span class="c1"># https://stackoverflow.com/a/22808285</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_prime_factors</span><span class="p">(</span><span class="n">n</span><span class="p">):</span>
+    <span class="n">i</span> <span class="o">=</span> <span class="mi">2</span>
+    <span class="n">factors</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">while</span> <span class="n">i</span> <span class="o">*</span> <span class="n">i</span> <span class="o">&lt;=</span> <span class="n">n</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">n</span> <span class="o">%</span> <span class="n">i</span><span class="p">:</span>
+            <span class="n">i</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">n</span> <span class="o">//=</span> <span class="n">i</span>
+            <span class="n">factors</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">n</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="n">factors</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">n</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">factors</span><span class="p">)</span>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2026, Energy Exascale Earth System Model Project.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+   
+
+  <!-- Meta tags for JS to use -->
+  <meta name="doc-version" content="main">
+  <meta name="doc-site-root" content="../../../../">
+
+  <!-- Create version switcher container -->
+  <script>
+    const sidebar = document.querySelector('.wy-side-nav-search');
+    if (sidebar) {
+      const versionDiv = document.createElement('div');
+      versionDiv.id = 'version-switcher';
+      versionDiv.style.marginTop = '1em';
+      sidebar.appendChild(versionDiv);
+    }
+  </script>
+
+  <!-- Load version-switcher.js using the correct relative path -->
+  <script src="../../../../../shared/version-switcher.js"></script>
+
+
+</body>
+</html>

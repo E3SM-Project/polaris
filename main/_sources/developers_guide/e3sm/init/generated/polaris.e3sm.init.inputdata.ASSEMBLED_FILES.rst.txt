@@ -1,0 +1,6 @@
+﻿polaris.e3sm.init.inputdata.ASSEMBLED\_FILES
+============================================
+
+.. currentmodule:: polaris.e3sm.init.inputdata
+
+.. autodata:: ASSEMBLED_FILES

@@ -67,6 +67,7 @@
 <li class="toctree-l3"><a class="reference internal" href="#supported-resolutions">Supported Resolutions</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#resolution-naming">Resolution Naming</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#cubed-sphere-resolution-selection">Cubed-Sphere Resolution Selection</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#staging-e3sm-input-files">Staging E3SM Input Files</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="tasks/index.html">Tasks</a></li>
@@ -172,6 +173,36 @@ at least <code class="docutils literal notranslate"><span class="pre">LOW_RES_BA
 <p>This separation keeps shared resolution logic in the component framework
 rather than in <code class="docutils literal notranslate"><span class="pre">polaris.tasks.e3sm.init</span></code>, which allows mesh and ocean
 workflows to reuse the same supported-resolution definitions.</p>
+</section>
+<section id="staging-e3sm-input-files">
+<span id="dev-e3sm-init-framework-staging"></span><h2>Staging E3SM Input Files<a class="headerlink" href="#staging-e3sm-input-files" title="Link to this heading"></a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">polaris.e3sm.init</span></code> also holds what any workflow needs to stage files in an
+<code class="docutils literal notranslate"><span class="pre">inputdata</span></code>-style tree for E3SM.  The <a class="reference internal" href="tasks/component_inputs.html#dev-e3sm-init-component-inputs"><span class="std std-ref">component_inputs</span></a>
+tasks are the first to use it.  None of these modules imports from
+<code class="docutils literal notranslate"><span class="pre">polaris.tasks</span></code>.</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">inputdata</span></code> — the general names and paths.  Paths are keyed by E3SM’s grid
+name for a component, such as <code class="docutils literal notranslate"><span class="pre">u02-oi30</span></code>, not by how a mesh was built.
+<code class="docutils literal notranslate"><span class="pre">get_creation_date()</span></code> and <code class="docutils literal notranslate"><span class="pre">set_creation_date()</span></code> take the config section that
+holds <code class="docutils literal notranslate"><span class="pre">creation_date</span></code>, and <code class="docutils literal notranslate"><span class="pre">get_nonempty_option()</span></code> reads an option, such as
+a name only a person can assign, that is blank until set.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">partitions</span></code> — the core counts a graph is partitioned into
+(<code class="docutils literal notranslate"><span class="pre">get_core_list()</span></code>, ported from Compass), which of them are still to build,
+building them with <code class="docutils literal notranslate"><span class="pre">gpmetis</span></code> several at a time, and graphs of a subset of a
+mesh’s cells for partitioning regions separately.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">GraphPartitionStep</span></code> — partitions a graph into every core count.  It reads
+its core-count bounds, and how many partitions to build at once, from a
+config section passed to it, so a workflow with two meshes can give each
+its own.  By default it partitions a single linked <code class="docutils literal notranslate"><span class="pre">graph.info</span></code>; a subclass
+that builds its own graphs overrides <code class="docutils literal notranslate"><span class="pre">run()</span></code>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">AssembleStep</span></code> — the base for a step that builds the staged tree.  Its
+<code class="docutils literal notranslate"><span class="pre">run()</span></code> deletes <code class="docutils literal notranslate"><span class="pre">assembled_files/</span></code> and stages the workflow’s README, and a
+subclass then calls <code class="docutils literal notranslate"><span class="pre">stage()</span></code> and <code class="docutils literal notranslate"><span class="pre">stage_partitions()</span></code> from its own <code class="docutils literal notranslate"><span class="pre">run()</span></code>.
+Staging waits until run time because the staged names depend on config
+options a person may change after setup.  The step also links in
+<code class="docutils literal notranslate"><span class="pre">sync_to_inputdata.sh</span></code>, which copies the tree into an inputdata directory
+and is run by hand.</p></li>
+</ul>
 </section>
 </section>
 

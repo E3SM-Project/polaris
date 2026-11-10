@@ -1,0 +1,6 @@
+﻿polaris.e3sm.init.inputdata.ocean\_dir
+======================================
+
+.. currentmodule:: polaris.e3sm.init.inputdata
+
+.. autofunction:: ocean_dir

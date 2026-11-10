@@ -1,0 +1,51 @@
+﻿polaris.e3sm.init.assemble.AssembleStep
+=======================================
+
+.. currentmodule:: polaris.e3sm.init.assemble
+
+.. autoclass:: AssembleStep
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~AssembleStep.__init__
+      ~AssembleStep.add_cf_check
+      ~AssembleStep.add_dependency
+      ~AssembleStep.add_input_file
+      ~AssembleStep.add_output_file
+      ~AssembleStep.add_property_check
+      ~AssembleStep.check_cf
+      ~AssembleStep.check_properties
+      ~AssembleStep.constrain_resources
+      ~AssembleStep.process_inputs_and_outputs
+      ~AssembleStep.run
+      ~AssembleStep.runtime_setup
+      ~AssembleStep.set_resources
+      ~AssembleStep.set_shared_config
+      ~AssembleStep.setup
+      ~AssembleStep.stage
+      ~AssembleStep.stage_partitions
+      ~AssembleStep.step_dir
+      ~AssembleStep.validate_baselines
+      ~AssembleStep.work_path
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~AssembleStep.cores
+      ~AssembleStep.gpus
+      ~AssembleStep.may_span_nodes
+      ~AssembleStep.min_cores
+      ~AssembleStep.min_gpus
+   
+   

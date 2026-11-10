@@ -1,0 +1,6 @@
+﻿polaris.tasks.e3sm.init.component\_inputs.maps.base\_to\_culled\_maps
+=====================================================================
+
+.. currentmodule:: polaris.tasks.e3sm.init.component_inputs.maps
+
+.. autofunction:: base_to_culled_maps

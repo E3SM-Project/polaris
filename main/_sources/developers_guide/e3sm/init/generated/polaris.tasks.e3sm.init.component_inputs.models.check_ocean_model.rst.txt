@@ -1,0 +1,6 @@
+﻿polaris.tasks.e3sm.init.component\_inputs.models.check\_ocean\_model
+====================================================================
+
+.. currentmodule:: polaris.tasks.e3sm.init.component_inputs.models
+
+.. autofunction:: check_ocean_model

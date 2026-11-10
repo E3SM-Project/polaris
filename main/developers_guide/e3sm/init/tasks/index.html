@@ -65,10 +65,12 @@
 <li class="toctree-l1 current"><a class="reference internal" href="../index.html">E3SM initial condition (e3sm/init) component</a><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="../framework.html">Framework</a></li>
 <li class="toctree-l2 current"><a class="current reference internal" href="#">Tasks</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#component-input-tasks">Component Input Tasks</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#topography-tasks">Topography Tasks</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="topo/combine.html">Combine Steps and Tasks</a></li>
 <li class="toctree-l4"><a class="reference internal" href="topo/remap.html">Remapping Topography to MPAS Base Meshes</a></li>
 <li class="toctree-l4"><a class="reference internal" href="topo/cull.html">Culling MPAS Base Meshes to Land/River or Ocean/Sea Ice Regions</a></li>
+<li class="toctree-l4"><a class="reference internal" href="component_inputs.html">component_inputs</a></li>
 </ul>
 </li>
 </ul>
@@ -129,6 +131,13 @@
              
   <section class="tex2jax_ignore mathjax_ignore" id="tasks">
 <span id="dev-e3sm-init-tasks"></span><h1>Tasks<a class="headerlink" href="#tasks" title="Link to this heading"></a></h1>
+<section id="component-input-tasks">
+<h2>Component Input Tasks<a class="headerlink" href="#component-input-tasks" title="Link to this heading"></a></h2>
+<p>The <code class="docutils literal notranslate"><span class="pre">component_inputs</span></code> tasks under
+<code class="docutils literal notranslate"><span class="pre">polaris.tasks.e3sm.init.component_inputs</span></code> stage the mesh,
+initial-condition and graph-partition files an E3SM run needs from a
+unified mesh.  See <a class="reference internal" href="component_inputs.html#dev-e3sm-init-component-inputs"><span class="std std-ref">component_inputs</span></a>.</p>
+</section>
 <section id="topography-tasks">
 <h2>Topography Tasks<a class="headerlink" href="#topography-tasks" title="Link to this heading"></a></h2>
 <p>Topography tasks under <code class="docutils literal notranslate"><span class="pre">polaris.tasks.e3sm.init.topo</span></code> provide the task-family
@@ -144,6 +153,7 @@ shared resolution constants and helper functions.</p>
 <li class="toctree-l1"><a class="reference internal" href="topo/combine.html">Combine Steps and Tasks</a></li>
 <li class="toctree-l1"><a class="reference internal" href="topo/remap.html">Remapping Topography to MPAS Base Meshes</a></li>
 <li class="toctree-l1"><a class="reference internal" href="topo/cull.html">Culling MPAS Base Meshes to Land/River or Ocean/Sea Ice Regions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="component_inputs.html">component_inputs</a></li>
 </ul>
 </div>
 </section>

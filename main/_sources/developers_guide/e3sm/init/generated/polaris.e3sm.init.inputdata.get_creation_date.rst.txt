@@ -1,0 +1,6 @@
+﻿polaris.e3sm.init.inputdata.get\_creation\_date
+===============================================
+
+.. currentmodule:: polaris.e3sm.init.inputdata
+
+.. autofunction:: get_creation_date

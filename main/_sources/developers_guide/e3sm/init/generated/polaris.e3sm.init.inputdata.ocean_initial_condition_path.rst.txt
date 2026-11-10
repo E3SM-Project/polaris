@@ -1,0 +1,6 @@
+﻿polaris.e3sm.init.inputdata.ocean\_initial\_condition\_path
+===========================================================
+
+.. currentmodule:: polaris.e3sm.init.inputdata
+
+.. autofunction:: ocean_initial_condition_path

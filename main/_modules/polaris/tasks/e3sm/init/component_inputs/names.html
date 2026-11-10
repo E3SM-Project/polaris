@@ -1,0 +1,867 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>polaris.tasks.e3sm.init.component_inputs.names</title>
+      <link rel="stylesheet" type="text/css" href="../../../../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../../../../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../../../../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../../../../_static/documentation_options.js?v=a8da1a53"></script>
+      <script src="../../../../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script type="module">import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11.12.1/dist/mermaid.esm.min.mjs";
+
+
+
+
+
+const initStyles = () => {
+    const defaultStyle = document.createElement('style');
+    defaultStyle.textContent = "pre.mermaid {\n    /* Same as .mermaid-container > pre */\n    display: block;\n    width: 100%;\n}\n\npre.mermaid > svg {\n    /* Same as .mermaid-container > pre > svg */\n    height: 500px;\n    width: 100%;\n    max-width: 100% !important;\n}";
+    document.head.appendChild(defaultStyle);
+
+    const fullscreenStyle = document.createElement('style');
+    fullscreenStyle.textContent = ".mermaid-container {\n    position: relative;\n    display: flex;\n    flex-direction: row;\n    width: 100%;\n}\n\n.mermaid-container > pre {\n    display: block;\n    width: 100%;\n}\n\n.mermaid-container > pre > svg {\n    height: 500px;\n    width: 100%;\n    max-width: 100% !important;\n}\n\n.mermaid-fullscreen-btn {\n    position: absolute;\n    width: 28px;\n    height: 28px;\n    background: rgba(255, 255, 255, 0.95);\n    border: 1px solid rgba(0, 0, 0, 0.3);\n    border-radius: 4px;\n    cursor: pointer;\n    display: flex;\n    align-items: center;\n    justify-content: center;\n    transition: all 0.2s;\n    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);\n    font-size: 14px;\n    line-height: 1;\n    padding: 0;\n    color: #333;\n}\n\n.mermaid-fullscreen-btn:hover {\n    opacity: 100% !important;\n    background: rgba(255, 255, 255, 1);\n    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.3);\n    transform: scale(1.1);\n}\n\n.mermaid-fullscreen-btn.dark-theme {\n    background: rgba(50, 50, 50, 0.95);\n    border: 1px solid rgba(255, 255, 255, 0.3);\n    color: #e0e0e0;\n}\n\n.mermaid-fullscreen-btn.dark-theme:hover {\n    background: rgba(60, 60, 60, 1);\n    box-shadow: 0 3px 10px rgba(255, 255, 255, 0.2);\n}\n\n.mermaid-fullscreen-modal {\n    display: none;\n    position: fixed !important;\n    top: 0 !important;\n    left: 0 !important;\n    width: 95vw;\n    height: 100vh;\n    background: rgba(255, 255, 255, 0.98);\n    z-index: 9999;\n    padding: 20px;\n    overflow: auto;\n}\n\n.mermaid-fullscreen-modal.dark-theme {\n    background: rgba(0, 0, 0, 0.98);\n}\n\n.mermaid-fullscreen-modal.active {\n    display: flex;\n    align-items: center;\n    justify-content: center;\n}\n\n.mermaid-container-fullscreen {\n    position: relative;\n    width: 95vw;\n    height: 90vh;\n    max-width: 95vw;\n    max-height: 90vh;\n    background: white;\n    border-radius: 8px;\n    padding: 20px;\n    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);\n    overflow: auto;\n    display: flex;\n    align-items: center;\n    justify-content: center;\n}\n\n.mermaid-container-fullscreen.dark-theme {\n    background: #1a1a1a;\n    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.8);\n}\n\n.mermaid-container-fullscreen pre.mermaid {\n    width: 100%;\n    height: 100%;\n    display: flex;\n    align-items: center;\n    justify-content: center;\n}\n\n.mermaid-container-fullscreen .mermaid svg {\n    height: 100% !important;\n    width: 100% !important;\n    cursor: grab;\n}\n\n.mermaid-fullscreen-close {\n    position: fixed !important;\n    top: 20px !important;\n    right: 20px !important;\n    width: 40px;\n    height: 40px;\n    background: rgba(255, 255, 255, 0.95);\n    border: 1px solid rgba(0, 0, 0, 0.2);\n    border-radius: 50%;\n    cursor: pointer;\n    z-index: 10000;\n    display: flex;\n    align-items: center;\n    justify-content: center;\n    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);\n    transition: all 0.2s;\n    font-size: 24px;\n    line-height: 1;\n    color: #333;\n}\n\n.mermaid-fullscreen-close:hover {\n    background: white;\n    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);\n    transform: scale(1.1);\n}\n\n.mermaid-fullscreen-close.dark-theme {\n    background: rgba(50, 50, 50, 0.95);\n    border: 1px solid rgba(255, 255, 255, 0.2);\n    color: #e0e0e0;\n}\n\n.mermaid-fullscreen-close.dark-theme:hover {\n    background: rgba(60, 60, 60, 1);\n    box-shadow: 0 6px 16px rgba(255, 255, 255, 0.2);\n}\n\n.mermaid-fullscreen-modal .mermaid-fullscreen-btn {\n    display: none !important;\n}";
+    document.head.appendChild(fullscreenStyle);
+}
+
+// Detect if page has dark background
+const isDarkTheme = () => {
+    // We use a set of heuristics:
+    // 1. Check for common dark mode classes or attributes
+    // 2. Check computed background color brightness
+    if (document.documentElement.classList.contains('dark') ||
+        document.documentElement.getAttribute('data-theme') === 'dark' ||
+        document.body.classList.contains('dark') ||
+        document.body.getAttribute('data-theme') === 'dark') {
+        // console.log("Dark theme detected via class/attribute");
+        return true;
+    }
+    if (document.documentElement.classList.contains('light') ||
+        document.documentElement.getAttribute('data-theme') === 'light' ||
+        document.body.classList.contains('light') ||
+        document.body.getAttribute('data-theme') === 'light') {
+        // console.log("Light theme detected via class/attribute");
+        return false;
+    }
+    if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        // console.log("Dark theme detected via prefers-color-scheme");
+        return true;
+    }
+    const bgColor = window.getComputedStyle(document.body).backgroundColor;
+    const match = bgColor.match(/rgb\((\d+),\s*(\d+),\s*(\d+)/);
+    if (match) {
+        const r = parseInt(match[1]);
+        const g = parseInt(match[2]);
+        const b = parseInt(match[3]);
+        const brightness = (r * 299 + g * 587 + b * 114) / 1000;
+        // console.log("Background color brightness:", brightness);
+        return brightness < 128;
+    }
+    // console.log("No dark or light theme detected, defaulting to light theme");
+    return false;
+};
+
+let darkTheme = isDarkTheme();
+let modal = null;
+let modalContent = null;
+let previousScrollOffset = [window.scrollX, window.scrollY];
+let _lazyObserver = null;
+let _renderQueue = Promise.resolve();
+let closeModal = () => {};
+
+document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && modal?.classList.contains('active')) {
+        closeModal();
+    }
+});
+
+// Apply d3 zoom to each SVG. Idempotent: an SVG already wrapped is skipped,
+// so this is safe to call both for the initial batch and for diagrams that
+// render lazily once they become visible.
+const addZoomToSvgs = (svgs) => {
+    svgs.each(function() {
+        if (this.getAttribute('data-zoom-applied') === 'true') return;
+        var svg = d3.select(this);
+        svg.html("<g class='wrapper'>" + svg.html() + "</g>");
+        var inner = svg.select("g");
+        var zoom = d3.zoom().on("zoom", function(event) {
+            inner.attr("transform", event.transform);
+        });
+        svg.call(zoom);
+        this.setAttribute('data-zoom-applied', 'true');
+    });
+};
+
+const runMermaid = async (rerun) => {
+    console.log("Running mermaid diagrams, rerun =", rerun);
+    // clear all existing mermaid charts
+    let all_mermaids = document.querySelectorAll(".mermaid");
+
+    if (rerun) {
+        // Disconnect any previous lazy rendering observer
+        if (_lazyObserver) {
+            _lazyObserver.disconnect();
+            _lazyObserver = null;
+        }
+
+        all_mermaids.forEach((el) => {
+            el.removeAttribute('data-mermaid-deferred');
+            el.removeAttribute('data-mermaid-render-failed');
+            if(!el.hasAttribute("data-original-code")) {
+                // store original code
+                // console.log(`Storing original code for first run: `, el.innerHTML);
+                el.setAttribute('data-original-code', el.innerHTML);
+            }
+            if(el.getAttribute("data-processed") === "true") {
+                // remove and restore original
+                el.removeAttribute("data-processed");
+                // console.log(`Restoring original code for re-run: `, el.getAttribute('data-original-code'));
+                el.innerHTML = el.getAttribute('data-original-code');
+            } else {
+                // store original code
+                // console.log(`Storing original code for re-run: `, el.innerHTML);
+                el.setAttribute('data-original-code', el.innerHTML);
+            }
+        });
+
+        // Separate visible and hidden elements. Mermaid's layout engine measures
+        // text dimensions via the DOM, which fails for elements hidden by a parent
+        // (e.g., Reveal.js non-active slides, sphinx-design unopened tabs),
+        // producing broken SVGs. Render visible elements now, defer hidden ones.
+        const visible = [];
+        const hidden = [];
+        all_mermaids.forEach((el) => {
+            // offsetParent is null for display:none ancestors.
+            // getClientRects().length > 0 catches position:fixed elements
+            // (which also have null offsetParent but are still visible).
+            if (el.offsetParent !== null || el.getClientRects().length > 0) {
+                visible.push(el);
+            } else {
+                hidden.push(el);
+                el.setAttribute('data-mermaid-deferred', 'true');
+            }
+        });
+
+        if (visible.length > 0) {
+            try {
+                await mermaid.run({ nodes: visible });
+            } catch (e) {
+                console.error("Mermaid rendering failed:", e);
+            }
+        }
+
+        // Lazily render hidden elements when they become visible.
+        // Uses a promise chain (_renderQueue) to serialize rendering,
+        // since IntersectionObserver may report multiple entries at once
+        // and mermaid.run() is not safe to call concurrently.
+        if (hidden.length > 0) {
+            if (typeof IntersectionObserver === 'undefined') {
+                console.warn("IntersectionObserver not available; hidden mermaid diagrams will not render.");
+            } else {
+                _renderQueue = Promise.resolve();
+                _lazyObserver = new IntersectionObserver((entries) => {
+                    for (const entry of entries) {
+                        if (entry.isIntersecting && entry.target.getAttribute("data-processed") !== "true") {
+                            _lazyObserver.unobserve(entry.target);
+                            const el = entry.target;
+                            _renderQueue = _renderQueue.then(async () => {
+                                try {
+                                    await mermaid.run({ nodes: [el] });
+                                    el.removeAttribute('data-mermaid-deferred');
+                                    // Apply zoom to the now-rendered diagram, matching
+                                    // the decoration visible diagrams receive.
+                                    if (false) {
+                                        addZoomToSvgs(d3.selectAll("").select(function() {
+                                            return this.querySelector("svg");
+                                        }));
+                                    }
+                                } catch (e) {
+                                    console.error("Mermaid deferred rendering failed:", e);
+                                    el.removeAttribute('data-mermaid-deferred');
+                                    el.setAttribute('data-mermaid-render-failed', 'true');
+                                }
+                            });
+                        }
+                    }
+                });
+                hidden.forEach((el) => _lazyObserver.observe(el));
+            }
+        }
+    }
+
+    all_mermaids = document.querySelectorAll(".mermaid");
+    // Exclude deferred (hidden) and render-failed elements from completion checks
+    const mermaids_active = document.querySelectorAll(".mermaid:not([data-mermaid-deferred]):not([data-mermaid-render-failed])");
+    const mermaids_processed = document.querySelectorAll(".mermaid:not([data-mermaid-deferred]):not([data-mermaid-render-failed])[data-processed='true']");
+
+    if (false) {
+        const mermaids_to_add_zoom = 0 === -1 ? mermaids_active.length : 0;
+        if(mermaids_to_add_zoom > 0) {
+            var svgs = d3.selectAll("").select(function() {
+                return this.querySelector("svg");
+            });
+            // Wait until every active (visible) diagram has rendered. Deferred
+            // diagrams are excluded, so a fixed d3_node_count that counts a
+            // hidden diagram no longer loops forever waiting for its SVG.
+            if(mermaids_active.length !== mermaids_processed.length) {
+                setTimeout(() => runMermaid(false), 200);
+                return;
+            }
+            addZoomToSvgs(svgs);
+        }
+    } else if(mermaids_active.length !== mermaids_processed.length) {
+        // Wait for mermaid to process all diagrams
+        setTimeout(() => runMermaid(false), 200);
+        return;
+    }
+
+    // Stop here if not adding fullscreen capability
+    if (!true) return;
+
+    if (modal !== null ) {
+        // Destroy existing modal
+        modal.remove();
+        modal = null;
+        modalContent = null;
+    }
+
+    modal = document.createElement('div');
+    modal.className = 'mermaid-fullscreen-modal' + (darkTheme ? ' dark-theme' : '');
+    modal.setAttribute('role', 'dialog');
+    modal.setAttribute('aria-modal', 'true');
+    modal.setAttribute('aria-label', 'Fullscreen diagram viewer');
+    modal.innerHTML = `
+        <button class="mermaid-fullscreen-close${darkTheme ? ' dark-theme' : ''}" aria-label="Close fullscreen">✕</button>
+        <div class="mermaid-container-fullscreen${darkTheme ? ' dark-theme' : ''}"></div>
+    `;
+    document.body.appendChild(modal);
+
+    modalContent = modal.querySelector('.mermaid-container-fullscreen');
+    const closeBtn = modal.querySelector('.mermaid-fullscreen-close');
+
+    closeModal = () => {
+        modal.classList.remove('active');
+        modalContent.innerHTML = '';
+        document.body.style.overflow = ''
+        window.scrollTo({left: previousScrollOffset[0], top: previousScrollOffset[1], behavior: 'instant'});
+    };
+
+    closeBtn.addEventListener('click', closeModal);
+    modal.addEventListener('click', (e) => {
+        if (e.target === modal) closeModal();
+    });
+    document.querySelectorAll('.mermaid').forEach((mermaidDiv) => {
+        if (mermaidDiv.parentNode.classList.contains('mermaid-container') ||
+            mermaidDiv.closest('.mermaid-fullscreen-modal')) {
+            // Already processed, adjust button class if needed
+            const existingBtn = mermaidDiv.parentNode.querySelector('.mermaid-fullscreen-btn');
+            if (existingBtn) {
+                existingBtn.className = 'mermaid-fullscreen-btn' + (darkTheme ? ' dark-theme' : '');
+            }
+            return;
+        }
+
+        const container = document.createElement('div');
+        container.className = 'mermaid-container';
+        mermaidDiv.parentNode.insertBefore(container, mermaidDiv);
+        container.appendChild(mermaidDiv);
+
+        const fullscreenBtn = document.createElement('button');
+        fullscreenBtn.className = 'mermaid-fullscreen-btn' + (darkTheme ? ' dark-theme' : '');
+        fullscreenBtn.setAttribute('aria-label', 'View diagram in fullscreen');
+        fullscreenBtn.textContent = "\u26f6";
+        fullscreenBtn.style.opacity = "50%";
+
+        // Calculate dynamic position based on diagram's margin and padding
+        const diagramStyle = window.getComputedStyle(mermaidDiv);
+        const marginTop = parseFloat(diagramStyle.marginTop) || 0;
+        const marginRight = parseFloat(diagramStyle.marginRight) || 0;
+        const paddingTop = parseFloat(diagramStyle.paddingTop) || 0;
+        const paddingRight = parseFloat(diagramStyle.paddingRight) || 0;
+        fullscreenBtn.style.top = `${marginTop + paddingTop + 4}px`;
+        fullscreenBtn.style.right = `${marginRight + paddingRight + 4}px`;
+
+        fullscreenBtn.addEventListener('click', () => {
+            previousScrollOffset = [window.scrollX, window.scrollY];
+            const clone = mermaidDiv.cloneNode(true);
+            modalContent.innerHTML = '';
+            modalContent.appendChild(clone);
+
+            const svg = clone.querySelector('svg');
+            if (svg) {
+                svg.removeAttribute('width');
+                svg.removeAttribute('height');
+                svg.style.width = '100%';
+                svg.style.height = 'auto';
+                svg.style.maxWidth = '100%';
+                svg.style.display = 'block';
+
+                if (false) {
+                    setTimeout(() => {
+                        const g = svg.querySelector('g');
+                        if (g) {
+                            var svgD3 = d3.select(svg);
+                            svgD3.html("<g class='wrapper'>" + svgD3.html() + "</g>");
+                            var inner = svgD3.select("g");
+                            var zoom = d3.zoom().on("zoom", function(event) {
+                                inner.attr("transform", event.transform);
+                            });
+                            svgD3.call(zoom);
+                        }
+                    }, 100);
+                }
+            }
+
+            modal.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        });
+        container.appendChild(fullscreenBtn);
+    });
+};
+
+
+
+const load = async () => {
+    initStyles();
+
+
+    await runMermaid(true);
+
+    const reRunIfThemeChanges = async () => {
+        const newDarkTheme = isDarkTheme();
+        if (newDarkTheme !== darkTheme) {
+            darkTheme = newDarkTheme;
+            console.log("Theme change detected, re-running mermaid with", darkTheme ? "dark" : "default", "theme");
+            await mermaid.initialize(
+                {...{"startOnLoad": false},
+                ...{ darkMode: darkTheme, theme: darkTheme ? "dark" : "default" },
+                }
+            );
+            await runMermaid(true);
+        }
+    };
+
+    // Update theme classes when theme changes
+    const themeObserver = new MutationObserver(reRunIfThemeChanges);
+    themeObserver.observe(document.documentElement, {
+        attributes: true,
+        attributeFilter: ['class', 'style', 'data-theme']
+    });
+    themeObserver.observe(document.body, {
+        attributes: true,
+        attributeFilter: ['class', 'style', 'data-theme']
+    });
+};
+
+
+
+
+
+console.log("Initializing mermaid with", darkTheme ? "dark" : "default", "theme");
+mermaid.initialize(
+    {...{"startOnLoad": false},
+    ...{ darkMode: darkTheme, theme: darkTheme ? "dark" : "default" },
+    }
+);
+
+window.addEventListener("load", load);
+window.runMermaid = runMermaid;</script>
+    <script src="../../../../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../../../search.html" />
+    <link href="../../../../../../_static/style.css" rel="stylesheet" type="text/css">
+
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../../../../index.html" class="icon icon-home">
+            Polaris
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">User's guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../users_guide/quick_start.html">Quick Start for Users</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../users_guide/tasks.html">Tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../users_guide/config_files.html">Config Files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../users_guide/suites.html">Suites</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../users_guide/mesh/index.html">Mesh component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../users_guide/e3sm/init/index.html">E3SM Initial Condition Component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../users_guide/ocean/index.html">Ocean component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../users_guide/seaice/index.html">Sea ice component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../users_guide/machines/index.html">Machines</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Developer's guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../developers_guide/quick_start.html">Quick Start for Developers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../developers_guide/overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../developers_guide/command_line.html">Command-line interface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../developers_guide/organization/index.html">Organization of Tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../developers_guide/e3sm/init/index.html">E3SM initial condition (e3sm/init) component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../developers_guide/mesh/index.html">Mesh component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../developers_guide/ocean/index.html">Ocean component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../developers_guide/seaice/index.html">Sea ice component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../developers_guide/framework/index.html">Framework</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../developers_guide/machines/index.html">Machines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../developers_guide/benchmarking.html">Benchmarking a branch against a baseline</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../developers_guide/omega_pr_testing.html">Testing an Omega pull request</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../developers_guide/polaris_update_testing.html">Testing a Polaris version update</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../developers_guide/troubleshooting.html">Troubleshooting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../developers_guide/docs.html">Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../developers_guide/building_docs.html">Building the Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../developers_guide/building_docs.html#previewing-the-documentation">Previewing the Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../developers_guide/conda_vs_spack.html">How Conda and Spack Work Together in Polaris</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../developers_guide/updating_conda.html">Updating Deployment Dependencies</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../developers_guide/updating_spack/index.html">Updating Shared Spack Environments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../developers_guide/api.html">API reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../design_docs/index.html">Design Documents</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../tutorials/dev_add_category_of_tasks/index.html">Developer Tutorial: Adding a New Category of Tasks</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Glossary</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../glossary.html">Glossary</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../../../index.html">Polaris</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../../../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">polaris.tasks.e3sm.init.component_inputs.names</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for polaris.tasks.e3sm.init.component_inputs.names</h1><div class="highlight"><pre>
+<span></span><span class="sd">"""</span>
+<span class="sd">The E3SM-facing names and paths that are particular to unified meshes.</span>
+
+<span class="sd">Paths that any E3SM workflow stages the same way, keyed by E3SM's grid name,</span>
+<span class="sd">are in :py:mod:`polaris.e3sm.init.inputdata`; the ones here follow from a</span>
+<span class="sd">unified mesh's short name.  Between the two modules, the layout of the</span>
+<span class="sd">assembled tree is described in one place rather than scattered across the</span>
+<span class="sd">steps that write into it.  Like :py:mod:`polaris.e3sm.init.inputdata`, this</span>
+<span class="sd">module imports no step and opens no file, so the naming rules can be unit</span>
+<span class="sd">tested without a work directory.</span>
+<span class="sd">"""</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.config</span><span class="w"> </span><span class="kn">import</span> <span class="n">PolarisConfigParser</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.e3sm.init.inputdata</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_nonempty_option</span><span class="p">,</span> <span class="n">ocean_dir</span>
+
+<span class="c1">#: The culled-mesh regions a SCRIP file is staged for, matching the prefixes</span>
+<span class="c1">#: the cull step writes.</span>
+<span class="n">SCRIP_REGIONS</span> <span class="o">=</span> <span class="p">(</span><span class="s1">'ocean'</span><span class="p">,</span> <span class="s1">'ocean_no_cavities'</span><span class="p">,</span> <span class="s1">'land'</span><span class="p">)</span>
+
+<span class="c1">#: The culled-mesh regions whose SCRIP file is also staged beside the ocean</span>
+<span class="c1">#: products, where the ``ocean`` in the region name is redundant and is</span>
+<span class="c1">#: dropped from the filename.</span>
+<span class="n">OCEAN_SCRIP_REGIONS</span> <span class="o">=</span> <span class="p">(</span><span class="s1">'ocean'</span><span class="p">,</span> <span class="s1">'ocean_no_cavities'</span><span class="p">)</span>
+
+<span class="c1">#: The culled-mesh regions whose mesh itself is staged.  ``ocean_no_cavities``</span>
+<span class="c1">#: is not among them: it exists to build mapping files, and under the</span>
+<span class="c1">#: ``calving_front`` convention every current unified mesh uses it is identical</span>
+<span class="c1">#: to ``ocean`` anyway, so staging it would be a second copy of the same mesh.</span>
+<span class="n">MESH_REGIONS</span> <span class="o">=</span> <span class="p">(</span><span class="s1">'ocean'</span><span class="p">,</span> <span class="s1">'land'</span><span class="p">)</span>
+
+<span class="n">_UNIFIED_MESH_DIR</span> <span class="o">=</span> <span class="s1">'inputdata/share/meshes/mpas/unified'</span>
+
+
+<div class="viewcode-block" id="get_mesh_short_name">
+<a class="viewcode-back" href="../../../../../../developers_guide/e3sm/init/generated/polaris.tasks.e3sm.init.component_inputs.names.get_mesh_short_name.html#polaris.tasks.e3sm.init.component_inputs.names.get_mesh_short_name">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_mesh_short_name</span><span class="p">(</span><span class="n">config</span><span class="p">:</span> <span class="n">PolarisConfigParser</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    The E3SM short name of the mesh the files are staged for.</span>
+
+<span class="sd">    A Polaris mesh name says how a mesh was built (``u-oi30-lr10``); an E3SM</span>
+<span class="sd">    short name identifies a released mesh (``u02-oi30-lr10``), and the</span>
+<span class="sd">    two-digit ID is what distinguishes two meshes built to the same recipe at</span>
+<span class="sd">    different times.  Only a person can decide a mesh has earned one, so there</span>
+<span class="sd">    is no default and no autodetection from a restart file's global attributes.</span>
+
+<span class="sd">    Unified meshes register theirs as ``[unified_mesh] e3sm_short_name``.</span>
+<span class="sd">    ``[component_inputs] mesh_short_name`` overrides that when set.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    config : polaris.config.PolarisConfigParser</span>
+<span class="sd">        The config options for the component-input steps.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    str</span>
+<span class="sd">        The E3SM short name.</span>
+
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    ValueError</span>
+<span class="sd">        If neither option is set.</span>
+<span class="sd">    """</span>
+    <span class="n">short_name</span> <span class="o">=</span> <span class="n">get_nonempty_option</span><span class="p">(</span>
+        <span class="n">config</span><span class="p">,</span> <span class="s1">'component_inputs'</span><span class="p">,</span> <span class="s1">'mesh_short_name'</span>
+    <span class="p">)</span>
+    <span class="k">if</span> <span class="n">short_name</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">short_name</span>
+
+    <span class="n">short_name</span> <span class="o">=</span> <span class="n">get_nonempty_option</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="s1">'unified_mesh'</span><span class="p">,</span> <span class="s1">'e3sm_short_name'</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">short_name</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">short_name</span>
+
+    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+        <span class="s1">'This mesh has no E3SM short name, so the component input files '</span>
+        <span class="s1">'cannot be named.  Set [component_inputs] mesh_short_name, or '</span>
+        <span class="s1">'register the mesh by setting [unified_mesh] e3sm_short_name in its '</span>
+        <span class="s1">'config file.'</span>
+    <span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="base_mesh_path">
+<a class="viewcode-back" href="../../../../../../developers_guide/e3sm/init/generated/polaris.tasks.e3sm.init.component_inputs.names.base_mesh_path.html#polaris.tasks.e3sm.init.component_inputs.names.base_mesh_path">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">base_mesh_path</span><span class="p">(</span><span class="n">short_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">creation_date</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Where the base mesh, carrying the base-to-culled index maps, is staged.</span>
+
+<span class="sd">    Under ``share/meshes/mpas/unified/&lt;id&gt;/`` rather than Compass'</span>
+<span class="sd">    ``share/meshes/mpas/ocean/``: for a unified mesh the base mesh belongs to</span>
+<span class="sd">    the ocean, sea-ice, land and river components equally, and filing it under</span>
+<span class="sd">    the ocean would misdescribe it.  The per-mesh subdirectory keeps one</span>
+<span class="sd">    mesh's files together -- see :py:func:`_mesh_dir`.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    short_name : str</span>
+<span class="sd">        The E3SM short name of the mesh.</span>
+
+<span class="sd">    creation_date : str</span>
+<span class="sd">        The creation date, as ``YYYYMMDD``.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    str</span>
+<span class="sd">        The path, relative to</span>
+<span class="sd">        :py:data:`~polaris.e3sm.init.inputdata.ASSEMBLED_FILES`.</span>
+<span class="sd">    """</span>
+    <span class="k">return</span> <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">_mesh_dir</span><span class="p">(</span><span class="n">short_name</span><span class="p">)</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="n">short_name</span><span class="si">}</span><span class="s1">.base.</span><span class="si">{</span><span class="n">creation_date</span><span class="si">}</span><span class="s1">.nc'</span></div>
+
+
+
+<div class="viewcode-block" id="scrip_path">
+<a class="viewcode-back" href="../../../../../../developers_guide/e3sm/init/generated/polaris.tasks.e3sm.init.component_inputs.names.scrip_path.html#polaris.tasks.e3sm.init.component_inputs.names.scrip_path">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">scrip_path</span><span class="p">(</span><span class="n">short_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">creation_date</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">region</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Where the SCRIP description of one culled mesh is staged.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    short_name : str</span>
+<span class="sd">        The E3SM short name of the mesh.</span>
+
+<span class="sd">    creation_date : str</span>
+<span class="sd">        The creation date, as ``YYYYMMDD``.</span>
+
+<span class="sd">    region : str</span>
+<span class="sd">        The culled-mesh region, one of :py:data:`SCRIP_REGIONS`.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    str</span>
+<span class="sd">        The path, relative to</span>
+<span class="sd">        :py:data:`~polaris.e3sm.init.inputdata.ASSEMBLED_FILES`.</span>
+
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    ValueError</span>
+<span class="sd">        If ``region`` is not a region a SCRIP file is staged for.</span>
+<span class="sd">    """</span>
+    <span class="k">if</span> <span class="n">region</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">SCRIP_REGIONS</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s1">'No SCRIP file is staged for the region </span><span class="si">{</span><span class="n">region</span><span class="si">!r}</span><span class="s1">.  Expected '</span>
+            <span class="sa">f</span><span class="s1">'one of </span><span class="si">{</span><span class="s2">", "</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">SCRIP_REGIONS</span><span class="p">)</span><span class="si">}</span><span class="s1">.'</span>
+        <span class="p">)</span>
+    <span class="k">return</span> <span class="p">(</span>
+        <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">_mesh_dir</span><span class="p">(</span><span class="n">short_name</span><span class="p">)</span><span class="si">}</span><span class="s1">/'</span>
+        <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">short_name</span><span class="si">}</span><span class="s1">.</span><span class="si">{</span><span class="n">region</span><span class="si">}</span><span class="s1">.scrip.</span><span class="si">{</span><span class="n">creation_date</span><span class="si">}</span><span class="s1">.nc'</span>
+    <span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="ocean_scrip_path">
+<a class="viewcode-back" href="../../../../../../developers_guide/e3sm/init/generated/polaris.tasks.e3sm.init.component_inputs.names.ocean_scrip_path.html#polaris.tasks.e3sm.init.component_inputs.names.ocean_scrip_path">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">ocean_scrip_path</span><span class="p">(</span><span class="n">short_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">creation_date</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">region</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Where a SCRIP description is staged beside the ocean products.</span>
+
+<span class="sd">    The same files are staged under ``share/meshes/mpas/unified/&lt;id&gt;/``</span>
+<span class="sd">    by :py:func:`scrip_path`.  They are in both places because developers look</span>
+<span class="sd">    for them in both: with the mesh files and with the ocean files that were</span>
+<span class="sd">    built from them.</span>
+
+<span class="sd">    Under ``ocn/mpas-o/`` the ``ocean`` in a region name says nothing -- every</span>
+<span class="sd">    file there is the ocean's -- so it is dropped, leaving</span>
+<span class="sd">    ``&lt;short&gt;.scrip.&lt;date&gt;.nc`` for the ocean domain and</span>
+<span class="sd">    ``&lt;short&gt;.no_cavities.scrip.&lt;date&gt;.nc`` for the one without ice-shelf</span>
+<span class="sd">    cavities.  Land has no copy here, having no business in an ocean</span>
+<span class="sd">    directory.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    short_name : str</span>
+<span class="sd">        The E3SM short name of the mesh.</span>
+
+<span class="sd">    creation_date : str</span>
+<span class="sd">        The creation date, as ``YYYYMMDD``.</span>
+
+<span class="sd">    region : str</span>
+<span class="sd">        The culled-mesh region, one of :py:data:`OCEAN_SCRIP_REGIONS`.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    str</span>
+<span class="sd">        The path, relative to</span>
+<span class="sd">        :py:data:`~polaris.e3sm.init.inputdata.ASSEMBLED_FILES`.</span>
+
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    ValueError</span>
+<span class="sd">        If ``region`` is not a region staged beside the ocean products.</span>
+<span class="sd">    """</span>
+    <span class="k">if</span> <span class="n">region</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">OCEAN_SCRIP_REGIONS</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s1">'No SCRIP file is staged beside the ocean products for the '</span>
+            <span class="sa">f</span><span class="s1">'region </span><span class="si">{</span><span class="n">region</span><span class="si">!r}</span><span class="s1">.  Expected one of '</span>
+            <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="s2">", "</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">OCEAN_SCRIP_REGIONS</span><span class="p">)</span><span class="si">}</span><span class="s1">.'</span>
+        <span class="p">)</span>
+    <span class="n">suffix</span> <span class="o">=</span> <span class="n">region</span><span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="s1">'ocean'</span><span class="p">)</span> <span class="p">:]</span><span class="o">.</span><span class="n">lstrip</span><span class="p">(</span><span class="s1">'_'</span><span class="p">)</span>
+    <span class="n">stem</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">short_name</span><span class="si">}</span><span class="s1">.</span><span class="si">{</span><span class="n">suffix</span><span class="si">}</span><span class="s1">.scrip'</span> <span class="k">if</span> <span class="n">suffix</span> <span class="k">else</span> <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">short_name</span><span class="si">}</span><span class="s1">.scrip'</span>
+    <span class="n">grid</span> <span class="o">=</span> <span class="n">ocean_grid_name</span><span class="p">(</span><span class="n">short_name</span><span class="p">)</span>
+    <span class="k">return</span> <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">ocean_dir</span><span class="p">(</span><span class="n">grid</span><span class="p">)</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="n">stem</span><span class="si">}</span><span class="s1">.</span><span class="si">{</span><span class="n">creation_date</span><span class="si">}</span><span class="s1">.nc'</span></div>
+
+
+
+<div class="viewcode-block" id="culled_mesh_path">
+<a class="viewcode-back" href="../../../../../../developers_guide/e3sm/init/generated/polaris.tasks.e3sm.init.component_inputs.names.culled_mesh_path.html#polaris.tasks.e3sm.init.component_inputs.names.culled_mesh_path">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">culled_mesh_path</span><span class="p">(</span><span class="n">short_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">creation_date</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">region</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Where one culled mesh is staged.</span>
+
+<span class="sd">    Next to the base mesh under ``share/meshes/mpas/unified/&lt;id&gt;/``</span>
+<span class="sd">    rather than under a component's own directory, for the same reason the</span>
+<span class="sd">    base mesh is there: a culled mesh describes a domain of the unified mesh,</span>
+<span class="sd">    not a file one component reads at run time.  Compass files its ocean mesh</span>
+<span class="sd">    under ``share/meshes/mpas/ocean/`` and E3SM never reads it from</span>
+<span class="sd">    ``ocn/mpas-o/``, where an earlier version of this workflow put it.</span>
+
+<span class="sd">    The ocean mesh carries the vertical coordinate as well, since that is what</span>
+<span class="sd">    makes it an ocean mesh rather than a horizontal one; the land mesh is</span>
+<span class="sd">    staged as the cull step wrote it.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    short_name : str</span>
+<span class="sd">        The E3SM short name of the mesh.</span>
+
+<span class="sd">    creation_date : str</span>
+<span class="sd">        The creation date, as ``YYYYMMDD``.</span>
+
+<span class="sd">    region : str</span>
+<span class="sd">        The culled-mesh region, one of :py:data:`MESH_REGIONS`.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    str</span>
+<span class="sd">        The path, relative to</span>
+<span class="sd">        :py:data:`~polaris.e3sm.init.inputdata.ASSEMBLED_FILES`.</span>
+
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    ValueError</span>
+<span class="sd">        If ``region`` is not a region whose mesh is staged.</span>
+<span class="sd">    """</span>
+    <span class="k">if</span> <span class="n">region</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">MESH_REGIONS</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s1">'No mesh is staged for the region </span><span class="si">{</span><span class="n">region</span><span class="si">!r}</span><span class="s1">.  Expected one of '</span>
+            <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="s2">", "</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">MESH_REGIONS</span><span class="p">)</span><span class="si">}</span><span class="s1">.'</span>
+        <span class="p">)</span>
+    <span class="k">return</span> <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">_mesh_dir</span><span class="p">(</span><span class="n">short_name</span><span class="p">)</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="n">short_name</span><span class="si">}</span><span class="s1">.</span><span class="si">{</span><span class="n">region</span><span class="si">}</span><span class="s1">.</span><span class="si">{</span><span class="n">creation_date</span><span class="si">}</span><span class="s1">.nc'</span></div>
+
+
+
+<div class="viewcode-block" id="ocean_moc_masks_path">
+<a class="viewcode-back" href="../../../../../../developers_guide/e3sm/init/generated/polaris.tasks.e3sm.init.component_inputs.names.ocean_moc_masks_path.html#polaris.tasks.e3sm.init.component_inputs.names.ocean_moc_masks_path">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">ocean_moc_masks_path</span><span class="p">(</span>
+    <span class="n">short_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">creation_date</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">features_date</span><span class="p">:</span> <span class="nb">str</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Where the MOC basin masks and southern-boundary transects are staged.</span>
+
+<span class="sd">    Two dates appear here because two things change independently: the</span>
+<span class="sd">    ``geometric_features`` aggregation the regions come from, which is</span>
+<span class="sd">    upstream data shared by every mesh, and the date this mesh's file was</span>
+<span class="sd">    created.  The aggregation date belongs to the product name, as it does in</span>
+<span class="sd">    the files already on the inputdata server</span>
+<span class="sd">    (``oRRS18to6v3_mocBasinsAndTransects20210623.nc``); the creation date</span>
+<span class="sd">    stays in the trailing field, where every other staged file carries it.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    short_name : str</span>
+<span class="sd">        The E3SM short name of the mesh.</span>
+
+<span class="sd">    creation_date : str</span>
+<span class="sd">        The creation date, as ``YYYYMMDD``.</span>
+
+<span class="sd">    features_date : str</span>
+<span class="sd">        The date stamp of the ``geometric_features`` aggregation, as</span>
+<span class="sd">        ``YYYYMMDD``.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    str</span>
+<span class="sd">        The path, relative to</span>
+<span class="sd">        :py:data:`~polaris.e3sm.init.inputdata.ASSEMBLED_FILES`.</span>
+<span class="sd">    """</span>
+    <span class="k">return</span> <span class="p">(</span>
+        <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">ocean_dir</span><span class="p">(</span><span class="n">ocean_grid_name</span><span class="p">(</span><span class="n">short_name</span><span class="p">))</span><span class="si">}</span><span class="s1">/'</span>
+        <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">short_name</span><span class="si">}</span><span class="s1">.mocBasinsAndTransects</span><span class="si">{</span><span class="n">features_date</span><span class="si">}</span><span class="s1">.</span><span class="si">{</span><span class="n">creation_date</span><span class="si">}</span><span class="s1">.nc'</span>
+    <span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="ocean_grid_name">
+<a class="viewcode-back" href="../../../../../../developers_guide/e3sm/init/generated/polaris.tasks.e3sm.init.component_inputs.names.ocean_grid_name.html#polaris.tasks.e3sm.init.component_inputs.names.ocean_grid_name">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">ocean_grid_name</span><span class="p">(</span><span class="n">short_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    E3SM's name for the ocean and sea-ice grid of a mesh.</span>
+
+<span class="sd">    E3SM splits a unified mesh into an ``ocnice`` grid and a land and river</span>
+<span class="sd">    grid, named for the ID and the matching half of the short name:</span>
+<span class="sd">    ``u02-oi30`` and ``u02-lr10`` for ``u02-oi30-lr10``.  The ocean and</span>
+<span class="sd">    sea-ice directories and initial conditions are named for the ``ocnice``</span>
+<span class="sd">    grid.  A short name with no land part, as an override might give for an</span>
+<span class="sd">    ocean-only mesh, is the grid name as it stands.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    short_name : str</span>
+<span class="sd">        The E3SM short name of the mesh.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    str</span>
+<span class="sd">        E3SM's name for the ocean and sea-ice grid.</span>
+<span class="sd">    """</span>
+    <span class="k">if</span> <span class="s1">'-lr'</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">short_name</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">short_name</span>
+    <span class="k">return</span> <span class="n">short_name</span><span class="o">.</span><span class="n">rsplit</span><span class="p">(</span><span class="s1">'-lr'</span><span class="p">,</span> <span class="mi">1</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span></div>
+
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_mesh_dir</span><span class="p">(</span><span class="n">short_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    The shared mesh directory for one unified mesh.</span>
+
+<span class="sd">    Every unified mesh gets its own subdirectory, named for the two-digit ID</span>
+<span class="sd">    that leads its E3SM short name (``u02`` for ``u02-oi30-lr10``), as on the</span>
+<span class="sd">    inputdata server and in E3SM's own references to these files.  The flat</span>
+<span class="sd">    directory it replaced held half a dozen files per mesh -- a base mesh,</span>
+<span class="sd">    three SCRIP descriptions and two culled meshes -- so with more than a</span>
+<span class="sd">    couple of meshes in it there was no way to see which files belonged</span>
+<span class="sd">    together.  The short name is already in every filename; what the</span>
+<span class="sd">    subdirectory adds is that the mesh's files are listed together and can be</span>
+<span class="sd">    copied or removed as a unit.</span>
+<span class="sd">    """</span>
+    <span class="k">return</span> <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">_UNIFIED_MESH_DIR</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="n">_mesh_id</span><span class="p">(</span><span class="n">short_name</span><span class="p">)</span><span class="si">}</span><span class="s1">'</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_mesh_id</span><span class="p">(</span><span class="n">short_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    The ID that leads an E3SM short name: ``u02`` for ``u02-oi30-lr10``.</span>
+<span class="sd">    """</span>
+    <span class="k">return</span> <span class="n">short_name</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">'-'</span><span class="p">,</span> <span class="mi">1</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2026, Energy Exascale Earth System Model Project.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+   
+
+  <!-- Meta tags for JS to use -->
+  <meta name="doc-version" content="main">
+  <meta name="doc-site-root" content="../../../../../../">
+
+  <!-- Create version switcher container -->
+  <script>
+    const sidebar = document.querySelector('.wy-side-nav-search');
+    if (sidebar) {
+      const versionDiv = document.createElement('div');
+      versionDiv.id = 'version-switcher';
+      versionDiv.style.marginTop = '1em';
+      sidebar.appendChild(versionDiv);
+    }
+  </script>
+
+  <!-- Load version-switcher.js using the correct relative path -->
+  <script src="../../../../../../../shared/version-switcher.js"></script>
+
+
+</body>
+</html>

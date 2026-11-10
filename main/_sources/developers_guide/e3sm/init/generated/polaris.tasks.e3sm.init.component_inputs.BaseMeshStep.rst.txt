@@ -1,0 +1,49 @@
+﻿polaris.tasks.e3sm.init.component\_inputs.BaseMeshStep
+======================================================
+
+.. currentmodule:: polaris.tasks.e3sm.init.component_inputs
+
+.. autoclass:: BaseMeshStep
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~BaseMeshStep.__init__
+      ~BaseMeshStep.add_cf_check
+      ~BaseMeshStep.add_dependency
+      ~BaseMeshStep.add_input_file
+      ~BaseMeshStep.add_output_file
+      ~BaseMeshStep.add_property_check
+      ~BaseMeshStep.check_cf
+      ~BaseMeshStep.check_properties
+      ~BaseMeshStep.constrain_resources
+      ~BaseMeshStep.process_inputs_and_outputs
+      ~BaseMeshStep.run
+      ~BaseMeshStep.runtime_setup
+      ~BaseMeshStep.set_resources
+      ~BaseMeshStep.set_shared_config
+      ~BaseMeshStep.setup
+      ~BaseMeshStep.validate_baselines
+      ~BaseMeshStep.work_path
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~BaseMeshStep.cores
+      ~BaseMeshStep.gpus
+      ~BaseMeshStep.may_span_nodes
+      ~BaseMeshStep.min_cores
+      ~BaseMeshStep.min_gpus
+      ~BaseMeshStep.output_filename
+   
+   

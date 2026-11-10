@@ -1,0 +1,6 @@
+﻿polaris.e3sm.init.inputdata.set\_creation\_date
+===============================================
+
+.. currentmodule:: polaris.e3sm.init.inputdata
+
+.. autofunction:: set_creation_date

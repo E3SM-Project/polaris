@@ -1,0 +1,6 @@
+﻿polaris.tasks.e3sm.init.component\_inputs.names.base\_mesh\_path
+================================================================
+
+.. currentmodule:: polaris.tasks.e3sm.init.component_inputs.names
+
+.. autofunction:: base_mesh_path

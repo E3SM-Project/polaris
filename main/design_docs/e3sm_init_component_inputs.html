@@ -1,0 +1,1347 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>E3SM Init Component Inputs</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=a8da1a53"></script>
+      <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Global Ocean Dynamic Adjustment" href="global_ocean_dynamic_adjustment.html" />
+    <link rel="prev" title="Design Documents" href="index.html" />
+    <link href="../_static/style.css" rel="stylesheet" type="text/css">
+
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            Polaris
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">User's guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../users_guide/quick_start.html">Quick Start for Users</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../users_guide/tasks.html">Tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../users_guide/config_files.html">Config Files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../users_guide/suites.html">Suites</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../users_guide/mesh/index.html">Mesh component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../users_guide/e3sm/init/index.html">E3SM Initial Condition Component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../users_guide/ocean/index.html">Ocean component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../users_guide/seaice/index.html">Sea ice component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../users_guide/machines/index.html">Machines</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Developer's guide</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/quick_start.html">Quick Start for Developers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/command_line.html">Command-line interface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/organization/index.html">Organization of Tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/e3sm/init/index.html">E3SM initial condition (e3sm/init) component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/mesh/index.html">Mesh component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/ocean/index.html">Ocean component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/seaice/index.html">Sea ice component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/framework/index.html">Framework</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/machines/index.html">Machines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/benchmarking.html">Benchmarking a branch against a baseline</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/omega_pr_testing.html">Testing an Omega pull request</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/polaris_update_testing.html">Testing a Polaris version update</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/troubleshooting.html">Troubleshooting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/docs.html">Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/building_docs.html">Building the Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/building_docs.html#previewing-the-documentation">Previewing the Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/conda_vs_spack.html">How Conda and Spack Work Together in Polaris</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/updating_conda.html">Updating Deployment Dependencies</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/updating_spack/index.html">Updating Shared Spack Environments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/api.html">API reference</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">Design Documents</a><ul class="current">
+<li class="toctree-l2 current"><a class="current reference internal" href="#">E3SM Init Component Inputs</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#summary">Summary</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#implementation-sequencing">Implementation sequencing</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#requirements">Requirements</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#requirement-component-input-generation-lives-in-e3sm-init-and-consumes-explicit-upstream-products">Requirement: Component-input generation lives in <code class="docutils literal notranslate"><span class="pre">e3sm/init</span></code> and consumes explicit upstream products</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#requirement-ocean-sea-ice-and-mesh-derived-support-products-can-be-generated-independently">Requirement: Ocean, sea-ice, and mesh-derived support products can be generated independently</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#requirement-the-staged-base-mesh-carries-maps-to-the-culled-component-meshes">Requirement: The staged base mesh carries maps to the culled component meshes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#requirement-model-specific-packaging-is-gated-by-the-selected-component-models">Requirement: Model-specific packaging is gated by the selected component models</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#requirement-the-workflow-produces-e3sm-compatible-staged-outputs-while-retaining-inspectable-intermediate-files">Requirement: The workflow produces E3SM-compatible staged outputs while retaining inspectable intermediate files</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#requirement-required-remapped-forcing-and-mesh-derived-support-assets-are-supported">Requirement: Required remapped forcing and mesh-derived support assets are supported</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#requirement-the-design-preserves-a-path-for-future-coupled-model-evolution">Requirement: The design preserves a path for future coupled-model evolution</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#algorithm-design">Algorithm Design</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#algorithm-design-component-input-generation-lives-in-e3sm-init-and-consumes-explicit-upstream-products">Algorithm Design: Component-input generation lives in <code class="docutils literal notranslate"><span class="pre">e3sm/init</span></code> and consumes explicit upstream products</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#algorithm-design-ocean-sea-ice-and-mesh-derived-support-products-can-be-generated-independently">Algorithm Design: Ocean, sea-ice, and mesh-derived support products can be generated independently</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#algorithm-design-the-staged-base-mesh-carries-maps-to-the-culled-component-meshes">Algorithm Design: The staged base mesh carries maps to the culled component meshes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#algorithm-design-model-specific-packaging-is-gated-by-the-selected-component-models">Algorithm Design: Model-specific packaging is gated by the selected component models</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#algorithm-design-the-workflow-produces-e3sm-compatible-staged-outputs-while-retaining-inspectable-intermediate-files">Algorithm Design: The workflow produces E3SM-compatible staged outputs while retaining inspectable intermediate files</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#algorithm-design-required-remapped-forcing-and-mesh-derived-support-assets-are-supported">Algorithm Design: Required remapped forcing and mesh-derived support assets are supported</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#algorithm-design-the-design-preserves-a-path-for-future-coupled-model-evolution">Algorithm Design: The design preserves a path for future coupled-model evolution</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#implementation">Implementation</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#implementation-component-input-generation-lives-in-e3sm-init-and-consumes-explicit-upstream-products">Implementation: Component-input generation lives in <code class="docutils literal notranslate"><span class="pre">e3sm/init</span></code> and consumes explicit upstream products</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#implementation-ocean-sea-ice-and-mesh-derived-support-products-can-be-generated-independently">Implementation: Ocean, sea-ice, and mesh-derived support products can be generated independently</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#implementation-the-staged-base-mesh-carries-maps-to-the-culled-component-meshes">Implementation: The staged base mesh carries maps to the culled component meshes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#implementation-model-specific-packaging-is-gated-by-the-selected-component-models">Implementation: Model-specific packaging is gated by the selected component models</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#implementation-the-workflow-produces-e3sm-compatible-staged-outputs-while-retaining-inspectable-intermediate-files">Implementation: The workflow produces E3SM-compatible staged outputs while retaining inspectable intermediate files</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#implementation-required-remapped-forcing-and-mesh-derived-support-assets-are-supported">Implementation: Required remapped forcing and mesh-derived support assets are supported</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#implementation-the-design-preserves-a-path-for-future-coupled-model-evolution">Implementation: The design preserves a path for future coupled-model evolution</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#testing">Testing</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#testing-and-validation-component-input-generation-lives-in-e3sm-init-and-consumes-explicit-upstream-products">Testing and Validation: Component-input generation lives in <code class="docutils literal notranslate"><span class="pre">e3sm/init</span></code> and consumes explicit upstream products</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#testing-and-validation-ocean-sea-ice-and-mesh-derived-support-products-can-be-generated-independently">Testing and Validation: Ocean, sea-ice, and mesh-derived support products can be generated independently</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#testing-and-validation-the-staged-base-mesh-carries-maps-to-the-culled-component-meshes">Testing and Validation: The staged base mesh carries maps to the culled component meshes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#testing-and-validation-model-specific-packaging-is-gated-by-the-selected-component-models">Testing and Validation: Model-specific packaging is gated by the selected component models</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#testing-and-validation-the-workflow-produces-e3sm-compatible-staged-outputs-while-retaining-inspectable-intermediate-files">Testing and Validation: The workflow produces E3SM-compatible staged outputs while retaining inspectable intermediate files</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#testing-and-validation-required-remapped-forcing-and-mesh-derived-support-assets-are-supported">Testing and Validation: Required remapped forcing and mesh-derived support assets are supported</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#testing-and-validation-the-design-preserves-a-path-for-future-coupled-model-evolution">Testing and Validation: The design preserves a path for future coupled-model evolution</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="global_ocean_dynamic_adjustment.html">Global Ocean Dynamic Adjustment</a></li>
+<li class="toctree-l2"><a class="reference internal" href="global_ocean_forward.html">Global Ocean Forward Runs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="global_ocean_init.html">Realistic Ocean Initial Conditions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="horiz_press_grad_hydrostatic_consistency.html">Discrete Hydrostatic Consistency in <code class="docutils literal notranslate"><span class="pre">horiz_press_grad</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="horiz_press_grad_reference.html">Reworked HPG Reference Solution</a></li>
+<li class="toctree-l2"><a class="reference internal" href="land_locked_cells.html">Land-Locked Cells in the Ocean and Sea-Ice Domains</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mixed_layer_eddies.html">Mixed-Layer Eddies Task</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ocean_analysis.html">Ocean Analysis in Polaris</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ocean_analysis_initial.html">Initial Omega Analysis Capabilities</a></li>
+<li class="toctree-l2"><a class="reference internal" href="omega_pr_testing.html">Omega Pull Request Testing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="overflow_nonlinear_eos.html">EOS and Vertical-Coordinate Variants of the Overflow Tasks</a></li>
+<li class="toctree-l2"><a class="reference internal" href="polaris_update_testing.html">Polaris Version Update Testing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pstar_init.html">P-Star Coordinate and Tracer Initialization</a></li>
+<li class="toctree-l2"><a class="reference internal" href="shared_steps.html">Shared steps</a></li>
+<li class="toctree-l2"><a class="reference internal" href="suite_results_file.html">Machine-Readable Suite Results</a></li>
+<li class="toctree-l2"><a class="reference internal" href="task_parallel_analysis_steps.html">Task-Parallel-Safe Analysis Steps in Polaris</a></li>
+<li class="toctree-l2"><a class="reference internal" href="task_parallelism.html">Task Parallelism in Polaris</a></li>
+<li class="toctree-l2"><a class="reference internal" href="task_parallelism_phase_a.html">Task Parallelism Phase A: Placement</a></li>
+<li class="toctree-l2"><a class="reference internal" href="task_parallelism_phase_b.html">Task Parallelism Phase B: Concurrency</a></li>
+<li class="toctree-l2"><a class="reference internal" href="task_parallelism_phase_c.html">Task Parallelism Phase C: Python Worker Pool</a></li>
+<li class="toctree-l2"><a class="reference internal" href="task_parallelism_phase_d.html">Task Parallelism Phase D: Coexistence and Elasticity</a></li>
+<li class="toctree-l2"><a class="reference internal" href="unified_base_mesh.html">Unified Mesh: Global Base Mesh Workflow</a></li>
+<li class="toctree-l2"><a class="reference internal" href="unified_mesh_prepare_coastline.html">Unified Mesh: Coastline Preparation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="unified_mesh_prepare_river_network.html">Unified Mesh: River Network Preparation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="unified_mesh_build_sizing_field.html">Unified Mesh: Sizing-Field Construction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="unified_mesh_create_base_mesh.html">Unified Mesh: Base-Mesh Creation and Downstream Integration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="unified_mesh_cull_leak.html">Unified Mesh: Fixing Resolution Leakage into the Ocean/Sea-Ice Domain</a></li>
+<li class="toctree-l2"><a class="reference internal" href="unified_mesh_dc_edge_noise.html">Unified Mesh: Raising the dcEdge Floor in the Ocean/Sea-Ice Domain</a></li>
+<li class="toctree-l2"><a class="reference internal" href="vector_reconstruction.html">Vector Reconstruction at MPAS Cell Centers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="template.html">Template</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials/dev_add_category_of_tasks/index.html">Developer Tutorial: Adding a New Category of Tasks</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Glossary</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../glossary.html">Glossary</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Polaris</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="index.html">Design Documents</a></li>
+      <li class="breadcrumb-item active">E3SM Init Component Inputs</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/design_docs/e3sm_init_component_inputs.md.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section class="tex2jax_ignore mathjax_ignore" id="e3sm-init-component-inputs">
+<h1>E3SM Init Component Inputs<a class="headerlink" href="#e3sm-init-component-inputs" title="Link to this heading"></a></h1>
+<p>date: 2026/03/22</p>
+<p>Contributors: Xylar Asay-Davis, Codex, Claude</p>
+<section id="summary">
+<h2>Summary<a class="headerlink" href="#summary" title="Link to this heading"></a></h2>
+<p>This design document describes a new Polaris capability for porting Compass’
+<code class="docutils literal notranslate"><span class="pre">compass/ocean/tests/global_ocean/files_for_e3sm</span></code> workflow into the
+<code class="docutils literal notranslate"><span class="pre">e3sm/init</span></code> component. The Compass name <code class="docutils literal notranslate"><span class="pre">files_for_e3sm</span></code> is too vague for the
+new framework and incorrectly suggests that the capability belongs in the
+ocean component. In Polaris, the capability should instead be represented as
+an <code class="docutils literal notranslate"><span class="pre">e3sm/init</span></code> task family called <code class="docutils literal notranslate"><span class="pre">component_inputs</span></code>, because its purpose is
+to prepare component-specific input and mesh-derived support assets for
+coupled E3SM workflows rather than to initialize the ocean model itself.</p>
+<p>The new design should consume outputs from several upstream workflows. At
+minimum, it will need the culled mesh and topography products from
+<code class="docutils literal notranslate"><span class="pre">e3sm/init</span></code>, as well as ocean-state products from the global-ocean
+initialization and dynamic-adjustment workflows when ocean packaging is
+requested. The upstream ocean initialization and dynamic-adjustment tasks each
+target a single ocean model, selected by the <code class="docutils literal notranslate"><span class="pre">[ocean]</span> <span class="pre">model</span></code> config option;
+the component-inputs workflow consumes that one model’s products. It does not
+attempt to build initial conditions for multiple ocean models in a single task.
+The dynamic-adjusted restart should be treated as the authoritative source for
+packaged ocean initial conditions in the common production workflow, while
+sea-ice products should be designed to come entirely from <code class="docutils literal notranslate"><span class="pre">e3sm/init</span></code> mesh,
+mask, and topography outputs plus shared remapped forcing datasets.</p>
+<p>Unlike the Compass workflow, the Polaris design should not bundle ocean,
+sea-ice, mapping-and-mask support, and model-specific packaging steps into a
+single opaque task. It should separate ocean products, sea-ice products, and
+mapping, mask, and other analysis-support products into clearer subtasks or
+step groups. It should also make the
+selected ocean and sea-ice models explicit so MPAS-specific steps such as
+graph partitioning and reconstruction-coefficient generation are included only
+when those models are actually part of the target coupled configuration. In
+particular, workflows involving Omega should not automatically inherit
+MPAS-Ocean-specific packaging steps.</p>
+<p>A requirement that is specific to unified meshes has also emerged since this
+document was first written. Every mesh needs its base mesh — the mesh before
+land or ocean culling — staged as an E3SM input in its own right. For unified
+meshes, where one base mesh is culled to both the ocean and sea-ice domain and
+the land and river domain, the staged base mesh must additionally carry index
+maps from each base-mesh element to the corresponding element on each culled
+component mesh, so that E3SM components sharing the base mesh can relate their
+fields to one another without re-deriving the culling.</p>
+<p>This design is successful if Polaris provides a cleanly named and inspectable
+<code class="docutils literal notranslate"><span class="pre">e3sm/init</span></code> capability that can stage E3SM-compatible inputs for ocean,
+sea-ice, and mesh-derived support assets; clearly separates shared products from
+model-specific ones; uses outputs from ocean initialization and dynamic
+adjustment through explicit dependencies; and leaves a straightforward path for
+supporting both MPAS-Ocean-based and Omega-based coupled workflows.</p>
+<p>The first branch has landed for MPAS-Ocean and MPAS-Seaice on unified meshes,
+and has been run end to end on <code class="docutils literal notranslate"><span class="pre">u-oi240-lr240</span></code>, <code class="docutils literal notranslate"><span class="pre">u-oi30-lr10</span></code>,
+<code class="docutils literal notranslate"><span class="pre">u-oi6to18-lr12p5</span></code> and <code class="docutils literal notranslate"><span class="pre">u-oi6to18-lr25</span></code>, with <code class="docutils literal notranslate"><span class="pre">u-oi-so12to30-lr10</span></code> following.
+Five things the implementation changed are recorded in the sections below:</p>
+<ol class="arabic simple">
+<li><p>The MOC basin masks moved out of the analysis products and into the
+component inputs. MPAS-Ocean reads them at run time and says nothing when
+they are missing, which makes them a component input by the definition this
+document already uses.</p></li>
+<li><p>The culled meshes are staged beside the base mesh in a per-mesh
+subdirectory of <code class="docutils literal notranslate"><span class="pre">share/meshes/mpas/unified/</span></code>, not under a component’s own
+inputdata directory, and the sea-ice mesh is not staged at all.</p></li>
+<li><p>The assembly step rebuilds its tree from empty each run, and offers a script
+for copying into an inputdata directory rather than doing it.</p></li>
+<li><p>Graph partitioning grew a per-mesh bound, the ability to resume, and
+<code class="docutils literal notranslate"><span class="pre">gpmetis</span></code> calls run several at a time, all forced by the finest unified
+mesh. The sea-ice partitioning stopped calling MPAS-Tools’
+<code class="docutils literal notranslate"><span class="pre">create_seaice_partitions</span></code> for the same reason.</p></li>
+<li><p>The general staging helpers live in the <code class="docutils literal notranslate"><span class="pre">polaris.e3sm.init</span></code> framework
+rather than in the task package, so that other workflows staging files
+for E3SM, starting with MISOMIP’s, can use them.</p></li>
+</ol>
+<p>Date last modified: 2026/11/03</p>
+<section id="implementation-sequencing">
+<h3>Implementation sequencing<a class="headerlink" href="#implementation-sequencing" title="Link to this heading"></a></h3>
+<p>This design describes the complete <code class="docutils literal notranslate"><span class="pre">component_inputs</span></code> capability. It is being
+implemented over more than one development branch, and this section records
+which parts land first. Nothing described in this document has been dropped.</p>
+<p>The first branch covers the products that an E3SM <em>run</em> needs: the shared
+base-mesh and SCRIP staging described above, the MPAS-Ocean mesh and
+initial-condition files, the MPAS-Seaice initial-condition file, the ocean and
+sea-ice graph partitions, and — added during implementation — the MOC basin
+masks and southern-boundary transects.</p>
+<p>The MOC masks were originally listed below as part of <code class="docutils literal notranslate"><span class="pre">diagnostic_masks</span></code>, with
+the analysis products. They are not analysis products. E3SM points two streams
+at a single per-mesh file, <code class="docutils literal notranslate"><span class="pre">regionalMasksInput</span></code> and <code class="docutils literal notranslate"><span class="pre">transectMasksInput</span></code>, and
+two analysis members that are on by default read them: <code class="docutils literal notranslate"><span class="pre">mocStreamfunction</span></code>,
+enabled per mesh and <code class="docutils literal notranslate"><span class="pre">.true.</span></code> for every mesh since <code class="docutils literal notranslate"><span class="pre">EC30to60E2r2</span></code>, and
+<code class="docutils literal notranslate"><span class="pre">meridionalHeatTransport</span></code>, enabled for every mesh. With no file, <code class="docutils literal notranslate"><span class="pre">nRegions</span></code>
+and <code class="docutils literal notranslate"><span class="pre">nRegionGroups</span></code> fall back to their Registry definition of 1, the MOC member
+logs that its region group was not found, and the run continues, writing output
+computed against a meaningless region. A missing input that announced itself
+would be caught by a run; this one would not, which is why it belongs with the
+products a run needs rather than with the products an analysis needs.</p>
+<p>Only the <code class="docutils literal notranslate"><span class="pre">MOC</span> <span class="pre">Basins</span></code> group moved. The rest of <code class="docutils literal notranslate"><span class="pre">diagnostic_masks</span></code> stays with
+the analysis products.</p>
+<p>Follow-up branches will cover the products whose purpose is post-processing,
+analysis, or forcing from remapped datasets: <code class="docutils literal notranslate"><span class="pre">diagnostic_maps</span></code>, the remainder
+of <code class="docutils literal notranslate"><span class="pre">diagnostic_masks</span></code>, <code class="docutils literal notranslate"><span class="pre">e3sm_to_cmip_maps</span></code>, <code class="docutils literal notranslate"><span class="pre">remap_iceberg_climatology</span></code>,
+<code class="docutils literal notranslate"><span class="pre">remap_ice_shelf_melt</span></code>, <code class="docutils literal notranslate"><span class="pre">add_total_iceberg_ice_shelf_melt</span></code>,
+<code class="docutils literal notranslate"><span class="pre">remap_sea_surface_salinity_restoring</span></code>, <code class="docutils literal notranslate"><span class="pre">remap_tidal_mixing</span></code>, and
+<code class="docutils literal notranslate"><span class="pre">write_coeffs_reconstruct</span></code>.</p>
+<p>Where a section below describes work that a follow-up branch will do, it says
+so. Those notes are about ordering; the requirements, algorithm design and
+implementation guidance they accompany remain in force.</p>
+<p>The first branch also covers unified meshes only, since those are the meshes
+headed for E3SM. Nothing in the design is specific to unified meshes apart from
+the base-to-culled index maps, so adding the simple base meshes later should be
+a matter of registering more mesh names.</p>
+</section>
+</section>
+<section id="requirements">
+<h2>Requirements<a class="headerlink" href="#requirements" title="Link to this heading"></a></h2>
+<section id="requirement-component-input-generation-lives-in-e3sm-init-and-consumes-explicit-upstream-products">
+<h3>Requirement: Component-input generation lives in <code class="docutils literal notranslate"><span class="pre">e3sm/init</span></code> and consumes explicit upstream products<a class="headerlink" href="#requirement-component-input-generation-lives-in-e3sm-init-and-consumes-explicit-upstream-products" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/08/05</p>
+<p>Contributors: Xylar Asay-Davis, Codex, Claude</p>
+<p>Polaris shall provide this capability within the <code class="docutils literal notranslate"><span class="pre">e3sm/init</span></code> component rather
+than the ocean component.</p>
+<p>The workflow shall consume required inputs from upstream tasks through explicit
+step dependencies and declared files rather than by assuming Compass-style
+directory layouts.</p>
+<p>The design shall treat the base mesh, the culled meshes and the culled
+topography from <code class="docutils literal notranslate"><span class="pre">e3sm/init</span></code> as the authoritative source for horizontal
+geometry, masks, and land-ice metadata.
+The design shall consume the global-ocean initial condition and
+dynamic-adjustment outputs as explicit sources for ocean packaging only.
+Sea-ice packaging shall instead rely on <code class="docutils literal notranslate"><span class="pre">e3sm/init</span></code> products and quantities
+that can be computed directly from them.
+Mesh-derived support assets such as SCRIP files, mapping files, and masks
+shall also remain in <code class="docutils literal notranslate"><span class="pre">e3sm/init</span></code> because they are generated from mesh and
+topography products before any simulation is run, even when they are later
+consumed by post-processing tools.</p>
+<p>Because the upstream products are shared steps in the ocean component, every
+ocean-side product that <code class="docutils literal notranslate"><span class="pre">component_inputs</span></code> consumes shall be reachable through
+a shared-step accessor rather than through a task that constructs its steps
+privately. In particular, the dynamic-adjustment stages shall be available as
+shared steps so that the final adjusted restart can be declared as a
+dependency.</p>
+</section>
+<section id="requirement-ocean-sea-ice-and-mesh-derived-support-products-can-be-generated-independently">
+<h3>Requirement: Ocean, sea-ice, and mesh-derived support products can be generated independently<a class="headerlink" href="#requirement-ocean-sea-ice-and-mesh-derived-support-products-can-be-generated-independently" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/08/05</p>
+<p>Contributors: Xylar Asay-Davis, Codex, Claude</p>
+<p>Polaris shall separate the current mixed workflow into logically distinct
+products for shared mesh assets, ocean, sea-ice, freshwater-forcing, and
+mapping/mask support assets.</p>
+<p>Users and developers shall be able to generate only the needed subset of
+products for a given coupled configuration without having to run unrelated
+steps. In particular, the shared mesh assets shall not require the ocean or
+sea-ice products, because they are needed even for a mesh whose ocean initial
+condition has not yet been produced.</p>
+<p>The design may still provide a convenience task for producing the full bundle,
+but that aggregate entry point shall be composed from smaller, more focused
+tasks or step groups.</p>
+<p>The first branch builds the shared mesh assets and the ocean and sea-ice
+products; the freshwater-forcing and mapping/mask products arrive in follow-up
+branches. The decomposition shall leave a place for them so that adding them
+does not restructure the task family.</p>
+</section>
+<section id="requirement-the-staged-base-mesh-carries-maps-to-the-culled-component-meshes">
+<h3>Requirement: The staged base mesh carries maps to the culled component meshes<a class="headerlink" href="#requirement-the-staged-base-mesh-carries-maps-to-the-culled-component-meshes" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/08/05</p>
+<p>Contributors: Xylar Asay-Davis, Claude</p>
+<p>Polaris shall stage the base mesh — the mesh as it exists before land or ocean
+culling — as an E3SM input alongside the component-specific culled meshes. The
+base mesh is a shared asset: it is not owned by the ocean or by the land, and
+it shall be staged in a shared location rather than under a single component’s
+inputdata directory.</p>
+<p>For unified meshes, where a single base mesh is culled to both the ocean and
+sea-ice domain and the land and river domain, the staged base mesh shall carry
+additional fields mapping each base-mesh element to the corresponding element
+on each culled component mesh.</p>
+<p>These maps shall be provided for cells, edges and vertices, and for each of the
+culled meshes that <code class="docutils literal notranslate"><span class="pre">e3sm/init</span></code> produces: the ocean mesh including ice-shelf
+cavities, the ocean mesh excluding cavities, and the land mesh.</p>
+<p>Base-mesh elements that are absent from a given culled mesh shall be marked
+with an unambiguous fill value rather than with a valid index, so that a
+consumer can distinguish “not in this component’s mesh” from “the first element
+of this component’s mesh”.</p>
+<p>The maps shall be a property of the staged base mesh rather than a separate
+file, because their purpose is to make the staged base mesh self-describing for
+E3SM components that share it.</p>
+<p>The maps are not required for meshes that are not unified, since in that case
+the ocean and land meshes do not share a base mesh and the maps carry no
+information that E3SM would use. The design shall nonetheless keep the map
+generation independent of the mesh family so that it can be enabled for other
+meshes without redesign.</p>
+</section>
+<section id="requirement-model-specific-packaging-is-gated-by-the-selected-component-models">
+<h3>Requirement: Model-specific packaging is gated by the selected component models<a class="headerlink" href="#requirement-model-specific-packaging-is-gated-by-the-selected-component-models" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/03/22</p>
+<p>Contributors: Xylar Asay-Davis, Codex</p>
+<p>Polaris shall distinguish between shared products, MPAS-Ocean-specific
+products, Omega-specific products, MPAS-Seaice-specific products, and
+mesh-derived support products.</p>
+<p>Steps that are specific to MPAS-Ocean, such as ocean graph partitioning or
+<code class="docutils literal notranslate"><span class="pre">coeffs_reconstruct</span></code> generation, shall not be included when the selected ocean
+model is Omega.</p>
+<p>Similarly, steps that are specific to MPAS-Seaice, such as sea-ice graph
+partitioning, shall only be included when MPAS-Seaice is part of the target
+configuration.</p>
+</section>
+<section id="requirement-the-workflow-produces-e3sm-compatible-staged-outputs-while-retaining-inspectable-intermediate-files">
+<h3>Requirement: The workflow produces E3SM-compatible staged outputs while retaining inspectable intermediate files<a class="headerlink" href="#requirement-the-workflow-produces-e3sm-compatible-staged-outputs-while-retaining-inspectable-intermediate-files" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/09/24</p>
+<p>Contributors: Xylar Asay-Davis, Codex, Claude</p>
+<p>Polaris shall produce outputs that can be staged into an E3SM-compatible
+directory structure for inputdata and related support products.</p>
+<p>At the same time, the workflow shall preserve inspectable step-local products
+so developers can examine intermediate files before they are staged into the
+assembled directory tree.</p>
+<p>The design shall favor clear, named products over a monolithic staging step
+that hides where each file came from.</p>
+<p>Staged filenames shall be built from an E3SM mesh short name and a creation
+date. Polaris mesh names such as <code class="docutils literal notranslate"><span class="pre">u-oi30-lr10</span></code> describe how a mesh was built
+and are not the names E3SM uses, so the short name shall be an explicit config
+option that the user is required to set before the workflow can be set up. The
+workflow shall fail with a clear message when it is unset rather than guessing
+a name or reading one out of a restart file’s global attributes, as Compass
+does.</p>
+<p>The assembled tree shall place shared mesh assets under a shared meshes
+directory rather than under the ocean’s or the land’s inputdata directory,
+reflecting that the base mesh belongs to no single component.</p>
+</section>
+<section id="requirement-required-remapped-forcing-and-mesh-derived-support-assets-are-supported">
+<h3>Requirement: Required remapped forcing and mesh-derived support assets are supported<a class="headerlink" href="#requirement-required-remapped-forcing-and-mesh-derived-support-assets-are-supported" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/08/05</p>
+<p>Contributors: Xylar Asay-Davis, Codex, Claude</p>
+<p>The port shall support the freshwater-forcing and mesh-derived support assets
+currently produced by the Compass workflow, to the extent that they remain
+relevant to the selected component models.</p>
+<p>This includes ocean and sea-ice inputs derived from remapped observational or
+climatological datasets, SCRIP files, mapping files, and mask products used by
+MPAS-Analysis, <code class="docutils literal notranslate"><span class="pre">e3sm_to_cmip</span></code>, runtime analysis members, or related workflows.</p>
+<p>Features that depend on ice-shelf cavities or land-ice forcing shall remain
+conditional on the mesh and workflow configuration rather than being treated as
+unconditional outputs.</p>
+<p>Of these assets, the SCRIP descriptions of the culled meshes are the ones the
+first branch stages. They are staged because a mesh is not usable in E3SM until
+coupler mapping and domain files can be generated from it, and because the
+<code class="docutils literal notranslate"><span class="pre">e3sm/init</span></code> cull workflow already produces them, so staging is bookkeeping
+rather than new computation.</p>
+<p>The remapped forcing datasets and the analysis-oriented mapping and mask
+products arrive in follow-up branches. This requirement covers all of them and
+remains in force; the ordering note says only when each is built.</p>
+</section>
+<section id="requirement-the-design-preserves-a-path-for-future-coupled-model-evolution">
+<h3>Requirement: The design preserves a path for future coupled-model evolution<a class="headerlink" href="#requirement-the-design-preserves-a-path-for-future-coupled-model-evolution" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/03/22</p>
+<p>Contributors: Xylar Asay-Davis, Codex</p>
+<p>The design shall avoid hard-coding assumptions that coupled E3SM always uses
+MPAS-Ocean plus MPAS-Seaice.</p>
+<p>It shall remain possible to support future combinations of ocean and sea-ice
+models, new support assets, or revised staging conventions without
+rewriting the full workflow.</p>
+</section>
+</section>
+<section id="algorithm-design">
+<h2>Algorithm Design<a class="headerlink" href="#algorithm-design" title="Link to this heading"></a></h2>
+<section id="algorithm-design-component-input-generation-lives-in-e3sm-init-and-consumes-explicit-upstream-products">
+<h3>Algorithm Design: Component-input generation lives in <code class="docutils literal notranslate"><span class="pre">e3sm/init</span></code> and consumes explicit upstream products<a class="headerlink" href="#algorithm-design-component-input-generation-lives-in-e3sm-init-and-consumes-explicit-upstream-products" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/08/05</p>
+<p>Contributors: Xylar Asay-Davis, Codex, Claude</p>
+<p>The workflow should be organized around explicit source products rather than a
+single inherited Compass test case. Now that the upstream workflows exist, the
+set of upstream inputs can be named concretely. From the <code class="docutils literal notranslate"><span class="pre">e3sm/init</span></code> cull-mesh
+step:</p>
+<ol class="arabic simple">
+<li><p>The unculled base mesh, <code class="docutils literal notranslate"><span class="pre">base_mesh.nc</span></code>, taken from the base-mesh step that
+the cull step itself consumes.</p></li>
+<li><p>The culled meshes <code class="docutils literal notranslate"><span class="pre">culled_ocean_mesh.nc</span></code>,
+<code class="docutils literal notranslate"><span class="pre">culled_ocean_no_cavities_mesh.nc</span></code> and <code class="docutils literal notranslate"><span class="pre">culled_land_mesh.nc</span></code>.</p></li>
+<li><p>The culled-to-base index maps <code class="docutils literal notranslate"><span class="pre">{prefix}_map_culled_to_base.nc</span></code> for each of
+those meshes.</p></li>
+<li><p>The SCRIP descriptions <code class="docutils literal notranslate"><span class="pre">culled_{prefix}_mesh.scrip.nc</span></code>.</p></li>
+<li><p>The ocean graph files <code class="docutils literal notranslate"><span class="pre">culled_ocean_graph.info</span></code> and
+<code class="docutils literal notranslate"><span class="pre">culled_ocean_no_cavities_graph.info</span></code>.</p></li>
+</ol>
+<p>From the <code class="docutils literal notranslate"><span class="pre">e3sm/init</span></code> cull-mask step and the ocean workflows:</p>
+<ol class="arabic simple" start="6">
+<li><p>Cull masks and land-ice metadata, for products that need to know which
+base-mesh elements were removed and which cells are under an ice shelf.</p></li>
+<li><p>The final dynamic-adjustment restart for the selected ocean model, which is
+the source for the packaged ocean initial condition.</p></li>
+</ol>
+<p>The packaging logic should make the source for each product explicit. Mesh
+products should come from the cull step, ocean initial conditions from the
+final dynamic-adjustment restart, and sea-ice products from the culled ocean
+mesh plus quantities recomputed from it.</p>
+<p>This explicit source mapping is important because the current Compass workflow
+mixes <code class="docutils literal notranslate"><span class="pre">base_mesh.nc</span></code>, <code class="docutils literal notranslate"><span class="pre">initial_state.nc</span></code>, and <code class="docutils literal notranslate"><span class="pre">restart.nc</span></code> in ways that are
+convenient but not obvious when viewed from outside the code. A concrete
+example is the sea-ice initial condition, which in Compass reads <code class="docutils literal notranslate"><span class="pre">fCell</span></code>,
+<code class="docutils literal notranslate"><span class="pre">fEdge</span></code> and <code class="docutils literal notranslate"><span class="pre">fVertex</span></code> out of an MPAS-Ocean restart file. Those are functions of
+latitude alone, so the Polaris sea-ice step should compute them from the culled
+mesh and avoid the dependency on the ocean entirely.</p>
+</section>
+<section id="algorithm-design-ocean-sea-ice-and-mesh-derived-support-products-can-be-generated-independently">
+<h3>Algorithm Design: Ocean, sea-ice, and mesh-derived support products can be generated independently<a class="headerlink" href="#algorithm-design-ocean-sea-ice-and-mesh-derived-support-products-can-be-generated-independently" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/08/05</p>
+<p>Contributors: Xylar Asay-Davis, Codex, Claude</p>
+<p>The port should decompose the existing workflow into a small family of tasks or
+task modes under <code class="docutils literal notranslate"><span class="pre">e3sm/init/component_inputs</span></code>. A practical decomposition is:</p>
+<ol class="arabic simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">shared</span></code>: stage the base mesh, its base-to-culled index maps, and the SCRIP
+descriptions of the culled meshes. These are the assets that belong to no
+single component.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">ocean</span></code>: produce ocean-model input assets and ocean-specific forcing
+datasets.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">seaice</span></code>: produce sea-ice-model input assets.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">forcing_from_dataset/freshwater</span></code>: produce remapped iceberg and ice-shelf freshwater
+products that may later be staged for ocean or sea-ice components
+(follow-up branch).</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">mapping_and_masks</span></code>: produce mapping files, masks, and other mesh-derived
+support assets used by analysis workflows or runtime features (follow-up
+branch).</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">all</span></code>: an optional aggregate task that instantiates the needed subset of the
+above for a standard coupled configuration.</p></li>
+</ol>
+<p>The <code class="docutils literal notranslate"><span class="pre">shared</span></code> group starts as a set of steps rather than a separately runnable
+task: both <code class="docutils literal notranslate"><span class="pre">ocean</span></code> and <code class="docutils literal notranslate"><span class="pre">seaice</span></code> need the staged base mesh, so both include
+those steps, and Polaris’ shared-step machinery means they are built once.
+Promoting the group to its own task later, so a mesh can be staged before any
+ocean initial condition exists, should not require restructuring anything else.</p>
+<p>These tasks should share utility functions and, where helpful, cached
+intermediate files, but they should not require each other unless a true data
+dependency exists.</p>
+<p>In particular, the <code class="docutils literal notranslate"><span class="pre">seaice</span></code> task should not depend on the <code class="docutils literal notranslate"><span class="pre">ocean</span></code> task. It
+should construct sea-ice mesh and initial-condition products directly from the
+culled mesh, cull masks, and other <code class="docutils literal notranslate"><span class="pre">e3sm/init</span></code> outputs, regenerating simple
+derived quantities such as Coriolis fields as needed rather than reading them
+from an ocean restart.</p>
+<p>This separation will make it much easier to support configurations such as:</p>
+<ol class="arabic simple">
+<li><p>MPAS-Ocean only.</p></li>
+<li><p>Omega only.</p></li>
+<li><p>MPAS-Ocean plus MPAS-Seaice.</p></li>
+<li><p>Omega plus MPAS-Seaice.</p></li>
+<li><p>Shared-asset-only regeneration after a mesh or metadata change.</p></li>
+<li><p>Mapping-and-mask-only regeneration after a mesh or metadata change.</p></li>
+</ol>
+</section>
+<section id="algorithm-design-the-staged-base-mesh-carries-maps-to-the-culled-component-meshes">
+<h3>Algorithm Design: The staged base mesh carries maps to the culled component meshes<a class="headerlink" href="#algorithm-design-the-staged-base-mesh-carries-maps-to-the-culled-component-meshes" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/08/05</p>
+<p>Contributors: Xylar Asay-Davis, Claude</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">e3sm/init</span></code> cull-mesh step already writes, for each culled mesh, a
+<code class="docutils literal notranslate"><span class="pre">{prefix}_map_culled_to_base.nc</span></code> file containing <code class="docutils literal notranslate"><span class="pre">mapCulledToBaseCell</span></code>,
+<code class="docutils literal notranslate"><span class="pre">mapCulledToBaseEdge</span></code> and <code class="docutils literal notranslate"><span class="pre">mapCulledToBaseVertex</span></code>. Each of these is indexed by
+the culled mesh’s dimension and holds the zero-based index of the corresponding
+element on the base mesh. The maps required here are the inverse: indexed by
+the base mesh’s dimension, holding the index of the corresponding element on
+the culled mesh.</p>
+<p>Inverting the existing maps is preferable to recomputing the correspondence
+from scratch. The forward maps are already an output of a step that
+<code class="docutils literal notranslate"><span class="pre">component_inputs</span></code> depends on, they were built by a nearest-element query that
+is far more expensive than a scatter, and reusing them guarantees that the two
+directions agree by construction. The inversion is a scatter: allocate an array
+over the base-mesh dimension filled with the “absent” marker, then assign the
+culled index at each position named by the forward map.</p>
+<p>The staged fields should follow MPAS conventions and be one-based, with zero
+meaning that the base-mesh element is not present on that culled mesh. This
+matches how MPAS index variables such as <code class="docutils literal notranslate"><span class="pre">cellsOnCell</span></code> already signal a missing
+neighbor, so a consumer does not need to learn a new convention, and it leaves
+the meaning of every value unambiguous. Note that this differs from the
+zero-based convention of the upstream <code class="docutils literal notranslate"><span class="pre">mapCulledToBase*</span></code> fields, which are
+intended for direct use as array indices in Python; the difference should be
+stated explicitly wherever the new fields are documented.</p>
+<p>Names should identify the target mesh and the element type, following the
+pattern <code class="docutils literal notranslate"><span class="pre">mapBaseTo&lt;Target&gt;&lt;Element&gt;</span></code> — for example <code class="docutils literal notranslate"><span class="pre">mapBaseToOceanCell</span></code>,
+<code class="docutils literal notranslate"><span class="pre">mapBaseToOceanNoCavitiesEdge</span></code> and <code class="docutils literal notranslate"><span class="pre">mapBaseToLandVertex</span></code>. Nine fields result:
+three target meshes by three element types.</p>
+<p>The fields should be written into a copy of the base mesh rather than into the
+cull step’s own <code class="docutils literal notranslate"><span class="pre">base_mesh.nc</span></code>, so that the cull step’s outputs stay exactly
+what its own design says they are, and so that the staged file is a single
+self-describing artifact.</p>
+</section>
+<section id="algorithm-design-model-specific-packaging-is-gated-by-the-selected-component-models">
+<h3>Algorithm Design: Model-specific packaging is gated by the selected component models<a class="headerlink" href="#algorithm-design-model-specific-packaging-is-gated-by-the-selected-component-models" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/08/05</p>
+<p>Contributors: Xylar Asay-Davis, Codex, Claude</p>
+<p>The workflow should first classify each product as shared or model-specific.
+A useful starting point is:</p>
+<ol class="arabic simple">
+<li><p>Shared or nearly shared products:
+the staged base mesh and its base-to-culled maps, SCRIP files,
+freshwater-forcing products, and mapping or mask inputs that depend
+primarily on the horizontal mesh.</p></li>
+<li><p>MPAS-Ocean-specific products:
+<code class="docutils literal notranslate"><span class="pre">mpaso.*.nc</span></code>, ocean graph partitions, and <code class="docutils literal notranslate"><span class="pre">coeffs_reconstruct</span></code>.</p></li>
+<li><p>Omega-specific products:
+Omega ocean initialization products and any Omega-specific decomposition or
+mesh-packaging assets that may be required.</p></li>
+<li><p>MPAS-Seaice-specific products:
+<code class="docutils literal notranslate"><span class="pre">mpassi.*.nc</span></code>, sea-ice mesh files, and sea-ice graph partitions.</p></li>
+</ol>
+<p>Within this classification, sea-ice products should be treated as independent
+of ocean products inside <code class="docutils literal notranslate"><span class="pre">component_inputs</span></code>, even when both consume the same
+culled mesh and land-ice-mask metadata.</p>
+<p>The task driver should build a product matrix from the selected ocean and
+sea-ice models and then instantiate only the relevant steps. This design is
+preferable to scattering <code class="docutils literal notranslate"><span class="pre">if</span> <span class="pre">ocean_model</span> <span class="pre">==</span> <span class="pre">...</span></code> logic throughout unrelated
+steps.</p>
+<p>From a framework point of view, this should be treated as another case of
+task structure depending on setup-time choices, similar in spirit to Polaris
+tasks that rebuild step lists from config-driven resolution choices. The main
+requirement is simply that model selection be resolved before task setup is
+finalized.</p>
+<p>To support Omega cleanly, shared steps should consume a model-neutral mesh or
+state representation wherever possible rather than assuming that every product
+must be derived from an MPAS restart file.</p>
+</section>
+<section id="algorithm-design-the-workflow-produces-e3sm-compatible-staged-outputs-while-retaining-inspectable-intermediate-files">
+<h3>Algorithm Design: The workflow produces E3SM-compatible staged outputs while retaining inspectable intermediate files<a class="headerlink" href="#algorithm-design-the-workflow-produces-e3sm-compatible-staged-outputs-while-retaining-inspectable-intermediate-files" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/10/21</p>
+<p>Contributors: Xylar Asay-Davis, Codex, Claude</p>
+<p>The design should separate product generation from final staging. A likely
+pattern is:</p>
+<ol class="arabic simple">
+<li><p>Each generation step writes one or more well-named local products.</p></li>
+<li><p>A staging step or shared helper assembles those products into an
+<code class="docutils literal notranslate"><span class="pre">assembled_files</span></code> tree with E3SM-compatible paths and filenames by mapping
+each declared product to its final relative path under <code class="docutils literal notranslate"><span class="pre">inputdata/</span></code> or the
+diagnostics tree.</p></li>
+<li><p>That assembly should usually be implemented by registering the upstream
+products as inputs to the staging step and materializing symlinks in
+<code class="docutils literal notranslate"><span class="pre">assembled_files</span></code>, using copies only for products that genuinely need to be
+rewritten or duplicated.</p></li>
+</ol>
+<p>This keeps the provenance of each generated file clear while still preserving
+compatibility with the inputdata and diagnostics layouts expected by E3SM
+developers.</p>
+<p>It also provides a better foundation for future changes such as alternate
+staging locations, publication workflows, or checksum manifests.</p>
+<p>The staged layout follows the E3SM inputdata tree. Writing <code class="docutils literal notranslate"><span class="pre">&lt;short&gt;</span></code> for the
+configured mesh short name, <code class="docutils literal notranslate"><span class="pre">&lt;id&gt;</span></code> for its leading ID, <code class="docutils literal notranslate"><span class="pre">&lt;grid&gt;</span></code> for E3SM’s name
+for its ocean and sea-ice grid, <code class="docutils literal notranslate"><span class="pre">&lt;date&gt;</span></code> for the creation date and <code class="docutils literal notranslate"><span class="pre">&lt;features&gt;</span></code>
+for the <code class="docutils literal notranslate"><span class="pre">geometric_features</span></code> aggregation date:</p>
+<ol class="arabic simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">inputdata/share/meshes/mpas/unified/&lt;id&gt;/&lt;short&gt;.base.&lt;date&gt;.nc</span></code> — the
+base mesh with its base-to-culled index maps. Compass staged the base mesh
+under <code class="docutils literal notranslate"><span class="pre">share/meshes/mpas/ocean</span></code>, but for a unified mesh the base mesh is
+shared by the ocean, sea-ice, land and river components, so a
+component-neutral directory is the honest location.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">inputdata/share/meshes/mpas/unified/&lt;id&gt;/&lt;short&gt;.&lt;region&gt;.scrip.&lt;date&gt;.nc</span></code>
+— the SCRIP descriptions of the culled meshes, for the same reason.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">inputdata/share/meshes/mpas/unified/&lt;id&gt;/&lt;short&gt;.ocean.&lt;date&gt;.nc</span></code> and
+<code class="docutils literal notranslate"><span class="pre">&lt;short&gt;.land.&lt;date&gt;.nc</span></code> — the culled meshes themselves, beside the base mesh
+for the same reason again.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">inputdata/ocn/mpas-o/&lt;grid&gt;/mpaso.&lt;grid&gt;.&lt;date&gt;.nc</span></code> — the ocean initial
+condition, with graph partitions under <code class="docutils literal notranslate"><span class="pre">partitions/</span></code> beside the
+unpartitioned graph they were made from.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">inputdata/ocn/mpas-o/&lt;grid&gt;/&lt;short&gt;.mocBasinsAndTransects&lt;features&gt;.&lt;date&gt;.nc</span></code>
+— the MOC basin masks and southern-boundary transects.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">inputdata/ocn/mpas-o/&lt;grid&gt;/&lt;short&gt;.scrip.&lt;date&gt;.nc</span></code> and
+<code class="docutils literal notranslate"><span class="pre">&lt;short&gt;.no_cavities.scrip.&lt;date&gt;.nc</span></code> — the two ocean SCRIP files again.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">inputdata/ice/mpas-seaice/&lt;grid&gt;/mpassi.&lt;grid&gt;.&lt;date&gt;.nc</span></code> — the sea-ice
+initial condition, with graph partitions under <code class="docutils literal notranslate"><span class="pre">partitions/</span></code>.</p></li>
+</ol>
+<p>Five of these differ from what this document first described, and each
+difference is a decision worth keeping.</p>
+<p><strong>Meshes go where E3SM keeps meshes.</strong> The first implementation staged the
+ocean mesh as <code class="docutils literal notranslate"><span class="pre">inputdata/ocn/mpas-o/&lt;short&gt;/&lt;short&gt;.&lt;date&gt;.nc</span></code>, which is
+nowhere E3SM looks for one: Compass files its ocean mesh under
+<code class="docutils literal notranslate"><span class="pre">share/meshes/mpas/ocean/</span></code>, and a run reads the mesh from the initial
+condition. A culled mesh describes a domain of the unified mesh rather than a
+file one component reads, which is the same argument that puts the base mesh in
+<code class="docutils literal notranslate"><span class="pre">share/meshes</span></code>. The land mesh is staged too, since staging the ocean mesh alone
+would describe half the mesh.</p>
+<p><strong>No sea-ice mesh is staged.</strong> <code class="docutils literal notranslate"><span class="pre">seaice_mesh</span></code> is built from
+<code class="docutils literal notranslate"><span class="pre">culled_ocean_mesh.nc</span></code>, so a <code class="docutils literal notranslate"><span class="pre">.seaice.</span></code> file beside <code class="docutils literal notranslate"><span class="pre">&lt;short&gt;.ocean.&lt;date&gt;.nc</span></code>
+would be the same horizontal mesh twice, and MPAS-Seaice reads its mesh from
+its initial condition. The step remains, because the graph-partition steps read
+its output; only the staging is dropped. No mesh is staged for
+<code class="docutils literal notranslate"><span class="pre">ocean_no_cavities</span></code> either: it exists to build mapping files, and under the
+<code class="docutils literal notranslate"><span class="pre">calving_front</span></code> convention every current unified mesh uses it is identical to
+the ocean mesh.</p>
+<p><strong>Each mesh has a shared directory of its own.</strong> One mesh contributes six files
+to <code class="docutils literal notranslate"><span class="pre">share/meshes/mpas/unified/</span></code> — a base mesh, three SCRIP descriptions and two
+culled meshes — so with more than a couple of meshes staged there, a flat
+directory hid which files belonged together. Each mesh’s files go in a
+subdirectory named for its ID, so they can be found, copied and removed as a
+unit. The short name stays in every filename too, so a file moved out of the
+tree still identifies itself.</p>
+<p><strong>Directories follow E3SM’s grid names.</strong> E3SM splits a unified mesh into an
+ocean and sea-ice grid and a land and river grid, named for the ID and the
+matching half of the short name (<code class="docutils literal notranslate"><span class="pre">u01-oi6to18</span></code> and <code class="docutils literal notranslate"><span class="pre">u01-lr6to10</span></code> for
+<code class="docutils literal notranslate"><span class="pre">u01-oi6to18-lr6to10</span></code>), and the files it reads for the first meshes live under
+those names on the inputdata server: <code class="docutils literal notranslate"><span class="pre">share/meshes/mpas/unified/u01/</span></code>,
+<code class="docutils literal notranslate"><span class="pre">ocn/mpas-o/u01-oi6to18/mpaso.u01-oi6to18.&lt;date&gt;.nc</span></code> and the sea-ice
+equivalent. The staged tree uses the same directories and initial-condition
+names, so it can be copied into inputdata as it stands.</p>
+<p><strong>The two ocean SCRIP files are staged twice.</strong> Once in the shared mesh
+directory under their full region names, and once beside the ocean products,
+because developers look in both places. In an ocean directory the <code class="docutils literal notranslate"><span class="pre">ocean</span></code> in a
+region name says nothing, so it is dropped; <code class="docutils literal notranslate"><span class="pre">no_cavities</span></code> stays, being the whole
+distinction. Land has no copy there. Both names link to the same file.</p>
+<p>The MOC mask filename carries two dates because two things change
+independently: <code class="docutils literal notranslate"><span class="pre">&lt;features&gt;</span></code> is the version of the <code class="docutils literal notranslate"><span class="pre">geometric_features</span></code>
+aggregation the basins come from, upstream data shared by every mesh, and
+<code class="docutils literal notranslate"><span class="pre">&lt;date&gt;</span></code> is when this mesh’s file was staged. The aggregation date rides with
+the product name, as it does in the files already on the inputdata server
+(<code class="docutils literal notranslate"><span class="pre">oRRS18to6v3_mocBasinsAndTransects20210623.nc</span></code>), which keeps the rule that the
+last dotted field of any staged filename is its creation date. Both dates are
+also written into the file as global attributes, so the provenance survives a
+copy or a rename.</p>
+<p>The assembly step deletes <code class="docutils literal notranslate"><span class="pre">assembled_files/</span></code> and rebuilds it on every run.
+Staging only ever adds links, so without this the tree is the union of every
+assembly ever run in that work directory: a changed creation date, mesh short
+name or product set leaves the earlier names in place, still resolving, now
+pointing at newer content. This was not hypothetical — a re-setup restamped the
+creation date and a tree ended up holding two dates side by side, with an
+initial condition wearing the wrong one.</p>
+<p>Copying the tree into an inputdata directory is left to a person. The step
+symlinks in a <code class="docutils literal notranslate"><span class="pre">sync_to_inputdata.sh</span></code> script that rsyncs the tree with
+<code class="docutils literal notranslate"><span class="pre">--ignore-existing</span> <span class="pre">--copy-links</span></code> into a destination that must already exist,
+then sets directories to <code class="docutils literal notranslate"><span class="pre">2775</span></code> and files to <code class="docutils literal notranslate"><span class="pre">664</span></code> on the paths the tree
+contributes — not by walking a shared destination, which would touch files
+belonging to other meshes and other people.</p>
+<p>The mesh short name is a required config option rather than a value read from a
+restart file. Polaris mesh names describe construction (<code class="docutils literal notranslate"><span class="pre">u-oi30-lr10</span></code> says what
+resolutions went into the mesh) whereas E3SM short names identify a released
+mesh, and only a person can decide when a mesh has earned one. Setup should
+fail with a message naming the option when it is unset, so the failure comes
+before hours of computing rather than at staging time.</p>
+<p>A <code class="docutils literal notranslate"><span class="pre">README</span></code> should be staged alongside the assembled tree, as in Compass,
+stating that the tree is a subset of what E3SM needs for a new mesh and should
+not be uploaded on its own.</p>
+</section>
+<section id="algorithm-design-required-remapped-forcing-and-mesh-derived-support-assets-are-supported">
+<h3>Algorithm Design: Required remapped forcing and mesh-derived support assets are supported<a class="headerlink" href="#algorithm-design-required-remapped-forcing-and-mesh-derived-support-assets-are-supported" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/08/13</p>
+<p>Contributors: Xylar Asay-Davis, Codex, Claude</p>
+<p>The remapping and support-asset portion of the port should be divided by product
+type rather than forcing all remapped fields into ocean or sea-ice ownership.
+A likely grouping is:</p>
+<ol class="arabic simple">
+<li><p>Ocean-specific forcing assets:
+sea-surface salinity restoring and tidal mixing.</p></li>
+<li><p>Freshwater-forcing assets:
+remapped iceberg climatology, remapped ice-shelf melt, and combined
+freshwater products derived from those fields.</p></li>
+<li><p>Mapping and mask support assets:
+E3SM-to-CMIP maps, region masks, transect masks, and other files consumed by
+MPAS-Analysis, <code class="docutils literal notranslate"><span class="pre">e3sm_to_cmip</span></code>, or comparable workflows. The MOC basin masks
+left this group during implementation: MPAS-Ocean reads them at run time, so
+they are a component input rather than an analysis product. See
+“Implementation sequencing” above.</p></li>
+<li><p>Shared mesh descriptions:
+the SCRIP files for the culled meshes.</p></li>
+</ol>
+<p>The fourth group is separated from the third because the SCRIP files are unlike
+the rest of that list: they describe the mesh itself rather than a set of
+analysis regions, they are already produced by the <code class="docutils literal notranslate"><span class="pre">e3sm/init</span></code> cull step, and
+they are needed before coupler mapping and domain files can be generated at
+all. That makes them part of what a mesh needs in order to be usable, not part
+of what an analysis needs in order to be interpreted. They are staged in the
+first branch; the other three groups follow later.</p>
+<p>This grouping should make it easier to determine which products remain relevant
+for Omega-based workflows and which are tied specifically to MPAS analysis or
+MPAS runtime requirements.</p>
+</section>
+<section id="algorithm-design-the-design-preserves-a-path-for-future-coupled-model-evolution">
+<h3>Algorithm Design: The design preserves a path for future coupled-model evolution<a class="headerlink" href="#algorithm-design-the-design-preserves-a-path-for-future-coupled-model-evolution" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/03/22</p>
+<p>Contributors: Xylar Asay-Davis, Codex</p>
+<p>The task family should use explicit model selectors, product categories, and
+shared metadata helpers rather than encoding assumptions in class names such as
+<code class="docutils literal notranslate"><span class="pre">FilesForE3SM</span></code>.</p>
+<p>A small shared metadata object or helper layer should carry information such as
+mesh short name, creation date, cavity status, selected models, and upstream
+source files. This should replace the current pattern in which many steps
+autodetect key metadata from restart-file attributes or shared config options.</p>
+<p>This more explicit approach will make it easier to add new model targets or
+new staged products later without having to duplicate the entire workflow.</p>
+</section>
+</section>
+<section id="implementation">
+<h2>Implementation<a class="headerlink" href="#implementation" title="Link to this heading"></a></h2>
+<section id="implementation-component-input-generation-lives-in-e3sm-init-and-consumes-explicit-upstream-products">
+<h3>Implementation: Component-input generation lives in <code class="docutils literal notranslate"><span class="pre">e3sm/init</span></code> and consumes explicit upstream products<a class="headerlink" href="#implementation-component-input-generation-lives-in-e3sm-init-and-consumes-explicit-upstream-products" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/11/03</p>
+<p>Contributors: Xylar Asay-Davis, Codex, Claude</p>
+<p>The first implementation should add a new package under
+<code class="docutils literal notranslate"><span class="pre">polaris/tasks/e3sm/init/component_inputs</span></code>. The package should be structured as
+an <code class="docutils literal notranslate"><span class="pre">e3sm/init</span></code> capability from the start rather than first porting the Compass
+layout into the ocean component and moving it later.</p>
+<p>The implementation should define clear step inputs for:</p>
+<ol class="arabic simple">
+<li><p>The base mesh, culled meshes, culled-to-base maps, SCRIP files, graph files
+and topography products from <code class="docutils literal notranslate"><span class="pre">e3sm/init</span></code>.</p></li>
+<li><p>The ocean initial-condition output from the global-ocean init workflow
+(a single model, selected by <code class="docutils literal notranslate"><span class="pre">[ocean]</span> <span class="pre">model</span></code>).</p></li>
+<li><p>The final dynamic-adjustment restart for that same model, when present.</p></li>
+</ol>
+<p>For common coupled workflows, the final dynamic-adjustment restart should be
+the default source for packaged ocean initial-condition files. Sea-ice steps
+should not use that restart as an input. Instead, they should consume the
+culled mesh, <code class="docutils literal notranslate"><span class="pre">landIceMask</span></code> and related masks from <code class="docutils literal notranslate"><span class="pre">e3sm/init</span></code>, and any
+topography-derived metadata needed for sea-ice packaging.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">e3sm/init</span></code> products are reached through
+<code class="docutils literal notranslate"><span class="pre">polaris.tasks.e3sm.init.topo.cull.steps.get_cull_topo_steps</span></code>, which returns
+the cull-mask and cull-mesh steps along with the whole upstream remap chain.
+The ocean products are reached the same way, through
+<code class="docutils literal notranslate"><span class="pre">get_realistic_dynamic_adjustment_steps</span></code>, which returns the shared
+initial-state and adjustment steps along with the schedule’s stages. The
+stages are needed because the schedule decides which stage is last and what
+its restart is called. The initial-condition step depends on the final stage
+and on that stage’s check, so a failed check stops the restart from being
+staged.</p>
+<p>Because <code class="docutils literal notranslate"><span class="pre">component_inputs</span></code> lives in <code class="docutils literal notranslate"><span class="pre">e3sm/init</span></code> and consumes ocean products,
+while <code class="docutils literal notranslate"><span class="pre">polaris.tasks.ocean.realistic_global</span></code> consumes <code class="docutils literal notranslate"><span class="pre">e3sm/init</span></code> cull
+products, the import graph must be kept acyclic. It is, as long as
+<code class="docutils literal notranslate"><span class="pre">component_inputs</span></code> imports from <code class="docutils literal notranslate"><span class="pre">polaris.tasks.ocean.*</span></code> and nothing under
+<code class="docutils literal notranslate"><span class="pre">polaris.tasks.ocean</span></code> imports <code class="docutils literal notranslate"><span class="pre">component_inputs</span></code>: <code class="docutils literal notranslate"><span class="pre">polaris.tasks.e3sm.init</span></code> is
+fully loaded before any <code class="docutils literal notranslate"><span class="pre">add_*_tasks</span></code> function runs. The direction of that
+dependency should be stated in the module docstring so it is not reversed by
+accident.</p>
+</section>
+<section id="implementation-ocean-sea-ice-and-mesh-derived-support-products-can-be-generated-independently">
+<h3>Implementation: Ocean, sea-ice, and mesh-derived support products can be generated independently<a class="headerlink" href="#implementation-ocean-sea-ice-and-mesh-derived-support-products-can-be-generated-independently" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/10/21</p>
+<p>Contributors: Xylar Asay-Davis, Codex, Claude</p>
+<p>The full implementation adds four concrete tasks and one optional aggregate
+task:</p>
+<ol class="arabic simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">component_inputs/ocean</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">component_inputs/seaice</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">component_inputs/forcing_from_dataset/freshwater</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">component_inputs/mapping_and_masks</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">component_inputs/all</span></code></p></li>
+</ol>
+<p>The first branch builds tasks 1, 2 and 5, each per mesh, under
+<code class="docutils literal notranslate"><span class="pre">e3sm/init/&lt;mesh_name&gt;/component_inputs/&lt;task&gt;</span></code>. Tasks 3 and 4 follow later.</p>
+<p>Each task should consist of inspectable steps with narrow responsibilities.
+One reasonable first-pass mapping from Compass is:</p>
+<ol class="arabic simple">
+<li><p>Shared steps, included by both the ocean and sea-ice tasks:
+<code class="docutils literal notranslate"><span class="pre">base_mesh</span></code> (the staged base mesh with base-to-culled maps), <code class="docutils literal notranslate"><span class="pre">scrip</span></code>, and
+<code class="docutils literal notranslate"><span class="pre">assemble</span></code> (the staging step).</p></li>
+<li><p>Ocean steps:
+<code class="docutils literal notranslate"><span class="pre">ocean_mesh</span></code>, <code class="docutils literal notranslate"><span class="pre">ocean_initial_condition</span></code>, <code class="docutils literal notranslate"><span class="pre">ocean_graph_partition</span></code> when
+relevant, <code class="docutils literal notranslate"><span class="pre">moc_masks</span></code>,
+<code class="docutils literal notranslate"><span class="pre">remap_sea_surface_salinity_restoring</span></code>, and <code class="docutils literal notranslate"><span class="pre">remap_tidal_mixing</span></code>.</p></li>
+<li><p>Sea-ice steps:
+<code class="docutils literal notranslate"><span class="pre">seaice_mesh</span></code>, <code class="docutils literal notranslate"><span class="pre">seaice_initial_condition</span></code>, <code class="docutils literal notranslate"><span class="pre">seaice_partition_map</span></code> and
+<code class="docutils literal notranslate"><span class="pre">seaice_graph_partition</span></code> when relevant.</p></li>
+<li><p>Freshwater-forcing steps:
+<code class="docutils literal notranslate"><span class="pre">remap_iceberg_climatology</span></code>, <code class="docutils literal notranslate"><span class="pre">remap_ice_shelf_melt</span></code>, and
+<code class="docutils literal notranslate"><span class="pre">add_total_iceberg_ice_shelf_melt</span></code>.</p></li>
+<li><p>Mapping-and-mask support steps:
+<code class="docutils literal notranslate"><span class="pre">e3sm_to_cmip_maps</span></code>, <code class="docutils literal notranslate"><span class="pre">diagnostic_maps</span></code>, <code class="docutils literal notranslate"><span class="pre">diagnostic_masks</span></code>, and
+<code class="docutils literal notranslate"><span class="pre">write_coeffs_reconstruct</span></code> when relevant.</p></li>
+</ol>
+<p>Groups 1, 2 and 3 are the first branch; groups 4 and 5 follow later.</p>
+<p>Two of these steps were not in the first-pass mapping. <code class="docutils literal notranslate"><span class="pre">moc_masks</span></code> is the MOC
+basin masks discussed above. <code class="docutils literal notranslate"><span class="pre">seaice_partition_map</span></code> is the sea-ice partitioning
+split in two: building the QU60km-to-mesh weights is an MPI job sized for the
+mapping tool, while using them needs no MPI, which is the same division
+<code class="docutils literal notranslate"><span class="pre">realistic_global</span></code> makes between <code class="docutils literal notranslate"><span class="pre">Woa23MapStep</span></code> and <code class="docutils literal notranslate"><span class="pre">RemapWoa23Step</span></code>.</p>
+<p><code class="docutils literal notranslate"><span class="pre">moc_masks</span></code> takes its masks from the mesh component’s feature-mask step and the
+MOC-specific behavior — the <code class="docutils literal notranslate"><span class="pre">mocBasinsAndTransects</span></code> filename and the
+southern-boundary transects — from a leaf module in the region-mask framework
+that the ocean feature-mask step uses too. Subclassing the <em>ocean</em> feature-mask
+step, which is where that behavior first lived, does not work from <code class="docutils literal notranslate"><span class="pre">e3sm/init</span></code>:
+it inherits <code class="docutils literal notranslate"><span class="pre">OceanIOStep</span></code> to translate Omega’s variable names, which reads
+<code class="docutils literal notranslate"><span class="pre">[ocean]</span> <span class="pre">model</span></code>, and a <code class="docutils literal notranslate"><span class="pre">component_inputs</span></code> config has no <code class="docutils literal notranslate"><span class="pre">[ocean]</span></code> section by
+design. Moving the shared behavior into a model-agnostic module was the fix;
+overriding the I/O hooks one at a time was not, since <code class="docutils literal notranslate"><span class="pre">[ocean]</span> <span class="pre">model</span></code> is read
+in four places along that inheritance path.</p>
+<p>The exact grouping can evolve during implementation, but the first port should
+avoid recreating the full Compass workflow as a single task class.</p>
+<p>Within this first-pass mapping, the sea-ice and freshwater-forcing steps
+should be implemented so they consume <code class="docutils literal notranslate"><span class="pre">e3sm/init</span></code> products directly rather
+than outputs from the ocean subtask. Concretely, <code class="docutils literal notranslate"><span class="pre">seaice_mesh</span></code> should be built
+from <code class="docutils literal notranslate"><span class="pre">culled_ocean_mesh.nc</span></code> and <code class="docutils literal notranslate"><span class="pre">seaice_initial_condition</span></code> should compute
+<code class="docutils literal notranslate"><span class="pre">fCell</span></code>, <code class="docutils literal notranslate"><span class="pre">fEdge</span></code> and <code class="docutils literal notranslate"><span class="pre">fVertex</span></code> from the mesh’s latitudes rather than copying
+them out of an ocean restart, as Compass does.</p>
+</section>
+<section id="implementation-the-staged-base-mesh-carries-maps-to-the-culled-component-meshes">
+<h3>Implementation: The staged base mesh carries maps to the culled component meshes<a class="headerlink" href="#implementation-the-staged-base-mesh-carries-maps-to-the-culled-component-meshes" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/08/05</p>
+<p>Contributors: Xylar Asay-Davis, Claude</p>
+<p>A <code class="docutils literal notranslate"><span class="pre">base_mesh</span></code> step under <code class="docutils literal notranslate"><span class="pre">component_inputs</span></code> should take as inputs the cull
+step’s <code class="docutils literal notranslate"><span class="pre">base_mesh.nc</span></code>, its three culled meshes, and its three
+<code class="docutils literal notranslate"><span class="pre">{prefix}_map_culled_to_base.nc</span></code> files, and write a single
+<code class="docutils literal notranslate"><span class="pre">base_mesh_with_maps.nc</span></code>.</p>
+<p>The inversion itself is small enough to belong in a shared helper rather than
+inside the step, so that it can be unit-tested without a work directory. A
+function such as <code class="docutils literal notranslate"><span class="pre">map_base_to_culled(ds_map_culled_to_base,</span> <span class="pre">n_base)</span></code> returning
+the nine one-based fields keeps the step to reading, calling and writing.</p>
+<p>For each of the three culled meshes and each of cells, edges and vertices:</p>
+<ol class="arabic simple">
+<li><p>Read <code class="docutils literal notranslate"><span class="pre">mapCulledToBase{Element}</span></code>, whose values are zero-based base-mesh
+indices, one per culled element.</p></li>
+<li><p>Allocate an array of length <code class="docutils literal notranslate"><span class="pre">n{Element}</span></code> on the base mesh, filled with zero.</p></li>
+<li><p>Scatter: at each base index named in the forward map, store the one-based
+culled index (the position in the forward map, plus one).</p></li>
+<li><p>Write the result as <code class="docutils literal notranslate"><span class="pre">mapBaseTo{Target}{Element}</span></code>, with a <code class="docutils literal notranslate"><span class="pre">long_name</span></code>
+recording both the target mesh and the one-based-with-zero-for-absent
+convention, so that the convention travels with the file.</p></li>
+</ol>
+<p>The <code class="docutils literal notranslate"><span class="pre">nCells</span></code>, <code class="docutils literal notranslate"><span class="pre">nEdges</span></code> and <code class="docutils literal notranslate"><span class="pre">nVertices</span></code> dimensions of the output are those of
+the base mesh, not of any culled mesh, which is what makes the fields
+attachable to the base mesh in the first place.</p>
+<p>Two properties are worth asserting rather than assuming, since a silent failure
+here would produce a plausible-looking but wrong file: every value in the
+forward map must be a valid base-mesh index, and no base index may appear
+twice in one forward map. Both hold for a culled mesh derived from the base
+mesh, so a violation means the two inputs do not belong together — most likely
+a stale file from a previous mesh.</p>
+<p>Whether to write the maps is decided from the mesh family: unified meshes get
+them, and the helper is written so that enabling them for other meshes is a
+matter of passing a flag rather than of changing the algorithm.</p>
+</section>
+<section id="implementation-model-specific-packaging-is-gated-by-the-selected-component-models">
+<h3>Implementation: Model-specific packaging is gated by the selected component models<a class="headerlink" href="#implementation-model-specific-packaging-is-gated-by-the-selected-component-models" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/11/09</p>
+<p>Contributors: Xylar Asay-Davis, Codex, Claude</p>
+<p>The new task family should include explicit model selection in config or task
+construction, for example through values conceptually like:</p>
+<ol class="arabic simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">ocean_model</span> <span class="pre">=</span> <span class="pre">mpas-ocean</span></code>, <code class="docutils literal notranslate"><span class="pre">omega</span></code> or <code class="docutils literal notranslate"><span class="pre">none</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">seaice_model</span> <span class="pre">=</span> <span class="pre">mpas-seaice</span></code> or <code class="docutils literal notranslate"><span class="pre">none</span></code></p></li>
+</ol>
+<p>The implementation should then construct the needed steps from a product
+matrix. For example:</p>
+<ol class="arabic simple">
+<li><p>If <code class="docutils literal notranslate"><span class="pre">ocean_model</span> <span class="pre">=</span> <span class="pre">mpas-ocean</span></code>, include <code class="docutils literal notranslate"><span class="pre">ocean_mesh</span></code>,
+<code class="docutils literal notranslate"><span class="pre">ocean_initial_condition</span></code>, <code class="docutils literal notranslate"><span class="pre">ocean_graph_partition</span></code>, and
+<code class="docutils literal notranslate"><span class="pre">write_coeffs_reconstruct</span></code> as appropriate.</p></li>
+<li><p>If <code class="docutils literal notranslate"><span class="pre">ocean_model</span> <span class="pre">=</span> <span class="pre">omega</span></code>, replace the MPAS-Ocean packaging step with an
+Omega-specific ocean packaging step and exclude MPAS-Ocean graph partition
+and reconstruction-coefficient steps.</p></li>
+<li><p>If <code class="docutils literal notranslate"><span class="pre">seaice_model</span> <span class="pre">=</span> <span class="pre">mpas-seaice</span></code>, include <code class="docutils literal notranslate"><span class="pre">seaice_mesh</span></code>,
+<code class="docutils literal notranslate"><span class="pre">seaice_initial_condition</span></code>, and <code class="docutils literal notranslate"><span class="pre">seaice_graph_partition</span></code>, all driven from
+<code class="docutils literal notranslate"><span class="pre">e3sm/init</span></code> mesh and mask products.</p></li>
+<li><p>If freshwater-forcing products are requested, include
+<code class="docutils literal notranslate"><span class="pre">component_inputs/forcing_from_dataset/freshwater</span></code>, independent of whether the final
+staged files are destined for ocean or sea-ice inputdata locations.</p></li>
+<li><p>If <code class="docutils literal notranslate"><span class="pre">seaice_model</span> <span class="pre">=</span> <span class="pre">none</span></code>, exclude the sea-ice task entirely.</p></li>
+</ol>
+<p>If the selected models come from config options that users may override at
+setup time, the task should follow the same Polaris pattern used for other
+dynamic task layouts: define the initial task structure in <code class="docutils literal notranslate"><span class="pre">__init__()</span></code> where
+possible, then remove and re-add only the model-dependent steps in
+<code class="docutils literal notranslate"><span class="pre">configure()</span></code> after config overrides have been applied. Shared steps whose
+inputs and outputs do not depend on the selected models should remain stable so
+that <code class="docutils literal notranslate"><span class="pre">configure()</span></code> is only responsible for the parts of the step graph that
+actually vary.</p>
+<p>This implementation should make the “Omega should not inherit MPAS-only
+steps” rule a first-class part of the design rather than an afterthought.</p>
+<p>Since Omega is not yet ready for full E3SM support, the first branch implements
+the <code class="docutils literal notranslate"><span class="pre">mpas-ocean</span></code> and <code class="docutils literal notranslate"><span class="pre">mpas-seaice</span></code> arms of this matrix. The gating itself is
+still built now, and an Omega selection should fail with a message saying the
+packaging is not yet implemented rather than silently producing MPAS-Ocean
+files. That way the branch that adds Omega support fills in a named gap instead
+of retrofitting model selection into steps that assumed MPAS.</p>
+<p>Neither model is a <code class="docutils literal notranslate"><span class="pre">[component_inputs]</span></code> option in the first branch. The ocean
+initial condition is the restart of a dynamic adjustment, which runs whichever
+model the ocean component was set up with (<code class="docutils literal notranslate"><span class="pre">--ocean_model</span></code>, or detected from
+the <code class="docutils literal notranslate"><span class="pre">--ocean_path</span></code> build), so the ocean staging steps check that model at setup
+rather than a second option that could disagree with it. Sea ice is selected by
+the task: the <code class="docutils literal notranslate"><span class="pre">ocean</span></code> task stages no sea-ice files. A <code class="docutils literal notranslate"><span class="pre">seaice_model</span> <span class="pre">=</span> <span class="pre">none</span></code>
+option could not do the same, because the steps it would remove already exist
+by the time config options are read.</p>
+</section>
+<section id="implementation-the-workflow-produces-e3sm-compatible-staged-outputs-while-retaining-inspectable-intermediate-files">
+<h3>Implementation: The workflow produces E3SM-compatible staged outputs while retaining inspectable intermediate files<a class="headerlink" href="#implementation-the-workflow-produces-e3sm-compatible-staged-outputs-while-retaining-inspectable-intermediate-files" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/10/29</p>
+<p>Contributors: Xylar Asay-Davis, Codex, Claude</p>
+<p>The existing <code class="docutils literal notranslate"><span class="pre">FilesForE3SMStep</span></code> base class mixes metadata discovery, file
+validation, directory creation, NetCDF writing, and staging. In Polaris, these
+concerns should be separated more cleanly.</p>
+<p>A better pattern is:</p>
+<ol class="arabic simple">
+<li><p>Shared helpers for metadata and filename conventions.</p></li>
+<li><p>Product-generation steps that only create their own outputs.</p></li>
+<li><p>A final assembly step that takes those declared outputs as inputs and
+populates <code class="docutils literal notranslate"><span class="pre">assembled_files</span></code> with the expected directory structure, usually
+by issuing <code class="docutils literal notranslate"><span class="pre">add_input_file()</span></code> calls for each staged product and giving each
+one its E3SM-facing filename and location.</p></li>
+</ol>
+<p>In other words, the final step should mostly be bookkeeping and staging rather
+than scientific processing: it should create the <code class="docutils literal notranslate"><span class="pre">inputdata/ocn/...</span></code>,
+<code class="docutils literal notranslate"><span class="pre">inputdata/ice/...</span></code>, and support-asset subdirectories, link in outputs from
+the relevant upstream steps, and keep the generated files in those upstream
+step directories so they remain easy to inspect.</p>
+<p>This pattern would make product provenance clearer and would also reduce the
+amount of duplicated setup logic across steps.</p>
+<p>Concretely, the filename convention belongs in leaf modules holding the mesh
+short name and creation date read from config, plus one function per staged
+product returning its E3SM-facing relative path. Every step and the assembly
+step then agree on names by construction. Because the modules are
+dependency-light, the naming rules can be unit-tested without building any
+step.</p>
+<p>What is not particular to unified meshes is framework code in
+<code class="docutils literal notranslate"><span class="pre">polaris.e3sm.init</span></code>, which imports nothing from <code class="docutils literal notranslate"><span class="pre">polaris.tasks</span></code>, so that other
+workflows staging files for E3SM can share it. MISOMIP’s planned E3SM inputs
+need the same partitioning, paths and staging for planar ocean and MALI
+meshes. The framework holds:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">inputdata</span></code>: the creation date, read from a config section the caller
+names, and the ocean and sea-ice paths, keyed by E3SM’s grid name
+(<code class="docutils literal notranslate"><span class="pre">u02-oi30</span></code>) rather than by a unified mesh’s short name.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">partitions</span></code> and <code class="docutils literal notranslate"><span class="pre">GraphPartitionStep</span></code>: the core-count list and <code class="docutils literal notranslate"><span class="pre">gpmetis</span></code>
+runs below. The step takes the config section to read its bounds from, so a
+workflow with two meshes can give each its own.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">AssembleStep</span></code>: rebuilds <code class="docutils literal notranslate"><span class="pre">assembled_files/</span></code> from empty, stages a README the
+subclass supplies, links in <code class="docutils literal notranslate"><span class="pre">sync_to_inputdata.sh</span></code>, and stages products and
+partitions. A subclass stages its own products from <code class="docutils literal notranslate"><span class="pre">run()</span></code>, because the
+staged names come from config options that may change after setup.</p></li>
+</ul>
+<p><code class="docutils literal notranslate"><span class="pre">component_inputs/names.py</span></code> keeps what is particular to unified meshes: the
+short-name lookup with its <code class="docutils literal notranslate"><span class="pre">[unified_mesh]</span></code> fallback, the shared mesh
+directory named for the mesh’s ID, the SCRIP and culled-mesh regions, and
+E3SM’s ocean and sea-ice grid name, which comes from the short name.</p>
+<p>Two behaviors of the Compass base class should not be carried over. It
+autodetects the mesh short name and creation date from restart-file global
+attributes, which is what makes staged filenames hard to predict at setup time;
+both should instead be config options, with the short name required. It also
+performs the staging inside each product step via <code class="docutils literal notranslate"><span class="pre">symlink()</span></code> calls, which is
+what makes the <code class="docutils literal notranslate"><span class="pre">assembled_files</span></code> tree hard to reason about; staging should
+happen only in the assembly step.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">[component_inputs]</span></code> config section therefore carries <code class="docutils literal notranslate"><span class="pre">mesh_short_name</span></code>
+(no default; setup fails if unset), <code class="docutils literal notranslate"><span class="pre">creation_date</span></code> (filled in with today’s
+date at setup and then recorded, so re-running does not silently rename files),
+the graph-partition core-count bounds <code class="docutils literal notranslate"><span class="pre">max_cells_per_core</span></code> and
+<code class="docutils literal notranslate"><span class="pre">min_cells_per_core</span></code>, the number of partitions to build at once,
+<code class="docutils literal notranslate"><span class="pre">partition_cpus_per_task</span></code> and <code class="docutils literal notranslate"><span class="pre">partition_min_cpus_per_task</span></code>, and
+<code class="docutils literal notranslate"><span class="pre">plot_seaice_partitions</span></code>.</p>
+<p><code class="docutils literal notranslate"><span class="pre">creation_date</span></code> is filled in only when blank, which protects a re-run but not a
+fresh setup: rebuilding the work directory’s config stamps today’s date. Pin
+the option in a user config when a stamp needs to survive a re-setup.</p>
+<p>Unified meshes register their short name as <code class="docutils literal notranslate"><span class="pre">[unified_mesh]</span> <span class="pre">e3sm_short_name</span></code> in
+the per-mesh config, with <code class="docutils literal notranslate"><span class="pre">mesh_short_name</span></code> left as an override. Short names use
+dashes, as the Polaris mesh names do (<code class="docutils literal notranslate"><span class="pre">u02-oi30-lr10</span></code>): CIME separates the parts
+of a test name with dots, so a dotted name cannot be an E3SM grid alias. The
+mesh with no plans to reach E3SM master is registered under a deliberately
+invalid placeholder ID, so a file staged for it is self-evidently a test
+artifact.</p>
+<p>The core-count bounds are also per-mesh where they need to be. <code class="docutils literal notranslate"><span class="pre">gpmetis</span></code> fails
+above roughly 750,000 parts, and the largest partition asked for is
+<code class="docutils literal notranslate"><span class="pre">ncells</span> <span class="pre">/</span> <span class="pre">min_cells_per_core</span></code>, so a mesh above about 1.5 million ocean cells
+needs the floor raised. The <code class="docutils literal notranslate"><span class="pre">u-oi6to18</span></code> meshes are the only unified meshes
+that large and set <code class="docutils literal notranslate"><span class="pre">min_cells_per_core</span> <span class="pre">=</span> <span class="pre">6</span></code>, exactly as Compass does for
+<code class="docutils literal notranslate"><span class="pre">rrs6to18</span></code> and for the same reason. The port brought Compass’
+<code class="docutils literal notranslate"><span class="pre">get_core_list</span></code> across verbatim
+but not the per-mesh config that made it usable at that resolution.</p>
+<p>Both partition steps resume. Partitioning the finest mesh took most of a day
+when the partitions were built one at a time, and a job that runs out of
+walltime must cost only the partitions it was in the middle of. A partition
+file counts as finished when it has one line per cell — existence alone is not
+enough, since a kill mid-write leaves a file covering part of the mesh, and
+trusting it would hand E3SM a broken partition. Partitions are also written
+under another name and renamed once complete, so the line count now guards
+only against files left by earlier runs.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">gpmetis</span></code> calls are independent, so both steps run up to
+<code class="docutils literal notranslate"><span class="pre">partition_cpus_per_task</span></code> of them at once in a process pool on one node,
+largest first. On the <code class="docutils literal notranslate"><span class="pre">u-oi6to18</span></code> meshes the ocean’s 669 calls add up to about
+14 hours, and the sea ice’s two per core count to about 18; one at a time,
+that was nearly the whole of each step. <code class="docutils literal notranslate"><span class="pre">gpmetis</span></code> stays a program rather than a library call,
+although its reporting is about a sixth of its time: the only shared METIS
+libraries in the environment are conda-forge’s 32-bit builds, which fail on
+the largest meshes, and Spack builds its 64-bit METIS static.</p>
+<p>The sea-ice step does not call MPAS-Tools’ <code class="docutils literal notranslate"><span class="pre">create_seaice_partitions</span></code>, whose
+partitions it reproduces: each region is partitioned on its own, and piece
+<code class="docutils literal notranslate"><span class="pre">i</span></code> of every region goes to core <code class="docutils literal notranslate"><span class="pre">i</span></code>. The tool gets each region’s graph by
+copying the mesh and culling the copy with <code class="docutils literal notranslate"><span class="pre">MpasCellCuller.x</span></code>, which took over
+an hour per region on the finest mesh. The step builds the same graph from
+<code class="docutils literal notranslate"><span class="pre">cellsOnCell</span></code> in seconds. <code class="docutils literal notranslate"><span class="pre">prepare_seaice_partitions</span></code> still assigns the
+regions.</p>
+</section>
+<section id="implementation-required-remapped-forcing-and-mesh-derived-support-assets-are-supported">
+<h3>Implementation: Required remapped forcing and mesh-derived support assets are supported<a class="headerlink" href="#implementation-required-remapped-forcing-and-mesh-derived-support-assets-are-supported" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/08/05</p>
+<p>Contributors: Xylar Asay-Davis, Codex, Claude</p>
+<p>The port should include the existing remapped datasets that are still needed
+for E3SM workflows, but it should evaluate them product by product rather than
+assuming they all belong to the ocean or sea-ice tasks.</p>
+<p>In particular:</p>
+<ol class="arabic simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">remap_ice_shelf_melt</span></code> should remain conditional on cavity workflows and
+should not run for open-ocean meshes without cavities.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">remap_iceberg_climatology</span></code>, <code class="docutils literal notranslate"><span class="pre">remap_ice_shelf_melt</span></code>, and
+<code class="docutils literal notranslate"><span class="pre">add_total_iceberg_ice_shelf_melt</span></code> should live in a neutral
+<code class="docutils literal notranslate"><span class="pre">forcing_from_dataset/freshwater</span></code> subtask because they conceptually describe a shared
+freshwater source rather than belonging cleanly to ocean or sea-ice.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">diagnostic_masks</span></code> and <code class="docutils literal notranslate"><span class="pre">diagnostic_maps</span></code> should be treated as mesh-derived
+support assets, even if they continue to rely on MPAS-oriented tooling
+initially.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">scrip</span></code> and E3SM-to-CMIP mapping support should be implemented so they can
+remain shared across MPAS-Ocean and Omega when they depend only on the
+horizontal mesh description.</p></li>
+<li><p>The <code class="docutils literal notranslate"><span class="pre">forcing_from_dataset/freshwater</span></code> subtask should use <code class="docutils literal notranslate"><span class="pre">landIceMask</span></code> and other
+cull-mask products from <code class="docutils literal notranslate"><span class="pre">e3sm/init</span></code> rather than reading them from ocean
+initial-condition or restart files.</p></li>
+</ol>
+<p>Of these, item 4’s <code class="docutils literal notranslate"><span class="pre">scrip</span></code> half is what the first branch implements, and it is
+smaller in Polaris than in Compass. Compass regenerates SCRIP files from
+<code class="docutils literal notranslate"><span class="pre">restart.nc</span></code> with <code class="docutils literal notranslate"><span class="pre">scrip_from_mpas</span></code>; the Polaris cull step already writes
+<code class="docutils literal notranslate"><span class="pre">culled_{prefix}_mesh.scrip.nc</span></code> for the ocean, no-cavities ocean and land
+meshes, so the step reduces to staging existing files under their E3SM-facing
+names. Items 1, 2, 3 and the E3SM-to-CMIP half of item 4 come in follow-up
+branches.</p>
+<p>One important implementation detail is that several current Compass steps
+derive products from <code class="docutils literal notranslate"><span class="pre">restart.nc</span></code> simply because it is convenient. During the
+port, we should revisit those dependencies and use more model-neutral source
+files when that leads to cleaner support for Omega or cleaner separation
+between the ocean and sea-ice subtasks.</p>
+</section>
+<section id="implementation-the-design-preserves-a-path-for-future-coupled-model-evolution">
+<h3>Implementation: The design preserves a path for future coupled-model evolution<a class="headerlink" href="#implementation-the-design-preserves-a-path-for-future-coupled-model-evolution" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/10/29</p>
+<p>Contributors: Xylar Asay-Davis, Codex, Claude</p>
+<p>The first implementation should keep model-specific code behind small,
+well-named interfaces. Likely candidates are:</p>
+<ol class="arabic simple">
+<li><p>A shared metadata or context helper.</p></li>
+<li><p>Model-specific ocean packagers.</p></li>
+<li><p>Model-specific sea-ice packagers.</p></li>
+<li><p>A shared staging helper.</p></li>
+</ol>
+<p>This will make it easier to add future model combinations or revise the staged
+output set without restructuring the entire task family.</p>
+<p>The first branch made the shared staging helper (item 4) framework code, as
+described under the staged-outputs implementation above. The model gates
+(<code class="docutils literal notranslate"><span class="pre">models.py</span></code>) stay in the task package until a second workflow needs one,
+such as a land-ice model gate for MISOMIP.</p>
+</section>
+</section>
+<section id="testing">
+<h2>Testing<a class="headerlink" href="#testing" title="Link to this heading"></a></h2>
+<section id="testing-and-validation-component-input-generation-lives-in-e3sm-init-and-consumes-explicit-upstream-products">
+<h3>Testing and Validation: Component-input generation lives in <code class="docutils literal notranslate"><span class="pre">e3sm/init</span></code> and consumes explicit upstream products<a class="headerlink" href="#testing-and-validation-component-input-generation-lives-in-e3sm-init-and-consumes-explicit-upstream-products" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/08/05</p>
+<p>Contributors: Xylar Asay-Davis, Codex, Claude</p>
+<p>Integration tests should verify that the new <code class="docutils literal notranslate"><span class="pre">e3sm/init/component_inputs</span></code>
+tasks can consume outputs from the <code class="docutils literal notranslate"><span class="pre">e3sm/init</span></code> cull workflow and the new
+global-ocean init and dynamic-adjustment workflows through declared inputs.</p>
+<p>These tests should avoid hidden dependence on Compass-style work-directory
+layout.</p>
+<p>They should also verify that the sea-ice task can run without requiring the
+ocean task, as long as the necessary <code class="docutils literal notranslate"><span class="pre">e3sm/init</span></code> mesh and mask products are
+available. The sea-ice task’s step list should contain no step from the ocean
+task and no dependency on a dynamic-adjustment restart; asserting that
+directly is a better guard than checking that it happens to run, since the
+coupling this design removes is exactly the kind that creeps back in as a
+convenient input file.</p>
+<p>A test should also confirm that the ocean task’s initial-condition step depends
+on the final dynamic-adjustment stage’s restart, and that both tasks reuse the
+same shared cull steps rather than creating parallel copies.</p>
+</section>
+<section id="testing-and-validation-ocean-sea-ice-and-mesh-derived-support-products-can-be-generated-independently">
+<h3>Testing and Validation: Ocean, sea-ice, and mesh-derived support products can be generated independently<a class="headerlink" href="#testing-and-validation-ocean-sea-ice-and-mesh-derived-support-products-can-be-generated-independently" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/08/05</p>
+<p>Contributors: Xylar Asay-Davis, Codex, Claude</p>
+<p>Regression tests should exercise at least:</p>
+<ol class="arabic simple">
+<li><p>An ocean-only configuration.</p></li>
+<li><p>A sea-ice-only configuration.</p></li>
+<li><p>A freshwater-forcing-only configuration.</p></li>
+<li><p>A mapping-and-mask-only configuration.</p></li>
+<li><p>A full aggregate configuration.</p></li>
+</ol>
+<p>This testing will help ensure the decomposition remains real rather than
+allowing hidden coupling between the subtasks to creep back in.</p>
+<p>Cases 1, 2 and 5 are testable as soon as the first branch lands; cases 3 and 4
+arrive with the tasks they exercise.</p>
+</section>
+<section id="testing-and-validation-the-staged-base-mesh-carries-maps-to-the-culled-component-meshes">
+<h3>Testing and Validation: The staged base mesh carries maps to the culled component meshes<a class="headerlink" href="#testing-and-validation-the-staged-base-mesh-carries-maps-to-the-culled-component-meshes" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/09/24</p>
+<p>Contributors: Xylar Asay-Davis, Claude</p>
+<p>The inversion helper should be unit-tested against a hand-built forward map
+small enough to check by inspection, confirming that present elements get
+one-based culled indices, that absent elements get zero, and that a map
+covering every base element round-trips exactly.</p>
+<p>The strongest available check is that the two directions compose to the
+identity: for every culled element <code class="docutils literal notranslate"><span class="pre">i</span></code>, <code class="docutils literal notranslate"><span class="pre">mapBaseTo*[mapCulledToBase*[i]]</span></code>
+must equal <code class="docutils literal notranslate"><span class="pre">i</span> <span class="pre">+</span> <span class="pre">1</span></code>. This should be asserted in a unit test on synthetic maps
+and again as a check on real cull-step output, since it catches an off-by-one
+or a transposed scatter that eyeballing the file would not.</p>
+<p>Tests should also confirm the shapes — the map fields are dimensioned by the
+base mesh, not by any culled mesh — and that the malformed-input assertions
+fire when given a forward map with an out-of-range or duplicated base index.</p>
+<p>Finally, a test should confirm that the maps are written for a unified mesh and
+that the mesh-family gate is what decides it, so the condition does not quietly
+become “always” or “never”.</p>
+<p>Checked on real output for <code class="docutils literal notranslate"><span class="pre">u-oi240-lr240</span></code> and <code class="docutils literal notranslate"><span class="pre">u-oi-so12to30-lr10</span></code>, the latter
+a 2,279,641-cell base mesh: the round trip is exact for all nine fields, the
+nonzero count equals the culled element count, and zeros fall exactly off the
+culled mesh. Two results were sharper than expected, both consequences of the
+cull-mask invariants that arrived with the land-locked cell work. The ocean and
+<code class="docutils literal notranslate"><span class="pre">ocean_no_cavities</span></code> maps are <em>identical</em>, which is the <code class="docutils literal notranslate"><span class="pre">calving_front</span></code> equality
+those invariants imply rather than something asserted directly. And cells
+partition exactly into ocean and land, while edges and vertices deliberately do
+not: the coastline ones belong to both meshes — 1,795 of each on
+<code class="docutils literal notranslate"><span class="pre">u-oi240-lr240</span></code>, 29,430 of each on <code class="docutils literal notranslate"><span class="pre">u-oi-so12to30-lr10</span></code> — and none are
+orphaned. Equal boundary edge and vertex counts are what a coastline of closed
+loops must give.</p>
+</section>
+<section id="testing-and-validation-model-specific-packaging-is-gated-by-the-selected-component-models">
+<h3>Testing and Validation: Model-specific packaging is gated by the selected component models<a class="headerlink" href="#testing-and-validation-model-specific-packaging-is-gated-by-the-selected-component-models" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/08/05</p>
+<p>Contributors: Xylar Asay-Davis, Codex, Claude</p>
+<p>Unit or lightweight integration tests should verify the product matrix for
+several model combinations, especially:</p>
+<ol class="arabic simple">
+<li><p>MPAS-Ocean plus MPAS-Seaice.</p></li>
+<li><p>Omega plus MPAS-Seaice.</p></li>
+<li><p>Omega with no sea-ice component.</p></li>
+</ol>
+<p>These tests should confirm that MPAS-Ocean-only steps such as graph partition
+and <code class="docutils literal notranslate"><span class="pre">coeffs_reconstruct</span></code> are absent from Omega configurations.
+They should also confirm that changing the configured models at setup time
+causes the task to rebuild the model-dependent portion of its step list
+correctly, without perturbing shared steps unnecessarily.</p>
+<p>Until Omega packaging exists, cases 2 and 3 test that selecting Omega raises a
+clear not-implemented error rather than that it produces files. That is still
+worth testing, because the failure it rules out — Omega silently inheriting
+MPAS-Ocean packaging — is the one this requirement exists to prevent.</p>
+</section>
+<section id="testing-and-validation-the-workflow-produces-e3sm-compatible-staged-outputs-while-retaining-inspectable-intermediate-files">
+<h3>Testing and Validation: The workflow produces E3SM-compatible staged outputs while retaining inspectable intermediate files<a class="headerlink" href="#testing-and-validation-the-workflow-produces-e3sm-compatible-staged-outputs-while-retaining-inspectable-intermediate-files" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/10/29</p>
+<p>Contributors: Xylar Asay-Davis, Codex, Claude</p>
+<p>Regression testing should confirm both that expected staged files appear in the
+assembled directory tree and that the step-local source products are present
+with predictable names.</p>
+<p>This validation should include at least a few representative filenames from
+the ocean, sea-ice, and support-asset categories.</p>
+<p>Because the naming rules live in a dependency-light module, the mapping from
+product to E3SM-facing path should be unit-tested directly, including that a
+missing <code class="docutils literal notranslate"><span class="pre">mesh_short_name</span></code> raises at setup with a message naming the option.
+This is worth testing rather than assuming: the failure mode it guards against
+is a mesh staged under a placeholder name after the expensive steps have
+already run.</p>
+<p>The assembly test runs the step over stand-in products and compares the whole
+staged tree against the expected set, rather than checking a few representative
+names. That is what caught the ocean mesh being staged where E3SM does not look
+for it, and it is why adding a product now means stating where it lands.</p>
+<p>Two behaviors need tests of their own because they are about what is <em>not</em>
+there. Assembling twice under different creation dates must leave nothing from
+the first, which is the tree-rebuilt-from-empty rule. And a re-run of a
+partition step must rebuild a truncated partition file while skipping the
+finished ones, since the failure that rule guards against — a file that exists
+but covers half the mesh — is indistinguishable from success by an existence
+check.</p>
+<p>The partitions are tested by running <code class="docutils literal notranslate"><span class="pre">gpmetis</span></code> on small hand-built meshes:
+building several at a time must give the same files as building them one at a
+time, and every core must get a piece of every sea-ice region. The region
+graphs were checked on <code class="docutils literal notranslate"><span class="pre">u-oi6to18-lr12p5</span></code> against the graphs
+<code class="docutils literal notranslate"><span class="pre">MpasCellCuller.x</span></code> wrote for the same regions. They match vertex for vertex,
+and the 140-piece partition built from them is byte for byte the one
+<code class="docutils literal notranslate"><span class="pre">create_seaice_partitions</span></code> built.</p>
+<p>The framework helpers are tested without the task: the partitioning and
+sync-script tests build no unified mesh, and a <code class="docutils literal notranslate"><span class="pre">GraphPartitionStep</span></code> is checked
+to read the config section it is given rather than <code class="docutils literal notranslate"><span class="pre">[component_inputs]</span></code>.</p>
+<p>Verified on the staged trees themselves for three meshes: every product at its
+expected path, every link resolving, one creation date across every filename,
+and nothing staged outside the table above.</p>
+</section>
+<section id="testing-and-validation-required-remapped-forcing-and-mesh-derived-support-assets-are-supported">
+<h3>Testing and Validation: Required remapped forcing and mesh-derived support assets are supported<a class="headerlink" href="#testing-and-validation-required-remapped-forcing-and-mesh-derived-support-assets-are-supported" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/08/13</p>
+<p>Contributors: Xylar Asay-Davis, Codex, Claude</p>
+<p>Tests should verify that each supported remapped dataset and support asset is
+either produced when relevant or cleanly omitted when its prerequisites are
+not part of the selected workflow.</p>
+<p>Cavity-dependent products should be tested separately from open-ocean meshes so
+their conditional behavior remains explicit and correct.</p>
+<p>In the first branch this reduces to the SCRIP staging and the MOC masks. Tests
+confirm that each culled mesh’s SCRIP file is staged under its E3SM-facing name
+in the shared mesh directory, that the two ocean ones are staged again beside
+the ocean products under their shortened names and resolve to the same files,
+and that the land SCRIP has no copy there. For the MOC masks, tests confirm
+that they are built from the culled ocean mesh, that they are an ocean-only
+product, that the filename and the southern-boundary transects come from the
+shared helpers rather than a copy of them, and that the step reaches for no
+ocean component — the last being a regression test for the coupling that broke
+the first attempt.</p>
+<p>The masks were also checked against what MPAS-Ocean actually reads: all eleven
+variables of the two streams are present, with five basins and their
+southern-boundary transects carrying signs of -1, 0 and +1.</p>
+<p>The remaining datasets are tested as the branches that add them land.</p>
+</section>
+<section id="testing-and-validation-the-design-preserves-a-path-for-future-coupled-model-evolution">
+<h3>Testing and Validation: The design preserves a path for future coupled-model evolution<a class="headerlink" href="#testing-and-validation-the-design-preserves-a-path-for-future-coupled-model-evolution" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/03/22</p>
+<p>Contributors: Xylar Asay-Davis, Codex</p>
+<p>The code structure should be reviewed with the same criterion as the design:
+adding a new component model or a new staged product should require extending a
+small interface or product table, not cloning the entire task family.</p>
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="index.html" class="btn btn-neutral float-left" title="Design Documents" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="global_ocean_dynamic_adjustment.html" class="btn btn-neutral float-right" title="Global Ocean Dynamic Adjustment" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2026, Energy Exascale Earth System Model Project.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+   
+
+  <!-- Meta tags for JS to use -->
+  <meta name="doc-version" content="main">
+  <meta name="doc-site-root" content="../">
+
+  <!-- Create version switcher container -->
+  <script>
+    const sidebar = document.querySelector('.wy-side-nav-search');
+    if (sidebar) {
+      const versionDiv = document.createElement('div');
+      versionDiv.id = 'version-switcher';
+      versionDiv.style.marginTop = '1em';
+      sidebar.appendChild(versionDiv);
+    }
+  </script>
+
+  <!-- Load version-switcher.js using the correct relative path -->
+  <script src="../../shared/version-switcher.js"></script>
+
+
+</body>
+</html>

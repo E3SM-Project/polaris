@@ -1,0 +1,6 @@
+﻿polaris.tasks.e3sm.init.component\_inputs.add\_component\_inputs\_tasks
+=======================================================================
+
+.. currentmodule:: polaris.tasks.e3sm.init.component_inputs
+
+.. autofunction:: add_component_inputs_tasks

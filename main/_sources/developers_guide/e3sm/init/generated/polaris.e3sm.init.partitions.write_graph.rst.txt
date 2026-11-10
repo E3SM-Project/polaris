@@ -1,0 +1,6 @@
+﻿polaris.e3sm.init.partitions.write\_graph
+=========================================
+
+.. currentmodule:: polaris.e3sm.init.partitions
+
+.. autofunction:: write_graph

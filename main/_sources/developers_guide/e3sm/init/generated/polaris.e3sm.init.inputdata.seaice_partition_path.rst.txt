@@ -1,0 +1,6 @@
+﻿polaris.e3sm.init.inputdata.seaice\_partition\_path
+===================================================
+
+.. currentmodule:: polaris.e3sm.init.inputdata
+
+.. autofunction:: seaice_partition_path

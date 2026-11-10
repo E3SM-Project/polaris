@@ -1,0 +1,6 @@
+﻿polaris.e3sm.init.graph\_partition.GraphPartitionStep.setup
+===========================================================
+
+.. currentmodule:: polaris.e3sm.init.graph_partition
+
+.. automethod:: GraphPartitionStep.setup

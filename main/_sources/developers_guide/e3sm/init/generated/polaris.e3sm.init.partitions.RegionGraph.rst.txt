@@ -1,0 +1,31 @@
+﻿polaris.e3sm.init.partitions.RegionGraph
+========================================
+
+.. currentmodule:: polaris.e3sm.init.partitions
+
+.. autoclass:: RegionGraph
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~RegionGraph.__init__
+      ~RegionGraph.count
+      ~RegionGraph.index
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~RegionGraph.cells
+      ~RegionGraph.filename
+   
+   

@@ -1,0 +1,48 @@
+﻿polaris.tasks.e3sm.init.component\_inputs.seaice\_mesh.SeaiceMeshStep
+=====================================================================
+
+.. currentmodule:: polaris.tasks.e3sm.init.component_inputs.seaice_mesh
+
+.. autoclass:: SeaiceMeshStep
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~SeaiceMeshStep.__init__
+      ~SeaiceMeshStep.add_cf_check
+      ~SeaiceMeshStep.add_dependency
+      ~SeaiceMeshStep.add_input_file
+      ~SeaiceMeshStep.add_output_file
+      ~SeaiceMeshStep.add_property_check
+      ~SeaiceMeshStep.check_cf
+      ~SeaiceMeshStep.check_properties
+      ~SeaiceMeshStep.constrain_resources
+      ~SeaiceMeshStep.process_inputs_and_outputs
+      ~SeaiceMeshStep.run
+      ~SeaiceMeshStep.runtime_setup
+      ~SeaiceMeshStep.set_resources
+      ~SeaiceMeshStep.set_shared_config
+      ~SeaiceMeshStep.setup
+      ~SeaiceMeshStep.validate_baselines
+      ~SeaiceMeshStep.work_path
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~SeaiceMeshStep.cores
+      ~SeaiceMeshStep.gpus
+      ~SeaiceMeshStep.may_span_nodes
+      ~SeaiceMeshStep.min_cores
+      ~SeaiceMeshStep.min_gpus
+   
+   

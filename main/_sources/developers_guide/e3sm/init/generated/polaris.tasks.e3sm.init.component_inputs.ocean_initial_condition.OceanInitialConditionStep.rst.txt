@@ -1,0 +1,48 @@
+﻿polaris.tasks.e3sm.init.component\_inputs.ocean\_initial\_condition.OceanInitialConditionStep
+=============================================================================================
+
+.. currentmodule:: polaris.tasks.e3sm.init.component_inputs.ocean_initial_condition
+
+.. autoclass:: OceanInitialConditionStep
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~OceanInitialConditionStep.__init__
+      ~OceanInitialConditionStep.add_cf_check
+      ~OceanInitialConditionStep.add_dependency
+      ~OceanInitialConditionStep.add_input_file
+      ~OceanInitialConditionStep.add_output_file
+      ~OceanInitialConditionStep.add_property_check
+      ~OceanInitialConditionStep.check_cf
+      ~OceanInitialConditionStep.check_properties
+      ~OceanInitialConditionStep.constrain_resources
+      ~OceanInitialConditionStep.process_inputs_and_outputs
+      ~OceanInitialConditionStep.run
+      ~OceanInitialConditionStep.runtime_setup
+      ~OceanInitialConditionStep.set_resources
+      ~OceanInitialConditionStep.set_shared_config
+      ~OceanInitialConditionStep.setup
+      ~OceanInitialConditionStep.validate_baselines
+      ~OceanInitialConditionStep.work_path
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~OceanInitialConditionStep.cores
+      ~OceanInitialConditionStep.gpus
+      ~OceanInitialConditionStep.may_span_nodes
+      ~OceanInitialConditionStep.min_cores
+      ~OceanInitialConditionStep.min_gpus
+   
+   

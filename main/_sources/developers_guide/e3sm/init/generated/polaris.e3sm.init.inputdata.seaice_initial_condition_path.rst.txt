@@ -1,0 +1,6 @@
+﻿polaris.e3sm.init.inputdata.seaice\_initial\_condition\_path
+============================================================
+
+.. currentmodule:: polaris.e3sm.init.inputdata
+
+.. autofunction:: seaice_initial_condition_path

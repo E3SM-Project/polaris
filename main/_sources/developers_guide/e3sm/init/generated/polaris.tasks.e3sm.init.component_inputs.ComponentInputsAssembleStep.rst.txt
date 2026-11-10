@@ -1,0 +1,52 @@
+﻿polaris.tasks.e3sm.init.component\_inputs.ComponentInputsAssembleStep
+=====================================================================
+
+.. currentmodule:: polaris.tasks.e3sm.init.component_inputs
+
+.. autoclass:: ComponentInputsAssembleStep
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~ComponentInputsAssembleStep.__init__
+      ~ComponentInputsAssembleStep.add_cf_check
+      ~ComponentInputsAssembleStep.add_dependency
+      ~ComponentInputsAssembleStep.add_input_file
+      ~ComponentInputsAssembleStep.add_output_file
+      ~ComponentInputsAssembleStep.add_property_check
+      ~ComponentInputsAssembleStep.check_cf
+      ~ComponentInputsAssembleStep.check_properties
+      ~ComponentInputsAssembleStep.constrain_resources
+      ~ComponentInputsAssembleStep.process_inputs_and_outputs
+      ~ComponentInputsAssembleStep.run
+      ~ComponentInputsAssembleStep.runtime_setup
+      ~ComponentInputsAssembleStep.set_resources
+      ~ComponentInputsAssembleStep.set_shared_config
+      ~ComponentInputsAssembleStep.setup
+      ~ComponentInputsAssembleStep.stage
+      ~ComponentInputsAssembleStep.stage_partitions
+      ~ComponentInputsAssembleStep.step_dir
+      ~ComponentInputsAssembleStep.validate_baselines
+      ~ComponentInputsAssembleStep.work_path
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~ComponentInputsAssembleStep.LAND_MESH_FILENAME
+      ~ComponentInputsAssembleStep.cores
+      ~ComponentInputsAssembleStep.gpus
+      ~ComponentInputsAssembleStep.may_span_nodes
+      ~ComponentInputsAssembleStep.min_cores
+      ~ComponentInputsAssembleStep.min_gpus
+   
+   

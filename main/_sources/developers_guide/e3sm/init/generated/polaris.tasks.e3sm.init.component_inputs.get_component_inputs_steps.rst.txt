@@ -1,0 +1,6 @@
+﻿polaris.tasks.e3sm.init.component\_inputs.get\_component\_inputs\_steps
+=======================================================================
+
+.. currentmodule:: polaris.tasks.e3sm.init.component_inputs
+
+.. autofunction:: get_component_inputs_steps

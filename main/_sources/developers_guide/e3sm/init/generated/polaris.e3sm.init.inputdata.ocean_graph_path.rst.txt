@@ -1,0 +1,6 @@
+﻿polaris.e3sm.init.inputdata.ocean\_graph\_path
+==============================================
+
+.. currentmodule:: polaris.e3sm.init.inputdata
+
+.. autofunction:: ocean_graph_path

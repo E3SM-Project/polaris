@@ -1,0 +1,6 @@
+﻿polaris.e3sm.init.inputdata.get\_nonempty\_option
+=================================================
+
+.. currentmodule:: polaris.e3sm.init.inputdata
+
+.. autofunction:: get_nonempty_option

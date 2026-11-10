@@ -1,0 +1,49 @@
+﻿polaris.tasks.e3sm.init.component\_inputs.ocean\_graph\_partition.OceanGraphPartitionStep
+=========================================================================================
+
+.. currentmodule:: polaris.tasks.e3sm.init.component_inputs.ocean_graph_partition
+
+.. autoclass:: OceanGraphPartitionStep
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~OceanGraphPartitionStep.__init__
+      ~OceanGraphPartitionStep.add_cf_check
+      ~OceanGraphPartitionStep.add_dependency
+      ~OceanGraphPartitionStep.add_input_file
+      ~OceanGraphPartitionStep.add_output_file
+      ~OceanGraphPartitionStep.add_property_check
+      ~OceanGraphPartitionStep.check_cf
+      ~OceanGraphPartitionStep.check_properties
+      ~OceanGraphPartitionStep.constrain_resources
+      ~OceanGraphPartitionStep.get_core_counts
+      ~OceanGraphPartitionStep.process_inputs_and_outputs
+      ~OceanGraphPartitionStep.run
+      ~OceanGraphPartitionStep.runtime_setup
+      ~OceanGraphPartitionStep.set_resources
+      ~OceanGraphPartitionStep.set_shared_config
+      ~OceanGraphPartitionStep.setup
+      ~OceanGraphPartitionStep.validate_baselines
+      ~OceanGraphPartitionStep.work_path
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~OceanGraphPartitionStep.cores
+      ~OceanGraphPartitionStep.gpus
+      ~OceanGraphPartitionStep.may_span_nodes
+      ~OceanGraphPartitionStep.min_cores
+      ~OceanGraphPartitionStep.min_gpus
+   
+   

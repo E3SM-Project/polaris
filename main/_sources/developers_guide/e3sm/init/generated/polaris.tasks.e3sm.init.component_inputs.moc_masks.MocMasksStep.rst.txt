@@ -1,0 +1,48 @@
+﻿polaris.tasks.e3sm.init.component\_inputs.moc\_masks.MocMasksStep
+=================================================================
+
+.. currentmodule:: polaris.tasks.e3sm.init.component_inputs.moc_masks
+
+.. autoclass:: MocMasksStep
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~MocMasksStep.__init__
+      ~MocMasksStep.add_cf_check
+      ~MocMasksStep.add_dependency
+      ~MocMasksStep.add_input_file
+      ~MocMasksStep.add_output_file
+      ~MocMasksStep.add_property_check
+      ~MocMasksStep.check_cf
+      ~MocMasksStep.check_properties
+      ~MocMasksStep.constrain_resources
+      ~MocMasksStep.process_inputs_and_outputs
+      ~MocMasksStep.run
+      ~MocMasksStep.runtime_setup
+      ~MocMasksStep.set_resources
+      ~MocMasksStep.set_shared_config
+      ~MocMasksStep.setup
+      ~MocMasksStep.validate_baselines
+      ~MocMasksStep.work_path
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~MocMasksStep.cores
+      ~MocMasksStep.gpus
+      ~MocMasksStep.may_span_nodes
+      ~MocMasksStep.min_cores
+      ~MocMasksStep.min_gpus
+   
+   

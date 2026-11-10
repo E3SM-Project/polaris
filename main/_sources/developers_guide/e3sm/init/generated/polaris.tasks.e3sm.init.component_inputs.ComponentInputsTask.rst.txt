@@ -1,0 +1,26 @@
+﻿polaris.tasks.e3sm.init.component\_inputs.ComponentInputsTask
+=============================================================
+
+.. currentmodule:: polaris.tasks.e3sm.init.component_inputs
+
+.. autoclass:: ComponentInputsTask
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~ComponentInputsTask.__init__
+      ~ComponentInputsTask.add_step
+      ~ComponentInputsTask.configure
+      ~ComponentInputsTask.remove_step
+      ~ComponentInputsTask.set_shared_config
+   
+   
+
+   
+   
+   

@@ -1,0 +1,6 @@
+﻿polaris.tasks.e3sm.init.component\_inputs.ocean\_initial\_condition.OceanInitialConditionStep.setup
+===================================================================================================
+
+.. currentmodule:: polaris.tasks.e3sm.init.component_inputs.ocean_initial_condition
+
+.. automethod:: OceanInitialConditionStep.setup
