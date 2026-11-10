@@ -4,3 +4,7 @@ mpas-ocean:
     # columns (O'Dea et al. 2021), which keeps wetting and drying at the
     # grounding line stable with either time integrator
     config_zero_drying_velocity_ramp: true
+    # flow into a thin column takes the thinner layer's thickness as its
+    # flux thickness, so films opening at the grounding line don't drive
+    # fast jets out of their far side
+    config_thin_film_cap_inflow_thickness: true

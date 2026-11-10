@@ -170,7 +170,9 @@ use the RK4 time integrator, and their
 MPAS-Ocean's split-explicit wetting and drying. The tasks with a thin film
 also ramp velocities down in thin columns, following O'Dea et al. (2021),
 which keeps wetting and drying at the grounding line stable with either
-time integrator.
+time integrator. Flow into a thin column uses the thinner of the two layers'
+thicknesses, rather than the upwind one, so that films opening at the
+grounding line don't drive fast jets.
 
 ## SSH adjustment
 

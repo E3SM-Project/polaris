@@ -119,7 +119,9 @@ film use {py:class}`polaris.tasks.ocean.isomip_plus.ssh_forward.ThinFilmSshForwa
 instead, which, like their forward run, also adds
 `thin_film_wetting_drying.yaml`. It ramps velocities down in thin columns
 (`config_zero_drying_velocity_ramp`), which keeps wetting and drying at the
-grounding line stable.
+grounding line stable. It also caps the flux thickness of flow into thin
+columns (`config_thin_film_cap_inflow_thickness`), which keeps films opening
+at the grounding line from driving jets.
 Both model steps estimate their cell count with
 {py:func}`polaris.tasks.ocean.isomip_plus.cell_count.estimate_cell_count()`.
 
