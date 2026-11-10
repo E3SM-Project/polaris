@@ -1389,9 +1389,9 @@ The task contains six steps:
    The order is checked for the fields in `convergence_fields`: the error of
    the mean pseudo-thickness levels off rather than falling once the sampling
    interval reaches about half an hour, so it is plotted but not checked.
-   Then the means of `sampled_16_steps` are compared with the means of its
-   history snapshots in each period, which checks the times and number of the
-   samples.
+   Then the history snapshots of `sampled_16_steps` are checked to be at the
+   times it samples at, every 16 time steps, and its means are compared with
+   the means of the snapshots in each period.
 
 ### mesh, vertical grid, initial conditions and forcing
 

@@ -728,6 +728,7 @@
 
    sampling.get_sampling_mean_filenames
    sampling_analysis.fit_order
+   sampling_analysis.get_sample_times
    sampling_analysis.relative_l2_error
    sampling_analysis.relative_max_difference
    sampling_analysis.select_period

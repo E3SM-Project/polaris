@@ -9,6 +9,7 @@ from polaris.tasks.ocean.realistic_global.analysis_output.sampling import (
 )
 from polaris.tasks.ocean.realistic_global.analysis_output.sampling_analysis import (  # noqa: E501
     fit_order,
+    get_sample_times,
     relative_l2_error,
     relative_max_difference,
     select_period,
@@ -167,6 +168,11 @@ def test_select_period_excludes_the_start_and_includes_the_end():
         True,
         False,
     ]
+
+
+def test_get_sample_times_ends_on_the_period_end():
+    times = get_sample_times(86400.0, 172800.0, 9600.0)
+    assert list(times) == [86400.0 + 9600.0 * n for n in range(1, 10)]
 
 
 def test_relative_max_difference_skips_inactive_layers():

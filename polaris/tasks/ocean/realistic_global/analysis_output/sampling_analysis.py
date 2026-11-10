@@ -215,11 +215,12 @@ class SamplingAnalysis(OceanIOStep):
     ) -> bool:
         """
         Check the time means of the run with the coarsest sampling against
-        the means of the snapshots it wrote at its samples
+        the means of the snapshots it wrote at its samples, after checking
+        that the snapshots are at the expected sample times
         """
         logger = self.logger
-        steps = self.sampling_steps[-1]
-        expected_count = int(round(self.period_seconds / (steps * dt)))
+        sampling_interval = self.sampling_steps[-1] * dt
+        expected_count = int(round(self.period_seconds / sampling_interval))
         run_name = self.run_names[-1]
 
         all_pass = True
@@ -231,14 +232,15 @@ class SamplingAnalysis(OceanIOStep):
             times = ds.time.values
             for index, filename in enumerate(self.mean_filenames):
                 period_end = (index + 1) * self.period_seconds
-                in_period = select_period(
-                    times, period_end - self.period_seconds, period_end
+                period_start = period_end - self.period_seconds
+                in_period = select_period(times, period_start, period_end)
+                expected_times = get_sample_times(
+                    period_start, period_end, sampling_interval
                 )
-                count = np.count_nonzero(in_period)
-                if count != expected_count:
+                if not np.array_equal(times[in_period], expected_times):
                     logger.error(
-                        f'  {filename}: {count} snapshots in the period, '
-                        f'expected {expected_count} FAIL'
+                        f'  {filename}: snapshots at {times[in_period]} s, '
+                        f'expected {expected_times} s FAIL'
                     )
                     all_pass = False
                     continue
@@ -393,6 +395,33 @@ def select_period(
         Whether each snapshot is in the period
     """
     return (times > period_start) & (times <= period_end)
+
+
+def get_sample_times(
+    period_start: float, period_end: float, sampling_interval: float
+) -> np.ndarray:
+    """
+    The times a reduction over a period samples at: every sampling interval
+    after the start of the period, up to and including its end
+
+    Parameters
+    ----------
+    period_start : float
+        The start of the period, in seconds
+
+    period_end : float
+        The end of the period, in seconds
+
+    sampling_interval : float
+        The interval between samples, in seconds, which divides the period
+
+    Returns
+    -------
+    times : numpy.ndarray
+        The sample times, in seconds
+    """
+    count = int(round((period_end - period_start) / sampling_interval))
+    return period_start + sampling_interval * np.arange(1, count + 1)
 
 
 def relative_max_difference(
