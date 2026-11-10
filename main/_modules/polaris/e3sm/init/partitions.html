@@ -566,18 +566,20 @@ window.runMermaid = runMermaid;</script>
     <span class="k">if</span> <span class="n">ncells</span> <span class="o">&lt;</span> <span class="n">max_cells_per_core</span><span class="p">:</span>
         <span class="n">cores</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
 
-    <span class="k">for</span> <span class="n">candidate</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">min_graph_size</span><span class="p">,</span> <span class="n">max_graph_size</span><span class="p">):</span>
-        <span class="n">factors</span> <span class="o">=</span> <span class="n">_prime_factors</span><span class="p">(</span><span class="n">candidate</span><span class="p">)</span>
-        <span class="n">twos</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">count_nonzero</span><span class="p">(</span><span class="n">factors</span> <span class="o">==</span> <span class="mi">2</span><span class="p">)</span>
-        <span class="n">fives</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">count_nonzero</span><span class="p">(</span><span class="n">factors</span> <span class="o">==</span> <span class="mi">5</span><span class="p">)</span>
-        <span class="n">gt_five</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">count_nonzero</span><span class="p">(</span><span class="n">factors</span> <span class="o">&gt;</span> <span class="mi">5</span><span class="p">)</span>
-        <span class="n">big_factor</span> <span class="o">=</span> <span class="n">factors</span><span class="o">.</span><span class="n">max</span><span class="p">()</span>
-        <span class="k">if</span> <span class="n">twos</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">fives</span> <span class="o">&lt;=</span> <span class="n">twos</span> <span class="ow">and</span> <span class="n">gt_five</span> <span class="o">&lt;=</span> <span class="mi">1</span> <span class="ow">and</span> <span class="n">big_factor</span> <span class="o">&lt;=</span> <span class="mi">7</span><span class="p">:</span>
-            <span class="n">cores</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">candidate</span><span class="p">)</span>
-        <span class="c1"># small odd multiples of 3 and a few that correspond to divisors of</span>
-        <span class="c1"># the ne30 (30x30x6=5400) size</span>
-        <span class="k">elif</span> <span class="n">candidate</span> <span class="ow">in</span> <span class="n">special_core_counts</span><span class="p">:</span>
-            <span class="n">cores</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">candidate</span><span class="p">)</span>
+    <span class="c1"># counts that factor well: even, with no more fives than twos and at most</span>
+    <span class="c1"># one factor larger than five, which can be no larger than seven</span>
+    <span class="n">cores</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
+        <span class="n">candidate</span>
+        <span class="k">for</span> <span class="n">candidate</span> <span class="ow">in</span> <span class="n">_smooth_counts</span><span class="p">(</span><span class="n">max_graph_size</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">candidate</span> <span class="o">&gt;=</span> <span class="n">min_graph_size</span>
+    <span class="p">)</span>
+    <span class="c1"># small odd multiples of 3 and a few that correspond to divisors of the</span>
+    <span class="c1"># ne30 (30x30x6=5400) size</span>
+    <span class="n">cores</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
+        <span class="n">candidate</span>
+        <span class="k">for</span> <span class="n">candidate</span> <span class="ow">in</span> <span class="n">special_core_counts</span>
+        <span class="k">if</span> <span class="n">min_graph_size</span> <span class="o">&lt;=</span> <span class="n">candidate</span> <span class="o">&lt;</span> <span class="n">max_graph_size</span>
+    <span class="p">)</span>
 
     <span class="c1"># add node counts from 1 to max_nodes even if they're weird primes</span>
     <span class="k">for</span> <span class="n">node_size</span> <span class="ow">in</span> <span class="n">node_sizes</span><span class="p">:</span>
@@ -943,18 +945,29 @@ window.runMermaid = runMermaid;</script>
 
 
 <span class="c1"># https://stackoverflow.com/a/22808285</span>
-<span class="k">def</span><span class="w"> </span><span class="nf">_prime_factors</span><span class="p">(</span><span class="n">n</span><span class="p">):</span>
-    <span class="n">i</span> <span class="o">=</span> <span class="mi">2</span>
-    <span class="n">factors</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="k">while</span> <span class="n">i</span> <span class="o">*</span> <span class="n">i</span> <span class="o">&lt;=</span> <span class="n">n</span><span class="p">:</span>
-        <span class="k">if</span> <span class="n">n</span> <span class="o">%</span> <span class="n">i</span><span class="p">:</span>
-            <span class="n">i</span> <span class="o">+=</span> <span class="mi">1</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">n</span> <span class="o">//=</span> <span class="n">i</span>
-            <span class="n">factors</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
-    <span class="k">if</span> <span class="n">n</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
-        <span class="n">factors</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">n</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">factors</span><span class="p">)</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_smooth_counts</span><span class="p">(</span><span class="n">max_count</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    The counts below ``max_count`` of the form 2^a 3^b 5^c 7^d with a &gt;= 1,</span>
+<span class="sd">    c &lt;= a and d &lt;= 1, listed directly rather than by factoring every</span>
+<span class="sd">    integer in range.</span>
+<span class="sd">    """</span>
+    <span class="n">counts</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">twos</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">max_count</span><span class="o">.</span><span class="n">bit_length</span><span class="p">()</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
+        <span class="n">twos</span> <span class="o">*=</span> <span class="mi">2</span>
+        <span class="k">if</span> <span class="n">twos</span> <span class="o">&gt;=</span> <span class="n">max_count</span><span class="p">:</span>
+            <span class="k">break</span>
+        <span class="k">for</span> <span class="n">sevens</span> <span class="ow">in</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">7</span><span class="p">):</span>
+            <span class="n">threes</span> <span class="o">=</span> <span class="n">twos</span> <span class="o">*</span> <span class="n">sevens</span>
+            <span class="k">while</span> <span class="n">threes</span> <span class="o">&lt;</span> <span class="n">max_count</span><span class="p">:</span>
+                <span class="n">count</span> <span class="o">=</span> <span class="n">threes</span>
+                <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">a</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
+                    <span class="k">if</span> <span class="n">count</span> <span class="o">&gt;=</span> <span class="n">max_count</span><span class="p">:</span>
+                        <span class="k">break</span>
+                    <span class="n">counts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">count</span><span class="p">)</span>
+                    <span class="n">count</span> <span class="o">*=</span> <span class="mi">5</span>
+                <span class="n">threes</span> <span class="o">*=</span> <span class="mi">3</span>
+    <span class="k">return</span> <span class="n">counts</span>
 </pre></div>
 
            </div>
