@@ -169,6 +169,30 @@ def test_compare_datasets_exactly_reports_differences():
     assert mismatches[1].startswith('time differs at 1')
 
 
+def test_compare_datasets_exactly_compares_bits_not_values():
+    """Signed zeros and NaNs with other payloads are equal but not BFB"""
+    other_nan = np.array([0x7FF8000000000001], dtype=np.uint64).view(
+        np.float64
+    )[0]
+    values = np.array([0.0, np.nan, 1.0])
+    other = np.array([-0.0, other_nan, 1.0])
+    mismatches = compare_datasets_exactly(_dataset(values), _dataset(other))
+    assert len(mismatches) == 1
+    assert mismatches[0].startswith(
+        'Temperature_TimeMean2Days differs at 2 of 3 points'
+    )
+
+
+def test_compare_datasets_exactly_reports_a_dtype_change():
+    ds = _dataset(np.array([1.0, 2.0]))
+    other = ds.copy()
+    name = 'Temperature_TimeMean2Days'
+    other[name] = other[name].astype(np.float32)
+    assert compare_datasets_exactly(ds, other) == [
+        f'{name} has dtype float64 and float32'
+    ]
+
+
 def test_compare_datasets_exactly_reports_missing_variables():
     ds = _dataset(np.array([1.0]))
     mismatches = compare_datasets_exactly(ds, ds.drop_vars('time'))

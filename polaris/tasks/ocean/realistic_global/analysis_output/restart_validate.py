@@ -138,8 +138,10 @@ def compare_datasets_exactly(ds1: xr.Dataset, ds2: xr.Dataset) -> List[str]:
     """
     Compare every variable in two datasets bit for bit
 
-    The datasets should be opened with ``mask_and_scale=False``, so that fill
-    values are compared as written rather than as NaNs.
+    Each variable must have the same dtype and the same bytes in both, so
+    that ``-0.0`` differs from ``0.0`` and NaNs must have the same bit
+    pattern.  The datasets should be opened with ``mask_and_scale=False``,
+    so that fill values are compared as written rather than as NaNs.
 
     Parameters
     ----------
@@ -171,12 +173,14 @@ def compare_datasets_exactly(ds1: xr.Dataset, ds2: xr.Dataset) -> List[str]:
                 f'{name} has shape {values1.shape} and {values2.shape}'
             )
             continue
-        is_float = np.issubdtype(values1.dtype, np.floating)
-        if np.array_equal(values1, values2, equal_nan=is_float):
+        if values1.dtype != values2.dtype:
+            mismatches.append(
+                f'{name} has dtype {values1.dtype} and {values2.dtype}'
+            )
             continue
-        different = values1 != values2
-        if is_float:
-            different &= ~(np.isnan(values1) & np.isnan(values2))
+        different = _differing_points(values1, values2)
+        if not np.any(different):
+            continue
         message = (
             f'{name} differs at {np.count_nonzero(different)} of '
             f'{values1.size} points'
@@ -186,3 +190,16 @@ def compare_datasets_exactly(ds1: xr.Dataset, ds2: xr.Dataset) -> List[str]:
             message = f'{message}, by up to {np.max(diff):.6e}'
         mismatches.append(message)
     return mismatches
+
+
+def _differing_points(values1: np.ndarray, values2: np.ndarray) -> np.ndarray:
+    """
+    Which points of two arrays of the same shape and dtype differ in their
+    bytes, or in their values for arrays of Python objects
+    """
+    if values1.dtype.hasobject:
+        return np.asarray(values1 != values2)
+    bytes1 = np.ascontiguousarray(values1).view(np.uint8)
+    bytes2 = np.ascontiguousarray(values2).view(np.uint8)
+    shape = values1.shape + (values1.dtype.itemsize,)
+    return np.any(bytes1.reshape(shape) != bytes2.reshape(shape), axis=-1)
