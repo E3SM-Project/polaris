@@ -19,6 +19,7 @@ from polaris.tasks.e3sm.analysis.misomip.diagnostics import (
 from polaris.tasks.e3sm.analysis.misomip.exchange import (
     LANDICE_STATS_STREAM,
 )
+from polaris.tasks.e3sm.analysis.misomip.plots import get_label_units
 from polaris.viz.time_series import Series, plot_time_series
 
 #: The MISMIP+ experiment each coupled experiment is compared with, and the
@@ -375,8 +376,13 @@ class IceSheetComparison(ProductStep):
         ds = xr.Dataset()
         for index, line in enumerate(lines):
             ds[f'time{index}'] = (f'nTime{index}', line.time)
+            ds[f'time{index}'].attrs = dict(
+                long_name='time since the experiment started', units='years'
+            )
             ds[f'values{index}'] = (f'nTime{index}', line.values)
-            ds[f'values{index}'].attrs = dict(long_name=line.label)
+            ds[f'values{index}'].attrs = dict(
+                long_name=line.label, units=get_label_units(ylabel)
+            )
         write_netcdf(ds, f'{stem}.nc')
         self.add_product(
             plot=f'{stem}.png',
