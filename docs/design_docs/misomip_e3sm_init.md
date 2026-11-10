@@ -1220,10 +1220,11 @@ each job, before CIME resubmits the case, the script:
 A file `next_segment.skip` in the case directory makes the script change
 nothing. Each job requests the wall-clock time of
 `[misomip_case_config] job_wall_time`, by default the machine's. A case
-needs FAnSSIE at `e4dd4fcb92` or later, in which MALI rebuilds Albany's
+needs FAnSSIE at `541e83b42d` or later, in which MALI rebuilds Albany's
 finite-element grid only when its masks change, the ocean writes the
-thickness flux its time integrator applies, and the ocean's vertical
-advection of momentum uses the edge-mean thickness.
+thickness flux its time integrator applies, the ocean's vertical
+advection of momentum uses the edge-mean thickness, and inflow into thin
+films can have its flux thickness capped.
 
 ```{admonition} Rationale
 At about 5.3 simulated years a day on 256 tasks at 2 km, 4 years take
