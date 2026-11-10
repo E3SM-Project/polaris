@@ -36,6 +36,7 @@
    plots.RunPlots
    plots.RunPlots.run
    plots.scale_with_units
+   plots.get_label_units
    plots.get_map_mask
    plots.get_range_mask
    plots.get_hatched_cells

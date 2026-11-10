@@ -20,6 +20,7 @@ from polaris.tasks.e3sm.analysis.misomip.plots import (
     get_color_range,
     get_map_mask,
     get_range_mask,
+    scale_with_units,
 )
 from polaris.viz.planar import plot_horiz_comparison
 from polaris.viz.time_series import Series, plot_time_series
@@ -134,7 +135,7 @@ class RunComparison(ProductStep):
             for name, scale, label in variables:
                 if name not in series[kind]:
                     continue
-                values = scale * series[kind][name]
+                values = scale_with_units(series[kind][name], scale, ylabel)
                 ds_data[f'{kind}_{name}'] = values.rename(
                     {'Time': f'{kind}_Time'}
                 )
@@ -169,7 +170,7 @@ class RunComparison(ProductStep):
         ds_data = xr.Dataset()
         for kind in KINDS:
             ds = daily[kind]
-            values = scale * ds[name]
+            values = scale_with_units(ds[name], scale, ylabel)
             ds_data[f'{kind}_{name}'] = values.rename({'Time': f'{kind}_Time'})
             lines.append(
                 Series(
@@ -222,7 +223,10 @@ class RunComparison(ProductStep):
         for _gallery, name, title, scale, units, cmap, where in MAPS:
             if name not in means['e3sm']:
                 continue
-            fields = [scale * means[kind][name] for kind in KINDS]
+            fields = [
+                scale_with_units(means[kind][name], scale, units)
+                for kind in KINDS
+            ]
             mask = None
             counted = None
             if 'nCells' in fields[0].dims:
@@ -254,6 +258,7 @@ class RunComparison(ProductStep):
                 suptitle=f'{title}, mean of {months}',
             )
             difference = fields[1] - fields[0]
+            difference.attrs = dict(fields[0].attrs)
             weights = area if mask is None else area.where(mask, 0.0)
             rms = float(
                 np.sqrt((weights * difference**2).sum() / weights.sum())

@@ -791,12 +791,30 @@ def scale_with_units(field, scale, label):
     scaled = scale * field
     scaled.attrs = dict(field.attrs)
     if scale != 1.0:
-        match = re.search(r'\(([^()]*)\)\s*$', label)
-        units = match.group(1) if match else label
-        units = units.replace(r'^\circ', 'deg')
-        units = re.sub(r'\^\{?(-?\d+)\}?', r'\1', units)
-        scaled.attrs['units'] = units.replace('$', '').strip()
+        scaled.attrs['units'] = get_label_units(label)
     return scaled
+
+
+def get_label_units(label):
+    """
+    Get the units of a plot's label, in the style of netCDF attributes
+
+    Parameters
+    ----------
+    label : str
+        The units, or an axis label ending with them in parentheses, such
+        as ``'melt flux (Gt yr$^{-1}$)'``, with LaTeX exponents
+
+    Returns
+    -------
+    units : str
+        The units, such as ``'Gt yr-1'``
+    """
+    match = re.search(r'\(([^()]*)\)\s*$', label)
+    units = match.group(1) if match else label
+    units = units.replace(r'^\circ', 'deg')
+    units = re.sub(r'\^\{?(-?\d+)\}?', r'\1', units)
+    return units.replace('$', '').strip()
 
 
 def get_map_mask(ds, where):
