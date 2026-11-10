@@ -12,9 +12,13 @@ from polaris.tasks.e3sm.analysis.misomip.diagnostics import (
     isomip_mesh,
     read_initial_condition,
 )
+from polaris.tasks.e3sm.analysis.misomip.plots import scale_with_units
 from polaris.tasks.e3sm.analysis.misomip.yung2026 import YUNG2026_FILENAME
 from polaris.viz import mplstyle_context, plot_horiz_field
 from polaris.viz.time_series import Series, plot_time_series
+
+#: The units of melt rates in plots and their data
+MELT_RATE_UNITS = 'm yr$^{-1}$'
 
 #: Labels of the runs, which use E3SM's physics rather than the protocol's
 #: COM physics
@@ -169,9 +173,9 @@ class PublishedComparison(ProductStep):
             else:
                 ensemble.append(Series(time, values, model))
         ds_data = xr.Dataset()
-        ds_data['published'] = scale * ds_pub[name]
+        ds_data['published'] = scale_with_units(ds_pub[name], scale, ylabel)
         for kind in self.kinds:
-            values = scale * series[kind][name]
+            values = scale_with_units(series[kind][name], scale, ylabel)
             ds_data[kind] = values.rename({'Time': f'{kind}_Time'})
             lines.append(
                 Series(
@@ -246,10 +250,12 @@ class PublishedComparison(ProductStep):
             ax.grid(True, alpha=0.3)
             fig.savefig(plot, bbox_inches='tight')
         ds_data = xr.Dataset()
-        ds_data['published'] = SECONDS_PER_YEAR * ds_pub.meltRateByDraft
+        ds_data['published'] = scale_with_units(
+            ds_pub.meltRateByDraft, SECONDS_PER_YEAR, MELT_RATE_UNITS
+        )
         for kind in self.kinds:
-            ds_data[kind] = (
-                SECONDS_PER_YEAR * means[kind].meltRateByDraft
+            ds_data[kind] = scale_with_units(
+                means[kind].meltRateByDraft, SECONDS_PER_YEAR, MELT_RATE_UNITS
             ).rename({'nDraftBins': f'{kind}_nDraftBins'})
         write_netcdf(ds_data, data)
         self.add_product(
@@ -335,9 +341,15 @@ class PublishedComparison(ProductStep):
         data = 'melt_rate_maps.nc'
         ds_init = read_initial_condition()
         ds_mesh = isomip_mesh(ds_init)
-        ensemble = SECONDS_PER_YEAR * ds_pub.meltRate.mean(dim='nModels')
+        ensemble = scale_with_units(
+            ds_pub.meltRate.mean(dim='nModels'),
+            SECONDS_PER_YEAR,
+            MELT_RATE_UNITS,
+        )
         fields = {
-            kind: SECONDS_PER_YEAR * means[kind].meltRate
+            kind: scale_with_units(
+                means[kind].meltRate, SECONDS_PER_YEAR, MELT_RATE_UNITS
+            )
             for kind in self.kinds
         }
         vmax = max(
