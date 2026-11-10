@@ -696,7 +696,7 @@ class RunPlots(ProductStep):
         grounding line over time"""
         years = ds_landice.daysSinceStart.values / 365.0
         for name, stem, title, ylabel, scale in LANDICE_SERIES:
-            values = scale * ds_landice[name]
+            values = scale_with_units(ds_landice[name], scale, ylabel)
             plot = f'{stem}.png'
             data = f'{stem}.nc'
             plot_time_series(
