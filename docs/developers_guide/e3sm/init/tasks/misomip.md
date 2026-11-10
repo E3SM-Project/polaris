@@ -231,7 +231,8 @@ For every experiment, the step writes `edit_streams.py` from
 `edit_streams.template` through
 {py:func}`polaris.tasks.e3sm.init.misomip.case_config.get_edit_streams_script()`,
 with `DAILY_OCEAN_FIELDS`, `MONTHLY_OCEAN_FIELDS`,
-`DAILY_MAX_OCEAN_FIELDS` and `GLOBAL_STATS_INTERVAL`, and, with a
+`DAILY_MAX_OCEAN_FIELDS`, `MONTHLY_MIN_OCEAN_FIELDS` and
+`GLOBAL_STATS_INTERVAL`, and, with a
 prognostic MALI, the MISMIP+ tasks' output fields with
 `MALI_HISTORY_FIELDS`, and `MALI_DAILY_FIELDS`.  `user_nl_mpaso` turns on
 the daily means, `MONITORING_OPTIONS` and `OVERTURNING_OPTIONS`.  The script writes the ocean's

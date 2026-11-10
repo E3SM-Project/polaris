@@ -34,6 +34,7 @@ from polaris.tasks.e3sm.init.misomip.case_config import (
     MALI_HISTORY_INTERVAL,
     MISMIP_PLUS_STANDALONE_OPTIONS,
     MONITORING_OPTIONS,
+    MONTHLY_MIN_OCEAN_FIELDS,
     MONTHLY_OCEAN_FIELDS,
     OVERTURNING_OPTIONS,
     RAMP_OPTION,
@@ -847,6 +848,10 @@ def _write_streams(rundir):
         filename_template="case.mpaso.hist.am.timeSeriesStatsCustom.nc"
         output_interval="00-01-00_00:00:00">
 </stream>
+<stream name="timeSeriesStatsMonthlyMinOutput" type="output"
+        filename_template="case.mpaso.hist.am.timeSeriesStatsMonthlyMin.nc">
+    <var name="windStressZonal"/>
+</stream>
 <stream name="globalStatsOutput" type="output"
         filename_template="case.mpaso.hist.am.globalStats.nc"
         output_interval="00-00-01_00:00:00">
@@ -881,6 +886,7 @@ def _write_registries(srcroot, missing):
             + MONTHLY_OCEAN_FIELDS
             + SNAPSHOT_OCEAN_FIELDS
             + DAILY_MAX_OCEAN_FIELDS
+            + MONTHLY_MIN_OCEAN_FIELDS
         ),
         'mpas-albany-landice': (
             ['xtime']
@@ -944,6 +950,7 @@ def _run_edit_streams(
     [
         'landIceFreshwaterFluxNotSentToGlc',
         'kineticEnergyCell',
+        'landIceFloatingFraction',
         'activeTracers',
         'floatingBasalMassBalApplied',
     ],
@@ -962,6 +969,7 @@ def test_edit_streams_script_stops_without_a_registry_field(tmp_path, missing):
         ('streams.ocean', 'timeSeriesStatsDailyOutput'),
         ('streams.ocean', 'timeSeriesStatsMonthlyOutput'),
         ('streams.ocean', 'timeSeriesStatsCustomOutput'),
+        ('streams.ocean', 'timeSeriesStatsMonthlyMinOutput'),
         ('streams.ocean', 'globalStatsOutput'),
         ('streams.landice', 'output'),
     ],
@@ -1019,6 +1027,9 @@ def test_edit_streams_script(tmp_path):
         custom = streams['timeSeriesStatsCustomOutput']
         assert _vars(custom) == ['xtime'] + DAILY_MAX_OCEAN_FIELDS
         assert custom.attrib['output_interval'] == DAILY_MAX_INTERVAL
+        # the monthly minima, in place of E3SM's list
+        monthly_min = streams['timeSeriesStatsMonthlyMinOutput']
+        assert _vars(monthly_min) == ['xtime'] + MONTHLY_MIN_OCEAN_FIELDS
         global_stats = streams['globalStatsOutput']
         assert global_stats.attrib['output_interval'] == GLOBAL_STATS_INTERVAL
         assert [child.tag for child in global_stats] == ['var_struct']

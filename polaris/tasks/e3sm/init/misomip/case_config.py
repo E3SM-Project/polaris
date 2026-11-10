@@ -309,17 +309,25 @@ SNAPSHOT_OCEAN_FIELDS = ['layerThickness']
 SNAPSHOT_INTERVAL = '00-01-00_00:00:00'
 
 #: MPAS-Ocean options of every case that monitor the ocean: the global
-#: statistics, written hourly by the streams edit, and the daily maximum of
+#: statistics, written hourly by the streams edit, the daily maximum of
 #: :py:data:`DAILY_MAX_OCEAN_FIELDS` with the custom time series, checked
 #: every time step, which catches a short burst that daily means smooth
-#: out
+#: out, and the monthly minimum of :py:data:`MONTHLY_MIN_OCEAN_FIELDS`
 MONITORING_OPTIONS = {
     'config_AM_globalStats_enable': '.true.',
     'config_AM_timeSeriesStatsCustom_enable': '.true.',
     'config_AM_timeSeriesStatsCustom_operation': "'max'",
     'config_AM_timeSeriesStatsCustom_compute_interval': "'dt'",
     'config_AM_timeSeriesStatsCustom_reset_intervals': "'00-00-01_00:00:00'",
+    'config_AM_timeSeriesStatsMonthlyMin_enable': '.true.',
+    'config_AM_timeSeriesStatsMonthlyMin_compute_interval': "'dt'",
 }
+
+#: The ocean's monthly minima in every case, in place of E3SM's list,
+#: sampled every time step: the sea-surface height, which gives each cell's
+#: thinnest water column in the month, and the floating fraction, so that a
+#: cell that was a thin film at any time in a month can be found
+MONTHLY_MIN_OCEAN_FIELDS = ['ssh', 'landIceFloatingFraction']
 
 #: The ocean's daily maxima in every case, in place of E3SM's list for the
 #: custom time series
@@ -1648,6 +1656,7 @@ def get_edit_streams_script(experiment):
         snapshot_ocean_fields=repr(SNAPSHOT_OCEAN_FIELDS),
         snapshot_interval=SNAPSHOT_INTERVAL,
         daily_max_ocean_fields=repr(DAILY_MAX_OCEAN_FIELDS),
+        monthly_min_ocean_fields=repr(MONTHLY_MIN_OCEAN_FIELDS),
         global_stats_interval=GLOBAL_STATS_INTERVAL,
         daily_max_interval=DAILY_MAX_INTERVAL,
         mali_history_interval=MALI_HISTORY_INTERVAL,

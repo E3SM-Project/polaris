@@ -46,6 +46,9 @@ SNAPSHOT_INTERVAL = '{{ snapshot_interval }}'
 DAILY_MAX_OCEAN_FIELDS = {{ daily_max_ocean_fields }}
 DAILY_MAX_INTERVAL = '{{ daily_max_interval }}'
 
+# The ocean's monthly minima, in place of E3SM's list
+MONTHLY_MIN_OCEAN_FIELDS = {{ monthly_min_ocean_fields }}
+
 # The interval of the ocean's global statistics
 GLOBAL_STATS_INTERVAL = '{{ global_stats_interval }}'
 
@@ -77,7 +80,8 @@ def main():
         + DAILY_3D_OCEAN_FIELDS
         + MONTHLY_OCEAN_FIELDS
         + SNAPSHOT_OCEAN_FIELDS
-        + DAILY_MAX_OCEAN_FIELDS,
+        + DAILY_MAX_OCEAN_FIELDS
+        + MONTHLY_MIN_OCEAN_FIELDS,
     )
 {%- if edit_landice %}
     check_registry(
@@ -148,6 +152,11 @@ def edit_ocean(in_filename, daily_3d):
         custom.remove(child)
     for name in ['xtime'] + DAILY_MAX_OCEAN_FIELDS:
         add_var(custom, name)
+    monthly_min = get_stream(root, 'timeSeriesStatsMonthlyMinOutput')
+    for child in list(monthly_min):
+        monthly_min.remove(child)
+    for name in ['xtime'] + MONTHLY_MIN_OCEAN_FIELDS:
+        add_var(monthly_min, name)
     global_stats = get_stream(root, 'globalStatsOutput')
     global_stats.set('output_interval', GLOBAL_STATS_INTERVAL)
     return tree
