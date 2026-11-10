@@ -1,3 +1,4 @@
+import glob
 import os
 
 import numpy as np
@@ -104,8 +105,9 @@ class IceSheetComparison(ProductStep):
         The start of the coupled run, in days since the start of year 1
 
     references : list of tuple
-        The label, local prefix and whether it is the primary reference, of
-        each standalone MALI run compared
+        The label, local prefix, whether it is the primary reference and the
+        local names of the history files, in order, of each standalone MALI
+        run compared
 
     has_cornford : bool
         Whether the entries of Cornford et al. (2020) are compared
@@ -193,21 +195,30 @@ class IceSheetComparison(ProductStep):
             if not path:
                 continue
             prefix = f'{suffix}_'
+            path = os.path.abspath(path)
+            # the history is one file, or one per year in longer runs
+            history = sorted(
+                os.path.basename(filename)
+                for filename in glob.glob(os.path.join(path, 'output*.nc'))
+            )
+            if not history:
+                history = ['output.nc']
             for filename in [
                 'globalStats.nc',
-                'output.nc',
                 'landice_grid.nc',
                 'namelist.landice',
+                *history,
             ]:
                 self.add_input_file(
                     filename=f'{prefix}{filename}',
-                    target=os.path.join(os.path.abspath(path), filename),
+                    target=os.path.join(path, filename),
                 )
             self.references.append(
                 (
                     f'MALI {self.mismip_experiment}{label_suffix}',
                     prefix,
                     primary,
+                    [f'{prefix}{filename}' for filename in history],
                 )
             )
         cornford_dir = section.get('cornford2020_dir', '').strip()
@@ -242,8 +253,12 @@ class IceSheetComparison(ProductStep):
             1.0, float(np.nanmax(coupled_stats['years'])), coupled_gl_years[-1]
         )
         references = [
-            (label, self._reference(prefix), *REFERENCE_STYLES[primary])
-            for label, prefix, primary in self.references
+            (
+                label,
+                self._reference(prefix, history),
+                *REFERENCE_STYLES[primary],
+            )
+            for label, prefix, primary, history in self.references
         ]
         cornford = None
         if self.has_cornford:
@@ -311,7 +326,7 @@ class IceSheetComparison(ProductStep):
         self._plot(lines, ensemble, stem, title, ylabel, end_year)
         self._plot_differences(lines, stem, title, ylabel, end_year)
 
-    def _reference(self, prefix):
+    def _reference(self, prefix, history):
         """Read a standalone MALI run's global statistics and history"""
         ds_stats = read_landice_stats([f'{prefix}globalStats.nc'])
         reference = _stats_series(ds_stats, 365.0 * (self.start_year - 1.0))
@@ -320,7 +335,7 @@ class IceSheetComparison(ProductStep):
         )
         if 'Time' in ds_mesh.dims:
             ds_mesh = ds_mesh.isel(Time=0)
-        ds_out = xr.open_dataset(f'{prefix}output.nc', decode_times=False)
+        ds_out = read_landice_history(history)
         options = dict()
         for record in ingest(f'{prefix}namelist.landice').values():
             options.update(record)
@@ -402,6 +417,35 @@ class IceSheetComparison(ProductStep):
             ylabel,
             end_year,
         )
+
+
+def read_landice_history(filenames):
+    """
+    Read the fields of MALI's history that locate the grounding line, from
+    one file or several in order, such as one per year
+
+    Parameters
+    ----------
+    filenames : list of str
+        The files, in order
+
+    Returns
+    -------
+    ds : xarray.Dataset
+        ``xtime``, ``thickness`` and, where the history has it,
+        ``bedTopography``, along ``Time``
+    """
+    ds = xr.open_mfdataset(
+        filenames,
+        combine='nested',
+        concat_dim='Time',
+        decode_times=False,
+        data_vars='minimal',
+        coords='minimal',
+        compat='override',
+        preprocess=_history_fields,
+    )
+    return ds.load()
 
 
 def read_landice_stats(filenames):
@@ -497,3 +541,11 @@ def _cornford_members(cornford, name, scale, start_year):
                 )
             )
     return members
+
+
+def _history_fields(ds):
+    """The fields of a history file that locate the grounding line"""
+    names = [
+        name for name in ['xtime', 'thickness', 'bedTopography'] if name in ds
+    ]
+    return ds[names]

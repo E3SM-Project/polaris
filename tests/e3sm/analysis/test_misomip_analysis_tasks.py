@@ -463,11 +463,18 @@ def test_the_coupled_run_s_mali_is_the_primary_ice_sheet_reference(tmp_path):
     step.config = task.config
     step.setup()
 
+    # neither run has yearly history files, so each reads its output.nc
     assert step.references == [
         (
             "MALI Ice1r, coupled run's MALI, monthly-forced steps",
             'coupled_mali_monthly_forward_',
             True,
+            ['coupled_mali_monthly_forward_output.nc'],
         ),
-        ('MALI Ice1r, other MALI version', 'forward_', False),
+        (
+            'MALI Ice1r, other MALI version',
+            'forward_',
+            False,
+            ['forward_output.nc'],
+        ),
     ]

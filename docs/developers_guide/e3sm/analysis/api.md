@@ -57,6 +57,7 @@
    ice_sheet.IceSheetComparison
    ice_sheet.IceSheetComparison.setup
    ice_sheet.IceSheetComparison.run
+   ice_sheet.read_landice_history
    ice_sheet.read_landice_stats
    ice_sheet.get_lines_range
    published.PublishedComparison
