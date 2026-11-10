@@ -19,10 +19,16 @@ This module is deliberately dependency-light --- it imports nothing from
 by any vertically reduced diagnostic.
 """
 
-from typing import NamedTuple, Optional
+from typing import TYPE_CHECKING, NamedTuple, Optional
 
-import numpy as np
-import xarray as xr
+from polaris.lazy import lazy_module
+
+if TYPE_CHECKING:
+    import numpy as np
+    import xarray as xr
+else:
+    np = lazy_module('numpy')
+    xr = lazy_module('xarray')
 
 
 class VerticalReduction(NamedTuple):

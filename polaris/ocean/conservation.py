@@ -1,6 +1,13 @@
-import numpy as np
+from typing import TYPE_CHECKING
 
 from polaris.constants import get_constant
+from polaris.lazy import lazy_module
+
+if TYPE_CHECKING:
+    import numpy as np
+else:
+    np = lazy_module('numpy')
+
 
 cp_sw = {
     'omega': get_constant('seawater_specific_heat_capacity_teos10'),

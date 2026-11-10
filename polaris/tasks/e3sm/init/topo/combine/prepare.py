@@ -1,13 +1,9 @@
 import os
 import pathlib
-
-import numpy as np
-import pyproj
-import xarray as xr
-from mpas_tools.logging import check_call
-from pyremap import ProjectionGridDescriptor, get_lat_lon_descriptor
+from typing import TYPE_CHECKING
 
 from polaris.archive import extract_zip_member
+from polaris.lazy import lazy_attr, lazy_module
 from polaris.step import Step
 from polaris.tasks.e3sm.init.topo.combine.files import (
     ANTARCTIC,
@@ -16,6 +12,20 @@ from polaris.tasks.e3sm.init.topo.combine.files import (
     get_combine_files,
     write_netcdf_with_fill_values,
 )
+
+if TYPE_CHECKING:
+    import numpy as np
+    import pyproj
+    import xarray as xr
+    from mpas_tools.logging import check_call
+    from pyremap import ProjectionGridDescriptor, get_lat_lon_descriptor
+else:
+    np = lazy_module('numpy')
+    pyproj = lazy_module('pyproj')
+    xr = lazy_module('xarray')
+    check_call = lazy_attr('mpas_tools.logging', 'check_call')
+    ProjectionGridDescriptor = lazy_attr('pyremap', 'ProjectionGridDescriptor')
+    get_lat_lon_descriptor = lazy_attr('pyremap', 'get_lat_lon_descriptor')
 
 
 class PrepareCombineStep(Step):

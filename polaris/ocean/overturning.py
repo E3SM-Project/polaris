@@ -10,10 +10,19 @@ other mesh.  Only ``cellsOnEdge``, the cell coordinates, ``dvEdge`` and
 ``dcEdge`` are used, so no mesh structure is assumed.
 """
 
-from typing import Literal
+from __future__ import annotations
 
-import numpy as np
-import xarray as xr
+from typing import TYPE_CHECKING, Literal
+
+from polaris.lazy import lazy_module
+
+if TYPE_CHECKING:
+    import numpy as np
+    import xarray as xr
+else:
+    np = lazy_module('numpy')
+    xr = lazy_module('xarray')
+
 
 LineCoordType = Literal['x', 'y']
 

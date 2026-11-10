@@ -1,8 +1,16 @@
-import numpy as np
-import xarray as xr
+from typing import TYPE_CHECKING
 
 from polaris.constants import get_constant
+from polaris.lazy import lazy_module
 from polaris.ocean.model import OceanIOStep, get_time_since_start
+
+if TYPE_CHECKING:
+    import numpy as np
+    import xarray as xr
+else:
+    np = lazy_module('numpy')
+    xr = lazy_module('xarray')
+
 
 # The TEOS-10 specific heat of seawater that Omega uses for its heat budget
 # (Cp0Sw = 1 / HFluxFac / RhoSw in GlobalConstants.h)

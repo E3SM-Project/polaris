@@ -1,14 +1,22 @@
 import os
-
-import numpy as np
-import xarray as xr
-from mpas_tools.io import write_netcdf
+from typing import TYPE_CHECKING
 
 from polaris import Step
 from polaris.cf import add_cf_conventions, drop_dangling_references
+from polaris.lazy import lazy_attr, lazy_module
 from polaris.tasks.ocean.realistic_global.forcing.jra55.stress import (
     JRA55_STRESS_FILENAME,
 )
+
+if TYPE_CHECKING:
+    import numpy as np
+    import xarray as xr
+    from mpas_tools.io import write_netcdf
+else:
+    np = lazy_module('numpy')
+    xr = lazy_module('xarray')
+    write_netcdf = lazy_attr('mpas_tools.io', 'write_netcdf')
+
 
 JRA55_ON_MESH_FILENAME = 'jra55_on_mesh.nc'
 

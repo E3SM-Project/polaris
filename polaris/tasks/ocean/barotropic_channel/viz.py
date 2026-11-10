@@ -1,10 +1,17 @@
-import cmocean  # noqa: F401
-import numpy as np
+from typing import TYPE_CHECKING
 
+from polaris.lazy import lazy_module, lazy_side_effect
 from polaris.ocean.model import OceanIOStep
 
 # from polaris.mpas import cell_mask_to_edge_mask
 from polaris.viz import plot_horiz_field
+
+if TYPE_CHECKING:
+    import cmocean  # noqa: F401
+    import numpy as np
+else:
+    lazy_side_effect('cmocean')
+    np = lazy_module('numpy')
 
 
 class Viz(OceanIOStep):

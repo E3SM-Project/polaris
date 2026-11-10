@@ -31,12 +31,9 @@ import time
 from contextlib import contextmanager
 from datetime import datetime, timedelta
 from functools import partial
-from typing import Dict, Iterator, List, Optional
+from typing import TYPE_CHECKING, Dict, Iterator, List, Optional
 
-import mpas_tools.io
-from mache.parallel import PlacementSupport
-from mpas_tools.logging import LoggingContext
-
+from polaris.lazy import lazy_attr, lazy_module, load_all
 from polaris.parallel import set_parallel_systems
 from polaris.run import setup_config, unpickle_suite
 from polaris.run.allocation import read_allocation
@@ -72,6 +69,15 @@ from polaris.run.serial import (
 )
 from polaris.validate import merge_diff_summary
 
+if TYPE_CHECKING:
+    import mpas_tools.io as mpas_tools_io
+    from mache.parallel import PlacementSupport
+    from mpas_tools.logging import LoggingContext
+else:
+    mpas_tools_io = lazy_module('mpas_tools.io')
+    PlacementSupport = lazy_attr('mache.parallel', 'PlacementSupport')
+    LoggingContext = lazy_attr('mpas_tools.logging', 'LoggingContext')
+
 
 def run_tasks(suite_name, quiet=False):
     """
@@ -89,13 +95,16 @@ def run_tasks(suite_name, quiet=False):
         Whether step names are left out of the output as the run progresses
     """
     suite = unpickle_suite(suite_name)
+    # unpickling the steps imported their modules; import what those modules
+    # deferred now, once, rather than once in every forked step
+    load_all()
     task = next(iter(suite['tasks'].values()))
     component = task.component
     common_config = setup_config(task.base_work_dir, f'{component.name}.cfg')
     set_parallel_systems(suite['tasks'], common_config)
 
-    mpas_tools.io.default_format = common_config.get('io', 'format')
-    mpas_tools.io.default_engine = common_config.get('io', 'engine')
+    mpas_tools_io.default_format = common_config.get('io', 'format')
+    mpas_tools_io.default_engine = common_config.get('io', 'engine')
 
     work_dir = suite.get('work_dir', os.getcwd())
     with LoggingContext(suite_name) as logger:

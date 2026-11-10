@@ -4,12 +4,13 @@ iterating on BottomPressure until the recovered geometric seafloor depth
 matches a target bathymetry within a configurable tolerance.
 """
 
-from abc import ABC, abstractmethod
+from __future__ import annotations
 
-import numpy as np
-import xarray as xr
+from abc import ABC, abstractmethod
+from typing import TYPE_CHECKING
 
 from polaris.attrs import set_attrs
+from polaris.lazy import lazy_module
 from polaris.ocean.eos import compute_specvol
 from polaris.ocean.vertical.grid_1d import add_1d_grid, generate_1d_grid
 from polaris.ocean.vertical.pstar import init_pstar_vertical_coord
@@ -20,6 +21,13 @@ from polaris.ocean.vertical.ztilde import (
     pressure_from_z_tilde,
 )
 from polaris.step import Step
+
+if TYPE_CHECKING:
+    import numpy as np
+    import xarray as xr
+else:
+    np = lazy_module('numpy')
+    xr = lazy_module('xarray')
 
 
 class PStarInitStep(Step, ABC):

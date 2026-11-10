@@ -8,10 +8,10 @@ Depths and densities are geometric.  The salinity-only linear equation of
 state makes density, and therefore buoyancy, a function of salinity alone.
 """
 
-import numpy as np
-import xarray as xr
+from typing import TYPE_CHECKING
 
 from polaris.constants import get_constant
+from polaris.lazy import lazy_module
 from polaris.ocean.eos import compute_density
 from polaris.ocean.overturning import (
     bin_line_transport,
@@ -21,6 +21,14 @@ from polaris.ocean.overturning import (
     interp_cell_to_line_edges,
 )
 from polaris.ocean.vertical.ztilde import RhoSw
+
+if TYPE_CHECKING:
+    import numpy as np
+    import xarray as xr
+else:
+    np = lazy_module('numpy')
+    xr = lazy_module('xarray')
+
 
 Gravity = get_constant('standard_acceleration_of_gravity')
 

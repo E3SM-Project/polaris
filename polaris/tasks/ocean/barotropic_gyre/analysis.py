@@ -1,15 +1,27 @@
 from math import pi
+from typing import TYPE_CHECKING
 
-import cmocean  # noqa: F401
-import matplotlib.pyplot as plt
-import mosaic
-import numpy as np
-from matplotlib import colors as mcolors
-from mpas_tools.ocean import compute_barotropic_streamfunction
-
+from polaris.lazy import lazy_attr, lazy_module
 from polaris.mpas import area_for_field
 from polaris.ocean.model import OceanIOStep
 from polaris.viz import mplstyle_context
+
+if TYPE_CHECKING:
+    import cmocean
+    import matplotlib.pyplot as plt
+    import mosaic
+    import numpy as np
+    from matplotlib import colors as mcolors
+    from mpas_tools.ocean import compute_barotropic_streamfunction
+else:
+    cmocean = lazy_module('cmocean')
+    plt = lazy_module('matplotlib.pyplot')
+    mosaic = lazy_module('mosaic')
+    np = lazy_module('numpy')
+    mcolors = lazy_attr('matplotlib', 'colors')
+    compute_barotropic_streamfunction = lazy_attr(
+        'mpas_tools.ocean', 'compute_barotropic_streamfunction'
+    )
 
 
 class Analysis(OceanIOStep):

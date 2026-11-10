@@ -1,13 +1,7 @@
 import os
+from typing import TYPE_CHECKING
 
-import cmocean  # noqa: F401
-import matplotlib.pyplot as plt
-import numpy as np
-import xarray as xr
-from matplotlib.font_manager import FontProperties
-from mpas_tools.ocean.viz.transect import compute_transect, plot_transect
-from mpas_tools.viz.mpas_to_xdmf.mpas_to_xdmf import MpasToXdmf
-
+from polaris.lazy import lazy_attr, lazy_module, lazy_side_effect
 from polaris.ocean.eos.teos10 import TRACER_ATTRS
 from polaris.ocean.model import OceanIOStep
 from polaris.ocean.vertical.diagnostics import (
@@ -17,6 +11,28 @@ from polaris.ocean.vertical.diagnostics import (
 from polaris.viz import get_viz_defaults, plot_global_mpas_field
 
 from .remap_jra55 import JRA55_ON_MESH_FILENAME
+
+if TYPE_CHECKING:
+    import cmocean  # noqa: F401
+    import matplotlib.pyplot as plt
+    import numpy as np
+    import xarray as xr
+    from matplotlib.font_manager import FontProperties
+    from mpas_tools.ocean.viz.transect import compute_transect, plot_transect
+    from mpas_tools.viz.mpas_to_xdmf.mpas_to_xdmf import MpasToXdmf
+else:
+    lazy_side_effect('cmocean')
+    plt = lazy_module('matplotlib.pyplot')
+    np = lazy_module('numpy')
+    xr = lazy_module('xarray')
+    FontProperties = lazy_attr('matplotlib.font_manager', 'FontProperties')
+    compute_transect = lazy_attr(
+        'mpas_tools.ocean.viz.transect', 'compute_transect'
+    )
+    plot_transect = lazy_attr('mpas_tools.ocean.viz.transect', 'plot_transect')
+    MpasToXdmf = lazy_attr(
+        'mpas_tools.viz.mpas_to_xdmf.mpas_to_xdmf', 'MpasToXdmf'
+    )
 
 
 class VizInitStep(OceanIOStep):

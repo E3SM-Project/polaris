@@ -1,11 +1,18 @@
 import argparse
 import importlib.resources as imp_res
 from collections import OrderedDict
-from typing import Dict
+from typing import TYPE_CHECKING, Dict
 
-from jinja2 import Template
-from lxml import etree
-from ruamel.yaml import YAML
+from polaris.lazy import lazy_attr
+
+if TYPE_CHECKING:
+    from jinja2 import Template
+    from lxml import etree
+    from ruamel.yaml import YAML
+else:
+    Template = lazy_attr('jinja2', 'Template')
+    etree = lazy_attr('lxml', 'etree')
+    YAML = lazy_attr('ruamel.yaml', 'YAML')
 
 
 class PolarisYaml:

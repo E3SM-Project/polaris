@@ -1,11 +1,16 @@
 import os
 import time
+from typing import TYPE_CHECKING
 
-import numpy as np
-
+from polaris.lazy import lazy_module
 from polaris.ocean.convergence import get_timestep_for_task
 from polaris.ocean.model import get_time_interval_string
 from polaris.tasks.ocean.cosine_bell.forward import Forward
+
+if TYPE_CHECKING:
+    import numpy as np
+else:
+    np = lazy_module('numpy')
 
 
 class RestartStep(Forward):

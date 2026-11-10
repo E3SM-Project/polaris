@@ -1,7 +1,8 @@
-import matplotlib.pyplot as plt
-import numpy as np
-import xarray as xr
+from __future__ import annotations
 
+from typing import TYPE_CHECKING
+
+from polaris.lazy import lazy_module
 from polaris.ocean.model import OceanIOStep
 from polaris.ocean.vertical.ztilde import Gravity, RhoSw
 from polaris.tasks.ocean.horiz_press_grad.forward import SCHEME_HPGA
@@ -15,6 +16,15 @@ from polaris.tasks.ocean.horiz_press_grad.metrics import (
 )
 from polaris.tasks.ocean.horiz_press_grad.reference import ReferenceColumn
 from polaris.viz import mplstyle_context
+
+if TYPE_CHECKING:
+    import matplotlib.pyplot as plt
+    import numpy as np
+    import xarray as xr
+else:
+    plt = lazy_module('matplotlib.pyplot')
+    np = lazy_module('numpy')
+    xr = lazy_module('xarray')
 
 
 class Analysis(OceanIOStep):

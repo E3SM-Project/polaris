@@ -1,11 +1,24 @@
 import importlib.resources as imp_res
 import threading
 from contextlib import contextmanager
-from typing import Any, cast
+from typing import TYPE_CHECKING, Any, cast
 
-import matplotlib.pyplot as plt
-import matplotlib.style
-from mpas_tools.viz.colormaps import register_sci_viz_colormaps
+from polaris.lazy import lazy_attr, lazy_module, lazy_side_effect
+
+if TYPE_CHECKING:
+    # registers the cmocean colormaps (cmo.*) with matplotlib
+    import cmocean  # noqa: F401
+    import matplotlib.pyplot as plt
+    import matplotlib.style as mpl_style
+    from mpas_tools.viz.colormaps import register_sci_viz_colormaps
+else:
+    lazy_side_effect('cmocean')
+    plt = lazy_module('matplotlib.pyplot')
+    mpl_style = lazy_module('matplotlib.style')
+    register_sci_viz_colormaps = lazy_attr(
+        'mpas_tools.viz.colormaps', 'register_sci_viz_colormaps'
+    )
+
 
 _COLORMAP_LOCK = threading.Lock()
 _SCI_VIZ_COLORMAPS_REGISTERED = False
@@ -35,7 +48,7 @@ def mplstyle_context(dpi=None):
     # rc_context is typed with a Literal of every rcParam name; 'savefig.dpi'
     # is one of them, but the key is built here rather than written inline
     with (
-        matplotlib.style.context(style_filename),
+        mpl_style.context(style_filename),
         plt.rc_context(cast(Any, overrides)),
     ):
         yield
@@ -45,6 +58,9 @@ def _register_colormaps():
     """
     Add the scientific visualization colormaps to Matplotlib's registry, once
     per process
+
+    The cmocean colormaps are registered when cmocean is imported, which
+    the first use of a deferred name in this module does.
     """
     global _SCI_VIZ_COLORMAPS_REGISTERED
 

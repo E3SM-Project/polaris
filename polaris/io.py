@@ -1,9 +1,16 @@
 import os
 import tempfile
+from typing import TYPE_CHECKING
 from urllib.parse import urlparse
 
-import progressbar
-import requests
+from polaris.lazy import lazy_module
+
+if TYPE_CHECKING:
+    import progressbar
+    import requests
+else:
+    progressbar = lazy_module('progressbar')
+    requests = lazy_module('requests')
 
 
 def download(url, dest_path, config, exceptions=True):  # noqa: C901

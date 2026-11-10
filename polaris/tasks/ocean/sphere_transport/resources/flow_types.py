@@ -1,10 +1,27 @@
-import numpy as np
-import xarray as xr
-from mpas_tools.mesh.spherical import calc_vector_east_north
-from mpas_tools.transects import lon_lat_to_cartesian
-from numpy import cos, pi, sin
+from math import pi
+from typing import TYPE_CHECKING
 
 from polaris.constants import get_constant
+from polaris.lazy import lazy_attr, lazy_module
+
+if TYPE_CHECKING:
+    import numpy as np
+    import xarray as xr
+    from mpas_tools.mesh.spherical import calc_vector_east_north
+    from mpas_tools.transects import lon_lat_to_cartesian
+    from numpy import cos, sin
+else:
+    np = lazy_module('numpy')
+    xr = lazy_module('xarray')
+    calc_vector_east_north = lazy_attr(
+        'mpas_tools.mesh.spherical', 'calc_vector_east_north'
+    )
+    lon_lat_to_cartesian = lazy_attr(
+        'mpas_tools.transects', 'lon_lat_to_cartesian'
+    )
+    cos = lazy_attr('numpy', 'cos')
+    sin = lazy_attr('numpy', 'sin')
+
 
 earth_radius = get_constant('mean_radius')
 

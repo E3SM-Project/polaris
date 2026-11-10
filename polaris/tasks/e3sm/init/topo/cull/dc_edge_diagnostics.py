@@ -1,6 +1,15 @@
-import numpy as np
-import xarray as xr
-from mpas_tools.io import write_netcdf
+from typing import TYPE_CHECKING
+
+from polaris.lazy import lazy_attr, lazy_module
+
+if TYPE_CHECKING:
+    import numpy as np
+    import xarray as xr
+    from mpas_tools.io import write_netcdf
+else:
+    np = lazy_module('numpy')
+    xr = lazy_module('xarray')
+    write_netcdf = lazy_attr('mpas_tools.io', 'write_netcdf')
 
 
 def check_ocean_dc_edge(

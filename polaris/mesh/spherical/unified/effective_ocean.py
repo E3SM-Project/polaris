@@ -14,14 +14,24 @@ hysteresis growth — so the sizing field can prescribe the full ocean
 background cell width everywhere the cull is likely to keep.
 """
 
-import numpy as np
-from scipy import ndimage
-from scipy.spatial import cKDTree
+import math
+from typing import TYPE_CHECKING
 
 from polaris.constants import get_constant
+from polaris.lazy import lazy_attr, lazy_module
+
+if TYPE_CHECKING:
+    import numpy as np
+    from scipy import ndimage
+    from scipy.spatial import cKDTree
+else:
+    np = lazy_module('numpy')
+    ndimage = lazy_attr('scipy', 'ndimage')
+    cKDTree = lazy_attr('scipy.spatial', 'cKDTree')
+
 
 EARTH_RADIUS = get_constant('mean_radius')
-KM_PER_DEG = np.pi / 180.0 * EARTH_RADIUS / 1e3
+KM_PER_DEG = math.pi / 180.0 * EARTH_RADIUS / 1e3
 
 
 def build_effective_ocean_mask(

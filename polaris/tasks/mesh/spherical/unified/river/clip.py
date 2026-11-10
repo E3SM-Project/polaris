@@ -1,11 +1,8 @@
 import os
-
-import numpy as np
-import xarray as xr
-from mpas_tools.mesh.interpolation import interp_bilin
-from shapely.geometry import LineString
+from typing import TYPE_CHECKING
 
 from polaris.cf import add_cf_conventions, add_lat_lon_attrs
+from polaris.lazy import lazy_attr, lazy_module
 from polaris.mesh.spherical.unified.river.geojson import (
     read_geojson,
     write_geojson,
@@ -20,6 +17,17 @@ from polaris.tasks.mesh.spherical.unified.river.simplify import (
     read_river_segments_from_feature_collection,
     river_segments_to_feature_collection,
 )
+
+if TYPE_CHECKING:
+    import numpy as np
+    import xarray as xr
+    from mpas_tools.mesh.interpolation import interp_bilin
+    from shapely.geometry import LineString
+else:
+    np = lazy_module('numpy')
+    xr = lazy_module('xarray')
+    interp_bilin = lazy_attr('mpas_tools.mesh.interpolation', 'interp_bilin')
+    LineString = lazy_attr('shapely.geometry', 'LineString')
 
 
 class ClipRiverNetworkStep(Step):

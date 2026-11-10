@@ -12,13 +12,9 @@ because a climatology is an average over the range and a drift curve is
 exactly what averaging over the range destroys.
 """
 
-from typing import Optional
+from typing import TYPE_CHECKING, Optional
 
-import matplotlib.pyplot as plt
-import numpy as np
-import xarray as xr
-from mpas_tools.io import write_netcdf
-
+from polaris.lazy import lazy_attr, lazy_module
 from polaris.ocean.heat_content import CpSw, heat_content
 from polaris.ocean.model import get_layer_mass
 from polaris.ocean.model.layer_mass import MASS_THICKNESS_VARIABLES
@@ -41,6 +37,18 @@ from polaris.tasks.ocean.analysis.sim_files import (
     year_range_key,
 )
 from polaris.viz.style import mplstyle_context
+
+if TYPE_CHECKING:
+    import matplotlib.pyplot as plt
+    import numpy as np
+    import xarray as xr
+    from mpas_tools.io import write_netcdf
+else:
+    plt = lazy_module('matplotlib.pyplot')
+    np = lazy_module('numpy')
+    xr = lazy_module('xarray')
+    write_netcdf = lazy_attr('mpas_tools.io', 'write_netcdf')
+
 
 # The version of the kernel below, which is part of the provenance stamp of
 # every cached month.  Bump it whenever a month reduced here would come out

@@ -1,7 +1,13 @@
 import datetime
 import time
+from typing import TYPE_CHECKING
 
-import numpy as np
+from polaris.lazy import lazy_module
+
+if TYPE_CHECKING:
+    import numpy as np
+else:
+    np = lazy_module('numpy')
 
 
 def time_index_from_xtime(xtime, dt_target, start_xtime=None):

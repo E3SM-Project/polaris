@@ -7,15 +7,24 @@ Kept free of ``mpas_tools`` and of the step framework so the unit tests can
 import it directly.
 """
 
-import logging
+from __future__ import annotations
 
-import numpy as np
-import xarray as xr
+import logging
+from typing import TYPE_CHECKING
 
 from polaris.config import PolarisConfigParser
 from polaris.constants import get_constant
+from polaris.lazy import lazy_module
 from polaris.ocean.eos import compute_specvol, ct_from_potential_density
 from polaris.ocean.vertical.ztilde import pressure_from_geom_thickness
+
+if TYPE_CHECKING:
+    import numpy as np
+    import xarray as xr
+else:
+    np = lazy_module('numpy')
+    xr = lazy_module('xarray')
+
 
 RhoSw = get_constant('seawater_density_reference')
 

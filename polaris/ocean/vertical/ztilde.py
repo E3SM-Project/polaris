@@ -15,15 +15,24 @@ p-star coordinate specifically (which uses ``RefPseudoThickness`` and
 :py:mod:`polaris.ocean.vertical.pstar`.
 """
 
-import logging
+from __future__ import annotations
 
-import numpy as np
-import xarray as xr
+import logging
+from typing import TYPE_CHECKING
 
 from polaris.attrs import set_attrs
 from polaris.config import PolarisConfigParser
 from polaris.constants import get_constant
+from polaris.lazy import lazy_module
 from polaris.ocean.eos import compute_specvol
+
+if TYPE_CHECKING:
+    import numpy as np
+    import xarray as xr
+else:
+    np = lazy_module('numpy')
+    xr = lazy_module('xarray')
+
 
 __all__ = [
     'z_tilde_from_pressure',

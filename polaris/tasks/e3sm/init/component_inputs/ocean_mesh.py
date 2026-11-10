@@ -1,12 +1,20 @@
 import os
-
-import numpy as np
-import xarray as xr
-from mpas_tools.io import write_netcdf
+from typing import TYPE_CHECKING
 
 from polaris import Step
+from polaris.lazy import lazy_attr, lazy_module
 from polaris.ocean.vertical import compute_zint_zmid_from_layer_thickness
 from polaris.tasks.e3sm.init.component_inputs.models import check_ocean_model
+
+if TYPE_CHECKING:
+    import numpy as np
+    import xarray as xr
+    from mpas_tools.io import write_netcdf
+else:
+    np = lazy_module('numpy')
+    xr = lazy_module('xarray')
+    write_netcdf = lazy_attr('mpas_tools.io', 'write_netcdf')
+
 
 #: The vertical-coordinate fields the staged mesh carries, all of which the
 #: initial-state step already writes.

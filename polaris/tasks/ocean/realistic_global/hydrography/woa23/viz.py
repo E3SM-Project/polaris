@@ -1,12 +1,22 @@
-import cmocean  # noqa: F401
-import matplotlib.pyplot as plt
-import numpy as np
-import pyproj
-import xarray as xr
+from typing import TYPE_CHECKING
 
 from polaris import Step
+from polaris.lazy import lazy_module, lazy_side_effect
 from polaris.viz import mplstyle_context, plot_global_lat_lon_field
 from polaris.viz.spherical import setup_colormap
+
+if TYPE_CHECKING:
+    import cmocean  # noqa: F401
+    import matplotlib.pyplot as plt
+    import numpy as np
+    import pyproj
+    import xarray as xr
+else:
+    lazy_side_effect('cmocean')
+    plt = lazy_module('matplotlib.pyplot')
+    np = lazy_module('numpy')
+    pyproj = lazy_module('pyproj')
+    xr = lazy_module('xarray')
 
 
 class Woa23VizStep(Step):

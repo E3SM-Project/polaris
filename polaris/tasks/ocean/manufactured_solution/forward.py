@@ -1,11 +1,17 @@
-import numpy as np
+from typing import TYPE_CHECKING
 
+from polaris.lazy import lazy_module
 from polaris.mesh.planar import compute_planar_hex_nx_ny
 from polaris.ocean.convergence import get_resolution_for_task
 from polaris.ocean.convergence.forward import ConvergenceForward
 from polaris.tasks.ocean.manufactured_solution.exact_solution import (
     ExactSolution,
 )
+
+if TYPE_CHECKING:
+    import numpy as np
+else:
+    np = lazy_module('numpy')
 
 
 class Forward(ConvergenceForward):

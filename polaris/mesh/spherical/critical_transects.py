@@ -1,7 +1,15 @@
-from dataclasses import dataclass
-from typing import Any
+from __future__ import annotations
 
-from geometric_features import GeometricFeatures
+from dataclasses import dataclass
+from typing import TYPE_CHECKING, Any
+
+from polaris.lazy import lazy_attr
+
+if TYPE_CHECKING:
+    from geometric_features import GeometricFeatures
+else:
+    GeometricFeatures = lazy_attr('geometric_features', 'GeometricFeatures')
+
 
 CRITICAL_LAND_BLOCKAGE_TAG = 'Critical_Land_Blockage'
 CRITICAL_PASSAGE_TAG = 'Critical_Passage'

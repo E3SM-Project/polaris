@@ -1,8 +1,15 @@
-import matplotlib.pyplot as plt
-import numpy as np
+from typing import TYPE_CHECKING
 
+from polaris.lazy import lazy_module
 from polaris.ocean.model import OceanIOStep, get_time_since_start
 from polaris.viz import mplstyle_context
+
+if TYPE_CHECKING:
+    import matplotlib.pyplot as plt
+    import numpy as np
+else:
+    plt = lazy_module('matplotlib.pyplot')
+    np = lazy_module('numpy')
 
 
 class Analysis(OceanIOStep):

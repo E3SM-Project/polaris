@@ -16,15 +16,23 @@ Pseudo-height is defined as :math:`\\tilde{z} = -p / (\\rho_0 g)`, where
 density, and :math:`g` is gravitational acceleration.
 """
 
-import numpy as np
-import xarray as xr
+from typing import TYPE_CHECKING
 
 from polaris.attrs import set_attrs
 from polaris.constants import get_constant
+from polaris.lazy import lazy_module
 from polaris.ocean.vertical.diagnostics import (
     compute_zint_zmid_from_layer_thickness,
 )
 from polaris.ocean.vertical.grid_1d import generate_1d_grid
+
+if TYPE_CHECKING:
+    import numpy as np
+    import xarray as xr
+else:
+    np = lazy_module('numpy')
+    xr = lazy_module('xarray')
+
 
 __all__ = ['init_pstar_vertical_coord']
 

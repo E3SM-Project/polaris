@@ -1,8 +1,13 @@
 import os
-
-from pyremap import Remapper
+from typing import TYPE_CHECKING
 
 from polaris import Step
+from polaris.lazy import lazy_attr
+
+if TYPE_CHECKING:
+    from pyremap import Remapper
+else:
+    Remapper = lazy_attr('pyremap', 'Remapper')
 
 
 class MappingFileStep(Step):

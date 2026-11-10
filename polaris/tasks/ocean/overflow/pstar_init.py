@@ -1,6 +1,9 @@
-import xarray as xr
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
 
 from polaris.attrs import set_attrs
+from polaris.lazy import lazy_module
 from polaris.ocean.init_state import (
     add_density_from_specvol,
     add_quiescent_normal_velocity,
@@ -13,6 +16,11 @@ from polaris.tasks.ocean.overflow.init_utils import (
     compute_bottom_depth,
     compute_initial_temperature,
 )
+
+if TYPE_CHECKING:
+    import xarray as xr
+else:
+    xr = lazy_module('xarray')
 
 
 class PStarInit(PStarInitStep, OceanIOStep):

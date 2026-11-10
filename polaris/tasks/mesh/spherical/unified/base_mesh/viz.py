@@ -1,15 +1,26 @@
 import json
 import os
+from typing import TYPE_CHECKING
 
-import cartopy.crs as ccrs
-import matplotlib.pyplot as plt
-import numpy as np
-import xarray as xr
-from mpas_tools.io import open_dataset
-from shapely.geometry import box
-
+from polaris.lazy import lazy_attr, lazy_module
 from polaris.step import Step
 from polaris.viz import plot_global_lat_lon_field, plot_global_mpas_field
+
+if TYPE_CHECKING:
+    import cartopy.crs as ccrs
+    import matplotlib.pyplot as plt
+    import numpy as np
+    import xarray as xr
+    from mpas_tools.io import open_dataset
+    from shapely.geometry import box
+else:
+    ccrs = lazy_module('cartopy.crs')
+    plt = lazy_module('matplotlib.pyplot')
+    np = lazy_module('numpy')
+    xr = lazy_module('xarray')
+    open_dataset = lazy_attr('mpas_tools.io', 'open_dataset')
+    box = lazy_attr('shapely.geometry', 'box')
+
 
 CONUS_EXTENT = (-128.0, -65.0, 22.0, 52.0)
 

@@ -1,11 +1,18 @@
 import os
-
-from geometric_features.aggregation import get_aggregator_by_name
+from typing import TYPE_CHECKING
 
 from polaris.config import PolarisConfigParser
+from polaris.lazy import lazy_attr
 from polaris.tasks.mesh.spherical.feature_masks.compute import (
     ComputeFeatureMasksStep,
 )
+
+if TYPE_CHECKING:
+    from geometric_features.aggregation import get_aggregator_by_name
+else:
+    get_aggregator_by_name = lazy_attr(
+        'geometric_features.aggregation', 'get_aggregator_by_name'
+    )
 
 
 def get_feature_mask_steps(

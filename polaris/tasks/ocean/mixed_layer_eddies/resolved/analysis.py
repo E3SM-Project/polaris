@@ -1,8 +1,6 @@
-import cmocean  # noqa: F401
-import matplotlib.pyplot as plt
-import numpy as np
-import xarray as xr
+from typing import TYPE_CHECKING
 
+from polaris.lazy import lazy_module, lazy_side_effect
 from polaris.ocean.model import OceanIOStep
 from polaris.tasks.ocean.mixed_layer_eddies.diagnostics import (
     compute_buoyancy_gradient,
@@ -18,6 +16,18 @@ from polaris.tasks.ocean.mixed_layer_eddies.flux import (
 )
 from polaris.tasks.ocean.mixed_layer_eddies.viz import plot_surface_salinity
 from polaris.viz import mplstyle_context
+
+if TYPE_CHECKING:
+    import cmocean  # noqa: F401
+    import matplotlib.pyplot as plt
+    import numpy as np
+    import xarray as xr
+else:
+    lazy_side_effect('cmocean')
+    plt = lazy_module('matplotlib.pyplot')
+    np = lazy_module('numpy')
+    xr = lazy_module('xarray')
+
 
 # the days at which surface salinity is plotted
 SURFACE_SALINITY_DAYS = (1, 5, 10, 15)

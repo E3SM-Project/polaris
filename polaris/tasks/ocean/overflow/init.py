@@ -1,6 +1,6 @@
-import numpy as np
-import xarray as xr
+from typing import TYPE_CHECKING
 
+from polaris.lazy import lazy_module
 from polaris.ocean.model import OceanIOStep
 from polaris.ocean.vertical import init_vertical_coord
 from polaris.tasks.ocean.overflow.init_utils import (
@@ -9,6 +9,13 @@ from polaris.tasks.ocean.overflow.init_utils import (
     compute_initial_density,
     compute_initial_temperature,
 )
+
+if TYPE_CHECKING:
+    import numpy as np
+    import xarray as xr
+else:
+    np = lazy_module('numpy')
+    xr = lazy_module('xarray')
 
 
 class Init(OceanIOStep):

@@ -14,10 +14,9 @@ the caller's, and it is the whole of the difference between the two.
 
 import json
 import os
-from typing import Dict, Optional
+from typing import TYPE_CHECKING, Dict, Optional
 
-from mpas_tools.logging import LoggingContext, check_call
-
+from polaris.lazy import lazy_attr
 from polaris.logging import log_method_call
 from polaris.parallel import launching_step_command
 from polaris.run import (
@@ -27,6 +26,12 @@ from polaris.run import (
 )
 from polaris.run.confinement import check_confinement
 from polaris.run.memory import format_bytes
+
+if TYPE_CHECKING:
+    from mpas_tools.logging import LoggingContext, check_call
+else:
+    LoggingContext = lazy_attr('mpas_tools.logging', 'LoggingContext')
+    check_call = lazy_attr('mpas_tools.logging', 'check_call')
 
 
 def run_step(task, step, new_log_file, available_resources, step_log_filename):

@@ -1,14 +1,12 @@
 import os
-
-import numpy as np
-import xarray as xr
-from scipy import ndimage
+from typing import TYPE_CHECKING
 
 from polaris.cf import (
     add_cf_conventions,
     add_lat_lon_attrs,
     drop_dangling_references,
 )
+from polaris.lazy import lazy_attr, lazy_module
 from polaris.mesh.spherical.coastline import (
     COASTLINE_VALIDATE_VARS,
     CONVENTIONS,
@@ -16,6 +14,16 @@ from polaris.mesh.spherical.coastline import (
 )
 from polaris.mesh.spherical.unified.resolutions import FINEST_RESOLUTION
 from polaris.step import Step
+
+if TYPE_CHECKING:
+    import numpy as np
+    import xarray as xr
+    from scipy import ndimage
+else:
+    np = lazy_module('numpy')
+    xr = lazy_module('xarray')
+    ndimage = lazy_attr('scipy', 'ndimage')
+
 
 __all__ = ['RemapCoastlineStep']
 

@@ -1,16 +1,25 @@
 import json
 import os
-from typing import Any
-
-import jigsawpy
-import numpy as np
-import xarray as xr
-from jigsawpy.savejig import savejig
-from mpas_tools.logging import check_call
-from scipy.spatial import cKDTree
+from typing import TYPE_CHECKING, Any
 
 from polaris.constants import get_constant
+from polaris.lazy import lazy_attr, lazy_module
 from polaris.mesh import QuasiUniformSphericalMeshStep
+
+if TYPE_CHECKING:
+    import jigsawpy
+    import numpy as np
+    import xarray as xr
+    from jigsawpy.savejig import savejig
+    from mpas_tools.logging import check_call
+    from scipy.spatial import cKDTree
+else:
+    jigsawpy = lazy_module('jigsawpy')
+    np = lazy_module('numpy')
+    xr = lazy_module('xarray')
+    savejig = lazy_attr('jigsawpy.savejig', 'savejig')
+    check_call = lazy_attr('mpas_tools.logging', 'check_call')
+    cKDTree = lazy_attr('scipy.spatial', 'cKDTree')
 
 
 def get_unified_background_cell_width(config):

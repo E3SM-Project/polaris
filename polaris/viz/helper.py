@@ -1,27 +1,38 @@
 import textwrap
+from typing import TYPE_CHECKING
 
-import cartopy.crs as ccrs
-from matplotlib.backends.backend_agg import FigureCanvasAgg
+from polaris.lazy import lazy_attr, lazy_module
 
-projections = {
-    'PlateCarree': ccrs.PlateCarree,
-    'LambertCylindrical': ccrs.LambertCylindrical,
-    'Mercator': ccrs.Mercator,
-    'Miller': ccrs.Miller,
-    'Robinson': ccrs.Robinson,
-    'Stereographic': ccrs.Stereographic,
-    'RotatedPole': ccrs.RotatedPole,
-    'InterruptedGoodeHomolosine': ccrs.InterruptedGoodeHomolosine,
-    'EckertI': ccrs.EckertI,
-    'EckertII': ccrs.EckertII,
-    'EckertIII': ccrs.EckertIII,
-    'EckertIV': ccrs.EckertIV,
-    'EckertV': ccrs.EckertV,
-    'EckertVI': ccrs.EckertVI,
-    'EqualEarth': ccrs.EqualEarth,
-    'NorthPolarStereo': ccrs.NorthPolarStereo,
-    'SouthPolarStereo': ccrs.SouthPolarStereo,
-}
+if TYPE_CHECKING:
+    import cartopy.crs as ccrs
+    from matplotlib.backends.backend_agg import FigureCanvasAgg
+else:
+    ccrs = lazy_module('cartopy.crs')
+    FigureCanvasAgg = lazy_attr(
+        'matplotlib.backends.backend_agg', 'FigureCanvasAgg'
+    )
+
+
+# the cartopy.crs projections that get_projection() accepts by name
+projections = (
+    'PlateCarree',
+    'LambertCylindrical',
+    'Mercator',
+    'Miller',
+    'Robinson',
+    'Stereographic',
+    'RotatedPole',
+    'InterruptedGoodeHomolosine',
+    'EckertI',
+    'EckertII',
+    'EckertIII',
+    'EckertIV',
+    'EckertV',
+    'EckertVI',
+    'EqualEarth',
+    'NorthPolarStereo',
+    'SouthPolarStereo',
+)
 
 # indexed by mpas-ocean variable name in instantaneous output
 viz_dict = {
@@ -61,7 +72,7 @@ def get_projection(name: str, **kwargs):
         raise ValueError(
             f"Unknown projection '{name}'. Available: {list(projections)}"
         )
-    return projections[name](**kwargs)
+    return getattr(ccrs, name)(**kwargs)
 
 
 def get_viz_defaults():

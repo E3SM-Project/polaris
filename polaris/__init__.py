@@ -26,7 +26,12 @@ import os as _os
 #
 # `setdefault`, so that a job script or a developer that has deliberately
 # chosen a different number keeps it.
-for _pool in ('OMP_NUM_THREADS', 'OPENBLAS_NUM_THREADS', 'MKL_NUM_THREADS'):
+for _pool in (
+    'OMP_NUM_THREADS',
+    'OPENBLAS_NUM_THREADS',
+    'MKL_NUM_THREADS',
+    'NUMEXPR_NUM_THREADS',
+):
     _os.environ.setdefault(_pool, '1')
 
 from polaris.component import Component as Component  # noqa: E402

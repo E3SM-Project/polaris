@@ -3,16 +3,26 @@ import json
 import os
 import warnings
 from configparser import RawConfigParser
-
-from mache.parallel import ParallelSystem, get_parallel_system
-from mpas_tools.io import open_dataset, write_netcdf
-from mpas_tools.logging import check_call
+from typing import TYPE_CHECKING
 
 from polaris.config import PolarisConfigParser
+from polaris.lazy import lazy_attr
 from polaris.parallel import (
     get_memory_per_node,
     is_launching_step_command,
 )
+
+if TYPE_CHECKING:
+    from mache.parallel import ParallelSystem, get_parallel_system
+    from mpas_tools.io import open_dataset, write_netcdf
+    from mpas_tools.logging import check_call
+else:
+    ParallelSystem = lazy_attr('mache.parallel', 'ParallelSystem')
+    get_parallel_system = lazy_attr('mache.parallel', 'get_parallel_system')
+    open_dataset = lazy_attr('mpas_tools.io', 'open_dataset')
+    write_netcdf = lazy_attr('mpas_tools.io', 'write_netcdf')
+    check_call = lazy_attr('mpas_tools.logging', 'check_call')
+
 
 # attributes that describe how a component was set up rather than what a step
 # needs to run, so they are left out of pickles
@@ -491,6 +501,11 @@ class Component:
             return self.steps[subdir]
         step = step_cls(component=self, subdir=subdir, **kwargs)
         step.set_shared_config(config, link=config_filename)
+        # a shared step may gain dependents in task groups that aren't built
+        # when this one is set up, so it always leaves the pickle they read.
+        # Only a step with a dependent lists the pickle as an output, which
+        # a cached step must find in the cache.
+        step.is_dependency = True
         self.add_step(step)
         return step
 

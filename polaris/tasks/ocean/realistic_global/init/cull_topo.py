@@ -1,11 +1,19 @@
 import os
-
-import numpy as np
-import xarray as xr
-from mpas_tools.io import write_netcdf
+from typing import TYPE_CHECKING
 
 from polaris import Step
 from polaris.cf import add_cf_conventions
+from polaris.lazy import lazy_attr, lazy_module
+
+if TYPE_CHECKING:
+    import numpy as np
+    import xarray as xr
+    from mpas_tools.io import write_netcdf
+else:
+    np = lazy_module('numpy')
+    xr = lazy_module('xarray')
+    write_netcdf = lazy_attr('mpas_tools.io', 'write_netcdf')
+
 
 # the fields that are masked by the land and ocean masks during remapping
 _MASKED_VARIABLES = [

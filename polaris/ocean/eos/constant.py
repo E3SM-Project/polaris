@@ -1,6 +1,15 @@
-import xarray as xr
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
 
 from polaris.config import PolarisConfigParser
+from polaris.lazy import lazy_module
+
+if TYPE_CHECKING:
+    import xarray as xr
+else:
+    xr = lazy_module('xarray')
+
 
 # Constant approximate ocean freezing temperature (degC), matching the
 # ConstantEos branch of Omega's Eos::calcCtFreezing()

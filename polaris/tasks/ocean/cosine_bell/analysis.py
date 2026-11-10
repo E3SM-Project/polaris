@@ -1,11 +1,23 @@
-import numpy as np
-import xarray as xr
-from mpas_tools.io import open_dataset
-from mpas_tools.transects import lon_lat_to_cartesian
-from mpas_tools.vector import Vector
+from typing import TYPE_CHECKING
 
+from polaris.lazy import lazy_attr, lazy_module
 from polaris.ocean.convergence.analysis import ConvergenceAnalysis
 from polaris.tasks.ocean.cosine_bell.init import cosine_bell
+
+if TYPE_CHECKING:
+    import numpy as np
+    import xarray as xr
+    from mpas_tools.io import open_dataset
+    from mpas_tools.transects import lon_lat_to_cartesian
+    from mpas_tools.vector import Vector
+else:
+    np = lazy_module('numpy')
+    xr = lazy_module('xarray')
+    open_dataset = lazy_attr('mpas_tools.io', 'open_dataset')
+    lon_lat_to_cartesian = lazy_attr(
+        'mpas_tools.transects', 'lon_lat_to_cartesian'
+    )
+    Vector = lazy_attr('mpas_tools.vector', 'Vector')
 
 
 class Analysis(ConvergenceAnalysis):

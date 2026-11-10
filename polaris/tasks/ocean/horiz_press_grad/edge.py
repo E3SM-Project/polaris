@@ -13,7 +13,17 @@ This is a leaf module with no dependencies inside the package, so that both
 without importing one another.
 """
 
-import xarray as xr
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
+from polaris.lazy import lazy_module
+
+if TYPE_CHECKING:
+    import xarray as xr
+else:
+    xr = lazy_module('xarray')
+
 
 __all__ = ['edge_delta', 'edge_mean']
 

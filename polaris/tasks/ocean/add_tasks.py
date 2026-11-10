@@ -1,71 +1,91 @@
-from polaris.tasks.ocean.analysis import add_analysis_tasks
-from polaris.tasks.ocean.baroclinic_channel import add_baroclinic_channel_tasks
-from polaris.tasks.ocean.barotropic_channel import add_barotropic_channel_tasks
-from polaris.tasks.ocean.barotropic_gyre import add_barotropic_gyre_tasks
-from polaris.tasks.ocean.cosine_bell import add_cosine_bell_tasks
-from polaris.tasks.ocean.customizable_viz import add_customizable_viz_tasks
-from polaris.tasks.ocean.external_gravity_wave import (
-    add_external_gravity_wave_tasks as add_external_gravity_wave_tasks,
-)
-from polaris.tasks.ocean.feature_masks import add_feature_mask_tasks
-from polaris.tasks.ocean.geostrophic import add_geostrophic_tasks
-from polaris.tasks.ocean.horiz_press_grad import add_horiz_press_grad_tasks
-from polaris.tasks.ocean.ice_shelf_2d import add_ice_shelf_2d_tasks
-from polaris.tasks.ocean.inertial_gravity_wave import (
-    add_inertial_gravity_wave_tasks as add_inertial_gravity_wave_tasks,
-)
-from polaris.tasks.ocean.internal_wave import add_internal_wave_tasks
-from polaris.tasks.ocean.isomip_plus import add_isomip_plus_tasks
-from polaris.tasks.ocean.manufactured_solution import (
-    add_manufactured_solution_tasks as add_manufactured_solution_tasks,
-)
-from polaris.tasks.ocean.merry_go_round import add_merry_go_round_tasks
-from polaris.tasks.ocean.mixed_layer_eddies import (
-    add_mixed_layer_eddies_tasks as add_mixed_layer_eddies_tasks,
-)
-from polaris.tasks.ocean.overflow import add_overflow_tasks
-from polaris.tasks.ocean.realistic_global import add_realistic_global_tasks
-from polaris.tasks.ocean.seamount import add_seamount_tasks
-from polaris.tasks.ocean.single_column import add_single_column_tasks
-from polaris.tasks.ocean.sphere_transport import add_sphere_transport_tasks
+from typing import Dict
+
+from polaris.tasks import TaskGroup, add_task_groups
+
+# The task groups of the ocean component, in the order they are added.
+# Nothing here is imported until a task group is added.
+_OCEAN = 'polaris.tasks.ocean'
+TASK_GROUPS: Dict[str, TaskGroup] = {
+    # planar tasks
+    'baroclinic_channel': TaskGroup(
+        f'{_OCEAN}.baroclinic_channel', 'add_baroclinic_channel_tasks'
+    ),
+    'barotropic_channel': TaskGroup(
+        f'{_OCEAN}.barotropic_channel', 'add_barotropic_channel_tasks'
+    ),
+    'barotropic_gyre': TaskGroup(
+        f'{_OCEAN}.barotropic_gyre', 'add_barotropic_gyre_tasks'
+    ),
+    'horiz_press_grad': TaskGroup(
+        f'{_OCEAN}.horiz_press_grad', 'add_horiz_press_grad_tasks'
+    ),
+    'ice_shelf_2d': TaskGroup(
+        f'{_OCEAN}.ice_shelf_2d', 'add_ice_shelf_2d_tasks'
+    ),
+    'inertial_gravity_wave': TaskGroup(
+        f'{_OCEAN}.inertial_gravity_wave', 'add_inertial_gravity_wave_tasks'
+    ),
+    'internal_wave': TaskGroup(
+        f'{_OCEAN}.internal_wave', 'add_internal_wave_tasks'
+    ),
+    'isomip_plus/planar': TaskGroup(
+        f'{_OCEAN}.isomip_plus',
+        'add_isomip_plus_tasks',
+        dict(mesh_type='planar'),
+    ),
+    'manufactured_solution': TaskGroup(
+        f'{_OCEAN}.manufactured_solution', 'add_manufactured_solution_tasks'
+    ),
+    'overflow': TaskGroup(f'{_OCEAN}.overflow', 'add_overflow_tasks'),
+    'merry_go_round': TaskGroup(
+        f'{_OCEAN}.merry_go_round', 'add_merry_go_round_tasks'
+    ),
+    'mixed_layer_eddies': TaskGroup(
+        f'{_OCEAN}.mixed_layer_eddies', 'add_mixed_layer_eddies_tasks'
+    ),
+    'seamount': TaskGroup(f'{_OCEAN}.seamount', 'add_seamount_tasks'),
+    # single column tasks
+    'single_column': TaskGroup(
+        f'{_OCEAN}.single_column', 'add_single_column_tasks'
+    ),
+    # analysis of a completed simulation, which runs no model
+    'analysis': TaskGroup(f'{_OCEAN}.analysis', 'add_analysis_tasks'),
+    # spherical tasks
+    'customizable_viz': TaskGroup(
+        f'{_OCEAN}.customizable_viz', 'add_customizable_viz_tasks'
+    ),
+    'cosine_bell': TaskGroup(f'{_OCEAN}.cosine_bell', 'add_cosine_bell_tasks'),
+    'external_gravity_wave': TaskGroup(
+        f'{_OCEAN}.external_gravity_wave', 'add_external_gravity_wave_tasks'
+    ),
+    'feature_masks': TaskGroup(
+        f'{_OCEAN}.feature_masks', 'add_feature_mask_tasks'
+    ),
+    'geostrophic': TaskGroup(f'{_OCEAN}.geostrophic', 'add_geostrophic_tasks'),
+    'isomip_plus/spherical': TaskGroup(
+        f'{_OCEAN}.isomip_plus',
+        'add_isomip_plus_tasks',
+        dict(mesh_type='spherical'),
+    ),
+    'realistic_global': TaskGroup(
+        f'{_OCEAN}.realistic_global', 'add_realistic_global_tasks'
+    ),
+    'sphere_transport': TaskGroup(
+        f'{_OCEAN}.sphere_transport', 'add_sphere_transport_tasks'
+    ),
+}
 
 
-def add_ocean_tasks(component):
+def add_ocean_tasks(component, task_groups=None):
     """
-    Add all ocean-related tasks to the ocean component.
+    Add tasks to the ocean component
 
     Parameters
     ----------
     component : polaris.tasks.ocean.Ocean
         The ocean component to which tasks will be added.
+
+    task_groups : list of str, optional
+        The task groups to add, by default all of them
     """
-    # planar tasks
-    add_baroclinic_channel_tasks(component=component)
-    add_barotropic_channel_tasks(component=component)
-    add_barotropic_gyre_tasks(component=component)
-    add_horiz_press_grad_tasks(component=component)
-    add_ice_shelf_2d_tasks(component=component)
-    add_inertial_gravity_wave_tasks(component=component)
-    add_internal_wave_tasks(component=component)
-    add_isomip_plus_tasks(component=component, mesh_type='planar')
-    add_manufactured_solution_tasks(component=component)
-    add_overflow_tasks(component=component)
-    add_merry_go_round_tasks(component=component)
-    add_mixed_layer_eddies_tasks(component=component)
-    add_seamount_tasks(component=component)
-
-    # single column tasks
-    add_single_column_tasks(component=component)
-
-    # analysis of a completed simulation, which runs no model
-    add_analysis_tasks(component=component)
-
-    # spherical tasks
-    add_customizable_viz_tasks(component=component)
-    add_cosine_bell_tasks(component=component)
-    add_external_gravity_wave_tasks(component=component)
-    add_feature_mask_tasks(component=component)
-    add_geostrophic_tasks(component=component)
-    add_isomip_plus_tasks(component=component, mesh_type='spherical')
-    add_realistic_global_tasks(component=component)
-    add_sphere_transport_tasks(component=component)
+    add_task_groups(component, task_groups)

@@ -1,7 +1,6 @@
-import cmocean  # noqa: F401
-import matplotlib.pyplot as plt
-import numpy as np
+from typing import TYPE_CHECKING
 
+from polaris.lazy import lazy_module, lazy_side_effect
 from polaris.mpas import time_since_start
 from polaris.ocean.convergence import (
     get_resolution_for_task,
@@ -12,6 +11,15 @@ from polaris.tasks.ocean.manufactured_solution.exact_solution import (
     ExactSolution,
 )
 from polaris.viz import mplstyle_context, plot_horiz_field
+
+if TYPE_CHECKING:
+    import cmocean  # noqa: F401
+    import matplotlib.pyplot as plt
+    import numpy as np
+else:
+    lazy_side_effect('cmocean')
+    plt = lazy_module('matplotlib.pyplot')
+    np = lazy_module('numpy')
 
 
 class Viz(OceanIOStep):

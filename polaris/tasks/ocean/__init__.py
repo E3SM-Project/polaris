@@ -1,12 +1,7 @@
 import importlib.resources as imp_res
 import os
 import warnings
-from typing import Dict, Tuple, Union
-
-import numpy as np
-import xarray as xr
-from mpas_tools.io import open_dataset, write_netcdf
-from ruamel.yaml import YAML
+from typing import TYPE_CHECKING, Dict, Tuple, Union
 
 from polaris import Component
 from polaris.build.mpas_ocean import (
@@ -21,6 +16,7 @@ from polaris.cf import (
     read_var_attrs,
 )
 from polaris.constants.pcd import check_pcd_version_matches_branch
+from polaris.lazy import lazy_attr, lazy_module
 from polaris.mesh.attrs import add_mesh_var_attrs
 from polaris.mesh.info import is_planar, is_spherical
 from polaris.mesh.reconstruct import (
@@ -37,6 +33,18 @@ from polaris.ocean.vertical.diagnostics import (
     vert_pseudo_velocity_from_ds,
 )
 from polaris.ocean.vertical.grid_1d import REF_COORD_VARS
+
+if TYPE_CHECKING:
+    import numpy as np
+    import xarray as xr
+    from mpas_tools.io import open_dataset, write_netcdf
+    from ruamel.yaml import YAML
+else:
+    np = lazy_module('numpy')
+    xr = lazy_module('xarray')
+    open_dataset = lazy_attr('mpas_tools.io', 'open_dataset')
+    write_netcdf = lazy_attr('mpas_tools.io', 'write_netcdf')
+    YAML = lazy_attr('ruamel.yaml', 'YAML')
 
 
 class Ocean(Component):

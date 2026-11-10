@@ -1,7 +1,8 @@
-import numpy as np
+from typing import TYPE_CHECKING
 
 from polaris import Task
 from polaris.constants import get_constant
+from polaris.lazy import lazy_module
 from polaris.ocean.eos import compute_ct_freezing
 from polaris.ocean.model import OceanIOStep
 from polaris.tasks.ocean.single_column.conservation_summary import (
@@ -10,6 +11,11 @@ from polaris.tasks.ocean.single_column.conservation_summary import (
 from polaris.tasks.ocean.single_column.forward import Forward
 from polaris.tasks.ocean.single_column.frazil.init import FrazilInit
 from polaris.tasks.ocean.single_column.frazil.viz import FrazilViz
+
+if TYPE_CHECKING:
+    import numpy as np
+else:
+    np = lazy_module('numpy')
 
 
 class Frazil(Task):

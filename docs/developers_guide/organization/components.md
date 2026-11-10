@@ -25,79 +25,66 @@ class.
 
 ## Adding Tasks to a Component
 
-Tasks are added to a component using the `polaris.tasks.add_tasks` module.
-Each component has an `add_<component>_tasks()` function in this module that
-adds the tasks to the component. This approach avoids circular imports in
-Python. For example, the `add_ocean_tasks()` function for the `ocean` component
-might look like this:
+Tasks are added to a component in task groups, each of which is a function
+that adds related tasks to the component.  Each component has an `add_tasks`
+module with a `TASK_GROUPS` dictionary naming the module and function of each
+of its task groups.  Nothing is imported until a task group is needed, so
+`polaris setup` builds only the task groups of the tasks it sets up (see
+{ref}`dev-task-manifest`).  For example, part of the ocean component's
+`polaris/tasks/ocean/add_tasks.py` looks like this:
 
 ```python
-from polaris.tasks.ocean.baroclinic_channel import add_baroclinic_channel_tasks
-from polaris.tasks.ocean.cosine_bell import add_cosine_bell_tasks
-from polaris.tasks.ocean.inertial_gravity_wave import (
-    add_inertial_gravity_wave_tasks,
-)
-from polaris.tasks.ocean.manufactured_solution import (
-    add_manufactured_solution_tasks,
-)
-from polaris.tasks.ocean.single_column import add_single_column_tasks
+from typing import Dict
+
+from polaris.tasks import TaskGroup, add_task_groups
+
+_OCEAN = 'polaris.tasks.ocean'
+TASK_GROUPS: Dict[str, TaskGroup] = {
+    # planar tasks
+    'baroclinic_channel': TaskGroup(
+        f'{_OCEAN}.baroclinic_channel', 'add_baroclinic_channel_tasks'
+    ),
+    'isomip_plus/planar': TaskGroup(
+        f'{_OCEAN}.isomip_plus', 'add_isomip_plus_tasks',
+        dict(mesh_type='planar')
+    ),
+    ...
+}
 
 
-def add_ocean_tasks(component):
+def add_ocean_tasks(component, task_groups=None):
     """
-    Add tasks to the ocean component.
-
-    component : polaris.Component
-        The ocean component to which tasks will be added.
+    Add tasks to the ocean component
     """
-    # please keep these in alphabetical order
-    add_baroclinic_channel_tasks(component=component)
-    add_cosine_bell_tasks(component=component)
-    add_inertial_gravity_wave_tasks(component=component)
-    add_manufactured_solution_tasks(component=component)
-    add_single_column_tasks(component=component)
+    add_task_groups(component, task_groups)
 ```
 
-The `add_<component>_tasks()` must then be added, along with the component
-itself, to `polaris/tasks/__init__.py`:
+Task groups are added in the order they appear, which is the order
+`polaris list` numbers their tasks in.  The optional third item of a
+{py:class}`polaris.tasks.TaskGroup` holds any other keyword arguments to pass
+to its function.
+
+A new component is added to `COMPONENTS` in `polaris/tasks/__init__.py`, which
+names the module that defines it, the name of the component object and its
+`add_<component>_tasks()` function:
+
 ```python
-from typing import List
-
-from polaris import Component
-
-# import new components here
-from polaris.tasks.mesh import mesh
-from polaris.tasks.mesh.add_tasks import add_mesh_tasks
-from polaris.tasks.ocean import ocean
-from polaris.tasks.ocean.add_tasks import add_ocean_tasks
-from polaris.tasks.seaice import seaice
-from polaris.tasks.seaice.add_tasks import add_seaice_tasks
-
-# Add new components alphabetically to this list
-_components: List[Component] = [
-    mesh,
-    ocean,
-    seaice,
-]
-
-_tasks_added = False
-
-
-def get_components():
-    """
-    Add all tasks to the Polaris components
-    """
-    global _tasks_added
-    if not _tasks_added:
-        # add tasks to each component
-        add_mesh_tasks(component=mesh)
-        add_ocean_tasks(component=ocean)
-        add_seaice_tasks(component=seaice)
-
-        _tasks_added = True
-
-    return _components
+COMPONENTS: Dict[str, ComponentEntry] = {
+    'e3sm/init': ComponentEntry(
+        'polaris.tasks.e3sm.init', 'e3sm_init', 'add_e3sm_init_tasks'
+    ),
+    'mesh': ComponentEntry('polaris.tasks.mesh', 'mesh', 'add_mesh_tasks'),
+    'ocean': ComponentEntry('polaris.tasks.ocean', 'ocean', 'add_ocean_tasks'),
+    'seaice': ComponentEntry(
+        'polaris.tasks.seaice', 'seaice', 'add_seaice_tasks'
+    ),
+}
 ```
+
+Components are kept in alphabetical order, and their task groups are added in
+that order too.  This matters when one component's tasks share steps with
+another's: the mesh component's coastline tasks share steps with the
+`e3sm/init` component's tasks, which are added first.
 
 ## Config File
 

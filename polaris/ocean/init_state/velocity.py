@@ -2,8 +2,16 @@
 Helpers for adding velocity fields to an initial-state dataset.
 """
 
-import numpy as np
-import xarray as xr
+from typing import TYPE_CHECKING
+
+from polaris.lazy import lazy_module
+
+if TYPE_CHECKING:
+    import numpy as np
+    import xarray as xr
+else:
+    np = lazy_module('numpy')
+    xr = lazy_module('xarray')
 
 
 def add_quiescent_normal_velocity(ds, ds_mesh):

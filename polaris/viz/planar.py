@@ -1,13 +1,23 @@
 import os
+from typing import TYPE_CHECKING
 
-import cmocean  # noqa: F401
-import matplotlib
-import mosaic
-import numpy as np
-from matplotlib.colors import LogNorm
-from matplotlib.figure import Figure
-
+from polaris.lazy import lazy_attr, lazy_module, lazy_side_effect
 from polaris.viz.style import mplstyle_context
+
+if TYPE_CHECKING:
+    import cmocean  # noqa: F401
+    import matplotlib
+    import mosaic
+    import numpy as np
+    from matplotlib.colors import LogNorm
+    from matplotlib.figure import Figure
+else:
+    lazy_side_effect('cmocean')
+    matplotlib = lazy_module('matplotlib')
+    mosaic = lazy_module('mosaic')
+    np = lazy_module('numpy')
+    LogNorm = lazy_attr('matplotlib.colors', 'LogNorm')
+    Figure = lazy_attr('matplotlib.figure', 'Figure')
 
 
 def plot_horiz_field(  # noqa: C901

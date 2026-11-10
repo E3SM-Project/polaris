@@ -1,9 +1,7 @@
 import os
+from typing import TYPE_CHECKING
 
-import numpy as np
-import pandas as pd
-from matplotlib.figure import Figure
-
+from polaris.lazy import lazy_attr, lazy_module
 from polaris.mpas import area_for_field, time_since_start
 from polaris.ocean.convergence import (
     get_resolution_for_task,
@@ -11,6 +9,15 @@ from polaris.ocean.convergence import (
 )
 from polaris.ocean.model import OceanIOStep
 from polaris.viz import mplstyle_context
+
+if TYPE_CHECKING:
+    import numpy as np
+    import pandas as pd
+    from matplotlib.figure import Figure
+else:
+    np = lazy_module('numpy')
+    pd = lazy_module('pandas')
+    Figure = lazy_attr('matplotlib.figure', 'Figure')
 
 
 class ConvergenceAnalysis(OceanIOStep):

@@ -17,6 +17,7 @@ from polaris.job import write_job_script
 from polaris.machines import discover_machine
 from polaris.parallel import set_parallel_systems
 from polaris.tasks import get_components
+from polaris.tasks.manifest import get_manifest
 
 
 def setup_tasks(
@@ -158,14 +159,15 @@ def setup_tasks(
         work_dir = os.getcwd()
     work_dir = os.path.abspath(work_dir)
 
-    all_tasks = dict()
-    for component in get_components():
-        for task in component.tasks.values():
-            all_tasks[task.path] = task
+    manifest = get_manifest()
+    all_tasks = _build_tasks(numbers, task_list, manifest)
 
     tasks: Dict[str, Task] = dict()
     cached_steps: Dict[str, List[str]] = dict()
-    _add_tasks_by_number(numbers, all_tasks, tasks, cached_steps)
+    manifest_paths = [entry['path'] for entry in manifest]
+    _add_tasks_by_number(
+        numbers, manifest_paths, all_tasks, tasks, cached_steps
+    )
     _add_tasks_by_name(task_list, all_tasks, cached, tasks, cached_steps)
 
     # the unqualified command-line options apply to the component of the
@@ -1635,9 +1637,66 @@ def _get_model_flags(components_in_use):
     return ', '.join(flags)
 
 
-def _add_tasks_by_number(numbers, all_tasks, tasks, cached_steps):
+def _build_tasks(numbers, task_list, manifest):
+    """
+    Build the task groups of the tasks to set up, and only those
+
+    The manifest says which task group adds each task, and the task numbers
+    are positions in its list, so nothing else has to be imported or built to
+    find them.
+
+    Returns
+    -------
+    all_tasks : dict of polaris.Task
+        The tasks that were built, a superset of those to set up, with the
+        task paths as keys, in the order of the manifest
+    """
+    paths = _task_paths(numbers, task_list, manifest)
+    groups_by_path = {entry['path']: entry['task_group'] for entry in manifest}
+    task_groups: Dict[str, List[str]] = dict()
+    for path in paths:
+        if path not in groups_by_path:
+            raise ValueError(f'Task with path {path} is not in tasks')
+        component_name, group = groups_by_path[path]
+        groups = task_groups.setdefault(component_name, list())
+        if group not in groups:
+            groups.append(group)
+
+    built = dict()
+    for component in get_components(task_groups=task_groups):
+        for task in component.tasks.values():
+            built[task.path] = task
+
+    # keep the manifest's order, which numbers the tasks
+    all_tasks = dict()
+    for entry in manifest:
+        path = entry['path']
+        if path in built:
+            all_tasks[path] = built[path]
+    return all_tasks
+
+
+def _task_paths(numbers, task_list, manifest):
+    """The paths of the tasks given by number or by path"""
+    paths = list()
     if numbers is not None:
-        keys = list(all_tasks)
+        for number in numbers:
+            index = int(number[:-1] if number.endswith('c') else number)
+            if index >= len(manifest):
+                raise ValueError(
+                    f'task number {index} is out of range.  '
+                    f'There are only {len(manifest)} tasks.'
+                )
+            paths.append(manifest[index]['path'])
+    if task_list is not None:
+        paths.extend(task_list)
+    return paths
+
+
+def _add_tasks_by_number(
+    numbers, manifest_paths, all_tasks, tasks, cached_steps
+):
+    if numbers is not None:
         for number in numbers:
             cache_all = False
             if number.endswith('c'):
@@ -1646,12 +1705,7 @@ def _add_tasks_by_number(numbers, all_tasks, tasks, cached_steps):
             else:
                 number = int(number)
 
-            if number >= len(keys):
-                raise ValueError(
-                    f'task number {number} is out of range.  '
-                    f'There are only {len(keys)} tasks.'
-                )
-            path = keys[number]
+            path = manifest_paths[number]
             if cache_all:
                 cached_steps[path] = ['_all']
             else:

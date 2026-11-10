@@ -1,10 +1,17 @@
-import numpy as np
-import xarray as xr
+from typing import TYPE_CHECKING
 
 from polaris.constants import get_constant
+from polaris.lazy import lazy_module
 from polaris.ocean.eos import compute_ct_freezing
 from polaris.ocean.eos.linear import compute_linear_ct_freezing
 from polaris.tasks.ocean.single_column.init import Init
+
+if TYPE_CHECKING:
+    import numpy as np
+    import xarray as xr
+else:
+    np = lazy_module('numpy')
+    xr = lazy_module('xarray')
 
 
 class FrazilInit(Init):

@@ -1,10 +1,16 @@
 import os
-
-import xarray as xr
-from mpas_tools.io import write_netcdf
+from typing import TYPE_CHECKING
 
 from polaris import Step
+from polaris.lazy import lazy_attr, lazy_module
 from polaris.tasks.e3sm.init.component_inputs.models import check_ocean_model
+
+if TYPE_CHECKING:
+    import xarray as xr
+    from mpas_tools.io import write_netcdf
+else:
+    xr = lazy_module('xarray')
+    write_netcdf = lazy_attr('mpas_tools.io', 'write_netcdf')
 
 
 class OceanInitialConditionStep(Step):

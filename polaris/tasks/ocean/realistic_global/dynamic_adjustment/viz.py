@@ -17,16 +17,15 @@ initial condition: volume-weighted histograms of the change in temperature
 and salinity from the initial state to the end of the last stage.
 """
 
+from __future__ import annotations
+
 import datetime
 import os
 from dataclasses import dataclass, field
-from typing import Any, Dict, List, Optional, Tuple
-
-import matplotlib.pyplot as plt
-import numpy as np
-import xarray as xr
+from typing import TYPE_CHECKING, Any, Dict, List, Optional, Tuple
 
 from polaris import Step
+from polaris.lazy import lazy_module
 from polaris.mpas.time import duration_to_seconds
 from polaris.ocean.model.time import get_time_since_start
 from polaris.tasks.ocean.realistic_global.dynamic_adjustment.diagnostics import (  # noqa: E501
@@ -35,6 +34,16 @@ from polaris.tasks.ocean.realistic_global.dynamic_adjustment.diagnostics import 
     open_stage_stats,
     stage_stats_path,
 )
+
+if TYPE_CHECKING:
+    import matplotlib.pyplot as plt
+    import numpy as np
+    import xarray as xr
+else:
+    plt = lazy_module('matplotlib.pyplot')
+    np = lazy_module('numpy')
+    xr = lazy_module('xarray')
+
 
 FIGURE_FILENAME = 'dynamic_adjustment_stats.png'
 TRACER_CHANGE_FILENAME = 'dynamic_adjustment_tracer_change.png'

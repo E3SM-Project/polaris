@@ -1,10 +1,18 @@
 import os
 from datetime import datetime
-
-from jinja2 import Environment, PackageLoader, select_autoescape
+from typing import TYPE_CHECKING
 
 from polaris.analysis.manifest import range_key
+from polaris.lazy import lazy_attr
 from polaris.provenance import get_summary
+
+if TYPE_CHECKING:
+    from jinja2 import Environment, PackageLoader, select_autoescape
+else:
+    Environment = lazy_attr('jinja2', 'Environment')
+    PackageLoader = lazy_attr('jinja2', 'PackageLoader')
+    select_autoescape = lazy_attr('jinja2', 'select_autoescape')
+
 
 #: The landing page at the root of the staging tree
 INDEX_FILENAME = 'index.html'

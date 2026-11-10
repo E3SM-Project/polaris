@@ -1,4 +1,11 @@
-import xarray as xr
+from typing import TYPE_CHECKING
+
+from polaris.lazy import lazy_module
+
+if TYPE_CHECKING:
+    import xarray as xr
+else:
+    xr = lazy_module('xarray')
 
 
 def area_for_field(ds_mesh, field):

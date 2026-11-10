@@ -1,15 +1,28 @@
-import numpy as np
-import pyproj
-from geometric_features import FeatureCollection
-from mpas_tools.io import open_dataset
-from mpas_tools.mesh.creation.signed_distance import (
-    signed_distance_from_geojson,
-)
+from typing import TYPE_CHECKING
 
 from polaris.constants import get_constant
+from polaris.lazy import lazy_attr, lazy_module
 from polaris.mesh import QuasiUniformSphericalMeshStep
 from polaris.tasks.ocean.isomip_plus.mesh.xy import add_isomip_plus_xy
 from polaris.tasks.ocean.isomip_plus.projection import get_projections
+
+if TYPE_CHECKING:
+    import numpy as np
+    import pyproj
+    from geometric_features import FeatureCollection
+    from mpas_tools.io import open_dataset
+    from mpas_tools.mesh.creation.signed_distance import (
+        signed_distance_from_geojson,
+    )
+else:
+    np = lazy_module('numpy')
+    pyproj = lazy_module('pyproj')
+    FeatureCollection = lazy_attr('geometric_features', 'FeatureCollection')
+    open_dataset = lazy_attr('mpas_tools.io', 'open_dataset')
+    signed_distance_from_geojson = lazy_attr(
+        'mpas_tools.mesh.creation.signed_distance',
+        'signed_distance_from_geojson',
+    )
 
 
 class SphericalMesh(QuasiUniformSphericalMeshStep):

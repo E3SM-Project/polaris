@@ -1,8 +1,10 @@
-import numpy as np
-import xarray as xr
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
 
 from polaris.attrs import set_attrs
 from polaris.config import PolarisConfigParser
+from polaris.lazy import lazy_module
 
 from .constant import compute_constant_ct_freezing, compute_constant_density
 from .linear import compute_linear_ct_freezing, compute_linear_density
@@ -15,6 +17,13 @@ from .teos10 import convert_tracers as convert_tracers
 from .teos10 import (
     ct_from_potential_density as ct_from_potential_density,
 )
+
+if TYPE_CHECKING:
+    import numpy as np
+    import xarray as xr
+else:
+    np = lazy_module('numpy')
+    xr = lazy_module('xarray')
 
 
 def compute_density(

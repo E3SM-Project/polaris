@@ -1,11 +1,17 @@
-import numpy as np
+from typing import TYPE_CHECKING
 
 from polaris.constants import get_constant
+from polaris.lazy import lazy_module
 from polaris.ocean.model import (
     OceanIOStep,
     get_time_since_start,
 )
 from polaris.ocean.vertical.diagnostics import vertical_coord_from_location
+
+if TYPE_CHECKING:
+    import numpy as np
+else:
+    np = lazy_module('numpy')
 
 
 class Analysis(OceanIOStep):

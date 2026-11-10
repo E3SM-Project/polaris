@@ -1,8 +1,7 @@
 import glob
+from typing import TYPE_CHECKING
 
-import xarray as xr
-from mpas_tools.logging import check_call
-
+from polaris.lazy import lazy_attr, lazy_module
 from polaris.ocean.model.layer_mass import MASS_THICKNESS_VARIABLES
 from polaris.tasks.ocean.analysis.analysis_step import AnalysisStep
 from polaris.tasks.ocean.analysis.ncclimo import NCCLIMO_PROCESSES, run_ncclimo
@@ -10,6 +9,14 @@ from polaris.tasks.ocean.analysis.sim_files import (
     SimulationFiles,
     time_mean_suffix,
 )
+
+if TYPE_CHECKING:
+    import xarray as xr
+    from mpas_tools.logging import check_call
+else:
+    xr = lazy_module('xarray')
+    check_call = lazy_attr('mpas_tools.logging', 'check_call')
+
 
 # The vertical geometry every map that slices at an elevation needs, and that
 # the partial layers at a heat content range boundary need.  Both models write

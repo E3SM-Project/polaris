@@ -1,10 +1,18 @@
-import cmocean  # noqa: F401
-import matplotlib.pyplot as plt
-import numpy as np
+from typing import TYPE_CHECKING
 
+from polaris.lazy import lazy_module, lazy_side_effect
 from polaris.ocean.model import OceanIOStep, get_time_since_start
 from polaris.ocean.rpe import compute_rpe
 from polaris.viz import mplstyle_context, plot_horiz_field
+
+if TYPE_CHECKING:
+    import cmocean  # noqa: F401
+    import matplotlib.pyplot as plt
+    import numpy as np
+else:
+    lazy_side_effect('cmocean')
+    plt = lazy_module('matplotlib.pyplot')
+    np = lazy_module('numpy')
 
 
 class Analysis(OceanIOStep):

@@ -1,38 +1,36 @@
-from polaris.e3sm.init.topo import (
-    CUBED_SPHERE_RESOLUTIONS,
-    LAT_LON_RESOLUTIONS,
-)
-from polaris.tasks.e3sm.init.component_inputs import (
-    add_component_inputs_tasks,
-)
-from polaris.tasks.e3sm.init.topo.combine import (
-    CubedSphereCombineTask,
-    LatLonCombineTask,
-)
-from polaris.tasks.e3sm.init.topo.cull import add_cull_topo_tasks
-from polaris.tasks.e3sm.init.topo.remap import add_remap_topo_tasks
+from typing import Dict
+
+from polaris.tasks import TaskGroup, add_task_groups
+
+# The task groups of the e3sm/init component, in the order they are added.
+# Nothing here is imported until a task group is added.
+TASK_GROUPS: Dict[str, TaskGroup] = {
+    'topo/combine': TaskGroup(
+        'polaris.tasks.e3sm.init.topo.combine.tasks', 'add_combine_topo_tasks'
+    ),
+    'topo/remap': TaskGroup(
+        'polaris.tasks.e3sm.init.topo.remap.tasks', 'add_remap_topo_tasks'
+    ),
+    'topo/cull': TaskGroup(
+        'polaris.tasks.e3sm.init.topo.cull.tasks', 'add_cull_topo_tasks'
+    ),
+    'component_inputs': TaskGroup(
+        'polaris.tasks.e3sm.init.component_inputs.tasks',
+        'add_component_inputs_tasks',
+    ),
+}
 
 
-def add_e3sm_init_tasks(component):
+def add_e3sm_init_tasks(component, task_groups=None):
     """
-    Add all tasks to the e3sm/init component
+    Add tasks to the e3sm/init component
 
+    Parameters
+    ----------
     component : polaris.Component
         the e3sm/init component that the tasks will be added to
+
+    task_groups : list of str, optional
+        The task groups to add, by default all of them
     """
-    for cubed_sphere_res in CUBED_SPHERE_RESOLUTIONS:
-        component.add_task(
-            CubedSphereCombineTask(
-                component=component, resolution=cubed_sphere_res
-            )
-        )
-    for lat_lon_res in LAT_LON_RESOLUTIONS:
-        component.add_task(
-            LatLonCombineTask(component=component, resolution=lat_lon_res)
-        )
-
-    add_remap_topo_tasks(component=component)
-
-    add_cull_topo_tasks(component=component)
-
-    add_component_inputs_tasks(component=component)
+    add_task_groups(component, task_groups)

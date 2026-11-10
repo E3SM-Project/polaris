@@ -1,12 +1,20 @@
 import contextvars
 import inspect
 from contextlib import contextmanager
-
-import mache
-from mache.parallel import ParallelSystem, ResourcePlacement
+from typing import TYPE_CHECKING
 
 from polaris.component_graph import get_components_in_use
 from polaris.config import PolarisConfigParser
+from polaris.lazy import lazy_attr, lazy_module
+
+if TYPE_CHECKING:
+    import mache
+    from mache.parallel import ParallelSystem, ResourcePlacement
+else:
+    mache = lazy_module('mache')
+    ParallelSystem = lazy_attr('mache.parallel', 'ParallelSystem')
+    ResourcePlacement = lazy_attr('mache.parallel', 'ResourcePlacement')
+
 
 # whether the framework is launching a step's command, the only time a
 # parallel command may be run

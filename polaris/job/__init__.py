@@ -2,12 +2,24 @@ import importlib.resources as imp_res
 import os as os
 import re
 import subprocess
+from typing import TYPE_CHECKING
 
-import numpy as np
-from jinja2 import Template as Template
-from mache.parallel import get_parallel_system
-from mache.parallel.pbs import PbsOptions, PbsSystem
-from mache.parallel.slurm import SlurmOptions, SlurmSystem
+from polaris.lazy import lazy_attr, lazy_module
+
+if TYPE_CHECKING:
+    import numpy as np
+    from jinja2 import Template as Template
+    from mache.parallel import get_parallel_system
+    from mache.parallel.pbs import PbsOptions, PbsSystem
+    from mache.parallel.slurm import SlurmOptions, SlurmSystem
+else:
+    np = lazy_module('numpy')
+    Template = lazy_attr('jinja2', 'Template')
+    get_parallel_system = lazy_attr('mache.parallel', 'get_parallel_system')
+    PbsOptions = lazy_attr('mache.parallel.pbs', 'PbsOptions')
+    PbsSystem = lazy_attr('mache.parallel.pbs', 'PbsSystem')
+    SlurmOptions = lazy_attr('mache.parallel.slurm', 'SlurmOptions')
+    SlurmSystem = lazy_attr('mache.parallel.slurm', 'SlurmSystem')
 
 
 def write_job_script(

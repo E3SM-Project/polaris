@@ -1,5 +1,3 @@
-import cmocean  # noqa: F401
-
 from polaris.ocean.model import OceanIOStep
 from polaris.viz import plot_global_mpas_field
 

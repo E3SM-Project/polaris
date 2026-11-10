@@ -2,11 +2,22 @@
 Metadata for the variables of an MPAS mesh
 """
 
-import xarray as xr
-from mpas_tools.mesh.attrs import get_mesh_var_attrs
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
 
 from polaris.cf import add_var_attrs
+from polaris.lazy import lazy_attr, lazy_module
 from polaris.mesh.info import is_spherical
+
+if TYPE_CHECKING:
+    import xarray as xr
+    from mpas_tools.mesh.attrs import get_mesh_var_attrs
+else:
+    xr = lazy_module('xarray')
+    get_mesh_var_attrs = lazy_attr(
+        'mpas_tools.mesh.attrs', 'get_mesh_var_attrs'
+    )
 
 
 def add_mesh_var_attrs(ds: xr.Dataset) -> xr.Dataset:

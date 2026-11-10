@@ -9,10 +9,16 @@ step that reads one finds it with :py:func:`find_climatology_file`.
 
 import glob
 import os
+from typing import TYPE_CHECKING
 
-from mpas_tools.logging import check_call
-
+from polaris.lazy import lazy_attr
 from polaris.tasks.ocean.analysis.sim_files import check_month_covered
+
+if TYPE_CHECKING:
+    from mpas_tools.logging import check_call
+else:
+    check_call = lazy_attr('mpas_tools.logging', 'check_call')
+
 
 # ``ncclimo`` in background mode runs one process per month, so this is what
 # a step that gives it more than one core will start and therefore what it

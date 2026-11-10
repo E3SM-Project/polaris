@@ -42,36 +42,25 @@ def add_my_overflow_tasks(component):
 Later, as you add tasks, you will update this function to instantiate and add
 each task to the component using `component.add_task()`.
 
-This function needs to be called from the component's `add_tasks.py` module to
-register all tasks in this category.
+This function needs to be registered as a task group in the component's
+`add_tasks.py` module, so that `polaris list` and `polaris setup` can find
+your tasks.
 
 ```{code-block} python
-:emphasize-lines: 5, 21
+:emphasize-lines: 6-8
 
-...
-from polaris.tasks.ocean.manufactured_solution import (
-    add_manufactured_solution_tasks as add_manufactured_solution_tasks,
-)
-from polaris.tasks.ocean.my_overflow import add_my_overflow_tasks
-from polaris.tasks.ocean.overflow import add_overflow_tasks
-...
-
-def add_ocean_tasks(component):
-    """
-    Add all ocean-related tasks to the ocean component.
-
-    Parameters
-    ----------
-    component : polaris.tasks.ocean.Ocean
-        The ocean component to which tasks will be added.
-    """
+TASK_GROUPS: Dict[str, TaskGroup] = {
     # planar tasks
     ...
-    add_manufactured_solution_tasks(component=component)
-    add_my_overflow_tasks(component=component)
-    add_overflow_tasks(component=component)
+    'manufactured_solution': TaskGroup(
+        f'{_OCEAN}.manufactured_solution', 'add_manufactured_solution_tasks'
+    ),
+    'my_overflow': TaskGroup(
+        f'{_OCEAN}.my_overflow', 'add_my_overflow_tasks'
+    ),
+    'overflow': TaskGroup(f'{_OCEAN}.overflow', 'add_overflow_tasks'),
     ...
-
+}
 ```
 We keep categories of tasks sorted first by planar, single column or
 spherical mesh types, then alphabetically within these categories.

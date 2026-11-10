@@ -1,10 +1,10 @@
-import os
+from __future__ import annotations
 
-import numpy as np
-import xarray as xr
-from mpas_tools.io import write_netcdf
+import os
+from typing import TYPE_CHECKING
 
 from polaris.cf import add_cf_conventions
+from polaris.lazy import lazy_attr, lazy_module
 from polaris.mesh.attrs import add_mesh_var_attrs
 from polaris.ocean.eos import compute_specvol
 from polaris.ocean.vertical.bathymetry_holes import fill_max_level_holes
@@ -15,6 +15,15 @@ from polaris.ocean.vertical.ztilde import (
     RhoSw,
     pressure_from_z_tilde,
 )
+
+if TYPE_CHECKING:
+    import numpy as np
+    import xarray as xr
+    from mpas_tools.io import write_netcdf
+else:
+    np = lazy_module('numpy')
+    xr = lazy_module('xarray')
+    write_netcdf = lazy_attr('mpas_tools.io', 'write_netcdf')
 
 
 class RealisticPStarInitStep(PStarInitStep):

@@ -1,8 +1,7 @@
 import os
+from typing import TYPE_CHECKING
 
-import matplotlib.pyplot as plt
-import numpy as np
-
+from polaris.lazy import lazy_module
 from polaris.ocean.model import OceanIOStep, get_time_since_start
 from polaris.tasks.ocean.single_column.shortwave_pen.jerlov import (
     JERLOV_WATER_TYPES,
@@ -11,6 +10,14 @@ from polaris.tasks.ocean.single_column.shortwave_pen.jerlov import (
     manizza_scale,
 )
 from polaris.viz import mplstyle_context
+
+if TYPE_CHECKING:
+    import matplotlib.pyplot as plt
+    import numpy as np
+else:
+    plt = lazy_module('matplotlib.pyplot')
+    np = lazy_module('numpy')
+
 
 # the depth range of the profile plots
 ZMIN = -100.0

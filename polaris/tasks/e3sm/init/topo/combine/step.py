@@ -1,12 +1,10 @@
 import os
 import pathlib
-
-import numpy as np
-import xarray as xr
-from mpas_tools.logging import check_call
+from typing import TYPE_CHECKING
 
 from polaris.attrs import set_attrs
 from polaris.cf import add_cf_conventions, drop_dangling_references
+from polaris.lazy import lazy_attr, lazy_module
 from polaris.step import Step
 from polaris.tasks.e3sm.init.topo.combine.files import (
     ANTARCTIC,
@@ -15,6 +13,16 @@ from polaris.tasks.e3sm.init.topo.combine.files import (
     get_combine_files,
     write_netcdf_with_fill_values,
 )
+
+if TYPE_CHECKING:
+    import numpy as np
+    import xarray as xr
+    from mpas_tools.logging import check_call
+else:
+    np = lazy_module('numpy')
+    xr = lazy_module('xarray')
+    check_call = lazy_attr('mpas_tools.logging', 'check_call')
+
 
 #: variables in a combined topography file to compare against a baseline.
 #: ``ocean_mask`` is deliberately left out.  The combine step writes it, but

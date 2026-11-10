@@ -1,6 +1,12 @@
-import xarray as xr
+from typing import TYPE_CHECKING
 
+from polaris.lazy import lazy_module
 from polaris.ocean.model import OceanIOStep
+
+if TYPE_CHECKING:
+    import xarray as xr
+else:
+    xr = lazy_module('xarray')
 
 
 class Extinction(OceanIOStep):

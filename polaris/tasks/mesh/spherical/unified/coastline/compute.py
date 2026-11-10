@@ -1,12 +1,12 @@
 import os
-
-import xarray as xr
+from typing import TYPE_CHECKING
 
 from polaris.cf import (
     add_cf_conventions,
     add_lat_lon_attrs,
     drop_dangling_references,
 )
+from polaris.lazy import lazy_module
 from polaris.mesh.spherical.coastline import (
     COASTLINE_VALIDATE_VARS,
     CONVENTIONS,
@@ -21,6 +21,12 @@ from polaris.mesh.spherical.unified.resolutions import (
     FINEST_RESOLUTION,
 )
 from polaris.step import Step
+
+if TYPE_CHECKING:
+    import xarray as xr
+else:
+    xr = lazy_module('xarray')
+
 
 __all__ = [
     'ComputeCoastlineStep',

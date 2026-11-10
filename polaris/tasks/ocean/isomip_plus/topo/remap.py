@@ -1,9 +1,18 @@
-import numpy as np
-import xarray as xr
-from mpas_tools.io import open_dataset, write_netcdf
+from typing import TYPE_CHECKING
 
 from polaris import Step
 from polaris.constants import get_constant
+from polaris.lazy import lazy_attr, lazy_module
+
+if TYPE_CHECKING:
+    import numpy as np
+    import xarray as xr
+    from mpas_tools.io import open_dataset, write_netcdf
+else:
+    np = lazy_module('numpy')
+    xr = lazy_module('xarray')
+    open_dataset = lazy_attr('mpas_tools.io', 'open_dataset')
+    write_netcdf = lazy_attr('mpas_tools.io', 'write_netcdf')
 
 
 class TopoRemap(Step):

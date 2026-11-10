@@ -22,12 +22,18 @@ import os
 import subprocess
 import sys
 from dataclasses import dataclass
-from typing import Dict, List, Optional, Tuple
+from typing import TYPE_CHECKING, Dict, List, Optional, Tuple
 
-from mache.parallel import PlacementSupport, ResourcePlacement
-
+from polaris.lazy import lazy_attr
 from polaris.parallel import get_memory_per_node
 from polaris.run.topology import one_thread_per_core
+
+if TYPE_CHECKING:
+    from mache.parallel import PlacementSupport, ResourcePlacement
+else:
+    PlacementSupport = lazy_attr('mache.parallel', 'PlacementSupport')
+    ResourcePlacement = lazy_attr('mache.parallel', 'ResourcePlacement')
+
 
 # read on each node and printed as one line of key=value facts, so that a
 # machine which cannot answer one of them simply omits it, and so that the

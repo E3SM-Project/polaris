@@ -1,13 +1,21 @@
 #!/usr/bin/env python3
 
 import argparse
+import importlib
 import os
 import sys
 
-import polaris.run.parallel as run_parallel
-import polaris.run.serial as run_serial
-from polaris import cache, list, setup, suite
 from polaris.version import __version__
+
+# the module whose main() runs each command, imported only for the command
+# that is run, so that each command imports only what it needs
+COMMANDS = {
+    'list': 'polaris.list',
+    'setup': 'polaris.setup',
+    'suite': 'polaris.suite',
+    'serial': 'polaris.run.serial',
+    'parallel': 'polaris.run.parallel',
+}
 
 
 def main():
@@ -47,13 +55,7 @@ The available polaris commands are:
 
     args = parser.parse_args(sys.argv[1:2])
 
-    commands = {
-        'list': list.main,
-        'setup': setup.main,
-        'suite': suite.main,
-        'serial': run_serial.main,
-        'parallel': run_parallel.main,
-    }
+    commands = dict(COMMANDS)
 
     # only allow the "polaris cache" command if we're on Chrysalis
     allow_cache = 'POLARIS_MACHINE' in os.environ and os.environ[
@@ -61,15 +63,16 @@ The available polaris commands are:
     ] in ['chrysalis']
 
     if allow_cache:
-        commands['cache'] = cache.main
+        commands['cache'] = 'polaris.cache'
 
     if args.command not in commands:
         print(f'Unrecognized command {args.command}')
         parser.print_help()
         exit(1)
 
-    # call the function associated with the requested command
-    commands[args.command]()
+    # call the main() of the module for the requested command
+    module = importlib.import_module(commands[args.command])
+    module.main()
 
 
 if __name__ == '__main__':

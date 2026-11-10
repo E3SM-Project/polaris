@@ -10,7 +10,8 @@ The {py:func}`polaris.list.list_cases()`, {py:func}`polaris.list.list_machines()
 and {py:func}`polaris.list.list_suites()` functions are used by the
 `polaris list` command to list tasks, supported machines and test
 suites, respectively.  These functions are not currently used anywhere else
-in polaris.
+in polaris.  Tasks are listed from the task manifest rather than by building
+them (see {ref}`dev-task-manifest`).
 
 (dev-setup)=
 
@@ -19,6 +20,9 @@ in polaris.
 The {py:func}`polaris.setup.setup_tasks()` and {py:func}`polaris.setup.setup_task()`
 functions are used by `polaris setup` and `polaris suite` to set up a list
 of tasks and a single task, respectively, in a work directory.
+{py:func}`polaris.setup.setup_tasks()` builds only the task groups of the
+tasks it sets up, which it looks up in the task manifest (see
+{ref}`dev-task-manifest`).
 Subdirectories will be created for each task and its steps; input,
 namelist and streams files will be downloaded, symlinked and/or generated
 in the setup process. A [pickle file](https://docs.python.org/3/library/pickle.html)

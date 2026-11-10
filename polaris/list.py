@@ -4,7 +4,8 @@ import os
 import re
 import sys
 
-from polaris.tasks import get_components
+from polaris.tasks import get_component_names
+from polaris.tasks.manifest import get_manifest
 
 
 def list_cases(task_expr=None, number=None, verbose=False):
@@ -26,10 +27,7 @@ def list_cases(task_expr=None, number=None, verbose=False):
     if number is None:
         print('Tasks:')
 
-    tasks = []
-    for component in get_components():
-        for task in component.tasks.values():
-            tasks.append(task)
+    tasks = get_manifest()
 
     for task_number, task in enumerate(tasks):
         print_number = False
@@ -37,7 +35,7 @@ def list_cases(task_expr=None, number=None, verbose=False):
         if number is not None:
             if number == task_number:
                 print_task = True
-        elif task_expr is None or re.match(task_expr, task.path):
+        elif task_expr is None or re.match(task_expr, task['path']):
             print_task = True
             print_number = True
 
@@ -50,10 +48,8 @@ def list_cases(task_expr=None, number=None, verbose=False):
             if verbose:
                 lines = list()
                 to_print = {
-                    'path': task.path,
-                    'name': task.name,
-                    'component': task.component.name,
-                    'subdir': task.subdir,
+                    key: task[key]
+                    for key in ['path', 'name', 'component', 'subdir']
                 }
                 for key in to_print:
                     key_string = f'{key}: '.ljust(15)
@@ -62,15 +58,15 @@ def list_cases(task_expr=None, number=None, verbose=False):
                         prefix = '      '
                 lines.append(f'{prefix}steps:')
                 longest = 0
-                for step in task.steps.values():
-                    longest = max(longest, len(step.name))
-                for step in task.steps.values():
-                    step_name = f'{step.name}: '.ljust(longest + 2)
-                    lines.append(f'{prefix} - {step_name}{step.path}')
+                for name, _ in task['steps']:
+                    longest = max(longest, len(name))
+                for name, path in task['steps']:
+                    step_name = f'{name}: '.ljust(longest + 2)
+                    lines.append(f'{prefix} - {step_name}{path}')
                 lines.append('')
                 print_string = '\n'.join(lines)
             else:
-                print_string = f'{prefix}{task.path}'
+                print_string = f'{prefix}{task["path"]}'
 
             print(print_string)
 
@@ -92,7 +88,7 @@ def list_machines():
 
 def list_suites(components=None, verbose=False):
     if components is None:
-        components = [component.name for component in get_components()]
+        components = get_component_names()
     print('Suites:')
     for component in components:
         package = f'polaris.suites.{component.replace("/", ".")}'

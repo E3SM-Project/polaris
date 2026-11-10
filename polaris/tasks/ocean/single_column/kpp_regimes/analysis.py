@@ -1,8 +1,14 @@
-import numpy as np
+from typing import TYPE_CHECKING
 
 from polaris.constants import get_constant
+from polaris.lazy import lazy_module
 from polaris.ocean.eos import compute_density
 from polaris.ocean.model import OceanIOStep, get_time_since_start
+
+if TYPE_CHECKING:
+    import numpy as np
+else:
+    np = lazy_module('numpy')
 
 
 def f11_boundary_layer_depth(time_days, buoyancy_flux, n_squared):

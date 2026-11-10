@@ -1,11 +1,9 @@
 import os
-
-import numpy as np
-import xarray as xr
-from mpas_tools.io import write_netcdf
+from typing import TYPE_CHECKING
 
 from polaris.analysis.units import units_to_mathtext
 from polaris.attrs import set_attrs
+from polaris.lazy import lazy_attr, lazy_module
 from polaris.mesh.reconstruct import (
     cartesian_to_local_geographic,
     tangential_reconstruction,
@@ -36,6 +34,16 @@ from polaris.tasks.ocean.analysis.sim_files import (
     year_range_key,
 )
 from polaris.viz import plot_global_mpas_field
+
+if TYPE_CHECKING:
+    import numpy as np
+    import xarray as xr
+    from mpas_tools.io import write_netcdf
+else:
+    np = lazy_module('numpy')
+    xr = lazy_module('xarray')
+    write_netcdf = lazy_attr('mpas_tools.io', 'write_netcdf')
+
 
 # The field groups maps are chunked into.
 #

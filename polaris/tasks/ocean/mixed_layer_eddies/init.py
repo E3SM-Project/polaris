@@ -11,17 +11,14 @@ are depth (m, negative), pressure (dbar), temperature (degC) and salinity
 (g kg-1).
 """
 
-import importlib.resources as imp_res
+from __future__ import annotations
 
-import cmocean  # noqa: F401
-import numpy as np
-import xarray as xr
-from mpas_tools.mesh.conversion import convert, cull
-from mpas_tools.ocean.viz.transect import compute_transect, plot_transect
-from mpas_tools.planar_hex import make_planar_hex_mesh
+import importlib.resources as imp_res
+from typing import TYPE_CHECKING
 
 from polaris.attrs import set_attrs
 from polaris.coriolis import add_coriolis_to_dataset
+from polaris.lazy import lazy_attr, lazy_module, lazy_side_effect
 from polaris.mesh.planar import compute_planar_hex_nx_ny
 from polaris.ocean.eos import compute_specvol
 from polaris.ocean.init_state import (
@@ -36,6 +33,28 @@ from polaris.ocean.vertical.ztilde import (
     pressure_from_z_tilde,
 )
 from polaris.viz import plot_horiz_field
+
+if TYPE_CHECKING:
+    import cmocean  # noqa: F401
+    import numpy as np
+    import xarray as xr
+    from mpas_tools.mesh.conversion import convert, cull
+    from mpas_tools.ocean.viz.transect import compute_transect, plot_transect
+    from mpas_tools.planar_hex import make_planar_hex_mesh
+else:
+    lazy_side_effect('cmocean')
+    np = lazy_module('numpy')
+    xr = lazy_module('xarray')
+    convert = lazy_attr('mpas_tools.mesh.conversion', 'convert')
+    cull = lazy_attr('mpas_tools.mesh.conversion', 'cull')
+    compute_transect = lazy_attr(
+        'mpas_tools.ocean.viz.transect', 'compute_transect'
+    )
+    plot_transect = lazy_attr('mpas_tools.ocean.viz.transect', 'plot_transect')
+    make_planar_hex_mesh = lazy_attr(
+        'mpas_tools.planar_hex', 'make_planar_hex_mesh'
+    )
+
 
 # The number of times init_tracers() refines the geometric heights at which
 # it evaluates the salinity profile.  The density varies by less than 1%,

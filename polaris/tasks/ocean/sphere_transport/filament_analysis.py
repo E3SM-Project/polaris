@@ -1,11 +1,19 @@
-import matplotlib.pyplot as plt
-import numpy as np
-import pandas as pd
+from typing import TYPE_CHECKING
 
+from polaris.lazy import lazy_module
 from polaris.ocean.convergence import get_resolution_for_task
 from polaris.ocean.model import OceanIOStep, get_time_since_start
 from polaris.resolution import resolution_to_string
 from polaris.viz import mplstyle_context
+
+if TYPE_CHECKING:
+    import matplotlib.pyplot as plt
+    import numpy as np
+    import pandas as pd
+else:
+    plt = lazy_module('matplotlib.pyplot')
+    np = lazy_module('numpy')
+    pd = lazy_module('pandas')
 
 
 class FilamentAnalysis(OceanIOStep):

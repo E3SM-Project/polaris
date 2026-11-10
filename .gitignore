@@ -43,3 +43,7 @@ pixi-env/
 
 # mache
 .mache_cache/
+
+# the task manifest, rebuilt by polaris whenever it is stale
+polaris/task_manifest.json
+polaris/.task_manifest.*.tmp

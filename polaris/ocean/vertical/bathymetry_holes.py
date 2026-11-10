@@ -9,7 +9,17 @@ cell's ``maxLevelCell`` at its deepest ocean neighbor until no such holes
 remain, mirroring the bathymetry smoothing MPAS-Ocean applies in its init mode.
 """
 
-import numpy as np
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
+from polaris.lazy import lazy_module
+
+if TYPE_CHECKING:
+    import numpy as np
+else:
+    np = lazy_module('numpy')
+
 
 __all__ = ['fill_max_level_holes']
 

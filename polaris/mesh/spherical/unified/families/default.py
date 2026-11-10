@@ -1,5 +1,13 @@
-import mpas_tools.mesh.creation.mesh_definition_tools as mdt
-import numpy as np
+from typing import TYPE_CHECKING
+
+from polaris.lazy import lazy_module
+
+if TYPE_CHECKING:
+    import mpas_tools.mesh.creation.mesh_definition_tools as mdt
+    import numpy as np
+else:
+    mdt = lazy_module('mpas_tools.mesh.creation.mesh_definition_tools')
+    np = lazy_module('numpy')
 
 
 class DefaultUnifiedMeshFamily:

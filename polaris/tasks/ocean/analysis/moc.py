@@ -13,10 +13,9 @@ streamfunction for named regions, and regional overturning -- the Atlantic MOC
 in particular -- comes with the rest of the regional analysis later.
 """
 
-import numpy as np
-import xarray as xr
-from mpas_tools.io import write_netcdf
+from typing import TYPE_CHECKING
 
+from polaris.lazy import lazy_attr, lazy_module
 from polaris.tasks.ocean.analysis.analysis_step import AnalysisStep
 from polaris.tasks.ocean.analysis.ncclimo import (
     find_climatology_file,
@@ -28,6 +27,16 @@ from polaris.tasks.ocean.analysis.sim_files import (
 )
 from polaris.viz import plot_lat_elevation_field
 from polaris.viz.lat_elevation import MAX_CONTOUR_LINES
+
+if TYPE_CHECKING:
+    import numpy as np
+    import xarray as xr
+    from mpas_tools.io import write_netcdf
+else:
+    np = lazy_module('numpy')
+    xr = lazy_module('xarray')
+    write_netcdf = lazy_attr('mpas_tools.io', 'write_netcdf')
+
 
 # The names Omega gives the fields this step reads.  A time reduction carries
 # a "_TimeMean<period>" suffix on the variable whose chain was given an IOName

@@ -23,9 +23,16 @@ the heat content maps, which integrate a climatology, and the heat content
 time series, which integrates a month at a time.
 """
 
-import xarray as xr
+from typing import TYPE_CHECKING
 
 from polaris.constants import get_constant
+from polaris.lazy import lazy_module
+
+if TYPE_CHECKING:
+    import xarray as xr
+else:
+    xr = lazy_module('xarray')
+
 
 # The TEOS-10 specific heat capacity that relates potential enthalpy to
 # conservative temperature.  Like the reference density, it is not a free

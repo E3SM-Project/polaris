@@ -19,6 +19,9 @@ from polaris.tasks.e3sm.init.topo.combine.task import (
 from polaris.tasks.e3sm.init.topo.combine.task import (
     LatLonCombineTask as LatLonCombineTask,
 )
+from polaris.tasks.e3sm.init.topo.combine.tasks import (
+    add_combine_topo_tasks as add_combine_topo_tasks,
+)
 from polaris.tasks.e3sm.init.topo.combine.viz import (
     VizCombinedStep as VizCombinedStep,
 )

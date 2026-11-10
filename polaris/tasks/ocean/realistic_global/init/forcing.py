@@ -1,10 +1,15 @@
 import os
+from typing import TYPE_CHECKING
 
-import xarray as xr
-
+from polaris.lazy import lazy_module
 from polaris.ocean.model import OceanIOStep
 
 from .remap_jra55 import JRA55_ON_MESH_FILENAME
+
+if TYPE_CHECKING:
+    import xarray as xr
+else:
+    xr = lazy_module('xarray')
 
 
 class ForcingStep(OceanIOStep):

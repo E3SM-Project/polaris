@@ -1,14 +1,19 @@
 import os
-
-import xarray as xr
+from typing import TYPE_CHECKING
 
 from polaris import Step
 from polaris.attrs import set_attrs
 from polaris.cf import add_cf_conventions, drop_dangling_references
+from polaris.lazy import lazy_module
 from polaris.mesh.spherical.coastline import CONVENTIONS
 from polaris.tasks.e3sm.init.topo.combine.step import (
     COMBINE_TOPO_VALIDATE_VARS,
 )
+
+if TYPE_CHECKING:
+    import xarray as xr
+else:
+    xr = lazy_module('xarray')
 
 
 def get_masked_topo_validate_vars():

@@ -1,7 +1,14 @@
-import numpy as np
-import pyproj
+from typing import TYPE_CHECKING
 
+from polaris.lazy import lazy_module
 from polaris.tasks.ocean.isomip_plus.projection import get_projections
+
+if TYPE_CHECKING:
+    import numpy as np
+    import pyproj
+else:
+    np = lazy_module('numpy')
+    pyproj = lazy_module('pyproj')
 
 
 def add_isomip_plus_xy(ds):

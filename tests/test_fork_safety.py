@@ -42,7 +42,12 @@ def _clean_environ(**overrides):
         name: value
         for name, value in os.environ.items()
         if name
-        not in ('OMP_NUM_THREADS', 'OPENBLAS_NUM_THREADS', 'MKL_NUM_THREADS')
+        not in (
+            'OMP_NUM_THREADS',
+            'OPENBLAS_NUM_THREADS',
+            'MKL_NUM_THREADS',
+            'NUMEXPR_NUM_THREADS',
+        )
     }
     environ.update(overrides)
     return environ
@@ -52,10 +57,11 @@ def test_importing_polaris_leaves_almost_no_threads():
     """
     The property the fork depends on, measured the way the kernel sees it.
 
-    Without this, importing polaris leaves 129 threads on a 128-core node --
-    an OpenBLAS pool numpy raises at import, one per visible core.
+    Without this, importing polaris and then numpy, which polaris defers until
+    a step uses it, leaves 129 threads on a 128-core node -- an OpenBLAS pool
+    numpy raises at import, one per visible core.
     """
-    threads = _threads_after('import polaris', _clean_environ())
+    threads = _threads_after('import polaris; import numpy', _clean_environ())
 
     assert threads <= 4, (
         f'importing polaris left {threads} OS threads, which is not safe to '
@@ -72,7 +78,9 @@ def test_the_pools_are_pinned_before_numpy_is_imported():
     was tried and is too late: importing that module imports the package
     first.
     """
-    threads = _threads_after('import polaris.__main__', _clean_environ())
+    threads = _threads_after(
+        'import polaris.__main__; import numpy', _clean_environ()
+    )
 
     assert threads <= 4, (
         f'the polaris CLI left {threads} OS threads; the pools are being '
@@ -82,12 +90,15 @@ def test_the_pools_are_pinned_before_numpy_is_imported():
 
 def test_a_deliberate_choice_still_wins():
     """Pinned by default, not imposed: a job script may say otherwise."""
+    statement = 'import polaris; import numpy'
+    pinned = _threads_after(statement, _clean_environ())
     threads = _threads_after(
-        'import polaris',
-        _clean_environ(OMP_NUM_THREADS='4', OPENBLAS_NUM_THREADS='4'),
+        statement,
+        _clean_environ(OMP_NUM_THREADS='2', OPENBLAS_NUM_THREADS='2'),
     )
 
-    assert threads > 4, (
-        f'OPENBLAS_NUM_THREADS=4 gave {threads} OS threads; the pin is '
-        f'overriding a deliberate choice instead of defaulting'
+    assert threads > pinned, (
+        f'OPENBLAS_NUM_THREADS=2 gave {threads} OS threads, no more than the '
+        f'{pinned} of the default; the pin is overriding a deliberate choice '
+        f'instead of defaulting'
     )

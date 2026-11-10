@@ -1,10 +1,15 @@
 import time
 from math import ceil, floor, pi
+from typing import TYPE_CHECKING
 
-import numpy as np
-
+from polaris.lazy import lazy_module
 from polaris.mesh.planar import compute_planar_hex_nx_ny
 from polaris.ocean.model import OceanModelStep, get_time_interval_string
+
+if TYPE_CHECKING:
+    import numpy as np
+else:
+    np = lazy_module('numpy')
 
 
 class Forward(OceanModelStep):

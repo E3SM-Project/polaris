@@ -1,12 +1,9 @@
 """Combined resolved and parameterized buoyancy-flux diagnostics."""
 
 import csv
+from typing import TYPE_CHECKING
 
-import cftime
-import matplotlib.pyplot as plt
-import numpy as np
-import xarray as xr
-
+from polaris.lazy import lazy_module
 from polaris.mesh.reconstruct import (
     build_reconstruction_weights,
     tangential_reconstruction,
@@ -22,6 +19,17 @@ from polaris.tasks.ocean.mixed_layer_eddies.diagnostics import (
     get_geom_thickness,
 )
 from polaris.viz import mplstyle_context
+
+if TYPE_CHECKING:
+    import cftime
+    import matplotlib.pyplot as plt
+    import numpy as np
+    import xarray as xr
+else:
+    cftime = lazy_module('cftime')
+    plt = lazy_module('matplotlib.pyplot')
+    np = lazy_module('numpy')
+    xr = lazy_module('xarray')
 
 
 def analyze_combined_flux(step, runs):

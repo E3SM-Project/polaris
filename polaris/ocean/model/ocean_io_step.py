@@ -1,15 +1,15 @@
 from typing import TYPE_CHECKING
 
-import xarray as xr
-
 from polaris import Step
+from polaris.lazy import lazy_module
 from polaris.ocean.model.ocean_model_files_mixin import OceanModelFilesMixin
 
 if TYPE_CHECKING:
-    # Keep Ocean as a type-only import. Importing it at runtime pulls
-    # polaris.tasks.ocean back into polaris.ocean.model while that package is
-    # still importing these step classes, creating a circular import.
+    import xarray as xr
+
     from polaris.tasks.ocean import Ocean
+else:
+    xr = lazy_module('xarray')
 
 
 class OceanIOStep(OceanModelFilesMixin, Step):

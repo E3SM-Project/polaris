@@ -1,9 +1,15 @@
 import os
-
-import xarray as xr
-from mpas_tools.io import write_netcdf
+from typing import TYPE_CHECKING
 
 from polaris import Step
+from polaris.lazy import lazy_attr, lazy_module
+
+if TYPE_CHECKING:
+    import xarray as xr
+    from mpas_tools.io import write_netcdf
+else:
+    xr = lazy_module('xarray')
+    write_netcdf = lazy_attr('mpas_tools.io', 'write_netcdf')
 
 
 class SeaiceMeshStep(Step):

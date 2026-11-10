@@ -7,14 +7,24 @@ axes, so the plot is a primitive here rather than something the step that
 makes it owns.
 """
 
-import numpy as np
-import xarray as xr
-from matplotlib.figure import Figure
-from matplotlib.ticker import MaxNLocator
+from typing import TYPE_CHECKING
 
+from polaris.lazy import lazy_attr, lazy_module
 from polaris.viz.helper import add_fitted_suptitle
 from polaris.viz.spherical import setup_colormap
 from polaris.viz.style import mplstyle_context
+
+if TYPE_CHECKING:
+    import numpy as np
+    import xarray as xr
+    from matplotlib.figure import Figure
+    from matplotlib.ticker import MaxNLocator
+else:
+    np = lazy_module('numpy')
+    xr = lazy_module('xarray')
+    Figure = lazy_attr('matplotlib.figure', 'Figure')
+    MaxNLocator = lazy_attr('matplotlib.ticker', 'MaxNLocator')
+
 
 # The number of filled levels the color map is divided into.  Enough that the
 # fill reads as continuous shading, which is what the color bar promises, and

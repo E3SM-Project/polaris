@@ -1,16 +1,33 @@
-import cmocean  # noqa: F401
-import numpy as np
-import xarray as xr
-from mpas_tools.mesh.conversion import convert, cull
-from mpas_tools.ocean.viz.transect import compute_transect, plot_transect
-from mpas_tools.planar_hex import make_planar_hex_mesh
+from typing import TYPE_CHECKING
 
 from polaris.coriolis import add_coriolis_to_dataset
+from polaris.lazy import lazy_attr, lazy_module, lazy_side_effect
 from polaris.mesh.planar import compute_planar_hex_nx_ny
 from polaris.mpas import cell_mask_to_edge_mask
 from polaris.ocean.model import OceanIOStep
 from polaris.ocean.vertical import init_vertical_coord
 from polaris.viz import plot_horiz_field
+
+if TYPE_CHECKING:
+    import cmocean  # noqa: F401
+    import numpy as np
+    import xarray as xr
+    from mpas_tools.mesh.conversion import convert, cull
+    from mpas_tools.ocean.viz.transect import compute_transect, plot_transect
+    from mpas_tools.planar_hex import make_planar_hex_mesh
+else:
+    lazy_side_effect('cmocean')
+    np = lazy_module('numpy')
+    xr = lazy_module('xarray')
+    convert = lazy_attr('mpas_tools.mesh.conversion', 'convert')
+    cull = lazy_attr('mpas_tools.mesh.conversion', 'cull')
+    compute_transect = lazy_attr(
+        'mpas_tools.ocean.viz.transect', 'compute_transect'
+    )
+    plot_transect = lazy_attr('mpas_tools.ocean.viz.transect', 'plot_transect')
+    make_planar_hex_mesh = lazy_attr(
+        'mpas_tools.planar_hex', 'make_planar_hex_mesh'
+    )
 
 
 class Init(OceanIOStep):

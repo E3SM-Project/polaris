@@ -1,14 +1,22 @@
+from __future__ import annotations
+
 import time
-from typing import Literal
+from typing import TYPE_CHECKING, Literal
 
-import numpy as np
-import xarray as xr
-
+from polaris.lazy import lazy_module
 from polaris.mesh.info import is_planar
 from polaris.mesh.vector import (
     compute_edge_normal_vec,
     get_coordinate_matrix,
 )
+
+if TYPE_CHECKING:
+    import numpy as np
+    import xarray as xr
+else:
+    np = lazy_module('numpy')
+    xr = lazy_module('xarray')
+
 
 # TODO: when python 3.11 is dropped add type alias
 ReconstructionType = Literal['cell', 'vertex']

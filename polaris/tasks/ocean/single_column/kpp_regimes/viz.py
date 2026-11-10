@@ -1,13 +1,19 @@
 import os
+from typing import TYPE_CHECKING
 
-import matplotlib.pyplot as plt
-
+from polaris.lazy import lazy_module
 from polaris.ocean.model import OceanIOStep, get_time_since_start
 from polaris.tasks.ocean.single_column.kpp_regimes.analysis import (
     f11_boundary_layer_depth,
     initial_n_squared,
 )
 from polaris.viz import mplstyle_context
+
+if TYPE_CHECKING:
+    import matplotlib.pyplot as plt
+else:
+    plt = lazy_module('matplotlib.pyplot')
+
 
 VARIABLE_ALIASES = {
     'bulkRichardsonNumber': ['bulkRichardsonNumber', 'BulkRichardsonNumber'],

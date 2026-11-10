@@ -1,21 +1,36 @@
 import os
-
-import xarray as xr
-from mpas_tools.io import open_dataset, write_netcdf
-from mpas_tools.logging import check_call
-from mpas_tools.mesh.conversion import cull
-from mpas_tools.mesh.creation.sort_mesh import sort_mesh
-from mpas_tools.mesh.cull import map_culled_to_base
-from pyremap import MpasCellMeshDescriptor
+from typing import TYPE_CHECKING
 
 from polaris import Step
 from polaris.cf import add_cf_conventions
+from polaris.lazy import lazy_attr, lazy_module
 from polaris.mesh.reconstruct import (
     compute_reconstruction_weights,
     get_reconstruction_validate_vars,
 )
 from polaris.mesh.validate import MPAS_MESH_VALIDATE_VARS
 from polaris.model_step import make_graph_file
+
+if TYPE_CHECKING:
+    import xarray as xr
+    from mpas_tools.io import open_dataset, write_netcdf
+    from mpas_tools.logging import check_call
+    from mpas_tools.mesh.conversion import cull
+    from mpas_tools.mesh.creation.sort_mesh import sort_mesh
+    from mpas_tools.mesh.cull import map_culled_to_base
+    from pyremap import MpasCellMeshDescriptor
+else:
+    xr = lazy_module('xarray')
+    open_dataset = lazy_attr('mpas_tools.io', 'open_dataset')
+    write_netcdf = lazy_attr('mpas_tools.io', 'write_netcdf')
+    check_call = lazy_attr('mpas_tools.logging', 'check_call')
+    cull = lazy_attr('mpas_tools.mesh.conversion', 'cull')
+    sort_mesh = lazy_attr('mpas_tools.mesh.creation.sort_mesh', 'sort_mesh')
+    map_culled_to_base = lazy_attr(
+        'mpas_tools.mesh.cull', 'map_culled_to_base'
+    )
+    MpasCellMeshDescriptor = lazy_attr('pyremap', 'MpasCellMeshDescriptor')
+
 
 CULL_PREFIXES = ['ocean', 'ocean_no_cavities', 'land']
 SCRIP_PREFIXES = ['ocean', 'ocean_no_cavities', 'land']

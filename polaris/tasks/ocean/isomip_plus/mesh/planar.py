@@ -1,14 +1,27 @@
-import numpy as np
-import pyproj
-from mpas_tools.io import write_netcdf
-from mpas_tools.mesh.conversion import cull
-from mpas_tools.planar_hex import make_planar_hex_mesh
-from mpas_tools.translate import translate
+from typing import TYPE_CHECKING
 
 from polaris import Step
+from polaris.lazy import lazy_attr, lazy_module
 from polaris.mesh.planar import compute_planar_hex_nx_ny
 from polaris.tasks.ocean.isomip_plus.mesh.xy import add_isomip_plus_xy
 from polaris.tasks.ocean.isomip_plus.projection import get_projections
+
+if TYPE_CHECKING:
+    import numpy as np
+    import pyproj
+    from mpas_tools.io import write_netcdf
+    from mpas_tools.mesh.conversion import cull
+    from mpas_tools.planar_hex import make_planar_hex_mesh
+    from mpas_tools.translate import translate
+else:
+    np = lazy_module('numpy')
+    pyproj = lazy_module('pyproj')
+    write_netcdf = lazy_attr('mpas_tools.io', 'write_netcdf')
+    cull = lazy_attr('mpas_tools.mesh.conversion', 'cull')
+    make_planar_hex_mesh = lazy_attr(
+        'mpas_tools.planar_hex', 'make_planar_hex_mesh'
+    )
+    translate = lazy_attr('mpas_tools.translate', 'translate')
 
 
 class PlanarMesh(Step):
