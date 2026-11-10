@@ -1,0 +1,455 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>WOA23 Hydrography for Any Start Month</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=a8da1a53"></script>
+      <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Template" href="template.html" />
+    <link rel="prev" title="Vector Reconstruction at MPAS Cell Centers" href="vector_reconstruction.html" />
+    <link href="../_static/style.css" rel="stylesheet" type="text/css">
+
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            Polaris
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">User's guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../users_guide/quick_start.html">Quick Start for Users</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../users_guide/tasks.html">Tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../users_guide/config_files.html">Config Files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../users_guide/suites.html">Suites</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../users_guide/mesh/index.html">Mesh component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../users_guide/e3sm/init/index.html">E3SM Initial Condition Component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../users_guide/ocean/index.html">Ocean component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../users_guide/seaice/index.html">Sea ice component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../users_guide/machines/index.html">Machines</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Developer's guide</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/quick_start.html">Quick Start for Developers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/command_line.html">Command-line interface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/organization/index.html">Organization of Tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/e3sm/init/index.html">E3SM initial condition (e3sm/init) component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/mesh/index.html">Mesh component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/ocean/index.html">Ocean component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/seaice/index.html">Sea ice component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/framework/index.html">Framework</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/machines/index.html">Machines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/benchmarking.html">Benchmarking a branch against a baseline</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/omega_pr_testing.html">Testing an Omega pull request</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/polaris_update_testing.html">Testing a Polaris version update</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/troubleshooting.html">Troubleshooting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/docs.html">Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/building_docs.html">Building the Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/building_docs.html#previewing-the-documentation">Previewing the Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/conda_vs_spack.html">How Conda and Spack Work Together in Polaris</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/updating_conda.html">Updating Deployment Dependencies</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/updating_spack/index.html">Updating Shared Spack Environments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/api.html">API reference</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">Design Documents</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="e3sm_init_component_inputs.html">E3SM Init Component Inputs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="global_ocean_dynamic_adjustment.html">Global Ocean Dynamic Adjustment</a></li>
+<li class="toctree-l2"><a class="reference internal" href="global_ocean_forward.html">Global Ocean Forward Runs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="global_ocean_init.html">Realistic Ocean Initial Conditions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="horiz_press_grad_hydrostatic_consistency.html">Discrete Hydrostatic Consistency in <code class="docutils literal notranslate"><span class="pre">horiz_press_grad</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="horiz_press_grad_reference.html">Reworked HPG Reference Solution</a></li>
+<li class="toctree-l2"><a class="reference internal" href="land_locked_cells.html">Land-Locked Cells in the Ocean and Sea-Ice Domains</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mixed_layer_eddies.html">Mixed-Layer Eddies Task</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ocean_analysis.html">Ocean Analysis in Polaris</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ocean_analysis_initial.html">Initial Omega Analysis Capabilities</a></li>
+<li class="toctree-l2"><a class="reference internal" href="omega_pr_testing.html">Omega Pull Request Testing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="overflow_nonlinear_eos.html">EOS and Vertical-Coordinate Variants of the Overflow Tasks</a></li>
+<li class="toctree-l2"><a class="reference internal" href="polaris_update_testing.html">Polaris Version Update Testing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pstar_init.html">P-Star Coordinate and Tracer Initialization</a></li>
+<li class="toctree-l2"><a class="reference internal" href="shared_steps.html">Shared steps</a></li>
+<li class="toctree-l2"><a class="reference internal" href="suite_results_file.html">Machine-Readable Suite Results</a></li>
+<li class="toctree-l2"><a class="reference internal" href="task_parallel_analysis_steps.html">Task-Parallel-Safe Analysis Steps in Polaris</a></li>
+<li class="toctree-l2"><a class="reference internal" href="task_parallelism.html">Task Parallelism in Polaris</a></li>
+<li class="toctree-l2"><a class="reference internal" href="task_parallelism_phase_a.html">Task Parallelism Phase A: Placement</a></li>
+<li class="toctree-l2"><a class="reference internal" href="task_parallelism_phase_b.html">Task Parallelism Phase B: Concurrency</a></li>
+<li class="toctree-l2"><a class="reference internal" href="task_parallelism_phase_c.html">Task Parallelism Phase C: Python Worker Pool</a></li>
+<li class="toctree-l2"><a class="reference internal" href="task_parallelism_phase_d.html">Task Parallelism Phase D: Coexistence and Elasticity</a></li>
+<li class="toctree-l2"><a class="reference internal" href="unified_base_mesh.html">Unified Mesh: Global Base Mesh Workflow</a></li>
+<li class="toctree-l2"><a class="reference internal" href="unified_mesh_prepare_coastline.html">Unified Mesh: Coastline Preparation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="unified_mesh_prepare_river_network.html">Unified Mesh: River Network Preparation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="unified_mesh_build_sizing_field.html">Unified Mesh: Sizing-Field Construction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="unified_mesh_create_base_mesh.html">Unified Mesh: Base-Mesh Creation and Downstream Integration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="unified_mesh_cull_leak.html">Unified Mesh: Fixing Resolution Leakage into the Ocean/Sea-Ice Domain</a></li>
+<li class="toctree-l2"><a class="reference internal" href="unified_mesh_dc_edge_noise.html">Unified Mesh: Raising the dcEdge Floor in the Ocean/Sea-Ice Domain</a></li>
+<li class="toctree-l2"><a class="reference internal" href="vector_reconstruction.html">Vector Reconstruction at MPAS Cell Centers</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">WOA23 Hydrography for Any Start Month</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#summary">Summary</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#requirements">Requirements</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#requirement-any-month-can-be-selected">Requirement: Any month can be selected</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#requirement-cached-products-match-the-configured-month">Requirement: Cached products match the configured month</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#requirement-products-record-their-month">Requirement: Products record their month</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#requirement-all-12-months-are-cached-affordably">Requirement: All 12 months are cached affordably</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#algorithm-design">Algorithm Design</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#algorithm-design-any-month-can-be-selected">Algorithm Design: Any month can be selected</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#algorithm-design-all-12-months-are-cached-affordably">Algorithm Design: All 12 months are cached affordably</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#implementation">Implementation</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#implementation-any-month-can-be-selected">Implementation: Any month can be selected</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#implementation-cached-products-match-the-configured-month">Implementation: Cached products match the configured month</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#implementation-products-record-their-month">Implementation: Products record their month</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#implementation-all-12-months-are-cached-affordably">Implementation: All 12 months are cached affordably</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#testing">Testing</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#testing-and-validation-any-month-can-be-selected">Testing and Validation: Any month can be selected</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#testing-and-validation-cached-products-match-the-configured-month">Testing and Validation: Cached products match the configured month</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#testing-and-validation-products-record-their-month">Testing and Validation: Products record their month</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#testing-and-validation-all-12-months-are-cached-affordably">Testing and Validation: All 12 months are cached affordably</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="template.html">Template</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials/dev_add_category_of_tasks/index.html">Developer Tutorial: Adding a New Category of Tasks</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Glossary</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../glossary.html">Glossary</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Polaris</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="index.html">Design Documents</a></li>
+      <li class="breadcrumb-item active">WOA23 Hydrography for Any Start Month</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/design_docs/woa23_start_month.md.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section class="tex2jax_ignore mathjax_ignore" id="woa23-hydrography-for-any-start-month">
+<h1>WOA23 Hydrography for Any Start Month<a class="headerlink" href="#woa23-hydrography-for-any-start-month" title="Link to this heading"></a></h1>
+<p>Creation date: 2026/09/25</p>
+<p>Contributors:</p>
+<ul class="simple">
+<li><p>Xylar Asay-Davis</p></li>
+<li><p>Claude</p></li>
+</ul>
+<section id="summary">
+<h2>Summary<a class="headerlink" href="#summary" title="Link to this heading"></a></h2>
+<p>The <code class="docutils literal notranslate"><span class="pre">hydrography/woa23</span></code> task builds a reusable WOA23 temperature and salinity
+product for initializing realistic global ocean simulations. It currently uses
+the January climatology above 1500 m, which is only right for simulations that
+start on January 1. E3SM also needs simulations that start on October 1, and
+rather than hard-coding a second month, this design makes the month a config
+option.</p>
+<p>The complication is caching. The combine and extrapolate steps are expensive
+enough that their outputs are cached, and a cached product for one month must
+never be used for another. The design gives each month its own cache entry,
+caches all 12 months, and has every product record the month it represents.
+Downstream initialization and forward tasks can then use that record to set a
+consistent initial-condition <code class="docutils literal notranslate"><span class="pre">Time</span></code> and simulation start date. That work is
+outside the scope of this design.</p>
+<p>Success means the task produces a correct product for any month, a cached
+product is always the one for the configured month, and all 12 months are
+available from the cache.</p>
+</section>
+<section id="requirements">
+<h2>Requirements<a class="headerlink" href="#requirements" title="Link to this heading"></a></h2>
+<section id="requirement-any-month-can-be-selected">
+<h3>Requirement: Any month can be selected<a class="headerlink" href="#requirement-any-month-can-be-selected" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/09/25</p>
+<p>Contributors:</p>
+<ul class="simple">
+<li><p>Xylar Asay-Davis</p></li>
+<li><p>Claude</p></li>
+</ul>
+<p>The WOA23 product shall be buildable for any month of the year, selected with
+a config option. January shall be the default.</p>
+</section>
+<section id="requirement-cached-products-match-the-configured-month">
+<h3>Requirement: Cached products match the configured month<a class="headerlink" href="#requirement-cached-products-match-the-configured-month" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/09/25</p>
+<p>Contributors:</p>
+<ul class="simple">
+<li><p>Xylar Asay-Davis</p></li>
+<li><p>Claude</p></li>
+</ul>
+<p>A cached product shall only be used for the month it was built for. If a
+cached product is requested for a month that has no cache entry, setup shall
+fail rather than run the step or use another month’s product.</p>
+</section>
+<section id="requirement-products-record-their-month">
+<h3>Requirement: Products record their month<a class="headerlink" href="#requirement-products-record-their-month" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/09/25</p>
+<p>Contributors:</p>
+<ul class="simple">
+<li><p>Xylar Asay-Davis</p></li>
+<li><p>Claude</p></li>
+</ul>
+<p>Each product shall record which month it represents, so downstream steps can
+check or derive the simulation start date from it.</p>
+</section>
+<section id="requirement-all-12-months-are-cached-affordably">
+<h3>Requirement: All 12 months are cached affordably<a class="headerlink" href="#requirement-all-12-months-are-cached-affordably" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/09/25</p>
+<p>Contributors:</p>
+<ul class="simple">
+<li><p>Xylar Asay-Davis</p></li>
+<li><p>Claude</p></li>
+</ul>
+<p>Products for all 12 months shall be available from the cache. A machine that
+uses one month shall not have to download the others.</p>
+</section>
+</section>
+<section id="algorithm-design">
+<h2>Algorithm Design<a class="headerlink" href="#algorithm-design" title="Link to this heading"></a></h2>
+<section id="algorithm-design-any-month-can-be-selected">
+<h3>Algorithm Design: Any month can be selected<a class="headerlink" href="#algorithm-design-any-month-can-be-selected" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/09/25</p>
+<p>Contributors:</p>
+<ul class="simple">
+<li><p>Xylar Asay-Davis</p></li>
+<li><p>Claude</p></li>
+</ul>
+<p>Every WOA23 monthly climatology (<code class="docutils literal notranslate"><span class="pre">t01</span></code>–<code class="docutils literal notranslate"><span class="pre">t12</span></code>, <code class="docutils literal notranslate"><span class="pre">s01</span></code>–<code class="docutils literal notranslate"><span class="pre">s12</span></code>) covers the upper
+57 depth levels, down to 1500 m. The annual climatology fills the levels below.
+This is the existing January algorithm with a different month’s files.
+An October 1 start uses the October mean, the same convention by which a
+January 1 start uses the January mean.</p>
+</section>
+<section id="algorithm-design-all-12-months-are-cached-affordably">
+<h3>Algorithm Design: All 12 months are cached affordably<a class="headerlink" href="#algorithm-design-all-12-months-are-cached-affordably" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/09/25</p>
+<p>Contributors:</p>
+<ul class="simple">
+<li><p>Xylar Asay-Davis</p></li>
+<li><p>Claude</p></li>
+</ul>
+<p>Before this change, the cached January products (combined and extrapolated)
+were 1.7 GB each. They were double precision only because the computation is
+done in double precision and the results were written without casting back.
+The WOA23 source data are single precision, so writing the products in single
+precision loses no information and halves their size. All 12 months then take
+about 20 GB in the cache. Keeping one file per month means
+each machine downloads only the months it uses.</p>
+</section>
+</section>
+<section id="implementation">
+<h2>Implementation<a class="headerlink" href="#implementation" title="Link to this heading"></a></h2>
+<section id="implementation-any-month-can-be-selected">
+<h3>Implementation: Any month can be selected<a class="headerlink" href="#implementation-any-month-can-be-selected" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/09/25</p>
+<p>Contributors:</p>
+<ul class="simple">
+<li><p>Xylar Asay-Davis</p></li>
+<li><p>Claude</p></li>
+</ul>
+<p>A new option <code class="docutils literal notranslate"><span class="pre">[woa23]</span> <span class="pre">month</span></code> takes an integer from 1 to 12. Because the month
+is a config option, it is read when steps are set up, not when they are
+constructed. There is one month per work directory, since every mesh shares
+the WOA23 steps.</p>
+</section>
+<section id="implementation-cached-products-match-the-configured-month">
+<h3>Implementation: Cached products match the configured month<a class="headerlink" href="#implementation-cached-products-match-the-configured-month" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/09/25</p>
+<p>Contributors:</p>
+<ul class="simple">
+<li><p>Xylar Asay-Davis</p></li>
+<li><p>Claude</p></li>
+</ul>
+<p>The month is part of both output filenames, <code class="docutils literal notranslate"><span class="pre">woa_combined_&lt;mon&gt;.nc</span></code> and
+<code class="docutils literal notranslate"><span class="pre">woa23_decav_0.25_&lt;mon&gt;_extrap.nc</span></code>, where <code class="docutils literal notranslate"><span class="pre">&lt;mon&gt;</span></code> is a lowercase
+three-letter abbreviation. The filenames are declared in <code class="docutils literal notranslate"><span class="pre">setup()</span></code>, once the
+config is available. Cache entries are keyed by the path of each output in the
+work directory, so each month is a separate entry.</p>
+<p>When a step is configured to use cached output, either explicitly or by
+default, Polaris already requires a cache entry for the selected month. If no
+entry exists, setup fails with Polaris’ “has not been added to the cache
+database” error. Polaris will not build the product automatically, since that
+could hide a missing cache entry. Use <code class="docutils literal notranslate"><span class="pre">--free_running</span></code> to run the step instead
+of retrieving its output from the cache.</p>
+<p>The standalone <code class="docutils literal notranslate"><span class="pre">hydrography/woa23</span></code> task already marks both steps as
+free-running, so it builds the products for whatever month is configured. It
+is used to generate the cache entries for all 12 months.</p>
+<p>Downstream steps get these filenames from the WOA23 steps, not from a
+constant.</p>
+</section>
+<section id="implementation-products-record-their-month">
+<h3>Implementation: Products record their month<a class="headerlink" href="#implementation-products-record-their-month" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/09/25</p>
+<p>Contributors:</p>
+<ul class="simple">
+<li><p>Xylar Asay-Davis</p></li>
+<li><p>Claude</p></li>
+</ul>
+<p>Both products carry a global attribute <code class="docutils literal notranslate"><span class="pre">month</span></code> with the integer month.</p>
+</section>
+<section id="implementation-all-12-months-are-cached-affordably">
+<h3>Implementation: All 12 months are cached affordably<a class="headerlink" href="#implementation-all-12-months-are-cached-affordably" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/09/25</p>
+<p>Contributors:</p>
+<ul class="simple">
+<li><p>Xylar Asay-Davis</p></li>
+<li><p>Claude</p></li>
+</ul>
+<p>Temperature and salinity are computed in double precision and cast to single
+precision only when the products are written. <code class="docutils literal notranslate"><span class="pre">polaris/ocean/cached_files.json</span></code>
+gets one entry per month for each of the two steps. The January entries are
+regenerated rather than renamed, since the new products differ from the old
+ones at single-precision round-off.</p>
+</section>
+</section>
+<section id="testing">
+<h2>Testing<a class="headerlink" href="#testing" title="Link to this heading"></a></h2>
+<section id="testing-and-validation-any-month-can-be-selected">
+<h3>Testing and Validation: Any month can be selected<a class="headerlink" href="#testing-and-validation-any-month-can-be-selected" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/09/25</p>
+<p>Contributors:</p>
+<ul class="simple">
+<li><p>Xylar Asay-Davis</p></li>
+<li><p>Claude</p></li>
+</ul>
+<p>Unit tests check the mapping from month to WOA23 source files and to output
+filenames, and that months outside 1–12 are rejected. The task is run for all
+12 months on Chrysalis, and the <code class="docutils literal notranslate"><span class="pre">viz</span></code> output is inspected for each.</p>
+</section>
+<section id="testing-and-validation-cached-products-match-the-configured-month">
+<h3>Testing and Validation: Cached products match the configured month<a class="headerlink" href="#testing-and-validation-cached-products-match-the-configured-month" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/09/25</p>
+<p>Contributors:</p>
+<ul class="simple">
+<li><p>Xylar Asay-Davis</p></li>
+<li><p>Claude</p></li>
+</ul>
+<p>A unit test checks that a cached step for a month with no cache entry fails
+at setup.</p>
+</section>
+<section id="testing-and-validation-products-record-their-month">
+<h3>Testing and Validation: Products record their month<a class="headerlink" href="#testing-and-validation-products-record-their-month" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/09/25</p>
+<p>Contributors:</p>
+<ul class="simple">
+<li><p>Xylar Asay-Davis</p></li>
+<li><p>Claude</p></li>
+</ul>
+<p>The 12 products are checked for the right <code class="docutils literal notranslate"><span class="pre">month</span></code> attribute.</p>
+</section>
+<section id="testing-and-validation-all-12-months-are-cached-affordably">
+<h3>Testing and Validation: All 12 months are cached affordably<a class="headerlink" href="#testing-and-validation-all-12-months-are-cached-affordably" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/09/25</p>
+<p>Contributors:</p>
+<ul class="simple">
+<li><p>Xylar Asay-Davis</p></li>
+<li><p>Claude</p></li>
+</ul>
+<p>The new January extrapolated product is compared with the existing
+double-precision cache entry. The two should agree to single-precision
+round-off.</p>
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="vector_reconstruction.html" class="btn btn-neutral float-left" title="Vector Reconstruction at MPAS Cell Centers" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="template.html" class="btn btn-neutral float-right" title="Template" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2026, Energy Exascale Earth System Model Project.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+   
+
+  <!-- Meta tags for JS to use -->
+  <meta name="doc-version" content="main">
+  <meta name="doc-site-root" content="../">
+
+  <!-- Create version switcher container -->
+  <script>
+    const sidebar = document.querySelector('.wy-side-nav-search');
+    if (sidebar) {
+      const versionDiv = document.createElement('div');
+      versionDiv.id = 'version-switcher';
+      versionDiv.style.marginTop = '1em';
+      sidebar.appendChild(versionDiv);
+    }
+  </script>
+
+  <!-- Load version-switcher.js using the correct relative path -->
+  <script src="../../shared/version-switcher.js"></script>
+
+
+</body>
+</html>

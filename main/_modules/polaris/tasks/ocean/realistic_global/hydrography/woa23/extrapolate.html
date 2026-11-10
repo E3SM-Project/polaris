@@ -480,6 +480,8 @@ window.runMermaid = runMermaid;</script>
 <span class="kn">from</span><span class="w"> </span><span class="nn">polaris</span><span class="w"> </span><span class="kn">import</span> <span class="n">Step</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">polaris.cf</span><span class="w"> </span><span class="kn">import</span> <span class="n">add_cf_conventions</span><span class="p">,</span> <span class="n">drop_dangling_references</span>
 
+<span class="kn">from</span><span class="w"> </span><span class="nn">.month</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_month_abbreviation</span><span class="p">,</span> <span class="n">get_woa23_month</span>
+
 
 <div class="viewcode-block" id="ExtrapolateStep">
 <a class="viewcode-back" href="../../../../../../../developers_guide/ocean/generated/polaris.tasks.ocean.realistic_global.hydrography.woa23.ExtrapolateStep.html#polaris.tasks.ocean.realistic_global.hydrography.woa23.ExtrapolateStep">[docs]</a>
@@ -487,8 +489,6 @@ window.runMermaid = runMermaid;</script>
 <span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    A step for extrapolating WOA23 into missing ocean, land and ice regions.</span>
 <span class="sd">    """</span>
-
-    <span class="n">output_filename</span> <span class="o">=</span> <span class="s1">'woa23_decav_0.25_jan_extrap.nc'</span>
 
 <div class="viewcode-block" id="ExtrapolateStep.__init__">
 <a class="viewcode-back" href="../../../../../../../developers_guide/ocean/generated/polaris.tasks.ocean.realistic_global.hydrography.woa23.ExtrapolateStep.html#polaris.tasks.ocean.realistic_global.hydrography.woa23.ExtrapolateStep.__init__">[docs]</a>
@@ -520,22 +520,30 @@ window.runMermaid = runMermaid;</script>
         <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">combine_step</span> <span class="o">=</span> <span class="n">combine_step</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">combine_topo_step</span> <span class="o">=</span> <span class="n">combine_topo_step</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">add_output_file</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">output_filename</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">add_cf_check</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">output_filename</span><span class="p">)</span>
         <span class="c1"># this is an expensive step so cache it by default</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">default_cached</span> <span class="o">=</span> <span class="kc">True</span></div>
 
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">output_filename</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">        The name of the extrapolated WOA23 file for the configured month.</span>
+<span class="sd">        """</span>
+        <span class="n">month_name</span> <span class="o">=</span> <span class="n">get_month_abbreviation</span><span class="p">(</span><span class="n">get_woa23_month</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">))</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s1">'woa23_decav_0.25_</span><span class="si">{</span><span class="n">month_name</span><span class="si">}</span><span class="s1">_extrap.nc'</span>
 
 <div class="viewcode-block" id="ExtrapolateStep.setup">
 <a class="viewcode-back" href="../../../../../../../developers_guide/ocean/generated/polaris.tasks.ocean.realistic_global.hydrography.woa23.ExtrapolateStep.setup.html#polaris.tasks.ocean.realistic_global.hydrography.woa23.ExtrapolateStep.setup">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">setup</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">"""</span>
-<span class="sd">        Set up input files for the step.</span>
+<span class="sd">        Set up input and output files for the step.</span>
 <span class="sd">        """</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">setup</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">add_input_file</span><span class="p">(</span>
             <span class="n">filename</span><span class="o">=</span><span class="s1">'woa.nc'</span><span class="p">,</span>
-            <span class="n">work_dir_target</span><span class="o">=</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">combine_step</span><span class="o">.</span><span class="n">path</span><span class="si">}</span><span class="s1">/woa_combined.nc'</span><span class="p">,</span>
+            <span class="n">work_dir_target</span><span class="o">=</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">combine_step</span><span class="o">.</span><span class="n">path</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">combine_step</span><span class="o">.</span><span class="n">output_filename</span><span class="si">}</span><span class="s1">'</span>
+            <span class="p">),</span>
         <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">add_input_file</span><span class="p">(</span>
             <span class="n">filename</span><span class="o">=</span><span class="s1">'topography.nc'</span><span class="p">,</span>
@@ -543,7 +551,9 @@ window.runMermaid = runMermaid;</script>
                 <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">combine_topo_step</span><span class="o">.</span><span class="n">path</span><span class="si">}</span><span class="s1">/'</span>
                 <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">combine_topo_step</span><span class="o">.</span><span class="n">combined_filename</span><span class="si">}</span><span class="s1">'</span>
             <span class="p">),</span>
-        <span class="p">)</span></div>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_output_file</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">output_filename</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_cf_check</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">output_filename</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="ExtrapolateStep.run">
@@ -580,11 +590,30 @@ window.runMermaid = runMermaid;</script>
         <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">'Vertically extrapolating into land and grounded ice'</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_extrap_vert</span><span class="p">(</span>
             <span class="n">in_filename</span><span class="o">=</span><span class="s1">'woa_extrap_horiz.nc'</span><span class="p">,</span>
-            <span class="n">out_filename</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">output_filename</span><span class="p">,</span>
+            <span class="n">out_filename</span><span class="o">=</span><span class="s1">'woa_extrap.nc'</span><span class="p">,</span>
             <span class="n">use_ocean_mask</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
         <span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_write_product</span><span class="p">(</span><span class="n">in_filename</span><span class="o">=</span><span class="s1">'woa_extrap.nc'</span><span class="p">)</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">'Wrote </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">output_filename</span><span class="si">}</span><span class="s1">'</span><span class="p">)</span></div>
 
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_write_product</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">in_filename</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">        Write the extrapolated product in single precision with the month it</span>
+<span class="sd">        represents.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        in_filename : str</span>
+<span class="sd">            The fully extrapolated file to read.</span>
+<span class="sd">        """</span>
+        <span class="k">with</span> <span class="n">xr</span><span class="o">.</span><span class="n">open_dataset</span><span class="p">(</span><span class="n">in_filename</span><span class="p">,</span> <span class="n">decode_times</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span> <span class="k">as</span> <span class="n">ds</span><span class="p">:</span>
+            <span class="n">ds_out</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">load</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">field_name</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">'ct_an'</span><span class="p">,</span> <span class="s1">'sa_an'</span><span class="p">]:</span>
+            <span class="n">ds_out</span><span class="p">[</span><span class="n">field_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">ds_out</span><span class="p">[</span><span class="n">field_name</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+        <span class="n">ds_out</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">'month'</span><span class="p">]</span> <span class="o">=</span> <span class="n">get_woa23_month</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">)</span>
+        <span class="n">write_netcdf</span><span class="p">(</span><span class="n">ds_out</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">output_filename</span><span class="p">)</span>
 
     <span class="nd">@staticmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">_make_3d_ocean_mask</span><span class="p">():</span>
@@ -629,8 +658,7 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">        use_ocean_mask : bool</span>
 <span class="sd">            Whether to restrict filling to the remapped ocean mask.</span>
 <span class="sd">        """</span>
-        <span class="k">with</span> <span class="n">xr</span><span class="o">.</span><span class="n">open_dataset</span><span class="p">(</span><span class="n">in_filename</span><span class="p">,</span> <span class="n">decode_times</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span> <span class="k">as</span> <span class="n">ds</span><span class="p">:</span>
-            <span class="n">ds_out</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">load</span><span class="p">()</span>
+        <span class="n">ds_out</span> <span class="o">=</span> <span class="n">_load_in_double_precision</span><span class="p">(</span><span class="n">in_filename</span><span class="p">)</span>
 
         <span class="n">ocean_mask</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="k">if</span> <span class="n">use_ocean_mask</span><span class="p">:</span>
@@ -673,8 +701,7 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">        use_ocean_mask : bool</span>
 <span class="sd">            Whether to restrict filling to the remapped ocean mask.</span>
 <span class="sd">        """</span>
-        <span class="k">with</span> <span class="n">xr</span><span class="o">.</span><span class="n">open_dataset</span><span class="p">(</span><span class="n">in_filename</span><span class="p">,</span> <span class="n">decode_times</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span> <span class="k">as</span> <span class="n">ds</span><span class="p">:</span>
-            <span class="n">ds_out</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">load</span><span class="p">()</span>
+        <span class="n">ds_out</span> <span class="o">=</span> <span class="n">_load_in_double_precision</span><span class="p">(</span><span class="n">in_filename</span><span class="p">)</span>
 
         <span class="n">ocean_mask</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="k">if</span> <span class="n">use_ocean_mask</span><span class="p">:</span>
@@ -793,6 +820,28 @@ window.runMermaid = runMermaid;</script>
         <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">meshgrid</span><span class="p">(</span><span class="n">coordinates</span><span class="p">,</span> <span class="n">coordinates</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="mf">0.5</span> <span class="o">*</span> <span class="p">(</span><span class="n">x</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="n">y</span><span class="o">**</span><span class="mi">2</span><span class="p">))</span></div>
 
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_load_in_double_precision</span><span class="p">(</span><span class="n">filename</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Load a WOA23 dataset with temperature and salinity in double precision so</span>
+<span class="sd">    extrapolation does not accumulate single-precision round-off.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    filename : str</span>
+<span class="sd">        The file to read.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    ds : xarray.Dataset</span>
+<span class="sd">        The loaded dataset.</span>
+<span class="sd">    """</span>
+    <span class="k">with</span> <span class="n">xr</span><span class="o">.</span><span class="n">open_dataset</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">decode_times</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span> <span class="k">as</span> <span class="n">ds</span><span class="p">:</span>
+        <span class="n">ds</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">load</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">field_name</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">'ct_an'</span><span class="p">,</span> <span class="s1">'sa_an'</span><span class="p">]:</span>
+        <span class="n">ds</span><span class="p">[</span><span class="n">field_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">ds</span><span class="p">[</span><span class="n">field_name</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">ds</span>
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_extrap_with_halo</span><span class="p">(</span><span class="n">field</span><span class="p">,</span> <span class="n">kernel</span><span class="p">,</span> <span class="n">valid</span><span class="p">,</span> <span class="n">lon_with_halo</span><span class="p">,</span> <span class="n">lon_no_halo</span><span class="p">):</span>

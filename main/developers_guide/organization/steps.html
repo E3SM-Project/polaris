@@ -574,12 +574,14 @@ other than downloading files.  Time-consuming work should be saved for
 <code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.tasks.ocean.realistic_global.hydrography.woa23.extrapolate.ExtrapolateStep.setup()</span></code>:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">setup</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">"""</span>
-<span class="sd">    Set up input files for the step.</span>
+<span class="sd">    Set up input and output files for the step.</span>
 <span class="sd">    """</span>
     <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">setup</span><span class="p">()</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">add_input_file</span><span class="p">(</span>
         <span class="n">filename</span><span class="o">=</span><span class="s1">'woa.nc'</span><span class="p">,</span>
-        <span class="n">work_dir_target</span><span class="o">=</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">combine_step</span><span class="o">.</span><span class="n">path</span><span class="si">}</span><span class="s1">/woa_combined.nc'</span><span class="p">,</span>
+        <span class="n">work_dir_target</span><span class="o">=</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">combine_step</span><span class="o">.</span><span class="n">path</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">combine_step</span><span class="o">.</span><span class="n">output_filename</span><span class="si">}</span><span class="s1">'</span>
+        <span class="p">),</span>
     <span class="p">)</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">add_input_file</span><span class="p">(</span>
         <span class="n">filename</span><span class="o">=</span><span class="s1">'topography.nc'</span><span class="p">,</span>
@@ -588,8 +590,12 @@ other than downloading files.  Time-consuming work should be saved for
             <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">combine_topo_step</span><span class="o">.</span><span class="n">combined_filename</span><span class="si">}</span><span class="s1">'</span>
         <span class="p">),</span>
     <span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">add_output_file</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">output_filename</span><span class="p">)</span>
 </pre></div>
 </div>
+<p>Here, the output filename depends on the month set in the <code class="docutils literal notranslate"><span class="pre">[woa23]</span></code> config
+section, so the output is added in <code class="docutils literal notranslate"><span class="pre">setup()</span></code>, once config options are
+available, rather than in the constructor.</p>
 <p>The <code class="docutils literal notranslate"><span class="pre">work_dir_target</span></code> paths point to outputs from upstream shared steps.</p>
 </section>
 <section id="constrain-resources">
@@ -932,7 +938,9 @@ not yet known at init). Here is an example taken from
     <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">setup</span><span class="p">()</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">add_input_file</span><span class="p">(</span>
         <span class="n">filename</span><span class="o">=</span><span class="s1">'woa.nc'</span><span class="p">,</span>
-        <span class="n">work_dir_target</span><span class="o">=</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">combine_step</span><span class="o">.</span><span class="n">path</span><span class="si">}</span><span class="s1">/woa_combined.nc'</span><span class="p">,</span>
+        <span class="n">work_dir_target</span><span class="o">=</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">combine_step</span><span class="o">.</span><span class="n">path</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">combine_step</span><span class="o">.</span><span class="n">output_filename</span><span class="si">}</span><span class="s1">'</span>
+        <span class="p">),</span>
     <span class="p">)</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">add_input_file</span><span class="p">(</span>
         <span class="n">filename</span><span class="o">=</span><span class="s1">'topography.nc'</span><span class="p">,</span>

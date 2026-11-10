@@ -480,8 +480,6 @@ window.runMermaid = runMermaid;</script>
 <span class="kn">from</span><span class="w"> </span><span class="nn">polaris</span><span class="w"> </span><span class="kn">import</span> <span class="n">Step</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">polaris.cf</span><span class="w"> </span><span class="kn">import</span> <span class="n">add_cf_conventions</span><span class="p">,</span> <span class="n">drop_dangling_references</span>
 
-<span class="kn">from</span><span class="w"> </span><span class="nn">.woa23_map</span><span class="w"> </span><span class="kn">import</span> <span class="n">WOA23_EXTRAP_FILENAME</span>
-
 
 <div class="viewcode-block" id="RemapWoa23Step">
 <a class="viewcode-back" href="../../../../../../developers_guide/ocean/generated/polaris.tasks.ocean.realistic_global.init.remap_woa23.RemapWoa23Step.html#polaris.tasks.ocean.realistic_global.init.remap_woa23.RemapWoa23Step">[docs]</a>
@@ -519,7 +517,7 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">            The subdirectory for the step.</span>
 
 <span class="sd">        extrapolate_step : polaris.Step</span>
-<span class="sd">            The step that produces ``woa23_decav_0.25_jan_extrap.nc``.</span>
+<span class="sd">            The step that produces the extrapolated WOA23 product.</span>
 
 <span class="sd">        woa23_map_step : polaris.Step</span>
 <span class="sd">            The step that builds the WOA23-to-mesh mapping file.</span>
@@ -549,7 +547,7 @@ window.runMermaid = runMermaid;</script>
             <span class="n">filename</span><span class="o">=</span><span class="s1">'woa23_extrap.nc'</span><span class="p">,</span>
             <span class="n">work_dir_target</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">extrapolate_step</span><span class="o">.</span><span class="n">path</span><span class="p">,</span>
-                <span class="n">WOA23_EXTRAP_FILENAME</span><span class="p">,</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">extrapolate_step</span><span class="o">.</span><span class="n">output_filename</span><span class="p">,</span>
             <span class="p">),</span>
         <span class="p">)</span></div>
 

@@ -474,8 +474,6 @@ window.runMermaid = runMermaid;</script>
   <h1>Source code for polaris.tasks.ocean.realistic_global.init.woa23_map</h1><div class="highlight"><pre>
 <span></span><span class="kn">from</span><span class="w"> </span><span class="nn">.lat_lon_map</span><span class="w"> </span><span class="kn">import</span> <span class="n">LatLonMapStep</span>
 
-<span class="n">WOA23_EXTRAP_FILENAME</span> <span class="o">=</span> <span class="s1">'woa23_decav_0.25_jan_extrap.nc'</span>
-
 
 <div class="viewcode-block" id="Woa23MapStep">
 <a class="viewcode-back" href="../../../../../../developers_guide/ocean/generated/polaris.tasks.ocean.realistic_global.init.woa23_map.Woa23MapStep.html#polaris.tasks.ocean.realistic_global.init.woa23_map.Woa23MapStep">[docs]</a>
@@ -505,7 +503,7 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">            The subdirectory for the step.</span>
 
 <span class="sd">        extrapolate_step : polaris.Step</span>
-<span class="sd">            The step that produces ``woa23_decav_0.25_jan_extrap.nc``.</span>
+<span class="sd">            The step that produces the extrapolated WOA23 product.</span>
 
 <span class="sd">        cull_mesh_step : polaris.tasks.e3sm.init.topo.cull.cull.CullMeshStep</span>
 <span class="sd">            The step that produces the culled ocean mesh files.</span>
@@ -519,13 +517,22 @@ window.runMermaid = runMermaid;</script>
             <span class="n">name</span><span class="o">=</span><span class="s1">'woa23_map'</span><span class="p">,</span>
             <span class="n">subdir</span><span class="o">=</span><span class="n">subdir</span><span class="p">,</span>
             <span class="n">source_step</span><span class="o">=</span><span class="n">extrapolate_step</span><span class="p">,</span>
-            <span class="n">source_target</span><span class="o">=</span><span class="n">WOA23_EXTRAP_FILENAME</span><span class="p">,</span>
+            <span class="c1"># the filename depends on the configured month, so it is set in</span>
+            <span class="c1"># setup()</span>
+            <span class="n">source_target</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
             <span class="n">source_filename</span><span class="o">=</span><span class="s1">'woa23_extrap.nc'</span><span class="p">,</span>
             <span class="n">source_mesh_name</span><span class="o">=</span><span class="s1">'woa23_0.25deg'</span><span class="p">,</span>
             <span class="n">cull_mesh_step</span><span class="o">=</span><span class="n">cull_mesh_step</span><span class="p">,</span>
             <span class="n">mesh_name</span><span class="o">=</span><span class="n">mesh_name</span><span class="p">,</span>
         <span class="p">)</span></div>
-</div>
+
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">setup</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">        Link the extrapolated WOA23 product for the configured month.</span>
+<span class="sd">        """</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">source_target</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">source_step</span><span class="o">.</span><span class="n">output_filename</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">setup</span><span class="p">()</span></div>
 
 </pre></div>
 

@@ -44,5 +44,6 @@
       ~CombineStep.may_span_nodes
       ~CombineStep.min_cores
       ~CombineStep.min_gpus
+      ~CombineStep.output_filename
    
    

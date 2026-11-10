@@ -770,29 +770,57 @@ approach to shared, cacheable preprocessing steps.  See
 <a class="reference internal" href="../../organization/steps.html#dev-step-default-cached"><span class="std std-ref">Automatic cache use with default_cached and free_running_steps</span></a> for a full description of the
 <code class="docutils literal notranslate"><span class="pre">default_cached</span></code> / <code class="docutils literal notranslate"><span class="pre">free_running_steps</span></code> mechanism.</p>
 </section>
+<section id="month">
+<h3>month<a class="headerlink" href="#month" title="Link to this heading"></a></h3>
+<p>The <code class="docutils literal notranslate"><span class="pre">month</span></code> option in the <code class="docutils literal notranslate"><span class="pre">[woa23]</span></code> config section selects the WOA23 monthly
+climatology, read with
+<a class="reference internal" href="../generated/polaris.tasks.ocean.realistic_global.hydrography.woa23.month.get_woa23_month.html#polaris.tasks.ocean.realistic_global.hydrography.woa23.month.get_woa23_month" title="polaris.tasks.ocean.realistic_global.hydrography.woa23.month.get_woa23_month"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.tasks.ocean.realistic_global.hydrography.woa23.month.get_woa23_month()</span></code></a>.
+Because it is a config option, the month is only known once config files have
+been combined during setup. The <code class="docutils literal notranslate"><span class="pre">combine</span></code> and <code class="docutils literal notranslate"><span class="pre">extrapolate</span></code> steps therefore
+add their outputs in <code class="docutils literal notranslate"><span class="pre">setup()</span></code>, and each has an <code class="docutils literal notranslate"><span class="pre">output_filename</span></code> property
+that includes the month’s three-letter abbreviation. Steps that use these
+products should get the filename from that property rather than hard-coding
+it.</p>
+<p>Cached outputs are keyed by their path in the work directory, so each month
+has its own entry in <code class="docutils literal notranslate"><span class="pre">polaris/ocean/cached_files.json</span></code>. Both steps set
+<code class="docutils literal notranslate"><span class="pre">default_cached</span> <span class="pre">=</span> <span class="pre">True</span></code>, so tasks that use the products get them from the
+cache. If no cached product is available for the selected month, Polaris stops
+during setup. It does not run the step automatically or use a product from
+another month.</p>
+<p>The standalone
+<a class="reference internal" href="../generated/polaris.tasks.ocean.realistic_global.hydrography.woa23.Woa23.html#polaris.tasks.ocean.realistic_global.hydrography.woa23.Woa23" title="polaris.tasks.ocean.realistic_global.hydrography.woa23.Woa23"><code class="xref py py-class docutils literal notranslate"><span class="pre">Woa23</span></code></a>
+task adds both steps to <code class="docutils literal notranslate"><span class="pre">free_running_steps</span></code>, so it always builds the products
+for the configured month. That is how the cached products are generated.</p>
+<p>Both products are written in single precision, like WOA23 itself, and carry a
+global attribute <code class="docutils literal notranslate"><span class="pre">month</span></code> so downstream steps can check which month they were
+given.</p>
+</section>
 <section id="combine">
 <h3>combine<a class="headerlink" href="#combine" title="Link to this heading"></a></h3>
 <p>The class
 <a class="reference internal" href="../generated/polaris.tasks.ocean.realistic_global.hydrography.woa23.CombineStep.html#polaris.tasks.ocean.realistic_global.hydrography.woa23.CombineStep" title="polaris.tasks.ocean.realistic_global.hydrography.woa23.combine.CombineStep"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.tasks.ocean.realistic_global.hydrography.woa23.combine.CombineStep</span></code></a>
-combines January and annual WOA23 temperature and salinity climatologies into
-a single dataset. January values are used where they exist, and annual values
-fill deeper levels where the monthly product is not available.</p>
+combines the monthly and annual WOA23 temperature and salinity climatologies
+into a single dataset. Monthly values are used for every depth level the
+monthly file has, and annual values fill the deeper levels. Every WOA23 monthly
+climatology has the same 57 levels, down to 1500 m, so the cutoff is the same
+for all months.</p>
 <p>WOA23 supplies in-situ temperature and practical salinity, so this step uses
 <code class="docutils literal notranslate"><span class="pre">gsw</span></code> to derive conservative temperature and absolute salinity for the
-canonical <code class="docutils literal notranslate"><span class="pre">woa_combined.nc</span></code> product.</p>
+canonical <code class="docutils literal notranslate"><span class="pre">woa_combined_&lt;mon&gt;.nc</span></code> product.</p>
 </section>
 <section id="extrapolate">
 <h3>extrapolate<a class="headerlink" href="#extrapolate" title="Link to this heading"></a></h3>
 <p>The class
 <a class="reference internal" href="../generated/polaris.tasks.ocean.realistic_global.hydrography.woa23.ExtrapolateStep.html#polaris.tasks.ocean.realistic_global.hydrography.woa23.ExtrapolateStep" title="polaris.tasks.ocean.realistic_global.hydrography.woa23.extrapolate.ExtrapolateStep"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.tasks.ocean.realistic_global.hydrography.woa23.extrapolate.ExtrapolateStep</span></code></a>
 uses the cached combined-topography product on the WOA grid together with
-<code class="docutils literal notranslate"><span class="pre">woa_combined.nc</span></code> to build a 3D ocean mask and then fill missing WOA values in
+<code class="docutils literal notranslate"><span class="pre">woa_combined_&lt;mon&gt;.nc</span></code> to build a 3D ocean mask and then fill missing WOA values in
 two stages:</p>
 <ol class="arabic simple">
 <li><p>Horizontal then vertical extrapolation within the ocean mask</p></li>
 <li><p>Horizontal then vertical extrapolation into land and grounded-ice regions</p></li>
 </ol>
-<p>The final output is <code class="docutils literal notranslate"><span class="pre">woa23_decav_0.25_jan_extrap.nc</span></code>.</p>
+<p>Extrapolation is done in double precision, and the result is written in
+single precision. The final output is <code class="docutils literal notranslate"><span class="pre">woa23_decav_0.25_&lt;mon&gt;_extrap.nc</span></code>.</p>
 </section>
 <section id="id2">
 <h3>viz<a class="headerlink" href="#id2" title="Link to this heading"></a></h3>

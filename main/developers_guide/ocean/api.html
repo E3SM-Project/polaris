@@ -1646,20 +1646,26 @@
 <tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.realistic_global.hydrography.woa23.get_woa23_steps.html#polaris.tasks.ocean.realistic_global.hydrography.woa23.get_woa23_steps" title="polaris.tasks.ocean.realistic_global.hydrography.woa23.get_woa23_steps"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_woa23_steps</span></code></a>(component[, include_viz])</p></td>
 <td><p>Get the shared steps for building the reusable WOA23 hydrography product.</p></td>
 </tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.realistic_global.hydrography.woa23.month.get_woa23_month.html#polaris.tasks.ocean.realistic_global.hydrography.woa23.month.get_woa23_month" title="polaris.tasks.ocean.realistic_global.hydrography.woa23.month.get_woa23_month"><code class="xref py py-obj docutils literal notranslate"><span class="pre">month.get_woa23_month</span></code></a>(config)</p></td>
+<td><p>Get the month of the WOA23 monthly climatology to use.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.realistic_global.hydrography.woa23.month.get_month_abbreviation.html#polaris.tasks.ocean.realistic_global.hydrography.woa23.month.get_month_abbreviation" title="polaris.tasks.ocean.realistic_global.hydrography.woa23.month.get_month_abbreviation"><code class="xref py py-obj docutils literal notranslate"><span class="pre">month.get_month_abbreviation</span></code></a>(month)</p></td>
+<td><p>Get the lowercase three-letter abbreviation for a month.</p></td>
+</tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.realistic_global.hydrography.woa23.CombineStep.html#polaris.tasks.ocean.realistic_global.hydrography.woa23.CombineStep" title="polaris.tasks.ocean.realistic_global.hydrography.woa23.CombineStep"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CombineStep</span></code></a>(component, subdir)</p></td>
-<td><p>A step for combining January and annual WOA23 climatologies.</p></td>
+<td><p>A step for combining a monthly and the annual WOA23 climatology.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.realistic_global.hydrography.woa23.CombineStep.setup.html#polaris.tasks.ocean.realistic_global.hydrography.woa23.CombineStep.setup" title="polaris.tasks.ocean.realistic_global.hydrography.woa23.CombineStep.setup"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CombineStep.setup</span></code></a>()</p></td>
-<td><p>Set up input files for the step.</p></td>
+<td><p>Set up input and output files for the step.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.realistic_global.hydrography.woa23.CombineStep.run.html#polaris.tasks.ocean.realistic_global.hydrography.woa23.CombineStep.run" title="polaris.tasks.ocean.realistic_global.hydrography.woa23.CombineStep.run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CombineStep.run</span></code></a>()</p></td>
-<td><p>Combine January and annual climatologies and derive conservative temperature and absolute salinity.</p></td>
+<td><p>Combine the monthly and annual climatologies and derive conservative temperature and absolute salinity.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.realistic_global.hydrography.woa23.ExtrapolateStep.html#polaris.tasks.ocean.realistic_global.hydrography.woa23.ExtrapolateStep" title="polaris.tasks.ocean.realistic_global.hydrography.woa23.ExtrapolateStep"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ExtrapolateStep</span></code></a>(component, subdir, ...)</p></td>
 <td><p>A step for extrapolating WOA23 into missing ocean, land and ice regions.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.realistic_global.hydrography.woa23.ExtrapolateStep.setup.html#polaris.tasks.ocean.realistic_global.hydrography.woa23.ExtrapolateStep.setup" title="polaris.tasks.ocean.realistic_global.hydrography.woa23.ExtrapolateStep.setup"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ExtrapolateStep.setup</span></code></a>()</p></td>
-<td><p>Set up input files for the step.</p></td>
+<td><p>Set up input and output files for the step.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.realistic_global.hydrography.woa23.ExtrapolateStep.run.html#polaris.tasks.ocean.realistic_global.hydrography.woa23.ExtrapolateStep.run" title="polaris.tasks.ocean.realistic_global.hydrography.woa23.ExtrapolateStep.run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ExtrapolateStep.run</span></code></a>()</p></td>
 <td><p>Extrapolate WOA23 horizontally and vertically in two stages.</p></td>

@@ -20,7 +20,7 @@
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
     <link rel="next" title="polaris.tasks.ocean.realistic_global.hydrography.woa23.CombineStep.setup" href="polaris.tasks.ocean.realistic_global.hydrography.woa23.CombineStep.setup.html" />
-    <link rel="prev" title="polaris.tasks.ocean.realistic_global.hydrography.woa23.get_woa23_steps" href="polaris.tasks.ocean.realistic_global.hydrography.woa23.get_woa23_steps.html" />
+    <link rel="prev" title="polaris.tasks.ocean.realistic_global.hydrography.woa23.month.get_month_abbreviation" href="polaris.tasks.ocean.realistic_global.hydrography.woa23.month.get_month_abbreviation.html" />
     <link href="../../../_static/style.css" rel="stylesheet" type="text/css">
 
 </head>
@@ -144,7 +144,7 @@
 <dl class="py class">
 <dt class="sig sig-object py" id="polaris.tasks.ocean.realistic_global.hydrography.woa23.CombineStep">
 <span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">polaris.tasks.ocean.realistic_global.hydrography.woa23.</span></span><span class="sig-name descname"><span class="pre">CombineStep</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">component</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">subdir</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/polaris/tasks/ocean/realistic_global/hydrography/woa23/combine.html#CombineStep"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#polaris.tasks.ocean.realistic_global.hydrography.woa23.CombineStep" title="Link to this definition"></a></dt>
-<dd><p>A step for combining January and annual WOA23 climatologies.</p>
+<dd><p>A step for combining a monthly and the annual WOA23 climatology.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="polaris.tasks.ocean.realistic_global.hydrography.woa23.CombineStep.__init__">
 <span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">component</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">subdir</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/polaris/tasks/ocean/realistic_global/hydrography/woa23/combine.html#CombineStep.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#polaris.tasks.ocean.realistic_global.hydrography.woa23.CombineStep.__init__" title="Link to this definition"></a></dt>
@@ -193,7 +193,7 @@
 <td><p>Process the inputs to and outputs from a step added with <a class="reference internal" href="../../generated/polaris.Step.add_input_file.html#polaris.Step.add_input_file" title="polaris.Step.add_input_file"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.Step.add_input_file()</span></code></a> and <a class="reference internal" href="../../generated/polaris.Step.add_output_file.html#polaris.Step.add_output_file" title="polaris.Step.add_output_file"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.Step.add_output_file()</span></code></a>.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="polaris.tasks.ocean.realistic_global.hydrography.woa23.CombineStep.run.html#polaris.tasks.ocean.realistic_global.hydrography.woa23.CombineStep.run" title="polaris.tasks.ocean.realistic_global.hydrography.woa23.CombineStep.run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">run</span></code></a>()</p></td>
-<td><p>Combine January and annual climatologies and derive conservative temperature and absolute salinity.</p></td>
+<td><p>Combine the monthly and annual climatologies and derive conservative temperature and absolute salinity.</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">runtime_setup</span></code>()</p></td>
 <td><p>Update attributes of the step at runtime before calling the <code class="docutils literal notranslate"><span class="pre">run()</span></code> method.</p></td>
@@ -205,7 +205,7 @@
 <td><p>Replace the step's config parser with the shared config parser</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="polaris.tasks.ocean.realistic_global.hydrography.woa23.CombineStep.setup.html#polaris.tasks.ocean.realistic_global.hydrography.woa23.CombineStep.setup" title="polaris.tasks.ocean.realistic_global.hydrography.woa23.CombineStep.setup"><code class="xref py py-obj docutils literal notranslate"><span class="pre">setup</span></code></a>()</p></td>
-<td><p>Set up input files for the step.</p></td>
+<td><p>Set up input and output files for the step.</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">validate_baselines</span></code>()</p></td>
 <td><p>Compare variables between output files in this step and in the same step from a baseline run if one was provided.</p></td>
@@ -233,6 +233,9 @@
 <tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">min_gpus</span></code></p></td>
 <td><p>the number of GPUs this step requires, in total</p></td>
 </tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">output_filename</span></code></p></td>
+<td><p>The name of the combined WOA23 file for the configured month.</p></td>
+</tr>
 </tbody>
 </table>
 </dd></dl>
@@ -243,7 +246,7 @@
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="polaris.tasks.ocean.realistic_global.hydrography.woa23.get_woa23_steps.html" class="btn btn-neutral float-left" title="polaris.tasks.ocean.realistic_global.hydrography.woa23.get_woa23_steps" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="polaris.tasks.ocean.realistic_global.hydrography.woa23.month.get_month_abbreviation.html" class="btn btn-neutral float-left" title="polaris.tasks.ocean.realistic_global.hydrography.woa23.month.get_month_abbreviation" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
         <a href="polaris.tasks.ocean.realistic_global.hydrography.woa23.CombineStep.setup.html" class="btn btn-neutral float-right" title="polaris.tasks.ocean.realistic_global.hydrography.woa23.CombineStep.setup" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 

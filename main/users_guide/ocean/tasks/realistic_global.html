@@ -568,11 +568,20 @@ clock, so the failure it looks for cannot arise there.</p>
 <section id="woa23">
 <span id="ocean-realistic-global-woa23"></span><h2>woa23<a class="headerlink" href="#woa23" title="Link to this heading"></a></h2>
 <p>This task is the Polaris port of the legacy Compass
-<code class="docutils literal notranslate"><span class="pre">utility/extrap_woa</span></code> workflow. It combines January and annual WOA23
-climatologies, uses a cached <code class="docutils literal notranslate"><span class="pre">e3sm/init</span></code> combined-topography product on the
-WOA grid to define the ocean mask used during preprocessing, and then fills
-missing temperature and salinity values through staged horizontal and vertical
-extrapolation.</p>
+<code class="docutils literal notranslate"><span class="pre">utility/extrap_woa</span></code> workflow. It combines one monthly WOA23 climatology,
+which covers depths down to 1500 m, with the annual climatology below that,
+uses a cached <code class="docutils literal notranslate"><span class="pre">e3sm/init</span></code> combined-topography product
+on the WOA grid to define the ocean mask used during preprocessing, and then
+fills missing temperature and salinity values through staged horizontal and
+vertical extrapolation.</p>
+<p>The month is set by the <code class="docutils literal notranslate"><span class="pre">month</span></code> config option and should normally be the
+month in which simulations initialized from the product start. It defaults to
+January. To build the product for October, for example, set up the task with
+a user config file containing:</p>
+<div class="highlight-cfg notranslate"><div class="highlight"><pre><span></span><span class="k">[woa23]</span>
+<span class="na">month</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">10</span>
+</pre></div>
+</div>
 <p>The task can be set up with:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>polaris<span class="w"> </span>setup<span class="w"> </span>-t<span class="w"> </span>ocean/spherical/realistic_global/hydrography/woa23<span class="w"> </span>...
 </pre></div>
@@ -583,14 +592,21 @@ extrapolation.</p>
 <ol class="arabic simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">combine_topo</span></code> from the <code class="docutils literal notranslate"><span class="pre">e3sm/init</span></code> component is used to combine topography
 GEBCO and Bedmap3 datasets on the WOA23 0.25-degree latitude-longitude grid.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">combine</span></code> creates <code class="docutils literal notranslate"><span class="pre">woa_combined.nc</span></code> by combining January and annual WOA23
-in-situ temperature and practical-salinity fields, then deriving
-conservative temperature and absolute salinity.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">extrapolate</span></code> creates the final
-<code class="docutils literal notranslate"><span class="pre">woa23_decav_0.25_jan_extrap.nc</span></code> product.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">combine</span></code> creates <code class="docutils literal notranslate"><span class="pre">woa_combined_&lt;mon&gt;.nc</span></code> by combining the monthly and
+annual WOA23 in-situ temperature and practical-salinity fields, then
+deriving conservative temperature and absolute salinity.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">extrapolate</span></code> creates the final <code class="docutils literal notranslate"><span class="pre">woa23_decav_0.25_&lt;mon&gt;_extrap.nc</span></code> product.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">viz</span></code> produces horizontal maps and vertical sections of the extrapolated
 product.  This step is not run by default.</p></li>
 </ol>
+<p>Here, <code class="docutils literal notranslate"><span class="pre">&lt;mon&gt;</span></code> is the lowercase three-letter abbreviation of the month, such as
+<code class="docutils literal notranslate"><span class="pre">jan</span></code> or <code class="docutils literal notranslate"><span class="pre">oct</span></code>. Both products are single precision and record the month in a
+global attribute <code class="docutils literal notranslate"><span class="pre">month</span></code>.</p>
+<p>In this task, <code class="docutils literal notranslate"><span class="pre">combine</span></code> and <code class="docutils literal notranslate"><span class="pre">extrapolate</span></code> always run rather than using cached
+outputs, so this is the task to use to build or regenerate the product for a
+month. Only <code class="docutils literal notranslate"><span class="pre">combine_topo</span></code> comes from the cache. Other tasks that use the
+product, such as the realistic global <code class="docutils literal notranslate"><span class="pre">init</span></code> tasks, get the configured month’s
+product from the cache instead. Products for all 12 months are in the cache.</p>
 <p>This layout is intended to match Polaris shared-step conventions so the WOA23
 preprocessing pipeline can later be reused by mesh-dependent
 <code class="docutils literal notranslate"><span class="pre">realistic_global</span></code> initialization tasks.</p>
@@ -606,8 +622,8 @@ than an MPAS mesh.</p>
 </section>
 <section id="initial-conditions">
 <h3>initial conditions<a class="headerlink" href="#initial-conditions" title="Link to this heading"></a></h3>
-<p>The source fields come from the WOA23 January and annual climatologies in the
-Polaris input database.</p>
+<p>The source fields come from the WOA23 climatology for the configured month
+and the annual climatology in the Polaris input database.</p>
 </section>
 <section id="forcing">
 <h3>forcing<a class="headerlink" href="#forcing" title="Link to this heading"></a></h3>
@@ -621,6 +637,10 @@ Polaris input database.</p>
 <h3>config options<a class="headerlink" href="#config-options" title="Link to this heading"></a></h3>
 <div class="highlight-cfg notranslate"><div class="highlight"><pre><span></span><span class="c1"># Options related to generating a reusable WOA23 hydrography product</span>
 <span class="k">[woa23]</span>
+
+<span class="c1"># the month (1-12) of the WOA23 monthly climatology used above 1500 m,</span>
+<span class="c1"># typically the month in which simulations initialized from it start</span>
+<span class="na">month</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">1</span>
 
 <span class="c1"># the minimum weight sum needed to mark a new cell valid in horizontal</span>
 <span class="c1"># extrapolation</span>
@@ -858,8 +878,10 @@ fit it.</p>
 </section>
 <section id="id12">
 <h3>initial conditions<a class="headerlink" href="#id12" title="Link to this heading"></a></h3>
-<p>Temperature and salinity come from the extrapolated WOA23 January
-climatology built by the <a class="reference internal" href="#ocean-realistic-global-woa23"><span class="std std-ref">woa23</span></a> task.  They are
+<p>Temperature and salinity come from the extrapolated WOA23 climatology built by
+the <a class="reference internal" href="#ocean-realistic-global-woa23"><span class="std std-ref">woa23</span></a> task, for the month set by the <code class="docutils literal notranslate"><span class="pre">month</span></code>
+option in the <code class="docutils literal notranslate"><span class="pre">[woa23]</span></code> config section (January by default).  The simulation
+start time is not derived from this month, so set it to match.  They are
 conservative temperature and absolute salinity for Omega, and potential
 temperature and practical salinity for MPAS-Ocean.  The ocean starts at rest,
 with the sea surface at zero height.  Ice-shelf cavities are not supported.</p>

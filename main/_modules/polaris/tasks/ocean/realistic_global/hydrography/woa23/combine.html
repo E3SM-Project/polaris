@@ -480,12 +480,14 @@ window.runMermaid = runMermaid;</script>
 <span class="kn">from</span><span class="w"> </span><span class="nn">polaris</span><span class="w"> </span><span class="kn">import</span> <span class="n">Step</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">polaris.cf</span><span class="w"> </span><span class="kn">import</span> <span class="n">add_cf_conventions</span><span class="p">,</span> <span class="n">drop_dangling_references</span>
 
+<span class="kn">from</span><span class="w"> </span><span class="nn">.month</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_month_abbreviation</span><span class="p">,</span> <span class="n">get_woa23_month</span>
+
 
 <div class="viewcode-block" id="CombineStep">
 <a class="viewcode-back" href="../../../../../../../developers_guide/ocean/generated/polaris.tasks.ocean.realistic_global.hydrography.woa23.CombineStep.html#polaris.tasks.ocean.realistic_global.hydrography.woa23.CombineStep">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">CombineStep</span><span class="p">(</span><span class="n">Step</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">"""</span>
-<span class="sd">    A step for combining January and annual WOA23 climatologies.</span>
+<span class="sd">    A step for combining a monthly and the annual WOA23 climatology.</span>
 <span class="sd">    """</span>
 
 <div class="viewcode-block" id="CombineStep.__init__">
@@ -509,48 +511,47 @@ window.runMermaid = runMermaid;</script>
             <span class="n">ntasks</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
             <span class="n">min_tasks</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
         <span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">add_output_file</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="s1">'woa_combined.nc'</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">add_cf_check</span><span class="p">(</span><span class="s1">'woa_combined.nc'</span><span class="p">)</span>
         <span class="c1"># this is an expensive step so cache it by default</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">default_cached</span> <span class="o">=</span> <span class="kc">True</span></div>
 
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">output_filename</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">        The name of the combined WOA23 file for the configured month.</span>
+<span class="sd">        """</span>
+        <span class="n">month_name</span> <span class="o">=</span> <span class="n">get_month_abbreviation</span><span class="p">(</span><span class="n">get_woa23_month</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">))</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s1">'woa_combined_</span><span class="si">{</span><span class="n">month_name</span><span class="si">}</span><span class="s1">.nc'</span>
 
 <div class="viewcode-block" id="CombineStep.setup">
 <a class="viewcode-back" href="../../../../../../../developers_guide/ocean/generated/polaris.tasks.ocean.realistic_global.hydrography.woa23.CombineStep.setup.html#polaris.tasks.ocean.realistic_global.hydrography.woa23.CombineStep.setup">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">setup</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">"""</span>
-<span class="sd">        Set up input files for the step.</span>
+<span class="sd">        Set up input and output files for the step.</span>
 <span class="sd">        """</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">setup</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_output_file</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">output_filename</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_cf_check</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">output_filename</span><span class="p">)</span>
 
         <span class="n">base_url</span> <span class="o">=</span> <span class="p">(</span>
             <span class="s1">'https://www.ncei.noaa.gov/thredds-ocean/fileServer/woa23/DATA'</span>
         <span class="p">)</span>
         <span class="n">directories</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="s1">'temp'</span><span class="p">:</span> <span class="p">{</span>
-                <span class="s1">'ann'</span><span class="p">:</span> <span class="s1">'temperature/netcdf/decav91C0/0.25'</span><span class="p">,</span>
-                <span class="s1">'jan'</span><span class="p">:</span> <span class="s1">'temperature/netcdf/decav91C0/0.25'</span><span class="p">,</span>
-            <span class="p">},</span>
-            <span class="s1">'salin'</span><span class="p">:</span> <span class="p">{</span>
-                <span class="s1">'ann'</span><span class="p">:</span> <span class="s1">'salinity/netcdf/decav91C0/0.25'</span><span class="p">,</span>
-                <span class="s1">'jan'</span><span class="p">:</span> <span class="s1">'salinity/netcdf/decav91C0/0.25'</span><span class="p">,</span>
-            <span class="p">},</span>
+            <span class="s1">'temp'</span><span class="p">:</span> <span class="s1">'temperature/netcdf/decav91C0/0.25'</span><span class="p">,</span>
+            <span class="s1">'salin'</span><span class="p">:</span> <span class="s1">'salinity/netcdf/decav91C0/0.25'</span><span class="p">,</span>
         <span class="p">}</span>
-        <span class="n">filenames</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="s1">'temp'</span><span class="p">:</span> <span class="p">{</span>
-                <span class="s1">'ann'</span><span class="p">:</span> <span class="s1">'woa23_decav91C0_t00_04.nc'</span><span class="p">,</span>
-                <span class="s1">'jan'</span><span class="p">:</span> <span class="s1">'woa23_decav91C0_t01_04.nc'</span><span class="p">,</span>
-            <span class="p">},</span>
-            <span class="s1">'salin'</span><span class="p">:</span> <span class="p">{</span>
-                <span class="s1">'ann'</span><span class="p">:</span> <span class="s1">'woa23_decav91C0_s00_04.nc'</span><span class="p">,</span>
-                <span class="s1">'jan'</span><span class="p">:</span> <span class="s1">'woa23_decav91C0_s01_04.nc'</span><span class="p">,</span>
-            <span class="p">},</span>
-        <span class="p">}</span>
+        <span class="n">prefixes</span> <span class="o">=</span> <span class="p">{</span><span class="s1">'temp'</span><span class="p">:</span> <span class="s1">'t'</span><span class="p">,</span> <span class="s1">'salin'</span><span class="p">:</span> <span class="s1">'s'</span><span class="p">}</span>
+
+        <span class="c1"># WOA23 numbers the annual climatology 0 and the months 1 to 12</span>
+        <span class="n">month</span> <span class="o">=</span> <span class="n">get_woa23_month</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">)</span>
+        <span class="n">seasons</span> <span class="o">=</span> <span class="p">{</span><span class="s1">'ann'</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="n">get_month_abbreviation</span><span class="p">(</span><span class="n">month</span><span class="p">):</span> <span class="n">month</span><span class="p">}</span>
 
         <span class="k">for</span> <span class="n">field</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">'temp'</span><span class="p">,</span> <span class="s1">'salin'</span><span class="p">]:</span>
-            <span class="k">for</span> <span class="n">season</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">'jan'</span><span class="p">,</span> <span class="s1">'ann'</span><span class="p">]:</span>
-                <span class="n">woa_filename</span> <span class="o">=</span> <span class="n">filenames</span><span class="p">[</span><span class="n">field</span><span class="p">][</span><span class="n">season</span><span class="p">]</span>
-                <span class="n">woa_dir</span> <span class="o">=</span> <span class="n">directories</span><span class="p">[</span><span class="n">field</span><span class="p">][</span><span class="n">season</span><span class="p">]</span>
+            <span class="k">for</span> <span class="n">season</span><span class="p">,</span> <span class="n">index</span> <span class="ow">in</span> <span class="n">seasons</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="n">woa_filename</span> <span class="o">=</span> <span class="p">(</span>
+                    <span class="sa">f</span><span class="s1">'woa23_decav91C0_</span><span class="si">{</span><span class="n">prefixes</span><span class="p">[</span><span class="n">field</span><span class="p">]</span><span class="si">}{</span><span class="n">index</span><span class="si">:</span><span class="s1">02d</span><span class="si">}</span><span class="s1">_04.nc'</span>
+                <span class="p">)</span>
+                <span class="n">woa_dir</span> <span class="o">=</span> <span class="n">directories</span><span class="p">[</span><span class="n">field</span><span class="p">]</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">add_input_file</span><span class="p">(</span>
                     <span class="n">filename</span><span class="o">=</span><span class="sa">f</span><span class="s1">'woa_</span><span class="si">{</span><span class="n">field</span><span class="si">}</span><span class="s1">_</span><span class="si">{</span><span class="n">season</span><span class="si">}</span><span class="s1">.nc'</span><span class="p">,</span>
                     <span class="n">target</span><span class="o">=</span><span class="n">woa_filename</span><span class="p">,</span>
@@ -563,11 +564,16 @@ window.runMermaid = runMermaid;</script>
 <a class="viewcode-back" href="../../../../../../../developers_guide/ocean/generated/polaris.tasks.ocean.realistic_global.hydrography.woa23.CombineStep.run.html#polaris.tasks.ocean.realistic_global.hydrography.woa23.CombineStep.run">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">"""</span>
-<span class="sd">        Combine January and annual climatologies and derive conservative</span>
+<span class="sd">        Combine the monthly and annual climatologies and derive conservative</span>
 <span class="sd">        temperature and absolute salinity.</span>
 <span class="sd">        """</span>
         <span class="n">logger</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">logger</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">'Combining January and annual WOA23 climatologies'</span><span class="p">)</span>
+        <span class="n">month</span> <span class="o">=</span> <span class="n">get_woa23_month</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">)</span>
+        <span class="n">month_name</span> <span class="o">=</span> <span class="n">get_month_abbreviation</span><span class="p">(</span><span class="n">month</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s1">'Combining the WOA23 climatology for month </span><span class="si">{</span><span class="n">month</span><span class="si">}</span><span class="s1"> with the '</span>
+            <span class="s1">'annual climatology'</span>
+        <span class="p">)</span>
 
         <span class="k">with</span> <span class="n">xr</span><span class="o">.</span><span class="n">open_dataset</span><span class="p">(</span><span class="s1">'woa_temp_ann.nc'</span><span class="p">,</span> <span class="n">decode_times</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span> <span class="k">as</span> <span class="n">ds_temp</span><span class="p">:</span>
             <span class="n">ds_out</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">()</span>
@@ -582,13 +588,13 @@ window.runMermaid = runMermaid;</script>
             <span class="p">)</span> <span class="k">as</span> <span class="n">ds_ann</span><span class="p">:</span>
                 <span class="n">ds_ann</span> <span class="o">=</span> <span class="n">ds_ann</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span><span class="n">time</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
                 <span class="k">with</span> <span class="n">xr</span><span class="o">.</span><span class="n">open_dataset</span><span class="p">(</span>
-                    <span class="sa">f</span><span class="s1">'woa_</span><span class="si">{</span><span class="n">field</span><span class="si">}</span><span class="s1">_jan.nc'</span><span class="p">,</span> <span class="n">decode_times</span><span class="o">=</span><span class="kc">False</span>
-                <span class="p">)</span> <span class="k">as</span> <span class="n">ds_jan</span><span class="p">:</span>
-                    <span class="n">ds_jan</span> <span class="o">=</span> <span class="n">ds_jan</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span><span class="n">time</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+                    <span class="sa">f</span><span class="s1">'woa_</span><span class="si">{</span><span class="n">field</span><span class="si">}</span><span class="s1">_</span><span class="si">{</span><span class="n">month_name</span><span class="si">}</span><span class="s1">.nc'</span><span class="p">,</span> <span class="n">decode_times</span><span class="o">=</span><span class="kc">False</span>
+                <span class="p">)</span> <span class="k">as</span> <span class="n">ds_month</span><span class="p">:</span>
+                    <span class="n">ds_month</span> <span class="o">=</span> <span class="n">ds_month</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span><span class="n">time</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
                     <span class="n">slices</span> <span class="o">=</span> <span class="p">[]</span>
                     <span class="k">for</span> <span class="n">depth_index</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">ds_ann</span><span class="o">.</span><span class="n">sizes</span><span class="p">[</span><span class="s1">'depth'</span><span class="p">]):</span>
-                        <span class="k">if</span> <span class="n">depth_index</span> <span class="o">&lt;</span> <span class="n">ds_jan</span><span class="o">.</span><span class="n">sizes</span><span class="p">[</span><span class="s1">'depth'</span><span class="p">]:</span>
-                            <span class="n">ds</span> <span class="o">=</span> <span class="n">ds_jan</span>
+                        <span class="k">if</span> <span class="n">depth_index</span> <span class="o">&lt;</span> <span class="n">ds_month</span><span class="o">.</span><span class="n">sizes</span><span class="p">[</span><span class="s1">'depth'</span><span class="p">]:</span>
+                            <span class="n">ds</span> <span class="o">=</span> <span class="n">ds_month</span>
                         <span class="k">else</span><span class="p">:</span>
                             <span class="n">ds</span> <span class="o">=</span> <span class="n">ds_ann</span>
                         <span class="n">slices</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ds</span><span class="p">[</span><span class="n">var_name</span><span class="p">]</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span><span class="n">depth</span><span class="o">=</span><span class="n">depth_index</span><span class="p">))</span>
@@ -597,10 +603,15 @@ window.runMermaid = runMermaid;</script>
                     <span class="n">ds_out</span><span class="p">[</span><span class="n">var_name</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span> <span class="o">=</span> <span class="n">ds_ann</span><span class="p">[</span><span class="n">var_name</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span>
 
         <span class="n">ds_out</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_to_canonical_teos10</span><span class="p">(</span><span class="n">ds_out</span><span class="p">)</span>
+        <span class="c1"># WOA23 itself is single precision, so there is nothing to gain from</span>
+        <span class="c1"># writing doubles</span>
+        <span class="k">for</span> <span class="n">var_name</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">'ct_an'</span><span class="p">,</span> <span class="s1">'sa_an'</span><span class="p">]:</span>
+            <span class="n">ds_out</span><span class="p">[</span><span class="n">var_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">ds_out</span><span class="p">[</span><span class="n">var_name</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+        <span class="n">ds_out</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">'month'</span><span class="p">]</span> <span class="o">=</span> <span class="n">month</span>
         <span class="c1"># the WOA23 files' grid_mapping names a crs variable not copied here</span>
         <span class="n">ds_out</span> <span class="o">=</span> <span class="n">add_cf_conventions</span><span class="p">(</span><span class="n">drop_dangling_references</span><span class="p">(</span><span class="n">ds_out</span><span class="p">))</span>
-        <span class="n">write_netcdf</span><span class="p">(</span><span class="n">ds_out</span><span class="p">,</span> <span class="s1">'woa_combined.nc'</span><span class="p">)</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">'Wrote woa_combined.nc'</span><span class="p">)</span></div>
+        <span class="n">write_netcdf</span><span class="p">(</span><span class="n">ds_out</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">output_filename</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">'Wrote </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">output_filename</span><span class="si">}</span><span class="s1">'</span><span class="p">)</span></div>
 
 
     <span class="nd">@staticmethod</span>
