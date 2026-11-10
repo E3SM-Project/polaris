@@ -24,6 +24,25 @@ def get_config(machine, suite_name):
     return config
 
 
+def get_shipped_option(package, filename, option):
+    """Read a ``[job]`` option from a config file that ships with Polaris."""
+    config = PolarisConfigParser()
+    config.add_from_package(package, filename)
+    return config.get('job', option)
+
+
+def suite_option(suite_name, option):
+    """Read a ``[job]`` option from an ocean suite's config file."""
+    return get_shipped_option(
+        'polaris.suites.ocean', f'{suite_name}.cfg', option
+    )
+
+
+def default_wall_time():
+    """The wall time in the polaris defaults."""
+    return get_shipped_option('polaris', 'default.cfg', 'wall_time')
+
+
 def get_job_script(tmp_path, machine, suite_name, nodes):
     """Write a suite job script and return its text."""
     config = get_config(machine, suite_name)
@@ -42,26 +61,29 @@ def get_job_script(tmp_path, machine, suite_name, nodes):
 def test_suite_config_overrides_default():
     """A suite's cfg file overrides the polaris default wall time."""
     config = get_config('chrysalis', 'omega_pr')
-    assert config.get('job', 'wall_time') == '00:30:00'
+    assert config.get('job', 'wall_time') == suite_option(
+        'omega_pr', 'wall_time'
+    )
 
 
 def test_suite_without_config_is_not_an_error():
     """A suite with no cfg file leaves the defaults in place."""
     config = get_config('chrysalis', 'cosine_bell')
-    assert config.get('job', 'wall_time') == '1:00:00'
+    assert config.get('job', 'wall_time') == default_wall_time()
 
 
 @pytest.mark.parametrize('suite_name', ['custom', ''])
 def test_no_suite_config_added_without_a_suite(suite_name):
     """Tasks set up outside a suite get no suite config options."""
     config = get_config('chrysalis', suite_name)
-    assert config.get('job', 'wall_time') == '1:00:00'
+    assert config.get('job', 'wall_time') == default_wall_time()
 
 
 def test_suite_config_reaches_the_job_script(tmp_path):
     """The suite's wall time ends up in the suite's job script."""
     text = get_job_script(tmp_path, 'chrysalis', 'omega_pr', nodes=2)
-    assert '#SBATCH --time=00:30:00' in text
+    wall_time = suite_option('omega_pr', 'wall_time')
+    assert f'#SBATCH --time={wall_time}' in text
 
 
 def test_the_suites_component_reaches_setup(tmp_path, monkeypatch):
@@ -94,27 +116,32 @@ def test_suite_config_stays_out_of_the_basic_config():
     basic_config = get_basic_config('chrysalis')
     suite_config = _get_suite_config(basic_config, 'ocean', 'omega_pr')
 
-    assert suite_config.get('job', 'wall_time') == '00:30:00'
-    assert basic_config.get('job', 'wall_time') == '1:00:00'
+    assert suite_config.get('job', 'wall_time') == suite_option(
+        'omega_pr', 'wall_time'
+    )
+    assert basic_config.get('job', 'wall_time') == default_wall_time()
 
 
 @pytest.mark.parametrize(
-    'machine, expected',
+    'machine, directive',
     [
-        ('chrysalis', '#SBATCH --partition=debug'),
-        ('pm-cpu', '#SBATCH --qos=debug'),
-        ('frontier', '#SBATCH --qos=debug'),
-        ('aurora', '#PBS -q debug'),
+        ('chrysalis', '#SBATCH --partition='),
+        ('pm-cpu', '#SBATCH --qos='),
+        ('frontier', '#SBATCH --qos='),
+        ('aurora', '#PBS -q '),
     ],
 )
-def test_pr_suite_reaches_a_debug_target(tmp_path, capsys, machine, expected):
+def test_pr_suite_reaches_its_scheduler_target(
+    tmp_path, capsys, machine, directive
+):
     """
-    The PR suite lands on each machine's fast-turnaround target, however
-    that machine happens to provide it, and says nothing about the kinds of
+    The PR suite lands on its scheduler target on each machine, however that
+    machine happens to provide it, and says nothing about the kinds of
     target the machine does not use.
     """
+    target = suite_option('omega_pr', 'scheduler_target')
     text = get_job_script(tmp_path, machine, 'omega_pr', nodes=2)
-    assert expected in text
+    assert f'{directive}{target}' in text
     assert 'Warning' not in capsys.readouterr().out
 
 
@@ -127,8 +154,9 @@ def test_pr_suite_keeps_the_default_frontier_partition(tmp_path):
     assert '#SBATCH --partition=batch' in text
 
 
-def test_nightly_suite_uses_a_longer_wall_time(tmp_path):
-    """The nightly suite asks for longer than the polaris default."""
+def test_nightly_suite_wall_time_reaches_the_job_script(tmp_path):
+    """The nightly suite's wall time, not the default, is in its script."""
+    wall_time = suite_option('omega_nightly', 'wall_time')
     text = get_job_script(tmp_path, 'frontier', 'omega_nightly', nodes=2)
-    assert '#SBATCH --time=2:00:00' in text
+    assert f'#SBATCH --time={wall_time}' in text
     assert '#SBATCH --qos=normal' in text

@@ -307,7 +307,12 @@ def _read_partition(path):
     return np.loadtxt(path, dtype=int, ndmin=1)
 
 
-def _build(run_dir, regions, cores, ncells, process_count=2):
+def _build(run_dir, regions, cores, ncells, process_count=1):
+    """
+    Build partitions in ``run_dir``, in this process unless asked otherwise:
+    the worker pool's forkserver is a fresh interpreter that imports every
+    Polaris task, so only the test of the parallel path starts one.
+    """
     cwd = os.getcwd()
     try:
         os.chdir(run_dir)

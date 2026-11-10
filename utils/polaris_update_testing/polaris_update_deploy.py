@@ -23,6 +23,9 @@ from pr_test_rows import Row, get_machine_rows
 
 from polaris.machines import discover_machine
 
+#: the names mache has been distributed under, newest first
+MACHE_DISTRIBUTIONS = ['e3sm-mache', 'mache']
+
 #: the variable a load script sets to the Spack environment it uses
 SPACK_VIEW_VARIABLE = 'MACHE_DEPLOY_SPACK_LIBRARY_VIEW'
 
@@ -295,9 +298,15 @@ def get_mache_source() -> str:
     clone of the branch, and ``release`` otherwise
     """
     # an environment can also hold the metadata of an older mache, under
-    # the old name ``mache``, so use the one with the loaded version
-    for name in importlib.metadata.packages_distributions().get('mache', []):
-        distribution = importlib.metadata.distribution(name)
+    # the old name ``mache``, so use the one with the loaded version.  The
+    # names are looked up directly: ``packages_distributions()`` reads the
+    # file list of every installed package, which takes many seconds on a
+    # parallel file system.
+    for name in MACHE_DISTRIBUTIONS:
+        try:
+            distribution = importlib.metadata.distribution(name)
+        except importlib.metadata.PackageNotFoundError:
+            continue
         if distribution.version == mache.__version__:
             return _get_install_source(distribution)
     return 'release'

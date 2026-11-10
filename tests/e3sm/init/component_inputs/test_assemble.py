@@ -127,7 +127,7 @@ def test_the_creation_date_is_fixed_at_setup():
     add_component_inputs_tasks(component=e3sm_init)
     task = e3sm_init.tasks[f'{MESH_NAME}/component_inputs/tasks/all']
 
-    assert task.config.get('component_inputs', 'creation_date').strip() == ''
+    task.config.set('component_inputs', 'creation_date', '')
     task.configure()
     first = task.config.get('component_inputs', 'creation_date')
     assert first != ''

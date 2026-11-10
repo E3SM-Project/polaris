@@ -89,18 +89,20 @@ def get_core_list(ncells, max_cells_per_core=30000, min_cells_per_core=2):
     if ncells < max_cells_per_core:
         cores.add(1)
 
-    for candidate in range(min_graph_size, max_graph_size):
-        factors = _prime_factors(candidate)
-        twos = np.count_nonzero(factors == 2)
-        fives = np.count_nonzero(factors == 5)
-        gt_five = np.count_nonzero(factors > 5)
-        big_factor = factors.max()
-        if twos > 0 and fives <= twos and gt_five <= 1 and big_factor <= 7:
-            cores.add(candidate)
-        # small odd multiples of 3 and a few that correspond to divisors of
-        # the ne30 (30x30x6=5400) size
-        elif candidate in special_core_counts:
-            cores.add(candidate)
+    # counts that factor well: even, with no more fives than twos and at most
+    # one factor larger than five, which can be no larger than seven
+    cores.update(
+        candidate
+        for candidate in _smooth_counts(max_graph_size)
+        if candidate >= min_graph_size
+    )
+    # small odd multiples of 3 and a few that correspond to divisors of the
+    # ne30 (30x30x6=5400) size
+    cores.update(
+        candidate
+        for candidate in special_core_counts
+        if min_graph_size <= candidate < max_graph_size
+    )
 
     # add node counts from 1 to max_nodes even if they're weird primes
     for node_size in node_sizes:
@@ -450,15 +452,26 @@ def _count_lines(filename):
 
 
 # https://stackoverflow.com/a/22808285
-def _prime_factors(n):
-    i = 2
-    factors = []
-    while i * i <= n:
-        if n % i:
-            i += 1
-        else:
-            n //= i
-            factors.append(i)
-    if n > 1:
-        factors.append(n)
-    return np.array(factors)
+def _smooth_counts(max_count):
+    """
+    The counts below ``max_count`` of the form 2^a 3^b 5^c 7^d with a >= 1,
+    c <= a and d <= 1, listed directly rather than by factoring every
+    integer in range.
+    """
+    counts = []
+    twos = 1
+    for a in range(1, max_count.bit_length() + 1):
+        twos *= 2
+        if twos >= max_count:
+            break
+        for sevens in (1, 7):
+            threes = twos * sevens
+            while threes < max_count:
+                count = threes
+                for _ in range(a + 1):
+                    if count >= max_count:
+                        break
+                    counts.append(count)
+                    count *= 5
+                threes *= 3
+    return counts

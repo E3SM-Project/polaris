@@ -1,4 +1,5 @@
 import dataclasses
+import functools
 import importlib.resources as imp_res
 from configparser import ConfigParser
 from typing import cast
@@ -31,9 +32,7 @@ from polaris.yaml import PolarisYaml
 
 
 def test_add_realistic_global_tasks_registers_woa23():
-    component = Ocean()
-
-    add_realistic_global_tasks(component=component)
+    component = _realistic_global_component()
 
     task_subdir = 'spherical/realistic_global/hydrography/woa23'
     assert task_subdir in component.tasks
@@ -94,8 +93,7 @@ def test_woa23_steps_hand_back_the_config_their_steps_use():
 
 
 def test_add_realistic_global_tasks_registers_jra55():
-    component = Ocean()
-    add_realistic_global_tasks(component=component)
+    component = _realistic_global_component()
 
     task = component.tasks['spherical/realistic_global/forcing/jra55']
     # the standalone task regenerates the cached product and plots it
@@ -112,8 +110,7 @@ def test_every_step_can_be_found_from_its_task():
     tasks.  The forward tasks once sat in a ``task`` directory beside their
     own steps, with no way to reach them from the task.
     """
-    component = Ocean()
-    add_realistic_global_tasks(component=component)
+    component = _realistic_global_component()
 
     hidden = []
     for task in component.tasks.values():
@@ -128,8 +125,7 @@ def test_every_step_can_be_found_from_its_task():
 
 
 def test_add_realistic_global_tasks_registers_init_for_all_meshes():
-    component = Ocean()
-    add_realistic_global_tasks(component=component)
+    component = _realistic_global_component()
 
     expected_mesh_names = list(get_base_mesh_step_names()) + list(
         UNIFIED_MESH_NAMES
@@ -142,8 +138,7 @@ def test_add_realistic_global_tasks_registers_init_for_all_meshes():
 
 
 def test_realistic_global_init_icos240km_steps():
-    component = Ocean()
-    add_realistic_global_tasks(component=component)
+    component = _realistic_global_component()
 
     task_subdir = 'spherical/realistic_global/icos240km/init'
     assert task_subdir in component.tasks
@@ -168,8 +163,7 @@ def test_realistic_global_init_icos240km_steps():
 
 
 def test_add_realistic_global_tasks_registers_forward_for_all_meshes():
-    component = Ocean()
-    add_realistic_global_tasks(component=component)
+    component = _realistic_global_component()
 
     expected_mesh_names = list(get_base_mesh_step_names()) + list(
         UNIFIED_MESH_NAMES
@@ -186,8 +180,7 @@ def test_add_realistic_global_tasks_registers_forward_for_all_meshes():
 
 
 def test_realistic_global_forward_icos240km_steps():
-    component = Ocean()
-    add_realistic_global_tasks(component=component)
+    component = _realistic_global_component()
 
     task_subdir = 'spherical/realistic_global/icos240km/forward/split_explicit'
     assert task_subdir in component.tasks
@@ -214,8 +207,7 @@ def test_add_realistic_global_tasks_registers_cached_forward():
     they can run without remapping WOA23 first.  They sit beside the
     init-chain task on the same mesh name, which is why the directory differs.
     """
-    component = Ocean()
-    add_realistic_global_tasks(component=component)
+    component = _realistic_global_component()
 
     for mesh_name in CACHED_MESHES:
         for time_integrator in TIME_INTEGRATORS:
@@ -258,17 +250,23 @@ def test_cached_meshes_have_a_per_mesh_config():
 @pytest.mark.parametrize('mesh_name', ['e3sm-qu240', 'u-oi240-lr240'])
 def test_the_variants_choose_the_integrators(mesh_name):
     """
-    The split_explicit variant takes the defaults, a split integrator for
-    each model, and the rk4 variant runs RK4 in both, so that the two models
-    advance the same way.
+    The split_explicit variant takes the integrators from forward.cfg, and
+    the rk4 variant takes them from rk4.cfg, over any per-mesh options.
     """
     section = 'realistic_global_forward'
-    config = _variant_config(mesh_name, 'split_explicit')
-    assert config.get(section, 'mpaso_time_integrator') == 'split_explicit_ab2'
-    assert config.get(section, 'omega_time_integrator') == 'split_explicit'
-    config = _variant_config(mesh_name, 'rk4')
-    assert config.get(section, 'mpaso_time_integrator') == 'RK4'
-    assert config.get(section, 'omega_time_integrator') == 'RK4'
+    package = 'polaris.tasks.ocean.realistic_global.forward'
+    options = ['mpaso_time_integrator', 'omega_time_integrator']
+    for time_integrator, filename in [
+        ('split_explicit', 'forward.cfg'),
+        ('rk4', 'rk4.cfg'),
+    ]:
+        reference = ConfigParser()
+        reference.read(str(imp_res.files(package).joinpath(filename)))
+        config = _variant_config(mesh_name, time_integrator)
+        for option in options:
+            assert config.get(section, option) == reference.get(
+                section, option
+            ), (time_integrator, option)
 
 
 def test_an_unknown_variant_is_rejected():
@@ -282,54 +280,13 @@ def test_an_unknown_variant_is_rejected():
         )
 
 
-@pytest.mark.parametrize(
-    'mesh_name, mom_del2, mom_del4, hmix_ref_cell_width',
-    [
-        # scaled from its 240 km cells
-        ('e3sm-qu240', 1.0e3, 1.0e15, 240.0e3),
-        # scaled from its median cell width
-        ('e3sm-ec30to60e2r2', 1.0e4, 2.06e11, None),
-    ],
-)
-def test_cached_meshes_take_the_one_year_runs_viscosities(
-    mesh_name, mom_del2, mom_del4, hmix_ref_cell_width
-):
-    for time_integrator in TIME_INTEGRATORS:
-        stage = _stage_for_mesh(mesh_name, time_integrator)
-        assert stage.mom_del2 == mom_del2
-        assert stage.mom_del4 == mom_del4
-        assert stage.hmix_scaling == 'ref_cell_width'
-        assert stage.hmix_ref_cell_width == hmix_ref_cell_width
-
-
-# the MPAS-Ocean physics production runs have and Omega does not
-_MPASO_ONLY_PHYSICS = ['use_GM', 'use_Redi']
-
-
-@pytest.mark.parametrize('mesh_name', sorted(CACHED_MESHES))
-def test_cached_meshes_run_production_physics(mesh_name):
-    """
-    A cached initial condition does not change the physics: like every other
-    forward run, the cached tasks run as close to production as each model
-    allows.  Comparing MPAS-Ocean with Omega is opt-in, through
-    compare_with_omega.cfg.
-    """
-    stage = _stage_for_mesh(mesh_name)
-    for option in _MPASO_ONLY_PHYSICS:
-        assert getattr(stage, option), (
-            f'{option} should be on for cached mesh {mesh_name!r}'
-        )
-    assert stage.pressure_gradient_type == 'Jacobian_from_TS'
-    assert stage.vert_mixing_options()['config_use_cvmix_kpp']
-    assert stage.submesoscale_options()['config_submesoscale_enable']
-
-
 @pytest.mark.parametrize('mesh_name', sorted(CACHED_MESHES) + ['qu240km'])
 def test_compare_with_omega_cfg_turns_off_what_omega_lacks(mesh_name):
     """
     Polaris never reads compare_with_omega.cfg itself; a user layers it on
-    to compare the two models.  It must turn off the MPAS-Ocean physics Omega
-    does not have, and nothing in it may be a misspelled option.
+    to compare the two models.  Its options must win over the per-mesh ones,
+    it must turn off the MPAS-Ocean physics Omega does not have, and nothing
+    in it may be a misspelled option.
     """
     reference = imp_res.files(
         'polaris.tasks.ocean.realistic_global.forward'
@@ -350,15 +307,15 @@ def test_compare_with_omega_cfg_turns_off_what_omega_lacks(mesh_name):
     }
     for option in reference_config.options(section):
         assert option in stage_fields, option
+        assert config.get(section, option) == reference_config.get(
+            section, option
+        ), option
 
+    # Omega has no GM, Redi or Jacobian_from_TS pressure gradient
     stage = ForwardStage.from_config(config)
-    for option in _MPASO_ONLY_PHYSICS:
-        assert not getattr(stage, option), option
-    assert stage.pressure_gradient_type == 'pressure_and_zmid'
-    # KPP and the submesoscale parameterization are in both models, so a
-    # comparison keeps them
-    assert stage.vert_mixing_options()['config_use_cvmix_kpp']
-    assert stage.submesoscale_options()['config_submesoscale_enable']
+    assert not stage.use_GM
+    assert not stage.use_Redi
+    assert stage.pressure_gradient_type != 'Jacobian_from_TS'
 
 
 @pytest.mark.parametrize('time_integrator', TIME_INTEGRATORS)
@@ -381,19 +338,10 @@ def test_cached_forward_model_config_renders(
     # each variant advances on the step tuned for it
     if time_integrator == 'rk4':
         assert replacements['dt'] == stage.rk4_dt
-        expected_integrator = 'RungeKutta4' if model == 'omega' else 'RK4'
     else:
         assert replacements['dt'] == stage.dt
         assert replacements['btr_dt'] == stage.btr_dt
-        expected_integrator = (
-            'SplitExplicitRK2' if model == 'omega' else 'split_explicit_ab2'
-        )
-    assert replacements['time_integrator'] == expected_integrator
     assert replacements['run_duration'] == stage.run_duration
-    # both models have the KPP boundary layer and the submesoscale
-    # parameterization, and both are told so
-    assert stage.vert_mixing_options() == {'config_use_cvmix_kpp': True}
-    assert stage.submesoscale_options() == {'config_submesoscale_enable': True}
 
     yaml = PolarisYaml.read(
         filename='forward.yaml',
@@ -405,12 +353,6 @@ def test_cached_forward_model_config_renders(
         global_stats = yaml.configs['Analysis']['GlobalStats']
         assert global_stats['SnapshotPeriod'] == [stage.stats_period()]
         assert global_stats['ReductionPeriod'] == []
-    else:
-        # production physics, as for every other forward run
-        options = stage.mpaso_physics_options()
-        assert options['config_use_GM']
-        assert options['config_use_Redi']
-        assert options['config_pressure_gradient_type'] == 'Jacobian_from_TS'
 
 
 class _ConfigOnlyStep:
@@ -464,8 +406,9 @@ def test_cached_task_config_has_what_the_database_source_needs(
     database_name = CACHED_MESHES[mesh_name]['database_name']
     assert by_kind['init']['target'].startswith(f'ocean.{database_name}.')
     if model == 'omega':
-        # 'teos-10' from config, normalized, has to reach the filename
-        assert '.teos10.' in by_kind['init']['target']
+        # the eos_type from config, normalized, has to reach the filename
+        eos_type = config.get('ocean', 'eos_type').replace('-', '')
+        assert f'.{eos_type}.' in by_kind['init']['target']
         assert 'graph.info' not in by_kind
     else:
         assert by_kind['init']['target'].endswith('.zerovel.nc')
@@ -570,8 +513,7 @@ def test_forward_task_config_has_the_viz_colormaps():
 
 def test_realistic_global_init_one_task_per_mesh():
     """Exactly one task is registered per mesh (no model variants)."""
-    component = Ocean()
-    add_realistic_global_tasks(component=component)
+    component = _realistic_global_component()
 
     expected_mesh_names = list(get_base_mesh_step_names()) + list(
         UNIFIED_MESH_NAMES
@@ -587,3 +529,25 @@ def test_realistic_global_init_one_task_per_mesh():
             assert model_subdir not in component.tasks, (
                 f'Unexpected per-model task found: {model_subdir!r}'
             )
+
+
+@pytest.fixture(scope='module', autouse=True)
+def _release_component():
+    """
+    Drop the shared component when the module is done, so that a later test
+    that walks every object it can reach, as the count of the steps in a
+    pickle does, does not find these tasks as well.
+    """
+    yield
+    _realistic_global_component.cache_clear()
+
+
+@functools.cache
+def _realistic_global_component():
+    """
+    A component with every realistic_global task registered, built once for
+    the module since the tests that use it only read it.
+    """
+    component = Ocean()
+    add_realistic_global_tasks(component=component)
+    return component

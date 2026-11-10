@@ -2,7 +2,10 @@ import pytest
 
 from polaris.tasks.ocean import Ocean
 from polaris.tasks.ocean.analysis import add_analysis_tasks
-from polaris.tasks.ocean.analysis.climatology_maps import get_field_groups
+from polaris.tasks.ocean.analysis.climatology_maps import (
+    FIELD_GROUPS,
+    get_field_groups,
+)
 
 PRODUCT_TASK_SUBDIRS = [
     'analysis/climatology_maps',
@@ -12,15 +15,6 @@ PRODUCT_TASK_SUBDIRS = [
 ]
 
 TASK_SUBDIRS = PRODUCT_TASK_SUBDIRS + ['analysis/publish']
-
-FIELD_GROUPS = [
-    'temperature',
-    'salinity',
-    'velocity',
-    'ssh',
-    'mixed_layer_depth',
-    'heat_content',
-]
 
 
 def _make_component():
@@ -34,6 +28,13 @@ def _step_subdirs(component, task_subdir):
     return [
         step.subdir for step in component.tasks[task_subdir].steps.values()
     ]
+
+
+def _map_groups(component):
+    """The field groups of the fields in the climatology-maps config."""
+    config = component.tasks['analysis/climatology_maps'].config
+    fields = config.getlist('ocean_analysis_climatology', 'fields')
+    return list(get_field_groups(fields))
 
 
 def _set_range(component, section, start_year, end_year):
@@ -61,7 +62,7 @@ def test_steps_land_at_range_keyed_subdirectories():
         'analysis/climatology/0021-0040',
     ] + [
         f'analysis/climatology_maps/0021-0040/{group}'
-        for group in FIELD_GROUPS
+        for group in _map_groups(component)
     ]
     assert _step_subdirs(component, 'analysis/global_stats') == [
         'analysis/global_stats/0001-0060'
@@ -77,6 +78,7 @@ def test_steps_land_at_range_keyed_subdirectories():
 def test_changing_the_range_moves_the_steps():
     """A new range is new directories, which have never run and so run."""
     component = _make_component()
+    _set_range(component, 'ocean_analysis_climatology', 1, 10)
     before = _step_subdirs(component, 'analysis/moc')
     _set_range(component, 'ocean_analysis_climatology', 21, 40)
     after = _step_subdirs(component, 'analysis/moc')
@@ -89,15 +91,13 @@ def test_the_two_ranges_are_independent():
     """Changing the climatology does not disturb the time series, or the
     other way around."""
     component = _make_component()
+    time_series = _step_subdirs(component, 'analysis/global_stats')
     _set_range(component, 'ocean_analysis_climatology', 21, 40)
-    assert _step_subdirs(component, 'analysis/global_stats') == [
-        'analysis/global_stats/0001-0010'
-    ]
+    assert _step_subdirs(component, 'analysis/global_stats') == time_series
 
+    climatology = _step_subdirs(component, 'analysis/moc')
     _set_range(component, 'ocean_analysis_time_series', 1, 60)
-    assert _step_subdirs(component, 'analysis/moc') == [
-        'analysis/moc/0021-0040'
-    ]
+    assert _step_subdirs(component, 'analysis/moc') == climatology
 
 
 def test_the_climatology_is_shared_by_every_field_group():
@@ -105,8 +105,7 @@ def test_the_climatology_is_shared_by_every_field_group():
     component = _make_component()
     task = component.tasks['analysis/climatology_maps']
     climatology = task.steps['climatology']
-    assert climatology.subdir == 'analysis/climatology/0001-0010'
-    assert component.steps['analysis/climatology/0001-0010'] is climatology
+    assert component.steps[climatology.subdir] is climatology
     assert task.step_symlinks['climatology'] == 'climatology'
 
 
@@ -125,7 +124,7 @@ def test_the_default_fields_cover_every_field_group():
     component = _make_component()
     config = component.tasks['analysis/climatology_maps'].config
     fields = config.getlist('ocean_analysis_climatology', 'fields')
-    assert list(get_field_groups(fields)) == FIELD_GROUPS
+    assert list(get_field_groups(fields)) == list(FIELD_GROUPS)
 
 
 def test_fewer_fields_means_fewer_steps():
@@ -139,7 +138,7 @@ def test_fewer_fields_means_fewer_steps():
         'temperature, velocityZonal',
         user=True,
     )
-    component.tasks['analysis/climatology_maps'].configure()
+    _set_range(component, 'ocean_analysis_climatology', 1, 10)
     assert _step_subdirs(component, 'analysis/climatology_maps') == [
         'analysis/climatology/0001-0010',
         'analysis/climatology_maps/0001-0010/temperature',

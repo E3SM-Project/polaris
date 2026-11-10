@@ -4,6 +4,7 @@ from polaris.config import PolarisConfigParser
 from polaris.mesh.spherical.unified import UNIFIED_MESH_NAMES
 from polaris.tasks.ocean.realistic_global.mesh_configs import (
     add_realistic_global_mesh_config,
+    get_realistic_global_mesh_config,
 )
 from polaris.tasks.ocean.realistic_global.mesh_info import (
     estimate_cell_count,
@@ -47,10 +48,17 @@ def test_estimate_cell_count_unknown_mesh():
 # -----------------------------------------------------------------------
 
 
+def _culled_ocean_cell_count(mesh_name):
+    """The culled count in the mesh's own config file."""
+    config = get_realistic_global_mesh_config(mesh_name)
+    assert config is not None
+    return config.getint('realistic_global_mesh', 'culled_ocean_cell_count')
+
+
 def test_estimate_ocean_cell_count_uses_culled_option():
     """The ocean-culled count is read from culled_ocean_cell_count."""
     count = estimate_ocean_cell_count('u-oi30-lr10')
-    assert count == 470000
+    assert count == _culled_ocean_cell_count('u-oi30-lr10')
     # it should be much smaller than the full-mesh estimate
     assert count < estimate_cell_count('u-oi30-lr10')
 
@@ -84,7 +92,9 @@ def test_estimate_ocean_cell_count_uses_given_config():
     config.set('realistic_global_mesh', 'culled_ocean_cell_count', '12345')
     assert estimate_ocean_cell_count('u-oi30-lr10', config=config) == 12345
     # without the config, the value from the package file is used
-    assert estimate_ocean_cell_count('u-oi30-lr10') == 470000
+    assert estimate_ocean_cell_count('u-oi30-lr10') == (
+        _culled_ocean_cell_count('u-oi30-lr10')
+    )
 
 
 def test_estimate_ocean_cell_count_given_config_without_option():

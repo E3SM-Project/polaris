@@ -53,7 +53,8 @@ def test_citations_round_trip(tmp_path):
 def test_read_citations_refuses_an_old_list(tmp_path):
     filename = str(tmp_path / 'cited_paths.txt')
     pr_test_cleanup.write_citations(filename, [('/a/b', 'repo#1')])
-    later = NOW + (pr_test_cleanup.MAX_CITED_AGE_HOURS + 1) * 3600
+    # the list is stamped with the time it was written, not with NOW
+    later = time.time() + (pr_test_cleanup.MAX_CITED_AGE_HOURS + 1) * 3600
 
     with pytest.raises(pr_test_cleanup.CleanupError, match='hours ago'):
         pr_test_cleanup.read_citations(filename, now=later)

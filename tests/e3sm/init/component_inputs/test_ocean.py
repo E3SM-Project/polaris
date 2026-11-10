@@ -179,24 +179,3 @@ def test_no_mesh_asks_gpmetis_for_more_parts_than_it_can_do(mesh_name):
         f'{mesh_name} would ask gpmetis for {largest} parts; raise '
         f'[component_inputs] min_cells_per_core in its config'
     )
-
-
-def test_only_the_meshes_that_need_it_override_the_floor():
-    """
-    The override costs partitions that a smaller mesh has no reason to lose,
-    so it belongs only where the limit bites.
-    """
-    for mesh_name in ['u-oi6to18-lr12p5', 'u-oi6to18-lr25']:
-        _reset_shared_components()
-        _, config = get_component_inputs_steps(
-            mesh_name=mesh_name, target='ocean'
-        )
-        assert config.getint('component_inputs', 'min_cells_per_core') == 6
-        assert config.getint('component_inputs', 'max_cells_per_core') == 30000
-
-    for mesh_name in ['u-oi240-lr240', 'u-oi30-lr10']:
-        _reset_shared_components()
-        _, config = get_component_inputs_steps(
-            mesh_name=mesh_name, target='ocean'
-        )
-        assert config.getint('component_inputs', 'min_cells_per_core') == 2

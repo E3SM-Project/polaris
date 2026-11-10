@@ -250,12 +250,7 @@ def test_mache_source(monkeypatch, installer, direct_url, source):
         'e3sm-mache': _Distribution(loaded, installer, direct_url),
     }
     metadata = polaris_update_deploy.importlib.metadata
-    monkeypatch.setattr(
-        metadata,
-        'packages_distributions',
-        lambda: {'mache': ['mache', 'e3sm-mache']},
-    )
-    monkeypatch.setattr(metadata, 'distribution', distributions.get)
+    monkeypatch.setattr(metadata, 'distribution', distributions.__getitem__)
 
     assert polaris_update_deploy.get_mache_source() == source
 
