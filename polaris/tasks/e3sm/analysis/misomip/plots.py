@@ -1,3 +1,5 @@
+import re
+
 import matplotlib
 import numpy as np
 import xarray as xr
@@ -464,7 +466,7 @@ class RunPlots(ProductStep):
         for name, scale, line_label in variables:
             if name not in ds_series:
                 continue
-            values = scale * ds_series[name]
+            values = scale_with_units(ds_series[name], scale, ylabel)
             ds_data[name] = values
             series.append(
                 Series(
@@ -500,7 +502,7 @@ class RunPlots(ProductStep):
         where,
     ):
         """Plot a map of a time mean and describe it as a product"""
-        field = scale * ds_mean[name]
+        field = scale_with_units(ds_mean[name], scale, units)
         field.name = name
         mask = None
         counted = None
@@ -763,6 +765,38 @@ class RunPlots(ProductStep):
             gallery='ice_sheet',
             title="The ocean's floating fraction and MALI's grounding line",
         )
+
+
+def scale_with_units(field, scale, label):
+    """
+    Scale a field into the units it is plotted in, and give it those units
+
+    Parameters
+    ----------
+    field : xarray.DataArray
+        The field
+
+    scale : float
+        The factor from the field's units to the plot's
+
+    label : str
+        The plot's units, or an axis label ending with them in parentheses,
+        such as ``'melt flux (Gt yr$^{-1}$)'``, with LaTeX exponents
+
+    Returns
+    -------
+    scaled : xarray.DataArray
+        The scaled field, with the plot's ``units`` if the scale is not 1
+    """
+    scaled = scale * field
+    scaled.attrs = dict(field.attrs)
+    if scale != 1.0:
+        match = re.search(r'\(([^()]*)\)\s*$', label)
+        units = match.group(1) if match else label
+        units = units.replace(r'^\circ', 'deg')
+        units = re.sub(r'\^\{?(-?\d+)\}?', r'\1', units)
+        scaled.attrs['units'] = units.replace('$', '').strip()
+    return scaled
 
 
 def get_map_mask(ds, where):
