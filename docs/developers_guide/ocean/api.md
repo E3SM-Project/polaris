@@ -831,6 +831,9 @@
    Woa23
    get_woa23_steps
 
+   month.get_woa23_month
+   month.get_month_abbreviation
+
    CombineStep
    CombineStep.setup
    CombineStep.run
