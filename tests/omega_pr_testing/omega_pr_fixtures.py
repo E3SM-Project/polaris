@@ -209,7 +209,7 @@ def _fake_polaris_suite(calls, fixture):
         work_dir,
         baseline_work_dir=None,
         load_script=None,
-        parallel=False,
+        parallel=True,
     ):
         calls['suite'].append(
             {

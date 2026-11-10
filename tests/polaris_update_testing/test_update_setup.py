@@ -59,16 +59,28 @@ def test_setup_both_models(tester, tmp_path):
     assert git(omega_pr['branch'], 'rev-parse', 'HEAD') == fixture.new_pin
 
 
-def test_setup_parallel(tester, tmp_path):
+def test_setup_parallel_by_default(tester, tmp_path):
     fixture, manifest, calls = tester
     load_script = write_load_script(
         tmp_path / 'load_main.sh', fixture.baseline_dir
     )
 
-    _setup(fixture, manifest, baseline_load_script=load_script, parallel=True)
+    _setup(fixture, manifest, baseline_load_script=load_script)
 
     assert len(calls['suite']) == 4
     assert all(call['parallel'] for call in calls['suite'])
+
+
+def test_setup_serial(tester, tmp_path):
+    fixture, manifest, calls = tester
+    load_script = write_load_script(
+        tmp_path / 'load_main.sh', fixture.baseline_dir
+    )
+
+    _setup(fixture, manifest, baseline_load_script=load_script, parallel=False)
+
+    assert len(calls['suite']) == 4
+    assert not any(call['parallel'] for call in calls['suite'])
 
 
 def test_setup_builds_the_omega_merge(tmp_path, monkeypatch):

@@ -216,14 +216,24 @@ def test_setup_submit(tester):
     assert (Path(state.pr_work_dir) / 'job_id').read_text() == '1002\n'
 
 
-def test_setup_parallel(tester):
+def test_setup_parallel_by_default(tester):
     fixture, manifest, calls = tester
 
-    _setup(fixture, manifest, parallel=True)
+    _setup(fixture, manifest)
 
     baseline_call, pr_call = calls['suite']
     assert baseline_call['parallel']
     assert pr_call['parallel']
+
+
+def test_setup_serial(tester):
+    fixture, manifest, calls = tester
+
+    _setup(fixture, manifest, parallel=False)
+
+    baseline_call, pr_call = calls['suite']
+    assert not baseline_call['parallel']
+    assert not pr_call['parallel']
 
 
 def test_setup_without_baseline(tester):
@@ -606,6 +616,7 @@ def test_polaris_suite_in_clean_login_shell(tmp_path, monkeypatch):
         build_dir=build_dir,
         work_dir='/work',
         load_script='/baseline/polaris/load.sh',
+        parallel=False,
     )
     pr_test_setup.polaris_suite(
         '/pr/polaris',
@@ -614,7 +625,6 @@ def test_polaris_suite_in_clean_login_shell(tmp_path, monkeypatch):
         branch='/omega/tree',
         build_dir=build_dir,
         work_dir='/w',
-        parallel=True,
     )
 
     (args, cwd, env), (pr_args, _, pr_env) = calls
@@ -626,6 +636,9 @@ def test_polaris_suite_in_clean_login_shell(tmp_path, monkeypatch):
     assert cwd == '/baseline/polaris'
     # nothing of the loaded environment reaches the baseline's setup
     assert set(env) <= set(pr_test_setup.LOGIN_ENV_VARS)
+    # the choice is always passed, since a checkout's default depends on
+    # its version
+    assert args[3].endswith('--serial')
     assert '--parallel' not in args[3]
     assert pr_args[0] == 'polaris'
     assert pr_args[-1] == '--parallel'

@@ -1,3 +1,4 @@
+import argparse
 import os
 
 import pytest
@@ -8,6 +9,7 @@ from polaris.job import write_job_script
 from polaris.setup import (
     _get_required_resources,
     _run_steps_concurrently,
+    add_concurrent_steps_args,
 )
 
 
@@ -332,8 +334,8 @@ def test_a_job_script_runs_the_concurrent_path_when_asked(tmp_path):
 
 
 def test_asking_for_the_concurrent_path_is_reading_the_option(tmp_path):
-    """The option is what setup passes on, and it is off unless it is set."""
-    assert not _run_steps_concurrently(get_config('chrysalis'))
+    """The option is what setup passes on, and it is on unless it is unset."""
+    assert _run_steps_concurrently(get_config('chrysalis'))
     assert _run_steps_concurrently(
         get_config('chrysalis', concurrent_steps='True')
     )
@@ -344,16 +346,32 @@ def test_asking_for_the_concurrent_path_is_reading_the_option(tmp_path):
 
 def test_the_flag_and_the_config_option_are_one_mechanism():
     """
-    `--parallel` writes the config option rather than travelling beside it,
+    `--serial` writes the config option rather than travelling beside it,
     so there is one thing that decides this and it is recorded in the config
     a run was set up with.
     """
     config = get_config('chrysalis')
+    assert _run_steps_concurrently(config)
+
+    config.set('job', 'concurrent_steps', 'False', user=True)
+
     assert not _run_steps_concurrently(config)
 
-    config.set('job', 'concurrent_steps', 'True', user=True)
 
-    assert _run_steps_concurrently(config)
+def test_serial_and_parallel_flags_set_the_option():
+    """
+    Neither flag leaves the option to the config; `--serial` and
+    `--parallel` set it either way and cannot be given together.
+    """
+    parser = argparse.ArgumentParser()
+    add_concurrent_steps_args(parser)
+
+    assert parser.parse_args([]).concurrent_steps is None
+    assert parser.parse_args(['--serial']).concurrent_steps is False
+    assert parser.parse_args(['--parallel']).concurrent_steps is True
+    assert parser.parse_args(['-P']).concurrent_steps is True
+    with pytest.raises(SystemExit):
+        parser.parse_args(['--serial', '--parallel'])
 
 
 def test_setup_and_suite_can_be_asked_without_a_config_file():
@@ -379,9 +397,10 @@ def test_setup_and_suite_can_be_asked_without_a_config_file():
             capture_output=True,
             text=True,
         )
-        assert '-P, --parallel' in helped.stdout, (
-            f'polaris {command} does not offer the flag'
-        )
+        for flag in ('--serial', '-P, --parallel'):
+            assert flag in helped.stdout, (
+                f'polaris {command} does not offer {flag}'
+            )
 
 
 def _sized_job(tmp_path, concurrent, machine='chrysalis', **resources):

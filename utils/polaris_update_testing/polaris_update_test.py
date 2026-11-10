@@ -34,7 +34,11 @@ from pr_test_config import ConfigError, read_config  # noqa: E402
 from pr_test_git import POLARIS_DIR, GitError  # noqa: E402
 from pr_test_github import GitHubError  # noqa: E402
 from pr_test_report import ReportError, post_file, read_notes  # noqa: E402
-from pr_test_setup import SetupError, format_state  # noqa: E402
+from pr_test_setup import (  # noqa: E402
+    SetupError,
+    add_parallel_args,
+    format_state,
+)
 
 from polaris.job import SubmissionError  # noqa: E402
 
@@ -280,14 +284,12 @@ def _parse_args():
         help="Set up only the load script's row for this model, such as "
         'to set one up again',
     )
-    setup.add_argument(
-        '-P',
-        '--parallel',
-        action='store_true',
-        help='Run the steps of the PR suites, and of baselines set up here, '
-        'at the same time with `polaris parallel` rather than one after '
-        'another with `polaris serial`.  A baseline that is reused runs as '
-        'it was set up.',
+    add_parallel_args(
+        setup,
+        'Run the steps of the PR suites, and of baselines set up here, one '
+        'after another with `polaris serial` rather than at the same time '
+        'with `polaris parallel`.  A baseline that is reused runs as it was '
+        'set up.',
     )
     setup.add_argument(
         '--submit',

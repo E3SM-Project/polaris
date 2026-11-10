@@ -5,6 +5,7 @@ from typing import List
 
 from polaris.setup import (
     add_component_model_args,
+    add_concurrent_steps_args,
     get_component_model_args,
     setup_tasks,
 )
@@ -166,15 +167,7 @@ def main():
         help='If the model should be built in debug mode.',
     )
     add_component_model_args(parser)
-    parser.add_argument(
-        '-P',
-        '--parallel',
-        dest='concurrent_steps',
-        action='store_true',
-        help='Run the steps of the suite at the same time with '
-        '`polaris parallel` rather than one after another with '
-        '`polaris serial`.',
-    )
+    add_concurrent_steps_args(parser)
 
     args = parser.parse_args(sys.argv[2:])
 

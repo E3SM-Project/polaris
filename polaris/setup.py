@@ -41,7 +41,7 @@ def setup_tasks(
     cmake_flags=None,
     debug=None,
     component_args=None,
-    concurrent_steps=False,
+    concurrent_steps=None,
 ):
     """
     Set up one or more tasks
@@ -136,7 +136,9 @@ def setup_tasks(
     concurrent_steps : bool, optional
         Whether the job script should run the steps of a suite or task at the
         same time with ``polaris parallel`` rather than one after another with
-        ``polaris serial``
+        ``polaris serial``.  The default, ``None``, leaves the choice to the
+        ``[job] concurrent_steps`` config option, which is ``True`` unless a
+        config file sets it.
 
     Returns
     -------
@@ -185,11 +187,13 @@ def setup_tasks(
         work_dir=work_dir,
     )
 
-    if concurrent_steps:
+    if concurrent_steps is not None:
         # the flag writes the config option rather than travelling beside it,
         # so there is one thing that decides this and it is recorded in the
         # config the run is set up with
-        basic_config.set('job', 'concurrent_steps', 'True', user=True)
+        basic_config.set(
+            'job', 'concurrent_steps', str(concurrent_steps), user=True
+        )
 
     components_in_use = get_components_in_use(tasks)
 
@@ -459,14 +463,13 @@ def _run_steps_concurrently(config):
     """
     Whether job scripts should run a suite's or task's steps at the same time.
 
-    Opting in belongs to whoever sets a run up rather than to Polaris: the
-    serial path is what every suite has been validated against, and it stays
-    the default until the concurrent one has been used enough to trust.  A
-    single step's job script is never concurrent, which is why the callers
-    rather than ``write_job_script`` decide.
+    The concurrent path is the default; ``--serial`` or the config option
+    asks for the serial one instead.  A single step's job script is never
+    concurrent, which is why the callers rather than ``write_job_script``
+    decide.
     """
     if not config.has_option('job', 'concurrent_steps'):
-        return False
+        return True
     return config.getboolean('job', 'concurrent_steps')
 
 
@@ -618,15 +621,7 @@ def main():
         help='If the model should be built in debug mode.',
     )
     add_component_model_args(parser)
-    parser.add_argument(
-        '-P',
-        '--parallel',
-        dest='concurrent_steps',
-        action='store_true',
-        help='Run the steps of a suite or task at the same time with '
-        '`polaris parallel` rather than one after another with '
-        '`polaris serial`.',
-    )
+    add_concurrent_steps_args(parser)
 
     args = parser.parse_args(sys.argv[2:])
     cached = None
@@ -1314,6 +1309,43 @@ def _get_basic_config(
     config.set('paths', 'base_work_dir', work_dir, user=True)
 
     return config
+
+
+def add_concurrent_steps_args(parser):
+    """
+    Add the ``--serial`` and ``-P``/``--parallel`` flags, which choose
+    whether the job script runs the steps of a suite or task one after
+    another with ``polaris serial`` or at the same time with
+    ``polaris parallel``.
+
+    Without either flag, the ``[job] concurrent_steps`` config option
+    decides, and it is ``True`` unless a config file sets it.
+
+    Parameters
+    ----------
+    parser : argparse.ArgumentParser
+        The parser to add the flags to
+    """
+    group = parser.add_mutually_exclusive_group()
+    group.add_argument(
+        '--serial',
+        dest='concurrent_steps',
+        action='store_const',
+        const=False,
+        help='Have the job script run the steps of a suite or task one '
+        'after another with `polaris serial` rather than at the same time '
+        'with `polaris parallel`.',
+    )
+    group.add_argument(
+        '-P',
+        '--parallel',
+        dest='concurrent_steps',
+        action='store_const',
+        const=True,
+        help='Have the job script run the steps at the same time with '
+        '`polaris parallel`.  This is the default unless a config file sets '
+        '`[job] concurrent_steps = False`.',
+    )
 
 
 def add_component_model_args(parser):

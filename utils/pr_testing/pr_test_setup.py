@@ -614,6 +614,37 @@ def check_same_filesystem(repo: str, dest: str, fix: str) -> None:
         )
 
 
+def add_parallel_args(parser, serial_help: str) -> None:
+    """
+    Add the ``--serial`` and ``-P``/``--parallel`` flags to a utility's
+    ``setup`` command, which set ``args.parallel``, ``True`` by default
+
+    Parameters
+    ----------
+    parser : argparse.ArgumentParser
+        The ``setup`` command's parser
+
+    serial_help : str
+        The help for ``--serial``, saying which suites it applies to
+    """
+    group = parser.add_mutually_exclusive_group()
+    group.add_argument(
+        '--serial',
+        dest='parallel',
+        action='store_false',
+        help=serial_help,
+    )
+    group.add_argument(
+        '-P',
+        '--parallel',
+        dest='parallel',
+        action='store_true',
+        help='Run the steps at the same time with `polaris parallel`, the '
+        'default.',
+    )
+    parser.set_defaults(parallel=True)
+
+
 def get_baseline(
     config: PrTestConfig,
     criteria: BaselineCriteria,
@@ -621,7 +652,7 @@ def get_baseline(
     baseline_dir: Optional[str],
     checkout: PolarisCheckout,
     model: str,
-    parallel: bool = False,
+    parallel: bool = True,
 ) -> Baseline:
     """
     Find, wait on or set up a baseline
@@ -652,7 +683,8 @@ def get_baseline(
 
     parallel : bool, optional
         Whether a baseline that is set up here runs its steps at the same
-        time with ``polaris parallel``
+        time with ``polaris parallel`` rather than one after another with
+        ``polaris serial``
 
     Returns
     -------
@@ -735,7 +767,7 @@ def polaris_suite(
     work_dir: str,
     baseline_work_dir: Optional[str] = None,
     load_script: Optional[str] = None,
-    parallel: bool = False,
+    parallel: bool = True,
 ) -> None:
     """
     Set up a suite, building the model on this (login) node, with the
@@ -773,7 +805,9 @@ def polaris_suite(
     parallel : bool, optional
         Whether the suite's job runs its steps at the same time with
         ``polaris parallel`` rather than one after another with
-        ``polaris serial``
+        ``polaris serial``.  The choice is always passed as a flag, since
+        a checkout's own default depends on its version.  Checkouts from
+        before ``--serial`` existed accept only ``--parallel``.
     """
     args = ['polaris', 'suite', '-c', 'ocean', '-t', suite, '--model', model]
     args.extend(_build_flags(build_dir, model))
@@ -782,8 +816,7 @@ def polaris_suite(
     args.extend(['-p', build_dir, '-w', work_dir])
     if baseline_work_dir is not None:
         args.extend(['-b', baseline_work_dir])
-    if parallel:
-        args.append('--parallel')
+    args.append('--parallel' if parallel else '--serial')
     print(f'\nRunning in {polaris_dir}:\n  {shlex.join(args)}\n', flush=True)
     if load_script is not None:
         print(
