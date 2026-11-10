@@ -14,6 +14,7 @@ from polaris.setup import (
     _apply_free_running,
     _call_step_setup,
     _expand_and_mark_cached_steps,
+    _get_components_to_build,
     _skip_steps_feeding_only_cached,
 )
 
@@ -251,3 +252,22 @@ def test_an_input_linked_through_another_input_is_followed(tmp_path):
 
     # viz runs and, through relay's link, uses what mesh makes
     assert skipped == {task.path: []}
+
+
+@pytest.mark.parametrize('cached', [True, False])
+def test_only_components_with_steps_that_run_are_built(tmp_path, cached):
+    """
+    A component whose steps are all cached, or left out because they only
+    feed cached steps, runs nothing, so setup must not build its model.
+    """
+    ocean = Component(name='ocean')
+    landice = Component(name='landice')
+    task = Task(component=ocean, name='task')
+    _make_chain(landice, task, ['mesh', 'forward'], cached)
+    task.add_step(Step(component=ocean, name='viz', indir=task.subdir))
+    tasks = {task.path: task}
+    _skip(tasks, tmp_path)
+
+    components = _get_components_to_build(tasks, [ocean, landice])
+
+    assert components == ([ocean] if cached else [ocean, landice])

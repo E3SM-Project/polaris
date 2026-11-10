@@ -16,6 +16,10 @@ Currently supported builders:
 
 ## How it works
 
+`polaris setup` and `polaris suite` build a component's model only if the
+component owns a step that will run.  A component whose steps are all cached,
+or are left out because only cached steps use their outputs, is not built.
+
 Each builder renders a Jinja2 template into a machine-specific shell script and
 then runs that script from a pristine login environment (clearing the current
 process environment) to avoid interference from Conda or other package managers.

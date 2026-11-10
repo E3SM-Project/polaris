@@ -230,12 +230,6 @@ def setup_tasks(
         baseline_dir=baseline_dir,
     )
 
-    _build_models(
-        components_in_use=components_in_use,
-        component_configs=component_configs,
-        machine=machine,
-    )
-
     if clean_tasks:
         print('')
         print('Cleaning task and step work directories:')
@@ -262,6 +256,15 @@ def setup_tasks(
     # are left out before anything is written or downloaded for them
     _call_step_setup(tasks, work_dir)
     skipped_steps = _skip_steps_feeding_only_cached(tasks)
+
+    # only now is it known which steps will run, and a model only needs to
+    # be built for those.  Setting up the tasks below reads the namelists,
+    # streams and executables from the builds.
+    _build_models(
+        components_in_use=_get_components_to_build(tasks, components_in_use),
+        component_configs=component_configs,
+        machine=machine,
+    )
 
     _write_configs(common_configs, configs, work_dir)
     _symlink_configs(tasks, work_dir)
@@ -1595,6 +1598,22 @@ def _check_model_executables(components_in_use, component_configs):
                 f'different build directories.'
             )
         executables[executable] = component.name
+
+
+def _get_components_to_build(tasks, components_in_use):
+    """
+    Get the components in use that own a step that will run, that is, a
+    step that is neither cached nor left out because only cached steps use
+    its outputs.  Only these need their models.
+    """
+    names = set()
+    for task in tasks.values():
+        for step in task.steps.values():
+            if not step.cached:
+                names.add(step.component.name)
+    return [
+        component for component in components_in_use if component.name in names
+    ]
 
 
 def _build_models(components_in_use, component_configs, machine):
