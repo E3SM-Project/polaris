@@ -1135,8 +1135,9 @@ SourceMods and edits it:
   overturning streamfunction in height, and a stream holds snapshots of
   `layerThickness` at each month's start;
 - the ocean's custom time series holds the daily maximum of
-  `kineticEnergyCell`, checked every time step, and its global statistics
-  are hourly;
+  `kineticEnergyCell`, checked every time step, its monthly minima hold
+  `ssh` and `landIceFloatingFraction`, also checked every time step, and
+  its global statistics are hourly;
 - with a prognostic MALI, MALI's history is monthly, with the MISMIP+
   tasks' output fields, the mesh, and `avgFloatingBMBFlux`, and a daily
   MALI stream holds `floatingBasalMassBal` and
@@ -1156,6 +1157,9 @@ for 100 years: at 2 km, the daily 3D fields take about 4 GB a model year.
 The first and last years cover the adjustment from rest and the state the
 runs end in. The daily maximum of the kinetic energy and the hourly global
 statistics catch short bursts of velocity that daily means smooth out.
+The monthly minima find a cell that was a thin film at any time in a
+month, whose monthly means mix film and fully wet hours, for about 3 MB a
+month at 2 km.
 ```
 
 Rejected: complete streams files written by Polaris, which would repeat
