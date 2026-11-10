@@ -73,12 +73,10 @@ Segment = namedtuple('Segment', ['start', 'months', 'daily_3d'])
 PROGNOSTIC_EXPERIMENTS = ['iceocean1r', 'iceocean1ra']
 
 #: The commit of FAnSSIE, E3SM's development branch for coupling the ocean
-#: and ice sheets, by which it has every change the cases need: the last are
-#: the thickness flux the ocean's time integrator applies, which the
-#: overturning streamfunction's check needs, and the edge-mean thickness in
-#: the ocean's vertical advection of momentum, without which flow through a
-#: film that opens beside a deep column runs away
-E3SM_COMMIT = 'e4dd4fcb92'
+#: and ice sheets, by which it has every change the cases need: the last is
+#: the option to cap the flux thickness of inflow into thin films, without
+#: which flow through a film that opens at the grounding line runs away
+E3SM_COMMIT = '541e83b42d'
 
 #: The change the split-explicit cases need that FAnSSIE does not have yet:
 #: the ocean's per-layer limit on drying, which has no namelist option, so
