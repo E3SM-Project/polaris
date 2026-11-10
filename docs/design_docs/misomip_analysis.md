@@ -221,6 +221,9 @@ run's namelist. The open-ocean SSH is its mean where there is no land ice.
 
 - Maps and sections draw the film: columns under grounded ice and dry
   columns, whose water keeps the initial condition's.
+- Time means of the ocean's state take only the months each column is
+  wet, weighted by layer thickness on layers; columns wet in only some
+  months are hatched ([D13](#decisions)).
 - Temperature, draft and bathymetry have fixed color ranges, and salinity
   fixed, uneven bins ([D11](#decisions)). The other fields take their
   ranges from the data shown, less the film, centered on zero for
@@ -813,3 +816,43 @@ cell's, change it by −22% to +40%. Whether it is physical or a model error
 at the steep step in draft, such as in the pressure gradient, is open.
 From the second month on, it changes the overturning's strength by at most
 2%.
+
+### D13: Time means near the grounding line take only wet months
+
+Date last modified: 2026/11/10
+
+Contributors: Xylar Asay-Davis, Claude
+
+A time mean of the ocean's state takes, in each cell and layer,
+$\sum_m h_m X_m w_m / \sum_m h_m w_m$ over its months $m$, where $h_m$ is
+the layer's mean thickness and $w_m$ is 1 if the column is wet that month.
+A month is wet unless its mean column is under grounded ice or within
+twice the minimum thickness of its active layers. Fields in a column, such
+as SSH and the drivers of melt, weight the wet months equally. Maps and
+sections hatch the columns wet in only some months, and their captions say
+so. A column wet in no month holds only the film and keeps its plain mean.
+Fluxes, such as melt, and the transports are means over all months.
+
+> Rationale: near a moving grounding line, a column can hold the film's
+> fresh water in some months and meters of the cavity's in others. In
+> IceOcean1r at 2 km, over its last 12 months, 7 columns changed between
+> film and wet, and the plain means of their bottom salinity were wrong
+> by a median of 2.8 PSU and up to 27 PSU. Over 60 months, 42 columns
+> changed, with errors of a median of 11.6 PSU and up to 31 PSU, larger
+> than the signal there. Each monthly mean is close to the mean of its
+> month's states, within 0.1 PSU even in a month a column crosses, so
+> the monthly means suffice. In Ocean1, whose ice does not move, the
+> rule changes nothing.
+
+Rejected:
+
+- plain means of the monthly means, as above;
+- thickness weighting alone, which leaves the changing columns' bottom
+  salinity wrong by up to 24–30 PSU, since a filling column's bottom layer
+  is only a few times the film's;
+- masking the columns that changed, which blanks the cells where the
+  grounding line moves.
+
+Not done: sections at fixed elevations. Where the draft moves, layers
+stacked from their mean thicknesses blur the boundary layer below the ice
+base, by up to 0.25 °C over 60 months, mostly within 50 m of the base.
