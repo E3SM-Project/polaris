@@ -515,7 +515,7 @@ window.runMermaid = runMermaid;</script>
     <span class="n">cmake_flags</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
     <span class="n">debug</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
     <span class="n">component_args</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-    <span class="n">concurrent_steps</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="n">concurrent_steps</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
 <span class="p">):</span>
 <span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Set up one or more tasks</span>
@@ -610,7 +610,9 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">    concurrent_steps : bool, optional</span>
 <span class="sd">        Whether the job script should run the steps of a suite or task at the</span>
 <span class="sd">        same time with ``polaris parallel`` rather than one after another with</span>
-<span class="sd">        ``polaris serial``</span>
+<span class="sd">        ``polaris serial``.  The default, ``None``, leaves the choice to the</span>
+<span class="sd">        ``[job] concurrent_steps`` config option, which is ``True`` unless a</span>
+<span class="sd">        config file sets it.</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
@@ -659,11 +661,13 @@ window.runMermaid = runMermaid;</script>
         <span class="n">work_dir</span><span class="o">=</span><span class="n">work_dir</span><span class="p">,</span>
     <span class="p">)</span>
 
-    <span class="k">if</span> <span class="n">concurrent_steps</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">concurrent_steps</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
         <span class="c1"># the flag writes the config option rather than travelling beside it,</span>
         <span class="c1"># so there is one thing that decides this and it is recorded in the</span>
         <span class="c1"># config the run is set up with</span>
-        <span class="n">basic_config</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s1">'job'</span><span class="p">,</span> <span class="s1">'concurrent_steps'</span><span class="p">,</span> <span class="s1">'True'</span><span class="p">,</span> <span class="n">user</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">basic_config</span><span class="o">.</span><span class="n">set</span><span class="p">(</span>
+            <span class="s1">'job'</span><span class="p">,</span> <span class="s1">'concurrent_steps'</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">concurrent_steps</span><span class="p">),</span> <span class="n">user</span><span class="o">=</span><span class="kc">True</span>
+        <span class="p">)</span>
 
     <span class="n">components_in_use</span> <span class="o">=</span> <span class="n">get_components_in_use</span><span class="p">(</span><span class="n">tasks</span><span class="p">)</span>
 
@@ -937,14 +941,13 @@ window.runMermaid = runMermaid;</script>
 <span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Whether job scripts should run a suite's or task's steps at the same time.</span>
 
-<span class="sd">    Opting in belongs to whoever sets a run up rather than to Polaris: the</span>
-<span class="sd">    serial path is what every suite has been validated against, and it stays</span>
-<span class="sd">    the default until the concurrent one has been used enough to trust.  A</span>
-<span class="sd">    single step's job script is never concurrent, which is why the callers</span>
-<span class="sd">    rather than ``write_job_script`` decide.</span>
+<span class="sd">    The concurrent path is the default; ``--serial`` or the config option</span>
+<span class="sd">    asks for the serial one instead.  A single step's job script is never</span>
+<span class="sd">    concurrent, which is why the callers rather than ``write_job_script``</span>
+<span class="sd">    decide.</span>
 <span class="sd">    """</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">config</span><span class="o">.</span><span class="n">has_option</span><span class="p">(</span><span class="s1">'job'</span><span class="p">,</span> <span class="s1">'concurrent_steps'</span><span class="p">):</span>
-        <span class="k">return</span> <span class="kc">False</span>
+        <span class="k">return</span> <span class="kc">True</span>
     <span class="k">return</span> <span class="n">config</span><span class="o">.</span><span class="n">getboolean</span><span class="p">(</span><span class="s1">'job'</span><span class="p">,</span> <span class="s1">'concurrent_steps'</span><span class="p">)</span>
 
 
@@ -1096,15 +1099,7 @@ window.runMermaid = runMermaid;</script>
         <span class="n">help</span><span class="o">=</span><span class="s1">'If the model should be built in debug mode.'</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">add_component_model_args</span><span class="p">(</span><span class="n">parser</span><span class="p">)</span>
-    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
-        <span class="s1">'-P'</span><span class="p">,</span>
-        <span class="s1">'--parallel'</span><span class="p">,</span>
-        <span class="n">dest</span><span class="o">=</span><span class="s1">'concurrent_steps'</span><span class="p">,</span>
-        <span class="n">action</span><span class="o">=</span><span class="s1">'store_true'</span><span class="p">,</span>
-        <span class="n">help</span><span class="o">=</span><span class="s1">'Run the steps of a suite or task at the same time with '</span>
-        <span class="s1">'`polaris parallel` rather than one after another with '</span>
-        <span class="s1">'`polaris serial`.'</span><span class="p">,</span>
-    <span class="p">)</span>
+    <span class="n">add_concurrent_steps_args</span><span class="p">(</span><span class="n">parser</span><span class="p">)</span>
 
     <span class="n">args</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">[</span><span class="mi">2</span><span class="p">:])</span>
     <span class="n">cached</span> <span class="o">=</span> <span class="kc">None</span>
@@ -1792,6 +1787,43 @@ window.runMermaid = runMermaid;</script>
     <span class="n">config</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s1">'paths'</span><span class="p">,</span> <span class="s1">'base_work_dir'</span><span class="p">,</span> <span class="n">work_dir</span><span class="p">,</span> <span class="n">user</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
     <span class="k">return</span> <span class="n">config</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">add_concurrent_steps_args</span><span class="p">(</span><span class="n">parser</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Add the ``--serial`` and ``-P``/``--parallel`` flags, which choose</span>
+<span class="sd">    whether the job script runs the steps of a suite or task one after</span>
+<span class="sd">    another with ``polaris serial`` or at the same time with</span>
+<span class="sd">    ``polaris parallel``.</span>
+
+<span class="sd">    Without either flag, the ``[job] concurrent_steps`` config option</span>
+<span class="sd">    decides, and it is ``True`` unless a config file sets it.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    parser : argparse.ArgumentParser</span>
+<span class="sd">        The parser to add the flags to</span>
+<span class="sd">    """</span>
+    <span class="n">group</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">add_mutually_exclusive_group</span><span class="p">()</span>
+    <span class="n">group</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s1">'--serial'</span><span class="p">,</span>
+        <span class="n">dest</span><span class="o">=</span><span class="s1">'concurrent_steps'</span><span class="p">,</span>
+        <span class="n">action</span><span class="o">=</span><span class="s1">'store_const'</span><span class="p">,</span>
+        <span class="n">const</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s1">'Have the job script run the steps of a suite or task one '</span>
+        <span class="s1">'after another with `polaris serial` rather than at the same time '</span>
+        <span class="s1">'with `polaris parallel`.'</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">group</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s1">'-P'</span><span class="p">,</span>
+        <span class="s1">'--parallel'</span><span class="p">,</span>
+        <span class="n">dest</span><span class="o">=</span><span class="s1">'concurrent_steps'</span><span class="p">,</span>
+        <span class="n">action</span><span class="o">=</span><span class="s1">'store_const'</span><span class="p">,</span>
+        <span class="n">const</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s1">'Have the job script run the steps at the same time with '</span>
+        <span class="s1">'`polaris parallel`.  This is the default unless a config file sets '</span>
+        <span class="s1">'`[job] concurrent_steps = False`.'</span><span class="p">,</span>
+    <span class="p">)</span>
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">add_component_model_args</span><span class="p">(</span><span class="n">parser</span><span class="p">):</span>

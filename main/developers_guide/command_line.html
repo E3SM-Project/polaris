@@ -74,7 +74,7 @@
 <li class="toctree-l2"><a class="reference internal" href="#polaris-serial">polaris serial</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#polaris-parallel">polaris parallel</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#what-it-does-differently">What it does differently</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#asking-setup-for-a-concurrent-job-script">Asking setup for a concurrent job script</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#choosing-a-serial-or-concurrent-job-script">Choosing a serial or concurrent job script</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#how-many-nodes-a-concurrent-job-asks-for">How many nodes a concurrent job asks for</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#reading-a-run-afterwards">Reading a run afterwards</a></li>
 </ul>
@@ -216,7 +216,8 @@ usage: polaris setup [-h] [-t PATH [PATH ...]] [-n NUM [NUM ...]] [-f FILE]
                      [--cmake_flags CMAKE_FLAGS] [--debug]
                      [--ocean_model OCEAN_MODEL] [--ocean_path PATH]
                      [--ocean_branch PATH] [--seaice_model SEAICE_MODEL]
-                     [--seaice_path PATH] [--seaice_branch PATH]
+                     [--seaice_path PATH] [--seaice_branch PATH] [--serial |
+                     -P]
 
 </pre></div>
 </div>
@@ -391,7 +392,8 @@ usage: polaris suite [-h] -c COMPONENT -t SUITE [-f FILE] [-m MACH] [-b PATH]
                      [--cmake_flags CMAKE_FLAGS] [--debug]
                      [--ocean_model OCEAN_MODEL] [--ocean_path PATH]
                      [--ocean_branch PATH] [--seaice_model SEAICE_MODEL]
-                     [--seaice_path PATH] [--seaice_branch PATH]
+                     [--seaice_path PATH] [--seaice_branch PATH] [--serial |
+                     -P]
 </pre></div>
 </div>
 <p>The <code class="docutils literal notranslate"><span class="pre">-h</span></code> or <code class="docutils literal notranslate"><span class="pre">--help</span></code> options will display the help message describing the
@@ -514,24 +516,24 @@ to its cores by the child itself, which can only be done on the node the
 scheduler is running on – so such steps are given cores there, and Python
 concurrency is bounded by one node’s worth of cores.</p>
 </section>
-<section id="asking-setup-for-a-concurrent-job-script">
-<h3>Asking setup for a concurrent job script<a class="headerlink" href="#asking-setup-for-a-concurrent-job-script" title="Link to this heading"></a></h3>
-<p><code class="docutils literal notranslate"><span class="pre">polaris</span> <span class="pre">setup</span></code> and <code class="docutils literal notranslate"><span class="pre">polaris</span> <span class="pre">suite</span></code> write a <code class="docutils literal notranslate"><span class="pre">polaris</span> <span class="pre">serial</span></code> job script by
-default.  To have one write a <code class="docutils literal notranslate"><span class="pre">polaris</span> <span class="pre">parallel</span></code> script instead, pass
-<code class="docutils literal notranslate"><span class="pre">--parallel</span></code>, or <code class="docutils literal notranslate"><span class="pre">-P</span></code>:</p>
-<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>polaris suite -c ocean -t omega_pr -P -w &lt;work dir&gt;
+<section id="choosing-a-serial-or-concurrent-job-script">
+<h3>Choosing a serial or concurrent job script<a class="headerlink" href="#choosing-a-serial-or-concurrent-job-script" title="Link to this heading"></a></h3>
+<p><code class="docutils literal notranslate"><span class="pre">polaris</span> <span class="pre">setup</span></code> and <code class="docutils literal notranslate"><span class="pre">polaris</span> <span class="pre">suite</span></code> write a <code class="docutils literal notranslate"><span class="pre">polaris</span> <span class="pre">parallel</span></code> job script by
+default.  To have one write a <code class="docutils literal notranslate"><span class="pre">polaris</span> <span class="pre">serial</span></code> script instead, pass
+<code class="docutils literal notranslate"><span class="pre">--serial</span></code>:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>polaris suite -c ocean -t omega_pr --serial -w &lt;work dir&gt;
 </pre></div>
 </div>
 <p>The flag sets the <code class="docutils literal notranslate"><span class="pre">[job]</span> <span class="pre">concurrent_steps</span></code> config option, so the same thing
 can be asked for in a config file passed with <code class="docutils literal notranslate"><span class="pre">-f</span></code>, and either way the choice
 is recorded in the config the run was set up with:</p>
 <div class="highlight-cfg notranslate"><div class="highlight"><pre><span></span><span class="k">[job]</span>
-<span class="na">concurrent_steps</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">True</span>
+<span class="na">concurrent_steps</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">False</span>
 </pre></div>
 </div>
-<p>The serial path is what every suite has been validated against, so it stays
-the default.  A single step’s job script is unaffected, having nothing to run
-at the same time.</p>
+<p><code class="docutils literal notranslate"><span class="pre">--parallel</span></code>, or <code class="docutils literal notranslate"><span class="pre">-P</span></code>, asks for the concurrent path explicitly, overriding a
+config file that sets the option to <code class="docutils literal notranslate"><span class="pre">False</span></code>.  A single step’s job script is
+unaffected, having nothing to run at the same time.</p>
 </section>
 <section id="how-many-nodes-a-concurrent-job-asks-for">
 <h3>How many nodes a concurrent job asks for<a class="headerlink" href="#how-many-nodes-a-concurrent-job-asks-for" title="Link to this heading"></a></h3>

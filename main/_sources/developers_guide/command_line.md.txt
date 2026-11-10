@@ -101,7 +101,8 @@ usage: polaris setup [-h] [-t PATH [PATH ...]] [-n NUM [NUM ...]] [-f FILE]
                      [--cmake_flags CMAKE_FLAGS] [--debug]
                      [--ocean_model OCEAN_MODEL] [--ocean_path PATH]
                      [--ocean_branch PATH] [--seaice_model SEAICE_MODEL]
-                     [--seaice_path PATH] [--seaice_branch PATH]
+                     [--seaice_path PATH] [--seaice_branch PATH] [--serial |
+                     -P]
 
 ```
 
@@ -295,7 +296,8 @@ usage: polaris suite [-h] -c COMPONENT -t SUITE [-f FILE] [-m MACH] [-b PATH]
                      [--cmake_flags CMAKE_FLAGS] [--debug]
                      [--ocean_model OCEAN_MODEL] [--ocean_path PATH]
                      [--ocean_branch PATH] [--seaice_model SEAICE_MODEL]
-                     [--seaice_path PATH] [--seaice_branch PATH]
+                     [--seaice_path PATH] [--seaice_branch PATH] [--serial |
+                     -P]
 ```
 
 The `-h` or `--help` options will display the help message describing the
@@ -447,14 +449,14 @@ to its cores by the child itself, which can only be done on the node the
 scheduler is running on -- so such steps are given cores there, and Python
 concurrency is bounded by one node's worth of cores.
 
-### Asking setup for a concurrent job script
+### Choosing a serial or concurrent job script
 
-`polaris setup` and `polaris suite` write a `polaris serial` job script by
-default.  To have one write a `polaris parallel` script instead, pass
-`--parallel`, or `-P`:
+`polaris setup` and `polaris suite` write a `polaris parallel` job script by
+default.  To have one write a `polaris serial` script instead, pass
+`--serial`:
 
 ```none
-polaris suite -c ocean -t omega_pr -P -w <work dir>
+polaris suite -c ocean -t omega_pr --serial -w <work dir>
 ```
 
 The flag sets the `[job] concurrent_steps` config option, so the same thing
@@ -463,12 +465,12 @@ is recorded in the config the run was set up with:
 
 ```cfg
 [job]
-concurrent_steps = True
+concurrent_steps = False
 ```
 
-The serial path is what every suite has been validated against, so it stays
-the default.  A single step's job script is unaffected, having nothing to run
-at the same time.
+`--parallel`, or `-P`, asks for the concurrent path explicitly, overriding a
+config file that sets the option to `False`.  A single step's job script is
+unaffected, having nothing to run at the same time.
 
 ### How many nodes a concurrent job asks for
 
