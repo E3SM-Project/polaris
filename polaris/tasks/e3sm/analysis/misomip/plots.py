@@ -1,9 +1,10 @@
 import matplotlib
 import numpy as np
 import xarray as xr
-from matplotlib.collections import QuadMesh
+from matplotlib.collections import PolyCollection, QuadMesh
 from matplotlib.colors import BoundaryNorm
 from matplotlib.figure import Figure
+from matplotlib.patches import Patch
 from mpas_tools.io import write_netcdf
 from mpas_tools.ocean.viz.transect import compute_transect, plot_transect
 
@@ -13,6 +14,7 @@ from polaris.tasks.e3sm.analysis.misomip.diagnostics import (
     SECONDS_PER_YEAR,
     TIME_MEAN_FILENAME,
     TIME_SERIES_FILENAME,
+    WET_MEAN_WEIGHTS,
     add_geometry_inputs,
     isomip_mesh,
     read_initial_condition,
@@ -323,6 +325,17 @@ LANDICE_SERIES = [
     ),
 ]
 
+#: The maps and sections of the ocean's state, whose time means take only
+#: the months each column is wet
+WET_MEAN_FIELDS = set(WET_MEAN_WEIGHTS) | {'uBoundaryLayer', 'vBoundaryLayer'}
+
+#: The legend entry and caption of the columns wet in only some months
+HATCH_LABEL = 'hatched: wet in only some months'
+
+#: The hatching of the columns wet in only some months
+HATCH = '////'
+HATCH_COLOR = '0.25'
+
 #: The sections plotted: the variable, the title, the color bar's label and
 #: the colormap
 SECTION_FIELDS = [
@@ -489,9 +502,11 @@ class RunPlots(ProductStep):
         field.name = name
         mask = None
         counted = None
+        hatched = None
         if 'nCells' in field.dims:
             mask = get_map_mask(ds_mean, where)
             counted = get_range_mask(ds_mean, mask)
+            hatched = get_hatched_cells(ds_mean, name, mask)
         vmin, vmax = get_color_range(self.config, name, field, counted)
         norm, ticks = get_color_norm(self.config, name, cmap)
         plot = f'{name}_map.png'
@@ -513,9 +528,15 @@ class RunPlots(ProductStep):
                 cbar_ticks=ticks,
             )
             plot_mask_boundary(ax, ds_mesh, floating, linewidth=0.75)
+            if hatched is not None:
+                _hatch_cells(ax, ds_mesh, hatched)
             ax.set_title(f'{title}, {self.label}')
             fig.savefig(plot, bbox_inches='tight', pad_inches=0.2)
-        write_netcdf(field.to_dataset(), data)
+        ds_data = field.to_dataset()
+        if hatched is not None:
+            ds_data['partlyWetColumn'] = ds_mean.partlyWetColumn
+            title = f'{title}; {HATCH_LABEL}'
+        write_netcdf(ds_data, data)
         self.add_product(
             plot=plot, data=data, group=self.kind, gallery=gallery, title=title
         )
@@ -553,6 +574,7 @@ class RunPlots(ProductStep):
             field = ds_mean[name]
             vmin, vmax = get_color_range(self.config, name, field, counted)
             norm, ticks = get_color_norm(self.config, name, cmap)
+            hatched = get_hatched_cells(ds_mean, name)
             plot_section(
                 ds_transect,
                 field,
@@ -566,16 +588,21 @@ class RunPlots(ProductStep):
                 distance_label=distance_label,
                 norm=norm,
                 ticks=ticks,
+                hatched=hatched,
             )
             ds_data = ds_transect.copy()
             ds_data[name] = ds_mean[name]
+            caption = f'{title} at {where}'
+            if hatched is not None:
+                ds_data['partlyWetColumn'] = ds_mean.partlyWetColumn
+                caption = f'{caption}; {HATCH_LABEL}'
             write_netcdf(ds_data, data)
             self.add_product(
                 plot=plot,
                 data=data,
                 group=self.kind,
                 gallery='water_masses',
-                title=f'{title} at {where}',
+                title=caption,
             )
 
     def _plot_overturning(self, ds_mean, months):
@@ -797,6 +824,38 @@ def get_range_mask(ds, mask=None):
     return counted
 
 
+def get_hatched_cells(ds, name, mask=None):
+    """
+    Get the cells hatched in a time mean's map or section: those wet in
+    only some of its months, in a field of the ocean's state, whose mean
+    takes only those months
+
+    Parameters
+    ----------
+    ds : xarray.Dataset
+        A time mean with ``partlyWetColumn``
+
+    name : str
+        The field
+
+    mask : xarray.DataArray, optional
+        Where the field is shown, everywhere by default
+
+    Returns
+    -------
+    hatched : xarray.DataArray or None
+        The cells to hatch, or ``None`` if there are none
+    """
+    if name not in WET_MEAN_FIELDS or 'partlyWetColumn' not in ds:
+        return None
+    hatched = ds.partlyWetColumn > 0
+    if mask is not None:
+        hatched = np.logical_and(hatched, mask)
+    if not bool(hatched.any()):
+        return None
+    return hatched
+
+
 def get_color_range(config, name, field=None, counted=None):
     """
     Get the color range of a field's map or section
@@ -892,6 +951,7 @@ def plot_section(
     distance_label,
     norm=None,
     ticks=None,
+    hatched=None,
 ):
     """
     Plot a section along a line of constant x or y, against the position
@@ -932,6 +992,9 @@ def plot_section(
 
     ticks : list of float, optional
         The color bar's ticks
+
+    hatched : xarray.DataArray, optional
+        The cells whose columns are hatched
     """
     ds_plot = ds_transect.copy()
     ds_plot['dNode'] = ds_transect.dNode + start
@@ -954,9 +1017,60 @@ def plot_section(
         fig.colorbar(
             mesh, ax=ax, extend='both', shrink=0.7, label=units, ticks=ticks
         )
+        if hatched is not None:
+            _hatch_columns(ax, ds_plot, hatched)
         ax.set_xlabel(distance_label)
         ax.set_title(title)
         fig.savefig(out_filename, bbox_inches='tight', pad_inches=0.2)
+
+
+def _hatch_cells(ax, ds_mesh, hatched):
+    """Hatch cells on a map, with a legend entry"""
+    cells = np.flatnonzero(hatched.values)
+    vertices = ds_mesh.verticesOnCell.values[cells] - 1
+    counts = ds_mesh.nEdgesOnCell.values[cells]
+    x_vertex = ds_mesh.xVertex.values
+    y_vertex = ds_mesh.yVertex.values
+    polygons = [
+        np.stack([x_vertex[cell[:count]], y_vertex[cell[:count]]], axis=1)
+        for cell, count in zip(vertices, counts, strict=True)
+    ]
+    ax.add_collection(
+        PolyCollection(
+            polygons,
+            facecolor='none',
+            edgecolor=HATCH_COLOR,
+            linewidth=0.0,
+            hatch=HATCH,
+        )
+    )
+    _add_hatch_legend(ax)
+
+
+def _hatch_columns(ax, ds_transect, hatched):
+    """Hatch the columns of a section's cells, with a legend entry"""
+    cells = ds_transect.horizCellIndices.values
+    nodes = ds_transect.horizTriangleNodeIndices.values
+    distance = 1e-3 * ds_transect.dNode.values
+    flags = hatched.values
+    for segment in np.flatnonzero((cells >= 0) & flags[np.maximum(cells, 0)]):
+        ax.axvspan(
+            distance[nodes[segment, 0]],
+            distance[nodes[segment, 1]],
+            facecolor='none',
+            edgecolor=HATCH_COLOR,
+            linewidth=0.0,
+            hatch=HATCH,
+        )
+    _add_hatch_legend(ax)
+
+
+def _add_hatch_legend(ax):
+    """Add the legend entry of the hatched columns"""
+    handle = Patch(
+        facecolor='none', edgecolor=HATCH_COLOR, hatch=HATCH, label=HATCH_LABEL
+    )
+    ax.legend(handles=[handle], loc='lower right', fontsize='small')
 
 
 def _has_value(config, section, option):

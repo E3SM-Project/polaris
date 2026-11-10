@@ -9,6 +9,7 @@ from polaris.tasks.e3sm.analysis.misomip.diagnostics import (
     SECONDS_PER_YEAR,
     TIME_SERIES_FILENAME,
     add_geometry_inputs,
+    compute_time_means,
     isomip_mesh,
     read_initial_condition,
 )
@@ -210,7 +211,7 @@ class RunComparison(ProductStep):
         for kind in KINDS:
             times = np.round(maps[kind].time.values, 6)
             indices = np.nonzero(np.isin(times, common))[0]
-            means[kind] = maps[kind].isel(Time=indices).mean(dim='Time')
+            means[kind] = compute_time_means(maps[kind].isel(Time=indices))
         months = f'{len(common)} month{"s" if len(common) > 1 else ""}'
 
         ds_init = read_initial_condition()

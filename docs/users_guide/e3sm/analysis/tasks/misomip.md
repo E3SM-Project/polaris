@@ -123,6 +123,16 @@ tuning does, and the last 12 months of the other experiments, or all of a
 shorter run.  Partly floating cells melt only over their floating fraction,
 so means over the ice base are weighted by floating area.
 
+Near a moving grounding line, a column can hold only the thin film in some
+months and meters of water in others.  The time means of the ocean's state
+(temperature, salinity, velocity, layer thickness, sea-surface height and
+the drivers of melt) take only the months each column is wet, weighted by
+layer thickness on layers.  Maps and sections of these fields hatch the
+columns wet in only some months, whose means cover fewer months than the
+rest, and their captions say so.  A column wet in no month holds only the
+film and keeps its plain mean.  Melt and the streamfunctions are means over
+all months.
+
 For an E3SM run, MALI's history gives the ice sheet's volume, volume above
 flotation, grounded area and grounding line along $y = 40$ km, from MALI's
 thickness and bed with the densities in its namelist.  A map shows the

@@ -467,6 +467,45 @@ def get_film_columns(
     return np.logical_or(dry, grounded)
 
 
+def compute_wet_time_mean(field, wet, weight=None):
+    """
+    Compute the time mean of the ocean's state over the times each column
+    is wet, rather than holding only the thin film
+
+    Near a moving grounding line, a column can hold only the film for part
+    of a period and meters of water for the rest.  The film's water keeps
+    the initial condition's, so a plain mean mixes it with the cavity's.
+    Weighting by layer thickness gives each time its share of the water
+    in each layer.  A column that is wet at no time keeps its plain mean.
+
+    Parameters
+    ----------
+    field : xarray.DataArray
+        The field, with a ``Time`` dimension
+
+    wet : xarray.DataArray
+        Whether each column is wet at each time, the complement of
+        :py:func:`polaris.ocean.ice_shelf.get_film_columns()`
+
+    weight : xarray.DataArray, optional
+        The weight of each time, such as ``layerThickness`` for a field on
+        layers.  Times are weighted equally by default.
+
+    Returns
+    -------
+    mean : xarray.DataArray
+        The time mean
+    """
+    if weight is None:
+        weight = xr.ones_like(field)
+    weight = weight.where(wet, 0.0)
+    total = (weight * field).sum(dim='Time')
+    norm = weight.sum(dim='Time')
+    mean = (total / norm).where(norm > 0.0, field.mean(dim='Time'))
+    mean.attrs = field.attrs
+    return mean
+
+
 def get_open_ocean_mask(x_cell, land_ice_fraction, restoring_x):
     """
     Get the open ocean between the ice front and the restoring region,

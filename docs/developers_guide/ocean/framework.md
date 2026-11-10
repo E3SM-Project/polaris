@@ -824,7 +824,11 @@ mean melt rate in bins of draft, and
 of dry columns under grounded ice and the open ocean's mean sea-surface
 height.  {py:func}`polaris.ocean.ice_shelf.get_film_columns()` finds the
 columns that hold only the thin film, under grounded ice or dry, whose
-water keeps the initial condition's.  In a coupled run,
+water keeps the initial condition's, and
+{py:func}`polaris.ocean.ice_shelf.compute_wet_time_mean()` averages a field
+of the ocean's state over only the times its column is wet, optionally
+weighted by layer thickness, for means near a moving grounding line.  In a
+coupled run,
 {py:func}`polaris.ocean.ice_shelf.compute_grounding_line_band_diagnostics()`
 gives the land-ice model's floating area in cells the ocean holds at the
 thin film, next to the grounding line, and estimates the melt missed there

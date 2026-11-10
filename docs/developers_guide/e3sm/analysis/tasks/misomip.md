@@ -21,6 +21,22 @@ Each run gets two shared steps, named for the months it has:
 - {py:class}`polaris.tasks.e3sm.analysis.misomip.plots.RunPlots` plots them
   and describes each plot as a product.
 
+The diagnostics mark each month's columns that are wet, rather than holding
+only the thin film, as `wetColumn`, with
+{py:func}`polaris.ocean.ice_shelf.get_film_columns()` on that month's mean
+column.  `time_mean.nc` and the comparison's mean maps come from
+{py:func}`polaris.tasks.e3sm.analysis.misomip.diagnostics.compute_time_means`:
+the fields of the ocean's state in `WET_MEAN_WEIGHTS` are averaged over the
+months each column is wet, by
+{py:func}`polaris.ocean.ice_shelf.compute_wet_time_mean()`, weighted by
+layer thickness on layers.  Fluxes, such as melt, are averaged over all
+months, and the transports, the barotropic and overturning
+streamfunctions, come from the plain means of velocity, layer thickness
+and the layer thickness flux.  `partlyWetColumn` marks the columns wet in
+only some months, which
+{py:func}`polaris.tasks.e3sm.analysis.misomip.plots.get_hatched_cells`
+hatches in the maps and sections of the state.
+
 {py:class}`polaris.tasks.e3sm.analysis.misomip.comparison.RunComparison`
 compares the two runs' diagnostics, and
 {py:class}`polaris.tasks.e3sm.analysis.misomip.conservation.CouplerConservation`

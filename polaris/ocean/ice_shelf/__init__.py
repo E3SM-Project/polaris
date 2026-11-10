@@ -34,6 +34,9 @@ from polaris.ocean.ice_shelf.diagnostics import (
     compute_thin_film_diagnostics as compute_thin_film_diagnostics,
 )
 from polaris.ocean.ice_shelf.diagnostics import (
+    compute_wet_time_mean as compute_wet_time_mean,
+)
+from polaris.ocean.ice_shelf.diagnostics import (
     get_film_columns as get_film_columns,
 )
 from polaris.ocean.ice_shelf.diagnostics import (

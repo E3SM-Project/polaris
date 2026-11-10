@@ -3,10 +3,14 @@ import pytest
 import xarray as xr
 
 from polaris.config import PolarisConfigParser
+from polaris.tasks.e3sm.analysis.misomip.diagnostics import (
+    compute_time_means,
+)
 from polaris.tasks.e3sm.analysis.misomip.ice_sheet import get_lines_range
 from polaris.tasks.e3sm.analysis.misomip.plots import (
     get_color_norm,
     get_color_range,
+    get_hatched_cells,
     get_map_mask,
     get_range_mask,
 )
@@ -129,6 +133,44 @@ def test_without_bounds_a_field_has_no_norm():
     config = _config(temperature_bounds='')
     assert get_color_norm(config, 'temperature', 'viridis') == (None, None)
     assert get_color_norm(config, 'meltRate', 'viridis') == (None, None)
+
+
+def test_time_means_take_the_wet_months_by_thickness():
+    """A column that holds the film in one month and water in two averages
+    its state over the two, by layer thickness, and is hatched; its melt
+    averages all three.  Columns always wet or never wet are not hatched,
+    and the one never wet stays film."""
+    dims = ('Time', 'nCells', 'nVertLevels')
+    ds = xr.Dataset()
+    # months by cells, one layer each
+    ds['layerThickness'] = xr.DataArray(
+        np.array([[0.05, 1.0, 0.05], [1.0, 1.0, 0.05], [3.0, 1.0, 0.05]])[
+            :, :, np.newaxis
+        ],
+        dims=dims,
+    )
+    ds['temperature'] = xr.DataArray(
+        np.array([[0.0, 1.0, 0.0], [-1.0, 2.0, 1.0], [-2.0, 3.0, 2.0]])[
+            :, :, np.newaxis
+        ],
+        dims=dims,
+    )
+    ds['landIceFreshwaterFlux'] = xr.DataArray(
+        [[0.0, 1.0, 0.0], [2.0, 1.0, 0.0], [4.0, 1.0, 0.0]],
+        dims=('Time', 'nCells'),
+    )
+    ds['wetColumn'] = xr.DataArray(
+        [[0, 1, 0], [1, 1, 0], [1, 1, 0]], dims=('Time', 'nCells')
+    )
+    ds_mean = compute_time_means(ds)
+    np.testing.assert_allclose(
+        ds_mean.temperature.isel(nVertLevels=0), [-1.75, 2.0, 1.0]
+    )
+    np.testing.assert_allclose(ds_mean.landIceFreshwaterFlux, [2.0, 1.0, 0.0])
+    np.testing.assert_array_equal(ds_mean.filmColumn, [0, 0, 1])
+    hatched = get_hatched_cells(ds_mean, 'temperature')
+    np.testing.assert_array_equal(hatched, [True, False, False])
+    assert get_hatched_cells(ds_mean, 'meltRate') is None
 
 
 def test_the_runs_set_the_y_range_not_the_ensemble():
