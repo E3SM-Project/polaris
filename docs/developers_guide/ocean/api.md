@@ -731,6 +731,7 @@
    sampling_analysis.relative_l2_error
    sampling_analysis.relative_max_difference
    sampling_analysis.select_period
+   start_time.check_start_time
 ```
 
 ### realistic_global.restart

@@ -1348,7 +1348,9 @@ lasts four days and the restart run three, with a history frame every day.
 The task reads the `[realistic_global_forward]` options and the
 `moc_num_bins` option of `[analysis_output]`, including the per-mesh ones for
 `e3sm-qu240`.  The periods, run durations and sampling intervals are fixed by
-the task, since the restart has to fall midway through a period.
+the task, since the restart has to fall midway through a period.  The task
+also requires the default `start_time`, `0001-01-01_00:00:00`, since the
+names of its time-mean files assume it.
 
 ### cores
 
@@ -1404,7 +1406,9 @@ Every step is an `rk4` `cached_forward` run on `e3sm-qu240`, with that mesh's
 ### config options
 
 The task reads the `[realistic_global_forward]` options, including the
-per-mesh ones for `e3sm-qu240` and those of the `rk4` variant, and its own:
+per-mesh ones for `e3sm-qu240` and those of the `rk4` variant, and its own.
+Like `analysis_output/restart`, it requires the default `start_time`.  Its
+own options are:
 
 ```cfg
 # Options for the convergence of time means with their sampling interval

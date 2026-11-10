@@ -133,6 +133,16 @@ def test_analysis_restart_task_rejects_mpas_ocean():
         step.setup()
 
 
+def test_analysis_restart_task_rejects_another_start_time():
+    """The time-mean file names assume the runs start on 0001-01-01"""
+    task = _restart_task()
+    task.config.set(
+        'realistic_global_forward', 'start_time', '0001-02-01_00:00:00'
+    )
+    with pytest.raises(ValueError, match='needs start_time'):
+        task.steps['full_run'].dynamic_model_config(at_setup=True)
+
+
 def _dataset(values, time=0.0):
     return xr.Dataset(
         dict(

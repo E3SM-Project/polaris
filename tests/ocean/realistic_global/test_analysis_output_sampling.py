@@ -132,6 +132,16 @@ def test_sampling_task_rejects_mpas_ocean():
         step.setup()
 
 
+def test_sampling_task_rejects_another_start_time():
+    """The time-mean file names assume the runs start on 0001-01-01"""
+    task = _sampling_task()
+    task.config.set(
+        'realistic_global_forward', 'start_time', '0001-02-01_00:00:00'
+    )
+    with pytest.raises(ValueError, match='needs start_time'):
+        task.steps['reference'].dynamic_model_config(at_setup=True)
+
+
 def test_fit_order_recovers_first_order():
     intervals = np.array([1.0, 3.0, 7.0, 15.0])
     assert fit_order(intervals, 2.0e-4 * intervals) == pytest.approx(1.0)

@@ -7,6 +7,9 @@ from polaris.mpas.time import get_time_interval_string
 from polaris.tasks.ocean.realistic_global.analysis_output.sampling_analysis import (  # noqa: E501
     SamplingAnalysis,
 )
+from polaris.tasks.ocean.realistic_global.analysis_output.start_time import (
+    check_start_time,
+)
 from polaris.tasks.ocean.realistic_global.forward import (
     Forward,
     ForwardStage,
@@ -35,9 +38,8 @@ RUN_DURATION = f'{NUM_PERIODS * PERIOD_DAYS:04d}_00:00:00'
 #: doubling the last.  The reference run samples every time step.
 SAMPLING_STEPS = [2, 4, 8, 16]
 
-#: The date the run starts on, from ``start_time`` in
-#: ``[realistic_global_forward]``, which the names of the time-mean files
-#: count from
+#: The day of January the run starts on, that of ``START_TIME``, which the
+#: names of the time-mean files count from
 START_DAY = 1
 
 
@@ -228,6 +230,7 @@ class SampledForward(Forward):
             at run time.
         """
         config = self.config
+        check_start_time(config, task_name='sampling_convergence')
         if self.write_snapshots:
             assert self.sampling_steps is not None
             dt = ForwardStage.from_config(config).time_step_seconds(

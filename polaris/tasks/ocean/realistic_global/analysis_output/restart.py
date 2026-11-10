@@ -5,6 +5,9 @@ from polaris.config import PolarisConfigParser
 from polaris.tasks.ocean.realistic_global.analysis_output.restart_validate import (  # noqa: E501
     AnalysisRestartValidate,
 )
+from polaris.tasks.ocean.realistic_global.analysis_output.start_time import (
+    check_start_time,
+)
 from polaris.tasks.ocean.realistic_global.forward import InitialCondition
 from polaris.tasks.ocean.realistic_global.mesh_configs import (
     add_realistic_global_mesh_config,
@@ -39,9 +42,8 @@ MOC_SAMPLING_INTERVAL = '3perPeriod'
 #: restart falls on a sample
 STATS_SAMPLING_INTERVAL = '6hour'
 
-#: The date the run starts on, from ``start_time`` in
-#: ``[realistic_global_forward]``, which the names of the time-mean files
-#: count from
+#: The day of January the run starts on, that of ``START_TIME``, which the
+#: names of the time-mean files count from
 START_DAY = 1
 
 
@@ -252,6 +254,7 @@ class AnalysisRestartStep(RestartStep):
             Whether this is being run during setup of the step, as opposed to
             at run time.
         """
+        check_start_time(self.config, task_name='restart')
         super().dynamic_model_config(at_setup=at_setup)
         self.add_yaml_file(
             PACKAGE,
