@@ -24,6 +24,7 @@ from polaris.tasks.e3sm.analysis.misomip.plots import (
     get_color_range,
     get_map_mask,
     get_range_mask,
+    scale_with_units,
 )
 from polaris.tasks.e3sm.analysis.misomip.publish import MisomipPublish
 from polaris.tasks.e3sm.analysis.misomip.runs import (
@@ -119,7 +120,7 @@ class SeriesComparison(ProductStep):
                 for name, scale, line_label in variables:
                     if name not in ds:
                         continue
-                    values = scale * ds[name]
+                    values = scale_with_units(ds[name], scale, ylabel)
                     ds_data[f'run{index}_{name}'] = values.rename(
                         {'Time': f'run{index}_Time'}
                     )
@@ -157,7 +158,10 @@ class SeriesComparison(ProductStep):
             means.append(xr.open_dataset(f'run{index}_{TIME_MEAN_FILENAME}'))
             floating.append(ds_init.landIceFloatingFraction > 0.0)
         for gallery, name, title, scale, units, cmap, where in MAPS:
-            fields = [scale * ds_mean[name] for ds_mean in means]
+            fields = [
+                scale_with_units(ds_mean[name], scale, units)
+                for ds_mean in means
+            ]
             on_cells = ['nCells' in field.dims for field in fields]
             shown = [
                 get_map_mask(ds_mean, where) if cells else None
