@@ -330,13 +330,29 @@ The `ekman` test compares the modeled Ekman boundary layer with a wind-forced
 The analysis figure shows both velocity profiles and their model-minus-
 analytic differences.
 
-The modeled and analytic solutions for MPAS-Ocean with the default settings
-are:
+The time-averaged Omega profile and analytic solution for the default
+20-day run are shown below, alongside their differences:
 
 ```{image} images/single_column_velocity_ekman.png
 :align: center
-:width: 200 px
+:width: 800 px
 ```
+
+Analysis logs the relative L2 error of the velocity vector over the top
+third of the column, weighted by each layer's overlap with that depth
+range:
+
+$$
+E = \left[
+\frac{\sum_k w_k \left((\overline{u}_k-u_{E,k})^2
+                     +(\overline{v}_k-v_{E,k})^2\right)}
+     {\sum_k w_k \left(u_{E,k}^2+v_{E,k}^2\right)}
+\right]^{1/2}.
+$$
+
+Here, bars denote time averages, the subscript $E$ denotes the analytic
+spiral, and $w_k$ is the overlapping layer thickness. This is a diagnostic,
+not a pass/fail threshold; the velocity-reconstruction check is removed.
 
 ### mesh
 
@@ -395,12 +411,11 @@ conservation.
 
 ### config options
 
-
-[single_column_ekman]
-
 The viscosity and steady averaging window are configured with:
 
 ```cfg
+[single_column_ekman]
+
 # Constant vertical eddy diffusivity
 vertical_viscosity = 1.e-3
 

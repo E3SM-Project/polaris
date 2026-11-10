@@ -986,6 +986,7 @@
 
    ekman.Ekman
    ekman.analysis.Analysis
+   ekman.analysis.Analysis.setup
    ekman.analysis.Analysis.run
 
    forward.Forward

@@ -109,6 +109,15 @@ The {py:class}`polaris.tasks.ocean.single_column.ekman.Ekman` task averages
 the final three inertial periods before evaluating the original steady spiral; see
 {ref}`ocean-single-column-ekman`.
 
+The {py:class}`polaris.tasks.ocean.single_column.ekman.analysis.Analysis`
+step reports a layer-overlap-weighted relative L2 error over the top third
+of the column and writes `velocity_comparison_steady.png`, with velocity
+profiles and model-minus-analytic differences. It uses model-written
+geometric interfaces when available and the shared vertical-coordinate
+helper to reconstruct them otherwise. Omega history output includes
+`GeomZMid` and `GeomZInterface`; reconstruction uses Omega's vertical
+coordinate file or MPAS-Ocean's initial-condition file.
+
 ## ideal age
 
 The {py:class}`polaris.tasks.ocean.single_column.cvmix.IdealAge` test
