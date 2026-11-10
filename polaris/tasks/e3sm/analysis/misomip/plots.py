@@ -332,9 +332,11 @@ WET_MEAN_FIELDS = set(WET_MEAN_WEIGHTS) | {'uBoundaryLayer', 'vBoundaryLayer'}
 #: The legend entry and caption of the columns wet in only some months
 HATCH_LABEL = 'hatched: wet in only some months'
 
-#: The hatching of the columns wet in only some months
-HATCH = '////'
-HATCH_COLOR = '0.25'
+#: The hatching of the columns wet in only some months, dense and outlined
+#: so that a single small cell shows it
+HATCH = '//////'
+HATCH_COLOR = 'black'
+HATCH_LINEWIDTH = 0.8
 
 #: The sections plotted: the variable, the title, the color bar's label and
 #: the colormap
@@ -575,7 +577,7 @@ class RunPlots(ProductStep):
             vmin, vmax = get_color_range(self.config, name, field, counted)
             norm, ticks = get_color_norm(self.config, name, cmap)
             hatched = get_hatched_cells(ds_mean, name)
-            plot_section(
+            any_hatched = plot_section(
                 ds_transect,
                 field,
                 plot,
@@ -593,7 +595,7 @@ class RunPlots(ProductStep):
             ds_data = ds_transect.copy()
             ds_data[name] = ds_mean[name]
             caption = f'{title} at {where}'
-            if hatched is not None:
+            if any_hatched:
                 ds_data['partlyWetColumn'] = ds_mean.partlyWetColumn
                 caption = f'{caption}; {HATCH_LABEL}'
             write_netcdf(ds_data, data)
@@ -995,6 +997,11 @@ def plot_section(
 
     hatched : xarray.DataArray, optional
         The cells whose columns are hatched
+
+    Returns
+    -------
+    any_hatched : bool
+        Whether the section crosses any of the hatched cells
     """
     ds_plot = ds_transect.copy()
     ds_plot['dNode'] = ds_transect.dNode + start
@@ -1017,11 +1024,13 @@ def plot_section(
         fig.colorbar(
             mesh, ax=ax, extend='both', shrink=0.7, label=units, ticks=ticks
         )
-        if hatched is not None:
-            _hatch_columns(ax, ds_plot, hatched)
+        any_hatched = hatched is not None and _hatch_columns(
+            ax, ds_plot, hatched
+        )
         ax.set_xlabel(distance_label)
         ax.set_title(title)
         fig.savefig(out_filename, bbox_inches='tight', pad_inches=0.2)
+    return any_hatched
 
 
 def _hatch_cells(ax, ds_mesh, hatched):
@@ -1040,7 +1049,7 @@ def _hatch_cells(ax, ds_mesh, hatched):
             polygons,
             facecolor='none',
             edgecolor=HATCH_COLOR,
-            linewidth=0.0,
+            linewidth=HATCH_LINEWIDTH,
             hatch=HATCH,
         )
     )
@@ -1048,27 +1057,36 @@ def _hatch_cells(ax, ds_mesh, hatched):
 
 
 def _hatch_columns(ax, ds_transect, hatched):
-    """Hatch the columns of a section's cells, with a legend entry"""
+    """Hatch the columns of a section's cells, with a legend entry, and
+    return whether there were any"""
     cells = ds_transect.horizCellIndices.values
-    nodes = ds_transect.horizTriangleNodeIndices.values
+    # segment i runs from node i to node i + 1
     distance = 1e-3 * ds_transect.dNode.values
     flags = hatched.values
-    for segment in np.flatnonzero((cells >= 0) & flags[np.maximum(cells, 0)]):
+    segments = np.flatnonzero((cells >= 0) & flags[np.maximum(cells, 0)])
+    for segment in segments:
         ax.axvspan(
-            distance[nodes[segment, 0]],
-            distance[nodes[segment, 1]],
+            distance[segment],
+            distance[segment + 1],
             facecolor='none',
             edgecolor=HATCH_COLOR,
             linewidth=0.0,
             hatch=HATCH,
         )
+    if len(segments) == 0:
+        return False
     _add_hatch_legend(ax)
+    return True
 
 
 def _add_hatch_legend(ax):
     """Add the legend entry of the hatched columns"""
     handle = Patch(
-        facecolor='none', edgecolor=HATCH_COLOR, hatch=HATCH, label=HATCH_LABEL
+        facecolor='none',
+        edgecolor=HATCH_COLOR,
+        linewidth=HATCH_LINEWIDTH,
+        hatch=HATCH,
+        label=HATCH_LABEL,
     )
     ax.legend(handles=[handle], loc='lower right', fontsize='small')
 
