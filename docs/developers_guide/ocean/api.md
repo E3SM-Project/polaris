@@ -757,6 +757,7 @@
 
    restart_step.RestartStep
    restart_step.RestartStep.setup
+   restart_step.RestartStep.get_stage
    restart_step.RestartStep.dynamic_model_config
    restart_step.RestartStep.runtime_setup
 
@@ -780,6 +781,8 @@
 
    forward.Forward
    forward.Forward.setup
+   forward.Forward.get_stage
+   forward.Forward.get_stats_filename
    forward.Forward.compute_cell_count
    forward.Forward.dynamic_model_config
 

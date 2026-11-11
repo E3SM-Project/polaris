@@ -3,6 +3,7 @@ from typing import List, Optional
 
 import numpy as np
 
+from polaris.mpas.time import duration_to_seconds
 from polaris.ocean.model import OceanModelStep
 from polaris.tasks.ocean.realistic_global.forward.initial_condition import (
     InitialCondition,
@@ -176,6 +177,10 @@ class Forward(OceanModelStep):
         Omega writes each stage's restart into a directory of its own, so the
         files declared for Omega are the ones in those directories; see
         :py:meth:`ForwardStage.restart_files`.
+
+        The global-statistics file is declared as an output too, so that a
+        step reading it, such as ``global_stats``, can be run alongside this
+        one; see :py:meth:`get_stats_filename`.
         """
         self.init_condition.add_input_files(self)
         stage = self.stage
@@ -186,7 +191,49 @@ class Forward(OceanModelStep):
                 self.add_input_file(filename=restart_in)
             if restart_out is not None:
                 self.add_output_file(filename=restart_out)
+        stats_filename = self.get_stats_filename()
+        if stats_filename is not None:
+            self.add_output_file(filename=stats_filename)
         super().setup()
+
+    def get_stage(self) -> ForwardStage:
+        """
+        The stage this step runs.
+
+        This is ``stage`` if the step was given one, and otherwise a stage
+        built from the ``[realistic_global_forward]`` config section, rebuilt
+        on each call so that a user's config changes after setup still take
+        effect.  Subclasses that adjust the stage override this.
+
+        Returns
+        -------
+        ForwardStage
+            The run settings for this step.
+        """
+        if self.stage is not None:
+            return self.stage
+        return ForwardStage.from_config(self.config)
+
+    def get_stats_filename(self) -> Optional[str]:
+        """
+        The global-statistics file this run writes, relative to the step's
+        work directory.
+
+        A run shorter than its ``stats_interval`` is not counted as writing
+        one: Omega writes no statistics before the first interval has passed,
+        and MPAS-Ocean writes only the record at startup.
+
+        Returns
+        -------
+        str or None
+            The filename, or ``None`` if the run is shorter than its
+            ``stats_interval``.
+        """
+        stage = self.get_stage()
+        stats_seconds = duration_to_seconds(stage.stats_interval)
+        if stats_seconds > duration_to_seconds(stage.run_duration):
+            return None
+        return stage.stats_filename(self.config.get('ocean', 'model'))
 
     def compute_cell_count(self):
         """
@@ -230,9 +277,7 @@ class Forward(OceanModelStep):
         model = config.get('ocean', 'model')
         min_res = self.init_condition.min_res
 
-        stage = self.stage
-        if stage is None:
-            stage = ForwardStage.from_config(config)
+        stage = self.get_stage()
 
         replacements = stage.model_replacements(
             model, min_res, at_setup=at_setup

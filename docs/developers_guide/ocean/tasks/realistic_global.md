@@ -241,9 +241,13 @@ This step normalizes two differences between the models:
   asked for.  Both names come from
   {py:meth}`polaris.tasks.ocean.realistic_global.forward.stage.ForwardStage.stats_filename`,
   which lives on the stage because the period does; this step only asks it, in
-  `setup()`, once the model is known.  Anything else that reads a stage's
-  statistics asks the same question the same way, so the two cannot drift
-  apart.
+  `setup()`, once the model is known, on the stage from the forward step's
+  {py:meth}`polaris.tasks.ocean.realistic_global.forward.forward.Forward.get_stage`.
+  Anything else that reads a stage's statistics asks the same question the
+  same way, so the two cannot drift apart.  The forward step declares the
+  file as an output, which `polaris parallel` needs in order to run the two
+  steps together; a run shorter than its `stats_interval` declares none,
+  since Omega writes no statistics before the first interval.
 - **Standard deviation.** Omega writes a standard deviation
   (`<Field>_SpatialStdDev`), while MPAS-Ocean writes a true root-mean-square
   (`<field>Rms`), so for MPAS-Ocean the standard deviation is recovered as
