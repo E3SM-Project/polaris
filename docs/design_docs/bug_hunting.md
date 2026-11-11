@@ -319,6 +319,12 @@ triaged, and again before it is filed or batched, against:
    the agent judging whether one matches;
 3. issues closed in the last 90 days, where a match means the bug is back.
 
+The search is where the agent starts, not where it stops. A duplicate issue
+costs developers' time and their trust in the hunter, far more than a
+thorough search costs, so the agent looks further at its own discretion:
+it skims the candidates that need no ruling, searches with its own words
+for the symptom, and reads the open issues about the same code.
+
 A failure that matches is recorded with the existing finding, along with
 links to its issue and to any pull request that would close it. A finding
 that is one instance of an open general issue, such as one of many loops
